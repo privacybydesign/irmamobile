@@ -10,14 +10,14 @@ part 'notifications_state.dart';
 
 // BLoC containing the general notifications logic
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
-  List<Notification> notifications = [];
+  Iterable<Notification> notifications = [];
 
   final CredentialStatusNotificationCubit _credentialNotificationsCubit;
 
   NotificationsBloc({
     required IrmaRepository repo,
-  })  : _credentialNotificationsCubit = CredentialStatusNotificationCubit(repo: repo),
-        super(NotificationsInitial());
+  })  : _credentialNotificationsCubit = CredentialStatusNotificationCubit(repo: repo)..loadCache(),
+        super((NotificationsInitial()));
 
   @override
   Stream<NotificationsState> mapEventToState(NotificationsEvent event) async* {
@@ -33,17 +33,17 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   Stream<NotificationsState> _mapLoadNotificationsToState() async* {
     yield NotificationsLoading();
 
-    final newCredentialNotifications = _loadCredentialNotifications();
+    final newCredentialNotifications = _loadCredentialStatusNotifications();
 
     // TODO: Load notifications from other sources here
 
     yield NotificationsLoaded([
-      ...notifications,
       ...newCredentialNotifications,
+      ...notifications,
     ]);
   }
 
-  Iterable<Notification> _loadCredentialNotifications() {
+  Iterable<Notification> _loadCredentialStatusNotifications() {
     // Load the credential notifications in the cubit
     _credentialNotificationsCubit.loadCredentialStatusNotifications();
 

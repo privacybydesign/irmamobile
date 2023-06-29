@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -19,6 +21,13 @@ class CredentialStatusNotificationCubit extends Cubit<CredentialStatusNotificati
   // Used to cache which credential status notifications already have been processed
   // The key of the map is the credential hash code and the value of the map is a list of the notification types that have been processed
   Map<int, List<CredentialStatusNotificationType>> credentialStatusNotifications = {};
+
+  Future<void> loadCache() async {
+    final serializedCredentialStatusNotifications =
+        await _repo.preferences.getSerializedCredentialStatusNotifications().first;
+
+    credentialStatusNotifications = _credentialStatusNotificationsFromJson(serializedCredentialStatusNotifications);
+  }
 
   void loadCredentialStatusNotifications() {
     // Credential notifications
@@ -64,7 +73,54 @@ class CredentialStatusNotificationCubit extends Cubit<CredentialStatusNotificati
     final Iterable<Notification> newNotifications = newCredentialStatusNotifications.map<Notification>(
         (credStatusNotification) => Notification.fromCredentialStatusNotification(credStatusNotification));
 
+    // Add the new notifications to the cache
+    _writeCacheToPreferences();
+
     emit(CredentialStatusNotificationsLoaded(newNotifications));
+  }
+
+  String _credentialStatusNotificationsToJson() {
+    // Map the map to a map that can be serialized to JSON
+    // The keys are turned into a string and the enums are mapped to their index
+    final Map<String, List<int>> mappedCredentialStatusNotifications = credentialStatusNotifications.map(
+      (key, credentialStatusType) => MapEntry(
+        key.toString(),
+        credentialStatusType.map((e) => e.index).toList(),
+      ),
+    );
+
+    // Encode the map to JSON
+    final serializedCredentialStatusNotifications = jsonEncode(mappedCredentialStatusNotifications);
+
+    return serializedCredentialStatusNotifications;
+  }
+
+  Map<int, List<CredentialStatusNotificationType>> _credentialStatusNotificationsFromJson(
+      String serializedCredentialStatusNotifications) {
+    credentialStatusNotifications = {};
+
+    if (serializedCredentialStatusNotifications != '') {
+      final Map<String, dynamic> decodedCredentialStatusNotification =
+          jsonDecode(serializedCredentialStatusNotifications);
+
+      credentialStatusNotifications = decodedCredentialStatusNotification.map(
+        (key, value) => MapEntry(
+          int.parse(key),
+          (value as List)
+              .map(
+                (index) => CredentialStatusNotificationType.values[index],
+              )
+              .toList(),
+        ),
+      );
+    }
+
+    return credentialStatusNotifications;
+  }
+
+  void _writeCacheToPreferences() async {
+    final String cacheJson = _credentialStatusNotificationsToJson();
+    await _repo.preferences.setSerializedCredentialStatusNotifications(cacheJson);
   }
 
   void _updateCredentialStatusNotificationsCache(int credentialHashCode, CredentialStatusNotificationType type) {
@@ -77,7 +133,5 @@ class CredentialStatusNotificationCubit extends Cubit<CredentialStatusNotificati
     credentialStatusNotifications[credentialHashCode]!.add(type);
   }
 
-  void clear() {
-    emit(CredentialStatusNotificationInitial());
-  }
+  void clear() => emit(CredentialStatusNotificationInitial());
 }

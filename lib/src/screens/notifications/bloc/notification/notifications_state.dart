@@ -16,3 +16,7 @@ class NotificationsLoaded extends NotificationsState {
 
   const NotificationsLoaded(this.notifications);
 }
+
+class NotificationsRestored extends NotificationsLoaded {
+  const NotificationsRestored(super.notifications);
+}
