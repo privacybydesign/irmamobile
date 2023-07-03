@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'credential_status_notification.dart';
@@ -6,13 +7,14 @@ part 'notification.g.dart';
 
 @JsonSerializable()
 class Notification {
+  final UniqueKey key;
   final String title;
   final String message;
 
-  const Notification({
+  Notification({
     required this.title,
     required this.message,
-  });
+  }) : key = UniqueKey();
 
   static Notification fromCredentialStatusNotification(CredentialStatusNotification credStatusNotification) {
     // TODO: Make this dynamic

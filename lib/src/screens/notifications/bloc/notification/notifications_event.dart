@@ -10,3 +10,9 @@ abstract class NotificationsEvent extends Equatable {
 class LoadCachedNotifications extends NotificationsEvent {}
 
 class LoadNewNotifications extends NotificationsEvent {}
+
+class DeleteNotification extends NotificationsEvent {
+  final UniqueKey notificationKey;
+
+  const DeleteNotification(this.notificationKey);
+}

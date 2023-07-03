@@ -29,6 +29,56 @@ void main() {
     await repo.close();
   });
 
+  test('delete-notification', () async {
+    // Issue a revocable credential
+    await issueCredential(
+      repo,
+      mockBridge,
+      43,
+      [
+        {
+          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+        }
+      ],
+      revoked: true,
+    );
+
+    // Create bloc
+    final bloc = NotificationsBloc(
+      repo: repo,
+    );
+    expect(bloc.state, isA<NotificationsInitial>());
+
+    // Start loading old notifications
+    bloc.add(LoadCachedNotifications());
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    //
+
+    // Notifications are done loading
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    // Start loading new notifications
+    bloc.add(LoadNewNotifications());
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+
+    // Notifications are done loading
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    // Loaded state should have one notification
+    final notificationsLoadedState = bloc.state as NotificationsLoaded;
+    final notifications = notificationsLoadedState.notifications;
+    expect(notifications.length, 1);
+
+    // Delete the first (and only) notification
+    final firstNotificationKey = notifications.first.key;
+    bloc.add(DeleteNotification(firstNotificationKey));
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    expect(bloc.notifications.length, 0);
+  });
+
   test('load-notifications-from-cache', () async {
     // Issue a revocable credential
     await issueCredential(

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../data/irma_repository.dart';
 import '../../models/notification.dart';
@@ -14,7 +15,7 @@ part 'notifications_state.dart';
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   final IrmaRepository _repo;
 
-  Iterable<Notification> notifications = [];
+  List<Notification> notifications = [];
 
   final CredentialStatusNotificationCubit _credentialNotificationsCubit;
 
@@ -32,9 +33,17 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       yield* _mapLoadCachedNotificationsToState();
     } else if (event is LoadNewNotifications) {
       yield* _mapLoadNewNotificationsToState();
+    } else if (event is DeleteNotification) {
+      yield* _mapDeleteNotificationToState(event);
     } else {
       throw UnimplementedError();
     }
+  }
+
+  Stream<NotificationsState> _mapDeleteNotificationToState(NotificationsEvent event) async* {
+    yield NotificationsLoading();
+    notifications.removeWhere((notification) => notification.key == (event as DeleteNotification).notificationKey);
+    yield NotificationsLoaded(notifications);
   }
 
   Stream<NotificationsState> _mapLoadCachedNotificationsToState() async* {
