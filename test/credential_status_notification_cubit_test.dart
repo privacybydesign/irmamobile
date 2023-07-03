@@ -4,6 +4,7 @@ import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/screens/notifications/bloc/credential_status_notification/credential_status_notification_cubit.dart';
+import 'package:irmamobile/src/screens/notifications/models/credential_status_notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/helpers.dart';
@@ -27,7 +28,7 @@ void main() {
     await repo.close();
   });
 
-  test('load-notifications', () async {
+  test('load-empty-notifications', () async {
     // issue a revoked credential
 
     await issueCredential(
@@ -53,7 +54,7 @@ void main() {
 
     // Loaded state should have one notification
     expect(cubit.state, isA<CredentialStatusNotificationsLoaded>());
-    expect(cubit.credentialStatusNotifications.length, 1);
+    expect(cubit.credentialStatusNotifications.length, 0);
   });
 
   test('load-empty-cache', () async {
@@ -86,6 +87,6 @@ void main() {
 
     //  Expect one credential status notification in the cubit
     expect(cubit.credentialStatusNotifications.length, 1);
-    expect(cubit.credentialStatusNotifications[0], '818626713');
+    expect(cubit.credentialStatusNotifications[818626713], [CredentialStatusNotificationType.revoked]);
   });
 }
