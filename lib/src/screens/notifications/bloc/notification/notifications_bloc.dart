@@ -43,6 +43,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     final serializedNotifications = await _repo.preferences.getSerializedNotifications().first;
     final oldNotifications = _notificationsFromJson(serializedNotifications);
 
+    notifications = oldNotifications;
+
     yield NotificationsLoaded(oldNotifications);
   }
 

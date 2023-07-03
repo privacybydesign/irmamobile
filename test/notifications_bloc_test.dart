@@ -86,5 +86,17 @@ void main() {
     final notificationsLoadedState2 = bloc2.state as NotificationsLoaded;
     final notifications2 = notificationsLoadedState2.notifications;
     expect(notifications2.length, 1);
+
+    // Now load new notifications
+    bloc2.add(LoadNewNotifications());
+    expect(await bloc2.stream.first, isA<NotificationsLoading>());
+
+    // Notifications are done loading
+    expect(await bloc2.stream.first, isA<NotificationsLoaded>());
+
+    // Expect no new notifications to be there
+    final notificationsLoadedState3 = bloc2.state as NotificationsLoaded;
+    final notifications3 = notificationsLoadedState3.notifications;
+    expect(notifications3.length, 1);
   });
 }
