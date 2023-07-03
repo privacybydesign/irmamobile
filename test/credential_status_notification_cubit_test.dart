@@ -2,8 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/screens/notifications/bloc/credential_status_notification/credential_status_notification_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'helpers/helpers.dart';
 
 void main() {
   late IrmaRepository repo;
@@ -24,6 +27,34 @@ void main() {
     await repo.close();
   });
 
+  test('load-notifications', () async {
+    // issue a revoked credential
+
+    await issueCredential(
+      repo,
+      mockBridge,
+      43,
+      [
+        {
+          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+        }
+      ],
+      revoked: true,
+    );
+
+    // Create bloc
+    final cubit = CredentialStatusNotificationCubit(
+      repo: repo,
+    );
+    expect(cubit.state, isA<CredentialStatusNotificationInitial>());
+
+    cubit.loadCredentialStatusNotifications();
+
+    // Loaded state should have one notification
+    expect(cubit.state, isA<CredentialStatusNotificationsLoaded>());
+    expect(cubit.credentialStatusNotifications.length, 1);
+  });
 
   test('load-empty-cache', () async {
     // Create bloc
@@ -50,10 +81,11 @@ void main() {
     );
     expect(cubit.state, isA<CredentialStatusNotificationInitial>());
 
-    // Load from empty cache
+    // Load from filled cache
     await cubit.loadCache();
 
     //  Expect one credential status notification in the cubit
     expect(cubit.credentialStatusNotifications.length, 1);
+    expect(cubit.credentialStatusNotifications[0], '818626713');
   });
 }

@@ -1,14 +1,17 @@
+import 'package:json_annotation/json_annotation.dart';
+
 import 'credential_status_notification.dart';
 
+part 'notification.g.dart';
+
+@JsonSerializable()
 class Notification {
   final String title;
   final String message;
-  final Function()? action;
 
   const Notification({
     required this.title,
     required this.message,
-    this.action,
   });
 
   static Notification fromCredentialStatusNotification(CredentialStatusNotification credStatusNotification) {
@@ -16,7 +19,10 @@ class Notification {
     return Notification(
       title: 'Credential revoked',
       message: 'The credential ${credStatusNotification.credentialHash} has been revoked',
-      action: () => throw UnimplementedError(),
     );
   }
+
+  factory Notification.fromJson(Map<String, dynamic> json) => _$NotificationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$NotificationToJson(this);
 }

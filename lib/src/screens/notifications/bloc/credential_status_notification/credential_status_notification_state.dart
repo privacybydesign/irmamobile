@@ -13,5 +13,4 @@ class CredentialStatusNotificationsLoaded extends CredentialStatusNotificationSt
   const CredentialStatusNotificationsLoaded(this.credentialStatusNotifications);
 
   final Iterable<Notification> credentialStatusNotifications;
-
 }

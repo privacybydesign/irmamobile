@@ -34,6 +34,7 @@ class IrmaPreferences {
           _lastSchemeUpdateKey,
           defaultValue: 0,
         ),
+        _serializedNotifications = preferences.getString(_serializedNotificationsKey, defaultValue: ''),
         _serializedCredentialStatusNotifications =
             preferences.getString(_credentialStatusNotificationsKey, defaultValue: '') {
     // Remove unused IRMA -> Yivi name change notification key
@@ -130,4 +131,11 @@ class IrmaPreferences {
   Stream<String> getSerializedCredentialStatusNotifications() => _serializedCredentialStatusNotifications;
   Future<bool> setSerializedCredentialStatusNotifications(String value) =>
       _serializedCredentialStatusNotifications.setValue(value);
+
+  // Used to store all notifications
+  static const String _serializedNotificationsKey = 'preference.notifications';
+  final Preference<String> _serializedNotifications;
+
+  Stream<String> getSerializedNotifications() => _serializedNotifications;
+  Future<bool> setSerializedNotifications(String value) => _serializedNotifications.setValue(value);
 }

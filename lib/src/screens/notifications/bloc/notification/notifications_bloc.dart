@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -10,37 +12,81 @@ part 'notifications_state.dart';
 
 // BLoC containing the general notifications logic
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
+  final IrmaRepository _repo;
+
   Iterable<Notification> notifications = [];
 
   final CredentialStatusNotificationCubit _credentialNotificationsCubit;
 
   NotificationsBloc({
     required IrmaRepository repo,
-  })  : _credentialNotificationsCubit = CredentialStatusNotificationCubit(repo: repo)..loadCache(),
+  })  : _repo = repo,
+        _credentialNotificationsCubit = CredentialStatusNotificationCubit(repo: repo)..loadCache(),
         super((NotificationsInitial()));
 
   @override
   Stream<NotificationsState> mapEventToState(NotificationsEvent event) async* {
     print('NotificationsBloc - mapEventToState event: $event');
 
-    if (event is LoadNotifications) {
-      yield* _mapLoadNotificationsToState();
+    if (event is LoadCachedNotifications) {
+      yield* _mapLoadCachedNotificationsToState();
+    } else if (event is LoadNewNotifications) {
+      yield* _mapLoadNewNotificationsToState();
     } else {
       throw UnimplementedError();
     }
   }
 
-  Stream<NotificationsState> _mapLoadNotificationsToState() async* {
+  Stream<NotificationsState> _mapLoadCachedNotificationsToState() async* {
+    yield NotificationsLoading();
+
+    final serializedNotifications = await _repo.preferences.getSerializedNotifications().first;
+    final oldNotifications = _notificationsFromJson(serializedNotifications);
+
+    yield NotificationsLoaded(oldNotifications);
+  }
+
+  String _notificationsToJson(List<Notification> notifications) {
+    // Map all notifications to json
+    final mappedNotifications = notifications.map((notification) => notification.toJson()).toList();
+    final mappedNotificationsJson = jsonEncode(mappedNotifications);
+
+    return mappedNotificationsJson;
+  }
+
+  List<Notification> _notificationsFromJson(String serializedNotifications) {
+    List<Notification> notifications = [];
+
+    if (serializedNotifications != '') {
+      final jsonDecodedNotifications = jsonDecode(serializedNotifications);
+
+      notifications = jsonDecodedNotifications
+          .map<Notification>(
+            (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
+          )
+          .toList();
+    }
+
+    return notifications;
+  }
+
+  Stream<NotificationsState> _mapLoadNewNotificationsToState() async* {
     yield NotificationsLoading();
 
     final newCredentialNotifications = _loadCredentialStatusNotifications();
 
     // TODO: Load notifications from other sources here
 
-    yield NotificationsLoaded([
+    final updatedNotifications = [
       ...newCredentialNotifications,
       ...notifications,
-    ]);
+    ];
+
+    // Write the notifications to the prefs
+    final serializedNotifications = _notificationsToJson(updatedNotifications);
+    await _repo.preferences.setSerializedNotifications(serializedNotifications);
+
+    yield NotificationsLoaded(updatedNotifications);
   }
 
   Iterable<Notification> _loadCredentialStatusNotifications() {

@@ -29,7 +29,7 @@ void main() {
     await repo.close();
   });
 
-  test('load-notifications', () async {
+  test('load-notifications-from-cache', () async {
     // Issue a revocable credential
     await issueCredential(
       repo,
@@ -50,8 +50,16 @@ void main() {
     );
     expect(bloc.state, isA<NotificationsInitial>());
 
-    // Start loading notifications
-    bloc.add(LoadNotifications());
+    // Start loading old notifications
+    bloc.add(LoadCachedNotifications());
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    //
+
+    // Notifications are done loading
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    // Start loading new notifications
+    bloc.add(LoadNewNotifications());
     expect(await bloc.stream.first, isA<NotificationsLoading>());
 
     // Notifications are done loading
@@ -61,8 +69,22 @@ void main() {
     final notificationsLoadedState = bloc.state as NotificationsLoaded;
     final notifications = notificationsLoadedState.notifications;
     expect(notifications.length, 1);
-    
 
+    // Now create a new bloc
+    final bloc2 = NotificationsBloc(
+      repo: repo,
+    );
 
+    // Start loading old notifications
+    bloc2.add(LoadCachedNotifications());
+    expect(await bloc2.stream.first, isA<NotificationsLoading>());
+
+    // Notifications are done loading
+    expect(await bloc2.stream.first, isA<NotificationsLoaded>());
+
+    // Expect one notification to be there
+    final notificationsLoadedState2 = bloc2.state as NotificationsLoaded;
+    final notifications2 = notificationsLoadedState2.notifications;
+    expect(notifications2.length, 1);
   });
 }
