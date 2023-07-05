@@ -11,8 +11,8 @@ class LoadCachedNotifications extends NotificationsEvent {}
 
 class LoadNewNotifications extends NotificationsEvent {}
 
-class DeleteNotification extends NotificationsEvent {
-  final UniqueKey notificationKey;
+class SoftDeleteNotification extends NotificationsEvent {
+  final String notificationId;
 
-  const DeleteNotification(this.notificationKey);
+  const SoftDeleteNotification(this.notificationId);
 }

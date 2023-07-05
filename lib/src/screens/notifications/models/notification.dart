@@ -1,30 +1,27 @@
-import 'package:flutter/foundation.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/material.dart';
 
+import '../../../models/translated_value.dart';
 import 'credential_status_notification.dart';
 
-part 'notification.g.dart';
+abstract class NotificationAction {}
 
-@JsonSerializable()
-class Notification {
-  final UniqueKey key;
-  final String title;
-  final String message;
+abstract class Notification {
+  String id = UniqueKey().toString();
+  bool softDeleted = false;
 
-  Notification({
-    required this.title,
-    required this.message,
-  }) : key = UniqueKey();
+  TranslatedValue get title;
+  TranslatedValue get message;
+  NotificationAction? get action;
 
-  static Notification fromCredentialStatusNotification(CredentialStatusNotification credStatusNotification) {
-    // TODO: Make this dynamic
-    return Notification(
-      title: 'Credential revoked',
-      message: 'The credential ${credStatusNotification.credentialHash} has been revoked',
-    );
+  Map<String, dynamic> toJson();
+
+  Notification();
+
+  // Implement a factory method to create the correct notification type based on the JSON
+  factory Notification.fromJson(Map<String, dynamic> json) {
+    if (json['notificationType'] == 'credentialStatusNotification') {
+      return CredentialStatusNotification.fromJson(json);
+    }
+    throw Exception('Cannot create notification from this JSON');
   }
-
-  factory Notification.fromJson(Map<String, dynamic> json) => _$NotificationFromJson(json);
-
-  Map<String, dynamic> toJson() => _$NotificationToJson(this);
 }

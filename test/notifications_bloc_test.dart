@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
-import 'package:irmamobile/src/screens/notifications/bloc/notification/notifications_bloc.dart';
+import 'package:irmamobile/src/screens/notifications/bloc/notifications_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/helpers.dart';
@@ -50,14 +52,6 @@ void main() {
     );
     expect(bloc.state, isA<NotificationsInitial>());
 
-    // Start loading old notifications
-    bloc.add(LoadCachedNotifications());
-    expect(await bloc.stream.first, isA<NotificationsLoading>());
-    //
-
-    // Notifications are done loading
-    expect(await bloc.stream.first, isA<NotificationsLoaded>());
-
     // Start loading new notifications
     bloc.add(LoadNewNotifications());
     expect(await bloc.stream.first, isA<NotificationsLoading>());
@@ -71,15 +65,48 @@ void main() {
     expect(notifications.length, 1);
 
     // Delete the first (and only) notification
-    final firstNotificationKey = notifications.first.key;
-    bloc.add(DeleteNotification(firstNotificationKey));
+    final firstNotificationKey = notifications.first.id;
+    bloc.add(SoftDeleteNotification(firstNotificationKey));
     expect(await bloc.stream.first, isA<NotificationsLoading>());
     expect(await bloc.stream.first, isA<NotificationsLoaded>());
 
-    expect(bloc.notifications.length, 0);
+    expect(bloc.notifications.length, 1);
   });
 
-  test('load-notifications-from-cache', () async {
+  test('load-notifications', () async {
+    // Issue a revocable credential
+    await issueCredential(
+      repo,
+      mockBridge,
+      43,
+      [
+        {
+          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+        }
+      ],
+      revoked: true,
+    );
+
+    // Create bloc
+    final bloc = NotificationsBloc(
+      repo: repo,
+    );
+    expect(bloc.state, isA<NotificationsInitial>());
+
+    // Start loading new notifications
+    bloc.add(LoadNewNotifications());
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    // Loaded state should have one notification
+    final notificationsLoadedState = bloc.state as NotificationsLoaded;
+    final notifications = notificationsLoadedState.notifications;
+
+    expect(notifications.length, 1);
+  });
+
+  test('cache-notifications', () async {
     // Issue a revocable credential
     await issueCredential(
       repo,
