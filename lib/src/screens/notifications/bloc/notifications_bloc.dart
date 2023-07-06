@@ -42,10 +42,13 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       notifications[notificationIndex].softDeleted = true;
     }
 
-    // filter out soft deleted notifications
-    final filteredNotifications = notifications.where((notification) => !notification.softDeleted).toList();
-
+    final filteredNotifications = _filterNonSoftDeletedNotifications(notifications);
     yield NotificationsLoaded(filteredNotifications);
+  }
+
+  List<Notification> _filterNonSoftDeletedNotifications(Iterable<Notification> notifications) {
+    final filteredNotifications = notifications.where((notification) => !notification.softDeleted).toList();
+    return filteredNotifications;
   }
 
   Stream<NotificationsState> _mapLoadCachedNotificationsToState() async* {
@@ -54,8 +57,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     final serializedNotifications = await _repo.preferences.getSerializedNotifications().first;
     final loadedNotifications = _notificationsFromJson(serializedNotifications);
 
-    final filteredNotifications = loadedNotifications.where((notification) => !notification.softDeleted).toList();
-
+    final filteredNotifications = _filterNonSoftDeletedNotifications(loadedNotifications);
     yield NotificationsLoaded(filteredNotifications);
   }
 
@@ -106,6 +108,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
             CredentialStatusNotification(
               type: notificationType,
               credentialHash: cred.hashCode,
+              credentialTypeId: cred.credentialType.fullId,
             ),
           );
         }
@@ -117,9 +120,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     final serializedNotifications = _notificationsToJson(notifications);
     await _repo.preferences.setSerializedNotifications(serializedNotifications);
 
-    yield NotificationsLoaded([
-      ...notifications,
-    ]);
+    final filteredNotifications = _filterNonSoftDeletedNotifications(notifications);
+    yield NotificationsLoaded(filteredNotifications);
   }
 
   List<Notification> _notificationsFromJson(String serializedNotifications) {
@@ -127,7 +129,6 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
     if (serializedNotifications != '') {
       final jsonDecodedNotifications = jsonDecode(serializedNotifications);
-
       notifications = jsonDecodedNotifications
           .map<Notification>(
             (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
@@ -140,7 +141,6 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
   String _notificationsToJson(List<Notification> notifications) {
     final mappedNotifications = notifications.map((notification) => notification.toJson()).toList();
-
     return jsonEncode(mappedNotifications);
   }
 }

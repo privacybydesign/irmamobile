@@ -10,6 +10,7 @@ CredentialStatusNotification _$CredentialStatusNotificationFromJson(Map<String, 
     CredentialStatusNotification(
       credentialHash: json['credentialHash'] as int,
       type: $enumDecode(_$CredentialStatusNotificationTypeEnumMap, json['type']),
+      credentialTypeId: json['credentialTypeId'] as String,
     )
       ..id = json['id'] as String
       ..softDeleted = json['softDeleted'] as bool;
@@ -19,6 +20,7 @@ Map<String, dynamic> _$CredentialStatusNotificationToJson(CredentialStatusNotifi
       'softDeleted': instance.softDeleted,
       'credentialHash': instance.credentialHash,
       'type': _$CredentialStatusNotificationTypeEnumMap[instance.type]!,
+      'credentialTypeId': instance.credentialTypeId,
     };
 
 const _$CredentialStatusNotificationTypeEnumMap = {

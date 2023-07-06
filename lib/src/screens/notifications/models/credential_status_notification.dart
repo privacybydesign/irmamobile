@@ -1,6 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../models/translated_value.dart';
+import 'actions/credential_detail_navigation_action.dart';
+import 'actions/notification_action.dart';
 import 'notification.dart';
 
 part 'credential_status_notification.g.dart';
@@ -15,14 +17,18 @@ enum CredentialStatusNotificationType {
 class CredentialStatusNotification extends Notification {
   final int credentialHash;
   final CredentialStatusNotificationType type;
+  final String credentialTypeId;
 
   CredentialStatusNotification({
     required this.credentialHash,
     required this.type,
+    required this.credentialTypeId,
   });
 
   @override
-  NotificationAction get action => throw UnimplementedError();
+  NotificationAction get action => CredentialDetailNavigationAction(
+        credentialTypeId: credentialTypeId,
+      );
 
   @override
   TranslatedValue get message {

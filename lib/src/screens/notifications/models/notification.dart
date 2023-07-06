@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../models/translated_value.dart';
+import 'actions/notification_action.dart';
 import 'credential_status_notification.dart';
-
-abstract class NotificationAction {}
 
 abstract class Notification {
   String id = UniqueKey().toString();
