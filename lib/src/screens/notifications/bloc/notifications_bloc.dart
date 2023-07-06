@@ -4,8 +4,9 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../data/irma_repository.dart';
+import '../handlers/credential_status_notifications_handler.dart';
+import '../handlers/notification_handler.dart';
 import '../models/notification.dart';
-import '../util/notification_utils.dart';
 
 part 'notifications_event.dart';
 part 'notifications_state.dart';
@@ -13,6 +14,10 @@ part 'notifications_state.dart';
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   final IrmaRepository _repo;
   List<Notification> notifications = [];
+
+  final List<NotificationHandler> _notificationHandlers = [
+    CredentialStatusNotificationsHandler(),
+  ];
 
   NotificationsBloc({
     required IrmaRepository repo,
@@ -73,7 +78,10 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   Stream<NotificationsState> _mapLoadNewNotificationsToState() async* {
     yield NotificationsLoading();
 
-    notifications = loadCredentialStatusNotifications(_repo.credentials.values, notifications);
+    for (final notificationHandler in _notificationHandlers) {
+      notifications = await notificationHandler.loadNotifications(_repo, notifications);
+    }
+
     await _updateCacheNotifications(notifications);
 
     final filteredNotifications = _filterNonSoftDeletedNotifications(notifications);
