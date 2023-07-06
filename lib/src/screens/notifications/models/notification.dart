@@ -1,17 +1,16 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-import '../../../models/translated_value.dart';
 import 'actions/notification_action.dart';
 import 'credential_status_notification.dart';
+import 'notification_translated_content.dart';
 
 abstract class Notification {
   String id = UniqueKey().toString();
   bool softDeleted = false;
 
-  TranslatedValue get title;
-  TranslatedValue get message;
-  NotificationAction? get action;
+  late NotificationTranslatedContent content;
 
+  NotificationAction? get action;
   Map<String, dynamic> toJson();
 
   Notification();

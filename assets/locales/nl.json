@@ -592,5 +592,21 @@
     "title": "Ken je ons nog?",
     "header": "IRMA heeft een nieuwe naam en een nieuw uiterlijk gekregen: Yivi",
     "explanation": "Onder de motorkap is alles hetzelfde gebleven, je kunt gewoon inloggen met je oude PIN-code."
+  },
+  "nofitifcations": {
+    "credential_status": {
+      "revoked": {
+        "title": "Gegevens ingetrokken",
+        "message": "Je gegevens {credentialName} is ingetrokken"
+      },
+      "expired": {
+        "title": "Gegevens verlopen",
+        "message": "Je gegevens {credentialName} zijn verlopen"
+      },
+      "expiring_soon": {
+        "title": "Gevens verlopen bijna",
+        "message": "Je gevens {credentialName} verlopen bijna."
+      }
+    }
   }
 }

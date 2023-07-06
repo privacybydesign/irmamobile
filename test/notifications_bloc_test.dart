@@ -5,6 +5,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/screens/notifications/bloc/notifications_bloc.dart';
 import 'package:irmamobile/src/screens/notifications/models/actions/credential_detail_navigation_action.dart';
+import 'package:irmamobile/src/screens/notifications/models/notification_translated_content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/helpers.dart';
@@ -63,7 +64,15 @@ void main() {
     final notifications = notificationsLoadedState.notifications;
     expect(notifications.length, 1);
 
-    // Delete the first (and only) notification
+    // Check the translated content
+    final notification = notifications.first;
+
+    expect(notification.content, isA<InternalTranslatedContent>());
+    final translatedContent = notification.content as InternalTranslatedContent;
+    expect(translatedContent.titleTranslationKey, 'notification.credentialStatus.revoked.title');
+    expect(translatedContent.messageTranslationKey, 'notification.credentialStatus.revoked.message');
+
+    // Now delete the first (and only) notification
     final firstNotificationKey = notifications.first.id;
     bloc.add(SoftDeleteNotification(firstNotificationKey));
     expect(await bloc.stream.first, isA<NotificationsLoading>());
@@ -189,26 +198,16 @@ void main() {
     final notificationsLoadedState3 = bloc2.state as NotificationsLoaded;
     final notifications3 = notificationsLoadedState3.notifications;
     expect(notifications3.length, 1);
-  });
 
-  test('translations', () async {
-    await issueCredential(
-      repo,
-      mockBridge,
-      43,
-      [
-        {
-          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
-          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-        }
-      ],
-      revoked: true,
-    );
+    // Check that the content is still correct after loading from cache
+    final notification = notifications.first;
+    expect(notification.content, isA<InternalTranslatedContent>());
+    final translatedContent = notification.content as InternalTranslatedContent;
+    expect(translatedContent.titleTranslationKey, 'notification.credentialStatus.revoked.title');
+    expect(translatedContent.messageTranslationKey, 'notification.credentialStatus.revoked.message');
 
-    // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
-    expect(bloc.state, isA<NotificationsInitial>());
+    expect(notification.action, isA<CredentialDetailNavigationAction>());
+    final credentialDetailNavigationAction = notification.action as CredentialDetailNavigationAction;
+    expect(credentialDetailNavigationAction.credentialTypeId, 'irma-demo.IRMATube.member');
   });
 }

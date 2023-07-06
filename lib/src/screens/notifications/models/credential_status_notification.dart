@@ -1,9 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../../models/translated_value.dart';
 import 'actions/credential_detail_navigation_action.dart';
 import 'actions/notification_action.dart';
 import 'notification.dart';
+import 'notification_translated_content.dart';
 
 part 'credential_status_notification.g.dart';
 
@@ -23,33 +23,36 @@ class CredentialStatusNotification extends Notification {
     required this.credentialHash,
     required this.type,
     required this.credentialTypeId,
-  });
+  }) : super() {
+    content = _getTranslatedNotificationContent(type);
+  }
+
+  InternalTranslatedContent _getTranslatedNotificationContent(CredentialStatusNotificationType type) {
+    String typeTranslationKey;
+    switch (type) {
+      case CredentialStatusNotificationType.revoked:
+        typeTranslationKey = 'revoked';
+        break;
+      case CredentialStatusNotificationType.expired:
+        typeTranslationKey = 'expired';
+        break;
+      case CredentialStatusNotificationType.expiringSoon:
+        typeTranslationKey = 'expiring_soon';
+        break;
+      default:
+        throw Exception('Unknown notification type');
+    }
+
+    return InternalTranslatedContent(
+      titleTranslationKey: 'notification.credentialStatus.$typeTranslationKey.title',
+      messageTranslationKey: 'notification.credentialStatus.$typeTranslationKey.message',
+    );
+  }
 
   @override
   NotificationAction get action => CredentialDetailNavigationAction(
         credentialTypeId: credentialTypeId,
       );
-
-  @override
-  TranslatedValue get message {
-    // TODO: Use the locales from the app
-    const translationValue = TranslatedValue({
-      'en': 'Credential is revoked',
-      'nl': 'Credential is ingetrokken',
-    });
-
-    return translationValue;
-  }
-
-  @override
-  TranslatedValue get title {
-    const translationValue = TranslatedValue({
-      'en': 'Credential revoked',
-      'nl': 'Credential ingetrokken',
-    });
-
-    return translationValue;
-  }
 
   @override
   Map<String, dynamic> toJson() {
