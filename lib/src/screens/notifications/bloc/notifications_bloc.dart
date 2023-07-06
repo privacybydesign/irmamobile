@@ -27,9 +27,20 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       yield* _mapLoadNewNotificationsToState();
     } else if (event is SoftDeleteNotification) {
       yield* _mapSoftDeleteNotificationToState(event.notificationId);
+    } else if (event is HardDeleteNotification) {
+      yield* _mapHardDeleteNotificationToState(event.notificationId);
     } else {
       throw UnimplementedError();
     }
+  }
+
+  Stream<NotificationsState> _mapHardDeleteNotificationToState(String notificationId) async* {
+    yield NotificationsLoading();
+
+    notifications.removeWhere((notification) => notification.id == notificationId);
+
+    final filteredNotifications = _filterNonSoftDeletedNotifications(notifications);
+    yield NotificationsLoaded(filteredNotifications);
   }
 
   Stream<NotificationsState> _mapSoftDeleteNotificationToState(String notificationId) async* {

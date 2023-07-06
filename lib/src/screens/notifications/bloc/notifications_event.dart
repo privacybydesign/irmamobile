@@ -16,3 +16,9 @@ class SoftDeleteNotification extends NotificationsEvent {
 
   const SoftDeleteNotification(this.notificationId);
 }
+
+class HardDeleteNotification extends NotificationsEvent {
+  final String notificationId;
+
+  const HardDeleteNotification(this.notificationId);
+}

@@ -70,6 +70,13 @@ void main() {
     expect(await bloc.stream.first, isA<NotificationsLoaded>());
 
     expect(bloc.notifications.length, 1);
+
+    // Now hard delete the notification
+    bloc.add(HardDeleteNotification(firstNotificationKey));
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    expect(bloc.notifications.length, 0);
   });
 
   test('load-notifications', () async {
