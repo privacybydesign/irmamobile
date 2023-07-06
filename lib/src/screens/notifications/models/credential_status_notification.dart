@@ -44,8 +44,8 @@ class CredentialStatusNotification extends Notification {
     }
 
     return InternalTranslatedContent(
-      titleTranslationKey: 'notification.credentialStatus.$typeTranslationKey.title',
-      messageTranslationKey: 'notification.credentialStatus.$typeTranslationKey.message',
+      titleTranslationKey: 'notifications.credential_status.$typeTranslationKey.title',
+      messageTranslationKey: 'notifications.credential_status.$typeTranslationKey.message',
     );
   }
 

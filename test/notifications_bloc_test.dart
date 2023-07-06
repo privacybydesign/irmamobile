@@ -31,7 +31,7 @@ void main() {
     await repo.close();
   });
 
-  test('delete-notification', () async {
+  test('initalize-notifications', () async {
     // Issue a revocable credential
     await issueCredential(
       repo,
@@ -52,72 +52,13 @@ void main() {
     );
     expect(bloc.state, isA<NotificationsInitial>());
 
-    // Start loading new notifications
-    bloc.add(LoadNewNotifications());
-    expect(await bloc.stream.first, isA<NotificationsLoading>());
-
-    // Notifications are done loading
-    expect(await bloc.stream.first, isA<NotificationsLoaded>());
-
-    // Loaded state should have one notification
-    final notificationsLoadedState = bloc.state as NotificationsLoaded;
-    final notifications = notificationsLoadedState.notifications;
-    expect(notifications.length, 1);
-
-    // Check the translated content
-    final notification = notifications.first;
-
-    expect(notification.content, isA<InternalTranslatedContent>());
-    final translatedContent = notification.content as InternalTranslatedContent;
-    expect(translatedContent.titleTranslationKey, 'notification.credentialStatus.revoked.title');
-    expect(translatedContent.messageTranslationKey, 'notification.credentialStatus.revoked.message');
-
-    // Now delete the first (and only) notification
-    final firstNotificationKey = notifications.first.id;
-    bloc.add(SoftDeleteNotification(firstNotificationKey));
-    expect(await bloc.stream.first, isA<NotificationsLoading>());
-    expect(await bloc.stream.first, isA<NotificationsLoaded>());
-
-    expect(bloc.notifications.length, 1);
-
-    // Now hard delete the notification
-    bloc.add(HardDeleteNotification(firstNotificationKey));
-    expect(await bloc.stream.first, isA<NotificationsLoading>());
-    expect(await bloc.stream.first, isA<NotificationsLoaded>());
-
-    expect(bloc.notifications.length, 0);
-  });
-
-  test('load-notifications', () async {
-    // Issue a revocable credential
-    await issueCredential(
-      repo,
-      mockBridge,
-      43,
-      [
-        {
-          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
-          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-        }
-      ],
-      revoked: true,
-    );
-
-    // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
-    expect(bloc.state, isA<NotificationsInitial>());
-
-    // Start loading new notifications
-    bloc.add(LoadNewNotifications());
+    bloc.add(Initialize());
     expect(await bloc.stream.first, isA<NotificationsLoading>());
     expect(await bloc.stream.first, isA<NotificationsLoaded>());
 
     // Loaded state should have one notification
     final notificationsLoadedState = bloc.state as NotificationsLoaded;
     final notifications = notificationsLoadedState.notifications;
-
     expect(notifications.length, 1);
 
     // The first notification should have an action of type CredentialDetailNavigationAction
@@ -127,87 +68,11 @@ void main() {
     // And the action should have the correct credential type ID
     final credentialDetailNavigationAction = firstNotification.action as CredentialDetailNavigationAction;
     expect(credentialDetailNavigationAction.credentialTypeId, 'irma-demo.IRMATube.member');
-  });
 
-  test('cache-notifications', () async {
-    // Issue a revocable credential
-    await issueCredential(
-      repo,
-      mockBridge,
-      43,
-      [
-        {
-          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
-          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-        }
-      ],
-      revoked: true,
-    );
+    // The credential have the right content
+    final notificationContent = firstNotification.content as InternalTranslatedContent;
 
-    // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
-    expect(bloc.state, isA<NotificationsInitial>());
-
-    // Start loading old notifications
-    bloc.add(LoadCachedNotifications());
-    expect(await bloc.stream.first, isA<NotificationsLoading>());
-    //
-
-    // Notifications are done loading
-    expect(await bloc.stream.first, isA<NotificationsLoaded>());
-
-    // Start loading new notifications
-    bloc.add(LoadNewNotifications());
-    expect(await bloc.stream.first, isA<NotificationsLoading>());
-
-    // Notifications are done loading
-    expect(await bloc.stream.first, isA<NotificationsLoaded>());
-
-    // Loaded state should have one notification
-    final notificationsLoadedState = bloc.state as NotificationsLoaded;
-    final notifications = notificationsLoadedState.notifications;
-    expect(notifications.length, 1);
-
-    // Now create a new bloc
-    final bloc2 = NotificationsBloc(
-      repo: repo,
-    );
-
-    // Start loading old notifications
-    bloc2.add(LoadCachedNotifications());
-    expect(await bloc2.stream.first, isA<NotificationsLoading>());
-
-    // Notifications are done loading
-    expect(await bloc2.stream.first, isA<NotificationsLoaded>());
-
-    // Expect one notification to be there
-    final notificationsLoadedState2 = bloc2.state as NotificationsLoaded;
-    final notifications2 = notificationsLoadedState2.notifications;
-    expect(notifications2.length, 1);
-
-    // Now load new notifications
-    bloc2.add(LoadNewNotifications());
-    expect(await bloc2.stream.first, isA<NotificationsLoading>());
-
-    // Notifications are done loading
-    expect(await bloc2.stream.first, isA<NotificationsLoaded>());
-
-    // Expect no new notifications to be there
-    final notificationsLoadedState3 = bloc2.state as NotificationsLoaded;
-    final notifications3 = notificationsLoadedState3.notifications;
-    expect(notifications3.length, 1);
-
-    // Check that the content is still correct after loading from cache
-    final notification = notifications.first;
-    expect(notification.content, isA<InternalTranslatedContent>());
-    final translatedContent = notification.content as InternalTranslatedContent;
-    expect(translatedContent.titleTranslationKey, 'notification.credentialStatus.revoked.title');
-    expect(translatedContent.messageTranslationKey, 'notification.credentialStatus.revoked.message');
-
-    expect(notification.action, isA<CredentialDetailNavigationAction>());
-    final credentialDetailNavigationAction = notification.action as CredentialDetailNavigationAction;
-    expect(credentialDetailNavigationAction.credentialTypeId, 'irma-demo.IRMATube.member');
+    expect(notificationContent.titleTranslationKey, 'notifications.credential_status.revoked.title');
+    expect(notificationContent.messageTranslationKey, 'notifications.credential_status.revoked.message');
   });
 }

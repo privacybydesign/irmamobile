@@ -61,4 +61,21 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
 
     return updatedNotifications;
   }
+
+  @override
+  List<Notification> cleanUp(IrmaRepository repo, List<Notification> notifications) {
+    final List<Notification> updatedNotifications = notifications;
+
+    // Check if there are any notifications that are  soft deleted and have a credential hash that is not in the repo
+    // If so, remove them
+    updatedNotifications.removeWhere((notification) {
+      if (notification is CredentialStatusNotification && notification.softDeleted) {
+        return !repo.credentials.containsKey(notification.credentialHash);
+      }
+
+      return false;
+    });
+
+    return updatedNotifications;
+  }
 }

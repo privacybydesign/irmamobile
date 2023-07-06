@@ -7,18 +7,11 @@ abstract class NotificationsEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadCachedNotifications extends NotificationsEvent {}
-
-class LoadNewNotifications extends NotificationsEvent {}
+// Initialize event; reads from cache, cleans up the notifications and loads new ones
+class Initialize extends NotificationsEvent {}
 
 class SoftDeleteNotification extends NotificationsEvent {
   final String notificationId;
 
   const SoftDeleteNotification(this.notificationId);
-}
-
-class HardDeleteNotification extends NotificationsEvent {
-  final String notificationId;
-
-  const HardDeleteNotification(this.notificationId);
 }
