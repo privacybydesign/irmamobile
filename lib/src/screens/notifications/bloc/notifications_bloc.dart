@@ -55,7 +55,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     }
 
     // Update the cached notifications
-    _updateCacheNotifications(initialNotification);
+    _updateCachedNotifications(initialNotification);
 
     _notifications = initialNotification;
     yield NotificationsInitialized(initialNotification);
@@ -68,7 +68,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     if (notificationIndex != -1) {
       _notifications[notificationIndex].softDeleted = true;
     }
-    _updateCacheNotifications(_notifications);
+    _updateCachedNotifications(_notifications);
 
     final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
     yield NotificationsLoaded(filteredNotifications);
@@ -79,7 +79,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     return filteredNotifications;
   }
 
-  Future<void> _updateCacheNotifications(List<Notification> updatedNotifications) async {
+  Future<void> _updateCachedNotifications(List<Notification> updatedNotifications) async {
     final serializedNotifications = _notificationsToJson(updatedNotifications);
     await _repo.preferences.setSerializedNotifications(serializedNotifications);
   }
