@@ -66,13 +66,17 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   Stream<NotificationsState> _mapSoftDeleteNotificationToState(String notificationId) async* {
     yield NotificationsLoading();
 
-    final notificationIndex = _notifications.indexWhere((notification) => notification.id == notificationId);
-    if (notificationIndex != -1) {
-      _notifications[notificationIndex].softDeleted = true;
-    }
-    _updateCachedNotifications(_notifications);
+    final List<Notification> updatedNotifications = _notifications;
 
+    final notificationIndex = updatedNotifications.indexWhere((notification) => notification.id == notificationId);
+    if (notificationIndex != -1) {
+      updatedNotifications[notificationIndex].softDeleted = true;
+    }
+    _updateCachedNotifications(updatedNotifications);
+
+    _notifications = updatedNotifications;
     final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+
     yield NotificationsLoaded(filteredNotifications);
   }
 
