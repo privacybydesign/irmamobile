@@ -38,27 +38,27 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   Stream<NotificationsState> _mapInitToState() async* {
     yield NotificationsLoading();
 
-    List<Notification> initialNotification = [];
+    List<Notification> initialNotifications = [];
 
     // Load the cached notifications
     final serializedNotifications = await _repo.preferences.getSerializedNotifications().first;
-    initialNotification = _notificationsFromJson(serializedNotifications);
+    initialNotifications = _notificationsFromJson(serializedNotifications);
 
     // Run the clean up method of each notification handler
     for (final notificationHandler in _notificationHandlers) {
-      initialNotification = notificationHandler.cleanUp(_repo, initialNotification);
+      initialNotifications = notificationHandler.cleanUp(_repo, initialNotifications);
     }
 
-    //Load the new notifications
+    // Load the new notifications
     for (final notificationHandler in _notificationHandlers) {
-      initialNotification = await notificationHandler.loadNotifications(_repo, initialNotification);
+      initialNotifications = await notificationHandler.loadNotifications(_repo, initialNotifications);
     }
 
     // Update the cached notifications
-    _updateCachedNotifications(initialNotification);
+    _updateCachedNotifications(initialNotifications);
 
-    _notifications = initialNotification;
-    yield NotificationsInitialized(initialNotification);
+    _notifications = initialNotifications;
+    yield NotificationsInitialized(initialNotifications);
   }
 
   Stream<NotificationsState> _mapSoftDeleteNotificationToState(String notificationId) async* {
