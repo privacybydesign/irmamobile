@@ -604,8 +604,8 @@
         "message": "Je gegevens {credentialName} zijn verlopen"
       },
       "expiring_soon": {
-        "title": "Gevens verlopen bijna",
-        "message": "Je gevens {credentialName} verlopen bijna."
+        "title": "Gegevens verlopen bijna",
+        "message": "Je gegevens {credentialName} verlopen bijna."
       }
     }
   }
