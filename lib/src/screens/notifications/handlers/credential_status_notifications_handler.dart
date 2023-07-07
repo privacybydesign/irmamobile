@@ -31,7 +31,7 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
         final CredentialStatusNotification? existingNotification =
             updatedNotifications.firstWhereOrNull((notification) {
           if (notification is CredentialStatusNotification) {
-            return notification.credentialHash == cred.hashCode;
+            return notification.credentialHash == cred.hash;
           }
 
           return false;
@@ -51,7 +51,7 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
           updatedNotifications.add(
             CredentialStatusNotification(
               type: notificationType,
-              credentialHash: cred.hashCode,
+              credentialHash: cred.hash,
               credentialTypeId: cred.credentialType.fullId,
             ),
           );

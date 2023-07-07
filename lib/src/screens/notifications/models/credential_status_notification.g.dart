@@ -8,7 +8,7 @@ part of 'credential_status_notification.dart';
 
 CredentialStatusNotification _$CredentialStatusNotificationFromJson(Map<String, dynamic> json) =>
     CredentialStatusNotification(
-      credentialHash: json['credentialHash'] as int,
+      credentialHash: json['credentialHash'] as String,
       type: $enumDecode(_$CredentialStatusNotificationTypeEnumMap, json['type']),
       credentialTypeId: json['credentialTypeId'] as String,
     )

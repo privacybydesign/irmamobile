@@ -15,7 +15,7 @@ enum CredentialStatusNotificationType {
 
 @JsonSerializable()
 class CredentialStatusNotification extends Notification {
-  final int credentialHash;
+  final String credentialHash;
   final CredentialStatusNotificationType type;
   final String credentialTypeId;
 
