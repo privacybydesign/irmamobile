@@ -23,7 +23,7 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
         notificationType = CredentialStatusNotificationType.expiringSoon;
       }
 
-      // If a notification should be shown for this credential..
+      // If a notification should be shown for this credential
       if (notificationType != null) {
         bool shouldAddNewNotification = true;
 
