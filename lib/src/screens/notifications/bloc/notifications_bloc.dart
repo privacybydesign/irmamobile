@@ -26,6 +26,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
   @override
   Stream<NotificationsState> mapEventToState(NotificationsEvent event) async* {
+    // The Initialize event should be called right after the bloc is created
+    // It reads from cache, cleans up the notifications and loads new ones
     if (event is Initialize) {
       yield* _mapInitToState();
     } else if (event is SoftDeleteNotification) {
