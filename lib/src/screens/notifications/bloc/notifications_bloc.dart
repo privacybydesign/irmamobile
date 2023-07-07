@@ -13,7 +13,7 @@ part 'notifications_state.dart';
 
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   final IrmaRepository _repo;
-  List<Notification> notifications = [];
+  List<Notification> _notifications = [];
 
   final List<NotificationHandler> _notificationHandlers = [
     CredentialStatusNotificationsHandler(),
@@ -57,18 +57,20 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     // Update the cached notifications
     _updateCacheNotifications(initialNotification);
 
+    _notifications = initialNotification;
     yield NotificationsInitialized(initialNotification);
   }
 
   Stream<NotificationsState> _mapSoftDeleteNotificationToState(String notificationId) async* {
     yield NotificationsLoading();
 
-    final notificationIndex = notifications.indexWhere((notification) => notification.id == notificationId);
+    final notificationIndex = _notifications.indexWhere((notification) => notification.id == notificationId);
     if (notificationIndex != -1) {
-      notifications[notificationIndex].softDeleted = true;
+      _notifications[notificationIndex].softDeleted = true;
     }
+    _updateCacheNotifications(_notifications);
 
-    final filteredNotifications = _filterNonSoftDeletedNotifications(notifications);
+    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
     yield NotificationsLoaded(filteredNotifications);
   }
 
