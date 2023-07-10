@@ -117,7 +117,9 @@ Future<void> issueCredentials(
     expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
   }
 
-  final acceptButtonFinder = find.byKey(declineOffer ? const Key('bottom_bar_secondary') : const Key('bottom_bar_primary'));
+  final acceptButtonFinder = find.byKey(
+    declineOffer ? const Key('bottom_bar_secondary') : const Key('bottom_bar_primary'),
+  );
   expect(acceptButtonFinder, findsOneWidget);
 
   await tester.tapAndSettle(acceptButtonFinder);
