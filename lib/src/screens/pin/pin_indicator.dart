@@ -75,7 +75,6 @@ class _PinIndicator extends StatelessWidget {
                   'pin_accessibility.digits_entered',
                   pinState.pin.length,
                 ),
-
       child: ExcludeSemantics(
         child: Row(
           mainAxisAlignment: isMaxPin5 ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
