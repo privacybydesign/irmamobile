@@ -63,44 +63,51 @@ class _PinIndicator extends StatelessWidget {
     final constraints = BoxConstraints.tightFor(width: scaledEdgeSize, height: scaledEdgeSize);
 
     final isMaxPin5 = maxPinSize == shortPinSize;
+    final joinedPin = pinState.pin.join();
 
-    return ExcludeSemantics(
-      excluding: !isPinVisible,
-      child: Semantics(
-        label: pinState.pin.join(),
-        child: ExcludeSemantics(
-          child: Row(
-            mainAxisAlignment: isMaxPin5 ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: List.generate(
-              isMaxPin5 ? shortPinSize : pinSize,
-              (i) => Stack(
-                alignment: Alignment.center,
-                children: [
-                  // SizedBox ensures that all the relevant
-                  // glyphs have a uniform size, that prevents realignment
-                  SizedBox(
-                    width: isMaxPin5 ? 14 : 9,
-                    height: isMaxPin5 ? 36 : 21,
-                    child: Text(
-                      '${i < pinSize ? pinState.pin.elementAt(i) : ''}',
-                      style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
-                    ),
+    return Semantics(
+      label: joinedPin.isEmpty
+          ? FlutterI18n.translate(context, 'pin_accessibility.empty_pin_input')
+          : isPinVisible
+              ? joinedPin
+              : FlutterI18n.plural(
+                  context,
+                  'pin_accessibility.digits_entered',
+                  pinState.pin.length,
+                ),
+
+      child: ExcludeSemantics(
+        child: Row(
+          mainAxisAlignment: isMaxPin5 ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: List.generate(
+            isMaxPin5 ? shortPinSize : pinSize,
+            (i) => Stack(
+              alignment: Alignment.center,
+              children: [
+                // SizedBox ensures that all the relevant
+                // glyphs have a uniform size, that prevents realignment
+                SizedBox(
+                  width: isMaxPin5 ? 14 : 9,
+                  height: isMaxPin5 ? 36 : 21,
+                  child: Text(
+                    '${i < pinSize ? pinState.pin.elementAt(i) : ''}',
+                    style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
                   ),
-                  if (i < pinSize)
-                    Container(
-                      constraints: constraints,
-                      decoration: circleFilledDecoration,
-                    ),
-                  if (isMaxPin5 && i >= pinSize)
-                    Container(
-                      constraints: constraints,
-                      decoration: circleOutlinedDecoration,
-                    ),
-                ],
-              ),
-              growable: false,
+                ),
+                if (i < pinSize)
+                  Container(
+                    constraints: constraints,
+                    decoration: circleFilledDecoration,
+                  ),
+                if (isMaxPin5 && i >= pinSize)
+                  Container(
+                    constraints: constraints,
+                    decoration: circleOutlinedDecoration,
+                  ),
+              ],
             ),
+            growable: false,
           ),
         ),
       ),

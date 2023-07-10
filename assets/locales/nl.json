@@ -441,7 +441,10 @@
   "pin_accessibility": {
     "show_pin": "Toon pincode",
     "hide_pin": "Verberg pincode",
-    "backspace": "Maak ongedaan"
+    "backspace": "Maak ongedaan",
+    "empty_pin_input" : "Geen pincode ingevoerd",
+    "digits_entered-1": "{digits} cijfer ingevoerd",
+    "digits_entered-2": "{digits} cijfers ingevoerd"
   },
   "pin_common": {
     "blocked_for": "Login is geblokkeerd voor",
