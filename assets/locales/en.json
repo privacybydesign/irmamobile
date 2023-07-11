@@ -441,7 +441,10 @@
   "pin_accessibility": {
     "show_pin": "Show PIN",
     "hide_pin": "Hide PIN",
-    "backspace": "Backspace"
+    "backspace": "Backspace",
+    "empty_pin_input" : "No pin code entered",
+    "digits_entered-1": "{digits} digit entered",
+    "digits_entered-2": "{digits} digits entered"
   },
   "pin_common": {
     "blocked_for": "Login is blocked for",
