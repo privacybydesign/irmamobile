@@ -117,12 +117,12 @@ Future<void> issueCredentials(
     expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
   }
 
-  final acceptButtonFinder = find.byKey(
+  final buttonFinder = find.byKey(
     declineOffer ? const Key('bottom_bar_secondary') : const Key('bottom_bar_primary'),
   );
-  expect(acceptButtonFinder, findsOneWidget);
+  expect(buttonFinder, findsOneWidget);
 
-  await tester.tapAndSettle(acceptButtonFinder);
+  await tester.tapAndSettle(buttonFinder);
 
   await tester.waitUntilDisappeared(issuancePageFinder);
 }
