@@ -600,15 +600,15 @@
     "credential_status": {
       "revoked": {
         "title": "Data revoked",
-        "message": "Your data {credentialName} has been revoked"
+        "message": "{issuerName} has revoked this data: {credentialName}"
       },
       "expired": {
         "title": "Data expired",
-        "message": "Your data {credentialName} has expired"
+        "message": "This data has expired: {credentialName}"
       },
       "expiring_soon": {
         "title": "Data expiring soon",
-        "message": "Your data {credentialName} is expiring soon"
+        "message": "This data is expiring soon: {credentialName}"
       }
     }
   }

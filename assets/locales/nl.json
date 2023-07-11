@@ -600,15 +600,15 @@
     "credential_status": {
       "revoked": {
         "title": "Gegevens ingetrokken",
-        "message": "Je gegevens {credentialName} is ingetrokken"
+        "message": "{issuerName} heeft deze gegevens ingetrokken: {credentialName}"
       },
       "expired": {
         "title": "Gegevens verlopen",
-        "message": "Je gegevens {credentialName} zijn verlopen"
+        "message": "Deze gegevens zijn verlopen: {credentialName}"
       },
       "expiring_soon": {
         "title": "Gegevens verlopen bijna",
-        "message": "Je gegevens {credentialName} verlopen bijna."
+        "message": "Deze gegevens verlopen bijna: {credentialName}"
       }
     }
   }
