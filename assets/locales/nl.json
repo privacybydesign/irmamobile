@@ -441,7 +441,10 @@
   "pin_accessibility": {
     "show_pin": "Toon pincode",
     "hide_pin": "Verberg pincode",
-    "backspace": "Maak ongedaan"
+    "backspace": "Maak ongedaan",
+    "empty_pin_input" : "Geen pincode ingevoerd",
+    "digits_entered-1": "{digits} cijfer ingevoerd",
+    "digits_entered-2": "{digits} cijfers ingevoerd"
   },
   "pin_common": {
     "blocked_for": "Login is geblokkeerd voor",
@@ -592,5 +595,21 @@
     "title": "Ken je ons nog?",
     "header": "IRMA heeft een nieuwe naam en een nieuw uiterlijk gekregen: Yivi",
     "explanation": "Onder de motorkap is alles hetzelfde gebleven, je kunt gewoon inloggen met je oude PIN-code."
+  },
+  "nofitifcations": {
+    "credential_status": {
+      "revoked": {
+        "title": "Gegevens ingetrokken",
+        "message": "{issuerName} heeft deze gegevens ingetrokken: {credentialName}"
+      },
+      "expired": {
+        "title": "Gegevens verlopen",
+        "message": "Deze gegevens zijn verlopen: {credentialName}"
+      },
+      "expiring_soon": {
+        "title": "Gegevens verlopen bijna",
+        "message": "Deze gegevens verlopen bijna: {credentialName}"
+      }
+    }
   }
 }

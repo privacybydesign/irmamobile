@@ -21,6 +21,7 @@ class _NumberPad extends StatelessWidget {
         SizedBox.fromSize(size: const Size.square(20)),
         _NumberPadKey(onEnterNumber, 0),
         Semantics(
+          button: true,
           child: _NumberPadIcon(icon: Icons.backspace_outlined, callback: () => onEnterNumber(-1)),
           label: FlutterI18n.translate(
             context,

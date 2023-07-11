@@ -24,7 +24,7 @@ dependencies:
   equatable: ^2.0.3
   email_validator: ^2.0.1
   url_launcher: ^6.0.10
-  json_annotation: ^4.0.1
+  json_annotation: ^4.8.0
   rxdart: ^0.27.2
   package_info: ^2.0.2
   collection: ^1.15.0
@@ -50,7 +50,7 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  json_serializable: ^5.0.2
+  json_serializable: ^6.6.1
   flutter_lints: ^1.0.4
   flutter_native_splash: ^1.2.1
   build_runner: ^2.1.2
