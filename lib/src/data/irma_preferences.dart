@@ -30,7 +30,13 @@ class IrmaPreferences {
             preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false),
         _preferredLanguageCode = preferences.getString(_preferredLanguageKey, defaultValue: ''),
         _showNameChangedNotification = preferences.getBool(_showNameChangedNotificationKey, defaultValue: true),
-        _lastSchemeUpdate = preferences.getInt(_lastSchemeUpdateKey, defaultValue: 0) {
+        _lastSchemeUpdate = preferences.getInt(
+          _lastSchemeUpdateKey,
+          defaultValue: 0,
+        ),
+        _serializedNotifications = preferences.getString(_serializedNotificationsKey, defaultValue: ''),
+        _serializedCredentialStatusNotifications =
+            preferences.getString(_credentialStatusNotificationsKey, defaultValue: '') {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -117,4 +123,19 @@ class IrmaPreferences {
       Stream.value(DateTime.fromMillisecondsSinceEpoch((_lastSchemeUpdate.getValue() * 1000)));
   Future<bool> setLastSchemeUpdate(DateTime value) =>
       _lastSchemeUpdate.setValue((value.millisecondsSinceEpoch / 1000).round());
+
+  // Used to record which credential status notifications have been processed
+  static const String _credentialStatusNotificationsKey = 'preference.notifications.credential_status';
+  final Preference<String> _serializedCredentialStatusNotifications;
+
+  Stream<String> getSerializedCredentialStatusNotifications() => _serializedCredentialStatusNotifications;
+  Future<bool> setSerializedCredentialStatusNotifications(String value) =>
+      _serializedCredentialStatusNotifications.setValue(value);
+
+  // Used to store all notifications
+  static const String _serializedNotificationsKey = 'preference.notifications';
+  final Preference<String> _serializedNotifications;
+
+  Stream<String> getSerializedNotifications() => _serializedNotifications;
+  Future<bool> setSerializedNotifications(String value) => _serializedNotifications.setValue(value);
 }

@@ -595,5 +595,21 @@
     "title": "Do you remember us?",
     "header": "IRMA has a new name and a new look: Yivi",
     "explanation": "Everything remained the same under the hood, you can log in with your old PIN code."
+  },
+  "notifications": {
+    "credential_status": {
+      "revoked": {
+        "title": "Data revoked",
+        "message": "{issuerName} has revoked this data: {credentialName}"
+      },
+      "expired": {
+        "title": "Data expired",
+        "message": "This data has expired: {credentialName}"
+      },
+      "expiring_soon": {
+        "title": "Data expiring soon",
+        "message": "This data is expiring soon: {credentialName}"
+      }
+    }
   }
 }
