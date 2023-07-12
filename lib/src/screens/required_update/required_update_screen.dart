@@ -21,7 +21,7 @@ class RequiredUpdateScreen extends StatelessWidget {
         onPrimaryPressed: () {
           late String url;
           if (Platform.isAndroid) {
-            url = 'http://play.google.com/store/apps/details?id=org.irmacard.cardemu';
+            url = 'https://play.google.com/store/apps/details?id=org.irmacard.cardemu';
           } else if (Platform.isIOS) {
             url = 'https://apps.apple.com/app/id1294092994';
           } else {
