@@ -11,6 +11,7 @@ CredentialStatusNotification _$CredentialStatusNotificationFromJson(Map<String, 
       credentialHash: json['credentialHash'] as String,
       type: $enumDecode(_$CredentialStatusNotificationTypeEnumMap, json['type']),
       credentialTypeId: json['credentialTypeId'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
     )
       ..id = json['id'] as String
       ..softDeleted = json['softDeleted'] as bool
@@ -23,6 +24,7 @@ Map<String, dynamic> _$CredentialStatusNotificationToJson(CredentialStatusNotifi
       'credentialHash': instance.credentialHash,
       'type': _$CredentialStatusNotificationTypeEnumMap[instance.type]!,
       'credentialTypeId': instance.credentialTypeId,
+      'timestamp': instance.timestamp.toIso8601String(),
     };
 
 const _$CredentialStatusNotificationTypeEnumMap = {

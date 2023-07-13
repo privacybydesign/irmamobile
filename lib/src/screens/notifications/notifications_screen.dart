@@ -20,16 +20,19 @@ class NotificationsScreen extends StatelessWidget {
         credentialHash: '21',
         type: CredentialStatusNotificationType.expiringSoon,
         credentialTypeId: 'irma-demo.chipsoft.bsn',
+        timestamp: DateTime.now(),
       ),
       CredentialStatusNotification(
         credentialHash: '22',
         type: CredentialStatusNotificationType.revoked,
         credentialTypeId: 'irma-demo.chipsoft.bsn',
+        timestamp: DateTime.now(),
       ),
       CredentialStatusNotification(
         credentialHash: '23',
         type: CredentialStatusNotificationType.expired,
         credentialTypeId: 'irma-demo.chipsoft.bsn',
+        timestamp: DateTime.now(),
       ),
     ];
 

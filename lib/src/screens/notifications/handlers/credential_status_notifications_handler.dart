@@ -53,6 +53,7 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
               type: notificationType,
               credentialHash: cred.hash,
               credentialTypeId: cred.credentialType.fullId,
+              timestamp: DateTime.now(),
             ),
           );
         }

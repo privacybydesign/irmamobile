@@ -9,6 +9,7 @@ abstract class Notification {
   bool softDeleted = false;
 
   late NotificationTranslatedContent content;
+  late DateTime timestamp;
 
   NotificationAction? get action;
   Map<String, dynamic> toJson();
