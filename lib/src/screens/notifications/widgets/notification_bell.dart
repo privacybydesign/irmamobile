@@ -6,10 +6,12 @@ import 'notification_indicator.dart';
 
 class NotificationBell extends StatelessWidget {
   final Function() onTap;
+  final bool showIndicator;
 
   const NotificationBell({
     Key? key,
     required this.onTap,
+    this.showIndicator = false,
   }) : super(key: key);
 
   @override
@@ -26,11 +28,12 @@ class NotificationBell extends StatelessWidget {
             icon: Icons.notifications_outlined,
             onTap: onTap,
           ),
-          Positioned(
-            top: 5,
-            right: 5,
-            child: NotificationIndicator(),
-          )
+          if (showIndicator)
+            Positioned(
+              top: 5,
+              right: 5,
+              child: NotificationIndicator(),
+            )
         ],
       ),
     );

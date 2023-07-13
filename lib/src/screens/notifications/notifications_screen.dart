@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart' hide Notification;
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_dismissible.dart';
+import '../../widgets/loading_indicator.dart';
 import '../../widgets/translated_text.dart';
-import 'models/credential_status_notification.dart';
+import 'bloc/notifications_bloc.dart';
 import 'models/notification.dart';
 import 'widgets/notification_card.dart';
 
@@ -14,27 +16,6 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-
-    final List<Notification> notifications = [
-      CredentialStatusNotification(
-        credentialHash: '21',
-        type: CredentialStatusNotificationType.expiringSoon,
-        credentialTypeId: 'irma-demo.chipsoft.bsn',
-        timestamp: DateTime.now(),
-      ),
-      CredentialStatusNotification(
-        credentialHash: '22',
-        type: CredentialStatusNotificationType.revoked,
-        credentialTypeId: 'irma-demo.chipsoft.bsn',
-        timestamp: DateTime.now(),
-      ),
-      CredentialStatusNotification(
-        credentialHash: '23',
-        type: CredentialStatusNotificationType.expired,
-        credentialTypeId: 'irma-demo.chipsoft.bsn',
-        timestamp: DateTime.now(),
-      ),
-    ];
 
     void _onNotificationTap(Notification notification) {
       // TODO: Implement action handler
@@ -64,26 +45,42 @@ class NotificationsScreen extends StatelessWidget {
         titleTranslationKey: 'notifications.title',
       ),
       body: SafeArea(
-        child: notifications.isEmpty
-            ? _emptyListIndicator()
-            : ListView.builder(
-                padding: EdgeInsets.all(
-                  theme.defaultSpacing,
-                ),
-                itemCount: notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = notifications[index];
+        child: BlocBuilder<NotificationsBloc, NotificationsState>(
+          builder: (context, state) {
+            if (state is NotificationsLoading) {
+              return Center(
+                child: LoadingIndicator(),
+              );
+            } else if (state is NotificationsLoaded) {
+              final notifications = state.notifications;
 
-                  return IrmaDismissible(
-                    key: Key(notification.id),
-                    onDismissed: () => _onNotificationDismiss(notification),
-                    child: NotificationCard(
-                      notification: notification,
-                      onTap: () => _onNotificationTap(notification),
-                    ),
-                  );
-                },
-              ),
+              if (notifications.isEmpty) {
+                return _emptyListIndicator();
+              } else {
+                return ListView.builder(
+                  padding: EdgeInsets.all(
+                    theme.defaultSpacing,
+                  ),
+                  itemCount: state.notifications.length,
+                  itemBuilder: (context, index) {
+                    final notification = state.notifications[index];
+
+                    return IrmaDismissible(
+                      key: Key(notification.id),
+                      onDismissed: () => _onNotificationDismiss(notification),
+                      child: NotificationCard(
+                        notification: notification,
+                        onTap: () => _onNotificationTap(notification),
+                      ),
+                    );
+                  },
+                );
+              }
+            }
+
+            throw Exception('NotificationsScreen does not support this state: $state');
+          },
+        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
 import '../notifications/bloc/notifications_bloc.dart';
+import '../notifications/notifications_screen.dart';
 import '../notifications/widgets/notification_bell.dart';
 import '../scanner/util/open_scanner.dart';
 import 'home_tab.dart';
@@ -21,19 +22,19 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        create: (context) => NotificationsBloc(
+        create: (_) => NotificationsBloc(
           repo: IrmaRepositoryProvider.of(context),
         )..add(Initialize()),
-        child: ProvidedHomeScreen(),
+        child: _ProvidedHomeScreen(),
       );
 }
 
-class ProvidedHomeScreen extends StatefulWidget {
+class _ProvidedHomeScreen extends StatefulWidget {
   @override
-  State<ProvidedHomeScreen> createState() => _ProvidedHomeScreenState();
+  State<_ProvidedHomeScreen> createState() => _ProvidedHomeScreenState();
 }
 
-class _ProvidedHomeScreenState extends State<ProvidedHomeScreen> {
+class _ProvidedHomeScreenState extends State<_ProvidedHomeScreen> {
   IrmaNavBarTab selectedTab = IrmaNavBarTab.home;
 
   void _changeTab(IrmaNavBarTab tab) => setState(
@@ -51,6 +52,15 @@ class _ProvidedHomeScreenState extends State<ProvidedHomeScreen> {
       maybeOpenQrScanner(repo, navigator);
     });
   }
+
+  void _navToNotificationsScreen() => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: BlocProvider.of<NotificationsBloc>(context),
+            child: NotificationsScreen(),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +87,13 @@ class _ProvidedHomeScreenState extends State<ProvidedHomeScreen> {
                 selectedTab == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${selectedTab.name}',
             noLeading: true,
             actions: [
-              NotificationBell(
-                onTap: () => Navigator.of(context).pushNamed('/notifications'),
+              BlocBuilder<NotificationsBloc, NotificationsState>(
+                builder: (context, state) {
+                  return NotificationBell(
+                    showIndicator: state is NotificationsLoaded ? state.notifications.isNotEmpty : false,
+                    onTap: _navToNotificationsScreen,
+                  );
+                },
               )
             ],
           ),
