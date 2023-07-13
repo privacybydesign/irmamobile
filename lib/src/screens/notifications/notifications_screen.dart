@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Notification;
 
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_dismissible.dart';
 import '../../widgets/translated_text.dart';
 import 'models/credential_status_notification.dart';
 import 'models/notification.dart';
@@ -36,6 +37,10 @@ class NotificationsScreen extends StatelessWidget {
       // TODO: Implement action handler
     }
 
+    void _onNotificationDismiss(Notification notification) {
+      // TODO: Soft delete notification in the bloc
+    }
+
     Widget _emptyListIndicator() => Padding(
           padding: EdgeInsets.all(theme.defaultSpacing),
           child: Row(
@@ -66,9 +71,13 @@ class NotificationsScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final notification = notifications[index];
 
-                  return NotificationCard(
-                    notification: notification,
-                    onTap: () => _onNotificationTap(notification),
+                  return IrmaDismissible(
+                    key: Key(notification.id),
+                    onDismissed: () => _onNotificationDismiss(notification),
+                    child: NotificationCard(
+                      notification: notification,
+                      onTap: () => _onNotificationTap(notification),
+                    ),
                   );
                 },
               ),
