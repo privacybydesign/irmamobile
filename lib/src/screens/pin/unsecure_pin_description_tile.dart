@@ -25,7 +25,7 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
           Expanded(
             child: Text(
               FlutterI18n.translate(context, descriptionKey),
-              style: theme.textTheme.bodyText2,
+              style: theme.textTheme.bodyMedium,
             ),
           ),
         ],

@@ -4,6 +4,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Fixed
+- Voice over and accessibility tags are not correctly set on the PIN screen
+- Required update screen refers to iTunes Store instead of Apple App Store
+
+### Internal
+- Add integration test for declining the credential offer in an issuance session
+
+## [7.4.2] - 2023-06-22
+### Fixed
+- LoadingScreen StreamBuilder triggers multiple navigation actions
+## [7.4.1] - 2023-06-15
+### Added
+- Show custom error message when the server returns a response indicating that the user is not registered
+
+### Changed
+- Replace breaking hyphens in requestor URLs with non-breaking hyphens
+
+### Fixed
+- Cold starting the app with a universal link fails to start a session
+
+### Internal
+- Refactored the IrmaMobileBridgePlugin from Objective-C to Swift
+
+## [7.4.0] - 2023-05-25
+### Added
+- Show notification on startup that the app name has changed
+
+### Changed
+- Upgrade to Flutter 3
+- Bump irmago version to [0.12.5](https://github.com/privacybydesign/irmago/releases/tag/v0.12.5)
+- Pin the personal category to the top of credential store
+- Report warnings from irmago to Sentry
+
+### Fixed
+- QR scanner library is not FOSS ([#163](https://github.com/privacybydesign/irmamobile/issues/163))
+- Dutch translations link to English version of the privacy policy
+- Some newlines are preceded by whitespace
+- App screenshots are not placed in the right directory for FDroid
+- Arrow back screen shows a message about signing when doing issuance
+
+### Internal
+- Use 'flutter build ipa' in Fastlane to build iOS app
+- Bump fastlane version to 2.212.2
+
+## [7.3.1] - 2023-05-04 (in beta 2023-04-26)
+### Changed
+- Randomize which success graphic is shown
+- Set color of browser toolbar in custom tabs on Android to white
+- Clarify texts to better distinguish signing sessions from regular disclosure sessions
+
+### Fixed
+- Scheme update mechanism is not called at every app start-up
+- Anonymous app health information is being collected when error reporting is disabled
+- Text could overflow its UI container on the PIN screen
+- Options menu to delete data is not visible when data is expired or revoked
+- Unsafe irma.SessionError type cast causes panics
+- Exclude superfluous x86 library assets from Android app bundle
+
+### Internal
+- Bump native_device_orientation Flutter dependency to 1.1.4
+- Bump activesupport Ruby dependency to 6.1.7.3
+- Improved stability of entering PIN codes in integration tests
+
 ## [7.3.0] - 2023-04-11 (in beta 2023-04-05)
 ### Added
 - Setting to select app language
@@ -284,7 +348,10 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
-
+[7.4.2]: https://github.com/privacybydesign/irmamobile/compare/v7.4.1...v7.4.2
+[7.4.1]: https://github.com/privacybydesign/irmamobile/compare/v7.4.0...v7.4.1
+[7.4.0]: https://github.com/privacybydesign/irmamobile/compare/v7.3.1...v7.4.0
+[7.3.1]: https://github.com/privacybydesign/irmamobile/compare/v7.3.0...v7.3.1
 [7.3.0]: https://github.com/privacybydesign/irmamobile/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/privacybydesign/irmamobile/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/privacybydesign/irmamobile/compare/v7.0.1...v7.1.0

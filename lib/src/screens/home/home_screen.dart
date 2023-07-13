@@ -7,9 +7,11 @@ import '../../widgets/irma_repository_provider.dart';
 import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
+import '../scanner/util/open_scanner.dart';
 import 'home_tab.dart';
 import 'widgets/irma_nav_bar.dart';
 import 'widgets/irma_qr_scan_button.dart';
+import 'widgets/pending_pointer_listener.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -24,6 +26,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void _changeTab(IrmaNavBarTab tab) => setState(
         () => selectedTab = tab,
       );
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final repo = IrmaRepositoryProvider.of(context);
+      final navigator = Navigator.of(context);
+
+      maybeOpenQrScanner(repo, navigator);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,38 +56,40 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         return false;
       },
-      child: Scaffold(
-        backgroundColor: IrmaTheme.of(context).backgroundTertiary,
-        appBar: IrmaAppBar(
-          titleTranslationKey:
-              selectedTab == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${selectedTab.name}',
-          noLeading: true,
-        ),
-        body: SafeArea(
-          child: Builder(builder: (context) {
-            switch (selectedTab) {
-              case IrmaNavBarTab.data:
-                return DataTab();
-              case IrmaNavBarTab.activity:
-                return ActivityTab();
-              case IrmaNavBarTab.more:
-                return MoreTab(
-                  onChangeTab: _changeTab,
-                );
-              case IrmaNavBarTab.home:
-                return HomeTab(
-                  onChangeTab: _changeTab,
-                );
-            }
-          }),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: const IrmaQrScanButton(
-          key: Key('nav_button_scanner'),
-        ),
-        bottomNavigationBar: IrmaNavBar(
-          selectedTab: selectedTab,
-          onChangeTab: _changeTab,
+      child: PendingPointerListener(
+        child: Scaffold(
+          backgroundColor: IrmaTheme.of(context).backgroundTertiary,
+          appBar: IrmaAppBar(
+            titleTranslationKey:
+                selectedTab == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${selectedTab.name}',
+            noLeading: true,
+          ),
+          body: SafeArea(
+            child: Builder(builder: (context) {
+              switch (selectedTab) {
+                case IrmaNavBarTab.data:
+                  return DataTab();
+                case IrmaNavBarTab.activity:
+                  return ActivityTab();
+                case IrmaNavBarTab.more:
+                  return MoreTab(
+                    onChangeTab: _changeTab,
+                  );
+                case IrmaNavBarTab.home:
+                  return HomeTab(
+                    onChangeTab: _changeTab,
+                  );
+              }
+            }),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: const IrmaQrScanButton(
+            key: Key('nav_button_scanner'),
+          ),
+          bottomNavigationBar: IrmaNavBar(
+            selectedTab: selectedTab,
+            onChangeTab: _changeTab,
+          ),
         ),
       ),
     );

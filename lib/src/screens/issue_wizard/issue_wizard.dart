@@ -64,7 +64,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
 
   @override
   void initState() {
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
@@ -72,7 +72,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
   void dispose() {
     _sessionSubscription?.cancel();
     _repo.getIssueWizardActive().add(false);
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

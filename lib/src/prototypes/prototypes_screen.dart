@@ -4,6 +4,7 @@ import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
 import '../screens/error/no_internet_screen.dart';
 import '../screens/loading/loading_screen.dart';
+import '../screens/name_changed/name_changed_screen.dart';
 import '../screens/pin/yivi_pin_screen.dart';
 import '../screens/required_update/required_update_screen.dart';
 import '../screens/rooted_warning/rooted_warning_screen.dart';
@@ -130,11 +131,20 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            'Arrow back',
+            'Arrow back - Issuance',
+            const ArrowBack(type: ArrowBackType.issuance),
+          ),
+          _buildTile(
+            context,
+            'Arrow back - Signature',
             const ArrowBack(
-              success: true,
-              amountIssued: 1,
+              type: ArrowBackType.signature,
             ),
+          ),
+          _buildTile(
+            context,
+            'Arrow back - Disclosure',
+            const ArrowBack(type: ArrowBackType.disclosure),
           ),
           _buildTile(
             context,
@@ -192,11 +202,59 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            'Disclosure feedback - success',
+            'Disclosure feedback - disclosure notSatisfiable',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.notSatisfiable,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - signature notSatisfiable',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.notSatisfiable,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+              isSignatureSession: true,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - disclosure success',
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.success,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - disclosure canceled',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.canceled,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - signature success',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.success,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+              isSignatureSession: true,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - signature canceled',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.canceled,
               otherParty: 'successful party',
               onDismiss: Navigator.pop,
+              isSignatureSession: true,
             ),
           ),
           _buildTile(
@@ -233,6 +291,13 @@ class PrototypesScreen extends StatelessWidget {
             DisclosurePermissionIntroductionScreen(
               onEvent: (_) {},
               onDismiss: () {},
+            ),
+          ),
+          _buildTile(
+            context,
+            'Name changed screen',
+            NameChangedScreen(
+              onContinuePressed: () => Navigator.of(context).pop(),
             ),
           ),
         ],

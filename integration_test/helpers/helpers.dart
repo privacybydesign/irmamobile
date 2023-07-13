@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/app.dart';
-
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
@@ -68,6 +67,7 @@ Future<void> issueCredentials(
   Locale locale = const Locale('en', 'EN'),
   Map<String, String> revocationKeys = const {},
   bool continueOnSecondDevice = true,
+  bool declineOffer = false,
 }) async {
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
     attributes.entries,
@@ -117,10 +117,12 @@ Future<void> issueCredentials(
     expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
   }
 
-  var acceptButtonFinder = find.byKey(const Key('bottom_bar_primary'));
-  expect(acceptButtonFinder, findsOneWidget);
+  final buttonFinder = find.byKey(
+    declineOffer ? const Key('bottom_bar_secondary') : const Key('bottom_bar_primary'),
+  );
+  expect(buttonFinder, findsOneWidget);
 
-  await tester.tapAndSettle(acceptButtonFinder);
+  await tester.tapAndSettle(buttonFinder);
 
   await tester.waitUntilDisappeared(issuancePageFinder);
 }

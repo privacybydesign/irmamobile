@@ -36,10 +36,13 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     this.returnURL,
   });
 
-  Future<void> _showConfirmationDialog(BuildContext context) async {
+  Future<void> _showConfirmationDialog(BuildContext context, bool isSignatureSession) async {
     final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => DisclosurePermissionConfirmDialog(requestor: requestor),
+          builder: (context) => DisclosurePermissionConfirmDialog(
+            requestor: requestor,
+            isSignatureSession: isSignatureSession,
+          ),
         ) ??
         false;
 
@@ -109,8 +112,10 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
+    final isSignatureSession = state is DisclosurePermissionChoicesOverview && state.isSignatureSession;
+
     if (state is DisclosurePermissionChoicesOverview && state.showConfirmationPopup) {
-      Future.delayed(Duration.zero, () => _showConfirmationDialog(context));
+      Future.delayed(Duration.zero, () => _showConfirmationDialog(context, isSignatureSession));
     }
 
     String contentTranslationKey;
@@ -156,7 +161,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 SizedBox(height: theme.defaultSpacing),
                 TranslatedText(
                   'disclosure_permission.overview.sign',
-                  style: theme.themeData.textTheme.headline4,
+                  style: theme.themeData.textTheme.headlineMedium,
                 ),
                 Padding(
                   padding: EdgeInsets.only(
@@ -181,7 +186,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     ),
                   )),
               if (state.optionalChoices.isNotEmpty) ...[
-                TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headline4),
+                TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headlineMedium),
                 ...state.optionalChoices.entries.mapIndexed((i, choiceEntry) => _buildChoiceEntry(
                       context,
                       choiceEntry,
@@ -195,7 +200,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     )),
               ],
               if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
-                TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.headline4),
+                TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.headlineMedium),
               if (state.hasAdditionalOptionalChoices) ...[
                 SizedBox(height: theme.defaultSpacing),
                 IrmaActionCard(
@@ -216,7 +221,9 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         primaryButtonLabel: state.choicesCanBeValid
             ? (state is DisclosurePermissionPreviouslyAddedCredentialsOverview
                 ? 'disclosure_permission.next_step'
-                : 'disclosure_permission.overview.confirm')
+                : isSignatureSession
+                    ? 'disclosure_permission.overview.confirm_sign'
+                    : 'disclosure_permission.overview.confirm')
             : 'disclosure_permission.close',
         onPrimaryPressed: state.choicesCanBeValid
             ? (state.choicesValid ? () => onEvent(DisclosurePermissionNextPressed()) : null)

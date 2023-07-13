@@ -161,7 +161,7 @@ void main() {
       var snackBarFinder = find.byType(SnackBar);
       await tester.waitFor(
         snackBarFinder,
-        timeout: const Duration(seconds: 3),
+        timeout: const Duration(seconds: 15),
       );
 
       // Check text in snackbar

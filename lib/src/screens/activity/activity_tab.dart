@@ -9,8 +9,8 @@ import '../../models/irma_configuration.dart';
 import '../../models/log_entry.dart';
 import '../../models/session_events.dart';
 import '../../theme/theme.dart';
-import '../../util/capitalize.dart';
 import '../../util/combine.dart';
+import '../../util/string.dart';
 import '../../widgets/end_of_list_indicator.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
@@ -64,7 +64,7 @@ class _ActivityTabState extends State<ActivityTab> {
   void _addPostFrameCallback() {
     // After list is initially rendered, there might not be enough logs to trigger the scroll controller.
     // In that case, load more logs to fully fill the screen.
-    WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_scrollController.position.maxScrollExtent - _scrollController.position.minScrollExtent < 80) {
         _loadMoreLogs();
       }
@@ -103,7 +103,7 @@ class _ActivityTabState extends State<ActivityTab> {
                 header: true,
                 child: Text(
                   DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                  style: theme.themeData.textTheme.headline3,
+                  style: theme.themeData.textTheme.displaySmall,
                 ),
               ),
             ),

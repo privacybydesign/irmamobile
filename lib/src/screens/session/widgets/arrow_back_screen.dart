@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_svg/svg.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 
@@ -8,13 +7,18 @@ import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
 import '../../home/home_screen.dart';
 
+enum ArrowBackType {
+  issuance,
+  disclosure,
+  signature,
+  error,
+}
+
 class ArrowBack extends StatefulWidget {
-  final bool success;
-  final int amountIssued;
+  final ArrowBackType type;
 
   const ArrowBack({
-    this.success = false,
-    required this.amountIssued,
+    required this.type,
   });
 
   @override
@@ -43,13 +47,13 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     _forcePortraitOrientation();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     _allowAllOrientations();
     super.dispose();
   }
@@ -57,6 +61,22 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    final String infoText;
+    switch (widget.type) {
+      case ArrowBackType.issuance:
+        infoText = 'arrow_back.issuance_success';
+        break;
+      case ArrowBackType.disclosure:
+        infoText = 'arrow_back.disclosure_success';
+        break;
+      case ArrowBackType.signature:
+        infoText = 'arrow_back.signature_success';
+        break;
+      case ArrowBackType.error:
+        infoText = 'arrow_back.no_success';
+        break;
+    }
 
     // The NativeDeviceOrientationReader is configured to rebuild according to the gyroscope.
     // On the IOS emulator it is not possible to reproduce this, so this has to be tested on a real device.
@@ -108,12 +128,8 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                         children: [
                           Flexible(
                             child: TranslatedText(
-                              widget.success
-                                  ? widget.amountIssued > 0
-                                      ? 'arrow_back.issuance_success'
-                                      : 'arrow_back.disclosure_success'
-                                  : 'arrow_back.no_success',
-                              style: theme.textTheme.headline1,
+                              infoText,
+                              style: theme.textTheme.displayLarge,
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -121,7 +137,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                           Flexible(
                             child: TranslatedText(
                               'arrow_back.safari',
-                              style: theme.textTheme.bodyText2,
+                              style: theme.textTheme.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
                           ),

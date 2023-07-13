@@ -62,7 +62,7 @@ class EndOfListIndicator extends StatelessWidget {
           child: TranslatedText(
             isLoading ? 'ui.loading' : 'ui.end_of_list',
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyText2!.copyWith(
+            style: theme.textTheme.bodyMedium!.copyWith(
               color: theme.neutralExtraDark,
               fontSize: 12,
               height: 18 / 12,

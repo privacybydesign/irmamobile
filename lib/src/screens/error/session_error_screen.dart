@@ -35,6 +35,7 @@ class SessionErrorScreen extends StatelessWidget {
 
     switch (error?.remoteError?.errorName) {
       case 'USER_NOT_FOUND':
+      case 'USER_NOT_REGISTERED':
         return BlockedScreen();
       case 'SESSION_UNKNOWN':
         return ErrorScreen(

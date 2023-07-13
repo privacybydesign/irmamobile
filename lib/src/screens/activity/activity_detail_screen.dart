@@ -70,7 +70,7 @@ class ActivityDetailScreen extends StatelessWidget {
                     'date': DateFormat.yMMMMd(lang).format(logEntry.time),
                     'time': DateFormat.jm(lang).format(logEntry.time),
                   },
-                  style: theme.themeData.textTheme.bodyText2,
+                  style: theme.themeData.textTheme.bodyMedium,
                 ),
               ),
             ],

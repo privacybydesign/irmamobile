@@ -48,7 +48,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
       children: [
         TranslatedText(
           'activity.data_shared',
-          style: theme.themeData.textTheme.headline4,
+          style: theme.themeData.textTheme.headlineMedium,
           isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
@@ -72,7 +72,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
             child: TranslatedText(
               'activity.signed_message',
-              style: theme.themeData.textTheme.headline4,
+              style: theme.themeData.textTheme.headlineMedium,
               isHeader: true,
             ),
           ),
@@ -81,7 +81,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
         SizedBox(height: theme.defaultSpacing),
         TranslatedText(
           'activity.shared_with',
-          style: theme.themeData.textTheme.headline4,
+          style: theme.themeData.textTheme.headlineMedium,
           isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
@@ -89,7 +89,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           title: logEntry.serverName?.name.translate(
             FlutterI18n.currentLocale(context)!.languageCode,
           ),
-          titleTextStyle: IrmaTheme.of(context).textTheme.headline5!.copyWith(
+          titleTextStyle: IrmaTheme.of(context).textTheme.headlineSmall!.copyWith(
                 fontWeight: FontWeight.w600,
               ),
           imagePath: logEntry.serverName?.logoPath,

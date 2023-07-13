@@ -108,16 +108,19 @@ class YiviPinScreen extends StatelessWidget {
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
             ),
-            child: InkWell(
-              onTap: fn,
-              customBorder: const CircleBorder(),
-              child: Icon(
-                icon,
-                size: 24,
-                color: theme.secondary,
-                semanticLabel: FlutterI18n.translate(
-                  context,
-                  semanticLabelKey,
+            child: Semantics(
+              button: true,
+              child: InkWell(
+                onTap: fn,
+                customBorder: const CircleBorder(),
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: theme.secondary,
+                  semanticLabel: FlutterI18n.translate(
+                    context,
+                    semanticLabelKey,
+                  ),
                 ),
               ),
             ),
@@ -163,10 +166,13 @@ class YiviPinScreen extends StatelessWidget {
     );
 
     final instructionText = Center(
-      child: Text(
-        instruction ?? FlutterI18n.translate(context, instructionKey!),
-        textAlign: TextAlign.center,
-        style: theme.textTheme.headline3,
+      child: Semantics(
+        header: true,
+        child: Text(
+          instruction ?? FlutterI18n.translate(context, instructionKey!),
+          textAlign: TextAlign.center,
+          style: theme.textTheme.displaySmall,
+        ),
       ),
     );
 
@@ -212,7 +218,7 @@ class YiviPinScreen extends StatelessWidget {
                       bloc: pinBloc,
                       builder: (context, state) => Text(
                         '${state.pin.length}/$maxPinSize',
-                        style: theme.textTheme.caption?.copyWith(
+                        style: theme.textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.w300,
                             color: state.pin.isNotEmpty ? theme.secondary : Colors.transparent),
                       ),

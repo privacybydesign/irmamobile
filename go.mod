@@ -5,8 +5,9 @@ go 1.18
 require (
 	github.com/go-errors/errors v1.4.2
 	github.com/privacybydesign/gabi v0.0.0-20221012093643-8e978bfbb252
-	github.com/privacybydesign/irmago v0.12.2
+	github.com/privacybydesign/irmago v0.12.5
 	github.com/sirupsen/logrus v1.9.0
+	golang.org/x/mobile v0.0.0-20230301163155-e0f57694e12c
 )
 
 require (
@@ -52,10 +53,9 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	golang.org/x/crypto v0.2.0 // indirect
-	golang.org/x/mobile v0.0.0-20221110043201-43a038452099 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 )

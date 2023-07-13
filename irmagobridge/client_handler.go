@@ -15,7 +15,7 @@ type clientHandler struct {
 func (i *clientHandler) ReportError(err error) {
 	wrappedErr, ok := err.(*errors.Error)
 	if !ok {
-	 wrappedErr = errors.Wrap(err, 0)
+		wrappedErr = errors.Wrap(err, 0)
 	}
 	reportError(wrappedErr, false)
 }

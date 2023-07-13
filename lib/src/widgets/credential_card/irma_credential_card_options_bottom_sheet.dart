@@ -30,7 +30,7 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
         ),
         title: TranslatedText(
           translationKey,
-          style: theme.textTheme.bodyText2,
+          style: theme.textTheme.bodyMedium,
         ),
       );
 
@@ -44,7 +44,7 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
         children: [
           TranslatedText(
             'credential.options.title',
-            style: theme.textTheme.headline3,
+            style: theme.textTheme.displaySmall,
           ),
           SizedBox(height: theme.defaultSpacing),
           if (onReobtain != null)

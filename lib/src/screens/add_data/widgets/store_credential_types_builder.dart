@@ -58,6 +58,16 @@ class StoreCredentialTypesBuilder extends StatelessWidget {
               : otherTranslation,
         );
 
+        // Make sure personal credentials are always at the top
+        final personalTranslation = FlutterI18n.translate(context, 'data.category_personal');
+        final personalCredentials = groupedStoreCredentialTypes.remove(personalTranslation);
+        if (personalCredentials != null) {
+          groupedStoreCredentialTypes = {
+            personalTranslation: personalCredentials,
+            ...groupedStoreCredentialTypes,
+          };
+        }
+
         // Make sure other credentials are always at the end
         final otherCredentials = groupedStoreCredentialTypes.remove(otherTranslation);
         if (otherCredentials != null) {

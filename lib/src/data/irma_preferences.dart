@@ -29,7 +29,14 @@ class IrmaPreferences {
         _completedDisclosurePermissionIntro =
             preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false),
         _preferredLanguageCode = preferences.getString(_preferredLanguageKey, defaultValue: ''),
-        _lastSchemeUpdate = preferences.getInt(_lastSchemeUpdateKey, defaultValue: 0) {
+        _showNameChangedNotification = preferences.getBool(_showNameChangedNotificationKey, defaultValue: true),
+        _lastSchemeUpdate = preferences.getInt(
+          _lastSchemeUpdateKey,
+          defaultValue: 0,
+        ),
+        _serializedNotifications = preferences.getString(_serializedNotificationsKey, defaultValue: ''),
+        _serializedCredentialStatusNotifications =
+            preferences.getString(_credentialStatusNotificationsKey, defaultValue: '') {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -39,8 +46,11 @@ class IrmaPreferences {
   static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
 
   Future<void> clearAll() {
+    // Reset all preferences to their default values
+    // except showNameChangedNotification should be false now
     return StreamingSharedPreferences.instance.then((preferences) async {
       await preferences.clear();
+      await _showNameChangedNotification.setValue(false);
     });
   }
 
@@ -80,7 +90,7 @@ class IrmaPreferences {
   Stream<bool> getAcceptedRootedRisk() => _acceptedRootedRisk;
   Future<bool> setAcceptedRootedRisk(bool value) => _acceptedRootedRisk.setValue(value);
 
-  /// Originates from the IRMA -> Yivi name change, only used for cleanup-purposes
+  /// Originates from the notification that  IRMA is ABOUT TO change to Yivi, only used for cleanup-purposes
   static const String _showNameChangeNotificationKey = 'preference.show_name_change_notification';
 
   /// Old value that was used for displaying the dev mode toggle,
@@ -99,6 +109,13 @@ class IrmaPreferences {
   Stream<String> getPreferredLanguageCode() => _preferredLanguageCode;
   Future<bool> setPreferredLanguageCode(String value) => _preferredLanguageCode.setValue(value);
 
+  // Value that is used to display the notification that IRMA HAS changed to Yivi
+  static const String _showNameChangedNotificationKey = 'preference.show_name_changed_notification';
+  final Preference<bool> _showNameChangedNotification;
+
+  Stream<bool> getShowNameChangedNotification() => _showNameChangedNotification;
+  Future<bool> setShowNameChangedNotification(bool value) => _showNameChangedNotification.setValue(value);
+
   static const String _lastSchemeUpdateKey = 'preference.last_schemeupdate';
   final Preference<int> _lastSchemeUpdate;
 
@@ -106,4 +123,19 @@ class IrmaPreferences {
       Stream.value(DateTime.fromMillisecondsSinceEpoch((_lastSchemeUpdate.getValue() * 1000)));
   Future<bool> setLastSchemeUpdate(DateTime value) =>
       _lastSchemeUpdate.setValue((value.millisecondsSinceEpoch / 1000).round());
+
+  // Used to record which credential status notifications have been processed
+  static const String _credentialStatusNotificationsKey = 'preference.notifications.credential_status';
+  final Preference<String> _serializedCredentialStatusNotifications;
+
+  Stream<String> getSerializedCredentialStatusNotifications() => _serializedCredentialStatusNotifications;
+  Future<bool> setSerializedCredentialStatusNotifications(String value) =>
+      _serializedCredentialStatusNotifications.setValue(value);
+
+  // Used to store all notifications
+  static const String _serializedNotificationsKey = 'preference.notifications';
+  final Preference<String> _serializedNotifications;
+
+  Stream<String> getSerializedNotifications() => _serializedNotifications;
+  Future<bool> setSerializedNotifications(String value) => _serializedNotifications.setValue(value);
 }

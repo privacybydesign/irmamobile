@@ -32,7 +32,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
           children: [
             TranslatedText(
               'disclosure_permission.introduction.header',
-              style: theme.themeData.textTheme.headline3!.copyWith(
+              style: theme.themeData.textTheme.displaySmall!.copyWith(
                 color: theme.dark,
               ),
             ),
@@ -41,7 +41,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
             ),
             TranslatedText(
               'disclosure_permission.introduction.explanation',
-              style: theme.themeData.textTheme.bodyText2,
+              style: theme.themeData.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],

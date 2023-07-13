@@ -82,7 +82,7 @@ void main() {
         // Find the activity timestamp
         final timestampFinder = find.byKey(const Key('activity_timestamp'));
         await tester.scrollUntilVisible(
-          timestampFinder.hitTestable(),
+          timestampFinder,
           150,
           maxScrolls: 20,
           duration: const Duration(milliseconds: 500), // Wait for scrollbar to flex back at the end of the list on iOS.

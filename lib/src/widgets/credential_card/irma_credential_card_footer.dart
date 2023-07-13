@@ -44,7 +44,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
             ),
           },
         ),
-        style: theme.textTheme.bodyText2!.copyWith(color: theme.dark),
+        style: theme.textTheme.bodyMedium!.copyWith(color: theme.dark),
       );
     }
 

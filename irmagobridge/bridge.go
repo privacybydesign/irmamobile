@@ -59,7 +59,7 @@ func (p writer) Write(b []byte) (int, error) {
 
 // Start is invoked from the native side, when the app starts
 func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, signer Signer, aesKey []byte) {
-	defer recoverFromPanic("Starting of bridge panicked")
+	defer recoverFromEarlyPanic("Starting of bridge panicked")
 
 	// Copy the byte slice to a byte array. This enforces the correct key size and prevents that the
 	// bytes change due to unexpected memory allocation of C.
@@ -146,6 +146,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	irma.Logger.SetOutput(writer(func(m string) {
 		bridge.DebugLog(fmt.Sprintf("[irmago] %s", m))
 	}))
+	irma.Logger.Hooks.Add(&errorReporter{})
 
 	// Initialize the client
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
@@ -173,7 +174,7 @@ func dispatchEvent(event interface{}) {
 }
 
 func Stop() {
-	defer recoverFromPanic("Closing of bridge panicked")
+	defer recoverFromEarlyPanic("Closing of bridge panicked")
 
 	if client != nil {
 		if err := client.Close(); err != nil {
@@ -214,9 +215,17 @@ func pathExists(path string) (bool, error) {
 	return true, err
 }
 
-// Use this function when the app is not ready yet to handle errors. The recovered panic is
-// converted to an error and cached in clientErr. It will be handled as soon as the app is ready.
+// recoverFromPanic recovers a panic, converts it to an error and reports it back as an ErrorEvent.
 func recoverFromPanic(message string) {
+	if e := recover(); e != nil {
+		reportError(errors.WrapPrefix(e, message, 0), false)
+	}
+}
+
+// recoverFromEarlyPanic recovers a panic, converts it to an error and caches it in clientErr. It will be handled
+// as soon as the app is ready. Only use this function when the app is not ready yet to handle errors. Otherwise,
+// use recoverFromPanic.
+func recoverFromEarlyPanic(message string) {
 	if e := recover(); e != nil {
 		clientErr = errors.WrapPrefix(e, message, 0)
 	}
