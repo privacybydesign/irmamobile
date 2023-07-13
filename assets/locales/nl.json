@@ -598,6 +598,7 @@
   },
   "notifications": {
     "title": "Notificaties",
+    "empty": "Geen notificaties",
     "credential_status": {
       "revoked": {
         "title": "Gegevens ingetrokken",

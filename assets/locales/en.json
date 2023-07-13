@@ -598,6 +598,7 @@
   },
   "notifications": {
     "title": "Notifications",
+    "empty": "No notifications",
     "credential_status": {
       "revoked": {
         "title": "Data revoked",

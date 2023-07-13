@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Notification;
 
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
+import '../../widgets/translated_text.dart';
 import 'models/credential_status_notification.dart';
 import 'models/notification.dart';
 import 'widgets/notification_card.dart';
@@ -35,26 +36,42 @@ class NotificationsScreen extends StatelessWidget {
       // TODO: Implement action handler
     }
 
+    Widget _emptyListIndicator() => Padding(
+          padding: EdgeInsets.all(theme.defaultSpacing),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Flexible(
+                  child: TranslatedText(
+                'notifications.empty',
+                textAlign: TextAlign.center,
+              ))
+            ],
+          ),
+        );
+
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
       appBar: const IrmaAppBar(
         titleTranslationKey: 'notifications.title',
       ),
       body: SafeArea(
-        child: ListView.builder(
-          padding: EdgeInsets.all(
-            theme.defaultSpacing,
-          ),
-          itemCount: notifications.length,
-          itemBuilder: (context, index) {
-            final notification = notifications[index];
+        child: notifications.isEmpty
+            ? _emptyListIndicator()
+            : ListView.builder(
+                padding: EdgeInsets.all(
+                  theme.defaultSpacing,
+                ),
+                itemCount: notifications.length,
+                itemBuilder: (context, index) {
+                  final notification = notifications[index];
 
-            return NotificationCard(
-              notification: notification,
-              onTap: () => _onNotificationTap(notification),
-            );
-          },
-        ),
+                  return NotificationCard(
+                    notification: notification,
+                    onTap: () => _onNotificationTap(notification),
+                  );
+                },
+              ),
       ),
     );
   }
