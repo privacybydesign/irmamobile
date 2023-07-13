@@ -19,15 +19,19 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
+    // Reusable finders
+    final notificationsScreenFinder = find.byType(NotificationsScreen);
+    final irmaAppBarFinder = find.byType(IrmaAppBar);
+
+    // The NotificationBell should be findable in the app bar
+    final notificationBellFinder = find.descendant(
+      of: irmaAppBarFinder,
+      matching: find.byType(NotificationBell),
+    );
+
     testWidgets('reach', (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
-
-      // Find the NotificationBell in the IrmaAppBar
-      final notificationBellFinder = find.descendant(
-        of: find.byType(IrmaAppBar),
-        matching: find.byType(NotificationBell),
-      );
-
+      // NotificationBell should be visible
       expect(notificationBellFinder, findsOneWidget);
 
       // Switch tabs. NotificationBell should still be visible
@@ -47,8 +51,30 @@ void main() {
       await tester.tapAndSettle(notificationBellFinder);
 
       // expect NotificationsScreen to appear
-      final notificationsScreenFinder = find.byType(NotificationsScreen);
+
       expect(notificationsScreenFinder, findsOneWidget);
+    });
+
+    testWidgets('empty-state', (tester) async {
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+      // Press the NotificationBell
+      await tester.tapAndSettle(notificationBellFinder);
+      expect(notificationsScreenFinder, findsOneWidget);
+
+      // Expect page title
+      final screenTitleFinder = find.descendant(
+        of: find.byType(IrmaAppBar),
+        matching: find.text('Notifications'),
+      );
+      expect(screenTitleFinder, findsOneWidget);
+
+      // Expect empty state message
+      final emptyStateMessageFinder = find.descendant(
+        of: notificationsScreenFinder,
+        matching: find.text('No notifications'),
+      );
+      expect(emptyStateMessageFinder, findsOneWidget);
     });
   });
 }
