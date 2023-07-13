@@ -9,6 +9,7 @@ import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
 import '../notifications/bloc/notifications_bloc.dart';
+import '../notifications/widgets/notification_bell.dart';
 import '../scanner/util/open_scanner.dart';
 import 'home_tab.dart';
 import 'widgets/irma_nav_bar.dart';
@@ -75,6 +76,11 @@ class _ProvidedHomeScreenState extends State<ProvidedHomeScreen> {
             titleTranslationKey:
                 selectedTab == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${selectedTab.name}',
             noLeading: true,
+            actions: [
+              NotificationBell(
+                onTap: () => Navigator.of(context).pushNamed('/notifications'),
+              )
+            ],
           ),
           body: SafeArea(
             child: Builder(builder: (context) {
