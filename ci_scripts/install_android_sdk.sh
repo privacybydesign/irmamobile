@@ -5,7 +5,7 @@
 set -euxo pipefail
 
 ANDROID_SDK_CHECKSUM="124f2d5115eee365df6cf3228ffbca6fc3911d16f8025bebd5b1c6e2fcfa7faf"
-ANDROID_NDK_VERSION="21.4.7075529"
+ANDROID_NDK_VERSION="25.2.9519653"
 
 if [[ -z "$ANDROID_HOME" ]]; then
   echo "Environment variable ANDROID_HOME needs to be set"
