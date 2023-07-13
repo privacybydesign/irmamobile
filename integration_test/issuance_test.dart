@@ -78,5 +78,32 @@ void main() {
       'issue-municipality-nl',
       (tester) => testIssueMunicipality(tester, const Locale('nl', 'NL')),
     );
+
+    testWidgets('decline', (tester) async {
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+      // Start an issuance session for email address and decline the offer.
+      await issueCredentials(
+        tester,
+        irmaBinding,
+        {
+          'irma-demo.sidn-pbdf.email.email': 'test@demo.com',
+          'irma-demo.sidn-pbdf.email.domain': 'demo.com',
+        },
+        declineOffer: true,
+      );
+
+      // Go to data tab.
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+      // Verify that the email address has not been added.
+      final emailTileFinder = find.byKey(const Key('irma-demo.sidn-pbdf.email_tile'));
+      expect(emailTileFinder, findsNothing);
+
+      // Verify that no activity has been added.
+      await tester.tap(find.byKey(const Key('nav_button_activity')));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('There are no logged activities yet'), findsOneWidget);
+    });
   });
 }

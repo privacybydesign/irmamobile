@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Fixed
+- Voice over and accessibility tags are not correctly set on the PIN screen
+- Required update screen refers to iTunes Store instead of Apple App Store
+
+### Internal
+- Add integration test for declining the credential offer in an issuance session
+
 ## [7.4.2] - 2023-06-22
 ### Fixed
 - LoadingScreen StreamBuilder triggers multiple navigation actions
