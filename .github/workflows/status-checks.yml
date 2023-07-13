@@ -4,6 +4,10 @@ name: Status checks
 
 on:
   pull_request:
+  schedule:
+    # Run every sunday at noon. We run this on sunday such that we can utilize the free test minutes we get from Firebase.
+    # The weekly run ensures that cached resources don't expire.
+    - cron: "0 12 * * 0"
 
 concurrency:
   group: ${{ github.ref }}
