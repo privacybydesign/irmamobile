@@ -16,14 +16,15 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final bloc = BlocProvider.of<NotificationsBloc>(context);
 
     void _onNotificationTap(Notification notification) {
       // TODO: Implement action handler
     }
 
-    void _onNotificationDismiss(Notification notification) {
-      // TODO: Soft delete notification in the bloc
-    }
+    void _onNotificationDismiss(Notification notification) => bloc.add(
+          SoftDeleteNotification(notification.id),
+        );
 
     Widget _emptyListIndicator() => Padding(
           padding: EdgeInsets.all(theme.defaultSpacing),
