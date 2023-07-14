@@ -44,5 +44,4 @@ Secrets for the `ad-hoc-alpha` (iOS master/alpha builds) and the `app-store-beta
 should be uploaded, because there only is one. This certificate expires every year.
 - `APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD`: password of the Apple development certificate (see above).
 - `APPLE_PROVISIONING_PROFILE`: Base64 encoded Apple provisioning profile that is linked to the distribution certificate (see above). In the `ad-hoc-alpha` environment the `GitHub Actions ad hoc alpha` ad-hoc provisioning profile should be uploaded (linked to `foundation.privacybydesign.irmamob.alpha`) and in the `app-store-beta` environment the `GitHub Actions app store beta` app store provisioning profile should be uploaded (linked to `foundation.privacybydesign.irmamob`). These should be renewed when the distribution certificate is being renewed.
-This should be renewed when the development certificate is being renewed.
 - `SENTRY_DSN`: Sentry DSN for error reporting.
