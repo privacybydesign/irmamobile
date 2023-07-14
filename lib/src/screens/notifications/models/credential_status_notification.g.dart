@@ -21,10 +21,10 @@ Map<String, dynamic> _$CredentialStatusNotificationToJson(CredentialStatusNotifi
       'id': instance.id,
       'softDeleted': instance.softDeleted,
       'content': instance.content,
+      'timestamp': instance.timestamp.toIso8601String(),
       'credentialHash': instance.credentialHash,
       'type': _$CredentialStatusNotificationTypeEnumMap[instance.type]!,
       'credentialTypeId': instance.credentialTypeId,
-      'timestamp': instance.timestamp.toIso8601String(),
     };
 
 const _$CredentialStatusNotificationTypeEnumMap = {

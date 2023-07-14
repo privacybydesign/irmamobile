@@ -23,9 +23,9 @@ class CredentialStatusNotification extends Notification {
     required this.credentialHash,
     required this.type,
     required this.credentialTypeId,
-    required timestamp,
+    required DateTime timestamp,
   }) : super() {
-    timestamp = timestamp;
+    this.timestamp = timestamp;
     content = _getTranslatedNotificationContent(type);
   }
 
