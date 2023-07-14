@@ -148,4 +148,64 @@ void main() {
     final notifications3 = notificationsLoadedState3.notifications;
     expect(notifications3.length, 0);
   });
+
+  test('load-valid-cache', () async {
+    const serializedCredentials =
+        '[{"id":"#55175","softDeleted":false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","notificationType":"credentialStatusNotification"}]';
+    repo.preferences.setSerializedNotifications(serializedCredentials);
+
+    // Create bloc
+    final bloc = NotificationsBloc(
+      repo: repo,
+    );
+    expect(bloc.state, isA<NotificationsInitial>());
+    bloc.add(Initialize());
+
+    // Expect a notifications
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    final notificationsLoadedState = bloc.state as NotificationsLoaded;
+    final notifications = notificationsLoadedState.notifications;
+    expect(notifications.length, 1);
+
+    // Notification should be of type CredentialStatusNotification
+    final notification = notifications.first;
+    expect(notification, isA<CredentialStatusNotification>());
+    final credentialStatusNotification = notification as CredentialStatusNotification;
+
+    // Check the credential status notification fields
+    expect(credentialStatusNotification.id, '#55175');
+    expect(credentialStatusNotification.timestamp, DateTime.parse('2023-07-14T11:11:31.794803'));
+    expect(credentialStatusNotification.softDeleted, false);
+    expect(credentialStatusNotification.credentialHash, 'session-43-0');
+    expect(credentialStatusNotification.type, CredentialStatusNotificationType.revoked);
+    expect(credentialStatusNotification.content, isA<InternalTranslatedContent>());
+
+    // Check the credential status notification content fields
+    final credentialStatusNotificationContent = credentialStatusNotification.content as InternalTranslatedContent;
+    expect(credentialStatusNotificationContent.titleTranslationKey, 'notifications.credential_status.revoked.title');
+    expect(
+        credentialStatusNotificationContent.messageTranslationKey, 'notifications.credential_status.revoked.message');
+  });
+
+  test('load-corrupted-cache', () async {
+    const corruptedSerializedCredentials = 'THIS_IS_NOT_JSON';
+    repo.preferences.setSerializedNotifications(corruptedSerializedCredentials);
+
+    // Create bloc
+    final bloc = NotificationsBloc(
+      repo: repo,
+    );
+    expect(bloc.state, isA<NotificationsInitial>());
+    bloc.add(Initialize());
+
+    // Expect no notifications
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    final notificationsLoadedState = bloc.state as NotificationsLoaded;
+    final notifications = notificationsLoadedState.notifications;
+    expect(notifications.length, 0);
+  });
 }
