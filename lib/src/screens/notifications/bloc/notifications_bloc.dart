@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../data/irma_repository.dart';
+import '../../../sentry/sentry.dart';
 import '../handlers/credential_status_notifications_handler.dart';
 import '../handlers/notification_handler.dart';
 import '../models/notification.dart';
@@ -93,13 +94,19 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   List<Notification> _notificationsFromJson(String serializedNotifications) {
     List<Notification> notifications = [];
 
-    if (serializedNotifications != '') {
+    try {
       final jsonDecodedNotifications = jsonDecode(serializedNotifications);
       notifications = jsonDecodedNotifications
           .map<Notification>(
             (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
           )
           .toList();
+    } catch (e, stackTrace) {
+      // If the cache is corrupted, we report the error to Sentry
+      reportError(e, stackTrace);
+
+      // If the cache is corrupted, we clear it and return an empty list
+      _repo.preferences.setSerializedNotifications('');
     }
 
     return notifications;
