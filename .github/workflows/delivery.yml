@@ -62,6 +62,7 @@ jobs:
         run: >
           bundle exec fastlane ios_build_app
           flavor:alpha
+          code_signing_identity:"iPhone Distribution"
           certificate_path:profiles/apple_distribution.p12
           certificate_password:${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/ad_hoc_alpha.mobileprovision
@@ -191,6 +192,7 @@ jobs:
         run: >
           bundle exec fastlane ios_build_app
           flavor:beta
+          code_signing_identity:"iPhone Distribution"
           certificate_path:profiles/apple_distribution.p12
           certificate_password:${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/app_store_beta.mobileprovision
