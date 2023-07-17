@@ -40,26 +40,40 @@ remove devices. More information about adding and updating ad-hoc provisioning p
  1. Go to the ./fastlane directory in irmamobile
  2. Run `mkdir -p ./profiles && cd ./profiles`
  3. Choose a name for your new certificate, i.e. `KEY_NAME=ios_distribution` or `KEY_NAME=ios_development`
- 4. Run `openssl req -nodes -newkey rsa:2048 -keyout $KEY_NAME.key -out $KEY_NAME.csr` and follow the instructions
+ 4. Run the following and follow the instructions:
+    ```
+    openssl req -nodes -newkey rsa:2048 -keyout $KEY_NAME.key -out $KEY_NAME.csr
+    ```
+    There are no strict requirements about which values to use for the CSR-fields.
  5. Upload the CSR to Apple: go to https://developer.apple.com/account/resources/certificates/list, press the '+' sign
     and choose "iOS Distribution (App Store and Ad Hoc)" for a distribution certificate or "iOS App Development"
     for a development certificate.
  6. When finished, download the .cer file and save it to the directory created in step 2 as `$KEY_NAME.cer`
  7. Convert the .cer file to a .pem file:
-    `openssl x509 -in $KEY_NAME.cer -inform DER -out $KEY_NAME.pem -outform PEM`
+    ```
+    openssl x509 -in $KEY_NAME.cer -inform DER -out $KEY_NAME.pem -outform PEM
+    ```
  8. Convert the .pem to a .p12 and choose the certificate password:
-    `openssl pkcs12 -export -inkey $KEY_NAME.key -in $KEY_NAME.pem -out $KEY_NAME.p12`
+    ```
+    openssl pkcs12 -export -inkey $KEY_NAME.key -in $KEY_NAME.pem -out $KEY_NAME.p12
+    ```
+    If you use OpenSSL 3.x, then you need to add `-legacy` to the command for compatibility with OpenSSL 1.x.
  9. Safely store the certificate password in a password manager or a secret vault for later use
  10. You can now create a provisioning profile: go to https://developer.apple.com/account/resources/profiles/list,
      press the '+' sign and follow the instructions. This can only be done by users with the 'Admin' role or the
      'App Manager' role with access to certificates, identifiers and profiles in Apple App Store Connect. If you only
      have the 'Developer' role, then you need to ask someone else to create the provisioning profile for you.
- 11. When finished, download the provisioning profile and save it to the directory created in step 2
- 12. In case you need to upload the assets to a secret vault, then you need to encode the files you want to upload with base64,
-     i.e. `cat $KEY_NAME.p12 | base64 > $KEY_NAME.p12.base64`
+ 11. When finished, download the provisioning profile and save it to the directory created in step 2. We refer to this
+     as $PROVISIONING_PROFILE.mobileprovision in this README.
+ 12. In case you need to upload the assets to a secret vault, then you need to encode the files you want to upload with base64:
+     ```
+     cat $KEY_NAME.p12 | base64 > $KEY_NAME.p12.base64
+     cat $PROVISIONING_PROFILE.mobileprovision | base64 > $PROVISIONING_PROFILE.mobileprovision.base64
+     ```
 
 When generating distribution certificates for CI platforms, it's recommended to protect the certificate bundle as a secret in
-protected deployment environments. In this way, you prevent that development builds get signed.
+protected deployment environments. In this way, you prevent that development builds get signed. For more information about the
+secrets in our GitHub Actions workflows, please check the [workflow README](../.github/workflows/README.md).
 
 Don't forget to delete the local file copies after you've uploaded the profiles and certificates to your CI's secret vault.
 
