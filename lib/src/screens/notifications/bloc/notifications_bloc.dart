@@ -95,12 +95,14 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     List<Notification> notifications = [];
 
     try {
-      final jsonDecodedNotifications = jsonDecode(serializedNotifications);
-      notifications = jsonDecodedNotifications
-          .map<Notification>(
-            (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
-          )
-          .toList();
+      if (serializedNotifications != '') {
+        final jsonDecodedNotifications = jsonDecode(serializedNotifications);
+        notifications = jsonDecodedNotifications
+            .map<Notification>(
+              (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
+            )
+            .toList();
+      }
     } catch (e, stackTrace) {
       // If the cache is corrupted, we report the error to Sentry
       reportError(e, stackTrace);
