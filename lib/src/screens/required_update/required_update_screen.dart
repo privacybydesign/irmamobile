@@ -19,16 +19,18 @@ class RequiredUpdateScreen extends StatelessWidget {
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'update.update_app'),
         onPrimaryPressed: () {
-          switch (Platform.operatingSystem) {
-            case 'android':
-              launch('market://details?id=org.irmacard.cardemu');
-              break;
-            case 'ios':
-              launch('itms://itunes.apple.com/us/app/apple-store/id1294092994?mt=8');
-              break;
-            default:
-              throw Exception('Unsupported Platfrom.operatingSystem');
+          late String url;
+          if (Platform.isAndroid) {
+            url = 'https://play.google.com/store/apps/details?id=org.irmacard.cardemu';
+          } else if (Platform.isIOS) {
+            url = 'https://apps.apple.com/app/id1294092994';
+          } else {
+            throw Exception('Unsupported platform');
           }
+          launchUrl(
+            Uri.parse(url),
+            mode: LaunchMode.externalNonBrowserApplication,
+          );
         },
       ),
     );
