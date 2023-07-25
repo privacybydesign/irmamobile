@@ -208,4 +208,42 @@ void main() {
     final notifications = notificationsLoadedState.notifications;
     expect(notifications.length, 0);
   });
+
+  test('mark-notifications-as-read', () async {
+    const serializedCredentials =
+        '[{"id":"#55175","softDeleted":false,"read":false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","notificationType":"credentialStatusNotification"}]';
+    repo.preferences.setSerializedNotifications(serializedCredentials);
+
+    // Create bloc
+    final bloc = NotificationsBloc(
+      repo: repo,
+    );
+    expect(bloc.state, isA<NotificationsInitial>());
+    bloc.add(Initialize());
+
+    // Expect a notifications
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    final notificationsLoadedState = bloc.state as NotificationsLoaded;
+    final notifications = notificationsLoadedState.notifications;
+    expect(notifications.length, 1);
+
+    // Notifications should be unread
+    final notification = notifications.first;
+    expect(notification.read, false);
+
+    // Mark notifications as read
+    bloc.add(MarkNotificationsAsRead());
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    // Notifications should be read
+    final notificationsLoadedState2 = bloc.state as NotificationsLoaded;
+    final notifications2 = notificationsLoadedState2.notifications;
+    expect(notifications2.length, 1);
+
+    final notification2 = notifications2.first;
+    expect(notification2.read, true);
+  });
 }
