@@ -11,6 +11,8 @@ abstract class NotificationsEvent extends Equatable {
 // This event should be called right after the bloc is created (NotificationsBloc()..add(Initialize()))
 class Initialize extends NotificationsEvent {}
 
+class MarkNotificationsAsRead extends NotificationsEvent {}
+
 class SoftDeleteNotification extends NotificationsEvent {
   final String notificationId;
 

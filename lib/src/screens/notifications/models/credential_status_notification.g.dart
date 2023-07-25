@@ -15,11 +15,13 @@ CredentialStatusNotification _$CredentialStatusNotificationFromJson(Map<String, 
     )
       ..id = json['id'] as String
       ..softDeleted = json['softDeleted'] as bool
+      ..read = json['read'] as bool
       ..content = NotificationTranslatedContent.fromJson(json['content'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$CredentialStatusNotificationToJson(CredentialStatusNotification instance) => <String, dynamic>{
       'id': instance.id,
       'softDeleted': instance.softDeleted,
+      'read': instance.read,
       'content': instance.content,
       'timestamp': instance.timestamp.toIso8601String(),
       'credentialHash': instance.credentialHash,
