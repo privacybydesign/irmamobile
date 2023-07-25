@@ -339,3 +339,32 @@ Future<void> evaluateCredentialCard(
     }
   }
 }
+
+Future<void> evaluateNotificationCard(
+  WidgetTester tester,
+  Finder notificationCardFinder, {
+  String? title,
+  String? content,
+}) async {
+  expect(notificationCardFinder, findsOneWidget);
+
+  if (title != null) {
+    expect(
+      find.descendant(
+        of: notificationCardFinder,
+        matching: find.text(title),
+      ),
+      findsOneWidget,
+    );
+  }
+
+  if (content != null) {
+    expect(
+      find.descendant(
+        of: notificationCardFinder,
+        matching: find.text(content),
+      ),
+      findsOneWidget,
+    );
+  }
+}

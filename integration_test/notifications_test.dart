@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/notifications/notifications_screen.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
+import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import 'helpers/helpers.dart';
@@ -75,6 +76,41 @@ void main() {
         matching: find.text('No notifications'),
       );
       expect(emptyStateMessageFinder, findsOneWidget);
+    });
+
+    testWidgets('filled-state', (tester) async {
+      const mockedCredentialCache =
+          '[{"id":"#55175","softDeleted":false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","notificationType":"credentialStatusNotification"}]';
+      await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
+
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+      // Expect the NotificationBell to be visible
+      final notificationBellFinder = find.descendant(
+        of: find.byType(IrmaAppBar),
+        matching: find.byType(NotificationBell),
+      );
+      expect(notificationBellFinder, findsOneWidget);
+
+      // Notification bell should show the indicator
+      final notificationBell = tester.widget<NotificationBell>(notificationBellFinder);
+      expect(notificationBell.showIndicator, true);
+
+      // Press the NotificationBell and expect the NotificationsScreen to appear
+      await tester.tapAndSettle(notificationBellFinder);
+      expect(notificationsScreenFinder, findsOneWidget);
+
+      // Expect one NotificationCard
+      final notificationCardFinder = find.byType(NotificationCard);
+      expect(notificationCardFinder, findsOneWidget);
+
+      // Evaluate the NotificationCard
+      await evaluateNotificationCard(
+        tester,
+        notificationCardFinder,
+        title: 'Data revoked',
+        content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
+      );
     });
   });
 }
