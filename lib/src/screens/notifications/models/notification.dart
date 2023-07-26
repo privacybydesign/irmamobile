@@ -10,9 +10,9 @@ abstract class Notification {
   bool read = false;
 
   late NotificationTranslatedContent content;
+  late NotificationAction? action;
   late DateTime timestamp;
 
-  NotificationAction? get action;
   Map<String, dynamic> toJson();
 
   Notification();

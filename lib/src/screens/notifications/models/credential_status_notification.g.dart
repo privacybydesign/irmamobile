@@ -16,7 +16,8 @@ CredentialStatusNotification _$CredentialStatusNotificationFromJson(Map<String, 
       ..id = json['id'] as String
       ..softDeleted = json['softDeleted'] as bool
       ..read = json['read'] as bool
-      ..content = NotificationTranslatedContent.fromJson(json['content'] as Map<String, dynamic>);
+      ..content = NotificationTranslatedContent.fromJson(json['content'] as Map<String, dynamic>)
+      ..action = NotificationAction.fromJson(json['action'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$CredentialStatusNotificationToJson(CredentialStatusNotification instance) => <String, dynamic>{
       'id': instance.id,
@@ -27,6 +28,7 @@ Map<String, dynamic> _$CredentialStatusNotificationToJson(CredentialStatusNotifi
       'credentialHash': instance.credentialHash,
       'type': _$CredentialStatusNotificationTypeEnumMap[instance.type]!,
       'credentialTypeId': instance.credentialTypeId,
+      'action': instance.action,
     };
 
 const _$CredentialStatusNotificationTypeEnumMap = {
