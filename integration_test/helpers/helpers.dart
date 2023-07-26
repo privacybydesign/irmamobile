@@ -10,6 +10,7 @@ import 'package:irmamobile/app.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
+import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
@@ -347,6 +348,7 @@ Future<void> evaluateNotificationCard(
   Finder notificationCardFinder, {
   String? title,
   String? content,
+  bool? read,
 }) async {
   expect(notificationCardFinder, findsOneWidget);
 
@@ -367,6 +369,14 @@ Future<void> evaluateNotificationCard(
         matching: find.text(content),
       ),
       findsOneWidget,
+    );
+  }
+
+  if (read != null) {
+    final notificationCardWidget = notificationCardFinder.evaluate().single.widget as NotificationCard;
+    expect(
+      notificationCardWidget.notification.read,
+      read,
     );
   }
 }
