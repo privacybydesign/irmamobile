@@ -10,19 +10,37 @@ import 'bloc/notifications_bloc.dart';
 import 'models/notification.dart';
 import 'widgets/notification_card.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   static const routeName = '/notifications';
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  late NotificationsBloc _notificationsBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationsBloc = BlocProvider.of<NotificationsBloc>(context);
+  }
+
+  @override
+  void dispose() {
+    _notificationsBloc.add(MarkNotificationsAsRead());
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final bloc = BlocProvider.of<NotificationsBloc>(context);
 
     void _onNotificationTap(Notification notification) {
       // TODO: Implement action handler
     }
 
-    void _onNotificationDismiss(Notification notification) => bloc.add(
+    void _onNotificationDismiss(Notification notification) => _notificationsBloc.add(
           SoftDeleteNotification(notification.id),
         );
 

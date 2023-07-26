@@ -80,17 +80,18 @@ class NotificationCard extends StatelessWidget {
       onTap: onTap,
       child: Stack(
         children: [
-          Align(
-            alignment: Alignment.topRight,
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.primary,
+          if (!notification.read)
+            Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.primary,
+                ),
               ),
             ),
-          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

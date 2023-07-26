@@ -88,12 +88,10 @@ class _ProvidedHomeScreenState extends State<_ProvidedHomeScreen> {
             noLeading: true,
             actions: [
               BlocBuilder<NotificationsBloc, NotificationsState>(
-                builder: (context, state) {
-                  return NotificationBell(
-                    showIndicator: state is NotificationsLoaded ? state.notifications.isNotEmpty : false,
-                    onTap: _navToNotificationsScreen,
-                  );
-                },
+                builder: (context, state) => NotificationBell(
+                  showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
+                  onTap: _navToNotificationsScreen,
+                ),
               )
             ],
           ),
