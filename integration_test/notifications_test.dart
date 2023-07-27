@@ -165,5 +165,35 @@ void main() {
         read: true,
       );
     });
+
+    testWidgets('dismiss-notification', (tester) async {
+      await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+      // Tap the bell, expect a notification card and dismiss it
+      await tester.tapAndSettle(notificationBellFinder);
+      expect(notificationsScreenFinder, findsOneWidget);
+
+      final notificationCardFinder = find.byType(NotificationCard);
+      expect(notificationCardFinder, findsOneWidget);
+
+      await tester.drag(notificationCardFinder, const Offset(-500, 0));
+
+      // pumpAndSettle to make sure the event is processed
+      await tester.pumpAndSettle();
+
+      // Expect no NotificationCard
+      expect(notificationCardFinder, findsNothing);
+
+      // Go back
+      final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
+      await tester.tapAndSettle(backButtonFinder);
+
+      // Go to the notifications screen again
+      await tester.tapAndSettle(notificationBellFinder);
+
+      // Expect no NotificationCard
+      expect(notificationCardFinder, findsNothing);
+    });
   });
 }
