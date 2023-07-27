@@ -32,7 +32,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   void dispose() {
-    _notificationsBloc.add(MarkNotificationsAsRead());
+    _notificationsBloc.add(MarkAllNotificationsAsRead());
     super.dispose();
   }
 
@@ -48,6 +48,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         final repo = IrmaRepositoryProvider.of(context);
         final credType = repo.irmaConfiguration.credentialTypes[action.credentialTypeId]!;
         final translatedAttributeType = credType.name.translate(lang);
+
+        _notificationsBloc.add(
+          MarkNotificationAsRead(notification.id),
+        );
 
         Navigator.of(context).push(
           MaterialPageRoute(

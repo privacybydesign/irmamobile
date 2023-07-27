@@ -31,8 +31,10 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     // It reads from cache, cleans up the notifications and loads new ones
     if (event is Initialize) {
       yield* _mapInitToState();
-    } else if (event is MarkNotificationsAsRead) {
-      yield* _mapMarkNotificationsAsReadToState();
+    } else if (event is MarkAllNotificationsAsRead) {
+      yield* _mapMarkAllNotificationsAsReadToState();
+    } else if (event is MarkNotificationAsRead) {
+      yield* _mapMarkNotificationAsReadToState(event.notificationId);
     } else if (event is SoftDeleteNotification) {
       yield* _mapSoftDeleteNotificationToState(event.notificationId);
     } else {
@@ -66,7 +68,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     yield NotificationsInitialized(initialNotifications);
   }
 
-  Stream<NotificationsState> _mapMarkNotificationsAsReadToState() async* {
+  Stream<NotificationsState> _mapMarkAllNotificationsAsReadToState() async* {
     yield NotificationsLoading();
 
     final List<Notification> updatedNotifications = _notifications;
@@ -75,6 +77,23 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       notification.read = true;
     }
 
+    _updateCachedNotifications(updatedNotifications);
+
+    _notifications = updatedNotifications;
+    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+
+    yield NotificationsLoaded(filteredNotifications);
+  }
+
+  Stream<NotificationsState> _mapMarkNotificationAsReadToState(String notificationId) async* {
+    yield NotificationsLoading();
+
+    final List<Notification> updatedNotifications = _notifications;
+
+    final notificationIndex = updatedNotifications.indexWhere((notification) => notification.id == notificationId);
+    if (notificationIndex != -1) {
+      updatedNotifications[notificationIndex].read = true;
+    }
     _updateCachedNotifications(updatedNotifications);
 
     _notifications = updatedNotifications;
