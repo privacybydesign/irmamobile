@@ -18,7 +18,7 @@ class CredentialDetailNavigationAction extends NotificationAction {
   @override
   Map<String, dynamic> toJson() {
     final jsonMap = _$CredentialDetailNavigationActionToJson(this);
-    jsonMap['notificationType'] = 'credentialDetailNavigationAction';
+    jsonMap['actionType'] = 'credentialDetailNavigationAction';
 
     return jsonMap;
   }
