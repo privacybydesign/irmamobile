@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
 import 'package:irmamobile/src/screens/notifications/notifications_screen.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import 'helpers/helpers.dart';
+import 'helpers/issuance_helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
@@ -194,6 +198,69 @@ void main() {
 
       // Expect no NotificationCard
       expect(notificationCardFinder, findsNothing);
+    });
+
+    testWidgets('notification-action', (tester) async {
+      await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+      // To make the action action work, we need to actually have the credential in the app
+      await issueIrmaTubeMember(tester, irmaBinding);
+      await tester.tapAndSettle(find.descendant(
+        of: find.byType(YiviThemedButton),
+        matching: find.text('OK'),
+      ));
+
+      // Tap the bell, expect a notification screen
+      await tester.tapAndSettle(notificationBellFinder);
+      expect(notificationsScreenFinder, findsOneWidget);
+
+      // Evaluate the NotificationCard, it should be unread
+      final notificationCardFinder = find.byType(NotificationCard);
+      expect(notificationCardFinder, findsOneWidget);
+      await evaluateNotificationCard(
+        tester,
+        notificationCardFinder,
+        title: 'Data revoked',
+        content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
+        read: false,
+      );
+
+      // Now trigger the action by tapping the notification card
+      await tester.tapAndSettle(notificationCardFinder);
+
+      // Expect the credential detail screen
+      final credentialDetailScreenFinder = find.byType(CredentialsDetailScreen);
+      expect(credentialDetailScreenFinder, findsOneWidget);
+
+      // Expect the actual credential card
+      // Note: the credential card is not actually revoked, so the card does not reflect this.
+      final credentialCardFinder = find.byType(IrmaCredentialCard);
+      await evaluateCredentialCard(
+        tester,
+        credentialCardFinder.first,
+        credentialName: 'Demo IRMATube Member',
+        issuerName: 'Demo IRMATube',
+      );
+
+      // Go back
+      final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
+      await tester.tapAndSettle(backButtonFinder);
+
+      // Expect the notification screen
+      expect(notificationsScreenFinder, findsOneWidget);
+
+      // The notification should be marked as read
+      final notificationCardFinder2 = find.byType(NotificationCard);
+      expect(notificationCardFinder2, findsOneWidget);
+
+      await evaluateNotificationCard(
+        tester,
+        notificationCardFinder2,
+        title: 'Data revoked',
+        content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
+        read: true,
+      );
     });
   });
 }
