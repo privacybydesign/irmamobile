@@ -15,6 +15,9 @@ void main() {
   late IrmaRepository repo;
   late IrmaMockBridge mockBridge;
 
+  const serializedCredentials =
+      '[{"id":"#55175","softDeleted":false,"read":false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","action":{"credentialTypeId":"irma-demo.IRMATube.member","actionType":"credentialDetailNavigationAction"},"notificationType":"credentialStatusNotification"}]';
+
   setUp(() async {
     mockBridge = IrmaMockBridge();
     SharedPreferences.setMockInitialValues({});
@@ -150,8 +153,6 @@ void main() {
   });
 
   test('load-valid-cache', () async {
-    const serializedCredentials =
-        '[{"id":"#55175","softDeleted":false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","notificationType":"credentialStatusNotification"}]';
     repo.preferences.setSerializedNotifications(serializedCredentials);
 
     // Create bloc
@@ -210,8 +211,6 @@ void main() {
   });
 
   test('mark-notifications-as-read', () async {
-    const serializedCredentials =
-        '[{"id":"#55175","softDeleted":false,"read":false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","notificationType":"credentialStatusNotification"}]';
     repo.preferences.setSerializedNotifications(serializedCredentials);
 
     // Create bloc
