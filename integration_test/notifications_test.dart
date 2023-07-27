@@ -30,6 +30,10 @@ void main() {
       matching: find.byType(NotificationBell),
     );
 
+    // Mocked notification cache
+    const mockedCredentialCache =
+        '[{"id":"#55175","softDeleted":false,"read":false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","action":{"credentialTypeId":"irma-demo.IRMATube.member","actionType":"credentialDetailNavigationAction"},"notificationType":"credentialStatusNotification"}]';
+
     testWidgets('reach', (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       // NotificationBell should be visible
@@ -78,17 +82,10 @@ void main() {
     });
 
     testWidgets('filled-state', (tester) async {
-      const mockedCredentialCache =
-          '[{"id":"#55175","softDeleted":false,"read": false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","notificationType":"credentialStatusNotification"}]';
       await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
-
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Expect the NotificationBell to be visible
-      final notificationBellFinder = find.descendant(
-        of: find.byType(IrmaAppBar),
-        matching: find.byType(NotificationBell),
-      );
       expect(notificationBellFinder, findsOneWidget);
 
       // Press the NotificationBell and expect the NotificationsScreen to appear
@@ -109,10 +106,7 @@ void main() {
     });
 
     testWidgets('read-all-notifications', (tester) async {
-      const mockedCredentialCache =
-          '[{"id":"#55175","softDeleted":false,"read": false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","notificationType":"credentialStatusNotification"}]';
       await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
-
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Expect the NotificationBell to be visible
