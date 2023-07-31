@@ -612,6 +612,10 @@
         "title": "Gegevens verlopen bijna",
         "message": "Deze gegevens verlopen bijna: {credentialName}"
       }
+    },
+    "bell": {
+      "new_notifications": "Notificatiebel - Nieuwe notificaties",
+      "no_new_notifications": "Notificatiebel - Geen nieuwe notificaties"
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_icon_button.dart';
@@ -20,21 +21,28 @@ class NotificationBell extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.all(theme.smallSpacing),
-      child: Stack(
-        children: [
-          IrmaIconButton(
-            padding: EdgeInsets.zero,
-            size: 32,
-            icon: Icons.notifications_outlined,
-            onTap: onTap,
-          ),
-          if (showIndicator)
-            Positioned(
-              top: 5,
-              right: 5,
-              child: NotificationIndicator(),
-            )
-        ],
+      child: Semantics(
+        button: true,
+        label: FlutterI18n.translate(
+          context,
+          'notifications.bell.${showIndicator ? 'new_notifications' : 'no_new_notifications'}',
+        ),
+        child: Stack(
+          children: [
+            IrmaIconButton(
+              padding: EdgeInsets.zero,
+              size: 32,
+              icon: Icons.notifications_outlined,
+              onTap: onTap,
+            ),
+            if (showIndicator)
+              Positioned(
+                top: 5,
+                right: 5,
+                child: NotificationIndicator(),
+              )
+          ],
+        ),
       ),
     );
   }

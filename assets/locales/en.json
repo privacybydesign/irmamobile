@@ -612,6 +612,10 @@
         "title": "Data expiring soon",
         "message": "This data is expiring soon: {credentialName}"
       }
+    },
+    "bell": {
+      "new_notifications": "Notifications bell - New notifications",
+      "no_new_notifications": "Notifications bell - No new notifications"
     }
   }
 }
