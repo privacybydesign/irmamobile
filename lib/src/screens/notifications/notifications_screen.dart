@@ -36,51 +36,51 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     super.dispose();
   }
 
+  void _onNotificationTap(Notification notification) {
+    final action = notification.action;
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+
+    if (action != null && action is CredentialDetailNavigationAction) {
+      final repo = IrmaRepositoryProvider.of(context);
+      final credType = repo.irmaConfiguration.credentialTypes[action.credentialTypeId]!;
+      final translatedAttributeType = credType.name.translate(lang);
+
+      _notificationsBloc.add(
+        MarkNotificationAsRead(notification.id),
+      );
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => CredentialsDetailScreen(
+            categoryName: translatedAttributeType,
+            credentialTypeId: action.credentialTypeId,
+          ),
+        ),
+      );
+    }
+  }
+
+  void _onNotificationDismiss(Notification notification) => _notificationsBloc.add(
+        SoftDeleteNotification(notification.id),
+      );
+
+  Widget _emptyListIndicator(IrmaThemeData theme) => Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Flexible(
+                child: TranslatedText(
+              'notifications.empty',
+              textAlign: TextAlign.center,
+            ))
+          ],
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-
-    void _onNotificationTap(Notification notification) {
-      final action = notification.action;
-
-      if (action != null && action is CredentialDetailNavigationAction) {
-        final repo = IrmaRepositoryProvider.of(context);
-        final credType = repo.irmaConfiguration.credentialTypes[action.credentialTypeId]!;
-        final translatedAttributeType = credType.name.translate(lang);
-
-        _notificationsBloc.add(
-          MarkNotificationAsRead(notification.id),
-        );
-
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => CredentialsDetailScreen(
-              categoryName: translatedAttributeType,
-              credentialTypeId: action.credentialTypeId,
-            ),
-          ),
-        );
-      }
-    }
-
-    void _onNotificationDismiss(Notification notification) => _notificationsBloc.add(
-          SoftDeleteNotification(notification.id),
-        );
-
-    Widget _emptyListIndicator() => Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Flexible(
-                  child: TranslatedText(
-                'notifications.empty',
-                textAlign: TextAlign.center,
-              ))
-            ],
-          ),
-        );
 
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
@@ -98,7 +98,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               final notifications = state.notifications;
 
               if (notifications.isEmpty) {
-                return _emptyListIndicator();
+                return _emptyListIndicator(theme);
               } else {
                 return ListView.builder(
                   padding: EdgeInsets.all(
