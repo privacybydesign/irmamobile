@@ -11,7 +11,6 @@ import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/loading/loading_screen.dart';
-import 'src/screens/notifications/notifications_screen.dart';
 import 'src/screens/reset_pin/reset_pin_screen.dart';
 import 'src/screens/scanner/scanner_screen.dart';
 import 'src/screens/session/session.dart';
@@ -33,7 +32,6 @@ class Routing {
     ResetPinScreen.routeName: (context) => ResetPinScreen(),
     DebugScreen.routeName: (context) => DebugScreen(),
     HomeScreen.routeName: (context) => HomeScreen(),
-    NotificationsScreen.routeName: (context) => NotificationsScreen(),
   };
 
   // This function returns a `WidgetBuilder` of the screen found by `routeName`
