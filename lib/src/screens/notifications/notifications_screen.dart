@@ -62,19 +62,31 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         SoftDeleteNotification(notification.id),
       );
 
-  Widget _emptyListIndicator(IrmaThemeData theme) => Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Flexible(
-                child: TranslatedText(
-              'notifications.empty',
-              textAlign: TextAlign.center,
-            ))
-          ],
-        ),
+  Widget _emptyListIndicator(IrmaThemeData theme) =>
+      // It needs to be wrapped in a ListView because of the RefreshIndicator
+      ListView(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(theme.defaultSpacing),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Flexible(
+                    child: TranslatedText(
+                  'notifications.empty',
+                  textAlign: TextAlign.center,
+                ))
+              ],
+            ),
+          )
+        ],
       );
+
+  Future<void> _onRefresh() async {
+    _notificationsBloc.add(
+      LoadNotifications(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,28 +107,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             } else if (state is NotificationsLoaded) {
               final notifications = state.notifications;
 
-              if (notifications.isEmpty) {
-                return _emptyListIndicator(theme);
-              } else {
-                return ListView.builder(
-                  padding: EdgeInsets.all(
-                    theme.defaultSpacing,
-                  ),
-                  itemCount: state.notifications.length,
-                  itemBuilder: (context, index) {
-                    final notification = state.notifications[index];
+              return RefreshIndicator(
+                onRefresh: _onRefresh,
+                child: notifications.isEmpty
+                    ? _emptyListIndicator(theme)
+                    : ListView.builder(
+                        padding: EdgeInsets.all(
+                          theme.defaultSpacing,
+                        ),
+                        itemCount: state.notifications.length,
+                        itemBuilder: (context, index) {
+                          final notification = notifications[index];
 
-                    return IrmaDismissible(
-                      key: Key(notification.id),
-                      onDismissed: () => _onNotificationDismiss(notification),
-                      child: NotificationCard(
-                        notification: notification,
-                        onTap: () => _onNotificationTap(notification),
+                          return IrmaDismissible(
+                            key: Key(notification.id),
+                            onDismissed: () => _onNotificationDismiss(notification),
+                            child: NotificationCard(
+                              notification: notification,
+                              onTap: () => _onNotificationTap(notification),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                );
-              }
+              );
             }
 
             throw Exception('NotificationsScreen does not support this state: $state');
