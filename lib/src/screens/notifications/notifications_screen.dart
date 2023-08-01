@@ -82,7 +82,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ],
       );
 
-  Future<void> _onRefresh() async {
+  void _onRefresh() {
     _notificationsBloc.add(
       LoadNotifications(),
     );
@@ -108,7 +108,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               final notifications = state.notifications;
 
               return RefreshIndicator(
-                onRefresh: _onRefresh,
+                onRefresh: () => Future.sync(_onRefresh),
                 child: notifications.isEmpty
                     ? _emptyListIndicator(theme)
                     : ListView.builder(
