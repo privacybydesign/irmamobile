@@ -300,20 +300,16 @@ void main() {
       await tester.tapAndSettle(find.byType(IrmaCloseButton));
       await tester.tapAndSettle(find.text('Close'));
 
-      final notificationBellWidget = tester.widget<NotificationBell>(notificationBellFinder);
-      expect(notificationBellWidget.showIndicator, false);
-
-      notificationsBloc.add(LoadNotifications());
-      await tester.pumpAndSettle();
-
-      final updatedNotificationBellWidget = tester.widget<NotificationBell>(notificationBellFinder);
-      expect(updatedNotificationBellWidget.showIndicator, true);
-
       await tester.tapAndSettle(notificationBellFinder);
-
       expect(notificationsScreenFinder, findsOneWidget);
 
+      // Expect no notificationCard cards
       final notificationCardsFinder = find.byType(NotificationCard);
+      expect(notificationCardsFinder, findsNothing);
+
+      // Now pull to refresh and expect a notification card
+      await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+      await tester.pumpAndSettle();
       expect(notificationCardsFinder, findsOneWidget);
 
       final notificationCardFinder = notificationCardsFinder.first;
@@ -322,6 +318,7 @@ void main() {
         notificationCardFinder,
         title: 'Data revoked',
         content: 'Demo MijnOverheid.nl has revoked this data: Demo Root',
+        read: false,
       );
 
       // Tap the notification card to open the credential detail screen
@@ -343,6 +340,19 @@ void main() {
         issuerName: 'Demo MijnOverheid.nl',
         attributes: {'BSN': '12345'},
         isRevoked: true,
+      );
+
+      // Go back
+      final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
+      await tester.tapAndSettle(backButtonFinder);
+
+      // Notification should be marked as read
+      await evaluateNotificationCard(
+        tester,
+        notificationCardFinder,
+        title: 'Data revoked',
+        content: 'Demo MijnOverheid.nl has revoked this data: Demo Root',
+        read: true,
       );
     });
   });
