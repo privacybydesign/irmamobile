@@ -31,6 +31,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     // It reads from cache, cleans up the notifications and loads new ones
     if (event is Initialize) {
       yield* _mapInitToState();
+    } else if (event is LoadNotifications) {
+      yield* _mapLoadNotificationsToState();
     } else if (event is MarkAllNotificationsAsRead) {
       yield* _mapMarkAllNotificationsAsReadToState();
     } else if (event is MarkNotificationAsRead) {
@@ -65,7 +67,28 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     _updateCachedNotifications(initialNotifications);
 
     _notifications = initialNotifications;
-    yield NotificationsInitialized(initialNotifications);
+
+    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+    yield NotificationsInitialized(filteredNotifications);
+  }
+
+  Stream<NotificationsState> _mapLoadNotificationsToState() async* {
+    yield NotificationsLoading();
+
+    List<Notification> updatedNotifications = _notifications;
+
+    // Load the new notifications
+    for (final notificationHandler in _notificationHandlers) {
+      updatedNotifications = await notificationHandler.loadNotifications(_repo, updatedNotifications);
+    }
+
+    // Update the cached notifications
+    _updateCachedNotifications(updatedNotifications);
+
+    _notifications = updatedNotifications;
+    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+
+    yield NotificationsInitialized(filteredNotifications);
   }
 
   Stream<NotificationsState> _mapMarkAllNotificationsAsReadToState() async* {

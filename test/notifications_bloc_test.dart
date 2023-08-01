@@ -80,6 +80,61 @@ void main() {
     expect(notificationContent.messageTranslationKey, 'notifications.credential_status.revoked.message');
   });
 
+  test('reload-notifications', () async {
+    // Issue a revocable credential
+    await issueCredential(
+      repo,
+      mockBridge,
+      43,
+      [
+        {
+          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+        }
+      ],
+      revoked: true,
+    );
+
+    // Create bloc
+    final bloc = NotificationsBloc(
+      repo: repo,
+    );
+    expect(bloc.state, isA<NotificationsInitial>());
+
+    bloc.add(Initialize());
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    // Loaded state should have one notification
+    final notificationsLoadedState = bloc.state as NotificationsLoaded;
+    final notifications = notificationsLoadedState.notifications;
+    expect(notifications.length, 1);
+
+    // Issue a second revoked credential
+    await issueCredential(
+      repo,
+      mockBridge,
+      44,
+      [
+        {
+          'irma-demo.IRMATube.member.id': TextValue.fromString('56789'),
+          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+        }
+      ],
+      revoked: true,
+    );
+
+    // Now reload the notifications
+    bloc.add(LoadNotifications());
+    expect(await bloc.stream.first, isA<NotificationsLoading>());
+    expect(await bloc.stream.first, isA<NotificationsLoaded>());
+
+    // Loaded state should now have two notifications
+    final notificationsLoadedState2 = bloc.state as NotificationsLoaded;
+    final notifications2 = notificationsLoadedState2.notifications;
+    expect(notifications2.length, 2);
+  });
+
   test('clean-up-notifications', () async {
     // Issue a revocable credential
     await issueCredential(

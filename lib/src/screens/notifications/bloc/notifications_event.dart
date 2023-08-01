@@ -11,6 +11,9 @@ abstract class NotificationsEvent extends Equatable {
 // This event should be called right after the bloc is created (NotificationsBloc()..add(Initialize()))
 class Initialize extends NotificationsEvent {}
 
+// LoadNotifications event only loads new notifications
+class LoadNotifications extends NotificationsEvent {}
+
 class MarkAllNotificationsAsRead extends NotificationsEvent {}
 
 class MarkNotificationAsRead extends NotificationsEvent {

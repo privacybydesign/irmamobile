@@ -135,6 +135,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
     // Resumed = when the app regains focus after being inactive or paused in the background
     if (state == AppLifecycleState.resumed) {
       _handleUpdateSchemes();
+      widget.notificationsBloc.add(LoadNotifications());
     }
 
     // We check the transition goes from paused -> inactive -> resumed
