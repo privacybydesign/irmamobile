@@ -10,6 +10,7 @@ import 'package:irmamobile/app.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
+import 'package:irmamobile/src/screens/notifications/bloc/notifications_bloc.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -39,9 +40,15 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
 
-Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defaultLanguage]) async {
+Future<void> pumpIrmaApp(
+  WidgetTester tester,
+  IrmaRepository repo, [
+  Locale? defaultLanguage,
+  NotificationsBloc? notificationsBloc,
+]) async {
   await tester.pumpWidgetAndSettle(IrmaApp(
     repository: repo,
+    notificationsBloc: notificationsBloc ?? NotificationsBloc(repo: repo),
     defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
   ));
 
@@ -54,8 +61,9 @@ Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defa
 }
 
 // Pump a new app and unlock it
-Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo, [Locale? locale]) async {
-  await pumpIrmaApp(tester, repo, locale);
+Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo,
+    [Locale? locale, NotificationsBloc? notificationsBloc]) async {
+  await pumpIrmaApp(tester, repo, locale, notificationsBloc);
   await unlock(tester);
 }
 

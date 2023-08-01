@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
+import 'package:irmamobile/src/screens/notifications/bloc/notifications_bloc.dart';
 import 'package:irmamobile/src/screens/notifications/notifications_screen.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/irma_close_button.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import 'helpers/helpers.dart';
@@ -260,6 +262,87 @@ void main() {
         title: 'Data revoked',
         content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
         read: true,
+      );
+    });
+
+    testWidgets('reload-notifications', (tester) async {
+      final repo = irmaBinding.repository;
+      final notificationsBloc = NotificationsBloc(repo: repo);
+      await pumpAndUnlockApp(tester, repo, null, notificationsBloc);
+
+      // Make sure a revoked credential is present
+      final revocationKey = generateRevocationKey();
+      await issueCredentials(
+        tester,
+        irmaBinding,
+        {'irma-demo.MijnOverheid.root.BSN': '12345'},
+        revocationKeys: {'irma-demo.MijnOverheid.root': revocationKey},
+      );
+
+      // Close the add credential success screen
+      await tester.tapAndSettle(
+        find.text('OK'),
+      );
+
+      await revokeCredential('irma-demo.MijnOverheid.root', revocationKey);
+      await irmaBinding.repository.startTestSession('''
+        {
+          "@context": "https://irma.app/ld/request/disclosure/v2",
+          "disclose": [
+            [
+              [ "irma-demo.MijnOverheid.root.BSN" ]
+            ]
+          ],
+          "revocation": [ "irma-demo.MijnOverheid.root" ]
+        }
+      ''');
+      await tester.pumpAndSettle();
+      await tester.tapAndSettle(find.byType(IrmaCloseButton));
+      await tester.tapAndSettle(find.text('Close'));
+
+      final notificationBellWidget = tester.widget<NotificationBell>(notificationBellFinder);
+      expect(notificationBellWidget.showIndicator, false);
+
+      notificationsBloc.add(LoadNotifications());
+      await tester.pumpAndSettle();
+
+      final updatedNotificationBellWidget = tester.widget<NotificationBell>(notificationBellFinder);
+      expect(updatedNotificationBellWidget.showIndicator, true);
+
+      await tester.tapAndSettle(notificationBellFinder);
+
+      expect(notificationsScreenFinder, findsOneWidget);
+
+      final notificationCardsFinder = find.byType(NotificationCard);
+      expect(notificationCardsFinder, findsOneWidget);
+
+      final notificationCardFinder = notificationCardsFinder.first;
+      await evaluateNotificationCard(
+        tester,
+        notificationCardFinder,
+        title: 'Data revoked',
+        content: 'Demo MijnOverheid.nl has revoked this data: Demo Root',
+      );
+
+      // Tap the notification card to open the credential detail screen
+      await tester.tapAndSettle(notificationCardFinder);
+
+      // Expect the credential detail screen
+      final credentialDetailScreenFinder = find.byType(CredentialsDetailScreen);
+      expect(credentialDetailScreenFinder, findsOneWidget);
+
+      // Expect the actual credential card
+      final credentialCardsFinder = find.byType(IrmaCredentialCard);
+      expect(credentialCardsFinder, findsOneWidget);
+
+      final credentialCardFinder = credentialCardsFinder.first;
+      await evaluateCredentialCard(
+        tester,
+        credentialCardFinder,
+        credentialName: 'Demo Root',
+        issuerName: 'Demo MijnOverheid.nl',
+        attributes: {'BSN': '12345'},
+        isRevoked: true,
       );
     });
   });
