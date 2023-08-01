@@ -17,24 +17,14 @@ import 'widgets/irma_nav_bar.dart';
 import 'widgets/irma_qr_scan_button.dart';
 import 'widgets/pending_pointer_listener.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-        create: (_) => NotificationsBloc(
-          repo: IrmaRepositoryProvider.of(context),
-        )..add(Initialize()),
-        child: _ProvidedHomeScreen(),
-      );
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _ProvidedHomeScreen extends StatefulWidget {
-  @override
-  State<_ProvidedHomeScreen> createState() => _ProvidedHomeScreenState();
-}
-
-class _ProvidedHomeScreenState extends State<_ProvidedHomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   IrmaNavBarTab selectedTab = IrmaNavBarTab.home;
 
   void _changeTab(IrmaNavBarTab tab) => setState(

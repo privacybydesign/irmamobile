@@ -27,6 +27,7 @@ import '../../src/screens/splash_screen/splash_screen.dart';
 import '../../src/theme/theme.dart';
 import '../../src/util/combine.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
+import 'src/screens/notifications/bloc/notifications_bloc.dart';
 import 'src/screens/scanner/util/open_scanner.dart';
 
 const schemeUpdateIntervalHours = 3;
@@ -34,8 +35,14 @@ const schemeUpdateIntervalHours = 3;
 class App extends StatefulWidget {
   final IrmaRepository irmaRepository;
   final Locale? forcedLocale;
+  final NotificationsBloc notificationsBloc;
 
-  const App({Key? key, required this.irmaRepository, this.forcedLocale}) : super(key: key);
+  const App({
+    Key? key,
+    required this.irmaRepository,
+    required this.notificationsBloc,
+    this.forcedLocale,
+  }) : super(key: key);
 
   @override
   AppState createState() => AppState();
