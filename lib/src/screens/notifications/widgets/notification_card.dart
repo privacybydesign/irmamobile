@@ -52,8 +52,6 @@ class NotificationCard extends StatelessWidget {
       }
 
       logo = credType.logo;
-
-      // TODO: Make sure that the content is always of type InternalTranslatedContent.
       final content = notification.content as InternalTranslatedContent;
 
       title = FlutterI18n.translate(
