@@ -30,17 +30,15 @@ class NotificationCard extends StatelessWidget {
     String contentMessage = '';
     String? logo;
 
+    final notification = this.notification; // To prevent the need for type casting.
     final localizedTimeStamp = FlutterI18n.translate(
       context,
       'credential.date_at_time',
       translationParams: {
-        // TODO: Add datetime to notification and make this dynamic.
-        'date': DateFormat.yMMMMd(lang).format(DateTime.now()),
-        'time': DateFormat.jm(lang).format(DateTime.now()),
+        'date': DateFormat.yMMMMd(lang).format(notification.timestamp),
+        'time': DateFormat.jm(lang).format(notification.timestamp),
       },
     );
-
-    final notification = this.notification; // To prevent the need for type casting.
 
     if (notification is CredentialStatusNotification) {
       final credType = repo.irmaConfiguration.credentialTypes[notification.credentialTypeId];
