@@ -596,7 +596,9 @@
     "header": "IRMA heeft een nieuwe naam en een nieuw uiterlijk gekregen: Yivi",
     "explanation": "Onder de motorkap is alles hetzelfde gebleven, je kunt gewoon inloggen met je oude PIN-code."
   },
-  "nofitifcations": {
+  "notifications": {
+    "title": "Notificaties",
+    "empty": "Geen notificaties",
     "credential_status": {
       "revoked": {
         "title": "Gegevens ingetrokken",
@@ -610,6 +612,10 @@
         "title": "Gegevens verlopen bijna",
         "message": "Deze gegevens verlopen bijna: {credentialName}"
       }
+    },
+    "bell": {
+      "new_notifications": "Notificatiebel - Nieuwe notificaties",
+      "no_new_notifications": "Notificatiebel - Geen nieuwe notificaties"
     }
   }
 }

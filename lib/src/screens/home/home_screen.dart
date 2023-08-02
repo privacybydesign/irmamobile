@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/native_events.dart';
 import '../../theme/theme.dart';
@@ -7,6 +8,9 @@ import '../../widgets/irma_repository_provider.dart';
 import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
+import '../notifications/bloc/notifications_bloc.dart';
+import '../notifications/notifications_screen.dart';
+import '../notifications/widgets/notification_bell.dart';
 import '../scanner/util/open_scanner.dart';
 import 'home_tab.dart';
 import 'widgets/irma_nav_bar.dart';
@@ -39,6 +43,15 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _navToNotificationsScreen() => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: BlocProvider.of<NotificationsBloc>(context),
+            child: NotificationsScreen(),
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     // We wrap this widget in a WillPopScope to make sure a back press on Android returns the user to the
@@ -63,6 +76,14 @@ class _HomeScreenState extends State<HomeScreen> {
             titleTranslationKey:
                 selectedTab == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${selectedTab.name}',
             noLeading: true,
+            actions: [
+              BlocBuilder<NotificationsBloc, NotificationsState>(
+                builder: (context, state) => NotificationBell(
+                  showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
+                  onTap: _navToNotificationsScreen,
+                ),
+              )
+            ],
           ),
           body: SafeArea(
             child: Builder(builder: (context) {

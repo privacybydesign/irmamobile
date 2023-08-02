@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
+import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
+import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -44,7 +47,6 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   );
 
   await revokeCredential('irma-demo.MijnOverheid.root', revocationKey);
-
   await irmaBinding.repository.startTestSession('''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",
@@ -76,21 +78,45 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
     find.text('Close'),
   );
 
-  //Go to the data tab
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  // The NotificationBell should be findable in the app bar
+  final notificationBellFinder = find.byType(NotificationBell);
+  expect(notificationBellFinder, findsOneWidget);
+  await tester.tapAndSettle(notificationBellFinder);
 
-  // Tap the card with the text Demo Root
-  final demoRootFinder = find.text('Demo Root');
-  await tester.scrollUntilVisible(demoRootFinder, 100);
-  await tester.tapAndSettle(demoRootFinder);
+  // Now pull to refresh and expect a notification card
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
 
-  // Find the credential card
-  final credentialCardFinder = find.byType(IrmaCredentialCard).first;
-  expect(credentialCardFinder, findsOneWidget);
+  final notificationCardsFinder = find.byType(NotificationCard);
+  expect(notificationCardsFinder, findsOneWidget);
 
-  await _evaluateDemoCredentialCard(
+  final notificationCardFinder = notificationCardsFinder.first;
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder,
+    title: 'Data revoked',
+    content: 'Demo MijnOverheid.nl has revoked this data: Demo Root',
+    read: false,
+  );
+
+  // Tap the notification card to open the credential detail screen
+  await tester.tapAndSettle(notificationCardFinder);
+
+  // Expect the credential detail screen
+  final credentialDetailScreenFinder = find.byType(CredentialsDetailScreen);
+  expect(credentialDetailScreenFinder, findsOneWidget);
+
+  // Expect the actual credential card
+  final credentialCardsFinder = find.byType(IrmaCredentialCard);
+  expect(credentialCardsFinder, findsOneWidget);
+
+  final credentialCardFinder = credentialCardsFinder.first;
+  await evaluateCredentialCard(
     tester,
     credentialCardFinder,
+    credentialName: 'Demo Root',
+    issuerName: 'Demo MijnOverheid.nl',
+    attributes: {'BSN': '12345'},
     isRevoked: true,
   );
 

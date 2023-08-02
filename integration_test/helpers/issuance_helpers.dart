@@ -5,6 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import '../irma_binding.dart';
 import 'helpers.dart';
 
+Future<void> issueIrmaTubeMember(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) =>
+    issueCredentials(tester, irmaBinding, {
+      'irma-demo.IRMATube.member.type': 'USER',
+      'irma-demo.IRMATube.member.id': '123123',
+    });
+
 Future<void> issueEmailAddress(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,

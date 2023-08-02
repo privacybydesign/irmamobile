@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../data/irma_repository.dart';
+import '../../../sentry/sentry.dart';
 import '../handlers/credential_status_notifications_handler.dart';
 import '../handlers/notification_handler.dart';
 import '../models/notification.dart';
@@ -30,6 +31,12 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     // It reads from cache, cleans up the notifications and loads new ones
     if (event is Initialize) {
       yield* _mapInitToState();
+    } else if (event is LoadNotifications) {
+      yield* _mapLoadNotificationsToState();
+    } else if (event is MarkAllNotificationsAsRead) {
+      yield* _mapMarkAllNotificationsAsReadToState();
+    } else if (event is MarkNotificationAsRead) {
+      yield* _mapMarkNotificationAsReadToState(event.notificationId);
     } else if (event is SoftDeleteNotification) {
       yield* _mapSoftDeleteNotificationToState(event.notificationId);
     } else {
@@ -60,7 +67,62 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     _updateCachedNotifications(initialNotifications);
 
     _notifications = initialNotifications;
-    yield NotificationsInitialized(initialNotifications);
+
+    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+    yield NotificationsInitialized(filteredNotifications);
+  }
+
+  Stream<NotificationsState> _mapLoadNotificationsToState() async* {
+    yield NotificationsLoading();
+
+    List<Notification> updatedNotifications = _notifications;
+
+    // Load the new notifications
+    for (final notificationHandler in _notificationHandlers) {
+      updatedNotifications = await notificationHandler.loadNotifications(_repo, updatedNotifications);
+    }
+
+    // Update the cached notifications
+    _updateCachedNotifications(updatedNotifications);
+
+    _notifications = updatedNotifications;
+    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+
+    yield NotificationsInitialized(filteredNotifications);
+  }
+
+  Stream<NotificationsState> _mapMarkAllNotificationsAsReadToState() async* {
+    yield NotificationsLoading();
+
+    final List<Notification> updatedNotifications = _notifications;
+
+    for (final notification in updatedNotifications) {
+      notification.read = true;
+    }
+
+    _updateCachedNotifications(updatedNotifications);
+
+    _notifications = updatedNotifications;
+    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+
+    yield NotificationsLoaded(filteredNotifications);
+  }
+
+  Stream<NotificationsState> _mapMarkNotificationAsReadToState(String notificationId) async* {
+    yield NotificationsLoading();
+
+    final List<Notification> updatedNotifications = _notifications;
+
+    final notificationIndex = updatedNotifications.indexWhere((notification) => notification.id == notificationId);
+    if (notificationIndex != -1) {
+      updatedNotifications[notificationIndex].read = true;
+    }
+    _updateCachedNotifications(updatedNotifications);
+
+    _notifications = updatedNotifications;
+    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+
+    yield NotificationsLoaded(filteredNotifications);
   }
 
   Stream<NotificationsState> _mapSoftDeleteNotificationToState(String notificationId) async* {
@@ -93,13 +155,21 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   List<Notification> _notificationsFromJson(String serializedNotifications) {
     List<Notification> notifications = [];
 
-    if (serializedNotifications != '') {
-      final jsonDecodedNotifications = jsonDecode(serializedNotifications);
-      notifications = jsonDecodedNotifications
-          .map<Notification>(
-            (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
-          )
-          .toList();
+    try {
+      if (serializedNotifications != '') {
+        final jsonDecodedNotifications = jsonDecode(serializedNotifications);
+        notifications = jsonDecodedNotifications
+            .map<Notification>(
+              (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
+            )
+            .toList();
+      }
+    } catch (e, stackTrace) {
+      // If the cache is corrupted, we report the error to Sentry
+      reportError(e, stackTrace);
+
+      // If the cache is corrupted, we clear it and return an empty list
+      _repo.preferences.setSerializedNotifications('');
     }
 
     return notifications;
