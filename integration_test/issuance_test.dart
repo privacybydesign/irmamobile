@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/success_graphic.dart';
+import 'package:irmamobile/src/widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 
 import 'helpers/helpers.dart';
@@ -156,6 +158,54 @@ void main() {
 
       // Expect the card to have the correct content again
       await evaluateIssuedEmailAddressCard();
+    });
+
+    testWidgets('delete-after-issuance', (tester) async {
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+      await issueEmailAddress(tester, irmaBinding);
+
+      // Press ok
+      final okButtonFinder = find.text('OK');
+      await tester.tapAndSettle(okButtonFinder);
+
+      // Go to data tab.
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+      // Press the email tile.
+      final emailTileFinder = find.byKey(const Key('irma-demo.sidn-pbdf.email_tile'));
+      await tester.scrollUntilVisible(emailTileFinder, 75);
+      await tester.tapAndSettle(emailTileFinder);
+
+      // Open the bottom sheet
+      final bottomSheetButtonFinder = find.byIcon(Icons.more_horiz_sharp);
+      await tester.tapAndSettle(bottomSheetButtonFinder);
+
+      // Press the delete button
+      final deleteButtonFinder = find.text('Delete data');
+      await tester.tapAndSettle(deleteButtonFinder);
+
+      // Expect the delete confirmation dialog
+      final deleteConfirmationDialogFinder = find.byType(DeleteCredentialConfirmationDialog);
+      expect(deleteConfirmationDialogFinder, findsOneWidget);
+
+      // Press the delete button in the dialog
+      final dialogDeleteButtonFinder = find.text('Delete');
+      await tester.tapAndSettle(dialogDeleteButtonFinder);
+
+      // Expect snackbar
+      final snackbarFinder = find.byType(SnackBar);
+      expect(snackbarFinder, findsOneWidget);
+
+      // Expect the snackbar to contain the correct text
+      final snackbarTextFinder = find.text('Success! The data has been deleted.');
+      expect(snackbarTextFinder, findsOneWidget);
+
+      // Expect to be back on the data tab
+      final dataTabFinder = find.byType(DataTab);
+      expect(dataTabFinder, findsOneWidget);
+
+      // Expect the email tile to be gone
+      expect(emailTileFinder, findsNothing);
     });
   });
 }
