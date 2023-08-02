@@ -597,6 +597,8 @@
     "explanation": "Everything remained the same under the hood, you can log in with your old PIN code."
   },
   "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
     "credential_status": {
       "revoked": {
         "title": "Data revoked",
@@ -610,6 +612,10 @@
         "title": "Data expiring soon",
         "message": "This data is expiring soon: {credentialName}"
       }
+    },
+    "bell": {
+      "new_notifications": "Notifications bell - New notifications",
+      "no_new_notifications": "Notifications bell - No new notifications"
     }
   }
 }

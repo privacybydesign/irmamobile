@@ -7,6 +7,7 @@ import 'issuance_test.dart' as issuance_test;
 import 'issue_wizard_test.dart' as issue_wizard_test;
 import 'login_test.dart' as login_test;
 import 'more_tab_test.dart' as more_tab_test;
+import 'notifications_test.dart' as notifications_test;
 import 'settings_test.dart' as settings_test;
 
 /// Wrapper to execute all tests at once.
@@ -21,4 +22,5 @@ void main() {
   disclosure_session.main();
   issue_wizard_test.main();
   credential_store_test.main();
+  notifications_test.main();
 }
