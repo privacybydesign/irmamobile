@@ -1,3 +1,7 @@
+// We use emit inside the bloc to directly emit new states based on the incoming session state.
+// This does not exactly conform to the bloc pattern, and therefore we have to ignore the linting rule.
+// ignore_for_file: invalid_use_of_visible_for_testing_member
+
 import 'dart:async';
 
 import 'package:collection/collection.dart';
