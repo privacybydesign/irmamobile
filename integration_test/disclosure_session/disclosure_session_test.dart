@@ -18,6 +18,7 @@ import 'filled_app_scenarios/filled_specific_attribute_values_match.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_no_match.dart';
 import 'special_scenarios/attribute_order.dart';
 import 'special_scenarios/combined_disclosure_issuance.dart';
+import 'special_scenarios/decline_disclosure.dart';
 import 'special_scenarios/nullables.dart';
 import 'special_scenarios/random_blind.dart';
 import 'special_scenarios/revocation.dart';
@@ -198,6 +199,15 @@ void main() {
       testWidgets(
         'random-blind',
         (tester) => randomBlindTest(
+          tester,
+          irmaBinding,
+        ),
+      );
+
+      // Decline disclosure at the last moment
+      testWidgets(
+        'decline-disclosure',
+        (tester) => declineDisclosure(
           tester,
           irmaBinding,
         ),
