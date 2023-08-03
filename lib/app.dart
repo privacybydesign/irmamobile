@@ -56,7 +56,6 @@ class AppState extends State<App> with WidgetsBindingObserver {
   StreamSubscription<Event>? _dataClearSubscription;
   StreamSubscription<bool>? _screenshotPrefSubscription;
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
-  bool _qrScannerActive = false;
   bool _privacyScreenLoaded = false;
 
   // We keep track of the last two life cycle states

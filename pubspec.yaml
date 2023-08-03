@@ -18,8 +18,8 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.3
-  flutter_svg: ^0.22.0
-  flutter_i18n: ^0.32.3
+  flutter_svg: ^2.0.7
+  flutter_i18n: ^0.33.0
   flutter_bloc: ^7.2.0
   equatable: ^2.0.3
   email_validator: ^2.0.1
@@ -31,12 +31,11 @@ dependencies:
   qr_code_scanner: ^1.0.1
   native_device_orientation: ^1.1.4
   share: ^2.0.4
-  intl: ^0.17.0
+  intl: ^0.18.0
   flutter_markdown: ^0.6.6
   shared_preferences: ^2.0.7
   async: ^2.6.1
   streaming_shared_preferences: ^2.0.0
-  path_drawing: ^0.5.1
   flutter_jailbreak_detection: ^1.10.0
   visibility_detector: ^0.2.2
   quiver: ^3.0.1
@@ -52,9 +51,9 @@ dev_dependencies:
     sdk: flutter
   json_serializable: ^6.6.1
   flutter_lints: ^1.0.4
-  flutter_native_splash: ^1.2.1
+  flutter_native_splash: ^2.3.1
   build_runner: ^2.1.2
-  flutter_launcher_icons: ^0.9.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter_native_splash:
   image: assets/non-free/logo_payoff.png
@@ -98,38 +97,38 @@ flutter:
   fonts:
     - family: Alexandria
       fonts:
-      - asset: fonts/alexandria/Alexandria-Thin.ttf
-        weight: 100
-      - asset: fonts/alexandria/Alexandria-ExtraLight.ttf
-        weight: 200
-      - asset: fonts/alexandria/Alexandria-Light.ttf
-        weight: 300
-      - asset: fonts/alexandria/Alexandria-Regular.ttf
-        weight: 400
-      - asset: fonts/alexandria/Alexandria-Medium.ttf
-        weight: 500
-      - asset: fonts/alexandria/Alexandria-SemiBold.ttf
-        weight: 600
-      - asset: fonts/alexandria/Alexandria-Bold.ttf
-        weight: 700
-      - asset: fonts/alexandria/Alexandria-ExtraBold.ttf
-        weight: 800
-      - asset: fonts/alexandria/Alexandria-Black.ttf
-        weight: 900
+        - asset: fonts/alexandria/Alexandria-Thin.ttf
+          weight: 100
+        - asset: fonts/alexandria/Alexandria-ExtraLight.ttf
+          weight: 200
+        - asset: fonts/alexandria/Alexandria-Light.ttf
+          weight: 300
+        - asset: fonts/alexandria/Alexandria-Regular.ttf
+          weight: 400
+        - asset: fonts/alexandria/Alexandria-Medium.ttf
+          weight: 500
+        - asset: fonts/alexandria/Alexandria-SemiBold.ttf
+          weight: 600
+        - asset: fonts/alexandria/Alexandria-Bold.ttf
+          weight: 700
+        - asset: fonts/alexandria/Alexandria-ExtraBold.ttf
+          weight: 800
+        - asset: fonts/alexandria/Alexandria-Black.ttf
+          weight: 900
     - family: Open Sans
       fonts:
-      - asset: fonts/open-sans/OpenSans-Light.ttf
-        weight: 300
-      - asset: fonts/open-sans/OpenSans-Regular.ttf
-        weight: 400
-      - asset: fonts/open-sans/OpenSans-Medium.ttf
-        weight: 500
-      - asset: fonts/open-sans/OpenSans-SemiBold.ttf
-        weight: 600
-      - asset: fonts/open-sans/OpenSans-Bold.ttf
-        weight: 700
-      - asset: fonts/open-sans/OpenSans-ExtraBold.ttf
-        weight: 800
+        - asset: fonts/open-sans/OpenSans-Light.ttf
+          weight: 300
+        - asset: fonts/open-sans/OpenSans-Regular.ttf
+          weight: 400
+        - asset: fonts/open-sans/OpenSans-Medium.ttf
+          weight: 500
+        - asset: fonts/open-sans/OpenSans-SemiBold.ttf
+          weight: 600
+        - asset: fonts/open-sans/OpenSans-Bold.ttf
+          weight: 700
+        - asset: fonts/open-sans/OpenSans-ExtraBold.ttf
+          weight: 800
     - family: IrmaIcons
       fonts:
         - asset: fonts/irma-icons/IrmaIcons.ttf

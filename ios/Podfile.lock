@@ -3,6 +3,8 @@ PODS:
   - flutter_jailbreak_detection (1.0.0):
     - Flutter
     - IOSSecuritySuite
+  - flutter_native_splash (0.0.1):
+    - Flutter
   - flutter_privacy_screen (0.0.1):
     - Flutter
   - integration_test (0.0.1):
@@ -36,6 +38,7 @@ PODS:
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_jailbreak_detection (from `.symlinks/plugins/flutter_jailbreak_detection/ios`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_privacy_screen (from `.symlinks/plugins/flutter_privacy_screen/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - native_device_orientation (from `.symlinks/plugins/native_device_orientation/ios`)
@@ -45,7 +48,7 @@ DEPENDENCIES:
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share (from `.symlinks/plugins/share/ios`)
-  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
@@ -59,6 +62,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_jailbreak_detection:
     :path: ".symlinks/plugins/flutter_jailbreak_detection/ios"
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
   flutter_privacy_screen:
     :path: ".symlinks/plugins/flutter_privacy_screen/ios"
   integration_test:
@@ -78,15 +83,16 @@ EXTERNAL SOURCES:
   share:
     :path: ".symlinks/plugins/share/ios"
   shared_preferences_foundation:
-    :path: ".symlinks/plugins/shared_preferences_foundation/ios"
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_jailbreak_detection: c5bf66ff6c0c4230769b6ba0bd63eb6ac4148a76
+  flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
   flutter_privacy_screen: 60e2b67bb00f0bba6ccfbdf8c5ad353ef928fb68
-  integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
+  integration_test: 13825b8a9334a850581300559b8839134b124670
   IOSSecuritySuite: 1c04c80a45c9f8899909c70854c05e992acc34aa
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   native_device_orientation: 3b4cfc9565a7b879cc4fde282b3e27745e852d0d
