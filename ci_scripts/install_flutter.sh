@@ -3,10 +3,10 @@
 # The environment variables FLUTTER_HOME needs to be set and "$FLUTTER_HOME/bin" needs to be added to the PATH.
 set -euxo pipefail
 
-FLUTTER_VERSION="3.7.12"
+FLUTTER_VERSION="3.10.6"
 FLUTTER_CHANNEL="stable"
-FLUTTER_CHECKSUM_LINUX="898f7f34dcf19353060dfa33ef20e9d674c2c04dc8cc5ddae9d5ff16042dbc2e"
-FLUTTER_CHECKSUM_MACOS="80fa676172c410eda0761cff5bac0584729164b50b12f47e6d08cac2b766d593"
+FLUTTER_CHECKSUM_LINUX="7048e51a89c99a5b6cac6d8ae416121264effa76da34dba5c0e7cf85519c8e98"
+FLUTTER_CHECKSUM_MACOS="64e6b722e9ebdf9ccc83ef9253f24a3c0519d103e622aeb0c0e7c7647636f1a5"
 
 if [[ -z "$FLUTTER_HOME" ]]; then
   echo "Environment variable FLUTTER_HOME needs to be set"
