@@ -64,7 +64,7 @@ void main() {
       final forgotPinScreenFinder = find.byType(ResetPinScreen);
       expect(forgotPinScreenFinder, findsOneWidget);
 
-      // Expect content the right content
+      // Expect forgotten PIN explanation content
       final actualScreenText = tester.getAllText(forgotPinScreenFinder);
       final expectedScreenText = [
         'Forgot your PIN?',
