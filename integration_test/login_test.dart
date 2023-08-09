@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
@@ -32,6 +33,28 @@ void main() {
       await tester.scrollUntilVisible(logoutButtonFinder, 100);
       await tester.tapAndSettle(logoutButtonFinder);
 
+      await tester.waitFor(find.byKey(const Key('pin_screen')));
+
+      // Login using wrong pin
+      await enterPin(tester, '54321');
+
+      // Check error dialog
+      await tester.waitFor(find.byKey(const Key('irma_dialog')));
+
+      // Check "Wrong PIN" dialog title text
+      String string = tester.getAllText(find.byKey(const Key('irma_dialog_title'))).first;
+      expect(string, 'PIN incorrect');
+
+      // Check dialog text
+      string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
+      expect(string,
+          'This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.');
+
+      await tester.tapAndSettle(find.descendant(
+        of: find.byKey(const Key('irma_dialog')),
+        matching: find.byType(YiviThemedButton),
+      ));
+
       // Press "Forgot pin"
       final forgotPinLinkFinder = find.text('I forgot my PIN').hitTestable();
       expect(forgotPinLinkFinder, findsOneWidget);
@@ -57,27 +80,12 @@ void main() {
       final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
       await tester.tapAndSettle(backButtonFinder);
 
-      await tester.waitFor(find.byKey(const Key('pin_screen')));
+      // Now enter correct pin
+      await enterPin(tester, '12345');
 
-      // Login using wrong pin
-      await enterPin(tester, '54321');
-
-      // Check error dialog
-      await tester.waitFor(find.byKey(const Key('irma_dialog')));
-
-      // Check "Wrong PIN" dialog title text
-      String string = tester.getAllText(find.byKey(const Key('irma_dialog_title'))).first;
-      expect(string, 'PIN incorrect');
-
-      // Check dialog text
-      string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
-      expect(string,
-          'This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.');
-
-      await tester.tapAndSettle(find.descendant(
-        of: find.byKey(const Key('irma_dialog')),
-        matching: find.byType(YiviThemedButton),
-      ));
+      // Expect to be on the home screen
+      final homeScreenFinder = find.byType(HomeScreen);
+      expect(homeScreenFinder, findsOneWidget);
     });
 
     testWidgets('blocked-pin', (tester) async {
