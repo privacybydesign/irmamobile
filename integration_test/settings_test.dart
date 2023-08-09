@@ -236,7 +236,6 @@ void main() {
 
       // Re-enter new pin and press next
       await enterPin(tester, shortPin);
-      //await tester.tapAndSettle(nextButtonFinder);
 
       await tester.waitFor(confirmPinResetDialogFinder);
 
