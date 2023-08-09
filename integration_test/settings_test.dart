@@ -131,7 +131,7 @@ void main() {
         duration: const Duration(milliseconds: 750),
       );
 
-      // Enter current pin PIN
+      // Enter current pin
       const shortPin = '12345';
       await enterPin(tester, shortPin);
 
