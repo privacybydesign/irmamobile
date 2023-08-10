@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/screens/change_language/change_language_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
@@ -197,7 +198,7 @@ void main() {
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
-    testWidgets('erase', (tester) async {
+    testWidgets('reset-from-settings', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
       var deleteFinder = find.byKey(const Key('delete_link'));
