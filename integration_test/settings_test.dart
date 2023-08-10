@@ -7,6 +7,7 @@ import 'package:integration_test/integration_test.dart';
 
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/screens/change_language/change_language_screen.dart';
+import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin_reset_dialog.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
@@ -130,14 +131,20 @@ void main() {
         duration: const Duration(milliseconds: 750),
       );
 
-      // Enter current pin PIN
-      await enterPin(tester, '12345');
+      // Enter current pin
+      const shortPin = '12345';
+      await enterPin(tester, shortPin);
 
-      // Enter new PIN
-      await enterPin(tester, '54321');
+      // Press the "Prefer a longer pin" link
+      final longerPinLinkFinder = find.text('Prefer a longer PIN?').hitTestable();
+      await tester.tapAndSettle(longerPinLinkFinder);
+
+      // Enter a longer pin
+      const longPin = '123434567890';
+      await enterPin(tester, longPin);
 
       // Next button
-      var nextButtonFinder = find
+      final nextButtonFinder = find
           .byKey(
             const Key('pin_next'),
           )
@@ -150,10 +157,15 @@ void main() {
         duration: const Duration(milliseconds: 750),
       );
 
-      // Enter new PIN (again)
-      await enterPin(tester, '54321');
+      // Enter new PIN (again) and continue
+      await enterPin(tester, longPin);
+      await tester.tapAndSettle(nextButtonFinder);
 
-      // Press change
+      // Expect confirm change pin dialog
+      final confirmPinResetDialogFinder = find.byType(ConfirmPinResetDialog);
+      await tester.waitFor(confirmPinResetDialogFinder);
+
+      // Confirm it
       await tester.tapAndSettle(find.byKey(
         const Key('dialog_confirm_button'),
       ));
@@ -177,25 +189,86 @@ void main() {
       // Wait for snackbar to disappear
       await tester.waitUntilDisappeared(
         snackBarFinder,
-        timeout: const Duration(seconds: 10),
+        timeout: const Duration(seconds: 5),
       );
 
-      // Navigate to back to more tab
-      await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+      // Go back to MoreTab
+      final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
+      await tester.tapAndSettle(backButtonFinder);
 
-      // Logout
+      // Log out
       final logoutButtonFinder = find.byKey(const Key('log_out_button')).hitTestable();
       await tester.scrollUntilVisible(logoutButtonFinder, 100);
+      await tester.tapAndSettle(logoutButtonFinder);
+
+      // Log back in with new pin
+      await enterPin(tester, longPin);
+
+      // Press button with next
+      await tester.tapAndSettle(nextButtonFinder);
+
+      // Go back to more tab
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
+
+      // Open settings screen again
+      await tester.tapAndSettle(find.byKey(const Key('open_settings_screen_button')));
+
+      // Scroll to and press change pin button
+      await tester.scrollUntilVisible(changePinButtonFinder, 50);
+      await tester.tapAndSettle(changePinButtonFinder);
+
+      // Enter old pin
+      await enterPin(tester, longPin);
+
+      // Press next button
       await tester.tapAndSettle(
-        logoutButtonFinder,
+        nextButtonFinder,
         duration: const Duration(milliseconds: 750),
       );
 
-      // Log back in with new pin
-      await enterPin(tester, '54321');
+      // Press prefer shorter pin link
+      final shorterPinLinkFinder = find.text('Prefer a shorter PIN?').hitTestable();
+      await tester.tapAndSettle(shorterPinLinkFinder);
 
-      //Expect home screen
-      expect(find.byType(HomeScreen), findsOneWidget);
+      // Enter new pin and press next
+      await enterPin(tester, shortPin);
+      await tester.tapAndSettle(nextButtonFinder);
+
+      // Re-enter new pin and press next
+      await enterPin(tester, shortPin);
+
+      await tester.waitFor(confirmPinResetDialogFinder);
+
+      // Confirm it
+      await tester.tapAndSettle(find.byKey(
+        const Key('dialog_confirm_button'),
+      ));
+
+      // Expect snack bar
+      await tester.waitFor(
+        snackBarFinder,
+        timeout: const Duration(seconds: 15),
+      );
+
+      // Wait for snackbar to disappear
+      await tester.waitUntilDisappeared(
+        snackBarFinder,
+        timeout: const Duration(seconds: 5),
+      );
+
+      // Go back to MoreTab
+      await tester.tapAndSettle(backButtonFinder);
+
+      // Log out
+      await tester.scrollUntilVisible(logoutButtonFinder, 100);
+      await tester.tapAndSettle(logoutButtonFinder);
+
+      // Log back in with short pin
+      await enterPin(tester, shortPin);
+
+      // Expect home screen
+      final homeScreenFinder = find.byType(HomeScreen);
+      expect(homeScreenFinder, findsOneWidget);
     });
 
     testWidgets('reset-from-settings', (tester) async {
