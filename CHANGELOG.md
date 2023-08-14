@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 - Add integration test for declining the credential offer in an issuance session
+- Add integration test where two credentials of the same type are present and the user can choose between them
+- Add integration test for reset from forgotten PIN scenario
+- Add integration test for changing to a longer PIN
+- Add integration test for calling session
+- Add integration test for declining disclosure
+- Add integration test for deletion of a credential
+- Add integration test for the reissuing of a credential
+- Finished random blind integration test
 
 ## [7.4.2] - 2023-06-22
 ### Fixed
