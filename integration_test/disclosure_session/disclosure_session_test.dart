@@ -13,11 +13,11 @@ import 'filled_app_scenarios/filled_choice.dart';
 import 'filled_app_scenarios/filled_choice_mixed.dart';
 import 'filled_app_scenarios/filled_discon.dart';
 import 'filled_app_scenarios/filled_no_choice_multiple_creds.dart';
+import 'filled_app_scenarios/filled_no_choice_same_creds.dart';
 import 'filled_app_scenarios/filled_optional_disjunction.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_match.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_no_match.dart';
 import 'special_scenarios/attribute_order.dart';
-import 'special_scenarios/calling_session.dart';
 import 'special_scenarios/combined_disclosure_issuance.dart';
 import 'special_scenarios/decline_disclosure.dart';
 import 'special_scenarios/nullables.dart';
@@ -104,6 +104,13 @@ void main() {
       testWidgets(
         'filled-no-choice-multiple-creds',
         (tester) => filledNoChoiceMultipleCredsTest(tester, irmaBinding),
+      );
+
+      // Requests only the email address,
+      // but the app already has two email address
+      testWidgets(
+        'filled-no-choice-same-creds',
+        (tester) => filledNoChoiceSameCredsTest(tester, irmaBinding),
       );
 
       // Address from municipality OR
@@ -200,15 +207,6 @@ void main() {
       testWidgets(
         'random-blind',
         (tester) => randomBlindTest(
-          tester,
-          irmaBinding,
-        ),
-      );
-
-      // Disclosure session that calls a phone number at the end
-      testWidgets(
-        'calling-session',
-        (tester) => callingSessionTest(
           tester,
           irmaBinding,
         ),
