@@ -271,7 +271,7 @@ void main() {
       expect(homeScreenFinder, findsOneWidget);
     });
 
-    testWidgets('erase', (tester) async {
+    testWidgets('reset-from-settings', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
       var deleteFinder = find.byKey(const Key('delete_link'));
