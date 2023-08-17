@@ -584,7 +584,8 @@
     "error": "Something went wrong",
     "end_of_list": "You have reached the end of the list",
     "unknown": "Unknown",
-    "go_back": "Go back"
+    "go_back": "Go back",
+    "add" : "Add"
   },
   "update": {
     "title": "Update available",
@@ -616,6 +617,23 @@
     "bell": {
       "new_notifications": "Notifications bell - New notifications",
       "no_new_notifications": "Notifications bell - No new notifications"
+    }
+  },
+  "debug": {
+    "title": "Debugging",
+    "issue_digid": "Issue DigiD",
+    "random_issuance": "Issue random credentials",
+    "custom_issue_wizard": "Start issue wizard",
+    "delete_credentials": "Delete all credentials",
+    "start_session": "Start session",
+    "session_helper": "Session helper",
+    "scheme_management": {
+      "title": "Scheme management",
+      "active_schemes": "Active schemes",
+      "add_scheme_dialog": {
+        "title": "Add scheme",
+        "content": "Enter the URL of the scheme that should be added:"
+      }
     }
   }
 }

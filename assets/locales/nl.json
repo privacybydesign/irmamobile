@@ -584,7 +584,8 @@
     "error": "Er is iets misgegaan",
     "end_of_list": "Je bent aan het einde van de lijst gekomen",
     "unknown": "Onbekend",
-    "go_back": "Ga terug"
+    "go_back": "Ga terug",
+    "add" : "Toevoegen"
   },
   "update": {
     "title": "Update beschikbaar",
@@ -616,6 +617,23 @@
     "bell": {
       "new_notifications": "Notificatiebel - Nieuwe notificaties",
       "no_new_notifications": "Notificatiebel - Geen nieuwe notificaties"
+    }
+  },
+  "debug": {
+    "title": "Debuggen",
+    "issue_digid": "Uitgifte DigiD proef",
+    "random_issuance": "Uitgifte willekeurige gegevens",
+    "custom_issue_wizard": "Start issue wizard",
+    "delete_credentials": "Verwijder alle gegevens",
+    "start_session": "Start sessie",
+    "session_helper": "Sessie helper",
+    "scheme_management": {
+      "title": "Schema beheer",
+      "active_schemes": "Actieve schema's",
+      "add_scheme_dialog": {
+        "title": "Schema toevoegen",
+        "content": "Vul de URL in van het schema dat je wilt toevoegen:"
+      }
     }
   }
 }
