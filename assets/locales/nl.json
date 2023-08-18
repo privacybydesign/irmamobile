@@ -442,7 +442,7 @@
     "show_pin": "Toon pincode",
     "hide_pin": "Verberg pincode",
     "backspace": "Maak ongedaan",
-    "empty_pin_input" : "Geen pincode ingevoerd",
+    "empty_pin_input": "Geen pincode ingevoerd",
     "digits_entered-1": "{digits} cijfer ingevoerd",
     "digits_entered-2": "{digits} cijfers ingevoerd"
   },
@@ -632,13 +632,13 @@
     "confirm_scheme_public_key_dialog_title": "Bevestig public key",
     "scheme_management": {
       "title": "Schema beheer",
-      "issuer_schemes" : "Issuer schema's",
+      "issuer_schemes": "Issuer schema's",
       "requestor_schemes": "Requestor schema's",
-      "requestor_schemes_hint" : "(Kan nog niet worden aangepast)",
-      "success" : "Schema succesvol toegevoegd",
-      "activating" : "{scheme} activeren...",
-      "activate_success" : "{scheme} schema succesfully activated",
-      "remove" : "{scheme} verwijderen...",
+      "requestor_schemes_hint": "(Kan nog niet worden aangepast)",
+      "success": "Schema succesvol toegevoegd",
+      "activating": "{scheme} activeren...",
+      "activate_success": "{scheme} schema succesfully activated",
+      "remove": "{scheme} verwijderen...",
       "install_scheme_dialog": {
         "title": "Schema installeren",
         "content": "Vul de URL in van het schema dat je wilt installeren:"
@@ -649,9 +649,13 @@
       },
       "verify_pin": {
         "title": "Verifeer PIN",
-        "content" : "Authenticatie op keyshare server van schema {scheme}",
-        "success" : "PIN succesvol geverifieerd",
-        "failed" : "PIN verification failed (attempts remaining: {remainingAttempts}, blocked: {blockedDuration} seconds)"
+        "content": "Authenticatie op keyshare server van schema {scheme}",
+        "success": "PIN succesvol geverifieerd",
+        "failed": "PIN verification failed (attempts remaining: {remainingAttempts}, blocked: {blockedDuration} seconds)"
+      },
+      "warning_dialog": {
+        "title": "Pas op!",
+        "content": "Je staat op het punt om schema's aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
       }
     }
   }

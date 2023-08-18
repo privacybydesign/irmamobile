@@ -10,6 +10,7 @@ import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 import 'debug_helper.dart';
 import 'scheme_management/scheme_management_screen.dart';
+import 'scheme_management/widgets/scheme_management_warning_dialog.dart';
 import 'session/session_helper_screen.dart';
 import 'util/snackbar.dart';
 
@@ -64,6 +65,22 @@ class _DebugScreenState extends State<DebugScreen> {
     );
   }
 
+  void _onOpenSchemeManagement() async {
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => SchemeManagementWarningDialog(),
+        ) ??
+        false;
+
+    if (confirmed) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SchemeManagementScreen(),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
@@ -77,11 +94,7 @@ class _DebugScreenState extends State<DebugScreen> {
           _buildListTile(
             Icons.list_alt,
             'debug.scheme_management.title',
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => SchemeManagementScreen(),
-              ),
-            ),
+            onTap: _onOpenSchemeManagement,
           ),
           _buildListTile(
             Icons.badge,

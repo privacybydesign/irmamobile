@@ -652,6 +652,10 @@
         "content" : "Authenticate to keyshare server of scheme {scheme}",
         "success" : "PIN verified successfully",
         "failed" : "PIN verification failed (attempts remaining: {remainingAttempts}, blocked: {blockedDuration} seconds)."
+      }, 
+      "warning_dialog": {
+        "title": "Warning!",
+        "content": "Adding and removing schemes can break your app. Only continue this if you know what you are doing."
       }
     }
   }
