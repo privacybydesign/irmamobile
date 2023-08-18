@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/credential_events.dart';
@@ -10,6 +11,7 @@ import '../../widgets/translated_text.dart';
 import 'debug_helper.dart';
 import 'scheme_management/scheme_management_screen.dart';
 import 'session/session_helper_screen.dart';
+import 'util/snackbar.dart';
 
 class DebugScreen extends StatefulWidget {
   static const routeName = '/debug';
@@ -55,7 +57,11 @@ class _DebugScreenState extends State<DebugScreen> {
 
       repo.bridgedDispatch(DeleteCredentialEvent(hash: credential.hash));
     }
-      // TODO: Show a snackbar
+
+    showSnackbar(
+      context,
+      FlutterI18n.translate(context, 'debug.delete_credentials_success'),
+    );
   }
 
   @override

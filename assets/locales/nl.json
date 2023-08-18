@@ -585,7 +585,8 @@
     "end_of_list": "Je bent aan het einde van de lijst gekomen",
     "unknown": "Onbekend",
     "go_back": "Ga terug",
-    "add" : "Toevoegen"
+    "add": "Toevoegen",
+    "activate": "Activeren"
   },
   "update": {
     "title": "Update beschikbaar",
@@ -625,14 +626,32 @@
     "random_issuance": "Uitgifte willekeurige gegevens",
     "custom_issue_wizard": "Start issue wizard",
     "delete_credentials": "Verwijder alle gegevens",
+    "delete_credentials_success": "Successvol alle verwijderbare gegevens verwijderd",
     "start_session": "Start sessie",
     "session_helper": "Sessie helper",
+    "confirm_scheme_public_key_dialog_title": "Bevestig public key",
     "scheme_management": {
       "title": "Schema beheer",
-      "active_schemes": "Actieve schema's",
-      "add_scheme_dialog": {
-        "title": "Schema toevoegen",
-        "content": "Vul de URL in van het schema dat je wilt toevoegen:"
+      "issuer_schemes" : "Issuer schema's",
+      "requestor_schemes": "Requestor schema's",
+      "requestor_schemes_hint" : "(Kan nog niet worden aangepast)",
+      "success" : "Schema succesvol toegevoegd",
+      "activating" : "{scheme} activeren...",
+      "activate_success" : "{scheme} schema succesfully activated",
+      "remove" : "{scheme} verwijderen...",
+      "install_scheme_dialog": {
+        "title": "Schema installeren",
+        "content": "Vul de URL in van het schema dat je wilt installeren:"
+      },
+      "request_pin": {
+        "title": "Activeer schema",
+        "content": "Vul een PIN in om het volgende schema te activeren: {scheme}"
+      },
+      "verify_pin": {
+        "title": "Verifeer PIN",
+        "content" : "Authenticatie op keyshare server van schema {scheme}",
+        "success" : "PIN succesvol geverifieerd",
+        "failed" : "PIN verification failed (attempts remaining: {remainingAttempts}, blocked: {blockedDuration} seconds)"
       }
     }
   }
