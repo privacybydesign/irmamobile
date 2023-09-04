@@ -54,9 +54,11 @@ void main() {
     });
 
     testWidgets('developer-mode', (tester) async {
+      final versionButtonFinder = find.textContaining('Version');
+
       Future<void> tapVersionButton7Times() async {
         for (int i = 0; i < 7; i++) {
-          await tester.tapAndSettle(find.textContaining('Version'));
+          await tester.tapAndSettle(versionButtonFinder);
         }
       }
 
@@ -71,7 +73,7 @@ void main() {
       await irmaBinding.repository.getDeveloperMode().firstWhere((enabled) => !enabled);
 
       // Check enabling developer mode.
-      await tester.scrollUntilVisible(find.textContaining('Version'), 100);
+      await tester.scrollUntilVisible(versionButtonFinder, 100);
       await tester.drag(
           find.byType(SingleChildScrollView), const Offset(0, -50)); // To prevent the 'Scan QR' button to overlap.
       await tester.pumpAndSettle();
@@ -84,6 +86,9 @@ void main() {
       //Wait until snackbar is gone.
       await tester.pumpAndSettle(const Duration(milliseconds: 4000));
       expect(find.text(devModeEnabledText), findsNothing);
+
+      // We have to scroll again because the debugging button is now visible.
+      await tester.scrollUntilVisible(versionButtonFinder, 100);
 
       await tapVersionButton7Times();
       await tester.ensureVisible(find.text('Developer mode already enabled'));
