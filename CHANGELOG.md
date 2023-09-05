@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Credential status notifications
+
+### Changed
+- Java distribution switch from Adopt to Temurin ([as recommended](https://github.com/actions/setup-java#supported-distributions))
+
 ### Fixed
 - Voice over and accessibility tags are not correctly set on the PIN screen
 - Required update screen refers to iTunes Store instead of Apple App Store
+- iOS builds fail when using Golang 1.20 ([#117](https://github.com/privacybydesign/irmamobile/issues/117))
 
 ### Internal
 - Add integration test for declining the credential offer in an issuance session
