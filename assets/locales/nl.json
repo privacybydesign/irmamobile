@@ -282,11 +282,12 @@
     },
     "error_reporting": {
       "accept": {
-        "share_errors": "Foutmeldingen en app gezondheid delen",
-        "with_yivi": "met Yivi"
+        "share_errors": "Foutmeldingen en app status delen",
+        "with_yivi": "met Yivi",
+        "optional": "Optioneel"
       },
       "dialog": {
-        "title": "Foutmeldingen en app gezondheid delen",
+        "title": "Foutmeldingen en app status delen",
         "explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook stuurt de app periodiek een melding of alles nog goed werkt. Natuurlijk doen we dat allemaal zonder toegang te hebben tot je persoonlijke gegevens of transacties."
       }
     },

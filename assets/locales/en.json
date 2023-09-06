@@ -282,12 +282,13 @@
     },
     "error_reporting": {
       "accept": {
-        "share_errors": "Share error messages and app health",
-        "with_yivi": "with Yivi"
+        "share_errors": "Share error messages and app status",
+        "with_yivi": "with Yivi",
+        "optional": "Optional"
       },
       "dialog": {
-        "title": "Error and app health reporting",
-        "explanation": "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app health message. Of course, we do all of that without having access to your personal information or transactions."
+        "title": "Error and app status reporting",
+        "explanation": "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app status message. Of course, we do all of that without having access to your personal information or transactions."
       }
     },
     "submit": {
