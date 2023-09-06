@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Java distribution switch from Adopt to Temurin ([as recommended](https://github.com/actions/setup-java#supported-distributions))
+- Update irmago to version 0.13.3
 - Changed the message regarding error and app status reporting
 
 ### Fixed
