@@ -78,7 +78,9 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
         throw 'HTTP status code ${response.statusCode} received';
       }
     } catch (e) {
-      showSnackbar(context, 'Error while fetching scheme: ${e.toString()}.');
+      if (mounted) {
+        showSnackbar(context, 'Error while fetching scheme: ${e.toString()}.');
+      }
       return;
     }
 
@@ -109,6 +111,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       return;
     }
 
+    if (!mounted) return;
     showSnackbar(
       context,
       FlutterI18n.translate(

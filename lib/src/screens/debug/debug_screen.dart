@@ -59,6 +59,7 @@ class _DebugScreenState extends State<DebugScreen> {
       repo.bridgedDispatch(DeleteCredentialEvent(hash: credential.hash));
     }
 
+    if (!mounted) return;
     showSnackbar(
       context,
       FlutterI18n.translate(context, 'debug.delete_credentials_success'),
