@@ -193,6 +193,8 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     final repo = IrmaRepositoryProvider.of(context);
     final theme = IrmaTheme.of(context);
 
+    // TODO: Schemes without a keyshare server cannot be removed as of now.
+    // https://github.com/privacybydesign/irmago/issues/260
     final isDeletable =
         isActive && schemeManager.keyshareServer.isNotEmpty && schemeManager.id != repo.defaultKeyshareScheme;
 
