@@ -21,7 +21,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A8DCE10928F36478002BFD88 /* RunnerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DCE10828F36478002BFD88 /* RunnerTests.m */; };
-		D972BBC5D0CE89AB48CE8466 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		A8F36F792AA7835F00F235B8 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A8F36F782AA7835F00F235B8 /* libresolv.tbd */; };
 		E2097A7FA54E2A1FE2B4244D /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C230D6118D56895BA265A94 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -78,6 +78,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A8DCE10628F36478002BFD88 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8DCE10828F36478002BFD88 /* RunnerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RunnerTests.m; sourceTree = "<group>"; };
+		A8F36F782AA7835F00F235B8 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		B36B72FF529DDFF6E4EC1FDE /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		D1E2A5DA9EE8C8C046D83FBC /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		EDDDCFAF4B74C4938DC367C3 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
@@ -89,8 +90,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A8F36F792AA7835F00F235B8 /* libresolv.tbd in Frameworks */,
 				52A5D74023A24AD90030BD8B /* Irmagobridge.xcframework in Frameworks */,
-				D972BBC5D0CE89AB48CE8466 /* BuildFile in Frameworks */,
 				E2097A7FA54E2A1FE2B4244D /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -109,6 +110,7 @@
 		28612F61D3D5F56BF50176A4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A8F36F782AA7835F00F235B8 /* libresolv.tbd */,
 				52A5D73F23A24AD80030BD8B /* Irmagobridge.xcframework */,
 				0624A112E2D4D3EF1CDB9021 /* Pods_RunnerTests.framework */,
 				7C230D6118D56895BA265A94 /* Pods_Runner.framework */,
