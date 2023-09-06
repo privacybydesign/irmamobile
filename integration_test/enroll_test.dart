@@ -208,8 +208,8 @@ void main() {
         );
         final errorReportingTextWidget = tester.widget<RichText>(errorReportingTextFinder);
 
-        // The first text span in the rich text should be the link
-        final linkTextSpan = (errorReportingTextWidget.text as TextSpan).children?.first as TextSpan;
+        // The second text span in the rich text should be the link
+        final linkTextSpan = (errorReportingTextWidget.text as TextSpan).children?.elementAt(1) as TextSpan;
 
         // Expect the recognizer to be a TapGestureRecognizer and tap it
         expect(linkTextSpan.recognizer, isA<TapGestureRecognizer>());
@@ -222,8 +222,8 @@ void main() {
 
         // Expect the bottom sheet to contain the correct text
         final expectedErrorReportingBottomSheetText = [
-          'Error and app health reporting',
-          "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app health message. Of course, we do all of that without having access to your personal information or transactions."
+          'Error and app status reporting',
+          "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app status message. Of course, we do all of that without having access to your personal information or transactions."
         ];
         final actualErrorReportingBottomSheetText = tester.getAllText(bottomSheetFinder);
         expect(actualErrorReportingBottomSheetText, expectedErrorReportingBottomSheetText);
