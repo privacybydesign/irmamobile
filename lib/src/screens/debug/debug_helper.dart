@@ -35,7 +35,7 @@ class DebugHelper {
     ''';
   }
 
-  String signingSessionRequest() {
+  static String signingSessionRequest() {
     return '''
       {
         "@context": "https://irma.app/ld/request/signature/v2",
