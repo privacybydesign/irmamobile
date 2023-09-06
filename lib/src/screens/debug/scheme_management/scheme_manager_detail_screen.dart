@@ -76,7 +76,6 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     repo.bridgedDispatch(AuthenticateEvent(pin: pin, schemeId: schemeId));
 
     final event = await repo.getEvents().whereType<AuthenticationEvent>().first;
-    navigator.pop();
 
     if (event is AuthenticationErrorEvent) {
       navigator.push(MaterialPageRoute(
