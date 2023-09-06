@@ -83,6 +83,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         ),
       ));
     } else {
+      if (!context.mounted) return;
       showSnackbar(
         context,
         event is AuthenticationFailedEvent
@@ -127,16 +128,18 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     );
     if (email == null) return;
 
-    showSnackbar(
-      context,
-      FlutterI18n.translate(
+    if (context.mounted) {
+      showSnackbar(
         context,
-        'debug.scheme_management.activating',
-        translationParams: {
-          'scheme': schemeManagerId,
-        },
-      ),
-    );
+        FlutterI18n.translate(
+          context,
+          'debug.scheme_management.activating',
+          translationParams: {
+            'scheme': schemeManagerId,
+          },
+        ),
+      );
+    }
 
     final repo = IrmaRepositoryProvider.of(context);
     repo.bridgedDispatch(EnrollEvent(
@@ -155,6 +158,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         ),
       ));
     } else {
+      if (!context.mounted) return;
       showSnackbar(
         context,
         FlutterI18n.translate(
@@ -174,6 +178,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     ));
     Navigator.of(context).pop();
 
+    if (!context.mounted) return;
     showSnackbar(
       context,
       FlutterI18n.translate(
