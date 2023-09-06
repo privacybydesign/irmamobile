@@ -62,6 +62,13 @@ class AcceptTermsScreen extends StatelessWidget {
                           isAccepted: isAccepted,
                           onToggleAccepted: onToggleAccepted,
                         ),
+
+                        // If not in landscape mode, add some spacing
+                        if (MediaQuery.of(context).orientation == Orientation.portrait)
+                          SizedBox(
+                            height: theme.defaultSpacing,
+                          ),
+
                         ErrorReportingCheckBox()
                       ],
                     ),
