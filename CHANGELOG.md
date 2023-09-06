@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Credential status notifications
+- Added scheme management functionality to the debug screen
 ### Fixed
 - Voice over and accessibility tags are not correctly set on the PIN screen
 - Required update screen refers to iTunes Store instead of Apple App Store
