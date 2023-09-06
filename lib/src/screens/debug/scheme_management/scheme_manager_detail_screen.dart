@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:rxdart/rxdart.dart';
@@ -7,26 +8,23 @@ import '../../../models/enrollment_events.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/scheme_events.dart';
 import '../../../theme/theme.dart';
+import '../../../util/combine.dart';
 import '../../../widgets/active_indicator.dart';
 import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_icon_button.dart';
 import '../../../widgets/irma_repository_provider.dart';
+import '../../../widgets/progress.dart';
 import '../../enrollment/provide_email/provide_email_screen.dart';
 import '../../error/error_screen.dart';
 import '../../pin/yivi_pin_screen.dart';
 import '../util/snackbar.dart';
 
 class SchemeManagerDetailScreen extends StatelessWidget {
-  final SchemeManager schemeManager;
-  final bool isActive;
-
-  final String? appId;
+  final String schemeManagerId;
 
   const SchemeManagerDetailScreen(
-    this.schemeManager,
-    this.isActive,
-    this.appId,
+    this.schemeManagerId,
   );
 
   Future<String?> _requestPin(BuildContext context, String title, String instruction) async {
@@ -67,7 +65,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         context,
         'debug.scheme_management.verify_pin.content',
         translationParams: {
-          'scheme': schemeManager.id,
+          'scheme': schemeManagerId,
         },
       ),
     );
@@ -111,7 +109,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         context,
         'debug.scheme_management.request_pin.content',
         translationParams: {
-          'scheme': schemeManager.id,
+          'scheme': schemeManagerId,
         },
       ),
     );
@@ -129,14 +127,13 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     );
     if (email == null) return;
 
-    navigator.pop();
     showSnackbar(
       context,
       FlutterI18n.translate(
         context,
         'debug.scheme_management.activating',
         translationParams: {
-          'scheme': schemeManager.id,
+          'scheme': schemeManagerId,
         },
       ),
     );
@@ -146,7 +143,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       email: email,
       pin: pin,
       language: language,
-      schemeId: schemeManager.id,
+      schemeId: schemeManagerId,
     ));
 
     final event = await repo.getEvents().whereType<EnrollmentEvent>().first;
@@ -164,7 +161,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
           context,
           'debug.scheme_management.activate_success',
           translationParams: {
-            'scheme': schemeManager.id,
+            'scheme': schemeManagerId,
           },
         ),
       );
@@ -172,7 +169,9 @@ class SchemeManagerDetailScreen extends StatelessWidget {
   }
 
   void _onDeleteScheme(BuildContext context) {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(RemoveSchemeEvent(schemeId: schemeManager.id));
+    IrmaRepositoryProvider.of(context).bridgedDispatch(RemoveSchemeEvent(
+      schemeId: schemeManagerId,
+    ));
     Navigator.of(context).pop();
 
     showSnackbar(
@@ -181,7 +180,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         context,
         'debug.scheme_management.remove',
         translationParams: {
-          'scheme': schemeManager.id,
+          'scheme': schemeManagerId,
         },
       ),
     );
@@ -192,63 +191,95 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     final repo = IrmaRepositoryProvider.of(context);
     final theme = IrmaTheme.of(context);
 
-    // TODO: Schemes without a keyshare server cannot be removed as of now.
-    // https://github.com/privacybydesign/irmago/issues/260
-    final isDeletable =
-        isActive && schemeManager.keyshareServer.isNotEmpty && schemeManager.id != repo.defaultKeyshareScheme;
-
-    Widget? bottomBar;
-    if (!isActive) {
-      bottomBar = IrmaBottomBar(
-        primaryButtonLabel: 'ui.activate',
-        onPrimaryPressed: () => _onActivateScheme(context),
-      );
-    } else if (isActive && schemeManager.keyshareServer.isNotEmpty) {
-      bottomBar = IrmaBottomBar(
-        primaryButtonLabel: 'debug.scheme_management.verify_pin.title',
-        onPrimaryPressed: () => _verifyPin(context, schemeManager.id),
-      );
-    }
-
-    return Scaffold(
-      appBar: IrmaAppBar(
-        title: schemeManager.id,
-        actions: [
-          if (isDeletable)
-            IrmaIconButton(
-              icon: Icons.delete,
-              onTap: () => _onDeleteScheme(context),
-            )
-        ],
+    return StreamBuilder<CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>>(
+      stream: combine2(
+        repo.getEnrollmentStatusEvent(),
+        repo.getIrmaConfiguration(),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.screenPadding),
-        child: Column(
-          children: [
-            // These values are not translated because they are the same in English and Dutch.
-            ListTile(
-              title: const Text('Status'),
-              trailing: ActiveIndicator(isActive),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Scaffold(
+            body: Center(
+              child: IrmaProgress(),
             ),
+          );
+        }
 
-            ListTile(
-              title: const Text('Type'),
-              subtitle: Text(schemeManager.demo ? 'Demo scheme' : 'Production scheme'),
+        final enrollmentStatus = snapshot.data!.a;
+        final irmaConfiguration = snapshot.data!.b;
+
+        // Grab the scheme manager from the configuration.
+        final schemeManager = irmaConfiguration.schemeManagers[schemeManagerId];
+        if (schemeManager == null) throw Exception('Scheme manager $schemeManagerId not found');
+
+        final schemeIsActive = enrollmentStatus.enrolledSchemeManagerIds.contains(schemeManager.id);
+
+        final appId = repo.credentials.values
+            .firstWhereOrNull((cred) => cred.isKeyshareCredential && cred.schemeManager.id == schemeManager.id)
+            ?.attributes
+            .firstOrNull
+            ?.value
+            .raw;
+
+        // TODO: Schemes without a keyshare server cannot be removed as of now.
+        // https://github.com/privacybydesign/irmago/issues/260
+        final isDeletable =
+            schemeIsActive && schemeManager.keyshareServer.isNotEmpty && schemeManager.id != repo.defaultKeyshareScheme;
+
+        Widget? bottomBar;
+        if (!schemeIsActive) {
+          bottomBar = IrmaBottomBar(
+            primaryButtonLabel: 'ui.activate',
+            onPrimaryPressed: () => _onActivateScheme(context),
+          );
+        } else if (schemeIsActive && schemeManager.keyshareServer.isNotEmpty) {
+          bottomBar = IrmaBottomBar(
+            primaryButtonLabel: 'debug.scheme_management.verify_pin.title',
+            onPrimaryPressed: () => _verifyPin(context, schemeManager.id),
+          );
+        }
+
+        return Scaffold(
+          appBar: IrmaAppBar(
+            title: schemeManager.id,
+            actions: [
+              if (isDeletable)
+                IrmaIconButton(
+                  icon: Icons.delete,
+                  onTap: () => _onDeleteScheme(context),
+                )
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.all(theme.screenPadding),
+            child: Column(
+              children: [
+                // These values are not translated because they are the same in English and Dutch.
+                ListTile(
+                  title: const Text('Status'),
+                  trailing: ActiveIndicator(schemeIsActive),
+                ),
+
+                ListTile(
+                  title: const Text('Type'),
+                  subtitle: Text(schemeManager.demo ? 'Demo scheme' : 'Production scheme'),
+                ),
+
+                ListTile(
+                  title: const Text('Keyshare server'),
+                  subtitle: Text(schemeManager.keyshareServer.isNotEmpty ? schemeManager.keyshareServer : '(none)'),
+                ),
+
+                ListTile(
+                  title: const Text('App ID'),
+                  subtitle: Text(appId ?? '(none)'),
+                )
+              ],
             ),
-
-            ListTile(
-              title: const Text('Keyshare server'),
-              subtitle: Text(schemeManager.keyshareServer.isNotEmpty ? schemeManager.keyshareServer : '(none)'),
-            ),
-
-            ListTile(
-              title: const Text('App ID'),
-              subtitle: Text(appId ?? '(none)'),
-            )
-          ],
-        ),
-      ),
-      bottomNavigationBar: bottomBar,
+          ),
+          bottomNavigationBar: bottomBar,
+        );
+      },
     );
   }
 }

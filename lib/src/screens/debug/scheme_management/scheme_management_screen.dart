@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:rxdart/rxdart.dart';
@@ -121,25 +120,13 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     );
   }
 
-  void _onSchemeManagerTileTap(SchemeManager schemeManager, bool isActive) {
-    final repo = IrmaRepositoryProvider.of(context);
-    final appId = repo.credentials.values
-        .firstWhereOrNull((cred) => cred.isKeyshareCredential && cred.schemeManager.id == schemeManager.id)
-        ?.attributes
-        .firstOrNull
-        ?.value
-        .raw;
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => SchemeManagerDetailScreen(
-          schemeManager,
-          isActive,
-          appId,
+  void _onSchemeManagerTileTap(String schemeManagerId) => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SchemeManagerDetailScreen(
+            schemeManagerId,
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   @override
   void dispose() {
@@ -187,10 +174,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                     isActive: schemeManager.keyshareServer.isNotEmpty
                         ? enrollmentStatus.enrolledSchemeManagerIds.contains(schemeManager.id)
                         : null,
-                    onTap: () => _onSchemeManagerTileTap(
-                      schemeManager,
-                      enrollmentStatus.enrolledSchemeManagerIds.contains(schemeManager.id),
-                    ),
+                    onTap: () => _onSchemeManagerTileTap(schemeManager.id),
                   ),
                 SizedBox(height: theme.defaultSpacing),
                 const Row(
@@ -209,8 +193,6 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                     ),
                   ],
                 ),
-                // TODO: irmago cannot remove requestor schemes yet.
-                // https://github.com/privacybydesign/irmago/issues/260
                 for (final schemeId in irmaConfiguration.requestorSchemes.keys)
                   ListTile(
                     title: Text(schemeId),
