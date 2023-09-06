@@ -227,7 +227,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
             schemeIsActive && schemeManager.keyshareServer.isNotEmpty && schemeManager.id != repo.defaultKeyshareScheme;
 
         Widget? bottomBar;
-        if (!schemeIsActive) {
+        if (!schemeIsActive && !schemeManager.demo) {
           bottomBar = IrmaBottomBar(
             primaryButtonLabel: 'ui.activate',
             onPrimaryPressed: () => _onActivateScheme(context),
@@ -255,10 +255,11 @@ class SchemeManagerDetailScreen extends StatelessWidget {
             child: Column(
               children: [
                 // These values are not translated because they are the same in English and Dutch.
-                ListTile(
-                  title: const Text('Status'),
-                  trailing: ActiveIndicator(schemeIsActive),
-                ),
+                if (!schemeManager.demo)
+                  ListTile(
+                    title: const Text('Status'),
+                    trailing: ActiveIndicator(schemeIsActive),
+                  ),
 
                 ListTile(
                   title: const Text('Type'),
