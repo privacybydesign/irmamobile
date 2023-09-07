@@ -585,7 +585,9 @@
     "error": "Something went wrong",
     "end_of_list": "You have reached the end of the list",
     "unknown": "Unknown",
-    "go_back": "Go back"
+    "go_back": "Go back",
+    "add" : "Add",
+    "activate": "Activate"
   },
   "update": {
     "title": "Update available",
@@ -617,6 +619,45 @@
     "bell": {
       "new_notifications": "Notifications bell - New notifications",
       "no_new_notifications": "Notifications bell - No new notifications"
+    }
+  },
+  "debug": {
+    "title": "Debugging",
+    "issue_digid": "Issue DigiD",
+    "random_issuance": "Issue random credentials",
+    "custom_issue_wizard": "Start issue wizard",
+    "delete_credentials": "Delete all credentials",
+    "delete_credentials_success": "Successfully deleted all deletable credentials",
+    "start_session": "Start session",
+    "session_helper": "Session helper",
+    "confirm_scheme_public_key_dialog_title": "Confirm public key",
+    "scheme_management": {
+      "title": "Scheme management",
+      "issuer_schemes": "Issuer schemes",
+      "requestor_schemes": "Requestor schemes",
+      "requestor_schemes_hint": "(Cannot be edited yet)",
+      "success": "Scheme added successfully",
+      "activating" : "Activating {scheme}...",
+      "activate_success" : "Scheme {scheme} activated successfully.",
+      "remove" : "Removing {scheme}...",
+      "install_scheme_dialog": {
+        "title": "Install scheme",
+        "content": "Enter the URL of the scheme that should be installed:"
+      },
+      "request_pin": {
+        "title": "Activate scheme",
+        "content": "Enter PIN to confirm activation of scheme {scheme}"
+      },
+      "verify_pin": {
+        "title": "Verify PIN",
+        "content" : "Authenticate to keyshare server of scheme {scheme}",
+        "success" : "PIN verified successfully",
+        "failed" : "PIN verification failed (attempts remaining: {remainingAttempts}, blocked: {blockedDuration} seconds)."
+      }, 
+      "warning_dialog": {
+        "title": "Warning!",
+        "content": "Adding and removing schemes can break your app. Only continue this if you know what you are doing."
+      }
     }
   }
 }

@@ -77,9 +77,10 @@ class _VersionButtonState extends State<VersionButton> {
                     builder: (context, credentials) {
                       String? appId;
                       if (credentials.hasData) {
-                        final keyShareCred =
-                            credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
-                        appId = keyShareCred?.attributes.first.value.raw;
+                        final keyShareCred = credentials.data?.values.firstWhereOrNull(
+                          (cred) => cred.isKeyshareCredential && cred.schemeManager.id == repo.defaultKeyshareScheme,
+                        );
+                        appId = keyShareCred?.attributes.firstOrNull?.value.raw;
                       }
                       return TranslatedText(
                         'more_tab.app_id',
