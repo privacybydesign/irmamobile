@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.5.0] - 2023-09-07
 ### Added
 - Credential status notifications
+- Added scheme management functionality to the debug screen
 
 ### Changed
 - Java distribution switch from Adopt to Temurin ([as recommended](https://github.com/actions/setup-java#supported-distributions))

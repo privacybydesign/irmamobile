@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
@@ -13,10 +14,38 @@ import 'widgets/tiles.dart';
 import 'widgets/tiles_card.dart';
 import 'widgets/version_button.dart';
 
-class MoreTab extends StatelessWidget {
+class MoreTab extends StatefulWidget {
   final Function(IrmaNavBarTab tab) onChangeTab;
 
   const MoreTab({required this.onChangeTab});
+
+  @override
+  State<MoreTab> createState() => _MoreTabState();
+}
+
+class _MoreTabState extends State<MoreTab> {
+  StreamSubscription? _devModeSubscription;
+  bool showDebugging = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final repo = IrmaRepositoryProvider.of(context);
+      _devModeSubscription = repo.getDeveloperMode().listen((event) {
+        setState(() {
+          showDebugging = event;
+        });
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _devModeSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,21 +78,21 @@ class MoreTab extends StatelessWidget {
             sortKey: const OrdinalSortKey(0),
             child: _buildHeaderText('more_tab.app_management'),
           ),
-          const TilesCard(
+          TilesCard(
             children: [
-              InternalLinkTile(
+              const InternalLinkTile(
                 key: Key('open_settings_screen_button'),
                 labelTranslationKey: 'more_tab.settings',
                 iconData: Icons.settings_outlined,
                 routeName: '/settings',
               ),
-              InternalLinkTile(
+              const InternalLinkTile(
                 labelTranslationKey: 'more_tab.faq',
                 iconData: Icons.help_outline_rounded,
                 routeName: '/help',
               ),
-              if (kDebugMode)
-                InternalLinkTile(
+              if (showDebugging)
+                const InternalLinkTile(
                   labelTranslationKey: 'more_tab.debugging',
                   iconData: Icons.code_rounded,
                   routeName: '/debug',
@@ -127,7 +156,7 @@ class MoreTab extends StatelessWidget {
             label: 'more_tab.log_out',
             onPressed: () {
               IrmaRepositoryProvider.of(context).lock();
-              onChangeTab(IrmaNavBarTab.home);
+              widget.onChangeTab(IrmaNavBarTab.home);
             },
           ),
           spacerWidget,

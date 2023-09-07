@@ -84,6 +84,7 @@ class IrmaRepository {
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
+  final _enrollmentStatusEventSubject = BehaviorSubject<EnrollmentStatusEvent>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
@@ -133,6 +134,7 @@ class IrmaRepository {
       _eventSubject.close(),
       _irmaConfigurationSubject.close(),
       _credentialsSubject.close(),
+      _enrollmentStatusEventSubject.close(),
       _enrollmentStatusSubject.close(),
       _enrollmentEventSubject.close(),
       _authenticationEventSubject.close(),
@@ -176,13 +178,10 @@ class IrmaRepository {
     } else if (event is ChangePinBaseEvent) {
       _changePinEventSubject.add(event);
     } else if (event is EnrollmentStatusEvent) {
-      if (event.enrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
-        _enrollmentStatusSubject.add(EnrollmentStatus.enrolled);
-      } else if (event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
-        _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
+      _enrollmentStatusEventSubject.add(event);
+      if (event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
         _lockedSubject.add(false);
-      } else {
-        _enrollmentStatusSubject.add(EnrollmentStatus.undetermined);
+      } else if (!event.enrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
         dispatch(ErrorEvent(
           exception: 'Expected default keyshare scheme $defaultKeyshareScheme could not be found in configuration',
           stack: '',
@@ -301,9 +300,23 @@ class IrmaRepository {
     }).first;
   }
 
-  Stream<EnrollmentStatus> getEnrollmentStatus() {
-    return _enrollmentStatusSubject.stream;
+  Stream<EnrollmentStatus> getEnrollmentStatus() async* {
+    if (!_enrollmentStatusEventSubject.hasValue) {
+      yield EnrollmentStatus.undetermined;
+    }
+
+    yield* _enrollmentStatusEventSubject.map((event) {
+      if (event.enrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
+        return EnrollmentStatus.enrolled;
+      } else if (event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
+        return EnrollmentStatus.unenrolled;
+      } else {
+        return EnrollmentStatus.undetermined;
+      }
+    });
   }
+
+  Stream<EnrollmentStatusEvent> getEnrollmentStatusEvent() => _enrollmentStatusEventSubject.stream;
 
   // -- Authentication
   void lock({DateTime? unblockTime}) {
