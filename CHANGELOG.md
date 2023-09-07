@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [7.5.0] - 2023-09-07
 ### Added
 - Credential status notifications
 - Added scheme management functionality to the debug screen
@@ -366,6 +366,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.5.0]: https://github.com/privacybydesign/irmamobile/compare/v7.4.2...v7.5.0
 [7.4.2]: https://github.com/privacybydesign/irmamobile/compare/v7.4.1...v7.4.2
 [7.4.1]: https://github.com/privacybydesign/irmamobile/compare/v7.4.0...v7.4.1
 [7.4.0]: https://github.com/privacybydesign/irmamobile/compare/v7.3.1...v7.4.0
