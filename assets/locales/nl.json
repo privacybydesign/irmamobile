@@ -646,7 +646,7 @@
       },
       "request_pin": {
         "title": "Activeer schema",
-        "content": "Vul een PIN in om het volgende schema te activeren: {scheme}"
+        "content": "Vul je PIN in om het volgende schema te activeren: {scheme}"
       },
       "verify_pin": {
         "title": "Verifeer PIN",
