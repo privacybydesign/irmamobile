@@ -646,7 +646,7 @@
       },
       "request_pin": {
         "title": "Activate scheme",
-        "content": "Enter PIN to confirm activation of scheme {scheme}"
+        "content": "Enter your PIN to confirm activation of scheme {scheme}"
       },
       "verify_pin": {
         "title": "Verify PIN",
