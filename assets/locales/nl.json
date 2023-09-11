@@ -626,8 +626,6 @@
     "issue_digid": "Uitgifte DigiD proef",
     "random_issuance": "Uitgifte willekeurige gegevens",
     "custom_issue_wizard": "Start issue wizard",
-    "delete_credentials": "Verwijder alle gegevens",
-    "delete_credentials_success": "Successvol alle verwijderbare gegevens verwijderd",
     "start_session": "Start sessie",
     "session_helper": "Sessie helper",
     "confirm_scheme_public_key_dialog_title": "Bevestig public key",
@@ -657,6 +655,14 @@
       "warning_dialog": {
         "title": "Pas op!",
         "content": "Je staat op het punt om schema's aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
+      },
+      "delete_credentials": {
+        "delete": "Verwijder alle gegevens",
+        "success": "Successvol alle verwijderbare gegevens verwijderd",
+        "dialog": {
+          "title": "Gegevens verwijderen",
+          "content": "Weet je zeker dat je alle gegevens wilt verwijderen?"
+        }
       }
     }
   }
