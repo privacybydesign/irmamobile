@@ -552,8 +552,8 @@
     "title": "Settings",
     "start_qr": "Open QR scanner on launch",
     "start_qr_explanation": "Open QR scanner automatically after start-up",
-    "report_errors": "Error and app health reporting",
-    "report_errors_explanation": "By enabling error and app health reporting you are helping us improve the user experience.",
+    "report_errors": "Error and app status reporting",
+    "report_errors_explanation": "By enabling error and app status reporting you are helping us improve the user experience.",
     "enable_screenshots": "Enable screenshots",
     "enable_screenshots_explanation": "When enabled, the app will not be blurred in the app switcher.",
     "developer_mode": "Developer mode",
@@ -646,7 +646,7 @@
       },
       "request_pin": {
         "title": "Activate scheme",
-        "content": "Enter PIN to confirm activation of scheme {scheme}"
+        "content": "Enter your PIN to confirm activation of scheme {scheme}"
       },
       "verify_pin": {
         "title": "Verify PIN",
