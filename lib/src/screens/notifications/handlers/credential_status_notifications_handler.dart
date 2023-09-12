@@ -11,16 +11,21 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
   Future<List<Notification>> loadNotifications(IrmaRepository repo, List<Notification> notifications) async {
     final List<Notification> updatedNotifications = notifications;
 
-    for (final cred in repo.credentials.values) {
+    // Wait until the credentials are present
+    final credentials = await repo.getCredentials().first;
+
+    for (final cred in credentials.values) {
       // Check if a notification should be shown for this credential, and if so which type
       CredentialStatusNotificationType? notificationType;
 
-      if (cred.revoked) {
-        notificationType = CredentialStatusNotificationType.revoked;
-      } else if (cred.expired) {
-        notificationType = CredentialStatusNotificationType.expired;
-      } else if (CardExpiryDate(cred.expires).expiresSoon) {
-        notificationType = CredentialStatusNotificationType.expiringSoon;
+      if (!cred.isKeyshareCredential) {
+        if (cred.revoked) {
+          notificationType = CredentialStatusNotificationType.revoked;
+        } else if (cred.expired) {
+          notificationType = CredentialStatusNotificationType.expired;
+        } else if (CardExpiryDate(cred.expires).expiresSoon) {
+          notificationType = CredentialStatusNotificationType.expiringSoon;
+        }
       }
 
       // If a notification should be shown for this credential
