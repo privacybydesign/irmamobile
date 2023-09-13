@@ -626,8 +626,6 @@
     "issue_digid": "Issue DigiD",
     "random_issuance": "Issue random credentials",
     "custom_issue_wizard": "Start issue wizard",
-    "delete_credentials": "Delete all credentials",
-    "delete_credentials_success": "Successfully deleted all deletable credentials",
     "start_session": "Start session",
     "session_helper": "Session helper",
     "confirm_scheme_public_key_dialog_title": "Confirm public key",
@@ -657,6 +655,14 @@
       "warning_dialog": {
         "title": "Warning!",
         "content": "Adding and removing schemes can break your app. Only continue this if you know what you are doing."
+      }
+    },
+    "delete_credentials": {
+      "delete": "Delete all credentials",
+      "success": "Successfully deleted all deletable credentials",
+      "dialog": {
+        "title": "Delete credentials",
+        "content": "Are you sure you want to delete all credentials?"
       }
     }
   }

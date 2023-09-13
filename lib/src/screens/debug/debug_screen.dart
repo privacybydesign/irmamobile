@@ -13,6 +13,7 @@ import 'scheme_management/scheme_management_screen.dart';
 import 'scheme_management/widgets/scheme_management_warning_dialog.dart';
 import 'session/session_helper_screen.dart';
 import 'util/snackbar.dart';
+import 'widgets/delete_all_credentials_confirmation_dialog.dart';
 
 class DebugScreen extends StatefulWidget {
   static const routeName = '/debug';
@@ -49,6 +50,14 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   Future<void> _deleteAllDeletableCards(IrmaRepository repo) async {
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => DeleteAllCredentialsConfirmationDialog(),
+        ) ??
+        false;
+
+    if (!confirmed) return;
+
     final credentials = await repo.getCredentials().first;
 
     for (final credential in credentials.values) {
@@ -62,7 +71,7 @@ class _DebugScreenState extends State<DebugScreen> {
     if (!mounted) return;
     showSnackbar(
       context,
-      FlutterI18n.translate(context, 'debug.delete_credentials_success'),
+      FlutterI18n.translate(context, 'debug.delete_credentials.success'),
     );
   }
 
@@ -134,7 +143,7 @@ class _DebugScreenState extends State<DebugScreen> {
           ),
           _buildListTile(
             Icons.delete,
-            'debug.delete_credentials',
+            'debug.delete_credentials.delete',
             onTap: () => _deleteAllDeletableCards(repo),
           ),
         ],
