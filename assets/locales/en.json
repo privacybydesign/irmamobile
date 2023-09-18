@@ -196,7 +196,16 @@
       "sign": "This is the message you're signing:",
       "explanation": "Share my data with {requestorName}",
       "confirm": "Share data",
-      "confirm_sign": "Sign and share"
+      "confirm_sign": "Sign and share",
+      "requestor_verification" : {
+        "verified_suffix" : "has been verified by us.",
+        "unverified_suffix" : "has not been verified by us. Therefore, we cannot say with certainty that everything is correct.",
+        "explanation" : "How do we verify?",
+        "bottom_sheet": {
+          "title": "How do we verify organizations?",
+          "content_markdown" : "Organizations that use Yivi can request us for an audit. This is not mandatory, but provides users with more assurance.\\\n\\\n **What audits do we conduct?** \\\n Before an organization is marked as verified in Yivi, we check the following:  - Contact information and contacts - The company name and logo of the organization - Technical information Once everything checks out, a checkmark is added to the organization in Yivi, and we display the organization's logo. \\\n\\\n **What can you do with this information?**   - If the organization is audited, you can safely share data. - If they are not audited, we cannot be certain that everything is accurate. In case of doubt, we recommend contacting the organization you want to share data with directly."
+        }
+      }
     },
     "confirm_dialog": {
       "title": "Share data",
