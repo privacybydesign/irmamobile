@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_introduction_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
@@ -5,6 +6,8 @@ import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/success_graphic.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/irma_card.dart';
+import 'package:irmamobile/src/widgets/requestor_header.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import '../util.dart';
@@ -92,4 +95,40 @@ Future<void> evaluateShareDialog(
       matching: find.text(isSignatureSession ? 'Sign and share' : 'Share'),
     ),
   );
+}
+
+Future<void> evaluateRequestorHeader(
+  WidgetTester tester,
+  Finder requestorHeaderFinder, {
+  required String localizedRequestorName,
+  required bool isVerified,
+}) async {
+  expect(requestorHeaderFinder, findsOneWidget);
+
+  // Expect the translated requestor name to be present
+  var requestorHeaderWidget = requestorHeaderFinder.first.evaluate().single.widget as RequestorHeader;
+  final translatedRequestorHeaderNameText = requestorHeaderWidget.requestorInfo!.name.translate('en');
+  expect(translatedRequestorHeaderNameText, localizedRequestorName);
+
+  // Find the RichText in the RequestorHeader
+  final requestorHeaderRichTextFinder = find.descendant(
+    of: requestorHeaderFinder,
+    matching: find.byKey(
+      const Key('requestor_header_main_text'),
+    ),
+  );
+
+  // Get the text from the RichText
+  // Note: this does not prove that the text is actually displayed
+  RichText requestorHeaderRichTextWidget = requestorHeaderRichTextFinder.evaluate().first.widget as RichText;
+  String requestorHeaderText = requestorHeaderRichTextWidget.text.toPlainText();
+
+  if (isVerified) {
+    final expectedVerifiedText = '$localizedRequestorName has been verified by us.';
+    expect(requestorHeaderText, expectedVerifiedText);
+  } else {
+    final expectedUnverifiedText =
+        '$localizedRequestorName has not been verified by us. Therefore, we cannot say with certainty that everything is correct.';
+    expect(requestorHeaderText, expectedUnverifiedText);
+  }
 }

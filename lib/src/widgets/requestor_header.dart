@@ -99,6 +99,7 @@ class RequestorHeader extends StatelessWidget {
       );
 
       mainTextWidget = RichText(
+        key: const Key('requestor_header_main_text'),
         text: TextSpan(
           children: [
             TextSpan(

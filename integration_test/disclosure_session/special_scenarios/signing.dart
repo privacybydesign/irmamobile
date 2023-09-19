@@ -5,6 +5,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_per
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
+import 'package:irmamobile/src/widgets/requestor_header.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
@@ -33,6 +34,14 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
   await evaluateIntroduction(tester);
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+
+  final requestorHeaderFinder = find.byType(RequestorHeader);
+  await evaluateRequestorHeader(
+    tester,
+    requestorHeaderFinder,
+    localizedRequestorName: 'demo.privacybydesign.foundation',
+    isVerified: false,
+  );
 
   expect(find.text("This is the message you're signing:"), findsOneWidget);
   final quoteFinder = find.byKey(const Key('signature_message'));
