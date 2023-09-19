@@ -17,7 +17,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final repo = IrmaRepositoryProvider.of(context);
 
-    const double fontSize = 18;
+    final double fontSize = theme.textTheme.bodyMedium!.fontSize!;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -45,8 +45,8 @@ class ErrorReportingCheckBox extends StatelessWidget {
           width: theme.smallSpacing,
         ),
         Flexible(
-          child: RichText(
-            text: TextSpan(
+          child: Text.rich(
+            TextSpan(
               children: [
                 TextSpan(
                   style: theme.textTheme.bodyMedium!.copyWith(
