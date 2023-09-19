@@ -17,8 +17,6 @@ class ErrorReportingCheckBox extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final repo = IrmaRepositoryProvider.of(context);
 
-    final double fontSize = theme.textTheme.bodyMedium!.fontSize!;
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -50,7 +48,6 @@ class ErrorReportingCheckBox extends StatelessWidget {
               children: [
                 TextSpan(
                   style: theme.textTheme.bodyMedium!.copyWith(
-                    fontSize: fontSize,
                     fontWeight: FontWeight.bold,
                   ),
                   text: FlutterI18n.translate(
@@ -60,9 +57,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
                       ': ',
                 ),
                 TextSpan(
-                  style: theme.hyperlinkTextStyle.copyWith(
-                    fontSize: fontSize,
-                  ),
+                  style: theme.hyperlinkTextStyle,
                   recognizer: TapGestureRecognizer()..onTap = () => _showErrorReportingInfoBottomSheet(context),
                   text: FlutterI18n.translate(
                     context,
@@ -70,9 +65,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  style: theme.textTheme.bodyMedium!.copyWith(
-                    fontSize: fontSize,
-                  ),
+                  style: theme.textTheme.bodyMedium,
                   text: ' ' +
                       FlutterI18n.translate(
                         context,
