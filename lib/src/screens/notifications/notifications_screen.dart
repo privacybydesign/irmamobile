@@ -68,9 +68,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         children: [
           Padding(
             padding: EdgeInsets.all(theme.defaultSpacing),
-            child: Row(
+            child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Flexible(
                     child: TranslatedText(
                   'notifications.empty',

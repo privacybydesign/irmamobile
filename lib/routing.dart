@@ -30,7 +30,7 @@ class Routing {
     AddDataScreen.routeName: (context) => AddDataScreen(),
     HelpScreen.routeName: (context) => HelpScreen(),
     ResetPinScreen.routeName: (context) => ResetPinScreen(),
-    DebugScreen.routeName: (context) => DebugScreen(),
+    DebugScreen.routeName: (context) => const DebugScreen(),
     HomeScreen.routeName: (context) => HomeScreen(),
   };
 
