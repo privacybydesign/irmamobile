@@ -204,12 +204,12 @@ void main() {
         // We need to do some extra steps to find the text span link in the ErrorReportingCheckBox widget
         final errorReportingTextFinder = find.descendant(
           of: errorReportingOptInFinder,
-          matching: find.byType(RichText),
+          matching: find.byType(Text),
         );
-        final errorReportingTextWidget = tester.widget<RichText>(errorReportingTextFinder);
+        final errorReportingTextWidget = tester.widget<Text>(errorReportingTextFinder);
 
         // The second text span in the rich text should be the link
-        final linkTextSpan = (errorReportingTextWidget.text as TextSpan).children?.elementAt(1) as TextSpan;
+        final linkTextSpan = (errorReportingTextWidget.textSpan as TextSpan).children?.elementAt(1) as TextSpan;
 
         // Expect the recognizer to be a TapGestureRecognizer and tap it
         expect(linkTextSpan.recognizer, isA<TapGestureRecognizer>());
