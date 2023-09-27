@@ -38,7 +38,7 @@ class _VersionButtonState extends State<VersionButton> {
       fontWeight: FontWeight.w600,
     );
 
-    void _showSnackbar(String translationKey) => ScaffoldMessenger.of(context).showSnackBar(
+    void showSnackbar(String translationKey) => ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: theme.success,
             content: TranslatedText(translationKey),
@@ -46,7 +46,7 @@ class _VersionButtonState extends State<VersionButton> {
           ),
         );
 
-    void _onTap() async {
+    void onTap() async {
       _tapCounter++;
 
       if (_tapCounter == 7) {
@@ -54,9 +54,9 @@ class _VersionButtonState extends State<VersionButton> {
 
         final inDeveloperMode = await repo.getDeveloperMode().first;
         if (inDeveloperMode) {
-          _showSnackbar('more_tab.developer_mode_already_enabled');
+          showSnackbar('more_tab.developer_mode_already_enabled');
         } else {
-          _showSnackbar('more_tab.developer_mode_enabled');
+          showSnackbar('more_tab.developer_mode_enabled');
           repo.setDeveloperMode(true);
         }
       }
@@ -68,7 +68,7 @@ class _VersionButtonState extends State<VersionButton> {
         children: [
           Expanded(
             child: InkWell(
-              onTap: _onTap,
+              onTap: onTap,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

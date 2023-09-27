@@ -56,26 +56,26 @@ void main() {
     final previousButtonFinder = find.byKey(const Key('enrollment_previous_button'));
 
     // Pumps an unenrolled app with english locale
-    Future<void> _initEnrollment(WidgetTester tester) async {
+    Future<void> initEnrollment(WidgetTester tester) async {
       await pumpIrmaApp(tester, irmaBinding.repository);
       expect(find.byType(EnrollmentScreen), findsOneWidget);
     }
 
-    Future<void> _goThroughIntroduction(WidgetTester tester) async {
+    Future<void> goThroughIntroduction(WidgetTester tester) async {
       for (var i = 0; i < expectedInstructions.length; i++) {
         await tester.tap(nextButtonFinder);
         await tester.pump(const Duration(milliseconds: 500));
       }
     }
 
-    Future<void> _goThroughChoosePin(WidgetTester tester, [String pin = '12345']) async {
+    Future<void> goThroughChoosePin(WidgetTester tester, [String pin = '12345']) async {
       expect(find.byType(ChoosePinScreen), findsOneWidget);
       await enterPin(tester, pin);
       await tester.tapAndSettle(find.text('Next'));
       await enterPin(tester, pin);
     }
 
-    Future<void> _goThroughTerms(WidgetTester tester) async {
+    Future<void> goThroughTerms(WidgetTester tester) async {
       expect(find.byType(AcceptTermsScreen), findsOneWidget);
       final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
       await tester.scrollUntilVisible(checkBoxFinder.hitTestable(), 50);
@@ -83,17 +83,17 @@ void main() {
       await tester.tapAndSettle(nextButtonFinder);
     }
 
-    Future<void> _goToEmailScreen(WidgetTester tester) async {
-      await _initEnrollment(tester);
-      await _goThroughIntroduction(tester);
-      await _goThroughTerms(tester);
-      await _goThroughChoosePin(tester);
+    Future<void> goToEmailScreen(WidgetTester tester) async {
+      await initEnrollment(tester);
+      await goThroughIntroduction(tester);
+      await goThroughTerms(tester);
+      await goThroughChoosePin(tester);
     }
 
     testWidgets(
       'introduction',
       (tester) async {
-        await _initEnrollment(tester);
+        await initEnrollment(tester);
         const pumpTime = Duration(milliseconds: 500);
 
         for (var i = 0; i < expectedInstructions.length; i++) {
@@ -127,9 +127,9 @@ void main() {
     );
 
     testWidgets('choose-pin', (tester) async {
-      await _initEnrollment(tester);
-      await _goThroughIntroduction(tester);
-      await _goThroughTerms(tester);
+      await initEnrollment(tester);
+      await goThroughIntroduction(tester);
+      await goThroughTerms(tester);
 
       // Choose the pin
       expect(find.byType(ChoosePinScreen), findsOneWidget);
@@ -171,8 +171,8 @@ void main() {
     testWidgets(
       'terms',
       (tester) async {
-        await _initEnrollment(tester);
-        await _goThroughIntroduction(tester);
+        await initEnrollment(tester);
+        await goThroughIntroduction(tester);
         expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
         // Scroll to the error reporting opt in
@@ -260,7 +260,7 @@ void main() {
     testWidgets(
       'skip-email',
       (tester) async {
-        await _goToEmailScreen(tester);
+        await goToEmailScreen(tester);
 
         // Press skip on the enrollment nav bar
         await tester.tapAndSettle(find.text('Skip'));
@@ -289,7 +289,7 @@ void main() {
     testWidgets(
       'provide-email',
       (tester) async {
-        await _goToEmailScreen(tester);
+        await goToEmailScreen(tester);
 
         var emailInputFinder = find.byKey(const Key('email_input_field'));
         var emailInvalidMessageFinder = find.descendant(

@@ -57,7 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final theme = IrmaTheme.of(context);
     final repo = IrmaRepositoryProvider.of(context);
 
-    Widget _buildHeaderText(String translationKey) => Padding(
+    Widget buildHeaderText(String translationKey) => Padding(
           padding: EdgeInsets.only(bottom: theme.defaultSpacing),
           child: Semantics(
             header: true,
@@ -68,7 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         );
 
-    Widget _buildExplanationText(String translationKey) => Padding(
+    Widget buildExplanationText(String translationKey) => Padding(
           padding: EdgeInsets.symmetric(
             vertical: theme.smallSpacing,
             horizontal: theme.defaultSpacing,
@@ -112,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
-              _buildExplanationText('settings.start_qr_explanation'),
+              buildExplanationText('settings.start_qr_explanation'),
               spacerWidget,
               TilesCard(
                 children: [
@@ -124,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
-              _buildExplanationText('settings.report_errors_explanation'),
+              buildExplanationText('settings.report_errors_explanation'),
               if (Platform.isAndroid) ...[
                 spacerWidget,
                 TilesCard(
@@ -137,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ],
                 ),
-                _buildExplanationText('settings.enable_screenshots_explanation'),
+                buildExplanationText('settings.enable_screenshots_explanation'),
                 spacerWidget,
               ],
               if (showDeveloperModeToggle)
@@ -154,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
-              _buildHeaderText('settings.other'),
+              buildHeaderText('settings.other'),
               TilesCard(
                 children: [
                   const InternalLinkTile(
