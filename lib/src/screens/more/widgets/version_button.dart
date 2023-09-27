@@ -14,7 +14,7 @@ class VersionButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _VersionButtonState createState() => _VersionButtonState();
+  State<VersionButton> createState() => _VersionButtonState();
 }
 
 class _VersionButtonState extends State<VersionButton> {

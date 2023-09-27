@@ -24,7 +24,7 @@ class IssueWizardScreen extends StatefulWidget {
   const IssueWizardScreen({Key? key, required this.arguments}) : super(key: key);
 
   @override
-  _IssueWizardScreenState createState() => _IssueWizardScreenState();
+  State<IssueWizardScreen> createState() => _IssueWizardScreenState();
 }
 
 class IssueWizardScreenArguments {

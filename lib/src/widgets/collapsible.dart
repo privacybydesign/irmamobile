@@ -23,7 +23,7 @@ class Collapsible extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CollapsibleState createState() => _CollapsibleState();
+  State<Collapsible> createState() => _CollapsibleState();
 }
 
 class _CollapsibleState extends State<Collapsible> {

@@ -13,7 +13,7 @@ class HelpScreen extends StatefulWidget {
   static const String routeName = '/help';
 
   @override
-  _HelpScreenState createState() => _HelpScreenState();
+  State<HelpScreen> createState() => _HelpScreenState();
 }
 
 class _HelpScreenState extends State<HelpScreen> {

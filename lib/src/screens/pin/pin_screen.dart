@@ -27,7 +27,7 @@ class PinScreen extends StatefulWidget {
   const PinScreen({Key? key, this.initialEvent}) : super(key: key);
 
   @override
-  _PinScreenState createState() => _PinScreenState();
+  State<PinScreen> createState() => _PinScreenState();
 }
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
