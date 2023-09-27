@@ -30,7 +30,7 @@ class AddDataQuestions extends StatelessWidget {
 
     String markdown = '';
     if (showDisclosureInfo) {
-      markdown = FlutterI18n.translate(context, 'data.add.details.disclosure_info_markdown') + '\n\n';
+      markdown = '${FlutterI18n.translate(context, 'data.add.details.disclosure_info_markdown')}\n\n';
     }
     markdown = markdown +
         getTranslation(context, bodyText).replaceAll(
