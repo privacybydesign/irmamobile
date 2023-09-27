@@ -33,9 +33,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   repo.preferences.setReportErrors(isAccepted);
                 }
               },
-              fillColor: MaterialStateColor.resolveWith(
-                (_) => theme.themeData.colorScheme.secondary,
-              ),
+              activeColor: theme.themeData.colorScheme.secondary,
             );
           },
         ),
