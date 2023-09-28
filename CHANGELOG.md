@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Internal
 - Upgraded to Flutter 3.13.5
 - Added open.yivi.app to associated domains
+- Use launchUrl instead of launch from url_launcher since the latter is deprecated
 
 ## [7.5.0] - 2023-09-13
 ### Added
