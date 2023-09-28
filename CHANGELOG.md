@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Internal
 - Upgraded to Flutter 3.13.5
 - Added open.yivi.app to associated domains
+- Upgraded packages and fixed various analyzer warnings
 
 ## [7.5.0] - 2023-09-13
 ### Added
