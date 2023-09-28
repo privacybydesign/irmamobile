@@ -570,7 +570,9 @@ class IrmaRepository {
     if (Platform.isAndroid) {
       await _iiabchannel.invokeMethod('open_browser', url);
     } else {
-      final hasOpened = await launch(url, forceSafariVC: true);
+      final uri = Uri.parse(url);
+      final hasOpened = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+
       // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
       if (!hasOpened) {
         throw Exception('url could not be opened: $url');
@@ -583,7 +585,9 @@ class IrmaRepository {
       _resumedFromBrowserSubject.add(true);
     }
     // On iOS, open Safari rather than Safari view controller
-    final hasOpened = await launch(url, forceSafariVC: false);
+    final uri = Uri.parse(url);
+    final hasOpened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
     // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
     if (!hasOpened) {
       throw Exception('url could not be opened: $url');
