@@ -82,7 +82,7 @@ class _DebugScreenState extends State<DebugScreen> {
         ) ??
         false;
 
-    if (confirmed) {
+    if (confirmed && mounted) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => SchemeManagementScreen(),

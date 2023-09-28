@@ -9,7 +9,12 @@ class DisclosurePermissionCloseDialog extends StatelessWidget {
           builder: (context) => DisclosurePermissionCloseDialog(),
         ) ??
         false;
-    if (confirmed) onConfirm == null ? Navigator.of(context).pop() : onConfirm();
+
+    if (!context.mounted) return;
+
+    if (confirmed) {
+      onConfirm == null ? Navigator.of(context).pop() : onConfirm();
+    }
   }
 
   @override

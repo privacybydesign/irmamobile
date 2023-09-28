@@ -70,11 +70,11 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
           );
         },
         child: ConstrainedBox(
-          child: image,
           constraints: const BoxConstraints(
             maxWidth: 66,
             maxHeight: 100,
           ),
+          child: image,
         ),
       );
     }

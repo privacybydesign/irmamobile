@@ -22,11 +22,11 @@ class _NumberPad extends StatelessWidget {
         _NumberPadKey(onEnterNumber, 0),
         Semantics(
           button: true,
-          child: _NumberPadIcon(icon: Icons.backspace_outlined, callback: () => onEnterNumber(-1)),
           label: FlutterI18n.translate(
             context,
             'pin_accessibility.backspace',
           ),
+          child: _NumberPadIcon(icon: Icons.backspace_outlined, callback: () => onEnterNumber(-1)),
         ),
       ];
 
@@ -35,6 +35,7 @@ class _NumberPad extends StatelessWidget {
       final resizedKeyHeight = keyHeight * 0.8;
 
       final grid = Wrap(
+        alignment: WrapAlignment.center,
         children: keys
             .map(
               (e) => Container(
@@ -53,7 +54,6 @@ class _NumberPad extends StatelessWidget {
               ),
             )
             .toList(),
-        alignment: WrapAlignment.center,
       );
 
       return grid;

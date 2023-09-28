@@ -14,7 +14,7 @@ class PendingPointerListener extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _PendingPointerListenerState createState() => _PendingPointerListenerState();
+  State<PendingPointerListener> createState() => _PendingPointerListenerState();
 }
 
 class _PendingPointerListenerState extends State<PendingPointerListener> {

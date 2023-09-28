@@ -295,7 +295,7 @@ class _SessionScreenState extends State<SessionScreen> {
                 // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
                 await _openClientReturnUrl(session.clientReturnURL!, alwaysOpenExternally: true, silentFailure: true);
               }
-              popToHome(context);
+              if (context.mounted) popToHome(context);
             } else {
               if (Platform.isIOS) {
                 _displayArrowBack.value = true;

@@ -25,7 +25,7 @@ class AddDataDetailsScreen extends StatefulWidget {
   });
 
   @override
-  _AddDataDetailsScreenState createState() => _AddDataDetailsScreenState();
+  State<AddDataDetailsScreen> createState() => _AddDataDetailsScreenState();
 }
 
 class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {

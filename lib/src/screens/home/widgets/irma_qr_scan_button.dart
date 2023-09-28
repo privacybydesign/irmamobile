@@ -14,7 +14,7 @@ class IrmaQrScanButton extends StatelessWidget {
   Future<void> _onQrScanButtonTap(BuildContext context) async {
     final hasCameraPermission = await handleCameraPermission(context);
 
-    if (hasCameraPermission) {
+    if (hasCameraPermission && context.mounted) {
       Navigator.of(context).pushNamed(
         ScannerScreen.routeName,
       );

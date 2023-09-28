@@ -32,19 +32,21 @@ class ContactLinkTile extends StatelessWidget {
         try {
           await IrmaRepositoryProvider.of(context).openURLExternally(mail);
         } catch (_) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return IrmaDialog(
-                title: FlutterI18n.translate(context, 'help.mail_error_title'),
-                content: FlutterI18n.translate(context, 'help.mail_error'),
-                child: YiviThemedButton(
-                  label: 'help.mail_error_button',
-                  onPressed: () => Navigator.pop(context),
-                ),
-              );
-            },
-          );
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return IrmaDialog(
+                  title: FlutterI18n.translate(context, 'help.mail_error_title'),
+                  content: FlutterI18n.translate(context, 'help.mail_error'),
+                  child: YiviThemedButton(
+                    label: 'help.mail_error_button',
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                );
+              },
+            );
+          }
         }
       },
     );

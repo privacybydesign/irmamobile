@@ -22,7 +22,7 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  Future<void> _initAndNavToSettingsScreen(WidgetTester tester) async {
+  Future<void> initAndNavToSettingsScreen(WidgetTester tester) async {
     await pumpAndUnlockApp(tester, irmaBinding.repository);
 
     //Navigate to more tab
@@ -37,7 +37,7 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    Future<void> _testToggle(
+    Future<void> testToggle(
       WidgetTester tester,
       String key,
       bool defaultValue,
@@ -75,7 +75,7 @@ void main() {
     }
 
     testWidgets('reach', (tester) async {
-      await _initAndNavToSettingsScreen(tester);
+      await initAndNavToSettingsScreen(tester);
       expect(find.byType(SettingsScreen), findsOneWidget);
     });
 
@@ -83,19 +83,19 @@ void main() {
       'toggles',
       (tester) async {
         final repo = irmaBinding.repository;
-        await _initAndNavToSettingsScreen(tester);
+        await initAndNavToSettingsScreen(tester);
 
         // ! Note: there is no test to toggle the scanner on startup
         // ! because it will ask for camera permissions
 
-        await _testToggle(
+        await testToggle(
           tester,
           'report_toggle',
           false,
           repo.preferences.getReportErrors(),
         );
         if (Platform.isAndroid) {
-          await _testToggle(
+          await testToggle(
             tester,
             'screenshot_toggle',
             true,
@@ -105,7 +105,7 @@ void main() {
 
         // Dev mode is enabled by default in the test binding
         // so the toggle should be visible.
-        await _testToggle(
+        await testToggle(
           tester,
           'dev_mode_toggle',
           true,
@@ -122,7 +122,7 @@ void main() {
     );
 
     testWidgets('change-pin', (tester) async {
-      await _initAndNavToSettingsScreen(tester);
+      await initAndNavToSettingsScreen(tester);
 
       final changePinButtonFinder = find.text('Change PIN').hitTestable();
       await tester.scrollUntilVisible(changePinButtonFinder, 50);
@@ -272,7 +272,7 @@ void main() {
     });
 
     testWidgets('reset-from-settings', (tester) async {
-      await _initAndNavToSettingsScreen(tester);
+      await initAndNavToSettingsScreen(tester);
 
       var deleteFinder = find.byKey(const Key('delete_link'));
 
@@ -288,7 +288,7 @@ void main() {
     });
 
     testWidgets('change-language', (tester) async {
-      await _initAndNavToSettingsScreen(tester);
+      await initAndNavToSettingsScreen(tester);
 
       final changeLanguageLinkFinder = find.byKey(const Key('change_language_link'));
 

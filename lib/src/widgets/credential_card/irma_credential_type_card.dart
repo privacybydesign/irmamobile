@@ -48,7 +48,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
     }
 
     return IrmaCard(
-      key: Key(credType.fullId + '_tile'),
+      key: Key('${credType.fullId}_tile'),
       onTap: onTap,
       child: Row(
         children: [

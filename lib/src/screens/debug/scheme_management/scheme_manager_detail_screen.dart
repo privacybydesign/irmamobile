@@ -115,6 +115,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       ),
     );
     if (pin == null) return;
+    if (!context.mounted) return;
 
     final navigator = Navigator.of(context);
     final email = await navigator.push(
@@ -127,19 +128,18 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       ),
     );
     if (email == null) return;
+    if (!context.mounted) return;
 
-    if (context.mounted) {
-      showSnackbar(
+    showSnackbar(
+      context,
+      FlutterI18n.translate(
         context,
-        FlutterI18n.translate(
-          context,
-          'debug.scheme_management.activating',
-          translationParams: {
-            'scheme': schemeManagerId,
-          },
-        ),
-      );
-    }
+        'debug.scheme_management.activating',
+        translationParams: {
+          'scheme': schemeManagerId,
+        },
+      ),
+    );
 
     final repo = IrmaRepositoryProvider.of(context);
     repo.bridgedDispatch(EnrollEvent(

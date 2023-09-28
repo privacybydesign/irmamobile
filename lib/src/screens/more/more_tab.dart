@@ -55,7 +55,7 @@ class _MoreTabState extends State<MoreTab> {
       height: theme.mediumSpacing,
     );
 
-    Widget _buildHeaderText(
+    Widget buildHeaderText(
       String translationKey,
     ) =>
         Padding(
@@ -76,7 +76,7 @@ class _MoreTabState extends State<MoreTab> {
         children: [
           Semantics(
             sortKey: const OrdinalSortKey(0),
-            child: _buildHeaderText('more_tab.app_management'),
+            child: buildHeaderText('more_tab.app_management'),
           ),
           TilesCard(
             children: [
@@ -100,7 +100,7 @@ class _MoreTabState extends State<MoreTab> {
             ],
           ),
           spacerWidget,
-          _buildHeaderText('help.about_irma'),
+          buildHeaderText('help.about_irma'),
           const TilesCard(
             children: [
               ExternalLinkTile(
@@ -115,7 +115,7 @@ class _MoreTabState extends State<MoreTab> {
             ],
           ),
           spacerWidget,
-          _buildHeaderText('more_tab.slogan'),
+          buildHeaderText('more_tab.slogan'),
           const TilesCard(
             children: [
               ShareLinkTile(
@@ -131,7 +131,7 @@ class _MoreTabState extends State<MoreTab> {
             ],
           ),
           spacerWidget,
-          _buildHeaderText('more_tab.stay_informed'),
+          buildHeaderText('more_tab.stay_informed'),
           const TilesCard(children: [
             ExternalLinkTile(
               iconData: Icons.groups_outlined,

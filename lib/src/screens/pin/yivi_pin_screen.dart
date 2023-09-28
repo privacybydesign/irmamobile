@@ -140,16 +140,16 @@ class YiviPinScreen extends StatelessWidget {
       switch (visibility) {
         case WidgetVisibility.gone:
           return Visibility(
-            child: button,
             visible: false,
+            child: button,
           );
         case WidgetVisibility.invisible:
           return Visibility(
-            child: button,
             maintainSize: true,
             maintainAnimation: true,
             maintainState: true,
             visible: false,
+            child: button,
           );
         case WidgetVisibility.visible:
           return button;
