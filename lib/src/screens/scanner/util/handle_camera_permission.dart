@@ -15,7 +15,7 @@ Future<bool> handleCameraPermission(BuildContext context) async {
   if (cameraPermissionStatus.isGranted) {
     return true;
   } else if (cameraPermissionStatus.isPermanentlyDenied) {
-    await _showCameraPermissionDialog(context);
+    if (context.mounted) await _showCameraPermissionDialog(context);
   }
 
   return false;

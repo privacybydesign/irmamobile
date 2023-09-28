@@ -33,9 +33,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   repo.preferences.setReportErrors(isAccepted);
                 }
               },
-              fillColor: MaterialStateColor.resolveWith(
-                (_) => theme.themeData.colorScheme.secondary,
-              ),
+              activeColor: theme.themeData.colorScheme.secondary,
             );
           },
         ),
@@ -50,11 +48,10 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   style: theme.textTheme.bodyMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
-                  text: FlutterI18n.translate(
-                        context,
-                        'enrollment.error_reporting.accept.optional',
-                      ) +
-                      ': ',
+                  text: '${FlutterI18n.translate(
+                    context,
+                    'enrollment.error_reporting.accept.optional',
+                  )}: ',
                 ),
                 TextSpan(
                   style: theme.hyperlinkTextStyle,
@@ -66,11 +63,10 @@ class ErrorReportingCheckBox extends StatelessWidget {
                 ),
                 TextSpan(
                   style: theme.textTheme.bodyMedium,
-                  text: ' ' +
-                      FlutterI18n.translate(
-                        context,
-                        'enrollment.error_reporting.accept.with_yivi',
-                      ),
+                  text: ' ${FlutterI18n.translate(
+                    context,
+                    'enrollment.error_reporting.accept.with_yivi',
+                  )}',
                 ),
               ],
             ),

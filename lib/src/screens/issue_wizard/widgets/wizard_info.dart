@@ -29,13 +29,13 @@ class IssueWizardInfo extends StatelessWidget {
   Widget _buildIntro(BuildContext context, String lang, IssueWizard wizardData) {
     final theme = IrmaTheme.of(context);
 
-    final _collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
+    final collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
     final items = wizardData.faq
         .asMap()
         .entries
         .map(
           (q) => Collapsible(
-            key: _collapsableKeys[q.key],
+            key: collapsableKeys[q.key],
             header: q.value.question.translate(lang),
             parentScrollController: controller,
             content: SizedBox(

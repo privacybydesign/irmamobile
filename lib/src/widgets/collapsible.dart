@@ -23,7 +23,7 @@ class Collapsible extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CollapsibleState createState() => _CollapsibleState();
+  State<Collapsible> createState() => _CollapsibleState();
 }
 
 class _CollapsibleState extends State<Collapsible> {
@@ -33,7 +33,8 @@ class _CollapsibleState extends State<Collapsible> {
 
   Future<void> _jumpToCollapsable() async {
     await Future.delayed(_expandDuration);
-    if (!mounted || widget.parentScrollController == null) return;
+    if (widget.parentScrollController == null) return;
+    if (!mounted) return;
 
     RenderObject? scrollableRenderObject;
     context.visitAncestorElements((element) {

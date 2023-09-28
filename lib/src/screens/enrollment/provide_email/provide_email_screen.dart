@@ -21,7 +21,7 @@ class ProvideEmailScreen extends StatefulWidget {
   });
 
   @override
-  _ProvideEmailScreenState createState() => _ProvideEmailScreenState();
+  State<ProvideEmailScreen> createState() => _ProvideEmailScreenState();
 }
 
 class _ProvideEmailScreenState extends State<ProvideEmailScreen> {

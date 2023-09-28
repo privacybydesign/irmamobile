@@ -48,6 +48,7 @@ class IssueWizardContents extends StatelessWidget {
             SizedBox(height: theme.defaultSpacing),
           ],
           IrmaStepper(
+            currentIndex: wizard.activeItemIndex >= 0 ? wizard.activeItemIndex : null,
             children: wizard.wizardContents
                 .mapIndexed(
                   (i, item) => IrmaCard(
@@ -68,7 +69,6 @@ class IssueWizardContents extends StatelessWidget {
                   ),
                 )
                 .toList(growable: false),
-            currentIndex: wizard.activeItemIndex >= 0 ? wizard.activeItemIndex : null,
           ),
         ],
       ),

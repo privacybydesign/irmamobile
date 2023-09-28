@@ -52,7 +52,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
           builder: (context) => DeleteCredentialConfirmationDialog(),
         ) ??
         false;
-    if (confirmed) {
+    if (confirmed && context.mounted) {
       _deleteCredential(context, credential);
       _showDeletedSnackbar();
     }

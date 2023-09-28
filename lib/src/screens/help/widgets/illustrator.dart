@@ -18,7 +18,7 @@ class Illustrator extends StatefulWidget {
   });
 
   @override
-  _IllustratorState createState() => _IllustratorState();
+  State<Illustrator> createState() => _IllustratorState();
 }
 
 class _IllustratorState extends State<Illustrator> with SingleTickerProviderStateMixin {

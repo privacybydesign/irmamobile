@@ -137,7 +137,7 @@ class ConfigurableExpansionTile extends StatefulWidget {
 
   static final Animatable<double> _easeOutTween = CurveTween(curve: Curves.easeOut);
   @override
-  _ConfigurableExpansionTileState createState() => _ConfigurableExpansionTileState();
+  State<ConfigurableExpansionTile> createState() => _ConfigurableExpansionTileState();
 }
 
 class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> with SingleTickerProviderStateMixin {

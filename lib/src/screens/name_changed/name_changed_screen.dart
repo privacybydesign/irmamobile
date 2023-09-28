@@ -46,7 +46,7 @@ class NameChangedScreen extends StatelessWidget {
       textAlign: TextAlign.center,
     );
 
-    Widget _buildPortrait() => Column(
+    Widget buildPortrait() => Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -68,7 +68,7 @@ class NameChangedScreen extends StatelessWidget {
           ],
         );
 
-    Widget _buildLandscape() => Row(
+    Widget buildLandscape() => Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
@@ -109,7 +109,7 @@ class NameChangedScreen extends StatelessWidget {
         child: Center(
           child: SingleChildScrollView(
             padding: EdgeInsets.all(theme.screenPadding),
-            child: isLandscape ? _buildLandscape() : _buildPortrait(),
+            child: isLandscape ? buildLandscape() : buildPortrait(),
           ),
         ),
       ),

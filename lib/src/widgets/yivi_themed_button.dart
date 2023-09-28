@@ -54,8 +54,8 @@ class YiviThemedButton extends StatelessWidget {
             child: Material(
               type: MaterialType.transparency,
               child: InkWell(
-                child: child,
                 onTap: onPressed,
+                child: child,
               ),
             ),
           ),
@@ -72,7 +72,6 @@ class YiviThemedButton extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         child: Ink(
-          child: child,
           decoration: style == YiviButtonStyle.filled
               // Filled button
               ? BoxDecoration(
@@ -88,6 +87,7 @@ class YiviThemedButton extends StatelessWidget {
                     color: theme.neutralExtraDark,
                   ),
                 ),
+          child: child,
         ),
       ),
     );

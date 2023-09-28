@@ -13,7 +13,7 @@ class CameraPermissionDialog extends StatelessWidget {
       confirmTranslationKey: 'qr_scanner.permission_dialog.settings',
       onConfirmPressed: () async {
         await openAppSettings();
-        Navigator.of(context).pop();
+        if (context.mounted) Navigator.of(context).pop();
       },
     );
   }

@@ -23,9 +23,7 @@ class TermsCheckBox extends StatelessWidget {
         Checkbox(
           key: const Key('accept_terms_checkbox'),
           value: isAccepted,
-          fillColor: MaterialStateColor.resolveWith(
-            (_) => theme.themeData.colorScheme.secondary,
-          ),
+          activeColor: theme.themeData.colorScheme.secondary,
           onChanged: (isAccepted) => onToggleAccepted(
             isAccepted ?? false,
           ),
