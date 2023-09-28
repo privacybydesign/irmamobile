@@ -189,7 +189,7 @@ Future<void> showConfirmDeleteDialog(BuildContext context) async {
       ) ??
       false;
 
-  if (confirmed) {
+  if (confirmed && context.mounted) {
     IrmaRepositoryProvider.of(context).bridgedDispatch(
       ClearAllDataEvent(),
     );

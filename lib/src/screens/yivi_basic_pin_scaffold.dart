@@ -25,7 +25,7 @@ class YiviBasicPinScaffold extends StatelessWidget {
             ? () async {
                 cancel?.call();
                 if (!await Navigator.of(context).maybePop()) {
-                  Navigator.of(context, rootNavigator: true).pop();
+                  if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
                 }
               }
             : null,

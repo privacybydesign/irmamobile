@@ -33,7 +33,8 @@ class _CollapsibleState extends State<Collapsible> {
 
   Future<void> _jumpToCollapsable() async {
     await Future.delayed(_expandDuration);
-    if (!mounted || widget.parentScrollController == null) return;
+    if (widget.parentScrollController == null) return;
+    if (!mounted) return;
 
     RenderObject? scrollableRenderObject;
     context.visitAncestorElements((element) {
