@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Internal
 - Upgraded to Flutter 3.13.5
+- Upgraded macos runner version to 13 in Github actions
 - Added open.yivi.app to associated domains
 - Upgraded packages and fixed various analyzer warnings
 

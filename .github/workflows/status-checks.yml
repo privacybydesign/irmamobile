@@ -34,7 +34,7 @@ jobs:
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane unit_test
   build-irmagobridge-ios:
-    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
+    runs-on: macos-13 # MacOS version is pinned, because it determines which XCode version is used.
     needs: lint
     steps:
       - name: Check out repository
@@ -80,7 +80,7 @@ jobs:
           name: prototypes-alpha-android
           path: ./build/app/outputs/apk/alpha/release/*.apk
   build-app-ios-alpha:
-    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
+    runs-on: macos-13 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
     steps:
       - name: Check out repository
@@ -152,7 +152,7 @@ jobs:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
           path: ./fastlane/build/*
   build-integration-test-ios:
-    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
+    runs-on: macos-13 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
     steps:
       - name: Check out repository
