@@ -232,16 +232,18 @@ class SchemeManagerDetailScreen extends StatelessWidget {
             schemeIsActive && schemeManager.keyshareServer.isNotEmpty && schemeManager.id != repo.defaultKeyshareScheme;
 
         Widget? bottomBar;
-        if (!schemeIsActive && !schemeManager.demo) {
-          bottomBar = IrmaBottomBar(
-            primaryButtonLabel: 'ui.activate',
-            onPrimaryPressed: () => _onActivateScheme(context),
-          );
-        } else if (schemeIsActive && schemeManager.keyshareServer.isNotEmpty) {
-          bottomBar = IrmaBottomBar(
-            primaryButtonLabel: 'debug.scheme_management.verify_pin.title',
-            onPrimaryPressed: () => _verifyPin(context, schemeManager.id),
-          );
+        if (schemeManager.keyshareServer.isNotEmpty) {
+          if (schemeIsActive) {
+            bottomBar = IrmaBottomBar(
+              primaryButtonLabel: 'debug.scheme_management.verify_pin.title',
+              onPrimaryPressed: () => _verifyPin(context, schemeManager.id),
+            );
+          } else {
+            bottomBar = IrmaBottomBar(
+              primaryButtonLabel: 'ui.activate',
+              onPrimaryPressed: () => _onActivateScheme(context),
+            );
+          }
         }
 
         return Scaffold(
