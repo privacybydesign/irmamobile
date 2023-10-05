@@ -1,11 +1,13 @@
 module github.com/privacybydesign/irmamobile
 
-go 1.18
+go 1.21
+
+toolchain go1.21.1
 
 require (
 	github.com/go-errors/errors v1.4.2
-	github.com/privacybydesign/gabi v0.0.0-20221012093643-8e978bfbb252
-	github.com/privacybydesign/irmago v0.13.3
+	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
+	github.com/privacybydesign/irmago v0.14.0
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/mobile v0.0.0-20230905140555-fbe1c053b6a9
 )
