@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Update irmago to version 0.14.0
+- Follow `isULIssueUrl` setting from credential type configuration when opening the issuer website
 
 ### Fixed
 - Demo test schemes with keyshare server cannot be activated
