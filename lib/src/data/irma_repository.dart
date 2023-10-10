@@ -554,6 +554,11 @@ class IrmaRepository {
       ));
     }
 
+    // If the issue URL is a universal link, then we ask the OS to open the appropriate application.
+    if (cred.isULIssueUrl) {
+      return openURLExternally(url, suppressQrScanner: true);
+    }
+
     return openURL(url);
   }
 
