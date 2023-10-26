@@ -52,7 +52,7 @@ attaching data to signed statements. These data can be relevant properties, such
   * Android SDK Command-line Tools
   * Android SDK Build-Tools
   * Android SDK Platform-Tools
-  * NDK version 21.x (version 22.x is not supported by `gomobile` yet)
+  * NDK
   * CMake
 
   If you're using the SDK Manager of Android Studio: you can find specific versions for Build-Tools
@@ -164,7 +164,7 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
 * If something has changed in the `irmagobridge` or in `irmago` then rerunning `./bind_go.sh` is required.
 * In case you get the warning that the `ndk-bundle` cannot be found, please set the `ANDROID_NDK_HOME`
   environment variable to the right ndk version directory. These version directories can be found in `$ANDROID_HOME/ndk`.
-  For example, you have to specify `export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.1.6352462`.
+  For example, you have to specify `export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/<NDK_VERSION>`.
   You can also make a symlink in `ANDROID_HOME` by doing
   `ln -s $ANDROID_HOME/ndk/<NDK_VERSION> $ANDROID_HOME/ndk-bundle`. In here `<NDK_VERSION>` should be replaced
   with the NDK version you want to use.
