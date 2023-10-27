@@ -82,12 +82,13 @@ attaching data to signed statements. These data can be relevant properties, such
 
 * Create the irmagobridge: `./bind_go.sh`.
 
-* Start an emulator or connect a device via USB and run the flutter project: `flutter run`. You can
-  also use Android Studio or Visual Studio Code for this step. On Android, sometimes the build flavor
-  is not picked up automatically. This can be identified when the flutter tool cannot
-  find the generated apk after building. In this case run `flutter run --flavor alpha`.
-  In case you run the flutter project via Android Studio, you
-  can specify the build flavor in the run configuration. On iOS, no custom flavor should be specified.
+* Start an emulator or connect a device via USB and run the flutter project: `flutter run` (iOS) or
+  `flutter run --flavor alpha` (Android). You can also use Android Studio or Visual Studio Code for this step.
+  The alpha flavor on Android does not open universal links. If you need to test these, then you need to build
+  the beta flavor (`flutter run --flavor beta`). In order to install a beta flavor build, you need to uninstall
+  the Play Store version of the Yivi app. Therefore, it is practical to only do this in a simulator or a dedicated
+  test device. In case you run the flutter project via Android Studio, you can specify the build flavor in the
+  run configuration. On iOS, no custom flavor should be specified.
 
 * You can use `flutter run -t` to run different app configurations, for example run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.
 
@@ -168,7 +169,8 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
   You can also make a symlink in `ANDROID_HOME` by doing
   `ln -s $ANDROID_HOME/ndk/<NDK_VERSION> $ANDROID_HOME/ndk-bundle`. In here `<NDK_VERSION>` should be replaced
   with the NDK version you want to use.
-* When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK (see above) or your Go version is too old.
+* When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK or your Go version is too old.
+* When the flutter tool cannot find the generated apk after building for Android, the flavor is probably omitted. You need to run `flutter run --flavor alpha` or `flutter run --flavor beta`.
 * When you are working with Windows, you need to manually make a symlink between the configuration folders. You can do this by opening a terminal as administrator and use the following command: `mklink /d .\android\app\src\main\assets\irma_configuration .\irma_configuration`.
 * When you are building for iOS using XCode and you get `Dart Error: Can't load Kernel binary: Invalid kernel binary format version.`, then likely your Flutter cache is corrupted. You can empty and reload the Flutter cache in the following way:
 ```shell
