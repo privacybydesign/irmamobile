@@ -84,7 +84,7 @@ attaching data to signed statements. These data can be relevant properties, such
 
 * Start an emulator or connect a device via USB and run the flutter project: `flutter run` (iOS) or
   `flutter run --flavor alpha` (Android). You can also use Android Studio or Visual Studio Code for this step.
-  The alpha flavor on Android does not open universal links. If you need to test these, then you need to build
+  The alpha flavor on Android does not open universal links. If you need to test these, you need to build
   the beta flavor (`flutter run --flavor beta`). In order to install a beta flavor build, you need to uninstall
   the Play Store version of the Yivi app. Therefore, it is practical to only do this in a simulator or a dedicated
   test device. In case you run the flutter project via Android Studio, you can specify the build flavor in the
