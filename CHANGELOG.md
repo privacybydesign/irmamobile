@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+- Include the cause of Android key store exceptions in Sentry reports
+
+### Fixed
+- Stacktraces of native Android errors not parsed correctly
+
 ## [7.5.2] - 2023-10-26
 ### Fixed
 - IRMA session gets stuck on loading spinner when user confirms PIN code (fixed by updating irmago to 0.14.2)
