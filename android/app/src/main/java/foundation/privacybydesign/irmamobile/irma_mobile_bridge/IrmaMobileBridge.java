@@ -44,8 +44,10 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
       String exception = e.toString();
-      if (e.getCause() != null) {
-        exception += "\nCaused by: " + e.getCause().toString();
+      Throwable cause = e.getCause();
+      while (cause != null) {
+        exception += "\nCaused by: " + cause.toString();
+        cause = cause.getCause();
       }
       String[] stackTrace = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray(String[]::new);
 
