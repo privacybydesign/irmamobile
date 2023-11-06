@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
+import org.json.JSONObject;
+import org.json.JSONException;
+
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -40,8 +43,24 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
           new ECDSA(context), aesKey);
       this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
-      this.nativeError = String.format("{\"Exception\":\"%s\",\"Stack\":\"%s\",\"Fatal\":true}", e.toString(),
-        Arrays.toString(e.getStackTrace()));
+      String exception = e.toString();
+      Throwable cause = e.getCause();
+      while (cause != null) {
+        exception += "\nCaused by: " + cause.toString();
+        cause = cause.getCause();
+      }
+      String[] stackTrace = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray(String[]::new);
+
+      JSONObject jsonObject = new JSONObject();
+      try {
+        jsonObject.put("Exception", exception);
+        jsonObject.put("Stack", String.join("\n", stackTrace));
+        jsonObject.put("Fatal", true);
+        this.nativeError = jsonObject.toString();
+      } catch (JSONException jsonException) {
+        this.nativeError = String.format("{\"Exception\":\"%s\",\"Stack\":\"\",\"Fatal\":true}",
+            "Unable to parse Java exception");
+      }
     }
   }
 
