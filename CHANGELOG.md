@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Include the cause of Android key store exceptions in Sentry reports
+- Do not report transport errors to Sentry when updating schemes
 
 ### Fixed
 - Stacktraces of native Android errors not parsed correctly

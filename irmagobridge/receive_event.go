@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-errors/errors"
+	irma "github.com/privacybydesign/irmago"
 )
 
 // DispatchFromNative receives events from the Android / iOS native side
@@ -78,6 +79,10 @@ func DispatchFromNative(eventName, payloadString string) {
 		go func() {
 			defer recoverFromPanic("Handling UpdateSchemesEvent panicked")
 			err := bridgeEventHandler.updateSchemes()
+			// Ignore transport errors
+			if serr, ok := err.(*irma.SessionError); ok && serr.ErrorType == irma.ErrorTransport {
+				return
+			}
 			if err != nil {
 				reportError(errors.New(err), false)
 			}
