@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [7.5.3] - 2023-11-16
 ### Changed
 - Include the cause of Android key store exceptions in Sentry reports
 - Do not report transport errors to Sentry when updating schemes
@@ -394,6 +395,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.5.3]: https://github.com/privacybydesign/irmamobile/compare/v7.5.2...v7.5.3
 [7.5.2]: https://github.com/privacybydesign/irmamobile/compare/v7.5.1...v7.5.2
 [7.5.1]: https://github.com/privacybydesign/irmamobile/compare/v7.5.0...v7.5.1
 [7.5.0]: https://github.com/privacybydesign/irmamobile/compare/v7.4.2...v7.5.0
