@@ -2,6 +2,7 @@ package irmagobridge
 
 import (
 	"fmt"
+
 	"github.com/go-errors/errors"
 	irma "github.com/privacybydesign/irmago"
 	irmaclient "github.com/privacybydesign/irmago/irmaclient"
