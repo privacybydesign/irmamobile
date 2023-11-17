@@ -120,4 +120,8 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     if (debug)
       System.out.printf("[IrmaMobileBridgePlugin] %s\n", message);
   }
+
+  public void stop() {
+    Irmagobridge.stop();
+  }
 }

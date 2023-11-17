@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- irmagobridge's Stop method is not called on iOS when the app is terminated
 
 ## [7.5.3] - 2023-11-16
 ### Changed
