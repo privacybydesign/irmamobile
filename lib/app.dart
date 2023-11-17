@@ -266,7 +266,11 @@ class AppState extends State<App> with WidgetsBindingObserver {
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData || !_privacyScreenLoaded) {
-          return const SplashScreen();
+          // Delay the loading indicator a bit, so it doesn't flash on screen.
+          return FutureBuilder(
+            future: Future.delayed(const Duration(seconds: 3), () => true),
+            builder: (context, isLoading) => SplashScreen(isLoading: isLoading.data ?? false),
+          );
         }
 
         final displayRootedWarning = snapshot.data!.a;
