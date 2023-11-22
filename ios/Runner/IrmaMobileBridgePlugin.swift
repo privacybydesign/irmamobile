@@ -10,7 +10,6 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
     private var nativeError: String?
     private var appReady: Bool
     
-    
     /// Private constructor. This constructor is called indirectly via register (see below).
     /// - Parameters:
     ///   - channel: Channel to send messages to the Flutter side
@@ -20,7 +19,6 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         
         super.init()
     }
-    
     
     /// Calls the Start method of irmagobridge.
     private func start() {
@@ -54,7 +52,12 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         
         IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey)
     }
-    
+
+    /// Calls the Stop method of irmagobridge.
+    private func stop() {
+        debugLog("Stopping irmago")
+        IrmagobridgeStop()
+    }
     
     /// Implements the register method of the FlutterPlugin interface. This method is called by Flutter to bootstrap the plugin.
     /// - Parameter registrar: Registration context of the Flutter plugin
@@ -68,8 +71,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
     }
-    
-    
+
     /// Implements the handle method of the FlutterPlugin interface. This method is called when invokeMethod is called on the plugin's method channel in Flutter/Dart.
     /// - Parameters:
     ///   - call: Object that specifies the method that should be handled and the corresponding arguments
@@ -94,17 +96,15 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         result(nil)
     }
     
-    
     /// Implements the DebugLog method of the IrmaMobileBridge interface.
     /// - Parameter message: Message to be logged
     func debugLog(_ message: String?) {
 #if DEBUG
         if message != nil {
-            NSLog("[IrmaMobileBridgePlugin] \(message)")
+            NSLog("[IrmaMobileBridgePlugin] \(message!)")
         }
 #endif
     }
-    
     
     /// Implements the DispatchFromGo method of the IrmaMobileBridge interface.
     /// - Parameters:
@@ -159,5 +159,9 @@ extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
             return true
         }
         return false
+    }
+
+    public func applicationWillTerminate(_ application: UIApplication) {
+        stop()
     }
 }

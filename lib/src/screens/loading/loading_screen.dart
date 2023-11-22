@@ -49,18 +49,28 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => StreamBuilder<ErrorEvent>(
-        stream: IrmaRepositoryProvider.of(context).getFatalErrors(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final error = snapshot.data;
-            return ErrorScreen.fromEvent(
-              error: error!,
-            );
-          }
-          return const SplashScreen(
-            isLoading: true,
+  Widget build(BuildContext context) {
+    final repo = IrmaRepositoryProvider.of(context);
+    return StreamBuilder<ErrorEvent>(
+      stream: repo.getFatalErrors().timeout(
+            const Duration(seconds: 15),
+            onTimeout: (_) => repo.dispatch(ErrorEvent(
+              exception: 'Timeout: enrollment status could not be determined within 15 seconds',
+              stack: '',
+              fatal: true,
+            )),
+          ),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final error = snapshot.data;
+          return ErrorScreen.fromEvent(
+            error: error!,
           );
-        },
-      );
+        }
+        return const SplashScreen(
+          isLoading: true,
+        );
+      },
+    );
+  }
 }

@@ -29,13 +29,14 @@ public class MainActivity extends FlutterActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    // We do both these steps before calling parent, to ensure that this always happens before starting the flutter
-    // engine and attaching its plugins
+    // We do both these steps before calling parent, to ensure that this always
+    // happens before starting the flutter engine and attaching its plugins
 
     // Initialize the Go binding here by calling a seemingly noop function
     Irmagobridge.prestart();
 
-    // Capture initial url only during onCreate, for use during first engine instantiation
+    // Capture initial url only during onCreate, for use during first engine
+    // instantiation
     this.initialURL = getIntent().getData();
 
     // Hand of to parent
@@ -48,7 +49,9 @@ public class MainActivity extends FlutterActivity {
     flutterEngine.getPlugins().add(new IIABPlugin());
 
     // Start up the irmamobile bridge
-    MethodChannel channel = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), "irma.app/irma_mobile_bridge");
+    MethodChannel channel = new MethodChannel(
+        flutterEngine.getDartExecutor().getBinaryMessenger(),
+        "irma.app/irma_mobile_bridge");
     bridge = new IrmaMobileBridge(this, this, channel, initialURL);
     channel.setMethodCallHandler(bridge);
     initialURL = null; // Ensure we only use the initialURL once
@@ -58,12 +61,16 @@ public class MainActivity extends FlutterActivity {
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    if (bridge != null) bridge.onNewIntent(intent);
+    if (bridge != null) {
+      bridge.onNewIntent(intent);
+    }
   }
 
   @Override
   protected void onDestroy() {
-    Irmagobridge.stop();
+    if (bridge != null) {
+      bridge.stop();
+    }
     super.onDestroy();
   }
 }
