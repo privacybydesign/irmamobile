@@ -52,7 +52,12 @@ class IrmaClientBridge extends IrmaBridge {
     PairingRequiredSessionEvent: (j) => PairingRequiredSessionEvent.fromJson(j),
     SuccessSessionEvent: (j) => SuccessSessionEvent.fromJson(j),
     CanceledSessionEvent: (j) => CanceledSessionEvent.fromJson(j),
+
+    KeyshareEnrollmentMissingSessionEvent: (j) => KeyshareEnrollmentMissingSessionEvent.fromJson(j),
+    KeyshareEnrollmentDeletedSessionEvent: (j) => KeyshareEnrollmentDeletedSessionEvent.fromJson(j),
     KeyshareBlockedSessionEvent: (j) => KeyshareBlockedSessionEvent.fromJson(j),
+    KeyshareEnrollmentIncompleteSessionEvent: (j) => KeyshareEnrollmentIncompleteSessionEvent.fromJson(j),
+
     ClientReturnURLSetSessionEvent: (j) => ClientReturnURLSetSessionEvent.fromJson(j),
     FailureSessionEvent: (j) => FailureSessionEvent.fromJson(j),
 

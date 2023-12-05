@@ -70,6 +70,30 @@ class SessionRepository {
         status: SessionStatus.error,
         error: event.error,
       );
+    } else if (event is KeyshareEnrollmentMissingSessionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.error,
+        error: SessionError(
+          errorType: 'keyshareEnrollmentMissing',
+          info: 'user not activated at the keyshare server of scheme ${event.schemeManagerID}',
+        ),
+      );
+    } else if (event is KeyshareEnrollmentIncompleteSessionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.error,
+        error: SessionError(
+          errorType: 'keyshareEnrollmentIncomplete',
+          info: 'user enrollment incomplete at the keyshare server of scheme ${event.schemeManagerID}',
+        ),
+      );
+    } else if (event is KeyshareEnrollmentDeletedSessionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.error,
+        error: SessionError(
+          errorType: 'keyshareEnrollmentDeleted',
+          info: 'user deleted at the keyshare server of scheme ${event.schemeManagerID}',
+        ),
+      );
     } else if (event is StatusUpdateSessionEvent) {
       return prevState.copyWith(
         status: event.status.toSessionStatus(),
