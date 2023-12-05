@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 - irmagobridge's Stop method is not called on iOS when the app is terminated
+- Errors related to the keyshare server enrollment not shown to the user
 
 ## [7.5.3] - 2023-11-16
 ### Changed
