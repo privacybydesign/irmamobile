@@ -112,6 +112,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.removeScheme(event)
 		}
+	case "RemoveRequestorSchemeEvent":
+		event := &removeRequestorSchemeEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.removeRequestorScheme(event)
+		}
 	}
 
 	if err != nil {

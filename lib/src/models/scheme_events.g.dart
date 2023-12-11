@@ -23,3 +23,12 @@ RemoveSchemeEvent _$RemoveSchemeEventFromJson(Map<String, dynamic> json) => Remo
 Map<String, dynamic> _$RemoveSchemeEventToJson(RemoveSchemeEvent instance) => <String, dynamic>{
       'SchemeID': instance.schemeId,
     };
+
+RemoveRequestorSchemeEvent _$RemoveRequestorSchemeEventFromJson(Map<String, dynamic> json) =>
+    RemoveRequestorSchemeEvent(
+      schemeId: json['SchemeID'] as String,
+    );
+
+Map<String, dynamic> _$RemoveRequestorSchemeEventToJson(RemoveRequestorSchemeEvent instance) => <String, dynamic>{
+      'SchemeID': instance.schemeId,
+    };

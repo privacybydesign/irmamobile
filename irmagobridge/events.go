@@ -52,10 +52,6 @@ type dismissSessionEvent struct {
 	SessionID int
 }
 
-type setCrashReportingPreferenceEvent struct {
-	EnableCrashReporting bool
-}
-
 type loadLogsEvent struct {
 	Before *uint64
 	Max    int
@@ -76,6 +72,10 @@ type installSchemeEvent struct {
 
 type removeSchemeEvent struct {
 	SchemeID irma.SchemeManagerIdentifier
+}
+
+type removeRequestorSchemeEvent struct {
+	SchemeID irma.RequestorSchemeIdentifier
 }
 
 // //

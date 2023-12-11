@@ -28,3 +28,14 @@ class RemoveSchemeEvent extends Event {
   factory RemoveSchemeEvent.fromJson(Map<String, dynamic> json) => _$RemoveSchemeEventFromJson(json);
   Map<String, dynamic> toJson() => _$RemoveSchemeEventToJson(this);
 }
+
+@JsonSerializable()
+class RemoveRequestorSchemeEvent extends Event {
+  @JsonKey(name: 'SchemeID')
+  final String schemeId;
+
+  RemoveRequestorSchemeEvent({required this.schemeId});
+
+  factory RemoveRequestorSchemeEvent.fromJson(Map<String, dynamic> json) => _$RemoveRequestorSchemeEventFromJson(json);
+  Map<String, dynamic> toJson() => _$RemoveRequestorSchemeEventToJson(this);
+}

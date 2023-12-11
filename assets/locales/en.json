@@ -633,7 +633,6 @@
       "title": "Scheme management",
       "issuer_schemes": "Issuer schemes",
       "requestor_schemes": "Requestor schemes",
-      "requestor_schemes_hint": "(Cannot be edited yet)",
       "success": "Scheme added successfully",
       "activating" : "Activating {scheme}...",
       "activate_success" : "Scheme {scheme} activated successfully.",

@@ -19,6 +19,7 @@ import '../../../widgets/progress.dart';
 import '../../../widgets/translated_text.dart';
 import '../../error/error_screen.dart';
 import '../util/snackbar.dart';
+import 'requestor_scheme_detail_screen.dart';
 import 'scheme_manager_detail_screen.dart';
 import 'widgets/confirm_scheme_public_key_dialog.dart';
 import 'widgets/provide_scheme_url_dialog.dart';
@@ -44,14 +45,17 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     });
   }
 
-  void _onErrorEvent(ErrorEvent event) {
+  Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
+    // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
+    final errorReported = await IrmaRepositoryProvider.of(context).preferences.getReportErrors().first;
 
     navigator.push(
       MaterialPageRoute(
         builder: (context) => ErrorScreen.fromEvent(
           error: event,
           onTapClose: () => navigator.pop(),
+          reportable: !errorReported,
         ),
       ),
     );
@@ -177,25 +181,19 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                     onTap: () => _onSchemeManagerTileTap(schemeManager.id),
                   ),
                 SizedBox(height: theme.defaultSpacing),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: TranslatedText(
-                        'debug.scheme_management.requestor_schemes',
-                      ),
-                    ),
-                    Flexible(
-                      child: TranslatedText(
-                        'debug.scheme_management.requestor_schemes_hint',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
+                const TranslatedText(
+                  'debug.scheme_management.requestor_schemes',
                 ),
                 for (final schemeId in irmaConfiguration.requestorSchemes.keys)
                   ListTile(
                     title: Text(schemeId),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => RequestorSchemeDetailScreen(
+                          requestorScheme: irmaConfiguration.requestorSchemes[schemeId]!,
+                        ),
+                      ),
+                    ),
                   ),
               ],
             );

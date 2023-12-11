@@ -180,11 +180,6 @@ func (ah *eventHandler) dismissSession(event *dismissSessionEvent) error {
 	return nil
 }
 
-// Set the crash reporting preference, and returns the current preferences to irma_mobile
-func (ah *eventHandler) setCrashReportingPreference(event *setCrashReportingPreferenceEvent) error {
-	return nil
-}
-
 // findSessionHandler is a helper function to find a session in the sessionLookup
 func (ah *eventHandler) findSessionHandler(sessionID int) (*sessionHandler, error) {
 	sh := ah.sessionLookup[sessionID]
@@ -300,6 +295,16 @@ func (ah *eventHandler) installScheme(event *installSchemeEvent) error {
 
 func (ah *eventHandler) removeScheme(event *removeSchemeEvent) error {
 	err := client.RemoveScheme(event.SchemeID)
+	if err != nil {
+		return err
+	}
+	dispatchConfigurationEvent()
+	dispatchEnrollmentStatusEvent()
+	return nil
+}
+
+func (ah *eventHandler) removeRequestorScheme(event *removeRequestorSchemeEvent) error {
+	err := client.RemoveRequestorScheme(event.SchemeID)
 	if err != nil {
 		return err
 	}
