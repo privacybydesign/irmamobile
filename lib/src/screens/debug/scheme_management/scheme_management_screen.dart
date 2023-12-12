@@ -50,6 +50,8 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
     final errorReported = await IrmaRepositoryProvider.of(context).preferences.getReportErrors().first;
 
+    if (!mounted) return;
+
     navigator.push(
       MaterialPageRoute(
         builder: (context) => ErrorScreen.fromEvent(
