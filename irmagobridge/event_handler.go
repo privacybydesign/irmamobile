@@ -309,6 +309,5 @@ func (ah *eventHandler) removeRequestorScheme(event *removeRequestorSchemeEvent)
 		return err
 	}
 	dispatchConfigurationEvent()
-	dispatchEnrollmentStatusEvent()
 	return nil
 }
