@@ -31,7 +31,8 @@ class ErrorScreen extends StatefulWidget {
       );
 
   /// Display an error screen for an ErrorEvent. The user can choose to report the error to Sentry.
-  factory ErrorScreen.fromEvent({VoidCallback? onTapClose, required ErrorEvent error, bool reportable = true}) => ErrorScreen._(
+  factory ErrorScreen.fromEvent({VoidCallback? onTapClose, required ErrorEvent error, bool reportable = true}) =>
+      ErrorScreen._(
         // Fatal events are unrecoverable, so closing the error is not possible.
         onTapClose: error.fatal ? null : onTapClose,
         type: ErrorType.general,
