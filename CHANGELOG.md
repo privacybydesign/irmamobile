@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - irmagobridge's Stop method is not called on iOS when the app is terminated
 - Errors related to the keyshare server enrollment not shown to the user
 
+### Internal
+- Update sentry_flutter to version 7.13.2
+
 ## [7.5.3] - 2023-11-16
 ### Changed
 - Include the cause of Android key store exceptions in Sentry reports
