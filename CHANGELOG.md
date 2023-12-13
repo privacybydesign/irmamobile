@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Errors related to the keyshare server enrollment not shown to the user
 - Requestor schemes and issuer schemes without keyshare server not deletable using the debug screen
 
+### Internal
+- Update sentry_flutter to version 7.13.2
+
 ## [7.5.3] - 2023-11-16
 ### Changed
 - Include the cause of Android key store exceptions in Sentry reports
