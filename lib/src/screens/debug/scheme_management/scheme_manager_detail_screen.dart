@@ -226,11 +226,6 @@ class SchemeManagerDetailScreen extends StatelessWidget {
             ?.value
             .raw;
 
-        // TODO: Schemes without a keyshare server cannot be removed as of now.
-        // https://github.com/privacybydesign/irmago/issues/260
-        final isDeletable =
-            schemeIsActive && schemeManager.keyshareServer.isNotEmpty && schemeManager.id != repo.defaultKeyshareScheme;
-
         Widget? bottomBar;
         if (schemeManager.keyshareServer.isNotEmpty) {
           if (schemeIsActive) {
@@ -250,11 +245,10 @@ class SchemeManagerDetailScreen extends StatelessWidget {
           appBar: IrmaAppBar(
             title: schemeManager.id,
             actions: [
-              if (isDeletable)
-                IrmaIconButton(
-                  icon: Icons.delete,
-                  onTap: () => _onDeleteScheme(context),
-                )
+              IrmaIconButton(
+                icon: Icons.delete,
+                onTap: () => _onDeleteScheme(context),
+              )
             ],
           ),
           body: SingleChildScrollView(

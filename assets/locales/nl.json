@@ -633,7 +633,6 @@
       "title": "Schema beheer",
       "issuer_schemes": "Issuer schema's",
       "requestor_schemes": "Requestor schema's",
-      "requestor_schemes_hint": "(Kan nog niet worden aangepast)",
       "success": "Schema succesvol toegevoegd",
       "activating": "{scheme} activeren...",
       "activate_success": "{scheme} schema succesfully activated",
