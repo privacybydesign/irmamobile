@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [7.5.5] - 2023-12-18
+### Changed
+- Update irmago to version 0.15.1
+
+### Security
+- Update go toolchain to 1.21.5
+
 ## [7.5.4] - 2023-12-13
 ### Changed
 - Update irmago to version 0.15.0
@@ -407,6 +414,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.5.5]: https://github.com/privacybydesign/irmamobile/compare/v7.5.4...v7.5.5
 [7.5.4]: https://github.com/privacybydesign/irmamobile/compare/v7.5.3...v7.5.4
 [7.5.3]: https://github.com/privacybydesign/irmamobile/compare/v7.5.2...v7.5.3
 [7.5.2]: https://github.com/privacybydesign/irmamobile/compare/v7.5.1...v7.5.2
