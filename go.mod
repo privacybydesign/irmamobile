@@ -9,7 +9,7 @@ require (
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
 	github.com/privacybydesign/irmago v0.15.1
 	github.com/sirupsen/logrus v1.9.0
-	golang.org/x/mobile v0.0.0-20230905140555-fbe1c053b6a9
+	golang.org/x/mobile v0.0.0-20240213143359-d1f7d3436075
 )
 
 require (
@@ -61,12 +61,12 @@ require (
 	go.etcd.io/bbolt v1.3.6 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/sync v0.3.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/mod v0.15.0 // indirect
+	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.12.1-0.20230818130535-1517d1a3ba60 // indirect
+	golang.org/x/tools v0.18.0 // indirect
 	gorm.io/driver/mysql v1.5.2 // indirect
 	gorm.io/driver/postgres v1.5.3 // indirect
 	gorm.io/driver/sqlserver v1.5.2 // indirect
