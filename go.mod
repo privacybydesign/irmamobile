@@ -2,7 +2,7 @@ module github.com/privacybydesign/irmamobile
 
 go 1.21
 
-toolchain go1.21.5
+toolchain go1.21.8
 
 require (
 	github.com/go-errors/errors v1.4.2
