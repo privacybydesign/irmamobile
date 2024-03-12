@@ -6,10 +6,8 @@ runs:
     # The macOS runner's default XCode version changes over time, so we need to pin it to a specific version.
     - name: Select Xcode version
       if: runner.os == 'macOS'
-      run: sudo xcode-select -s /Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer
+      run: ./ci_scripts/select_xcode.sh
       shell: bash
-      env:
-        XCODE_VERSION: 14.3.1
     - uses: actions/setup-java@v3
       with:
         distribution: temurin
