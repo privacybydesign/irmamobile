@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Security
+- Update go toolchain to 1.22.1
+
 ### Internal
 - Bump gomobile to v0.0.0-20240213143359-d1f7d3436075 to fix failing iOS builds
 
