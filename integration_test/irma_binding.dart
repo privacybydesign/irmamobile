@@ -40,13 +40,17 @@ class IntegrationTestIrmaBinding {
     _preferences ??= await IrmaPreferences.fromInstance();
 
     _bridge.dispatch(AppReadyEvent());
-    EnrollmentStatusEvent currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
+    EnrollmentStatusEvent currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
+      (event) => event is ClientPreferencesEvent,
+    );
 
     // Ensure the app is not enrolled to its keyshare server yet.
     if (currEnrollmentStatus.enrolledSchemeManagerIds.isNotEmpty) {
       await tearDown();
       _bridge.dispatch(AppReadyEvent());
-      currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
+      currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
+        (event) => event is ClientPreferencesEvent,
+      );
     }
 
     // Ensure test scheme is available.
@@ -99,22 +103,24 @@ class IntegrationTestIrmaBinding {
     await _repository?.close();
     _repository = null;
     // Make sure there is a listener for the bridge events.
-    final dataClearedFuture =
-        _expectBridgeEventGuarded<EnrollmentStatusEvent>((event) => event.enrolledSchemeManagerIds.isEmpty);
+    final dataClearedFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
+      (event) => event is EnrollmentStatusEvent && event.enrolledSchemeManagerIds.isEmpty,
+    );
     _bridge.dispatch(ClearAllDataEvent());
     await _preferences?.clearAll();
     await dataClearedFuture;
   }
 
-  /// Returns the first bridge event that matches the given event type and test conditions.
+  /// Takes bridge events until an event is received that matches the given test conditions and
+  /// returns the closest event in time that matches the expected return type.
   /// The bridge event stream is guarded while waiting to detect relevant errors.
-  Future<T> _expectBridgeEventGuarded<T extends Event>([bool Function(T)? test]) => _bridge.events
-      .where((event) {
+  Future<T> _expectBridgeEventGuarded<T extends Event>([bool Function(Event)? test]) => _bridge.events
+      .takeWhileInclusive((event) {
         if (event is ErrorEvent) throw Exception(event.toString());
         if (event is EnrollmentFailureEvent) throw Exception(event.error);
-        return event is T;
+        if (test == null) return event is! T;
+        return !test(event);
       })
-      .whereType<T>()
-      .where(test ?? (_) => true)
-      .first;
+      .toList()
+      .then((receivedEvents) => receivedEvents.whereType<T>().last);
 }
