@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 - Bump gomobile to v0.0.0-20240213143359-d1f7d3436075 to fix failing iOS builds
+- Bump irmago to 0.15.2
 
 ## [7.5.5] - 2023-12-18
 ### Changed
