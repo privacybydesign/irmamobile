@@ -8,11 +8,11 @@ runs:
       if: runner.os == 'macOS'
       run: ./ci_scripts/select_xcode.sh
       shell: bash
-    - uses: actions/setup-java@v3
+    - uses: actions/setup-java@v4
       with:
         distribution: temurin
         java-version: 11
-    - uses: actions/setup-go@v3
+    - uses: actions/setup-go@v5
       with:
         go-version: ^1.22
         cache: true
@@ -20,7 +20,7 @@ runs:
       with:
         ruby-version: 2.7
     - name: Check Ruby cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       env:
         SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
       with:
@@ -39,7 +39,7 @@ runs:
         echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
       shell: bash
     - name: Check ci_scripts cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       # If we cannot download the cached content from GitHub within 5 minutes, then
       # we continue like there was no cache hit.
       env:
@@ -62,7 +62,7 @@ runs:
     - name: Check Cocoapods cache
       id: cocoapods-cache
       if: runner.os == 'macOS'
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       env:
         SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
       with:
