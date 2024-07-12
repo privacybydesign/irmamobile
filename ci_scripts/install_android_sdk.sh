@@ -63,6 +63,7 @@ sdkmanager --sdk_root="$ANDROID_HOME" \
   "platforms;android-31" \
   "platforms;android-32" \
   "platforms;android-33" \
+  "platforms;android-34" \
   "build-tools;30.0.3" \
   "build-tools;32.0.0"
 
