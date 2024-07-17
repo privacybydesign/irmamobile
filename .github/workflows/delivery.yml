@@ -13,11 +13,11 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane ios_build_irmagobridge
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
@@ -25,11 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane android_build_irmagobridge
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: irmagobridge-android
           path: android/irmagobridge/irmagobridge.aar
@@ -40,13 +40,13 @@ jobs:
     environment: ad-hoc-alpha
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
@@ -67,7 +67,7 @@ jobs:
           certificate_password:${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/ad_hoc_alpha.mobileprovision
           sentry_dsn:${{ secrets.SENTRY_DSN }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: app-alpha-ios
           path: ./fastlane/build/*.ipa
@@ -84,13 +84,13 @@ jobs:
         type: [ apk, appbundle ]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
@@ -109,7 +109,7 @@ jobs:
           key_alias:android-signing-alpha
           keystore_password:${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
           key_password:${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: app-alpha-android-${{ matrix.flavor }}-${{ matrix.type }}
           path: |
@@ -122,28 +122,28 @@ jobs:
      - build-app-android-alpha
     steps:
       - name: Download app-alpha-ios artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-alpha-ios
       # Check the comment above in the build-app-android-alpha job spec why the beta is also present here.
       - name: Download app-alpha-android-alpha-apk artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-alpha-android-alpha-apk
       - name: Download app-alpha-android-alpha-appbundle artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-alpha-android-alpha-appbundle
       - name: Download app-alpha-android-beta-apk artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-alpha-android-beta-apk
       - name: Download app-alpha-android-beta-appbundle artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-alpha-android-beta-appbundle
       - name: Bundle all artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-bundle-alpha
           path: .
@@ -154,7 +154,7 @@ jobs:
       version-changed: ${{ steps.detection.outcome == 'success' }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Detect version bump
@@ -170,13 +170,13 @@ jobs:
     environment: app-store-beta
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
@@ -197,7 +197,7 @@ jobs:
           certificate_password:${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/app_store_beta.mobileprovision
           sentry_dsn:${{ secrets.SENTRY_DSN }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: app-beta-ios
           path: ./fastlane/build/*.ipa
@@ -209,13 +209,13 @@ jobs:
     environment: android-beta
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
@@ -234,7 +234,7 @@ jobs:
           key_alias:android-play-store-upload-key
           keystore_password:${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
           key_password:${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: app-beta-android
           path: |
@@ -247,15 +247,15 @@ jobs:
       - build-app-android-beta
     steps:
       - name: Download app-beta-ios artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-beta-ios
       - name: Download app-beta-android artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-beta-android
       - name: Bundle all artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-bundle-beta
           path: .

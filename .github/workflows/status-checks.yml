@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane lint
@@ -29,7 +29,7 @@ jobs:
     needs: lint
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane unit_test
@@ -38,11 +38,11 @@ jobs:
     needs: lint
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane ios_build_irmagobridge
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
@@ -51,11 +51,11 @@ jobs:
     needs: lint
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane android_build_irmagobridge
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: irmagobridge-android
           path: android/irmagobridge/irmagobridge.aar
@@ -64,18 +64,18 @@ jobs:
     needs: build-irmagobridge-android
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
       - run: flutter build apk --flavor alpha -t lib/main_prototypes.dart
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: prototypes-alpha-android
           path: ./build/app/outputs/apk/alpha/release/*.apk
@@ -84,13 +84,13 @@ jobs:
     needs: build-irmagobridge-ios
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
@@ -110,7 +110,7 @@ jobs:
           certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: app-alpha-ios
           path: ./fastlane/build/*.ipa
@@ -123,13 +123,13 @@ jobs:
         type: [ apk, appbundle ]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
@@ -147,7 +147,7 @@ jobs:
           key_alias:android-signing-development
           keystore_password:${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD }}
           key_password:${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
           path: ./fastlane/build/*
@@ -156,13 +156,13 @@ jobs:
     needs: build-irmagobridge-ios
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
@@ -181,7 +181,7 @@ jobs:
           certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: integration-test-ios
           path: ./fastlane/build/*.zip
@@ -190,18 +190,18 @@ jobs:
     needs: build-irmagobridge-android
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - name: Download irmagobridge artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
       - run: bundle exec fastlane android_build_integration_test
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: integration-test-android
           path: ./fastlane/build/*.apk
@@ -214,7 +214,7 @@ jobs:
     concurrency: integration-test-ios # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: integration-test-ios
           path: .
@@ -236,7 +236,7 @@ jobs:
     concurrency: integration-test-android # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: integration-test-android
           path: .
