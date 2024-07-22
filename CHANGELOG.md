@@ -5,12 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [7.5.6] - 2024-07-22
+### Changed
+- Increase Android target and compile SDK version to 34 
+
 ### Security
-- Update go toolchain to 1.22.1
+- Update go toolchain to 1.22.5
+- Update irmago to 0.16.0
 
 ### Internal
 - Bump gomobile to v0.0.0-20240213143359-d1f7d3436075 to fix failing iOS builds
-- Bump irmago to 0.15.2
+- Fix failing provide-email integration test
+- Phase out deprecated GitHub Actions packages
 
 ## [7.5.5] - 2023-12-18
 ### Changed
@@ -420,6 +427,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.5.6]: https://github.com/privacybydesign/irmamobile/compare/v7.5.5...v7.5.6
 [7.5.5]: https://github.com/privacybydesign/irmamobile/compare/v7.5.4...v7.5.5
 [7.5.4]: https://github.com/privacybydesign/irmamobile/compare/v7.5.3...v7.5.4
 [7.5.3]: https://github.com/privacybydesign/irmamobile/compare/v7.5.2...v7.5.3
