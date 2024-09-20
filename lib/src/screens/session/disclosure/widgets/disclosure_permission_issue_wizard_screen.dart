@@ -1,10 +1,9 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
-import '../../../../widgets/issuer_verifier_header.dart';
+import '../../../../widgets/requestor_header.dart';
 import '../../../../widgets/session_progress_indicator.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
@@ -27,7 +26,6 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return SessionScaffold(
       appBarTitle: 'disclosure_permission.issue_wizard.title',
@@ -40,9 +38,9 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IssuerVerifierHeader(
-                title: requestor.name.translate(lang),
-                imagePath: requestor.logoPath,
+              RequestorHeader(
+                requestorInfo: requestor,
+                isVerified: !requestor.unverified,
               ),
               SessionProgressIndicator(
                 step: state.currentStepIndex + 1,
