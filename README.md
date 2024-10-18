@@ -38,13 +38,13 @@ attaching data to signed statements. These data can be relevant properties, such
       git submodule init
       git submodule update
 
-* Install Java development kit. Java 11 _should_ work. Java 8 is not supported anymore.
+* Install Java development kit. We recommend to use Java 17.
 
       # On Debian / Ubuntu
-      apt install openjdk-11-jdk
+      apt install openjdk-17-jdk
 
       # On MacOS
-      # TODO: Install via `brew install openjdk@11`, but how to replace system Java?
+      # TODO: Install via `brew install openjdk@17`, but how to replace system Java?
 
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
   Make sure to install the build-tools and platform for Android >= 28. In addition
