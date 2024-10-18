@@ -34,7 +34,7 @@ jobs:
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane unit_test
   build-irmagobridge-ios:
-    runs-on: macos-13 # MacOS version is pinned, because it determines which XCode version is used.
+    runs-on: macos-14 # MacOS version is pinned, because it determines which XCode version is used.
     needs: lint
     steps:
       - name: Check out repository
@@ -80,7 +80,7 @@ jobs:
           name: prototypes-alpha-android
           path: ./build/app/outputs/apk/alpha/release/*.apk
   build-app-ios-alpha:
-    runs-on: macos-13 # MacOS version is pinned, because it determines which XCode version is used.
+    runs-on: macos-14 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
     steps:
       - name: Check out repository
@@ -119,8 +119,8 @@ jobs:
     needs: build-irmagobridge-android
     strategy:
       matrix:
-        flavor: [ alpha, beta ]
-        type: [ apk, appbundle ]
+        flavor: [alpha, beta]
+        type: [apk, appbundle]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -152,7 +152,7 @@ jobs:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
           path: ./fastlane/build/*
   build-integration-test-ios:
-    runs-on: macos-13 # MacOS version is pinned, because it determines which XCode version is used.
+    runs-on: macos-14 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
     steps:
       - name: Check out repository
@@ -231,8 +231,8 @@ jobs:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
     needs:
-     - build-integration-test-android
-     - unit-test # To prevent that test resources are used when we already know there is an issue.
+      - build-integration-test-android
+      - unit-test # To prevent that test resources are used when we already know there is an issue.
     concurrency: integration-test-android # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
