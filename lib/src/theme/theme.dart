@@ -75,10 +75,8 @@ class IrmaThemeData {
       onSecondary: light,
       error: error,
       onError: light,
-      background: backgroundPrimary,
       surface: surfacePrimary,
-      onBackground: primary,
-      onSurface: primary,
+      onSurface: dark,
     );
 
     //Init spacing
