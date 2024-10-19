@@ -66,8 +66,11 @@
 		<key>io.flutter.embedded_views_preview</key>
 		<true/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
+		<true/>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+		<!-- The lottie animation in IntroductionAnimationWrapper has issues when run using the Impeller rendering engine -->
+		<key>FLTEnableImpeller</key>
+		<false/>
 </dict>
 </plist>
