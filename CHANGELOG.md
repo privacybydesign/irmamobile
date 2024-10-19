@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Upgrade Flutter to 3.24.6
-- Upgrade XCode to 15.4
+- Upgrade XCode to 16.0
 - Use Java 17 to build for Android
 
 ## [7.5.6] - 2024-07-22
