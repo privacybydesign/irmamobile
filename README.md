@@ -172,6 +172,7 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
 * When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK or your Go version is too old.
 * When the flutter tool cannot find the generated apk after building for Android, the flavor is probably omitted. You need to run `flutter run --flavor alpha` or `flutter run --flavor beta`.
 * When you are working with Windows, you need to manually make a symlink between the configuration folders. You can do this by opening a terminal as administrator and use the following command: `mklink /d .\android\app\src\main\assets\irma_configuration .\irma_configuration`.
+* When Java jdk version is not compatible: set the jdk version flutter uses with `flutter config --jdk-dir <jdk_dir>`. Version 17 is recommended for this app (don't try to fiddle with gradle versions).
 * When you are building for iOS using XCode and you get `Dart Error: Can't load Kernel binary: Invalid kernel binary format version.`, then likely your Flutter cache is corrupted. You can empty and reload the Flutter cache in the following way:
 ```shell
 pushd $(which flutter)/../
