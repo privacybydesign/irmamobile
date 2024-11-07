@@ -233,8 +233,9 @@ jobs:
               --test $zip_file \
               --timeout 20m \
               --device=model=iphone8,orientation=portrait \
-              --device=model=iphone8,orientation=landscape
+              --device=model=iphone8,orientation=landscape &
           done
+          wait
   integration-test-android:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
