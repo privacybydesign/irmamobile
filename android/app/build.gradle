@@ -31,7 +31,7 @@ android {
 
     defaultConfig {
         applicationId "foundation.privacybydesign.irmamobile.alpha"
-        minSdkVersion 24
+        minSdkVersion 23
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
