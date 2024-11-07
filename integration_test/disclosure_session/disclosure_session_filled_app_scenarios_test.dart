@@ -28,27 +28,27 @@ void main() {
       // Email OR your mobile number.
       testWidgets(
         'filled-choice',
-            (tester) => filledChoiceTest(tester, irmaBinding),
+        (tester) => filledChoiceTest(tester, irmaBinding),
       );
 
       // Email AND telephone number
       testWidgets(
         'filled-no-choice-multiple-creds',
-            (tester) => filledNoChoiceMultipleCredsTest(tester, irmaBinding),
+        (tester) => filledNoChoiceMultipleCredsTest(tester, irmaBinding),
       );
 
       // Requests only the email address,
       // but the app already has two email address
       testWidgets(
         'filled-no-choice-same-creds',
-            (tester) => filledNoChoiceSameCredsTest(tester, irmaBinding),
+        (tester) => filledNoChoiceSameCredsTest(tester, irmaBinding),
       );
 
       // Address from municipality OR
       // Address from iDIN, with city
       testWidgets(
         'filled-choice-mixed',
-            (tester) => filledChoiceMixedTest(tester, irmaBinding),
+        (tester) => filledChoiceMixedTest(tester, irmaBinding),
       );
 
       // Address from municipality OR
@@ -56,14 +56,14 @@ void main() {
       // Email
       testWidgets(
         'filled-discon',
-            (tester) => filledDisconTest(tester, irmaBinding),
+        (tester) => filledDisconTest(tester, irmaBinding),
       );
 
       // Address from municipality where city hast to be Arnhem AND
       // Email address where domain has to be test.com
       testWidgets(
         'filled-specific-attribute-values-match',
-            (tester) => filledSpecificAttributeValuesMatchTest(
+        (tester) => filledSpecificAttributeValuesMatchTest(
           tester,
           irmaBinding,
         ),
@@ -72,7 +72,7 @@ void main() {
       // Email address where domain has to be test.com
       testWidgets(
         'filled-specific-attribute-values-no-match',
-            (tester) => filledSpecificAttributeValuesNoMatchTest(
+        (tester) => filledSpecificAttributeValuesNoMatchTest(
           tester,
           irmaBinding,
         ),
@@ -81,7 +81,7 @@ void main() {
       // Email address and optionally a mobile number
       testWidgets(
         'filled-optional-disjunction',
-            (tester) => filledOptionalDisjunctionTest(
+        (tester) => filledOptionalDisjunctionTest(
           tester,
           irmaBinding,
         ),

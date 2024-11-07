@@ -23,7 +23,7 @@ void main() {
       // Session with an optional attribute that cannot be null
       testWidgets(
         'nullables',
-            (tester) => nullablesTest(
+        (tester) => nullablesTest(
           tester,
           irmaBinding,
         ),
@@ -32,7 +32,7 @@ void main() {
       // Disclosure session and signing a message
       testWidgets(
         'signing',
-            (tester) => signingTest(
+        (tester) => signingTest(
           tester,
           irmaBinding,
         ),
@@ -41,7 +41,7 @@ void main() {
       // Issuance and disclosure in one session
       testWidgets(
         'combined-disclosure-issuance-session',
-            (tester) => combinedDisclosureIssuanceSessionTest(
+        (tester) => combinedDisclosureIssuanceSessionTest(
           tester,
           irmaBinding,
         ),
@@ -50,7 +50,7 @@ void main() {
       // Entering a session with a revoked credential
       testWidgets(
         'revocation',
-            (tester) => revocationTest(
+        (tester) => revocationTest(
           tester,
           irmaBinding,
         ),
@@ -59,7 +59,7 @@ void main() {
       // Address from municipality with different attribute order
       testWidgets(
         'attribute-order',
-            (tester) => attributeOrderTest(
+        (tester) => attributeOrderTest(
           tester,
           irmaBinding,
         ),
@@ -68,7 +68,7 @@ void main() {
       // Disclosing stempas credential which is an unobtainable credential (no IssueURL) and contains a random blind attribute.
       testWidgets(
         'random-blind',
-            (tester) => randomBlindTest(
+        (tester) => randomBlindTest(
           tester,
           irmaBinding,
         ),
@@ -77,7 +77,7 @@ void main() {
       // Decline disclosure at the last moment
       testWidgets(
         'decline-disclosure',
-            (tester) => declineDisclosure(
+        (tester) => declineDisclosure(
           tester,
           irmaBinding,
         ),
