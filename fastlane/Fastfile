@@ -215,29 +215,49 @@ lane :ios_build_integration_test do |options|
     certificate_password: options[:certificate_password],
     code_signing_identity: options[:code_signing_identity]
   )
+
+  # Navigate to the Flutter project root directory
   Dir.chdir("..") do
-    sh(
-      "flutter", "build", "ios",
-      "--release",
-      "./integration_test/test_all.dart"
-    )
-    Dir.chdir("./ios") do
+    # Get a list of all Dart test files in the integration_test directory
+    test_files = Dir["integration_test/**/*_test.dart"]
+
+    test_files.each do |test_file|
+      # Extract the base name of the test file to use for naming zip files
+      test_name = File.basename(test_file, ".dart")
+
+      # Run Flutter build for each test file
       sh(
-        "xcodebuild",
-        "-workspace", "Runner.xcworkspace",
-        "-scheme", "Runner",
-        "-config", "Flutter/Release.xcconfig",
-        "-derivedDataPath", "../build/ios_integ",
-        "-sdk", "iphoneos",
-        "build-for-testing",
+        "flutter", "build", "ios",
+        "--release",
+        test_file
       )
-    end
-    Dir.chdir("./build/ios_integ/Build/Products") do
-      # XCode does not clean left-over build artifacts created by earlier XCode versions.
-      # Therefore, we ensure only the xctestrun file for the latest iOS SDK is included.
-      test_run_name = sh("ls -r1 *.xctestrun | head -n 1")
-      sh("rm -f ../../../../fastlane/build/ios_tests.zip")
-      sh("zip -r ../../../../fastlane/build/ios_tests.zip Release-iphoneos #{test_run_name}")
+
+      # Navigate to the ios directory and run xcodebuild for each test
+      Dir.chdir("./ios") do
+        sh(
+          "xcodebuild",
+          "-workspace", "Runner.xcworkspace",
+          "-scheme", "Runner",
+          "-config", "Flutter/Release.xcconfig",
+          "-derivedDataPath", "../build/ios_integ",
+          "-sdk", "iphoneos",
+          "build-for-testing"
+        )
+      end
+
+      # Create a zip for each test output
+      Dir.chdir("./build/ios_integ/Build/Products") do
+        # XCode does not clean left-over build artifacts created by earlier XCode versions.
+        # Therefore, we ensure only the xctestrun file for the latest iOS SDK is included.
+        # Get the latest .xctestrun file (assumes the latest file is the one just built)
+        test_run_name = sh("ls -r1 *.xctestrun | head -n 1").strip
+
+        # Remove any existing zip file with the same name
+        sh("rm -f ../../../../fastlane/build/#{test_name}_ios_tests.zip")
+
+        # Zip the build artifacts for the current test file
+        sh("zip -r ../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
+      end
     end
   end
 end

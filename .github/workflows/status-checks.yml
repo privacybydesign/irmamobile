@@ -225,8 +225,16 @@ jobs:
         shell: bash
       - name: Set Firebase project
         run: gcloud config set project yivimobile
-      - name: Run integration tests
-        run: gcloud firebase test ios run --test ios_tests.zip --timeout 20m --device=model=iphone8,orientation=portrait --device=model=iphone8,orientation=landscape
+      - name: Run integration tests for each zip file
+        run: |
+          for zip_file in *.zip; do
+            echo "Running integration test for $zip_file"
+            gcloud firebase test ios run \
+              --test $zip_file \
+              --timeout 20m \
+              --device=model=iphone8,orientation=portrait \
+              --device=model=iphone8,orientation=landscape
+          done
   integration-test-android:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
