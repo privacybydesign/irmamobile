@@ -17,6 +17,7 @@ This means you need to upload every secret twice.
 - `APPLE_DEVELOPMENT_CERTIFICATE`: Base64 encoded PKCS12 certificate of the Apple development certificate, check the [Fastlane docs](../../fastlane/README.md#generating-new-certificates) for generating instructions. This certificate expires every year and is linked to the 'IRMA Beheer' email address.
 - `APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD`: password of the Apple development certificate (see above).
 - `APPLE_DEVELOPMENT_PROVISIONING_PROFILE`: Base64 encoded Apple provisioning profile that is linked to the development certificate (see above). This should be renewed when the development certificate is being renewed.
+- `GCLOUD_PROJECT_NAME`: Google Firebase project name (for Device Test Lab access).
 - `GCLOUD_SERVICE_KEY`: Google Firebase service account JSON key (for Device Test Lab access).
 
 ## Delivery
