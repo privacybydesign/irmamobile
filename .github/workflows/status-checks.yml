@@ -224,7 +224,7 @@ jobs:
         run: gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
         shell: bash
       - name: Set Firebase project
-        run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_NAME }}
+        run: gcloud config set project ${{ vars.GCLOUD_PROJECT_NAME }}
       - name: Run integration tests
         run: gcloud firebase test ios run --test ios_tests.zip --timeout 20m --device=model=iphone8,orientation=portrait --device=model=iphone8,orientation=landscape
   integration-test-android:
@@ -246,6 +246,6 @@ jobs:
         run: gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
         shell: bash
       - name: Set Firebase project
-        run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_NAME }}
+        run: gcloud config set project ${{ vars.GCLOUD_PROJECT_NAME }}
       - name: Run integration tests
         run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 20m --device=model=Pixel2,version=28,orientation=portrait --device=model=Pixel2,version=28,orientation=landscape

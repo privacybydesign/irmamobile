@@ -6,6 +6,12 @@ scripts can be found in the [README](../../fastlane/README.md).
 ## Status checks
 This workflow checks whether a change passes all our quality gates.
 
+### Variables
+Below a list of the repository variables that are needed. The repository variables should be uploaded to the
+[Actions context](https://github.com/privacybydesign/irmamobile/settings/variables/actions).
+
+- `GCLOUD_PROJECT_NAME`: Google Firebase project name (for Device Test Lab access).
+
 ### Secrets
 Below a list of the secrets that are needed. The secrets should be uploaded as repository secret to both the
 [Actions context](https://github.com/privacybydesign/irmamobile/settings/secrets/actions)
@@ -17,7 +23,6 @@ This means you need to upload every secret twice.
 - `APPLE_DEVELOPMENT_CERTIFICATE`: Base64 encoded PKCS12 certificate of the Apple development certificate, check the [Fastlane docs](../../fastlane/README.md#generating-new-certificates) for generating instructions. This certificate expires every year and is linked to the 'IRMA Beheer' email address.
 - `APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD`: password of the Apple development certificate (see above).
 - `APPLE_DEVELOPMENT_PROVISIONING_PROFILE`: Base64 encoded Apple provisioning profile that is linked to the development certificate (see above). This should be renewed when the development certificate is being renewed.
-- `GCLOUD_PROJECT_NAME`: Google Firebase project name (for Device Test Lab access).
 - `GCLOUD_SERVICE_KEY`: Google Firebase service account JSON key (for Device Test Lab access).
 
 ## Delivery
