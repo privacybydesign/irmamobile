@@ -229,6 +229,7 @@ lane :ios_build_integration_test do |options|
       sh(
         "flutter", "build", "ios",
         "--release",
+        "--config-only",
         test_file
       )
 
