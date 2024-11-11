@@ -250,7 +250,7 @@ jobs:
     steps:
       - name: Check integration test results
         run: |
-          if [ "${{ needs.integration-test-ios.result }}" == "failure" ]; then
+          if [ "${{ needs.integration-test-ios.result }}" == "failure" || "${{ needs.integration-test-ios.result }}" == "cancelled" ]; then
             echo "One or more integration tests failed."
             exit 1
           else
