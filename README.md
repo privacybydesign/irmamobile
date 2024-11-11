@@ -38,13 +38,13 @@ attaching data to signed statements. These data can be relevant properties, such
       git submodule init
       git submodule update
 
-* Install Java development kit. Java 11 _should_ work. Java 8 is not supported anymore.
+* Install Java development kit. We recommend to use Java 17.
 
       # On Debian / Ubuntu
-      apt install openjdk-11-jdk
+      apt install openjdk-17-jdk
 
       # On MacOS
-      # TODO: Install via `brew install openjdk@11`, but how to replace system Java?
+      # TODO: Install via `brew install openjdk@17`, but how to replace system Java?
 
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
   Make sure to install the build-tools and platform for Android >= 28. In addition
@@ -172,6 +172,7 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
 * When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK or your Go version is too old.
 * When the flutter tool cannot find the generated apk after building for Android, the flavor is probably omitted. You need to run `flutter run --flavor alpha` or `flutter run --flavor beta`.
 * When you are working with Windows, you need to manually make a symlink between the configuration folders. You can do this by opening a terminal as administrator and use the following command: `mklink /d .\android\app\src\main\assets\irma_configuration .\irma_configuration`.
+* When Java jdk version is not compatible: set the jdk version flutter uses with `flutter config --jdk-dir <jdk_dir>`. Version 17 is recommended for this app (don't try to fiddle with gradle versions).
 * When you are building for iOS using XCode and you get `Dart Error: Can't load Kernel binary: Invalid kernel binary format version.`, then likely your Flutter cache is corrupted. You can empty and reload the Flutter cache in the following way:
 ```shell
 pushd $(which flutter)/../

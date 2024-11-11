@@ -32,7 +32,7 @@ class IrmaMarkdown extends StatelessWidget {
             h4: theme.textTheme.headlineMedium,
             strong: theme.textTheme.bodyLarge,
             a: theme.hyperlinkTextStyle,
-            textScaleFactor: MediaQuery.textScaleFactorOf(context),
+            textScaler: MediaQuery.textScalerOf(context),
           ))
           .merge(styleSheet),
 

@@ -4,13 +4,13 @@ name: Delivery
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 concurrency: ${{ github.ref }}
 
 jobs:
   build-irmagobridge-ios:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
           path: android/irmagobridge/irmagobridge.aar
   build-app-ios-alpha:
     # Ad Hoc builds do not require unique build numbers, so we can build this on every push.
-    runs-on: macos-13
+    runs-on: macos-14
     needs: build-irmagobridge-ios
     environment: ad-hoc-alpha
     steps:
@@ -80,8 +80,8 @@ jobs:
     # beta flavor Android app in the intent:// links.
     strategy:
       matrix:
-        flavor: [ alpha, beta ]
-        type: [ apk, appbundle ]
+        flavor: [alpha, beta]
+        type: [apk, appbundle]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -118,8 +118,8 @@ jobs:
   bundle-app-alpha:
     runs-on: ubuntu-latest
     needs:
-     - build-app-ios-alpha
-     - build-app-android-alpha
+      - build-app-ios-alpha
+      - build-app-android-alpha
     steps:
       - name: Download app-alpha-ios artifact
         uses: actions/download-artifact@v4
@@ -164,7 +164,7 @@ jobs:
         shell: bash
         continue-on-error: true
   build-app-ios-beta:
-    runs-on: macos-13
+    runs-on: macos-14
     needs: version-check
     if: needs.version-check.outputs.version-changed == 'true'
     environment: app-store-beta

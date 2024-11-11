@@ -1,6 +1,6 @@
 import 'activity_test.dart' as activity_test;
 import 'credential_store_test.dart' as credential_store_test;
-import 'disclosure_session/disclosure_session_test.dart' as disclosure_session;
+import 'disclosure_session/disclosure_session_test_all.dart' as disclosure_session;
 import 'enroll_test.dart' as enroll_test;
 import 'home_test.dart' as home_test;
 import 'issuance_test.dart' as issuance_test;
