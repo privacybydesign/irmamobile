@@ -220,6 +220,7 @@ jobs:
     strategy:
       matrix:
         file_name: ${{ fromJson(needs.build-integration-test-ios.outputs.matrix) }}
+      fail-fast: false # To prevent we have to re-run all tests when one run is flaky.
     concurrency: integration-test-ios-${{ matrix.file_name }} # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
