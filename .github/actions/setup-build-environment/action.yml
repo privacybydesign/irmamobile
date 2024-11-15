@@ -3,11 +3,6 @@ description: This action installs all build tools needed for irmamobile and cach
 runs:
   using: composite
   steps:
-    # The macOS runner's default XCode version changes over time, so we need to pin it to a specific version.
-    - name: Select Xcode version
-      if: runner.os == 'macOS'
-      run: ./ci_scripts/select_xcode.sh
-      shell: bash
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
