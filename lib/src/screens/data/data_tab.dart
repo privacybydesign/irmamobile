@@ -27,9 +27,11 @@ class DataTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(theme.defaultSpacing),
-      child: SafeArea(
+    return SizedBox(
+      height: double.infinity,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

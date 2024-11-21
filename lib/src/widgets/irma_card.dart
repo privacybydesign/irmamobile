@@ -38,8 +38,8 @@ class IrmaCard extends StatelessWidget {
     switch (style) {
       case IrmaCardStyle.normal:
         boxDecoration = BoxDecoration(
-          // borderRadius: theme.borderRadius,
-          // border: Border.all(color: Colors.transparent),
+          borderRadius: theme.borderRadius,
+          border: Border.all(width: 0, color: Colors.transparent),
           color: theme.light,
         );
         break;
