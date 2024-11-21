@@ -93,7 +93,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: theme.backgroundTertiary,
       appBar: const IrmaAppBar(
         titleTranslationKey: 'notifications.title',
       ),

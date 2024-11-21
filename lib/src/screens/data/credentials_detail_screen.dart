@@ -95,61 +95,65 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
         titleTranslationKey: widget.categoryName,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: theme.defaultSpacing,
-        ),
-        child: SafeArea(
-          child: StreamBuilder(
-            stream: repo.getCredentials(),
-            builder: (context, AsyncSnapshot<Credentials> snapshot) {
-              if (!snapshot.hasData) return Container();
+      body: SizedBox(
+        height: double.infinity,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(
+            horizontal: theme.defaultSpacing,
+          ),
+          child: SafeArea(
+            child: StreamBuilder(
+              stream: repo.getCredentials(),
+              builder: (context, AsyncSnapshot<Credentials> snapshot) {
+                if (!snapshot.hasData) return Container();
 
-              final filteredCredentials = snapshot.data!.values
-                  .where((cred) => cred.info.credentialType.fullId == widget.credentialTypeId)
-                  .toList();
+                final filteredCredentials = snapshot.data!.values
+                    .where((cred) => cred.info.credentialType.fullId == widget.credentialTypeId)
+                    .toList();
 
-              if (filteredCredentials.isEmpty) {
-                WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.pop(context));
-                return Container();
-              }
+                if (filteredCredentials.isEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.pop(context));
+                  return Container();
+                }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: theme.mediumSpacing,
-                  ),
-                  ...filteredCredentials
-                      .map(
-                        (cred) => IrmaCredentialCard.fromCredential(
-                          cred,
-                          headerTrailing:
-                              // Credential must either be reobtainable or deletable
-                              // for the options bottom sheet to be accessible
-                              cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
-                                  ? null
-                                  : IconButton(
-                                      alignment: Alignment.topRight,
-                                      padding: EdgeInsets.zero,
-                                      onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
-                                      icon: const Icon(
-                                        Icons.more_horiz_sharp,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: theme.mediumSpacing,
+                    ),
+                    ...filteredCredentials
+                        .map(
+                          (cred) => IrmaCredentialCard.fromCredential(
+                            cred,
+                            headerTrailing:
+                                // Credential must either be reobtainable or deletable
+                                // for the options bottom sheet to be accessible
+                                cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
+                                    ? null
+                                    : IconButton(
+                                        alignment: Alignment.topRight,
+                                        padding: EdgeInsets.zero,
+                                        onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
+                                        icon: const Icon(
+                                          Icons.more_horiz_sharp,
+                                        ),
                                       ),
-                                    ),
-                        ),
-                      )
-                      .toList(),
-                  SizedBox(
-                    height: theme.mediumSpacing,
-                  ),
-                ],
-              );
-            },
+                          ),
+                        )
+                        .toList(),
+                    SizedBox(
+                      height: theme.mediumSpacing,
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
