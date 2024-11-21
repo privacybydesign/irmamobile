@@ -38,8 +38,8 @@ class IrmaCard extends StatelessWidget {
     switch (style) {
       case IrmaCardStyle.normal:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
-          border: Border.all(color: Colors.transparent),
+          // borderRadius: theme.borderRadius,
+          // border: Border.all(color: Colors.transparent),
           color: theme.light,
         );
         break;
@@ -92,13 +92,13 @@ class IrmaCard extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: padding ?? EdgeInsets.all(theme.tinySpacing),
+    return ClipRRect(
+      borderRadius: theme.borderRadius,
       child: InkWell(
         borderRadius: theme.borderRadius,
         onTap: onTap,
         child: Container(
-          //In this context the "margin" is set on the container padding.
+          // In this context the "margin" is set on the container padding.
           padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
           decoration: boxDecoration,
           child: child,

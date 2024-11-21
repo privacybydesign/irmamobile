@@ -13,13 +13,10 @@ class IrmaDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-      child: Container(
-        height: 1,
-        decoration: BoxDecoration(
-          color: color ?? theme.neutralExtraLight,
-        ),
+    return Container(
+      height: 1,
+      decoration: BoxDecoration(
+        color: color ?? theme.neutralExtraLight,
       ),
     );
   }

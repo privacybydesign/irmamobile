@@ -161,7 +161,7 @@ class ToggleTile extends StatelessWidget {
           onTap: () => onChanged(!value),
           trailing: CupertinoSwitch(
             value: value,
-            onChanged: null, // We use the onTap on the Tile
+            onChanged: null, // We use the onTap on the Tile (Why??)
             activeColor: theme.success,
           ),
         );
@@ -191,25 +191,28 @@ class Tile extends StatelessWidget {
 
     return Semantics(
       link: true,
-      child: ListTile(
-        onTap: onTap,
-        minLeadingWidth: theme.mediumSpacing,
-        leading: iconData != null
-            ? Icon(
-                iconData,
-                size: 32,
+      child: Material(
+        child: ListTile(
+          onTap: onTap,
+          minLeadingWidth: theme.mediumSpacing,
+          leading: iconData != null
+              ? Icon(
+                  iconData,
+                  size: 28,
+                  color: iconColor,
+                )
+              : null,
+          title: TranslatedText(
+            labelTranslationKey,
+            style: theme.textButtonTextStyle,
+          ),
+          trailing: trailing ??
+              Icon(
+                Icons.chevron_right,
+                size: 28,
                 color: iconColor,
-              )
-            : null,
-        title: TranslatedText(
-          labelTranslationKey,
+              ),
         ),
-        trailing: trailing ??
-            Icon(
-              Icons.chevron_right,
-              size: 28,
-              color: iconColor,
-            ),
       ),
     );
   }
