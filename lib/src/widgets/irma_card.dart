@@ -92,16 +92,18 @@ class IrmaCard extends StatelessWidget {
       );
     }
 
-    return ClipRRect(
-      borderRadius: theme.borderRadius,
-      child: InkWell(
+    return Container(
+      decoration: boxDecoration,
+      child: ClipRRect(
         borderRadius: theme.borderRadius,
-        onTap: onTap,
-        child: Container(
-          // In this context the "margin" is set on the container padding.
-          padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
-          decoration: boxDecoration,
-          child: child,
+        child: InkWell(
+          borderRadius: theme.borderRadius,
+          onTap: onTap,
+          child: Container(
+            // In this context the "margin" is set on the container padding.
+            padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
+            child: child,
+          ),
         ),
       ),
     );
