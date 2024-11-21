@@ -44,6 +44,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
                 title: requestor.name.translate(lang),
                 imagePath: requestor.logoPath,
               ),
+              SizedBox(height: theme.defaultSpacing),
               SessionProgressIndicator(
                 step: state.currentStepIndex + 1,
                 stepCount: state.plannedSteps.length,
