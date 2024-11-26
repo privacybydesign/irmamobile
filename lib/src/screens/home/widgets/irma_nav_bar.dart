@@ -49,14 +49,14 @@ class IrmaNavBar extends StatelessWidget {
         children: [
           IrmaNavButton(
             key: const Key('nav_button_home'),
-            iconData: Icons.home_filled,
+            iconData: selectedTab == IrmaNavBarTab.home ? Icons.home : Icons.home_outlined,
             tab: IrmaNavBarTab.home,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.home == selectedTab,
           ),
           IrmaNavButton(
             key: const Key('nav_button_data'),
-            iconData: Icons.person_outline_rounded,
+            iconData: selectedTab == IrmaNavBarTab.data ? Icons.person : Icons.person_outline,
             tab: IrmaNavBarTab.data,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.data == selectedTab,
