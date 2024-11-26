@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/models/native_events.dart';
+import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
-import 'src/models/native_events.dart';
 import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_language/change_language_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
@@ -17,7 +18,6 @@ import 'src/screens/session/session.dart';
 import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
-import 'src/widgets/irma_repository_provider.dart';
 
 class Routing {
   static Map<String, WidgetBuilder> simpleRoutes = {
@@ -61,6 +61,27 @@ class Routing {
     return settings.name == EnrollmentScreen.routeName || settings.name == ChangePinScreen.routeName;
   }
 
+  static _canPop(RouteSettings settings, BuildContext context) {
+    // If the current route has a subnavigator and is on the root, defer to that component's `WillPopScope`
+    if (_isSubnavigatorRoute(settings) && _isRootRoute(settings)) {
+      return true;
+    }
+
+    // Otherwise if it is a root route, background the app on backpress
+    if (_isRootRoute(settings)) {
+      if (settings.name == HomeScreen.routeName) {
+        // Check if we are in the drawn state.
+        // We don't want the app to background in this case.
+        // Defer to home_screen.dart
+        return true;
+      }
+      IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
+      return false;
+    }
+
+    return true;
+  }
+
   static Route generateRoute(RouteSettings settings) {
     // Try to find the appropriate screen, but keep `RouteNotFoundScreen` as default
     WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
@@ -74,27 +95,8 @@ class Routing {
     // if the route is an initial route
     return MaterialPageRoute(
       builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async {
-            // If the current route has a subnavigator and is on the root, defer to that component's `WillPopScope`
-            if (_isSubnavigatorRoute(settings) && _isRootRoute(settings)) {
-              return true;
-            }
-
-            // Otherwise if it is a root route, background the app on backpress
-            if (_isRootRoute(settings)) {
-              if (settings.name == HomeScreen.routeName) {
-                // Check if we are in the drawn state.
-                // We don't want the app to background in this case.
-                // Defer to home_screen.dart
-                return true;
-              }
-              IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
-              return false;
-            }
-
-            return true;
-          },
+        return PopScope(
+          canPop: _canPop(settings, context),
           child: screenBuilder(context),
         );
       },
