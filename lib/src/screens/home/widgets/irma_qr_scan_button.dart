@@ -64,7 +64,7 @@ class IrmaQrScanButton extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: theme.tinySpacing,
+            height: theme.tinySpacing + 0.5,
           ),
           ExcludeSemantics(
             child: TranslatedText(
