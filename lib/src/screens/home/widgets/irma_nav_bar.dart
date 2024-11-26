@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/theme.dart';
+import '../../../util/rounded_display.dart';
 import 'irma_nav_button.dart';
 
 enum IrmaNavBarTab {
@@ -25,7 +26,11 @@ class IrmaNavBar extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+      padding: EdgeInsets.only(
+        left: theme.tinySpacing,
+        right: theme.tinySpacing,
+        bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0,
+      ),
       // Reduce vertical padding for screens with limited height (i.e. landscape mode).
       height: MediaQuery.of(context).size.height > 450 ? 95 : 85,
       decoration: BoxDecoration(
