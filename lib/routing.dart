@@ -75,7 +75,6 @@ class Routing {
         // Defer to home_screen.dart
         return true;
       }
-      IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
       return false;
     }
 
@@ -97,6 +96,11 @@ class Routing {
       builder: (BuildContext context) {
         return PopScope(
           canPop: _canPop(settings, context),
+          onPopInvokedWithResult: (didPop, popResult) {
+            if (!didPop) {
+              IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
+            }
+          },
           child: screenBuilder(context),
         );
       },
