@@ -26,7 +26,7 @@ dependencies:
   url_launcher: ^6.0.10
   json_annotation: ^4.8.0
   rxdart: ^0.28.0
-  package_info: ^2.0.2
+  package_info_plus: ^8.1.1
   collection: ^1.18.0
   qr_code_scanner: ^1.0.1
   native_device_orientation: ^2.0.3
