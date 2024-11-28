@@ -10,7 +10,7 @@ concurrency: ${{ github.ref }}
 
 jobs:
   build-irmagobridge-ios:
-    runs-on: macos-14
+    runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
           path: android/irmagobridge/irmagobridge.aar
   build-app-ios-alpha:
     # Ad Hoc builds do not require unique build numbers, so we can build this on every push.
-    runs-on: macos-14
+    runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
     environment: ad-hoc-alpha
     steps:
@@ -164,7 +164,7 @@ jobs:
         shell: bash
         continue-on-error: true
   build-app-ios-beta:
-    runs-on: macos-14
+    runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     needs: version-check
     if: needs.version-check.outputs.version-changed == 'true'
     environment: app-store-beta
