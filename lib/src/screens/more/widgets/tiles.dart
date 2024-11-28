@@ -161,7 +161,7 @@ class ToggleTile extends StatelessWidget {
           onTap: () => onChanged(!value),
           trailing: CupertinoSwitch(
             value: value,
-            onChanged: null, // We use the onTap on the Tile (Why??)
+            onChanged: null, // We use the onTap on the Tile
             activeColor: theme.success,
           ),
         );
