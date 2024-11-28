@@ -28,23 +28,25 @@ class CredentialsDetailScreen extends StatefulWidget {
 class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async => showModalBottomSheet<void>(
-        context: context,
-        builder: (context) => IrmaCredentialCardOptionsBottomSheet(
-          onDelete: cred.info.credentialType.disallowDelete
-              ? null
-              : () async {
-                  Navigator.of(context).pop();
-                  await _showConfirmDeleteDialog(_scaffoldKey.currentContext!, cred);
-                },
-          onReobtain: cred.info.credentialType.issueUrl.isEmpty
-              ? null
-              : () {
-                  Navigator.of(context).pop();
-                  _reobtainCredential(context, cred);
-                },
-        ),
-      );
+  _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => IrmaCredentialCardOptionsBottomSheet(
+        onDelete: cred.info.credentialType.disallowDelete
+            ? null
+            : () async {
+                Navigator.of(context).pop();
+                await _showConfirmDeleteDialog(_scaffoldKey.currentContext!, cred);
+              },
+        onReobtain: cred.info.credentialType.issueUrl.isEmpty
+            ? null
+            : () {
+                Navigator.of(context).pop();
+                _reobtainCredential(context, cred);
+              },
+      ),
+    );
+  }
 
   Future<void> _showConfirmDeleteDialog(BuildContext context, Credential credential) async {
     final confirmed = await showDialog<bool>(
@@ -136,12 +138,13 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                                 // for the options bottom sheet to be accessible
                                 cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
                                     ? null
-                                    : IconButton(
-                                        alignment: Alignment.topRight,
-                                        padding: EdgeInsets.zero,
-                                        onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
-                                        icon: const Icon(
-                                          Icons.more_horiz_sharp,
+                                    : Transform.translate(
+                                        offset: Offset(theme.smallSpacing, -10),
+                                        child: IconButton(
+                                          onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
+                                          icon: const Icon(
+                                            Icons.more_horiz_sharp,
+                                          ),
                                         ),
                                       ),
                           ),
