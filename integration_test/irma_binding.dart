@@ -14,6 +14,16 @@ import 'package:rxdart/rxdart.dart';
 
 /// Binding to use the static IrmaClientBridge in integration tests.
 class IntegrationTestIrmaBinding {
+  static const String _testKeyshareSchemeId = 'pbdf-staging';
+  static const String _testKeyshareSchemeUrl = 'https://schemes.staging.yivi.app/pbdf-staging/';
+  static const String _testKeyshareSchemePublicKey = '''
+-----BEGIN PUBLIC KEY-----
+MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEOcIdNBdagVt4+obhRPsyS5K2ovGKENYW
+iHcQ8HxZ7lYoPRfabEpqv+3zsbxb4RlHXJ0dIgPkcp2sLFJZ9VDBAvcZlohWGYRW
+Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
+-----END PUBLIC KEY-----
+''';
+
   static IntegrationTestIrmaBinding? _instance;
 
   final IrmaClientBridge _bridge;
@@ -54,14 +64,13 @@ class IntegrationTestIrmaBinding {
     }
 
     // Ensure test scheme is available.
-    if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
+    if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(_testKeyshareSchemeId)) {
       _bridge.dispatch(InstallSchemeEvent(
-        url: 'https://drksn.nl/irma_configuration/test',
-        publicKey:
-            '-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0d8s6KCWffx7I8cpit7CgVEATFAp\nGBSdMEJFRp3aDhsk/N8hkbTTdtqJUNfK1WEDMnAURlWJM88BE6YIomAMUw==\n-----END PUBLIC KEY-----',
+        url: _testKeyshareSchemeUrl,
+        publicKey: _testKeyshareSchemePublicKey,
       ));
       currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
-      if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
+      if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(_testKeyshareSchemeId)) {
         throw Exception('No test scheme installed');
       }
     }
@@ -84,7 +93,7 @@ class IntegrationTestIrmaBinding {
         email: '',
         pin: '12345',
         language: 'en',
-        schemeId: 'test',
+        schemeId: _testKeyshareSchemeId,
       ));
       await _preferences!.setLongPin(false);
       await _expectBridgeEventGuarded((event) => event is EnrollmentSuccessEvent);
@@ -95,7 +104,7 @@ class IntegrationTestIrmaBinding {
     _repository = IrmaRepository(
       client: _bridge,
       preferences: _preferences!,
-      defaultKeyshareScheme: 'test',
+      defaultKeyshareScheme: _testKeyshareSchemeId,
     );
   }
 
