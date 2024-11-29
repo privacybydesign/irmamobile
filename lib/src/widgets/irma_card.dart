@@ -39,7 +39,7 @@ class IrmaCard extends StatelessWidget {
       case IrmaCardStyle.normal:
         boxDecoration = BoxDecoration(
           borderRadius: theme.borderRadius,
-          border: Border.all(color: Colors.transparent),
+          border: Border.all(width: 0, color: Colors.transparent),
           color: theme.light,
         );
         break;
@@ -92,16 +92,18 @@ class IrmaCard extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: padding ?? EdgeInsets.all(theme.tinySpacing),
-      child: InkWell(
+    return Container(
+      decoration: boxDecoration,
+      child: ClipRRect(
         borderRadius: theme.borderRadius,
-        onTap: onTap,
-        child: Container(
-          //In this context the "margin" is set on the container padding.
-          padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
-          decoration: boxDecoration,
-          child: child,
+        child: InkWell(
+          borderRadius: theme.borderRadius,
+          onTap: onTap,
+          child: Container(
+            // In this context the "margin" is set on the container padding.
+            padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
+            child: child,
+          ),
         ),
       ),
     );

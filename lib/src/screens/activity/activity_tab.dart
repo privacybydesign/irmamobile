@@ -107,15 +107,19 @@ class _ActivityTabState extends State<ActivityTab> {
                 ),
               ),
             ),
-          ActivityCard(
-            logEntry: logEntry,
-            irmaConfiguration: irmaConfiguration,
+          Padding(
+            padding: EdgeInsets.only(bottom: theme.smallSpacing),
+            child: ActivityCard(
+              logEntry: logEntry,
+              irmaConfiguration: irmaConfiguration,
+            ),
           ),
         ];
       },
     ).flattened.toList();
 
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       controller: _scrollController,
       padding: EdgeInsets.symmetric(
         vertical: theme.smallSpacing,

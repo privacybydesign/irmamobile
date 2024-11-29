@@ -59,7 +59,7 @@ class _MoreTabState extends State<MoreTab> {
       String translationKey,
     ) =>
         Padding(
-          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+          padding: EdgeInsets.only(bottom: theme.smallSpacing),
           child: TranslatedText(
             translationKey,
             isHeader: true,

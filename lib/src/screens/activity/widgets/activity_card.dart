@@ -105,60 +105,68 @@ class ActivityCard extends StatelessWidget {
       label: semanticLabel,
       button: true,
       child: IrmaCard(
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ActivityDetailScreen(
-              logEntry: logEntry,
-              irmaConfiguration: irmaConfiguration,
+        margin: EdgeInsets.zero,
+        child: Material(
+          child: InkWell(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => ActivityDetailScreen(
+                  logEntry: logEntry,
+                  irmaConfiguration: irmaConfiguration,
+                ),
+              ),
             ),
-          ),
-        ),
-        child: Semantics(
-          excludeSemantics: true,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
+            child: Semantics(
+              excludeSemantics: true,
+              child: Padding(
+                padding: EdgeInsets.all(theme.defaultSpacing),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IrmaAvatar(
-                      size: 52,
-                      logoPath: logo,
-                      initials: title != '' ? title[0] : null,
-                    ),
-                    SizedBox(
-                      width: theme.smallSpacing,
-                    ),
                     Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          TranslatedText(localizedTimeStamp),
-                          Text(
-                            title,
-                            style: theme.themeData.textTheme.headlineMedium!.copyWith(
-                              color: theme.dark,
-                            ),
+                          IrmaAvatar(
+                            size: 52,
+                            logoPath: logo,
+                            initials: title != '' ? title[0] : null,
                           ),
-                          TranslatedText(
-                            subtitleTranslationKey,
-                            style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                              fontSize: 14,
-                              color: theme.dark,
+                          SizedBox(
+                            width: theme.smallSpacing,
+                          ),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TranslatedText(localizedTimeStamp),
+                                Text(
+                                  title,
+                                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
+                                    color: theme.dark,
+                                  ),
+                                ),
+                                TranslatedText(
+                                  subtitleTranslationKey,
+                                  style: theme.themeData.textTheme.bodyMedium!.copyWith(
+                                    fontSize: 14,
+                                    color: theme.dark,
+                                  ),
+                                )
+                              ],
                             ),
                           )
                         ],
                       ),
-                    )
+                    ),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey.shade700,
+                    ),
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey.shade700,
-              ),
-            ],
+            ),
           ),
         ),
       ),

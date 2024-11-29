@@ -36,7 +36,7 @@ class _HelpScreenState extends State<HelpScreen> {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: theme.backgroundTertiary,
       appBar: const IrmaAppBar(
         titleTranslationKey: 'help.faq',
       ),

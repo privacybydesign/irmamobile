@@ -48,46 +48,54 @@ class IrmaCredentialTypeCard extends StatelessWidget {
     }
 
     return IrmaCard(
-      key: Key('${credType.fullId}_tile'),
-      onTap: onTap,
-      child: Row(
-        children: [
-          avatar,
-          SizedBox(
-            width: theme.defaultSpacing - theme.tinySpacing,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      margin: EdgeInsets.zero,
+      child: Material(
+        child: InkWell(
+          key: Key('${credType.fullId}_tile'),
+          onTap: onTap,
+          child: Padding(
+            padding: EdgeInsets.all(theme.defaultSpacing),
+            child: Row(
               children: [
-                Text(
-                  getTranslation(context, credType.name),
-                  style: theme.textTheme.headlineMedium!.copyWith(
-                    color: theme.dark,
-                  ),
-                ),
+                avatar,
                 SizedBox(
-                  height: theme.tinySpacing,
+                  width: theme.defaultSpacing - theme.tinySpacing,
                 ),
-                Text(
-                  getTranslation(
-                    context,
-                    repo.irmaConfiguration.issuers[credType.fullIssuerId]!.name,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        getTranslation(context, credType.name),
+                        style: theme.textTheme.headlineMedium!.copyWith(
+                          color: theme.dark,
+                        ),
+                      ),
+                      SizedBox(
+                        height: theme.tinySpacing,
+                      ),
+                      Text(
+                        getTranslation(
+                          context,
+                          repo.irmaConfiguration.issuers[credType.fullIssuerId]!.name,
+                        ),
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
-                  style: theme.textTheme.bodyMedium!.copyWith(
-                    fontSize: 14,
-                  ),
+                ),
+                SizedBox(width: theme.smallSpacing),
+                Icon(
+                  trailingIcon ?? Icons.chevron_right,
+                  size: 24,
+                  color: theme.neutralExtraDark,
                 ),
               ],
             ),
           ),
-          SizedBox(width: theme.smallSpacing),
-          Icon(
-            trailingIcon ?? Icons.chevron_right,
-            size: 24,
-            color: theme.neutralExtraDark,
-          ),
-        ],
+        ),
       ),
     );
   }

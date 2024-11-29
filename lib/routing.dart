@@ -61,6 +61,26 @@ class Routing {
     return settings.name == EnrollmentScreen.routeName || settings.name == ChangePinScreen.routeName;
   }
 
+  static _canPop(RouteSettings settings, BuildContext context) {
+    // If the current route has a subnavigator and is on the root, defer to that component's `WillPopScope`
+    if (_isSubnavigatorRoute(settings) && _isRootRoute(settings)) {
+      return true;
+    }
+
+    // Otherwise if it is a root route, background the app on backpress
+    if (_isRootRoute(settings)) {
+      if (settings.name == HomeScreen.routeName) {
+        // Check if we are in the drawn state.
+        // We don't want the app to background in this case.
+        // Defer to home_screen.dart
+        return true;
+      }
+      return false;
+    }
+
+    return true;
+  }
+
   static Route generateRoute(RouteSettings settings) {
     // Try to find the appropriate screen, but keep `RouteNotFoundScreen` as default
     WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
@@ -74,26 +94,12 @@ class Routing {
     // if the route is an initial route
     return MaterialPageRoute(
       builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async {
-            // If the current route has a subnavigator and is on the root, defer to that component's `WillPopScope`
-            if (_isSubnavigatorRoute(settings) && _isRootRoute(settings)) {
-              return true;
-            }
-
-            // Otherwise if it is a root route, background the app on backpress
-            if (_isRootRoute(settings)) {
-              if (settings.name == HomeScreen.routeName) {
-                // Check if we are in the drawn state.
-                // We don't want the app to background in this case.
-                // Defer to home_screen.dart
-                return true;
-              }
+        return PopScope(
+          canPop: _canPop(settings, context),
+          onPopInvokedWithResult: (didPop, popResult) {
+            if (!didPop) {
               IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
-              return false;
             }
-
-            return true;
           },
           child: screenBuilder(context),
         );

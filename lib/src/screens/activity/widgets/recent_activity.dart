@@ -105,9 +105,12 @@ class _RecentActivityState extends State<RecentActivity> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: logEntries
                         .map(
-                          (logEntry) => ActivityCard(
-                            logEntry: logEntry,
-                            irmaConfiguration: irmaConfiguration,
+                          (logEntry) => Padding(
+                            padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                            child: ActivityCard(
+                              logEntry: logEntry,
+                              irmaConfiguration: irmaConfiguration,
+                            ),
                           ),
                         )
                         .toList(),
