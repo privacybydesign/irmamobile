@@ -5,14 +5,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [7.5.7] - 2024-12-13
 ### Changed
 - Upgrade Flutter to 3.24.6
 - Upgrade XCode to 16.0
 - Use Java 17 to build for Android
+- Visual improvements:
+  - Add visual feedback on buttons
+  - Fix some padding issues in help page
+  - Allow swipe to go back on iOS on more pages
+  - Raise the tab icons in the navigation bar on modern iOS devices
+  - Add adaptive icons to the navigation bar that fill in on select
+  - Allow user to scroll in any list even when a single item is present
+  - Fix button target for more button on cards
+  - Make background color more consistent across pages
 
 ## [7.5.6] - 2024-07-22
 ### Changed
-- Increase Android target and compile SDK version to 34 
+- Increase Android target and compile SDK version to 34
 
 ### Security
 - Update go toolchain to 1.22.5
@@ -431,6 +442,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.5.7]: https://github.com/privacybydesign/irmamobile/compare/v7.5.6...v7.5.7
 [7.5.6]: https://github.com/privacybydesign/irmamobile/compare/v7.5.5...v7.5.6
 [7.5.5]: https://github.com/privacybydesign/irmamobile/compare/v7.5.4...v7.5.5
 [7.5.4]: https://github.com/privacybydesign/irmamobile/compare/v7.5.3...v7.5.4
