@@ -58,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     Widget buildHeaderText(String translationKey) => Padding(
-          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+          padding: EdgeInsets.only(bottom: theme.smallSpacing),
           child: Semantics(
             header: true,
             child: TranslatedText(
@@ -87,15 +87,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: theme.backgroundTertiary,
       appBar: const IrmaAppBar(
         titleTranslationKey: 'settings.title',
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(
-          theme.defaultSpacing,
-        ),
-        child: SafeArea(
+      body: SizedBox(
+        height: double.infinity,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.all(
+            theme.defaultSpacing,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

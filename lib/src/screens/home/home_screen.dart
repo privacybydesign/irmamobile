@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/native_events.dart';
 import '../../theme/theme.dart';
+import '../../util/rounded_display.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../activity/activity_tab.dart';
@@ -58,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
     // root route in the navigator. In that case, we background the app on Android.
     // On iOS, there is no back button so we don't have to handle this case.
+    final theme = IrmaTheme.of(context);
     return WillPopScope(
       onWillPop: () async {
         if (selectedTab == IrmaNavBarTab.home) {
@@ -104,8 +106,11 @@ class _HomeScreenState extends State<HomeScreen> {
             }),
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-          floatingActionButton: const IrmaQrScanButton(
-            key: Key('nav_button_scanner'),
+          floatingActionButton: Padding(
+            padding: EdgeInsets.only(bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0),
+            child: const IrmaQrScanButton(
+              key: Key('nav_button_scanner'),
+            ),
           ),
           bottomNavigationBar: IrmaNavBar(
             selectedTab: selectedTab,

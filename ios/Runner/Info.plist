@@ -3,7 +3,7 @@
 <plist version="1.0">
 	<dict>
 	  <key>FLTEnableImpeller</key>
-    <false/>
+    <true/>
 	  <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
 		<key>CFBundleDevelopmentRegion</key>
