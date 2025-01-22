@@ -44,10 +44,12 @@ class YiviThemedButton extends StatelessWidget {
         children: [
           Positioned.fill(
             bottom: 0.0,
-            child: SvgPicture.asset(
-              'assets/ui/btn-bg.svg',
-              alignment: Alignment.center,
-              fit: BoxFit.fill,
+            child: ExcludeSemantics(
+              child: SvgPicture.asset(
+                'assets/ui/btn-bg.svg',
+                alignment: Alignment.center,
+                fit: BoxFit.fill,
+              ),
             ),
           ),
           Positioned.fill(

@@ -90,16 +90,16 @@ class _HomeScreenState extends State<HomeScreen> {
           body: SafeArea(
             child: Builder(builder: (context) {
               switch (selectedTab) {
+                case IrmaNavBarTab.home:
+                  return HomeTab(
+                    onChangeTab: _changeTab,
+                  );
                 case IrmaNavBarTab.data:
                   return DataTab();
                 case IrmaNavBarTab.activity:
                   return ActivityTab();
                 case IrmaNavBarTab.more:
                   return MoreTab(
-                    onChangeTab: _changeTab,
-                  );
-                case IrmaNavBarTab.home:
-                  return HomeTab(
                     onChangeTab: _changeTab,
                   );
               }

@@ -31,6 +31,15 @@ class _CollapsibleState extends State<Collapsible> {
 
   bool _isExpanded = false;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      _isExpanded = widget.initiallyExpanded;
+    });
+  }
+
   Future<void> _jumpToCollapsable() async {
     await Future.delayed(_expandDuration);
     if (widget.parentScrollController == null) return;
@@ -98,7 +107,9 @@ class _CollapsibleState extends State<Collapsible> {
         ),
         header: Expanded(
           child: Semantics(
-            button: true,
+            hint: _isExpanded
+                ? FlutterI18n.translate(context, 'accessibility.collapse_hint')
+                : FlutterI18n.translate(context, 'accessibility.expand_hint'),
             label: _isExpanded
                 ? FlutterI18n.translate(context, 'accessibility.expanded')
                 : FlutterI18n.translate(context, 'accessibility.collapsed'),
@@ -122,7 +133,7 @@ class _CollapsibleState extends State<Collapsible> {
               vertical: theme.smallSpacing,
               horizontal: theme.defaultSpacing,
             ),
-            child: widget.content,
+            child: ExcludeSemantics(excluding: !_isExpanded, child: widget.content),
           ),
         ],
       ),

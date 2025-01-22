@@ -125,6 +125,7 @@ class InternalLinkTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tile(
+      isLink: false,
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () => Navigator.pushNamed(context, routeName),
@@ -175,6 +176,7 @@ class Tile extends StatelessWidget {
   final String labelTranslationKey;
   final Function() onTap;
   final Widget? trailing;
+  final bool isLink;
 
   const Tile({
     Key? key,
@@ -182,6 +184,7 @@ class Tile extends StatelessWidget {
     required this.labelTranslationKey,
     required this.onTap,
     this.trailing,
+    this.isLink = true,
   }) : super(key: key);
 
   @override
@@ -190,7 +193,7 @@ class Tile extends StatelessWidget {
     final iconColor = theme.secondary;
 
     return Semantics(
-      link: true,
+      link: isLink,
       child: Material(
         child: ListTile(
           onTap: onTap,

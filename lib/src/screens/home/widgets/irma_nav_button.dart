@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
@@ -9,6 +10,13 @@ final _navBarTabTranslationKeys = {
   IrmaNavBarTab.data: 'home.nav_bar.data',
   IrmaNavBarTab.activity: 'home.nav_bar.activity',
   IrmaNavBarTab.more: 'home.nav_bar.more'
+};
+
+final _navBarTabHintKeys = {
+  IrmaNavBarTab.home: 'home.nav_bar_hints.home',
+  IrmaNavBarTab.data: 'home.nav_bar_hints.data',
+  IrmaNavBarTab.activity: 'home.nav_bar_hints.activity',
+  IrmaNavBarTab.more: 'home.nav_bar_hints.more'
 };
 
 class IrmaNavButton extends StatelessWidget {
@@ -34,7 +42,7 @@ class IrmaNavButton extends StatelessWidget {
 
     return Expanded(
       child: Semantics(
-        button: true,
+        value: FlutterI18n.translate(context, _navBarTabHintKeys[tab]!),
         child: InkWell(
           onTap: () => changeTab?.call(tab),
           child: Column(
