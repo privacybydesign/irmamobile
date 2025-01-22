@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../theme/theme.dart';

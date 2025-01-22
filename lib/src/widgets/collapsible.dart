@@ -33,7 +33,6 @@ class _CollapsibleState extends State<Collapsible> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setState(() {
       _isExpanded = widget.initiallyExpanded;
