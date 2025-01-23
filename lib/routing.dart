@@ -56,9 +56,28 @@ class Routing {
     return settings.name == HomeScreen.routeName || settings.name == EnrollmentScreen.routeName;
   }
 
-  // A helper method to work around `PopScope` limitations, see flutter/flutter#14083
   static bool _isSubnavigatorRoute(RouteSettings settings) {
     return settings.name == EnrollmentScreen.routeName || settings.name == ChangePinScreen.routeName;
+  }
+
+  static _canPop(RouteSettings settings, BuildContext context) {
+    // If the current route has a subnavigator and is on the root, defer to that component's `PopScope`
+    if (_isSubnavigatorRoute(settings) && _isRootRoute(settings)) {
+      return true;
+    }
+
+    // Otherwise if it is a root route, background the app on backpress
+    if (_isRootRoute(settings)) {
+      if (settings.name == HomeScreen.routeName) {
+        // Check if we are in the drawn state.
+        // We don't want the app to background in this case.
+        // Defer to home_screen.dart
+        return true;
+      }
+      return false;
+    }
+
+    return true;
   }
 
   static Route generateRoute(RouteSettings settings) {
@@ -70,37 +89,16 @@ class Routing {
       // pass
     }
 
-    final bool canPop = () {
-      // If the current route has a subnavigator and is on the root, defer to that component's `PopScope`
-      if (_isSubnavigatorRoute(settings) && _isRootRoute(settings)) {
-        return true;
-      }
-
-      // Otherwise if it is a root route, background the app on backpress
-      if (_isRootRoute(settings)) {
-        if (settings.name == HomeScreen.routeName) {
-          // Check if we are in the drawn state.
-          // We don't want the app to background in this case.
-          // Defer to home_screen.dart
-          return true;
-        }
-        return false;
-      }
-
-      return true;
-    }();
-
-    // Wrap the route in a `PopScope` that denies Android back presses
+    // Wrap the route in a `willPopScope` that denies Android back presses
     // if the route is an initial route
     return MaterialPageRoute(
       builder: (BuildContext context) {
         return PopScope(
-          canPop: canPop,
-          onPopInvokedWithResult: (didPop, popResult) async {
-            if (_isRootRoute(settings) && (_isSubnavigatorRoute(settings) || settings.name == HomeScreen.routeName)) {
-              return;
+          canPop: _canPop(settings, context),
+          onPopInvokedWithResult: (didPop, popResult) {
+            if (!didPop) {
+              IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
             }
-            IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
           },
           child: screenBuilder(context),
         );
