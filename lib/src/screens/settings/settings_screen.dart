@@ -170,6 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     routeName: ChangePinScreen.routeName,
                   ),
                   Tile(
+                    isLink: false,
                     key: const Key('delete_link'),
                     labelTranslationKey: 'settings.delete',
                     onTap: () => showConfirmDeleteDialog(context),
