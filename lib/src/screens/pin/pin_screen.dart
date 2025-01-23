@@ -32,6 +32,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
   StreamSubscription? _pinBlocSubscription;
 
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +41,11 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     if (widget.initialEvent != null) {
       _pinBloc.add(widget.initialEvent!);
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
     final repo = IrmaRepositoryProvider.of(context);
     repo.getBlockTime().first.then((blockedUntil) {
