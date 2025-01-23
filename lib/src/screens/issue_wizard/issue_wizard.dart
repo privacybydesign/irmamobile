@@ -67,6 +67,11 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _repo = IrmaRepositoryProvider.of(context);
   }
 
