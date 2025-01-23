@@ -5,7 +5,7 @@ description: IRMA Authentication
 version: 7.5.7+4194471
 
 environment:
-  sdk: ">=2.19.6 <3.0.0"
+  sdk: ">=3.0.0"
 
 dependencies:
   flutter:

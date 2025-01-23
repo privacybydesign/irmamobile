@@ -12,7 +12,7 @@ class GreyedOut extends StatelessWidget {
 
     return ColorFiltered(
       colorFilter: ColorFilter.mode(
-        Colors.white.withOpacity(0.5),
+        Colors.white.withAlpha(128),
         BlendMode.modulate,
       ),
       child: child,
