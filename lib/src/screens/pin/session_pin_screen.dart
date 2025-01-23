@@ -24,7 +24,7 @@ class SessionPinScreen extends StatefulWidget {
   final int sessionID;
   final String title;
 
-  const SessionPinScreen({Key? key, required this.sessionID, required this.title}) : super(key: key);
+  const SessionPinScreen({super.key, required this.sessionID, required this.title});
 
   @override
   State<SessionPinScreen> createState() => _SessionPinScreenState();

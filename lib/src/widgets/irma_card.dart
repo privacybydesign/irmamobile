@@ -20,7 +20,7 @@ class IrmaCard extends StatelessWidget {
   final bool hasShadow;
 
   const IrmaCard({
-    Key? key,
+    super.key,
     this.onTap,
     this.child,
     this.padding,
@@ -28,7 +28,7 @@ class IrmaCard extends StatelessWidget {
     this.margin,
     this.color,
     this.hasShadow = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -129,27 +129,25 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                     SizedBox(
                       height: theme.mediumSpacing,
                     ),
-                    ...filteredCredentials
-                        .map(
-                          (cred) => IrmaCredentialCard.fromCredential(
-                            cred,
-                            headerTrailing:
-                                // Credential must either be reobtainable or deletable
-                                // for the options bottom sheet to be accessible
-                                cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
-                                    ? null
-                                    : Transform.translate(
-                                        offset: Offset(theme.smallSpacing, -10),
-                                        child: IconButton(
-                                          onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
-                                          icon: const Icon(
-                                            Icons.more_horiz_sharp,
-                                          ),
-                                        ),
+                    ...filteredCredentials.map(
+                      (cred) => IrmaCredentialCard.fromCredential(
+                        cred,
+                        headerTrailing:
+                            // Credential must either be reobtainable or deletable
+                            // for the options bottom sheet to be accessible
+                            cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
+                                ? null
+                                : Transform.translate(
+                                    offset: Offset(theme.smallSpacing, -10),
+                                    child: IconButton(
+                                      onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
+                                      icon: const Icon(
+                                        Icons.more_horiz_sharp,
                                       ),
-                          ),
-                        )
-                        .toList(),
+                                    ),
+                                  ),
+                      ),
+                    ),
                     SizedBox(
                       height: theme.mediumSpacing,
                     ),

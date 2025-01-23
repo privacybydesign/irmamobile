@@ -1,8 +1,8 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 class _NumberPad extends StatelessWidget {
   final NumberCallback onEnterNumber;
-  const _NumberPad({Key? key, required this.onEnterNumber}) : super(key: key);
+  const _NumberPad({super.key, required this.onEnterNumber});
 
   @override
   Widget build(BuildContext context) {

@@ -25,7 +25,7 @@ class IrmaCredentialCard extends StatelessWidget {
   final bool disabled;
 
   const IrmaCredentialCard({
-    Key? key,
+    super.key,
     required this.credentialView,
     this.compareTo,
     this.onTap,
@@ -36,11 +36,11 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = false,
     this.hideAttributes = false,
     this.disabled = false,
-  }) : super(key: key);
+  });
 
   IrmaCredentialCard.fromCredential(
     Credential credential, {
-    Key? key,
+    super.key,
     this.compareTo,
     this.onTap,
     this.style = IrmaCardStyle.normal,
@@ -50,8 +50,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideAttributes = false,
     this.disabled = false,
   })  : credentialView = credential,
-        expiryDate = CardExpiryDate(credential.expires),
-        super(key: key);
+        expiryDate = CardExpiryDate(credential.expires);
 
   @override
   Widget build(BuildContext context) {

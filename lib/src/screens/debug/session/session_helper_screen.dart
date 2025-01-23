@@ -7,9 +7,9 @@ class SessionHelperScreen extends StatefulWidget {
   final String initialRequest;
 
   const SessionHelperScreen({
-    Key? key,
+    super.key,
     required this.initialRequest,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _SessionHelperScreenState();

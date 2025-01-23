@@ -121,13 +121,13 @@ class Credential extends CredentialView {
   final String hash;
 
   Credential({
-    required CredentialInfo info,
+    required super.info,
     required this.signedOn,
     required this.expires,
-    required Iterable<Attribute> attributes,
-    required bool revoked,
+    required super.attributes,
+    required super.revoked,
     required this.hash,
-  }) : super(info: info, expired: expires.isBefore(DateTime.now()), revoked: revoked, attributes: attributes);
+  }) : super(expired: expires.isBefore(DateTime.now()));
 
   factory Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential}) {
     final credInfo = CredentialInfo.fromConfiguration(

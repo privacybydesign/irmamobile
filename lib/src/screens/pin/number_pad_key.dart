@@ -1,4 +1,4 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 class _NumberPadKey extends StatelessWidget {
   final int number;

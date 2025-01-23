@@ -22,7 +22,7 @@ class IssueWizardScreen extends StatefulWidget {
   static const routeName = '/issuewizard';
 
   final IssueWizardScreenArguments arguments;
-  const IssueWizardScreen({Key? key, required this.arguments}) : super(key: key);
+  const IssueWizardScreen({super.key, required this.arguments});
 
   @override
   State<IssueWizardScreen> createState() => _IssueWizardScreenState();

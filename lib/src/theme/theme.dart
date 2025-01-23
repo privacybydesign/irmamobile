@@ -257,9 +257,8 @@ class IrmaTheme extends InheritedWidget {
   final IrmaThemeData data = IrmaThemeData();
   // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
   // must be wrapped in a Builder.
-  IrmaTheme({Key? key, required WidgetBuilder builder})
+  IrmaTheme({super.key, required WidgetBuilder builder})
       : super(
-          key: key,
           child: Builder(builder: builder),
         );
 

@@ -7,8 +7,8 @@ import '../../../../widgets/yivi_themed_button.dart';
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
   const ProvideSchemeUrlDialog({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<ProvideSchemeUrlDialog> createState() => _ProvideSchemeUrlDialogState();

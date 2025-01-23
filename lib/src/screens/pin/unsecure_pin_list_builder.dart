@@ -1,4 +1,4 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 List<Widget> _listBuilder(BuildContext context, EnterPinState state) {
   final attributes = state.attributes;

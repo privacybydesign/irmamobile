@@ -9,9 +9,9 @@ import '../../../widgets/irma_repository_provider.dart';
 class PendingPointerListener extends StatefulWidget {
   final Widget child;
   const PendingPointerListener({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   State<PendingPointerListener> createState() => _PendingPointerListenerState();

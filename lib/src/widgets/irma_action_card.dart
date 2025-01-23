@@ -15,13 +15,13 @@ class IrmaActionCard extends StatelessWidget {
   final bool isFancy;
 
   const IrmaActionCard({
-    Key? key,
+    super.key,
     required this.titleKey,
     required this.icon,
     this.subtitleKey,
     this.onTap,
     this.isFancy = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -10,8 +10,8 @@ import '../../../widgets/translated_text.dart';
 
 class VersionButton extends StatefulWidget {
   const VersionButton({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<VersionButton> createState() => _VersionButtonState();

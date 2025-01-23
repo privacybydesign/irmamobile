@@ -19,14 +19,14 @@ class IrmaBottomBar extends StatelessWidget {
   final IrmaBottomBarAlignment alignment;
 
   const IrmaBottomBar({
-    Key? key,
+    super.key,
     this.primaryButtonLabel,
     this.onPrimaryPressed,
     this.showTooltipOnPrimary = false,
     this.secondaryButtonLabel,
     this.onSecondaryPressed,
     this.alignment = IrmaBottomBarAlignment.automatic,
-  }) : super(key: key);
+  });
 
   Widget _buildPrimaryButton(BuildContext context) {
     return Expanded(

@@ -1,10 +1,10 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 class YiviPinScaffold extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final Widget body;
 
-  const YiviPinScaffold({Key? key, required this.body, this.appBar}) : super(key: key);
+  const YiviPinScaffold({super.key, required this.body, this.appBar});
 
   Widget _applyTabletSupport(bool isTabletDevice) {
     return LayoutBuilder(builder: (context, constraints) {

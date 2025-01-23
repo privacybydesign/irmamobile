@@ -16,10 +16,10 @@ class IrmaNavBar extends StatelessWidget {
   final IrmaNavBarTab selectedTab;
 
   const IrmaNavBar({
-    Key? key,
+    super.key,
     required this.onChangeTab,
     this.selectedTab = IrmaNavBarTab.home,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

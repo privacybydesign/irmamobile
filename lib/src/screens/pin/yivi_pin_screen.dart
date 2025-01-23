@@ -1,4 +1,4 @@
-library pin;
+library;
 
 import 'dart:async';
 import 'dart:math';

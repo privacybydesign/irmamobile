@@ -6,9 +6,9 @@ import 'disclosure_credential.dart';
 /// Template of a DisclosureCredential that needs to be obtained first.
 class TemplateDisclosureCredential extends DisclosureCredential {
   TemplateDisclosureCredential({
-    required CredentialInfo info,
-    required List<Attribute> attributes,
-  }) : super(info: info, attributes: attributes);
+    required super.info,
+    required List<Attribute> super.attributes,
+  });
 
   bool matchesCredential(Credential credential) =>
       credentialType.fullId == credential.info.fullId &&

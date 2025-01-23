@@ -24,7 +24,7 @@ class PinScreen extends StatefulWidget {
   static const String routeName = '/';
   final PinEvent? initialEvent;
 
-  const PinScreen({Key? key, this.initialEvent}) : super(key: key);
+  const PinScreen({super.key, this.initialEvent});
 
   @override
   State<PinScreen> createState() => _PinScreenState();

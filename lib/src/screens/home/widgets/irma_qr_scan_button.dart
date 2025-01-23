@@ -9,7 +9,7 @@ import '../../scanner/scanner_screen.dart';
 import '../../scanner/util/handle_camera_permission.dart';
 
 class IrmaQrScanButton extends StatelessWidget {
-  const IrmaQrScanButton({Key? key}) : super(key: key);
+  const IrmaQrScanButton({super.key});
 
   Future<void> _onQrScanButtonTap(BuildContext context) async {
     final hasCameraPermission = await handleCameraPermission(context);

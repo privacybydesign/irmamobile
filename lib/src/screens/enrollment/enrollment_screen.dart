@@ -35,7 +35,7 @@ class EnrollmentScreen extends StatelessWidget {
 class _ProvidedEnrollmentScreen extends StatelessWidget {
   final IrmaRepository repo;
 
-  const _ProvidedEnrollmentScreen({Key? key, required this.repo}) : super(key: key);
+  const _ProvidedEnrollmentScreen({required this.repo});
 
   @override
   Widget build(BuildContext context) {

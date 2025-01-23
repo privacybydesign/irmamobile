@@ -16,12 +16,12 @@ class IssuancePermission extends StatelessWidget {
   final List<Credential> issuedCredentials;
 
   const IssuancePermission({
-    Key? key,
+    super.key,
     this.onDismiss,
     this.onGivePermission,
     this.satisfiable = false,
     required this.issuedCredentials,
-  }) : super(key: key);
+  });
 
   Widget _buildNavigationBar(BuildContext context) {
     return satisfiable

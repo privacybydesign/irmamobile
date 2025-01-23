@@ -8,10 +8,10 @@ class EnrollmentNavBar extends StatelessWidget {
   final VoidCallback? onContinue;
 
   const EnrollmentNavBar({
-    Key? key,
+    super.key,
     this.onPrevious,
     this.onContinue,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class EnrollmentNavBar extends StatelessWidget {
       button: true,
       child: Container(
         height: 100,
-        color: theme.themeData.colorScheme.background,
+        color: theme.themeData.colorScheme.surface,
         padding: EdgeInsets.all(theme.mediumSpacing),
         child: Row(
           mainAxisSize: MainAxisSize.max,

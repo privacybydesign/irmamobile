@@ -17,17 +17,16 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
   final UnmodifiableListView<AttributeIdentifier> identifiers;
 
   ChoosableDisclosureCredential({
-    required CredentialInfo info,
-    required List<Attribute> attributes,
-    required bool expired,
-    required bool revoked,
+    required super.info,
+    required List<Attribute> super.attributes,
+    required super.expired,
+    required super.revoked,
     required this.credentialHash,
     required this.previouslyAdded,
-  })  : identifiers = UnmodifiableListView(attributes.map((attr) => AttributeIdentifier(
+  }) : identifiers = UnmodifiableListView(attributes.map((attr) => AttributeIdentifier(
               type: attr.attributeType.fullId,
               credentialHash: credentialHash,
-            ))),
-        super(info: info, expired: expired, revoked: revoked, attributes: attributes);
+            )));
 
   /// Converts the given credential to a ChoosableDisclosureCredential using the given template.
   factory ChoosableDisclosureCredential.fromTemplate({
