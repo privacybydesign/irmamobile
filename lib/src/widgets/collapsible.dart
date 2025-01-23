@@ -15,12 +15,12 @@ class Collapsible extends StatefulWidget {
   final bool initiallyExpanded;
 
   const Collapsible({
-    Key? key,
+    super.key,
     required this.header,
     required this.content,
     this.parentScrollController,
     this.initiallyExpanded = false,
-  }) : super(key: key);
+  });
 
   @override
   State<Collapsible> createState() => _CollapsibleState();

@@ -630,6 +630,12 @@
       "no_new_notifications": "Notificatie Bel, Geen nieuwe notificaties"
     }
   },
+  "switch": {
+    "describe_state_on": "Schakelaar die aanstaat",
+    "describe_state_off": "Schakelaar die uitstaat",
+    "hint_state_on": "Tik dubbel om uit te zetten",
+    "hint_state_off": "Tik dubbel om aan te zetten"
+  },
   "debug": {
     "title": "Debuggen",
     "issue_digid": "Uitgifte DigiD proef",

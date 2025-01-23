@@ -46,11 +46,11 @@ class IrmaApp extends StatelessWidget {
   final NotificationsBloc notificationsBloc;
 
   const IrmaApp({
-    Key? key,
+    super.key,
     this.defaultLanguage,
     required this.repository,
     required this.notificationsBloc,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) => IrmaRepositoryProvider(

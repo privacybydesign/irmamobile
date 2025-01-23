@@ -15,6 +15,7 @@ import '../../screens/issue_wizard/widgets/wizard_info.dart';
 import '../../util/handle_pointer.dart';
 import '../../util/language.dart';
 import '../../util/navigation.dart';
+import '../../widgets/irma_repository_provider.dart';
 import 'widgets/issue_wizard_success_screen.dart';
 
 class IssueWizardScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
 
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
-  final _repo = IrmaRepository.get();
+  late final IrmaRepository _repo;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -66,6 +67,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
+    _repo = IrmaRepositoryProvider.of(context);
   }
 
   @override

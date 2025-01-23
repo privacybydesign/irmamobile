@@ -140,12 +140,12 @@ class ToggleTile extends StatelessWidget {
   final Stream<bool> stream;
 
   const ToggleTile({
-    Key? key,
+    super.key,
     this.iconData,
     required this.labelTranslationKey,
     required this.onChanged,
     required this.stream,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -156,14 +156,19 @@ class ToggleTile extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         final value = snapshot.hasData && snapshot.data!;
 
-        return Tile(
-          iconData: iconData,
-          labelTranslationKey: labelTranslationKey,
-          onTap: () => onChanged(!value),
-          trailing: CupertinoSwitch(
-            value: value,
-            onChanged: null, // We use the onTap on the Tile
-            activeColor: theme.success,
+        return Semantics(
+          value: FlutterI18n.translate(context, value ? 'switch.describe_state_on' : 'switch.describe_state_off'),
+          hint: FlutterI18n.translate(context, value ? 'switch.hint_state_on' : 'switch.hint_state_off'),
+          child: Tile(
+            isLink: false,
+            iconData: iconData,
+            labelTranslationKey: labelTranslationKey,
+            onTap: () => onChanged(!value),
+            trailing: CupertinoSwitch(
+              value: value,
+              onChanged: null, // We use the onTap on the Tile
+              activeTrackColor: theme.success,
+            ),
           ),
         );
       },

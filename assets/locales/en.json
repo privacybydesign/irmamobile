@@ -630,6 +630,12 @@
       "no_new_notifications": "Notifications bell - No new notifications"
     }
   },
+  "switch": {
+    "describe_state_on": "Switch in on state",
+    "describe_state_off": "Switch in off state",
+    "hint_state_on": "Double tap to turn off",
+    "hint_state_off": "Double tap to turn on"
+  },
   "debug": {
     "title": "Debugging",
     "issue_digid": "Issue DigiD",

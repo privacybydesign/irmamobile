@@ -38,11 +38,11 @@ class App extends StatefulWidget {
   final NotificationsBloc notificationsBloc;
 
   const App({
-    Key? key,
+    super.key,
     required this.irmaRepository,
     required this.notificationsBloc,
     this.forcedLocale,
-  }) : super(key: key);
+  });
 
   @override
   AppState createState() => AppState();
