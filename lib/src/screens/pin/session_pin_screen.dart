@@ -115,17 +115,14 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   @override
   Widget build(BuildContext context) {
     final prefs = _repo.preferences;
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, popResult) async {
         // Wait on irmago response before closing, calling widget expects a result
-        return _pinBloc.stream
-            .firstWhere(
-          (state) => !state.authenticateInProgress,
-        )
-            .then((state) {
-          if (!state.authenticated) _cancel();
-          return false;
-        });
+        final pinState = await _pinBloc.stream.firstWhere((state) => !state.authenticateInProgress);
+        if (!pinState.authenticated) {
+          _cancel();
+        }
       },
       // Wrap component in custom navigator in order to manage the invalid pin popup and the
       // error screen as widget ourselves, such that popping this widget from the root navigator will

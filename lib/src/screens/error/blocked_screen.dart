@@ -10,14 +10,12 @@ import '../../widgets/irma_repository_provider.dart';
 class BlockedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // Disable popping of this screen, as popping this is unwanted
-        // (only way forward is and should be a reset, giving accidental access
-        // to the wallet of a blocked account is unreasonable, even though credentials
-        // can no longer be used)
-        return false;
-      },
+    // Disable popping of this screen, as popping this is unwanted
+    // (only way forward is and should be a reset, giving accidental access
+    // to the wallet of a blocked account is unreasonable, even though credentials
+    // can no longer be used)
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         appBar: const IrmaAppBar(
           titleTranslationKey: 'error.details_title',

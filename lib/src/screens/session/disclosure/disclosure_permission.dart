@@ -68,21 +68,21 @@ class ProvidedDisclosurePermission extends StatelessWidget {
         : DisclosurePermissionCloseDialog.show(context, onConfirm: onConfirmedDismiss);
 
     // Wrapped with WillPopScope to gain control over the behavior of the "go back" gesture
-    return WillPopScope(
-      onWillPop: () async {
+    // Wrapped with PopScope to gain control over the behavior of the "go back" gesture
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, popResult) async {
         if (bloc.state is DisclosurePermissionMakeChoice) {
           addEvent(DisclosurePermissionPreviousPressed());
         } else {
           onDismiss();
         }
-        return false;
       },
       // Wrap our widget in a custom navigator, such that popping this widget from the root navigator will include
       // popping the DisclosurePermissionWrongCredentialsAddedDialog.
       child: Navigator(
-        onPopPage: (_, __) {
+        onDidRemovePage: (_) {
           Navigator.of(context).pop();
-          return false;
         },
         pages: [
           MaterialPage(

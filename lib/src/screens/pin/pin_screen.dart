@@ -32,7 +32,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
   StreamSubscription? _pinBlocSubscription;
 
-
   @override
   void initState() {
     super.initState();
@@ -136,9 +135,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final prefs = IrmaRepositoryProvider.of(context).preferences;
-    return BlocBuilder<PinBloc, PinState>(
+    return BlocBuilder(
       bloc: _pinBloc,
-      builder: (context, state) {
+      builder: (context, PinState state) {
         // Hide pin screen once authenticated
         if (state.authenticated == true) {
           return Container();

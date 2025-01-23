@@ -14,10 +14,10 @@ class NoInternetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, popResult) {
         onTapClose();
-        return false;
       },
       child: Scaffold(
         appBar: IrmaAppBar(

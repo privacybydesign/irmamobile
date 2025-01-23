@@ -44,7 +44,7 @@ class IrmaThemedButton extends StatelessWidget {
       } else {
         // Disabled Primary button colors
         textColor = theme.light;
-        backgroundColor = baseColor.withOpacity(0.5);
+        backgroundColor = baseColor.withAlpha(128);
       }
     } else {
       if (onPressed != null) {

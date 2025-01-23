@@ -27,10 +27,10 @@ class CallInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, popResult) {
         onCancel?.call();
-        return false;
       },
       child: Scaffold(
         appBar: IrmaAppBar(

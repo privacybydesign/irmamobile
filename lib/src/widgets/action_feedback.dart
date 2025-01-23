@@ -34,10 +34,10 @@ class ActionFeedback extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, popResult) {
         dismiss(context);
-        return false;
       },
       child: SessionScaffold(
         appBarTitle: success ? 'disclosure.feedback.header.success' : 'ui.error',

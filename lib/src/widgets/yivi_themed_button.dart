@@ -148,7 +148,7 @@ class YiviThemedButton extends StatelessWidget {
     if (onPressed == null) {
       buttonWidget = ColorFiltered(
         colorFilter: ColorFilter.mode(
-          Colors.white.withOpacity(0.5),
+          Colors.white.withAlpha(128),
           BlendMode.modulate,
         ),
         child: buttonWidget,

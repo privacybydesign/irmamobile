@@ -204,14 +204,12 @@ class AppState extends State<App> with WidgetsBindingObserver {
           // Wrap in popscope
           return MaterialPageRoute(
             builder: (BuildContext context) {
-              return WillPopScope(
-                onWillPop: () async {
-                  // On the pinscreen, background instead of pop
+              return PopScope(
+                canPop: settings.name != PinScreen.routeName,
+                onPopInvokedWithResult: (didPop, popResult) {
+                  // On the pin screen, background instead of pop
                   if (settings.name == PinScreen.routeName) {
                     widget.irmaRepository.bridgedDispatch(AndroidSendToBackgroundEvent());
-                    return false;
-                  } else {
-                    return true;
                   }
                 },
                 child: screenBuilder(context),
