@@ -36,6 +36,9 @@ class _RecentActivityState extends State<RecentActivity> {
     //Delay to make build context available
     Future.delayed(Duration.zero).then((_) async {
       _loadLogs();
+      if (!mounted) {
+        return;
+      }
       _repoStateSubscription = IrmaRepositoryProvider.of(context).getEvents().listen((event) {
         if (event is SuccessSessionEvent) {
           _loadLogs();

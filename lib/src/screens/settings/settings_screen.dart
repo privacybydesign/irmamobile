@@ -33,6 +33,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Future.delayed(Duration.zero).then((_) async {
       // If developer mode is initially true the developer mode toggle
       // should be visible for the lifecycle of this widget.
+      if (!mounted) {
+        return;
+      }
       final inDeveloperMode = await IrmaRepositoryProvider.of(context).getDeveloperMode().first;
 
       if (inDeveloperMode) {

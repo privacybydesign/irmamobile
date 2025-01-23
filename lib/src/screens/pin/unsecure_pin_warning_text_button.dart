@@ -5,7 +5,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final BuildContext context;
 
-  _UnsecurePinWarningTextButton({super.key, required this.scaffoldKey, required this.bloc})
+  _UnsecurePinWarningTextButton({required this.scaffoldKey, required this.bloc})
       : context = scaffoldKey.currentContext!;
 
   void _showSecurePinRules(EnterPinState state) {

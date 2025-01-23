@@ -27,7 +27,9 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final repo = IrmaRepositoryProvider.of(context);
       _pointerSubscription = repo.getPendingPointer().listen((Pointer? pointer) {
-        if (pointer != null) handlePointer(Navigator.of(context), pointer);
+        if (pointer != null && mounted) {
+          handlePointer(Navigator.of(context), pointer);
+        }
       });
     });
   }

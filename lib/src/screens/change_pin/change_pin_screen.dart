@@ -55,6 +55,7 @@ class ProvidedChangePinScreen extends StatefulWidget {
 
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   get theme => IrmaTheme.of(context);
   final newPin = ValueNotifier<String>('');
 
@@ -98,11 +99,14 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void _gotoSettings() {
     // Return to SettingsScreen
-    Navigator.maybePop(context).then(
-      (_) => Navigator.of(context).popUntil(
+    Navigator.maybePop(context).then((_) {
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).popUntil(
         (route) => route.settings.name == SettingsScreen.routeName,
-      ),
-    );
+      );
+    });
   }
 
   void _handlePinMismatch() {

@@ -22,6 +22,7 @@ class IssueWizardScreen extends StatefulWidget {
   static const routeName = '/issuewizard';
 
   final IssueWizardScreenArguments arguments;
+
   const IssueWizardScreen({super.key, required this.arguments});
 
   @override
@@ -54,9 +55,11 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
           .listen((event) {
         // Pop to underlying session screen which is showing an error screen
         // First pop all screens on top of this wizard and then pop the wizard screen itself
-        Navigator.of(context)
-          ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
-          ..pop();
+        if (mounted) {
+          Navigator.of(context)
+            ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
+            ..pop();
+        }
       });
     }
 

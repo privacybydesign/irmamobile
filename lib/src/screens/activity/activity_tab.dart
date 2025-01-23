@@ -34,6 +34,9 @@ class _ActivityTabState extends State<ActivityTab> {
     //Delay to make build context available
     Future.delayed(Duration.zero).then((_) async {
       _loadInitialLogs();
+      if (!mounted) {
+        return;
+      }
       _repoStateSubscription = IrmaRepositoryProvider.of(context).getEvents().listen((event) {
         if (event is SuccessSessionEvent) {
           _loadInitialLogs();

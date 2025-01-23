@@ -5,8 +5,7 @@ class _ScalableText extends StatelessWidget {
   final TextStyle textStyle;
   final double heightFactor;
 
-  const _ScalableText(this.string, {super.key, required this.heightFactor, required this.textStyle})
-      : assert(heightFactor < 1.0);
+  const _ScalableText(this.string, {required this.heightFactor, required this.textStyle}) : assert(heightFactor < 1.0);
 
   @override
   Widget build(BuildContext context) {

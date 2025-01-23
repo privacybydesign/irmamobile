@@ -5,7 +5,7 @@ class _PinIndicator extends StatelessWidget {
   final ValueNotifier<bool> pinVisibilityValue;
   final EnterPinState pinState;
 
-  const _PinIndicator({super.key, required this.maxPinSize, required this.pinVisibilityValue, required this.pinState});
+  const _PinIndicator({required this.maxPinSize, required this.pinVisibilityValue, required this.pinState});
 
   @override
   Widget build(BuildContext context) {

@@ -3,7 +3,6 @@ part of 'yivi_pin_screen.dart';
 class _UnsecurePinFullScreen extends StatelessWidget {
   final EnterPinState state;
   const _UnsecurePinFullScreen({
-    super.key,
     required this.state,
   });
 

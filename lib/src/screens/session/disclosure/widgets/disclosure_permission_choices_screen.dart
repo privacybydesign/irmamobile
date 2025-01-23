@@ -115,7 +115,12 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     final isSignatureSession = state is DisclosurePermissionChoicesOverview && state.isSignatureSession;
 
     if (state is DisclosurePermissionChoicesOverview && state.showConfirmationPopup) {
-      Future.delayed(Duration.zero, () => _showConfirmationDialog(context, isSignatureSession));
+      Future.delayed(Duration.zero, () {
+        if (!context.mounted) {
+          return;
+        }
+        _showConfirmationDialog(context, isSignatureSession);
+      });
     }
 
     String contentTranslationKey;

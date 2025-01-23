@@ -272,41 +272,45 @@ class _SessionScreenState extends State<SessionScreen> {
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
-  Widget _buildErrorScreen(SessionState session) => ValueListenableBuilder(
-        valueListenable: _displayArrowBack,
-        builder: (BuildContext context, bool displayArrowBack, Widget? child) {
-          if (displayArrowBack) {
-            return const ArrowBack(
-              type: ArrowBackType.error,
-            );
-          }
-          return child ?? Container();
-        },
-        child: SessionErrorScreen(
-          error: session.error,
-          onTapClose: () async {
-            if (widget.arguments.wizardActive) {
-              popToWizard(context);
-            } else if (session.continueOnSecondDevice) {
-              popToHome(context);
-            } else if (session.clientReturnURL != null && !session.clientReturnURL!.isPhoneNumber) {
-              // If the error was caused by the client return url itself, we should not open it again.
-              if (session.error?.errorType != 'clientReturnUrl') {
-                // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
-                await _openClientReturnUrl(session.clientReturnURL!, alwaysOpenExternally: true, silentFailure: true);
-              }
-              if (context.mounted) popToHome(context);
-            } else {
-              if (Platform.isIOS) {
-                _displayArrowBack.value = true;
-              } else {
-                _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
-                popToHome(context);
-              }
+  Widget _buildErrorScreen(SessionState session) {
+    return ValueListenableBuilder(
+      valueListenable: _displayArrowBack,
+      builder: (BuildContext context, bool displayArrowBack, Widget? child) {
+        if (displayArrowBack) {
+          return const ArrowBack(
+            type: ArrowBackType.error,
+          );
+        }
+        return child ?? Container();
+      },
+      child: SessionErrorScreen(
+        error: session.error,
+        onTapClose: () async {
+          if (widget.arguments.wizardActive) {
+            popToWizard(context);
+          } else if (session.continueOnSecondDevice) {
+            popToHome(context);
+          } else if (session.clientReturnURL != null && !session.clientReturnURL!.isPhoneNumber) {
+            // If the error was caused by the client return url itself, we should not open it again.
+            if (session.error?.errorType != 'clientReturnUrl') {
+              // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
+              await _openClientReturnUrl(session.clientReturnURL!, alwaysOpenExternally: true, silentFailure: true);
             }
-          },
-        ),
-      );
+            if (mounted) {
+              popToHome(context);
+            }
+          } else {
+            if (Platform.isIOS) {
+              _displayArrowBack.value = true;
+            } else {
+              _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+              popToHome(context);
+            }
+          }
+        },
+      ),
+    );
+  }
 
   Widget _buildLoadingScreen(bool isIssuance) => SessionScaffold(
         body: Center(
