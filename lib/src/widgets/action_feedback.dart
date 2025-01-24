@@ -25,11 +25,6 @@ class ActionFeedback extends StatelessWidget {
     required this.onDismiss,
   });
 
-  void dismiss(BuildContext context) {
-    Navigator.of(context).pop();
-    onDismiss();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -37,7 +32,7 @@ class ActionFeedback extends StatelessWidget {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, popResult) {
-        dismiss(context);
+        onDismiss();
       },
       child: SessionScaffold(
         appBarTitle: success ? 'disclosure.feedback.header.success' : 'ui.error',
@@ -70,7 +65,7 @@ class ActionFeedback extends StatelessWidget {
           actions: [
             YiviThemedButton(
               label: 'action_feedback.ok',
-              onPressed: () => dismiss(context),
+              onPressed: onDismiss,
             ),
           ],
         ),

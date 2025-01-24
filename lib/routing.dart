@@ -89,14 +89,14 @@ class Routing {
       // pass
     }
 
-    // Wrap the route in a `willPopScope` that denies Android back presses
+    // Wrap the route in a `PopScope` that denies Android back presses
     // if the route is an initial route
     return MaterialPageRoute(
       builder: (BuildContext context) {
         return PopScope(
           canPop: _canPop(settings, context),
           onPopInvokedWithResult: (didPop, popResult) {
-            if (!didPop) {
+            if (_isRootRoute(settings) && settings.name != HomeScreen.routeName) {
               IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
             }
           },
