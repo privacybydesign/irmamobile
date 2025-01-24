@@ -289,10 +289,10 @@ class IrmaRepository {
 
     return _enrollmentEventSubject.where((event) {
       switch (event.runtimeType) {
-        case EnrollmentSuccessEvent _:
+        case const (EnrollmentSuccessEvent):
           preferences.setLongPin(pin.length != 5);
           return true;
-        case EnrollmentFailureEvent _:
+        case const (EnrollmentFailureEvent):
           return true;
         default:
           return false;
@@ -334,11 +334,11 @@ class IrmaRepository {
 
     return _authenticationEventSubject.where((event) {
       switch (event.runtimeType) {
-        case AuthenticationSuccessEvent _:
+        case const (AuthenticationSuccessEvent):
           preferences.setLongPin(pin.length != 5);
           return true;
-        case AuthenticationFailedEvent _:
-        case AuthenticationErrorEvent _:
+        case const (AuthenticationFailedEvent):
+        case const (AuthenticationErrorEvent):
           return true;
         default:
           return false;
@@ -351,12 +351,12 @@ class IrmaRepository {
 
     return _changePinEventSubject.where((event) {
       switch (event.runtimeType) {
-        case ChangePinSuccessEvent _:
+        case const (ChangePinSuccessEvent):
           // Change pin length
           preferences.setLongPin(newPin.length != 5);
           return true;
-        case ChangePinFailedEvent _:
-        case ChangePinErrorEvent _:
+        case const (ChangePinFailedEvent):
+        case const (ChangePinErrorEvent):
           return true;
         default:
           return false;
