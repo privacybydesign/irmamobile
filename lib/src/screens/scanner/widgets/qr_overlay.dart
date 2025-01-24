@@ -56,7 +56,7 @@ class QROverlay extends CustomPainter {
 
     // transparent overlay
     final paint = Paint()
-      ..color = overlayColor.withOpacity(0.5)
+      ..color = overlayColor.withAlpha(128)
       ..style = PaintingStyle.fill;
     final Path path = Path();
     path.lineTo(0, 0);

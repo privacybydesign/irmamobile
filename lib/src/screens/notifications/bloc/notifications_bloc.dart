@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../data/irma_repository.dart';
 import '../../../sentry/sentry.dart';

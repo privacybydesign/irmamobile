@@ -1,4 +1,4 @@
-import 'package:meta/meta.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../../models/session.dart';
 import 'validation_state.dart';

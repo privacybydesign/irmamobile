@@ -41,8 +41,6 @@ class CredentialStatusNotification extends Notification {
       case CredentialStatusNotificationType.expiringSoon:
         typeTranslationKey = 'expiring_soon';
         break;
-      default:
-        throw Exception('Unknown notification type');
     }
 
     return InternalTranslatedContent(

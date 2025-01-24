@@ -8,7 +8,7 @@ import '../../models/credentials.dart';
 import '../../models/log_entry.dart';
 
 class LogEntries extends UnmodifiableListView<LogEntry> {
-  LogEntries(Iterable<LogEntry> list) : super(list);
+  LogEntries(super.list);
 }
 
 class HistoryState {

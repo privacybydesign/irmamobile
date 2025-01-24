@@ -289,10 +289,10 @@ class IrmaRepository {
 
     return _enrollmentEventSubject.where((event) {
       switch (event.runtimeType) {
-        case EnrollmentSuccessEvent:
+        case EnrollmentSuccessEvent _:
           preferences.setLongPin(pin.length != 5);
           return true;
-        case EnrollmentFailureEvent:
+        case EnrollmentFailureEvent _:
           return true;
         default:
           return false;
@@ -334,11 +334,11 @@ class IrmaRepository {
 
     return _authenticationEventSubject.where((event) {
       switch (event.runtimeType) {
-        case AuthenticationSuccessEvent:
+        case AuthenticationSuccessEvent _:
           preferences.setLongPin(pin.length != 5);
           return true;
-        case AuthenticationFailedEvent:
-        case AuthenticationErrorEvent:
+        case AuthenticationFailedEvent _:
+        case AuthenticationErrorEvent _:
           return true;
         default:
           return false;
@@ -351,12 +351,12 @@ class IrmaRepository {
 
     return _changePinEventSubject.where((event) {
       switch (event.runtimeType) {
-        case ChangePinSuccessEvent:
+        case ChangePinSuccessEvent _:
           // Change pin length
           preferences.setLongPin(newPin.length != 5);
           return true;
-        case ChangePinFailedEvent:
-        case ChangePinErrorEvent:
+        case ChangePinFailedEvent _:
+        case ChangePinErrorEvent _:
           return true;
         default:
           return false;
@@ -484,7 +484,7 @@ class IrmaRepository {
     );
   }
 
-  final List<_ExternalBrowserCredtype> externalBrowserCredtypes = const [
+  final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
     _ExternalBrowserCredtype(cred: 'pbdf.gemeente.address', os: 'ios'),
     _ExternalBrowserCredtype(cred: 'pbdf.gemeente.personalData', os: 'ios'),
     _ExternalBrowserCredtype(cred: 'pbdf.pbdf.idin', os: 'android'),
@@ -500,7 +500,7 @@ class IrmaRepository {
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
-      (irmaConfiguration) => externalBrowserCredtypes
+      (irmaConfiguration) => _externalBrowserCredtypes
           .where((type) => type.os == Platform.operatingSystem)
           .map((type) => irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ?? [])
           .expand((v) => v)

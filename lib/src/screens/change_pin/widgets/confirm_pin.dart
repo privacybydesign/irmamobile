@@ -19,18 +19,20 @@ class ConfirmPin extends StatelessWidget {
     required this.newPinNotifier,
   });
 
-  StringCallback _showConfirmDialog(BuildContext context) => (String pin) async {
-        final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) => const ConfirmPinResetDialog(),
-        );
+  StringCallback _showConfirmDialog(BuildContext context) {
+    return (String pin) async {
+      final bool? confirmed = await showDialog(
+        context: context,
+        builder: (BuildContext context) => const ConfirmPinResetDialog(),
+      );
 
-        if (confirmed ?? false) {
-          confirmNewPin(pin);
-        } else {
-          cancel();
-        }
-      };
+      if (confirmed ?? false) {
+        confirmNewPin(pin);
+      } else {
+        cancel();
+      }
+    };
+  }
 
   @override
   Widget build(BuildContext context) {

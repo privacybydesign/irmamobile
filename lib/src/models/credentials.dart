@@ -10,7 +10,7 @@ import 'translated_value.dart';
 part 'credentials.g.dart';
 
 class Credentials extends UnmodifiableMapView<String, Credential> {
-  Credentials(Map<String, Credential> map) : super(map);
+  Credentials(super.map);
 
   factory Credentials.fromRaw({
     required IrmaConfiguration irmaConfiguration,

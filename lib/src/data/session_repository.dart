@@ -13,7 +13,7 @@ import 'irma_repository.dart';
 
 // Typedefs are still experimental in Flutter. Therefore, we use inheritance for now.
 class SessionStates extends UnmodifiableMapView<int, SessionState> {
-  SessionStates(Map<int, SessionState> map) : super(map);
+  SessionStates(super.map);
 }
 
 class SessionRepository {

@@ -42,7 +42,7 @@ class IrmaNavBar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade600.withOpacity(0.5),
+            color: Colors.grey.shade600.withAlpha(128),
             blurRadius: 10.0,
             spreadRadius: 1.0,
             offset: const Offset(0, 7),
