@@ -29,6 +29,7 @@ import '../../src/util/combine.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
 import 'src/screens/scanner/util/open_scanner.dart';
+import 'src/widgets/irma_repository_provider.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -50,7 +51,7 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-  final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
+  late final DetectRootedDeviceIrmaPrefsRepository _detectRootedDeviceRepo;
 
   StreamSubscription<Pointer?>? _pointerSubscription;
   StreamSubscription<Event>? _dataClearSubscription;
@@ -125,6 +126,13 @@ class AppState extends State<App> with WidgetsBindingObserver {
       widget.irmaRepository.preferences.setLastSchemeUpdate(DateTime.now());
       widget.irmaRepository.bridgedDispatch(UpdateSchemesEvent());
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final repo = IrmaRepositoryProvider.of(context);
+    _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences);
   }
 
   @override

@@ -28,7 +28,7 @@ class PinScreen extends StatefulWidget {
 }
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
-  final _pinBloc = PinBloc();
+  late final PinBloc _pinBloc;
 
   StreamSubscription? _pinBlocSubscription;
 
@@ -36,10 +36,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    if (widget.initialEvent != null) {
-      _pinBloc.add(widget.initialEvent!);
-    }
   }
 
   @override
@@ -47,6 +43,12 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     super.didChangeDependencies();
 
     final repo = IrmaRepositoryProvider.of(context);
+    _pinBloc = PinBloc(repo);
+
+    if (widget.initialEvent != null) {
+      _pinBloc.add(widget.initialEvent!);
+    }
+
     repo.getBlockTime().first.then((blockedUntil) {
       if (blockedUntil == null) {
         return;
@@ -170,7 +172,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
                   void submit(String pin) {
                     _pinBloc.add(
-                      Unlock(pin),
+                      Unlock(pin: pin, repo: IrmaRepositoryProvider.of(context)),
                     );
                   }
 

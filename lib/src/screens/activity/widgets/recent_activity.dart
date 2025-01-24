@@ -27,7 +27,7 @@ class RecentActivity extends StatefulWidget {
 }
 
 class _RecentActivityState extends State<RecentActivity> {
-  final HistoryRepository _historyRepo = HistoryRepository();
+  late final HistoryRepository _historyRepo;
   late StreamSubscription _repoStateSubscription;
 
   @override
@@ -45,6 +45,12 @@ class _RecentActivityState extends State<RecentActivity> {
         }
       });
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
   }
 
   @override

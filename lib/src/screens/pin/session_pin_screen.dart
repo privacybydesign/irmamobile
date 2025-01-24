@@ -9,6 +9,7 @@ import '../../data/irma_repository.dart';
 import '../../models/session_events.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../error/session_error_screen.dart';
@@ -31,8 +32,8 @@ class SessionPinScreen extends StatefulWidget {
 }
 
 class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBindingObserver {
-  final _repo = IrmaRepository.get();
-  final _pinBloc = PinBloc();
+  late final IrmaRepository _repo;
+  late final PinBloc _pinBloc;
   final _navigatorKey = GlobalKey();
 
   StreamSubscription? _pinBlocSubscription;
@@ -56,6 +57,13 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         }
       });
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _repo = IrmaRepositoryProvider.of(context);
+    _pinBloc = PinBloc(_repo);
   }
 
   @override
@@ -108,7 +116,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   void _submit(bool enabled, String pin) {
     if (!enabled) return;
     _pinBloc.add(
-      SessionPin(widget.sessionID, pin),
+      SessionPin(sessionID: widget.sessionID, pin: pin, repo: _repo),
     );
   }
 

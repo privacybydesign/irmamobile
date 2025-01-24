@@ -38,12 +38,12 @@ class HistoryState {
 class HistoryRepository {
   static const _serverNameOptional = [LogEntryType.issuing, LogEntryType.removal];
 
-  IrmaRepository repo = IrmaRepository.get();
+  IrmaRepository repo;
 
   final _historyStateSubject = BehaviorSubject<HistoryState>();
   late StreamSubscription _historyStateSubscription;
 
-  HistoryRepository() {
+  HistoryRepository(this.repo) {
     _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(

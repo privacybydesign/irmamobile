@@ -14,6 +14,7 @@ import '../../models/session_state.dart';
 import '../../sentry/sentry.dart';
 import '../../util/combine.dart';
 import '../../util/navigation.dart';
+import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
@@ -39,13 +40,19 @@ class SessionScreen extends StatefulWidget {
 }
 
 class _SessionScreenState extends State<SessionScreen> {
-  final IrmaRepository _repo = IrmaRepository.get();
+  late final IrmaRepository _repo;
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
   late Stream<SessionState> _sessionStateStream;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _repo = IrmaRepositoryProvider.of(context);
     _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID);
   }
 

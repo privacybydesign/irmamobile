@@ -9,16 +9,18 @@ abstract class DetectRootedDeviceRepository {
 }
 
 class DetectRootedDeviceIrmaPrefsRepository implements DetectRootedDeviceRepository {
+  final IrmaPreferences _preferences;
+
+  DetectRootedDeviceIrmaPrefsRepository({required IrmaPreferences preferences}) : _preferences = preferences;
+
   @override
   Stream<bool> hasAcceptedRootedDeviceRisk() {
-    final irmaPrefs = IrmaPreferences.get();
-    return irmaPrefs.getAcceptedRootedRisk();
+    return _preferences.getAcceptedRootedRisk();
   }
 
   @override
   Future<void> setHasAcceptedRootedDeviceRisk() async {
-    final irmaPrefs = IrmaPreferences.get();
-    irmaPrefs.setAcceptedRootedRisk(true);
+    _preferences.setAcceptedRootedRisk(true);
   }
 
   @override
