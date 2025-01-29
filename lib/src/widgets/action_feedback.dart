@@ -31,9 +31,6 @@ class ActionFeedback extends StatelessWidget {
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, popResult) {
-        onDismiss();
-      },
       child: SessionScaffold(
         appBarTitle: success ? 'disclosure.feedback.header.success' : 'ui.error',
         onDismiss: onDismiss,
