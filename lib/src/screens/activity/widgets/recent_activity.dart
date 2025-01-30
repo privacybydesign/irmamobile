@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
@@ -31,26 +32,21 @@ class _RecentActivityState extends State<RecentActivity> {
   late StreamSubscription _repoStateSubscription;
 
   @override
-  void initState() {
-    super.initState();
-    //Delay to make build context available
-    Future.delayed(Duration.zero).then((_) async {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // only init the _historyRepo once by trying to access it and initializing when a late init error was thrown
+    // we do this because we can't access the build context in initState() and we only want to do it once
+    try {
+      _historyRepo;
+    } catch (_) {
       _loadLogs();
-      if (!mounted) {
-        return;
-      }
+      _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
       _repoStateSubscription = IrmaRepositoryProvider.of(context).getEvents().listen((event) {
         if (event is SuccessSessionEvent) {
           _loadLogs();
         }
       });
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
+    }
   }
 
   @override
