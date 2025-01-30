@@ -44,7 +44,7 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) => SchemeManage
       keyshareServer: json['KeyshareServer'] as String,
       keyshareWebsite: json['KeyshareWebsite'] as String,
       keyshareAttribute: json['KeyshareAttribute'] as String,
-      timestamp: json['Timestamp'] as int,
+      timestamp: (json['Timestamp'] as num).toInt(),
       demo: json['Demo'] as bool,
     );
 
@@ -59,8 +59,8 @@ Map<String, dynamic> _$RequestorSchemeToJson(RequestorScheme instance) => <Strin
     };
 
 AppVersion _$AppVersionFromJson(Map<String, dynamic> json) => AppVersion(
-      android: json['Android'] as int,
-      iOS: json['IOS'] as int,
+      android: (json['Android'] as num).toInt(),
+      iOS: (json['IOS'] as num).toInt(),
     );
 
 Issuer _$IssuerFromJson(Map<String, dynamic> json) => Issuer(
@@ -107,7 +107,7 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) => Credential
 
 AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) => AttributeType(
       id: json['ID'] as String,
-      index: json['Index'] as int,
+      index: (json['Index'] as num).toInt(),
       credentialTypeId: json['CredentialTypeID'] as String,
       issuerId: json['IssuerID'] as String,
       schemeManagerId: json['SchemeManagerID'] as String,
@@ -118,6 +118,6 @@ AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) => AttributeTyp
           ? const TranslatedValue.empty()
           : TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>?),
       optional: json['Optional'] == null ? false : AttributeType._parseOptional(json['Optional'] as String?),
-      displayIndex: json['DisplayIndex'] as int?,
+      displayIndex: (json['DisplayIndex'] as num?)?.toInt(),
       displayHint: json['DisplayHint'] as String?,
     );

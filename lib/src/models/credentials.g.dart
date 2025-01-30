@@ -10,8 +10,8 @@ RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) => RawCredentia
       id: json['ID'] as String,
       issuerId: json['IssuerID'] as String,
       schemeManagerId: json['SchemeManagerID'] as String,
-      signedOn: json['SignedOn'] as int,
-      expires: json['Expires'] as int,
+      signedOn: (json['SignedOn'] as num).toInt(),
+      expires: (json['Expires'] as num).toInt(),
       attributes: (json['Attributes'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
       ),

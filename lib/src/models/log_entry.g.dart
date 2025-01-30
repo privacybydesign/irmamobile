@@ -17,9 +17,9 @@ Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) => <String, d
     };
 
 LogEntry _$LogEntryFromJson(Map<String, dynamic> json) => LogEntry(
-      id: json['ID'] as int,
+      id: (json['ID'] as num).toInt(),
       type: _toLogEntryType(json['Type'] as String),
-      time: _epochSecondsToDateTime(json['Time'] as int),
+      time: _epochSecondsToDateTime((json['Time'] as num).toInt()),
       issuedCredentials: (json['IssuedCredentials'] as List<dynamic>)
           .map((e) => RawCredential.fromJson(e as Map<String, dynamic>))
           .toList(),

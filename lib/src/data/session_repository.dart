@@ -52,7 +52,7 @@ class SessionRepository {
     }
     return SessionState(
       sessionID: event.sessionID,
-      clientReturnURL: ReturnURL.parse(event.request.returnURL),
+      clientReturnURL: null,
       continueOnSecondDevice: event.request.continueOnSecondDevice,
       previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
       status: SessionStatus.initialized,

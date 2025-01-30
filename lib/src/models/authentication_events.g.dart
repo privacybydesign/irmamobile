@@ -22,8 +22,8 @@ AuthenticationSuccessEvent _$AuthenticationSuccessEventFromJson(Map<String, dyna
 Map<String, dynamic> _$AuthenticationSuccessEventToJson(AuthenticationSuccessEvent instance) => <String, dynamic>{};
 
 AuthenticationFailedEvent _$AuthenticationFailedEventFromJson(Map<String, dynamic> json) => AuthenticationFailedEvent(
-      remainingAttempts: json['RemainingAttempts'] as int,
-      blockedDuration: json['BlockedDuration'] as int,
+      remainingAttempts: (json['RemainingAttempts'] as num).toInt(),
+      blockedDuration: (json['BlockedDuration'] as num).toInt(),
     );
 
 Map<String, dynamic> _$AuthenticationFailedEventToJson(AuthenticationFailedEvent instance) => <String, dynamic>{

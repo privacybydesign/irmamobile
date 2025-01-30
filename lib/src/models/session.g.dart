@@ -29,7 +29,6 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
     u: json['u'] as String,
     irmaqr: json['irmaqr'] as String,
     continueOnSecondDevice: json['continueOnSecondDevice'] as bool? ?? false,
-    returnURL: json['returnURL'] as String?,
   );
 }
 
@@ -37,7 +36,6 @@ Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) => <String,
       'u': instance.u,
       'irmaqr': instance.irmaqr,
       'continueOnSecondDevice': instance.continueOnSecondDevice,
-      'returnURL': instance.returnURL,
     };
 
 SessionError _$SessionErrorFromJson(Map<String, dynamic> json) => SessionError(
@@ -45,7 +43,7 @@ SessionError _$SessionErrorFromJson(Map<String, dynamic> json) => SessionError(
       info: json['Info'] as String,
       wrappedError: json['WrappedError'] as String? ?? '',
       stack: json['Stack'] as String? ?? '',
-      remoteStatus: json['RemoteStatus'] as int?,
+      remoteStatus: (json['RemoteStatus'] as num?)?.toInt(),
       remoteError:
           json['RemoteError'] == null ? null : RemoteError.fromJson(json['RemoteError'] as Map<String, dynamic>),
     );
@@ -60,7 +58,7 @@ Map<String, dynamic> _$SessionErrorToJson(SessionError instance) => <String, dyn
     };
 
 RemoteError _$RemoteErrorFromJson(Map<String, dynamic> json) => RemoteError(
-      status: json['status'] as int?,
+      status: (json['status'] as num?)?.toInt(),
       errorName: json['error'] as String?,
       description: json['description'] as String?,
       message: json['message'] as String?,

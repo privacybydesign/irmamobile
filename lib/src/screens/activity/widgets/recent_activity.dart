@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
