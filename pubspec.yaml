@@ -60,7 +60,7 @@ flutter_native_splash:
   color: "F7F7F7"
   android_disable_fullscreen: true
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
