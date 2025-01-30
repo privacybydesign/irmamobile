@@ -316,13 +316,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             disclosureChoices: disclosureChoices,
           ));
         } else {
-          _repo.dispatch(
-            RespondPermissionEvent(
-              sessionID: sessionID,
-              proceed: true,
-              disclosureChoices: disclosureChoices,
-            ),
-            isBridgedEvent: true,
+          _repo.bridgedDispatch(
+            RespondPermissionEvent(sessionID: sessionID, proceed: true, disclosureChoices: disclosureChoices),
           );
         }
       }
@@ -341,14 +336,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       yield state.parentState;
     } else if (event is DisclosurePermissionDismissed) {
       yield DisclosurePermissionFinished();
-      _repo.dispatch(
-        RespondPermissionEvent(
-          sessionID: sessionID,
-          proceed: false,
-          disclosureChoices: [],
-        ),
-        isBridgedEvent: true,
-      );
+      _repo.bridgedDispatch(RespondPermissionEvent(sessionID: sessionID, proceed: false, disclosureChoices: []));
     } else {
       throw UnsupportedError(
           'Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');

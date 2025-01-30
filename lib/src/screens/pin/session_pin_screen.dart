@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/irma_repository.dart';
@@ -15,7 +14,6 @@ import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../error/session_error_screen.dart';
 import '../home/home_screen.dart';
 import '../reset_pin/reset_pin_screen.dart';
-
 import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
 import 'bloc/pin_state.dart';
@@ -75,10 +73,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   }
 
   void _cancel() {
-    _repo.dispatch(
-      RespondPinEvent(sessionID: widget.sessionID, proceed: false),
-      isBridgedEvent: true,
-    );
+    _repo.bridgedDispatch(RespondPinEvent(sessionID: widget.sessionID, proceed: false));
   }
 
   void _handleInvalidPin(PinState state) {

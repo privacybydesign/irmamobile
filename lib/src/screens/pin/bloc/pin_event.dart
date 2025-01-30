@@ -32,14 +32,12 @@ class SessionPin extends Authenticate {
   IrmaRepository repo;
   int sessionID;
   String pin;
+
   SessionPin({required this.repo, required this.sessionID, required this.pin});
 
   @override
   Future<AuthenticationEvent> dispatch() {
-    repo.dispatch(
-      RespondPinEvent(sessionID: sessionID, pin: pin, proceed: true),
-      isBridgedEvent: true,
-    );
+    repo.bridgedDispatch(RespondPinEvent(sessionID: sessionID, pin: pin, proceed: true));
 
     final resultEvent = repo.getEvents().firstWhere((event) {
       return event is SessionEvent && event.sessionID == sessionID;
