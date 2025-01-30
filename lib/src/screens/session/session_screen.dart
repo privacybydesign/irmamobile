@@ -107,7 +107,8 @@ class _SessionScreenState extends State<SessionScreen> {
   /// Opens the given clientReturnUrl in the in-app browser, if the url is suitable for the in-app browser, otherwise
   /// the URL is opened externally. In case the URL cannot be opened, a FailureSessionEvent is dispatched. In case
   /// of a silentFailure, only an error report is made for Sentry.
-  Future<bool> _openClientReturnUrl(ReturnURL clientReturnUrl, {
+  Future<bool> _openClientReturnUrl(
+    ReturnURL clientReturnUrl, {
     bool alwaysOpenExternally = false,
     bool silentFailure = false,
   }) async {
@@ -160,7 +161,7 @@ class _SessionScreenState extends State<SessionScreen> {
 
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
     final feedbackType =
-    session.status == SessionStatus.success ? DisclosureFeedbackType.success : DisclosureFeedbackType.canceled;
+        session.status == SessionStatus.success ? DisclosureFeedbackType.success : DisclosureFeedbackType.canceled;
 
     return DisclosureFeedbackScreen(
       feedbackType: feedbackType,
@@ -258,7 +259,7 @@ class _SessionScreenState extends State<SessionScreen> {
     } else if (widget.arguments.wizardActive || session.didIssuePreviouslyLaunchedCredential) {
       // If the wizard is active or this concerns a combined session, pop accordingly.
       WidgetsBinding.instance.addPostFrameCallback(
-            (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
+        (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
       );
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
@@ -270,10 +271,10 @@ class _SessionScreenState extends State<SessionScreen> {
         type: session.status != SessionStatus.success
             ? ArrowBackType.error
             : session.isSignatureSession ?? false
-            ? ArrowBackType.signature
-            : session.isIssuanceSession
-            ? ArrowBackType.issuance
-            : ArrowBackType.disclosure,
+                ? ArrowBackType.signature
+                : session.isIssuanceSession
+                    ? ArrowBackType.issuance
+                    : ArrowBackType.disclosure,
       );
     } else {
       // On Android just background the app to let the user return to the previous activity
@@ -326,90 +327,83 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildLoadingScreen(bool isIssuance) {
-      return SessionScaffold(
-        body: Center(
-          child: LoadingIndicator(),
-        ),
-        onDismiss: () => _dismissSession(),
-        appBarTitle: _getAppBarTitle(isIssuance),
-      );
+    return SessionScaffold(
+      body: Center(
+        child: LoadingIndicator(),
+      ),
+      onDismiss: () => _dismissSession(),
+      appBarTitle: _getAppBarTitle(isIssuance),
+    );
   }
 
   @override
-  Widget build(BuildContext context) =>
-      StreamBuilder(
-        // This screen is designed to only build when dealing with a session status change. Therefore
-        // we filter the stream to only include distinct statuses. State changes within a session status
-        // should be handled by stateful child widgets of this screen. We make an exception for the
-        // requestDisclosurePermission status such that the disclosure candidates are being refreshed in
-        // an issuance-in-disclosure session.
-          stream: combine2(
-            _repo.getLocked(),
-            _sessionStateStream.distinct(
-                    (prev, curr) =>
-                prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
-          ),
-          builder: (BuildContext context, AsyncSnapshot<CombinedState2<bool, SessionState>> snapshot) {
-            if (!snapshot.hasData) {
-              return _buildLoadingScreen(widget.arguments.sessionType == 'issuing');
+  Widget build(BuildContext context) => StreamBuilder(
+      // This screen is designed to only build when dealing with a session status change. Therefore
+      // we filter the stream to only include distinct statuses. State changes within a session status
+      // should be handled by stateful child widgets of this screen. We make an exception for the
+      // requestDisclosurePermission status such that the disclosure candidates are being refreshed in
+      // an issuance-in-disclosure session.
+      stream: combine2(
+        _repo.getLocked(),
+        _sessionStateStream.distinct(
+            (prev, curr) => prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
+      ),
+      builder: (BuildContext context, AsyncSnapshot<CombinedState2<bool, SessionState>> snapshot) {
+        if (!snapshot.hasData) {
+          return _buildLoadingScreen(widget.arguments.sessionType == 'issuing');
+        }
+
+        // Prevent stealing focus from pin screen in case app is locked
+        final locked = snapshot.data!.a;
+        Navigator.of(context).focusNode.enclosingScope?.canRequestFocus = !locked;
+
+        final session = snapshot.data!.b;
+
+        switch (session.status) {
+          case SessionStatus.pairing:
+            return PairingRequired(
+              pairingCode: session.pairingCode ?? '',
+              onDismiss: () => _dismissSession(),
+            );
+          case SessionStatus.requestDisclosurePermission:
+            if (session.canBeFinished ?? false) {
+              return DisclosurePermission(
+                sessionId: session.sessionID,
+                requestor: session.serverName,
+                returnURL: session.clientReturnURL,
+                repo: _repo,
+              );
+            } else {
+              final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
+              return DisclosureFeedbackScreen(
+                feedbackType: DisclosureFeedbackType.notSatisfiable,
+                isSignatureSession: session.isSignatureSession,
+                otherParty: serverName,
+                onDismiss: popToHome,
+              );
             }
-
-            // Prevent stealing focus from pin screen in case app is locked
-            final locked = snapshot.data!.a;
-            Navigator
-                .of(context)
-                .focusNode
-                .enclosingScope
-                ?.canRequestFocus = !locked;
-
-            final session = snapshot.data!.b;
-
-            switch (session.status) {
-              case SessionStatus.pairing:
-                return PairingRequired(
-                  pairingCode: session.pairingCode ?? '',
-                  onDismiss: () => _dismissSession(),
-                );
-              case SessionStatus.requestDisclosurePermission:
-                if (session.canBeFinished ?? false) {
-                  return DisclosurePermission(
-                    sessionId: session.sessionID,
-                    requestor: session.serverName,
-                    returnURL: session.clientReturnURL,
-                    repo: _repo,
-                  );
-                } else {
-                  final serverName = session.serverName.name.translate(
-                      FlutterI18n.currentLocale(context)!.languageCode);
-                  return DisclosureFeedbackScreen(
-                    feedbackType: DisclosureFeedbackType.notSatisfiable,
-                    isSignatureSession: session.isSignatureSession,
-                    otherParty: serverName,
-                    onDismiss: popToHome,
-                  );
-                }
-              case SessionStatus.requestIssuancePermission:
-                return IssuancePermission(
-                  satisfiable: session.satisfiable!,
-                  issuedCredentials: session.issuedCredentials!,
-                  onDismiss: () => _dismissSession(),
-                  onGivePermission: () => _giveIssuancePermission(session),
-                );
-              case SessionStatus.requestPin:
-                return SessionPinScreen(
-                  sessionID: widget.arguments.sessionID,
-                  title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
-                );
-              case SessionStatus.error:
-                HapticFeedback.heavyImpact();
-                return _buildErrorScreen(session);
-              case SessionStatus.success:
-                HapticFeedback.mediumImpact();
-                return _buildFinished(session);
-              case SessionStatus.canceled:
-                return _buildFinished(session);
-              default:
-                return _buildLoadingScreen(session.isIssuanceSession);
-            }
-          });
+          case SessionStatus.requestIssuancePermission:
+            return IssuancePermission(
+              satisfiable: session.satisfiable!,
+              issuedCredentials: session.issuedCredentials!,
+              onDismiss: () => _dismissSession(),
+              onGivePermission: () => _giveIssuancePermission(session),
+            );
+          case SessionStatus.requestPin:
+            return SessionPinScreen(
+              sessionID: widget.arguments.sessionID,
+              title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
+            );
+          case SessionStatus.error:
+            HapticFeedback.heavyImpact();
+            return _buildErrorScreen(session);
+          case SessionStatus.success:
+            HapticFeedback.mediumImpact();
+            return _buildFinished(session);
+          case SessionStatus.canceled:
+            return _buildFinished(session);
+          default:
+            return _buildLoadingScreen(session.isIssuanceSession);
+        }
+      });
 }
