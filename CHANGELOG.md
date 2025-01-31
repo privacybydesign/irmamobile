@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- Improved screen reader support
+- Removed returnUrl option in QR codes (was deprecated for over 5 years)
+- Fix all Flutter related linter warnings (e.g. WillPopScope, context across async gaps & super.key)
+- Upgrade Flutter to 3.27.2 (but disabled Impeller on Android)
+- Fix meetups link
+- Reduced log bloat by not printing the entire configuration
 
 ## [7.5.7] - 2024-12-13
 ### Changed
