@@ -57,7 +57,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: Row(
               children: [
-                avatar,
+                ExcludeSemantics(child: avatar),
                 SizedBox(
                   width: theme.defaultSpacing - theme.tinySpacing,
                 ),

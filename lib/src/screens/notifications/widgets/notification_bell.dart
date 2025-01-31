@@ -29,11 +29,14 @@ class NotificationBell extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            IrmaIconButton(
-              padding: EdgeInsets.zero,
-              size: 32,
-              icon: Icons.notifications_outlined,
-              onTap: onTap,
+            // semantics are already defined above
+            ExcludeSemantics(
+              child: IrmaIconButton(
+                padding: EdgeInsets.zero,
+                size: 32,
+                icon: Icons.notifications_outlined,
+                onTap: onTap,
+              ),
             ),
             if (showIndicator)
               Positioned(

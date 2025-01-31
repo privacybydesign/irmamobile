@@ -30,7 +30,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IrmaAvatar(logoPath: logo),
+        ExcludeSemantics(child: IrmaAvatar(logoPath: logo)),
         SizedBox(width: theme.tinySpacing + theme.smallSpacing),
         Expanded(
           child: Column(

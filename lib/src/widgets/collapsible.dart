@@ -15,12 +15,12 @@ class Collapsible extends StatefulWidget {
   final bool initiallyExpanded;
 
   const Collapsible({
-    Key? key,
+    super.key,
     required this.header,
     required this.content,
     this.parentScrollController,
     this.initiallyExpanded = false,
-  }) : super(key: key);
+  });
 
   @override
   State<Collapsible> createState() => _CollapsibleState();
@@ -30,6 +30,14 @@ class _CollapsibleState extends State<Collapsible> {
   static const _expandDuration = Duration(milliseconds: 250); // expand duration of _Collapsible
 
   bool _isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _isExpanded = widget.initiallyExpanded;
+    });
+  }
 
   Future<void> _jumpToCollapsable() async {
     await Future.delayed(_expandDuration);
@@ -98,7 +106,9 @@ class _CollapsibleState extends State<Collapsible> {
         ),
         header: Expanded(
           child: Semantics(
-            button: true,
+            hint: _isExpanded
+                ? FlutterI18n.translate(context, 'accessibility.collapse_hint')
+                : FlutterI18n.translate(context, 'accessibility.expand_hint'),
             label: _isExpanded
                 ? FlutterI18n.translate(context, 'accessibility.expanded')
                 : FlutterI18n.translate(context, 'accessibility.collapsed'),
@@ -122,7 +132,7 @@ class _CollapsibleState extends State<Collapsible> {
               vertical: theme.smallSpacing,
               horizontal: theme.defaultSpacing,
             ),
-            child: widget.content,
+            child: ExcludeSemantics(excluding: !_isExpanded, child: widget.content),
           ),
         ],
       ),
