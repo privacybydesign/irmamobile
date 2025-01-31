@@ -75,7 +75,14 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _repo = IrmaRepositoryProvider.of(context);
+    // only init it once... this will throw an error when we're accessing an uninitialized one,
+    // we then catch that and assign a value.
+    // we can't do this in initState because it doesn't have access to the BuildContext.
+    try {
+      _repo;
+    } catch (_) {
+      _repo = IrmaRepositoryProvider.of(context);
+    }
   }
 
   @override
