@@ -30,6 +30,8 @@ class RequestorHeader extends StatelessWidget {
 
   _showCredentialOptionsBottomSheet(BuildContext context) async {
     return showModalBottomSheet<void>(
+      enableDrag: true,
+      scrollControlDisabledMaxHeightRatio: 0.8,
       context: context,
       builder: (context) => RequestorVerificationExplanationBottomSheet(),
     );
@@ -144,18 +146,20 @@ class IssueWizardRequestorHeader extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => _RequestorHeaderBase(
-        textColor: textColor,
-        backgroundColor: backgroundColor,
-        avatar: _buildRequestorAvatar(
-          title: title,
-          image: image,
-        ),
-        mainText: Text(
-          title ?? '',
-          style: IrmaTheme.of(context).themeData.textTheme.headlineMedium,
-        ),
-      );
+  Widget build(BuildContext context) {
+    return _RequestorHeaderBase(
+      textColor: textColor,
+      backgroundColor: backgroundColor,
+      avatar: _buildRequestorAvatar(
+        title: title,
+        image: image,
+      ),
+      mainText: Text(
+        title ?? '',
+        style: IrmaTheme.of(context).themeData.textTheme.headlineMedium,
+      ),
+    );
+  }
 }
 
 // Contains the shared default styling and behavior for the header of the issue wizard and the disclosure session

@@ -206,7 +206,7 @@
         "explanation" : "Hoe controleren we?",
         "bottom_sheet": {
           "title": "Hoe controleren we organistaties?",
-          "content_markdown": "Organisaties die Yivi gebruiken kunnen ons vragen om een controle. Dit is geen verplichting, maar geeft gebruikers wel meer zekerheid.\\\n\\\n **Welke controles voeren wij uit?** Voordat een organisatie als gecontroleerd in Yivi staat lopen we de volgende zaken na: - Contactgegevens en contactpersonen - De bedrijfsnaam en het logo van de organisatie - De technische informatie  Pas alles klopt krijgt men in Yivi een vinkje en tonen wij het logo van de organisatie. \\\n\\\n**Wat kun je met deze informatie?**\\\n - Als de organisatie gecontroleerd is kun je gegevens veilig delen. - Is men niet gecontroleerd dan weten we niet zeker of alles klopt. Bij twijfel raden we aan om zelf contact op te nemen met de organisatie met wie je gegevens wil delen."
+          "content_markdown": "Organisaties die Yivi gebruiken kunnen ons vragen om een controle. Dit is geen verplichting, maar geeft gebruikers wel meer zekerheid.\\\n\\\n **Welke controles voeren wij uit?**\\\nVoordat een organisatie als gecontroleerd in Yivi staat lopen we de volgende zaken na: - Contactgegevens en contactpersonen - De bedrijfsnaam en het logo van de organisatie - De technische informatie  Pas alles klopt krijgt men in Yivi een vinkje en tonen wij het logo van de organisatie. \\\n\\\n**Wat kun je met deze informatie?**\\\n - Als de organisatie gecontroleerd is kun je gegevens veilig delen. - Is men niet gecontroleerd dan weten we niet zeker of alles klopt. Bij twijfel raden we aan om zelf contact op te nemen met de organisatie met wie je gegevens wil delen."
         }
       }
     },
