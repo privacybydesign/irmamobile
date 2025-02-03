@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/requestor_header.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
@@ -45,6 +46,14 @@ Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBi
   // Expect the choices screen. It should not show change choice options.
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
   expect(find.text('Change choice'), findsNothing);
+
+  final requestorHeaderFinder = find.byType(RequestorHeader);
+  await evaluateRequestorHeader(
+    tester,
+    requestorHeaderFinder,
+    localizedRequestorName: 'demo.privacybydesign.foundation',
+    isVerified: false,
+  );
 
   await tester.tapAndSettle(find.text('Share data'));
 

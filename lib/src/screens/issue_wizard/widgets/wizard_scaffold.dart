@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/issuer_verifier_header.dart';
+import '../../../widgets/requestor_header.dart';
 
 class WizardScaffold extends StatelessWidget {
   final Image image;
@@ -44,7 +44,7 @@ class WizardScaffold extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              IssuerVerifierHeader(
+              IssueWizardRequestorHeader(
                 title: header,
                 image: image,
                 textColor: headerTextColor,

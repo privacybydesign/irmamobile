@@ -8,7 +8,7 @@ import 'package:irmamobile/src/widgets/collapsible.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';
 import 'package:irmamobile/src/widgets/irma_stepper.dart';
-import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
+import 'package:irmamobile/src/widgets/requestor_header.dart';
 import 'package:irmamobile/src/widgets/session_progress_indicator.dart';
 
 import 'helpers/helpers.dart';
@@ -39,7 +39,7 @@ void main() {
       expect(find.byType(WizardScaffold), findsOneWidget);
 
       // Expect to find the header
-      final headerFinder = find.byType(IssuerVerifierHeader);
+      final headerFinder = find.byType(IssueWizardRequestorHeader);
       expect(headerFinder, findsOneWidget);
 
       // Expect the header with the right text
@@ -52,7 +52,7 @@ void main() {
       );
 
       // Expect the right background color from Ivido
-      final headerWidget = headerFinder.evaluate().first.widget as IssuerVerifierHeader;
+      final headerWidget = headerFinder.evaluate().first.widget as IssueWizardRequestorHeader;
       expect(headerWidget.backgroundColor, const Color(0xffe7dffe));
 
       // Test the questions and answers
