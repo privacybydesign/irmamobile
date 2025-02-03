@@ -68,7 +68,6 @@ class ProvidedDisclosurePermission extends StatelessWidget {
         : DisclosurePermissionCloseDialog.show(context, onConfirm: onConfirmedDismiss);
 
     // Wrapped with PopScope to gain control over the behavior of the "go back" gesture
-    // Wrapped with PopScope to gain control over the behavior of the "go back" gesture
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, popResult) async {

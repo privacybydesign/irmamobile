@@ -74,14 +74,6 @@ class _SessionScreenState extends State<SessionScreen> {
     return isIssuance ? 'issuance.title' : 'disclosure.title';
   }
 
-  // void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}){
-  //   if (isBridgedEvent) {
-  //     _repo.bridgedDispatch(event);
-  //   } else {
-  //     _repo.dispatch(event);
-  //   }
-  // }
-
   void _dismissSession() {
     _repo.bridgedDispatch(DismissSessionEvent(sessionID: widget.arguments.sessionID));
   }
