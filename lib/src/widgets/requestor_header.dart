@@ -9,18 +9,15 @@ import 'irma_icon_indicator.dart';
 import 'requestor_verification_explanation_bottom_sheet.dart';
 import 'translated_text.dart';
 
-_buildRequestorAvatar({
-  required String? title,
-  Image? image,
-  String? imagePath,
-}) =>
-    IrmaAvatar(
-      size: 52,
-      logoImage: image,
-      logoPath: imagePath,
-      logoSemanticsLabel: title,
-      initials: title != '' ? title![0] : null,
-    );
+_buildRequestorAvatar({required String? title, Image? image, String? imagePath}) {
+  return IrmaAvatar(
+    size: 52,
+    logoImage: image,
+    logoPath: imagePath,
+    logoSemanticsLabel: title,
+    initials: title != '' ? title![0] : null,
+  );
+}
 
 class RequestorHeader extends StatelessWidget {
   final RequestorInfo? requestorInfo;
@@ -31,10 +28,12 @@ class RequestorHeader extends StatelessWidget {
     this.isVerified,
   });
 
-  _showCredentialOptionsBottomSheet(BuildContext context) async => showModalBottomSheet<void>(
-        context: context,
-        builder: (context) => RequestorVerificationExplanationBottomSheet(),
-      );
+  _showCredentialOptionsBottomSheet(BuildContext context) async {
+    return showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => RequestorVerificationExplanationBottomSheet(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +59,7 @@ class RequestorHeader extends StatelessWidget {
     if (isVerified != null) {
       final mainTextDefaultStyle = theme.themeData.textTheme.bodyMedium;
       String mainTextSuffixTranslationKey;
-      const double opacity = 0.15;
+      const int opacity = 40;
 
       // Set the subtitleTextWidget to a link
       subtitleTextWidget = GestureDetector(
@@ -72,10 +71,10 @@ class RequestorHeader extends StatelessWidget {
       );
 
       if (isVerified!) {
-        backgroundColorOverride = theme.success.withOpacity(opacity);
+        backgroundColorOverride = theme.success.withAlpha(opacity);
         mainTextSuffixTranslationKey = 'disclosure_permission.overview.requestor_verification.verified_suffix';
       } else {
-        backgroundColorOverride = theme.error.withOpacity(opacity);
+        backgroundColorOverride = theme.error.withAlpha(opacity);
         mainTextSuffixTranslationKey = 'disclosure_permission.overview.requestor_verification.unverified_suffix';
       }
 
@@ -103,7 +102,7 @@ class RequestorHeader extends StatelessWidget {
         text: TextSpan(
           children: [
             TextSpan(
-              text: localizedRequestorName + ' ',
+              text: '$localizedRequestorName ',
               style: mainTextDefaultStyle!.copyWith(
                 fontWeight: FontWeight.bold,
               ),
