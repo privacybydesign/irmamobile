@@ -42,6 +42,15 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    // we only want to execute the code below once, so we have to perform this hacky workaround
+    // in the future we would need to figure out a better way
+    try {
+      _pinBloc;
+      // return because the init already happened
+      return;
+    } catch (_) {
+      // intentionally kept empty...
+    }
     final repo = IrmaRepositoryProvider.of(context);
     _pinBloc = PinBloc(repo);
 

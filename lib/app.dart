@@ -221,7 +221,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                 canPop: settings.name != PinScreen.routeName,
                 onPopInvokedWithResult: (didPop, popResult) {
                   // On the pin screen, background instead of pop
-                  if (settings.name == PinScreen.routeName) {
+                  if (!didPop) {
                     widget.irmaRepository.bridgedDispatch(AndroidSendToBackgroundEvent());
                   }
                 },
