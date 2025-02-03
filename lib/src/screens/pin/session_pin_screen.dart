@@ -60,8 +60,13 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _repo = IrmaRepositoryProvider.of(context);
-    _pinBloc = PinBloc(_repo);
+    // only init _repo once...
+    try {
+      _repo;
+    } catch (_) {
+      _repo = IrmaRepositoryProvider.of(context);
+      _pinBloc = PinBloc(_repo);
+    }
   }
 
   @override

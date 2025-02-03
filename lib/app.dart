@@ -131,8 +131,13 @@ class AppState extends State<App> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final repo = IrmaRepositoryProvider.of(context);
-    _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences);
+    // only init _detectRootedDeviceRepo once...
+    try {
+      _detectRootedDeviceRepo;
+    } catch (_) {
+      final repo = IrmaRepositoryProvider.of(context);
+      _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences);
+    }
   }
 
   @override

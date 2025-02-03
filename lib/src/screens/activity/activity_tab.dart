@@ -48,7 +48,12 @@ class _ActivityTabState extends State<ActivityTab> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
+    // only init _historyRepo once...
+    try {
+      _historyRepo;
+    } catch (_) {
+      _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
+    }
   }
 
   @override
