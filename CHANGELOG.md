@@ -3,11 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [Unreleased]
 ### Changed
 - More differentiation between verified and unverified requestors during disclosure
-
-## Unreleased
 - Improved screen reader support
 - Removed returnUrl option in QR codes (was deprecated for over 5 years)
 - Fix all Flutter related linter warnings (e.g. WillPopScope, context across async gaps & super.key)
