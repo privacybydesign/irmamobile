@@ -11,7 +11,7 @@ import 'translated_text.dart';
 
 _buildRequestorAvatar({required String? title, Image? image, String? imagePath}) {
   return IrmaAvatar(
-    size: 52,
+    size: 48,
     logoImage: image,
     logoPath: imagePath,
     logoSemanticsLabel: title,
@@ -64,11 +64,14 @@ class RequestorHeader extends StatelessWidget {
       const int opacity = 40;
 
       // Set the subtitleTextWidget to a link
-      subtitleTextWidget = GestureDetector(
-        onTap: () => _showCredentialOptionsBottomSheet(context),
-        child: TranslatedText(
-          'disclosure_permission.overview.requestor_verification.explanation',
-          style: theme.hyperlinkTextStyle,
+      subtitleTextWidget = Padding(
+        padding: EdgeInsets.only(top: theme.defaultSpacing),
+        child: GestureDetector(
+          onTap: () => _showCredentialOptionsBottomSheet(context),
+          child: TranslatedText(
+            'disclosure_permission.overview.requestor_verification.explanation',
+            style: theme.hyperlinkTextStyle.copyWith(fontWeight: FontWeight.normal),
+          ),
         ),
       );
 
@@ -187,12 +190,16 @@ class _RequestorHeaderBase extends StatelessWidget {
       hasShadow: false,
       padding: EdgeInsets.zero,
       margin: EdgeInsets.all(
-        theme.smallSpacing,
+        theme.defaultSpacing,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          avatar,
+          Padding(
+            padding: EdgeInsets.only(right: theme.tinySpacing),
+            child: avatar,
+          ),
           SizedBox(
             width: theme.smallSpacing,
           ),

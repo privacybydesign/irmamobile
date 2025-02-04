@@ -202,11 +202,11 @@
       "confirm_sign": "Sign and share",
       "requestor_verification" : {
         "verified_suffix" : "has been verified by us.",
-        "unverified_suffix" : "has not been verified by us. Therefore, we cannot say with certainty that everything is correct.",
-        "explanation" : "How do we verify?",
+        "unverified_suffix" : "has not been verified by us.",
+        "explanation" : "What does this mean?",
         "bottom_sheet": {
-          "title": "How do we verify organizations?",
-          "content_markdown" : "Organizations that use Yivi can request us for an audit. This is not mandatory, but provides users with more assurance.\\\n\\\n **What audits do we conduct?** \\\n Before an organization is marked as verified in Yivi, we check the following:  - Contact information and contacts - The company name and logo of the organization - Technical information Once everything checks out, a checkmark is added to the organization in Yivi, and we display the organization's logo. \\\n\\\n **What can you do with this information?**   - If the organization is audited, you can safely share data. - If they are not audited, we cannot be certain that everything is accurate. In case of doubt, we recommend contacting the organization you want to share data with directly."
+          "title": "Verified organizations",
+          "content_markdown" : "If an organization is verified, it means that we have checked the organization.\\\nYou can then assume that you can share your data safely.\\\n\\\n**Is an organization not verified?**\\\nYou can still share your data, but you cannot automatically assume that the organization can be trusted.\\\n\\\nNot sure? We recommend contacting the organization yourself before sharing your data.\\\n\\\nWould you like to have your organization verified? Visit https://portal.yivi.app."
         }
       }
     },
