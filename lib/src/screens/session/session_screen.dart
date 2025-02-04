@@ -40,7 +40,7 @@ class SessionScreen extends StatefulWidget {
 }
 
 class _SessionScreenState extends State<SessionScreen> {
-  late final IrmaRepository _repo;
+  late IrmaRepository _repo;
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
   late Stream<SessionState> _sessionStateStream;
 
