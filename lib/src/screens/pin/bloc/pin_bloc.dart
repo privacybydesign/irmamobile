@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/async.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -15,8 +15,8 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   late final StreamSubscription? _lockedStreamSubscription;
   CountdownTimer? _pinBlockedCountdown;
 
-  PinBloc() : super(PinBloc._initialState) {
-    _lockedStreamSubscription = IrmaRepository.get().getLocked().listen((isLocked) {
+  PinBloc(IrmaRepository repo) : super(PinBloc._initialState) {
+    _lockedStreamSubscription = repo.getLocked().listen((isLocked) {
       if (isLocked) {
         add(Locked());
       }

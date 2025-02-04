@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../data/irma_repository.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/format_blocked_for.dart';
@@ -14,7 +12,6 @@ import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/pin_common/pin_wrong_blocked.dart';
 import '../error/session_error_screen.dart';
 import '../reset_pin/reset_pin_screen.dart';
-
 import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
 import 'bloc/pin_state.dart';
@@ -24,14 +21,14 @@ class PinScreen extends StatefulWidget {
   static const String routeName = '/';
   final PinEvent? initialEvent;
 
-  const PinScreen({Key? key, this.initialEvent}) : super(key: key);
+  const PinScreen({super.key, this.initialEvent});
 
   @override
   State<PinScreen> createState() => _PinScreenState();
 }
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
-  final _pinBloc = PinBloc();
+  late final PinBloc _pinBloc;
 
   StreamSubscription? _pinBlocSubscription;
 
@@ -39,15 +36,33 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // we only want to execute the code below once, so we have to perform this hacky workaround
+    // in the future we would need to figure out a better way
+    try {
+      _pinBloc;
+      // return because the init already happened
+      return;
+    } catch (_) {
+      // intentionally kept empty...
+    }
+    final repo = IrmaRepositoryProvider.of(context);
+    _pinBloc = PinBloc(repo);
 
     if (widget.initialEvent != null) {
       _pinBloc.add(widget.initialEvent!);
     }
 
-    IrmaRepository.get().getBlockTime().first.then((blockedUntil) {
-      if (blockedUntil != null) {
-        _pinBloc.add(Blocked(blockedUntil));
+    repo.getBlockTime().first.then((blockedUntil) {
+      if (blockedUntil == null) {
+        return;
       }
+      _pinBloc.add(Blocked(blockedUntil));
     });
 
     _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
@@ -56,30 +71,12 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
       } else if (pinState.pinInvalid) {
         final secondsBlocked = pinState.blockedUntil?.difference(DateTime.now()).inSeconds ?? 0;
         if (pinState.remainingAttempts != null && pinState.remainingAttempts! > 0) {
-          showDialog(
-            context: context,
-            builder: (context) => PinWrongAttemptsDialog(
-              attemptsRemaining: pinState.remainingAttempts!,
-              onClose: Navigator.of(context).pop,
-            ),
-          );
+          _showWrongAttemptsDialog(pinState);
         } else if (secondsBlocked > 0) {
-          showDialog(
-            context: context,
-            builder: (context) => PinWrongBlockedDialog(
-              blocked: secondsBlocked,
-            ),
-          );
+          _showBlockedDialog(secondsBlocked);
         }
       } else if (pinState.error != null) {
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => SessionErrorScreen(
-            error: pinState.error,
-            onTapClose: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ));
+        _goToSessionErrorScreen(pinState);
       }
       if (!pinState.authenticated) {
         HapticFeedback.heavyImpact();
@@ -87,6 +84,47 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         HapticFeedback.mediumImpact();
       }
     });
+  }
+
+  _showWrongAttemptsDialog(PinState pinState) {
+    if (!mounted) {
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (context) {
+        return PinWrongAttemptsDialog(
+          attemptsRemaining: pinState.remainingAttempts!,
+          onClose: Navigator.of(context).pop,
+        );
+      },
+    );
+  }
+
+  _showBlockedDialog(int secondsBlocked) {
+    if (!mounted) {
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (context) => PinWrongBlockedDialog(
+        blocked: secondsBlocked,
+      ),
+    );
+  }
+
+  _goToSessionErrorScreen(PinState pinState) {
+    if (!mounted) {
+      return;
+    }
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => SessionErrorScreen(
+        error: pinState.error,
+        onTapClose: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    ));
   }
 
   @override
@@ -108,9 +146,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final prefs = IrmaRepositoryProvider.of(context).preferences;
-    return BlocBuilder<PinBloc, PinState>(
+    return BlocBuilder(
       bloc: _pinBloc,
-      builder: (context, state) {
+      builder: (context, PinState state) {
         // Hide pin screen once authenticated
         if (state.authenticated == true) {
           return Container();
@@ -143,7 +181,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
                   void submit(String pin) {
                     _pinBloc.add(
-                      Unlock(pin),
+                      Unlock(pin: pin, repo: IrmaRepositoryProvider.of(context)),
                     );
                   }
 

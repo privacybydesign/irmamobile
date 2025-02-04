@@ -24,7 +24,7 @@ class ActivityTab extends StatefulWidget {
 }
 
 class _ActivityTabState extends State<ActivityTab> {
-  final HistoryRepository _historyRepo = HistoryRepository();
+  late final HistoryRepository _historyRepo;
   final _scrollController = ScrollController();
   late StreamSubscription _repoStateSubscription;
 
@@ -34,12 +34,26 @@ class _ActivityTabState extends State<ActivityTab> {
     //Delay to make build context available
     Future.delayed(Duration.zero).then((_) async {
       _loadInitialLogs();
+      if (!mounted) {
+        return;
+      }
       _repoStateSubscription = IrmaRepositoryProvider.of(context).getEvents().listen((event) {
         if (event is SuccessSessionEvent) {
           _loadInitialLogs();
         }
       });
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // only init _historyRepo once...
+    try {
+      _historyRepo;
+    } catch (_) {
+      _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
+    }
   }
 
   @override

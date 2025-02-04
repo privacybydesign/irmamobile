@@ -13,10 +13,10 @@ class IrmaStepIndicator extends StatelessWidget {
   final IrmaStepIndicatorStyle style;
 
   const IrmaStepIndicator({
-    Key? key,
+    super.key,
     required this.step,
     this.style = IrmaStepIndicatorStyle.filled,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

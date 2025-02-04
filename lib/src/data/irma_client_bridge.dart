@@ -91,7 +91,13 @@ class IrmaClientBridge extends IrmaBridge {
       }
 
       if (debugLogging) {
-        debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
+        // the irma config event has so much data in its payload it bloats all logs,
+        // therefore we explicitly don't print the payload
+        if (call.method == 'IrmaConfigurationEvent') {
+          debugPrint('Received bridge event: ${call.method} -- payload omitted');
+        } else {
+          debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
+        }
       }
 
       final Event event = unmarshaller(data);

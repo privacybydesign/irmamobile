@@ -14,9 +14,9 @@ class HapticScreen extends StatelessWidget {
   final VoidCallback onBack;
 
   const HapticScreen({
-    Key? key,
+    super.key,
     required this.onBack,
-  }) : super(key: key);
+  });
 
   _showSnackBar(BuildContext context, String title) {
     final snackBar = SnackBar(
@@ -67,18 +67,16 @@ class HapticScreen extends StatelessWidget {
               onPressed: () => _showSnackBar(context, enableFeedback),
               child: Text(enableFeedback),
             ),
-            ...haptics
-                .map(
-                  (h) => ElevatedButton(
-                    style: ElevatedButton.styleFrom(enableFeedback: true),
-                    onPressed: () {
-                      _showSnackBar(context, h.description);
-                      h.function.call();
-                    },
-                    child: Text(h.description),
-                  ),
-                )
-                .toList(growable: false),
+            ...haptics.map(
+              (h) => ElevatedButton(
+                style: ElevatedButton.styleFrom(enableFeedback: true),
+                onPressed: () {
+                  _showSnackBar(context, h.description);
+                  h.function.call();
+                },
+                child: Text(h.description),
+              ),
+            ),
           ]
               .map((w) => SizedBox(
                     width: double.infinity,

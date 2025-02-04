@@ -1,13 +1,12 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 class _UnsecurePinWarningTextButton extends StatelessWidget {
   final EnterPinStateBloc bloc;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final BuildContext context;
 
-  _UnsecurePinWarningTextButton({Key? key, required this.scaffoldKey, required this.bloc})
-      : context = scaffoldKey.currentContext!,
-        super(key: key);
+  _UnsecurePinWarningTextButton({required this.scaffoldKey, required this.bloc})
+      : context = scaffoldKey.currentContext!;
 
   void _showSecurePinRules(EnterPinState state) {
     final theme = IrmaTheme.of(context);

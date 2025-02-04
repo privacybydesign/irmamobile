@@ -11,14 +11,13 @@ class IrmaIconButton extends StatelessWidget {
   final String? semanticsLabelKey;
 
   const IrmaIconButton({
-    Key? key,
+    super.key,
     required this.icon,
     required this.onTap,
     this.size = 24,
     this.padding,
     this.semanticsLabelKey,
-  })  : assert(size >= 2),
-        super(key: key);
+  }) : assert(size >= 2);
 
   @override
   Widget build(BuildContext context) {

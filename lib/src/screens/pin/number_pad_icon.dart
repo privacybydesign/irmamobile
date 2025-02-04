@@ -1,9 +1,9 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 class _NumberPadIcon extends StatelessWidget {
   final IconData icon;
   final VoidCallback callback;
-  const _NumberPadIcon({Key? key, required this.icon, required this.callback}) : super(key: key);
+  const _NumberPadIcon({required this.icon, required this.callback});
 
   @override
   Widget build(BuildContext context) {

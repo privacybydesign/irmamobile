@@ -9,11 +9,15 @@ import '../../sentry_dsn.dart';
 import '../data/irma_preferences.dart';
 import 'stub_platform_checker.dart';
 
+// this is a global because it needs to be available before the preferences have even initialized
+bool _reportErrorsPreferenceValue = false;
+
 Future<void> initSentry({required IrmaPreferences preferences}) async {
   if (dsn != '') {
     final completer = Completer();
     // Keep listening to make sure preference changes are immediately processed.
     preferences.getReportErrors().listen((reportErrors) async {
+      _reportErrorsPreferenceValue = reportErrors;
       if (Sentry.isEnabled) await Sentry.close();
       await SentryFlutter.init(
         (options) async {
@@ -47,9 +51,8 @@ Future<void> reportError(dynamic error, dynamic stackTrace, {bool userInitiated 
       stackFilter: supportsDefaultStackFilter ? FlutterError.defaultStackFilter : (frames) => frames,
     ));
   } else {
-    final enabled = await IrmaPreferences.get().getReportErrors().first;
     // Send the Exception and Stacktrace to Sentry when enabled
-    if (enabled || userInitiated) {
+    if (_reportErrorsPreferenceValue || userInitiated) {
       Sentry.captureException(
         error,
         stackTrace: stackTrace,

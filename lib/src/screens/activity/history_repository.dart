@@ -8,7 +8,7 @@ import '../../models/credentials.dart';
 import '../../models/log_entry.dart';
 
 class LogEntries extends UnmodifiableListView<LogEntry> {
-  LogEntries(Iterable<LogEntry> list) : super(list);
+  LogEntries(super.list);
 }
 
 class HistoryState {
@@ -38,12 +38,12 @@ class HistoryState {
 class HistoryRepository {
   static const _serverNameOptional = [LogEntryType.issuing, LogEntryType.removal];
 
-  IrmaRepository repo = IrmaRepository.get();
+  IrmaRepository repo;
 
   final _historyStateSubject = BehaviorSubject<HistoryState>();
   late StreamSubscription _historyStateSubscription;
 
-  HistoryRepository() {
+  HistoryRepository(this.repo) {
     _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(

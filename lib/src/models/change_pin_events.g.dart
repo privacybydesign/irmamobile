@@ -32,8 +32,8 @@ Map<String, dynamic> _$ChangePinSuccessEventToJson(ChangePinSuccessEvent instanc
 
 ChangePinFailedEvent _$ChangePinFailedEventFromJson(Map<String, dynamic> json) => ChangePinFailedEvent(
       schemeManagerID: json['SchemeManagerID'] as String,
-      remainingAttempts: json['RemainingAttempts'] as int,
-      timeout: json['Timeout'] as int,
+      remainingAttempts: (json['RemainingAttempts'] as num).toInt(),
+      timeout: (json['Timeout'] as num).toInt(),
     );
 
 Map<String, dynamic> _$ChangePinFailedEventToJson(ChangePinFailedEvent instance) => <String, dynamic>{

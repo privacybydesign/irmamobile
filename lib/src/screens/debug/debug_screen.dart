@@ -18,7 +18,7 @@ import 'widgets/delete_all_credentials_confirmation_dialog.dart';
 class DebugScreen extends StatefulWidget {
   static const routeName = '/debug';
 
-  const DebugScreen({Key? key}) : super(key: key);
+  const DebugScreen({super.key});
 
   @override
   State<DebugScreen> createState() => _DebugScreenState();

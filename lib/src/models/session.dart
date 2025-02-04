@@ -125,25 +125,17 @@ class SessionPointer implements Pointer {
   @JsonKey(name: 'continueOnSecondDevice')
   bool continueOnSecondDevice;
 
-  @Deprecated('This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.')
-  @JsonKey(name: 'returnURL')
-  final String? returnURL;
-
   SessionPointer({
     required this.u,
     required this.irmaqr,
     this.continueOnSecondDevice = false,
-    @Deprecated('This parameter is deprecated.') this.returnURL,
   });
 
   factory SessionPointer.fromJson(Map<String, dynamic> json) => _$SessionPointerFromJson(json);
   Map<String, dynamic> toJson() => _$SessionPointerToJson(this);
 
   @override
-  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {
-    // Check whether returnURL is valid.
-    if (returnURL != null) Uri.parse(returnURL!);
-  }
+  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {}
 }
 
 /// A pointer that refers to an issue wizard being followed by an IRMA session.
@@ -166,9 +158,6 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   @override
   String get irmaqr => _sessionPointer.irmaqr;
-
-  @override
-  String? get returnURL => _sessionPointer.returnURL;
 
   @override
   String get wizard => _wizardPointer.wizard;

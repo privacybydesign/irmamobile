@@ -51,10 +51,7 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
-    );
+    repo.bridgedDispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')));
 
     // When doing a disclosure session the first time, we should see the introduction.
     expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
@@ -237,9 +234,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -543,9 +539,8 @@ void main() {
       onObtainCredential: (_) => {},
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -610,9 +605,8 @@ void main() {
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -783,9 +777,8 @@ void main() {
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -908,9 +901,8 @@ void main() {
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1004,9 +996,8 @@ void main() {
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1108,9 +1099,8 @@ void main() {
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1234,9 +1224,8 @@ void main() {
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1364,9 +1353,8 @@ void main() {
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1512,9 +1500,8 @@ void main() {
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1584,9 +1571,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1616,9 +1602,8 @@ void main() {
     );
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // In the second session, the introduction should be skipped.
@@ -1659,9 +1644,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1732,9 +1716,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1831,9 +1814,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1858,9 +1840,8 @@ void main() {
     expect(issueWizardBlocState.candidatesList[2].value[0].length, 1);
     expect(issueWizardBlocState.candidatesList[2].value[0][0].fullId, 'pbdf.pbdf.email');
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       RespondPermissionEvent(sessionID: 42, proceed: false, disclosureChoices: [[]]),
-      isBridgedEvent: true,
     );
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.canceled);
@@ -1914,9 +1895,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1927,9 +1907,8 @@ void main() {
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.choicesValid, false);
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       RespondPermissionEvent(sessionID: 44, proceed: false, disclosureChoices: [[]]),
-      isBridgedEvent: true,
     );
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.canceled);
@@ -1952,9 +1931,8 @@ void main() {
     );
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -2051,9 +2029,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2143,9 +2120,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2201,9 +2177,8 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2311,9 +2286,8 @@ void main() {
     );
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
     );
 
     expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -2357,17 +2331,11 @@ Future<void> _issueCredential(
     revoked: revoked,
   );
 
-  repo.dispatch(
-    NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')),
-    isBridgedEvent: true,
-  );
+  repo.bridgedDispatch(NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')));
   await repo
       .getSessionState(sessionID)
       .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
 
-  repo.dispatch(
-    RespondPermissionEvent(sessionID: sessionID, proceed: true, disclosureChoices: [[]]),
-    isBridgedEvent: true,
-  );
+  repo.bridgedDispatch(RespondPermissionEvent(sessionID: sessionID, proceed: true, disclosureChoices: [[]]));
   await repo.getSessionState(sessionID).firstWhere((session) => session.status == SessionStatus.success);
 }

@@ -53,15 +53,14 @@ abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
   final bool hasAdditionalOptionalChoices;
 
   DisclosurePermissionChoices({
-    required List<DisclosurePermissionStepName> plannedSteps,
+    required super.plannedSteps,
     required Map<int, Con<ChoosableDisclosureCredential>> requiredChoices,
     required Map<int, Con<ChoosableDisclosureCredential>> optionalChoices,
     required Set<int> changeableChoices,
     required this.hasAdditionalOptionalChoices,
   })  : requiredChoices = UnmodifiableMapView(requiredChoices),
         optionalChoices = UnmodifiableMapView(optionalChoices),
-        changeableChoices = UnmodifiableSetView(changeableChoices),
-        super(plannedSteps: plannedSteps);
+        changeableChoices = UnmodifiableSetView(changeableChoices);
 
   Map<int, Con<ChoosableDisclosureCredential>> get choices => {...requiredChoices, ...optionalChoices};
 
@@ -88,7 +87,7 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
   final UnmodifiableMapView<int, bool> obtained;
 
   DisclosurePermissionIssueWizard({
-    required List<DisclosurePermissionStepName> plannedSteps,
+    required super.plannedSteps,
     required Map<int, DisCon<TemplateDisclosureCredential>> candidates,
     required List<MapEntry<int, DisCon<TemplateDisclosureCredential>>> candidatesList,
     required Map<int, int> selectedConIndices,
@@ -97,8 +96,7 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
         candidates = UnmodifiableMapView(candidates),
         candidatesList = UnmodifiableListView(candidatesList),
         selectedConIndices = UnmodifiableMapView(selectedConIndices),
-        obtained = UnmodifiableMapView(obtained),
-        super(plannedSteps: plannedSteps);
+        obtained = UnmodifiableMapView(obtained);
 
   /// Returns the discon that should currently be handled.
   MapEntry<int, DisCon<TemplateDisclosureCredential>>? get currentDiscon =>
@@ -123,18 +121,12 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
 
 class DisclosurePermissionPreviouslyAddedCredentialsOverview extends DisclosurePermissionChoices {
   DisclosurePermissionPreviouslyAddedCredentialsOverview({
-    required List<DisclosurePermissionStepName> plannedSteps,
-    required Map<int, Con<ChoosableDisclosureCredential>> requiredChoices,
-    required Map<int, Con<ChoosableDisclosureCredential>> optionalChoices,
-    required Set<int> changeableChoices,
-    required bool hasAdditionalOptionalChoices,
-  }) : super(
-          plannedSteps: plannedSteps,
-          requiredChoices: requiredChoices,
-          optionalChoices: optionalChoices,
-          changeableChoices: changeableChoices,
-          hasAdditionalOptionalChoices: hasAdditionalOptionalChoices,
-        );
+    required super.plannedSteps,
+    required super.requiredChoices,
+    required super.optionalChoices,
+    required super.changeableChoices,
+    required super.hasAdditionalOptionalChoices,
+  });
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.previouslyAddedCredentialsOverview;
@@ -151,20 +143,14 @@ class DisclosurePermissionChoicesOverview extends DisclosurePermissionChoices {
   final bool showConfirmationPopup;
 
   DisclosurePermissionChoicesOverview({
-    required List<DisclosurePermissionStepName> plannedSteps,
-    required Map<int, Con<ChoosableDisclosureCredential>> requiredChoices,
-    required Map<int, Con<ChoosableDisclosureCredential>> optionalChoices,
-    required Set<int> changeableChoices,
-    required bool hasAdditionalOptionalChoices,
+    required super.plannedSteps,
+    required super.requiredChoices,
+    required super.optionalChoices,
+    required super.changeableChoices,
+    required super.hasAdditionalOptionalChoices,
     required this.signedMessage,
     this.showConfirmationPopup = false,
-  }) : super(
-          plannedSteps: plannedSteps,
-          requiredChoices: requiredChoices,
-          optionalChoices: optionalChoices,
-          changeableChoices: changeableChoices,
-          hasAdditionalOptionalChoices: hasAdditionalOptionalChoices,
-        );
+  });
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.choicesOverview;
@@ -242,11 +228,11 @@ class DisclosurePermissionChangeChoice extends DisclosurePermissionMakeChoice {
   final int disconIndex;
 
   DisclosurePermissionChangeChoice({
-    required DisclosurePermissionChoices parentState,
-    required DisCon<DisclosureCredential> discon,
-    required int selectedConIndex,
+    required super.parentState,
+    required super.discon,
+    required super.selectedConIndex,
     required this.disconIndex,
-  }) : super(parentState: parentState, discon: discon, selectedConIndex: selectedConIndex);
+  });
 
   /// Returns whether the given DisclosureCredential is involved in this choice.
   bool contains(DisclosureCredential credential) => discon.any((con) => con.any((cred) => cred == credential));
@@ -257,12 +243,11 @@ class DisclosurePermissionAddOptionalData extends DisclosurePermissionMakeChoice
   final UnmodifiableListView<int> disconIndices;
 
   DisclosurePermissionAddOptionalData({
-    required DisclosurePermissionChoices parentState,
-    required DisCon<DisclosureCredential> discon,
-    required int selectedConIndex,
+    required super.parentState,
+    required super.discon,
+    required super.selectedConIndex,
     required List<int> disconIndices,
-  })  : disconIndices = UnmodifiableListView(disconIndices),
-        super(parentState: parentState, discon: discon, selectedConIndex: selectedConIndex);
+  }) : disconIndices = UnmodifiableListView(disconIndices);
 
   /// Returns the disconIndex of the con that is currently selected.
   int get disconIndexSelectedCon => disconIndices[selectedConIndex];

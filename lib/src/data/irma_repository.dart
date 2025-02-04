@@ -53,23 +53,26 @@ class _ExternalBrowserCredtype {
 }
 
 class IrmaRepository {
-  static IrmaRepository? _instance;
-  factory IrmaRepository({
+  IrmaRepository({
     required IrmaBridge client,
-    required IrmaPreferences preferences,
-    String defaultKeyshareScheme = 'pbdf',
-  }) {
-    _instance = IrmaRepository._internal(client, preferences, defaultKeyshareScheme);
-    _instance!.dispatch(AppReadyEvent(), isBridgedEvent: true);
-    return _instance!;
-  }
-
-  @Deprecated('Use IrmaRepositoryProvider.of(context) instead')
-  factory IrmaRepository.get() {
-    if (_instance == null) {
-      throw Exception('IrmaRepository has not been initialized');
-    }
-    return _instance!;
+    required this.preferences,
+    this.defaultKeyshareScheme = 'pbdf',
+  }) : _bridge = client {
+    _credentialObtainState.add(_CredentialObtainState());
+    _eventSubject.listen(_eventListener);
+    _sessionRepository = SessionRepository(
+      repo: this,
+      sessionEventStream: _eventSubject.where((event) => event is SessionEvent).cast<SessionEvent>(),
+    );
+    _credentialsSubject.forEach((creds) async {
+      final event = await _issueWizardSubject.first;
+      if (event != null) {
+        _issueWizardSubject.add(await processIssueWizard(event.wizardData.id, event.wizardContents, creds));
+      }
+    });
+    // Listen for bridge events and send them to our event subject.
+    _bridgeEventSubscription = _bridge.events.listen((event) => _eventSubject.add(event));
+    bridgedDispatch(AppReadyEvent());
   }
 
   final IrmaPreferences preferences;
@@ -102,28 +105,6 @@ class IrmaRepository {
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
   late StreamSubscription<Event> _bridgeEventSubscription;
-
-  // _internal is a named constructor only used by the factory
-  IrmaRepository._internal(
-    this._bridge,
-    this.preferences,
-    this.defaultKeyshareScheme,
-  ) {
-    _credentialObtainState.add(_CredentialObtainState());
-    _eventSubject.listen(_eventListener);
-    _sessionRepository = SessionRepository(
-      repo: this,
-      sessionEventStream: _eventSubject.where((event) => event is SessionEvent).cast<SessionEvent>(),
-    );
-    _credentialsSubject.forEach((creds) async {
-      final event = await _issueWizardSubject.first;
-      if (event != null) {
-        _issueWizardSubject.add(await processIssueWizard(event.wizardData.id, event.wizardContents, creds));
-      }
-    });
-    // Listen for bridge events and send them to our event subject.
-    _bridgeEventSubscription = _bridge.events.listen((event) => _eventSubject.add(event));
-  }
 
   Future<void> close() async {
     // First we have to cancel the bridge event subscription
@@ -227,12 +208,13 @@ class IrmaRepository {
     return _eventSubject.stream;
   }
 
-  void dispatch(Event event, {bool isBridgedEvent = false}) {
+  void dispatch(Event event) {
     _eventSubject.add(event);
+  }
 
-    if (isBridgedEvent) {
-      _bridge.dispatch(event);
-    }
+  void bridgedDispatch(Event event) {
+    dispatch(event);
+    _bridge.dispatch(event);
   }
 
   void removeLaunchedCredentials(Iterable<String> credentialTypeIds) {
@@ -246,10 +228,6 @@ class IrmaRepository {
     _credentialObtainState.add(_CredentialObtainState(
       previouslyLaunchedCredentials: updatedLaunchedCredentials,
     ));
-  }
-
-  void bridgedDispatch(Event event) {
-    dispatch(event, isBridgedEvent: true);
   }
 
   // -- Scheme manager, issuer, credential and attribute definitions
@@ -277,22 +255,14 @@ class IrmaRepository {
     _lockedSubject.add(false);
     _blockedSubject.add(null);
 
-    dispatch(
-      EnrollEvent(
-        email: email,
-        pin: pin,
-        language: language,
-        schemeId: defaultKeyshareScheme,
-      ),
-      isBridgedEvent: true,
-    );
+    bridgedDispatch(EnrollEvent(email: email, pin: pin, language: language, schemeId: defaultKeyshareScheme));
 
     return _enrollmentEventSubject.where((event) {
       switch (event.runtimeType) {
-        case EnrollmentSuccessEvent:
+        case const (EnrollmentSuccessEvent):
           preferences.setLongPin(pin.length != 5);
           return true;
-        case EnrollmentFailureEvent:
+        case const (EnrollmentFailureEvent):
           return true;
         default:
           return false;
@@ -330,15 +300,15 @@ class IrmaRepository {
   }
 
   Future<AuthenticationEvent> unlock(String pin) {
-    dispatch(AuthenticateEvent(pin: pin, schemeId: defaultKeyshareScheme), isBridgedEvent: true);
+    bridgedDispatch(AuthenticateEvent(pin: pin, schemeId: defaultKeyshareScheme));
 
     return _authenticationEventSubject.where((event) {
       switch (event.runtimeType) {
-        case AuthenticationSuccessEvent:
+        case const (AuthenticationSuccessEvent):
           preferences.setLongPin(pin.length != 5);
           return true;
-        case AuthenticationFailedEvent:
-        case AuthenticationErrorEvent:
+        case const (AuthenticationFailedEvent):
+        case const (AuthenticationErrorEvent):
           return true;
         default:
           return false;
@@ -347,16 +317,16 @@ class IrmaRepository {
   }
 
   Future<ChangePinBaseEvent> changePin(String oldPin, String newPin) {
-    dispatch(ChangePinEvent(oldPin: oldPin, newPin: newPin), isBridgedEvent: true);
+    bridgedDispatch(ChangePinEvent(oldPin: oldPin, newPin: newPin));
 
     return _changePinEventSubject.where((event) {
       switch (event.runtimeType) {
-        case ChangePinSuccessEvent:
+        case const (ChangePinSuccessEvent):
           // Change pin length
           preferences.setLongPin(newPin.length != 5);
           return true;
-        case ChangePinFailedEvent:
-        case ChangePinErrorEvent:
+        case const (ChangePinFailedEvent):
+        case const (ChangePinErrorEvent):
           return true;
         default:
           return false;
@@ -484,7 +454,7 @@ class IrmaRepository {
     );
   }
 
-  final List<_ExternalBrowserCredtype> externalBrowserCredtypes = const [
+  final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
     _ExternalBrowserCredtype(cred: 'pbdf.gemeente.address', os: 'ios'),
     _ExternalBrowserCredtype(cred: 'pbdf.gemeente.personalData', os: 'ios'),
     _ExternalBrowserCredtype(cred: 'pbdf.pbdf.idin', os: 'android'),
@@ -500,7 +470,7 @@ class IrmaRepository {
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
-      (irmaConfiguration) => externalBrowserCredtypes
+      (irmaConfiguration) => _externalBrowserCredtypes
           .where((type) => type.os == Platform.operatingSystem)
           .map((type) => irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ?? [])
           .expand((v) => v)

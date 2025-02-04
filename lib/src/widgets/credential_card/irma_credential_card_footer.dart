@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -87,7 +86,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
     final children = [
       _buildFooterText(context, theme),
       _buildReobtainOption(context, theme),
-    ].whereNotNull();
+    ].nonNulls;
 
     if (children.isNotEmpty) {
       return Padding(

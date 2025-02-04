@@ -49,10 +49,7 @@ Future<void> _startIssueWizard(
   bool pushReplacement,
 ) async {
   final repo = IrmaRepositoryProvider.of(navigator.context);
-  repo.dispatch(
-    GetIssueWizardContentsEvent(id: wizardPointer.wizard),
-    isBridgedEvent: true,
-  );
+  repo.bridgedDispatch(GetIssueWizardContentsEvent(id: wizardPointer.wizard));
 
   // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
   // to the wallet, then the session screen is automatically dismissed, which cancels the session.
@@ -83,7 +80,7 @@ Future<int> _startSessionAndNavigate(
 
   final hasActiveSessions = await repo.hasActiveSessions();
   final wizardActive = await repo.getIssueWizardActive().first;
-  repo.dispatch(event, isBridgedEvent: true);
+  repo.bridgedDispatch(event);
 
   final args = SessionScreenArguments(
     sessionID: event.sessionID,

@@ -20,17 +20,11 @@ Future<void> issueCredential(
     revoked: revoked,
   );
 
-  repo.dispatch(
-    NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')),
-    isBridgedEvent: true,
-  );
+  repo.bridgedDispatch(NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')));
   await repo
       .getSessionState(sessionID)
       .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
 
-  repo.dispatch(
-    RespondPermissionEvent(sessionID: sessionID, proceed: true, disclosureChoices: [[]]),
-    isBridgedEvent: true,
-  );
+  repo.bridgedDispatch(RespondPermissionEvent(sessionID: sessionID, proceed: true, disclosureChoices: [[]]));
   await repo.getSessionState(sessionID).firstWhere((session) => session.status == SessionStatus.success);
 }

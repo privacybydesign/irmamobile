@@ -2,19 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/session_events.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../error/session_error_screen.dart';
 import '../home/home_screen.dart';
 import '../reset_pin/reset_pin_screen.dart';
-
 import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
 import 'bloc/pin_state.dart';
@@ -24,15 +23,15 @@ class SessionPinScreen extends StatefulWidget {
   final int sessionID;
   final String title;
 
-  const SessionPinScreen({Key? key, required this.sessionID, required this.title}) : super(key: key);
+  const SessionPinScreen({super.key, required this.sessionID, required this.title});
 
   @override
   State<SessionPinScreen> createState() => _SessionPinScreenState();
 }
 
 class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBindingObserver {
-  final _repo = IrmaRepository.get();
-  final _pinBloc = PinBloc();
+  late final IrmaRepository _repo;
+  late final PinBloc _pinBloc;
   final _navigatorKey = GlobalKey();
 
   StreamSubscription? _pinBlocSubscription;
@@ -59,6 +58,18 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // only init _repo once...
+    try {
+      _repo;
+    } catch (_) {
+      _repo = IrmaRepositoryProvider.of(context);
+      _pinBloc = PinBloc(_repo);
+    }
+  }
+
+  @override
   void dispose() {
     _pinBlocSubscription?.cancel();
     _pinBloc.close();
@@ -67,10 +78,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   }
 
   void _cancel() {
-    _repo.dispatch(
-      RespondPinEvent(sessionID: widget.sessionID, proceed: false),
-      isBridgedEvent: true,
-    );
+    _repo.bridgedDispatch(RespondPinEvent(sessionID: widget.sessionID, proceed: false));
   }
 
   void _handleInvalidPin(PinState state) {
@@ -108,24 +116,21 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   void _submit(bool enabled, String pin) {
     if (!enabled) return;
     _pinBloc.add(
-      SessionPin(widget.sessionID, pin),
+      SessionPin(sessionID: widget.sessionID, pin: pin, repo: _repo),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final prefs = _repo.preferences;
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, popResult) async {
         // Wait on irmago response before closing, calling widget expects a result
-        return _pinBloc.stream
-            .firstWhere(
-          (state) => !state.authenticateInProgress,
-        )
-            .then((state) {
-          if (!state.authenticated) _cancel();
-          return false;
-        });
+        final pinState = await _pinBloc.stream.firstWhere((state) => !state.authenticateInProgress);
+        if (!pinState.authenticated) {
+          _cancel();
+        }
       },
       // Wrap component in custom navigator in order to manage the invalid pin popup and the
       // error screen as widget ourselves, such that popping this widget from the root navigator will

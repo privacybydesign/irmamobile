@@ -28,7 +28,7 @@
 
 // Slightly adapted to remove an animation (fade to white when header color remains the same) and to add null-safety.
 
-library configurable_expansion_tile;
+library;
 
 import 'package:flutter/material.dart';
 
@@ -45,7 +45,7 @@ class ConfigurableExpansionTile extends StatefulWidget {
   /// be specified for the animated transitions/states. [children] are revealed
   /// when the expansion tile is expanded.
   const ConfigurableExpansionTile(
-      {Key? key,
+      {super.key,
       this.headerBackgroundColorStart = Colors.transparent,
       this.onExpansionChanged,
       this.children = const [],
@@ -64,8 +64,7 @@ class ConfigurableExpansionTile extends StatefulWidget {
       this.headerAnimationTween,
       this.borderAnimationTween,
       this.animatedWidgetTurnTween,
-      this.animatedWidgetTween})
-      : super(key: key);
+      this.animatedWidgetTween});
 
   /// Called when the tile expands or collapses.
   ///

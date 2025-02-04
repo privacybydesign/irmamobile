@@ -1,13 +1,11 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 class _ScalableText extends StatelessWidget {
   final String string;
   final TextStyle textStyle;
   final double heightFactor;
 
-  const _ScalableText(this.string, {Key? key, required this.heightFactor, required this.textStyle})
-      : assert(heightFactor < 1.0),
-        super(key: key);
+  const _ScalableText(this.string, {required this.heightFactor, required this.textStyle}) : assert(heightFactor < 1.0);
 
   @override
   Widget build(BuildContext context) {

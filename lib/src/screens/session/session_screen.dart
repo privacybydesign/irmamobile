@@ -14,6 +14,7 @@ import '../../models/session_state.dart';
 import '../../sentry/sentry.dart';
 import '../../util/combine.dart';
 import '../../util/navigation.dart';
+import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
@@ -39,13 +40,19 @@ class SessionScreen extends StatefulWidget {
 }
 
 class _SessionScreenState extends State<SessionScreen> {
-  final IrmaRepository _repo = IrmaRepository.get();
+  late IrmaRepository _repo;
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
   late Stream<SessionState> _sessionStateStream;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _repo = IrmaRepositoryProvider.of(context);
     _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID);
   }
 
@@ -67,15 +74,12 @@ class _SessionScreenState extends State<SessionScreen> {
     return isIssuance ? 'issuance.title' : 'disclosure.title';
   }
 
-  void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) =>
-      _repo.dispatch(event, isBridgedEvent: isBridgedEvent);
-
   void _dismissSession() {
-    _dispatchSessionEvent(DismissSessionEvent(sessionID: widget.arguments.sessionID));
+    _repo.bridgedDispatch(DismissSessionEvent(sessionID: widget.arguments.sessionID));
   }
 
   void _giveIssuancePermission(SessionState session) {
-    _dispatchSessionEvent(RespondPermissionEvent(
+    _repo.bridgedDispatch(RespondPermissionEvent(
       sessionID: widget.arguments.sessionID,
       proceed: true,
       disclosureChoices: session.disclosureChoices ?? [],
@@ -111,7 +115,7 @@ class _SessionScreenState extends State<SessionScreen> {
       if (silentFailure) {
         reportError(e, stackTrace);
       } else {
-        _dispatchSessionEvent(
+        _repo.dispatch(
           FailureSessionEvent(
             sessionID: widget.arguments.sessionID,
             error: SessionError(
@@ -120,7 +124,6 @@ class _SessionScreenState extends State<SessionScreen> {
               wrappedError: e.toString(),
             ),
           ),
-          isBridgedEvent: false,
         );
       }
       return false;
@@ -171,9 +174,11 @@ class _SessionScreenState extends State<SessionScreen> {
         onContinue: () async {
           try {
             await _repo.openURLExternally(session.clientReturnURL.toString());
-            if (mounted) popToHome(context);
+            if (mounted) {
+              popToHome(context);
+            }
           } catch (e) {
-            _dispatchSessionEvent(
+            _repo.dispatch(
               FailureSessionEvent(
                 sessionID: widget.arguments.sessionID,
                 error: SessionError(
@@ -182,11 +187,12 @@ class _SessionScreenState extends State<SessionScreen> {
                   wrappedError: e.toString(),
                 ),
               ),
-              isBridgedEvent: false,
             );
           }
         },
-        onCancel: () => popToHome(context),
+        onCancel: () {
+          popToHome(context);
+        },
       );
     } else if (session.isIssuanceSession) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToHome(context));
@@ -272,49 +278,55 @@ class _SessionScreenState extends State<SessionScreen> {
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
-  Widget _buildErrorScreen(SessionState session) => ValueListenableBuilder(
-        valueListenable: _displayArrowBack,
-        builder: (BuildContext context, bool displayArrowBack, Widget? child) {
-          if (displayArrowBack) {
-            return const ArrowBack(
-              type: ArrowBackType.error,
-            );
-          }
-          return child ?? Container();
-        },
-        child: SessionErrorScreen(
-          error: session.error,
-          onTapClose: () async {
-            if (widget.arguments.wizardActive) {
-              popToWizard(context);
-            } else if (session.continueOnSecondDevice) {
-              popToHome(context);
-            } else if (session.clientReturnURL != null && !session.clientReturnURL!.isPhoneNumber) {
-              // If the error was caused by the client return url itself, we should not open it again.
-              if (session.error?.errorType != 'clientReturnUrl') {
-                // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
-                await _openClientReturnUrl(session.clientReturnURL!, alwaysOpenExternally: true, silentFailure: true);
-              }
-              if (context.mounted) popToHome(context);
-            } else {
-              if (Platform.isIOS) {
-                _displayArrowBack.value = true;
-              } else {
-                _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
-                popToHome(context);
-              }
+  Widget _buildErrorScreen(SessionState session) {
+    return ValueListenableBuilder(
+      valueListenable: _displayArrowBack,
+      builder: (BuildContext context, bool displayArrowBack, Widget? child) {
+        if (displayArrowBack) {
+          return const ArrowBack(
+            type: ArrowBackType.error,
+          );
+        }
+        return child ?? Container();
+      },
+      child: SessionErrorScreen(
+        error: session.error,
+        onTapClose: () async {
+          if (widget.arguments.wizardActive) {
+            popToWizard(context);
+          } else if (session.continueOnSecondDevice) {
+            popToHome(context);
+          } else if (session.clientReturnURL != null && !session.clientReturnURL!.isPhoneNumber) {
+            // If the error was caused by the client return url itself, we should not open it again.
+            if (session.error?.errorType != 'clientReturnUrl') {
+              // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
+              await _openClientReturnUrl(session.clientReturnURL!, alwaysOpenExternally: true, silentFailure: true);
             }
-          },
-        ),
-      );
+            if (mounted) {
+              popToHome(context);
+            }
+          } else {
+            if (Platform.isIOS) {
+              _displayArrowBack.value = true;
+            } else {
+              _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+              popToHome(context);
+            }
+          }
+        },
+      ),
+    );
+  }
 
-  Widget _buildLoadingScreen(bool isIssuance) => SessionScaffold(
-        body: Center(
-          child: LoadingIndicator(),
-        ),
-        onDismiss: () => _dismissSession(),
-        appBarTitle: _getAppBarTitle(isIssuance),
-      );
+  Widget _buildLoadingScreen(bool isIssuance) {
+    return SessionScaffold(
+      body: Center(
+        child: LoadingIndicator(),
+      ),
+      onDismiss: () => _dismissSession(),
+      appBarTitle: _getAppBarTitle(isIssuance),
+    );
+  }
 
   @override
   Widget build(BuildContext context) => StreamBuilder(

@@ -11,7 +11,7 @@ class IrmaQuote extends StatelessWidget {
   final Color? color;
 
   const IrmaQuote({
-    Key? key,
+    super.key,
     this.quote,
     this.richQuote,
     this.color,
@@ -22,8 +22,7 @@ class IrmaQuote extends StatelessWidget {
         assert(
           quote == null || richQuote == null,
           'Either set quote or richQuote, not both.',
-        ),
-        super(key: key);
+        );
 
   @override
   Widget build(BuildContext context) {

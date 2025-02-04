@@ -4,7 +4,7 @@ class GreyedOut extends StatelessWidget {
   final Widget child;
   final bool filterActive;
 
-  const GreyedOut({Key? key, required this.child, this.filterActive = true}) : super(key: key);
+  const GreyedOut({super.key, required this.child, this.filterActive = true});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class GreyedOut extends StatelessWidget {
 
     return ColorFiltered(
       colorFilter: ColorFilter.mode(
-        Colors.white.withOpacity(0.5),
+        Colors.white.withAlpha(128),
         BlendMode.modulate,
       ),
       child: child,

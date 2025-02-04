@@ -11,7 +11,7 @@ class Heading extends StatelessWidget {
   final String title;
   final TextStyle? style;
   final TextAlign? textAlign;
-  const Heading(this.title, {this.style, this.textAlign, Key? key}) : super(key: key);
+  const Heading(this.title, {this.style, this.textAlign, super.key});
   @override
   Widget build(BuildContext context) {
     return Semantics(

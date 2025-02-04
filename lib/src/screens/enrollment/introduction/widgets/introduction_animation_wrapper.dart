@@ -5,9 +5,9 @@ class IntroductionAnimationWrapper extends StatefulWidget {
   final Widget child;
 
   const IntroductionAnimationWrapper({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   State<IntroductionAnimationWrapper> createState() => _IntroductionAnimationWrapperState();

@@ -5,7 +5,7 @@ import '../theme/theme.dart';
 class InformationBox extends StatelessWidget {
   final String message;
 
-  const InformationBox({Key? key, required this.message}) : super(key: key);
+  const InformationBox({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {

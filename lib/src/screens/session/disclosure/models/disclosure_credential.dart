@@ -1,16 +1,15 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../models/attribute.dart';
 import '../../../../models/credentials.dart';
 
 /// Abstract class that contains the overlapping behaviour of ChoosableDisclosureCredential and TemplateDisclosureCredential.
 abstract class DisclosureCredential extends CredentialView with EquatableMixin {
   DisclosureCredential({
-    required CredentialInfo info,
-    required Iterable<Attribute> attributes,
-    bool expired = false,
-    bool revoked = false,
-  }) : super(info: info, expired: expired, revoked: revoked, attributes: attributes);
+    required super.info,
+    required super.attributes,
+    super.expired,
+    super.revoked,
+  });
 
   @override
   List<Object?> get props => [

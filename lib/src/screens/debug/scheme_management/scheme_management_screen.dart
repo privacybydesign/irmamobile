@@ -83,14 +83,16 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
         throw 'HTTP status code ${response.statusCode} received';
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         showSnackbar(context, 'Error while fetching scheme: ${e.toString()}.');
       }
       return;
     }
 
     // Before showing the second dialog, we have to check whether the widget is still mounted.
-    if (!mounted) return;
+    if (!context.mounted) {
+      return;
+    }
 
     // Show the second dialog to confirm the public key.
     final publicKeyConfirmed = await showDialog<bool>(
@@ -116,14 +118,15 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       return;
     }
 
-    if (!mounted) return;
-    showSnackbar(
-      context,
-      FlutterI18n.translate(
+    if (context.mounted) {
+      showSnackbar(
         context,
-        'debug.scheme_management.success',
-      ),
-    );
+        FlutterI18n.translate(
+          context,
+          'debug.scheme_management.success',
+        ),
+      );
+    }
   }
 
   void _onSchemeManagerTileTap(String schemeManagerId) => Navigator.of(context).push(

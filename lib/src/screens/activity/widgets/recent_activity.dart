@@ -27,21 +27,25 @@ class RecentActivity extends StatefulWidget {
 }
 
 class _RecentActivityState extends State<RecentActivity> {
-  final HistoryRepository _historyRepo = HistoryRepository();
+  late final HistoryRepository _historyRepo;
   late StreamSubscription _repoStateSubscription;
 
   @override
-  void initState() {
-    super.initState();
-    //Delay to make build context available
-    Future.delayed(Duration.zero).then((_) async {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // only init the _historyRepo once by trying to access it and initializing when a late init error was thrown
+    // we do this because we can't access the build context in initState() and we only want to do it once
+    try {
+      _historyRepo;
+    } catch (_) {
       _loadLogs();
+      _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
       _repoStateSubscription = IrmaRepositoryProvider.of(context).getEvents().listen((event) {
         if (event is SuccessSessionEvent) {
           _loadLogs();
         }
       });
-    });
+    }
   }
 
   @override

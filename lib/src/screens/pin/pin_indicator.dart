@@ -1,12 +1,11 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 class _PinIndicator extends StatelessWidget {
   final int maxPinSize;
   final ValueNotifier<bool> pinVisibilityValue;
   final EnterPinState pinState;
 
-  const _PinIndicator({Key? key, required this.maxPinSize, required this.pinVisibilityValue, required this.pinState})
-      : super(key: key);
+  const _PinIndicator({required this.maxPinSize, required this.pinVisibilityValue, required this.pinState});
 
   @override
   Widget build(BuildContext context) {

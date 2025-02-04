@@ -5,7 +5,7 @@ import '../data/irma_repository.dart';
 class IrmaRepositoryProvider extends InheritedWidget {
   final IrmaRepository repository;
 
-  const IrmaRepositoryProvider({required this.repository, required Widget child}) : super(child: child);
+  const IrmaRepositoryProvider({required this.repository, required super.child});
 
   static IrmaRepository of(BuildContext context) {
     final IrmaRepositoryProvider? result = context.dependOnInheritedWidgetOfExactType<IrmaRepositoryProvider>();

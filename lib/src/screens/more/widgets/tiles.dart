@@ -15,10 +15,10 @@ class ContactLinkTile extends StatelessWidget {
   final String labelTranslationKey;
 
   const ContactLinkTile({
-    Key? key,
+    super.key,
     this.iconData,
     required this.labelTranslationKey,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +59,11 @@ class ShareLinkTile extends StatelessWidget {
   final String shareTextKey;
 
   const ShareLinkTile({
-    Key? key,
+    super.key,
     required this.iconData,
     required this.labelTranslationKey,
     required this.shareTextKey,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +85,11 @@ class ExternalLinkTile extends StatelessWidget {
   final String urlLinkKey;
 
   const ExternalLinkTile({
-    Key? key,
+    super.key,
     this.iconData,
     required this.labelTranslationKey,
     required this.urlLinkKey,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -116,11 +116,11 @@ class InternalLinkTile extends StatelessWidget {
   final String routeName;
 
   const InternalLinkTile({
-    Key? key,
+    super.key,
     this.iconData,
     required this.labelTranslationKey,
     required this.routeName,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -184,13 +184,13 @@ class Tile extends StatelessWidget {
   final bool isLink;
 
   const Tile({
-    Key? key,
+    super.key,
     this.iconData,
     required this.labelTranslationKey,
     required this.onTap,
     this.trailing,
     this.isLink = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

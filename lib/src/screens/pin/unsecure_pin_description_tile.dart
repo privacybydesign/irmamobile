@@ -1,10 +1,9 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 class _UnsecurePinDescriptionTile extends StatelessWidget {
   final bool followsRule;
   final String descriptionKey;
-  const _UnsecurePinDescriptionTile({Key? key, required this.followsRule, required this.descriptionKey})
-      : super(key: key);
+  const _UnsecurePinDescriptionTile({required this.followsRule, required this.descriptionKey});
 
   @override
   Widget build(BuildContext context) {

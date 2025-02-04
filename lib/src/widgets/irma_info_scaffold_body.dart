@@ -19,7 +19,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
   final String? linkDialogText;
 
   const IrmaInfoScaffoldBody({
-    Key? key,
+    super.key,
     required this.titleTranslationKey,
     this.titleTranslationParams,
     this.bodyTranslationParams,
@@ -40,8 +40,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
         assert(
           imagePath == null || icon == null,
           'You cannot provide both an icon and an image path',
-        ),
-        super(key: key);
+        );
 
   Future _showIrmaDialog(BuildContext context) async => showDialog(
         context: context,

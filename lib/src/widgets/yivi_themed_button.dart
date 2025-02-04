@@ -28,17 +28,16 @@ class YiviThemedButton extends StatelessWidget {
   final bool isTransparent;
 
   const YiviThemedButton({
-    Key? key,
+    super.key,
     required this.label,
     this.onPressed,
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
-  })  : assert(
+  }) : assert(
           !isTransparent || style != YiviButtonStyle.fancy,
           'Fancy button cannot be transparent',
-        ),
-        super(key: key);
+        );
 
   Widget _buildFancyButton(Widget child) => Stack(
         children: [
@@ -149,7 +148,7 @@ class YiviThemedButton extends StatelessWidget {
     if (onPressed == null) {
       buttonWidget = ColorFiltered(
         colorFilter: ColorFilter.mode(
-          Colors.white.withOpacity(0.5),
+          Colors.white.withAlpha(128),
           BlendMode.modulate,
         ),
         child: buttonWidget,

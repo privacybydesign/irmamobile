@@ -44,7 +44,7 @@ class IrmaThemedButton extends StatelessWidget {
       } else {
         // Disabled Primary button colors
         textColor = theme.light;
-        backgroundColor = baseColor.withOpacity(0.5);
+        backgroundColor = baseColor.withAlpha(128);
       }
     } else {
       if (onPressed != null) {
@@ -67,21 +67,21 @@ class IrmaThemedButton extends StatelessWidget {
     final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;
 
     final style = ButtonStyle(
-      backgroundColor: MaterialStateProperty.resolveWith<Color?>((_) => backgroundColor),
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>((_) => backgroundColor),
       side: borderColor != null
-          ? MaterialStateProperty.resolveWith<BorderSide?>((_) => BorderSide(color: borderColor!))
+          ? WidgetStateProperty.resolveWith<BorderSide?>((_) => BorderSide(color: borderColor!))
           : null,
-      shape: MaterialStateProperty.resolveWith<OutlinedBorder?>((_) => shape),
-      padding: MaterialStateProperty.resolveWith<EdgeInsets>(
+      shape: WidgetStateProperty.resolveWith<OutlinedBorder?>((_) => shape),
+      padding: WidgetStateProperty.resolveWith<EdgeInsets>(
         (_) => const EdgeInsets.symmetric(
           vertical: 10.0,
           horizontal: 20.0,
         ),
       ),
-      minimumSize: MaterialStateProperty.resolveWith<Size>(
+      minimumSize: WidgetStateProperty.resolveWith<Size>(
         (_) => Size(minWidth, fixedHeight),
       ),
-      maximumSize: MaterialStateProperty.resolveWith<Size>(
+      maximumSize: WidgetStateProperty.resolveWith<Size>(
         (_) => Size.fromHeight(fixedHeight),
       ),
     );

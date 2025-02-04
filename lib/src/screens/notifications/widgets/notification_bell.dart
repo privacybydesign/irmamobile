@@ -10,10 +10,10 @@ class NotificationBell extends StatelessWidget {
   final bool showIndicator;
 
   const NotificationBell({
-    Key? key,
+    super.key,
     required this.onTap,
     this.showIndicator = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

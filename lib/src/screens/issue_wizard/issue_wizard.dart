@@ -22,7 +22,8 @@ class IssueWizardScreen extends StatefulWidget {
   static const routeName = '/issuewizard';
 
   final IssueWizardScreenArguments arguments;
-  const IssueWizardScreen({Key? key, required this.arguments}) : super(key: key);
+
+  const IssueWizardScreen({super.key, required this.arguments});
 
   @override
   State<IssueWizardScreen> createState() => _IssueWizardScreenState();
@@ -54,9 +55,11 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
           .listen((event) {
         // Pop to underlying session screen which is showing an error screen
         // First pop all screens on top of this wizard and then pop the wizard screen itself
-        Navigator.of(context)
-          ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
-          ..pop();
+        if (mounted) {
+          Navigator.of(context)
+            ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
+            ..pop();
+        }
       });
     }
 
@@ -72,7 +75,14 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _repo = IrmaRepositoryProvider.of(context);
+    // only init it once... this will throw an error when we're accessing an uninitialized one,
+    // we then catch that and assign a value.
+    // we can't do this in initState because it doesn't have access to the BuildContext.
+    try {
+      _repo;
+    } catch (_) {
+      _repo = IrmaRepositoryProvider.of(context);
+    }
   }
 
   @override

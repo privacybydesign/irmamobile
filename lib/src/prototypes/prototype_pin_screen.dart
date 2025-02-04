@@ -14,12 +14,12 @@ class SecurePinScreenTest extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>(debugLabel: 'SecurePinScreenTest');
 
   SecurePinScreenTest({
-    Key? key,
+    super.key,
     required this.maxPinSize,
     required this.onTogglePinSize,
     required this.instructionKey,
     required this.pinBloc,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

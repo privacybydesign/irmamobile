@@ -8,9 +8,9 @@ class PinConfirmationFailedDialog extends StatelessWidget {
   final VoidCallback onPressed;
 
   const PinConfirmationFailedDialog({
-    Key? key,
+    super.key,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

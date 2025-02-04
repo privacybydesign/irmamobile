@@ -11,11 +11,11 @@ class RadioTilesCard extends StatefulWidget {
   final int? defaultSelectedIndex;
 
   const RadioTilesCard({
-    Key? key,
+    super.key,
     required this.options,
     required this.onChanged,
     this.defaultSelectedIndex,
-  }) : super(key: key);
+  });
 
   @override
   State<RadioTilesCard> createState() => _RadioTilesCardState();

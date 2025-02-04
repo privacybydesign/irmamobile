@@ -55,13 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // We wrap this widget in a WillPopScope to make sure a back press on Android returns the user to the
+    // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
     // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
     // root route in the navigator. In that case, we background the app on Android.
     // On iOS, there is no back button so we don't have to handle this case.
     final theme = IrmaTheme.of(context);
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, popResult) {
         if (selectedTab == IrmaNavBarTab.home) {
           IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
         } else {
@@ -69,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
             selectedTab = IrmaNavBarTab.home;
           });
         }
-        return false;
       },
       child: PendingPointerListener(
         child: Scaffold(

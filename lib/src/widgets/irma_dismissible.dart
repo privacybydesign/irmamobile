@@ -8,10 +8,10 @@ class IrmaDismissible extends StatelessWidget {
   final VoidCallback onDismissed;
 
   const IrmaDismissible({
-    required key,
+    required super.key,
     required this.child,
     required this.onDismissed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

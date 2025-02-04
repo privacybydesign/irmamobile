@@ -34,8 +34,7 @@ void main() {
         }
       ]
     ]);
-    repo.dispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-        isBridgedEvent: true);
+    repo.bridgedDispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')));
 
     final disclosureSessionStream = repo.getSessionState(42).asBroadcastStream();
     SessionState disclosureSession = await disclosureSessionStream
@@ -57,10 +56,9 @@ void main() {
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
       }
     ]);
-    repo.dispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'issuing', u: '')),
-      isBridgedEvent: true,
-    );
+
+    repo.bridgedDispatch(NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'issuing', u: '')));
+
     final issuanceSessionStream = repo.getSessionState(43).asBroadcastStream();
 
     // Check whether the pairing status is being triggered.
@@ -76,7 +74,7 @@ void main() {
     expect(issuanceSession.signedMessage, null);
     expect(issuanceSession.clientReturnURL, null);
     expect(issuanceSession.disclosureChoices, null);
-    repo.dispatch(RespondPermissionEvent(sessionID: 43, proceed: true, disclosureChoices: []), isBridgedEvent: true);
+    repo.bridgedDispatch(RespondPermissionEvent(sessionID: 43, proceed: true, disclosureChoices: []));
 
     await issuanceSessionStream.firstWhere((session) => session.status == SessionStatus.success);
 
@@ -91,7 +89,7 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0][1].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][1][0].type, 'irma-demo.IRMATube.member.id');
     expect(disclosureSession.disclosuresCandidates![0][1][0].credentialHash, '');
-    repo.dispatch(
+    repo.bridgedDispatch(
       RespondPermissionEvent(
         sessionID: 42,
         proceed: true,
@@ -104,7 +102,6 @@ void main() {
           ]
         ],
       ),
-      isBridgedEvent: true,
     );
 
     disclosureSession = await disclosureSessionStream.firstWhere((session) => session.status == SessionStatus.success);
@@ -122,10 +119,7 @@ void main() {
         }
       ]
     ]);
-    repo.dispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
-      isBridgedEvent: true,
-    );
+    repo.bridgedDispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')));
 
     // The disclosure session should not be satisfiable yet.
     final disclosureSessionStream = repo.getSessionState(42).asBroadcastStream();
@@ -146,15 +140,12 @@ void main() {
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
       }
     ]);
-    repo.dispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'issuing', u: '')),
-      isBridgedEvent: true,
-    );
+    repo.bridgedDispatch(NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'issuing', u: '')));
 
     // Give permission to accept the non-matching credential.
     final firstIssuanceSessionStream = repo.getSessionState(43).asBroadcastStream();
     await firstIssuanceSessionStream.firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
-    repo.dispatch(RespondPermissionEvent(sessionID: 43, proceed: true, disclosureChoices: []), isBridgedEvent: true);
+    repo.bridgedDispatch(RespondPermissionEvent(sessionID: 43, proceed: true, disclosureChoices: []));
     await firstIssuanceSessionStream.firstWhere((session) => session.status == SessionStatus.success);
 
     // The disclosure session should still not be satisfiable.
@@ -175,16 +166,14 @@ void main() {
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
       }
     ]);
-    repo.dispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'issuing', u: '')),
-      isBridgedEvent: true,
-    );
+
+    repo.bridgedDispatch(NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'issuing', u: '')));
     final secondIssuanceSessionStream = repo.getSessionState(44).asBroadcastStream();
 
     // Give permission to accept second credential.
     await secondIssuanceSessionStream
         .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
-    repo.dispatch(RespondPermissionEvent(sessionID: 44, proceed: true, disclosureChoices: []), isBridgedEvent: true);
+    repo.bridgedDispatch(RespondPermissionEvent(sessionID: 44, proceed: true, disclosureChoices: []));
     await secondIssuanceSessionStream.firstWhere((session) => session.status == SessionStatus.success);
 
     // Check whether the disclosure session can be finished now.
@@ -197,7 +186,7 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
     expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-44-0');
 
-    repo.dispatch(
+    repo.bridgedDispatch(
       RespondPermissionEvent(sessionID: 42, proceed: true, disclosureChoices: [
         [
           AttributeIdentifier(
@@ -206,7 +195,6 @@ void main() {
           )
         ]
       ]),
-      isBridgedEvent: true,
     );
 
     disclosureSession = await disclosureSessionStream.firstWhere((session) => session.status == SessionStatus.success);

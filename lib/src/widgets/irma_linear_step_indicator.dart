@@ -9,10 +9,10 @@ class IrmaLinearStepIndicator extends StatelessWidget {
   final int step;
 
   const IrmaLinearStepIndicator({
-    Key? key,
+    super.key,
     required this.step,
     required this.stepCount,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

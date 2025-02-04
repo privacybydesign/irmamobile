@@ -7,7 +7,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 class QRViewContainer extends StatefulWidget {
   final Function(String) onFound;
 
-  const QRViewContainer({Key? key, required this.onFound}) : super(key: key);
+  const QRViewContainer({super.key, required this.onFound});
 
   @override
   State<StatefulWidget> createState() => _QRViewContainerState();

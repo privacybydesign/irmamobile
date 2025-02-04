@@ -17,27 +17,27 @@ class Blocked extends PinEvent {
 // Unlock event is sent by UI to initiate an unlock sequence.
 class Unlock extends Authenticate {
   String pin;
-  Unlock(this.pin);
+  IrmaRepository repo;
+
+  Unlock({required this.pin, required this.repo});
 
   @override
   Future<AuthenticationEvent> dispatch() {
-    return IrmaRepository.get().unlock(pin);
+    return repo.unlock(pin);
   }
 }
 
 // SessionPin event is sent by UI to initiate a pin entry from a session
 class SessionPin extends Authenticate {
+  IrmaRepository repo;
   int sessionID;
   String pin;
-  SessionPin(this.sessionID, this.pin);
+
+  SessionPin({required this.repo, required this.sessionID, required this.pin});
 
   @override
   Future<AuthenticationEvent> dispatch() {
-    final repo = IrmaRepository.get();
-    repo.dispatch(
-      RespondPinEvent(sessionID: sessionID, pin: pin, proceed: true),
-      isBridgedEvent: true,
-    );
+    repo.bridgedDispatch(RespondPinEvent(sessionID: sessionID, pin: pin, proceed: true));
 
     final resultEvent = repo.getEvents().firstWhere((event) {
       return event is SessionEvent && event.sessionID == sessionID;

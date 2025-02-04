@@ -1,4 +1,4 @@
-part of pin;
+part of 'yivi_pin_screen.dart';
 
 // aaaaa ababa, every permutation of abbbb
 bool _pinMustContainAtLeastThreeUniqueNumbers(List<int> pin) {

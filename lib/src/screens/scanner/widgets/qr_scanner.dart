@@ -15,9 +15,9 @@ class QRScanner extends StatefulWidget {
   final void Function(Pointer) onFound;
 
   const QRScanner({
-    Key? key,
+    super.key,
     required this.onFound,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _QRScannerState();

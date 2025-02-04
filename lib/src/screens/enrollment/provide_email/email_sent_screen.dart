@@ -13,10 +13,10 @@ class EmailSentScreen extends StatelessWidget {
   final VoidCallback onContinue;
 
   const EmailSentScreen({
-    Key? key,
+    super.key,
     required this.email,
     required this.onContinue,
-  }) : super(key: key);
+  });
 
   _navigateToHome(BuildContext context) => Navigator.of(
         context,

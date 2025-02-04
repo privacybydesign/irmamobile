@@ -5,7 +5,7 @@ description: IRMA Authentication
 version: 7.5.7+4194471
 
 environment:
-  sdk: ">=2.19.6 <3.0.0"
+  sdk: ">=3.0.0"
 
 dependencies:
   flutter:
@@ -60,7 +60,7 @@ flutter_native_splash:
   color: "F7F7F7"
   android_disable_fullscreen: true
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true

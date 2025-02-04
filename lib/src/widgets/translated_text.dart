@@ -19,14 +19,14 @@ class TranslatedText extends StatelessWidget {
   const TranslatedText(
     this._key, {
     // Translation key
-    Key? key, // Widget key
+    super.key, // Widget key
     this.fallbackKey,
     this.translationParams,
     this.style,
     this.textAlign,
     this.maxLines,
     this.isHeader = false,
-  }) : super(key: key);
+  });
 
   Widget _buildMarkdown(String translation, BuildContext context) {
     return IrmaMarkdown(
