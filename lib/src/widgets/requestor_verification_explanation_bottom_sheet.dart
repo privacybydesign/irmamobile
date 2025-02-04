@@ -16,15 +16,12 @@ class RequestorVerificationExplanationBottomSheet extends StatelessWidget {
         'disclosure_permission.overview.requestor_verification.bottom_sheet.title',
         style: theme.textTheme.displaySmall,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: theme.defaultSpacing),
-          IrmaMarkdown(
-            FlutterI18n.translate(
-                context, 'disclosure_permission.overview.requestor_verification.bottom_sheet.content_markdown'),
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+        child: IrmaMarkdown(
+          FlutterI18n.translate(
+              context, 'disclosure_permission.overview.requestor_verification.bottom_sheet.content_markdown'),
+        ),
       ),
     );
   }

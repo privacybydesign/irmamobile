@@ -29,9 +29,7 @@ class IrmaBottomSheet extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: theme.backgroundPrimary,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,12 +43,7 @@ class IrmaBottomSheet extends StatelessWidget {
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.all(theme.defaultSpacing),
-              child: child,
-            ),
-          ),
+          SliverToBoxAdapter(child: child),
         ],
       ),
     );
