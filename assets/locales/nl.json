@@ -206,7 +206,7 @@
         "explanation" : "Wat betekent dit?",
         "bottom_sheet": {
           "title": "Geverifieerde organisaties",
-          "content_markdown": "Als een organisatie geverifieerd is, betekent dit dat wij de organisatie hebben gecontroleerd.\\\nJij kunt er dan vanuit gaan dat je je gegevens veilig kunt delen.\\\n\\\n**Is een organisatie niet geverifieerd?**\\\nDan kun je nog steeds je gegevens delen, maar kun je er niet automatisch vanuit gaan dat je de organisatie kunt vertrouwen.\\\n\\\nTwijfel je? Dan raden we je aan om zelf contact op te nemen met de organisatie met wie je je gegevens wil delen.\\\n\\\nWil je je als organisatie laten verifiëren? Ga dan naar https://portal.yivi.app."
+          "content_markdown": "Als een organisatie geverifieerd is, betekent dit dat wij de organisatie hebben gecontroleerd.\\\nJij kunt er dan vanuit gaan dat je je gegevens veilig kunt delen.\\\n\\\n**Is een organisatie niet geverifieerd?**\\\nDan kun je nog steeds je gegevens delen, maar kun je er niet automatisch vanuit gaan dat je de organisatie kunt vertrouwen.\\\n\\\nTwijfel je? Dan raden we je aan om zelf contact op te nemen met de organisatie waarmee je je gegevens wil delen.\\\n\\\nWil je je als organisatie laten verifiëren? Ga dan naar https://portal.yivi.app."
         }
       }
     },
