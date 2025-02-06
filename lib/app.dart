@@ -316,15 +316,15 @@ class AppState extends State<App> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildAppStack(BuildContext context, Widget navigationChild) {
-    // Use this Stack to force an overlay when loading and when an update is required.
-    return Stack(
-      children: <Widget>[
-        navigationChild,
-        _buildAppOverlay(context),
-      ],
-    );
-  }
+  // Widget _buildAppStack(BuildContext context, Widget navigationChild) {
+  //   // Use this Stack to force an overlay when loading and when an update is required.
+  //   return Stack(
+  //     children: <Widget>[
+  //       navigationChild,
+  //       _buildAppOverlay(context),
+  //     ],
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -336,30 +336,34 @@ class AppState extends State<App> with WidgetsBindingObserver {
     ]);
     return IrmaTheme(
       builder: (BuildContext context) {
-        return Stack(
-          textDirection: TextDirection.ltr,
-          children: <Widget>[
-            MaterialApp(
-              key: const Key('app'),
-              title: 'Yivi',
-              theme: IrmaTheme.of(context).themeData,
-              localizationsDelegates: defaultLocalizationsDelegates(
-                widget.forcedLocale,
-              ),
-              supportedLocales: defaultSupportedLocales(),
-              navigatorKey: _navigatorKey,
-              onGenerateRoute: Routing.generateRoute,
-
-              // Set showSemanticsDebugger to true to view semantics in emulator.
-              showSemanticsDebugger: false,
-
-              builder: (context, child) {
-                if (child == null) return const SplashScreen(); // Fallback value, should never happen.
-                return _buildAppStack(context, child);
-              },
-            ),
-          ],
+        return MaterialApp.router(
+          key: const Key('app'),
+          title: 'Yivi',
+          theme: IrmaTheme.of(context).themeData,
+          localizationsDelegates: defaultLocalizationsDelegates(widget.forcedLocale),
+          supportedLocales: defaultSupportedLocales(),
+          showSemanticsDebugger: false,
+          routerConfig: createRouter(context),
         );
+        // return MaterialApp(
+        //   key: const Key('app'),
+        //   title: 'Yivi',
+        //   theme: IrmaTheme.of(context).themeData,
+        //   localizationsDelegates: defaultLocalizationsDelegates(
+        //     widget.forcedLocale,
+        //   ),
+        //   supportedLocales: defaultSupportedLocales(),
+        //   navigatorKey: _navigatorKey,
+        //   onGenerateRoute: Routing.generateRoute,
+        //
+        //   // Set showSemanticsDebugger to true to view semantics in emulator.
+        //   showSemanticsDebugger: false,
+        //
+        //   builder: (context, child) {
+        //     if (child == null) return const SplashScreen(); // Fallback value, should never happen.
+        //     return _buildAppStack(context, child);
+        //   },
+        // );
       },
     );
   }

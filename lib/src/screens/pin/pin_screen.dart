@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
@@ -82,6 +83,11 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         HapticFeedback.heavyImpact();
       } else {
         HapticFeedback.mediumImpact();
+      }
+
+      // navigate to home when the the user is authenticated
+      if (pinState.authenticated && mounted) {
+        context.go('/home');
       }
     });
   }
@@ -183,6 +189,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                     _pinBloc.add(
                       Unlock(pin: pin, repo: IrmaRepositoryProvider.of(context)),
                     );
+                  }
+
+                  if (state.authenticated) {
                   }
 
                   return Stack(
