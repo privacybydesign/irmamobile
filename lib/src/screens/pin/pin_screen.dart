@@ -203,7 +203,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         onSubmit: enabled ? submit : (_) {},
                         pinBloc: pinBloc,
                         enabled: enabled,
-                        onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
+                        onForgotPin: () => context.push(ResetPinScreen.routeName),
                         listener: (context, state) {
                           if (maxPinSize == shortPinSize && state.pin.length == maxPinSize && enabled) {
                             submit(state.toString());

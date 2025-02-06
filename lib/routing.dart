@@ -6,10 +6,15 @@ import 'package:go_router/go_router.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'src/data/irma_repository.dart';
+import 'src/models/irma_configuration.dart';
+import 'src/models/log_entry.dart';
 import 'src/models/version_information.dart';
+import 'src/screens/activity/activity_detail_screen.dart';
+import 'src/screens/add_data/add_data_details_screen.dart';
 import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_language/change_language_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
+import 'src/screens/data/credentials_detail_screen.dart';
 import 'src/screens/debug/debug_screen.dart';
 import 'src/screens/enrollment/enrollment_screen.dart';
 import 'src/screens/help/help_screen.dart';
@@ -41,20 +46,20 @@ class StreamToListenableAdaptor<T> extends ChangeNotifier {
 }
 
 class RedirectionTriggers {
-  final bool locked;
+  final bool appLocked;
   final bool showDeviceRootedWarning;
   final bool showNameChangedMessage;
   final VersionInformation? versionInformation;
 
   RedirectionTriggers({
-    required this.locked,
+    required this.appLocked,
     required this.showDeviceRootedWarning,
     required this.showNameChangedMessage,
     required this.versionInformation,
   });
 
   RedirectionTriggers.withDefaults()
-      : locked = true,
+      : appLocked = true,
         showDeviceRootedWarning = false,
         showNameChangedMessage = false,
         versionInformation = null;
@@ -78,18 +83,21 @@ GoRouter createRouter(BuildContext buildContext) {
 
   // combining all variables that might trigger redirection into a single stream
   final redirectionTriggersStream = Rx.combineLatest4(
-      _displayDeviceIsRootedWarning(repo),
-      repo.getLocked(),
-      repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null),
-      repo.preferences.getShowNameChangedNotification(),
-      (deviceRootedWarning, locked, versionInfo, nameChangedWarning) {
-    return RedirectionTriggers(
-      locked: locked,
-      showDeviceRootedWarning: deviceRootedWarning,
-      showNameChangedMessage: nameChangedWarning,
-      versionInformation: versionInfo,
-    );
-  });
+    _displayDeviceIsRootedWarning(repo),
+    repo.getLocked(),
+    repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null),
+    repo.preferences.getShowNameChangedNotification(),
+    (deviceRootedWarning, locked, versionInfo, nameChangedWarning) {
+      return RedirectionTriggers(
+        appLocked: locked,
+        showDeviceRootedWarning: deviceRootedWarning,
+        showNameChangedMessage: nameChangedWarning,
+        versionInformation: versionInfo,
+      );
+    },
+  );
+
+  final whiteListedOnLocked = {ResetPinScreen.routeName};
 
   // building a listenable based on this stream so it's compatible with GoRouter
   final redirectionTriggers = StreamToListenableAdaptor(redirectionTriggersStream, RedirectionTriggers.withDefaults());
@@ -99,8 +107,26 @@ GoRouter createRouter(BuildContext buildContext) {
     refreshListenable: redirectionTriggers,
     routes: [
       GoRoute(
+        path: '/credentials_details',
+        builder: (context, state) {
+          final (credentialTypeId, categoryName) = state.extra as (String, String);
+          return CredentialsDetailScreen(credentialTypeId: credentialTypeId, categoryName: categoryName);
+        },
+      ),
+      GoRoute(
+        path: '/activity_details',
+        builder: (context, state) {
+          final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
+          return ActivityDetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration);
+        },
+      ),
+      GoRoute(
         path: PinScreen.routeName,
         builder: (context, state) => PinScreen(),
+      ),
+      GoRoute(
+        path: ResetPinScreen.routeName,
+        builder: (context, state) => ResetPinScreen(),
       ),
       GoRoute(
         path: LoadingScreen.routeName,
@@ -129,6 +155,22 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: AddDataScreen.routeName,
         builder: (context, state) => AddDataScreen(),
+        routes: [
+          GoRoute(
+            path: 'details',
+            builder: (context, state) {
+              final credentialType = state.extra as CredentialType;
+              return AddDataDetailsScreen(
+                credentialType: credentialType,
+                onCancel: () => context.pop(),
+                onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
+                  context,
+                  credentialType.fullId,
+                ),
+              );
+            },
+          )
+        ],
       ),
       GoRoute(
         path: HelpScreen.routeName,
@@ -144,10 +186,11 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: HomeScreen.routeName,
-        builder: (context, state) {
-          debugPrint('building HomeScreen');
-          return HomeScreen();
-        },
+        builder: (context, state) => HomeScreen(),
+      ),
+      GoRoute(
+        path: SettingsScreen.routeName,
+        builder: (context, state) => SettingsScreen(),
       ),
       GoRoute(
         path: SessionScreen.routeName,
@@ -195,9 +238,8 @@ GoRouter createRouter(BuildContext buildContext) {
           redirectionTriggers.value.versionInformation!.updateRequired()) {
         return '/update_required';
       }
-      if (redirectionTriggers.value.locked) {
-        debugPrint('redirect to pin');
-        return '/';
+      if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
+        return PinScreen.routeName;
       }
       debugPrint('go to path ${state.fullPath}');
       return null;

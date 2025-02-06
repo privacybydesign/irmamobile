@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
@@ -15,9 +16,7 @@ class IrmaQrScanButton extends StatelessWidget {
     final hasCameraPermission = await handleCameraPermission(context);
 
     if (hasCameraPermission && context.mounted) {
-      Navigator.of(context).pushNamed(
-        ScannerScreen.routeName,
-      );
+      context.push(ScannerScreen.routeName);
     }
   }
 

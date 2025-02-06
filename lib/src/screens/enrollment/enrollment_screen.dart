@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../data/irma_repository.dart';
 import '../../widgets/irma_repository_provider.dart';
@@ -17,7 +18,7 @@ import 'provide_email/email_sent_screen.dart';
 import 'provide_email/provide_email_screen.dart';
 
 class EnrollmentScreen extends StatelessWidget {
-  static const routeName = 'enrollment';
+  static const routeName = '/enrollment';
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
       listener: (BuildContext context, EnrollmentState state) {
         //Navigate to home on EnrollmentCompleted
         if (state is EnrollmentCompleted) {
-          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+          context.go(HomeScreen.routeName);
         }
       },
       builder: (context, blocState) {
@@ -88,7 +89,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
                 builder: (context) => PinConfirmationFailedDialog(
                   onPressed: () {
                     addEvent(EnrollmentPinMismatch());
-                    Navigator.pop(context);
+                    context.pop();
                   },
                 ),
               );

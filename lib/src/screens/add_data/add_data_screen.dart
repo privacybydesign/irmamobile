@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
@@ -15,19 +16,9 @@ class AddDataScreen extends StatelessWidget {
   _navToAddDataDetailScreen(
     BuildContext context,
     CredentialType credentialType,
-  ) =>
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => AddDataDetailsScreen(
-            credentialType: credentialType,
-            onCancel: () => Navigator.of(context).pop(),
-            onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
-              context,
-              credentialType.fullId,
-            ),
-          ),
-        ),
-      );
+  ) {
+    context.push('/add_data/details', extra: credentialType);
+  }
 
   @override
   Widget build(BuildContext context) {
