@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rxdart/rxdart.dart';
 
+import 'src/data/irma_repository.dart';
+import 'src/models/version_information.dart';
 import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_language/change_language_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
@@ -11,8 +16,12 @@ import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/loading/loading_screen.dart';
+import 'src/screens/name_changed/name_changed_screen.dart';
 import 'src/screens/pin/pin_screen.dart';
+import 'src/screens/required_update/required_update_screen.dart';
 import 'src/screens/reset_pin/reset_pin_screen.dart';
+import 'src/screens/rooted_warning/repository.dart';
+import 'src/screens/rooted_warning/rooted_warning_screen.dart';
 import 'src/screens/scanner/scanner_screen.dart';
 import 'src/screens/session/session.dart';
 import 'src/screens/session/session_screen.dart';
@@ -20,23 +29,74 @@ import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
 import 'src/widgets/irma_repository_provider.dart';
 
-final GlobalKey<NavigatorState> navKey = GlobalKey();
+class StreamToListenableAdaptor<T> extends ChangeNotifier {
+  T value;
+
+  StreamToListenableAdaptor(Stream<T> stream, T initialValue) : value = initialValue {
+    stream.listen((newValue) {
+      value = newValue;
+      notifyListeners();
+    });
+  }
+}
+
+class RedirectionTriggers {
+  final bool locked;
+  final bool showDeviceRootedWarning;
+  final bool showNameChangedMessage;
+  final VersionInformation? versionInformation;
+
+  RedirectionTriggers({
+    required this.locked,
+    required this.showDeviceRootedWarning,
+    required this.showNameChangedMessage,
+    required this.versionInformation,
+  });
+
+  RedirectionTriggers.withDefaults()
+      : locked = true,
+        showDeviceRootedWarning = false,
+        showNameChangedMessage = false,
+        versionInformation = null;
+}
+
+Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
+  final repo = DetectRootedDeviceIrmaPrefsRepository(preferences: irmaRepo.preferences);
+  final streamController = StreamController<bool>();
+  repo.isDeviceRooted().then((isRooted) {
+    if (isRooted) {
+      repo.hasAcceptedRootedDeviceRisk().map((acceptedRisk) => !acceptedRisk).pipe(streamController);
+    } else {
+      streamController.add(false);
+    }
+  });
+  return streamController.stream;
+}
 
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
-  final locked = repo.getLocked();
-  final valueNotifier = ValueNotifier(true);
-  locked.listen((lock) {
-    debugPrint('locked state changed: $lock');
-    valueNotifier.value = lock;
+
+  // combining all variables that might trigger redirection into a single stream
+  final redirectionTriggersStream = Rx.combineLatest4(
+      _displayDeviceIsRootedWarning(repo),
+      repo.getLocked(),
+      repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null),
+      repo.preferences.getShowNameChangedNotification(),
+      (deviceRootedWarning, locked, versionInfo, nameChangedWarning) {
+    return RedirectionTriggers(
+      locked: locked,
+      showDeviceRootedWarning: deviceRootedWarning,
+      showNameChangedMessage: nameChangedWarning,
+      versionInformation: versionInfo,
+    );
   });
 
-  debugPrint('createRouter()');
+  // building a listenable based on this stream so it's compatible with GoRouter
+  final redirectionTriggers = StreamToListenableAdaptor(redirectionTriggersStream, RedirectionTriggers.withDefaults());
 
   return GoRouter(
-    navigatorKey: navKey,
     initialLocation: PinScreen.routeName,
-    refreshListenable: valueNotifier,
+    refreshListenable: redirectionTriggers,
     routes: [
       GoRoute(
         path: PinScreen.routeName,
@@ -100,10 +160,42 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: IssueWizardScreen.routeName,
         builder: (context, state) => IssueWizardScreen(arguments: state.extra as IssueWizardScreenArguments),
-      )
+      ),
+      GoRoute(
+        path: '/rooted_warning',
+        builder: (context, state) {
+          return RootedWarningScreen(
+            onAcceptRiskButtonPressed: () async {
+              DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences).setHasAcceptedRootedDeviceRisk();
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/name_changed',
+        builder: (context, state) {
+          return NameChangedScreen(
+            onContinuePressed: () => repo.preferences.setShowNameChangedNotification(false),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/update_required',
+        builder: (context, state) => RequiredUpdateScreen(),
+      ),
     ],
     redirect: (context, state) {
-      if (valueNotifier.value) {
+      if (redirectionTriggers.value.showDeviceRootedWarning) {
+        return '/rooted_warning';
+      }
+      if (redirectionTriggers.value.showNameChangedMessage) {
+        return '/name_changed';
+      }
+      if (redirectionTriggers.value.versionInformation != null &&
+          redirectionTriggers.value.versionInformation!.updateRequired()) {
+        return '/update_required';
+      }
+      if (redirectionTriggers.value.locked) {
         debugPrint('redirect to pin');
         return '/';
       }
