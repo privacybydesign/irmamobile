@@ -19,7 +19,6 @@ import 'bloc/pin_state.dart';
 import 'yivi_pin_screen.dart';
 
 class PinScreen extends StatefulWidget {
-  static const String routeName = '/pin';
   final PinEvent? initialEvent;
 
   const PinScreen({super.key, this.initialEvent});
@@ -200,7 +199,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         onSubmit: enabled ? submit : (_) {},
                         pinBloc: pinBloc,
                         enabled: enabled,
-                        onForgotPin: () => context.push(ResetPinScreen.routeName),
+                        onForgotPin: () => context.push('/reset_pin'),
                         listener: (context, state) {
                           if (maxPinSize == shortPinSize && state.pin.length == maxPinSize && enabled) {
                             submit(state.toString());

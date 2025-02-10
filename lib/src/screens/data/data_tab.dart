@@ -31,7 +31,7 @@ class DataTab extends StatelessWidget {
           children: [
             IrmaActionCard(
               titleKey: 'data.tab.obtain_data',
-              onTap: () => context.push(AddDataScreen.routeName),
+              onTap: () => context.push('/add_data'),
               icon: Icons.add_circle_sharp,
             ),
             CredentialTypesBuilder(

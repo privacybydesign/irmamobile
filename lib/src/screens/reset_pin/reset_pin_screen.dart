@@ -11,8 +11,6 @@ import '../session/widgets/dynamic_layout.dart';
 import '../settings/settings_screen.dart';
 
 class ResetPinScreen extends StatelessWidget {
-  static const String routeName = '/reset';
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);

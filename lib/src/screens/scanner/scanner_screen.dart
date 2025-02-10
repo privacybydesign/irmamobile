@@ -7,8 +7,6 @@ import '../../widgets/irma_app_bar.dart';
 import 'widgets/qr_scanner.dart';
 
 class ScannerScreen extends StatelessWidget {
-  static const routeName = '/scanner';
-
   void _onSuccess(BuildContext context, Pointer pointer) {
     // QR was scanned using IRMA app's internal QR code scanner, so we know for sure
     // the session continues on a second device. Therefore we can overrule the session pointer.

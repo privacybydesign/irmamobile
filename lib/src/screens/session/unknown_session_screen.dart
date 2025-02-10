@@ -10,8 +10,6 @@ _popToHome(BuildContext context) {
 }
 
 class UnknownSessionScreen extends StatelessWidget {
-  static const String routeName = '/session/unknown';
-
   final SessionScreenArguments arguments;
 
   const UnknownSessionScreen({required this.arguments}) : super();

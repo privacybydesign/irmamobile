@@ -11,7 +11,6 @@ import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
 import '../notifications/bloc/notifications_bloc.dart';
-import '../notifications/notifications_screen.dart';
 import '../notifications/widgets/notification_bell.dart';
 import '../scanner/util/open_scanner.dart';
 import 'home_tab.dart';
@@ -20,8 +19,6 @@ import 'widgets/irma_qr_scan_button.dart';
 import 'widgets/pending_pointer_listener.dart';
 
 class HomeScreen extends StatefulWidget {
-  static const routeName = '/home';
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -39,9 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final repo = IrmaRepositoryProvider.of(context);
-      final navigator = Navigator.of(context);
-
-      maybeOpenQrScanner(repo, navigator);
+      maybeOpenQrScanner(repo, context);
     });
   }
 

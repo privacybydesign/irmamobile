@@ -6,7 +6,6 @@ import '../models/session.dart';
 import '../models/session_events.dart';
 import '../screens/issue_wizard/issue_wizard.dart';
 import '../screens/session/session.dart';
-import '../screens/session/session_screen.dart';
 import '../screens/session/unknown_session_screen.dart';
 import '../widgets/irma_repository_provider.dart';
 
@@ -88,9 +87,9 @@ Future<int> _startSessionAndNavigate(
       case 'disclosing':
       case 'signing':
       case 'redirect':
-        return SessionScreen.routeName;
+        return '/session';
       default:
-        return UnknownSessionScreen.routeName;
+        return '/unknown_session';
     }
   }();
   if (!context.mounted) {

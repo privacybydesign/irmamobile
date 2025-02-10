@@ -34,8 +34,6 @@ _popToHome(BuildContext context) {
 }
 
 class SessionScreen extends StatefulWidget {
-  static const String routeName = '/session';
-
   final SessionScreenArguments arguments;
 
   const SessionScreen({required this.arguments}) : super();
@@ -95,7 +93,7 @@ class _SessionScreenState extends State<SessionScreen> {
     if (widget.arguments.wizardActive) {
       popToWizard(context);
     } else if (widget.arguments.hasUnderlyingSession) {
-      Navigator.of(context).pop();
+      context.pop();
     } else {
       context.go('/home');
     }

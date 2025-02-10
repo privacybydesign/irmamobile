@@ -18,8 +18,6 @@ import 'provide_email/email_sent_screen.dart';
 import 'provide_email/provide_email_screen.dart';
 
 class EnrollmentScreen extends StatelessWidget {
-  static const routeName = '/enrollment';
-
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);

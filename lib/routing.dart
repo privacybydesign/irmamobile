@@ -134,10 +134,10 @@ GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
 
-  final whiteListedOnLocked = {ResetPinScreen.routeName, LoadingScreen.routeName, EnrollmentScreen.routeName};
+  final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment'};
 
   return GoRouter(
-    initialLocation: LoadingScreen.routeName,
+    initialLocation: '/loading',
     refreshListenable: redirectionTriggers,
     errorBuilder: (context, state) {
       return ErrorScreen(
@@ -172,39 +172,35 @@ GoRouter createRouter(BuildContext buildContext) {
         },
       ),
       GoRoute(
-        path: PinScreen.routeName,
+        path: '/pin',
         pageBuilder: (context, state) => NoTransitionPage(child: PinScreen()),
       ),
       GoRoute(
-        path: ResetPinScreen.routeName,
+        path: '/reset_pin',
         builder: (context, state) => ResetPinScreen(),
       ),
       GoRoute(
-        path: LoadingScreen.routeName,
+        path: '/loading',
         pageBuilder: (context, state) => NoTransitionPage(child: LoadingScreen()),
       ),
       GoRoute(
-        path: EnrollmentScreen.routeName,
+        path: '/enrollment',
         builder: (context, state) => EnrollmentScreen(),
       ),
       GoRoute(
-        path: ScannerScreen.routeName,
+        path: '/scanner',
         builder: (context, state) => ScannerScreen(),
       ),
       GoRoute(
-        path: ChangePinScreen.routeName,
+        path: '/change_pin',
         builder: (context, state) => ChangePinScreen(),
       ),
       GoRoute(
-        path: ChangeLanguageScreen.routeName,
+        path: '/change_language',
         builder: (context, state) => ChangeLanguageScreen(),
       ),
       GoRoute(
-        path: SettingsScreen.routeName,
-        builder: (context, state) => SettingsScreen(),
-      ),
-      GoRoute(
-        path: AddDataScreen.routeName,
+        path: '/add_data',
         builder: (context, state) => AddDataScreen(),
         routes: [
           GoRoute(
@@ -224,19 +220,19 @@ GoRouter createRouter(BuildContext buildContext) {
         ],
       ),
       GoRoute(
-        path: HelpScreen.routeName,
+        path: '/help',
         builder: (context, state) => HelpScreen(),
       ),
       GoRoute(
-        path: ResetPinScreen.routeName,
+        path: '/reset_pin',
         builder: (context, state) => ResetPinScreen(),
       ),
       GoRoute(
-        path: DebugScreen.routeName,
+        path: '/debug',
         builder: (context, state) => const DebugScreen(),
       ),
       GoRoute(
-        path: HomeScreen.routeName,
+        path: '/home',
         pageBuilder: (context, state) {
           // we want a normal transition when you come back to the home page from a sub page
           // but an instant transition when coming to the home page from somewhere else
@@ -265,15 +261,15 @@ GoRouter createRouter(BuildContext buildContext) {
         ],
       ),
       GoRoute(
-        path: SettingsScreen.routeName,
+        path: '/settings',
         builder: (context, state) => SettingsScreen(),
       ),
       GoRoute(
-        path: SessionScreen.routeName,
+        path: '/session',
         builder: (context, state) => SessionScreen(arguments: state.extra as SessionScreenArguments),
       ),
       GoRoute(
-        path: UnknownSessionScreen.routeName,
+        path: '/unknown_session',
         builder: (context, state) => UnknownSessionScreen(arguments: state.extra as SessionScreenArguments),
       ),
       GoRoute(
@@ -327,8 +323,10 @@ GoRouter createRouter(BuildContext buildContext) {
         return '/update_required';
       }
       if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
-        return PinScreen.routeName;
+        debugPrint('going to pin: $redirectionTriggers');
+        return '/pin';
       }
+      debugPrint('going to ${state.fullPath}: $redirectionTriggers');
       return null;
     },
   );

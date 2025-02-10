@@ -11,8 +11,6 @@ import 'add_data_details_screen.dart';
 import 'widgets/store_credential_types_builder.dart';
 
 class AddDataScreen extends StatelessWidget {
-  static const String routeName = '/add_data';
-
   _navToAddDataDetailScreen(
     BuildContext context,
     CredentialType credentialType,

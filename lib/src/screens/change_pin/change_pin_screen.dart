@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/session.dart';
@@ -16,15 +17,11 @@ import '../change_pin/widgets/enter_pin.dart';
 import '../enrollment/choose_pin/choose_pin_screen.dart';
 import '../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart';
 import '../error/session_error_screen.dart';
-import '../home/home_screen.dart';
-import '../settings/settings_screen.dart';
 import 'models/old_pin_verification_state.dart';
 import 'models/validation_state.dart';
 import 'models/verify_old_pin_bloc.dart';
 
 class ChangePinScreen extends StatelessWidget {
-  static const routeName = '/change_pin';
-
   @override
   Widget build(BuildContext context) {
     final IrmaRepository repo = IrmaRepositoryProvider.of(context);
@@ -104,7 +101,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         return;
       }
       Navigator.of(context).popUntil(
-        (route) => route.settings.name == SettingsScreen.routeName,
+        (route) => route.settings.name == '/settings',
       );
     });
   }
@@ -157,7 +154,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         ),
       );
     } else {
-      Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(HomeScreen.routeName));
+      context.go('/home');
       widget.repo.lock(unblockTime: blockedUntil);
     }
   }

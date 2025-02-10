@@ -10,8 +10,6 @@ import '../error/error_screen.dart';
 import '../splash_screen/splash_screen.dart';
 
 class LoadingScreen extends StatefulWidget {
-  static const routeName = '/loading';
-
   @override
   State<LoadingScreen> createState() => _LoadingScreenState();
 }
