@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/native_events.dart';
 import '../../theme/theme.dart';
@@ -44,14 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _navToNotificationsScreen() => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: BlocProvider.of<NotificationsBloc>(context),
-            child: NotificationsScreen(),
-          ),
-        ),
-      );
+  void _navToNotificationsScreen() {
+    context.go('/home/notifications');
+  }
 
   @override
   Widget build(BuildContext context) {

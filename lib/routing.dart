@@ -24,6 +24,7 @@ import 'src/screens/home/home_screen.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/loading/loading_screen.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
+import 'src/screens/notifications/notifications_screen.dart';
 import 'src/screens/pin/pin_screen.dart';
 import 'src/screens/required_update/required_update_screen.dart';
 import 'src/screens/reset_pin/reset_pin_screen.dart';
@@ -237,7 +238,33 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: HomeScreen.routeName,
-        pageBuilder: (context, state) => NoTransitionPage(child: HomeScreen()),
+        pageBuilder: (context, state) {
+          // we want a normal transition when you come back to the home page from a sub page
+          // but an instant transition when coming to the home page from somewhere else
+          return CustomTransitionPage(
+            child: HomeScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              print('a: ${animation.value}, b: ${animation.value}');
+              if (animation.status == AnimationStatus.forward || animation.isCompleted) {
+                return child;
+              }
+
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: Offset(1, 0),
+                  end: Offset(0, 0),
+                ).animate(secondaryAnimation),
+                child: child,
+              );
+            },
+          );
+        },
+        routes: [
+          GoRoute(
+            path: 'notifications',
+            builder: (context, state) => NotificationsScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: SettingsScreen.routeName,

@@ -92,48 +92,51 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(
-        titleTranslationKey: 'notifications.title',
-      ),
-      body: SafeArea(
-        child: BlocBuilder<NotificationsBloc, NotificationsState>(
-          builder: (context, state) {
-            if (state is NotificationsLoading) {
-              return Center(
-                child: LoadingIndicator(),
-              );
-            } else if (state is NotificationsLoaded) {
-              final notifications = state.notifications;
+    return BlocProvider.value(
+      value: BlocProvider.of<NotificationsBloc>(context),
+      child: Scaffold(
+        backgroundColor: theme.backgroundTertiary,
+        appBar: const IrmaAppBar(
+          titleTranslationKey: 'notifications.title',
+        ),
+        body: SafeArea(
+          child: BlocBuilder<NotificationsBloc, NotificationsState>(
+            builder: (context, state) {
+              if (state is NotificationsLoading) {
+                return Center(
+                  child: LoadingIndicator(),
+                );
+              } else if (state is NotificationsLoaded) {
+                final notifications = state.notifications;
 
-              return RefreshIndicator(
-                onRefresh: () => Future.sync(_onRefresh),
-                child: notifications.isEmpty
-                    ? _emptyListIndicator(theme)
-                    : ListView.builder(
-                        padding: EdgeInsets.all(
-                          theme.defaultSpacing,
+                return RefreshIndicator(
+                  onRefresh: () => Future.sync(_onRefresh),
+                  child: notifications.isEmpty
+                      ? _emptyListIndicator(theme)
+                      : ListView.builder(
+                          padding: EdgeInsets.all(
+                            theme.defaultSpacing,
+                          ),
+                          itemCount: state.notifications.length,
+                          itemBuilder: (context, index) {
+                            final notification = notifications[index];
+
+                            return IrmaDismissible(
+                              key: Key(notification.id),
+                              onDismissed: () => _onNotificationDismiss(notification),
+                              child: NotificationCard(
+                                notification: notification,
+                                onTap: () => _onNotificationTap(notification),
+                              ),
+                            );
+                          },
                         ),
-                        itemCount: state.notifications.length,
-                        itemBuilder: (context, index) {
-                          final notification = notifications[index];
+                );
+              }
 
-                          return IrmaDismissible(
-                            key: Key(notification.id),
-                            onDismissed: () => _onNotificationDismiss(notification),
-                            child: NotificationCard(
-                              notification: notification,
-                              onTap: () => _onNotificationTap(notification),
-                            ),
-                          );
-                        },
-                      ),
-              );
-            }
-
-            throw Exception('NotificationsScreen does not support this state: $state');
-          },
+              throw Exception('NotificationsScreen does not support this state: $state');
+            },
+          ),
         ),
       ),
     );
