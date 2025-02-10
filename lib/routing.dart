@@ -22,6 +22,7 @@ import 'src/screens/error/error_screen.dart';
 import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
+import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
 import 'src/screens/notifications/notifications_screen.dart';
@@ -141,9 +142,7 @@ GoRouter createRouter(BuildContext buildContext) {
     errorBuilder: (context, state) {
       return ErrorScreen(
         details: state.error?.message ?? "Something went wrong, but we don't know what",
-        onTapClose: () {
-          context.pop();
-        },
+        onTapClose: context.pop,
       );
     },
     routes: [
@@ -244,7 +243,6 @@ GoRouter createRouter(BuildContext buildContext) {
           return CustomTransitionPage(
             child: HomeScreen(),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              print('a: ${animation.value}, b: ${animation.value}');
               if (animation.status == AnimationStatus.forward || animation.isCompleted) {
                 return child;
               }
@@ -279,8 +277,17 @@ GoRouter createRouter(BuildContext buildContext) {
         builder: (context, state) => UnknownSessionScreen(arguments: state.extra as SessionScreenArguments),
       ),
       GoRoute(
-        path: IssueWizardScreen.routeName,
+        path: '/issue_wizard',
         builder: (context, state) => IssueWizardScreen(arguments: state.extra as IssueWizardScreenArguments),
+      ),
+      GoRoute(
+        path: '/issue_wizard_success',
+        builder: (context, state) {
+          return IssueWizardSuccessScreen(
+            onDismiss: () => context.go('/home'),
+            args: state.extra as IssueWizardSuccessScreenArgs
+          );
+        },
       ),
       GoRoute(
         path: '/rooted_warning',
@@ -306,29 +313,22 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
     ],
     redirect: (context, state) {
-      print('trying to go to ${state.fullPath}');
       if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
-        print('redirect to /enrollment');
         return '/enrollment';
       }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
-        print('redirect to /rooted_warning');
         return '/rooted_warning';
       }
       if (redirectionTriggers.value.showNameChangedMessage) {
-        print('redirect to /name_changed');
         return '/name_changed';
       }
       if (redirectionTriggers.value.versionInformation != null &&
           redirectionTriggers.value.versionInformation!.updateRequired()) {
-        print('redirect to /update_required');
         return '/update_required';
       }
       if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
-        print('redirect to /pin');
         return PinScreen.routeName;
       }
-      print('go to path ${state.fullPath}');
       return null;
     },
   );

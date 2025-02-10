@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../data/irma_repository.dart';
@@ -14,12 +15,11 @@ import '../../screens/issue_wizard/widgets/wizard_contents.dart';
 import '../../screens/issue_wizard/widgets/wizard_info.dart';
 import '../../util/handle_pointer.dart';
 import '../../util/language.dart';
-import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
 import 'widgets/issue_wizard_success_screen.dart';
 
 class IssueWizardScreen extends StatefulWidget {
-  static const routeName = '/issuewizard';
+  static const routeName = '/issue_wizard';
 
   final IssueWizardScreenArguments arguments;
 
@@ -113,13 +113,11 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
         successContentTranslation = wizard.wizardData.successText;
       }
 
-      await navigator.pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => IssueWizardSuccessScreen(
-            headerTranslation: successHeaderTranslation,
-            contentTranslation: successContentTranslation,
-            onDismiss: () => popToHome(context),
-          ),
+      context.go(
+        '/issue_wizard_success',
+        extra: IssueWizardSuccessScreenArgs(
+          headerTranslation: successHeaderTranslation,
+          contentTranslation: successContentTranslation,
         ),
       );
     }
@@ -185,7 +183,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
   }
 
   void _onBackPress() {
-    popToHome(context);
+    context.go('/home');
   }
 
   @override
