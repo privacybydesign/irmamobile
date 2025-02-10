@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
-import '../../scanner/scanner_screen.dart';
 import '../../scanner/util/handle_camera_permission.dart';
 
 class IrmaQrScanButton extends StatelessWidget {

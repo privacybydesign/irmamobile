@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_action_card.dart';
-import '../add_data/add_data_screen.dart';
 import 'widgets/credential_category_list.dart';
 import 'widgets/credential_types_builder.dart';
 

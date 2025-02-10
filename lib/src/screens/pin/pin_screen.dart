@@ -12,7 +12,6 @@ import '../../widgets/pin_common/format_blocked_for.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/pin_common/pin_wrong_blocked.dart';
 import '../error/session_error_screen.dart';
-import '../reset_pin/reset_pin_screen.dart';
 import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
 import 'bloc/pin_state.dart';

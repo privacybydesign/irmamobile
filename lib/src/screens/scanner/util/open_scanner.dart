@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../data/irma_repository.dart';
-import '../scanner_screen.dart';
 
 Future<void> maybeOpenQrScanner(
   IrmaRepository repo,

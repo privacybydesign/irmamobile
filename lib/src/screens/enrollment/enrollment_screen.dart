@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../data/irma_repository.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
-import '../home/home_screen.dart';
 import 'accept_terms/accept_terms_screen.dart';
 import 'bloc/enrollment_bloc.dart';
 import 'choose_pin/choose_pin_screen.dart';

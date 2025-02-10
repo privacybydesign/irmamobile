@@ -6,7 +6,6 @@ import '../models/session.dart';
 import '../models/session_events.dart';
 import '../screens/issue_wizard/issue_wizard.dart';
 import '../screens/session/session.dart';
-import '../screens/session/unknown_session_screen.dart';
 import '../widgets/irma_repository_provider.dart';
 
 /// First handles the issue wizard if one is present, and subsequently the session is handled.

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
-import '../../home/home_screen.dart';
 
 class EmailSentScreen extends StatelessWidget {
   final String email;

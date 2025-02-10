@@ -4,10 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 import '../data/widgets/credential_category_list.dart';
-import 'add_data_details_screen.dart';
 import 'widgets/store_credential_types_builder.dart';
 
 class AddDataScreen extends StatelessWidget {
