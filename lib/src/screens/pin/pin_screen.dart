@@ -19,7 +19,7 @@ import 'bloc/pin_state.dart';
 import 'yivi_pin_screen.dart';
 
 class PinScreen extends StatefulWidget {
-  static const String routeName = '/';
+  static const String routeName = '/pin';
   final PinEvent? initialEvent;
 
   const PinScreen({super.key, this.initialEvent});
@@ -189,9 +189,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                     _pinBloc.add(
                       Unlock(pin: pin, repo: IrmaRepositoryProvider.of(context)),
                     );
-                  }
-
-                  if (state.authenticated) {
                   }
 
                   return Stack(

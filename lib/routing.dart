@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'src/data/irma_repository.dart';
+import 'src/models/enrollment_status.dart';
 import 'src/models/irma_configuration.dart';
 import 'src/models/log_entry.dart';
 import 'src/models/version_information.dart';
@@ -17,6 +18,7 @@ import 'src/screens/change_pin/change_pin_screen.dart';
 import 'src/screens/data/credentials_detail_screen.dart';
 import 'src/screens/debug/debug_screen.dart';
 import 'src/screens/enrollment/enrollment_screen.dart';
+import 'src/screens/error/error_screen.dart';
 import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
@@ -34,13 +36,37 @@ import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
 import 'src/widgets/irma_repository_provider.dart';
 
-class StreamToListenableAdaptor<T> extends ChangeNotifier {
-  T value;
+class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
+  late final Stream<RedirectionTriggers> _streamSubscription;
 
-  StreamToListenableAdaptor(Stream<T> stream, T initialValue) : value = initialValue {
-    stream.listen((newValue) {
-      value = newValue;
-      notifyListeners();
+  RedirectionListenable(IrmaRepository repo) : super(RedirectionTriggers.withDefaults()) {
+    final warningStream = _displayDeviceIsRootedWarning(repo);
+    final lockedStream = repo.getLocked();
+    final infoStream = repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null);
+    final nameChangedStream = repo.preferences.getShowNameChangedNotification();
+    final enrollmentStream = repo.getEnrollmentStatus();
+
+    // combine the streams into one
+    _streamSubscription = Rx.combineLatest5(
+      warningStream,
+      lockedStream,
+      infoStream,
+      nameChangedStream,
+      enrollmentStream,
+      (deviceRootedWarning, locked, versionInfo, nameChangedWarning, enrollment) {
+        return RedirectionTriggers(
+          appLocked: locked,
+          showDeviceRootedWarning: deviceRootedWarning,
+          showNameChangedMessage: nameChangedWarning,
+          versionInformation: versionInfo,
+          enrollmentStatus: enrollment,
+        );
+      },
+    );
+
+    // listen for updates from the streams
+    _streamSubscription.listen((triggers) {
+      value = triggers;
     });
   }
 }
@@ -50,19 +76,43 @@ class RedirectionTriggers {
   final bool showDeviceRootedWarning;
   final bool showNameChangedMessage;
   final VersionInformation? versionInformation;
+  final EnrollmentStatus enrollmentStatus;
 
   RedirectionTriggers({
     required this.appLocked,
     required this.showDeviceRootedWarning,
     required this.showNameChangedMessage,
     required this.versionInformation,
+    required this.enrollmentStatus,
   });
 
   RedirectionTriggers.withDefaults()
-      : appLocked = true,
+      : enrollmentStatus = EnrollmentStatus.undetermined,
+        appLocked = true,
         showDeviceRootedWarning = false,
         showNameChangedMessage = false,
         versionInformation = null;
+
+  RedirectionTriggers copyWith({
+    bool? appLocked,
+    bool? showDeviceRootedWarning,
+    bool? showNameChangedMessage,
+    VersionInformation? versionInformation,
+    EnrollmentStatus? enrollmentStatus,
+  }) {
+    return RedirectionTriggers(
+      appLocked: appLocked ?? this.appLocked,
+      showDeviceRootedWarning: showDeviceRootedWarning ?? this.showDeviceRootedWarning,
+      showNameChangedMessage: showNameChangedMessage ?? this.showNameChangedMessage,
+      versionInformation: versionInformation ?? this.versionInformation,
+      enrollmentStatus: enrollmentStatus ?? this.enrollmentStatus,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation';
+  }
 }
 
 Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
@@ -80,32 +130,25 @@ Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
 
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
+  final redirectionTriggers = RedirectionListenable(repo);
 
-  // combining all variables that might trigger redirection into a single stream
-  final redirectionTriggersStream = Rx.combineLatest4(
-    _displayDeviceIsRootedWarning(repo),
-    repo.getLocked(),
-    repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null),
-    repo.preferences.getShowNameChangedNotification(),
-    (deviceRootedWarning, locked, versionInfo, nameChangedWarning) {
-      return RedirectionTriggers(
-        appLocked: locked,
-        showDeviceRootedWarning: deviceRootedWarning,
-        showNameChangedMessage: nameChangedWarning,
-        versionInformation: versionInfo,
-      );
-    },
-  );
-
-  final whiteListedOnLocked = {ResetPinScreen.routeName};
-
-  // building a listenable based on this stream so it's compatible with GoRouter
-  final redirectionTriggers = StreamToListenableAdaptor(redirectionTriggersStream, RedirectionTriggers.withDefaults());
+  final whiteListedOnLocked = {ResetPinScreen.routeName, LoadingScreen.routeName, EnrollmentScreen.routeName};
 
   return GoRouter(
-    initialLocation: PinScreen.routeName,
+    initialLocation: LoadingScreen.routeName,
     refreshListenable: redirectionTriggers,
     routes: [
+      GoRoute(
+        path: '/error',
+        builder: (context, state) {
+          return ErrorScreen(
+            details: state.extra as String,
+            onTapClose: () {
+              context.pop();
+            },
+          );
+        },
+      ),
       GoRoute(
         path: '/credentials_details',
         builder: (context, state) {
@@ -228,114 +271,32 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
     ],
     redirect: (context, state) {
+      print('trying to go to ${state.fullPath}');
+      if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
+        print('redirect to /enrollment');
+        return '/enrollment';
+      }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
+        print('redirect to /rooted_warning');
         return '/rooted_warning';
       }
       if (redirectionTriggers.value.showNameChangedMessage) {
+        print('redirect to /name_changed');
         return '/name_changed';
       }
       if (redirectionTriggers.value.versionInformation != null &&
           redirectionTriggers.value.versionInformation!.updateRequired()) {
+        print('redirect to /update_required');
         return '/update_required';
       }
       if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
+        print('redirect to /pin');
         return PinScreen.routeName;
       }
-      debugPrint('go to path ${state.fullPath}');
+      print('go to path ${state.fullPath}');
       return null;
     },
   );
-}
-
-class Routing {
-  static Map<String, WidgetBuilder> simpleRoutes = {
-    LoadingScreen.routeName: (context) => LoadingScreen(),
-    EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
-    ScannerScreen.routeName: (context) => ScannerScreen(),
-    ChangePinScreen.routeName: (context) => ChangePinScreen(),
-    ChangeLanguageScreen.routeName: (context) => ChangeLanguageScreen(),
-    SettingsScreen.routeName: (context) => SettingsScreen(),
-    AddDataScreen.routeName: (context) => AddDataScreen(),
-    HelpScreen.routeName: (context) => HelpScreen(),
-    ResetPinScreen.routeName: (context) => ResetPinScreen(),
-    DebugScreen.routeName: (context) => const DebugScreen(),
-    HomeScreen.routeName: (context) => HomeScreen(),
-  };
-
-  // This function returns a `WidgetBuilder` of the screen found by `routeName`
-  // It returns `null` if the screen is not found
-  // It throws `ValueError` is it cannot properly cast the arguments
-  static WidgetBuilder? _screenBuilder(String routeName, Object? arguments) {
-    switch (routeName) {
-      case SessionScreen.routeName:
-        return (context) => SessionScreen(arguments: arguments as SessionScreenArguments);
-      case UnknownSessionScreen.routeName:
-        return (context) => UnknownSessionScreen(arguments: arguments as SessionScreenArguments);
-      case IssueWizardScreen.routeName:
-        return (context) => IssueWizardScreen(arguments: arguments as IssueWizardScreenArguments);
-
-      default:
-        return simpleRoutes[routeName];
-    }
-  }
-
-  // Manually define what root routes are
-  static bool _isRootRoute(RouteSettings settings) {
-    return settings.name == HomeScreen.routeName || settings.name == EnrollmentScreen.routeName;
-  }
-
-  static bool _isSubnavigatorRoute(RouteSettings settings) {
-    return settings.name == EnrollmentScreen.routeName || settings.name == ChangePinScreen.routeName;
-  }
-
-  static _canPop(RouteSettings settings, BuildContext context) {
-    // If the current route has a subnavigator and is on the root, defer to that component's `PopScope`
-    if (_isSubnavigatorRoute(settings) && _isRootRoute(settings)) {
-      return true;
-    }
-
-    // Otherwise if it is a root route, background the app on backpress
-    if (_isRootRoute(settings)) {
-      if (settings.name == HomeScreen.routeName) {
-        // Check if we are in the drawn state.
-        // We don't want the app to background in this case.
-        // Defer to home_screen.dart
-        return true;
-      }
-      return false;
-    }
-
-    return true;
-  }
-
-/*
-  static Route generateRoute(RouteSettings settings) {
-    // Try to find the appropriate screen, but keep `RouteNotFoundScreen` as default
-    WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
-    try {
-      if (settings.name != null) screenBuilder = _screenBuilder(settings.name!, settings.arguments) ?? screenBuilder;
-    } catch (_) {
-      // pass
-    }
-
-    // Wrap the route in a `PopScope` that denies Android back presses
-    // if the route is an initial route
-    return MaterialPageRoute(
-      builder: (BuildContext context) {
-        return PopScope(
-          canPop: _canPop(settings, context),
-          onPopInvokedWithResult: (didPop, popResult) {
-            if (_isRootRoute(settings) && settings.name != HomeScreen.routeName) {
-              IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
-            }
-          },
-          child: screenBuilder(context),
-        );
-      },
-      settings: settings,
-    );
-  }
-  */
 }
 
 class RouteNotFoundScreen extends StatelessWidget {

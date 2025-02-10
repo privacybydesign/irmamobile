@@ -38,6 +38,20 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
   const _ProvidedEnrollmentScreen({required this.repo});
 
+  _onEnrollmentCompleted(BuildContext context) async {
+    // we have to await the locked setting, because it could come after the enrollment status,
+    // causing us to be automatically redirected to the pin screen when we're already unlocked...
+    final locked = await repo.getLocked().first;
+    if (!context.mounted) {
+      return;
+    }
+    if (locked) {
+      context.go('/pin');
+    } else {
+      context.go('/home');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<EnrollmentBloc>();
@@ -54,7 +68,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
       listener: (BuildContext context, EnrollmentState state) {
         //Navigate to home on EnrollmentCompleted
         if (state is EnrollmentCompleted) {
-          context.go(HomeScreen.routeName);
+          _onEnrollmentCompleted(context);
         }
       },
       builder: (context, blocState) {

@@ -126,7 +126,7 @@ class _DebugScreenState extends State<DebugScreen> {
             Icons.play_arrow,
             'debug.custom_issue_wizard',
             onTap: () => handlePointer(
-              Navigator.of(context),
+              context,
               IssueWizardPointer('irma-demo-requestors.ivido.demo-client'),
             ),
           ),

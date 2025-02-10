@@ -172,7 +172,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
         break;
       case 'session':
         handlePointer(
-          Navigator.of(context),
+          context,
           SessionPointer(u: item?.sessionURL ?? '', irmaqr: 'redirect'),
         );
         break;
