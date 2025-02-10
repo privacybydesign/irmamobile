@@ -137,6 +137,14 @@ GoRouter createRouter(BuildContext buildContext) {
   return GoRouter(
     initialLocation: LoadingScreen.routeName,
     refreshListenable: redirectionTriggers,
+    errorBuilder: (context, state) {
+      return ErrorScreen(
+        details: state.error?.message ?? "Something went wrong, but we don't know what",
+        onTapClose: () {
+          context.pop();
+        },
+      );
+    },
     routes: [
       GoRoute(
         path: '/error',
@@ -165,7 +173,7 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: PinScreen.routeName,
-        builder: (context, state) => PinScreen(),
+        pageBuilder: (context, state) => NoTransitionPage(child: PinScreen()),
       ),
       GoRoute(
         path: ResetPinScreen.routeName,
@@ -173,7 +181,7 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: LoadingScreen.routeName,
-        builder: (context, state) => LoadingScreen(),
+        pageBuilder: (context, state) => NoTransitionPage(child: LoadingScreen()),
       ),
       GoRoute(
         path: EnrollmentScreen.routeName,
@@ -229,7 +237,7 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: HomeScreen.routeName,
-        builder: (context, state) => HomeScreen(),
+        pageBuilder: (context, state) => NoTransitionPage(child: HomeScreen()),
       ),
       GoRoute(
         path: SettingsScreen.routeName,
