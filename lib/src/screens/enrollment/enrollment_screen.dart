@@ -66,7 +66,6 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
     return BlocConsumer<EnrollmentBloc, EnrollmentState>(
       listener: (BuildContext context, EnrollmentState state) {
-        //Navigate to home on EnrollmentCompleted
         if (state is EnrollmentCompleted) {
           _onEnrollmentCompleted(context);
         }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
@@ -18,11 +19,6 @@ class EmailSentScreen extends StatelessWidget {
     required this.onContinue,
   });
 
-  _navigateToHome(BuildContext context) => Navigator.of(
-        context,
-        rootNavigator: true,
-      ).pushReplacementNamed(HomeScreen.routeName);
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -36,7 +32,7 @@ class EmailSentScreen extends StatelessWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),
-        onPrimaryPressed: () => _navigateToHome(context),
+        onPrimaryPressed: onContinue,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
