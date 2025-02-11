@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/irma_repository.dart';
 import '../../models/session.dart';
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/translated_text.dart';
@@ -146,7 +147,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         ),
       );
     } else {
-      context.go('/home');
+      goToHomeWithoutTransition(context);
       widget.repo.lock(unblockTime: blockedUntil);
     }
   }

@@ -36,6 +36,7 @@ import 'src/screens/session/session.dart';
 import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
+import 'src/util/navigation.dart';
 import 'src/widgets/irma_repository_provider.dart';
 
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
@@ -130,6 +131,9 @@ Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
   return streamController.stream;
 }
 
+// FIXME: replace this global by an InheritedWidget: https://zapp.run/edit/flutter-zq4806omq490?entry=lib/main.dart&file=lib/main.dart
+bool instantTransition = false;
+
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
@@ -181,24 +185,11 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/home',
         pageBuilder: (context, state) {
-          // we want a normal transition when you come back to the home page from a sub page
-          // but an instant transition when coming to the home page from somewhere else
-          return CustomTransitionPage(
-            child: HomeScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              if (animation.status == AnimationStatus.forward || animation.isCompleted) {
-                return child;
-              }
-
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: Offset(1, 0),
-                  end: Offset(0, 0),
-                ).animate(secondaryAnimation),
-                child: child,
-              );
-            },
-          );
+          if (instantTransition) {
+            instantTransition = false;
+            return NoTransitionPage(child: HomeScreen());
+          }
+          return MaterialPage(child: HomeScreen());
         },
         routes: [
           GoRoute(
@@ -280,7 +271,7 @@ GoRouter createRouter(BuildContext buildContext) {
         path: '/issue_wizard_success',
         builder: (context, state) {
           return IssueWizardSuccessScreen(
-            onDismiss: () => context.go('/home'),
+            onDismiss: () => goToHomeWithoutTransition(context),
             args: state.extra as IssueWizardSuccessScreenArgs,
           );
         },

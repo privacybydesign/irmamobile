@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/enrollment_status.dart';
 import '../../models/error_event.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../error/error_screen.dart';
 import '../splash_screen/splash_screen.dart';
@@ -42,7 +43,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       if (locked) {
         context.go('/pin');
       } else {
-        context.go('/home');
+        goToHomeWithoutTransition(context);
       }
     } else if (status == EnrollmentStatus.unenrolled) {
       context.go('/enrollment');

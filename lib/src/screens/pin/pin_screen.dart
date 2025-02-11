@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/format_blocked_for.dart';
@@ -85,7 +86,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
       // navigate to home when the the user is authenticated
       if (pinState.authenticated && mounted) {
-        context.go('/home');
+        goToHomeWithoutTransition(context);
       }
     });
   }
