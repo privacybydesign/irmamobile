@@ -167,13 +167,9 @@ class AppState extends State<App> with WidgetsBindingObserver {
         if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
           widget.irmaRepository.lock();
         } else {
-          if (!mounted) {
-            return;
+          if (mounted) {
+            maybeOpenQrScanner(context, widget.irmaRepository);
           }
-          maybeOpenQrScanner(
-            widget.irmaRepository,
-            context,
-          );
         }
       }
     }

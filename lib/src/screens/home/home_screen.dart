@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final repo = IrmaRepositoryProvider.of(context);
-      maybeOpenQrScanner(repo, context);
+      maybeOpenQrScanner(context, repo);
     });
   }
 

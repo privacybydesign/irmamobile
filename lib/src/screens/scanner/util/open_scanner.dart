@@ -5,8 +5,8 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../data/irma_repository.dart';
 
 Future<void> maybeOpenQrScanner(
-  IrmaRepository repo,
   BuildContext context,
+  IrmaRepository repo,
 ) async {
   // Another screen is already present top of the HomeScreen, so don't open the scanner
   if (context.canPop()) return;
@@ -22,10 +22,7 @@ Future<void> maybeOpenQrScanner(
       // Check if the app was started with a HandleURLEvent or resumed when returning from in-app browser.
       // If so, do not open the QR scanner.
       final appResumedAutomatically = await repo.appResumedAutomatically();
-      if (!appResumedAutomatically) {
-        if (!context.mounted) {
-          return;
-        }
+      if (!appResumedAutomatically && context.mounted) {
         context.push('/scanner');
       }
     } else {
