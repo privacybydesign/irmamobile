@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../routing.dart';
 import '../../src/data/irma_repository.dart';
@@ -38,7 +39,6 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with WidgetsBindingObserver {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   late final DetectRootedDeviceIrmaPrefsRepository _detectRootedDeviceRepo;
 
   StreamSubscription<Pointer?>? _pointerSubscription;
@@ -46,6 +46,11 @@ class AppState extends State<App> with WidgetsBindingObserver {
   StreamSubscription<bool>? _screenshotPrefSubscription;
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
   bool _privacyScreenLoaded = false;
+
+  // TODO: When switching to Riverpod we should add a provider for the
+  // router, as that will automatically preserve its state during rebuilds.
+  // This method is kind of a workaround for now.
+  late final GoRouter _router;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -126,6 +131,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
     } catch (_) {
       final repo = IrmaRepositoryProvider.of(context);
       _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences);
+      _router = createRouter(context);
     }
   }
 
@@ -208,7 +214,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
           localizationsDelegates: defaultLocalizationsDelegates(widget.forcedLocale),
           supportedLocales: defaultSupportedLocales(),
           showSemanticsDebugger: false,
-          routerConfig: createRouter(context),
+          routerConfig: _router,
         );
       },
     );

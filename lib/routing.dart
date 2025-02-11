@@ -281,7 +281,7 @@ GoRouter createRouter(BuildContext buildContext) {
         builder: (context, state) {
           return IssueWizardSuccessScreen(
             onDismiss: () => context.go('/home'),
-            args: state.extra as IssueWizardSuccessScreenArgs
+            args: state.extra as IssueWizardSuccessScreenArgs,
           );
         },
       ),
@@ -323,10 +323,8 @@ GoRouter createRouter(BuildContext buildContext) {
         return '/update_required';
       }
       if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
-        debugPrint('going to pin: $redirectionTriggers');
         return '/pin';
       }
-      debugPrint('going to ${state.fullPath}: $redirectionTriggers');
       return null;
     },
   );
