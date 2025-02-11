@@ -31,7 +31,7 @@ class HomeTab extends StatelessWidget {
               key: const Key('home_action_fetch'),
               titleKey: 'home_tab.action_card.fetch.title',
               subtitleKey: 'home_tab.action_card.fetch.subtitle',
-              onTap: () => context.push('/add_data'),
+              onTap: () => context.push('/home/add_data'),
               icon: Icons.add_circle_sharp,
             ),
             SizedBox(height: theme.largeSpacing),

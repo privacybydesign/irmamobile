@@ -13,7 +13,7 @@ class AddDataScreen extends StatelessWidget {
     BuildContext context,
     CredentialType credentialType,
   ) {
-    context.push('/add_data/details', extra: credentialType);
+    context.push('/home/add_data/details', extra: credentialType);
   }
 
   @override

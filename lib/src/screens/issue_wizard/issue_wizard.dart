@@ -19,8 +19,6 @@ import '../../widgets/irma_repository_provider.dart';
 import 'widgets/issue_wizard_success_screen.dart';
 
 class IssueWizardScreen extends StatefulWidget {
-  static const routeName = '/issue_wizard';
-
   final IssueWizardScreenArguments arguments;
 
   const IssueWizardScreen({super.key, required this.arguments});
@@ -57,7 +55,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
         // First pop all screens on top of this wizard and then pop the wizard screen itself
         if (mounted) {
           Navigator.of(context)
-            ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
+            ..popUntil(ModalRoute.withName('/issue_wizard'))
             ..pop();
         }
       });

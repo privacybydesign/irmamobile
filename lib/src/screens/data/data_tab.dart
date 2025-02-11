@@ -13,7 +13,7 @@ class DataTab extends StatelessWidget {
     String credentialTypeId,
     String categoryName,
   ) {
-    context.push('/credentials_details', extra: (credentialTypeId, categoryName));
+    context.push('/home/credentials_details', extra: (credentialTypeId, categoryName));
   }
 
   @override
@@ -30,7 +30,7 @@ class DataTab extends StatelessWidget {
           children: [
             IrmaActionCard(
               titleKey: 'data.tab.obtain_data',
-              onTap: () => context.push('/add_data'),
+              onTap: () => context.push('/home/add_data'),
               icon: Icons.add_circle_sharp,
             ),
             CredentialTypesBuilder(

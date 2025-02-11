@@ -108,7 +108,7 @@ class ActivityCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: Material(
           child: InkWell(
-            onTap: () => context.push('/activity_details', extra: (logEntry, irmaConfiguration)),
+            onTap: () => context.push('/home/activity_details', extra: (logEntry, irmaConfiguration)),
             child: Semantics(
               excludeSemantics: true,
               child: Padding(

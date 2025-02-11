@@ -95,15 +95,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   }
 
   void _gotoSettings() {
-    // Return to SettingsScreen
-    Navigator.maybePop(context).then((_) {
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).popUntil(
-        (route) => route.settings.name == '/settings',
-      );
-    });
+    context.go('/home/settings');
   }
 
   void _handlePinMismatch() {

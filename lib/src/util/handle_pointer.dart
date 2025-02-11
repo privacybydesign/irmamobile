@@ -51,9 +51,9 @@ _startIssueWizard(
   // to the wallet, then the session screen is automatically dismissed, which cancels the session.
   final args = IssueWizardScreenArguments(wizardID: wizardPointer.wizard, sessionID: sessionID);
   if (pushReplacement) {
-    context.pushReplacement(IssueWizardScreen.routeName, extra: args);
+    context.pushReplacement('/issue_wizard', extra: args);
   } else {
-    await context.push(IssueWizardScreen.routeName, extra: args);
+    await context.push('/issue_wizard', extra: args);
   }
 }
 

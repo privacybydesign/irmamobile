@@ -155,20 +155,6 @@ GoRouter createRouter(BuildContext buildContext) {
         },
       ),
       GoRoute(
-        path: '/credentials_details',
-        builder: (context, state) {
-          final (credentialTypeId, categoryName) = state.extra as (String, String);
-          return CredentialsDetailScreen(credentialTypeId: credentialTypeId, categoryName: categoryName);
-        },
-      ),
-      GoRoute(
-        path: '/activity_details',
-        builder: (context, state) {
-          final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
-          return ActivityDetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration);
-        },
-      ),
-      GoRoute(
         path: '/pin',
         pageBuilder: (context, state) => NoTransitionPage(child: PinScreen()),
       ),
@@ -189,44 +175,8 @@ GoRouter createRouter(BuildContext buildContext) {
         builder: (context, state) => ScannerScreen(),
       ),
       GoRoute(
-        path: '/change_pin',
-        builder: (context, state) => ChangePinScreen(),
-      ),
-      GoRoute(
-        path: '/change_language',
-        builder: (context, state) => ChangeLanguageScreen(),
-      ),
-      GoRoute(
-        path: '/add_data',
-        builder: (context, state) => AddDataScreen(),
-        routes: [
-          GoRoute(
-            path: 'details',
-            builder: (context, state) {
-              final credentialType = state.extra as CredentialType;
-              return AddDataDetailsScreen(
-                credentialType: credentialType,
-                onCancel: () => context.pop(),
-                onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
-                  context,
-                  credentialType.fullId,
-                ),
-              );
-            },
-          )
-        ],
-      ),
-      GoRoute(
-        path: '/help',
-        builder: (context, state) => HelpScreen(),
-      ),
-      GoRoute(
         path: '/reset_pin',
         builder: (context, state) => ResetPinScreen(),
-      ),
-      GoRoute(
-        path: '/debug',
-        builder: (context, state) => const DebugScreen(),
       ),
       GoRoute(
         path: '/home',
@@ -252,14 +202,67 @@ GoRouter createRouter(BuildContext buildContext) {
         },
         routes: [
           GoRoute(
+            path: 'credentials_details',
+            builder: (context, state) {
+              final (credentialTypeId, categoryName) = state.extra as (String, String);
+              return CredentialsDetailScreen(credentialTypeId: credentialTypeId, categoryName: categoryName);
+            },
+          ),
+          GoRoute(
+            path: 'activity_details',
+            builder: (context, state) {
+              final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
+              return ActivityDetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration);
+            },
+          ),
+          GoRoute(
+            path: 'debug',
+            builder: (context, state) => const DebugScreen(),
+          ),
+          GoRoute(
+            path: 'help',
+            builder: (context, state) => HelpScreen(),
+          ),
+          GoRoute(
+            path: 'add_data',
+            builder: (context, state) => AddDataScreen(),
+            routes: [
+              GoRoute(
+                path: 'details',
+                builder: (context, state) {
+                  final credentialType = state.extra as CredentialType;
+                  return AddDataDetailsScreen(
+                    credentialType: credentialType,
+                    onCancel: () => context.pop(),
+                    onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
+                      context,
+                      credentialType.fullId,
+                    ),
+                  );
+                },
+              )
+            ],
+          ),
+          GoRoute(
+            path: 'settings',
+            builder: (context, state) => SettingsScreen(),
+            routes: [
+              GoRoute(
+                path: 'change_language',
+                builder: (context, state) => ChangeLanguageScreen(),
+              ),
+            ],
+          ),
+          GoRoute(
             path: 'notifications',
             builder: (context, state) => NotificationsScreen(),
           ),
         ],
       ),
+      // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
       GoRoute(
-        path: '/settings',
-        builder: (context, state) => SettingsScreen(),
+        path: '/change_pin',
+        builder: (context, state) => ChangePinScreen(),
       ),
       GoRoute(
         path: '/session',

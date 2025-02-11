@@ -161,7 +161,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const InternalLinkTile(
                     key: Key('change_language_link'),
                     labelTranslationKey: 'settings.language',
-                    routeName: '/change_language',
+                    routeName: '/home/settings/change_language',
                   ),
                   const InternalLinkTile(
                     key: Key('change_pin_link'),
