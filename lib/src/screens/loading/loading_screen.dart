@@ -30,8 +30,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   void _enrollmentStatusHandler(EnrollmentStatus status) async {
-    print('enrollment status: $status');
-
     // we have to await the locked setting, because it could come after the enrollment status,
     // causing us to be automatically redirected to the pin screen when we're already unlocked...
     final locked = await IrmaRepositoryProvider.of(context).getLocked().first;

@@ -140,10 +140,7 @@ GoRouter createRouter(BuildContext buildContext) {
     initialLocation: '/loading',
     refreshListenable: redirectionTriggers,
     errorBuilder: (context, state) {
-      return ErrorScreen(
-        details: state.error?.message ?? "Something went wrong, but we don't know what",
-        onTapClose: context.pop,
-      );
+      return RouteNotFoundScreen();
     },
     routes: [
       GoRoute(

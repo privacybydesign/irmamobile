@@ -26,7 +26,7 @@ Future<void> maybeOpenQrScanner(
         if (!context.mounted) {
           return;
         }
-        context.go('/scanner');
+        context.push('/scanner');
       }
     } else {
       // If the user has revoked the camera permission, just turn off the setting
