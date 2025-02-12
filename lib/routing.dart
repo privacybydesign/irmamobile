@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:quiver/pattern.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'src/data/irma_repository.dart';
@@ -131,8 +132,51 @@ Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
   return streamController.stream;
 }
 
-// FIXME: replace this global by an InheritedWidget: https://zapp.run/edit/flutter-zq4806omq490?entry=lib/main.dart&file=lib/main.dart
-bool instantTransition = false;
+/// The transition to the home page should be instant in some cases and
+/// "normal" in other cases. For example coming from the pin screen should be an instant transition,
+/// while coming back from the add_data page should be a native sliding transition.
+/// This is a hard problem, as during page building in GoRouter there is no way to detect whether
+/// you're coming from a subpage or not. Passing parameters together with the context.go() call also doesn't
+/// work as it remembers the parameters passed to the initial transition, so coming back from a subpage still has the
+/// parameters from coming from the pin screen.
+/// The (kind of hacky, ugly) solution we made up for this is to set a flag when going to the home screen
+/// and resetting it when the home screen is built. This way we only have the instant transition once and
+/// normal transitions for all subsequent navigation actions.
+class HomeTransitionStyleProvider extends StatefulWidget {
+  final Widget child;
+
+  const HomeTransitionStyleProvider({required this.child});
+
+  static void performInstantTransitionToHome(BuildContext context) {
+    var state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
+    state!._shouldPerformInstantTransitionToHome = true;
+    context.go('/home');
+  }
+
+  static bool shouldPerformInstantTransitionToHome(BuildContext context) {
+    final state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
+    return state!._shouldPerformInstantTransitionToHome;
+  }
+
+  static void resetInstantTransitionToHomeMark(BuildContext context) {
+    var state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
+    state!._shouldPerformInstantTransitionToHome = false;
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    return HomeTransitionStyleProviderState();
+  }
+}
+
+class HomeTransitionStyleProviderState extends State<HomeTransitionStyleProvider> {
+  bool _shouldPerformInstantTransitionToHome = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
 
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
@@ -185,8 +229,8 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/home',
         pageBuilder: (context, state) {
-          if (instantTransition) {
-            instantTransition = false;
+          if (HomeTransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
+            HomeTransitionStyleProvider.resetInstantTransitionToHomeMark(context);
             return NoTransitionPage(child: HomeScreen());
           }
           return MaterialPage(child: HomeScreen());
@@ -205,10 +249,6 @@ GoRouter createRouter(BuildContext buildContext) {
               final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
               return ActivityDetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration);
             },
-          ),
-          GoRoute(
-            path: 'debug',
-            builder: (context, state) => const DebugScreen(),
           ),
           GoRoute(
             path: 'help',
@@ -238,6 +278,10 @@ GoRouter createRouter(BuildContext buildContext) {
             path: 'settings',
             builder: (context, state) => SettingsScreen(),
             routes: [
+              GoRoute(
+                path: 'debug',
+                builder: (context, state) => const DebugScreen(),
+              ),
               GoRoute(
                 path: 'change_language',
                 builder: (context, state) => ChangeLanguageScreen(),

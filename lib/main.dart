@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'app.dart';
+import 'routing.dart';
 import 'src/data/irma_client_bridge.dart';
 import 'src/data/irma_preferences.dart';
 import 'src/data/irma_repository.dart';
+import 'src/screens/home/home_screen.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
 import 'src/sentry/sentry.dart';
 import 'src/util/security_context_binding.dart';
@@ -53,10 +55,15 @@ class IrmaApp extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => IrmaRepositoryProvider(
+  Widget build(BuildContext context) {
+    return HomeTransitionStyleProvider(
+      child: IrmaRepositoryProvider(
         repository: repository,
-        child: BlocProvider(
-          create: (context) => notificationsBloc..add(Initialize()),
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) => notificationsBloc..add(Initialize())),
+            BlocProvider(create: (context) => HomeTabState()),
+          ],
           child: PreferredLocaleBuilder(
             builder: (context, preferredLocale) {
               Locale? appLocale;
@@ -81,5 +88,7 @@ class IrmaApp extends StatelessWidget {
             },
           ),
         ),
-      );
+      ),
+    );
+  }
 }

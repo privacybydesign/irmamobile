@@ -9,6 +9,5 @@ void popToWizard(BuildContext context) {
 }
 
 void goToHomeWithoutTransition(BuildContext context) {
-  instantTransition = true;
-  context.go('/home');
+  HomeTransitionStyleProvider.performInstantTransitionToHome(context);
 }

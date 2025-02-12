@@ -118,16 +118,18 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     );
   }
 
-  void _onSuccessShowFloatingSnackbar() => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: TranslatedText(
-            'change_pin.toast',
-            style: theme.themeData.textTheme.bodySmall!.copyWith(color: theme.light),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: theme.themeData.colorScheme.secondary,
+  void _onSuccessShowFloatingSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: TranslatedText(
+          'change_pin.toast',
+          style: theme.themeData.textTheme.bodySmall!.copyWith(color: theme.light),
         ),
-      );
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: theme.themeData.colorScheme.secondary,
+      ),
+    );
+  }
 
   void _handleResetPinSuccess() {
     _gotoSettings();
