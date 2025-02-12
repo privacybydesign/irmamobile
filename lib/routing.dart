@@ -8,7 +8,6 @@ import 'package:rxdart/rxdart.dart';
 import 'src/data/irma_repository.dart';
 import 'src/models/enrollment_status.dart';
 import 'src/models/irma_configuration.dart';
-import 'src/models/log_entry.dart';
 import 'src/models/version_information.dart';
 import 'src/screens/activity/activity_detail_screen.dart';
 import 'src/screens/add_data/add_data_details_screen.dart';
@@ -245,8 +244,8 @@ GoRouter createRouter(BuildContext buildContext) {
           GoRoute(
             path: 'activity_details',
             builder: (context, state) {
-              final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
-              return ActivityDetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration);
+              final args = state.extra as ActivityDetailsScreenArgs;
+              return ActivityDetailsScreen(args: args);
             },
           ),
           GoRoute(
@@ -274,13 +273,13 @@ GoRouter createRouter(BuildContext buildContext) {
             ],
           ),
           GoRoute(
+            path: 'debug',
+            builder: (context, state) => const DebugScreen(),
+          ),
+          GoRoute(
             path: 'settings',
             builder: (context, state) => SettingsScreen(),
             routes: [
-              GoRoute(
-                path: 'debug',
-                builder: (context, state) => const DebugScreen(),
-              ),
               GoRoute(
                 path: 'change_language',
                 builder: (context, state) => ChangeLanguageScreen(),

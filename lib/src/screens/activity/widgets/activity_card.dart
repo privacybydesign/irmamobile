@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +10,7 @@ import '../../../util/string.dart';
 import '../../../widgets/irma_avatar.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/translated_text.dart';
+import '../activity_detail_screen.dart';
 
 class ActivityCard extends StatelessWidget {
   final LogEntry logEntry;
@@ -108,7 +108,10 @@ class ActivityCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: Material(
           child: InkWell(
-            onTap: () => context.push('/home/activity_details', extra: (logEntry, irmaConfiguration)),
+            onTap: () => context.push(
+              '/home/activity_details',
+              extra: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+            ),
             child: Semantics(
               excludeSemantics: true,
               child: Padding(
