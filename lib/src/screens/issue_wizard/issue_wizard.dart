@@ -34,13 +34,13 @@ class IssueWizardScreenArguments {
   IssueWizardScreenArguments({required this.wizardID, required this.sessionID});
 
   Map<String, String> toQueryParams() {
-    return {'wizard_id': wizardID, if (sessionID != null) 'session': '$sessionID'};
+    return {'wizard_id': wizardID, if (sessionID != null) 'session_id': '$sessionID'};
   }
 
   static IssueWizardScreenArguments fromQueryParams(Map<String, String> params) {
     return IssueWizardScreenArguments(
       wizardID: params['wizard_id']!,
-      sessionID: params.containsKey('wizard_id') ? int.parse(params['wizard_id']!) : null,
+      sessionID: params.containsKey('session_id') ? int.parse(params['session_id']!) : null,
     );
   }
 }
