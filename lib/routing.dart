@@ -201,16 +201,21 @@ GoRouter createRouter(BuildContext buildContext) {
         },
       ),
       GoRoute(
+        path: '/loading',
+        pageBuilder: (context, state) => NoTransitionPage(name: '/loading', child: LoadingScreen()),
+      ),
+      GoRoute(
         path: '/pin',
-        pageBuilder: (context, state) => NoTransitionPage(child: PinScreen()),
+        pageBuilder: (context, state) => NoTransitionPage(name: '/pin', child: PinScreen()),
       ),
       GoRoute(
         path: '/reset_pin',
         builder: (context, state) => ResetPinScreen(),
       ),
+      // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
       GoRoute(
-        path: '/loading',
-        pageBuilder: (context, state) => NoTransitionPage(child: LoadingScreen()),
+        path: '/change_pin',
+        builder: (context, state) => ChangePinScreen(),
       ),
       GoRoute(
         path: '/enrollment',
@@ -221,17 +226,13 @@ GoRouter createRouter(BuildContext buildContext) {
         builder: (context, state) => ScannerScreen(),
       ),
       GoRoute(
-        path: '/reset_pin',
-        builder: (context, state) => ResetPinScreen(),
-      ),
-      GoRoute(
         path: '/home',
         pageBuilder: (context, state) {
           if (HomeTransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
             HomeTransitionStyleProvider.resetInstantTransitionToHomeMark(context);
-            return NoTransitionPage(child: HomeScreen());
+            return NoTransitionPage(name: '/home', child: HomeScreen());
           }
-          return MaterialPage(child: HomeScreen());
+          return MaterialPage(name: '/home', child: HomeScreen());
         },
         routes: [
           GoRoute(
@@ -292,22 +293,26 @@ GoRouter createRouter(BuildContext buildContext) {
           ),
         ],
       ),
-      // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
-      GoRoute(
-        path: '/change_pin',
-        builder: (context, state) => ChangePinScreen(),
-      ),
       GoRoute(
         path: '/session',
-        builder: (context, state) => SessionScreen(arguments: state.extra as SessionScreenArguments),
+        builder: (context, state) {
+          final args = SessionScreenArguments.fromQueryParams(state.uri.queryParameters);
+          return SessionScreen(arguments: args);
+        },
       ),
       GoRoute(
         path: '/unknown_session',
-        builder: (context, state) => UnknownSessionScreen(arguments: state.extra as SessionScreenArguments),
+        builder: (context, state) {
+          final args = SessionScreenArguments.fromQueryParams(state.uri.queryParameters);
+          return UnknownSessionScreen(arguments: args);
+        },
       ),
       GoRoute(
         path: '/issue_wizard',
-        builder: (context, state) => IssueWizardScreen(arguments: state.extra as IssueWizardScreenArguments),
+        builder: (context, state) {
+          final args = IssueWizardScreenArguments.fromQueryParams(state.uri.queryParameters);
+          return IssueWizardScreen(arguments: args);
+        },
       ),
       GoRoute(
         path: '/issue_wizard_success',

@@ -50,10 +50,12 @@ _startIssueWizard(
   // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
   // to the wallet, then the session screen is automatically dismissed, which cancels the session.
   final args = IssueWizardScreenArguments(wizardID: wizardPointer.wizard, sessionID: sessionID);
+  final uri = Uri (path: '/issue_wizard', queryParameters: args.toQueryParams()).toString();
+
   if (pushReplacement) {
-    context.pushReplacement('/issue_wizard', extra: args);
+    context.pushReplacement(uri);
   } else {
-    await context.push('/issue_wizard', extra: args);
+    await context.push(uri);
   }
 }
 
@@ -94,10 +96,13 @@ Future<int> _startSessionAndNavigate(
   if (!context.mounted) {
     return event.sessionID;
   }
+
+  final uri = Uri(path: routeName, queryParameters: args.toQueryParams()).toString();
+
   if (pushReplacement) {
-    context.pushReplacement(routeName, extra: args);
+    context.pushReplacement(uri);
   } else {
-    await context.push(routeName, extra: args);
+    await context.push(uri);
   }
 
   return event.sessionID;

@@ -58,62 +58,65 @@ class HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
-    // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
-    // root route in the navigator. In that case, we background the app on Android.
-    // On iOS, there is no back button so we don't have to handle this case.
     final theme = IrmaTheme.of(context);
-    return BlocBuilder<HomeTabState, IrmaNavBarTab>(builder: (context, tabState) {
-      return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, popResult) {
-          if (tabState == IrmaNavBarTab.home) {
-            IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
-          } else {
-            _changeTab(IrmaNavBarTab.home);
-          }
-        },
-        child: PendingPointerListener(
-          child: Scaffold(
-            backgroundColor: IrmaTheme.of(context).backgroundTertiary,
-            appBar: IrmaAppBar(
-              titleTranslationKey: tabState == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${tabState.name}',
-              noLeading: true,
-              actions: [
-                BlocBuilder<NotificationsBloc, NotificationsState>(
-                  builder: (context, state) => NotificationBell(
-                    showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
-                    onTap: _navToNotificationsScreen,
-                  ),
-                )
-              ],
-            ),
-            body: SafeArea(
-              child: Builder(
-                builder: (context) {
-                  return switch (tabState) {
-                    IrmaNavBarTab.home => HomeTab(onChangeTab: _changeTab),
-                    IrmaNavBarTab.data => DataTab(),
-                    IrmaNavBarTab.activity => ActivityTab(),
-                    IrmaNavBarTab.more => MoreTab(onChangeTab: _changeTab),
-                  };
-                },
+    return BlocBuilder<HomeTabState, IrmaNavBarTab>(
+      builder: (context, tabState) {
+        // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
+        // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
+        // root route in the navigator. In that case, we background the app on Android.
+        // On iOS, there is no back button so we don't have to handle this case.
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, popResult) {
+            if (tabState == IrmaNavBarTab.home) {
+              IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
+            } else {
+              _changeTab(IrmaNavBarTab.home);
+            }
+          },
+          child: PendingPointerListener(
+            child: Scaffold(
+              backgroundColor: IrmaTheme.of(context).backgroundTertiary,
+              appBar: IrmaAppBar(
+                titleTranslationKey:
+                    tabState == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${tabState.name}',
+                noLeading: true,
+                actions: [
+                  BlocBuilder<NotificationsBloc, NotificationsState>(
+                    builder: (context, state) => NotificationBell(
+                      showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
+                      onTap: _navToNotificationsScreen,
+                    ),
+                  )
+                ],
               ),
-            ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-            floatingActionButton: Padding(
-              padding: EdgeInsets.only(bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0),
-              child: const IrmaQrScanButton(
-                key: Key('nav_button_scanner'),
+              body: SafeArea(
+                child: Builder(
+                  builder: (context) {
+                    return switch (tabState) {
+                      IrmaNavBarTab.home => HomeTab(onChangeTab: _changeTab),
+                      IrmaNavBarTab.data => DataTab(),
+                      IrmaNavBarTab.activity => ActivityTab(),
+                      IrmaNavBarTab.more => MoreTab(onChangeTab: _changeTab),
+                    };
+                  },
+                ),
               ),
-            ),
-            bottomNavigationBar: IrmaNavBar(
-              selectedTab: tabState,
-              onChangeTab: _changeTab,
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+              floatingActionButton: Padding(
+                padding: EdgeInsets.only(bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0),
+                child: const IrmaQrScanButton(
+                  key: Key('nav_button_scanner'),
+                ),
+              ),
+              bottomNavigationBar: IrmaNavBar(
+                selectedTab: tabState,
+                onChangeTab: _changeTab,
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

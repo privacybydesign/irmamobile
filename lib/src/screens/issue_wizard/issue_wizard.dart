@@ -32,6 +32,17 @@ class IssueWizardScreenArguments {
   final int? sessionID;
 
   IssueWizardScreenArguments({required this.wizardID, required this.sessionID});
+
+  Map<String, String> toQueryParams() {
+    return {'wizard_id': wizardID, if (sessionID != null) 'session': '$sessionID'};
+  }
+
+  static IssueWizardScreenArguments fromQueryParams(Map<String, String> params) {
+    return IssueWizardScreenArguments(
+      wizardID: params['wizard_id']!,
+      sessionID: params.containsKey('wizard_id') ? int.parse(params['wizard_id']!) : null,
+    );
+  }
 }
 
 class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindingObserver {
