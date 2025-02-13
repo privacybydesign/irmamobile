@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:go_router/go_router.dart';
 import 'package:share/share.dart';
 
 import '../../../sentry/sentry.dart';
@@ -128,7 +129,7 @@ class InternalLinkTile extends StatelessWidget {
       isLink: false,
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
-      onTap: () => Navigator.pushNamed(context, routeName),
+      onTap: () => context.push(routeName),
     );
   }
 }

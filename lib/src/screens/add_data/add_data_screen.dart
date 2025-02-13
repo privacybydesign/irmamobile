@@ -1,33 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 import '../data/widgets/credential_category_list.dart';
-import 'add_data_details_screen.dart';
 import 'widgets/store_credential_types_builder.dart';
 
 class AddDataScreen extends StatelessWidget {
-  static const String routeName = '/add_data';
-
   _navToAddDataDetailScreen(
     BuildContext context,
     CredentialType credentialType,
-  ) =>
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => AddDataDetailsScreen(
-            credentialType: credentialType,
-            onCancel: () => Navigator.of(context).pop(),
-            onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
-              context,
-              credentialType.fullId,
-            ),
-          ),
-        ),
-      );
+  ) {
+    context.push('/home/add_data/details', extra: credentialType);
+  }
 
   @override
   Widget build(BuildContext context) {

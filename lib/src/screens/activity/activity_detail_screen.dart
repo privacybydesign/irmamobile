@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
@@ -8,19 +7,25 @@ import '../../models/log_entry.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/translated_text.dart';
-
 import 'widgets/activity_detail_disclosure.dart';
 import 'widgets/activity_detail_issuance.dart';
 import 'widgets/activity_detail_removal.dart';
 
-class ActivityDetailScreen extends StatelessWidget {
+class ActivityDetailsScreenArgs {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailScreen({
-    required this.logEntry,
-    required this.irmaConfiguration,
-  });
+  ActivityDetailsScreenArgs({required this.logEntry, required this.irmaConfiguration});
+}
+
+class ActivityDetailsScreen extends StatelessWidget {
+  final LogEntry logEntry;
+  final IrmaConfiguration irmaConfiguration;
+
+  ActivityDetailsScreen({
+    required ActivityDetailsScreenArgs args,
+  })  : logEntry = args.logEntry,
+        irmaConfiguration = args.irmaConfiguration;
 
   @override
   Widget build(BuildContext context) {
