@@ -50,7 +50,7 @@ _startIssueWizard(
   // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
   // to the wallet, then the session screen is automatically dismissed, which cancels the session.
   final args = IssueWizardScreenArguments(wizardID: wizardPointer.wizard, sessionID: sessionID);
-  final uri = Uri (path: '/issue_wizard', queryParameters: args.toQueryParams()).toString();
+  final uri = Uri(path: '/issue_wizard', queryParameters: args.toQueryParams()).toString();
 
   if (pushReplacement) {
     context.pushReplacement(uri);

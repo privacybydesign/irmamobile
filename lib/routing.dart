@@ -14,7 +14,7 @@ import 'src/screens/add_data/add_data_details_screen.dart';
 import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_language/change_language_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
-import 'src/screens/data/credentials_detail_screen.dart';
+import 'src/screens/data/credentials_details_screen.dart';
 import 'src/screens/debug/debug_screen.dart';
 import 'src/screens/enrollment/enrollment_screen.dart';
 import 'src/screens/error/error_screen.dart';
@@ -238,8 +238,8 @@ GoRouter createRouter(BuildContext buildContext) {
           GoRoute(
             path: 'credentials_details',
             builder: (context, state) {
-              final (credentialTypeId, categoryName) = state.extra as (String, String);
-              return CredentialsDetailScreen(credentialTypeId: credentialTypeId, categoryName: categoryName);
+              final args = CredentialsDetailsScreenArgs.fromQueryParams(state.uri.queryParameters);
+              return CredentialsDetailsScreen(args: args);
             },
           ),
           GoRoute(

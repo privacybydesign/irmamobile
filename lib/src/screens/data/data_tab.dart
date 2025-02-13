@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_action_card.dart';
+import 'credentials_details_screen.dart';
 import 'widgets/credential_category_list.dart';
 import 'widgets/credential_types_builder.dart';
 
@@ -13,7 +14,9 @@ class DataTab extends StatelessWidget {
     String credentialTypeId,
     String categoryName,
   ) {
-    context.push('/home/credentials_details', extra: (credentialTypeId, categoryName));
+    final args = CredentialsDetailsScreenArgs(credentialTypeId: credentialTypeId, categoryName: categoryName);
+    final uri = Uri(path: '/home/credentials_details', queryParameters: args.toQueryParams());
+    context.push(uri.toString());
   }
 
   @override

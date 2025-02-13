@@ -12,20 +12,37 @@ import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 
-class CredentialsDetailScreen extends StatefulWidget {
+class CredentialsDetailsScreenArgs {
   final String categoryName;
   final String credentialTypeId;
 
-  const CredentialsDetailScreen({
-    required this.categoryName,
-    required this.credentialTypeId,
-  });
+  CredentialsDetailsScreenArgs({required this.categoryName, required this.credentialTypeId});
 
-  @override
-  State<CredentialsDetailScreen> createState() => _CredentialsDetailScreenState();
+  Map<String, String> toQueryParams() {
+    return {
+      'category_name': categoryName,
+      'credential_type_id': credentialTypeId,
+    };
+  }
+
+  static CredentialsDetailsScreenArgs fromQueryParams(Map<String, String> params) {
+    return CredentialsDetailsScreenArgs(
+      categoryName: params['category_name']!,
+      credentialTypeId: params['credential_type_id']!,
+    );
+  }
 }
 
-class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
+class CredentialsDetailsScreen extends StatefulWidget {
+  final CredentialsDetailsScreenArgs args;
+
+  const CredentialsDetailsScreen({required this.args});
+
+  @override
+  State<CredentialsDetailsScreen> createState() => _CredentialsDetailsScreenState();
+}
+
+class _CredentialsDetailsScreenState extends State<CredentialsDetailsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async {
@@ -99,7 +116,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
       key: _scaffoldKey,
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
-        titleTranslationKey: widget.categoryName,
+        titleTranslationKey: widget.args.categoryName,
       ),
       body: SizedBox(
         height: double.infinity,
@@ -115,7 +132,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                 if (!snapshot.hasData) return Container();
 
                 final filteredCredentials = snapshot.data!.values
-                    .where((cred) => cred.info.credentialType.fullId == widget.credentialTypeId)
+                    .where((cred) => cred.info.credentialType.fullId == widget.args.credentialTypeId)
                     .toList();
 
                 if (filteredCredentials.isEmpty) {
