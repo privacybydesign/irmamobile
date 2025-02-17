@@ -212,7 +212,7 @@
       "decline_signature": "Don't sign"
     },
     "confirm_close_dialog": {
-      "title": "Are you sure?",
+      "title": "Cancel sharing data?",
       "explanation": "Are you sure you don't want to share your data?",
       "confirm": "Yes",
       "decline": "No"
