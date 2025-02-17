@@ -212,10 +212,10 @@
       "decline_signature": "Don't sign"
     },
     "confirm_close_dialog": {
-      "title": "Cancel data sharing",
+      "title": "Cancel sharing data?",
       "explanation": "Are you sure you don't want to share your data?",
-      "confirm": "Close",
-      "decline": "Continue"
+      "confirm": "Yes",
+      "decline": "No"
     },
     "wrong_credentials_added": {
       "title": "Error",
