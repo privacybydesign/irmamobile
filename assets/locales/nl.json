@@ -650,8 +650,11 @@
       "requestor_schemes": "Requestor schema's",
       "success": "Schema succesvol toegevoegd",
       "activating": "{scheme} activeren...",
-      "activate_success": "{scheme} schema succesfully activated",
+      "activate_success": "{scheme} schema succesvol geactiveerd.",
       "remove": "{scheme} verwijderen...",
+      "update": "Update schema's",
+      "updating": "Schema's updaten...",
+      "update_success": "Schema's zijn succesvol geüpdatet.",
       "install_scheme_dialog": {
         "title": "Schema installeren",
         "content": "Vul de URL in van het schema dat je wilt installeren:"

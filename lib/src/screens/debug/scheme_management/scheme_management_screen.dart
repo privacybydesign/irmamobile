@@ -10,9 +10,11 @@ import '../../../models/enrollment_events.dart';
 import '../../../models/error_event.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/scheme_events.dart';
+import '../../../models/update_schemes_event.dart';
 import '../../../theme/theme.dart';
 import '../../../util/combine.dart';
 import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_icon_button.dart';
 import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/progress.dart';
@@ -129,6 +131,37 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
   }
 
+  Future<void> _onUpdateSchemes(BuildContext context) async {
+    showSnackbar(
+      context,
+      FlutterI18n.translate(
+        context,
+        'debug.scheme_management.updating',
+      ),
+    );
+
+    final repo = IrmaRepositoryProvider.of(context);
+    repo.bridgedDispatch(UpdateSchemesEvent());
+
+    try {
+      await repo.getEvents().whereType<IrmaConfigurationEvent>().first.timeout(const Duration(minutes: 1));
+    } on TimeoutException {
+      // Installing the scheme took too long. We therefore assume that it failed.
+      // Error is sent as ErrorEvent and will be handled by a listener in initState.
+      return;
+    }
+
+    if (context.mounted) {
+      showSnackbar(
+        context,
+        FlutterI18n.translate(
+          context,
+          'debug.scheme_management.update_success',
+        ),
+      );
+    }
+  }
+
   void _onSchemeManagerTileTap(String schemeManagerId) => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => SchemeManagerDetailScreen(
@@ -204,6 +237,10 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
             );
           },
         ),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: 'debug.scheme_management.update',
+        onPrimaryPressed: () => _onUpdateSchemes(context),
       ),
     );
   }
