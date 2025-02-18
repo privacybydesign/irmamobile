@@ -6,7 +6,6 @@ import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
-import '../../home/home_screen.dart';
 
 class EmailSentScreen extends StatelessWidget {
   final String email;
@@ -17,11 +16,6 @@ class EmailSentScreen extends StatelessWidget {
     required this.email,
     required this.onContinue,
   });
-
-  _navigateToHome(BuildContext context) => Navigator.of(
-        context,
-        rootNavigator: true,
-      ).pushReplacementNamed(HomeScreen.routeName);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +30,7 @@ class EmailSentScreen extends StatelessWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),
-        onPrimaryPressed: () => _navigateToHome(context),
+        onPrimaryPressed: onContinue,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

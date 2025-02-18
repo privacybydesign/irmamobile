@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
@@ -8,7 +9,7 @@ import '../../widgets/irma_dismissible.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/translated_text.dart';
-import '../data/credentials_detail_screen.dart';
+import '../data/credentials_details_screen.dart';
 import 'bloc/notifications_bloc.dart';
 import 'models/actions/credential_detail_navigation_action.dart';
 import 'models/notification.dart';
@@ -47,14 +48,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         MarkNotificationAsRead(notification.id),
       );
 
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => CredentialsDetailScreen(
-            categoryName: translatedAttributeType,
-            credentialTypeId: action.credentialTypeId,
-          ),
-        ),
+      final args = CredentialsDetailsScreenArgs(
+        categoryName: translatedAttributeType,
+        credentialTypeId: action.credentialTypeId,
       );
+      final uri = Uri(path: '/home/credentials_details', queryParameters: args.toQueryParams());
+      context.push(uri.toString());
     }
   }
 
@@ -92,48 +91,51 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(
-        titleTranslationKey: 'notifications.title',
-      ),
-      body: SafeArea(
-        child: BlocBuilder<NotificationsBloc, NotificationsState>(
-          builder: (context, state) {
-            if (state is NotificationsLoading) {
-              return Center(
-                child: LoadingIndicator(),
-              );
-            } else if (state is NotificationsLoaded) {
-              final notifications = state.notifications;
+    return BlocProvider.value(
+      value: BlocProvider.of<NotificationsBloc>(context),
+      child: Scaffold(
+        backgroundColor: theme.backgroundTertiary,
+        appBar: const IrmaAppBar(
+          titleTranslationKey: 'notifications.title',
+        ),
+        body: SafeArea(
+          child: BlocBuilder<NotificationsBloc, NotificationsState>(
+            builder: (context, state) {
+              if (state is NotificationsLoading) {
+                return Center(
+                  child: LoadingIndicator(),
+                );
+              } else if (state is NotificationsLoaded) {
+                final notifications = state.notifications;
 
-              return RefreshIndicator(
-                onRefresh: () => Future.sync(_onRefresh),
-                child: notifications.isEmpty
-                    ? _emptyListIndicator(theme)
-                    : ListView.builder(
-                        padding: EdgeInsets.all(
-                          theme.defaultSpacing,
+                return RefreshIndicator(
+                  onRefresh: () => Future.sync(_onRefresh),
+                  child: notifications.isEmpty
+                      ? _emptyListIndicator(theme)
+                      : ListView.builder(
+                          padding: EdgeInsets.all(
+                            theme.defaultSpacing,
+                          ),
+                          itemCount: state.notifications.length,
+                          itemBuilder: (context, index) {
+                            final notification = notifications[index];
+
+                            return IrmaDismissible(
+                              key: Key(notification.id),
+                              onDismissed: () => _onNotificationDismiss(notification),
+                              child: NotificationCard(
+                                notification: notification,
+                                onTap: () => _onNotificationTap(notification),
+                              ),
+                            );
+                          },
                         ),
-                        itemCount: state.notifications.length,
-                        itemBuilder: (context, index) {
-                          final notification = notifications[index];
+                );
+              }
 
-                          return IrmaDismissible(
-                            key: Key(notification.id),
-                            onDismissed: () => _onNotificationDismiss(notification),
-                            child: NotificationCard(
-                              notification: notification,
-                              onTap: () => _onNotificationTap(notification),
-                            ),
-                          );
-                        },
-                      ),
-              );
-            }
-
-            throw Exception('NotificationsScreen does not support this state: $state');
-          },
+              throw Exception('NotificationsScreen does not support this state: $state');
+            },
+          ),
         ),
       ),
     );

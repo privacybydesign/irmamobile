@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/session.dart';
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/translated_text.dart';
@@ -16,15 +18,11 @@ import '../change_pin/widgets/enter_pin.dart';
 import '../enrollment/choose_pin/choose_pin_screen.dart';
 import '../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart';
 import '../error/session_error_screen.dart';
-import '../home/home_screen.dart';
-import '../settings/settings_screen.dart';
 import 'models/old_pin_verification_state.dart';
 import 'models/validation_state.dart';
 import 'models/verify_old_pin_bloc.dart';
 
 class ChangePinScreen extends StatelessWidget {
-  static const routeName = '/change_pin';
-
   @override
   Widget build(BuildContext context) {
     final IrmaRepository repo = IrmaRepositoryProvider.of(context);
@@ -98,15 +96,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   }
 
   void _gotoSettings() {
-    // Return to SettingsScreen
-    Navigator.maybePop(context).then((_) {
-      if (!mounted) {
-        return;
-      }
-      Navigator.of(context).popUntil(
-        (route) => route.settings.name == SettingsScreen.routeName,
-      );
-    });
+    context.go('/home/settings');
   }
 
   void _handlePinMismatch() {
@@ -128,16 +118,18 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     );
   }
 
-  void _onSuccessShowFloatingSnackbar() => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: TranslatedText(
-            'change_pin.toast',
-            style: theme.themeData.textTheme.bodySmall!.copyWith(color: theme.light),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: theme.themeData.colorScheme.secondary,
+  void _onSuccessShowFloatingSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: TranslatedText(
+          'change_pin.toast',
+          style: theme.themeData.textTheme.bodySmall!.copyWith(color: theme.light),
         ),
-      );
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: theme.themeData.colorScheme.secondary,
+      ),
+    );
+  }
 
   void _handleResetPinSuccess() {
     _gotoSettings();
@@ -157,7 +149,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         ),
       );
     } else {
-      Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(HomeScreen.routeName));
+      goToHomeWithoutTransition(context);
       widget.repo.lock(unblockTime: blockedUntil);
     }
   }

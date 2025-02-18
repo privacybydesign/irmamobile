@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
-import '../../home/home_screen.dart';
 
 enum ArrowBackType {
   issuance,
@@ -158,7 +158,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     // Pop back to home screen when leaving the app (for example going back to the browser)
     if (state == AppLifecycleState.paused) {
-      Navigator.of(context).popUntil(ModalRoute.withName(HomeScreen.routeName));
+      context.go('/home');
     }
   }
 }

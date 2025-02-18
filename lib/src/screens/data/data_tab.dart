@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_action_card.dart';
-import '../add_data/add_data_screen.dart';
-import 'credentials_detail_screen.dart';
+import 'credentials_details_screen.dart';
 import 'widgets/credential_category_list.dart';
 import 'widgets/credential_types_builder.dart';
 
@@ -13,15 +13,11 @@ class DataTab extends StatelessWidget {
     BuildContext context,
     String credentialTypeId,
     String categoryName,
-  ) =>
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => CredentialsDetailScreen(
-            categoryName: categoryName,
-            credentialTypeId: credentialTypeId,
-          ),
-        ),
-      );
+  ) {
+    final args = CredentialsDetailsScreenArgs(credentialTypeId: credentialTypeId, categoryName: categoryName);
+    final uri = Uri(path: '/home/credentials_details', queryParameters: args.toQueryParams());
+    context.push(uri.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +33,7 @@ class DataTab extends StatelessWidget {
           children: [
             IrmaActionCard(
               titleKey: 'data.tab.obtain_data',
-              onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
+              onTap: () => context.push('/home/add_data'),
               icon: Icons.add_circle_sharp,
             ),
             CredentialTypesBuilder(

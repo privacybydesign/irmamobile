@@ -4,14 +4,19 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../../models/translated_value.dart';
 import '../../../widgets/action_feedback.dart';
 
-class IssueWizardSuccessScreen extends StatelessWidget {
+class IssueWizardSuccessScreenArgs {
   final TranslatedValue? headerTranslation;
   final TranslatedValue? contentTranslation;
+
+  IssueWizardSuccessScreenArgs({required this.headerTranslation, required this.contentTranslation});
+}
+
+class IssueWizardSuccessScreen extends StatelessWidget {
+  final IssueWizardSuccessScreenArgs args;
   final VoidCallback onDismiss;
 
   const IssueWizardSuccessScreen({
-    this.headerTranslation,
-    this.contentTranslation,
+    required this.args,
     required this.onDismiss,
   });
 
@@ -22,9 +27,9 @@ class IssueWizardSuccessScreen extends StatelessWidget {
     return ActionFeedback(
       success: true,
       titleTranslationKey:
-          headerTranslation != null ? headerTranslation!.translate(lang) : 'issue_wizard.success.header',
+          args.headerTranslation != null ? args.headerTranslation!.translate(lang) : 'issue_wizard.success.header',
       explanationTranslationKey:
-          contentTranslation != null ? contentTranslation!.translate(lang) : 'issue_wizard.success.content',
+          args.contentTranslation != null ? args.contentTranslation!.translate(lang) : 'issue_wizard.success.content',
       onDismiss: onDismiss,
     );
   }

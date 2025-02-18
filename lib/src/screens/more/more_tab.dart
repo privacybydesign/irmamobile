@@ -84,18 +84,18 @@ class _MoreTabState extends State<MoreTab> {
                 key: Key('open_settings_screen_button'),
                 labelTranslationKey: 'more_tab.settings',
                 iconData: Icons.settings_outlined,
-                routeName: '/settings',
+                routeName: '/home/settings',
               ),
               const InternalLinkTile(
                 labelTranslationKey: 'more_tab.faq',
                 iconData: Icons.help_outline_rounded,
-                routeName: '/help',
+                routeName: '/home/help',
               ),
               if (showDebugging)
                 const InternalLinkTile(
                   labelTranslationKey: 'more_tab.debugging',
                   iconData: Icons.code_rounded,
-                  routeName: '/debug',
+                  routeName: '/home/debug',
                 ),
             ],
           ),

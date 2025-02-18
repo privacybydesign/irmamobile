@@ -10,8 +10,6 @@ import 'widgets/help_item.dart';
 import 'widgets/help_item_carousel.dart';
 
 class HelpScreen extends StatefulWidget {
-  static const String routeName = '/help';
-
   @override
   State<HelpScreen> createState() => _HelpScreenState();
 }
