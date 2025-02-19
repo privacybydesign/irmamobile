@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -8,11 +7,12 @@ import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
 import '../../scanner/util/handle_camera_permission.dart';
 
-Future<void> openQrCodeScanner(BuildContext context) async {
+Future<void> openQrCodeScanner(BuildContext context, {bool requireAuthBeforeSession = false}) async {
   final hasCameraPermission = await handleCameraPermission(context);
 
   if (hasCameraPermission && context.mounted) {
-    context.push('/scanner');
+    final uri = Uri(path: '/scanner', queryParameters: {'require_auth_before_session': requireAuthBeforeSession.toString()});
+    context.push(uri.toString());
   }
 }
 

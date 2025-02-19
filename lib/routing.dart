@@ -219,7 +219,7 @@ GoRouter createRouter(BuildContext buildContext) {
               icon: CupertinoIcons.qrcode_viewfinder,
               size: 36,
               onTap: () {
-                openQrCodeScanner(context);
+                openQrCodeScanner(context, requireAuthBeforeSession: true);
               },
             ),
           ),
@@ -250,7 +250,10 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: '/scanner',
-        builder: (context, state) => ScannerScreen(),
+        builder: (context, state) {
+          final requireAuth = bool.parse(state.uri.queryParameters['require_auth_before_session']!);
+          return ScannerScreen(requireAuthBeforeSession: requireAuth);
+        },
       ),
       GoRoute(
         path: '/home',
