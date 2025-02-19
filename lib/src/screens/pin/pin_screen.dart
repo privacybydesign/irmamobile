@@ -1,18 +1,20 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_icon_button.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/format_blocked_for.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/pin_common/pin_wrong_blocked.dart';
 import '../error/session_error_screen.dart';
+import '../home/widgets/irma_qr_scan_button.dart';
 import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
 import 'bloc/pin_state.dart';
@@ -20,8 +22,15 @@ import 'yivi_pin_screen.dart';
 
 class PinScreen extends StatefulWidget {
   final PinEvent? initialEvent;
+  final Function() onAuthenticated;
+  final Widget? leading;
 
-  const PinScreen({super.key, this.initialEvent});
+  const PinScreen({
+    super.key,
+    required this.onAuthenticated,
+    this.initialEvent,
+    this.leading,
+  });
 
   @override
   State<PinScreen> createState() => _PinScreenState();
@@ -85,8 +94,8 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
       }
 
       // navigate to home when the the user is authenticated
-      if (pinState.authenticated && mounted) {
-        goToHomeWithoutTransition(context);
+      if (pinState.authenticated) {
+        widget.onAuthenticated();
       }
     });
   }
@@ -160,10 +169,10 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         }
 
         return YiviPinScaffold(
-          appBar: const IrmaAppBar(
-            noLeading: true,
+          appBar: IrmaAppBar(
             title: '',
             hasBorder: false,
+            leading: widget.leading,
           ),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),

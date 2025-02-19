@@ -8,16 +8,16 @@ import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
 import '../../scanner/util/handle_camera_permission.dart';
 
+Future<void> openQrCodeScanner(BuildContext context) async {
+  final hasCameraPermission = await handleCameraPermission(context);
+
+  if (hasCameraPermission && context.mounted) {
+    context.push('/scanner');
+  }
+}
+
 class IrmaQrScanButton extends StatelessWidget {
   const IrmaQrScanButton({super.key});
-
-  Future<void> _onQrScanButtonTap(BuildContext context) async {
-    final hasCameraPermission = await handleCameraPermission(context);
-
-    if (hasCameraPermission && context.mounted) {
-      context.push('/scanner');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class IrmaQrScanButton extends StatelessWidget {
                         button: true,
                         label: FlutterI18n.translate(context, 'home.nav_bar.scan_qr'),
                         child: InkWell(
-                          onTap: () => _onQrScanButtonTap(context),
+                          onTap: () => openQrCodeScanner(context),
                           child: Icon(
                             Icons.qr_code_scanner_rounded,
                             color: theme.light,

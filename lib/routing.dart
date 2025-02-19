@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +21,7 @@ import 'src/screens/enrollment/enrollment_screen.dart';
 import 'src/screens/error/error_screen.dart';
 import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
+import 'src/screens/home/widgets/irma_qr_scan_button.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
@@ -36,6 +38,8 @@ import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
 import 'src/util/navigation.dart';
+import 'src/widgets/irma_app_bar.dart';
+import 'src/widgets/irma_icon_button.dart';
 import 'src/widgets/irma_repository_provider.dart';
 
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
@@ -180,7 +184,7 @@ GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
 
-  final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment'};
+  final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment', '/scanner', '/modal_pin'};
 
   return GoRouter(
     initialLocation: '/loading',
@@ -206,7 +210,26 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: '/pin',
-        pageBuilder: (context, state) => NoTransitionPage(name: '/pin', child: PinScreen()),
+        pageBuilder: (context, state) => NoTransitionPage(
+          name: '/pin',
+          child: PinScreen(
+            onAuthenticated: () => goToHomeWithoutTransition(context),
+            leading: IrmaIconButton(
+              size: 40,
+              icon: CupertinoIcons.qrcode_viewfinder,
+              onTap: () {
+                openQrCodeScanner(context);
+              },
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/modal_pin',
+        builder: (context, state) => PinScreen(
+          onAuthenticated: () => context.pop(true),
+          leading: YiviBackButton(onTap: () => context.pop(false)),
+        ),
       ),
       GoRoute(
         path: '/reset_pin',

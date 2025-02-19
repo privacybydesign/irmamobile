@@ -4,25 +4,39 @@ import '../theme/theme.dart';
 import 'irma_icon_button.dart';
 import 'translated_text.dart';
 
+class YiviBackButton extends StatelessWidget {
+  final Function()? onTap;
+
+  const YiviBackButton({super.key, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return IrmaIconButton(
+      key: const Key('irma_app_bar_leading'),
+      icon: Icons.arrow_back_sharp,
+      semanticsLabelKey: 'ui.go_back',
+      onTap: () {
+        if (onTap == null) {
+          Navigator.of(context).pop();
+        } else {
+          onTap!();
+        }
+      },
+    );
+  }
+}
+
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? titleTranslationKey;
   final String? title;
-  final Icon? leadingIcon;
-  final void Function()? leadingAction;
-  final void Function()? leadingCancel;
-  final String? leadingTooltip;
+  final Widget? leading;
   final List<Widget> actions;
-  final bool noLeading;
   final bool hasBorder;
 
   const IrmaAppBar({
     this.titleTranslationKey,
     this.title,
-    this.leadingIcon,
-    this.leadingAction,
-    this.leadingTooltip,
-    this.leadingCancel,
-    this.noLeading = false,
+    this.leading = const YiviBackButton(),
     this.actions = const [],
     this.hasBorder = true,
   }) : assert((titleTranslationKey == null && title != null) || title == null && titleTranslationKey != null);
@@ -42,23 +56,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
             )
           : null,
       centerTitle: true,
-      leading: noLeading
-          ? null
-          : IrmaIconButton(
-              key: const Key('irma_app_bar_leading'),
-              icon: Icons.arrow_back_sharp,
-              semanticsLabelKey: 'ui.go_back',
-              onTap: () {
-                if (leadingCancel != null) {
-                  leadingCancel!();
-                }
-                if (leadingAction == null) {
-                  Navigator.of(context).pop();
-                } else {
-                  leadingAction!();
-                }
-              },
-            ),
+      leading: leading,
       title: TranslatedText(
         titleTranslationKey ?? (title ?? ''),
         style: theme.textTheme.displaySmall,

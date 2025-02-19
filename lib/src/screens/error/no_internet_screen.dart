@@ -22,7 +22,7 @@ class NoInternetScreen extends StatelessWidget {
       child: Scaffold(
         appBar: IrmaAppBar(
           titleTranslationKey: 'error.details_title',
-          leadingAction: onTapClose,
+          leading: YiviBackButton(onTap: onTapClose),
         ),
         body: const IrmaInfoScaffoldBody(
           imagePath: 'assets/error/no_connection_illustration.svg',

@@ -26,7 +26,7 @@ class EmailSentScreen extends StatelessWidget {
       key: const Key('email_sent_screen'),
       appBar: const IrmaAppBar(
         titleTranslationKey: 'enrollment.email.confirm.title',
-        noLeading: true,
+        leading: null,
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),
