@@ -215,8 +215,9 @@ GoRouter createRouter(BuildContext buildContext) {
           child: PinScreen(
             onAuthenticated: () => goToHomeWithoutTransition(context),
             leading: IrmaIconButton(
-              size: 40,
+              padding: EdgeInsets.only(left: 24, top: 16),
               icon: CupertinoIcons.qrcode_viewfinder,
+              size: 36,
               onTap: () {
                 openQrCodeScanner(context);
               },
@@ -226,10 +227,13 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: '/modal_pin',
-        builder: (context, state) => PinScreen(
-          onAuthenticated: () => context.pop(true),
-          leading: YiviBackButton(onTap: () => context.pop(false)),
-        ),
+        builder: (context, state) {
+          print('building modal pin');
+          return PinScreen(
+            onAuthenticated: () => context.pop(true),
+            leading: YiviBackButton(onTap: () => context.pop(false)),
+          );
+        },
       ),
       GoRoute(
         path: '/reset_pin',

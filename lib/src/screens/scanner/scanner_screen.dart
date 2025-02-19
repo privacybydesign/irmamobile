@@ -8,7 +8,14 @@ import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import 'widgets/qr_scanner.dart';
 
-class ScannerScreen extends StatelessWidget {
+class ScannerScreen extends StatefulWidget {
+  @override
+  State<ScannerScreen> createState() => _ScannerScreenState();
+}
+
+class _ScannerScreenState extends State<ScannerScreen> {
+  final GlobalKey<QRScannerState> _qrKey = GlobalKey();
+
   void _onSuccess(BuildContext context, Pointer pointer) async {
     // QR was scanned using IRMA app's internal QR code scanner, so we know for sure
     // the session continues on a second device. Therefore we can overrule the session pointer.
@@ -27,6 +34,7 @@ class ScannerScreen extends StatelessWidget {
       final bool? result = await context.push('/modal_pin');
       if (result == null || !result) {
         // auth failed... show error and return..
+        _asyncResetQrScanner();
         return;
       }
     }
@@ -34,7 +42,12 @@ class ScannerScreen extends StatelessWidget {
     if (!context.mounted) {
       return;
     }
-    handlePointer(context, pointer, pushReplacement: true);
+    await handlePointer(context, pointer, pushReplacement: true);
+    _asyncResetQrScanner();
+  }
+
+  _asyncResetQrScanner() {
+    Future.delayed(Duration(milliseconds: 100), _qrKey.currentState?.reset);
   }
 
   @override
@@ -48,6 +61,7 @@ class ScannerScreen extends StatelessWidget {
               titleTranslationKey: 'qr_scanner.title',
             ),
       body: QRScanner(
+        key: _qrKey,
         onFound: (code) => _onSuccess(context, code),
       ),
     );

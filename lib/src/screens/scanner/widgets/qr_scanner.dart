@@ -19,15 +19,26 @@ class QRScanner extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _QRScannerState();
+  State<StatefulWidget> createState() => QRScannerState();
 }
 
-class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
+class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
   static const _qrInstructionHeightFactor = 0.33;
 
   bool found = false;
   bool error = false;
   Timer? _errorTimer;
+
+  void reset() {
+    setState(() {
+      found = false;
+      error = false;
+      if (_errorTimer?.isActive ?? false) {
+        _errorTimer?.cancel();
+      }
+      _errorTimer = null;
+    });
+  }
 
   @override
   void dispose() {
