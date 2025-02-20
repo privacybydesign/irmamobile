@@ -571,24 +571,7 @@ class IrmaRepository {
 
   /// Only meant for testing and debug purposes.
   Future<void> startTestSession(String requestBody, {continueOnSecondDevice = true}) async {
-    final Uri uri = Uri.parse('https://demo.privacybydesign.foundation/backend/session');
-
-    final request = await HttpClient().postUrl(uri);
-    request.headers.set('Content-Type', 'application/json');
-    request.write(requestBody);
-
-    final response = await request.close();
-    final responseBody = await response.transform(utf8.decoder).first;
-
-    if (response.statusCode != 200) {
-      debugPrint('Status ${response.statusCode}: $responseBody');
-      return;
-    }
-
-    final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
-    final sessionPtr = SessionPointer.fromJson(responseObject['sessionPtr'] as Map<String, dynamic>);
-
-    sessionPtr.continueOnSecondDevice = continueOnSecondDevice;
+    final sessionPtr = await createTestSession(requestBody, continueOnSecondDevice: continueOnSecondDevice);
     _pendingPointerSubject.add(sessionPtr);
   }
 
@@ -597,4 +580,25 @@ class IrmaRepository {
     final issueWizardPointer = IssueWizardPointer(wizardKey);
     _pendingPointerSubject.add(issueWizardPointer);
   }
+}
+
+Future<SessionPointer> createTestSession(String requestBody, {bool continueOnSecondDevice = true}) async {
+  final Uri uri = Uri.parse('https://demo.privacybydesign.foundation/backend/session');
+
+  final request = await HttpClient().postUrl(uri);
+  request.headers.set('Content-Type', 'application/json');
+  request.write(requestBody);
+
+  final response = await request.close();
+  final responseBody = await response.transform(utf8.decoder).first;
+
+  if (response.statusCode != 200) {
+    throw 'Status ${response.statusCode}: $responseBody';
+  }
+
+  final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
+  final sessionPtr = SessionPointer.fromJson(responseObject['sessionPtr'] as Map<String, dynamic>);
+
+  sessionPtr.continueOnSecondDevice = continueOnSecondDevice;
+  return sessionPtr;
 }

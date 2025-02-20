@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/session.dart';
 import '../../util/handle_pointer.dart';
+import '../../util/test_detection.dart';
 import '../../widgets/irma_app_bar.dart';
 import 'widgets/qr_scanner.dart';
 
@@ -13,13 +14,21 @@ class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key, required this.requireAuthBeforeSession});
 
   @override
-  State<ScannerScreen> createState() => _ScannerScreenState();
+  State<ScannerScreen> createState() => ScannerScreenState();
 }
 
-class _ScannerScreenState extends State<ScannerScreen> {
-  final GlobalKey<QRScannerState> _qrKey = GlobalKey();
+class ScannerScreenState extends State<ScannerScreen> {
+  late final GlobalKey<QRScannerState> _qrKey;
 
-  void _onSuccess(BuildContext context, Pointer pointer) async {
+  @override
+  void initState() {
+    super.initState();
+    if (!isRunningInTest()) {
+      _qrKey = GlobalKey();
+    }
+  }
+
+  void onQrScanned(Pointer pointer) async {
     // QR was scanned using IRMA app's internal QR code scanner, so we know for sure
     // the session continues on a second device. Therefore we can overrule the session pointer.
     if (pointer is SessionPointer) {
@@ -35,7 +44,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       }
     }
 
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
 
@@ -44,6 +53,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   _asyncResetQrScanner() {
+    if (isRunningInTest()) {
+      return;
+    }
     Future.delayed(Duration(milliseconds: 100), _qrKey.currentState?.reset);
   }
 
@@ -67,10 +79,21 @@ class _ScannerScreenState extends State<ScannerScreen> {
           : const IrmaAppBar(
               titleTranslationKey: 'qr_scanner.title',
             ),
-      body: QRScanner(
-        key: _qrKey,
-        onFound: (code) => _onSuccess(context, code),
-      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    // During integration tests we can't really scan QR codes,
+    // so we'll just not render the whole scanner.
+    // This will also prevent the permission dialog from being shown
+    if (isRunningInTest()) {
+      return Container();
+    }
+
+    return QRScanner(
+      key: _qrKey,
+      onFound: (code) => onQrScanned(code),
     );
   }
 }

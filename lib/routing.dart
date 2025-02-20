@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -39,7 +38,6 @@ import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
-import 'src/widgets/irma_icon_button.dart';
 import 'src/widgets/irma_repository_provider.dart';
 
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
@@ -214,13 +212,8 @@ GoRouter createRouter(BuildContext buildContext) {
           name: '/pin',
           child: PinScreen(
             onAuthenticated: () => goToHomeWithoutTransition(context),
-            leading: IrmaIconButton(
-              padding: EdgeInsets.only(left: 24, top: 16),
-              icon: CupertinoIcons.qrcode_viewfinder,
-              size: 36,
-              onTap: () {
-                openQrCodeScanner(context, requireAuthBeforeSession: true);
-              },
+            leading: YiviAppBarQrCodeButton(
+              onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true),
             ),
           ),
         ),

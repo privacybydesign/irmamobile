@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/notifications/bloc/notifications_bloc.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
@@ -65,6 +66,36 @@ Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo,
     [Locale? locale, NotificationsBloc? notificationsBloc]) async {
   await pumpIrmaApp(tester, repo, locale, notificationsBloc);
   await unlock(tester);
+}
+
+Future<SessionPointer> createIssuanceSession({
+  required Map<String, String> attributes,
+  Map<String, String> revocationKeys = const {},
+  bool continueOnSecondDevice = true,
+}) async {
+  final groupedAttributes = groupBy<MapEntry<String, String>, String>(
+    attributes.entries,
+    (attr) => attr.key.split('.').take(3).join('.'),
+  );
+  final credentialsJson = jsonEncode(groupedAttributes.entries
+      .map((credEntry) => {
+            'credential': credEntry.key,
+            'attributes': {
+              for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value,
+            },
+            if (revocationKeys.containsKey(credEntry.key)) 'revocationKey': revocationKeys[credEntry.key],
+          })
+      .toList());
+
+  return await createTestSession(
+    '''
+    {
+      "@context": "https://irma.app/ld/request/issuance/v2",
+      "credentials": $credentialsJson
+    }
+  ''',
+    continueOnSecondDevice: continueOnSecondDevice,
+  );
 }
 
 /// Starts an issuing session that adds the given credentials to the IRMA app.

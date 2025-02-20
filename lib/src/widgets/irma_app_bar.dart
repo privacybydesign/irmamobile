@@ -1,8 +1,25 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
 import 'irma_icon_button.dart';
 import 'translated_text.dart';
+
+class YiviAppBarQrCodeButton extends StatelessWidget {
+  const YiviAppBarQrCodeButton({super.key, this.onTap});
+
+  final Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return IrmaIconButton(
+      padding: EdgeInsets.only(left: 24, top: 16),
+      icon: CupertinoIcons.qrcode_viewfinder,
+      size: 36,
+      onTap: onTap ?? () {},
+    );
+  }
+}
 
 class YiviBackButton extends StatelessWidget {
   final Function()? onTap;

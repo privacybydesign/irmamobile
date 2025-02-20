@@ -4,14 +4,17 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../theme/theme.dart';
+import '../../../util/test_detection.dart';
 import '../../../widgets/translated_text.dart';
 import '../../scanner/util/handle_camera_permission.dart';
 
 Future<void> openQrCodeScanner(BuildContext context, {bool requireAuthBeforeSession = false}) async {
-  final hasCameraPermission = await handleCameraPermission(context);
+  // during tests we'll just pretend like we have permission, because it won't open the camera
+  final hasCameraPermission = isRunningInTest() ? true : await handleCameraPermission(context);
 
   if (hasCameraPermission && context.mounted) {
-    final uri = Uri(path: '/scanner', queryParameters: {'require_auth_before_session': requireAuthBeforeSession.toString()});
+    final uri =
+        Uri(path: '/scanner', queryParameters: {'require_auth_before_session': requireAuthBeforeSession.toString()});
     context.push(uri.toString());
   }
 }
