@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../models/enrollment_status.dart';
 import '../../models/error_event.dart';
@@ -41,12 +40,12 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
     if (status == EnrollmentStatus.enrolled) {
       if (locked) {
-        context.go('/pin');
+        context.goPinScreen();
       } else {
-        goToHomeWithoutTransition(context);
+        context.goHomeScreenWithoutTransition();
       }
     } else if (status == EnrollmentStatus.unenrolled) {
-      context.go('/enrollment');
+      context.goEnrollmentScreen();
     }
   }
 

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../theme/theme.dart';
+import '../../../util/navigation.dart';
 import '../../../widgets/translated_text.dart';
 import '../../scanner/util/handle_camera_permission.dart';
 
@@ -15,7 +15,7 @@ class IrmaQrScanButton extends StatelessWidget {
     final hasCameraPermission = await handleCameraPermission(context);
 
     if (hasCameraPermission && context.mounted) {
-      context.push('/scanner');
+      context.pushScannerScreen();
     }
   }
 

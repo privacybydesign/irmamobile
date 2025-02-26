@@ -8,6 +8,8 @@ import 'package:rxdart/rxdart.dart';
 import 'src/data/irma_repository.dart';
 import 'src/models/enrollment_status.dart';
 import 'src/models/irma_configuration.dart';
+import 'src/models/log_entry.dart';
+import 'src/models/translated_value.dart';
 import 'src/models/version_information.dart';
 import 'src/screens/activity/activity_detail_screen.dart';
 import 'src/screens/add_data/add_data_details_screen.dart';
@@ -130,52 +132,6 @@ Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
   return streamController.stream;
 }
 
-/// The transition to the home page should be instant in some cases and
-/// "normal" in other cases. For example coming from the pin screen should be an instant transition,
-/// while coming back from the add_data page should be a native sliding transition.
-/// This is a hard problem, as during page building in GoRouter there is no way to detect whether
-/// you're coming from a subpage or not. Passing parameters together with the context.go() call also doesn't
-/// work as it remembers the parameters passed to the initial transition, so coming back from a subpage still has the
-/// parameters from coming from the pin screen.
-/// The (kind of hacky, ugly) solution we made up for this is to set a flag when going to the home screen
-/// and resetting it when the home screen is built. This way we only have the instant transition once and
-/// normal transitions for all subsequent navigation actions.
-class HomeTransitionStyleProvider extends StatefulWidget {
-  final Widget child;
-
-  const HomeTransitionStyleProvider({required this.child});
-
-  static void performInstantTransitionToHome(BuildContext context) {
-    var state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToHome = true;
-    context.go('/home');
-  }
-
-  static bool shouldPerformInstantTransitionToHome(BuildContext context) {
-    final state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
-    return state!._shouldPerformInstantTransitionToHome;
-  }
-
-  static void resetInstantTransitionToHomeMark(BuildContext context) {
-    var state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToHome = false;
-  }
-
-  @override
-  State<StatefulWidget> createState() {
-    return HomeTransitionStyleProviderState();
-  }
-}
-
-class HomeTransitionStyleProviderState extends State<HomeTransitionStyleProvider> {
-  bool _shouldPerformInstantTransitionToHome = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
-}
-
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
@@ -238,15 +194,20 @@ GoRouter createRouter(BuildContext buildContext) {
           GoRoute(
             path: 'credentials_details',
             builder: (context, state) {
-              final args = CredentialsDetailsScreenArgs.fromQueryParams(state.uri.queryParameters);
-              return CredentialsDetailsScreen(args: args);
+              final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
+              return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
             },
           ),
           GoRoute(
             path: 'activity_details',
             builder: (context, state) {
-              final args = state.extra as ActivityDetailsScreenArgs;
-              return ActivityDetailsScreen(args: args);
+              final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
+              return ActivityDetailsScreen(
+                args: ActivityDetailsScreenArgs(
+                  logEntry: logEntry,
+                  irmaConfiguration: irmaConfiguration,
+                ),
+              );
             },
           ),
           GoRoute(
@@ -317,9 +278,10 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/issue_wizard_success',
         builder: (context, state) {
+          final (successHeader, successContent) = state.extra as (TranslatedValue?, TranslatedValue?);
           return IssueWizardSuccessScreen(
-            onDismiss: () => goToHomeWithoutTransition(context),
-            args: state.extra as IssueWizardSuccessScreenArgs,
+            onDismiss: context.goHomeScreenWithoutTransition,
+            args: IssueWizardSuccessScreenArgs(headerTranslation: successHeader, contentTranslation: successContent),
           );
         },
       ),

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
@@ -86,7 +85,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
       // navigate to home when the the user is authenticated
       if (pinState.authenticated && mounted) {
-        goToHomeWithoutTransition(context);
+        context.goHomeScreenWithoutTransition();
       }
     });
   }
@@ -199,7 +198,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         onSubmit: enabled ? submit : (_) {},
                         pinBloc: pinBloc,
                         enabled: enabled,
-                        onForgotPin: () => context.push('/reset_pin'),
+                        onForgotPin: context.pushResetPinScreen,
                         listener: (context, state) {
                           if (maxPinSize == shortPinSize && state.pin.length == maxPinSize && enabled) {
                             submit(state.toString());

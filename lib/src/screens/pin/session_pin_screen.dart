@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/session_events.dart';
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
@@ -92,7 +92,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         ),
       );
     } else {
-      context.go('/home');
+      context.goHomeScreen();
       _repo.lock(unblockTime: state.blockedUntil);
     }
   }
@@ -171,7 +171,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                               onSubmit: (p) => _submit(enabled, p),
                               pinBloc: pinBloc,
                               enabled: enabled,
-                              onForgotPin: () => context.push('/reset_pin'),
+                              onForgotPin: context.pushResetPinScreen,
                               listener: (context, state) {
                                 if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
                                   _submit(enabled, state.toString());

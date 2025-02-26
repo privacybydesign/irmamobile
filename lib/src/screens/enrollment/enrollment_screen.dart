@@ -4,6 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/irma_repository.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import 'accept_terms/accept_terms_screen.dart';
@@ -43,9 +44,9 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
       return;
     }
     if (locked) {
-      context.go('/pin');
+      context.goPinScreen();
     } else {
-      context.go('/home');
+      context.goHomeScreen();
     }
   }
 

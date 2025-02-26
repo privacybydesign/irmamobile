@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_action_card.dart';
-import 'credentials_details_screen.dart';
 import 'widgets/credential_category_list.dart';
 import 'widgets/credential_types_builder.dart';
 
 class DataTab extends StatelessWidget {
-  _navToCredTypeDetailScreen(
-    BuildContext context,
-    String credentialTypeId,
-    String categoryName,
-  ) {
-    final args = CredentialsDetailsScreenArgs(credentialTypeId: credentialTypeId, categoryName: categoryName);
-    final uri = Uri(path: '/home/credentials_details', queryParameters: args.toQueryParams());
-    context.push(uri.toString());
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -33,7 +22,7 @@ class DataTab extends StatelessWidget {
           children: [
             IrmaActionCard(
               titleKey: 'data.tab.obtain_data',
-              onTap: () => context.push('/home/add_data'),
+              onTap: context.pushAddDataScreen,
               icon: Icons.add_circle_sharp,
             ),
             CredentialTypesBuilder(
@@ -43,10 +32,11 @@ class DataTab extends StatelessWidget {
                       (credentialTypesByCategory) => CredentialCategoryList(
                         categoryName: credentialTypesByCategory.key,
                         credentialTypes: credentialTypesByCategory.value,
-                        onCredentialTypeTap: (CredentialType credType) => _navToCredTypeDetailScreen(
-                          context,
-                          credType.fullId,
-                          credentialTypesByCategory.key,
+                        onCredentialTypeTap: (CredentialType credType) => context.pushCredentialsDetailsScreen(
+                          CredentialsDetailsRouteParams(
+                            credentialTypeId: credType.fullId,
+                            categoryName: credentialTypesByCategory.key,
+                          ),
                         ),
                       ),
                     )
