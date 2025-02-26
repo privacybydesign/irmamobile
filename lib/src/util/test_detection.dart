@@ -4,5 +4,5 @@
 // a compile time environment variable, like this:
 // `flutter test integration_test --dart-define YIVI_INTEGRATION_TEST=true`
 bool isRunningIntegrationTest() {
-  return bool.fromEnvironment('YIVI_INTEGRATION_TEST', defaultValue: false);
+  return const bool.fromEnvironment('YIVI_INTEGRATION_TEST', defaultValue: false);
 }
