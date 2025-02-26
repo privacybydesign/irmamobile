@@ -221,7 +221,6 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/modal_pin',
         builder: (context, state) {
-          print('building modal pin');
           return PinScreen(
             onAuthenticated: () => context.pop(true),
             leading: YiviBackButton(onTap: () => context.pop(false)),

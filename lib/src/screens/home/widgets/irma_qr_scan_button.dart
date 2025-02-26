@@ -10,7 +10,7 @@ import '../../scanner/util/handle_camera_permission.dart';
 
 Future<void> openQrCodeScanner(BuildContext context, {bool requireAuthBeforeSession = false}) async {
   // during tests we'll just pretend like we have permission, because it won't open the camera
-  final hasCameraPermission = isRunningInTest() ? true : await handleCameraPermission(context);
+  final hasCameraPermission = isRunningIntegrationTest() ? true : await handleCameraPermission(context);
 
   if (hasCameraPermission && context.mounted) {
     final uri =

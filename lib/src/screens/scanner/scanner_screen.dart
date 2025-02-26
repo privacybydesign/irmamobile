@@ -23,7 +23,7 @@ class ScannerScreenState extends State<ScannerScreen> {
   @override
   void initState() {
     super.initState();
-    if (!isRunningInTest()) {
+    if (!isRunningIntegrationTest()) {
       _qrKey = GlobalKey();
     }
   }
@@ -53,7 +53,7 @@ class ScannerScreenState extends State<ScannerScreen> {
   }
 
   _asyncResetQrScanner() {
-    if (isRunningInTest()) {
+    if (isRunningIntegrationTest()) {
       return;
     }
     Future.delayed(Duration(milliseconds: 100), _qrKey.currentState?.reset);
@@ -87,7 +87,7 @@ class ScannerScreenState extends State<ScannerScreen> {
     // During integration tests we can't really scan QR codes,
     // so we'll just not render the whole scanner.
     // This will also prevent the permission dialog from being shown
-    if (isRunningInTest()) {
+    if (isRunningIntegrationTest()) {
       return Container();
     }
 
