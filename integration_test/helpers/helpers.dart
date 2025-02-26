@@ -26,9 +26,13 @@ import '../irma_binding.dart';
 import '../util.dart';
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
-Future<void> unlock(WidgetTester tester) async {
-  await enterPin(tester, '12345');
+Future<void> unlockAndWaitForHome(WidgetTester tester) async {
+  await unlock(tester);
   await tester.waitFor(find.byType(HomeTab).hitTestable());
+}
+
+unlock(WidgetTester tester) async {
+  await enterPin(tester, '12345');
 }
 
 Future<void> enterPin(WidgetTester tester, String pin) async {
@@ -65,7 +69,7 @@ Future<void> pumpIrmaApp(
 Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo,
     [Locale? locale, NotificationsBloc? notificationsBloc]) async {
   await pumpIrmaApp(tester, repo, locale, notificationsBloc);
-  await unlock(tester);
+  await unlockAndWaitForHome(tester);
 }
 
 Future<SessionPointer> createIssuanceSession({

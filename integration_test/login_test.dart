@@ -155,7 +155,7 @@ void main() {
 
       // Wait 65 seconds and try again using the correct pin
       await tester.pumpAndSettle(const Duration(seconds: 65));
-      await unlock(tester);
+      await unlockAndWaitForHome(tester);
     });
 
     testWidgets('reset-from-forgot-pin', (tester) async {

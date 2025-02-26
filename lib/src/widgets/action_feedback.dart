@@ -61,6 +61,7 @@ class ActionFeedback extends StatelessWidget {
           ),
           actions: [
             YiviThemedButton(
+              key: const Key('ok_button'),
               label: 'action_feedback.ok',
               onPressed: onDismiss,
             ),
