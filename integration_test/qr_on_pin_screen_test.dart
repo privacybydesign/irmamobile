@@ -97,6 +97,7 @@ testIssuance(WidgetTester tester, Locale locale, IrmaRepository repo) async {
   await pretendToScanIssuanceQrCode(tester, locale);
 
   await unlock(tester);
+  await tester.pumpAndSettle(Duration(seconds: 1));
 
   // tap "add data"
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
