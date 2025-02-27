@@ -51,7 +51,7 @@ Future<void> declineDisclosure(WidgetTester tester, IntegrationTestIrmaBinding i
   expect(disclosureCloseDialogFinder, findsOneWidget);
 
   // Press close and dialog should disappear
-  await tester.tapAndSettle(find.text('Close'));
+  await tester.tapAndSettle(find.text('Yes'));
   expect(disclosureCloseDialogFinder, findsNothing);
 
   // Finally, expect to be back on the home screen

@@ -18,11 +18,12 @@ class DisclosurePermissionCloseDialog extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => const IrmaConfirmationDialog(
-        titleTranslationKey: 'disclosure_permission.confirm_close_dialog.title',
-        contentTranslationKey: 'disclosure_permission.confirm_close_dialog.explanation',
-        confirmTranslationKey: 'disclosure_permission.confirm_close_dialog.confirm',
-        cancelTranslationKey: 'disclosure_permission.confirm_close_dialog.decline',
-        nudgeCancel: true,
-      );
+  Widget build(BuildContext context) {
+    return const IrmaConfirmationDialog(
+      titleTranslationKey: 'disclosure_permission.confirm_close_dialog.title',
+      contentTranslationKey: 'disclosure_permission.confirm_close_dialog.explanation',
+      confirmTranslationKey: 'disclosure_permission.confirm_close_dialog.confirm',
+      cancelTranslationKey: 'disclosure_permission.confirm_close_dialog.decline',
+    );
+  }
 }

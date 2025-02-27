@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_action_card.dart';
 import '../activity/widgets/recent_activity.dart';
 import 'widgets/irma_nav_bar.dart';
@@ -31,7 +31,7 @@ class HomeTab extends StatelessWidget {
               key: const Key('home_action_fetch'),
               titleKey: 'home_tab.action_card.fetch.title',
               subtitleKey: 'home_tab.action_card.fetch.subtitle',
-              onTap: () => context.push('/home/add_data'),
+              onTap: context.pushAddDataScreen,
               icon: Icons.add_circle_sharp,
             ),
             SizedBox(height: theme.largeSpacing),

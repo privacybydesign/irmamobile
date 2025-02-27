@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:go_router/go_router.dart';
 import 'package:share/share.dart';
 
 import '../../../sentry/sentry.dart';
@@ -114,13 +113,13 @@ class ExternalLinkTile extends StatelessWidget {
 class InternalLinkTile extends StatelessWidget {
   final IconData? iconData;
   final String labelTranslationKey;
-  final String routeName;
+  final Function() onTap;
 
   const InternalLinkTile({
     super.key,
     this.iconData,
     required this.labelTranslationKey,
-    required this.routeName,
+    required this.onTap,
   });
 
   @override
@@ -129,7 +128,7 @@ class InternalLinkTile extends StatelessWidget {
       isLink: false,
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
-      onTap: () => context.push(routeName),
+      onTap: onTap,
     );
   }
 }

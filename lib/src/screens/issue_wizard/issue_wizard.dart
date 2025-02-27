@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../data/irma_repository.dart';
@@ -15,8 +14,8 @@ import '../../screens/issue_wizard/widgets/wizard_contents.dart';
 import '../../screens/issue_wizard/widgets/wizard_info.dart';
 import '../../util/handle_pointer.dart';
 import '../../util/language.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
-import 'widgets/issue_wizard_success_screen.dart';
 
 class IssueWizardScreen extends StatefulWidget {
   final IssueWizardScreenArguments arguments;
@@ -114,21 +113,15 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
       navigator.pop();
     } else {
       // Show the success screen with success text if there is one.
-      TranslatedValue? successHeaderTranslation;
-      TranslatedValue? successContentTranslation;
+      TranslatedValue? successHeader;
+      TranslatedValue? successContent;
 
       if (wizard.showSuccess) {
-        successHeaderTranslation = wizard.wizardData.successHeader;
-        successContentTranslation = wizard.wizardData.successText;
+        successHeader = wizard.wizardData.successHeader;
+        successContent = wizard.wizardData.successText;
       }
 
-      context.go(
-        '/issue_wizard_success',
-        extra: IssueWizardSuccessScreenArgs(
-          headerTranslation: successHeaderTranslation,
-          contentTranslation: successContentTranslation,
-        ),
-      );
+      context.goIssueWizardSuccessScreen(headerTranslation: successHeader, contentTranslation: successContent);
     }
   }
 
@@ -192,7 +185,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
   }
 
   void _onBackPress() {
-    context.go('/home');
+    context.goHomeScreen();
   }
 
   @override

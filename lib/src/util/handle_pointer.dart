@@ -7,6 +7,7 @@ import '../models/session_events.dart';
 import '../screens/issue_wizard/issue_wizard.dart';
 import '../screens/session/session.dart';
 import '../widgets/irma_repository_provider.dart';
+import 'navigation.dart';
 
 /// First handles the issue wizard if one is present, and subsequently the session is handled.
 /// If no wizard is specified, only the session will be performed.
@@ -21,9 +22,9 @@ Future<void> handlePointer(BuildContext context, Pointer pointer, {bool pushRepl
     }
     final message = 'error starting session or wizard: $e';
     if (pushReplacement) {
-      context.pushReplacement('/error', extra: message);
+      context.pushReplacementErrorScreen(message: message);
     } else {
-      context.push('/error', extra: message);
+      context.pushErrorScreen(message: message);
     }
     return;
   }
@@ -82,27 +83,22 @@ Future<int> _startSessionAndNavigate(
     wizardCred: wizardActive ? (await repo.getIssueWizard().first)?.activeItem?.credential : null,
   );
 
-  final routeName = () {
-    switch (args.sessionType) {
-      case 'issuing':
-      case 'disclosing':
-      case 'signing':
-      case 'redirect':
-        return '/session';
-      default:
-        return '/unknown_session';
-    }
-  }();
   if (!context.mounted) {
     return event.sessionID;
   }
 
-  final uri = Uri(path: routeName, queryParameters: args.toQueryParams()).toString();
-
-  if (pushReplacement) {
-    context.pushReplacement(uri);
+  if (const {'issuing', 'disclosing', 'signing', 'redirect'}.contains(args.sessionType)) {
+    if (pushReplacement) {
+      context.pushReplacementSessionScreen(args);
+    } else {
+      context.pushSessionScreen(args);
+    }
   } else {
-    await context.push(uri);
+    if (pushReplacement) {
+      context.pushReplacementUnknownSessionScreen(args);
+    } else {
+      context.pushUnknownSessionScreen(args);
+    }
   }
 
   return event.sessionID;

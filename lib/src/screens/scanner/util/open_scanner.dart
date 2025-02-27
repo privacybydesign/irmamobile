@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../data/irma_repository.dart';
+import '../../../util/navigation.dart';
 
 Future<void> maybeOpenQrScanner(
   BuildContext context,
@@ -23,7 +24,8 @@ Future<void> maybeOpenQrScanner(
       // If so, do not open the QR scanner.
       final appResumedAutomatically = await repo.appResumedAutomatically();
       if (!appResumedAutomatically && context.mounted) {
-        context.push('/scanner');
+        // the app has already been unlocked here
+        context.pushScannerScreen(requireAuthBeforeSession: false);
       }
     } else {
       // If the user has revoked the camera permission, just turn off the setting

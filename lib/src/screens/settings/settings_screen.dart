@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../data/irma_preferences.dart';
 import '../../models/clear_all_data_event.dart';
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
@@ -158,15 +159,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               buildHeaderText('settings.other'),
               TilesCard(
                 children: [
-                  const InternalLinkTile(
+                  InternalLinkTile(
                     key: Key('change_language_link'),
                     labelTranslationKey: 'settings.language',
-                    routeName: '/home/settings/change_language',
+                    onTap: context.pushLanguageSettingsScreen,
                   ),
-                  const InternalLinkTile(
+                  InternalLinkTile(
                     key: Key('change_pin_link'),
                     labelTranslationKey: 'settings.change_pin',
-                    routeName: '/change_pin',
+                    onTap: context.pushChangePinScreen,
                   ),
                   Tile(
                     isLink: false,

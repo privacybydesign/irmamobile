@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../models/native_events.dart';
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../util/rounded_display.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
@@ -52,10 +52,6 @@ class HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _navToNotificationsScreen() {
-    context.go('/home/notifications');
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -85,7 +81,7 @@ class HomeScreenState extends State<HomeScreen> {
                   BlocBuilder<NotificationsBloc, NotificationsState>(
                     builder: (context, state) => NotificationBell(
                       showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
-                      onTap: _navToNotificationsScreen,
+                      onTap: context.goNotificationsScreen,
                     ),
                   )
                 ],

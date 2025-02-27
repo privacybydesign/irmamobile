@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/session.dart';
@@ -59,15 +58,15 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: _gotoSettings),
+      EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: context.goSettingsScreen),
       ChoosePinScreen.routeName: (_) => ChoosePinScreen(
             onChoosePin: _chooseNewPin,
-            onPrevious: _gotoSettings,
+            onPrevious: context.goSettingsScreen,
             newPinNotifier: newPin,
           ),
       ConfirmPin.routeName: (_) => ConfirmPin(
             confirmNewPin: _confirmNewPin,
-            cancel: _gotoSettings,
+            cancel: context.goSettingsScreen,
             returnToChoosePin: _returnToChoosePin,
             onPinMismatch: _handlePinMismatch,
             newPinNotifier: newPin,
@@ -93,10 +92,6 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void _confirmNewPin(String pin) {
     widget.changePinBloc.add(PinEvent(pin, PinEventType.newPinConfirmed));
-  }
-
-  void _gotoSettings() {
-    context.go('/home/settings');
   }
 
   void _handlePinMismatch() {
@@ -132,7 +127,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   }
 
   void _handleResetPinSuccess() {
-    _gotoSettings();
+    context.goSettingsScreen();
     _onSuccessShowFloatingSnackbar();
   }
 
@@ -149,7 +144,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         ),
       );
     } else {
-      goToHomeWithoutTransition(context);
+      context.goHomeScreenWithoutTransition();
       widget.repo.lock(unblockTime: blockedUntil);
     }
   }

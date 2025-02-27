@@ -12,31 +12,11 @@ import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 
-class CredentialsDetailsScreenArgs {
+class CredentialsDetailsScreen extends StatefulWidget {
   final String categoryName;
   final String credentialTypeId;
 
-  CredentialsDetailsScreenArgs({required this.categoryName, required this.credentialTypeId});
-
-  Map<String, String> toQueryParams() {
-    return {
-      'category_name': categoryName,
-      'credential_type_id': credentialTypeId,
-    };
-  }
-
-  static CredentialsDetailsScreenArgs fromQueryParams(Map<String, String> params) {
-    return CredentialsDetailsScreenArgs(
-      categoryName: params['category_name']!,
-      credentialTypeId: params['credential_type_id']!,
-    );
-  }
-}
-
-class CredentialsDetailsScreen extends StatefulWidget {
-  final CredentialsDetailsScreenArgs args;
-
-  const CredentialsDetailsScreen({required this.args});
+  const CredentialsDetailsScreen({required this.categoryName, required this.credentialTypeId});
 
   @override
   State<CredentialsDetailsScreen> createState() => _CredentialsDetailsScreenState();
@@ -116,7 +96,7 @@ class _CredentialsDetailsScreenState extends State<CredentialsDetailsScreen> {
       key: _scaffoldKey,
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
-        titleTranslationKey: widget.args.categoryName,
+        titleTranslationKey: widget.categoryName,
       ),
       body: SizedBox(
         height: double.infinity,
@@ -132,7 +112,7 @@ class _CredentialsDetailsScreenState extends State<CredentialsDetailsScreen> {
                 if (!snapshot.hasData) return Container();
 
                 final filteredCredentials = snapshot.data!.values
-                    .where((cred) => cred.info.credentialType.fullId == widget.args.credentialTypeId)
+                    .where((cred) => cred.info.credentialType.fullId == widget.credentialTypeId)
                     .toList();
 
                 if (filteredCredentials.isEmpty) {

@@ -29,10 +29,6 @@ import 'widgets/issuance_success_screen.dart';
 import 'widgets/pairing_required.dart';
 import 'widgets/session_scaffold.dart';
 
-_popToHome(BuildContext context) {
-  context.go('/home');
-}
-
 class SessionScreen extends StatefulWidget {
   final SessionScreenArguments arguments;
 
@@ -91,11 +87,11 @@ class _SessionScreenState extends State<SessionScreen> {
 
   void _popToUnderlyingOrHome() {
     if (widget.arguments.wizardActive) {
-      popToWizard(context);
+      context.popToWizardScreen();
     } else if (widget.arguments.hasUnderlyingSession) {
       context.pop();
     } else {
-      context.go('/home');
+      context.goHomeScreen();
     }
   }
 
@@ -144,8 +140,8 @@ class _SessionScreenState extends State<SessionScreen> {
       _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
 
       if (session.status == SessionStatus.success) {
-        return const IssuanceSuccessScreen(
-          onDismiss: _popToHome,
+        return IssuanceSuccessScreen(
+          onDismiss: (context) => context.goHomeScreen(),
         );
       } else {
         return _buildDismissed(session);
@@ -162,7 +158,7 @@ class _SessionScreenState extends State<SessionScreen> {
       feedbackType: feedbackType,
       isSignatureSession: session.isSignatureSession,
       otherParty: serverName,
-      onDismiss: _popToHome,
+      onDismiss: (context) => context.goHomeScreen(),
     );
   }
 
@@ -178,7 +174,7 @@ class _SessionScreenState extends State<SessionScreen> {
           try {
             await _repo.openURLExternally(session.clientReturnURL.toString());
             if (mounted) {
-              _popToHome(context);
+              context.goHomeScreen();
             }
           } catch (e) {
             _repo.dispatch(
@@ -193,12 +189,10 @@ class _SessionScreenState extends State<SessionScreen> {
             );
           }
         },
-        onCancel: () {
-          _popToHome(context);
-        },
+        onCancel: context.goHomeScreen,
       );
     } else if (session.isIssuanceSession) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _popToHome(context));
+      WidgetsBinding.instance.addPostFrameCallback((_) => context.goHomeScreen());
       return _buildLoadingScreen(true);
     } else if (session.dismissed) {
       return _buildDismissed(session);
@@ -207,7 +201,7 @@ class _SessionScreenState extends State<SessionScreen> {
         feedbackType: DisclosureFeedbackType.canceled,
         isSignatureSession: session.isSignatureSession,
         otherParty: serverName,
-        onDismiss: _popToHome,
+        onDismiss: (context) => context.goHomeScreen(),
       );
     }
   }
@@ -254,7 +248,7 @@ class _SessionScreenState extends State<SessionScreen> {
     } else if (widget.arguments.wizardActive || session.didIssuePreviouslyLaunchedCredential) {
       // If the wizard is active or this concerns a combined session, pop accordingly.
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
+        (_) => widget.arguments.wizardActive ? context.popToWizardScreen() : Navigator.of(context).pop(),
       );
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
@@ -275,7 +269,7 @@ class _SessionScreenState extends State<SessionScreen> {
       // On Android just background the app to let the user return to the previous activity
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
-        _popToHome(context);
+        context.goHomeScreen();
       });
     }
     return _buildLoadingScreen(session.isIssuanceSession);
@@ -296,9 +290,9 @@ class _SessionScreenState extends State<SessionScreen> {
         error: session.error,
         onTapClose: () async {
           if (widget.arguments.wizardActive) {
-            popToWizard(context);
+            context.popToWizardScreen();
           } else if (session.continueOnSecondDevice) {
-            _popToHome(context);
+            context.goHomeScreen();
           } else if (session.clientReturnURL != null && !session.clientReturnURL!.isPhoneNumber) {
             // If the error was caused by the client return url itself, we should not open it again.
             if (session.error?.errorType != 'clientReturnUrl') {
@@ -306,14 +300,14 @@ class _SessionScreenState extends State<SessionScreen> {
               await _openClientReturnUrl(session.clientReturnURL!, alwaysOpenExternally: true, silentFailure: true);
             }
             if (mounted) {
-              _popToHome(context);
+              context.goHomeScreen();
             }
           } else {
             if (Platform.isIOS) {
               _displayArrowBack.value = true;
             } else {
               _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
-              _popToHome(context);
+              context.goHomeScreen();
             }
           }
         },
@@ -374,7 +368,7 @@ class _SessionScreenState extends State<SessionScreen> {
                 feedbackType: DisclosureFeedbackType.notSatisfiable,
                 isSignatureSession: session.isSignatureSession,
                 otherParty: serverName,
-                onDismiss: _popToHome,
+                onDismiss: (context) => context.goHomeScreen(),
               );
             }
           case SessionStatus.requestIssuancePermission:
