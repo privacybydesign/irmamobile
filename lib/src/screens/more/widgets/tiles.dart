@@ -113,13 +113,13 @@ class ExternalLinkTile extends StatelessWidget {
 class InternalLinkTile extends StatelessWidget {
   final IconData? iconData;
   final String labelTranslationKey;
-  final String routeName;
+  final Function() onTap;
 
   const InternalLinkTile({
     super.key,
     this.iconData,
     required this.labelTranslationKey,
-    required this.routeName,
+    required this.onTap,
   });
 
   @override
@@ -128,7 +128,7 @@ class InternalLinkTile extends StatelessWidget {
       isLink: false,
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
-      onTap: () => Navigator.pushNamed(context, routeName),
+      onTap: onTap,
     );
   }
 }

@@ -28,7 +28,7 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
       final repo = IrmaRepositoryProvider.of(context);
       _pointerSubscription = repo.getPendingPointer().listen((Pointer? pointer) {
         if (pointer != null && mounted) {
-          handlePointer(Navigator.of(context), pointer);
+          handlePointer(context, pointer);
         }
       });
     });

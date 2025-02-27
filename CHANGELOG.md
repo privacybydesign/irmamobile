@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+- Refactor routing system to use GoRouter
 - Improved screen reader support
 - Removed returnUrl option in QR codes (was deprecated for over 5 years)
 - Fix all Flutter related linter warnings (e.g. WillPopScope, context across async gaps & super.key)

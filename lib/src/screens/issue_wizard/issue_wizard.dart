@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../data/irma_repository.dart';
@@ -16,24 +17,14 @@ import '../../util/handle_pointer.dart';
 import '../../util/language.dart';
 import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
-import 'widgets/issue_wizard_success_screen.dart';
 
 class IssueWizardScreen extends StatefulWidget {
-  static const routeName = '/issuewizard';
-
-  final IssueWizardScreenArguments arguments;
+  final IssueWizardRouteParams arguments;
 
   const IssueWizardScreen({super.key, required this.arguments});
 
   @override
   State<IssueWizardScreen> createState() => _IssueWizardScreenState();
-}
-
-class IssueWizardScreenArguments {
-  final String wizardID;
-  final int? sessionID;
-
-  IssueWizardScreenArguments({required this.wizardID, required this.sessionID});
 }
 
 class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindingObserver {
@@ -53,12 +44,11 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
           .firstWhere((event) => event.isFinished)
           .asStream()
           .listen((event) {
-        // Pop to underlying session screen which is showing an error screen
-        // First pop all screens on top of this wizard and then pop the wizard screen itself
         if (mounted) {
-          Navigator.of(context)
-            ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
-            ..pop();
+          // Pop to underlying session screen which is showing an error screen
+          // First pop all screens on top of this wizard and then pop the wizard screen itself
+          context.popToWizardScreen();
+          context.pop();
         }
       });
     }
@@ -105,23 +95,15 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
       navigator.pop();
     } else {
       // Show the success screen with success text if there is one.
-      TranslatedValue? successHeaderTranslation;
-      TranslatedValue? successContentTranslation;
+      TranslatedValue? successHeader;
+      TranslatedValue? successContent;
 
       if (wizard.showSuccess) {
-        successHeaderTranslation = wizard.wizardData.successHeader;
-        successContentTranslation = wizard.wizardData.successText;
+        successHeader = wizard.wizardData.successHeader;
+        successContent = wizard.wizardData.successText;
       }
 
-      await navigator.pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => IssueWizardSuccessScreen(
-            headerTranslation: successHeaderTranslation,
-            contentTranslation: successContentTranslation,
-            onDismiss: () => popToHome(context),
-          ),
-        ),
-      );
+      context.goIssueWizardSuccessScreen(headerTranslation: successHeader, contentTranslation: successContent);
     }
   }
 
@@ -172,7 +154,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
         break;
       case 'session':
         handlePointer(
-          Navigator.of(context),
+          context,
           SessionPointer(u: item?.sessionURL ?? '', irmaqr: 'redirect'),
         );
         break;
@@ -185,7 +167,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
   }
 
   void _onBackPress() {
-    popToHome(context);
+    context.goHomeScreen();
   }
 
   @override
