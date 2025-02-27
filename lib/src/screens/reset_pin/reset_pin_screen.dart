@@ -47,7 +47,7 @@ class ResetPinScreen extends StatelessWidget {
           YiviThemedButton(
             style: YiviButtonStyle.outlined,
             label: 'ui.cancel',
-            onPressed: () => context.pop(),
+            onPressed: context.pop,
           ),
           YiviThemedButton(
             label: 'reset_pin.reset',

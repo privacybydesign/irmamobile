@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../data/irma_repository.dart';
@@ -18,30 +19,12 @@ import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
 
 class IssueWizardScreen extends StatefulWidget {
-  final IssueWizardScreenArguments arguments;
+  final IssueWizardRouteParams arguments;
 
   const IssueWizardScreen({super.key, required this.arguments});
 
   @override
   State<IssueWizardScreen> createState() => _IssueWizardScreenState();
-}
-
-class IssueWizardScreenArguments {
-  final String wizardID;
-  final int? sessionID;
-
-  IssueWizardScreenArguments({required this.wizardID, required this.sessionID});
-
-  Map<String, String> toQueryParams() {
-    return {'wizard_id': wizardID, if (sessionID != null) 'session_id': '$sessionID'};
-  }
-
-  static IssueWizardScreenArguments fromQueryParams(Map<String, String> params) {
-    return IssueWizardScreenArguments(
-      wizardID: params['wizard_id']!,
-      sessionID: params.containsKey('session_id') ? int.parse(params['session_id']!) : null,
-    );
-  }
 }
 
 class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindingObserver {
@@ -61,12 +44,11 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
           .firstWhere((event) => event.isFinished)
           .asStream()
           .listen((event) {
-        // Pop to underlying session screen which is showing an error screen
-        // First pop all screens on top of this wizard and then pop the wizard screen itself
         if (mounted) {
-          Navigator.of(context)
-            ..popUntil(ModalRoute.withName('/issue_wizard'))
-            ..pop();
+          // Pop to underlying session screen which is showing an error screen
+          // First pop all screens on top of this wizard and then pop the wizard screen itself
+          context.popToWizardScreen();
+          context.pop();
         }
       });
     }

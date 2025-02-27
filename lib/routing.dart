@@ -34,7 +34,6 @@ import 'src/screens/reset_pin/reset_pin_screen.dart';
 import 'src/screens/rooted_warning/repository.dart';
 import 'src/screens/rooted_warning/rooted_warning_screen.dart';
 import 'src/screens/scanner/scanner_screen.dart';
-import 'src/screens/session/session.dart';
 import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
@@ -279,21 +278,21 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/session',
         builder: (context, state) {
-          final args = SessionScreenArguments.fromQueryParams(state.uri.queryParameters);
+          final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
           return SessionScreen(arguments: args);
         },
       ),
       GoRoute(
         path: '/unknown_session',
         builder: (context, state) {
-          final args = SessionScreenArguments.fromQueryParams(state.uri.queryParameters);
+          final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
           return UnknownSessionScreen(arguments: args);
         },
       ),
       GoRoute(
         path: '/issue_wizard',
         builder: (context, state) {
-          final args = IssueWizardScreenArguments.fromQueryParams(state.uri.queryParameters);
+          final args = IssueWizardRouteParams.fromQueryParams(state.uri.queryParameters);
           return IssueWizardScreen(arguments: args);
         },
       ),
