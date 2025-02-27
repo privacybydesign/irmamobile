@@ -57,7 +57,7 @@ testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaReposi
 
   await unlock(tester);
   // need to wait for bit to finish the unlock action
-  await tester.pumpAndSettle();
+  await tester.pumpAndSettle(Duration(seconds: 1));
 
   // press the cancel button
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_secondary')));
