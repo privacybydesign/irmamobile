@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../models/issue_wizard.dart';
 import '../models/session.dart';
 import '../models/session_events.dart';
-import '../screens/issue_wizard/issue_wizard.dart';
-import '../screens/session/session.dart';
 import '../widgets/irma_repository_provider.dart';
 import 'navigation.dart';
 
@@ -50,13 +47,12 @@ _startIssueWizard(
 
   // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
   // to the wallet, then the session screen is automatically dismissed, which cancels the session.
-  final args = IssueWizardScreenArguments(wizardID: wizardPointer.wizard, sessionID: sessionID);
-  final uri = Uri(path: '/issue_wizard', queryParameters: args.toQueryParams()).toString();
+  final params = IssueWizardRouteParams(wizardID: wizardPointer.wizard, sessionID: sessionID);
 
   if (pushReplacement) {
-    context.pushReplacement(uri);
+    context.pushReplacementIssueWizardScreen(params);
   } else {
-    await context.push(uri);
+    await context.pushIssueWizardScreen(params);
   }
 }
 
@@ -75,7 +71,7 @@ Future<int> _startSessionAndNavigate(
   final wizardActive = await repo.getIssueWizardActive().first;
   repo.bridgedDispatch(event);
 
-  final args = SessionScreenArguments(
+  final params = SessionRouteParams(
     sessionID: event.sessionID,
     sessionType: event.request.irmaqr,
     hasUnderlyingSession: hasActiveSessions,
@@ -87,17 +83,17 @@ Future<int> _startSessionAndNavigate(
     return event.sessionID;
   }
 
-  if (const {'issuing', 'disclosing', 'signing', 'redirect'}.contains(args.sessionType)) {
+  if (const {'issuing', 'disclosing', 'signing', 'redirect'}.contains(params.sessionType)) {
     if (pushReplacement) {
-      context.pushReplacementSessionScreen(args);
+      context.pushReplacementSessionScreen(params);
     } else {
-      context.pushSessionScreen(args);
+      context.pushSessionScreen(params);
     }
   } else {
     if (pushReplacement) {
-      context.pushReplacementUnknownSessionScreen(args);
+      context.pushReplacementUnknownSessionScreen(params);
     } else {
-      context.pushUnknownSessionScreen(args);
+      context.pushUnknownSessionScreen(params);
     }
   }
 

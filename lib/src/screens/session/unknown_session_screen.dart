@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../screens/session/session.dart';
 import '../../util/navigation.dart';
 import '../../widgets/action_feedback.dart';
 
 class UnknownSessionScreen extends StatelessWidget {
-  final SessionScreenArguments arguments;
+  final SessionRouteParams arguments;
 
   const UnknownSessionScreen({required this.arguments}) : super();
 

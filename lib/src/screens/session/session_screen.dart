@@ -21,7 +21,6 @@ import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
 import 'call_info_screen.dart';
 import 'disclosure/disclosure_permission.dart';
-import 'session.dart';
 import 'widgets/arrow_back_screen.dart';
 import 'widgets/disclosure_feedback_screen.dart';
 import 'widgets/issuance_permission.dart';
@@ -30,7 +29,7 @@ import 'widgets/pairing_required.dart';
 import 'widgets/session_scaffold.dart';
 
 class SessionScreen extends StatefulWidget {
-  final SessionScreenArguments arguments;
+  final SessionRouteParams arguments;
 
   const SessionScreen({required this.arguments}) : super();
 

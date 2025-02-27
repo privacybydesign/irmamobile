@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../models/irma_configuration.dart';
 import '../models/log_entry.dart';
 import '../models/translated_value.dart';
-import '../screens/session/session.dart';
 
 extension RoutingHelpers on BuildContext {
   void pushScannerScreen() {
@@ -89,24 +88,34 @@ extension RoutingHelpers on BuildContext {
     push(uri.toString());
   }
 
-  void pushReplacementSessionScreen(SessionScreenArguments args) {
+  void pushReplacementSessionScreen(SessionRouteParams args) {
     final uri = Uri(path: '/session', queryParameters: args.toQueryParams());
     pushReplacement(uri.toString());
   }
 
-  void pushSessionScreen(SessionScreenArguments args) {
+  void pushSessionScreen(SessionRouteParams args) {
     final uri = Uri(path: '/session', queryParameters: args.toQueryParams());
     push(uri.toString());
   }
 
-  void pushReplacementUnknownSessionScreen(SessionScreenArguments args) {
+  void pushReplacementUnknownSessionScreen(SessionRouteParams args) {
     final uri = Uri(path: '/unknown_session', queryParameters: args.toQueryParams());
     pushReplacement(uri.toString());
   }
 
-  void pushUnknownSessionScreen(SessionScreenArguments args) {
+  void pushUnknownSessionScreen(SessionRouteParams args) {
     final uri = Uri(path: '/unknown_session', queryParameters: args.toQueryParams());
     push(uri.toString());
+  }
+
+  void pushReplacementIssueWizardScreen(IssueWizardRouteParams params) {
+    final uri = Uri(path: '/issue_wizard', queryParameters: params.toQueryParams());
+    pushReplacement(uri.toString());
+  }
+
+  Future<void> pushIssueWizardScreen(IssueWizardRouteParams params) async {
+    final uri = Uri(path: '/issue_wizard', queryParameters: params.toQueryParams());
+    await push(uri.toString());
   }
 }
 
@@ -129,6 +138,64 @@ class CredentialsDetailsRouteParams {
     return CredentialsDetailsRouteParams(
       categoryName: params['category_name']!,
       credentialTypeId: params['credential_type_id']!,
+    );
+  }
+}
+
+// =============================================================================================
+
+class IssueWizardRouteParams {
+  final String wizardID;
+  final int? sessionID;
+
+  IssueWizardRouteParams({required this.wizardID, required this.sessionID});
+
+  Map<String, String> toQueryParams() {
+    return {'wizard_id': wizardID, if (sessionID != null) 'session_id': '$sessionID'};
+  }
+
+  static IssueWizardRouteParams fromQueryParams(Map<String, String> params) {
+    return IssueWizardRouteParams(
+      wizardID: params['wizard_id']!,
+      sessionID: params.containsKey('session_id') ? int.parse(params['session_id']!) : null,
+    );
+  }
+}
+
+// =============================================================================================
+
+class SessionRouteParams {
+  final int sessionID;
+  final String sessionType;
+  final bool hasUnderlyingSession;
+  final bool wizardActive;
+  final String? wizardCred;
+
+  SessionRouteParams({
+    required this.sessionID,
+    required this.sessionType,
+    required this.hasUnderlyingSession,
+    required this.wizardActive,
+    this.wizardCred,
+  });
+
+  Map<String, String> toQueryParams() {
+    return {
+      'session_id': '$sessionID',
+      'session_type': sessionType,
+      'has_underlying_session': '$hasUnderlyingSession',
+      'wizard_active': '$wizardActive',
+      if (wizardCred != null) 'wizard_cred': '$wizardCred',
+    };
+  }
+
+  static SessionRouteParams fromQueryParams(Map<String, String> params) {
+    return SessionRouteParams(
+      sessionID: int.parse(params['session_id']!),
+      sessionType: params['session_type']!,
+      hasUnderlyingSession: bool.parse(params['has_underlying_session']!),
+      wizardActive: bool.parse(params['wizard_active']!),
+      wizardCred: params['wizard_cred'],
     );
   }
 }
