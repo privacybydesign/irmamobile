@@ -88,7 +88,7 @@ class ScannerScreenState extends State<ScannerScreen> {
     // so we'll just not render the whole scanner.
     // This will also prevent the permission dialog from being shown
     if (isRunningIntegrationTest()) {
-      return Container();
+      return Container(child: YiviBackButton());
     }
 
     return QRScanner(
