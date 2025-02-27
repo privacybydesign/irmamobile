@@ -79,16 +79,22 @@ class ScannerScreenState extends State<ScannerScreen> {
           : const IrmaAppBar(
               titleTranslationKey: 'qr_scanner.title',
             ),
-      body: _buildBody(),
+      body: _buildBody(isLandscape),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(bool landscape) {
     // During integration tests we can't really scan QR codes,
     // so we'll just not render the whole scanner.
     // This will also prevent the permission dialog from being shown
     if (isRunningIntegrationTest()) {
-      return Container(child: YiviBackButton());
+      // when in landscape, the back button is rendered on the qr scanner widget
+      // so we'll add one manually here, since the scanner is not rendered in the tests
+      // and we still need a back button
+      if (landscape) {
+        return YiviBackButton();
+      }
+      return Container();
     }
 
     return QRScanner(

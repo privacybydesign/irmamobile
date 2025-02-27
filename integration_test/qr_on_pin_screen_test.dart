@@ -61,6 +61,13 @@ testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaReposi
 
   // we expect to go back to the QR scanner
   expect(find.byType(ScannerScreen), findsOneWidget);
+
+  // back to the pin screen
+  final backButton = find.byType(YiviBackButton);
+  await tester.tapAndSettle(backButton);
+
+  // unlock and wait so the test doesn't fail after completing
+  unlockAndWaitForHome(tester);
 }
 
 testBackFromQrScanner(WidgetTester tester, Locale locale, IrmaRepository repo) async {
