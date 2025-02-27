@@ -67,7 +67,7 @@ testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaReposi
   await tester.tapAndSettle(backButton);
 
   // unlock and wait so the test doesn't fail after completing
-  unlockAndWaitForHome(tester);
+  await unlockAndWaitForHome(tester);
 }
 
 testBackFromQrScanner(WidgetTester tester, Locale locale, IrmaRepository repo) async {
