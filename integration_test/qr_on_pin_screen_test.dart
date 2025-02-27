@@ -18,6 +18,7 @@ import 'util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
@@ -55,6 +56,8 @@ testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaReposi
   await pretendToScanIssuanceQrCode(tester, locale);
 
   await unlock(tester);
+  // need to wait for bit to finish the unlock action
+  await tester.pumpAndSettle();
 
   // press the cancel button
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_secondary')));
