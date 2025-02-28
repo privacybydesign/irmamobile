@@ -56,11 +56,12 @@ testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaReposi
   await pretendToScanIssuanceQrCode(tester, locale);
 
   await unlock(tester);
-  // need to wait for bit to finish the unlock action
-  await tester.pumpAndSettle(Duration(seconds: 1));
+
+  final buttonFinder = find.byKey(const Key('bottom_bar_secondary'));
+  await tester.waitFor(buttonFinder.hitTestable());
 
   // press the cancel button
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_secondary')));
+  await tester.tapAndSettle(buttonFinder);
 
   // we expect to go back to the QR scanner
   expect(find.byType(ScannerScreen), findsOneWidget);
@@ -97,10 +98,12 @@ testIssuance(WidgetTester tester, Locale locale, IrmaRepository repo) async {
   await pretendToScanIssuanceQrCode(tester, locale);
 
   await unlock(tester);
-  await tester.pumpAndSettle(Duration(seconds: 1));
+
+  final button = find.byKey(const Key('bottom_bar_primary'));
+  await tester.waitFor(button.hitTestable());
 
   // tap "add data"
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(button);
 
   // tap "done"
   await tester.tapAndSettle(find.byKey(const Key('ok_button')));
