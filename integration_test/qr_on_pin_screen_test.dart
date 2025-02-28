@@ -128,5 +128,5 @@ pretendToScanIssuanceQrCode(WidgetTester tester, Locale locale) async {
   scannerState.onQrScanned(session);
 
   // wait for the pin screen to be visible
-  await tester.waitFor(find.byType(PinScreen).hitTestable());
+  await tester.waitFor(find.byType(PinScreen));
 }
