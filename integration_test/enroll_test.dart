@@ -310,7 +310,7 @@ void main() {
 
         // Enter the rest of the email.
         final seed = random.nextInt(1000000).toString();
-        await tester.enterText(emailInputFinder, 'test$seed@staging.yivi.app');
+        await tester.enterText(emailInputFinder, 'yivitest+$seed@gmail.com');
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle(const Duration(seconds: 1));
 
