@@ -49,6 +49,7 @@ class ScannerScreenState extends State<ScannerScreen> {
     }
 
     final pushReplacement = GoRouter.of(context).state.uri.path != '/scanner';
+    print('push replacement: $pushReplacement');
     await handlePointer(context, pointer, pushReplacement: pushReplacement);
   }
 

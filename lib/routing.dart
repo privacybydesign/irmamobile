@@ -71,6 +71,7 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
 
     // listen for updates from the streams
     _streamSubscription.listen((triggers) {
+      print('redirect triggered: $triggers');
       value = triggers;
     });
   }
@@ -163,19 +164,23 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: '/pin',
-        pageBuilder: (context, state) => NoTransitionPage(
-          name: '/pin',
-          child: PinScreen(
-            onAuthenticated: context.goHomeScreenWithoutTransition,
-            leading: YiviAppBarQrCodeButton(
-              onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true),
+        pageBuilder: (context, state) {
+          print('building normal pin');
+          return NoTransitionPage(
+            name: '/pin',
+            child: PinScreen(
+              onAuthenticated: context.goHomeScreenWithoutTransition,
+              leading: YiviAppBarQrCodeButton(
+                onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
       GoRoute(
         path: '/modal_pin',
         builder: (context, state) {
+          print('building modal pin');
           return PinScreen(
             onAuthenticated: () => context.pop(true),
             leading: YiviBackButton(onTap: () => context.pop(false)),
@@ -198,6 +203,7 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/scanner',
         builder: (context, state) {
+          print('building scanner');
           final requireAuth = bool.parse(state.uri.queryParameters['require_auth_before_session']!);
           return ScannerScreen(requireAuthBeforeSession: requireAuth);
         },
@@ -330,6 +336,7 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
     ],
     redirect: (context, state) {
+      print('redirect(): ${state.uri.toString()}    ${redirectionTriggers.value}');
       if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
         return '/enrollment';
       }
