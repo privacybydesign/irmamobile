@@ -23,8 +23,8 @@ void main() {
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   group('issuance-from-pin-screen', () {
-    setUp(() => irmaBinding.setUp());
-    tearDown(() => irmaBinding.tearDown());
+    setUp(() async => await irmaBinding.setUp());
+    tearDown(() async => await irmaBinding.tearDown());
 
     testWidgets(
       'cancel-issuance-after-pin-en',
