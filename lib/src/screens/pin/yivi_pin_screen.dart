@@ -184,6 +184,8 @@ class YiviPinScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return Column(
       children: [
+        SizedBox(height: theme.screenPadding),
+        _buildNextButton(),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -231,8 +233,6 @@ class YiviPinScreen extends StatelessWidget {
             onEnterNumber: pinBloc.add,
           ),
         ),
-        SizedBox(height: theme.screenPadding),
-        _buildNextButton(),
       ],
     );
   }

@@ -12,11 +12,18 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IrmaIconButton(
-      padding: EdgeInsets.only(left: 24, top: 16),
-      icon: CupertinoIcons.qrcode_viewfinder,
-      size: 36,
-      onTap: onTap ?? () {},
+    final theme = IrmaTheme.of(context);
+    final topPadding = theme.defaultSpacing;
+    final leftPadding = theme.defaultSpacing;
+
+    return Padding(
+      padding: EdgeInsets.only(left: 0, top: 0),
+      child: IrmaIconButton(
+        padding: EdgeInsets.only(left: leftPadding, top: topPadding),
+        icon: Icons.qr_code_scanner_rounded,
+        size: 32,
+        onTap: onTap ?? () {},
+      ),
     );
   }
 }
