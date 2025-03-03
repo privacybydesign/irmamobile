@@ -24,6 +24,7 @@ class ScannerScreenState extends State<ScannerScreen> {
   void initState() {
     super.initState();
     if (!isRunningIntegrationTest()) {
+      print('init scanner screen state');
       _qrKey = GlobalKey();
     }
   }
@@ -38,19 +39,23 @@ class ScannerScreenState extends State<ScannerScreen> {
     HapticFeedback.vibrate();
 
     if (widget.requireAuthBeforeSession) {
+      print('gonna push /modal_pin');
       final bool? result = await context.push('/modal_pin');
       if (result == null || !result) {
+        print('modal pin result null, return');
         return;
       }
     }
 
     if (!mounted) {
+      print('scanner screen context not mounted, return');
       return;
     }
 
     final pushReplacement = GoRouter.of(context).state.uri.path != '/scanner';
-    print('push replacement: $pushReplacement');
+    print('handle pointer, push replacement: $pushReplacement');
     await handlePointer(context, pointer, pushReplacement: pushReplacement);
+    print('back from handle pointer()');
   }
 
   _asyncResetQrScanner() {
