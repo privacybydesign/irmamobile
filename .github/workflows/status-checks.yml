@@ -240,8 +240,8 @@ jobs:
           gcloud firebase test ios run \
             --test ${{ matrix.file_name }} \
             --timeout 7m \
-            --device=model=iphone15pro,orientation=portrait \
-            --device=model=iphone15pro,orientation=landscape
+            --device=model=iphone15pro,version=18.0,orientation=portrait \
+            --device=model=iphone15pro,version=18.0,orientation=landscape
   # this summary is needed to report a final result for the ios test matrix
   # this job is added to the branch protection rules, so the matrix has to fully pass before merge
   integration-test-ios-summary:
@@ -278,4 +278,5 @@ jobs:
       - name: Set Firebase project
         run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_NAME }}
       - name: Run integration tests
-        run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 20m --device=model=Pixel2,version=28,orientation=portrait --device=model=Pixel2,version=28,orientation=landscape
+        # komodo = Pixel 9 Pro XL
+        run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 20m --device=model=komodo,version=34,orientation=portrait --device=model=komodo,version=34,orientation=landscape
