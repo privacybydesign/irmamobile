@@ -44,7 +44,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
       return;
     }
     if (locked) {
-      context.goPinScreen();
+      context.goPinScreenWithoutTransition();
     } else {
       context.goHomeScreen();
     }

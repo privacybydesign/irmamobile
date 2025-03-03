@@ -3,10 +3,6 @@
 // Note that this implies that when starting integration tests we have to pass
 // a compile time environment variable, like this:
 // `flutter test integration_test/test_all.dart --dart-define YIVI_INTEGRATION_TEST=true`
-import 'package:flutter/material.dart';
-
 bool isRunningIntegrationTest() {
-  const value = bool.fromEnvironment('YIVI_INTEGRATION_TEST', defaultValue: false);
-  debugPrint('IS RUNNING INTEGRATION TEST: $value');
-  return value;
+  return const bool.fromEnvironment('YIVI_INTEGRATION_TEST', defaultValue: false);
 }

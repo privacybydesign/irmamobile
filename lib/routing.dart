@@ -171,17 +171,16 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/pin',
         pageBuilder: (context, state) {
-          return NoTransitionPage(
-            name: '/pin',
-            child: PinScreen(
-              onAuthenticated: () {
-                context.goHomeScreenWithoutTransition();
-              },
-              leading: YiviAppBarQrCodeButton(
-                onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true),
-              ),
-            ),
+          final screen = PinScreen(
+            onAuthenticated: context.goHomeScreenWithoutTransition,
+            leading: YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
           );
+
+          if (TransitionStyleProvider.shouldPerformInstantTransitionToPinScreen(context)) {
+            TransitionStyleProvider.resetInstantTransitionToPinScreenMark(context);
+            return NoTransitionPage(name: '/pin', child: screen);
+          }
+          return MaterialPage(name: '/pin', child: screen);
         },
       ),
       GoRoute(
@@ -215,8 +214,8 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/home',
         pageBuilder: (context, state) {
-          if (HomeTransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
-            HomeTransitionStyleProvider.resetInstantTransitionToHomeMark(context);
+          if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
+            TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
             return NoTransitionPage(name: '/home', child: HomeScreen());
           }
           return MaterialPage(name: '/home', child: HomeScreen());
@@ -354,6 +353,7 @@ GoRouter createRouter(BuildContext buildContext) {
         return '/update_required';
       }
       if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
+        TransitionStyleProvider.setInstantTransitionToPinScreenMark(context);
         return '/pin';
       }
       return null;
