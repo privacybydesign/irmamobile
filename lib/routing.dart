@@ -71,8 +71,17 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
 
     // listen for updates from the streams
     _streamSubscription.listen((triggers) {
-      print('redirect triggered: $triggers');
-      value = triggers;
+      if (triggers.appLocked != value.appLocked) {
+        print('redirect triggered for app locked: $triggers');
+      } else if (triggers.enrollmentStatus != value.enrollmentStatus) {
+        print('redirect triggered for enrollment status');
+      } else {
+        print('redirect triggered for another reason: from $value to $triggers');
+      }
+      if (value.toString() != triggers.toString()) {
+        print('actually updating the redirect value');
+        value = triggers;
+      }
     });
   }
 }
@@ -148,6 +157,14 @@ GoRouter createRouter(BuildContext buildContext) {
     },
     routes: [
       GoRoute(
+        path: '/scanner',
+        builder: (context, state) {
+          print('building scanner');
+          final requireAuth = bool.parse(state.uri.queryParameters['require_auth_before_session']!);
+          return ScannerScreen(requireAuthBeforeSession: requireAuth);
+        },
+      ),
+      GoRoute(
         path: '/error',
         builder: (context, state) {
           return ErrorScreen(
@@ -169,7 +186,10 @@ GoRouter createRouter(BuildContext buildContext) {
           return NoTransitionPage(
             name: '/pin',
             child: PinScreen(
-              onAuthenticated: context.goHomeScreenWithoutTransition,
+              onAuthenticated: () {
+                print('/pin onAuthenticated');
+                context.goHomeScreenWithoutTransition();
+              },
               leading: YiviAppBarQrCodeButton(
                 onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true),
               ),
@@ -182,8 +202,16 @@ GoRouter createRouter(BuildContext buildContext) {
         builder: (context, state) {
           print('building modal pin');
           return PinScreen(
-            onAuthenticated: () => context.pop(true),
-            leading: YiviBackButton(onTap: () => context.pop(false)),
+            onAuthenticated: () {
+              print('/modal_pin onAuthenticated');
+              context.pop(true);
+            },
+            leading: YiviBackButton(
+              onTap: () {
+                print('back, pop(false)');
+                context.pop(false);
+              },
+            ),
           );
         },
       ),
@@ -199,14 +227,6 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/enrollment',
         builder: (context, state) => EnrollmentScreen(),
-      ),
-      GoRoute(
-        path: '/scanner',
-        builder: (context, state) {
-          print('building scanner');
-          final requireAuth = bool.parse(state.uri.queryParameters['require_auth_before_session']!);
-          return ScannerScreen(requireAuthBeforeSession: requireAuth);
-        },
       ),
       GoRoute(
         path: '/home',
@@ -284,6 +304,7 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/session',
         builder: (context, state) {
+          print('building session');
           final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
           return SessionScreen(arguments: args);
         },
@@ -298,6 +319,7 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/issue_wizard',
         builder: (context, state) {
+          print('building issue wizard');
           final args = IssueWizardRouteParams.fromQueryParams(state.uri.queryParameters);
           return IssueWizardScreen(arguments: args);
         },
