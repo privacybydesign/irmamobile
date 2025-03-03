@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../models/session.dart';
 import '../../util/handle_pointer.dart';
+import '../../util/navigation.dart';
 import '../../util/test_detection.dart';
 import '../../widgets/irma_app_bar.dart';
 import 'widgets/qr_scanner.dart';
@@ -24,7 +24,6 @@ class ScannerScreenState extends State<ScannerScreen> {
   void initState() {
     super.initState();
     if (!isRunningIntegrationTest()) {
-      print('init scanner screen state');
       _qrKey = GlobalKey();
     }
   }
@@ -39,23 +38,18 @@ class ScannerScreenState extends State<ScannerScreen> {
     HapticFeedback.vibrate();
 
     if (widget.requireAuthBeforeSession) {
-      print('gonna push /modal_pin');
-      final bool? result = await context.push('/modal_pin');
+      final bool? result = await context.pushModalPin();
       if (result == null || !result) {
-        print('modal pin result null, return');
         return;
       }
     }
 
     if (!mounted) {
-      print('scanner screen context not mounted, return');
       return;
     }
 
-    final pushReplacement = GoRouter.of(context).state.uri.path != '/scanner';
-    print('handle pointer, push replacement: $pushReplacement');
+    final pushReplacement = context.isScannerTopRoute();
     await handlePointer(context, pointer, pushReplacement: pushReplacement);
-    print('back from handle pointer()');
   }
 
   _asyncResetQrScanner() {
@@ -72,8 +66,7 @@ class ScannerScreenState extends State<ScannerScreen> {
     // coming back from the pin screen
     // we shouldn't do this when the scanner is not the top route, because then it
     // would start scanning QR codes again in the background...
-    final route = GoRouter.of(context).state.path!;
-    if (route == '/scanner') {
+    if (context.isScannerTopRoute()) {
       _asyncResetQrScanner();
     }
 

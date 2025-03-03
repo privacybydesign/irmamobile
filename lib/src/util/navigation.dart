@@ -23,6 +23,14 @@ extension RoutingHelpers on BuildContext {
     pushReplacement('/error', extra: message);
   }
 
+  Future<bool?> pushModalPin() async {
+    return await push('/modal_pin');
+  }
+
+  bool isScannerTopRoute() {
+    return GoRouter.of(this).state.uri.path == '/scanner';
+  }
+
   void pushAddDataScreen() {
     push('/home/add_data');
   }

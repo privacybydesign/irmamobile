@@ -32,11 +32,9 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
   @override
   void initState() {
     super.initState();
-    print('init qr scanner state');
   }
 
   void reset() {
-    print('reset qr scanner state');
     setState(() {
       found = false;
       error = false;
@@ -53,7 +51,6 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
       _errorTimer?.cancel();
     }
     super.dispose();
-    print('dispose qr scanner state');
   }
 
   @override
@@ -103,7 +100,6 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
   }
 
   Future<void> _foundQR(String qr) async {
-    print('found QR');
     // If we already found a correct QR, cancel the current error message
     if (_errorTimer != null && _errorTimer!.isActive) {
       _errorTimer!.cancel();
