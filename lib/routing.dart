@@ -41,6 +41,233 @@ import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
 import 'src/widgets/irma_repository_provider.dart';
 
+GoRouter createRouter(BuildContext buildContext) {
+  final repo = IrmaRepositoryProvider.of(buildContext);
+  final redirectionTriggers = RedirectionListenable(repo);
+
+  final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment', '/scanner', '/modal_pin'};
+
+  return GoRouter(
+    initialLocation: '/loading',
+    refreshListenable: redirectionTriggers,
+    errorBuilder: (context, state) => RouteNotFoundScreen(),
+    routes: [
+      GoRoute(
+        path: '/scanner',
+        builder: (context, state) {
+          final requireAuth = bool.parse(state.uri.queryParameters['require_auth_before_session']!);
+          return ScannerScreen(requireAuthBeforeSession: requireAuth);
+        },
+      ),
+      GoRoute(
+        path: '/error',
+        builder: (context, state) => ErrorScreen(details: state.extra as String, onTapClose: context.pop),
+      ),
+      GoRoute(
+        path: '/loading',
+        pageBuilder: (context, state) => NoTransitionPage(name: '/loading', child: LoadingScreen()),
+      ),
+      GoRoute(
+        path: '/pin',
+        pageBuilder: (context, state) {
+          final screen = PinScreen(
+            onAuthenticated: context.goHomeScreenWithoutTransition,
+            leading: YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
+          );
+
+          if (TransitionStyleProvider.shouldPerformInstantTransitionToPinScreen(context)) {
+            TransitionStyleProvider.resetInstantTransitionToPinScreenMark(context);
+            return NoTransitionPage(name: '/pin', child: screen);
+          }
+          return MaterialPage(name: '/pin', child: screen);
+        },
+      ),
+      GoRoute(
+        path: '/modal_pin',
+        builder: (context, state) {
+          return PinScreen(
+            onAuthenticated: () => context.pop(true),
+            leading: YiviBackButton(onTap: () => context.pop(false)),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/reset_pin',
+        builder: (context, state) => ResetPinScreen(),
+      ),
+      // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
+      GoRoute(
+        path: '/change_pin',
+        builder: (context, state) => ChangePinScreen(),
+      ),
+      GoRoute(
+        path: '/enrollment',
+        builder: (context, state) => EnrollmentScreen(),
+      ),
+      GoRoute(
+        path: '/home',
+        pageBuilder: (context, state) {
+          if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
+            TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
+            return NoTransitionPage(name: '/home', child: HomeScreen());
+          }
+          return MaterialPage(name: '/home', child: HomeScreen());
+        },
+        routes: [
+          GoRoute(
+            path: 'credentials_details',
+            builder: (context, state) {
+              final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
+              return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
+            },
+          ),
+          GoRoute(
+            path: 'activity_details',
+            builder: (context, state) {
+              final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
+              return ActivityDetailsScreen(
+                args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+              );
+            },
+          ),
+          GoRoute(
+            path: 'help',
+            builder: (context, state) => HelpScreen(),
+          ),
+          GoRoute(
+            path: 'add_data',
+            builder: (context, state) => AddDataScreen(),
+            routes: [
+              GoRoute(
+                path: 'details',
+                builder: (context, state) {
+                  final credentialType = state.extra as CredentialType;
+                  return AddDataDetailsScreen(
+                    credentialType: credentialType,
+                    onCancel: context.pop,
+                    onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
+                  );
+                },
+              )
+            ],
+          ),
+          GoRoute(
+            path: 'debug',
+            builder: (context, state) => const DebugScreen(),
+          ),
+          GoRoute(
+            path: 'settings',
+            builder: (context, state) => SettingsScreen(),
+            routes: [
+              GoRoute(
+                path: 'change_language',
+                builder: (context, state) => ChangeLanguageScreen(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'notifications',
+            builder: (context, state) => NotificationsScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/session',
+        builder: (context, state) {
+          final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
+          return SessionScreen(arguments: args);
+        },
+      ),
+      GoRoute(
+        path: '/unknown_session',
+        builder: (context, state) {
+          final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
+          return UnknownSessionScreen(arguments: args);
+        },
+      ),
+      GoRoute(
+        path: '/issue_wizard',
+        builder: (context, state) {
+          final args = IssueWizardRouteParams.fromQueryParams(state.uri.queryParameters);
+          return IssueWizardScreen(arguments: args);
+        },
+      ),
+      GoRoute(
+        path: '/issue_wizard_success',
+        builder: (context, state) {
+          final (successHeader, successContent) = state.extra as (TranslatedValue?, TranslatedValue?);
+          return IssueWizardSuccessScreen(
+            onDismiss: context.goHomeScreenWithoutTransition,
+            args: IssueWizardSuccessScreenArgs(headerTranslation: successHeader, contentTranslation: successContent),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/rooted_warning',
+        builder: (context, state) {
+          return RootedWarningScreen(
+            onAcceptRiskButtonPressed: () {
+              DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences).setHasAcceptedRootedDeviceRisk();
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/name_changed',
+        builder: (context, state) {
+          return NameChangedScreen(onContinuePressed: () => repo.preferences.setShowNameChangedNotification(false));
+        },
+      ),
+      GoRoute(
+        path: '/update_required',
+        builder: (context, state) => RequiredUpdateScreen(),
+      ),
+    ],
+    redirect: (context, state) {
+      if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
+        return '/enrollment';
+      }
+      if (redirectionTriggers.value.showDeviceRootedWarning) {
+        return '/rooted_warning';
+      }
+      if (redirectionTriggers.value.showNameChangedMessage) {
+        return '/name_changed';
+      }
+      if (redirectionTriggers.value.versionInformation != null &&
+          redirectionTriggers.value.versionInformation!.updateRequired()) {
+        return '/update_required';
+      }
+      if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
+        TransitionStyleProvider.setInstantTransitionToPinScreenMark(context);
+        return '/pin';
+      }
+      return null;
+    },
+  );
+}
+
+class RouteNotFoundScreen extends StatelessWidget {
+  const RouteNotFoundScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    if (kDebugMode) {
+      throw Exception(
+        'Route not found. Invalid route or invalid arguments were specified.',
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Page not found'),
+      ),
+      body: const Center(
+        child: Text(''),
+      ),
+    );
+  }
+}
+
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
   late final Stream<RedirectionTriggers> _streamSubscription;
 
@@ -131,254 +358,4 @@ Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
     }
   });
   return streamController.stream;
-}
-
-GoRouter createRouter(BuildContext buildContext) {
-  final repo = IrmaRepositoryProvider.of(buildContext);
-  final redirectionTriggers = RedirectionListenable(repo);
-
-  final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment', '/scanner', '/modal_pin'};
-
-  return GoRouter(
-    initialLocation: '/loading',
-    refreshListenable: redirectionTriggers,
-    errorBuilder: (context, state) {
-      return RouteNotFoundScreen();
-    },
-    routes: [
-      GoRoute(
-        path: '/scanner',
-        builder: (context, state) {
-          final requireAuth = bool.parse(state.uri.queryParameters['require_auth_before_session']!);
-          return ScannerScreen(requireAuthBeforeSession: requireAuth);
-        },
-      ),
-      GoRoute(
-        path: '/error',
-        builder: (context, state) {
-          return ErrorScreen(
-            details: state.extra as String,
-            onTapClose: () {
-              context.pop();
-            },
-          );
-        },
-      ),
-      GoRoute(
-        path: '/loading',
-        pageBuilder: (context, state) => NoTransitionPage(name: '/loading', child: LoadingScreen()),
-      ),
-      GoRoute(
-        path: '/pin',
-        pageBuilder: (context, state) {
-          final screen = PinScreen(
-            onAuthenticated: context.goHomeScreenWithoutTransition,
-            leading: YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
-          );
-
-          if (TransitionStyleProvider.shouldPerformInstantTransitionToPinScreen(context)) {
-            TransitionStyleProvider.resetInstantTransitionToPinScreenMark(context);
-            return NoTransitionPage(name: '/pin', child: screen);
-          }
-          return MaterialPage(name: '/pin', child: screen);
-        },
-      ),
-      GoRoute(
-        path: '/modal_pin',
-        builder: (context, state) {
-          return PinScreen(
-            onAuthenticated: () {
-              context.pop(true);
-            },
-            leading: YiviBackButton(
-              onTap: () {
-                context.pop(false);
-              },
-            ),
-          );
-        },
-      ),
-      GoRoute(
-        path: '/reset_pin',
-        builder: (context, state) => ResetPinScreen(),
-      ),
-      // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
-      GoRoute(
-        path: '/change_pin',
-        builder: (context, state) => ChangePinScreen(),
-      ),
-      GoRoute(
-        path: '/enrollment',
-        builder: (context, state) => EnrollmentScreen(),
-      ),
-      GoRoute(
-        path: '/home',
-        pageBuilder: (context, state) {
-          if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
-            TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
-            return NoTransitionPage(name: '/home', child: HomeScreen());
-          }
-          return MaterialPage(name: '/home', child: HomeScreen());
-        },
-        routes: [
-          GoRoute(
-            path: 'credentials_details',
-            builder: (context, state) {
-              final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
-              return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
-            },
-          ),
-          GoRoute(
-            path: 'activity_details',
-            builder: (context, state) {
-              final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
-              return ActivityDetailsScreen(
-                args: ActivityDetailsScreenArgs(
-                  logEntry: logEntry,
-                  irmaConfiguration: irmaConfiguration,
-                ),
-              );
-            },
-          ),
-          GoRoute(
-            path: 'help',
-            builder: (context, state) => HelpScreen(),
-          ),
-          GoRoute(
-            path: 'add_data',
-            builder: (context, state) => AddDataScreen(),
-            routes: [
-              GoRoute(
-                path: 'details',
-                builder: (context, state) {
-                  final credentialType = state.extra as CredentialType;
-                  return AddDataDetailsScreen(
-                    credentialType: credentialType,
-                    onCancel: context.pop,
-                    onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
-                      context,
-                      credentialType.fullId,
-                    ),
-                  );
-                },
-              )
-            ],
-          ),
-          GoRoute(
-            path: 'debug',
-            builder: (context, state) => const DebugScreen(),
-          ),
-          GoRoute(
-            path: 'settings',
-            builder: (context, state) => SettingsScreen(),
-            routes: [
-              GoRoute(
-                path: 'change_language',
-                builder: (context, state) => ChangeLanguageScreen(),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'notifications',
-            builder: (context, state) => NotificationsScreen(),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/session',
-        builder: (context, state) {
-          final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
-          return SessionScreen(arguments: args);
-        },
-      ),
-      GoRoute(
-        path: '/unknown_session',
-        builder: (context, state) {
-          final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
-          return UnknownSessionScreen(arguments: args);
-        },
-      ),
-      GoRoute(
-        path: '/issue_wizard',
-        builder: (context, state) {
-          final args = IssueWizardRouteParams.fromQueryParams(state.uri.queryParameters);
-          return IssueWizardScreen(arguments: args);
-        },
-      ),
-      GoRoute(
-        path: '/issue_wizard_success',
-        builder: (context, state) {
-          final (successHeader, successContent) = state.extra as (TranslatedValue?, TranslatedValue?);
-          return IssueWizardSuccessScreen(
-            onDismiss: context.goHomeScreenWithoutTransition,
-            args: IssueWizardSuccessScreenArgs(headerTranslation: successHeader, contentTranslation: successContent),
-          );
-        },
-      ),
-      GoRoute(
-        path: '/rooted_warning',
-        builder: (context, state) {
-          return RootedWarningScreen(
-            onAcceptRiskButtonPressed: () async {
-              DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences).setHasAcceptedRootedDeviceRisk();
-            },
-          );
-        },
-      ),
-      GoRoute(
-        path: '/name_changed',
-        builder: (context, state) {
-          return NameChangedScreen(
-            onContinuePressed: () => repo.preferences.setShowNameChangedNotification(false),
-          );
-        },
-      ),
-      GoRoute(
-        path: '/update_required',
-        builder: (context, state) => RequiredUpdateScreen(),
-      ),
-    ],
-    redirect: (context, state) {
-      if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
-        return '/enrollment';
-      }
-      if (redirectionTriggers.value.showDeviceRootedWarning) {
-        return '/rooted_warning';
-      }
-      if (redirectionTriggers.value.showNameChangedMessage) {
-        return '/name_changed';
-      }
-      if (redirectionTriggers.value.versionInformation != null &&
-          redirectionTriggers.value.versionInformation!.updateRequired()) {
-        return '/update_required';
-      }
-      if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
-        TransitionStyleProvider.setInstantTransitionToPinScreenMark(context);
-        return '/pin';
-      }
-      return null;
-    },
-  );
-}
-
-class RouteNotFoundScreen extends StatelessWidget {
-  const RouteNotFoundScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    if (kDebugMode) {
-      throw Exception(
-        'Route not found. Invalid route or invalid arguments were specified.',
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Page not found'),
-      ),
-      body: const Center(
-        child: Text(''),
-      ),
-    );
-  }
 }
