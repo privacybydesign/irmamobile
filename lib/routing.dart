@@ -70,16 +70,13 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/pin',
         pageBuilder: (context, state) {
-          final screen = PinScreen(
-            onAuthenticated: context.goHomeScreenWithoutTransition,
-            leading: YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
+          return NoTransitionPage(
+            name: '/pin',
+            child: PinScreen(
+              onAuthenticated: context.goHomeScreenWithoutTransition,
+              leading: YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
+            ),
           );
-
-          if (TransitionStyleProvider.shouldPerformInstantTransitionToPinScreen(context)) {
-            TransitionStyleProvider.resetInstantTransitionToPinScreenMark(context);
-            return NoTransitionPage(name: '/pin', child: screen);
-          }
-          return MaterialPage(name: '/pin', child: screen);
         },
       ),
       GoRoute(
@@ -238,7 +235,6 @@ GoRouter createRouter(BuildContext buildContext) {
         return '/update_required';
       }
       if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
-        TransitionStyleProvider.setInstantTransitionToPinScreenMark(context);
         return '/pin';
       }
       return null;
@@ -298,7 +294,9 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
 
     // listen for updates from the streams
     _streamSubscription.listen((triggers) {
-      value = triggers;
+      if (value != triggers) {
+        value = triggers;
+      }
     });
   }
 }
@@ -342,9 +340,26 @@ class RedirectionTriggers {
   }
 
   @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is RedirectionTriggers &&
+        appLocked == other.appLocked &&
+        showDeviceRootedWarning == other.showDeviceRootedWarning &&
+        showNameChangedMessage == other.showNameChangedMessage &&
+        versionInformation == other.versionInformation &&
+        enrollmentStatus == other.enrollmentStatus;
+  }
+
+  @override
   String toString() {
     return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation';
   }
+
+  @override
+  int get hashCode =>
+      Object.hash(appLocked, showNameChangedMessage, showDeviceRootedWarning, versionInformation, enrollmentStatus);
 }
 
 Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {

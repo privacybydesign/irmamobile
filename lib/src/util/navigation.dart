@@ -47,10 +47,6 @@ extension RoutingHelpers on BuildContext {
     TransitionStyleProvider.performInstantTransitionToHomeScreen(this);
   }
 
-  void goPinScreenWithoutTransition() {
-    TransitionStyleProvider.performInstantTransitionToPinScreen(this);
-  }
-
   void goHomeScreen() {
     go('/home');
   }
@@ -239,35 +235,14 @@ class TransitionStyleProvider extends StatefulWidget {
     context.goHomeScreen();
   }
 
-  static void performInstantTransitionToPinScreen(BuildContext context) {
-    var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToPinScreen = true;
-    context.goPinScreen();
-  }
-
   static bool shouldPerformInstantTransitionToHome(BuildContext context) {
     final state = context.findAncestorStateOfType<TransitionStyleProviderState>();
     return state!._shouldPerformInstantTransitionToHomeScreen;
   }
 
-  static bool shouldPerformInstantTransitionToPinScreen(BuildContext context) {
-    final state = context.findAncestorStateOfType<TransitionStyleProviderState>();
-    return state!._shouldPerformInstantTransitionToPinScreen;
-  }
-
   static void resetInstantTransitionToHomeMark(BuildContext context) {
     var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
     state!._shouldPerformInstantTransitionToHomeScreen = false;
-  }
-
-  static void resetInstantTransitionToPinScreenMark(BuildContext context) {
-    var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToPinScreen = false;
-  }
-
-  static void setInstantTransitionToPinScreenMark(BuildContext context) {
-    var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToPinScreen = true;
   }
 
   @override
@@ -278,7 +253,6 @@ class TransitionStyleProvider extends StatefulWidget {
 
 class TransitionStyleProviderState extends State<TransitionStyleProvider> {
   bool _shouldPerformInstantTransitionToHomeScreen = false;
-  bool _shouldPerformInstantTransitionToPinScreen = false;
 
   @override
   Widget build(BuildContext context) {

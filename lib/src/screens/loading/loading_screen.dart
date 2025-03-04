@@ -40,7 +40,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
     if (status == EnrollmentStatus.enrolled) {
       if (locked) {
-        context.goPinScreenWithoutTransition();
+        context.goPinScreen();
       } else {
         context.goHomeScreenWithoutTransition();
       }
