@@ -15,14 +15,11 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
     final topPadding = theme.defaultSpacing;
     final leftPadding = theme.defaultSpacing;
 
-    return Padding(
-      padding: EdgeInsets.only(left: 0, top: 0),
-      child: IrmaIconButton(
-        padding: EdgeInsets.only(left: leftPadding, top: topPadding),
-        icon: Icons.qr_code_scanner_rounded,
-        size: 32,
-        onTap: onTap ?? () {},
-      ),
+    return IrmaIconButton(
+      padding: EdgeInsets.only(left: leftPadding, top: topPadding),
+      icon: Icons.qr_code_scanner_rounded,
+      size: 32,
+      onTap: onTap ?? () {},
     );
   }
 }
