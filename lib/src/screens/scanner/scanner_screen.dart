@@ -48,7 +48,9 @@ class ScannerScreenState extends State<ScannerScreen> {
       return;
     }
 
-    final pushReplacement = context.isScannerTopRoute();
+    // when the scanner is not the top route, we want to replace the top route instead of pushing
+    // a new one, so when we swipe back we end up in the scanner again
+    final pushReplacement = !context.isScannerTopRoute();
     await handlePointer(context, pointer, pushReplacement: pushReplacement);
   }
 
