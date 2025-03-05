@@ -65,7 +65,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     );
   }
 
-  Future<void> _onInstallScheme(BuildContext context) async {
+  Future<void> _onInstallScheme() async {
     final repo = IrmaRepositoryProvider.of(context);
 
     final schemeUrl = await showDialog<String>(
@@ -131,7 +131,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
   }
 
-  Future<void> _onUpdateSchemes(BuildContext context) async {
+  Future<void> _onUpdateSchemes() async {
     showSnackbar(
       context,
       FlutterI18n.translate(
@@ -187,7 +187,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
         actions: [
           IrmaIconButton(
             icon: Icons.add,
-            onTap: () => _onInstallScheme(context),
+            onTap: () => _onInstallScheme(),
           )
         ],
       ),
@@ -240,7 +240,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'debug.scheme_management.update',
-        onPrimaryPressed: () => _onUpdateSchemes(context),
+        onPrimaryPressed: () => _onUpdateSchemes(),
       ),
     );
   }
