@@ -12,20 +12,17 @@ import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 
-class CredentialsDetailScreen extends StatefulWidget {
+class CredentialsDetailsScreen extends StatefulWidget {
   final String categoryName;
   final String credentialTypeId;
 
-  const CredentialsDetailScreen({
-    required this.categoryName,
-    required this.credentialTypeId,
-  });
+  const CredentialsDetailsScreen({required this.categoryName, required this.credentialTypeId});
 
   @override
-  State<CredentialsDetailScreen> createState() => _CredentialsDetailScreenState();
+  State<CredentialsDetailsScreen> createState() => _CredentialsDetailsScreenState();
 }
 
-class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
+class _CredentialsDetailsScreenState extends State<CredentialsDetailsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async {

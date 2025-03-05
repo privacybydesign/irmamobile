@@ -8,10 +8,12 @@ import 'issue_wizard_test.dart' as issue_wizard_test;
 import 'login_test.dart' as login_test;
 import 'more_tab_test.dart' as more_tab_test;
 import 'notifications_test.dart' as notifications_test;
+import 'qr_on_pin_screen_test.dart' as qr_on_pin_screen_test;
 import 'settings_test.dart' as settings_test;
 
 /// Wrapper to execute all tests at once.
 void main() {
+  qr_on_pin_screen_test.main();
   enroll_test.main();
   login_test.main();
   settings_test.main();

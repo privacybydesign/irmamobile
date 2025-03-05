@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
+import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/success_graphic.dart';
@@ -64,7 +64,7 @@ void main() {
       await tester.tapAndSettle(categoryTileFinder);
 
       // Expect detail page
-      expect(find.byType(CredentialsDetailScreen), findsOneWidget);
+      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
 
       // Expect to find a card
       final credentialCardFinder = find.byType(IrmaCredentialCard);
@@ -125,7 +125,7 @@ void main() {
       await tester.tapAndSettle(emailTileFinder);
 
       // Expect the detail screen
-      expect(find.byType(CredentialsDetailScreen), findsOneWidget);
+      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
 
       // Expect that it has one card.
       final credentialCardsFinder = find.byType(IrmaCredentialCard);
@@ -153,7 +153,7 @@ void main() {
 
       // Expect the detail screen with one card again
       await tester.tapAndSettle(emailTileFinder);
-      expect(find.byType(CredentialsDetailScreen), findsOneWidget);
+      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
       expect(credentialCardsFinder, findsOneWidget);
 
       // Expect the card to have the correct content again

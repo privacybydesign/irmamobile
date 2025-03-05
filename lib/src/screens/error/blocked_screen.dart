@@ -19,7 +19,7 @@ class BlockedScreen extends StatelessWidget {
       child: Scaffold(
         appBar: const IrmaAppBar(
           titleTranslationKey: 'error.details_title',
-          noLeading: true,
+          leading: null,
         ),
         body: const IrmaInfoScaffoldBody(
           imagePath: 'assets/error/general_error_illustration.svg',

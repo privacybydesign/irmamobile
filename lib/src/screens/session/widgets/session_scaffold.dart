@@ -29,8 +29,7 @@ class SessionScaffold extends StatelessWidget {
       body: body,
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitle,
-        noLeading: onPrevious == null,
-        leadingAction: onPrevious,
+        leading: onPrevious != null ? YiviBackButton(onTap: onPrevious) : null,
         actions: [
           if (onDismiss != null)
             Padding(

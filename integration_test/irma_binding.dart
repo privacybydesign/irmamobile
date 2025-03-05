@@ -109,8 +109,6 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   }
 
   Future<void> tearDown() async {
-    await _repository?.close();
-    _repository = null;
     // Make sure there is a listener for the bridge events.
     final dataClearedFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
       (event) => event is EnrollmentStatusEvent && event.enrolledSchemeManagerIds.isEmpty,
@@ -118,6 +116,9 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     _bridge.dispatch(ClearAllDataEvent());
     await _preferences?.clearAll();
     await dataClearedFuture;
+
+    await _repository?.close();
+    _repository = null;
   }
 
   /// Takes bridge events until an event is received that matches the given test conditions and

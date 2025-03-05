@@ -25,10 +25,7 @@ class SecurePinScreenTest extends StatelessWidget {
   Widget build(BuildContext context) {
     return YiviPinScaffold(
       key: _scaffoldKey,
-      appBar: IrmaAppBar(
-        title: 'Secure Pin: Reset / Onboarding',
-        leadingAction: () => Navigator.pop(context),
-      ),
+      appBar: IrmaAppBar(title: 'Secure Pin: Reset / Onboarding'),
       body: YiviPinScreen(
         scaffoldKey: _scaffoldKey,
         instructionKey: instructionKey,
@@ -66,10 +63,7 @@ class _PinScreen extends State<PinScreenTest> {
   Widget build(BuildContext context) {
     return YiviPinScaffold(
       key: _scaffoldKey,
-      appBar: IrmaAppBar(
-        title: 'Basic Pin',
-        leadingAction: () => Navigator.pop(context),
-      ),
+      appBar: IrmaAppBar(title: 'Basic Pin'),
       body: YiviPinScreen(
         instructionKey: 'pin.title',
         maxPinSize: widget.maxPinSize,

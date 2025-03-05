@@ -70,8 +70,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
       backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'enrollment.email.provide.title',
-        leadingAction: widget.onPrevious,
-        leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        leading: YiviBackButton(onTap: widget.onPrevious),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) => SingleChildScrollView(

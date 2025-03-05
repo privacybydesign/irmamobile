@@ -18,8 +18,7 @@ class EnrollmentFailedScreen extends StatelessWidget {
     return Scaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'ui.error',
-        leadingAction: onPrevious,
-        leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        leading: YiviBackButton(onTap: onPrevious),
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'ui.retry',

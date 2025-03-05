@@ -105,13 +105,13 @@ As preliminary to run the integration tests, you need a fully configured [irmamo
 The full set of integration tests can be started in the following way:
 
       # For an iOS testing device/simulator
-      flutter test integration_test/test_all.dart
+      flutter test integration_test/test_all.dart --dart-define YIVI_INTEGRATION_TEST=true
       # For an Android testing device/simulator
-      flutter test integration_test/test_all.dart --flavor=alpha
+      flutter test integration_test/test_all.dart --flavor=alpha --dart-define YIVI_INTEGRATION_TEST=true
 
 You can also run the integration tests in a specific test file only. For example:
 
-      flutter test integration_test/issuance_test.dart
+      flutter test integration_test/issuance_test.dart --dart-define YIVI_INTEGRATION_TEST=true
 
 Note: `flutter test` also supports directory paths as argument. When doing this, all tests in that particular directory are run.
 However, a new build is made for every test file. Running multiple tests in this way takes much more time for that reason.
@@ -140,7 +140,7 @@ To natively run the integration tests as XCTests on iOS, you can do this using X
 
 At first, you need to choose which test you want to run. For example, to run the tests in `issuance_test.dart` you execute:
 
-      flutter build ios integration_test/issuance_test.dart --config-only
+      flutter build ios integration_test/issuance_test.dart --config-only --dart-define YIVI_INTEGRATION_TEST=true
 
 The tests can be started by opening the `ios/Runner.xcworkspace` in XCode and then start the tests via Product > Test.
 

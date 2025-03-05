@@ -72,37 +72,11 @@ Future<void> issueDemoIvidoLogin(
       continueOnSecondDevice: continueOnSecondDevice,
     );
 
-Future<void> issueMunicipalityPersonalData(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding, {
-  Locale locale = const Locale('en', 'EN'),
-  bool continueOnSecondDevice = true,
-}) async {
+Map<String, String> createMunicipalityPersonalDataAttributes(Locale locale) {
   const credentialId = 'irma-demo.gemeente.personalData';
 
-  var attributes = {
-    '$credentialId.fullname': 'W.L. de Bruijn',
-    '$credentialId.initials': 'W.L.',
-    '$credentialId.firstnames': 'Willeke Liselotte',
-    '$credentialId.prefix': 'de',
-    '$credentialId.surname': 'de Bruijn',
-    '$credentialId.familyname': 'Bruijn',
-    '$credentialId.gender': 'V',
-    '$credentialId.dateofbirth': '10-04-1965',
-    '$credentialId.over12': 'Yes',
-    '$credentialId.over16': 'Yes',
-    '$credentialId.over18': 'Yes',
-    '$credentialId.over21': 'Yes',
-    '$credentialId.over65': 'No',
-    '$credentialId.nationality': 'Yes',
-    '$credentialId.cityofbirth': 'Arnhem',
-    '$credentialId.countryofbirth': 'Arnhem',
-    '$credentialId.bsn': '999999990',
-    '$credentialId.digidlevel': 'Substantieel',
-  };
-
   if (locale.languageCode == 'nl') {
-    attributes = {
+    return {
       '$credentialId.fullname': 'W.L. de Bruijn',
       '$credentialId.initials': 'W.L.',
       '$credentialId.firstnames': 'Willeke Liselotte',
@@ -124,6 +98,39 @@ Future<void> issueMunicipalityPersonalData(
     };
   }
 
+  if (locale.languageCode == 'en') {
+    return {
+      '$credentialId.fullname': 'W.L. de Bruijn',
+      '$credentialId.initials': 'W.L.',
+      '$credentialId.firstnames': 'Willeke Liselotte',
+      '$credentialId.prefix': 'de',
+      '$credentialId.surname': 'de Bruijn',
+      '$credentialId.familyname': 'Bruijn',
+      '$credentialId.gender': 'V',
+      '$credentialId.dateofbirth': '10-04-1965',
+      '$credentialId.over12': 'Yes',
+      '$credentialId.over16': 'Yes',
+      '$credentialId.over18': 'Yes',
+      '$credentialId.over21': 'Yes',
+      '$credentialId.over65': 'No',
+      '$credentialId.nationality': 'Yes',
+      '$credentialId.cityofbirth': 'Arnhem',
+      '$credentialId.countryofbirth': 'Arnhem',
+      '$credentialId.bsn': '999999990',
+      '$credentialId.digidlevel': 'Substantieel',
+    };
+  }
+
+  throw 'unsupported locale $locale';
+}
+
+Future<void> issueMunicipalityPersonalData(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  Locale locale = const Locale('en', 'EN'),
+  bool continueOnSecondDevice = true,
+}) async {
+  final attributes = createMunicipalityPersonalDataAttributes(locale);
   await issueCredentials(
     tester,
     irmaBinding,
