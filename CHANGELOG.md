@@ -10,9 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved screen reader support
 - Removed returnUrl option in QR codes (was deprecated for over 5 years)
 - Fix all Flutter related linter warnings (e.g. WillPopScope, context across async gaps & super.key)
+
+## [7.6.0] - 2025-03-04
+### Changed
+- Improve screen reader support
 - Upgrade Flutter to 3.27.2 (but disabled Impeller on Android)
-- Fix meetups link
-- Reduced log bloat by not printing the entire configuration
+- Update keyshare server URL to keyshare.yivi.app
+
+### Removed
+- Option returnUrl in QR codes (was deprecated for over 5 years; use [client return URLs](https://docs.yivi.app/session-requests#client-return-url) instead)
+
+### Fixed
+- Link to Yivi-meetup page not working
+- All Flutter related linter warnings (e.g. WillPopScope, context across async gaps & super.key)
+
+### Internal
+- Reduce development log bloat by not printing the entire configuration when running in debug mode
 
 ## [7.5.7] - 2024-12-13
 ### Changed
@@ -450,6 +463,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.6.0]: https://github.com/privacybydesign/irmamobile/compare/v7.5.7...v7.6.0
 [7.5.7]: https://github.com/privacybydesign/irmamobile/compare/v7.5.6...v7.5.7
 [7.5.6]: https://github.com/privacybydesign/irmamobile/compare/v7.5.5...v7.5.6
 [7.5.5]: https://github.com/privacybydesign/irmamobile/compare/v7.5.4...v7.5.5
