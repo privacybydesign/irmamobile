@@ -268,8 +268,20 @@ class SchemeManagerDetailScreen extends StatelessWidget {
                 ),
 
                 ListTile(
+                  title: const Text('Latest scheme update'),
+                  subtitle: Text(
+                    '${DateTime.fromMillisecondsSinceEpoch(schemeManager.timestamp * 1000)}\nTimestamp ${schemeManager.timestamp}',
+                  ),
+                ),
+
+                ListTile(
                   title: const Text('Keyshare server'),
                   subtitle: Text(schemeManager.keyshareServer.isNotEmpty ? schemeManager.keyshareServer : '(none)'),
+                ),
+
+                ListTile(
+                  title: const Text('Timestamp server'),
+                  subtitle: Text(schemeManager.timestampServer.isNotEmpty ? schemeManager.timestampServer : '(none)'),
                 ),
 
                 ListTile(

@@ -67,6 +67,7 @@ class SchemeManager {
     required this.minimumAppVersion,
     required this.keyshareServer,
     required this.keyshareWebsite,
+    required this.timestampServer,
     @Deprecated('Use keyshareAttributes instead') required this.keyshareAttribute,
     required this.timestamp,
     required this.demo,
@@ -96,6 +97,9 @@ class SchemeManager {
   @JsonKey(name: 'KeyshareAttribute')
   @Deprecated('Use keyshareAttributes instead')
   final String keyshareAttribute;
+
+  @JsonKey(name: 'TimestampServer')
+  final String timestampServer;
 
   @JsonKey(name: 'Timestamp')
   final int timestamp;
