@@ -183,3 +183,14 @@ popd
 flutter pub get
 cd ./ios && pod install
 ```
+
+## Edit irmago directly
+Sometimes it can be useful to directly edit irmago while debugging.
+```bash
+go mod replace github.com/privacybydesign/irmago=<irmago_path_on_your_pc>
+go mod tidy
+./bind_go.sh
+```
+
+After each change in the Go code, you need to rerun `./bind_go.sh` to compile the changes.
+Make sure to never commit the changes in `go.mod` or `go.sum` in this (irmamobile) repository.
