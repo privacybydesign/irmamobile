@@ -3,15 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/native_events.dart';
 import '../../theme/theme.dart';
-import '../../util/navigation.dart';
 import '../../util/rounded_display.dart';
-import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
-import '../notifications/bloc/notifications_bloc.dart';
-import '../notifications/widgets/notification_bell.dart';
 import '../scanner/util/open_scanner.dart';
 import 'home_tab.dart';
 import 'widgets/irma_nav_bar.dart';
@@ -72,32 +68,12 @@ class HomeScreenState extends State<HomeScreen> {
           },
           child: PendingPointerListener(
             child: Scaffold(
-              backgroundColor: IrmaTheme.of(context).backgroundTertiary,
-              appBar: IrmaAppBar(
-                titleTranslationKey:
-                    tabState == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${tabState.name}',
-                leading: null,
-                actions: [
-                  BlocBuilder<NotificationsBloc, NotificationsState>(
-                    builder: (context, state) => NotificationBell(
-                      showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
-                      onTap: context.goNotificationsScreen,
-                    ),
-                  )
-                ],
-              ),
-              body: SafeArea(
-                child: Builder(
-                  builder: (context) {
-                    return switch (tabState) {
-                      IrmaNavBarTab.home => HomeTab(onChangeTab: _changeTab),
-                      IrmaNavBarTab.data => DataTab(),
-                      IrmaNavBarTab.activity => ActivityTab(),
-                      IrmaNavBarTab.more => MoreTab(onChangeTab: _changeTab),
-                    };
-                  },
-                ),
-              ),
+              body: switch (tabState) {
+                IrmaNavBarTab.home => HomeTab(onChangeTab: _changeTab),
+                IrmaNavBarTab.data => DataTab(),
+                IrmaNavBarTab.activity => ActivityTab(),
+                IrmaNavBarTab.more => MoreTab(onChangeTab: _changeTab),
+              },
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               floatingActionButton: Padding(
                 padding: EdgeInsets.only(bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0),
