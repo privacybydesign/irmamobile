@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app.dart';
 import 'src/data/irma_mock_bridge.dart';
@@ -15,7 +16,7 @@ Future<void> main() async {
     preferences: await IrmaPreferences.fromInstance(),
   );
 
-  runApp(PrototypesApp(repository: repository));
+  runApp(ProviderScope(child: PrototypesApp(repository: repository)));
 }
 
 class PrototypesApp extends StatelessWidget {

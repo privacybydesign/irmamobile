@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
 import 'src/data/irma_client_bridge.dart';
@@ -35,9 +36,11 @@ Future<void> main() async {
       repo: repository,
     );
 
-    runApp(IrmaApp(
-      repository: repository,
-      notificationsBloc: notificationsBloc,
+    runApp(ProviderScope(
+      child: IrmaApp(
+        repository: repository,
+        notificationsBloc: notificationsBloc,
+      ),
     ));
   }, (error, stackTrace) => reportError(error, stackTrace));
 }
