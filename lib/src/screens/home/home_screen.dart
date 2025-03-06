@@ -75,6 +75,7 @@ class HomeScreenState extends State<HomeScreen> {
                 IrmaNavBarTab.more => MoreTab(onChangeTab: _changeTab),
               },
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+              resizeToAvoidBottomInset: false,
               floatingActionButton: Padding(
                 padding: EdgeInsets.only(bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0),
                 child: const IrmaQrScanButton(
