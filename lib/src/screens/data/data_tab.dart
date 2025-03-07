@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../models/irma_configuration.dart';
+import '../../data/irma_repository.dart';
+import '../../models/credentials.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
+import '../../widgets/credential_card/irma_credential_type_card.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_icon_button.dart';
-import 'widgets/credential_category_list.dart';
-import 'widgets/credential_types_builder.dart';
 
 class DataTab extends StatefulWidget {
   @override
@@ -38,6 +40,7 @@ class _DataTabState extends State<DataTab> {
 
     if (enableSearch) {
       return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: IrmaTheme.of(context).backgroundPrimary,
         body: SafeArea(
           child: Column(
@@ -52,7 +55,10 @@ class _DataTabState extends State<DataTab> {
                     ),
                     TextButton(
                       onPressed: _closeSearch,
-                      child: Text('Annuleer', style: theme.textButtonTextStyle),
+                      child: Text(
+                        'Annuleer',
+                        style: theme.textButtonTextStyle.copyWith(fontWeight: FontWeight.normal, color: theme.link),
+                      ),
                     ),
                   ],
                 ),
@@ -60,7 +66,7 @@ class _DataTabState extends State<DataTab> {
               Expanded(
                 child: ColoredBox(
                   color: theme.backgroundTertiary,
-                  child: Center(child: Text('Hello')),
+                  child: CredentialsList(),
                 ),
               ),
             ],
@@ -81,37 +87,65 @@ class _DataTabState extends State<DataTab> {
       ),
       body: SizedBox(
         height: double.infinity,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CredentialTypesBuilder(
-                builder: (context, groupedCredentialTypes) => Column(
-                  children: groupedCredentialTypes.entries
-                      .map(
-                        (credentialTypesByCategory) => CredentialCategoryList(
-                          categoryName: credentialTypesByCategory.key,
-                          credentialTypes: credentialTypesByCategory.value,
-                          onCredentialTypeTap: (CredentialType credType) => context.pushCredentialsDetailsScreen(
-                            CredentialsDetailsRouteParams(
-                              credentialTypeId: credType.fullId,
-                              categoryName: credentialTypesByCategory.key,
-                            ),
-                          ),
-                        ),
-                      )
-                      .toList(growable: false),
-                ),
-              ),
-              SizedBox(
-                height: theme.defaultSpacing,
-              )
-            ],
-          ),
-        ),
+        child: CredentialsList(),
       ),
     );
   }
 }
+
+// ============================================================================================
+
+class CredentialsList extends ConsumerWidget {
+  const CredentialsList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
+    final credentials = ref.watch(credentialsProvider(IrmaRepositoryProvider.of(context)));
+
+    return switch (credentials) {
+      AsyncData(:final value) => _buildList(context, value),
+      AsyncError(:final error) => Text(error.toString()),
+      _ => CircularProgressIndicator(),
+    };
+  }
+
+  Widget _buildList(BuildContext context, Credentials credentials) {
+    final theme = IrmaTheme.of(context);
+    return ListView(
+      padding: EdgeInsets.only(top: theme.defaultSpacing),
+      children: [
+        ...credentials.values.map(
+          (c) {
+            return Padding(
+              padding:
+                  EdgeInsets.only(bottom: theme.smallSpacing, left: theme.defaultSpacing, right: theme.defaultSpacing),
+              child: IrmaCredentialTypeCard(
+                credType: c.credentialType,
+                onTap: () => context.pushCredentialsDetailsScreen(
+                  CredentialsDetailsRouteParams(categoryName: c.fullId, credentialTypeId: c.credentialType.fullId),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class CredentialsSearchList extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // TODO: implement build
+    throw UnimplementedError();
+  }
+}
+
+final credentialsProvider = StreamProviderFamily<Credentials, IrmaRepository>((ref, repo) async* {
+  final stream = repo.getCredentials();
+
+  await for (final credentials in stream) {
+    yield credentials;
+  }
+});

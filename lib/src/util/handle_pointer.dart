@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/issue_wizard.dart';
 import '../models/session.dart';
 import '../models/session_events.dart';
-import '../widgets/irma_repository_provider.dart';
+import '../providers/irma_repository_provider.dart';
 import 'navigation.dart';
 
 /// First handles the issue wizard if one is present, and subsequently the session is handled.

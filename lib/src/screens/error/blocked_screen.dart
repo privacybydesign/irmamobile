@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/clear_all_data_event.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_info_scaffold_body.dart';
-import '../../widgets/irma_repository_provider.dart';
 
 class BlockedScreen extends StatelessWidget {
   @override

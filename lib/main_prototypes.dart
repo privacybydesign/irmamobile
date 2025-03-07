@@ -6,8 +6,8 @@ import 'src/data/irma_mock_bridge.dart';
 import 'src/data/irma_preferences.dart';
 import 'src/data/irma_repository.dart';
 import 'src/prototypes/prototypes_screen.dart';
+import 'src/providers/irma_repository_provider.dart';
 import 'src/theme/theme.dart';
-import 'src/widgets/irma_repository_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../providers/irma_repository_provider.dart';
 import '../theme/theme.dart';
 import 'irma_dialog.dart';
-import 'irma_repository_provider.dart';
 import 'translated_text.dart';
 import 'yivi_themed_button.dart';
 
