@@ -28,30 +28,32 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return SafeArea(
-      child: Container(
-        height: preferredSize.height,
-        padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.smallSpacing),
-        decoration: BoxDecoration(
-          color: theme.backgroundPrimary,
-          border: Border(bottom: BorderSide(color: theme.tertiary)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: CupertinoSearchTextField(
-                focusNode: focusNode,
-                onChanged: onQueryChanged,
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.backgroundPrimary,
+        border: Border(bottom: BorderSide(color: theme.tertiary)),
+      ),
+      child: SafeArea(
+        child: Container(
+          height: preferredSize.height,
+          padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.smallSpacing),
+          child: Row(
+            children: [
+              Expanded(
+                child: CupertinoSearchTextField(
+                  focusNode: focusNode,
+                  onChanged: onQueryChanged,
+                ),
               ),
-            ),
-            TextButton(
-              onPressed: onCancel,
-              child: Text(
-                'Annuleer',
-                style: theme.textButtonTextStyle.copyWith(fontWeight: FontWeight.normal, color: theme.link),
+              TextButton(
+                onPressed: onCancel,
+                child: Text(
+                  'Annuleer',
+                  style: theme.textButtonTextStyle.copyWith(fontWeight: FontWeight.normal, color: theme.link),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -77,7 +79,7 @@ class _DataTabState extends ConsumerState<DataTab> {
     if (_searchActive) {
       return Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: theme.backgroundPrimary,
+        backgroundColor: theme.backgroundTertiary,
         appBar: YiviSearchBar(focusNode: _focusNode, onCancel: _closeSearch, onQueryChanged: _searchQueryChanged),
         body: SafeArea(
           child: Column(
@@ -95,6 +97,7 @@ class _DataTabState extends ConsumerState<DataTab> {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.data',
@@ -104,9 +107,11 @@ class _DataTabState extends ConsumerState<DataTab> {
           IrmaIconButton(icon: CupertinoIcons.add_circled_solid, size: 28, onTap: context.pushAddDataScreen),
         ],
       ),
-      body: SizedBox(
-        height: double.infinity,
-        child: AllCredentialsList(),
+      body: SafeArea(
+        child: SizedBox(
+          height: double.infinity,
+          child: AllCredentialsList(),
+        ),
       ),
     );
   }
@@ -161,8 +166,11 @@ class CredentialsList extends StatelessWidget {
         ...credentials.values.map(
           (c) {
             return Padding(
-              padding:
-                  EdgeInsets.only(bottom: theme.smallSpacing, left: theme.defaultSpacing, right: theme.defaultSpacing),
+              padding: EdgeInsets.only(
+                bottom: theme.smallSpacing,
+                left: theme.defaultSpacing,
+                right: theme.defaultSpacing,
+              ),
               child: IrmaCredentialTypeCard(
                 credType: c.credentialType,
                 onTap: () => context.pushCredentialsDetailsScreen(
