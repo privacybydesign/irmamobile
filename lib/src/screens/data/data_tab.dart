@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/credentials.dart';
 import '../../providers/credentials_provider.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
 import '../../widgets/credential_card/irma_credential_type_card.dart';
@@ -81,18 +83,7 @@ class _DataTabState extends ConsumerState<DataTab> {
         resizeToAvoidBottomInset: false,
         backgroundColor: theme.backgroundTertiary,
         appBar: YiviSearchBar(focusNode: _focusNode, onCancel: _closeSearch, onQueryChanged: _searchQueryChanged),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: ColoredBox(
-                  color: theme.backgroundTertiary,
-                  child: CredentialsSearchList(),
-                ),
-              ),
-            ],
-          ),
-        ),
+        body: CredentialsSearchResults(),
       );
     }
 
@@ -185,14 +176,15 @@ class CredentialsList extends StatelessWidget {
   }
 }
 
-class CredentialsSearchList extends ConsumerWidget {
+class CredentialsSearchResults extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(filteredCredentialsProvider);
+    final locale = FlutterI18n.currentLocale(context)!;
+    final credentials = ref.watch(credentialsSearchResultsProvider(locale));
 
     return credentials.when(
       skipLoadingOnReload: true,
-      data: (data) => CredentialsList(credentials: data),
+      data: (credentials) => CredentialsList(credentials: credentials),
       loading: () => CircularProgressIndicator(),
       error: (error, trace) => Text(error.toString()),
     );
@@ -201,13 +193,23 @@ class CredentialsSearchList extends ConsumerWidget {
 
 final searchQueryProvider = StateProvider((ref) => '');
 
-final filteredCredentialsProvider = StreamProvider<Credentials>(
-  (ref) async* {
-    final query = ref.watch(searchQueryProvider);
+final credentialsSearchResultsProvider = StreamProvider.family<Credentials, Locale>(
+  (ref, locale) async* {
+    final query = ref.watch(searchQueryProvider).toLowerCase();
     final credentials = ref.watch(credentialsProvider);
+    final repo = ref.watch(irmaRepositoryProvider);
 
     if (credentials case AsyncData(:final value)) {
-      yield value.rebuiltRemoveWhere((id, credential) => !credential.info.fullId.contains(query));
+      yield value.rebuiltRemoveWhere(
+        (id, credential) {
+          final credentialName = credential.credentialType.name.translate(locale.languageCode).toLowerCase();
+          final issuer = repo.irmaConfiguration.issuers[credential.credentialType.fullIssuerId]?.name
+              .translate(locale.languageCode)
+              .toLowerCase();
+
+          return !(credentialName.contains(query) || (issuer?.contains(query) ?? false));
+        },
+      );
     }
   },
 );
