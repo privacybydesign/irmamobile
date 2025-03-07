@@ -2,14 +2,54 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/irma_repository.dart';
 import '../../models/credentials.dart';
-import '../../providers/irma_repository_provider.dart';
+import '../../providers/credentials_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
 import '../../widgets/credential_card/irma_credential_type_card.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_icon_button.dart';
+
+class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
+  final FocusNode focusNode;
+  final Function() onCancel;
+  final Function(String) onTextUpdate;
+
+  const YiviSearchBar({super.key, required this.focusNode, required this.onCancel, required this.onTextUpdate});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return SafeArea(
+      child: Container(
+        height: preferredSize.height,
+        padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.smallSpacing),
+        decoration: BoxDecoration(color: theme.backgroundPrimary),
+        child: Row(
+          children: [
+            Expanded(
+              child: CupertinoSearchTextField(
+                focusNode: focusNode,
+                onChanged: onTextUpdate,
+              ),
+            ),
+            TextButton(
+              onPressed: onCancel,
+              child: Text(
+                'Annuleer',
+                style: theme.textButtonTextStyle.copyWith(fontWeight: FontWeight.normal, color: theme.link),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
 
 class DataTab extends StatefulWidget {
   @override
@@ -32,6 +72,8 @@ class _DataTabState extends State<DataTab> {
     });
   }
 
+  _searchQueryChanged(String query) {}
+
   final _focusNode = FocusNode();
 
   @override
@@ -42,27 +84,10 @@ class _DataTabState extends State<DataTab> {
       return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: IrmaTheme.of(context).backgroundPrimary,
+        appBar: YiviSearchBar(focusNode: _focusNode, onCancel: _closeSearch, onTextUpdate: _searchQueryChanged),
         body: SafeArea(
           child: Column(
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-                decoration: BoxDecoration(color: theme.backgroundPrimary),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: CupertinoSearchTextField(focusNode: _focusNode),
-                    ),
-                    TextButton(
-                      onPressed: _closeSearch,
-                      child: Text(
-                        'Annuleer',
-                        style: theme.textButtonTextStyle.copyWith(fontWeight: FontWeight.normal, color: theme.link),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               Expanded(
                 child: ColoredBox(
                   color: theme.backgroundTertiary,
@@ -81,8 +106,8 @@ class _DataTabState extends State<DataTab> {
         titleTranslationKey: 'home.nav_bar.data',
         leading: null,
         actions: [
-          IrmaIconButton(icon: CupertinoIcons.search, onTap: _openSearch),
-          IrmaIconButton(icon: CupertinoIcons.add_circled_solid, onTap: context.pushAddDataScreen),
+          IrmaIconButton(icon: CupertinoIcons.search, size: 28, onTap: _openSearch),
+          IrmaIconButton(icon: CupertinoIcons.add_circled_solid, size: 28, onTap: context.pushAddDataScreen),
         ],
       ),
       body: SizedBox(
@@ -100,8 +125,7 @@ class CredentialsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
-    final credentials = ref.watch(credentialsProvider(IrmaRepositoryProvider.of(context)));
+    final credentials = ref.watch(credentialsProvider);
 
     return switch (credentials) {
       AsyncData(:final value) => _buildList(context, value),
@@ -141,11 +165,3 @@ class CredentialsSearchList extends ConsumerWidget {
     throw UnimplementedError();
   }
 }
-
-final credentialsProvider = StreamProviderFamily<Credentials, IrmaRepository>((ref, repo) async* {
-  final stream = repo.getCredentials();
-
-  await for (final credentials in stream) {
-    yield credentials;
-  }
-});
