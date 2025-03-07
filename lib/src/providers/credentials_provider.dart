@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/irma_repository.dart';
 import '../models/credentials.dart';
 import 'irma_repository_provider.dart';
 

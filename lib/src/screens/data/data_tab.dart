@@ -13,9 +13,16 @@ import '../../widgets/irma_icon_button.dart';
 class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
   final FocusNode focusNode;
   final Function() onCancel;
-  final Function(String) onTextUpdate;
+  final Function(String) onQueryChanged;
+  final bool hasBorder;
 
-  const YiviSearchBar({super.key, required this.focusNode, required this.onCancel, required this.onTextUpdate});
+  const YiviSearchBar({
+    super.key,
+    required this.focusNode,
+    required this.onCancel,
+    required this.onQueryChanged,
+    this.hasBorder = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +32,16 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
       child: Container(
         height: preferredSize.height,
         padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.smallSpacing),
-        decoration: BoxDecoration(color: theme.backgroundPrimary),
+        decoration: BoxDecoration(
+          color: theme.backgroundPrimary,
+          border: Border(bottom: BorderSide(color: theme.tertiary)),
+        ),
         child: Row(
           children: [
             Expanded(
               child: CupertinoSearchTextField(
                 focusNode: focusNode,
-                onChanged: onTextUpdate,
+                onChanged: onQueryChanged,
               ),
             ),
             TextButton(
@@ -51,47 +61,31 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class DataTab extends StatefulWidget {
+class DataTab extends ConsumerStatefulWidget {
   @override
-  State<DataTab> createState() => _DataTabState();
+  ConsumerState<DataTab> createState() => _DataTabState();
 }
 
-class _DataTabState extends State<DataTab> {
-  bool enableSearch = false;
-
-  _openSearch() {
-    setState(() {
-      enableSearch = true;
-      _focusNode.requestFocus();
-    });
-  }
-
-  _closeSearch() {
-    setState(() {
-      enableSearch = false;
-    });
-  }
-
-  _searchQueryChanged(String query) {}
-
+class _DataTabState extends ConsumerState<DataTab> {
+  bool _searchActive = false;
   final _focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    if (enableSearch) {
+    if (_searchActive) {
       return Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: IrmaTheme.of(context).backgroundPrimary,
-        appBar: YiviSearchBar(focusNode: _focusNode, onCancel: _closeSearch, onTextUpdate: _searchQueryChanged),
+        backgroundColor: theme.backgroundPrimary,
+        appBar: YiviSearchBar(focusNode: _focusNode, onCancel: _closeSearch, onQueryChanged: _searchQueryChanged),
         body: SafeArea(
           child: Column(
             children: [
               Expanded(
                 child: ColoredBox(
                   color: theme.backgroundTertiary,
-                  child: CredentialsList(),
+                  child: CredentialsSearchList(),
                 ),
               ),
             ],
@@ -101,7 +95,7 @@ class _DataTabState extends State<DataTab> {
     }
 
     return Scaffold(
-      backgroundColor: IrmaTheme.of(context).backgroundTertiary,
+      backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.data',
         leading: null,
@@ -112,29 +106,54 @@ class _DataTabState extends State<DataTab> {
       ),
       body: SizedBox(
         height: double.infinity,
-        child: CredentialsList(),
+        child: AllCredentialsList(),
       ),
     );
+  }
+
+  _openSearch() {
+    _searchQueryChanged('');
+    setState(() {
+      _searchActive = true;
+      _focusNode.requestFocus();
+    });
+  }
+
+  _closeSearch() {
+    setState(() {
+      _searchActive = false;
+    });
+  }
+
+  _searchQueryChanged(String query) {
+    ref.read(searchQueryProvider.notifier).state = query;
   }
 }
 
 // ============================================================================================
 
-class CredentialsList extends ConsumerWidget {
-  const CredentialsList({super.key});
+class AllCredentialsList extends ConsumerWidget {
+  const AllCredentialsList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final credentials = ref.watch(credentialsProvider);
 
     return switch (credentials) {
-      AsyncData(:final value) => _buildList(context, value),
+      AsyncData(:final value) => CredentialsList(credentials: value),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };
   }
+}
 
-  Widget _buildList(BuildContext context, Credentials credentials) {
+class CredentialsList extends StatelessWidget {
+  const CredentialsList({super.key, required this.credentials});
+
+  final Credentials credentials;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return ListView(
       padding: EdgeInsets.only(top: theme.defaultSpacing),
@@ -161,7 +180,26 @@ class CredentialsList extends ConsumerWidget {
 class CredentialsSearchList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: implement build
-    throw UnimplementedError();
+    final credentials = ref.watch(filteredCredentialsProvider);
+
+    return credentials.when(
+      skipLoadingOnReload: true,
+      data: (data) => CredentialsList(credentials: data),
+      loading: () => CircularProgressIndicator(),
+      error: (error, trace) => Text(error.toString()),
+    );
   }
 }
+
+final searchQueryProvider = StateProvider((ref) => '');
+
+final filteredCredentialsProvider = StreamProvider<Credentials>(
+  (ref) async* {
+    final query = ref.watch(searchQueryProvider);
+    final credentials = ref.watch(credentialsProvider);
+
+    if (credentials case AsyncData(:final value)) {
+      yield value.rebuiltRemoveWhere((id, credential) => !credential.info.fullId.contains(query));
+    }
+  },
+);
