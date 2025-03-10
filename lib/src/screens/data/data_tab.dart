@@ -10,6 +10,7 @@ import '../../util/navigation.dart';
 import '../../widgets/credential_card/irma_credential_type_card.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_icon_button.dart';
+import '../../widgets/translated_text.dart';
 
 class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
   final FocusNode focusNode;
@@ -48,8 +49,8 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               TextButton(
                 onPressed: onCancel,
-                child: Text(
-                  'Annuleer',
+                child: TranslatedText(
+                  'search.cancel',
                   style: theme.textButtonTextStyle.copyWith(fontWeight: FontWeight.normal, color: theme.link),
                 ),
               ),
@@ -164,7 +165,8 @@ class CredentialsList extends StatelessWidget {
               child: IrmaCredentialTypeCard(
                 credType: c.credentialType,
                 onTap: () => context.pushCredentialsDetailsScreen(
-                  CredentialsDetailsRouteParams(categoryName: c.fullId, credentialTypeId: c.credentialType.fullId),
+                  CredentialsDetailsRouteParams(
+                      categoryName: 'home.nav_bar.data', credentialTypeId: c.credentialType.fullId),
                 ),
               ),
             );

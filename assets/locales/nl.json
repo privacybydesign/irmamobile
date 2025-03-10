@@ -598,6 +598,9 @@
     "add": "Toevoegen",
     "activate": "Activeren"
   },
+  "search": {
+    "cancel": "Annuleer"
+  },
   "update": {
     "title": "Update beschikbaar",
     "explanation": "Om de Yivi-app te blijven gebruiken moet je de laatste versie downloaden",

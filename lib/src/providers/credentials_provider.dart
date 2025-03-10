@@ -17,11 +17,22 @@ final credentialsProvider = StreamProvider<Credentials>((ref) async* {
   }
 });
 
+// A list of all credentials of the given credential type id
+final credentialsForTypeProvider = FutureProviderFamily<List<Credential>, String>((ref, credentialTypeId) async {
+  final credentials = await ref.watch(credentialsProvider.future);
+
+  final filteredCredentials =
+      credentials.values.where((cred) => cred.info.credentialType.fullId == credentialTypeId).toList();
+
+  return filteredCredentials;
+});
+
 final credentialsSearchQueryProvider = StateProvider((ref) => '');
 
+// A list of credentials filtered by the query in the `credentialsSearchQueryProvider`
 final credentialsSearchResultsProvider = StreamProvider.family<List<Credential>, Locale>(
   (ref, locale) async* {
-    final query = ref.watch(credentialsSearchQueryProvider).toLowerCase();
+    final query = ref.watch(credentialsSearchQueryProvider);
     final credentials = ref.watch(credentialsProvider);
     final repo = ref.watch(irmaRepositoryProvider);
 

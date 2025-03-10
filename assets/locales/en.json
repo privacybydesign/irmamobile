@@ -598,6 +598,9 @@
     "add" : "Add",
     "activate": "Activate"
   },
+  "search": {
+    "cancel": "Cancel"
+  },
   "update": {
     "title": "Update available",
     "explanation": "To continue using the Yivi app, you must download the latest version.",
