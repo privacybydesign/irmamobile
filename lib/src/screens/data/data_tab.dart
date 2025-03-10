@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/credentials.dart';
 import '../../providers/credentials_provider.dart';
-import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
 import '../../widgets/credential_card/irma_credential_type_card.dart';
@@ -122,7 +121,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   }
 
   _searchQueryChanged(String query) {
-    ref.read(searchQueryProvider.notifier).state = query;
+    ref.read(credentialsSearchQueryProvider.notifier).state = query;
   }
 }
 
@@ -136,7 +135,7 @@ class AllCredentialsList extends ConsumerWidget {
     final credentials = ref.watch(credentialsProvider);
 
     return switch (credentials) {
-      AsyncData(:final value) => CredentialsList(credentials: value),
+      AsyncData(:final value) => CredentialsList(credentials: value.values.toList(growable: false)),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };
@@ -146,7 +145,7 @@ class AllCredentialsList extends ConsumerWidget {
 class CredentialsList extends StatelessWidget {
   const CredentialsList({super.key, required this.credentials});
 
-  final Credentials credentials;
+  final List<Credential> credentials;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +153,7 @@ class CredentialsList extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.only(top: theme.defaultSpacing),
       children: [
-        ...credentials.values.map(
+        ...credentials.map(
           (c) {
             return Padding(
               padding: EdgeInsets.only(
@@ -190,26 +189,3 @@ class CredentialsSearchResults extends ConsumerWidget {
     );
   }
 }
-
-final searchQueryProvider = StateProvider((ref) => '');
-
-final credentialsSearchResultsProvider = StreamProvider.family<Credentials, Locale>(
-  (ref, locale) async* {
-    final query = ref.watch(searchQueryProvider).toLowerCase();
-    final credentials = ref.watch(credentialsProvider);
-    final repo = ref.watch(irmaRepositoryProvider);
-
-    if (credentials case AsyncData(:final value)) {
-      yield value.rebuiltRemoveWhere(
-        (id, credential) {
-          final credentialName = credential.credentialType.name.translate(locale.languageCode).toLowerCase();
-          final issuer = repo.irmaConfiguration.issuers[credential.credentialType.fullIssuerId]?.name
-              .translate(locale.languageCode)
-              .toLowerCase();
-
-          return !(credentialName.contains(query) || (issuer?.contains(query) ?? false));
-        },
-      );
-    }
-  },
-);
