@@ -30,18 +30,16 @@ final credentialsForTypeProvider = FutureProviderFamily<List<Credential>, String
 final credentialsSearchQueryProvider = StateProvider((ref) => '');
 
 // A list of credentials filtered by the query in the `credentialsSearchQueryProvider`
-final credentialsSearchResultsProvider = StreamProvider.family<List<Credential>, Locale>(
-  (ref, locale) async* {
+final credentialsSearchResultsProvider = FutureProvider.family<List<Credential>, Locale>(
+  (ref, locale) async {
     final query = ref.watch(credentialsSearchQueryProvider);
-    final credentials = ref.watch(credentialsProvider);
+    final credentials = await ref.watch(credentialsProvider.future);
     final repo = ref.watch(irmaRepositoryProvider);
 
-    if (credentials case AsyncData(:final value)) {
-      final searchEntries = _credentialsToSearchEntries(value, locale, repo.irmaConfiguration);
-      final searchResults = _search(searchEntries, query);
-      final credentials = _searchEntriesToCredentials(value, searchResults);
-      yield credentials;
-    }
+    final searchEntries = _credentialsToSearchEntries(credentials, locale, repo.irmaConfiguration);
+    final searchResults = _search(searchEntries, query);
+    final filteredCredentials = _searchEntriesToCredentials(credentials, searchResults);
+    return filteredCredentials;
   },
 );
 
