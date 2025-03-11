@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/credential_events.dart';
 import '../../models/credentials.dart';
@@ -31,7 +32,15 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final credentials = ref.watch(credentialsForTypeProvider(widget.credentialTypeId));
+    final provider = credentialsForTypeProvider(widget.credentialTypeId);
+    final credentials = ref.watch(provider);
+
+    ref.listen(provider, (_, creds) {
+      // when there are no credentials (e.g. when they were all removed) we should go back to the previous page
+      if (creds case AsyncData(value: [])) {
+        context.pop();
+      }
+    });
 
     return Scaffold(
       key: _scaffoldKey,

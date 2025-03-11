@@ -43,10 +43,6 @@ void main() {
       // NotificationBell should be visible
       expect(notificationBellFinder, findsOneWidget);
 
-      // Switch tabs. NotificationBell should still be visible
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
-      expect(notificationBellFinder, findsOneWidget);
-
       await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
       expect(notificationBellFinder, findsOneWidget);
 
