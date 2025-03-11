@@ -43,11 +43,13 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               Expanded(
                 child: CupertinoSearchTextField(
+                  key: const Key('search_bar'),
                   focusNode: focusNode,
                   onChanged: onQueryChanged,
                 ),
               ),
               TextButton(
+                key: const Key('cancel_search_button'),
                 onPressed: onCancel,
                 child: TranslatedText(
                   'search.cancel',
@@ -94,7 +96,12 @@ class _DataTabState extends ConsumerState<DataTab> {
         titleTranslationKey: 'home.nav_bar.data',
         leading: null,
         actions: [
-          IrmaIconButton(icon: CupertinoIcons.search, size: 28, onTap: _openSearch),
+          IrmaIconButton(
+            key: const Key('search_button'),
+            icon: CupertinoIcons.search,
+            size: 28,
+            onTap: _openSearch,
+          ),
           IrmaIconButton(icon: CupertinoIcons.add_circled_solid, size: 28, onTap: context.pushAddDataScreen),
         ],
       ),
