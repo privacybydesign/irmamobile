@@ -392,6 +392,12 @@
       }
     }
   },
+  "data_tab": {
+    "empty": {
+      "title": "Obtain your personal data",
+      "subtitle": "Tap on the plus icon to obtain your personal data."
+    }
+  },
   "issuance": {
     "title": "Add data",
     "description": "Do you want to add this data to your Yivi app?",

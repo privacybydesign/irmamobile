@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../models/credentials.dart';
 import '../../providers/credentials_provider.dart';
@@ -135,6 +138,118 @@ class _DataTabState extends ConsumerState<DataTab> {
 
 // ============================================================================================
 
+class TopRightPointingImage extends StatefulWidget {
+  @override
+  State<TopRightPointingImage> createState() => _TopRightPointingImageState();
+}
+
+class _TopRightPointingImageState extends State<TopRightPointingImage> {
+  final _imageKey = GlobalKey();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _calculateRotation();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _calculateRotation());
+  }
+
+  _calculateRotation() {
+    final pi = 3.1415;
+    final screenSize = MediaQuery.of(context).size;
+    final screenTopRight = Offset(screenSize.width, 20);
+    final renderBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
+
+    if (renderBox == null) {
+      return;
+    }
+
+    final imageCenter = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+
+    final deltaX = screenTopRight.dx - imageCenter.dx;
+    final deltaY = imageCenter.dy - screenTopRight.dy;
+    final targetAngle = atan2(deltaY, deltaX);
+
+    final referenceAngleDeg = 55.0; // angle of the arm inside the image in degrees
+    final referenceAngle = referenceAngleDeg * pi / 180.0;
+
+    setState(() {
+      rotationAngle = targetAngle - referenceAngle;
+    });
+  }
+
+  double rotationAngle = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.identity()
+        ..rotateY(3.14159) // 180-degree flip (π radians)
+        ..rotateZ(rotationAngle),
+      child: SvgPicture.asset(key: _imageKey, 'assets/arrow_back/pointing_up.svg'),
+    );
+  }
+}
+
+class NoCredentialsYet extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        if (orientation == Orientation.portrait) {
+          return _buildPortraitOrientation(context);
+        }
+        return _buildLandscapeOrientation(context);
+      },
+    );
+  }
+
+  _buildLandscapeOrientation(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Padding(
+      padding: EdgeInsets.all(theme.defaultSpacing),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildExplanationText(context),
+          TopRightPointingImage(),
+        ],
+      ),
+    );
+  }
+
+  _buildPortraitOrientation(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Padding(
+      padding: EdgeInsets.all(theme.defaultSpacing),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: theme.defaultSpacing),
+            TopRightPointingImage(),
+            SizedBox(height: theme.largeSpacing),
+            _buildExplanationText(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _buildExplanationText(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        TranslatedText('data_tab.empty.title', style: theme.textTheme.displayLarge, textAlign: TextAlign.center),
+        SizedBox(height: theme.defaultSpacing),
+        TranslatedText('data_tab.empty.subtitle', textAlign: TextAlign.center),
+      ],
+    );
+  }
+}
+
 class AllCredentialsList extends ConsumerWidget {
   const AllCredentialsList({super.key});
 
@@ -143,7 +258,8 @@ class AllCredentialsList extends ConsumerWidget {
     final credentials = ref.watch(credentialsProvider);
 
     return switch (credentials) {
-      AsyncData(:final value) => CredentialsList(credentials: value.values.toList(growable: false)),
+      AsyncData(:final value) =>
+        value.isEmpty ? NoCredentialsYet() : CredentialsList(credentials: value.values.toList(growable: false)),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };

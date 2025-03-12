@@ -392,6 +392,12 @@
       }
     }
   },
+  "data_tab": {
+    "empty": {
+      "title": "Haal je gegevens op",
+      "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
+    }
+  },
   "issuance": {
     "title": "Gegevens toevoegen",
     "description": "Wil je deze gegevens aan je Yivi-app toevoegen?",
