@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
+import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/notifications/notifications_screen.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
@@ -230,7 +230,7 @@ void main() {
       await tester.tapAndSettle(notificationCardFinder);
 
       // Expect the credential detail screen
-      final credentialDetailScreenFinder = find.byType(CredentialsDetailScreen);
+      final credentialDetailScreenFinder = find.byType(CredentialsDetailsScreen);
       expect(credentialDetailScreenFinder, findsOneWidget);
 
       // Expect the actual credential card

@@ -5,20 +5,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/format_blocked_for.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/pin_common/pin_wrong_blocked.dart';
 import '../error/session_error_screen.dart';
-import '../reset_pin/reset_pin_screen.dart';
 import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
 import 'bloc/pin_state.dart';
 import 'yivi_pin_screen.dart';
 
 class PinScreen extends StatefulWidget {
-  static const String routeName = '/';
   final PinEvent? initialEvent;
 
   const PinScreen({super.key, this.initialEvent});
@@ -82,6 +81,11 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         HapticFeedback.heavyImpact();
       } else {
         HapticFeedback.mediumImpact();
+      }
+
+      // navigate to home when the the user is authenticated
+      if (pinState.authenticated && mounted) {
+        context.goHomeScreenWithoutTransition();
       }
     });
   }
@@ -194,7 +198,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         onSubmit: enabled ? submit : (_) {},
                         pinBloc: pinBloc,
                         enabled: enabled,
-                        onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
+                        onForgotPin: context.pushResetPinScreen,
                         listener: (context, state) {
                           if (maxPinSize == shortPinSize && state.pin.length == maxPinSize && enabled) {
                             submit(state.toString());

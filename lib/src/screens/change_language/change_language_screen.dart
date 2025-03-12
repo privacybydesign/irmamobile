@@ -7,8 +7,6 @@ import 'widgets/change_language_radio.dart';
 import 'widgets/system_language_toggle.dart';
 
 class ChangeLanguageScreen extends StatelessWidget {
-  static const routeName = '/change_language';
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);

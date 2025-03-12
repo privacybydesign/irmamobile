@@ -44,7 +44,7 @@ void main() {
         await tester.tapAndSettle(find.text('demo.privacybydesign.foundation'));
 
         // Check if the correct detail screen is rendered
-        expect(find.byType(ActivityDetailScreen), findsOneWidget);
+        expect(find.byType(ActivityDetailsScreen), findsOneWidget);
         expect(find.byType(ActivityDetailIssuance), findsOneWidget);
 
         // Expect headers

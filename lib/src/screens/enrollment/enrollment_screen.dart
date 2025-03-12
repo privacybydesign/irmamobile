@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../data/irma_repository.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
-import '../home/home_screen.dart';
 import 'accept_terms/accept_terms_screen.dart';
 import 'bloc/enrollment_bloc.dart';
 import 'choose_pin/choose_pin_screen.dart';
@@ -17,8 +18,6 @@ import 'provide_email/email_sent_screen.dart';
 import 'provide_email/provide_email_screen.dart';
 
 class EnrollmentScreen extends StatelessWidget {
-  static const routeName = 'enrollment';
-
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
@@ -37,6 +36,20 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
   const _ProvidedEnrollmentScreen({required this.repo});
 
+  _onEnrollmentCompleted(BuildContext context) async {
+    // we have to await the locked setting, because it could come after the enrollment status,
+    // causing us to be automatically redirected to the pin screen when we're already unlocked...
+    final locked = await repo.getLocked().first;
+    if (!context.mounted) {
+      return;
+    }
+    if (locked) {
+      context.goPinScreen();
+    } else {
+      context.goHomeScreen();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<EnrollmentBloc>();
@@ -51,9 +64,8 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
     return BlocConsumer<EnrollmentBloc, EnrollmentState>(
       listener: (BuildContext context, EnrollmentState state) {
-        //Navigate to home on EnrollmentCompleted
         if (state is EnrollmentCompleted) {
-          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+          _onEnrollmentCompleted(context);
         }
       },
       builder: (context, blocState) {
@@ -88,7 +100,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
                 builder: (context) => PinConfirmationFailedDialog(
                   onPressed: () {
                     addEvent(EnrollmentPinMismatch());
-                    Navigator.pop(context);
+                    context.pop();
                   },
                 ),
               );

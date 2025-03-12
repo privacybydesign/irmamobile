@@ -7,13 +7,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/irma_repository.dart';
 import '../../models/session_events.dart';
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../error/session_error_screen.dart';
-import '../home/home_screen.dart';
-import '../reset_pin/reset_pin_screen.dart';
 import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
 import 'bloc/pin_state.dart';
@@ -93,7 +92,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         ),
       );
     } else {
-      Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(HomeScreen.routeName));
+      context.goHomeScreen();
       _repo.lock(unblockTime: state.blockedUntil);
     }
   }
@@ -172,7 +171,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                               onSubmit: (p) => _submit(enabled, p),
                               pinBloc: pinBloc,
                               enabled: enabled,
-                              onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
+                              onForgotPin: context.pushResetPinScreen,
                               listener: (context, state) {
                                 if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
                                   _submit(enabled, state.toString());
