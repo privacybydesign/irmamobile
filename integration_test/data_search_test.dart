@@ -30,13 +30,13 @@ void main() {
       await exitSearchMode(tester);
 
       // there's always at least one credential: the keyshare app id
-      expect(countCredentialTypeCards(tester), equals(1));
+      expect(countCredentialTypeCards(tester), equals(0));
 
       await searchCredentials(tester, 'hello');
       expect(countCredentialTypeCards(tester), equals(0));
 
       await exitSearchMode(tester);
-      expect(countCredentialTypeCards(tester), equals(1));
+      expect(countCredentialTypeCards(tester), equals(0));
     });
 
     testWidgets('no-query-all-cards', (tester) async {
@@ -44,7 +44,7 @@ void main() {
       await enterSearchMode(tester);
 
       final numCredentials = countCredentialTypeCards(tester);
-      expect(numCredentials, equals(6));
+      expect(numCredentials, equals(5));
 
       await pressCredentialTypeCard(tester);
       expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
@@ -69,10 +69,10 @@ void main() {
 
     testWidgets('query-for-two', (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
-      await searchCredentials(tester, 'demo');
+      await searchCredentials(tester, 'adres');
 
       final numCreds = countCredentialTypeCards(tester);
-      expect(numCreds, equals(5));
+      expect(numCreds, equals(2));
 
       await pressCredentialTypeCard(tester);
       expect(find.byType(CredentialsDetailsScreen), findsOneWidget);

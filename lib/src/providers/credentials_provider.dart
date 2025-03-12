@@ -13,7 +13,14 @@ final credentialsProvider = StreamProvider<Credentials>((ref) async* {
   final credentialsStream = repo.getCredentials();
 
   await for (final credentials in credentialsStream) {
-    yield credentials;
+    // we don't want to show the app id credential
+    final keyshareAttrs = repo.irmaConfiguration.schemeManagers.values
+        .map((sm) => sm.keyshareAttributes)
+        .flattened
+        .toList(growable: false);
+    yield credentials.rebuiltRemoveWhere((hash, credential) {
+      return keyshareAttrs.any((id) => id.startsWith(credential.fullId));
+    });
   }
 });
 
