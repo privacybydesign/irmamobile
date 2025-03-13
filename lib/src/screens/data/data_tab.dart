@@ -75,6 +75,8 @@ class DataTab extends ConsumerStatefulWidget {
   ConsumerState<DataTab> createState() => _DataTabState();
 }
 
+final _addDataButtonKey = GlobalKey();
+
 class _DataTabState extends ConsumerState<DataTab> {
   bool _searchActive = false;
   final _focusNode = FocusNode();
@@ -105,7 +107,12 @@ class _DataTabState extends ConsumerState<DataTab> {
             size: 28,
             onTap: _openSearch,
           ),
-          IrmaIconButton(icon: CupertinoIcons.add_circled_solid, size: 28, onTap: context.pushAddDataScreen),
+          IrmaIconButton(
+            key: _addDataButtonKey,
+            icon: CupertinoIcons.add_circled_solid,
+            size: 28,
+            onTap: context.pushAddDataScreen,
+          ),
         ],
       ),
       body: SafeArea(
@@ -138,31 +145,31 @@ class _DataTabState extends ConsumerState<DataTab> {
 
 // ============================================================================================
 
-class TopRightPointingImage extends StatefulWidget {
+// Image of a man that always points towards the add data button to indicate that button should be pressed
+class ToAddDataButtonPointingImage extends StatefulWidget {
   @override
-  State<TopRightPointingImage> createState() => _TopRightPointingImageState();
+  State<ToAddDataButtonPointingImage> createState() => _ToAddDataButtonPointingImageState();
 }
 
-class _TopRightPointingImageState extends State<TopRightPointingImage> {
+class _ToAddDataButtonPointingImageState extends State<ToAddDataButtonPointingImage> {
   final _imageKey = GlobalKey();
   double rotationAngle = 0.0;
 
   double _calculateRotation() {
     final pi = 3.1415;
-    final mediaQueryData = MediaQuery.of(context);
-    final screenSize = mediaQueryData.size;
-    final padding = mediaQueryData.padding;
-    final screenTopRight = Offset(screenSize.width - padding.right, 0);
-    final renderBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
 
-    if (renderBox == null) {
+    final addDataButtonRenderBox = _addDataButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    final imageRenderBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
+
+    if (imageRenderBox == null || addDataButtonRenderBox == null) {
       return 100.0;
     }
 
-    final imageCenter = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+    final plusButtonCenter = addDataButtonRenderBox.localToGlobal(addDataButtonRenderBox.size.center(Offset.zero));
+    final imageCenter = imageRenderBox.localToGlobal(imageRenderBox.size.center(Offset.zero));
 
-    final deltaX = screenTopRight.dx - imageCenter.dx;
-    final deltaY = imageCenter.dy - screenTopRight.dy;
+    final deltaX = plusButtonCenter.dx - imageCenter.dx;
+    final deltaY = imageCenter.dy - plusButtonCenter.dy;
     final targetAngle = atan2(deltaY, deltaX);
 
     final referenceAngleDeg = 55.0; // angle of the arm inside the image in degrees
@@ -206,13 +213,24 @@ class NoCredentialsYet extends StatelessWidget {
   _buildLandscapeOrientation(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.all(theme.screenPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(child: _buildExplanationText(context)),
-          Expanded(child: TopRightPointingImage()),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 300),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TranslatedText('data_tab.empty.title', style: theme.textTheme.displayLarge, textAlign: TextAlign.start),
+                SizedBox(height: theme.defaultSpacing),
+                TranslatedText('data_tab.empty.subtitle', textAlign: TextAlign.start),
+              ],
+            ),
+          ),
+          ToAddDataButtonPointingImage(),
         ],
       ),
     );
@@ -228,23 +246,31 @@ class NoCredentialsYet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: theme.defaultSpacing),
-            TopRightPointingImage(),
+            ToAddDataButtonPointingImage(),
             SizedBox(height: theme.largeSpacing),
-            _buildExplanationText(context),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TranslatedText('data_tab.empty.title',
+                    style: theme.textTheme.displayLarge, textAlign: TextAlign.center),
+                SizedBox(height: theme.defaultSpacing),
+                TranslatedText('data_tab.empty.subtitle', textAlign: TextAlign.center),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  _buildExplanationText(BuildContext context) {
+  _buildExplanationText(BuildContext context, {required TextAlign textAlign}) {
     final theme = IrmaTheme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        TranslatedText('data_tab.empty.title', style: theme.textTheme.displayLarge, textAlign: TextAlign.center),
+        TranslatedText('data_tab.empty.title', style: theme.textTheme.displayLarge, textAlign: textAlign),
         SizedBox(height: theme.defaultSpacing),
-        TranslatedText('data_tab.empty.subtitle', textAlign: TextAlign.center),
+        TranslatedText('data_tab.empty.subtitle', textAlign: textAlign),
       ],
     );
   }
