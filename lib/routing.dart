@@ -28,7 +28,7 @@ import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
-import 'src/screens/notifications/notifications_screen.dart';
+import 'src/screens/notifications/notifications_tab.dart';
 import 'src/screens/pin/pin_screen.dart';
 import 'src/screens/required_update/required_update_screen.dart';
 import 'src/screens/reset_pin/reset_pin_screen.dart';
@@ -164,7 +164,7 @@ GoRouter createRouter(BuildContext buildContext) {
           ),
           GoRoute(
             path: 'notifications',
-            builder: (context, state) => NotificationsScreen(),
+            builder: (context, state) => NotificationsTab(),
           ),
         ],
       ),

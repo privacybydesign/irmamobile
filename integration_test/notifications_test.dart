@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
-import 'package:irmamobile/src/screens/notifications/notifications_screen.dart';
+import 'package:irmamobile/src/screens/notifications/notifications_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -25,7 +25,7 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     // Reusable finders
-    final notificationsScreenFinder = find.byType(NotificationsScreen);
+    final notificationsScreenFinder = find.byType(NotificationsTab);
     final irmaAppBarFinder = find.byType(IrmaAppBar);
 
     // The NotificationBell should be findable in the app bar

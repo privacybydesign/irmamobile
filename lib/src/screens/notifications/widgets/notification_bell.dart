@@ -1,52 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_icon_button.dart';
 import 'notification_indicator.dart';
 
 class NotificationBell extends StatelessWidget {
   final Function() onTap;
   final bool showIndicator;
+  final bool outlined;
+  final Color? color;
 
   const NotificationBell({
     super.key,
     required this.onTap,
     this.showIndicator = false,
+    this.outlined = true,
+    this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    return Padding(
-      padding: EdgeInsets.all(theme.smallSpacing),
-      child: Semantics(
-        button: true,
-        label: FlutterI18n.translate(
-          context,
-          'notifications.bell.${showIndicator ? 'new_notifications' : 'no_new_notifications'}',
+    return Stack(
+      children: [
+        Icon(
+          outlined ? Icons.notifications_outlined : Icons.notifications,
+          size: 28,
+          color: color,
         ),
-        child: Stack(
-          children: [
-            // semantics are already defined above
-            ExcludeSemantics(
-              child: IrmaIconButton(
-                padding: EdgeInsets.zero,
-                size: 32,
-                icon: Icons.notifications_outlined,
-                onTap: onTap,
-              ),
-            ),
-            if (showIndicator)
-              Positioned(
-                top: 5,
-                right: 5,
-                child: NotificationIndicator(),
-              )
-          ],
-        ),
-      ),
+        if (showIndicator)
+          Positioned(
+            top: 5,
+            right: 5,
+            child: NotificationIndicator(),
+          )
+      ],
     );
   }
 }
