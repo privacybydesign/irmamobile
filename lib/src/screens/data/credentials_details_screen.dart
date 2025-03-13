@@ -1,29 +1,105 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/credential_events.dart';
 import '../../models/credentials.dart';
+import '../../providers/credentials_provider.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/progress.dart';
 import '../../widgets/translated_text.dart';
 
-class CredentialsDetailsScreen extends StatefulWidget {
+class CredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String categoryName;
   final String credentialTypeId;
 
   const CredentialsDetailsScreen({required this.categoryName, required this.credentialTypeId});
 
   @override
-  State<CredentialsDetailsScreen> createState() => _CredentialsDetailsScreenState();
+  ConsumerState<CredentialsDetailsScreen> createState() => _CredentialsDetailsScreenState();
 }
 
-class _CredentialsDetailsScreenState extends State<CredentialsDetailsScreen> {
+class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final provider = credentialsForTypeProvider(widget.credentialTypeId);
+    final credentials = ref.watch(provider);
+
+    ref.listen(provider, (_, creds) {
+      // when there are no credentials (e.g. when they were all removed) we should go back to the previous page
+      if (creds case AsyncData(value: [])) {
+        context.pop();
+      }
+    });
+
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: theme.backgroundTertiary,
+      appBar: IrmaAppBar(
+        titleTranslationKey: widget.categoryName,
+      ),
+      body: switch (credentials) {
+        AsyncData(:final value) => _buildCredentialsList(value),
+        AsyncError(:final error) => Center(child: Text(error.toString())),
+        _ => IrmaProgress(),
+      },
+    );
+  }
+
+  _buildCredentialsList(List<Credential> credentials) {
+    final theme = IrmaTheme.of(context);
+    return SizedBox(
+      height: double.infinity,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.defaultSpacing,
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: theme.mediumSpacing,
+              ),
+              ...credentials.map(
+                (cred) => IrmaCredentialCard.fromCredential(
+                  cred,
+                  headerTrailing:
+                      // Credential must either be reobtainable or deletable
+                      // for the options bottom sheet to be accessible
+                      cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
+                          ? null
+                          : Transform.translate(
+                              offset: Offset(theme.smallSpacing, -10),
+                              child: IconButton(
+                                onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
+                                icon: const Icon(
+                                  Icons.more_horiz_sharp,
+                                ),
+                              ),
+                            ),
+                ),
+              ),
+              SizedBox(
+                height: theme.mediumSpacing,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async {
     showModalBottomSheet<void>(
@@ -85,76 +161,5 @@ class _CredentialsDetailsScreenState extends State<CredentialsDetailsScreen> {
     if (credential.info.credentialType.issueUrl.isNotEmpty) {
       IrmaRepositoryProvider.of(context).openIssueURL(context, credential.info.fullId);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final repo = IrmaRepositoryProvider.of(context);
-
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: widget.categoryName,
-      ),
-      body: SizedBox(
-        height: double.infinity,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-            horizontal: theme.defaultSpacing,
-          ),
-          child: SafeArea(
-            child: StreamBuilder(
-              stream: repo.getCredentials(),
-              builder: (context, AsyncSnapshot<Credentials> snapshot) {
-                if (!snapshot.hasData) return Container();
-
-                final filteredCredentials = snapshot.data!.values
-                    .where((cred) => cred.info.credentialType.fullId == widget.credentialTypeId)
-                    .toList();
-
-                if (filteredCredentials.isEmpty) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.pop(context));
-                  return Container();
-                }
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: theme.mediumSpacing,
-                    ),
-                    ...filteredCredentials.map(
-                      (cred) => IrmaCredentialCard.fromCredential(
-                        cred,
-                        headerTrailing:
-                            // Credential must either be reobtainable or deletable
-                            // for the options bottom sheet to be accessible
-                            cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
-                                ? null
-                                : Transform.translate(
-                                    offset: Offset(theme.smallSpacing, -10),
-                                    child: IconButton(
-                                      onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
-                                      icon: const Icon(
-                                        Icons.more_horiz_sharp,
-                                      ),
-                                    ),
-                                  ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: theme.mediumSpacing,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
