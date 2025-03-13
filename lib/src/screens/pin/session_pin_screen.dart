@@ -110,7 +110,12 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   }
 
   // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
-  PreferredSizeWidget _scaffoldTitle() => IrmaAppBar(leadingAction: _cancel, title: widget.title);
+  PreferredSizeWidget _scaffoldTitle() {
+    return IrmaAppBar(
+      leading: YiviBackButton(onTap: _cancel),
+      title: widget.title,
+    );
+  }
 
   void _submit(bool enabled, String pin) {
     if (!enabled) return;

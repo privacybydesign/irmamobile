@@ -30,8 +30,7 @@ class YiviChoosePinScaffold extends StatelessWidget {
       key: _scaffoldKey,
       appBar: IrmaAppBar(
         title: '',
-        leadingAction: onBack,
-        leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        leading: YiviBackButton(onTap: onBack),
         hasBorder: false,
       ),
       body: StreamBuilder<bool>(

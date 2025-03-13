@@ -56,7 +56,7 @@ class IrmaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HomeTransitionStyleProvider(
+    return TransitionStyleProvider(
       child: IrmaRepositoryProvider(
         repository: repository,
         child: MultiBlocProvider(

@@ -19,8 +19,15 @@ import 'yivi_pin_screen.dart';
 
 class PinScreen extends StatefulWidget {
   final PinEvent? initialEvent;
+  final Function() onAuthenticated;
+  final Widget? leading;
 
-  const PinScreen({super.key, this.initialEvent});
+  const PinScreen({
+    super.key,
+    required this.onAuthenticated,
+    this.initialEvent,
+    this.leading,
+  });
 
   @override
   State<PinScreen> createState() => _PinScreenState();
@@ -84,8 +91,8 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
       }
 
       // navigate to home when the the user is authenticated
-      if (pinState.authenticated && mounted) {
-        context.goHomeScreenWithoutTransition();
+      if (pinState.authenticated) {
+        widget.onAuthenticated();
       }
     });
   }
@@ -159,10 +166,10 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         }
 
         return YiviPinScaffold(
-          appBar: const IrmaAppBar(
-            noLeading: true,
+          appBar: IrmaAppBar(
             title: '',
             hasBorder: false,
+            leading: widget.leading,
           ),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),

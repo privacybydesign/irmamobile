@@ -24,7 +24,8 @@ Future<void> maybeOpenQrScanner(
       // If so, do not open the QR scanner.
       final appResumedAutomatically = await repo.appResumedAutomatically();
       if (!appResumedAutomatically && context.mounted) {
-        context.pushScannerScreen();
+        // the app has already been unlocked here
+        context.pushScannerScreen(requireAuthBeforeSession: false);
       }
     } else {
       // If the user has revoked the camera permission, just turn off the setting

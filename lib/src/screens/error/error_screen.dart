@@ -73,8 +73,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
       child: Scaffold(
         appBar: IrmaAppBar(
           titleTranslationKey: 'error.details_title',
-          noLeading: widget.onTapClose == null,
-          leadingAction: widget.onTapClose,
+          leading: widget.onTapClose != null ? YiviBackButton(onTap: widget.onTapClose) : null,
         ),
         body: IrmaErrorScaffoldBody(
           type: widget.type,

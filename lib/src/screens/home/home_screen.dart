@@ -76,7 +76,7 @@ class HomeScreenState extends State<HomeScreen> {
               appBar: IrmaAppBar(
                 titleTranslationKey:
                     tabState == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${tabState.name}',
-                noLeading: true,
+                leading: null,
                 actions: [
                   BlocBuilder<NotificationsBloc, NotificationsState>(
                     builder: (context, state) => NotificationBell(

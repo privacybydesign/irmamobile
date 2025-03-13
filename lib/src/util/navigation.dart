@@ -7,8 +7,12 @@ import '../models/log_entry.dart';
 import '../models/translated_value.dart';
 
 extension RoutingHelpers on BuildContext {
-  void pushScannerScreen() {
-    push('/scanner');
+  void pushScannerScreen({required bool requireAuthBeforeSession}) {
+    final uri = Uri(
+      path: '/scanner',
+      queryParameters: {'require_auth_before_session': requireAuthBeforeSession.toString()},
+    );
+    push(uri.toString());
   }
 
   void pushErrorScreen({required String message}) {
@@ -17,6 +21,14 @@ extension RoutingHelpers on BuildContext {
 
   void pushReplacementErrorScreen({required String message}) {
     pushReplacement('/error', extra: message);
+  }
+
+  Future<bool?> pushModalPin() async {
+    return await push('/modal_pin');
+  }
+
+  bool isScannerTopRoute() {
+    return GoRouter.of(this).state.uri.path == '/scanner';
   }
 
   void pushAddDataScreen() {
@@ -32,7 +44,7 @@ extension RoutingHelpers on BuildContext {
   }
 
   void goHomeScreenWithoutTransition() {
-    HomeTransitionStyleProvider.performInstantTransitionToHome(this);
+    TransitionStyleProvider.performInstantTransitionToHomeScreen(this);
   }
 
   void goHomeScreen() {
@@ -212,35 +224,35 @@ class SessionRouteParams {
 /// The (kind of hacky, ugly) solution we made up for this is to set a flag when going to the home screen
 /// and resetting it when the home screen is built. This way we only have the instant transition once and
 /// normal transitions for all subsequent navigation actions.
-class HomeTransitionStyleProvider extends StatefulWidget {
+class TransitionStyleProvider extends StatefulWidget {
   final Widget child;
 
-  const HomeTransitionStyleProvider({required this.child});
+  const TransitionStyleProvider({required this.child});
 
-  static void performInstantTransitionToHome(BuildContext context) {
-    var state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToHome = true;
+  static void performInstantTransitionToHomeScreen(BuildContext context) {
+    var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
+    state!._shouldPerformInstantTransitionToHomeScreen = true;
     context.goHomeScreen();
   }
 
   static bool shouldPerformInstantTransitionToHome(BuildContext context) {
-    final state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
-    return state!._shouldPerformInstantTransitionToHome;
+    final state = context.findAncestorStateOfType<TransitionStyleProviderState>();
+    return state!._shouldPerformInstantTransitionToHomeScreen;
   }
 
   static void resetInstantTransitionToHomeMark(BuildContext context) {
-    var state = context.findAncestorStateOfType<HomeTransitionStyleProviderState>();
-    state!._shouldPerformInstantTransitionToHome = false;
+    var state = context.findAncestorStateOfType<TransitionStyleProviderState>();
+    state!._shouldPerformInstantTransitionToHomeScreen = false;
   }
 
   @override
   State<StatefulWidget> createState() {
-    return HomeTransitionStyleProviderState();
+    return TransitionStyleProviderState();
   }
 }
 
-class HomeTransitionStyleProviderState extends State<HomeTransitionStyleProvider> {
-  bool _shouldPerformInstantTransitionToHome = false;
+class TransitionStyleProviderState extends State<TransitionStyleProvider> {
+  bool _shouldPerformInstantTransitionToHomeScreen = false;
 
   @override
   Widget build(BuildContext context) {

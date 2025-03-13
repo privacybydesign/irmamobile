@@ -22,6 +22,7 @@ import 'src/screens/enrollment/enrollment_screen.dart';
 import 'src/screens/error/error_screen.dart';
 import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
+import 'src/screens/home/widgets/irma_qr_scan_button.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
@@ -37,123 +38,30 @@ import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
 import 'src/util/navigation.dart';
+import 'src/widgets/irma_app_bar.dart';
 import 'src/widgets/irma_repository_provider.dart';
-
-class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
-  late final Stream<RedirectionTriggers> _streamSubscription;
-
-  RedirectionListenable(IrmaRepository repo) : super(RedirectionTriggers.withDefaults()) {
-    final warningStream = _displayDeviceIsRootedWarning(repo);
-    final lockedStream = repo.getLocked();
-    final infoStream = repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null);
-    final nameChangedStream = repo.preferences.getShowNameChangedNotification();
-    final enrollmentStream = repo.getEnrollmentStatus();
-
-    // combine the streams into one
-    _streamSubscription = Rx.combineLatest5(
-      warningStream,
-      lockedStream,
-      infoStream,
-      nameChangedStream,
-      enrollmentStream,
-      (deviceRootedWarning, locked, versionInfo, nameChangedWarning, enrollment) {
-        return RedirectionTriggers(
-          appLocked: locked,
-          showDeviceRootedWarning: deviceRootedWarning,
-          showNameChangedMessage: nameChangedWarning,
-          versionInformation: versionInfo,
-          enrollmentStatus: enrollment,
-        );
-      },
-    );
-
-    // listen for updates from the streams
-    _streamSubscription.listen((triggers) {
-      value = triggers;
-    });
-  }
-}
-
-class RedirectionTriggers {
-  final bool appLocked;
-  final bool showDeviceRootedWarning;
-  final bool showNameChangedMessage;
-  final VersionInformation? versionInformation;
-  final EnrollmentStatus enrollmentStatus;
-
-  RedirectionTriggers({
-    required this.appLocked,
-    required this.showDeviceRootedWarning,
-    required this.showNameChangedMessage,
-    required this.versionInformation,
-    required this.enrollmentStatus,
-  });
-
-  RedirectionTriggers.withDefaults()
-      : enrollmentStatus = EnrollmentStatus.undetermined,
-        appLocked = true,
-        showDeviceRootedWarning = false,
-        showNameChangedMessage = false,
-        versionInformation = null;
-
-  RedirectionTriggers copyWith({
-    bool? appLocked,
-    bool? showDeviceRootedWarning,
-    bool? showNameChangedMessage,
-    VersionInformation? versionInformation,
-    EnrollmentStatus? enrollmentStatus,
-  }) {
-    return RedirectionTriggers(
-      appLocked: appLocked ?? this.appLocked,
-      showDeviceRootedWarning: showDeviceRootedWarning ?? this.showDeviceRootedWarning,
-      showNameChangedMessage: showNameChangedMessage ?? this.showNameChangedMessage,
-      versionInformation: versionInformation ?? this.versionInformation,
-      enrollmentStatus: enrollmentStatus ?? this.enrollmentStatus,
-    );
-  }
-
-  @override
-  String toString() {
-    return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation';
-  }
-}
-
-Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
-  final repo = DetectRootedDeviceIrmaPrefsRepository(preferences: irmaRepo.preferences);
-  final streamController = StreamController<bool>();
-  repo.isDeviceRooted().then((isRooted) {
-    if (isRooted) {
-      repo.hasAcceptedRootedDeviceRisk().map((acceptedRisk) => !acceptedRisk).pipe(streamController);
-    } else {
-      streamController.add(false);
-    }
-  });
-  return streamController.stream;
-}
 
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
 
-  final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment'};
+  final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment', '/scanner', '/modal_pin'};
 
   return GoRouter(
     initialLocation: '/loading',
     refreshListenable: redirectionTriggers,
-    errorBuilder: (context, state) {
-      return RouteNotFoundScreen();
-    },
+    errorBuilder: (context, state) => RouteNotFoundScreen(),
     routes: [
       GoRoute(
-        path: '/error',
+        path: '/scanner',
         builder: (context, state) {
-          return ErrorScreen(
-            details: state.extra as String,
-            onTapClose: () {
-              context.pop();
-            },
-          );
+          final requireAuth = bool.parse(state.uri.queryParameters['require_auth_before_session']!);
+          return ScannerScreen(requireAuthBeforeSession: requireAuth);
         },
+      ),
+      GoRoute(
+        path: '/error',
+        builder: (context, state) => ErrorScreen(details: state.extra as String, onTapClose: context.pop),
       ),
       GoRoute(
         path: '/loading',
@@ -161,7 +69,24 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: '/pin',
-        pageBuilder: (context, state) => NoTransitionPage(name: '/pin', child: PinScreen()),
+        pageBuilder: (context, state) {
+          return NoTransitionPage(
+            name: '/pin',
+            child: PinScreen(
+              onAuthenticated: context.goHomeScreenWithoutTransition,
+              leading: YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/modal_pin',
+        builder: (context, state) {
+          return PinScreen(
+            onAuthenticated: () => context.pop(true),
+            leading: YiviBackButton(onTap: () => context.pop(false)),
+          );
+        },
       ),
       GoRoute(
         path: '/reset_pin',
@@ -177,14 +102,10 @@ GoRouter createRouter(BuildContext buildContext) {
         builder: (context, state) => EnrollmentScreen(),
       ),
       GoRoute(
-        path: '/scanner',
-        builder: (context, state) => ScannerScreen(),
-      ),
-      GoRoute(
         path: '/home',
         pageBuilder: (context, state) {
-          if (HomeTransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
-            HomeTransitionStyleProvider.resetInstantTransitionToHomeMark(context);
+          if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
+            TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
             return NoTransitionPage(name: '/home', child: HomeScreen());
           }
           return MaterialPage(name: '/home', child: HomeScreen());
@@ -202,10 +123,7 @@ GoRouter createRouter(BuildContext buildContext) {
             builder: (context, state) {
               final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
               return ActivityDetailsScreen(
-                args: ActivityDetailsScreenArgs(
-                  logEntry: logEntry,
-                  irmaConfiguration: irmaConfiguration,
-                ),
+                args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
               );
             },
           ),
@@ -223,11 +141,8 @@ GoRouter createRouter(BuildContext buildContext) {
                   final credentialType = state.extra as CredentialType;
                   return AddDataDetailsScreen(
                     credentialType: credentialType,
-                    onCancel: () => context.pop(),
-                    onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
-                      context,
-                      credentialType.fullId,
-                    ),
+                    onCancel: context.pop,
+                    onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
                   );
                 },
               )
@@ -288,7 +203,7 @@ GoRouter createRouter(BuildContext buildContext) {
         path: '/rooted_warning',
         builder: (context, state) {
           return RootedWarningScreen(
-            onAcceptRiskButtonPressed: () async {
+            onAcceptRiskButtonPressed: () {
               DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences).setHasAcceptedRootedDeviceRisk();
             },
           );
@@ -297,9 +212,7 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/name_changed',
         builder: (context, state) {
-          return NameChangedScreen(
-            onContinuePressed: () => repo.preferences.setShowNameChangedNotification(false),
-          );
+          return NameChangedScreen(onContinuePressed: () => repo.preferences.setShowNameChangedNotification(false));
         },
       ),
       GoRoute(
@@ -349,4 +262,115 @@ class RouteNotFoundScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
+  late final Stream<RedirectionTriggers> _streamSubscription;
+
+  RedirectionListenable(IrmaRepository repo) : super(RedirectionTriggers.withDefaults()) {
+    final warningStream = _displayDeviceIsRootedWarning(repo);
+    final lockedStream = repo.getLocked();
+    final infoStream = repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null);
+    final nameChangedStream = repo.preferences.getShowNameChangedNotification();
+    final enrollmentStream = repo.getEnrollmentStatus();
+
+    // combine the streams into one
+    _streamSubscription = Rx.combineLatest5(
+      warningStream,
+      lockedStream,
+      infoStream,
+      nameChangedStream,
+      enrollmentStream,
+      (deviceRootedWarning, locked, versionInfo, nameChangedWarning, enrollment) {
+        return RedirectionTriggers(
+          appLocked: locked,
+          showDeviceRootedWarning: deviceRootedWarning,
+          showNameChangedMessage: nameChangedWarning,
+          versionInformation: versionInfo,
+          enrollmentStatus: enrollment,
+        );
+      },
+    );
+
+    // listen for updates from the streams
+    _streamSubscription.listen((triggers) {
+      if (value != triggers) {
+        value = triggers;
+      }
+    });
+  }
+}
+
+class RedirectionTriggers {
+  final bool appLocked;
+  final bool showDeviceRootedWarning;
+  final bool showNameChangedMessage;
+  final VersionInformation? versionInformation;
+  final EnrollmentStatus enrollmentStatus;
+
+  RedirectionTriggers({
+    required this.appLocked,
+    required this.showDeviceRootedWarning,
+    required this.showNameChangedMessage,
+    required this.versionInformation,
+    required this.enrollmentStatus,
+  });
+
+  RedirectionTriggers.withDefaults()
+      : enrollmentStatus = EnrollmentStatus.undetermined,
+        appLocked = true,
+        showDeviceRootedWarning = false,
+        showNameChangedMessage = false,
+        versionInformation = null;
+
+  RedirectionTriggers copyWith({
+    bool? appLocked,
+    bool? showDeviceRootedWarning,
+    bool? showNameChangedMessage,
+    VersionInformation? versionInformation,
+    EnrollmentStatus? enrollmentStatus,
+  }) {
+    return RedirectionTriggers(
+      appLocked: appLocked ?? this.appLocked,
+      showDeviceRootedWarning: showDeviceRootedWarning ?? this.showDeviceRootedWarning,
+      showNameChangedMessage: showNameChangedMessage ?? this.showNameChangedMessage,
+      versionInformation: versionInformation ?? this.versionInformation,
+      enrollmentStatus: enrollmentStatus ?? this.enrollmentStatus,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is RedirectionTriggers &&
+        appLocked == other.appLocked &&
+        showDeviceRootedWarning == other.showDeviceRootedWarning &&
+        showNameChangedMessage == other.showNameChangedMessage &&
+        versionInformation == other.versionInformation &&
+        enrollmentStatus == other.enrollmentStatus;
+  }
+
+  @override
+  String toString() {
+    return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation';
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(appLocked, showNameChangedMessage, showDeviceRootedWarning, versionInformation, enrollmentStatus);
+}
+
+Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
+  final repo = DetectRootedDeviceIrmaPrefsRepository(preferences: irmaRepo.preferences);
+  final streamController = StreamController<bool>();
+  repo.isDeviceRooted().then((isRooted) {
+    if (isRooted) {
+      repo.hasAcceptedRootedDeviceRisk().map((acceptedRisk) => !acceptedRisk).pipe(streamController);
+    } else {
+      streamController.add(false);
+    }
+  });
+  return streamController.stream;
 }
