@@ -105,9 +105,8 @@ searchCredentials(WidgetTester tester, String query) async {
 }
 
 int countCredentialTypeCards(WidgetTester tester) {
-  final finder = find.byType(IrmaCredentialTypeCard);
-  finder.tryEvaluate();
-  return finder.found.length;
+  final list = tester.widgetList(find.byKey(const Key('credentials_type_list'))).firstOrNull as ListView?;
+  return list?.childrenDelegate.estimatedChildCount ?? 0;
 }
 
 pumpFilledAppOnDataPage(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {

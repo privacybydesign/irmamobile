@@ -262,18 +262,6 @@ class NoCredentialsYet extends StatelessWidget {
       ),
     );
   }
-
-  _buildExplanationText(BuildContext context, {required TextAlign textAlign}) {
-    final theme = IrmaTheme.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        TranslatedText('data_tab.empty.title', style: theme.textTheme.displayLarge, textAlign: textAlign),
-        SizedBox(height: theme.defaultSpacing),
-        TranslatedText('data_tab.empty.subtitle', textAlign: textAlign),
-      ],
-    );
-  }
 }
 
 class AllCredentialsList extends ConsumerWidget {
@@ -285,15 +273,15 @@ class AllCredentialsList extends ConsumerWidget {
 
     return switch (credentials) {
       AsyncData(:final value) =>
-        value.isEmpty ? NoCredentialsYet() : CredentialsList(credentials: value.values.toList(growable: false)),
+        value.isEmpty ? NoCredentialsYet() : CredentialsTypeList(credentials: value.values.toList(growable: false)),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };
   }
 }
 
-class CredentialsList extends StatelessWidget {
-  const CredentialsList({super.key, required this.credentials});
+class CredentialsTypeList extends StatelessWidget {
+  const CredentialsTypeList({super.key, required this.credentials});
 
   final List<Credential> credentials;
 
@@ -301,6 +289,7 @@ class CredentialsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return ListView(
+      key: const Key('credentials_type_list'),
       padding: EdgeInsets.only(top: theme.defaultSpacing),
       children: [
         ...credentials.map(
@@ -334,7 +323,7 @@ class CredentialsSearchResults extends ConsumerWidget {
 
     return credentials.when(
       skipLoadingOnReload: true,
-      data: (credentials) => CredentialsList(credentials: credentials),
+      data: (credentials) => CredentialsTypeList(credentials: credentials),
       loading: () => CircularProgressIndicator(),
       error: (error, trace) => Text(error.toString()),
     );
