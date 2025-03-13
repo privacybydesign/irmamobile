@@ -14,61 +14,7 @@ import '../../widgets/credential_card/irma_credential_type_card.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_icon_button.dart';
 import '../../widgets/translated_text.dart';
-
-class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
-  final FocusNode focusNode;
-  final Function() onCancel;
-  final Function(String) onQueryChanged;
-  final bool hasBorder;
-
-  const YiviSearchBar({
-    super.key,
-    required this.focusNode,
-    required this.onCancel,
-    required this.onQueryChanged,
-    this.hasBorder = true,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.backgroundPrimary,
-        border: Border(bottom: BorderSide(color: theme.tertiary)),
-      ),
-      child: SafeArea(
-        child: Container(
-          height: preferredSize.height,
-          padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.smallSpacing),
-          child: Row(
-            children: [
-              Expanded(
-                child: CupertinoSearchTextField(
-                  key: const Key('search_bar'),
-                  focusNode: focusNode,
-                  onChanged: onQueryChanged,
-                ),
-              ),
-              TextButton(
-                key: const Key('cancel_search_button'),
-                onPressed: onCancel,
-                child: TranslatedText(
-                  'search.cancel',
-                  style: theme.textButtonTextStyle.copyWith(fontWeight: FontWeight.normal, color: theme.link),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
+import '../../widgets/yivi_search_bar.dart';
 
 class DataTab extends ConsumerStatefulWidget {
   @override
@@ -90,7 +36,7 @@ class _DataTabState extends ConsumerState<DataTab> {
         resizeToAvoidBottomInset: false,
         backgroundColor: theme.backgroundTertiary,
         appBar: YiviSearchBar(focusNode: _focusNode, onCancel: _closeSearch, onQueryChanged: _searchQueryChanged),
-        body: CredentialsSearchResults(),
+        body: _CredentialsSearchResults(),
       );
     }
 
@@ -118,7 +64,7 @@ class _DataTabState extends ConsumerState<DataTab> {
       body: SafeArea(
         child: SizedBox(
           height: double.infinity,
-          child: AllCredentialsList(),
+          child: _AllCredentialsList(),
         ),
       ),
     );
@@ -146,18 +92,17 @@ class _DataTabState extends ConsumerState<DataTab> {
 // ============================================================================================
 
 // Image of a man that always points towards the add data button to indicate that button should be pressed
-class ToAddDataButtonPointingImage extends StatefulWidget {
+class _ToAddDataButtonPointingImage extends StatefulWidget {
   @override
-  State<ToAddDataButtonPointingImage> createState() => _ToAddDataButtonPointingImageState();
+  State<_ToAddDataButtonPointingImage> createState() => _ToAddDataButtonPointingImageState();
 }
 
-class _ToAddDataButtonPointingImageState extends State<ToAddDataButtonPointingImage> {
+class _ToAddDataButtonPointingImageState extends State<_ToAddDataButtonPointingImage> {
   final _imageKey = GlobalKey();
+  static const pi = 3.1415;
   double rotationAngle = 0.0;
 
   double _calculateRotation() {
-    final pi = 3.1415;
-
     final addDataButtonRenderBox = _addDataButtonKey.currentContext?.findRenderObject() as RenderBox?;
     final imageRenderBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
 
@@ -188,16 +133,17 @@ class _ToAddDataButtonPointingImageState extends State<ToAddDataButtonPointingIm
     });
 
     return Transform(
+      key: const Key('to_add_data_button_pointing_image'),
       alignment: Alignment.center,
       transform: Matrix4.identity()
-        ..rotateY(3.14159) // 180-degree flip (π radians)
+        ..rotateY(pi) // 180-degree flip (π radians)
         ..rotateZ(rotationAngle),
       child: SvgPicture.asset(key: _imageKey, 'assets/arrow_back/pointing_up.svg'),
     );
   }
 }
 
-class NoCredentialsYet extends StatelessWidget {
+class _NoCredentialsYet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OrientationBuilder(
@@ -230,7 +176,7 @@ class NoCredentialsYet extends StatelessWidget {
               ],
             ),
           ),
-          ToAddDataButtonPointingImage(),
+          _ToAddDataButtonPointingImage(),
         ],
       ),
     );
@@ -246,7 +192,7 @@ class NoCredentialsYet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: theme.defaultSpacing),
-            ToAddDataButtonPointingImage(),
+            _ToAddDataButtonPointingImage(),
             SizedBox(height: theme.largeSpacing),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -264,8 +210,8 @@ class NoCredentialsYet extends StatelessWidget {
   }
 }
 
-class AllCredentialsList extends ConsumerWidget {
-  const AllCredentialsList({super.key});
+class _AllCredentialsList extends ConsumerWidget {
+  const _AllCredentialsList();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -273,15 +219,15 @@ class AllCredentialsList extends ConsumerWidget {
 
     return switch (credentials) {
       AsyncData(:final value) =>
-        value.isEmpty ? NoCredentialsYet() : CredentialsTypeList(credentials: value.values.toList(growable: false)),
+        value.isEmpty ? _NoCredentialsYet() : _CredentialsTypeList(credentials: value.values.toList(growable: false)),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };
   }
 }
 
-class CredentialsTypeList extends StatelessWidget {
-  const CredentialsTypeList({super.key, required this.credentials});
+class _CredentialsTypeList extends StatelessWidget {
+  const _CredentialsTypeList({required this.credentials});
 
   final List<Credential> credentials;
 
@@ -315,7 +261,7 @@ class CredentialsTypeList extends StatelessWidget {
   }
 }
 
-class CredentialsSearchResults extends ConsumerWidget {
+class _CredentialsSearchResults extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = FlutterI18n.currentLocale(context)!;
@@ -323,7 +269,7 @@ class CredentialsSearchResults extends ConsumerWidget {
 
     return credentials.when(
       skipLoadingOnReload: true,
-      data: (credentials) => CredentialsTypeList(credentials: credentials),
+      data: (credentials) => _CredentialsTypeList(credentials: credentials),
       loading: () => CircularProgressIndicator(),
       error: (error, trace) => Text(error.toString()),
     );

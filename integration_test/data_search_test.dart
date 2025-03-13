@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
@@ -21,6 +18,14 @@ void main() {
   group('search-credentials', () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
+
+    testWidgets('empty-app-shows-image', (tester) async {
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+      final image = find.byKey(const Key('to_add_data_button_pointing_image'));
+      expect(image, findsOneWidget);
+    });
 
     testWidgets('empty-app-search-no-crash', (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
