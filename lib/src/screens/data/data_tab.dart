@@ -145,22 +145,18 @@ class TopRightPointingImage extends StatefulWidget {
 
 class _TopRightPointingImageState extends State<TopRightPointingImage> {
   final _imageKey = GlobalKey();
+  double rotationAngle = 0.0;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _calculateRotation();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _calculateRotation());
-  }
-
-  _calculateRotation() {
+  double _calculateRotation() {
     final pi = 3.1415;
-    final screenSize = MediaQuery.of(context).size;
-    final screenTopRight = Offset(screenSize.width, 20);
+    final mediaQueryData = MediaQuery.of(context);
+    final screenSize = mediaQueryData.size;
+    final padding = mediaQueryData.padding;
+    final screenTopRight = Offset(screenSize.width - padding.right, 0);
     final renderBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) {
-      return;
+      return 100.0;
     }
 
     final imageCenter = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
@@ -172,15 +168,18 @@ class _TopRightPointingImageState extends State<TopRightPointingImage> {
     final referenceAngleDeg = 55.0; // angle of the arm inside the image in degrees
     final referenceAngle = referenceAngleDeg * pi / 180.0;
 
-    setState(() {
-      rotationAngle = targetAngle - referenceAngle;
-    });
+    return targetAngle - referenceAngle;
   }
-
-  double rotationAngle = 0.0;
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final rotation = _calculateRotation();
+      if (rotationAngle != rotation) {
+        setState(() => rotationAngle = rotation);
+      }
+    });
+
     return Transform(
       alignment: Alignment.center,
       transform: Matrix4.identity()
@@ -210,9 +209,10 @@ class NoCredentialsYet extends StatelessWidget {
       padding: EdgeInsets.all(theme.defaultSpacing),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _buildExplanationText(context),
-          TopRightPointingImage(),
+          Expanded(child: _buildExplanationText(context)),
+          Expanded(child: TopRightPointingImage()),
         ],
       ),
     );
