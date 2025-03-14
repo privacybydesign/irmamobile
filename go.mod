@@ -1,13 +1,13 @@
 module github.com/privacybydesign/irmamobile
 
-go 1.21
+go 1.23
 
-toolchain go1.22.5
+toolchain go1.23.4
 
 require (
 	github.com/go-errors/errors v1.4.2
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
-	github.com/privacybydesign/irmago v0.16.0
+	github.com/privacybydesign/irmago v0.17.0
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/mobile v0.0.0-20240213143359-d1f7d3436075
 )
@@ -25,7 +25,7 @@ require (
 	github.com/fxamacker/cbor v1.5.1 // indirect
 	github.com/go-co-op/gocron v1.28.3 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -60,13 +60,13 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/mod v0.15.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/term v0.15.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.18.0 // indirect
+	golang.org/x/crypto v0.32.0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/term v0.28.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	gorm.io/driver/mysql v1.5.2 // indirect
 	gorm.io/driver/postgres v1.5.3 // indirect
 	gorm.io/driver/sqlserver v1.5.2 // indirect

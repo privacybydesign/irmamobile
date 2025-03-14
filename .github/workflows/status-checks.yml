@@ -279,4 +279,4 @@ jobs:
         run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_NAME }}
       - name: Run integration tests
         # komodo = Pixel 9 Pro XL
-        run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 20m --device=model=komodo,version=34,orientation=portrait --device=model=komodo,version=34,orientation=landscape
+        run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 25m --device=model=komodo,version=34,orientation=portrait --device=model=komodo,version=34,orientation=landscape
