@@ -4,8 +4,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../sentry_dsn.dart';
 import '../../../models/credentials.dart';
+import '../../../providers/irma_repository_provider.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/translated_text.dart';
 
 class VersionButton extends StatefulWidget {

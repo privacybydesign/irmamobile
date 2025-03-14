@@ -2,11 +2,11 @@ import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
+import '../../../providers/irma_repository_provider.dart';
 import '../../../theme/theme.dart';
 import '../../../util/language.dart';
 import '../../../widgets/irma_avatar.dart';
 import '../../../widgets/irma_card.dart';
-import '../../../widgets/irma_repository_provider.dart';
 import '../models/credential_status_notification.dart';
 import '../models/notification.dart';
 import '../models/notification_translated_content.dart';

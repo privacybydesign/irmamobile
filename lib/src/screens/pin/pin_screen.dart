@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../providers/irma_repository_provider.dart';
 import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/format_blocked_for.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/pin_common/pin_wrong_blocked.dart';

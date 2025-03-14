@@ -10,6 +10,8 @@ linter:
 
 # Enforce that some rules cause the linter to fail.
 analyzer:
+  plugins:
+    - custom_lint
   errors:
     unused_element: warning
     prefer_relative_imports: warning

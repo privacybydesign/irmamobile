@@ -3,8 +3,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../app.dart';
 import '../../../data/irma_preferences.dart';
+import '../../../providers/irma_repository_provider.dart';
 import '../../../util/language.dart';
-import '../../../widgets/irma_repository_provider.dart';
 import '../../more/widgets/tiles_radio.dart';
 
 class ChangeLanguageRadio extends StatelessWidget {
