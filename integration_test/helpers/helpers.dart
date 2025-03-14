@@ -12,7 +12,7 @@ import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/providers/irma_repository_provider.dart';
-import 'package:irmamobile/src/screens/home/home_tab.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -29,7 +29,7 @@ import '../util.dart';
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlockAndWaitForHome(WidgetTester tester) async {
   await unlock(tester);
-  await tester.waitFor(find.byType(HomeTab).hitTestable());
+  await tester.waitFor(find.byType(DataTab).hitTestable());
 }
 
 unlock(WidgetTester tester) async {

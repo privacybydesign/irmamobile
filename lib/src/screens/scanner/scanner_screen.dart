@@ -24,7 +24,7 @@ class ScannerScreenState extends State<ScannerScreen> {
   void initState() {
     super.initState();
     if (!isRunningIntegrationTest()) {
-      _qrKey = GlobalKey();
+      _qrKey = GlobalKey(debugLabel: 'qr_scanner_key');
     }
   }
 
