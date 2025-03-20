@@ -103,10 +103,10 @@ exitSearchMode(WidgetTester tester) async {
 
 searchCredentials(WidgetTester tester, String query) async {
   await enterSearchMode(tester);
-  await tester.pumpAndSettle();
+  await tester.pumpAndSettle(Duration(seconds: 1));
   final searchBar = find.byKey(const Key('search_bar'));
   await tester.enterText(searchBar, query);
-  await tester.pumpAndSettle();
+  await tester.pumpAndSettle(Duration(seconds: 1));
 }
 
 int countCredentialTypeCards(WidgetTester tester) {

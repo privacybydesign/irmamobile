@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Add search option to data tab
+
+## [7.7.0] - 2025-03-17
+### Changed
 - Add QR code scanner button to login screen (and move pin screen down a bit in portrait mode)
 - Refactor routing system to use GoRouter
+- Update irmago to 0.17.0
+
+### Fixed
+- Android app links would fail occasionally, giving a "screen not found" error, fixed by the switch to GoRouter
 
 ## [7.6.0] - 2025-03-04
 ### Changed
@@ -462,6 +469,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.7.0]: https://github.com/privacybydesign/irmamobile/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/privacybydesign/irmamobile/compare/v7.5.7...v7.6.0
 [7.5.7]: https://github.com/privacybydesign/irmamobile/compare/v7.5.6...v7.5.7
 [7.5.6]: https://github.com/privacybydesign/irmamobile/compare/v7.5.5...v7.5.6
