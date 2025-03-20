@@ -2,8 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../../../providers/irma_repository_provider.dart';
 import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_repository_provider.dart';
 import 'error_reporting_info_bottom_sheet.dart';
 
 class ErrorReportingCheckBox extends StatelessWidget {
