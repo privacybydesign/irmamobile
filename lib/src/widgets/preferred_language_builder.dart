@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'irma_repository_provider.dart';
+import '../providers/irma_repository_provider.dart';
 
 typedef PreferredLocaleBuilderType = Widget Function(
   BuildContext context,

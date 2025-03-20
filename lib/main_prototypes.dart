@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app.dart';
 import 'src/data/irma_mock_bridge.dart';
 import 'src/data/irma_preferences.dart';
 import 'src/data/irma_repository.dart';
 import 'src/prototypes/prototypes_screen.dart';
+import 'src/providers/irma_repository_provider.dart';
 import 'src/theme/theme.dart';
-import 'src/widgets/irma_repository_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +16,7 @@ Future<void> main() async {
     preferences: await IrmaPreferences.fromInstance(),
   );
 
-  runApp(PrototypesApp(repository: repository));
+  runApp(ProviderScope(child: PrototypesApp(repository: repository)));
 }
 
 class PrototypesApp extends StatelessWidget {

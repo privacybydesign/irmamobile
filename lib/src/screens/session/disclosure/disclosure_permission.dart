@@ -5,7 +5,7 @@ import '../../../data/irma_repository.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/return_url.dart';
 import '../../../models/session.dart';
-import '../../../widgets/irma_repository_provider.dart';
+import '../../../providers/irma_repository_provider.dart';
 import '../../../widgets/loading_indicator.dart';
 import '../../add_data/add_data_details_screen.dart';
 import 'bloc/disclosure_permission_bloc.dart';
