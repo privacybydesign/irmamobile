@@ -199,7 +199,16 @@
       "sign": "Dit bericht ga je ondertekenen:",
       "explanation": "Deel mijn gegevens met {requestorName}",
       "confirm": "Gegevens delen",
-      "confirm_sign": "Ondertekenen en deel"
+      "confirm_sign": "Ondertekenen en deel",
+      "requestor_verification" : {
+        "verified_suffix" : "is door ons geverifieerd",
+        "unverified_suffix" : "is niet door ons geverifieerd.",
+        "explanation" : "Wat betekent dit?",
+        "bottom_sheet": {
+          "title": "Geverifieerde organisaties",
+          "content_markdown": "Als een organisatie geverifieerd is, betekent dit dat wij de organisatie hebben gecontroleerd.\\\nJij kunt er dan vanuit gaan dat je je gegevens veilig kunt delen.\\\n\\\n**Is een organisatie niet geverifieerd?**\\\nDan kun je nog steeds je gegevens delen, maar kun je er niet automatisch vanuit gaan dat je de organisatie kunt vertrouwen.\\\n\\\nTwijfel je? Dan raden we je aan om zelf contact op te nemen met de organisatie waarmee je je gegevens wil delen.\\\n\\\nWil je je als organisatie laten verifiëren? Ga dan naar https://portal.yivi.app."
+        }
+      }
     },
     "confirm_dialog": {
       "title": "Gegevens delen",
