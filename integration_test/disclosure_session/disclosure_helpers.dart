@@ -126,8 +126,7 @@ Future<void> evaluateRequestorHeader(
     final expectedVerifiedText = '$localizedRequestorName has been verified by us.';
     expect(requestorHeaderText, expectedVerifiedText);
   } else {
-    final expectedUnverifiedText =
-        '$localizedRequestorName has not been verified by us.';
+    final expectedUnverifiedText = '$localizedRequestorName has not been verified by us.';
     expect(requestorHeaderText, expectedUnverifiedText);
   }
 }
