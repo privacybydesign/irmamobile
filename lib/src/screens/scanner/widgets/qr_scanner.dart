@@ -6,7 +6,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/session.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/irma_repository_provider.dart';
 import 'qr_instruction.dart';
 import 'qr_overlay.dart';
 import 'qr_view_container.dart';
@@ -20,15 +19,31 @@ class QRScanner extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => _QRScannerState();
+  State<StatefulWidget> createState() => QRScannerState();
 }
 
-class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
+class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
   static const _qrInstructionHeightFactor = 0.33;
 
   bool found = false;
   bool error = false;
   Timer? _errorTimer;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void reset() {
+    setState(() {
+      found = false;
+      error = false;
+      if (_errorTimer?.isActive ?? false) {
+        _errorTimer?.cancel();
+      }
+      _errorTimer = null;
+    });
+  }
 
   @override
   void dispose() {
@@ -44,23 +59,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
 
     return Stack(
       children: [
-        // Due to issues in the qr_code_scanner library, the scanner's QRView
-        // widget does not render properly when the pin screen overlay is active.
-        // Therefore we make sure the QRView only renders when the app is unlocked
-        // and the pin screen overlay is not active.
-        // https://github.com/juliuscanute/qr_code_scanner/issues/87
-        // This is still an issue in qr_code_scanner 0.7.0
-        StreamBuilder<bool>(
-          stream: IrmaRepositoryProvider.of(context).getLocked(),
-          builder: (context, isLocked) {
-            if (!isLocked.hasData || isLocked.data!) {
-              return Container(color: Colors.black);
-            }
-            return QRViewContainer(
-              onFound: (qr) => _foundQR(qr),
-            );
-          },
-        ),
+        QRViewContainer(onFound: (qr) => _foundQR(qr)),
         Container(
           constraints: const BoxConstraints.expand(),
           child: CustomPaint(
@@ -77,7 +76,6 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
           heightFactor: _qrInstructionHeightFactor,
           child: QRInstruction(found: found, error: error),
         )),
-
         if (isLandscape)
           SafeArea(
             child: Align(
@@ -88,10 +86,11 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
                   backgroundColor: Colors.grey.shade300,
                   radius: 24,
                   child: IconButton(
-                      tooltip: FlutterI18n.translate(context, 'accessibility.back'),
-                      padding: EdgeInsets.zero,
-                      onPressed: Navigator.of(context).pop,
-                      icon: Icon(Icons.chevron_left, size: 24, color: Colors.grey.shade800)),
+                    tooltip: FlutterI18n.translate(context, 'accessibility.back'),
+                    padding: EdgeInsets.zero,
+                    onPressed: Navigator.of(context).pop,
+                    icon: Icon(Icons.chevron_left, size: 24, color: Colors.grey.shade800),
+                  ),
                 ),
               ),
             ),

@@ -6,7 +6,6 @@ import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
-import '../../home/home_screen.dart';
 
 class EmailSentScreen extends StatelessWidget {
   final String email;
@@ -18,11 +17,6 @@ class EmailSentScreen extends StatelessWidget {
     required this.onContinue,
   });
 
-  _navigateToHome(BuildContext context) => Navigator.of(
-        context,
-        rootNavigator: true,
-      ).pushReplacementNamed(HomeScreen.routeName);
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -32,11 +26,11 @@ class EmailSentScreen extends StatelessWidget {
       key: const Key('email_sent_screen'),
       appBar: const IrmaAppBar(
         titleTranslationKey: 'enrollment.email.confirm.title',
-        noLeading: true,
+        leading: null,
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),
-        onPrimaryPressed: () => _navigateToHome(context),
+        onPrimaryPressed: onContinue,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

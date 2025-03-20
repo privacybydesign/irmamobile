@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
+import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
-
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
@@ -74,9 +73,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   await tester.tapAndSettle(find.byType(IrmaCloseButton));
 
   // Confirm the close dialog
-  await tester.tapAndSettle(
-    find.text('Close'),
-  );
+  await tester.tapAndSettle(find.text('Yes'));
 
   // The NotificationBell should be findable in the app bar
   final notificationBellFinder = find.byType(NotificationBell);
@@ -103,7 +100,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   await tester.tapAndSettle(notificationCardFinder);
 
   // Expect the credential detail screen
-  final credentialDetailScreenFinder = find.byType(CredentialsDetailScreen);
+  final credentialDetailScreenFinder = find.byType(CredentialsDetailsScreen);
   expect(credentialDetailScreenFinder, findsOneWidget);
 
   // Expect the actual credential card

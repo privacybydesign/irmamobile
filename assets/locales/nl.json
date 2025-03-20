@@ -221,10 +221,10 @@
       "decline_signature": "Niet ondertekenen"
     },
     "confirm_close_dialog": {
-      "title": "Gegevens delen stoppen",
+      "title": "Delen stoppen?",
       "explanation": "Weet je zeker dat je je gegevens niet wilt delen?",
-      "confirm": "Sluiten",
-      "decline": "Doorgaan"
+      "confirm": "Ja",
+      "decline": "Nee"
     },
     "wrong_credentials_added": {
       "title": "Foutmelding",
