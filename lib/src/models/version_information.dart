@@ -16,4 +16,18 @@ class VersionInformation {
   bool updateRequired() {
     return requiredVersion > currentVersion;
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    return other is VersionInformation &&
+        currentVersion == other.currentVersion &&
+        requiredVersion == other.requiredVersion &&
+        availableVersion == other.availableVersion;
+  }
+
+  @override
+  int get hashCode => Object.hash(currentVersion, requiredVersion, availableVersion);
 }

@@ -16,8 +16,6 @@ import 'util/snackbar.dart';
 import 'widgets/delete_all_credentials_confirmation_dialog.dart';
 
 class DebugScreen extends StatefulWidget {
-  static const routeName = '/debug';
-
   const DebugScreen({super.key});
 
   @override
@@ -126,7 +124,7 @@ class _DebugScreenState extends State<DebugScreen> {
             Icons.play_arrow,
             'debug.custom_issue_wizard',
             onTap: () => handlePointer(
-              Navigator.of(context),
+              context,
               IssueWizardPointer('irma-demo-requestors.ivido.demo-client'),
             ),
           ),

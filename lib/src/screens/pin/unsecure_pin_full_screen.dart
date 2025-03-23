@@ -12,7 +12,6 @@ class _UnsecurePinFullScreen extends StatelessWidget {
     return YiviPinScaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'secure_pin.title',
-        leadingAction: () => Navigator.of(context).pop(),
         hasBorder: false,
       ),
       body: ListView(

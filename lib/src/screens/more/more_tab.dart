@@ -5,11 +5,11 @@ import 'package:flutter/semantics.dart';
 
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
+import '../../util/navigation.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 import '../../widgets/yivi_themed_button.dart';
 import '../home/widgets/irma_nav_bar.dart';
-
 import 'widgets/tiles.dart';
 import 'widgets/tiles_card.dart';
 import 'widgets/version_button.dart';
@@ -80,22 +80,22 @@ class _MoreTabState extends State<MoreTab> {
           ),
           TilesCard(
             children: [
-              const InternalLinkTile(
+              InternalLinkTile(
                 key: Key('open_settings_screen_button'),
                 labelTranslationKey: 'more_tab.settings',
                 iconData: Icons.settings_outlined,
-                routeName: '/settings',
+                onTap: context.goSettingsScreen,
               ),
-              const InternalLinkTile(
+              InternalLinkTile(
                 labelTranslationKey: 'more_tab.faq',
                 iconData: Icons.help_outline_rounded,
-                routeName: '/help',
+                onTap: context.goHelpScreen,
               ),
               if (showDebugging)
-                const InternalLinkTile(
+                InternalLinkTile(
                   labelTranslationKey: 'more_tab.debugging',
                   iconData: Icons.code_rounded,
-                  routeName: '/debug',
+                  onTap: context.goDebugScreen,
                 ),
             ],
           ),

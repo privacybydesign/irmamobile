@@ -35,7 +35,7 @@ class CallInfoScreen extends StatelessWidget {
       child: Scaffold(
         appBar: IrmaAppBar(
           titleTranslationKey: 'disclosure_permission.call.title',
-          leadingAction: () => onCancel?.call(),
+          leading: YiviBackButton(onTap: () => onCancel?.call()),
         ),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),

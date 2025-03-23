@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/irma_app_bar.dart';
-
 import 'pin/yivi_pin_screen.dart';
 
 class YiviConfirmPinScaffold extends StatelessWidget {
@@ -34,8 +33,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
       key: _scaffoldKey,
       appBar: IrmaAppBar(
         title: '',
-        leadingAction: onBack,
-        leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        leading: YiviBackButton(onTap: onBack),
         hasBorder: false,
       ),
       body: YiviPinScreen(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
@@ -10,8 +11,6 @@ import '../session/widgets/dynamic_layout.dart';
 import '../settings/settings_screen.dart';
 
 class ResetPinScreen extends StatelessWidget {
-  static const String routeName = '/reset';
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -48,7 +47,7 @@ class ResetPinScreen extends StatelessWidget {
           YiviThemedButton(
             style: YiviButtonStyle.outlined,
             label: 'ui.cancel',
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: context.pop,
           ),
           YiviThemedButton(
             label: 'reset_pin.reset',

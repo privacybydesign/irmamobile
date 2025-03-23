@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../widgets/irma_app_bar.dart';
 import '../widgets/irma_repository_provider.dart';
-
 import 'pin/yivi_pin_screen.dart';
 
 class YiviBasicPinScaffold extends StatelessWidget {
@@ -20,15 +19,16 @@ class YiviBasicPinScaffold extends StatelessWidget {
       key: _scaffoldKey,
       appBar: IrmaAppBar(
         title: '',
-        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-        leadingAction: cancel != null
-            ? () async {
-                cancel?.call();
-                if (!await Navigator.of(context).maybePop()) {
-                  if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+        leading: YiviBackButton(
+          onTap: cancel != null
+              ? () async {
+                  cancel?.call();
+                  if (!await Navigator.of(context).maybePop()) {
+                    if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+                  }
                 }
-              }
-            : null,
+              : null,
+        ),
         hasBorder: false,
       ),
       body: StreamBuilder<bool>(

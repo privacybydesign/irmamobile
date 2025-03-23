@@ -113,7 +113,9 @@ lane :android_build_integration_test do
       "flutter", "build", "apk",
       "--flavor", "alpha",
       "--debug",
-      "./integration_test/test_all.dart"
+      "./integration_test/test_all.dart",
+      "--dart-define",
+      "YIVI_INTEGRATION_TEST=true"
     )
     Dir.chdir("./android") do
       sh("./gradlew", "app:assembleAndroidTest")
@@ -230,7 +232,9 @@ lane :ios_build_integration_test do |options|
         "flutter", "build", "ios",
         "--release",
         "--config-only",
-        test_file
+        test_file,
+        "--dart-define",
+        "YIVI_INTEGRATION_TEST=true"
       )
 
       # Navigate to the ios directory and run xcodebuild for each test

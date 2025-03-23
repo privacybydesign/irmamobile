@@ -34,7 +34,7 @@ class WizardScaffold extends StatelessWidget {
       backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'issue_wizard.add_cards',
-        leadingAction: onBack,
+        leading: YiviBackButton(onTap: onBack),
       ),
       bottomNavigationBar: bottomBar,
       body: SingleChildScrollView(
