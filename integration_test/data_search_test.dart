@@ -16,7 +16,6 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-
   group('search-credentials', () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
