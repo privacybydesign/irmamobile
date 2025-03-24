@@ -11,9 +11,11 @@ import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  binding.testTextInput.register();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
+
 
   group('search-credentials', () {
     setUp(() => irmaBinding.setUp());
