@@ -11,12 +11,12 @@ import '../../../models/error_event.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/scheme_events.dart';
 import '../../../models/update_schemes_event.dart';
+import '../../../providers/irma_repository_provider.dart';
 import '../../../theme/theme.dart';
 import '../../../util/combine.dart';
 import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_icon_button.dart';
-import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/progress.dart';
 import '../../../widgets/translated_text.dart';
 import '../../error/error_screen.dart';
@@ -85,14 +85,14 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
         throw 'HTTP status code ${response.statusCode} received';
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         showSnackbar(context, 'Error while fetching scheme: ${e.toString()}.');
       }
       return;
     }
 
     // Before showing the second dialog, we have to check whether the widget is still mounted.
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
 
@@ -120,7 +120,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       return;
     }
 
-    if (context.mounted) {
+    if (mounted) {
       showSnackbar(
         context,
         FlutterI18n.translate(
@@ -151,7 +151,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       return;
     }
 
-    if (context.mounted) {
+    if (mounted) {
       showSnackbar(
         context,
         FlutterI18n.translate(

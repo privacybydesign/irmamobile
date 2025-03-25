@@ -11,6 +11,7 @@ import 'src/models/irma_configuration.dart';
 import 'src/models/log_entry.dart';
 import 'src/models/translated_value.dart';
 import 'src/models/version_information.dart';
+import 'src/providers/irma_repository_provider.dart';
 import 'src/screens/activity/activity_detail_screen.dart';
 import 'src/screens/add_data/add_data_details_screen.dart';
 import 'src/screens/add_data/add_data_screen.dart';
@@ -27,7 +28,7 @@ import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
-import 'src/screens/notifications/notifications_screen.dart';
+import 'src/screens/notifications/notifications_tab.dart';
 import 'src/screens/pin/pin_screen.dart';
 import 'src/screens/required_update/required_update_screen.dart';
 import 'src/screens/reset_pin/reset_pin_screen.dart';
@@ -39,7 +40,6 @@ import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
-import 'src/widgets/irma_repository_provider.dart';
 
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
@@ -164,7 +164,7 @@ GoRouter createRouter(BuildContext buildContext) {
           ),
           GoRoute(
             path: 'notifications',
-            builder: (context, state) => NotificationsScreen(),
+            builder: (context, state) => NotificationsTab(),
           ),
         ],
       ),
