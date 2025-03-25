@@ -12,7 +12,7 @@ import 'util.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  
+
   // this line makes sure the text entering works on Firebase iOS on-device integration tests
   binding.testTextInput.register();
 
