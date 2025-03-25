@@ -11,7 +11,11 @@ import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  // this line makes sure the text entering works on Firebase iOS on-device integration tests
+  binding.testTextInput.register();
+
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
