@@ -661,6 +661,9 @@
       "activating" : "Activating {scheme}...",
       "activate_success" : "Scheme {scheme} activated successfully.",
       "remove" : "Removing {scheme}...",
+      "update": "Update schemes",
+      "updating": "Updating schemes...",
+      "update_success": "Schemes updated successfully.",
       "install_scheme_dialog": {
         "title": "Install scheme",
         "content": "Enter the URL of the scheme that should be installed:"
