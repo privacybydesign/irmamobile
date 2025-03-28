@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Add search option to data tab
-- Add support for `open.yivi.app` universal links
+
+### Fixed
+- Fix support for `open.yivi.app` universal links
 
 ## [7.7.0] - 2025-03-17
 ### Changed
