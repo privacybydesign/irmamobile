@@ -1,5 +1,6 @@
 import 'activity_test.dart' as activity_test;
 import 'credential_store_test.dart' as credential_store_test;
+import 'data_search_test.dart' as search_test;
 import 'disclosure_session/disclosure_session_test_all.dart' as disclosure_session;
 import 'enroll_test.dart' as enroll_test;
 import 'home_test.dart' as home_test;
@@ -13,6 +14,7 @@ import 'settings_test.dart' as settings_test;
 
 /// Wrapper to execute all tests at once.
 void main() {
+  search_test.main();
   qr_on_pin_screen_test.main();
   enroll_test.main();
   login_test.main();

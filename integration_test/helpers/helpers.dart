@@ -5,13 +5,14 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/providers/irma_repository_provider.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
-import 'package:irmamobile/src/screens/notifications/bloc/notifications_bloc.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -45,17 +46,17 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
 
-Future<void> pumpIrmaApp(
-  WidgetTester tester,
-  IrmaRepository repo, [
-  Locale? defaultLanguage,
-  NotificationsBloc? notificationsBloc,
-]) async {
-  await tester.pumpWidgetAndSettle(IrmaApp(
-    repository: repo,
-    notificationsBloc: notificationsBloc ?? NotificationsBloc(repo: repo),
-    defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
-  ));
+Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defaultLanguage]) async {
+  await tester.pumpWidgetAndSettle(
+    ProviderScope(
+      overrides: [
+        irmaRepositoryProvider.overrideWithValue(repo),
+      ],
+      child: IrmaApp(
+        defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
+      ),
+    ),
+  );
 
   // Wait for the App widget to be build inside of the IrmaApp widget
   // (There is a builder wrapping the app widget that is used to check the preferred locale)
@@ -66,9 +67,8 @@ Future<void> pumpIrmaApp(
 }
 
 // Pump a new app and unlock it
-Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo,
-    [Locale? locale, NotificationsBloc? notificationsBloc]) async {
-  await pumpIrmaApp(tester, repo, locale, notificationsBloc);
+Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo, [Locale? locale]) async {
+  await pumpIrmaApp(tester, repo, locale);
   await unlockAndWaitForHome(tester);
 }
 

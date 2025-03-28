@@ -4,8 +4,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
+import '../../../providers/irma_repository_provider.dart';
 import '../../../util/language.dart';
-import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/progress.dart';
 
 typedef GroupedCredentialTypesBuilder = Widget Function(

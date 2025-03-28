@@ -3,10 +3,10 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../models/scheme_events.dart';
+import '../../../providers/irma_repository_provider.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/irma_icon_button.dart';
-import '../../../widgets/irma_repository_provider.dart';
 import '../util/snackbar.dart';
 
 class RequestorSchemeDetailScreen extends StatelessWidget {

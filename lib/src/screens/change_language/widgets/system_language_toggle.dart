@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../../widgets/irma_repository_provider.dart';
+import '../../../providers/irma_repository_provider.dart';
 import '../../more/widgets/tiles.dart';
 import '../../more/widgets/tiles_card.dart';
 
