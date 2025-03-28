@@ -1,19 +1,18 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
-import 'src/data/irma_client_bridge.dart';
 import 'src/data/irma_preferences.dart';
-import 'src/data/irma_repository.dart';
+import 'src/providers/irma_repository_provider.dart';
+import 'src/providers/preferences_provider.dart';
 import 'src/screens/home/home_screen.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
 import 'src/sentry/sentry.dart';
 import 'src/util/navigation.dart';
 import 'src/util/security_context_binding.dart';
-import 'src/widgets/irma_repository_provider.dart';
 import 'src/widgets/preferred_language_builder.dart';
 
 Future<void> main() async {
@@ -26,36 +25,34 @@ Future<void> main() async {
     final preferences = await IrmaPreferences.fromInstance();
     await initSentry(preferences: preferences);
     SecurityContextBinding.ensureInitialized();
-    final repository = IrmaRepository(
-      client: IrmaClientBridge(debugLogging: kDebugMode),
-      preferences: preferences,
-    );
 
-    final notificationsBloc = NotificationsBloc(
-      repo: repository,
+    runApp(
+      ProviderScope(
+        overrides: [
+          // we override this because otherwise we would have to deal with async/future providers everywhere
+          // this is the recommended approach according to
+          // https://riverpod.dev/docs/concepts/scopes#initialization-of-synchronous-provider-for-async-apis
+          preferencesProvider.overrideWithValue(preferences),
+        ],
+        child: IrmaApp(),
+      ),
     );
-
-    runApp(IrmaApp(
-      repository: repository,
-      notificationsBloc: notificationsBloc,
-    ));
   }, (error, stackTrace) => reportError(error, stackTrace));
 }
 
-class IrmaApp extends StatelessWidget {
+class IrmaApp extends ConsumerWidget {
   final Locale? defaultLanguage;
-  final IrmaRepository repository;
-  final NotificationsBloc notificationsBloc;
 
   const IrmaApp({
     super.key,
     this.defaultLanguage,
-    required this.repository,
-    required this.notificationsBloc,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final repository = ref.watch(irmaRepositoryProvider);
+    final notificationsBloc = NotificationsBloc(repo: repository);
+
     return TransitionStyleProvider(
       child: IrmaRepositoryProvider(
         repository: repository,

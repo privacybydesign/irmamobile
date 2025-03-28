@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 
 import '../../data/irma_preferences.dart';
 import '../../models/clear_all_data_event.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 import '../more/widgets/tiles.dart';
 import '../more/widgets/tiles_card.dart';

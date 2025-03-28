@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/irma_client_bridge.dart';
 import '../data/irma_repository.dart';
+import 'preferences_provider.dart';
 
 class IrmaRepositoryProvider extends InheritedWidget {
   final IrmaRepository repository;
@@ -16,3 +20,13 @@ class IrmaRepositoryProvider extends InheritedWidget {
   @override
   bool updateShouldNotify(IrmaRepositoryProvider oldWidget) => oldWidget.repository != repository;
 }
+
+final irmaRepositoryProvider = Provider<IrmaRepository>(
+  (ref) {
+    final preferences = ref.watch(preferencesProvider);
+    return IrmaRepository(
+      client: IrmaClientBridge(debugLogging: kDebugMode),
+      preferences: preferences,
+    );
+  },
+);

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../models/irma_configuration.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../irma_avatar.dart';
 import '../irma_card.dart';
-import '../irma_repository_provider.dart';
 
 class IrmaCredentialTypeCard extends StatelessWidget {
   final CredentialType credType;

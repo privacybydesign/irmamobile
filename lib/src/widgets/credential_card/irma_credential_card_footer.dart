@@ -2,11 +2,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/credentials.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../screens/session/disclosure/models/template_disclosure_credential.dart';
 import '../../theme/theme.dart';
 import '../../util/date_formatter.dart';
 import '../information_box.dart';
-import '../irma_repository_provider.dart';
 import '../yivi_themed_button.dart';
 import 'models/card_expiry_date.dart';
 

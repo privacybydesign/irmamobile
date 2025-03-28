@@ -11,12 +11,12 @@ import '../../models/session.dart';
 import '../../models/session_events.dart';
 import '../../models/session_state.dart';
 import '../../models/translated_value.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../screens/issue_wizard/widgets/wizard_contents.dart';
 import '../../screens/issue_wizard/widgets/wizard_info.dart';
 import '../../util/handle_pointer.dart';
 import '../../util/language.dart';
 import '../../util/navigation.dart';
-import '../../widgets/irma_repository_provider.dart';
 
 class IssueWizardScreen extends StatefulWidget {
   final IssueWizardRouteParams arguments;

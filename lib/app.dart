@@ -16,9 +16,9 @@ import '../../src/models/session.dart';
 import '../../src/models/update_schemes_event.dart';
 import '../../src/screens/rooted_warning/repository.dart';
 import '../../src/theme/theme.dart';
+import 'src/providers/irma_repository_provider.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
 import 'src/screens/scanner/util/open_scanner.dart';
-import 'src/widgets/irma_repository_provider.dart';
 
 const schemeUpdateIntervalHours = 3;
 

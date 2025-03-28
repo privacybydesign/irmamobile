@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../providers/irma_repository_provider.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
-import '../../../../widgets/irma_repository_provider.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
