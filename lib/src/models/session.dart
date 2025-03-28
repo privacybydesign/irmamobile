@@ -30,8 +30,6 @@ abstract class Pointer {
       RegExp('(?<=^https://irma.app/-/session#).*'),
       RegExp('(?<=^https://irma.app/-pilot/session#).*'),
       RegExp('(?<=^open.yivi://qr/json/).*'),
-      RegExp('(?<=^cardemu://qr/json/).*'),
-      RegExp('(?<=^intent://qr/json/).*(?=#)'),
       RegExp('(?<=^https://open.yivi.app/-/session#).*'),
       RegExp('(?<=^https://open.yivi.app/-pilot/session#).*'),
       RegExp('.*', multiLine: true, dotAll: true),
