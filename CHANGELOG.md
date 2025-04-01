@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Make the data page the main page
   - Put notifications screen as the third tab in the bottom bar & remove from app bar
 
+### Fixed
+- Fix support for `open.yivi.app` universal links
+
 ## [7.7.0] - 2025-03-17
 ### Changed
 - Add QR code scanner button to login screen (and move pin screen down a bit in portrait mode)
