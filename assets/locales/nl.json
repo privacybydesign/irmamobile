@@ -368,28 +368,17 @@
   },
   "home": {
     "nav_bar": {
-      "home": "Overzicht",
       "data": "Gegevens",
       "activity": "Activiteit",
+      "notifications": "Notificaties",
       "more": "Meer",
       "scan_qr": "Scan QR"
     },
     "nav_bar_hints": {
-      "home": "tab 1 van 4",
-      "data": "tab 2 van 4",
-      "activity": "tab 3 van 4",
+      "data": "tab 1 van 4",
+      "activity": "tab 2 van 4",
+      "notifications": "tab 3 van 4",
       "more": "tab 4 van 4"
-    }
-  },
-  "home_tab": {
-    "title": "The Identity Wallet",
-    "recent_activity": "Recente activiteit",
-    "view_more": "Bekijk meer",
-    "action_card": {
-      "fetch": {
-        "title": "Haal mijn persoonlijke gegevens op",
-        "subtitle": "Zodat je ze later snel en makkelijk kunt delen"
-      }
     }
   },
   "data_tab": {

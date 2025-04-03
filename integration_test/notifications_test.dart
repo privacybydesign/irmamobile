@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
-import 'package:irmamobile/src/screens/notifications/notifications_screen.dart';
+import 'package:irmamobile/src/screens/notifications/notifications_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -25,14 +25,10 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     // Reusable finders
-    final notificationsScreenFinder = find.byType(NotificationsScreen);
-    final irmaAppBarFinder = find.byType(IrmaAppBar);
+    final notificationsScreenFinder = find.byType(NotificationsTab);
 
     // The NotificationBell should be findable in the app bar
-    final notificationBellFinder = find.descendant(
-      of: irmaAppBarFinder,
-      matching: find.byType(NotificationBell),
-    );
+    final notificationBellFinder = find.byType(NotificationBell);
 
     // Mocked notification cache
     const mockedCredentialCache =
@@ -49,8 +45,8 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
       expect(notificationBellFinder, findsOneWidget);
 
-      // Finally, go back to the home tab
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_home')));
+      // Finally, go back to the data tab
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
 
       // Press the NotificationBell
       await tester.tapAndSettle(notificationBellFinder);
@@ -110,10 +106,6 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Expect the NotificationBell to be visible
-      final notificationBellFinder = find.descendant(
-        of: find.byType(IrmaAppBar),
-        matching: find.byType(NotificationBell),
-      );
       expect(notificationBellFinder, findsOneWidget);
 
       // Notification bell should show the indicator
@@ -137,9 +129,8 @@ void main() {
         read: false,
       );
 
-      // Leave the screen by pressing the back button
-      final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
-      await tester.tapAndSettle(backButtonFinder);
+      // Leave the screen by pressing the data tab button
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
 
       // pumpAndSettle to make sure the event is processed
       await tester.pumpAndSettle();
@@ -186,8 +177,7 @@ void main() {
       expect(notificationCardFinder, findsNothing);
 
       // Go back
-      final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
-      await tester.tapAndSettle(backButtonFinder);
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
 
       // Go to the notifications screen again
       await tester.tapAndSettle(notificationBellFinder);
