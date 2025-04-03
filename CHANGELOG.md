@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Coming back from session error screen would pop twice due to PopScope
 
+### Fixed
+- Fix support for `open.yivi.app` universal links
+
 ## [7.7.0] - 2025-03-17
 ### Changed
 - Add QR code scanner button to login screen (and move pin screen down a bit in portrait mode)

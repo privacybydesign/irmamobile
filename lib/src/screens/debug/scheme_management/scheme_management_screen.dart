@@ -10,10 +10,12 @@ import '../../../models/enrollment_events.dart';
 import '../../../models/error_event.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/scheme_events.dart';
+import '../../../models/update_schemes_event.dart';
 import '../../../providers/irma_repository_provider.dart';
 import '../../../theme/theme.dart';
 import '../../../util/combine.dart';
 import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_icon_button.dart';
 import '../../../widgets/progress.dart';
 import '../../../widgets/translated_text.dart';
@@ -63,7 +65,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     );
   }
 
-  Future<void> _onInstallScheme(BuildContext context) async {
+  Future<void> _onInstallScheme() async {
     final repo = IrmaRepositoryProvider.of(context);
 
     final schemeUrl = await showDialog<String>(
@@ -83,14 +85,14 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
         throw 'HTTP status code ${response.statusCode} received';
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         showSnackbar(context, 'Error while fetching scheme: ${e.toString()}.');
       }
       return;
     }
 
     // Before showing the second dialog, we have to check whether the widget is still mounted.
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
 
@@ -118,12 +120,43 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       return;
     }
 
-    if (context.mounted) {
+    if (mounted) {
       showSnackbar(
         context,
         FlutterI18n.translate(
           context,
           'debug.scheme_management.success',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onUpdateSchemes() async {
+    showSnackbar(
+      context,
+      FlutterI18n.translate(
+        context,
+        'debug.scheme_management.updating',
+      ),
+    );
+
+    final repo = IrmaRepositoryProvider.of(context);
+    repo.bridgedDispatch(UpdateSchemesEvent());
+
+    try {
+      await repo.getEvents().whereType<IrmaConfigurationEvent>().first.timeout(const Duration(minutes: 1));
+    } on TimeoutException {
+      // Installing the scheme took too long. We therefore assume that it failed.
+      // Error is sent as ErrorEvent and will be handled by a listener in initState.
+      return;
+    }
+
+    if (mounted) {
+      showSnackbar(
+        context,
+        FlutterI18n.translate(
+          context,
+          'debug.scheme_management.update_success',
         ),
       );
     }
@@ -154,7 +187,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
         actions: [
           IrmaIconButton(
             icon: Icons.add,
-            onTap: () => _onInstallScheme(context),
+            onTap: () => _onInstallScheme(),
           )
         ],
       ),
@@ -204,6 +237,10 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
             );
           },
         ),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: 'debug.scheme_management.update',
+        onPrimaryPressed: () => _onUpdateSchemes(),
       ),
     );
   }

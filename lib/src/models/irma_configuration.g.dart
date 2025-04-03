@@ -43,6 +43,7 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) => SchemeManage
       minimumAppVersion: AppVersion.fromJson(json['MinimumAppVersion'] as Map<String, dynamic>),
       keyshareServer: json['KeyshareServer'] as String,
       keyshareWebsite: json['KeyshareWebsite'] as String,
+      timestampServer: json['TimestampServer'] as String,
       keyshareAttribute: json['KeyshareAttribute'] as String,
       timestamp: (json['Timestamp'] as num).toInt(),
       demo: json['Demo'] as bool,
