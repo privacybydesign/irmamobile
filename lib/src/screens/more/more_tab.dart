@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../providers/irma_repository_provider.dart';
 import '../../theme/irma_icons.dart';
@@ -12,8 +11,6 @@ import '../../widgets/irma_app_bar.dart';
 import '../../widgets/translated_text.dart';
 import '../../widgets/yivi_themed_button.dart';
 import '../home/widgets/irma_nav_bar.dart';
-import '../notifications/bloc/notifications_bloc.dart';
-import '../notifications/widgets/notification_bell.dart';
 import 'widgets/tiles.dart';
 import 'widgets/tiles_card.dart';
 import 'widgets/version_button.dart';
@@ -78,14 +75,6 @@ class _MoreTabState extends State<MoreTab> {
       appBar: IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.more',
         leading: null,
-        actions: [
-          BlocBuilder<NotificationsBloc, NotificationsState>(
-            builder: (context, state) => NotificationBell(
-              showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
-              onTap: context.goNotificationsScreen,
-            ),
-          )
-        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
@@ -174,7 +163,7 @@ class _MoreTabState extends State<MoreTab> {
               label: 'more_tab.log_out',
               onPressed: () {
                 IrmaRepositoryProvider.of(context).lock();
-                widget.onChangeTab(IrmaNavBarTab.home);
+                widget.onChangeTab(IrmaNavBarTab.data);
               },
             ),
             spacerWidget,

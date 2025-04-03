@@ -7,7 +7,6 @@ class IrmaPreferences {
         // For users before the pin size >5 was introduced.
         _longPin = preferences.getBool(_longPinKey, defaultValue: true),
         _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
-        _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),
         _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
         _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
         _completedDisclosurePermissionIntro =
@@ -34,9 +33,6 @@ class IrmaPreferences {
 
   static const String _reportErrorsKey = 'preference.report_errors';
   final Preference<bool> _reportErrors;
-
-  static const String _startQRScanKey = 'preference.open_qr_scanner_on_launch';
-  final Preference<bool> _startQRScan;
 
   static const String _showDisclosureDialogKey = 'preference.show_disclosure_dialog';
   final Preference<bool> _showDisclosureDialog;
@@ -81,10 +77,6 @@ class IrmaPreferences {
   Stream<bool> getReportErrors() => _reportErrors;
 
   Future<bool> setReportErrors(bool value) => _reportErrors.setValue(value);
-
-  Stream<bool> getStartQRScan() => _startQRScan;
-
-  Future<bool> setStartQRScan(bool value) => _startQRScan.setValue(value);
 
   Stream<bool> getShowDisclosureDialog() => _showDisclosureDialog;
 

@@ -65,29 +65,23 @@ class _ErrorScreenState extends State<ErrorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, popResult) {
-        widget.onTapClose?.call();
-      },
-      child: Scaffold(
-        appBar: IrmaAppBar(
-          titleTranslationKey: 'error.details_title',
-          leading: widget.onTapClose != null ? YiviBackButton(onTap: widget.onTapClose) : null,
-        ),
-        body: IrmaErrorScaffoldBody(
-          type: widget.type,
-          details: widget.details,
-          reportable: widget.reportable,
-        ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: widget.onTapClose != null ? FlutterI18n.translate(context, 'error.button_ok') : null,
-          onPrimaryPressed: widget.onTapClose,
-          // If the error has been reported, the secondary button should be disabled, but the label should remain visible.
-          secondaryButtonLabel:
-              widget.onReportError != null ? FlutterI18n.translate(context, 'error.button_send_to_irma') : null,
-          onSecondaryPressed: widget.onReportError != null && !_hasReported ? _onTapReport : null,
-        ),
+    return Scaffold(
+      appBar: IrmaAppBar(
+        titleTranslationKey: 'error.details_title',
+        leading: widget.onTapClose != null ? YiviBackButton(onTap: widget.onTapClose) : null,
+      ),
+      body: IrmaErrorScaffoldBody(
+        type: widget.type,
+        details: widget.details,
+        reportable: widget.reportable,
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: widget.onTapClose != null ? FlutterI18n.translate(context, 'error.button_ok') : null,
+        onPrimaryPressed: widget.onTapClose,
+        // If the error has been reported, the secondary button should be disabled, but the label should remain visible.
+        secondaryButtonLabel:
+            widget.onReportError != null ? FlutterI18n.translate(context, 'error.button_send_to_irma') : null,
+        onSecondaryPressed: widget.onReportError != null && !_hasReported ? _onTapReport : null,
       ),
     );
   }

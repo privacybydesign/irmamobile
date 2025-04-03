@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Add search option to data tab
+- Rearrange home screen layout:
+  - Remove home page
+  - Make the data page the main page
+  - Put notifications screen as the third tab in the bottom bar & remove from app bar
+- Remove "open QR scanner on launch" option from the app
+
+### Fixed
+- Coming back from session error screen would pop twice due to PopScope
 
 ### Fixed
 - Fix support for `open.yivi.app` universal links

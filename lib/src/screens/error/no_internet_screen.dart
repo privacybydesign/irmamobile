@@ -14,27 +14,21 @@ class NoInternetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, popResult) {
-        onTapClose();
-      },
-      child: Scaffold(
-        appBar: IrmaAppBar(
-          titleTranslationKey: 'error.details_title',
-          leading: YiviBackButton(onTap: onTapClose),
-        ),
-        body: const IrmaInfoScaffoldBody(
-          imagePath: 'assets/error/no_connection_illustration.svg',
-          titleTranslationKey: 'error.title',
-          bodyTranslationKey: 'error.types.no_internet',
-        ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
-          onPrimaryPressed: onTapClose,
-          secondaryButtonLabel: onTapRetry == null ? null : FlutterI18n.translate(context, 'error.button_retry'),
-          onSecondaryPressed: onTapRetry,
-        ),
+    return Scaffold(
+      appBar: IrmaAppBar(
+        titleTranslationKey: 'error.details_title',
+        leading: YiviBackButton(onTap: onTapClose),
+      ),
+      body: const IrmaInfoScaffoldBody(
+        imagePath: 'assets/error/no_connection_illustration.svg',
+        titleTranslationKey: 'error.title',
+        bodyTranslationKey: 'error.types.no_internet',
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
+        onPrimaryPressed: onTapClose,
+        secondaryButtonLabel: onTapRetry == null ? null : FlutterI18n.translate(context, 'error.button_retry'),
+        onSecondaryPressed: onTapRetry,
       ),
     );
   }

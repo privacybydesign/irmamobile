@@ -8,8 +8,7 @@ import '../../util/rounded_display.dart';
 import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
-import '../scanner/util/open_scanner.dart';
-import 'home_tab.dart';
+import '../notifications/notifications_tab.dart';
 import 'widgets/irma_nav_bar.dart';
 import 'widgets/irma_qr_scan_button.dart';
 import 'widgets/pending_pointer_listener.dart';
@@ -18,7 +17,7 @@ import 'widgets/pending_pointer_listener.dart';
 /// In order to keep the selected tab state across these instances, we move
 /// the state outside of the HomeScreen widget and into this Bloc.
 class HomeTabState extends Bloc<IrmaNavBarTab, IrmaNavBarTab> {
-  HomeTabState() : super(IrmaNavBarTab.home);
+  HomeTabState() : super(IrmaNavBarTab.data);
 
   @override
   Stream<IrmaNavBarTab> mapEventToState(IrmaNavBarTab event) async* {
@@ -26,31 +25,15 @@ class HomeTabState extends Bloc<IrmaNavBarTab, IrmaNavBarTab> {
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => HomeScreenState();
-}
-
-class HomeScreenState extends State<HomeScreen> {
-  void _changeTab(IrmaNavBarTab tab) {
-    context.read<HomeTabState>().add(tab);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final repo = IrmaRepositoryProvider.of(context);
-      maybeOpenQrScanner(context, repo);
-    });
-  }
-
+class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    changeTab(IrmaNavBarTab tab) {
+      context.read<HomeTabState>().add(tab);
+    }
+
     return BlocBuilder<HomeTabState, IrmaNavBarTab>(
       builder: (context, tabState) {
         // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
@@ -60,19 +43,19 @@ class HomeScreenState extends State<HomeScreen> {
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, popResult) {
-            if (tabState == IrmaNavBarTab.home) {
+            if (tabState == IrmaNavBarTab.data) {
               IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
             } else {
-              _changeTab(IrmaNavBarTab.home);
+              changeTab(IrmaNavBarTab.data);
             }
           },
           child: PendingPointerListener(
             child: Scaffold(
               body: switch (tabState) {
-                IrmaNavBarTab.home => HomeTab(onChangeTab: _changeTab),
+                IrmaNavBarTab.notifications => NotificationsTab(),
                 IrmaNavBarTab.data => DataTab(),
                 IrmaNavBarTab.activity => ActivityTab(),
-                IrmaNavBarTab.more => MoreTab(onChangeTab: _changeTab),
+                IrmaNavBarTab.more => MoreTab(onChangeTab: changeTab),
               },
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               resizeToAvoidBottomInset: false,
@@ -84,7 +67,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               bottomNavigationBar: IrmaNavBar(
                 selectedTab: tabState,
-                onChangeTab: _changeTab,
+                onChangeTab: changeTab,
               ),
             ),
           ),
