@@ -6,32 +6,35 @@ import '../../../widgets/translated_text.dart';
 import 'irma_nav_bar.dart';
 
 final _navBarTabTranslationKeys = {
-  IrmaNavBarTab.home: 'home.nav_bar.home',
   IrmaNavBarTab.data: 'home.nav_bar.data',
   IrmaNavBarTab.activity: 'home.nav_bar.activity',
+  IrmaNavBarTab.notifications: 'home.nav_bar.notifications',
   IrmaNavBarTab.more: 'home.nav_bar.more'
 };
 
 final _navBarTabHintKeys = {
-  IrmaNavBarTab.home: 'home.nav_bar_hints.home',
   IrmaNavBarTab.data: 'home.nav_bar_hints.data',
   IrmaNavBarTab.activity: 'home.nav_bar_hints.activity',
+  IrmaNavBarTab.notifications: 'home.nav_bar_hints.notifications',
   IrmaNavBarTab.more: 'home.nav_bar_hints.more'
 };
 
 class IrmaNavButton extends StatelessWidget {
-  final IconData iconData;
+  final IconData? iconData;
   final IrmaNavBarTab tab;
   final bool isSelected;
   final Function(IrmaNavBarTab tab)? changeTab;
+  final Widget Function(bool active, Color color)? builder;
 
   const IrmaNavButton({
     super.key,
-    required this.iconData,
+    this.iconData,
     required this.tab,
     this.isSelected = false,
     this.changeTab,
-  });
+    this.builder,
+  }) : assert((builder == null && iconData != null) || (builder != null && iconData == null),
+            'one of them should have a value, but not both');
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +51,14 @@ class IrmaNavButton extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                iconData,
-                size: 28,
-                color: isSelected ? activeColor : inactiveColor,
-              ),
+              if (builder != null)
+                builder!.call(isSelected, isSelected ? activeColor : inactiveColor)
+              else
+                Icon(
+                  iconData!,
+                  size: 28,
+                  color: isSelected ? activeColor : inactiveColor,
+                ),
               SizedBox(
                 height: theme.tinySpacing,
               ),

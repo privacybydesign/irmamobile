@@ -14,12 +14,12 @@ import 'models/actions/credential_detail_navigation_action.dart';
 import 'models/notification.dart';
 import 'widgets/notification_card.dart';
 
-class NotificationsScreen extends StatefulWidget {
+class NotificationsTab extends StatefulWidget {
   @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
+  State<NotificationsTab> createState() => _NotificationsTabState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsTabState extends State<NotificationsTab> {
   late NotificationsBloc _notificationsBloc;
 
   @override
@@ -96,6 +96,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         backgroundColor: theme.backgroundTertiary,
         appBar: const IrmaAppBar(
           titleTranslationKey: 'notifications.title',
+          leading: null,
         ),
         body: SafeArea(
           child: BlocBuilder<NotificationsBloc, NotificationsState>(

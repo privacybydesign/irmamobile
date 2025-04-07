@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
@@ -12,14 +11,11 @@ import '../../models/session_events.dart';
 import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/combine.dart';
-import '../../util/navigation.dart';
 import '../../util/string.dart';
 import '../../widgets/end_of_list_indicator.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/translated_text.dart';
-import '../notifications/bloc/notifications_bloc.dart';
-import '../notifications/widgets/notification_bell.dart';
 import 'history_repository.dart';
 import 'widgets/activity_card.dart';
 
@@ -173,14 +169,6 @@ class _ActivityTabState extends State<ActivityTab> {
       appBar: IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.activity',
         leading: null,
-        actions: [
-          BlocBuilder<NotificationsBloc, NotificationsState>(
-            builder: (context, state) => NotificationBell(
-              showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
-              onTap: context.goNotificationsScreen,
-            ),
-          )
-        ],
       ),
       body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
         stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
