@@ -72,10 +72,13 @@ GoRouter createRouter(BuildContext buildContext) {
         pageBuilder: (context, state) {
           return NoTransitionPage(
             name: '/pin',
-            child: PinScreen(
-              onAuthenticated: context.goHomeScreenWithoutTransition,
-              leading: YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
-            ),
+            child: Builder(builder: (context) {
+              return PinScreen(
+                onAuthenticated: context.goHomeScreenWithoutTransition,
+                leading:
+                    YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
+              );
+            }),
           );
         },
       ),
