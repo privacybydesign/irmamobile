@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Remove home page
   - Make the data page the main page
   - Put notifications screen as the third tab in the bottom bar & remove from app bar
-- Remove "open QR scanner on launch" option from the app
+- Remove "open QR scanner on launch" setting from the app
 
 ### Fixed
 - Coming back from session error screen would pop twice due to PopScope
