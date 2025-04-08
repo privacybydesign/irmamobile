@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fix support for `open.yivi.app` universal links
+- Returning from an error screen no longer results in a black screen
+- Pressing the QR code scanner button on the pin screen without camera permissions will now show the permissions dialog as expected
 
 ## [7.7.0] - 2025-03-17
 ### Changed
