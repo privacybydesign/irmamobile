@@ -50,7 +50,7 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email address': 'test@example.com',
     },

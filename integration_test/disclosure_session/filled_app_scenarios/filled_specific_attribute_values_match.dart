@@ -44,7 +44,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email domain name': 'test.com',
     },
@@ -79,7 +79,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     tester,
     dialogCardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email domain name': 'demo.com',
     },
@@ -92,7 +92,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     tester,
     dialogCardsFinder.at(1),
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email domain name': 'test.com',
     },
@@ -125,7 +125,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {},
     style: IrmaCardStyle.normal,
   );
@@ -176,7 +176,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email address': 'test@test.com',
       'Email domain name': 'test.com',

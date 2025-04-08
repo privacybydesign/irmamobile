@@ -52,7 +52,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
     tester,
     cardsFinder.first,
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {},
     style: IrmaCardStyle.highlighted,
   );
@@ -94,7 +94,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email address': 'test@example.com',
     },
@@ -123,7 +123,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email address': 'test@example.com',
     },
@@ -134,7 +134,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {},
   );
 
@@ -159,7 +159,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email address': 'test@example.com',
     },
@@ -169,7 +169,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Mobile phone number': '0612345678',
     },

@@ -1,8 +1,8 @@
 Yivi is een app waarmee je makkelijk en veilig inlogt, gegevens deelt en bewijst wie je bent. Zonder dat je te veel over jezelf deelt. Met Yivi pak jij de controle over jouw gegevens. Je ziet altijd wat een organisatie van je wil weten en jij beslist of je die gegevens deelt.
 Je gegevens staan alleen op je mobiel, veilig achter een pincode. Niemand kijkt mee, ook Yivi niet. Dat is wel zo veilig.
 
-Yivi is volledig open source en wordt ontwikkeld door SIDN. Dat is de Nederlandse beheerder van het .nl-domein en een organisatie zonder winstoogmerk. Stichting Privacy by Design legde de basis voor Yivi onder de noemer ‘IRMA’.
+Yivi wordt ontwikkeld door Caesar Groep, in nauwe samenwerking met de Stichting Privacy by Design, op wiens oorspronkelijke werk het systeem is gebaseerd. Voorheen bekend als “IRMA”, is de Yivi ID-wallet volledig open-source en ontworpen met privacy en gebruiksvriendelijkheid als uitgangspunt.
 
 Yivi website: www.yivi.app/
-Technische documentatie: https://irma.app/docs/what-is-irma/
+Technische documentatie: https://docs.yivi.app/what-is-yivi
 Broncode: https://github.com/privacybydesign

@@ -550,12 +550,12 @@ String irmaConfigurationEventJson = r"""
       "pbdf.sidn-pbdf": {
         "ID": "sidn-pbdf",
         "Name": {
-          "en": "Privacy by Design Foundation via SIDN",
-          "nl": "Stichting Privacy by Design via SIDN"
+          "en": "Privacy by Design Foundation",
+          "nl": "Stichting Privacy by Design"
         },
         "SchemeManagerID": "pbdf",
-        "ContactAddress": "https://www.sidn.nl",
-        "ContactEMail": "support@sidn.nl",
+        "ContactAddress": "https://www.yivi.app",
+        "ContactEMail": "support@yivi.app",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false

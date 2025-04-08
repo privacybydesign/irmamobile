@@ -47,7 +47,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardFinder,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation ',
     attributes: {
       'Email address': 'test@example.com',
     },
@@ -73,7 +73,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email address': 'test@example.com',
     },
@@ -85,7 +85,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardFinder.at(1),
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {},
     isSelected: false,
   );
@@ -100,7 +100,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     thirdCardFinder,
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {},
     isSelected: false,
   );
@@ -129,7 +129,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Email address': 'test@example.com',
     },
@@ -139,7 +139,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardFinder.at(1),
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Mobile phone number': '0612345678',
     },
@@ -150,7 +150,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardFinder.at(2),
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {},
     isSelected: false,
   );
@@ -158,7 +158,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardFinder.at(3),
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {},
     isSelected: false,
   );
@@ -172,7 +172,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardFinder.first,
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    issuerName: 'Demo Privacy by Design Foundation',
     attributes: {
       'Mobile phone number': '0612345678',
     },
