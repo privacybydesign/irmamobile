@@ -9,7 +9,6 @@ import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
 import '../notifications/notifications_tab.dart';
-import '../scanner/util/open_scanner.dart';
 import 'widgets/irma_nav_bar.dart';
 import 'widgets/irma_qr_scan_button.dart';
 import 'widgets/pending_pointer_listener.dart';
@@ -26,31 +25,15 @@ class HomeTabState extends Bloc<IrmaNavBarTab, IrmaNavBarTab> {
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => HomeScreenState();
-}
-
-class HomeScreenState extends State<HomeScreen> {
-  void _changeTab(IrmaNavBarTab tab) {
-    context.read<HomeTabState>().add(tab);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final repo = IrmaRepositoryProvider.of(context);
-      maybeOpenQrScanner(context, repo);
-    });
-  }
-
+class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    changeTab(IrmaNavBarTab tab) {
+      context.read<HomeTabState>().add(tab);
+    }
+
     return BlocBuilder<HomeTabState, IrmaNavBarTab>(
       builder: (context, tabState) {
         // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
@@ -63,7 +46,7 @@ class HomeScreenState extends State<HomeScreen> {
             if (tabState == IrmaNavBarTab.data) {
               IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
             } else {
-              _changeTab(IrmaNavBarTab.data);
+              changeTab(IrmaNavBarTab.data);
             }
           },
           child: PendingPointerListener(
@@ -72,7 +55,7 @@ class HomeScreenState extends State<HomeScreen> {
                 IrmaNavBarTab.notifications => NotificationsTab(),
                 IrmaNavBarTab.data => DataTab(),
                 IrmaNavBarTab.activity => ActivityTab(),
-                IrmaNavBarTab.more => MoreTab(onChangeTab: _changeTab),
+                IrmaNavBarTab.more => MoreTab(onChangeTab: changeTab),
               },
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               resizeToAvoidBottomInset: false,
@@ -84,7 +67,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               bottomNavigationBar: IrmaNavBar(
                 selectedTab: tabState,
-                onChangeTab: _changeTab,
+                onChangeTab: changeTab,
               ),
             ),
           ),
