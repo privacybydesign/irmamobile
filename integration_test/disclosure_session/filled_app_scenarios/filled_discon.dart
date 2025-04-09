@@ -62,7 +62,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {
       'Email address': 'test@example.com',
     },
@@ -170,7 +170,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {
       'Email address': 'test@example.com',
     },
@@ -180,7 +180,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
     isSelected: false,
   );
@@ -205,7 +205,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {
       'Email address': 'test@example.com',
     },

@@ -53,14 +53,14 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     style: IrmaCardStyle.highlighted,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     style: IrmaCardStyle.normal,
   );
 
@@ -76,14 +76,14 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     style: IrmaCardStyle.highlighted,
   );
 

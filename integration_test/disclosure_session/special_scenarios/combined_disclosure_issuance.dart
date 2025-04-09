@@ -52,7 +52,7 @@ Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, Integrat
     tester,
     cardsFinder.first,
     credentialName: 'Demo Login data',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {
       'Login code': '1234',
       'Organization': 'E-mail guild',

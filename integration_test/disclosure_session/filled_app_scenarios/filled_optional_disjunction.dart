@@ -47,7 +47,7 @@ Future<void> filledOptionalDisjunctionTest(
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
     style: IrmaCardStyle.highlighted,
   );
@@ -82,7 +82,7 @@ Future<void> filledOptionalDisjunctionTest(
     tester,
     cardsFinder.first,
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {
       'Mobile phone number': '0612345678',
     },
@@ -100,7 +100,7 @@ Future<void> filledOptionalDisjunctionTest(
     tester,
     cardsFinder.at(2),
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
     isSelected: false,
   );
@@ -116,7 +116,7 @@ Future<void> filledOptionalDisjunctionTest(
     tester,
     cardsFinder.first,
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {
       'Mobile phone number': '0612345678',
     },
@@ -136,7 +136,7 @@ Future<void> filledOptionalDisjunctionTest(
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {
       'Email address': 'test@example.com',
       'Email domain name': 'example.com',
@@ -147,7 +147,7 @@ Future<void> filledOptionalDisjunctionTest(
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {
       'Mobile phone number': '0612345678',
     },
