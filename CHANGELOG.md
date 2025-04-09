@@ -12,14 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Make the data page the main page
   - Put notifications screen as the third tab in the bottom bar & remove from app bar
 - Remove "open QR scanner on launch" setting from the app
-
-### Fixed
-- Coming back from session error screen would pop twice due to PopScope
+- Replace SIDN by Caesar & Yivi in Q&A section, contact info & app descriptions
 
 ### Fixed
 - Fix support for `open.yivi.app` universal links
 - Returning from an error screen no longer results in a black screen
 - Pressing the QR code scanner button on the pin screen without camera permissions will now show the permissions dialog as expected
+- Coming back from session error screen would pop twice due to PopScope
 
 ## [7.7.0] - 2025-03-17
 ### Changed
