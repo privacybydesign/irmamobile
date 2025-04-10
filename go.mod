@@ -7,7 +7,7 @@ toolchain go1.23.4
 require (
 	github.com/go-errors/errors v1.4.2
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
-	github.com/privacybydesign/irmago v0.17.0
+	github.com/privacybydesign/irmago v0.18.1
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/mobile v0.0.0-20240213143359-d1f7d3436075
 )
@@ -25,7 +25,7 @@ require (
 	github.com/fxamacker/cbor v1.5.1 // indirect
 	github.com/go-co-op/gocron v1.28.3 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

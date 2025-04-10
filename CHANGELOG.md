@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [Unreleased]
+
+## [7.8.0] - 2025-04-09
 ### Changed
 - Add search option to data tab
 - Rearrange home screen layout:
@@ -13,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Put notifications screen as the third tab in the bottom bar & remove from app bar
 - Remove "open QR scanner on launch" setting from the app
 - Replace SIDN by Caesar & Yivi in Q&A section, contact info & app descriptions
+- Upgrade irmago to 0.18.1
 
 ### Fixed
 - Fix support for `open.yivi.app` universal links
@@ -481,6 +484,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.8.0]: https://github.com/privacybydesign/irmamobile/compare/v7.7.0...v7.8.0
 [7.7.0]: https://github.com/privacybydesign/irmamobile/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/privacybydesign/irmamobile/compare/v7.5.7...v7.6.0
 [7.5.7]: https://github.com/privacybydesign/irmamobile/compare/v7.5.6...v7.5.7
