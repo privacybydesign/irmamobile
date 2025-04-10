@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Put notifications screen as the third tab in the bottom bar & remove from app bar
 - Remove "open QR scanner on launch" setting from the app
 - Replace SIDN by Caesar & Yivi in Q&A section, contact info & app descriptions
-- Upgrade irmago to 0.18.0
+- Upgrade irmago to 0.18.1
 
 ### Fixed
 - Fix support for `open.yivi.app` universal links
