@@ -84,21 +84,21 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_jailbreak_detection: c5bf66ff6c0c4230769b6ba0bd63eb6ac4148a76
-  flutter_native_splash: edf599c81f74d093a4daf8e17bd7a018854bc778
-  flutter_privacy_screen: 60e2b67bb00f0bba6ccfbdf8c5ad353ef928fb68
-  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  flutter_jailbreak_detection: a74360daaf5cbc80639959463b4b1395873c90b5
+  flutter_native_splash: 35ddbc7228eafcb3969dcc5f1fbbe27c1145a4f0
+  flutter_privacy_screen: 2882f6a4ef1763f0a88ccac4961cf0fa1e46afea
+  integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   IOSSecuritySuite: 72c55371aafe586196c325a8348319c36d385ce4
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
-  native_device_orientation: 348b10c346a60ebbc62fb235a4fdb5d1b61a8f55
-  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
-  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
-  qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
+  native_device_orientation: e3580675687d5034770da198f6839ebf2122ef94
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
+  qr_code_scanner: d77f94ecc9abf96d9b9b8fc04ef13f611e5a147a
   Sentry: f8374b5415bc38dfb5645941b3ae31230fbeae57
-  sentry_flutter: 0eb93e5279eb41e2392212afe1ccd2fecb4f8cbe
-  share: 0b2c3e82132f5888bccca3351c504d0003b3b410
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  sentry_flutter: 0a211008f52553ba5dd81ceb71f48d78f0f1f6ab
+  share: a34936589f3090d59481bcdc5c30cc9dd47c75f6
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
 
 PODFILE CHECKSUM: a5d23baa2c1e9ecb0238b15941bc5d7f9ca5c6bc
 
