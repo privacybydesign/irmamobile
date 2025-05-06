@@ -224,13 +224,6 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
     ],
     redirect: (context, state) {
-      // If the scheme is irma, it's a deep link from an issuer/verifier
-      // these are currently handled by the IrmaRepository, so we should redirect
-      // to the home screen to not get a 'route not found' error.
-      // Unfortunately there's no way to prevent go_router from handling deep links
-      if (state.uri.scheme.startsWith('irma')) {
-        return '/home';
-      }
       if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
         return '/enrollment';
       }

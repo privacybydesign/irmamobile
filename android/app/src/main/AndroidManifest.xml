@@ -26,6 +26,10 @@
                 android:name="io.flutter.embedding.android.SplashScreenDrawable"
                 android:resource="@drawable/launch_background" />
 
+          <meta-data
+            android:name="flutter_deeplinking_enabled"
+            android:value="false" />
+
             <!-- Keep launch theme lying under regular frames to make hiding screen work -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
