@@ -138,15 +138,6 @@ class _MoreTabState extends State<MoreTab> {
               ],
             ),
             spacerWidget,
-            buildHeaderText('more_tab.stay_informed'),
-            const TilesCard(children: [
-              ExternalLinkTile(
-                iconData: Icons.groups_outlined,
-                labelTranslationKey: 'more_tab.meetups',
-                urlLinkKey: 'more_tab.meetups_link',
-              ),
-            ]),
-            spacerWidget,
             YiviThemedButton(
               key: const Key('log_out_button'),
               style: YiviButtonStyle.filled,
