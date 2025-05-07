@@ -492,6 +492,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.8.1]: https://github.com/privacybydesign/irmamobile/compare/v7.8.0...v7.8.1
 [7.8.0]: https://github.com/privacybydesign/irmamobile/compare/v7.7.0...v7.8.0
 [7.7.0]: https://github.com/privacybydesign/irmamobile/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/privacybydesign/irmamobile/compare/v7.5.7...v7.6.0
