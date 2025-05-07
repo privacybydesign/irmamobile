@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
 import '../../providers/irma_repository_provider.dart';
-import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
