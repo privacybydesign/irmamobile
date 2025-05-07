@@ -277,14 +277,31 @@ class _CredentialsTypeList extends StatelessWidget {
 }
 
 class _CredentialsSearchResults extends ConsumerWidget {
+  _buildNoCredentialsFound(BuildContext context, String query) {
+    final theme = IrmaTheme.of(context);
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: TranslatedText(
+          'data.search.no_results',
+          translationParams: {'query': query},
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = FlutterI18n.currentLocale(context)!;
     final credentials = ref.watch(credentialsSearchResultsProvider(locale));
+    final searchQuery = ref.watch(credentialsSearchQueryProvider);
 
     return credentials.when(
       skipLoadingOnReload: true,
-      data: (credentials) => _CredentialsTypeList(credentials: credentials),
+      data: (credentials) => credentials.isEmpty && searchQuery.isNotEmpty
+          ? _buildNoCredentialsFound(context, searchQuery)
+          : _CredentialsTypeList(credentials: credentials),
       loading: () => CircularProgressIndicator(),
       error: (error, trace) => Text(error.toString()),
     );

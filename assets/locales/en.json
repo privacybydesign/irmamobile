@@ -122,6 +122,9 @@
         "obtain": "Add {credential} to my Yivi-app"
       }
     },
+    "search": {
+      "no_results": "No data found for '{query}'."
+    },
     "category_other": "Other",
     "category_personal": "Personal"
   },

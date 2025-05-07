@@ -122,6 +122,9 @@
         "obtain": "Voeg {credential} toe aan mijn Yivi-app"
       }
     },
+    "search": {
+      "no_results": "Geen gegevens gevonden voor '{query}'."
+    },
     "category_other": "Overig",
     "category_personal": "Persoonlijk"
   },
