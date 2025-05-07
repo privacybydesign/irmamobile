@@ -145,16 +145,6 @@ class _MoreTabState extends State<MoreTab> {
                 labelTranslationKey: 'more_tab.meetups',
                 urlLinkKey: 'more_tab.meetups_link',
               ),
-              ExternalLinkTile(
-                iconData: IrmaIcons.twitter,
-                labelTranslationKey: 'more_tab.twitter',
-                urlLinkKey: 'more_tab.twitter_link',
-              ),
-              ExternalLinkTile(
-                iconData: IrmaIcons.github,
-                labelTranslationKey: 'more_tab.github',
-                urlLinkKey: 'more_tab.github_link',
-              )
             ]),
             spacerWidget,
             YiviThemedButton(
