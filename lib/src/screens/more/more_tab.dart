@@ -77,6 +77,7 @@ class _MoreTabState extends State<MoreTab> {
         leading: null,
       ),
       body: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
