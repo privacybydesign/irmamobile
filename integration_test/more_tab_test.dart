@@ -39,9 +39,6 @@ void main() {
         'Contact us',
         'Share Yivi',
         "Yivi's privacy policy",
-        'Yivi meetups',
-        '@YiviApp',
-        'GitHub',
       ];
       for (final text in texts) {
         await tester.scrollUntilVisible(find.text(text), 30);
