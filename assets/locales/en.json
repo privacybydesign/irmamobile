@@ -122,6 +122,9 @@
         "obtain": "Add {credential} to my Yivi-app"
       }
     },
+    "search": {
+      "no_results": "No data found for '{query}'."
+    },
     "category_other": "Other",
     "category_personal": "Personal"
   },
@@ -417,17 +420,10 @@
     "share": "Share Yivi",
     "share_text": "Check out the Yivi app: https://yivi.app",
     "website": "Yivi website",
-    "meet_up": "Yivi meetups",
     "need_help": "Need help?",
     "know_more": "More information",
     "stay_informed": "Stay informed and join the conversation",
     "slogan": "Everyone deserves privacy",
-    "meetups": "Yivi meetups",
-    "meetups_link": "https://www.yivi.app/en/meetings",
-    "twitter": "@YiviApp",
-    "twitter_link": "https://twitter.com/yiviapp",
-    "github": "GitHub",
-    "github_link": "https://github.com/privacybydesign",
     "version": "Version {version}",
     "developer_mode_enabled": "Developer mode enabled",
     "developer_mode_already_enabled": "Developer mode already enabled",
