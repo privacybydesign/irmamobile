@@ -156,7 +156,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		return
 	}
 
-	if client.Preferences.DeveloperMode {
+	if client.GetPreferences().DeveloperMode {
 		irma.Logger.SetLevel(logrus.TraceLevel)
 	}
 }

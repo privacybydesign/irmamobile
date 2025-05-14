@@ -191,7 +191,7 @@ func (ah *eventHandler) findSessionHandler(sessionID int) (*sessionHandler, erro
 }
 
 func (ah *eventHandler) updateSchemes() error {
-	err := client.Configuration.UpdateSchemes()
+	err := client.GetIrmaConfiguration().UpdateSchemes()
 	if err != nil {
 		return err
 	}
@@ -220,7 +220,7 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 		if entry.Type == irmaclient.ActionRemoval {
 			for credentialTypeId, attributeValues := range entry.Removed {
 				var removedCredential = make(map[irma.AttributeTypeIdentifier]irma.TranslatedString)
-				attributeTypes := client.Configuration.CredentialTypes[credentialTypeId].AttributeTypes
+				attributeTypes := client.GetIrmaConfiguration().CredentialTypes[credentialTypeId].AttributeTypes
 				for index, attributeValue := range attributeValues {
 					typ := attributeTypes[index]
 					if typ.RevocationAttribute {
@@ -231,11 +231,11 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 				removedCredentials[credentialTypeId] = removedCredential
 			}
 		}
-		disclosedCredentials, err := entry.GetDisclosedCredentials(client.Configuration)
+		disclosedCredentials, err := entry.GetDisclosedCredentials(client.GetIrmaConfiguration())
 		if err != nil {
 			return err
 		}
-		issuedCredentials, err := entry.GetIssuedCredentials(client.Configuration)
+		issuedCredentials, err := entry.GetIssuedCredentials(client.GetIrmaConfiguration())
 		if err != nil {
 			return err
 		}
@@ -268,11 +268,11 @@ func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
 }
 
 func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEvent) error {
-	wizard := client.Configuration.IssueWizards[event.ID]
+	wizard := client.GetIrmaConfiguration().IssueWizards[event.ID]
 	if wizard == nil {
 		return errors.New("issue wizard not found")
 	}
-	contents, err := wizard.Path(client.Configuration, client.CredentialInfoList())
+	contents, err := wizard.Path(client.GetIrmaConfiguration(), client.CredentialInfoList())
 	if err != nil {
 		return errors.WrapPrefix(err, "failed to process issue wizard", 0)
 	}
@@ -284,7 +284,7 @@ func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEven
 }
 
 func (ah *eventHandler) installScheme(event *installSchemeEvent) error {
-	err := client.Configuration.InstallScheme(event.URL, []byte(event.PublicKey))
+	err := client.GetIrmaConfiguration().InstallScheme(event.URL, []byte(event.PublicKey))
 	if err != nil {
 		return err
 	}
