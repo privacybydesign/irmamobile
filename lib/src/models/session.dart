@@ -22,6 +22,22 @@ abstract class Pointer {
   Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor});
 
   factory Pointer.fromString(String content) {
+    if (content.startsWith('eudi-openid4vp://')) {
+      final uri = Uri.parse(content);
+      final requestUri = uri.queryParameters['request_uri'];
+      final clientId = uri.queryParameters['client_id'];
+      if (clientId == null) {
+        throw MissingPointer(details: 'expected "client_id" to be present in query parameters, but it wasn\'t');
+      }
+      if (requestUri == null) {
+        throw MissingPointer(details: 'expected "request_uri" to be present in query parameters, but it wasn\'t');
+      }
+      return SessionPointer(
+        u: content,
+        irmaqr: 'disclosing',
+      );
+    }
+
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
     final regexps = [
       RegExp('(?<=^irma://qr/json/).*'),

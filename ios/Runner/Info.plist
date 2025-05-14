@@ -30,6 +30,7 @@
 				<key>CFBundleURLSchemes</key>
 				<array>
 					<string>irma</string>
+          <string>eudi-openid4vp</string>
 				</array>
 			</dict>
 		</array>

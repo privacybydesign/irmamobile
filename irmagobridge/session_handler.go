@@ -111,10 +111,6 @@ func (sh *sessionHandler) PairingRequired(pairingCode string) {
 	})
 }
 
-func (sh *sessionHandler) RequestSchemeManagerPermission(manager *irma.SchemeManager, callback func(proceed bool)) {
-	callback(false)
-}
-
 func (sh *sessionHandler) KeyshareEnrollmentMissing(manager irma.SchemeManagerIdentifier) {
 	dispatchEvent(&keyshareEnrollmentMissingSessionEvent{
 		SessionID:       sh.sessionID,

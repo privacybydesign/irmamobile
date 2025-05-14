@@ -5,26 +5,26 @@ import Foundation
 /// Flutter plugin that implements irmagobridge's IrmaMobileBridge interface for iOS. This plugin forms the bridge between Flutter/Dart and Go.
 class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, FlutterPlugin {
     private var channel: FlutterMethodChannel
-    
+
     private var initialURL: String?
     private var nativeError: String?
     private var appReady: Bool
-    
+
     /// Private constructor. This constructor is called indirectly via register (see below).
     /// - Parameters:
     ///   - channel: Channel to send messages to the Flutter side
     private init(channel: FlutterMethodChannel) {
         self.channel = channel
         appReady = false
-        
+
         super.init()
     }
-    
+
     /// Calls the Start method of irmagobridge.
     private func start() {
         let bundlePath = Bundle.main.bundlePath
         let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
-        
+
         // Mark librarypath as non-backup
         var url = URL(fileURLWithPath: libraryPath)
         var resourceValues = URLResourceValues()
@@ -37,9 +37,9 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
             nativeError = "{\"Exception\":\"\(msg)\",\"Stack\":\"\(error.localizedDescription)\",\"Fatal\":true}"
             return
         }
-        
+
         debugLog("Starting irmago, lib=\(libraryPath), bundle=\(bundlePath)")
-        
+
         var aesKey: Data
         do {
             aesKey = try AESKey().getKey()
@@ -49,7 +49,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
             nativeError = "{\"Exception\":\"\(msg)\",\"Stack\":\"\(error.localizedDescription)\",\"Fatal\":true}"
             return
         }
-        
+
         IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey)
     }
 
@@ -58,16 +58,16 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         debugLog("Stopping irmago")
         IrmagobridgeStop()
     }
-    
+
     /// Implements the register method of the FlutterPlugin interface. This method is called by Flutter to bootstrap the plugin.
     /// - Parameter registrar: Registration context of the Flutter plugin
     static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "irma.app/irma_mobile_bridge", binaryMessenger: registrar.messenger())
-        
+
         let instance = IrmaMobileBridgePlugin(channel: channel)
         instance.start()
-        
+
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
     }
@@ -78,12 +78,12 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
     ///   - result: Result callback
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         NSLog("handling \(call.method)")
-        
+
         if nativeError != nil {
             channel.invokeMethod("ErrorEvent", arguments: nativeError)
             return
         }
-        
+
         if call.method == "AppReadyEvent" {
             appReady = true
             if let initialURL = initialURL {
@@ -91,21 +91,22 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
                     "HandleURLEvent", arguments: "{\"isInitialURL\": true, \"url\": \"\(initialURL)\"}")
             }
         }
-        
+
         IrmagobridgeDispatchFromNative(call.method, call.arguments as? String)
         result(nil)
     }
-    
+
     /// Implements the DebugLog method of the IrmaMobileBridge interface.
     /// - Parameter message: Message to be logged
     func debugLog(_ message: String?) {
+        channel.invokeMethod("GoLog", arguments: message)
 #if DEBUG
         if message != nil {
             NSLog("[IrmaMobileBridgePlugin] \(message!)")
         }
 #endif
     }
-    
+
     /// Implements the DispatchFromGo method of the IrmaMobileBridge interface.
     /// - Parameters:
     ///   - name: name of the method being invoked
