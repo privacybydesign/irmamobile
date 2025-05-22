@@ -23,10 +23,12 @@ class IrmaCredentialCard extends StatelessWidget {
   final bool hideFooter;
   final bool hideAttributes;
   final bool disabled;
+  final String credentialFormat;
 
   const IrmaCredentialCard({
     super.key,
     required this.credentialView,
+    required this.credentialFormat,
     this.compareTo,
     this.onTap,
     this.headerTrailing,
@@ -50,6 +52,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideAttributes = false,
     this.disabled = false,
   })  : credentialView = credential,
+        credentialFormat = credential.credentialFormat,
         expiryDate = CardExpiryDate(credential.expires);
 
   @override
@@ -93,6 +96,7 @@ class IrmaCredentialCard extends StatelessWidget {
               expiryDate: expiryDate,
               padding: EdgeInsets.only(top: theme.smallSpacing),
             ),
+          Text(credentialFormat),
         ],
       ),
     );

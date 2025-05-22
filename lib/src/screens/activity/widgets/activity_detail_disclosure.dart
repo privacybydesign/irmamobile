@@ -33,6 +33,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
     );
 
     return IrmaCredentialCard(
+      credentialFormat: 'unknown',
       credentialView: credentialView,
       hideFooter: true,
     );

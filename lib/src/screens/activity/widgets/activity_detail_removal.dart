@@ -39,6 +39,7 @@ class ActivityDetailRemoval extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(top: theme.smallSpacing),
             child: IrmaCredentialCard(
+              credentialFormat: 'unknown',
               credentialView: removedCredential,
               hideFooter: true,
             ),

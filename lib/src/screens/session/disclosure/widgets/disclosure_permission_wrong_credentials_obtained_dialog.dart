@@ -26,6 +26,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
         children: [
           ...state.obtainedCredentials.mapIndexed(
             (i, cred) => IrmaCredentialCard(
+              credentialFormat: 'unknown',
               credentialView: cred,
               compareTo: state.templates[i].attributes,
               hideFooter: true,
@@ -33,6 +34,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
           ),
           ...state.templates.map(
             (cred) => IrmaCredentialCard(
+              credentialFormat: 'unknown',
               credentialView: cred,
               compareTo: cred.attributes,
               hideFooter: true,

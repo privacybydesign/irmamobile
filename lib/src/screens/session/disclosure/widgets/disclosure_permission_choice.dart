@@ -4,6 +4,7 @@ import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/radio_indicator.dart';
+import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_credential.dart';
 import '../models/template_disclosure_credential.dart';
 
@@ -40,6 +41,8 @@ class DisclosurePermissionChoice extends StatelessWidget {
                           }
                         },
                   child: IrmaCredentialCard(
+                    credentialFormat:
+                        credential is ChoosableDisclosureCredential ? credential.credentialFormat : 'unknown',
                     padding: EdgeInsets.zero,
                     credentialView: credential,
                     compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,

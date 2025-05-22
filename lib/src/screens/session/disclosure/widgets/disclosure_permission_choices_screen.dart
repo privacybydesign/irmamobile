@@ -86,6 +86,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
             ),
           for (int i = 0; i < choiceEntry.value.length; i++)
             IrmaCredentialCard(
+              credentialFormat: choiceEntry.value[i].credentialFormat,
               credentialView: choiceEntry.value[i],
               padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
               headerTrailing: optional && i == 0
