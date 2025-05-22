@@ -35,6 +35,7 @@ abstract class Pointer {
       return SessionPointer(
         u: content,
         irmaqr: 'disclosing',
+        protocol: 'openid4vp',
       );
     }
 
@@ -136,6 +137,9 @@ class SessionPointer implements Pointer {
   @JsonKey(name: 'irmaqr', required: true)
   final String irmaqr;
 
+  @JsonKey(name: 'protocol', required: false)
+  String? protocol;
+
   /// Whether the session should be continued on the mobile device,
   /// or on the device which has displayed a QR code.
   /// Field is not always specified in QRs now.
@@ -146,6 +150,7 @@ class SessionPointer implements Pointer {
   SessionPointer({
     required this.u,
     required this.irmaqr,
+    this.protocol,
     this.continueOnSecondDevice = false,
   });
 
@@ -182,6 +187,14 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   @override
   String get u => _sessionPointer.u;
+
+  @override
+  String? get protocol => _sessionPointer.protocol;
+
+  @override
+  set protocol(String? protocol) {
+    _sessionPointer.protocol = protocol;
+  }
 
   @override
   Map<String, dynamic> toJson() => {
