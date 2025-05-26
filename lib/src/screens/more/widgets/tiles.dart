@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:share/share.dart';
 
+import '../../../providers/irma_repository_provider.dart';
 import '../../../sentry/sentry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_dialog.dart';
-import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/translated_text.dart';
 import '../../../widgets/yivi_themed_button.dart';
 

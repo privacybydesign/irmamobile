@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../providers/irma_repository_provider.dart';
 import '../widgets/irma_app_bar.dart';
-import '../widgets/irma_repository_provider.dart';
 import 'pin/yivi_pin_screen.dart';
 
 class YiviBasicPinScaffold extends StatelessWidget {

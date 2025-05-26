@@ -16,9 +16,8 @@ import '../../src/models/session.dart';
 import '../../src/models/update_schemes_event.dart';
 import '../../src/screens/rooted_warning/repository.dart';
 import '../../src/theme/theme.dart';
+import 'src/providers/irma_repository_provider.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
-import 'src/screens/scanner/util/open_scanner.dart';
-import 'src/widgets/irma_repository_provider.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -157,19 +156,16 @@ class AppState extends State<App> with WidgetsBindingObserver {
     if (prevLifeCycleStates.contains(AppLifecycleState.paused) &&
         prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
         state == AppLifecycleState.resumed) {
-      // First check whether we should redo pin verification
-      final lastActive = await widget.irmaRepository.getLastActiveTime().first;
       final status = await widget.irmaRepository
           .getEnrollmentStatus()
           .firstWhere((status) => status != EnrollmentStatus.undetermined);
+      // First check whether we should redo pin verification
+      final lastActive = await widget.irmaRepository.getLastActiveTime().first;
       final locked = await widget.irmaRepository.getLocked().first;
+
       if (status == EnrollmentStatus.enrolled) {
         if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
           widget.irmaRepository.lock();
-        } else {
-          if (mounted) {
-            maybeOpenQrScanner(context, widget.irmaRepository);
-          }
         }
       }
     }

@@ -4,8 +4,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/irma_repository.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../util/navigation.dart';
-import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import 'accept_terms/accept_terms_screen.dart';
 import 'bloc/enrollment_bloc.dart';

@@ -122,6 +122,9 @@
         "obtain": "Add {credential} to my Yivi-app"
       }
     },
+    "search": {
+      "no_results": "No data found for '{query}'."
+    },
     "category_other": "Other",
     "category_personal": "Personal"
   },
@@ -344,7 +347,7 @@
     "question_2": "Why does Yivi exist?",
     "answer_2": "Giving people back control over their online data is the mission of Yivi. What are you storing? What do you share? And with whom? Yivi empowers you to make that choice. With our app, you can decide what others learn about you. This data is shared from your phone with the requesting party, nobody else is part of that transaction. Not even Yivi.\n\nEverything is stored securely on your phone, encrypted, and behind a PIN-code. There is no centralized data or cloud storage that contains your personal data. Lost your phone? Don't panic. Just remotely block your Yivi app. That prevents anyone from using your data without your knowledge.\n\nSelling your data isn't, and will never be, our revenue model. And still, Yivi is free to use. Is there a catch? No there isn't! Only the organizations using Yivi pay for the services, ensuring Yivi remains free for you.\n",
     "question_3": "Who is behind the Yivi app?",
-    "answer_3_markdown": "SIDN is the non-profit organisation behind Yivi. You might not be familiar with that name, but you probably do know a website that ends with .nl. Well, every time you visit such a website, SIDN makes sure you end up in the right place. They’ve been doing this for more than 25 years, about 2 billion times a day. Backed by all this experience, they make sure Yivi works properly and securely. Anytime, anywhere.",
+    "answer_3_markdown": "The Privacy by Design Foundation is the non-profit organization behind Yivi. You might not be familiar with that name, but you’ve likely benefited from their vision if you care about privacy-first digital identity. The foundation is dedicated to developing secure, privacy-preserving technologies that put users in control of their data. They created Yivi to give everyone a way to identify themselves digitally—safely and selectively. \n\n Caesar Groep, with decades of experience in IT innovation and infrastructure, makes sure Yivi works smoothly and securely. From the backend to the user interface, Caesar Groep ensures that every interaction with Yivi is seamless and trustworthy—anytime, anywhere.",
     "question_4": "How to use Yivi for logging onto a mobile website?",
     "answer_4": {
       "step_1": "Open the website on your mobile and select logging in with Yivi.",
@@ -377,28 +380,23 @@
   },
   "home": {
     "nav_bar": {
-      "home": "Home",
       "data": "Data",
       "activity": "Activity",
+      "notifications": "Notifications",
       "more": "More",
       "scan_qr": "Scan QR"
     },
     "nav_bar_hints": {
-      "home": "tab 1 out of 4",
-      "data": "tab 2 out of 4",
-      "activity": "tab 3 out of 4",
+      "data": "tab 1 out of 4",
+      "activity": "tab 2 out of 4",
+      "notifications": "tab 3 out of 4",
       "more": "tab 4 out of 4"
     }
   },
-  "home_tab": {
-    "title": "The Identity Wallet",
-    "recent_activity": "Recent activity",
-    "view_more": "View more",
-    "action_card": {
-      "fetch": {
-        "title": "Obtain my personal data",
-        "subtitle": "So you can share it easier when needed"
-      }
+  "data_tab": {
+    "empty": {
+      "title": "Obtain your personal data",
+      "subtitle": "Tap on the plus icon to obtain your personal data."
     }
   },
   "issuance": {
@@ -431,17 +429,10 @@
     "share": "Share Yivi",
     "share_text": "Check out the Yivi app: https://yivi.app",
     "website": "Yivi website",
-    "meet_up": "Yivi meetups",
     "need_help": "Need help?",
     "know_more": "More information",
     "stay_informed": "Stay informed and join the conversation",
     "slogan": "Everyone deserves privacy",
-    "meetups": "Yivi meetups",
-    "meetups_link": "https://www.yivi.app/en/meetings",
-    "twitter": "@YiviApp",
-    "twitter_link": "https://twitter.com/yiviapp",
-    "github": "GitHub",
-    "github_link": "https://github.com/privacybydesign",
     "version": "Version {version}",
     "developer_mode_enabled": "Developer mode enabled",
     "developer_mode_already_enabled": "Developer mode already enabled",
@@ -461,7 +452,7 @@
     "show_pin": "Show PIN",
     "hide_pin": "Hide PIN",
     "backspace": "Backspace",
-    "empty_pin_input" : "No pin code entered",
+    "empty_pin_input": "No pin code entered",
     "digits_entered-1": "{digits} digit entered",
     "digits_entered-2": "{digits} digits entered"
   },
@@ -604,8 +595,11 @@
     "end_of_list": "You have reached the end of the list",
     "unknown": "Unknown",
     "go_back": "Go back",
-    "add" : "Add",
+    "add": "Add",
     "activate": "Activate"
+  },
+  "search": {
+    "cancel": "Cancel"
   },
   "update": {
     "title": "Update available",
@@ -658,9 +652,12 @@
       "issuer_schemes": "Issuer schemes",
       "requestor_schemes": "Requestor schemes",
       "success": "Scheme added successfully",
-      "activating" : "Activating {scheme}...",
-      "activate_success" : "Scheme {scheme} activated successfully.",
-      "remove" : "Removing {scheme}...",
+      "activating": "Activating {scheme}...",
+      "activate_success": "Scheme {scheme} activated successfully.",
+      "remove": "Removing {scheme}...",
+      "update": "Update schemes",
+      "updating": "Updating schemes...",
+      "update_success": "Schemes updated successfully.",
       "install_scheme_dialog": {
         "title": "Install scheme",
         "content": "Enter the URL of the scheme that should be installed:"
@@ -671,9 +668,9 @@
       },
       "verify_pin": {
         "title": "Verify PIN",
-        "content" : "Authenticate to keyshare server of scheme {scheme}",
-        "success" : "PIN verified successfully",
-        "failed" : "PIN verification failed (attempts remaining: {remainingAttempts}, blocked: {blockedDuration} seconds)."
+        "content": "Authenticate to keyshare server of scheme {scheme}",
+        "success": "PIN verified successfully",
+        "failed": "PIN verification failed (attempts remaining: {remainingAttempts}, blocked: {blockedDuration} seconds)."
       },
       "warning_dialog": {
         "title": "Warning!",

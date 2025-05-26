@@ -8,6 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - More differentiation between verified and unverified requestors during disclosure
 
+## [7.8.1] - 2025-05-07
+### Changed
+- Remove Twitter, GitHub and meetups link from the more tab
+- Add feedback for when there are no search results
+
+### Fixed
+- Bug in issuing missing credentials while disclosing on Android
+
+## [7.8.0] - 2025-04-09
+### Changed
+- Add search option to data tab
+- Rearrange home screen layout:
+  - Remove home page
+  - Make the data page the main page
+  - Put notifications screen as the third tab in the bottom bar & remove from app bar
+- Remove "open QR scanner on launch" setting from the app
+- Replace SIDN by Caesar & Yivi in Q&A section, contact info & app descriptions
+- Upgrade irmago to 0.18.1
+
+### Fixed
+- Fix support for `open.yivi.app` universal links
+- Returning from an error screen no longer results in a black screen
+- Pressing the QR code scanner button on the pin screen without camera permissions will now show the permissions dialog as expected
+- Coming back from session error screen would pop twice due to PopScope
+
 ## [7.7.0] - 2025-03-17
 ### Changed
 - Add QR code scanner button to login screen (and move pin screen down a bit in portrait mode)
@@ -469,6 +494,8 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.8.1]: https://github.com/privacybydesign/irmamobile/compare/v7.8.0...v7.8.1
+[7.8.0]: https://github.com/privacybydesign/irmamobile/compare/v7.7.0...v7.8.0
 [7.7.0]: https://github.com/privacybydesign/irmamobile/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/privacybydesign/irmamobile/compare/v7.5.7...v7.6.0
 [7.5.7]: https://github.com/privacybydesign/irmamobile/compare/v7.5.6...v7.5.7

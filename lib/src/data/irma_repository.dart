@@ -177,8 +177,8 @@ class IrmaRepository {
         _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
         closeInAppWebView();
-      } on MissingPointer {
-        // pass
+      } on MissingPointer catch (e, stackTrace) {
+        reportError(e, stackTrace);
       }
     } else if (event is NewSessionEvent) {
       _pendingPointerSubject.add(null);

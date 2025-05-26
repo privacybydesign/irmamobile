@@ -8,11 +8,12 @@ import 'package:intl/intl.dart';
 import '../../models/irma_configuration.dart';
 import '../../models/log_entry.dart';
 import '../../models/session_events.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/combine.dart';
 import '../../util/string.dart';
 import '../../widgets/end_of_list_indicator.dart';
-import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/irma_app_bar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/translated_text.dart';
 import 'history_repository.dart';
@@ -163,16 +164,23 @@ class _ActivityTabState extends State<ActivityTab> {
   @override
   Widget build(BuildContext context) {
     _scrollController.addListener(_listenToScroll);
-    return StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
-      stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Center(child: LoadingIndicator());
-        }
-        final irmaConfiguration = snapshot.data!.a;
-        final historyState = snapshot.data!.b;
-        return _buildLogEntries(context, irmaConfiguration, historyState.logEntries, historyState.moreLogsAvailable);
-      },
+    return Scaffold(
+      backgroundColor: IrmaTheme.of(context).backgroundTertiary,
+      appBar: IrmaAppBar(
+        titleTranslationKey: 'home.nav_bar.activity',
+        leading: null,
+      ),
+      body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
+        stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: LoadingIndicator());
+          }
+          final irmaConfiguration = snapshot.data!.a;
+          final historyState = snapshot.data!.b;
+          return _buildLogEntries(context, irmaConfiguration, historyState.logEntries, historyState.moreLogsAvailable);
+        },
+      ),
     );
   }
 }

@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/screens/home/home_tab.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -109,7 +109,7 @@ testIssuance(WidgetTester tester, Locale locale, IrmaRepository repo) async {
   await tester.tapAndSettle(find.byKey(const Key('ok_button')));
 
   // ensure we're at the home screen
-  await tester.waitFor(find.byType(HomeTab).hitTestable());
+  await tester.waitFor(find.byType(DataTab).hitTestable());
 }
 
 tapQrScannerButton(WidgetTester tester) async {

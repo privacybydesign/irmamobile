@@ -4,9 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/session.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
-import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/translated_text.dart';
 import '../change_pin/models/change_pin_bloc.dart';

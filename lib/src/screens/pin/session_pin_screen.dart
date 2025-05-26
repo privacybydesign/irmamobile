@@ -6,10 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/session_events.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../error/session_error_screen.dart';

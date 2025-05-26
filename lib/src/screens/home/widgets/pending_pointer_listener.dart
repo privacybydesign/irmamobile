@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../models/session.dart';
+import '../../../providers/irma_repository_provider.dart';
 import '../../../util/handle_pointer.dart';
-import '../../../widgets/irma_repository_provider.dart';
 
 class PendingPointerListener extends StatefulWidget {
   final Widget child;
