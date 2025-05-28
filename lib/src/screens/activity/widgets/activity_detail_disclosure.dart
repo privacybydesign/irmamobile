@@ -31,9 +31,14 @@ class ActivityDetailDisclosure extends StatelessWidget {
       attributes: mappedAttributes,
     );
 
-    return IrmaCredentialCard(
-      credentialView: credentialView,
-      hideFooter: true,
+    final theme = IrmaTheme.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: theme.smallSpacing),
+      child: IrmaCredentialCard(
+        credentialView: credentialView,
+        hideFooter: true,
+      ),
     );
   }
 
