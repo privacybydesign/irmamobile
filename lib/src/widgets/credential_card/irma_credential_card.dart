@@ -61,43 +61,75 @@ class IrmaCredentialCard extends StatelessWidget {
 
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
-    return IrmaCard(
-      style: credentialView.valid ? style : IrmaCardStyle.danger,
-      onTap: onTap,
-      padding: padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Only the header should be greyed out when the card is disabled.
-          GreyedOut(
-            filterActive: disabled,
-            child: IrmaCredentialCardHeader(
-              credentialName: getTranslation(context, credentialView.credentialType.name),
-              issuerName: getTranslation(context, credentialView.issuer.name),
-              logo: credentialView.credentialType.logo,
-              trailing: headerTrailing,
-              isExpired: credentialView.expired,
-              isRevoked: credentialView.revoked,
-              isExpiringSoon: isExpiringSoon,
+    return Padding(
+      padding: const EdgeInsets.only(bottom:8.0),
+      child: IrmaCard(
+        style: credentialView.valid ? style : IrmaCardStyle.danger,
+        onTap: onTap,
+        padding: padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Only the header should be greyed out when the card is disabled.
+            GreyedOut(
+              filterActive: disabled,
+              child: IrmaCredentialCardHeader(
+                credentialName:
+                    getTranslation(context, credentialView.credentialType.name),
+                issuerName: getTranslation(context, credentialView.issuer.name),
+                logo: credentialView.credentialType.logo,
+                trailing: headerTrailing,
+                isExpired: credentialView.expired,
+                isRevoked: credentialView.revoked,
+                isExpiringSoon: isExpiringSoon,
+              ),
             ),
-          ),
-          // If there are attributes in this credential, then we show the attribute list
-          if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
-            IrmaDivider(color: credentialView.valid ? null : theme.danger),
-            IrmaCredentialCardAttributeList(
-              credentialView.attributes,
-              compareTo: compareTo,
-            ),
+            // If there are attributes in this credential, then we show the attribute list
+            if (credentialView.attributesWithValue.isNotEmpty &&
+                !hideAttributes) ...[
+              IrmaDivider(color: credentialView.valid ? null : theme.danger),
+              IrmaCredentialCardAttributeList(
+                credentialView.attributes,
+                compareTo: compareTo,
+              ),
+            ],
+            if (!hideFooter)
+              IrmaCredentialCardFooter(
+                credentialView: credentialView,
+                expiryDate: expiryDate,
+                padding: EdgeInsets.only(top: theme.smallSpacing),
+              ),
+            if (credentialFormat == 'idemix' || credentialFormat == 'dc+sd-jwt')
+              Padding(
+                padding: EdgeInsets.only(top: theme.defaultSpacing),
+                child: CredentialFormatTag(format: credentialFormat),
+              ),
           ],
-          if (!hideFooter)
-            IrmaCredentialCardFooter(
-              credentialView: credentialView,
-              expiryDate: expiryDate,
-              padding: EdgeInsets.only(top: theme.smallSpacing),
-            ),
-          Text(credentialFormat),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+class CredentialFormatTag extends StatelessWidget {
+  const CredentialFormatTag({super.key, required this.format});
+
+  final String format;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = format == 'idemix' ? 'Yivi' : 'Eudi';
+    final color = format == 'idemix' ? Colors.red.shade800 : Colors.blue.shade800;
+    final textStyle = IrmaTheme.of(context).textTheme.bodySmall;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        color: color,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16),
+        child: Text(text, style: textStyle!.copyWith(color: Colors.white, fontWeight: FontWeight.bold),),
       ),
     );
   }
