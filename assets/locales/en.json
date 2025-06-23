@@ -20,16 +20,10 @@
   },
   "new_terms_and_conditions": {
     "title": "New terms & conditions",
-    "explanation_markdown": "The terms and conditions have changed. Please accept the new terms to keep using Yivi.",
+    "explanation": "The terms and conditions have changed. Please accept the new terms in order to keep using Yivi.",
     "read_terms": "View the new terms",
     "accept": "I accept",
-    "reject": "Stop using Yivi",
-    "reject_dialog": {
-      "title": "Are you sure?",
-      "body": "If you proceed all your data will be deleted. This is permanent. If you wish to start using Yivi again you will have to obtain your data again.",
-      "cancel": "Cancel",
-      "delete": "Delete data"
-    }
+    "dismiss": "Ask me later"
   },
   "action_feedback": {
     "ok": "OK"

@@ -5,6 +5,52 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
 
+class YiviDialog extends StatelessWidget {
+  const YiviDialog({super.key, required this.child, this.maxHeight});
+  final Widget child;
+  final double? maxHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return AnimatedPadding(
+      padding: MediaQuery.of(context).viewInsets +
+          EdgeInsets.symmetric(
+            horizontal: theme.mediumSpacing,
+            vertical: theme.defaultSpacing,
+          ),
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.decelerate,
+      child: MediaQuery.removeViewInsets(
+        removeLeft: true,
+        removeTop: true,
+        removeRight: true,
+        removeBottom: true,
+        context: context,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: 280.0, maxHeight: maxHeight ?? double.infinity),
+            child: Semantics(
+              scopesRoute: true,
+              explicitChildNodes: true,
+              child: Material(
+                color: theme.surfacePrimary,
+                elevation: 24.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(theme.smallSpacing),
+                ),
+                type: MaterialType.card,
+                child: child,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class IrmaDialog extends StatelessWidget {
   final String title;
   final String content;

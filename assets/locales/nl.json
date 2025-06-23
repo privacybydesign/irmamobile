@@ -20,16 +20,10 @@
   },
   "new_terms_and_conditions": {
     "title": "Nieuwe voorwaarden",
-    "explanation": "De voorwaarden zijn veranderd. Ga akkoord met de nieuwe voorwaarden om Yivi te blijven gebruiken.",
+    "explanation": "De voorwaarden zijn gewijzigd. Ga akkoord met de nieuwe voorwaarden om Yivi te blijven gebruiken.",
     "read_terms": "Bekijk de nieuwe voorwaarden",
     "accept": "Accepteer",
-    "reject": "Stop Yivi te gebruiken",
-    "reject_dialog": {
-      "title": "Weet je het zeker?",
-      "body": "Als je doorgaat worden al je gegevens verwijderd. Dit is permanent. Als je Yivi opnieuw wilt gebruiken zul je al je gegevens opnieuw op moeten halen.",
-      "cancel": "Annuleren",
-      "delete": "Gegevens verwijderen"
-    }
+    "dismiss": "Niet nu"
   },
   "action_feedback": {
     "ok": "OK"

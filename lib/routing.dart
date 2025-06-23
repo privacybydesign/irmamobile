@@ -78,10 +78,16 @@ GoRouter createRouter(BuildContext buildContext) {
           return NoTransitionPage(
             name: '/pin',
             child: Builder(builder: (context) {
-              return PinScreen(
-                onAuthenticated: context.goHomeScreenWithoutTransition,
-                leading:
-                    YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
+              return TermsChangedListener(
+                child: PinScreen(
+                  onAuthenticated: context.goHomeScreenWithoutTransition,
+                  leading: YiviAppBarQrCodeButton(
+                    onTap: () => openQrCodeScanner(
+                      context,
+                      requireAuthBeforeSession: true,
+                    ),
+                  ),
+                ),
               );
             }),
           );
@@ -231,9 +237,6 @@ GoRouter createRouter(BuildContext buildContext) {
     redirect: (context, state) {
       if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
         return '/enrollment';
-      }
-      if (!redirectionTriggers.value.acceptedLatestTerms) {
-        return '/accept_terms';
       }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
         return '/rooted_warning';
