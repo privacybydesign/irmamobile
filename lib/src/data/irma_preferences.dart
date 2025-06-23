@@ -1,8 +1,13 @@
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class IrmaPreferences {
+  // These values should be altered accordingly when the terms change
+  static const mostRecentTermsUrlNl = 'https://www.yivi.app/terms-and-conditionss';
+  static const mostRecentTermsUrlEn = 'https://www.yivi.app/en/terms-and-conditions';
+
   IrmaPreferences(StreamingSharedPreferences preferences)
       : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
+        _acceptedTermsUrl = preferences.getString(_acceptedTermsUrlKey, defaultValue: 'no-terms-accepted'),
         // Please don't arbitrarily change this value, this could hinder the upgrade flow
         // For users before the pin size >5 was introduced.
         _longPin = preferences.getBool(_longPinKey, defaultValue: true),
@@ -64,6 +69,9 @@ class IrmaPreferences {
   static const String _serializedNotificationsKey = 'preference.notifications';
   final Preference<String> _serializedNotifications;
 
+  static const String _acceptedTermsUrlKey = 'preferences.accepted_terms_url';
+  final Preference<String> _acceptedTermsUrl;
+
   // =============================================================================
 
   Stream<bool> getScreenshotsEnabled() => _screenshotsEnabled;
@@ -107,6 +115,11 @@ class IrmaPreferences {
   Stream<String> getSerializedNotifications() => _serializedNotifications;
 
   Future<bool> setSerializedNotifications(String value) => _serializedNotifications.setValue(value);
+
+  Stream<bool> hasAcceptedLatestTerms() => _acceptedTermsUrl.map((url) => url == mostRecentTermsUrlNl);
+
+  Future<bool> markLatestTermsAsAccepted(bool accepted) =>
+      _acceptedTermsUrl.setValue(accepted ? mostRecentTermsUrlNl : 'no-terms-accepted');
 
   Future<void> clearAll() {
     // Reset all preferences to their default values

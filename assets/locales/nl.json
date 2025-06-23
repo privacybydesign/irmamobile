@@ -18,6 +18,19 @@
     "collapse_hint": "Klik dubbel om dicht te vouwen",
     "refresh": "Verversen"
   },
+  "new_terms_and_conditions": {
+    "title": "Nieuwe voorwaarden",
+    "explanation": "De voorwaarden zijn veranderd. Ga akkoord met de nieuwe voorwaarden om Yivi te blijven gebruiken.",
+    "read_terms": "Bekijk de nieuwe voorwaarden",
+    "accept": "Accepteer",
+    "reject": "Stop Yivi te gebruiken",
+    "reject_dialog": {
+      "title": "Weet je het zeker?",
+      "body": "Als je doorgaat worden al je gegevens verwijderd. Dit is permanent. Als je Yivi opnieuw wilt gebruiken zul je al je gegevens opnieuw op moeten halen.",
+      "cancel": "Annuleren",
+      "delete": "Gegevens verwijderen"
+    }
+  },
   "action_feedback": {
     "ok": "OK"
   },
@@ -284,7 +297,7 @@
       "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
       "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
       "point_3": "Niemand kijkt mee, ook Yivi niet!",
-      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://www.yivi.app/algemene-voorwaarden)"
+      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})"
     },
     "error_reporting": {
       "accept": {

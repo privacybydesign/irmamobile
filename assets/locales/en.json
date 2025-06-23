@@ -18,6 +18,19 @@
     "collapse_hint": "Double tap to collapse",
     "refresh": "Refresh"
   },
+  "new_terms_and_conditions": {
+    "title": "New terms & conditions",
+    "explanation_markdown": "The terms and conditions have changed. Please accept the new terms to keep using Yivi.",
+    "read_terms": "View the new terms",
+    "accept": "I accept",
+    "reject": "Stop using Yivi",
+    "reject_dialog": {
+      "title": "Are you sure?",
+      "body": "If you proceed all your data will be deleted. This is permanent. If you wish to start using Yivi again you will have to obtain your data again.",
+      "cancel": "Cancel",
+      "delete": "Delete data"
+    }
+  },
   "action_feedback": {
     "ok": "OK"
   },
@@ -284,7 +297,7 @@
       "point_1": "You decide what data you store, and what you share.",
       "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
       "point_3": "Nobody can see your data or your transactions, not even Yivi!",
-      "accept_markdown": "Yes, I accept the [terms and conditions](https://www.yivi.app/en/terms-and-conditions)"
+      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})"
     },
     "error_reporting": {
       "accept": {

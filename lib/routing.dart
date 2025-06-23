@@ -38,6 +38,7 @@ import 'src/screens/scanner/scanner_screen.dart';
 import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
+import 'src/screens/terms_changed/terms_changed_screen.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
 
@@ -66,6 +67,10 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/loading',
         pageBuilder: (context, state) => NoTransitionPage(name: '/loading', child: LoadingScreen()),
+      ),
+      GoRoute(
+        path: '/accept_terms',
+        pageBuilder: (context, state) => NoTransitionPage(child: TermsChangedScreen()),
       ),
       GoRoute(
         path: '/pin',
@@ -227,6 +232,9 @@ GoRouter createRouter(BuildContext buildContext) {
       if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
         return '/enrollment';
       }
+      if (!redirectionTriggers.value.acceptedLatestTerms) {
+        return '/accept_terms';
+      }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
         return '/rooted_warning';
       }
@@ -276,21 +284,24 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
     final infoStream = repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null);
     final nameChangedStream = repo.preferences.getShowNameChangedNotification();
     final enrollmentStream = repo.getEnrollmentStatus();
+    final latestTermsAccepted = repo.preferences.hasAcceptedLatestTerms();
 
     // combine the streams into one
-    _streamSubscription = Rx.combineLatest5(
+    _streamSubscription = Rx.combineLatest6(
       warningStream,
       lockedStream,
       infoStream,
       nameChangedStream,
       enrollmentStream,
-      (deviceRootedWarning, locked, versionInfo, nameChangedWarning, enrollment) {
+      latestTermsAccepted,
+      (deviceRootedWarning, locked, versionInfo, nameChangedWarning, enrollment, acceptedLatestTerms) {
         return RedirectionTriggers(
           appLocked: locked,
           showDeviceRootedWarning: deviceRootedWarning,
           showNameChangedMessage: nameChangedWarning,
           versionInformation: versionInfo,
           enrollmentStatus: enrollment,
+          acceptedLatestTerms: acceptedLatestTerms,
         );
       },
     );
@@ -310,6 +321,7 @@ class RedirectionTriggers {
   final bool showNameChangedMessage;
   final VersionInformation? versionInformation;
   final EnrollmentStatus enrollmentStatus;
+  final bool acceptedLatestTerms;
 
   RedirectionTriggers({
     required this.appLocked,
@@ -317,6 +329,7 @@ class RedirectionTriggers {
     required this.showNameChangedMessage,
     required this.versionInformation,
     required this.enrollmentStatus,
+    required this.acceptedLatestTerms,
   });
 
   RedirectionTriggers.withDefaults()
@@ -324,7 +337,8 @@ class RedirectionTriggers {
         appLocked = true,
         showDeviceRootedWarning = false,
         showNameChangedMessage = false,
-        versionInformation = null;
+        versionInformation = null,
+        acceptedLatestTerms = false;
 
   RedirectionTriggers copyWith({
     bool? appLocked,
@@ -332,6 +346,7 @@ class RedirectionTriggers {
     bool? showNameChangedMessage,
     VersionInformation? versionInformation,
     EnrollmentStatus? enrollmentStatus,
+    bool? acceptedLatestTerms,
   }) {
     return RedirectionTriggers(
       appLocked: appLocked ?? this.appLocked,
@@ -339,6 +354,7 @@ class RedirectionTriggers {
       showNameChangedMessage: showNameChangedMessage ?? this.showNameChangedMessage,
       versionInformation: versionInformation ?? this.versionInformation,
       enrollmentStatus: enrollmentStatus ?? this.enrollmentStatus,
+      acceptedLatestTerms: acceptedLatestTerms ?? this.acceptedLatestTerms,
     );
   }
 
@@ -352,17 +368,24 @@ class RedirectionTriggers {
         showDeviceRootedWarning == other.showDeviceRootedWarning &&
         showNameChangedMessage == other.showNameChangedMessage &&
         versionInformation == other.versionInformation &&
-        enrollmentStatus == other.enrollmentStatus;
+        enrollmentStatus == other.enrollmentStatus &&
+        acceptedLatestTerms == other.acceptedLatestTerms;
   }
 
   @override
   String toString() {
-    return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation';
+    return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation, accept terms: $acceptedLatestTerms';
   }
 
   @override
-  int get hashCode =>
-      Object.hash(appLocked, showNameChangedMessage, showDeviceRootedWarning, versionInformation, enrollmentStatus);
+  int get hashCode => Object.hash(
+        appLocked,
+        showNameChangedMessage,
+        showDeviceRootedWarning,
+        versionInformation,
+        enrollmentStatus,
+        acceptedLatestTerms,
+      );
 }
 
 Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {

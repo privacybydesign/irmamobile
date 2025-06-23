@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../../../data/irma_preferences.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/translated_text.dart';
 
@@ -16,6 +18,10 @@ class TermsCheckBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
+    final termsUrl = (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl'
+        ? IrmaPreferences.mostRecentTermsUrlNl
+        : IrmaPreferences.mostRecentTermsUrlEn;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -31,9 +37,10 @@ class TermsCheckBox extends StatelessWidget {
         SizedBox(
           width: theme.smallSpacing,
         ),
-        const Flexible(
+        Flexible(
           child: TranslatedText(
             'enrollment.terms_and_conditions.accept_markdown',
+            translationParams: {'terms_url': termsUrl},
           ),
         ),
       ],
