@@ -69,10 +69,6 @@ GoRouter createRouter(BuildContext buildContext) {
         pageBuilder: (context, state) => NoTransitionPage(name: '/loading', child: LoadingScreen()),
       ),
       GoRoute(
-        path: '/accept_terms',
-        pageBuilder: (context, state) => NoTransitionPage(child: TermsChangedScreen()),
-      ),
-      GoRoute(
         path: '/pin',
         pageBuilder: (context, state) {
           return NoTransitionPage(
