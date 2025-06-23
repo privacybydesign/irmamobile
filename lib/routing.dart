@@ -38,7 +38,7 @@ import 'src/screens/scanner/scanner_screen.dart';
 import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
-import 'src/screens/terms_changed/terms_changed_screen.dart';
+import 'src/screens/terms_changed/terms_changed_dialog.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
 

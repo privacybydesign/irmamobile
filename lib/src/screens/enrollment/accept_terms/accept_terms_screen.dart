@@ -7,9 +7,8 @@ import 'widgets/error_reporting_check_box.dart';
 import 'widgets/terms_bullet_list.dart';
 import 'widgets/terms_check_box.dart';
 
+// for first time terms acceptance
 class AcceptTermsScreen extends StatelessWidget {
-  static const String routeName = 'terms';
-
   final bool isAccepted;
   final Function(bool) onToggleAccepted;
   final VoidCallback onContinue;

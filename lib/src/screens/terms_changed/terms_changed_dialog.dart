@@ -64,6 +64,8 @@ class _TermsChangedListenerState extends State<TermsChangedListener> {
   }
 }
 
+// ==================================================================================
+
 class TermsChangedDialog extends StatefulWidget {
   const TermsChangedDialog({super.key});
 
@@ -72,8 +74,6 @@ class TermsChangedDialog extends StatefulWidget {
 }
 
 class _TermsChangedDialogState extends State<TermsChangedDialog> {
-  bool viewedNewTerms = false;
-
   @override
   Widget build(BuildContext context) {
     final prefs = IrmaRepositoryProvider.of(context).preferences;
@@ -85,7 +85,7 @@ class _TermsChangedDialogState extends State<TermsChangedDialog> {
     final theme = IrmaTheme.of(context);
 
     return YiviDialog(
-      maxHeight: 500,
+      maxHeight: 400,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -93,7 +93,7 @@ class _TermsChangedDialogState extends State<TermsChangedDialog> {
             titleTranslationKey: 'new_terms_and_conditions.title',
             leading: null,
           ),
-          Padding(
+          SingleChildScrollView(
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -102,15 +102,12 @@ class _TermsChangedDialogState extends State<TermsChangedDialog> {
                   'new_terms_and_conditions.explanation',
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: theme.hugeSpacing),
+                SizedBox(height: theme.mediumSpacing),
                 CupertinoTheme(
                   data: CupertinoThemeData(primaryColor: theme.link),
                   child: CupertinoButton(
                     onPressed: () {
                       IrmaRepositoryProvider.of(context).openURL(termsUrl);
-                      setState(() {
-                        viewedNewTerms = true;
-                      });
                     },
                     child: TranslatedText('new_terms_and_conditions.read_terms'),
                   ),
@@ -121,14 +118,12 @@ class _TermsChangedDialogState extends State<TermsChangedDialog> {
           IrmaBottomBar(
             primaryButtonLabel: 'new_terms_and_conditions.accept',
             secondaryButtonLabel: 'new_terms_and_conditions.dismiss',
-            onPrimaryPressed: viewedNewTerms
-                ? () async {
-                    await prefs.markLatestTermsAsAccepted(true);
-                    if (context.mounted) {
-                      context.pop();
-                    }
-                  }
-                : null,
+            onPrimaryPressed: () async {
+              await prefs.markLatestTermsAsAccepted(true);
+              if (context.mounted) {
+                context.pop();
+              }
+            },
             onSecondaryPressed: () {
               context.pop();
             },

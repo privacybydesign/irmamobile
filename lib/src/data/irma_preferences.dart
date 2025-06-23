@@ -2,8 +2,8 @@ import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class IrmaPreferences {
   // These values should be altered accordingly when the terms change
-  static const mostRecentTermsUrlNl = 'https://www.yivi.app/terms-and-conditions';
-  static const mostRecentTermsUrlEn = 'https://www.yivi.app/en/terms-and-conditions';
+  static const mostRecentTermsUrlNl = 'https://yivi.app/terms_and_conditions_v3/';
+  static const mostRecentTermsUrlEn = 'https://yivi.app/en/terms_and_conditions_v3/';
 
   IrmaPreferences(StreamingSharedPreferences preferences)
       : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
