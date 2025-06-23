@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../data/irma_preferences.dart';
 import '../../models/clear_all_data_event.dart';
-import '../../models/translated_value.dart';
 import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
@@ -13,7 +12,6 @@ import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_confirmation_dialog.dart';
 import '../../widgets/translated_text.dart';
-import '../../widgets/yivi_themed_button.dart';
 
 // Screen to show when terms and conditions have changed
 class TermsChangedScreen extends StatefulWidget {
