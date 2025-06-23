@@ -86,6 +86,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
     final theme = IrmaTheme.of(context);
 
     return YiviDialog(
+      key: const Key('terms_changed_dialog'),
       maxHeight: 400,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
