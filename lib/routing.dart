@@ -287,24 +287,21 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
     final infoStream = repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null);
     final nameChangedStream = repo.preferences.getShowNameChangedNotification();
     final enrollmentStream = repo.getEnrollmentStatus();
-    final latestTermsAccepted = repo.preferences.hasAcceptedLatestTerms();
 
     // combine the streams into one
-    _streamSubscription = Rx.combineLatest6(
+    _streamSubscription = Rx.combineLatest5(
       warningStream,
       lockedStream,
       infoStream,
       nameChangedStream,
       enrollmentStream,
-      latestTermsAccepted,
-      (deviceRootedWarning, locked, versionInfo, nameChangedWarning, enrollment, acceptedLatestTerms) {
+      (deviceRootedWarning, locked, versionInfo, nameChangedWarning, enrollment) {
         return RedirectionTriggers(
           appLocked: locked,
           showDeviceRootedWarning: deviceRootedWarning,
           showNameChangedMessage: nameChangedWarning,
           versionInformation: versionInfo,
           enrollmentStatus: enrollment,
-          acceptedLatestTerms: acceptedLatestTerms,
         );
       },
     );
@@ -324,7 +321,6 @@ class RedirectionTriggers {
   final bool showNameChangedMessage;
   final VersionInformation? versionInformation;
   final EnrollmentStatus enrollmentStatus;
-  final bool acceptedLatestTerms;
 
   RedirectionTriggers({
     required this.appLocked,
@@ -332,7 +328,6 @@ class RedirectionTriggers {
     required this.showNameChangedMessage,
     required this.versionInformation,
     required this.enrollmentStatus,
-    required this.acceptedLatestTerms,
   });
 
   RedirectionTriggers.withDefaults()
@@ -340,8 +335,7 @@ class RedirectionTriggers {
         appLocked = true,
         showDeviceRootedWarning = false,
         showNameChangedMessage = false,
-        versionInformation = null,
-        acceptedLatestTerms = false;
+        versionInformation = null;
 
   RedirectionTriggers copyWith({
     bool? appLocked,
@@ -349,7 +343,6 @@ class RedirectionTriggers {
     bool? showNameChangedMessage,
     VersionInformation? versionInformation,
     EnrollmentStatus? enrollmentStatus,
-    bool? acceptedLatestTerms,
   }) {
     return RedirectionTriggers(
       appLocked: appLocked ?? this.appLocked,
@@ -357,7 +350,6 @@ class RedirectionTriggers {
       showNameChangedMessage: showNameChangedMessage ?? this.showNameChangedMessage,
       versionInformation: versionInformation ?? this.versionInformation,
       enrollmentStatus: enrollmentStatus ?? this.enrollmentStatus,
-      acceptedLatestTerms: acceptedLatestTerms ?? this.acceptedLatestTerms,
     );
   }
 
@@ -371,13 +363,12 @@ class RedirectionTriggers {
         showDeviceRootedWarning == other.showDeviceRootedWarning &&
         showNameChangedMessage == other.showNameChangedMessage &&
         versionInformation == other.versionInformation &&
-        enrollmentStatus == other.enrollmentStatus &&
-        acceptedLatestTerms == other.acceptedLatestTerms;
+        enrollmentStatus == other.enrollmentStatus;
   }
 
   @override
   String toString() {
-    return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation, accept terms: $acceptedLatestTerms';
+    return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation';
   }
 
   @override
@@ -387,7 +378,6 @@ class RedirectionTriggers {
         showDeviceRootedWarning,
         versionInformation,
         enrollmentStatus,
-        acceptedLatestTerms,
       );
 }
 
