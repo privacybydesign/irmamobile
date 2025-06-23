@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../data/irma_preferences.dart';
+import '../../../../providers/preferences_provider.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/translated_text.dart';
 
-class TermsCheckBox extends StatelessWidget {
+class TermsCheckBox extends ConsumerWidget {
   final bool isAccepted;
   final Function(bool) onToggleAccepted;
 
@@ -15,12 +16,14 @@ class TermsCheckBox extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
 
+    final preferences = ref.watch(preferencesProvider);
+
     final termsUrl = (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl'
-        ? IrmaPreferences.mostRecentTermsUrlNl
-        : IrmaPreferences.mostRecentTermsUrlEn;
+        ? preferences.mostRecentTermsUrlNl
+        : preferences.mostRecentTermsUrlEn;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,

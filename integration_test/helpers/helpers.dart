@@ -12,6 +12,7 @@ import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/providers/irma_repository_provider.dart';
+import 'package:irmamobile/src/providers/preferences_provider.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
@@ -51,6 +52,7 @@ Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defa
     ProviderScope(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
+        preferencesProvider.overrideWithValue(repo.preferences),
       ],
       child: IrmaApp(
         defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),

@@ -3,32 +3,30 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../data/irma_preferences.dart';
 import '../../providers/irma_repository_provider.dart';
+import '../../providers/preferences_provider.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_dialog.dart';
 import '../../widgets/translated_text.dart';
 
-class TermsChangedListener extends StatefulWidget {
+class TermsChangedListener extends ConsumerStatefulWidget {
   const TermsChangedListener({required this.child});
 
   final Widget child;
 
   @override
-  State<TermsChangedListener> createState() => _TermsChangedListenerState();
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _TermsChangedListenerState();
+  }
 }
 
-class _TermsChangedListenerState extends State<TermsChangedListener> {
+class _TermsChangedListenerState extends ConsumerState<TermsChangedListener> {
   StreamSubscription<bool>? _subscription;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void didChangeDependencies() {
@@ -36,7 +34,8 @@ class _TermsChangedListenerState extends State<TermsChangedListener> {
 
     _subscription?.cancel();
 
-    final stream = IrmaRepositoryProvider.of(context).preferences.hasAcceptedLatestTerms();
+    final preferences = ref.read(preferencesProvider);
+    final stream = preferences.hasAcceptedLatestTerms();
 
     _subscription = stream.listen(
       (accepted) {
@@ -66,21 +65,23 @@ class _TermsChangedListenerState extends State<TermsChangedListener> {
 
 // ==================================================================================
 
-class TermsChangedDialog extends StatefulWidget {
+class TermsChangedDialog extends ConsumerStatefulWidget {
   const TermsChangedDialog({super.key});
 
   @override
-  State<TermsChangedDialog> createState() => _TermsChangedDialogState();
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _TermsChangedDialogState();
+  }
 }
 
-class _TermsChangedDialogState extends State<TermsChangedDialog> {
+class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
   @override
   Widget build(BuildContext context) {
-    final prefs = IrmaRepositoryProvider.of(context).preferences;
+    final prefs = ref.watch(preferencesProvider);
 
     final termsUrl = (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl'
-        ? IrmaPreferences.mostRecentTermsUrlNl
-        : IrmaPreferences.mostRecentTermsUrlEn;
+        ? prefs.mostRecentTermsUrlNl
+        : prefs.mostRecentTermsUrlEn;
 
     final theme = IrmaTheme.of(context);
 

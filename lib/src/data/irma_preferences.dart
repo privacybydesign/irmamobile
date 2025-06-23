@@ -1,12 +1,14 @@
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class IrmaPreferences {
-  // These values should be altered accordingly when the terms change
-  static const mostRecentTermsUrlNl = 'https://yivi.app/terms_and_conditions_v3/';
-  static const mostRecentTermsUrlEn = 'https://yivi.app/en/terms_and_conditions_v3/';
+  final String mostRecentTermsUrlNl;
+  final String mostRecentTermsUrlEn;
 
-  IrmaPreferences(StreamingSharedPreferences preferences)
-      : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
+  IrmaPreferences(
+    StreamingSharedPreferences preferences, {
+    required this.mostRecentTermsUrlNl,
+    required this.mostRecentTermsUrlEn,
+  })  : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
         _acceptedTermsUrl = preferences.getString(_acceptedTermsUrlKey, defaultValue: 'no-terms-accepted'),
         // Please don't arbitrarily change this value, this could hinder the upgrade flow
         // For users before the pin size >5 was introduced.
@@ -26,7 +28,15 @@ class IrmaPreferences {
     preferences.remove(_developerModePrefVisibleKey);
   }
 
-  static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
+  static Future<IrmaPreferences> fromInstance({
+    required String mostRecentTermsUrlNl,
+    required String mostRecentTermsUrlEn,
+  }) async =>
+      IrmaPreferences(
+        await StreamingSharedPreferences.instance,
+        mostRecentTermsUrlNl: mostRecentTermsUrlNl,
+        mostRecentTermsUrlEn: mostRecentTermsUrlEn,
+      );
 
   // =============================================================================
 
