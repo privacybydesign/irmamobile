@@ -99,26 +99,30 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
             titleTranslationKey: 'new_terms_and_conditions.title',
             leading: null,
           ),
-          SingleChildScrollView(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TranslatedText(
-                  'new_terms_and_conditions.explanation',
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: theme.mediumSpacing),
-                CupertinoTheme(
-                  data: CupertinoThemeData(primaryColor: theme.link),
-                  child: CupertinoButton(
-                    onPressed: () {
-                      IrmaRepositoryProvider.of(context).openURL(termsUrl);
-                    },
-                    child: TranslatedText('new_terms_and_conditions.read_terms'),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(theme.defaultSpacing),
+              child: Column(
+                children: [
+                  TranslatedText(
+                    'new_terms_and_conditions.explanation',
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
+                  SizedBox(height: theme.mediumSpacing),
+                  CupertinoTheme(
+                    data: CupertinoThemeData(primaryColor: theme.link),
+                    child: CupertinoButton(
+                      onPressed: () {
+                        IrmaRepositoryProvider.of(context).openURL(termsUrl);
+                      },
+                      child: TranslatedText(
+                        'new_terms_and_conditions.read_terms',
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           IrmaBottomBar(

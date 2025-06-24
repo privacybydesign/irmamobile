@@ -24,7 +24,7 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
     final preferences = await IrmaPreferences.fromInstance(
         // when the terms have changed, these values should be updated in order to trigger a dialog in the app
-        mostRecentTermsUrlNl: 'https://yivi.app/terms_and_conditions_v3/',
+        mostRecentTermsUrlNl: 'https://yivi.app/terms_and_conditions_v4/',
         mostRecentTermsUrlEn: 'https://yivi.app/en/terms_and_conditions_v3/');
 
     await initSentry(preferences: preferences);

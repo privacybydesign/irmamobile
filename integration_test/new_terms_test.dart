@@ -29,7 +29,11 @@ void main() {
 
       // after logging out the terms changed dialog should not show anymore
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
-      await tester.tapAndSettle(find.byKey(const Key('log_out_button')));
+
+      final logOutButton = find.byKey(const Key('log_out_button'));
+
+      await tester.scrollUntilVisible(logOutButton, 100);
+      await tester.tapAndSettle(logOutButton);
 
       expect(find.byKey(const Key('terms_changed_dialog')), findsOneWidget);
     });
@@ -48,7 +52,11 @@ void main() {
 
       // after logging out the terms changed dialog should not show anymore
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
-      await tester.tapAndSettle(find.byKey(const Key('log_out_button')));
+
+      final logOutButton = find.byKey(const Key('log_out_button'));
+
+      await tester.scrollUntilVisible(logOutButton, 100);
+      await tester.tapAndSettle(logOutButton);
 
       expect(find.byKey(const Key('terms_changed_dialog')), findsNothing);
     });
