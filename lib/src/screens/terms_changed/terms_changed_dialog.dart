@@ -27,6 +27,7 @@ class TermsChangedListener extends ConsumerStatefulWidget {
 
 class _TermsChangedListenerState extends ConsumerState<TermsChangedListener> {
   StreamSubscription<bool>? _subscription;
+  bool _dialogActive = false;
 
   @override
   void didChangeDependencies() {
@@ -38,14 +39,17 @@ class _TermsChangedListenerState extends ConsumerState<TermsChangedListener> {
     final stream = preferences.hasAcceptedLatestTerms();
 
     _subscription = stream.listen(
-      (accepted) {
-        if (!accepted && mounted) {
-          showDialog(
+      (accepted) async {
+        if (!accepted && mounted && !_dialogActive) {
+          // making sure the dialog is only showing once, not in a stack...
+          _dialogActive = true;
+          await showDialog(
             context: context,
             builder: (context) {
               return TermsChangedDialog();
             },
           );
+          _dialogActive = false;
         }
       },
     );
