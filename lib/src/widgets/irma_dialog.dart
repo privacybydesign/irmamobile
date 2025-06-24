@@ -41,7 +41,10 @@ class YiviDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(theme.smallSpacing),
                 ),
                 type: MaterialType.card,
-                child: child,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(theme.smallSpacing),
+                  child: child,
+                ),
               ),
             ),
           ),

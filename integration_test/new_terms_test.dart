@@ -27,7 +27,6 @@ void main() {
       expect(find.byKey(const Key('terms_changed_dialog')), findsNothing);
       await unlockAndWaitForHome(tester);
 
-      // after logging out the terms changed dialog should not show anymore
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
 
       final logOutButton = find.byKey(const Key('log_out_button'));
@@ -35,6 +34,7 @@ void main() {
       await tester.scrollUntilVisible(logOutButton, 100);
       await tester.tapAndSettle(logOutButton);
 
+      // after logging out the terms changed dialog should show again
       expect(find.byKey(const Key('terms_changed_dialog')), findsOneWidget);
     });
 
