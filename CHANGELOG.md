@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.8.1] - 2025-05-07
+### Changed
+- Remove Twitter, GitHub and meetups link from the more tab
+- Add feedback for when there are no search results
+
+### Fixed
+- Bug in issuing missing credentials while disclosing on Android
+
 ## [7.8.0] - 2025-04-09
 ### Changed
 - Add search option to data tab
@@ -484,6 +492,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.8.1]: https://github.com/privacybydesign/irmamobile/compare/v7.8.0...v7.8.1
 [7.8.0]: https://github.com/privacybydesign/irmamobile/compare/v7.7.0...v7.8.0
 [7.7.0]: https://github.com/privacybydesign/irmamobile/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/privacybydesign/irmamobile/compare/v7.5.7...v7.6.0

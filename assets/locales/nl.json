@@ -122,6 +122,9 @@
         "obtain": "Voeg {credential} toe aan mijn Yivi-app"
       }
     },
+    "search": {
+      "no_results": "Geen gegevens gevonden voor '{query}'."
+    },
     "category_other": "Overig",
     "category_personal": "Persoonlijk"
   },
@@ -417,17 +420,10 @@
     "share": "Deel Yivi",
     "share_text": "Kijk eens naar de Yivi-app: https://yivi.app",
     "website": "Yivi-website",
-    "meet_up": "Yivi-meetups",
     "need_help": "Hulp nodig?",
     "know_more": "Meer weten",
     "stay_informed": "Blijf op de hoogte en praat mee",
     "slogan": "Iedereen heeft recht op privacy",
-    "meetups": "Yivi-meetups",
-    "meetups_link": "https://www.yivi.app/meetings",
-    "twitter": "@YiviApp",
-    "twitter_link": "https://twitter.com/yiviapp",
-    "github": "GitHub",
-    "github_link": "https://github.com/privacybydesign",
     "version": "Versie {version}",
     "developer_mode_enabled": "Developer modus ingeschakeld",
     "developer_mode_already_enabled": "Developer modus is al ingeschakeld",

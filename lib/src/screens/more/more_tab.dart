@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
 import '../../providers/irma_repository_provider.dart';
-import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
 import '../../widgets/irma_app_bar.dart';
@@ -77,6 +76,7 @@ class _MoreTabState extends State<MoreTab> {
         leading: null,
       ),
       body: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,25 +137,6 @@ class _MoreTabState extends State<MoreTab> {
                 ),
               ],
             ),
-            spacerWidget,
-            buildHeaderText('more_tab.stay_informed'),
-            const TilesCard(children: [
-              ExternalLinkTile(
-                iconData: Icons.groups_outlined,
-                labelTranslationKey: 'more_tab.meetups',
-                urlLinkKey: 'more_tab.meetups_link',
-              ),
-              ExternalLinkTile(
-                iconData: IrmaIcons.twitter,
-                labelTranslationKey: 'more_tab.twitter',
-                urlLinkKey: 'more_tab.twitter_link',
-              ),
-              ExternalLinkTile(
-                iconData: IrmaIcons.github,
-                labelTranslationKey: 'more_tab.github',
-                urlLinkKey: 'more_tab.github_link',
-              )
-            ]),
             spacerWidget,
             YiviThemedButton(
               key: const Key('log_out_button'),
