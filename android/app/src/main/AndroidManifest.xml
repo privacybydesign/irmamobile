@@ -58,6 +58,12 @@
               <data android:scheme="irma" />
               <data android:scheme="cardemu"/>
             </intent-filter>
+            <intent-filter>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:scheme="eudi-openid4vp" />
+            </intent-filter>
         </activity>
         <meta-data
             android:name="flutterEmbedding"
