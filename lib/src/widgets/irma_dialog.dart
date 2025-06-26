@@ -6,9 +6,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../theme/theme.dart';
 
 class YiviDialog extends StatelessWidget {
-  const YiviDialog({super.key, required this.child, this.maxHeight});
+  const YiviDialog({super.key, required this.child});
   final Widget child;
-  final double? maxHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -29,24 +28,26 @@ class YiviDialog extends StatelessWidget {
         removeBottom: true,
         context: context,
         child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minWidth: 280.0, maxHeight: maxHeight ?? double.infinity),
-            child: Semantics(
-              scopesRoute: true,
-              explicitChildNodes: true,
-              child: Material(
-                color: theme.surfacePrimary,
-                elevation: 24.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(theme.smallSpacing),
-                ),
-                type: MaterialType.card,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(theme.smallSpacing),
-                  child: child,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Semantics(
+                scopesRoute: true,
+                explicitChildNodes: true,
+                child: Material(
+                  color: theme.surfacePrimary,
+                  elevation: 24.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(theme.smallSpacing),
+                  ),
+                  type: MaterialType.card,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(theme.smallSpacing),
+                    child: child,
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),

@@ -83,15 +83,13 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
   Widget build(BuildContext context) {
     final prefs = ref.watch(preferencesProvider);
 
-    final termsUrl = (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl'
-        ? prefs.mostRecentTermsUrlNl
-        : prefs.mostRecentTermsUrlEn;
+    final isDutch = (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl';
+    final termsUrl = isDutch ? prefs.mostRecentTermsUrlNl : prefs.mostRecentTermsUrlEn;
 
     final theme = IrmaTheme.of(context);
 
     return YiviDialog(
       key: const Key('terms_changed_dialog'),
-      maxHeight: 400,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -99,30 +97,12 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
             titleTranslationKey: 'new_terms_and_conditions.title',
             leading: null,
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(theme.defaultSpacing),
-              child: Column(
-                children: [
-                  TranslatedText(
-                    'new_terms_and_conditions.explanation',
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: theme.mediumSpacing),
-                  CupertinoTheme(
-                    data: CupertinoThemeData(primaryColor: theme.link),
-                    child: CupertinoButton(
-                      onPressed: () {
-                        IrmaRepositoryProvider.of(context).openURL(termsUrl);
-                      },
-                      child: TranslatedText(
-                        'new_terms_and_conditions.read_terms',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          SingleChildScrollView(
+            padding: EdgeInsets.all(theme.defaultSpacing),
+            child: TranslatedText(
+              'new_terms_and_conditions.explanation_markdown',
+              translationParams: {'terms_url': termsUrl},
+              markdownTextAlign: WrapAlignment.center,
             ),
           ),
           IrmaBottomBar(
