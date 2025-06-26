@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../providers/irma_repository_provider.dart';
 import '../../providers/preferences_provider.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
@@ -121,7 +119,5 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
         ],
       ),
     );
-
-    // return ;
   }
 }

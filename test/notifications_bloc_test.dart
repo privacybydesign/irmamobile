@@ -21,15 +21,16 @@ void main() {
   setUp(() async {
     mockBridge = IrmaMockBridge();
     SharedPreferences.setMockInitialValues({});
-    final preferences =
-        await IrmaPreferences.fromInstance(mostRecentTermsUrlNl: 'testurl', mostRecentTermsUrlEn: 'testurl');
+    final preferences = await IrmaPreferences.fromInstance(
+      mostRecentTermsUrlNl: 'testurl',
+      mostRecentTermsUrlEn: 'testurl',
+    );
     preferences.markLatestTermsAsAccepted(true);
 
-    repo = IrmaRepository(
-      client: mockBridge,
-      preferences: preferences,
-    );
-    await repo.getCredentials().first; // Wait until AppReadyEvent has been processed.
+    repo = IrmaRepository(client: mockBridge, preferences: preferences);
+
+    // Wait until AppReadyEvent has been processed.
+    await repo.getCredentials().first;
   });
 
   tearDown(() async {

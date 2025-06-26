@@ -132,11 +132,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             onContinue: addOnNextPressed,
             onToggleAccepted: (isAccepted) {
               repo.preferences.markLatestTermsAsAccepted(isAccepted);
-              addEvent(
-                EnrollmentTermsUpdated(
-                  isAccepted: isAccepted,
-                ),
-              );
+              addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted));
             },
           );
         }
