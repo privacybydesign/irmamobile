@@ -21,7 +21,7 @@
   "new_terms_and_conditions": {
     "title": "Nieuwe voorwaarden",
     "explanation_markdown": "Het beheer van Yivi ligt sinds kort bij een andere organisatie ([Yivi B.V.](https://yivi.app/about_yivi)).\n\nDaarom zijn de voorwaarden iets veranderd.\n\nWe vragen je ze te [lezen]({terms_url}) en hieronder akkoord te gaan.",
-    "accept": "Accepteer",
+    "accept": "Akkoord",
     "dismiss": "Niet nu"
   },
   "action_feedback": {

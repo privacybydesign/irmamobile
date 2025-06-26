@@ -21,8 +21,8 @@
   "new_terms_and_conditions": {
     "title": "New terms and conditions",
     "explanation_markdown": "The management of Yivi has recently been transferred to another organization ([Yivi B.V.](https://yivi.app/en/about_yivi)).\n\nTherefore, the terms and conditions have changed slightly.\n\nWe ask you to [read them]({terms_url}) and agree to them below.",
-    "accept": "I accept",
-    "dismiss": "Ask me later"
+    "accept": "Accept",
+    "dismiss": "Not now"
   },
   "action_feedback": {
     "ok": "OK"
