@@ -52,7 +52,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   json_serializable: ^6.6.1
-  flutter_lints: ^6.0.0
+  flutter_lints: ^5.0.0
   flutter_native_splash: ^2.4.6
   build_runner: ^2.5.4
   flutter_launcher_icons: ^0.14.1
