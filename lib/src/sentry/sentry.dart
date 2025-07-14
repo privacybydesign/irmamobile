@@ -32,7 +32,7 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
 
           // As noted in the docs of enableNativeCrashHandling, platform checking does not work on iOS when
           // native crash handling is disabled. Therefore, we add a fallback implementation.
-          if (!options.enableNativeCrashHandling && Platform.isIOS) options.platformChecker = StubPlatformChecker();
+          if (!options.enableNativeCrashHandling && Platform.isIOS) options.runtimeChecker = StubRuntimeChecker();
         },
       );
       if (!completer.isCompleted) completer.complete();

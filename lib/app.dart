@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
+// import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../routing.dart';
@@ -181,9 +181,9 @@ class AppState extends State<App> with WidgetsBindingObserver {
     _privacyScreenLoaded = false;
     _screenshotPrefSubscription = widget.irmaRepository.preferences.getScreenshotsEnabled().listen((enabled) async {
       if (enabled) {
-        await FlutterPrivacyScreen.disablePrivacyScreen();
+        // await FlutterPrivacyScreen.disablePrivacyScreen();
       } else {
-        await FlutterPrivacyScreen.enablePrivacyScreen();
+        // await FlutterPrivacyScreen.enablePrivacyScreen();
       }
       if (!_privacyScreenLoaded) setState(() => _privacyScreenLoaded = true);
     });
