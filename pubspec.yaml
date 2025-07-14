@@ -14,7 +14,7 @@ dependencies:
     sdk: flutter
 
   sentry_flutter: ^9.4.0
-  go_router: ^14.7.2
+  go_router: ^16.0.0
   string_similarity: ^2.1.1
 
   # The following adds the Cupertino Icons font to your application.
@@ -43,7 +43,7 @@ dependencies:
   quiver: ^3.0.1
   timeline_tile: ^2.0.0
   lottie: ^3.1.3
-  permission_handler: ^11.0.0
+  permission_handler: ^12.0.1
   flutter_riverpod: ^2.6.1
 
 dev_dependencies:
@@ -52,9 +52,9 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   json_serializable: ^6.6.1
-  flutter_lints: ^5.0.0
-  flutter_native_splash: ^2.3.1
-  build_runner: ^2.1.2
+  flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.6
+  build_runner: ^2.5.4
   flutter_launcher_icons: ^0.14.1
   custom_lint: ^0.7.5
   riverpod_lint: ^2.6.5

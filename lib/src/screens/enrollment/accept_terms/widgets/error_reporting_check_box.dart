@@ -7,7 +7,7 @@ import '../../../../theme/theme.dart';
 import 'error_reporting_info_bottom_sheet.dart';
 
 class ErrorReportingCheckBox extends StatelessWidget {
-  _showErrorReportingInfoBottomSheet(BuildContext context) async => showModalBottomSheet<void>(
+  Future<void> _showErrorReportingInfoBottomSheet(BuildContext context) async => showModalBottomSheet<void>(
         context: context,
         builder: (_) => ErrorReportingInfoBottomSheet(),
       );

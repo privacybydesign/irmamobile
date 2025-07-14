@@ -36,7 +36,7 @@ Future<void> handlePointer(BuildContext context, Pointer pointer, {bool pushRepl
   }
 }
 
-_startIssueWizard(
+Future<void> _startIssueWizard(
   BuildContext context,
   IssueWizardPointer wizardPointer,
   int? sessionID,
