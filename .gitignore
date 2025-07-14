@@ -81,6 +81,7 @@ android/irmagobridge/irmagobridge-sources.jar
 **/ios/.generated/
 **/ios/Flutter/App.framework
 **/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
 **/ios/Flutter/Generated.xcconfig
 **/ios/Flutter/app.flx
 **/ios/Flutter/app.zip
@@ -98,3 +99,4 @@ android/irmagobridge/irmagobridge-sources.jar
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 devtools_options.yaml
+
