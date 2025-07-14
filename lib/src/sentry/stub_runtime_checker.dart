@@ -5,9 +5,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 /// This is useful for users that disabled automatic error reporting on iOS, but do want to manually report errors.
 class StubRuntimeChecker extends RuntimeChecker {
   @override
-  bool get hasNativeIntegration => false;
-
-  @override
   bool isDebugMode() => kDebugMode;
 
   @override
@@ -15,7 +12,4 @@ class StubRuntimeChecker extends RuntimeChecker {
 
   @override
   bool isReleaseMode() => kReleaseMode;
-
-  @override
-  bool get isWeb => false;
 }

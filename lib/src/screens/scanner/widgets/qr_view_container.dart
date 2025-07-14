@@ -16,24 +16,23 @@ class QRViewContainer extends StatefulWidget {
 class _QRViewContainerState extends State<QRViewContainer> {
   final GlobalKey _qrKey = GlobalKey(debugLabel: 'QR');
 
-  late QRViewController _qrViewController;
   late StreamSubscription _qrViewSubscription;
 
   @override
   void dispose() {
     _qrViewSubscription.cancel();
-    _qrViewController.dispose();
     super.dispose();
   }
 
   void _onQRViewCreated(QRViewController controller) {
-    _qrViewController = controller;
     _qrViewSubscription = controller.scannedDataStream.listen((qr) => widget.onFound(qr.code!));
   }
 
   @override
-  Widget build(BuildContext context) => QRView(
-        key: _qrKey,
-        onQRViewCreated: _onQRViewCreated,
-      );
+  Widget build(BuildContext context) {
+    return QRView(
+      key: _qrKey,
+      onQRViewCreated: _onQRViewCreated,
+    );
+  }
 }

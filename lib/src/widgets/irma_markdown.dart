@@ -19,10 +19,8 @@ class IrmaMarkdown extends StatelessWidget {
 
     return MarkdownBody(
       data: data,
-
       // Effectively disable image rendering (to prevent remote image loading)
-      imageBuilder: (uri, title, alt) => Container(),
-
+      sizedImageBuilder: (config) => Container(),
       // Define small style sheet, and merge in any passed styleSheet
       styleSheet: MarkdownStyleSheet.fromTheme(theme.themeData)
           .merge(MarkdownStyleSheet(
