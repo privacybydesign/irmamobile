@@ -1,4 +1,4 @@
-import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
+import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 
 import '../../data/irma_preferences.dart';
 
@@ -25,6 +25,6 @@ class DetectRootedDeviceIrmaPrefsRepository implements DetectRootedDeviceReposit
 
   @override
   Future<bool> isDeviceRooted() {
-    return FlutterJailbreakDetection.jailbroken;
+    return JailbreakRootDetection.instance.isJailBroken;
   }
 }

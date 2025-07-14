@@ -7,7 +7,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../sentry_dsn.dart';
 import '../data/irma_preferences.dart';
-import 'stub_platform_checker.dart';
+import 'stub_runtime_checker.dart';
 
 // this is a global because it needs to be available before the preferences have even initialized
 bool _reportErrorsPreferenceValue = false;

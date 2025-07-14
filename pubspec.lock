@@ -347,15 +347,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.36.2"
-  flutter_jailbreak_detection:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: c845ff38172391705b706951bdb2a9e55881f107
-      resolved-ref: c845ff38172391705b706951bdb2a9e55881f107
-      url: "https://github.com/jeroentrappers/flutter_jailbreak_detection"
-    source: git
-    version: "1.10.0"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -533,6 +524,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  jailbreak_root_detection:
+    dependency: "direct main"
+    description:
+      name: jailbreak_root_detection
+      sha256: c611229940a09785bd686364e92a40b07724926d2496c931527805101eb3da86
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.6"
   jni:
     dependency: transitive
     description:

@@ -38,10 +38,7 @@ dependencies:
   shared_preferences: ^2.0.7
   async: ^2.11.0
   streaming_shared_preferences: ^2.0.0
-  flutter_jailbreak_detection:
-    git:
-      url: https://github.com/jeroentrappers/flutter_jailbreak_detection
-      ref: c845ff38172391705b706951bdb2a9e55881f107
+  jailbreak_root_detection: ^1.1.6
   visibility_detector: ^0.4.0+2
   quiver: ^3.0.1
   # flutter_privacy_screen: 1.3.0
