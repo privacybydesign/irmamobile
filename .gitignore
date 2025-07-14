@@ -86,6 +86,8 @@ android/irmagobridge/irmagobridge-sources.jar
 **/ios/Flutter/app.flx
 **/ios/Flutter/app.zip
 **/ios/Flutter/flutter_assets/
+**/ios/Flutter/ephemeral/flutter_lldb_helper.py
+**/ios/Flutter/ephemeral/flutter_lldbinit
 **/ios/Flutter/.last_build_id
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*

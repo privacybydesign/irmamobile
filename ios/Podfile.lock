@@ -1,6 +1,6 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_native_splash (0.0.1):
+  - flutter_native_splash (2.4.3):
     - Flutter
   - integration_test (0.0.1):
     - Flutter
@@ -85,7 +85,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_native_splash: 35ddbc7228eafcb3969dcc5f1fbbe27c1145a4f0
+  flutter_native_splash: 6cad9122ea0fad137d23137dd14b937f3e90b145
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   IOSSecuritySuite: b51056d5411aee567153ca86ce7f6edfdc5d2654
   jailbreak_root_detection: 9201e1dfd51dc23069cbfb8d4f4a2d18305170bf
