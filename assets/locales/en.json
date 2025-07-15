@@ -18,6 +18,12 @@
     "collapse_hint": "Double tap to collapse",
     "refresh": "Refresh"
   },
+  "new_terms_and_conditions": {
+    "title": "New terms and conditions",
+    "explanation_markdown": "The management of Yivi has recently been transferred to another organization ([Yivi B.V.](https://yivi.app/en/about_yivi)).\n\nTherefore, the terms and conditions have changed slightly.\n\nWe ask you to [read them]({terms_url}) and agree to them below.",
+    "accept": "Accept",
+    "dismiss": "Not now"
+  },
   "action_feedback": {
     "ok": "OK"
   },
@@ -284,7 +290,7 @@
       "point_1": "You decide what data you store, and what you share.",
       "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
       "point_3": "Nobody can see your data or your transactions, not even Yivi!",
-      "accept_markdown": "Yes, I accept the [terms and conditions](https://www.yivi.app/en/terms-and-conditions)"
+      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})"
     },
     "error_reporting": {
       "accept": {

@@ -15,6 +15,7 @@ class TranslatedText extends StatelessWidget {
 
   // Text only
   final TextAlign? textAlign;
+  final WrapAlignment markdownTextAlign;
 
   const TranslatedText(
     this._key, {
@@ -24,6 +25,7 @@ class TranslatedText extends StatelessWidget {
     this.translationParams,
     this.style,
     this.textAlign,
+    this.markdownTextAlign = WrapAlignment.start,
     this.maxLines,
     this.isHeader = false,
   });
@@ -32,6 +34,7 @@ class TranslatedText extends StatelessWidget {
     return IrmaMarkdown(
       translation,
       styleSheet: MarkdownStyleSheet(
+        textAlign: markdownTextAlign,
         p: style,
       ),
     );
