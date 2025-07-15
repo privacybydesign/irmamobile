@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../providers/irma_repository_provider.dart';
 import '../../../sentry/sentry.dart';
@@ -72,8 +72,12 @@ class ShareLinkTile extends StatelessWidget {
       labelTranslationKey: labelTranslationKey,
       onTap: () {
         final RenderBox box = context.findRenderObject() as RenderBox;
-        Share.share(FlutterI18n.translate(context, shareTextKey),
-            sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+        SharePlus.instance.share(
+          ShareParams(
+            text: FlutterI18n.translate(context, shareTextKey),
+            sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size,
+          ),
+        );
       },
     );
   }

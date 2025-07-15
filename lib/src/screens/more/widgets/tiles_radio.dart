@@ -32,7 +32,7 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
     }
   }
 
-  _onChangeOptions(int index) {
+  void _onChangeOptions(int index) {
     setState(() => _selectedIndex = index);
     widget.onChanged(_selectedIndex);
   }

@@ -89,23 +89,23 @@ void main() {
   });
 }
 
-pressCredentialTypeCard(WidgetTester tester) async {
+Future<void> pressCredentialTypeCard(WidgetTester tester) async {
   final firstCred = find.byType(IrmaCredentialTypeCard);
   await tester.tapAndSettle(firstCred.first);
 }
 
-enterSearchMode(WidgetTester tester) async {
+Future<void> enterSearchMode(WidgetTester tester) async {
   final searchButton = find.byKey(const Key('search_button'));
   await tester.tapAndSettle(searchButton);
 }
 
-exitSearchMode(WidgetTester tester) async {
+Future<void> exitSearchMode(WidgetTester tester) async {
   final cancelButton = find.byKey(const Key('cancel_search_button'));
   await tester.tapAndSettle(cancelButton);
   await tester.pumpAndSettle();
 }
 
-searchCredentials(WidgetTester tester, String query) async {
+Future<void> searchCredentials(WidgetTester tester, String query) async {
   await enterSearchMode(tester);
   await tester.pumpAndSettle(Duration(seconds: 1));
   final searchBar = find.byKey(const Key('search_bar'));
@@ -118,14 +118,14 @@ int countCredentialTypeCards(WidgetTester tester) {
   return list?.childrenDelegate.estimatedChildCount ?? 0;
 }
 
-pumpFilledAppOnDataPage(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> pumpFilledAppOnDataPage(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository, Locale('en'));
   await fillApp(tester, irmaBinding);
   await tester.tapAndSettle(find.byKey(const Key('ok_button')));
   await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
 }
 
-fillApp(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> fillApp(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await issueIrmaTubeMember(tester, irmaBinding);
   await issueDemoCredentials(tester, irmaBinding);
   await issueDemoIvidoLogin(tester, irmaBinding);
