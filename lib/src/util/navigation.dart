@@ -140,10 +140,7 @@ class CredentialsDetailsRouteParams {
   CredentialsDetailsRouteParams({required this.categoryName, required this.credentialTypeId});
 
   Map<String, String> toQueryParams() {
-    return {
-      'category_name': categoryName,
-      'credential_type_id': credentialTypeId,
-    };
+    return {'category_name': categoryName, 'credential_type_id': credentialTypeId};
   }
 
   static CredentialsDetailsRouteParams fromQueryParams(Map<String, String> params) {

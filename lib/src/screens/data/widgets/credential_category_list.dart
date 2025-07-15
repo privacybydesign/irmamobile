@@ -27,13 +27,7 @@ class CredentialCategoryList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: theme.defaultSpacing),
-        Semantics(
-          header: true,
-          child: Text(
-            categoryName,
-            style: theme.textTheme.headlineMedium,
-          ),
-        ),
+        Semantics(header: true, child: Text(categoryName, style: theme.textTheme.headlineMedium)),
         SizedBox(height: theme.smallSpacing),
         ...credentialTypes.map(
           (credType) => Semantics(
@@ -44,13 +38,11 @@ class CredentialCategoryList extends StatelessWidget {
                 credType: credType,
                 checked: obtainedCredentialTypes?.contains(credType) ?? false,
                 trailingIcon: credentialTypeTrailingIcon,
-                onTap: () => onCredentialTypeTap?.call(
-                  credType,
-                ),
+                onTap: () => onCredentialTypeTap?.call(credType),
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }

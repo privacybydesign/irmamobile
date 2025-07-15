@@ -42,10 +42,7 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
   expect(disConStepperFinder, findsOneWidget);
 
   // The discon stepper should consist of two cards
-  final cardsFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: find.byType(IrmaCredentialCard),
-  );
+  final cardsFinder = find.descendant(of: disConStepperFinder, matching: find.byType(IrmaCredentialCard));
   expect(cardsFinder, findsNWidgets(2));
 
   // First card should be highlighted, second card should be normal

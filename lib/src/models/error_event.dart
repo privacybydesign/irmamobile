@@ -20,8 +20,5 @@ class ErrorEvent extends Event {
   Map<String, dynamic> toJson() => _$ErrorEventToJson(this);
 
   @override
-  String toString() => [
-        '$exception\n',
-        stack,
-      ].join();
+  String toString() => ['$exception\n', stack].join();
 }

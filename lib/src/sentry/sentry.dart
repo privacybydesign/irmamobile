@@ -19,22 +19,20 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
     preferences.getReportErrors().listen((reportErrors) async {
       _reportErrorsPreferenceValue = reportErrors;
       if (Sentry.isEnabled) await Sentry.close();
-      await SentryFlutter.init(
-        (options) async {
-          // Build number is automatically set by Sentry via the 'dist' tag.
-          final release = await PackageInfo.fromPlatform().then((info) => info.version).catchError((_) => version);
-          options.release = release;
-          options.dsn = dsn;
-          options.enableNativeCrashHandling = reportErrors;
+      await SentryFlutter.init((options) async {
+        // Build number is automatically set by Sentry via the 'dist' tag.
+        final release = await PackageInfo.fromPlatform().then((info) => info.version).catchError((_) => version);
+        options.release = release;
+        options.dsn = dsn;
+        options.enableNativeCrashHandling = reportErrors;
 
-          // Enable app health check
-          options.enableAutoSessionTracking = reportErrors;
+        // Enable app health check
+        options.enableAutoSessionTracking = reportErrors;
 
-          // As noted in the docs of enableNativeCrashHandling, platform checking does not work on iOS when
-          // native crash handling is disabled. Therefore, we add a fallback implementation.
-          if (!options.enableNativeCrashHandling && Platform.isIOS) options.runtimeChecker = StubRuntimeChecker();
-        },
-      );
+        // As noted in the docs of enableNativeCrashHandling, platform checking does not work on iOS when
+        // native crash handling is disabled. Therefore, we add a fallback implementation.
+        if (!options.enableNativeCrashHandling && Platform.isIOS) options.runtimeChecker = StubRuntimeChecker();
+      });
       if (!completer.isCompleted) completer.complete();
     });
     await completer.future;
@@ -45,18 +43,17 @@ Future<void> reportError(dynamic error, dynamic stackTrace, {bool userInitiated 
   // If Sentry is not configured, we report the error to Flutter such that the test framework can detect it.
   if (dsn == '') {
     final supportsDefaultStackFilter = stackTrace == null || stackTrace is StackTrace;
-    FlutterError.reportError(FlutterErrorDetails(
-      exception: error,
-      stack: supportsDefaultStackFilter ? stackTrace : StackTrace.fromString(stackTrace.toString()),
-      stackFilter: supportsDefaultStackFilter ? FlutterError.defaultStackFilter : (frames) => frames,
-    ));
+    FlutterError.reportError(
+      FlutterErrorDetails(
+        exception: error,
+        stack: supportsDefaultStackFilter ? stackTrace : StackTrace.fromString(stackTrace.toString()),
+        stackFilter: supportsDefaultStackFilter ? FlutterError.defaultStackFilter : (frames) => frames,
+      ),
+    );
   } else {
     // Send the Exception and Stacktrace to Sentry when enabled
     if (_reportErrorsPreferenceValue || userInitiated) {
-      Sentry.captureException(
-        error,
-        stackTrace: stackTrace,
-      );
+      Sentry.captureException(error, stackTrace: stackTrace);
     }
   }
 }

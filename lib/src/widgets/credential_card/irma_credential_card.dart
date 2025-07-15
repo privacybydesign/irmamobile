@@ -49,8 +49,8 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = false,
     this.hideAttributes = false,
     this.disabled = false,
-  })  : credentialView = credential,
-        expiryDate = CardExpiryDate(credential.expires);
+  }) : credentialView = credential,
+       expiryDate = CardExpiryDate(credential.expires);
 
   @override
   Widget build(BuildContext context) {
@@ -82,10 +82,7 @@ class IrmaCredentialCard extends StatelessWidget {
           // If there are attributes in this credential, then we show the attribute list
           if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
             IrmaDivider(color: credentialView.valid ? null : theme.danger),
-            IrmaCredentialCardAttributeList(
-              credentialView.attributes,
-              compareTo: compareTo,
-            ),
+            IrmaCredentialCardAttributeList(credentialView.attributes, compareTo: compareTo),
           ],
           if (!hideFooter)
             IrmaCredentialCardFooter(

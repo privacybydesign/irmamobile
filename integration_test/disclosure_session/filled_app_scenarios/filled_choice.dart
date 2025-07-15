@@ -48,9 +48,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardFinder,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    attributes: {'Email address': 'test@example.com'},
     style: IrmaCardStyle.normal,
   );
 
@@ -74,9 +72,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    attributes: {'Email address': 'test@example.com'},
     isSelected: true,
   );
 
@@ -92,10 +88,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
 
   // The third card should show a template credential too
   final thirdCardFinder = cardFinder.at(2);
-  await tester.scrollUntilVisible(
-    thirdCardFinder.hitTestable(),
-    50,
-  );
+  await tester.scrollUntilVisible(thirdCardFinder.hitTestable(), 50);
   await evaluateCredentialCard(
     tester,
     thirdCardFinder,
@@ -109,11 +102,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await tester.tapAndSettle(thirdCardFinder);
 
   // Card should be selected now
-  await evaluateCredentialCard(
-    tester,
-    thirdCardFinder,
-    isSelected: true,
-  );
+  await evaluateCredentialCard(tester, thirdCardFinder, isSelected: true);
 
   await tester.tapAndSettle(find.text('Obtain data'));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
@@ -130,9 +119,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    attributes: {'Email address': 'test@example.com'},
     isSelected: false,
   );
   await evaluateCredentialCard(
@@ -140,9 +127,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardFinder.at(1),
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    attributes: {'Mobile phone number': '0612345678'},
     isSelected: true,
   );
 
@@ -173,9 +158,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardFinder.first,
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    attributes: {'Mobile phone number': '0612345678'},
     style: IrmaCardStyle.normal,
   );
 

@@ -40,9 +40,7 @@ class _CredentialObtainState {
   // or by refreshing credentials on the data.
   final Set<String> previouslyLaunchedCredentials;
 
-  _CredentialObtainState({
-    this.previouslyLaunchedCredentials = const <String>{},
-  });
+  _CredentialObtainState({this.previouslyLaunchedCredentials = const <String>{}});
 }
 
 class _ExternalBrowserCredtype {
@@ -53,11 +51,8 @@ class _ExternalBrowserCredtype {
 }
 
 class IrmaRepository {
-  IrmaRepository({
-    required IrmaBridge client,
-    required this.preferences,
-    this.defaultKeyshareScheme = 'pbdf',
-  }) : _bridge = client {
+  IrmaRepository({required IrmaBridge client, required this.preferences, this.defaultKeyshareScheme = 'pbdf'})
+    : _bridge = client {
     _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
@@ -146,10 +141,12 @@ class IrmaRepository {
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is CredentialsEvent) {
-      _credentialsSubject.add(Credentials.fromRaw(
-        irmaConfiguration: await _irmaConfigurationSubject.first,
-        rawCredentials: event.credentials,
-      ));
+      _credentialsSubject.add(
+        Credentials.fromRaw(
+          irmaConfiguration: await _irmaConfigurationSubject.first,
+          rawCredentials: event.credentials,
+        ),
+      );
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
       if (event is AuthenticationSuccessEvent) {
@@ -163,11 +160,13 @@ class IrmaRepository {
       if (event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
         _lockedSubject.add(false);
       } else if (!event.enrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
-        dispatch(ErrorEvent(
-          exception: 'Expected default keyshare scheme $defaultKeyshareScheme could not be found in configuration',
-          stack: '',
-          fatal: true,
-        ));
+        dispatch(
+          ErrorEvent(
+            exception: 'Expected default keyshare scheme $defaultKeyshareScheme could not be found in configuration',
+            stack: '',
+            fatal: true,
+          ),
+        );
       }
     } else if (event is EnrollmentEvent) {
       _enrollmentEventSubject.add(event);
@@ -196,11 +195,9 @@ class IrmaRepository {
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
     } else if (event is IssueWizardContentsEvent) {
-      _issueWizardSubject.add(await processIssueWizard(
-        event.id,
-        event.wizardContents,
-        await _credentialsSubject.first,
-      ));
+      _issueWizardSubject.add(
+        await processIssueWizard(event.id, event.wizardContents, await _credentialsSubject.first),
+      );
     }
   }
 
@@ -220,14 +217,10 @@ class IrmaRepository {
   void removeLaunchedCredentials(Iterable<String> credentialTypeIds) {
     final state = _credentialObtainState.value;
     final updatedLaunchedCredentials = state.previouslyLaunchedCredentials
-        .where(
-          (credTypeId) => !credentialTypeIds.contains(credTypeId),
-        )
+        .where((credTypeId) => !credentialTypeIds.contains(credTypeId))
         .toSet();
 
-    _credentialObtainState.add(_CredentialObtainState(
-      previouslyLaunchedCredentials: updatedLaunchedCredentials,
-    ));
+    _credentialObtainState.add(_CredentialObtainState(previouslyLaunchedCredentials: updatedLaunchedCredentials));
   }
 
   // -- Scheme manager, issuer, credential and attribute definitions
@@ -238,9 +231,7 @@ class IrmaRepository {
   }
 
   Stream<Map<String, Issuer>> getIssuers() {
-    return _irmaConfigurationSubject.stream.map<Map<String, Issuer>>(
-      (config) => config.issuers,
-    );
+    return _irmaConfigurationSubject.stream.map<Map<String, Issuer>>((config) => config.issuers);
   }
 
   // -- Credential instances
@@ -346,33 +337,34 @@ class IrmaRepository {
   Stream<VersionInformation> getVersionInformation() async* {
     final packageInfo = await PackageInfo.fromPlatform();
 
-    yield* _irmaConfigurationSubject.map((irmaConfiguration) {
-      int minimumBuild = 0;
-      for (final scheme in irmaConfiguration.schemeManagers.values) {
-        int thisRequirement = 0;
-        switch (Platform.operatingSystem) {
-          case 'android':
-            thisRequirement = scheme.minimumAppVersion.android;
-            break;
-          case 'ios':
-            thisRequirement = scheme.minimumAppVersion.iOS;
-            break;
-          default:
-            throw Exception('Unsupported Platfrom.operatingSystem');
-        }
-        if (thisRequirement > minimumBuild) {
-          minimumBuild = thisRequirement;
-        }
-      }
+    yield* _irmaConfigurationSubject
+        .map((irmaConfiguration) {
+          int minimumBuild = 0;
+          for (final scheme in irmaConfiguration.schemeManagers.values) {
+            int thisRequirement = 0;
+            switch (Platform.operatingSystem) {
+              case 'android':
+                thisRequirement = scheme.minimumAppVersion.android;
+                break;
+              case 'ios':
+                thisRequirement = scheme.minimumAppVersion.iOS;
+                break;
+              default:
+                throw Exception('Unsupported Platfrom.operatingSystem');
+            }
+            if (thisRequirement > minimumBuild) {
+              minimumBuild = thisRequirement;
+            }
+          }
 
-      final currentBuild = int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
+          final currentBuild = int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
 
-      return VersionInformation(
-        availableVersion: minimumBuild,
-        requiredVersion: minimumBuild,
-        currentVersion: currentBuild,
-      );
-    })
+          return VersionInformation(
+            availableVersion: minimumBuild,
+            requiredVersion: minimumBuild,
+            currentVersion: currentBuild,
+          );
+        })
         // When a fatal error occurs, no new IrmaConfiguration will be found anymore. This means we can close the stream.
         .takeUntil(_fatalErrorSubject);
   }
@@ -394,9 +386,10 @@ class IrmaRepository {
   // 2) handling an incoming URL
   Future<bool> appResumedAutomatically() {
     return Rx.combineLatest2(
-            _resumedFromBrowserSubject.stream, _resumedWithURLSubject.stream, (bool a, bool b) => a || b)
-        .first
-        .then((result) {
+      _resumedFromBrowserSubject.stream,
+      _resumedWithURLSubject.stream,
+      (bool a, bool b) => a || b,
+    ).first.then((result) {
       _resumedFromBrowserSubject.add(false); // App is resumed, so we have to reset the value
       return result;
     });
@@ -464,18 +457,19 @@ class IrmaRepository {
     'https://privacybydesign.foundation/myirma/',
     'https://privacybydesign.foundation/mijnirma/',
     'https://privacybydesign.foundation/demo/',
-    'https://privacybydesign.foundation/demo-en/'
+    'https://privacybydesign.foundation/demo-en/',
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
-      (irmaConfiguration) => _externalBrowserCredtypes
-          .where((type) => type.os == Platform.operatingSystem)
-          .map((type) => irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ?? [])
-          .expand((v) => v)
-          .toList()
-        ..addAll(externalBrowserUrls),
+      (irmaConfiguration) =>
+          _externalBrowserCredtypes
+              .where((type) => type.os == Platform.operatingSystem)
+              .map((type) => irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ?? [])
+              .expand((v) => v)
+              .toList()
+            ..addAll(externalBrowserUrls),
     );
   }
 
@@ -486,15 +480,10 @@ class IrmaRepository {
   static const _iiabchannel = MethodChannel('irma.app/iiab');
 
   Future<Set<String>> getPreviouslyLaunchedCredentials() {
-    return _credentialObtainState.first.then(
-      (state) => state.previouslyLaunchedCredentials,
-    );
+    return _credentialObtainState.first.then((state) => state.previouslyLaunchedCredentials);
   }
 
-  Future<void> openIssueURL(
-    BuildContext context,
-    String type,
-  ) async {
+  Future<void> openIssueURL(BuildContext context, String type) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final irmaConfig = await _irmaConfigurationSubject.first;
@@ -514,14 +503,9 @@ class IrmaRepository {
 
     if (cred.isInCredentialStore || alreadyObtainedCredentialsTypes.contains(type)) {
       final state = await _credentialObtainState.first;
-      final updatedLaunchedCredentials = {
-        ...state.previouslyLaunchedCredentials,
-        type,
-      };
+      final updatedLaunchedCredentials = {...state.previouslyLaunchedCredentials, type};
 
-      _credentialObtainState.add(_CredentialObtainState(
-        previouslyLaunchedCredentials: updatedLaunchedCredentials,
-      ));
+      _credentialObtainState.add(_CredentialObtainState(previouslyLaunchedCredentials: updatedLaunchedCredentials));
     }
 
     // If the issue URL is a universal link, then we ask the OS to open the appropriate application.

@@ -19,11 +19,8 @@ List<Widget> _listBuilder(BuildContext context, EnterPinState state) {
       _UnsecurePinDescriptionTile(
         followsRule: attributes.contains(SecurePinAttribute.mustContainValidSubset),
         descriptionKey: 'secure_pin.rules.must_contain_valid_subset',
-      )
+      ),
   ];
 
-  return ListTile.divideTiles(
-    context: context,
-    tiles: tiles,
-  ).toList();
+  return ListTile.divideTiles(context: context, tiles: tiles).toList();
 }

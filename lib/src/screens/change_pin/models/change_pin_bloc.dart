@@ -17,26 +17,17 @@ class ChangePinBloc extends Bloc<PinEvent, ChangePinState> {
   Stream<ChangePinState> mapEventToState(PinEvent event) async* {
     switch (event.type) {
       case PinEventType.oldPinEntered:
-        yield state.copyWith(
-          oldPin: event.pin,
-        );
+        yield state.copyWith(oldPin: event.pin);
         break;
       case PinEventType.newPinChosen:
-        yield state.copyWith(
-          newPin: event.pin,
-        );
+        yield state.copyWith(newPin: event.pin);
         break;
       case PinEventType.newPinConfirmed:
         final changePinEvent = await repo.changePin(state.oldPin, state.newPin);
         if (changePinEvent is ChangePinSuccessEvent) {
-          yield state.copyWith(
-            newPinConfirmed: ValidationState.valid,
-          );
+          yield state.copyWith(newPinConfirmed: ValidationState.valid);
         } else if (changePinEvent is ChangePinErrorEvent) {
-          yield state.copyWith(
-            newPinConfirmed: ValidationState.error,
-            error: changePinEvent.error,
-          );
+          yield state.copyWith(newPinConfirmed: ValidationState.error, error: changePinEvent.error);
         } else if (changePinEvent is ChangePinFailedEvent) {
           yield state.copyWith(
             newPinConfirmed: ValidationState.error,

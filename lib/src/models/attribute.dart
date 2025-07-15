@@ -10,10 +10,7 @@ class Attribute {
   final AttributeType attributeType;
   final AttributeValue value;
 
-  Attribute({
-    required this.attributeType,
-    required this.value,
-  });
+  Attribute({required this.attributeType, required this.value});
 
   /// Generates an attribute from the given disclosure candidate.
   factory Attribute.fromCandidate(

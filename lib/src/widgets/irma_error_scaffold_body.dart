@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'irma_info_scaffold_body.dart';
 
-enum ErrorType {
-  general,
-  expired,
-  pairingRejected,
-}
+enum ErrorType { general, expired, pairingRejected }
 
 class IrmaErrorScaffoldBody extends StatelessWidget {
   static const _translationKeys = {
@@ -19,11 +15,7 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
   final String? details;
   final bool reportable;
 
-  const IrmaErrorScaffoldBody({
-    required this.type,
-    this.details,
-    this.reportable = false,
-  });
+  const IrmaErrorScaffoldBody({required this.type, this.details, this.reportable = false});
 
   @override
   Widget build(BuildContext context) {

@@ -45,12 +45,8 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     cardsFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'test.com',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'test.com',
-    },
+    attributes: {'Email domain name': 'test.com'},
+    attributesCompareTo: {'Email domain name': 'test.com'},
     style: IrmaCardStyle.highlighted,
   );
 
@@ -68,10 +64,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
   expect(wrongCredAddedDialogFinder, findsOneWidget);
 
   // Dialog should show two credential cards
-  final dialogCardsFinder = find.descendant(
-    of: wrongCredAddedDialogFinder,
-    matching: find.byType(IrmaCredentialCard),
-  );
+  final dialogCardsFinder = find.descendant(of: wrongCredAddedDialogFinder, matching: find.byType(IrmaCredentialCard));
   expect(dialogCardsFinder, findsNWidgets(2));
 
   // Evaluate the cards in the dialog
@@ -80,12 +73,8 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     dialogCardsFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'demo.com',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'test.com',
-    },
+    attributes: {'Email domain name': 'demo.com'},
+    attributesCompareTo: {'Email domain name': 'test.com'},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -93,12 +82,8 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     dialogCardsFinder.at(1),
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'test.com',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'test.com',
-    },
+    attributes: {'Email domain name': 'test.com'},
+    attributesCompareTo: {'Email domain name': 'test.com'},
     style: IrmaCardStyle.normal,
   );
 
@@ -145,11 +130,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem'},
     style: IrmaCardStyle.normal,
   );
 
@@ -164,11 +145,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem'},
     style: IrmaCardStyle.normal,
   );
 
@@ -177,10 +154,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
     cardsFinder.at(1),
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@test.com',
-      'Email domain name': 'test.com',
-    },
+    attributes: {'Email address': 'test@test.com', 'Email domain name': 'test.com'},
     style: IrmaCardStyle.normal,
   );
 

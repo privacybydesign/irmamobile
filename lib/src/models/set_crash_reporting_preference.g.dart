@@ -7,11 +7,7 @@ part of 'set_crash_reporting_preference.dart';
 // **************************************************************************
 
 SetCrashReportingPreferenceEvent _$SetCrashReportingPreferenceEventFromJson(Map<String, dynamic> json) =>
-    SetCrashReportingPreferenceEvent(
-      enableCrashReporting: json['EnableCrashReporting'] as bool,
-    );
+    SetCrashReportingPreferenceEvent(enableCrashReporting: json['EnableCrashReporting'] as bool);
 
 Map<String, dynamic> _$SetCrashReportingPreferenceEventToJson(SetCrashReportingPreferenceEvent instance) =>
-    <String, dynamic>{
-      'EnableCrashReporting': instance.enableCrashReporting,
-    };
+    <String, dynamic>{'EnableCrashReporting': instance.enableCrashReporting};

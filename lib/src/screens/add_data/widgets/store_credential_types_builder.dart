@@ -8,18 +8,17 @@ import '../../../providers/irma_repository_provider.dart';
 import '../../../util/language.dart';
 import '../../../widgets/progress.dart';
 
-typedef GroupedCredentialTypesBuilder = Widget Function(
-  BuildContext context,
-  Map<String, List<CredentialType>> groupedCredentialTypes,
-  Map<String, List<CredentialType>> groupedObtainedCredentialTypes,
-);
+typedef GroupedCredentialTypesBuilder =
+    Widget Function(
+      BuildContext context,
+      Map<String, List<CredentialType>> groupedCredentialTypes,
+      Map<String, List<CredentialType>> groupedObtainedCredentialTypes,
+    );
 
 class StoreCredentialTypesBuilder extends StatelessWidget {
   final GroupedCredentialTypesBuilder builder;
 
-  const StoreCredentialTypesBuilder({
-    required this.builder,
-  });
+  const StoreCredentialTypesBuilder({required this.builder});
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +31,7 @@ class StoreCredentialTypesBuilder extends StatelessWidget {
 
         // Get all credentials that the user has already obtained.
         final obtainedCredentials = snapshot.data!;
-        final obtainedCredentialTypes = obtainedCredentials.values.map(
-          (cred) => cred.info.credentialType,
-        );
+        final obtainedCredentialTypes = obtainedCredentials.values.map((cred) => cred.info.credentialType);
         // And group them by category
         final otherTranslation = FlutterI18n.translate(context, 'data.category_other');
         var groupedObtainedCredentialTypes = groupBy<CredentialType, String>(
@@ -50,22 +47,14 @@ class StoreCredentialTypesBuilder extends StatelessWidget {
         // Group them by category as well
         var groupedStoreCredentialTypes = groupBy<CredentialType, String>(
           storeCredentialTypes,
-          (cred) => cred.category.isNotEmpty
-              ? getTranslation(
-                  context,
-                  cred.category,
-                )
-              : otherTranslation,
+          (cred) => cred.category.isNotEmpty ? getTranslation(context, cred.category) : otherTranslation,
         );
 
         // Make sure personal credentials are always at the top
         final personalTranslation = FlutterI18n.translate(context, 'data.category_personal');
         final personalCredentials = groupedStoreCredentialTypes.remove(personalTranslation);
         if (personalCredentials != null) {
-          groupedStoreCredentialTypes = {
-            personalTranslation: personalCredentials,
-            ...groupedStoreCredentialTypes,
-          };
+          groupedStoreCredentialTypes = {personalTranslation: personalCredentials, ...groupedStoreCredentialTypes};
         }
 
         // Make sure other credentials are always at the end
@@ -74,11 +63,7 @@ class StoreCredentialTypesBuilder extends StatelessWidget {
           groupedStoreCredentialTypes[otherTranslation] = otherCredentials;
         }
 
-        return builder(
-          context,
-          groupedStoreCredentialTypes,
-          groupedObtainedCredentialTypes,
-        );
+        return builder(context, groupedStoreCredentialTypes, groupedObtainedCredentialTypes);
       },
     );
   }

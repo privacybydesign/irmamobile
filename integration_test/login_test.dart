@@ -56,13 +56,12 @@ void main() {
 
       // Check dialog text
       string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
-      expect(string,
-          'This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.');
+      expect(
+        string,
+        'This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.',
+      );
 
-      await tester.tapAndSettle(find.descendant(
-        of: dialogFinder,
-        matching: find.byType(YiviThemedButton),
-      ));
+      await tester.tapAndSettle(find.descendant(of: dialogFinder, matching: find.byType(YiviThemedButton)));
 
       // Press "Forgot pin"
       expect(forgotPinLinkFinder, findsOneWidget);
@@ -108,12 +107,11 @@ void main() {
 
       // Check dialog text
       string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
-      expect(string,
-          'This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.');
-      await tester.tapAndSettle(find.descendant(
-        of: dialogFinder,
-        matching: find.byType(YiviThemedButton),
-      ));
+      expect(
+        string,
+        'This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.',
+      );
+      await tester.tapAndSettle(find.descendant(of: dialogFinder, matching: find.byType(YiviThemedButton)));
 
       // Login using wrong pin
       await enterPin(tester, '54321');
@@ -128,11 +126,12 @@ void main() {
       // Check dialog text
       string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
       expect(
-          string, 'This PIN is not correct. You have 1 attempt left before your Yivi app will be blocked temporarily.');
-      await tester.tapAndSettle(find.descendant(
-        of: find.byKey(const Key('irma_dialog')),
-        matching: find.byType(YiviThemedButton),
-      ));
+        string,
+        'This PIN is not correct. You have 1 attempt left before your Yivi app will be blocked temporarily.',
+      );
+      await tester.tapAndSettle(
+        find.descendant(of: find.byKey(const Key('irma_dialog')), matching: find.byType(YiviThemedButton)),
+      );
 
       // Login using wrong pin
       await enterPin(tester, '54321');
@@ -148,10 +147,7 @@ void main() {
       string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
 
       expect(string, 'Your app has been blocked for 1 minute. Please try again later.');
-      await tester.tapAndSettle(find.descendant(
-        of: dialogFinder,
-        matching: find.byType(YiviThemedButton),
-      ));
+      await tester.tapAndSettle(find.descendant(of: dialogFinder, matching: find.byType(YiviThemedButton)));
 
       // Wait 65 seconds and try again using the correct pin
       await tester.pumpAndSettle(const Duration(seconds: 65));
@@ -180,10 +176,7 @@ void main() {
       final appBarFinder = find.byType(IrmaAppBar);
       const expectedHeaderText = 'Forgot PIN';
 
-      final appBarHeaderFinder = find.descendant(
-        of: appBarFinder,
-        matching: find.text(expectedHeaderText),
-      );
+      final appBarHeaderFinder = find.descendant(of: appBarFinder, matching: find.text(expectedHeaderText));
 
       expect(appBarHeaderFinder, findsOneWidget);
 
@@ -194,7 +187,7 @@ void main() {
         "We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
         'Cancel',
         'Start all over',
-        'Forgot PIN'
+        'Forgot PIN',
       ];
 
       expect(actualScreenText, expectedScreenText);
@@ -212,7 +205,7 @@ void main() {
         'Delete data',
         'If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.',
         'Yes, delete everything',
-        'Cancel'
+        'Cancel',
       ];
 
       expect(actualConfirmDeleteDialogText, expectedConfirmDeleteDialogText);

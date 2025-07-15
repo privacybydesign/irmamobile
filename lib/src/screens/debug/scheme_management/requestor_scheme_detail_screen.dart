@@ -15,9 +15,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
   const RequestorSchemeDetailScreen({super.key, required this.requestorScheme});
 
   void _onDeleteScheme(BuildContext context) {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(RemoveRequestorSchemeEvent(
-      schemeId: requestorScheme.id,
-    ));
+    IrmaRepositoryProvider.of(context).bridgedDispatch(RemoveRequestorSchemeEvent(schemeId: requestorScheme.id));
     Navigator.of(context).pop();
 
     if (!context.mounted) return;
@@ -26,9 +24,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
       FlutterI18n.translate(
         context,
         'debug.scheme_management.remove',
-        translationParams: {
-          'scheme': requestorScheme.id,
-        },
+        translationParams: {'scheme': requestorScheme.id},
       ),
     );
   }
@@ -39,12 +35,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: IrmaAppBar(
         title: requestorScheme.id,
-        actions: [
-          IrmaIconButton(
-            icon: Icons.delete,
-            onTap: () => _onDeleteScheme(context),
-          )
-        ],
+        actions: [IrmaIconButton(icon: Icons.delete, onTap: () => _onDeleteScheme(context))],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.screenPadding),

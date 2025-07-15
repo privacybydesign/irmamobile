@@ -6,9 +6,7 @@ import '../../../../widgets/irma_dialog.dart';
 import '../../../../widgets/yivi_themed_button.dart';
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
-  const ProvideSchemeUrlDialog({
-    super.key,
-  });
+  const ProvideSchemeUrlDialog({super.key});
 
   @override
   State<ProvideSchemeUrlDialog> createState() => _ProvideSchemeUrlDialogState();
@@ -38,10 +36,7 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
             autofocus: true,
             onSubmitted: (url) => navigator.pop(url),
           ),
-          YiviThemedButton(
-            label: 'ui.add',
-            onPressed: () => navigator.pop(controller.text),
-          ),
+          YiviThemedButton(label: 'ui.add', onPressed: () => navigator.pop(controller.text)),
         ],
       ),
     );

@@ -23,10 +23,9 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
     required super.revoked,
     required this.credentialHash,
     required this.previouslyAdded,
-  }) : identifiers = UnmodifiableListView(attributes.map((attr) => AttributeIdentifier(
-              type: attr.attributeType.fullId,
-              credentialHash: credentialHash,
-            )));
+  }) : identifiers = UnmodifiableListView(
+         attributes.map((attr) => AttributeIdentifier(type: attr.attributeType.fullId, credentialHash: credentialHash)),
+       );
 
   /// Converts the given credential to a ChoosableDisclosureCredential using the given template.
   factory ChoosableDisclosureCredential.fromTemplate({
@@ -37,8 +36,10 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
     return ChoosableDisclosureCredential(
       info: credential.info,
       attributes: credential.attributes
-          .where((credAttr) =>
-              template.attributes.any((templAttr) => templAttr.attributeType.fullId == credAttr.attributeType.fullId))
+          .where(
+            (credAttr) =>
+                template.attributes.any((templAttr) => templAttr.attributeType.fullId == credAttr.attributeType.fullId),
+          )
           .toList(),
       expired: credential.expired,
       revoked: credential.revoked,

@@ -22,10 +22,9 @@ class ActivityDetailsScreen extends StatelessWidget {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  ActivityDetailsScreen({
-    required ActivityDetailsScreenArgs args,
-  })  : logEntry = args.logEntry,
-        irmaConfiguration = args.irmaConfiguration;
+  ActivityDetailsScreen({required ActivityDetailsScreenArgs args})
+    : logEntry = args.logEntry,
+      irmaConfiguration = args.irmaConfiguration;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +33,7 @@ class ActivityDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(
-        titleTranslationKey: 'home.nav_bar.activity',
-      ),
+      appBar: const IrmaAppBar(titleTranslationKey: 'home.nav_bar.activity'),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
@@ -51,20 +48,11 @@ class ActivityDetailsScreen extends StatelessWidget {
                     switch (logEntry.type) {
                       case LogEntryType.signing:
                       case LogEntryType.disclosing:
-                        return ActivityDetailDisclosure(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        );
+                        return ActivityDetailDisclosure(logEntry: logEntry, irmaConfiguration: irmaConfiguration);
                       case LogEntryType.issuing:
-                        return ActivityDetailIssuance(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        );
+                        return ActivityDetailIssuance(logEntry: logEntry, irmaConfiguration: irmaConfiguration);
                       case LogEntryType.removal:
-                        return ActivityDetailRemoval(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        );
+                        return ActivityDetailRemoval(logEntry: logEntry, irmaConfiguration: irmaConfiguration);
                     }
                   },
                 ),

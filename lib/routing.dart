@@ -72,13 +72,16 @@ GoRouter createRouter(BuildContext buildContext) {
         pageBuilder: (context, state) {
           return NoTransitionPage(
             name: '/pin',
-            child: Builder(builder: (context) {
-              return PinScreen(
-                onAuthenticated: context.goHomeScreenWithoutTransition,
-                leading:
-                    YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
-              );
-            }),
+            child: Builder(
+              builder: (context) {
+                return PinScreen(
+                  onAuthenticated: context.goHomeScreenWithoutTransition,
+                  leading: YiviAppBarQrCodeButton(
+                    onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),
@@ -91,19 +94,10 @@ GoRouter createRouter(BuildContext buildContext) {
           );
         },
       ),
-      GoRoute(
-        path: '/reset_pin',
-        builder: (context, state) => ResetPinScreen(),
-      ),
+      GoRoute(path: '/reset_pin', builder: (context, state) => ResetPinScreen()),
       // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
-      GoRoute(
-        path: '/change_pin',
-        builder: (context, state) => ChangePinScreen(),
-      ),
-      GoRoute(
-        path: '/enrollment',
-        builder: (context, state) => EnrollmentScreen(),
-      ),
+      GoRoute(path: '/change_pin', builder: (context, state) => ChangePinScreen()),
+      GoRoute(path: '/enrollment', builder: (context, state) => EnrollmentScreen()),
       GoRoute(
         path: '/home',
         pageBuilder: (context, state) {
@@ -130,10 +124,7 @@ GoRouter createRouter(BuildContext buildContext) {
               );
             },
           ),
-          GoRoute(
-            path: 'help',
-            builder: (context, state) => HelpScreen(),
-          ),
+          GoRoute(path: 'help', builder: (context, state) => HelpScreen()),
           GoRoute(
             path: 'add_data',
             builder: (context, state) => AddDataScreen(),
@@ -148,27 +139,16 @@ GoRouter createRouter(BuildContext buildContext) {
                     onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
                   );
                 },
-              )
-            ],
-          ),
-          GoRoute(
-            path: 'debug',
-            builder: (context, state) => const DebugScreen(),
-          ),
-          GoRoute(
-            path: 'settings',
-            builder: (context, state) => SettingsScreen(),
-            routes: [
-              GoRoute(
-                path: 'change_language',
-                builder: (context, state) => ChangeLanguageScreen(),
               ),
             ],
           ),
+          GoRoute(path: 'debug', builder: (context, state) => const DebugScreen()),
           GoRoute(
-            path: 'notifications',
-            builder: (context, state) => NotificationsTab(),
+            path: 'settings',
+            builder: (context, state) => SettingsScreen(),
+            routes: [GoRoute(path: 'change_language', builder: (context, state) => ChangeLanguageScreen())],
           ),
+          GoRoute(path: 'notifications', builder: (context, state) => NotificationsTab()),
         ],
       ),
       GoRoute(
@@ -218,10 +198,7 @@ GoRouter createRouter(BuildContext buildContext) {
           return NameChangedScreen(onContinuePressed: () => repo.preferences.setShowNameChangedNotification(false));
         },
       ),
-      GoRoute(
-        path: '/update_required',
-        builder: (context, state) => RequiredUpdateScreen(),
-      ),
+      GoRoute(path: '/update_required', builder: (context, state) => RequiredUpdateScreen()),
     ],
     redirect: (context, state) {
       if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
@@ -251,18 +228,12 @@ class RouteNotFoundScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) {
-      throw Exception(
-        'Route not found. Invalid route or invalid arguments were specified.',
-      );
+      throw Exception('Route not found. Invalid route or invalid arguments were specified.');
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Page not found'),
-      ),
-      body: const Center(
-        child: Text(''),
-      ),
+      appBar: AppBar(title: const Text('Page not found')),
+      body: const Center(child: Text('')),
     );
   }
 }
@@ -320,11 +291,11 @@ class RedirectionTriggers {
   });
 
   RedirectionTriggers.withDefaults()
-      : enrollmentStatus = EnrollmentStatus.undetermined,
-        appLocked = true,
-        showDeviceRootedWarning = false,
-        showNameChangedMessage = false,
-        versionInformation = null;
+    : enrollmentStatus = EnrollmentStatus.undetermined,
+      appLocked = true,
+      showDeviceRootedWarning = false,
+      showNameChangedMessage = false,
+      versionInformation = null;
 
   RedirectionTriggers copyWith({
     bool? appLocked,

@@ -44,13 +44,13 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
           .firstWhere((event) => event.isFinished)
           .asStream()
           .listen((event) {
-        if (mounted) {
-          // Pop to underlying session screen which is showing an error screen
-          // First pop all screens on top of this wizard and then pop the wizard screen itself
-          context.popToWizardScreen();
-          context.pop();
-        }
-      });
+            if (mounted) {
+              // Pop to underlying session screen which is showing an error screen
+              // First pop all screens on top of this wizard and then pop the wizard screen itself
+              context.popToWizardScreen();
+              context.pop();
+            }
+          });
     }
 
     super.didChangeAppLifecycleState(state);
@@ -153,10 +153,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
         _repo.openIssueURL(context, item?.credential ?? '');
         break;
       case 'session':
-        handlePointer(
-          context,
-          SessionPointer(u: item?.sessionURL ?? '', irmaqr: 'redirect'),
-        );
+        handlePointer(context, SessionPointer(u: item?.sessionURL ?? '', irmaqr: 'redirect'));
         break;
       case 'website':
         item?.inApp ?? true
@@ -176,10 +173,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
       stream: _repo.getIssueWizard().where((event) => event?.wizardData.id == widget.arguments.wizardID),
       builder: (context, AsyncSnapshot<IssueWizardEvent?> snapshot) {
         if (!snapshot.hasData) {
-          return Container(
-            alignment: Alignment.center,
-            child: const CircularProgressIndicator(),
-          );
+          return Container(alignment: Alignment.center, child: const CircularProgressIndicator());
         }
 
         final wizard = snapshot.data;

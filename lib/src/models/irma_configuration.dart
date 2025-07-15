@@ -112,9 +112,9 @@ class SchemeManager {
   // In the pbdf scheme, not all keyshare attributes are mentioned. Therefore, we hardcode them for now.
   // This should be fixed in the scheme description.
   Iterable<String> get keyshareAttributes => {
-        keyshareAttribute,
-        if (id == 'pbdf') ...['pbdf.sidn-pbdf.irma.pseudonym', 'pbdf.pbdf.mijnirma.email'],
-      };
+    keyshareAttribute,
+    if (id == 'pbdf') ...['pbdf.sidn-pbdf.irma.pseudonym', 'pbdf.pbdf.mijnirma.email'],
+  };
 }
 
 @JsonSerializable()

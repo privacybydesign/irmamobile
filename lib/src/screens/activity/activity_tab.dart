@@ -71,8 +71,9 @@ class _ActivityTabState extends State<ActivityTab> {
   Future<void> _loadMoreLogs() async {
     final historyState = await _historyRepo.getHistoryState().first;
     if (historyState.moreLogsAvailable && !historyState.loading && mounted) {
-      IrmaRepositoryProvider.of(context)
-          .bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.id, max: 10));
+      IrmaRepositoryProvider.of(
+        context,
+      ).bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.id, max: 10));
     }
   }
 
@@ -94,69 +95,57 @@ class _ActivityTabState extends State<ActivityTab> {
   }
 
   Widget _buildLogEntries(
-      BuildContext context, IrmaConfiguration irmaConfiguration, List<LogEntry> logEntries, bool moreLogsAvailable) {
+    BuildContext context,
+    IrmaConfiguration irmaConfiguration,
+    List<LogEntry> logEntries,
+    bool moreLogsAvailable,
+  ) {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);
 
-    final groupedItems = List.generate(
-      logEntries.length,
-      (index) {
-        final logEntry = logEntries[index];
-        final insertMonthSeparator = index == 0 || index > 0 && logEntries[index - 1].time.month != logEntry.time.month;
-        return [
-          if (insertMonthSeparator)
-            Padding(
-              padding: EdgeInsets.only(
-                // If is not first add padding to top.
-                top: index > 0 ? theme.defaultSpacing : 0,
-                left: theme.tinySpacing,
-                right: theme.tinySpacing,
-                bottom: theme.tinySpacing,
-              ),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                  style: theme.themeData.textTheme.displaySmall,
-                ),
-              ),
-            ),
+    final groupedItems = List.generate(logEntries.length, (index) {
+      final logEntry = logEntries[index];
+      final insertMonthSeparator = index == 0 || index > 0 && logEntries[index - 1].time.month != logEntry.time.month;
+      return [
+        if (insertMonthSeparator)
           Padding(
-            padding: EdgeInsets.only(bottom: theme.smallSpacing),
-            child: ActivityCard(
-              logEntry: logEntry,
-              irmaConfiguration: irmaConfiguration,
+            padding: EdgeInsets.only(
+              // If is not first add padding to top.
+              top: index > 0 ? theme.defaultSpacing : 0,
+              left: theme.tinySpacing,
+              right: theme.tinySpacing,
+              bottom: theme.tinySpacing,
+            ),
+            child: Semantics(
+              header: true,
+              child: Text(
+                DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
+                style: theme.themeData.textTheme.displaySmall,
+              ),
             ),
           ),
-        ];
-      },
-    ).flattened.toList();
+        Padding(
+          padding: EdgeInsets.only(bottom: theme.smallSpacing),
+          child: ActivityCard(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+        ),
+      ];
+    }).flattened.toList();
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       controller: _scrollController,
-      padding: EdgeInsets.symmetric(
-        vertical: theme.smallSpacing,
-        horizontal: theme.defaultSpacing,
-      ),
+      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing, horizontal: theme.defaultSpacing),
       children: [
         if (groupedItems.isEmpty)
-          const Center(
-            child: TranslatedText('activity.empty_placeholder'),
-          )
+          const Center(child: TranslatedText('activity.empty_placeholder'))
         else ...[
           ...groupedItems,
           Padding(
-            padding: EdgeInsets.only(
-              top: theme.defaultSpacing,
-              bottom: theme.mediumSpacing,
-            ),
-            child: EndOfListIndicator(
-              isLoading: moreLogsAvailable,
-            ),
+            padding: EdgeInsets.only(top: theme.defaultSpacing, bottom: theme.mediumSpacing),
+            child: EndOfListIndicator(isLoading: moreLogsAvailable),
           ),
-        ]
+        ],
       ],
     );
   }
@@ -166,10 +155,7 @@ class _ActivityTabState extends State<ActivityTab> {
     _scrollController.addListener(_listenToScroll);
     return Scaffold(
       backgroundColor: IrmaTheme.of(context).backgroundTertiary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: 'home.nav_bar.activity',
-        leading: null,
-      ),
+      appBar: IrmaAppBar(titleTranslationKey: 'home.nav_bar.activity', leading: null),
       body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
         stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
         builder: (context, snapshot) {

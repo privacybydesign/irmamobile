@@ -45,12 +45,7 @@ Future<void> attributeOrderTest(WidgetTester tester, IntegrationTestIrmaBinding 
     find.byType(IrmaCredentialCard),
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-      'Municipality': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem', 'Municipality': 'Arnhem'},
     style: IrmaCardStyle.normal,
   );
 

@@ -66,9 +66,7 @@ class _CollapsibleState extends State<Collapsible> {
     }
     widget.parentScrollController!.animateTo(
       desiredScrollPosition,
-      duration: const Duration(
-        milliseconds: 500,
-      ),
+      duration: const Duration(milliseconds: 500),
       curve: Curves.ease,
     );
   }
@@ -79,10 +77,11 @@ class _CollapsibleState extends State<Collapsible> {
     });
     if (Platform.isAndroid) {
       SemanticsService.announce(
-          _isExpanded
-              ? FlutterI18n.translate(context, 'accessibility.expanded')
-              : FlutterI18n.translate(context, 'accessibility.collapsed'),
-          Directionality.of(context));
+        _isExpanded
+            ? FlutterI18n.translate(context, 'accessibility.expanded')
+            : FlutterI18n.translate(context, 'accessibility.collapsed'),
+        Directionality.of(context),
+      );
     }
     _jumpToCollapsable();
   }
@@ -99,10 +98,7 @@ class _CollapsibleState extends State<Collapsible> {
         onExpansionChanged: _onExpansionChanged,
         animatedWidgetFollowingHeader: Padding(
           padding: EdgeInsets.all(theme.tinySpacing),
-          child: Icon(
-            Icons.expand_more,
-            color: theme.neutralExtraDark,
-          ),
+          child: Icon(Icons.expand_more, color: theme.neutralExtraDark),
         ),
         header: Expanded(
           child: Semantics(
@@ -119,19 +115,13 @@ class _CollapsibleState extends State<Collapsible> {
                 left: theme.defaultSpacing,
                 right: theme.defaultSpacing,
               ),
-              child: Text(
-                widget.header,
-                style: theme.textTheme.headlineSmall,
-              ),
+              child: Text(widget.header, style: theme.textTheme.headlineSmall),
             ),
           ),
         ),
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: theme.smallSpacing,
-              horizontal: theme.defaultSpacing,
-            ),
+            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing, horizontal: theme.defaultSpacing),
             child: ExcludeSemantics(excluding: !_isExpanded, child: widget.content),
           ),
         ],

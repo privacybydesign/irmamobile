@@ -26,66 +26,39 @@ void main() {
       // Personal data from municipality
 
       // Email OR your mobile number.
-      testWidgets(
-        'filled-choice',
-        (tester) => filledChoiceTest(tester, irmaBinding),
-      );
+      testWidgets('filled-choice', (tester) => filledChoiceTest(tester, irmaBinding));
 
       // Email AND telephone number
-      testWidgets(
-        'filled-no-choice-multiple-creds',
-        (tester) => filledNoChoiceMultipleCredsTest(tester, irmaBinding),
-      );
+      testWidgets('filled-no-choice-multiple-creds', (tester) => filledNoChoiceMultipleCredsTest(tester, irmaBinding));
 
       // Requests only the email address,
       // but the app already has two email address
-      testWidgets(
-        'filled-no-choice-same-creds',
-        (tester) => filledNoChoiceSameCredsTest(tester, irmaBinding),
-      );
+      testWidgets('filled-no-choice-same-creds', (tester) => filledNoChoiceSameCredsTest(tester, irmaBinding));
 
       // Address from municipality OR
       // Address from iDIN, with city
-      testWidgets(
-        'filled-choice-mixed',
-        (tester) => filledChoiceMixedTest(tester, irmaBinding),
-      );
+      testWidgets('filled-choice-mixed', (tester) => filledChoiceMixedTest(tester, irmaBinding));
 
       // Address from municipality OR
       // Address from iDIN AND
       // Email
-      testWidgets(
-        'filled-discon',
-        (tester) => filledDisconTest(tester, irmaBinding),
-      );
+      testWidgets('filled-discon', (tester) => filledDisconTest(tester, irmaBinding));
 
       // Address from municipality where city hast to be Arnhem AND
       // Email address where domain has to be test.com
       testWidgets(
         'filled-specific-attribute-values-match',
-        (tester) => filledSpecificAttributeValuesMatchTest(
-          tester,
-          irmaBinding,
-        ),
+        (tester) => filledSpecificAttributeValuesMatchTest(tester, irmaBinding),
       );
 
       // Email address where domain has to be test.com
       testWidgets(
         'filled-specific-attribute-values-no-match',
-        (tester) => filledSpecificAttributeValuesNoMatchTest(
-          tester,
-          irmaBinding,
-        ),
+        (tester) => filledSpecificAttributeValuesNoMatchTest(tester, irmaBinding),
       );
 
       // Email address and optionally a mobile number
-      testWidgets(
-        'filled-optional-disjunction',
-        (tester) => filledOptionalDisjunctionTest(
-          tester,
-          irmaBinding,
-        ),
-      );
+      testWidgets('filled-optional-disjunction', (tester) => filledOptionalDisjunctionTest(tester, irmaBinding));
     });
   });
 }

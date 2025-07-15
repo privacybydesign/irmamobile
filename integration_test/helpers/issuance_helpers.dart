@@ -5,48 +5,31 @@ import 'package:flutter_test/flutter_test.dart';
 import '../irma_binding.dart';
 import 'helpers.dart';
 
-Future<void> issueIrmaTubeMember(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
-    issueCredentials(tester, irmaBinding, {
-      'irma-demo.IRMATube.member.type': 'USER',
-      'irma-demo.IRMATube.member.id': '123123',
-    });
+Future<void> issueIrmaTubeMember(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) => issueCredentials(
+  tester,
+  irmaBinding,
+  {'irma-demo.IRMATube.member.type': 'USER', 'irma-demo.IRMATube.member.id': '123123'},
+);
 
-Future<void> issueEmailAddress(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
-    issueCredentials(tester, irmaBinding, {
-      'irma-demo.sidn-pbdf.email.email': 'test@example.com',
-      'irma-demo.sidn-pbdf.email.domain': 'example.com',
-    });
+Future<void> issueEmailAddress(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) => issueCredentials(
+  tester,
+  irmaBinding,
+  {'irma-demo.sidn-pbdf.email.email': 'test@example.com', 'irma-demo.sidn-pbdf.email.domain': 'example.com'},
+);
 
-Future<void> issueMobileNumber(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
-    issueCredentials(tester, irmaBinding, {
-      'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
-    });
+Future<void> issueMobileNumber(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) =>
+    issueCredentials(tester, irmaBinding, {'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678'});
 
-Future<void> issueMunicipalityAddress(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
+Future<void> issueMunicipalityAddress(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) =>
     issueCredentials(tester, irmaBinding, {
       'irma-demo.gemeente.address.street': 'Meander',
       'irma-demo.gemeente.address.houseNumber': '501',
       'irma-demo.gemeente.address.zipcode': '1234AB',
       'irma-demo.gemeente.address.city': 'Arnhem',
-      'irma-demo.gemeente.address.municipality': 'Arnhem'
+      'irma-demo.gemeente.address.municipality': 'Arnhem',
     });
 
-Future<void> issueIdin(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
+Future<void> issueIdin(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) =>
     issueCredentials(tester, irmaBinding, {
       'irma-demo.idin.idin.initials': 'W.L.',
       'irma-demo.idin.idin.familyname': 'Bruijn',
@@ -62,15 +45,9 @@ Future<void> issueDemoIvidoLogin(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
   bool continueOnSecondDevice = true,
-}) =>
-    issueCredentials(
-      tester,
-      irmaBinding,
-      {
-        'irma-demo.ivido.login.identifier': 'ea0cdf95-a412-41f1-9e8d-56c2af310af9',
-      },
-      continueOnSecondDevice: continueOnSecondDevice,
-    );
+}) => issueCredentials(tester, irmaBinding, {
+  'irma-demo.ivido.login.identifier': 'ea0cdf95-a412-41f1-9e8d-56c2af310af9',
+}, continueOnSecondDevice: continueOnSecondDevice);
 
 Map<String, String> createMunicipalityPersonalDataAttributes(Locale locale) {
   const credentialId = 'irma-demo.gemeente.personalData';
@@ -140,10 +117,7 @@ Future<void> issueMunicipalityPersonalData(
   );
 }
 
-Future<void> issueDemoCredentials(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) async {
+Future<void> issueDemoCredentials(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await issueEmailAddress(tester, irmaBinding);
   await issueMunicipalityPersonalData(tester, irmaBinding);
   await issueMunicipalityAddress(tester, irmaBinding);

@@ -14,11 +14,7 @@ class ContactLinkTile extends StatelessWidget {
   final IconData? iconData;
   final String labelTranslationKey;
 
-  const ContactLinkTile({
-    super.key,
-    this.iconData,
-    required this.labelTranslationKey,
-  });
+  const ContactLinkTile({super.key, this.iconData, required this.labelTranslationKey});
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +35,7 @@ class ContactLinkTile extends StatelessWidget {
                 return IrmaDialog(
                   title: FlutterI18n.translate(context, 'help.mail_error_title'),
                   content: FlutterI18n.translate(context, 'help.mail_error'),
-                  child: YiviThemedButton(
-                    label: 'help.mail_error_button',
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                  child: YiviThemedButton(label: 'help.mail_error_button', onPressed: () => Navigator.pop(context)),
                 );
               },
             );
@@ -88,12 +81,7 @@ class ExternalLinkTile extends StatelessWidget {
   final String labelTranslationKey;
   final String urlLinkKey;
 
-  const ExternalLinkTile({
-    super.key,
-    this.iconData,
-    required this.labelTranslationKey,
-    required this.urlLinkKey,
-  });
+  const ExternalLinkTile({super.key, this.iconData, required this.labelTranslationKey, required this.urlLinkKey});
 
   @override
   Widget build(BuildContext context) {
@@ -102,9 +90,7 @@ class ExternalLinkTile extends StatelessWidget {
       labelTranslationKey: labelTranslationKey,
       onTap: () {
         try {
-          IrmaRepositoryProvider.of(context).openURL(
-            FlutterI18n.translate(context, urlLinkKey),
-          );
+          IrmaRepositoryProvider.of(context).openURL(FlutterI18n.translate(context, urlLinkKey));
         } catch (e, stacktrace) {
           // TODO: consider whether we want error screen here
           reportError(e, stacktrace);
@@ -119,21 +105,11 @@ class InternalLinkTile extends StatelessWidget {
   final String labelTranslationKey;
   final Function() onTap;
 
-  const InternalLinkTile({
-    super.key,
-    this.iconData,
-    required this.labelTranslationKey,
-    required this.onTap,
-  });
+  const InternalLinkTile({super.key, this.iconData, required this.labelTranslationKey, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Tile(
-      isLink: false,
-      iconData: iconData,
-      labelTranslationKey: labelTranslationKey,
-      onTap: onTap,
-    );
+    return Tile(isLink: false, iconData: iconData, labelTranslationKey: labelTranslationKey, onTap: onTap);
   }
 }
 
@@ -207,23 +183,9 @@ class Tile extends StatelessWidget {
         child: ListTile(
           onTap: onTap,
           minLeadingWidth: theme.mediumSpacing,
-          leading: iconData != null
-              ? Icon(
-                  iconData,
-                  size: 28,
-                  color: iconColor,
-                )
-              : null,
-          title: TranslatedText(
-            labelTranslationKey,
-            style: theme.textButtonTextStyle,
-          ),
-          trailing: trailing ??
-              Icon(
-                Icons.chevron_right,
-                size: 28,
-                color: iconColor,
-              ),
+          leading: iconData != null ? Icon(iconData, size: 28, color: iconColor) : null,
+          title: TranslatedText(labelTranslationKey, style: theme.textButtonTextStyle),
+          trailing: trailing ?? Icon(Icons.chevron_right, size: 28, color: iconColor),
         ),
       ),
     );

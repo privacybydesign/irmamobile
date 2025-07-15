@@ -8,11 +8,7 @@ class IrmaLinearStepIndicator extends StatelessWidget {
   final int stepCount;
   final int step;
 
-  const IrmaLinearStepIndicator({
-    super.key,
-    required this.step,
-    required this.stepCount,
-  });
+  const IrmaLinearStepIndicator({super.key, required this.step, required this.stepCount});
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +21,11 @@ class IrmaLinearStepIndicator extends StatelessWidget {
         children: [
           TranslatedText(
             'ui.step_of_steps',
-            translationParams: {
-              'i': step.toString(),
-              'n': stepCount.toString(),
-            },
-            style: TextStyle(
-              fontSize: 12,
-              color: theme.themeData.colorScheme.secondary,
-            ),
+            translationParams: {'i': step.toString(), 'n': stepCount.toString()},
+            style: TextStyle(fontSize: 12, color: theme.themeData.colorScheme.secondary),
           ),
           SizedBox(height: theme.smallSpacing),
-          IrmaLinearProgressIndicator(
-            filledPercentage: step / stepCount * 100,
-          )
+          IrmaLinearProgressIndicator(filledPercentage: step / stepCount * 100),
         ],
       ),
     );

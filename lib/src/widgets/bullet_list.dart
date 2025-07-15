@@ -7,10 +7,7 @@ class BulletList extends StatelessWidget {
   final List<String> translationKeys;
   final Widget? leading;
 
-  const BulletList({
-    required this.translationKeys,
-    this.leading,
-  });
+  const BulletList({required this.translationKeys, this.leading});
 
   @override
   Widget build(BuildContext context) {
@@ -26,21 +23,9 @@ class BulletList extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  leading != null
-                      ? leading!
-                      : Text(
-                          '•  ',
-                          style: textStyle,
-                        ),
-                  SizedBox(
-                    width: theme.smallSpacing,
-                  ),
-                  Expanded(
-                    child: TranslatedText(
-                      translationKey,
-                      style: textStyle,
-                    ),
-                  )
+                  leading != null ? leading! : Text('•  ', style: textStyle),
+                  SizedBox(width: theme.smallSpacing),
+                  Expanded(child: TranslatedText(translationKey, style: textStyle)),
                 ],
               ),
             ),

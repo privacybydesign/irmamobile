@@ -56,11 +56,7 @@ Future<void> _startIssueWizard(
   }
 }
 
-Future<int> _startSessionAndNavigate(
-  BuildContext context,
-  SessionPointer sessionPointer,
-  bool pushReplacement,
-) async {
+Future<int> _startSessionAndNavigate(BuildContext context, SessionPointer sessionPointer, bool pushReplacement) async {
   final repo = IrmaRepositoryProvider.of(context);
   final event = NewSessionEvent(
     request: sessionPointer,

@@ -10,10 +10,7 @@ import '../../irma_binding.dart';
 import '../../util.dart';
 import '../disclosure_helpers.dart';
 
-Future<void> filledOptionalDisjunctionTest(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) async {
+Future<void> filledOptionalDisjunctionTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Issue number from irma-demo.sidn-pbdf
@@ -83,9 +80,7 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.first,
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    attributes: {'Mobile phone number': '0612345678'},
     isSelected: true,
   );
   await evaluateCredentialCard(
@@ -117,9 +112,7 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.first,
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    attributes: {'Mobile phone number': '0612345678'},
     style: IrmaCardStyle.normal,
   );
 
@@ -127,20 +120,14 @@ Future<void> filledOptionalDisjunctionTest(
   await tester.tapAndSettle(find.text('Next step'));
 
   expect(find.text('Share my data'), findsOneWidget);
-  expect(
-    find.text('Share my data with demo.privacybydesign.foundation'),
-    findsOneWidget,
-  );
+  expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-      'Email domain name': 'example.com',
-    },
+    attributes: {'Email address': 'test@example.com', 'Email domain name': 'example.com'},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -148,9 +135,7 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.at(1),
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    attributes: {'Mobile phone number': '0612345678'},
     style: IrmaCardStyle.normal,
   );
 

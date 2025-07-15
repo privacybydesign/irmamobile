@@ -15,10 +15,7 @@ class NotificationCard extends StatelessWidget {
   final Notification notification;
   final Function()? onTap;
 
-  const NotificationCard({
-    required this.notification,
-    this.onTap,
-  });
+  const NotificationCard({required this.notification, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -57,18 +54,13 @@ class NotificationCard extends StatelessWidget {
       title = FlutterI18n.translate(
         context,
         content.titleTranslationKey,
-        translationParams: {
-          'credentialName': translatedCredName,
-        },
+        translationParams: {'credentialName': translatedCredName},
       );
 
       contentMessage = FlutterI18n.translate(
         context,
         content.messageTranslationKey,
-        translationParams: {
-          'credentialName': translatedCredName,
-          'issuerName': translatedIssuerName,
-        },
+        translationParams: {'credentialName': translatedCredName, 'issuerName': translatedIssuerName},
       );
     }
 
@@ -82,10 +74,7 @@ class NotificationCard extends StatelessWidget {
               child: Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.primary,
-                ),
+                decoration: BoxDecoration(shape: BoxShape.circle, color: theme.primary),
               ),
             ),
           Row(
@@ -95,35 +84,21 @@ class NotificationCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    IrmaAvatar(
-                      size: 52,
-                      initials: 'i',
-                      logoPath: logo,
-                    ),
-                    SizedBox(
-                      width: theme.smallSpacing,
-                    ),
+                    IrmaAvatar(size: 52, initials: 'i', logoPath: logo),
+                    SizedBox(width: theme.smallSpacing),
                     Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(localizedTimeStamp),
-                          Text(
-                            title,
-                            style: theme.themeData.textTheme.headlineMedium!.copyWith(
-                              color: theme.dark,
-                            ),
-                          ),
+                          Text(title, style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark)),
                           Text(
                             contentMessage,
-                            style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                              fontSize: 14,
-                              color: theme.dark,
-                            ),
-                          )
+                            style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14, color: theme.dark),
+                          ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

@@ -39,9 +39,7 @@ Future<void> unlock(WidgetTester tester) async {
 Future<void> enterPin(WidgetTester tester, String pin) async {
   final splitPin = pin.split('');
   for (final digit in splitPin) {
-    await tester.tapAndSettle(
-      find.byKey(Key('number_pad_key_${digit.toString()}')),
-    );
+    await tester.tapAndSettle(find.byKey(Key('number_pad_key_${digit.toString()}')));
   }
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
@@ -49,21 +47,14 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
 Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defaultLanguage]) async {
   await tester.pumpWidgetAndSettle(
     ProviderScope(
-      overrides: [
-        irmaRepositoryProvider.overrideWithValue(repo),
-      ],
-      child: IrmaApp(
-        defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
-      ),
+      overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
+      child: IrmaApp(defaultLanguage: defaultLanguage ?? const Locale('en', 'EN')),
     ),
   );
 
   // Wait for the App widget to be build inside of the IrmaApp widget
   // (There is a builder wrapping the app widget that is used to check the preferred locale)
-  await tester.waitFor(find.descendant(
-    of: find.byType(IrmaApp),
-    matching: find.byType(App),
-  ));
+  await tester.waitFor(find.descendant(of: find.byType(IrmaApp), matching: find.byType(App)));
 }
 
 // Pump a new app and unlock it
@@ -81,25 +72,24 @@ Future<SessionPointer> createIssuanceSession({
     attributes.entries,
     (attr) => attr.key.split('.').take(3).join('.'),
   );
-  final credentialsJson = jsonEncode(groupedAttributes.entries
-      .map((credEntry) => {
+  final credentialsJson = jsonEncode(
+    groupedAttributes.entries
+        .map(
+          (credEntry) => {
             'credential': credEntry.key,
-            'attributes': {
-              for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value,
-            },
+            'attributes': {for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value},
             if (revocationKeys.containsKey(credEntry.key)) 'revocationKey': revocationKeys[credEntry.key],
-          })
-      .toList());
+          },
+        )
+        .toList(),
+  );
 
-  return await createTestSession(
-    '''
+  return await createTestSession('''
     {
       "@context": "https://irma.app/ld/request/issuance/v2",
       "credentials": $credentialsJson
     }
-  ''',
-    continueOnSecondDevice: continueOnSecondDevice,
-  );
+  ''', continueOnSecondDevice: continueOnSecondDevice);
 }
 
 /// Starts an issuing session that adds the given credentials to the IRMA app.
@@ -117,26 +107,25 @@ Future<void> issueCredentials(
     attributes.entries,
     (attr) => attr.key.split('.').take(3).join('.'),
   );
-  final credentialsJson = jsonEncode(groupedAttributes.entries
-      .map((credEntry) => {
+  final credentialsJson = jsonEncode(
+    groupedAttributes.entries
+        .map(
+          (credEntry) => {
             'credential': credEntry.key,
-            'attributes': {
-              for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value,
-            },
+            'attributes': {for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value},
             if (revocationKeys.containsKey(credEntry.key)) 'revocationKey': revocationKeys[credEntry.key],
-          })
-      .toList());
+          },
+        )
+        .toList(),
+  );
 
   // Start session
-  await irmaBinding.repository.startTestSession(
-    '''
+  await irmaBinding.repository.startTestSession('''
     {
       "@context": "https://irma.app/ld/request/issuance/v2",
       "credentials": $credentialsJson
     }
-  ''',
-    continueOnSecondDevice: continueOnSecondDevice,
-  );
+  ''', continueOnSecondDevice: continueOnSecondDevice);
 
   var issuancePageFinder = find.byType(IssuancePermission);
   await tester.waitFor(issuancePageFinder);
@@ -155,15 +144,14 @@ Future<void> issueCredentials(
   for (int i = 0; i < attributes.length; i++) {
     expect(
       attributeTexts[i * 2],
-      irmaBinding.repository.irmaConfiguration.attributeTypes[attributeEntries[i].key]?.name
-          .translate(locale.languageCode),
+      irmaBinding.repository.irmaConfiguration.attributeTypes[attributeEntries[i].key]?.name.translate(
+        locale.languageCode,
+      ),
     );
     expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
   }
 
-  final buttonFinder = find.byKey(
-    declineOffer ? const Key('bottom_bar_secondary') : const Key('bottom_bar_primary'),
-  );
+  final buttonFinder = find.byKey(declineOffer ? const Key('bottom_bar_secondary') : const Key('bottom_bar_primary'));
   expect(buttonFinder, findsOneWidget);
 
   await tester.tapAndSettle(buttonFinder);
@@ -211,21 +199,14 @@ Future<void> evaluateCredentialCard(
   bool? isExpired,
   bool? isExpiringSoon,
 }) async {
-// Find one IrmaCredentialCard with the provided finder
+  // Find one IrmaCredentialCard with the provided finder
   expect(
-    find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(IrmaCredentialCard),
-      matchRoot: true,
-    ),
+    find.descendant(of: credentialCardFinder, matching: find.byType(IrmaCredentialCard), matchRoot: true),
     findsOneWidget,
   );
 
   if (style != null) {
-    expect(
-      (credentialCardFinder.evaluate().first.widget as IrmaCredentialCard).style,
-      style,
-    );
+    expect((credentialCardFinder.evaluate().first.widget as IrmaCredentialCard).style, style);
   }
 
   final shouldCheckCardStatus = isRevoked != null || isExpired != null || isExpiringSoon != null;
@@ -233,42 +214,26 @@ Future<void> evaluateCredentialCard(
 
   if (shouldCheckHeaderInfo || shouldCheckCardStatus) {
     // Card should have a header
-    final cardHeaderFinder = find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(IrmaCredentialCardHeader),
-    );
+    final cardHeaderFinder = find.descendant(of: credentialCardFinder, matching: find.byType(IrmaCredentialCardHeader));
     expect(cardHeaderFinder, findsOneWidget);
 
     // Get the text from the header
     var cardHeaderText = tester.getAllText(cardHeaderFinder);
-    final credentialStatusTexts = {
-      'revoked': 'Revoked',
-      'expired': 'Expired',
-      'expiring': 'Expiring soon',
-    };
+    final credentialStatusTexts = {'revoked': 'Revoked', 'expired': 'Expired', 'expiring': 'Expiring soon'};
 
     if (shouldCheckCardStatus && credentialStatusTexts.values.contains(cardHeaderText.first)) {
       final credentialStatus = cardHeaderText.first;
 
       if (isRevoked != null) {
-        expect(
-          credentialStatus == credentialStatusTexts['revoked'],
-          isRevoked,
-        );
+        expect(credentialStatus == credentialStatusTexts['revoked'], isRevoked);
       }
 
       if (isExpired != null) {
-        expect(
-          credentialStatus == credentialStatusTexts['expired'],
-          isExpired,
-        );
+        expect(credentialStatus == credentialStatusTexts['expired'], isExpired);
       }
 
       if (isExpiringSoon != null) {
-        expect(
-          credentialStatus == credentialStatusTexts['expiring'],
-          isExpiringSoon,
-        );
+        expect(credentialStatus == credentialStatusTexts['expiring'], isExpiringSoon);
       }
     }
 
@@ -328,10 +293,7 @@ Future<void> evaluateCredentialCard(
           } else {
             expectedTextColor = const Color(0xff00973a);
           }
-          expect(
-            (textFinder.evaluate().first.widget as Text).style?.color!,
-            expectedTextColor,
-          );
+          expect((textFinder.evaluate().first.widget as Text).style?.color!, expectedTextColor);
         }
       }
     } else {
@@ -341,18 +303,12 @@ Future<void> evaluateCredentialCard(
   }
 
   if (isSelected != null) {
-    final radioIndicatorFinder = find.descendant(
-      of: credentialCardFinder,
-      matching: find.byType(RadioIndicator),
-    );
+    final radioIndicatorFinder = find.descendant(of: credentialCardFinder, matching: find.byType(RadioIndicator));
 
     expect(radioIndicatorFinder, findsOneWidget);
     final radioIndicatorWidget = radioIndicatorFinder.evaluate().single.widget as RadioIndicator;
 
-    expect(
-      radioIndicatorWidget.isSelected,
-      isSelected,
-    );
+    expect(radioIndicatorWidget.isSelected, isSelected);
   }
 
   // Check the footer
@@ -363,25 +319,13 @@ Future<void> evaluateCredentialCard(
       final isReobtainable = isExpired != null && isExpired || isRevoked != null && isRevoked;
 
       // Find reobtainable button
-      final reobtainButtonFinder = find.descendant(
-        of: find.byType(YiviThemedButton),
-        matching: find.text('Reobtain'),
-      );
+      final reobtainButtonFinder = find.descendant(of: find.byType(YiviThemedButton), matching: find.text('Reobtain'));
 
-      expect(
-        reobtainButtonFinder,
-        isReobtainable ? findsOneWidget : findsNothing,
-      );
+      expect(reobtainButtonFinder, isReobtainable ? findsOneWidget : findsNothing);
     }
 
     if (footerText != null) {
-      expect(
-        find.descendant(
-          of: footerFinder,
-          matching: find.text(footerText),
-        ),
-        findsOneWidget,
-      );
+      expect(find.descendant(of: footerFinder, matching: find.text(footerText)), findsOneWidget);
     }
   }
 }
@@ -396,30 +340,15 @@ Future<void> evaluateNotificationCard(
   expect(notificationCardFinder, findsOneWidget);
 
   if (title != null) {
-    expect(
-      find.descendant(
-        of: notificationCardFinder,
-        matching: find.text(title),
-      ),
-      findsOneWidget,
-    );
+    expect(find.descendant(of: notificationCardFinder, matching: find.text(title)), findsOneWidget);
   }
 
   if (content != null) {
-    expect(
-      find.descendant(
-        of: notificationCardFinder,
-        matching: find.text(content),
-      ),
-      findsOneWidget,
-    );
+    expect(find.descendant(of: notificationCardFinder, matching: find.text(content)), findsOneWidget);
   }
 
   if (read != null) {
     final notificationCardWidget = notificationCardFinder.evaluate().single.widget as NotificationCard;
-    expect(
-      notificationCardWidget.notification.read,
-      read,
-    );
+    expect(notificationCardWidget.notification.read, read);
   }
 }

@@ -5,20 +5,28 @@ class ConDisCon<T> extends UnmodifiableListView<DisCon<T>> {
 
   // This can't be a contructor due to dart-lang/sdk#26391
   static ConDisCon<T> fromRaw<R, T>(List<List<List<R>>> rawConDisCon, T Function(R) fromRaw) {
-    return ConDisCon<T>(rawConDisCon.map((rawDisCon) {
-      return DisCon<T>(rawDisCon.map((rawCon) {
-        return Con<T>(rawCon.map((elem) {
-          return fromRaw(elem);
-        }));
-      }));
-    }));
+    return ConDisCon<T>(
+      rawConDisCon.map((rawDisCon) {
+        return DisCon<T>(
+          rawDisCon.map((rawCon) {
+            return Con<T>(
+              rawCon.map((elem) {
+                return fromRaw(elem);
+              }),
+            );
+          }),
+        );
+      }),
+    );
   }
 
   // This can't be a contructor due to dart-lang/sdk#26391
   static ConDisCon<T> fromConCon<T>(ConCon<T> conCon) {
-    return ConDisCon<T>(conCon.map((con) {
-      return DisCon<T>(<Con<T>>[con]);
-    }));
+    return ConDisCon<T>(
+      conCon.map((con) {
+        return DisCon<T>(<Con<T>>[con]);
+      }),
+    );
   }
 }
 
@@ -31,11 +39,15 @@ class ConCon<T> extends UnmodifiableListView<Con<T>> {
 
   // This can't be a contructor due to dart-lang/sdk#26391
   static ConCon<T> fromRaw<R, T>(List<List<R>> rawConCon, T Function(R) fromRaw) {
-    return ConCon<T>(rawConCon.map((rawCon) {
-      return Con<T>(rawCon.map((elem) {
-        return fromRaw(elem);
-      }));
-    }));
+    return ConCon<T>(
+      rawConCon.map((rawCon) {
+        return Con<T>(
+          rawCon.map((elem) {
+            return fromRaw(elem);
+          }),
+        );
+      }),
+    );
   }
 }
 

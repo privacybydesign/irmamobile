@@ -24,10 +24,7 @@ class VerifyOldPinBloc extends Bloc<String, OldPinVerificationState> {
         blockedUntil: DateTime.now().add(Duration(seconds: authenticationEvent.blockedDuration)),
       );
     } else if (authenticationEvent is AuthenticationErrorEvent) {
-      yield OldPinVerificationState(
-        validationState: ValidationState.error,
-        error: authenticationEvent.error,
-      );
+      yield OldPinVerificationState(validationState: ValidationState.error, error: authenticationEvent.error);
     } else {
       throw Exception('Unexpected subtype of AuthenticationResult');
     }

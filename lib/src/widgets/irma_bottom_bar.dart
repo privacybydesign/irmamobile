@@ -4,11 +4,7 @@ import '../theme/theme.dart';
 import 'irma_bottom_bar_base.dart';
 import 'yivi_themed_button.dart';
 
-enum IrmaBottomBarAlignment {
-  horizontal,
-  vertical,
-  automatic,
-}
+enum IrmaBottomBarAlignment { horizontal, vertical, automatic }
 
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
@@ -31,14 +27,13 @@ class IrmaBottomBar extends StatelessWidget {
   Widget _buildPrimaryButton(BuildContext context) {
     return Expanded(
       child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: IrmaTheme.of(context).tinySpacing,
-          ),
-          child: YiviThemedButton(
-            key: const Key('bottom_bar_primary'),
-            onPressed: onPrimaryPressed,
-            label: primaryButtonLabel!,
-          )),
+        padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
+        child: YiviThemedButton(
+          key: const Key('bottom_bar_primary'),
+          onPressed: onPrimaryPressed,
+          label: primaryButtonLabel!,
+        ),
+      ),
     );
   }
 
@@ -60,23 +55,17 @@ class IrmaBottomBar extends StatelessWidget {
 
     return IrmaBottomBarBase(
       // Change layout according to limited height (i.e. landscape mode) and alignment setting.
-      child: alignment == IrmaBottomBarAlignment.vertical ||
+      child:
+          alignment == IrmaBottomBarAlignment.vertical ||
               alignment == IrmaBottomBarAlignment.automatic && mediaQuery.size.height > 450
           ? Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (primaryButtonLabel != null)
-                  Row(
-                    children: [_buildPrimaryButton(context)],
-                  ),
+                if (primaryButtonLabel != null) Row(children: [_buildPrimaryButton(context)]),
                 if (secondaryButtonLabel != null) ...[
-                  SizedBox(
-                    height: theme.tinySpacing,
-                  ),
-                  Row(
-                    children: [_buildSecondaryButton(context)],
-                  )
-                ]
+                  SizedBox(height: theme.tinySpacing),
+                  Row(children: [_buildSecondaryButton(context)]),
+                ],
               ],
             )
           : Row(
@@ -84,9 +73,7 @@ class IrmaBottomBar extends StatelessWidget {
               children: [
                 if (secondaryButtonLabel != null) ...[
                   _buildSecondaryButton(context),
-                  SizedBox(
-                    width: theme.tinySpacing,
-                  )
+                  SizedBox(width: theme.tinySpacing),
                 ],
                 if (primaryButtonLabel != null) _buildPrimaryButton(context),
               ],

@@ -43,10 +43,7 @@ class IssueWizardContents extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (intro.isNotEmpty) ...[
-            IrmaMarkdown(intro.translate(lang)),
-            SizedBox(height: theme.defaultSpacing),
-          ],
+          if (intro.isNotEmpty) ...[IrmaMarkdown(intro.translate(lang)), SizedBox(height: theme.defaultSpacing)],
           IrmaStepper(
             currentIndex: wizard.activeItemIndex >= 0 ? wizard.activeItemIndex : null,
             children: wizard.wizardContents
@@ -56,14 +53,8 @@ class IssueWizardContents extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          item.header.translate(lang),
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                        Text(
-                          item.text.translate(lang),
-                          style: theme.textTheme.bodyMedium,
-                        ),
+                        Text(item.header.translate(lang), style: theme.textTheme.bodyLarge),
+                        Text(item.text.translate(lang), style: theme.textTheme.bodyMedium),
                       ],
                     ),
                   ),
@@ -82,14 +73,14 @@ class IssueWizardContents extends StatelessWidget {
     final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
         ? FlutterI18n.translate(context, 'issue_wizard.done')
-        : activeItem?.label.translate(lang,
+        : activeItem?.label.translate(
+            lang,
             fallback: FlutterI18n.translate(
               context,
               'issue_wizard.add_credential',
-              translationParams: {
-                'credential': activeItem.header.translate(lang),
-              },
-            ));
+              translationParams: {'credential': activeItem.header.translate(lang)},
+            ),
+          );
     final wizardContentSize = wizard.wizardContents.length;
 
     return WizardScaffold(
@@ -109,10 +100,7 @@ class IssueWizardContents extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (wizardContentSize > 1 && wizard.activeItemIndex > -1)
-            SessionProgressIndicator(
-              step: wizard.activeItemIndex + 1,
-              stepCount: wizardContentSize,
-            ),
+            SessionProgressIndicator(step: wizard.activeItemIndex + 1, stepCount: wizardContentSize),
           SizedBox(height: theme.smallSpacing),
           _buildWizard(context, lang, wizard),
         ],

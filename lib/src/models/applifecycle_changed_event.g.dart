@@ -6,13 +6,12 @@ part of 'applifecycle_changed_event.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-AppLifecycleChangedEvent _$AppLifecycleChangedEventFromJson(Map<String, dynamic> json) => AppLifecycleChangedEvent(
-      $enumDecode(_$AppLifecycleStateEnumMap, json['state']),
-    );
+AppLifecycleChangedEvent _$AppLifecycleChangedEventFromJson(Map<String, dynamic> json) =>
+    AppLifecycleChangedEvent($enumDecode(_$AppLifecycleStateEnumMap, json['state']));
 
 Map<String, dynamic> _$AppLifecycleChangedEventToJson(AppLifecycleChangedEvent instance) => <String, dynamic>{
-      'state': _$AppLifecycleStateEnumMap[instance.state]!,
-    };
+  'state': _$AppLifecycleStateEnumMap[instance.state]!,
+};
 
 const _$AppLifecycleStateEnumMap = {
   AppLifecycleState.detached: 'detached',

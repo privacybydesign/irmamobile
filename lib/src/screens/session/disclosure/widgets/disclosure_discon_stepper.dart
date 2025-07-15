@@ -26,9 +26,7 @@ class DisclosureDisconStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final currentCandidateIndex = currentCandidateKey != null
-        ? candidatesList.indexWhere(
-            (candidateEntry) => candidateEntry.key == currentCandidateKey,
-          )
+        ? candidatesList.indexWhere((candidateEntry) => candidateEntry.key == currentCandidateKey)
         : null;
     return IrmaStepper(
       currentIndex: currentCandidateIndex,
@@ -37,35 +35,33 @@ class DisclosureDisconStepper extends StatelessWidget {
             (candidateIndex, candidateEntry) =>
                 // If this item is a choice, render choice widget.
                 currentCandidateKey != null &&
-                        currentCandidateKey! <= candidateEntry.key &&
-                        candidateEntry.value.length > 1
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(theme.smallSpacing),
-                            child: TranslatedText(
-                              'disclosure_permission.choose',
-                              style: theme.themeData.textTheme.headlineMedium,
-                            ),
-                          ),
-                          DisclosurePermissionChoice(
-                            isActive: candidateEntry.key == currentCandidateKey,
-                            choice: {
-                              for (int i = 0; i < candidateEntry.value.length; i++) i: candidateEntry.value[i],
-                            },
-                            selectedConIndex: selectedConIndices[candidateEntry.key]!,
-                            onChoiceUpdated: onChoiceUpdated,
-                          ),
-                        ],
-                      )
-                    // If not, render credential card.
-                    : DisclosureIssueWizardCredentialCards(
-                        isActive: candidateEntry.key == currentCandidateKey,
-                        // Only show the attribute values when the candidate has yet to be completed
-                        hideAttributes: currentCandidateIndex == null || candidateIndex < currentCandidateIndex,
-                        credentials: candidateEntry.value[selectedConIndices[candidateEntry.key]!],
+                    currentCandidateKey! <= candidateEntry.key &&
+                    candidateEntry.value.length > 1
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(theme.smallSpacing),
+                        child: TranslatedText(
+                          'disclosure_permission.choose',
+                          style: theme.themeData.textTheme.headlineMedium,
+                        ),
                       ),
+                      DisclosurePermissionChoice(
+                        isActive: candidateEntry.key == currentCandidateKey,
+                        choice: {for (int i = 0; i < candidateEntry.value.length; i++) i: candidateEntry.value[i]},
+                        selectedConIndex: selectedConIndices[candidateEntry.key]!,
+                        onChoiceUpdated: onChoiceUpdated,
+                      ),
+                    ],
+                  )
+                // If not, render credential card.
+                : DisclosureIssueWizardCredentialCards(
+                    isActive: candidateEntry.key == currentCandidateKey,
+                    // Only show the attribute values when the candidate has yet to be completed
+                    hideAttributes: currentCandidateIndex == null || candidateIndex < currentCandidateIndex,
+                    credentials: candidateEntry.value[selectedConIndices[candidateEntry.key]!],
+                  ),
           )
           .toList(),
     );

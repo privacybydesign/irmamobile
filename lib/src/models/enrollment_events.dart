@@ -21,12 +21,7 @@ class EnrollmentStatusEvent extends Event {
 
 @JsonSerializable()
 class EnrollEvent extends Event {
-  EnrollEvent({
-    required this.email,
-    required this.pin,
-    required this.language,
-    required this.schemeId,
-  });
+  EnrollEvent({required this.email, required this.pin, required this.language, required this.schemeId});
 
   @JsonKey(name: 'Email')
   final String email;
@@ -48,10 +43,7 @@ class EnrollmentEvent extends Event {}
 
 @JsonSerializable()
 class EnrollmentFailureEvent extends EnrollmentEvent {
-  EnrollmentFailureEvent({
-    required this.schemeManagerID,
-    required this.error,
-  });
+  EnrollmentFailureEvent({required this.schemeManagerID, required this.error});
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;

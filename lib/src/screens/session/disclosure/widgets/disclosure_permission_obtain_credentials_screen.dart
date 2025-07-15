@@ -23,10 +23,7 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
     if (state.allObtained) {
       onEvent(DisclosurePermissionNextPressed());
     } else {
-      IrmaRepositoryProvider.of(context).openIssueURL(
-        context,
-        state.currentIssueWizardItem!.credentialType.fullId,
-      );
+      IrmaRepositoryProvider.of(context).openIssueURL(context, state.currentIssueWizardItem!.credentialType.fullId);
     }
   }
 
@@ -41,12 +38,7 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DisclosureTemplateStepper(
-              templates: state.templates,
-              currentItem: state.currentIssueWizardItem,
-            )
-          ],
+          children: [DisclosureTemplateStepper(templates: state.templates, currentItem: state.currentIssueWizardItem)],
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(

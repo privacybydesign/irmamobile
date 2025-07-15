@@ -28,8 +28,9 @@ final credentialsProvider = StreamProvider<Credentials>((ref) async* {
 final credentialsForTypeProvider = FutureProviderFamily<List<Credential>, String>((ref, credentialTypeId) async {
   final credentials = await ref.watch(credentialsProvider.future);
 
-  final filteredCredentials =
-      credentials.values.where((cred) => cred.info.credentialType.fullId == credentialTypeId).toList();
+  final filteredCredentials = credentials.values
+      .where((cred) => cred.info.credentialType.fullId == credentialTypeId)
+      .toList();
 
   return filteredCredentials;
 });
@@ -37,18 +38,16 @@ final credentialsForTypeProvider = FutureProviderFamily<List<Credential>, String
 final credentialsSearchQueryProvider = StateProvider((ref) => '');
 
 // A list of credentials filtered by the query in the `credentialsSearchQueryProvider`
-final credentialsSearchResultsProvider = FutureProvider.family<List<Credential>, Locale>(
-  (ref, locale) async {
-    final query = ref.watch(credentialsSearchQueryProvider);
-    final credentials = await ref.watch(credentialsProvider.future);
-    final repo = ref.watch(irmaRepositoryProvider);
+final credentialsSearchResultsProvider = FutureProvider.family<List<Credential>, Locale>((ref, locale) async {
+  final query = ref.watch(credentialsSearchQueryProvider);
+  final credentials = await ref.watch(credentialsProvider.future);
+  final repo = ref.watch(irmaRepositoryProvider);
 
-    final searchEntries = _credentialsToSearchEntries(credentials, locale, repo.irmaConfiguration);
-    final searchResults = _search(searchEntries, query);
-    final filteredCredentials = _searchEntriesToCredentials(credentials, searchResults);
-    return filteredCredentials;
-  },
-);
+  final searchEntries = _credentialsToSearchEntries(credentials, locale, repo.irmaConfiguration);
+  final searchResults = _search(searchEntries, query);
+  final filteredCredentials = _searchEntriesToCredentials(credentials, searchResults);
+  return filteredCredentials;
+});
 
 // We create a separate class because the Credential class doesn't have the correct
 // translation for the credential type and only contains the ID for the issuer
@@ -92,19 +91,24 @@ double _scoreForSearchEntry(_SearchEntry credential, String query) {
 }
 
 List<_SearchEntry> _credentialsToSearchEntries(Credentials credentials, Locale locale, IrmaConfiguration config) {
-  return credentials.values.map((credential) {
-    final credentialName =
-        credential.credentialType.name.translate(locale.languageCode).toLowerCase().replaceAll('-', '');
-
-    final issuer = config.issuers[credential.credentialType.fullIssuerId]?.name
+  return credentials.values
+      .map((credential) {
+        final credentialName = credential.credentialType.name
             .translate(locale.languageCode)
             .toLowerCase()
-            .replaceAll('-', '') ??
-        '';
+            .replaceAll('-', '');
 
-    final hash = credential.hash;
-    return _SearchEntry(hash: hash, credentialType: credentialName, issuerName: issuer);
-  }).toList(growable: false);
+        final issuer =
+            config.issuers[credential.credentialType.fullIssuerId]?.name
+                .translate(locale.languageCode)
+                .toLowerCase()
+                .replaceAll('-', '') ??
+            '';
+
+        final hash = credential.hash;
+        return _SearchEntry(hash: hash, credentialType: credentialName, issuerName: issuer);
+      })
+      .toList(growable: false);
 }
 
 List<Credential> _searchEntriesToCredentials(Credentials credentials, List<_SearchEntry> entries) {

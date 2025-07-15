@@ -8,16 +8,9 @@ class DynamicLayout extends StatelessWidget {
   final Widget content;
   final List<Widget>? actions;
 
-  const DynamicLayout({
-    required this.hero,
-    required this.content,
-    required this.actions,
-  });
+  const DynamicLayout({required this.hero, required this.content, required this.actions});
 
-  Row _buildButtonsRow(
-    IrmaThemeData theme,
-    List<Widget> actions,
-  ) {
+  Row _buildButtonsRow(IrmaThemeData theme, List<Widget> actions) {
     final List<Widget> rowChildren = [];
     for (var action in actions) {
       rowChildren.add(Expanded(child: action));
@@ -25,17 +18,10 @@ class DynamicLayout extends StatelessWidget {
         rowChildren.add(SizedBox(width: theme.smallSpacing));
       }
     }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: rowChildren,
-    );
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: rowChildren);
   }
 
-  Padding _buildLandscapeLayout(
-    IrmaThemeData theme,
-    BoxConstraints constraints,
-    bool isSmallScreen,
-  ) {
+  Padding _buildLandscapeLayout(IrmaThemeData theme, BoxConstraints constraints, bool isSmallScreen) {
     final actions = this.actions;
 
     return Padding(
@@ -44,12 +30,8 @@ class DynamicLayout extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: hero,
-            ),
-            SizedBox(
-              width: theme.smallSpacing,
-            ),
+            Expanded(child: hero),
+            SizedBox(width: theme.smallSpacing),
             Expanded(
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -57,11 +39,7 @@ class DynamicLayout extends StatelessWidget {
                   child: Column(
                     children: [
                       Expanded(
-                        child: Center(
-                          child: SingleChildScrollView(
-                            child: content,
-                          ),
-                        ),
+                        child: Center(child: SingleChildScrollView(child: content)),
                       ),
                       if (actions != null)
                         Align(
@@ -96,29 +74,21 @@ class DynamicLayout extends StatelessWidget {
         child: Stack(
           children: [
             SingleChildScrollView(
-              padding: EdgeInsets.all(
-                isSmallScreen ? theme.defaultSpacing : theme.largeSpacing,
-              ),
+              padding: EdgeInsets.all(isSmallScreen ? theme.defaultSpacing : theme.largeSpacing),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   hero,
                   SizedBox(height: theme.mediumSpacing),
-                  Row(
-                    children: [
-                      Expanded(child: content),
-                    ],
-                  ),
-                  if (actions != null) const SizedBox(height: 100)
+                  Row(children: [Expanded(child: content)]),
+                  if (actions != null) const SizedBox(height: 100),
                 ],
               ),
             ),
             if (actions != null)
               Align(
                 alignment: Alignment.bottomCenter,
-                child: IrmaBottomBarBase(
-                  child: _buildButtonsRow(theme, actions),
-                ),
+                child: IrmaBottomBarBase(child: _buildButtonsRow(theme, actions)),
               ),
           ],
         ),

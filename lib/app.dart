@@ -26,12 +26,7 @@ class App extends StatefulWidget {
   final Locale? forcedLocale;
   final NotificationsBloc notificationsBloc;
 
-  const App({
-    super.key,
-    required this.irmaRepository,
-    required this.notificationsBloc,
-    this.forcedLocale,
-  });
+  const App({super.key, required this.irmaRepository, required this.notificationsBloc, this.forcedLocale});
 
   @override
   AppState createState() => AppState();
@@ -68,15 +63,12 @@ class AppState extends State<App> with WidgetsBindingObserver {
       ),
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate
+      GlobalCupertinoLocalizations.delegate,
     ];
   }
 
   static List<Locale> defaultSupportedLocales() {
-    return const [
-      Locale('en', 'US'),
-      Locale('nl', 'NL'),
-    ];
+    return const [Locale('en', 'US'), Locale('nl', 'NL')];
   }
 
   @override
@@ -156,9 +148,9 @@ class AppState extends State<App> with WidgetsBindingObserver {
     if (prevLifeCycleStates.contains(AppLifecycleState.paused) &&
         prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
         state == AppLifecycleState.resumed) {
-      final status = await widget.irmaRepository
-          .getEnrollmentStatus()
-          .firstWhere((status) => status != EnrollmentStatus.undetermined);
+      final status = await widget.irmaRepository.getEnrollmentStatus().firstWhere(
+        (status) => status != EnrollmentStatus.undetermined,
+      );
       // First check whether we should redo pin verification
       final lastActive = await widget.irmaRepository.getLastActiveTime().first;
       final locked = await widget.irmaRepository.getLocked().first;

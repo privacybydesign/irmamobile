@@ -45,9 +45,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                     compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
                     disabled: isDisabled,
                     headerTrailing: credential == option.value.first
-                        ? RadioIndicator(
-                            isSelected: option.key == selectedConIndex,
-                          )
+                        ? RadioIndicator(isSelected: option.key == selectedConIndex)
                         : null,
                   ),
                 ),
@@ -60,9 +58,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final entry in choice.entries) _buildChoiceOption(context, entry),
-        ],
-      );
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [for (final entry in choice.entries) _buildChoiceOption(context, entry)],
+  );
 }

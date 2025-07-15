@@ -13,7 +13,9 @@ import '../../util.dart';
 import '../disclosure_helpers.dart';
 
 Future<void> filledSpecificAttributeValuesNoMatchTest(
-    WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueDemoCredentials(tester, irmaBinding);
 
@@ -42,12 +44,8 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     cardsFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'sidn.nl',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'sidn.nl',
-    },
+    attributes: {'Email domain name': 'sidn.nl'},
+    attributesCompareTo: {'Email domain name': 'sidn.nl'},
     style: IrmaCardStyle.highlighted,
   );
 
@@ -65,10 +63,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   expect(wrongCredAddedDialogFinder, findsOneWidget);
 
   // Dialog should show two credential cards
-  final dialogCardsFinder = find.descendant(
-    of: wrongCredAddedDialogFinder,
-    matching: find.byType(IrmaCredentialCard),
-  );
+  final dialogCardsFinder = find.descendant(of: wrongCredAddedDialogFinder, matching: find.byType(IrmaCredentialCard));
   expect(dialogCardsFinder, findsNWidgets(2));
 
   // Evaluate the cards in the dialog
@@ -77,12 +72,8 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     dialogCardsFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'demo.com',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'sidn.nl',
-    },
+    attributes: {'Email domain name': 'demo.com'},
+    attributesCompareTo: {'Email domain name': 'sidn.nl'},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -90,12 +81,8 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     dialogCardsFinder.at(1),
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'sidn.nl',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'sidn.nl',
-    },
+    attributes: {'Email domain name': 'sidn.nl'},
+    attributesCompareTo: {'Email domain name': 'sidn.nl'},
     style: IrmaCardStyle.normal,
   );
 
@@ -137,10 +124,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     cardsFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@sidn.nl',
-      'Email domain name': 'sidn.nl',
-    },
+    attributes: {'Email address': 'test@sidn.nl', 'Email domain name': 'sidn.nl'},
     style: IrmaCardStyle.normal,
   );
 

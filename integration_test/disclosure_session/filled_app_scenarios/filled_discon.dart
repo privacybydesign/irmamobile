@@ -51,11 +51,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem'},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -63,9 +59,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.at(1),
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    attributes: {'Email address': 'test@example.com'},
     style: IrmaCardStyle.normal,
   );
 
@@ -81,11 +75,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem'},
     isSelected: true,
   );
 
@@ -99,10 +89,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     attributes: {},
     isSelected: false,
   );
-  await tester.scrollUntilVisible(
-    secondCardFinder.hitTestable(),
-    50,
-  );
+  await tester.scrollUntilVisible(secondCardFinder.hitTestable(), 50);
   // Tap iDIN option
   await tester.tapAndSettle(secondCardFinder);
 
@@ -133,11 +120,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem'},
     isSelected: false,
   );
 
@@ -147,10 +130,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.at(1),
     credentialName: 'Demo iDIN',
     issuerName: 'Demo iDIN',
-    attributes: {
-      'Address': 'Meander 501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Address': 'Meander 501', 'City': 'Arnhem'},
     isSelected: true,
   );
 
@@ -158,10 +138,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // Check the second change choice
-  await tester.scrollUntilVisible(
-    changeChoiceFinder.at(1).hitTestable(),
-    50,
-  );
+  await tester.scrollUntilVisible(changeChoiceFinder.at(1).hitTestable(), 50);
   await tester.tapAndSettle(changeChoiceFinder.at(1));
 
   // Evaluate the choice screen
@@ -171,9 +148,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    attributes: {'Email address': 'test@example.com'},
     isSelected: true,
   );
   await evaluateCredentialCard(
@@ -195,10 +170,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.first,
     credentialName: 'Demo iDIN',
     issuerName: 'Demo iDIN',
-    attributes: {
-      'Address': 'Meander 501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Address': 'Meander 501', 'City': 'Arnhem'},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -206,9 +178,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.at(1),
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    attributes: {'Email address': 'test@example.com'},
     style: IrmaCardStyle.normal,
   );
 

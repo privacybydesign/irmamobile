@@ -29,30 +29,15 @@ class TranslatedText extends StatelessWidget {
   });
 
   Widget _buildMarkdown(String translation, BuildContext context) {
-    return IrmaMarkdown(
-      translation,
-      styleSheet: MarkdownStyleSheet(
-        p: style,
-      ),
-    );
+    return IrmaMarkdown(translation, styleSheet: MarkdownStyleSheet(p: style));
   }
 
   Widget _buildText(String translation) {
-    return Text(
-      translation,
-      style: style,
-      textAlign: textAlign,
-      maxLines: maxLines,
-    );
+    return Text(translation, style: style, textAlign: textAlign, maxLines: maxLines);
   }
 
   String _translate(BuildContext context, String key) {
-    return FlutterI18n.translate(
-      context,
-      key,
-      fallbackKey: fallbackKey,
-      translationParams: translationParams,
-    );
+    return FlutterI18n.translate(context, key, fallbackKey: fallbackKey, translationParams: translationParams);
   }
 
   @override
@@ -60,17 +45,9 @@ class TranslatedText extends StatelessWidget {
     final splitKey = _key.split('.');
 
     if (splitKey.isNotEmpty && splitKey.last.contains('_markdown')) {
-      return _buildMarkdown(
-        _translate(context, _key),
-        context,
-      );
+      return _buildMarkdown(_translate(context, _key), context);
     }
 
-    return Semantics(
-      header: isHeader,
-      child: _buildText(
-        _translate(context, _key),
-      ),
-    );
+    return Semantics(header: isHeader, child: _buildText(_translate(context, _key)));
   }
 }

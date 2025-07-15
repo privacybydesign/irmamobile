@@ -22,10 +22,7 @@ void main() {
   setUp(() async {
     mockBridge = IrmaMockBridge();
     SharedPreferences.setMockInitialValues({});
-    repo = IrmaRepository(
-      client: mockBridge,
-      preferences: await IrmaPreferences.fromInstance(),
-    );
+    repo = IrmaRepository(client: mockBridge, preferences: await IrmaPreferences.fromInstance());
     await repo.getCredentials().first; // Wait until AppReadyEvent has been processed.
   });
   tearDown(() async {
@@ -37,10 +34,8 @@ void main() {
   test('issuance-in-disclosure-single-attribute', () async {
     mockBridge.mockDisclosureSession(42, [
       [
-        {
-          'irma-demo.IRMATube.member.id': null,
-        }
-      ]
+        {'irma-demo.IRMATube.member.id': null},
+      ],
     ]);
 
     final obtainCredentialsController = StreamController<String>.broadcast();
@@ -51,7 +46,12 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.bridgedDispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')));
+    repo.bridgedDispatch(
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
+    );
 
     // When doing a disclosure session the first time, we should see the introduction.
     expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
@@ -84,7 +84,7 @@ void main() {
       {
         'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-      }
+      },
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
@@ -107,8 +107,10 @@ void main() {
     expect(choicesOverviewBlocState.requiredChoices[0]?[0], isA<ChoosableDisclosureCredential>());
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'irma-demo.IRMATube.member');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
-        'irma-demo.IRMATube.member.id');
+    expect(
+      choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
+      'irma-demo.IRMATube.member.id',
+    );
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '12345');
 
     bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 0));
@@ -137,7 +139,7 @@ void main() {
       {
         'irma-demo.IRMATube.member.id': TextValue.fromString('67890'),
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-      }
+      },
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
@@ -165,8 +167,10 @@ void main() {
     expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'irma-demo.IRMATube.member');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
-        'irma-demo.IRMATube.member.id');
+    expect(
+      choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
+      'irma-demo.IRMATube.member.id',
+    );
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '12345');
 
     bloc.add(DisclosurePermissionNextPressed());
@@ -201,28 +205,19 @@ void main() {
       {
         'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
         'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
-      }
+      },
     ]);
 
     mockBridge.mockDisclosureSession(43, [
       [
-        {
-          'pbdf.pbdf.idin.address': null,
-        },
-        {
-          'pbdf.gemeente.address.street': null,
-          'pbdf.gemeente.address.houseNumber': null,
-        },
+        {'pbdf.pbdf.idin.address': null},
+        {'pbdf.gemeente.address.street': null, 'pbdf.gemeente.address.houseNumber': null},
       ],
       [
-        {
-          'pbdf.pbdf.email.email': null,
-        },
+        {'pbdf.pbdf.email.email': null},
       ],
       [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
     ]);
 
@@ -235,7 +230,10 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -286,7 +284,7 @@ void main() {
         'pbdf.gemeente.address.city': TextValue.fromString('Amsterdam'),
         'pbdf.gemeente.address.municipality': TextValue.fromString('Amsterdam'),
         'pbdf.gemeente.address.zipcode': TextValue.fromString('1000AA'),
-      }
+      },
     ]);
 
     // Obtaining credentials should be completed and, because the length was 1,
@@ -312,9 +310,7 @@ void main() {
     // Because the templates length is only 1, the credential should be obtained immediately.
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 45, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     // Obtaining credentials should be completed and, because the length was 1,
@@ -377,7 +373,7 @@ void main() {
       {
         'pbdf.pbdf.email.email': TextValue.fromString('test2@example.com'),
         'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
-      }
+      },
     ]);
 
     // Check whether the newly added credential is selected.
@@ -416,8 +412,10 @@ void main() {
     expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'pbdf.gemeente.address');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 2);
-    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
-        'pbdf.gemeente.address.street');
+    expect(
+      choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
+      'pbdf.gemeente.address.street',
+    );
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, 'Beukenlaan');
     expect(choicesOverviewBlocState.requiredChoices[1]?.length, 1);
     expect(choicesOverviewBlocState.requiredChoices[1]?[0].fullId, 'pbdf.pbdf.email');
@@ -463,9 +461,7 @@ void main() {
     // Because the templates length is only 1, the credential should be obtained immediately.
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 47, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31687654321'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31687654321')},
     ]);
 
     // Check whether the newly added credential is selected.
@@ -519,28 +515,23 @@ void main() {
       {
         'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
         'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
-      }
+      },
     ]);
 
     mockBridge.mockDisclosureSession(43, [
       [
-        {
-          'pbdf.pbdf.email.email': null,
-        },
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.email.email': null},
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
     ]);
 
-    final bloc = DisclosurePermissionBloc(
-      sessionID: 43,
-      repo: repo,
-      onObtainCredential: (_) => {},
-    );
+    final bloc = DisclosurePermissionBloc(sessionID: 43, repo: repo, onObtainCredential: (_) => {});
     expect(bloc.state, isA<DisclosurePermissionInitial>());
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -555,10 +546,7 @@ void main() {
     expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'pbdf.pbdf.email');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
-    expect(
-      choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
-      'pbdf.pbdf.email.email',
-    );
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId, 'pbdf.pbdf.email.email');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, 'test@example.com');
 
     bloc.add(DisclosurePermissionNextPressed());
@@ -580,22 +568,14 @@ void main() {
   test('issuance-in-disclosure-specific-attributes', () async {
     mockBridge.mockDisclosureSession(42, [
       [
-        {
-          'pbdf.pbdf.email.domain': 'example.com',
-        },
+        {'pbdf.pbdf.email.domain': 'example.com'},
       ],
       [
-        {
-          'pbdf.pbdf.email.email': 'test@example.com',
-        },
+        {'pbdf.pbdf.email.email': 'test@example.com'},
       ],
       [
-        {
-          'irma-demo.ivido.login.identifier': null,
-        },
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'irma-demo.ivido.login.identifier': null},
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
     ]);
 
@@ -606,7 +586,10 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -644,7 +627,7 @@ void main() {
       {
         'pbdf.pbdf.email.email': TextValue.fromString('test@wrong.example.com'),
         'pbdf.pbdf.email.domain': TextValue.fromString('wrong.example.com'),
-      }
+      },
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionWrongCredentialsObtained>());
@@ -666,7 +649,7 @@ void main() {
       {
         'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
         'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
-      }
+      },
     ]);
 
     // The discon with index 1 should be fulfilled too, so we should immediately go to the discon with index 2.
@@ -711,9 +694,7 @@ void main() {
 
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 45, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     // The issue wizard should be completed now, because the second candidate contains the same credential type.
@@ -760,14 +741,10 @@ void main() {
     // Disclose id and email address of surfnet-2, but they don't have to come from the same credential instance.
     mockBridge.mockDisclosureSession(42, [
       [
-        {
-          'pbdf.pbdf.surfnet-2.id': null,
-        },
+        {'pbdf.pbdf.surfnet-2.id': null},
       ],
       [
-        {
-          'pbdf.pbdf.surfnet-2.email': null,
-        },
+        {'pbdf.pbdf.surfnet-2.email': null},
       ],
     ]);
 
@@ -778,7 +755,10 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -807,7 +787,7 @@ void main() {
       {
         'pbdf.pbdf.surfnet-2.id': TextValue.fromString('12345'),
         'pbdf.pbdf.surfnet-2.email': TextValue.fromString('test@example.com'),
-      }
+      },
     ]);
 
     // The issue wizard should be completed now, because the second candidate contains the same credential type.
@@ -846,7 +826,7 @@ void main() {
       {
         'pbdf.pbdf.surfnet-2.id': TextValue.fromString('54321'),
         'pbdf.pbdf.surfnet-2.email': TextValue.fromString('test2@example.com'),
-      }
+      },
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
@@ -889,9 +869,7 @@ void main() {
     mockBridge.mockDisclosureSession(42, [
       [
         {},
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
     ]);
 
@@ -902,7 +880,10 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -928,9 +909,7 @@ void main() {
 
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 43, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
@@ -968,25 +947,19 @@ void main() {
       {
         'pbdf.pbdf.surfnet-2.id': TextValue.fromString('12345'),
         'pbdf.pbdf.surfnet-2.email': TextValue.fromString('test@example.com'),
-      }
+      },
     ]);
 
     // Optionally, disclose your mobile number and/or email address.
     mockBridge.mockDisclosureSession(43, [
       [
         {},
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
       [
         {},
-        {
-          'pbdf.pbdf.email.email': null,
-        },
-        {
-          'pbdf.pbdf.surfnet-2.email': null,
-        },
+        {'pbdf.pbdf.email.email': null},
+        {'pbdf.pbdf.surfnet-2.email': null},
       ],
     ]);
 
@@ -997,7 +970,10 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1031,9 +1007,7 @@ void main() {
 
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 44, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
@@ -1072,24 +1046,18 @@ void main() {
       {
         'pbdf.pbdf.surfnet-2.id': TextValue.fromString('12345'),
         'pbdf.pbdf.surfnet-2.email': TextValue.fromString('test@example.com'),
-      }
+      },
     ]);
 
     // Disclose your mobile number and optionally email address from pbdf or surfnet.
     mockBridge.mockDisclosureSession(43, [
       [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
       [
         {},
-        {
-          'pbdf.pbdf.email.email': null,
-        },
-        {
-          'pbdf.pbdf.surfnet-2.email': null,
-        },
+        {'pbdf.pbdf.email.email': null},
+        {'pbdf.pbdf.surfnet-2.email': null},
       ],
     ]);
 
@@ -1100,7 +1068,10 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1120,9 +1091,7 @@ void main() {
 
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 44, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
@@ -1199,22 +1168,14 @@ void main() {
     // Ensure email credential is already present to make sure we have both a con with and without
     // previously added credentials. In this case, the planned steps should be recalculated when changing choices.
     await _issueCredential(repo, mockBridge, 42, [
-      {
-        'pbdf.sidn-pbdf.irma.pseudonym': TextValue.fromString('12345'),
-      }
+      {'pbdf.sidn-pbdf.irma.pseudonym': TextValue.fromString('12345')},
     ]);
 
     // Disclosure either (irma pseudonym, city and email) or (mobile number).
     mockBridge.mockDisclosureSession(43, [
       [
-        {
-          'pbdf.sidn-pbdf.irma.pseudonym': null,
-          'pbdf.gemeente.address.city': null,
-          'pbdf.pbdf.email.email': null,
-        },
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.sidn-pbdf.irma.pseudonym': null, 'pbdf.gemeente.address.city': null, 'pbdf.pbdf.email.email': null},
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
     ]);
 
@@ -1225,7 +1186,10 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1279,9 +1243,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionCredentialInformation>());
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 44, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     // The issue wizard should be completed now.
@@ -1319,9 +1281,7 @@ void main() {
   test('single-discon-complex-inner-con', () async {
     // Ensure we already have irma pseudonym.
     await _issueCredential(repo, mockBridge, 42, [
-      {
-        'pbdf.sidn-pbdf.irma.pseudonym': TextValue.fromString('12345'),
-      }
+      {'pbdf.sidn-pbdf.irma.pseudonym': TextValue.fromString('12345')},
     ]);
 
     // Ensure we already have surfnet id.
@@ -1329,7 +1289,7 @@ void main() {
       {
         'pbdf.pbdf.surfnet-2.id': TextValue.fromString('12345'),
         'pbdf.pbdf.surfnet-2.email': TextValue.fromString('test@example.com'),
-      }
+      },
     ]);
 
     // Disclosure either (irma pseudonym, city and mobile number) or (surfnet id and city).
@@ -1340,10 +1300,7 @@ void main() {
           'pbdf.gemeente.address.city': null,
           'pbdf.pbdf.mobilenumber.mobilenumber': null,
         },
-        {
-          'pbdf.pbdf.surfnet-2.id': null,
-          'pbdf.gemeente.address.city': null,
-        },
+        {'pbdf.pbdf.surfnet-2.id': null, 'pbdf.gemeente.address.city': null},
       ],
     ]);
 
@@ -1354,7 +1311,10 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 44,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1401,7 +1361,7 @@ void main() {
         'pbdf.gemeente.address.city': TextValue.fromString('Amsterdam'),
         'pbdf.gemeente.address.municipality': TextValue.fromString('Amsterdam'),
         'pbdf.gemeente.address.zipcode': TextValue.fromString('1000AA'),
-      }
+      },
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionObtainCredentials>());
@@ -1418,9 +1378,7 @@ void main() {
 
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 46, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionObtainCredentials>());
@@ -1480,17 +1438,11 @@ void main() {
     // Disclosure email address and mobile number
     mockBridge.mockDisclosureSession(42, [
       [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
       [
-        {
-          'pbdf.pbdf.surfnet-2.id': null,
-        },
-        {
-          'pbdf.pbdf.email.email': null,
-        },
+        {'pbdf.pbdf.surfnet-2.id': null},
+        {'pbdf.pbdf.email.email': null},
       ],
     ]);
 
@@ -1501,7 +1453,10 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1516,13 +1471,11 @@ void main() {
 
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
     await _issueCredential(repo, mockBridge, 43, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      },
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
       {
         'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
         'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
-      }
+      },
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
@@ -1553,26 +1506,23 @@ void main() {
       {
         'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-      }
+      },
     ]);
 
     mockBridge.mockDisclosureSession(43, [
       [
-        {
-          'irma-demo.IRMATube.member.id': null,
-        }
-      ]
+        {'irma-demo.IRMATube.member.id': null},
+      ],
     ]);
 
-    final bloc = DisclosurePermissionBloc(
-      sessionID: 43,
-      repo: repo,
-      onObtainCredential: (_) => {},
-    );
+    final bloc = DisclosurePermissionBloc(sessionID: 43, repo: repo, onObtainCredential: (_) => {});
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1589,21 +1539,18 @@ void main() {
 
     mockBridge.mockDisclosureSession(44, [
       [
-        {
-          'irma-demo.IRMATube.member.id': null,
-        }
-      ]
+        {'irma-demo.IRMATube.member.id': null},
+      ],
     ]);
 
-    final bloc2 = DisclosurePermissionBloc(
-      sessionID: 44,
-      repo: repo,
-      onObtainCredential: (_) => {},
-    );
+    final bloc2 = DisclosurePermissionBloc(sessionID: 44, repo: repo, onObtainCredential: (_) => {});
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 44,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // In the second session, the introduction should be skipped.
@@ -1617,35 +1564,24 @@ void main() {
   });
 
   test('expired-credential', () async {
-    await _issueCredential(
-      repo,
-      mockBridge,
-      42,
-      [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-        }
-      ],
-      validity: const Duration(days: -1),
-    );
+    await _issueCredential(repo, mockBridge, 42, [
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
+    ], validity: const Duration(days: -1));
 
     mockBridge.mockDisclosureSession(43, [
       [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
     ]);
 
-    final bloc = DisclosurePermissionBloc(
-      sessionID: 43,
-      repo: repo,
-      onObtainCredential: (_) => {},
-    );
+    final bloc = DisclosurePermissionBloc(sessionID: 43, repo: repo, onObtainCredential: (_) => {});
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1661,9 +1597,7 @@ void main() {
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].expired, true);
 
     await _issueCredential(repo, mockBridge, 44, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -1683,28 +1617,16 @@ void main() {
   });
 
   test('revoked-credential', () async {
-    await _issueCredential(
-      repo,
-      mockBridge,
-      42,
-      [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-        }
-      ],
-      revoked: true,
-    );
+    await _issueCredential(repo, mockBridge, 42, [
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
+    ], revoked: true);
 
     mockBridge.mockDisclosureSession(43, [
       [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
       [
-        {
-          'irma-demo.IRMATube.member.id': null,
-        }
+        {'irma-demo.IRMATube.member.id': null},
       ],
     ]);
 
@@ -1717,7 +1639,10 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1740,7 +1665,7 @@ void main() {
       {
         'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-      }
+      },
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
@@ -1758,9 +1683,7 @@ void main() {
     expect(prevAddedCredsBlocState.requiredChoices[0]?[0].revoked, true);
 
     await _issueCredential(repo, mockBridge, 45, [
-      {
-        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-      }
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
     ]);
 
     expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
@@ -1791,31 +1714,24 @@ void main() {
   test('unobtainable-credential', () async {
     mockBridge.mockDisclosureSession(42, [
       [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
       [
-        {
-          'pbdf.chipsoft.bsn.bsn': null,
-        }
+        {'pbdf.chipsoft.bsn.bsn': null},
       ],
       [
-        {
-          'pbdf.pbdf.email.email': null,
-        },
+        {'pbdf.pbdf.email.email': null},
       ],
     ]);
 
-    final bloc = DisclosurePermissionBloc(
-      sessionID: 42,
-      repo: repo,
-      onObtainCredential: (_) {},
-    );
+    final bloc = DisclosurePermissionBloc(sessionID: 42, repo: repo, onObtainCredential: (_) {});
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1840,63 +1756,43 @@ void main() {
     expect(issueWizardBlocState.candidatesList[2].value[0].length, 1);
     expect(issueWizardBlocState.candidatesList[2].value[0][0].fullId, 'pbdf.pbdf.email');
 
-    repo.bridgedDispatch(
-      RespondPermissionEvent(sessionID: 42, proceed: false, disclosureChoices: [[]]),
-    );
+    repo.bridgedDispatch(RespondPermissionEvent(sessionID: 42, proceed: false, disclosureChoices: [[]]));
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.canceled);
   });
 
   test('unobtainable-expired-credential', () async {
-    await _issueCredential(
-      repo,
-      mockBridge,
-      42,
-      [
-        {
-          'pbdf.chipsoft.bsn.bsn': TextValue.fromString('12345'),
-          'pbdf.chipsoft.bsn.dateofbirth': TextValue.fromString('01-01-2000'),
-          'pbdf.chipsoft.bsn.familyname': TextValue.fromString('Jansen'),
-          'pbdf.chipsoft.bsn.firstnames': TextValue.fromString('Jan'),
-          'pbdf.chipsoft.bsn.initials': TextValue.fromString('J.J.'),
-          'pbdf.chipsoft.bsn.prefix': TextValue.fromString(''),
-        }
-      ],
-      validity: const Duration(days: -1),
-    );
-    await _issueCredential(
-      repo,
-      mockBridge,
-      43,
-      [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
-        }
-      ],
-    );
+    await _issueCredential(repo, mockBridge, 42, [
+      {
+        'pbdf.chipsoft.bsn.bsn': TextValue.fromString('12345'),
+        'pbdf.chipsoft.bsn.dateofbirth': TextValue.fromString('01-01-2000'),
+        'pbdf.chipsoft.bsn.familyname': TextValue.fromString('Jansen'),
+        'pbdf.chipsoft.bsn.firstnames': TextValue.fromString('Jan'),
+        'pbdf.chipsoft.bsn.initials': TextValue.fromString('J.J.'),
+        'pbdf.chipsoft.bsn.prefix': TextValue.fromString(''),
+      },
+    ], validity: const Duration(days: -1));
+    await _issueCredential(repo, mockBridge, 43, [
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678')},
+    ]);
 
     mockBridge.mockDisclosureSession(44, [
       [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
       [
-        {
-          'pbdf.chipsoft.bsn.bsn': null,
-        }
+        {'pbdf.chipsoft.bsn.bsn': null},
       ],
     ]);
 
-    final bloc = DisclosurePermissionBloc(
-      sessionID: 44,
-      repo: repo,
-      onObtainCredential: (_) {},
-    );
+    final bloc = DisclosurePermissionBloc(sessionID: 44, repo: repo, onObtainCredential: (_) {});
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 44,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1907,32 +1803,25 @@ void main() {
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.choicesValid, false);
 
-    repo.bridgedDispatch(
-      RespondPermissionEvent(sessionID: 44, proceed: false, disclosureChoices: [[]]),
-    );
+    repo.bridgedDispatch(RespondPermissionEvent(sessionID: 44, proceed: false, disclosureChoices: [[]]));
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.canceled);
 
     mockBridge.mockDisclosureSession(45, [
       [
-        {
-          'pbdf.chipsoft.bsn.bsn': null,
-        },
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.chipsoft.bsn.bsn': null},
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
     ]);
 
-    final bloc2 = DisclosurePermissionBloc(
-      sessionID: 45,
-      repo: repo,
-      onObtainCredential: (_) {},
-    );
+    final bloc2 = DisclosurePermissionBloc(sessionID: 45, repo: repo, onObtainCredential: (_) {});
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 45,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -1976,48 +1865,23 @@ void main() {
 
   test('credential-status-sorting', () async {
     // Issue revoked credential
-    await _issueCredential(
-      repo,
-      mockBridge,
-      42,
-      [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31611111111'),
-        }
-      ],
-      revoked: true,
-    );
+    await _issueCredential(repo, mockBridge, 42, [
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31611111111')},
+    ], revoked: true);
 
     // Issue available credential
-    await _issueCredential(
-      repo,
-      mockBridge,
-      43,
-      [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31633333333'),
-        }
-      ],
-    );
+    await _issueCredential(repo, mockBridge, 43, [
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31633333333')},
+    ]);
 
     // Issue expired credential
-    await _issueCredential(
-      repo,
-      mockBridge,
-      44,
-      [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31622222222'),
-        }
-      ],
-      validity: const Duration(days: -1),
-    );
+    await _issueCredential(repo, mockBridge, 44, [
+      {'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31622222222')},
+    ], validity: const Duration(days: -1));
 
     mockBridge.mockDisclosureSession(45, [
       [
-        {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
-        },
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
       ],
     ]);
 
@@ -2030,7 +1894,10 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 45,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2088,7 +1955,7 @@ void main() {
         'pbdf.gemeente.address.city': TextValue.fromString('Amsterdam'),
         'pbdf.gemeente.address.municipality': TextValue.fromString('Amsterdam'),
         'pbdf.gemeente.address.zipcode': TextValue.fromString('1000AA'),
-      }
+      },
     ]);
 
     // Issue email credential (not singleton)
@@ -2096,32 +1963,27 @@ void main() {
       {
         'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
         'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
-      }
+      },
     ]);
 
     // Disclose city and email address
     mockBridge.mockDisclosureSession(44, [
       [
-        {
-          'pbdf.gemeente.address.city': null,
-        }
+        {'pbdf.gemeente.address.city': null},
       ],
       [
-        {
-          'pbdf.pbdf.email.email': null,
-        }
-      ]
+        {'pbdf.pbdf.email.email': null},
+      ],
     ]);
 
-    final bloc = DisclosurePermissionBloc(
-      sessionID: 44,
-      repo: repo,
-      onObtainCredential: (_) {},
-    );
+    final bloc = DisclosurePermissionBloc(sessionID: 44, repo: repo, onObtainCredential: (_) {});
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 44,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2156,13 +2018,8 @@ void main() {
   test('signed-message', () async {
     final sessionReq = [
       [
-        {
-          'pbdf.pbdf.idin.address': null,
-        },
-        {
-          'pbdf.gemeente.address.street': null,
-          'pbdf.gemeente.address.houseNumber': null,
-        },
+        {'pbdf.pbdf.idin.address': null},
+        {'pbdf.gemeente.address.street': null, 'pbdf.gemeente.address.houseNumber': null},
       ],
     ];
 
@@ -2178,7 +2035,10 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2217,7 +2077,7 @@ void main() {
         'pbdf.gemeente.address.city': TextValue.fromString('Amsterdam'),
         'pbdf.gemeente.address.municipality': TextValue.fromString('Amsterdam'),
         'pbdf.gemeente.address.zipcode': TextValue.fromString('1000AA'),
-      }
+      },
     ]);
 
     // Obtaining credentials should be completed and, because the length was 1,
@@ -2279,15 +2139,14 @@ void main() {
     // Test session again to test for copy state inconsistencies.
     mockBridge.mockDisclosureSession(44, sessionReq, signedMessage: 'test message 2');
 
-    final bloc2 = DisclosurePermissionBloc(
-      sessionID: 44,
-      repo: repo,
-      onObtainCredential: (_) {},
-    );
+    final bloc2 = DisclosurePermissionBloc(sessionID: 44, repo: repo, onObtainCredential: (_) {});
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(
+        sessionID: 44,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
     );
 
     expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -2324,14 +2183,14 @@ Future<void> _issueCredential(
   Duration validity = const Duration(days: 365),
   bool revoked = false,
 }) async {
-  mockBridge.mockIssuanceSession(
-    sessionID,
-    credentials,
-    validity: validity,
-    revoked: revoked,
-  );
+  mockBridge.mockIssuanceSession(sessionID, credentials, validity: validity, revoked: revoked);
 
-  repo.bridgedDispatch(NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')));
+  repo.bridgedDispatch(
+    NewSessionEvent(
+      sessionID: sessionID,
+      request: SessionPointer(irmaqr: 'issuing', u: ''),
+    ),
+  );
   await repo
       .getSessionState(sessionID)
       .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);

@@ -7,10 +7,7 @@ class TermsCheckBox extends StatelessWidget {
   final bool isAccepted;
   final Function(bool) onToggleAccepted;
 
-  const TermsCheckBox({
-    required this.isAccepted,
-    required this.onToggleAccepted,
-  });
+  const TermsCheckBox({required this.isAccepted, required this.onToggleAccepted});
 
   @override
   Widget build(BuildContext context) {
@@ -24,18 +21,10 @@ class TermsCheckBox extends StatelessWidget {
           key: const Key('accept_terms_checkbox'),
           value: isAccepted,
           activeColor: theme.themeData.colorScheme.secondary,
-          onChanged: (isAccepted) => onToggleAccepted(
-            isAccepted ?? false,
-          ),
+          onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
         ),
-        SizedBox(
-          width: theme.smallSpacing,
-        ),
-        const Flexible(
-          child: TranslatedText(
-            'enrollment.terms_and_conditions.accept_markdown',
-          ),
-        ),
+        SizedBox(width: theme.smallSpacing),
+        const Flexible(child: TranslatedText('enrollment.terms_and_conditions.accept_markdown')),
       ],
     );
   }

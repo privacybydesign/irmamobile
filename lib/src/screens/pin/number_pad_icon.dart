@@ -20,10 +20,7 @@ class _NumberPadIcon extends StatelessWidget {
               fit: BoxFit.fitHeight,
               child: Container(
                 alignment: Alignment.center,
-                child: Icon(
-                  icon,
-                  color: theme.secondary,
-                ),
+                child: Icon(icon, color: theme.secondary),
               ),
             ),
           ),

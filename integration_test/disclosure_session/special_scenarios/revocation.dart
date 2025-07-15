@@ -14,11 +14,7 @@ import '../../irma_binding.dart';
 import '../../util.dart';
 import '../disclosure_helpers.dart';
 
-Future<void> _evaluateDemoCredentialCard(
-  WidgetTester tester,
-  Finder revokedCardFinder, {
-  required bool isRevoked,
-}) =>
+Future<void> _evaluateDemoCredentialCard(WidgetTester tester, Finder revokedCardFinder, {required bool isRevoked}) =>
     evaluateCredentialCard(
       tester,
       revokedCardFinder,
@@ -41,9 +37,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   );
 
   // Close the add credential success screen
-  await tester.tap(
-    find.text('OK'),
-  );
+  await tester.tap(find.text('OK'));
 
   await revokeCredential('irma-demo.MijnOverheid.root', revocationKey);
   await irmaBinding.repository.startTestSession('''
@@ -118,10 +112,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   );
 
   // Find the (more options) icon button in the credential card
-  final iconButtonFinder = find.descendant(
-    of: credentialCardFinder,
-    matching: find.byType(IconButton),
-  );
+  final iconButtonFinder = find.descendant(of: credentialCardFinder, matching: find.byType(IconButton));
   expect(iconButtonFinder, findsOneWidget);
   await tester.tapAndSettle(iconButtonFinder);
 
@@ -148,21 +139,11 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
 
   // Find the revoked credential card and evaluate it
   final demoCredentialCardFinder = cardsFinder.first;
-  await _evaluateDemoCredentialCard(
-    tester,
-    demoCredentialCardFinder,
-    isRevoked: true,
-  );
+  await _evaluateDemoCredentialCard(tester, demoCredentialCardFinder, isRevoked: true);
 
   // Share data button should be disabled
-  final shareDataButtonFinder = find.ancestor(
-    of: find.text('Share data'),
-    matching: find.byType(YiviThemedButton),
-  );
-  expect(
-    tester.widget<YiviThemedButton>(shareDataButtonFinder).onPressed,
-    isNull,
-  );
+  final shareDataButtonFinder = find.ancestor(of: find.text('Share data'), matching: find.byType(YiviThemedButton));
+  expect(tester.widget<YiviThemedButton>(shareDataButtonFinder).onPressed, isNull);
 
   expect(find.text('Change choice'), findsNothing);
 
@@ -171,23 +152,14 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
     tester,
     irmaBinding,
     {'irma-demo.MijnOverheid.root.BSN': '12345'},
-    revocationKeys: {
-      'irma-demo.MijnOverheid.root': generateRevocationKey(),
-    },
+    revocationKeys: {'irma-demo.MijnOverheid.root': generateRevocationKey()},
   );
 
   // Revoked card should be visible here too.
-  await _evaluateDemoCredentialCard(
-    tester,
-    demoCredentialCardFinder,
-    isRevoked: false,
-  );
+  await _evaluateDemoCredentialCard(tester, demoCredentialCardFinder, isRevoked: false);
 
   // Share data button should be enabled now
-  expect(
-    tester.widget<YiviThemedButton>(shareDataButtonFinder).onPressed,
-    isNotNull,
-  );
+  expect(tester.widget<YiviThemedButton>(shareDataButtonFinder).onPressed, isNotNull);
 
   await tester.tapAndSettle(find.text('Share data'));
   await evaluateShareDialog(tester);

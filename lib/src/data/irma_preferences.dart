@@ -2,19 +2,21 @@ import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class IrmaPreferences {
   IrmaPreferences(StreamingSharedPreferences preferences)
-      : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
-        // Please don't arbitrarily change this value, this could hinder the upgrade flow
-        // For users before the pin size >5 was introduced.
-        _longPin = preferences.getBool(_longPinKey, defaultValue: true),
-        _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
-        _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
-        _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
-        _completedDisclosurePermissionIntro =
-            preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false),
-        _preferredLanguageCode = preferences.getString(_preferredLanguageKey, defaultValue: ''),
-        _showNameChangedNotification = preferences.getBool(_showNameChangedNotificationKey, defaultValue: true),
-        _lastSchemeUpdate = preferences.getInt(_lastSchemeUpdateKey, defaultValue: 0),
-        _serializedNotifications = preferences.getString(_serializedNotificationsKey, defaultValue: '') {
+    : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
+      // Please don't arbitrarily change this value, this could hinder the upgrade flow
+      // For users before the pin size >5 was introduced.
+      _longPin = preferences.getBool(_longPinKey, defaultValue: true),
+      _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
+      _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
+      _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
+      _completedDisclosurePermissionIntro = preferences.getBool(
+        _completedDisclosurePermissionIntroKey,
+        defaultValue: false,
+      ),
+      _preferredLanguageCode = preferences.getString(_preferredLanguageKey, defaultValue: ''),
+      _showNameChangedNotification = preferences.getBool(_showNameChangedNotificationKey, defaultValue: true),
+      _lastSchemeUpdate = preferences.getInt(_lastSchemeUpdateKey, defaultValue: 0),
+      _serializedNotifications = preferences.getString(_serializedNotificationsKey, defaultValue: '') {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle

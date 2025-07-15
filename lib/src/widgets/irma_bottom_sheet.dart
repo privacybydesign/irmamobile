@@ -6,9 +6,7 @@ import 'irma_close_button.dart';
 class IrmaBottomSheet extends StatelessWidget {
   final Widget child;
 
-  const IrmaBottomSheet({
-    required this.child,
-  });
+  const IrmaBottomSheet({required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +16,7 @@ class IrmaBottomSheet extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: theme.backgroundPrimary,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(30),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
         ),
         child: Stack(
           children: [
@@ -28,21 +24,15 @@ class IrmaBottomSheet extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: EdgeInsets.only(
-                  right: theme.defaultSpacing,
-                  top: theme.defaultSpacing,
-                ),
+                padding: EdgeInsets.only(right: theme.defaultSpacing, top: theme.defaultSpacing),
                 child: const IrmaCloseButton(),
               ),
             ),
             // Actual content
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: theme.mediumSpacing,
-                vertical: theme.defaultSpacing,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: theme.mediumSpacing, vertical: theme.defaultSpacing),
               child: child,
-            )
+            ),
           ],
         ),
       ),

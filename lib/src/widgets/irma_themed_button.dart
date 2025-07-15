@@ -73,17 +73,10 @@ class IrmaThemedButton extends StatelessWidget {
           : null,
       shape: WidgetStateProperty.resolveWith<OutlinedBorder?>((_) => shape),
       padding: WidgetStateProperty.resolveWith<EdgeInsets>(
-        (_) => const EdgeInsets.symmetric(
-          vertical: 10.0,
-          horizontal: 20.0,
-        ),
+        (_) => const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       ),
-      minimumSize: WidgetStateProperty.resolveWith<Size>(
-        (_) => Size(minWidth, fixedHeight),
-      ),
-      maximumSize: WidgetStateProperty.resolveWith<Size>(
-        (_) => Size.fromHeight(fixedHeight),
-      ),
+      minimumSize: WidgetStateProperty.resolveWith<Size>((_) => Size(minWidth, fixedHeight)),
+      maximumSize: WidgetStateProperty.resolveWith<Size>((_) => Size.fromHeight(fixedHeight)),
     );
 
     return ElevatedButton(
@@ -91,16 +84,7 @@ class IrmaThemedButton extends StatelessWidget {
       style: style,
       child: icon == null
           ? textWidget
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon),
-                const SizedBox(
-                  width: 10.0,
-                ),
-                textWidget,
-              ],
-            ),
+          : Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon), const SizedBox(width: 10.0), textWidget]),
     );
   }
 }

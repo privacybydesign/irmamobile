@@ -32,7 +32,7 @@ void main() {
   const expectedInstructions = [
     [
       'Yivi is an app for your digital identity',
-      'Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app'
+      'Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app',
     ],
     [
       "With Yivi you're in control over your data",
@@ -40,15 +40,13 @@ void main() {
     ],
     [
       'Securely on your phone',
-      'Only you can access the data on your phone. Nobody has access to your transactions, not even Yivi.'
-    ]
+      'Only you can access the data on your phone. Nobody has access to your transactions, not even Yivi.',
+    ],
   ];
 
   group('enrollment', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
-    setUp(() => irmaBinding.setUp(
-          enrollmentStatus: EnrollmentStatus.unenrolled,
-        ));
+    setUp(() => irmaBinding.setUp(enrollmentStatus: EnrollmentStatus.unenrolled));
     tearDown(() => irmaBinding.tearDown());
 
     // Reusable finders
@@ -90,41 +88,38 @@ void main() {
       await goThroughChoosePin(tester);
     }
 
-    testWidgets(
-      'introduction',
-      (tester) async {
-        await initEnrollment(tester);
-        const pumpTime = Duration(milliseconds: 500);
+    testWidgets('introduction', (tester) async {
+      await initEnrollment(tester);
+      const pumpTime = Duration(milliseconds: 500);
 
-        for (var i = 0; i < expectedInstructions.length; i++) {
-          // Try going back, if this is not the first instruction;
-          if (i == 0) {
-            expect(previousButtonFinder, findsNothing);
-          } else {
-            await tester.tap(previousButtonFinder);
-            await tester.pump(pumpTime);
-
-            await tester.tap(nextButtonFinder);
-            await tester.pump(pumpTime);
-          }
-
-          // Evaluate the content
-          final instructionFinder = find.byType(EnrollmentInstruction);
-          final actualCurrentInstructionTexts = tester.getAllText(instructionFinder);
-          final expectedCurrentInstructionTexts = [...expectedInstructions[i], if (i != 0) 'Previous', 'Next'];
-          expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
-
-          // Go Next step
-          await tester.tap(nextButtonFinder);
+      for (var i = 0; i < expectedInstructions.length; i++) {
+        // Try going back, if this is not the first instruction;
+        if (i == 0) {
+          expect(previousButtonFinder, findsNothing);
+        } else {
+          await tester.tap(previousButtonFinder);
           await tester.pump(pumpTime);
 
-          // If we go next on the last step, expect that we left the enrollment introduction.
-          if (i == expectedInstructions.length) {
-            expect(instructionFinder, findsNothing);
-          }
+          await tester.tap(nextButtonFinder);
+          await tester.pump(pumpTime);
         }
-      },
-    );
+
+        // Evaluate the content
+        final instructionFinder = find.byType(EnrollmentInstruction);
+        final actualCurrentInstructionTexts = tester.getAllText(instructionFinder);
+        final expectedCurrentInstructionTexts = [...expectedInstructions[i], if (i != 0) 'Previous', 'Next'];
+        expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
+
+        // Go Next step
+        await tester.tap(nextButtonFinder);
+        await tester.pump(pumpTime);
+
+        // If we go next on the last step, expect that we left the enrollment introduction.
+        if (i == expectedInstructions.length) {
+          expect(instructionFinder, findsNothing);
+        }
+      }
+    });
 
     testWidgets('choose-pin', (tester) async {
       await initEnrollment(tester);
@@ -147,11 +142,7 @@ void main() {
       // Expect false pin dialog
       var dialogFinder = find.byType(IrmaDialog);
       expect(dialogFinder, findsOneWidget);
-      var expectedDialogText = [
-        'PIN entered incorrectly',
-        'PINs do not match. Choose a new PIN and try again.',
-        'OK',
-      ];
+      var expectedDialogText = ['PIN entered incorrectly', 'PINs do not match. Choose a new PIN and try again.', 'OK'];
       final actualDialogText = tester.getAllText(dialogFinder);
       expect(expectedDialogText, actualDialogText);
       await tester.tapAndSettle(find.text('OK'));
@@ -168,123 +159,114 @@ void main() {
       expect(find.byType(ConfirmPinScreen), findsNothing);
     });
 
-    testWidgets(
-      'terms',
-      (tester) async {
-        await initEnrollment(tester);
-        await goThroughIntroduction(tester);
-        expect(find.byType(AcceptTermsScreen), findsOneWidget);
+    testWidgets('terms', (tester) async {
+      await initEnrollment(tester);
+      await goThroughIntroduction(tester);
+      expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
-        // Scroll to the error reporting opt in
-        // Note: this is the entire widget (including the text), not just the checkbox
-        final errorReportingOptInFinder = find.byType(ErrorReportingCheckBox);
-        await tester.scrollUntilVisible(errorReportingOptInFinder, 50);
+      // Scroll to the error reporting opt in
+      // Note: this is the entire widget (including the text), not just the checkbox
+      final errorReportingOptInFinder = find.byType(ErrorReportingCheckBox);
+      await tester.scrollUntilVisible(errorReportingOptInFinder, 50);
 
-        // Check the default error reporting value in the preferences
-        final defaultReportErrorsValue = await irmaBinding.repository.preferences.getReportErrors().first;
-        expect(defaultReportErrorsValue, false);
+      // Check the default error reporting value in the preferences
+      final defaultReportErrorsValue = await irmaBinding.repository.preferences.getReportErrors().first;
+      expect(defaultReportErrorsValue, false);
 
-        // Find the actual checkbox in the ErrorReportingCheckBox widget and assert the value
-        final errorReportingCheckBoxFinder = find.descendant(
-          of: errorReportingOptInFinder,
-          matching: find.byType(Checkbox),
-        );
-        final defaultErrorReportingCheckBoxValue = tester.widget<Checkbox>(errorReportingCheckBoxFinder).value;
-        expect(defaultErrorReportingCheckBoxValue, defaultReportErrorsValue);
+      // Find the actual checkbox in the ErrorReportingCheckBox widget and assert the value
+      final errorReportingCheckBoxFinder = find.descendant(
+        of: errorReportingOptInFinder,
+        matching: find.byType(Checkbox),
+      );
+      final defaultErrorReportingCheckBoxValue = tester.widget<Checkbox>(errorReportingCheckBoxFinder).value;
+      expect(defaultErrorReportingCheckBoxValue, defaultReportErrorsValue);
 
-        // Now tap the checkbox and check the value again
-        await tester.tapAndSettle(errorReportingCheckBoxFinder);
+      // Now tap the checkbox and check the value again
+      await tester.tapAndSettle(errorReportingCheckBoxFinder);
 
-        final updatedReportErrorsValue = await irmaBinding.repository.preferences.getReportErrors().first;
-        expect(updatedReportErrorsValue, true);
+      final updatedReportErrorsValue = await irmaBinding.repository.preferences.getReportErrors().first;
+      expect(updatedReportErrorsValue, true);
 
-        final updatedErrorReportingCheckBoxValue = tester.widget<Checkbox>(errorReportingCheckBoxFinder).value;
-        expect(updatedErrorReportingCheckBoxValue, updatedReportErrorsValue);
+      final updatedErrorReportingCheckBoxValue = tester.widget<Checkbox>(errorReportingCheckBoxFinder).value;
+      expect(updatedErrorReportingCheckBoxValue, updatedReportErrorsValue);
 
-        // We need to do some extra steps to find the text span link in the ErrorReportingCheckBox widget
-        final errorReportingTextFinder = find.descendant(
-          of: errorReportingOptInFinder,
-          matching: find.byType(Text),
-        );
-        final errorReportingTextWidget = tester.widget<Text>(errorReportingTextFinder);
+      // We need to do some extra steps to find the text span link in the ErrorReportingCheckBox widget
+      final errorReportingTextFinder = find.descendant(of: errorReportingOptInFinder, matching: find.byType(Text));
+      final errorReportingTextWidget = tester.widget<Text>(errorReportingTextFinder);
 
-        // The second text span in the rich text should be the link
-        final linkTextSpan = (errorReportingTextWidget.textSpan as TextSpan).children?.elementAt(1) as TextSpan;
+      // The second text span in the rich text should be the link
+      final linkTextSpan = (errorReportingTextWidget.textSpan as TextSpan).children?.elementAt(1) as TextSpan;
 
-        // Expect the recognizer to be a TapGestureRecognizer and tap it
-        expect(linkTextSpan.recognizer, isA<TapGestureRecognizer>());
-        (linkTextSpan.recognizer as TapGestureRecognizer).onTap?.call();
-        await tester.pumpAndSettle();
+      // Expect the recognizer to be a TapGestureRecognizer and tap it
+      expect(linkTextSpan.recognizer, isA<TapGestureRecognizer>());
+      (linkTextSpan.recognizer as TapGestureRecognizer).onTap?.call();
+      await tester.pumpAndSettle();
 
-        // Expect the bottom sheet to be visible
-        final bottomSheetFinder = find.byType(IrmaBottomSheet);
-        expect(bottomSheetFinder, findsOneWidget);
+      // Expect the bottom sheet to be visible
+      final bottomSheetFinder = find.byType(IrmaBottomSheet);
+      expect(bottomSheetFinder, findsOneWidget);
 
-        // Expect the bottom sheet to contain the correct text
-        final expectedErrorReportingBottomSheetText = [
-          'Error and app status reporting',
-          "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app status message. Of course, we do all of that without having access to your personal information or transactions."
-        ];
-        final actualErrorReportingBottomSheetText = tester.getAllText(bottomSheetFinder);
-        expect(actualErrorReportingBottomSheetText, expectedErrorReportingBottomSheetText);
+      // Expect the bottom sheet to contain the correct text
+      final expectedErrorReportingBottomSheetText = [
+        'Error and app status reporting',
+        "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app status message. Of course, we do all of that without having access to your personal information or transactions.",
+      ];
+      final actualErrorReportingBottomSheetText = tester.getAllText(bottomSheetFinder);
+      expect(actualErrorReportingBottomSheetText, expectedErrorReportingBottomSheetText);
 
-        // Close the bottom sheet
-        final bottomSheetCloseButtonFinder = find.descendant(
-          of: bottomSheetFinder,
-          matching: find.byType(IrmaCloseButton),
-        );
-        await tester.tapAndSettle(bottomSheetCloseButtonFinder);
+      // Close the bottom sheet
+      final bottomSheetCloseButtonFinder = find.descendant(
+        of: bottomSheetFinder,
+        matching: find.byType(IrmaCloseButton),
+      );
+      await tester.tapAndSettle(bottomSheetCloseButtonFinder);
 
-        // Expect the bottom sheet to be gone
-        expect(bottomSheetFinder, findsNothing);
+      // Expect the bottom sheet to be gone
+      expect(bottomSheetFinder, findsNothing);
 
-        // Next button should be disabled by default
-        expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNull);
+      // Next button should be disabled by default
+      expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNull);
 
-        // Accept the terms checkbox
-        final termsCheckBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
-        await tester.scrollUntilVisible(termsCheckBoxFinder.hitTestable(), 50);
-        await tester.tapAndSettle(termsCheckBoxFinder);
+      // Accept the terms checkbox
+      final termsCheckBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
+      await tester.scrollUntilVisible(termsCheckBoxFinder.hitTestable(), 50);
+      await tester.tapAndSettle(termsCheckBoxFinder);
 
-        // Next button should be enabled now
-        expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNotNull);
+      // Next button should be enabled now
+      expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNotNull);
 
-        // Continue to next page
-        await tester.tapAndSettle(nextButtonFinder);
+      // Continue to next page
+      await tester.tapAndSettle(nextButtonFinder);
 
-        // Expect that we left the terms screens
-        expect(find.byType(AcceptTermsScreen), findsNothing);
-      },
-    );
+      // Expect that we left the terms screens
+      expect(find.byType(AcceptTermsScreen), findsNothing);
+    });
 
-    testWidgets(
-      'skip-email',
-      (tester) async {
-        await goToEmailScreen(tester);
+    testWidgets('skip-email', (tester) async {
+      await goToEmailScreen(tester);
 
-        // Press skip on the enrollment nav bar
-        await tester.tapAndSettle(find.text('Skip'));
+      // Press skip on the enrollment nav bar
+      await tester.tapAndSettle(find.text('Skip'));
 
-        // Expect confirm skip email dialog
-        var dialogFinder = find.byType(IrmaDialog);
-        expect(dialogFinder, findsOneWidget);
-        const expectedDialogText = [
-          'Are you sure?',
-          'Adding an e-mail address increases safety',
-          'Enter an e-mail address',
-          'Skip'
-        ];
+      // Expect confirm skip email dialog
+      var dialogFinder = find.byType(IrmaDialog);
+      expect(dialogFinder, findsOneWidget);
+      const expectedDialogText = [
+        'Are you sure?',
+        'Adding an e-mail address increases safety',
+        'Enter an e-mail address',
+        'Skip',
+      ];
 
-        final actualDialogText = tester.getAllText(dialogFinder);
-        expect(actualDialogText, expectedDialogText);
+      final actualDialogText = tester.getAllText(dialogFinder);
+      expect(actualDialogText, expectedDialogText);
 
-        // Confirm skip
-        await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
+      // Confirm skip
+      await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
 
-        // Wait for home screen
-        await tester.waitFor(find.byType(HomeScreen));
-      },
-    );
+      // Wait for home screen
+      await tester.waitFor(find.byType(HomeScreen));
+    });
 
     testWidgets(
       'provide-email',

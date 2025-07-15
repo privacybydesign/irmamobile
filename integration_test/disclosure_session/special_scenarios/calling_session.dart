@@ -51,10 +51,7 @@ Future<void> callingSessionTest(WidgetTester tester, IntegrationTestIrmaBinding 
   expect(appBarFinder, findsOneWidget);
 
   const expectedAppBarText = 'Call via Yivi';
-  final appBarHeaderFinder = find.descendant(
-    of: appBarFinder,
-    matching: find.text(expectedAppBarText),
-  );
+  final appBarHeaderFinder = find.descendant(of: appBarFinder, matching: find.text(expectedAppBarText));
   expect(appBarHeaderFinder, findsOneWidget);
 
   // The IrmaQuote widget should be present
@@ -75,7 +72,7 @@ Future<void> callingSessionTest(WidgetTester tester, IntegrationTestIrmaBinding 
       '2. Tap the call button in your phone app',
       'You will hear a few beeps and you will be connected.',
       'Call via Yivi',
-      'Next'
+      'Next',
     ];
   } else if (Platform.isIOS) {
     expectedScreenText = [

@@ -8,9 +8,7 @@ part 'credential_detail_navigation_action.g.dart';
 class CredentialDetailNavigationAction extends NotificationAction {
   final String credentialTypeId;
 
-  CredentialDetailNavigationAction({
-    required this.credentialTypeId,
-  });
+  CredentialDetailNavigationAction({required this.credentialTypeId});
 
   factory CredentialDetailNavigationAction.fromJson(Map<String, dynamic> json) =>
       _$CredentialDetailNavigationActionFromJson(json);

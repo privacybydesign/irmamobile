@@ -23,21 +23,10 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    Future<void> testIssueMunicipality(
-      WidgetTester tester,
-      Locale locale,
-    ) async {
-      await pumpAndUnlockApp(
-        tester,
-        irmaBinding.repository,
-        locale,
-      );
+    Future<void> testIssueMunicipality(WidgetTester tester, Locale locale) async {
+      await pumpAndUnlockApp(tester, irmaBinding.repository, locale);
 
-      await issueMunicipalityPersonalData(
-        tester,
-        irmaBinding,
-        locale: locale,
-      );
+      await issueMunicipalityPersonalData(tester, irmaBinding, locale: locale);
       await tester.pumpAndSettle();
 
       final successScreenFinder = find.byType(IssuanceSuccessScreen);
@@ -45,13 +34,7 @@ void main() {
 
       // Expect the SuccessGraphic in the IssuanceSuccessScreen
       final successGraphicFinder = find.byType(SuccessGraphic);
-      expect(
-        find.descendant(
-          of: successScreenFinder,
-          matching: successGraphicFinder,
-        ),
-        findsOneWidget,
-      );
+      expect(find.descendant(of: successScreenFinder, matching: successGraphicFinder), findsOneWidget);
 
       await tester.tapAndSettle(find.text('OK'));
 
@@ -71,29 +54,18 @@ void main() {
       expect(credentialCardFinder, findsOneWidget);
     }
 
-    testWidgets(
-      'issue-municipality-en',
-      (tester) => testIssueMunicipality(tester, const Locale('en', 'EN')),
-    );
+    testWidgets('issue-municipality-en', (tester) => testIssueMunicipality(tester, const Locale('en', 'EN')));
 
-    testWidgets(
-      'issue-municipality-nl',
-      (tester) => testIssueMunicipality(tester, const Locale('nl', 'NL')),
-    );
+    testWidgets('issue-municipality-nl', (tester) => testIssueMunicipality(tester, const Locale('nl', 'NL')));
 
     testWidgets('decline', (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Start an issuance session for email address and decline the offer.
-      await issueCredentials(
-        tester,
-        irmaBinding,
-        {
-          'irma-demo.sidn-pbdf.email.email': 'test@demo.com',
-          'irma-demo.sidn-pbdf.email.domain': 'demo.com',
-        },
-        declineOffer: true,
-      );
+      await issueCredentials(tester, irmaBinding, {
+        'irma-demo.sidn-pbdf.email.email': 'test@demo.com',
+        'irma-demo.sidn-pbdf.email.domain': 'demo.com',
+      }, declineOffer: true);
 
       // Go to data tab.
       await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
@@ -135,15 +107,12 @@ void main() {
       final credentialCardFinder = credentialCardsFinder.first;
 
       Future<void> evaluateIssuedEmailAddressCard() => evaluateCredentialCard(
-            tester,
-            credentialCardFinder,
-            credentialName: 'Demo Email address',
-            issuerName: 'Demo Privacy by Design Foundation via SIDN',
-            attributes: {
-              'Email address': 'test@example.com',
-              'Email domain name': 'example.com',
-            },
-          );
+        tester,
+        credentialCardFinder,
+        credentialName: 'Demo Email address',
+        issuerName: 'Demo Privacy by Design Foundation via SIDN',
+        attributes: {'Email address': 'test@example.com', 'Email domain name': 'example.com'},
+      );
 
       await evaluateIssuedEmailAddressCard();
 

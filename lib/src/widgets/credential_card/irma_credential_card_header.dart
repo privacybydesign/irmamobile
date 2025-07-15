@@ -39,54 +39,34 @@ class IrmaCredentialCardHeader extends StatelessWidget {
               if (isRevoked)
                 TranslatedText(
                   'credential.revoked',
-                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
-                    color: theme.error,
-                  ),
+                  style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.error),
                 )
               else if (isExpired)
                 TranslatedText(
                   'credential.expired',
-                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
-                    color: theme.error,
-                  ),
+                  style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.error),
                 )
               else if (isExpiringSoon)
                 TranslatedText(
                   'credential.about_to_expire',
-                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
-                    color: theme.warning,
-                  ),
+                  style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.warning),
                 ),
-              Text(
-                credentialName,
-                style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark),
-              ),
+              Text(credentialName, style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark)),
               if (issuerName != null)
                 Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: theme.smallSpacing,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TranslatedText(
-                        'credential.issued_by',
-                        style: theme.themeData.textTheme.bodyMedium,
-                      ),
-                      Text(
-                        issuerName!,
-                        style: theme.themeData.textTheme.bodyLarge,
-                      ),
+                      TranslatedText('credential.issued_by', style: theme.themeData.textTheme.bodyMedium),
+                      Text(issuerName!, style: theme.themeData.textTheme.bodyLarge),
                     ],
                   ),
-                )
+                ),
             ],
           ),
         ),
-        if (trailing != null) ...[
-          SizedBox(width: theme.smallSpacing),
-          trailing!,
-        ],
+        if (trailing != null) ...[SizedBox(width: theme.smallSpacing), trailing!],
       ],
     );
   }

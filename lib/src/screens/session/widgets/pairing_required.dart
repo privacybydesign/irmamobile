@@ -12,28 +12,16 @@ class PairingRequired extends StatelessWidget {
   final String pairingCode;
   final Function() onDismiss;
 
-  const PairingRequired({
-    required this.pairingCode,
-    required this.onDismiss,
-  });
+  const PairingRequired({required this.pairingCode, required this.onDismiss});
 
   Widget _buildPinBoxes(BuildContext context, IrmaThemeData theme) {
     final boxes = List<Widget>.generate(
       pairingCode.length,
-      (i) => PinBox(
-        height: 53,
-        char: pairingCode[i],
-        highlightBorder: true,
-        completed: true,
-      ),
+      (i) => PinBox(height: 53, char: pairingCode[i], highlightBorder: true, completed: true),
       growable: false,
     );
 
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: theme.mediumSpacing,
-      children: boxes,
-    );
+    return Wrap(alignment: WrapAlignment.center, spacing: theme.mediumSpacing, children: boxes);
   }
 
   Widget _buildNavigationBar(BuildContext context) {
@@ -55,15 +43,11 @@ class PairingRequired extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            IrmaQuote(
-              quote: FlutterI18n.translate(
-                context,
-                'session.pairing.instruction',
-              ),
-            ),
+            IrmaQuote(quote: FlutterI18n.translate(context, 'session.pairing.instruction')),
             SizedBox(
-              height:
-                  MediaQuery.of(context).orientation == Orientation.landscape ? theme.mediumSpacing : theme.hugeSpacing,
+              height: MediaQuery.of(context).orientation == Orientation.landscape
+                  ? theme.mediumSpacing
+                  : theme.hugeSpacing,
             ),
             _buildPinBoxes(context, theme),
           ],

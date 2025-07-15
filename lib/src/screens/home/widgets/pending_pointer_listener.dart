@@ -8,10 +8,7 @@ import '../../../util/handle_pointer.dart';
 
 class PendingPointerListener extends StatefulWidget {
   final Widget child;
-  const PendingPointerListener({
-    super.key,
-    required this.child,
-  });
+  const PendingPointerListener({super.key, required this.child});
 
   @override
   State<PendingPointerListener> createState() => _PendingPointerListenerState();

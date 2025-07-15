@@ -16,10 +16,7 @@ void main() {
   setUp(() async {
     mockBridge = IrmaMockBridge();
     SharedPreferences.setMockInitialValues({});
-    repo = IrmaRepository(
-      client: mockBridge,
-      preferences: await IrmaPreferences.fromInstance(),
-    );
+    repo = IrmaRepository(client: mockBridge, preferences: await IrmaPreferences.fromInstance());
   });
   tearDown(() async {
     await mockBridge.close();
@@ -29,16 +26,20 @@ void main() {
   test('issuance-in-disclosure', () async {
     mockBridge.mockDisclosureSession(42, [
       [
-        {
-          'irma-demo.IRMATube.member.id': null,
-        }
-      ]
+        {'irma-demo.IRMATube.member.id': null},
+      ],
     ]);
-    repo.bridgedDispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')));
+    repo.bridgedDispatch(
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
+    );
 
     final disclosureSessionStream = repo.getSessionState(42).asBroadcastStream();
-    SessionState disclosureSession = await disclosureSessionStream
-        .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
+    SessionState disclosureSession = await disclosureSessionStream.firstWhere(
+      (session) => session.status == SessionStatus.requestDisclosurePermission,
+    );
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
     expect(disclosureSession.isSignatureSession, false);
@@ -54,18 +55,24 @@ void main() {
       {
         'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-      }
+      },
     ]);
 
-    repo.bridgedDispatch(NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'issuing', u: '')));
+    repo.bridgedDispatch(
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'issuing', u: ''),
+      ),
+    );
 
     final issuanceSessionStream = repo.getSessionState(43).asBroadcastStream();
 
     // Check whether the pairing status is being triggered.
     await issuanceSessionStream.firstWhere((session) => session.status == SessionStatus.pairing);
 
-    final issuanceSession =
-        await issuanceSessionStream.firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
+    final issuanceSession = await issuanceSessionStream.firstWhere(
+      (session) => session.status == SessionStatus.requestIssuancePermission,
+    );
     expect(issuanceSession.sessionID, 43);
     expect(issuanceSession.status, SessionStatus.requestIssuancePermission);
     expect(issuanceSession.canBeFinished, true);
@@ -98,8 +105,8 @@ void main() {
             AttributeIdentifier(
               type: disclosureSession.disclosuresCandidates![0][0][0].type,
               credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash,
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );
@@ -114,17 +121,21 @@ void main() {
   test('issuance-in-disclosure-using-specific-attributes', () async {
     mockBridge.mockDisclosureSession(42, [
       [
-        {
-          'irma-demo.IRMATube.member.id': '123',
-        }
-      ]
+        {'irma-demo.IRMATube.member.id': '123'},
+      ],
     ]);
-    repo.bridgedDispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')));
+    repo.bridgedDispatch(
+      NewSessionEvent(
+        sessionID: 42,
+        request: SessionPointer(irmaqr: 'disclosing', u: ''),
+      ),
+    );
 
     // The disclosure session should not be satisfiable yet.
     final disclosureSessionStream = repo.getSessionState(42).asBroadcastStream();
-    SessionState disclosureSession = await disclosureSessionStream
-        .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
+    SessionState disclosureSession = await disclosureSessionStream.firstWhere(
+      (session) => session.status == SessionStatus.requestDisclosurePermission,
+    );
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
     expect(disclosureSession.disclosuresCandidates!.length, 1);
@@ -138,9 +149,14 @@ void main() {
       {
         'irma-demo.IRMATube.member.id': TextValue.fromString('124'),
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-      }
+      },
     ]);
-    repo.bridgedDispatch(NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'issuing', u: '')));
+    repo.bridgedDispatch(
+      NewSessionEvent(
+        sessionID: 43,
+        request: SessionPointer(irmaqr: 'issuing', u: ''),
+      ),
+    );
 
     // Give permission to accept the non-matching credential.
     final firstIssuanceSessionStream = repo.getSessionState(43).asBroadcastStream();
@@ -149,8 +165,9 @@ void main() {
     await firstIssuanceSessionStream.firstWhere((session) => session.status == SessionStatus.success);
 
     // The disclosure session should still not be satisfiable.
-    disclosureSession = await disclosureSessionStream
-        .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
+    disclosureSession = await disclosureSessionStream.firstWhere(
+      (session) => session.status == SessionStatus.requestDisclosurePermission,
+    );
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
     expect(disclosureSession.disclosuresCandidates!.length, 1);
@@ -164,21 +181,28 @@ void main() {
       {
         'irma-demo.IRMATube.member.id': TextValue.fromString('123'),
         'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-      }
+      },
     ]);
 
-    repo.bridgedDispatch(NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'issuing', u: '')));
+    repo.bridgedDispatch(
+      NewSessionEvent(
+        sessionID: 44,
+        request: SessionPointer(irmaqr: 'issuing', u: ''),
+      ),
+    );
     final secondIssuanceSessionStream = repo.getSessionState(44).asBroadcastStream();
 
     // Give permission to accept second credential.
-    await secondIssuanceSessionStream
-        .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
+    await secondIssuanceSessionStream.firstWhere(
+      (session) => session.status == SessionStatus.requestIssuancePermission,
+    );
     repo.bridgedDispatch(RespondPermissionEvent(sessionID: 44, proceed: true, disclosureChoices: []));
     await secondIssuanceSessionStream.firstWhere((session) => session.status == SessionStatus.success);
 
     // Check whether the disclosure session can be finished now.
-    disclosureSession = await disclosureSessionStream
-        .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
+    disclosureSession = await disclosureSessionStream.firstWhere(
+      (session) => session.status == SessionStatus.requestDisclosurePermission,
+    );
     expect(disclosureSession.satisfiable, true);
     expect(disclosureSession.disclosuresCandidates!.length, 1);
     expect(disclosureSession.disclosuresCandidates![0].length, 2);
@@ -187,14 +211,18 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-44-0');
 
     repo.bridgedDispatch(
-      RespondPermissionEvent(sessionID: 42, proceed: true, disclosureChoices: [
-        [
-          AttributeIdentifier(
-            type: disclosureSession.disclosuresCandidates![0][0][0].type,
-            credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash,
-          )
-        ]
-      ]),
+      RespondPermissionEvent(
+        sessionID: 42,
+        proceed: true,
+        disclosureChoices: [
+          [
+            AttributeIdentifier(
+              type: disclosureSession.disclosuresCandidates![0][0][0].type,
+              credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash,
+            ),
+          ],
+        ],
+      ),
     );
 
     disclosureSession = await disclosureSessionStream.firstWhere((session) => session.status == SessionStatus.success);

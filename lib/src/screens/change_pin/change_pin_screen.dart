@@ -27,11 +27,7 @@ class ChangePinScreen extends StatelessWidget {
     final IrmaRepository repo = IrmaRepositoryProvider.of(context);
     final changePinBloc = ChangePinBloc(repo);
     final verifyOldPinBloc = VerifyOldPinBloc(repo);
-    return ProvidedChangePinScreen(
-      verifyOldPinBloc: verifyOldPinBloc,
-      changePinBloc: changePinBloc,
-      repo: repo,
-    );
+    return ProvidedChangePinScreen(verifyOldPinBloc: verifyOldPinBloc, changePinBloc: changePinBloc, repo: repo);
   }
 }
 
@@ -40,11 +36,8 @@ class ProvidedChangePinScreen extends StatefulWidget {
   final VerifyOldPinBloc verifyOldPinBloc;
   final IrmaRepository repo;
 
-  const ProvidedChangePinScreen({
-    required this.repo,
-    required this.changePinBloc,
-    required this.verifyOldPinBloc,
-  }) : super();
+  const ProvidedChangePinScreen({required this.repo, required this.changePinBloc, required this.verifyOldPinBloc})
+    : super();
 
   @override
   State<StatefulWidget> createState() => ProvidedChangePinScreenState();
@@ -59,25 +52,20 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
       EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: context.goSettingsScreen),
-      ChoosePinScreen.routeName: (_) => ChoosePinScreen(
-            onChoosePin: _chooseNewPin,
-            onPrevious: context.goSettingsScreen,
-            newPinNotifier: newPin,
-          ),
+      ChoosePinScreen.routeName: (_) =>
+          ChoosePinScreen(onChoosePin: _chooseNewPin, onPrevious: context.goSettingsScreen, newPinNotifier: newPin),
       ConfirmPin.routeName: (_) => ConfirmPin(
-            confirmNewPin: _confirmNewPin,
-            cancel: context.goSettingsScreen,
-            returnToChoosePin: _returnToChoosePin,
-            onPinMismatch: _handlePinMismatch,
-            newPinNotifier: newPin,
-          ),
+        confirmNewPin: _confirmNewPin,
+        cancel: context.goSettingsScreen,
+        returnToChoosePin: _returnToChoosePin,
+        onPinMismatch: _handlePinMismatch,
+        newPinNotifier: newPin,
+      ),
     };
   }
 
   void _returnToChoosePin() {
-    navigatorKey.currentState?.popUntil(
-      (route) => route.settings.name == ChoosePinScreen.routeName,
-    );
+    navigatorKey.currentState?.popUntil((route) => route.settings.name == ChoosePinScreen.routeName);
   }
 
   void _submitOldPin(String pin) {
@@ -102,12 +90,8 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         onPressed: () {
           Navigator.pop(context); // pop dialog
           navigatorKey.currentState
-            ?..popUntil(
-              (route) => route.settings.name == ChoosePinScreen.routeName,
-            )
-            ..pushReplacementNamed(
-              ChoosePinScreen.routeName,
-            );
+            ?..popUntil((route) => route.settings.name == ChoosePinScreen.routeName)
+            ..pushReplacementNamed(ChoosePinScreen.routeName);
         },
       ),
     );
@@ -138,10 +122,8 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     if (attemptsRemaining > 0) {
       showDialog(
         context: context,
-        builder: (context) => PinWrongAttemptsDialog(
-          attemptsRemaining: attemptsRemaining,
-          onClose: Navigator.of(context).pop,
-        ),
+        builder: (context) =>
+            PinWrongAttemptsDialog(attemptsRemaining: attemptsRemaining, onClose: Navigator.of(context).pop),
       );
     } else {
       context.goHomeScreenWithoutTransition();

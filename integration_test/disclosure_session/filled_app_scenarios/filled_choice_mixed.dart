@@ -45,11 +45,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem'},
     style: IrmaCardStyle.normal,
   );
 
@@ -71,11 +67,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem'},
     isSelected: true,
   );
 
@@ -90,10 +82,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   );
 
   // Press iDin option
-  await tester.scrollUntilVisible(
-    secondCardFinder.hitTestable(),
-    50,
-  );
+  await tester.scrollUntilVisible(secondCardFinder.hitTestable(), 50);
   await tester.tapAndSettle(secondCardFinder);
 
   // The styling of the cards should represent this choice
@@ -112,21 +101,14 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Street': 'Meander', 'House number': '501', 'City': 'Arnhem'},
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo iDIN',
     issuerName: 'Demo iDIN',
-    attributes: {
-      'Address': 'Meander 501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Address': 'Meander 501', 'City': 'Arnhem'},
   );
 
   await tester.tapAndSettle(find.text('Done'));
@@ -141,10 +123,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
     cardsFinder.first,
     credentialName: 'Demo iDIN',
     issuerName: 'Demo iDIN',
-    attributes: {
-      'Address': 'Meander 501',
-      'City': 'Arnhem',
-    },
+    attributes: {'Address': 'Meander 501', 'City': 'Arnhem'},
     style: IrmaCardStyle.normal,
   );
 

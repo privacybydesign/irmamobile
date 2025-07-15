@@ -47,10 +47,7 @@ Future<void> choiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBind
   expect(disconChoiceFinder, findsOneWidget);
 
   // The choice should consist of two options/cards
-  final cardsFinder = find.descendant(
-    of: disconChoiceFinder,
-    matching: find.byType(IrmaCredentialCard),
-  );
+  final cardsFinder = find.descendant(of: disconChoiceFinder, matching: find.byType(IrmaCredentialCard));
   expect(cardsFinder, findsNWidgets(2));
 
   // First card should be selected

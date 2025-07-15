@@ -42,10 +42,7 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect(disConStepperFinder, findsOneWidget);
 
   // The discon stepper should have one choice
-  final choiceFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: find.byType(DisclosurePermissionChoice),
-  );
+  final choiceFinder = find.descendant(of: disConStepperFinder, matching: find.byType(DisclosurePermissionChoice));
   expect(choiceFinder, findsOneWidget);
 
   // Select the second choice
@@ -63,10 +60,7 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect(templateStepperFinder, findsOneWidget);
 
   // The template stepper should have two items
-  final templateCardsFinder = find.descendant(
-    of: templateStepperFinder,
-    matching: find.byType(IrmaCredentialCard),
-  );
+  final templateCardsFinder = find.descendant(of: templateStepperFinder, matching: find.byType(IrmaCredentialCard));
   expect(templateCardsFinder, findsNWidgets(2));
 
   // The first card should be highlighted

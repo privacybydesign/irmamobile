@@ -46,14 +46,14 @@ class IssueWizardEvent extends Event {
 
   /// A copy of the event with the currently active item marked completed.
   IssueWizardEvent get nextEvent => IssueWizardEvent(
-        wizardData: wizardData,
-        haveCredential: haveCredential,
-        wizardContents: wizardContents
-            .asMap()
-            .entries
-            .map((e) => e.value.copyWith(completed: e.key == activeItemIndex || e.value.completed))
-            .toList(),
-      );
+    wizardData: wizardData,
+    haveCredential: haveCredential,
+    wizardContents: wizardContents
+        .asMap()
+        .entries
+        .map((e) => e.value.copyWith(completed: e.key == activeItemIndex || e.value.completed))
+        .toList(),
+  );
 }
 
 @JsonSerializable()

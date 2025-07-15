@@ -13,16 +13,10 @@ class _Haptic {
 class HapticScreen extends StatelessWidget {
   final VoidCallback onBack;
 
-  const HapticScreen({
-    super.key,
-    required this.onBack,
-  });
+  const HapticScreen({super.key, required this.onBack});
 
   void _showSnackBar(BuildContext context, String title) {
-    final snackBar = SnackBar(
-      duration: const Duration(milliseconds: 500),
-      content: Text(title),
-    );
+    final snackBar = SnackBar(duration: const Duration(milliseconds: 500), content: Text(title));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
@@ -77,12 +71,7 @@ class HapticScreen extends StatelessWidget {
                 child: Text(h.description),
               ),
             ),
-          ]
-              .map((w) => SizedBox(
-                    width: double.infinity,
-                    child: w,
-                  ))
-              .toList(growable: false),
+          ].map((w) => SizedBox(width: double.infinity, child: w)).toList(growable: false),
         ),
       ),
     );

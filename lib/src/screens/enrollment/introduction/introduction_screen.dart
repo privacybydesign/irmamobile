@@ -31,11 +31,7 @@ class IntroductionScreen extends StatefulWidget {
   final VoidCallback onContinue;
   final VoidCallback onPrevious;
 
-  const IntroductionScreen({
-    required this.currentStepIndex,
-    required this.onContinue,
-    required this.onPrevious,
-  });
+  const IntroductionScreen({required this.currentStepIndex, required this.onContinue, required this.onPrevious});
 
   @override
   State<IntroductionScreen> createState() => _IntroductionScreenState();
@@ -59,9 +55,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     Widget contentWidget = EnrollmentLayout(
-      hero: EnrollmentHero(
-        IntroductionScreen.introductionSteps[widget.currentStepIndex].imagePath,
-      ),
+      hero: EnrollmentHero(IntroductionScreen.introductionSteps[widget.currentStepIndex].imagePath),
       instruction: EnrollmentInstruction(
         stepIndex: widget.currentStepIndex,
         stepCount: IntroductionScreen.introductionSteps.length,
@@ -74,16 +68,11 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     );
 
     if (!skipAnimation) {
-      contentWidget = IntroductionAnimationWrapper(
-        child: contentWidget,
-      );
+      contentWidget = IntroductionAnimationWrapper(child: contentWidget);
     }
 
     return Scaffold(
-      body: SafeArea(
-        bottom: isLandscape,
-        child: contentWidget,
-      ),
+      body: SafeArea(bottom: isLandscape, child: contentWidget),
     );
   }
 }

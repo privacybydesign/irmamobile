@@ -48,10 +48,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   expect(disConStepperFinder, findsOneWidget);
 
   // The discon stepper should two cards
-  final choiceCardsFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: find.byType(IrmaCredentialCard),
-  );
+  final choiceCardsFinder = find.descendant(of: disConStepperFinder, matching: find.byType(IrmaCredentialCard));
   expect(choiceCardsFinder, findsNWidgets(2));
 
   // First card should be highlighted.
@@ -66,44 +63,22 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   expect(firstCardAttListFinder, findsOneWidget);
 
   // The name of the attribute with a value should be visible and styled normally
-  final firstCardAttNameFinder = find.descendant(
-    of: firstCardAttListFinder,
-    matching: find.text('City'),
-  );
+  final firstCardAttNameFinder = find.descendant(of: firstCardAttListFinder, matching: find.text('City'));
   expect(firstCardAttNameFinder, findsOneWidget);
   expect((firstCardAttNameFinder.evaluate().first.widget as Text).style?.color!, defaultTextColor);
 
   // The names of the other requested attributes (without a value) should not be visible
-  expect(
-    find.descendant(
-      of: firstCardAttListFinder,
-      matching: find.text('Initials'),
-    ),
-    findsNothing,
-  );
-  expect(
-    find.descendant(
-      of: firstCardAttListFinder,
-      matching: find.text('Family name'),
-    ),
-    findsNothing,
-  );
+  expect(find.descendant(of: firstCardAttListFinder, matching: find.text('Initials')), findsNothing);
+  expect(find.descendant(of: firstCardAttListFinder, matching: find.text('Family name')), findsNothing);
 
   // The value of the attribute should be visible and styled green
-  final firstCardAttValueFinder = find.descendant(
-    of: firstCardAttListFinder,
-    matching: find.text('Arnhem'),
-  );
+  final firstCardAttValueFinder = find.descendant(of: firstCardAttListFinder, matching: find.text('Arnhem'));
   expect(firstCardAttValueFinder, findsOneWidget);
   expect((firstCardAttValueFinder.evaluate().first.widget as Text).style?.color!, successColor);
 
   // Find the second card and make sure its is not highlighted yet
   final secondCardFinder = choiceCardsFinder.at(1);
-  await tester.scrollUntilVisible(
-    secondCardFinder,
-    150,
-    maxScrolls: 300,
-  );
+  await tester.scrollUntilVisible(secondCardFinder, 150, maxScrolls: 300);
 
   await evaluateCredentialCard(tester, secondCardFinder, style: IrmaCardStyle.normal);
 
@@ -115,11 +90,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   await issueIdin(tester, irmaBinding);
 
   // Tap it and the styling should change.
-  await tester.scrollUntilVisible(
-    secondCardFinder,
-    150,
-    maxScrolls: 300,
-  );
+  await tester.scrollUntilVisible(secondCardFinder, 150, maxScrolls: 300);
   await tester.tapAndSettle(secondCardFinder);
   await evaluateCredentialCard(tester, secondCardFinder, style: IrmaCardStyle.highlighted);
 
@@ -131,18 +102,12 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   expect(secondCardAttListFinder, findsOneWidget);
 
   // The name of the attribute should be visible and styled normally
-  final secondCardAttNameFinder = find.descendant(
-    of: secondCardAttListFinder,
-    matching: find.text('BIC'),
-  );
+  final secondCardAttNameFinder = find.descendant(of: secondCardAttListFinder, matching: find.text('BIC'));
   expect(secondCardAttNameFinder, findsOneWidget);
   expect((secondCardAttNameFinder.evaluate().first.widget as Text).style?.color!, defaultTextColor);
 
   // The value of the attribute should be visible and styled green
-  final secondCardAttValueFinder = find.descendant(
-    of: secondCardAttListFinder,
-    matching: find.text('RABONL2U'),
-  );
+  final secondCardAttValueFinder = find.descendant(of: secondCardAttListFinder, matching: find.text('RABONL2U'));
   expect(secondCardAttValueFinder, findsOneWidget);
   expect((secondCardAttValueFinder.evaluate().first.widget as Text).style?.color!, successColor);
 
@@ -162,10 +127,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   expect(wrongCredAddedDialogFinder, findsOneWidget);
 
   // Dialog should show two credential cards
-  final dialogCardsFinder = find.descendant(
-    of: wrongCredAddedDialogFinder,
-    matching: find.byType(IrmaCredentialCard),
-  );
+  final dialogCardsFinder = find.descendant(of: wrongCredAddedDialogFinder, matching: find.byType(IrmaCredentialCard));
   expect(dialogCardsFinder, findsNWidgets(2));
 
   // First card should show the added credential not matching this session
@@ -180,10 +142,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   expect(firstDialogCardAttListFinder, findsOneWidget);
 
   // The name of the attribute should be visible and styled normally
-  final firstDialogCardAttNameFinder = find.descendant(
-    of: firstDialogCardAttListFinder,
-    matching: find.text('BIC'),
-  );
+  final firstDialogCardAttNameFinder = find.descendant(of: firstDialogCardAttListFinder, matching: find.text('BIC'));
   expect(firstDialogCardAttNameFinder, findsOneWidget);
   expect((firstDialogCardAttNameFinder.evaluate().first.widget as Text).style?.color!, defaultTextColor);
 
@@ -207,10 +166,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   expect(secondDialogCardAttListFinder, findsOneWidget);
 
   // The name of the attribute should be visible and styled normally
-  final secondDialogCardAttNameFinder = find.descendant(
-    of: secondDialogCardAttListFinder,
-    matching: find.text('BIC'),
-  );
+  final secondDialogCardAttNameFinder = find.descendant(of: secondDialogCardAttListFinder, matching: find.text('BIC'));
   expect(secondDialogCardAttNameFinder, findsOneWidget);
   expect((secondDialogCardAttNameFinder.evaluate().first.widget as Text).style?.color!, defaultTextColor);
 
@@ -243,13 +199,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   expect(wrongCredAddedDialogFinder, findsNothing);
 
   // The disclosure cards should not have a attribute cards list.
-  expect(
-    find.descendant(
-      of: dialogCardsFinder,
-      matching: find.byType(IrmaCredentialCardAttributeList),
-    ),
-    findsNothing,
-  );
+  expect(find.descendant(of: dialogCardsFinder, matching: find.byType(IrmaCredentialCardAttributeList)), findsNothing);
 
   // Issue wizard should be completed
   expect(find.text('All required data has been added'), findsOneWidget);

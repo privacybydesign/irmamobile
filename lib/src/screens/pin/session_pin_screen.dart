@@ -100,12 +100,11 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   void _handleError(PinState state) {
     final navigatorContext = _navigatorKey.currentContext;
     if (navigatorContext != null) {
-      Navigator.of(navigatorContext).push(MaterialPageRoute(
-        builder: (context) => SessionErrorScreen(
-          error: state.error,
-          onTapClose: Navigator.of(navigatorContext).pop,
+      Navigator.of(navigatorContext).push(
+        MaterialPageRoute(
+          builder: (context) => SessionErrorScreen(error: state.error, onTapClose: Navigator.of(navigatorContext).pop),
         ),
-      ));
+      );
     }
   }
 
@@ -119,9 +118,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   void _submit(bool enabled, String pin) {
     if (!enabled) return;
-    _pinBloc.add(
-      SessionPin(sessionID: widget.sessionID, pin: pin, repo: _repo),
-    );
+    _pinBloc.add(SessionPin(sessionID: widget.sessionID, pin: pin, repo: _repo));
   }
 
   @override
@@ -185,8 +182,9 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                             ),
                             if (state.authenticateInProgress)
                               Padding(
-                                  padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                                  child: const CircularProgressIndicator()),
+                                padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                                child: const CircularProgressIndicator(),
+                              ),
                           ],
                         );
                       },

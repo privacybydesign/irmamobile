@@ -22,10 +22,7 @@ void main() {
     mockBridge = IrmaMockBridge();
     SharedPreferences.setMockInitialValues({});
 
-    repo = IrmaRepository(
-      client: mockBridge,
-      preferences: await IrmaPreferences.fromInstance(),
-    );
+    repo = IrmaRepository(client: mockBridge, preferences: await IrmaPreferences.fromInstance());
     await repo.getCredentials().first; // Wait until AppReadyEvent has been processed.
   });
 
@@ -37,23 +34,15 @@ void main() {
 
   test('initialize-notifications', () async {
     // Issue a revocable credential
-    await issueCredential(
-      repo,
-      mockBridge,
-      43,
-      [
-        {
-          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
-          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-        }
-      ],
-      revoked: true,
-    );
+    await issueCredential(repo, mockBridge, 43, [
+      {
+        'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+      },
+    ], revoked: true);
 
     // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
+    final bloc = NotificationsBloc(repo: repo);
     expect(bloc.state, isA<NotificationsInitial>());
 
     bloc.add(Initialize());
@@ -82,23 +71,15 @@ void main() {
 
   test('reload-notifications', () async {
     // Issue a revocable credential
-    await issueCredential(
-      repo,
-      mockBridge,
-      43,
-      [
-        {
-          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
-          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-        }
-      ],
-      revoked: true,
-    );
+    await issueCredential(repo, mockBridge, 43, [
+      {
+        'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+      },
+    ], revoked: true);
 
     // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
+    final bloc = NotificationsBloc(repo: repo);
     expect(bloc.state, isA<NotificationsInitial>());
 
     bloc.add(Initialize());
@@ -111,18 +92,12 @@ void main() {
     expect(notifications.length, 1);
 
     // Issue a second revoked credential
-    await issueCredential(
-      repo,
-      mockBridge,
-      44,
-      [
-        {
-          'irma-demo.IRMATube.member.id': TextValue.fromString('56789'),
-          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-        }
-      ],
-      revoked: true,
-    );
+    await issueCredential(repo, mockBridge, 44, [
+      {
+        'irma-demo.IRMATube.member.id': TextValue.fromString('56789'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+      },
+    ], revoked: true);
 
     // Now reload the notifications
     bloc.add(LoadNotifications());
@@ -137,23 +112,15 @@ void main() {
 
   test('clean-up-notifications', () async {
     // Issue a revocable credential
-    await issueCredential(
-      repo,
-      mockBridge,
-      43,
-      [
-        {
-          'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
-          'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
-        }
-      ],
-      revoked: true,
-    );
+    await issueCredential(repo, mockBridge, 43, [
+      {
+        'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+      },
+    ], revoked: true);
 
     // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
+    final bloc = NotificationsBloc(repo: repo);
     expect(bloc.state, isA<NotificationsInitial>());
 
     bloc.add(Initialize());
@@ -169,9 +136,7 @@ void main() {
     expect(notifications.first, isA<CredentialStatusNotification>());
     final notification = notifications.first as CredentialStatusNotification;
 
-    bloc.add(SoftDeleteNotification(
-      notification.id,
-    ));
+    bloc.add(SoftDeleteNotification(notification.id));
     expect(await bloc.stream.first, isA<NotificationsLoading>());
     expect(await bloc.stream.first, isA<NotificationsLoaded>());
 
@@ -183,18 +148,13 @@ void main() {
     // Create another repo that has no credentials, with the same preferences
     // This should load the notifications from the preferences
     // But the clean up should remove the notification
-    final repo2 = IrmaRepository(
-      client: IrmaMockBridge(),
-      preferences: repo.preferences,
-    );
+    final repo2 = IrmaRepository(client: IrmaMockBridge(), preferences: repo.preferences);
 
     final credentials = await repo2.getCredentials().first; // Wait until AppReadyEvent has been processed.
     expect(credentials.length, 0);
 
     // Create bloc
-    final bloc2 = NotificationsBloc(
-      repo: repo2,
-    );
+    final bloc2 = NotificationsBloc(repo: repo2);
     expect(bloc2.state, isA<NotificationsInitial>());
 
     bloc2.add(Initialize());
@@ -211,9 +171,7 @@ void main() {
     repo.preferences.setSerializedNotifications(serializedCredentials);
 
     // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
+    final bloc = NotificationsBloc(repo: repo);
     expect(bloc.state, isA<NotificationsInitial>());
     bloc.add(Initialize());
 
@@ -242,7 +200,9 @@ void main() {
     final credentialStatusNotificationContent = credentialStatusNotification.content as InternalTranslatedContent;
     expect(credentialStatusNotificationContent.titleTranslationKey, 'notifications.credential_status.revoked.title');
     expect(
-        credentialStatusNotificationContent.messageTranslationKey, 'notifications.credential_status.revoked.message');
+      credentialStatusNotificationContent.messageTranslationKey,
+      'notifications.credential_status.revoked.message',
+    );
   });
 
   test('load-corrupted-cache', () async {
@@ -250,9 +210,7 @@ void main() {
     repo.preferences.setSerializedNotifications(corruptedSerializedCredentials);
 
     // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
+    final bloc = NotificationsBloc(repo: repo);
     expect(bloc.state, isA<NotificationsInitial>());
     bloc.add(Initialize());
 
@@ -269,9 +227,7 @@ void main() {
     repo.preferences.setSerializedNotifications(serializedCredentials);
 
     // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
+    final bloc = NotificationsBloc(repo: repo);
     expect(bloc.state, isA<NotificationsInitial>());
     bloc.add(Initialize());
 
@@ -305,9 +261,7 @@ void main() {
     repo.preferences.setSerializedNotifications(serializedCredentials);
 
     // Create bloc
-    final bloc = NotificationsBloc(
-      repo: repo,
-    );
+    final bloc = NotificationsBloc(repo: repo);
     expect(bloc.state, isA<NotificationsInitial>());
     bloc.add(Initialize());
 

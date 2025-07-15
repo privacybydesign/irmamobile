@@ -24,20 +24,13 @@ class CombinedState4<A, B, C, D> {
   CombinedState4(this.a, this.b, this.c, this.d);
 }
 
-Stream<CombinedState2<A, B>> combine2<A, B>(
-  Stream<A> streamA,
-  Stream<B> streamB,
-) {
+Stream<CombinedState2<A, B>> combine2<A, B>(Stream<A> streamA, Stream<B> streamB) {
   return Rx.combineLatest2(streamA, streamB, (A a, B b) {
     return CombinedState2<A, B>(a, b);
   });
 }
 
-Stream<CombinedState3<A, B, C>> combine3<A, B, C>(
-  Stream<A> streamA,
-  Stream<B> streamB,
-  Stream<C> streamC,
-) {
+Stream<CombinedState3<A, B, C>> combine3<A, B, C>(Stream<A> streamA, Stream<B> streamB, Stream<C> streamC) {
   return Rx.combineLatest3(streamA, streamB, streamC, (A a, B b, C c) {
     return CombinedState3<A, B, C>(a, b, c);
   });

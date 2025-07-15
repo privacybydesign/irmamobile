@@ -37,10 +37,7 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
   expect(find.text("This is the message you're signing:"), findsOneWidget);
   final quoteFinder = find.byKey(const Key('signature_message'));
   expect(quoteFinder, findsOneWidget);
-  expect(
-    (quoteFinder.evaluate().first.widget as IrmaQuote).quote,
-    'Message to be signed by user',
-  );
+  expect((quoteFinder.evaluate().first.widget as IrmaQuote).quote, 'Message to be signed by user');
 
   expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
 
@@ -51,20 +48,12 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
     cardsFinder.first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    attributes: {'Email address': 'test@example.com'},
     style: IrmaCardStyle.normal,
   );
 
   await tester.tapAndSettle(find.text('Sign and share'));
 
-  await evaluateShareDialog(
-    tester,
-    isSignatureSession: true,
-  );
-  await evaluateFeedback(
-    tester,
-    isSignatureSession: true,
-  );
+  await evaluateShareDialog(tester, isSignatureSession: true);
+  await evaluateFeedback(tester, isSignatureSession: true);
 }

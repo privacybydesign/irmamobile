@@ -9,9 +9,7 @@ import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
 
 class VersionButton extends StatefulWidget {
-  const VersionButton({
-    super.key,
-  });
+  const VersionButton({super.key});
 
   @override
   State<VersionButton> createState() => _VersionButtonState();
@@ -34,17 +32,15 @@ class _VersionButtonState extends State<VersionButton> {
     final repo = IrmaRepositoryProvider.of(context);
     final theme = IrmaTheme.of(context);
 
-    final textStyle = theme.textTheme.titleLarge!.copyWith(
-      fontWeight: FontWeight.w600,
-    );
+    final textStyle = theme.textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600);
 
     void showSnackbar(String translationKey) => ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: theme.success,
-            content: TranslatedText(translationKey),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+      SnackBar(
+        backgroundColor: theme.success,
+        content: TranslatedText(translationKey),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
 
     void onTap() async {
       _tapCounter++;
@@ -85,9 +81,7 @@ class _VersionButtonState extends State<VersionButton> {
                       return TranslatedText(
                         'more_tab.app_id',
                         style: textStyle,
-                        translationParams: {
-                          'id': appId ?? '',
-                        },
+                        translationParams: {'id': appId ?? ''},
                       );
                     },
                   ),
@@ -95,9 +89,7 @@ class _VersionButtonState extends State<VersionButton> {
                     future: PackageInfo.fromPlatform(),
                     builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => TranslatedText(
                       'more_tab.version',
-                      translationParams: {
-                        'version': _buildVersionString(info),
-                      },
+                      translationParams: {'version': _buildVersionString(info)},
                       style: textStyle,
                     ),
                   ),

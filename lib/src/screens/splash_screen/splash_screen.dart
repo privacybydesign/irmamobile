@@ -10,9 +10,7 @@ class SplashScreen extends StatelessWidget {
 
   final bool isLoading;
 
-  const SplashScreen({
-    this.isLoading = false,
-  });
+  const SplashScreen({this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -31,18 +29,13 @@ class SplashScreen extends StatelessWidget {
               'assets/non-free/logo_payoff.svg',
               height: logoHeight,
               width: logoWidth,
-              semanticsLabel: FlutterI18n.translate(
-                context,
-                'accessibility.irma_logo',
-              ),
+              semanticsLabel: FlutterI18n.translate(context, 'accessibility.irma_logo'),
             ),
             if (isLoading)
               Container(
-                margin: EdgeInsets.only(
-                  top: logoHeight + IrmaTheme.of(context).defaultSpacing,
-                ),
+                margin: EdgeInsets.only(top: logoHeight + IrmaTheme.of(context).defaultSpacing),
                 child: LoadingIndicator(),
-              )
+              ),
           ],
         ),
       ),

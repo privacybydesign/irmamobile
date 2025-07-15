@@ -38,12 +38,7 @@ class IssueWizardInfo extends StatelessWidget {
             key: collapsableKeys[q.key],
             header: q.value.question.translate(lang),
             parentScrollController: controller,
-            content: SizedBox(
-              width: double.infinity,
-              child: IrmaMarkdown(
-                q.value.answer.translate(lang),
-              ),
-            ),
+            content: SizedBox(width: double.infinity, child: IrmaMarkdown(q.value.answer.translate(lang))),
           ),
         )
         .toList();

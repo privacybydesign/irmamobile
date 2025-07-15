@@ -51,12 +51,7 @@ class _DataTabState extends ConsumerState<DataTab> {
         titleTranslationKey: 'home.nav_bar.data',
         leading: null,
         actions: [
-          IrmaIconButton(
-            key: const Key('search_button'),
-            icon: CupertinoIcons.search,
-            size: 28,
-            onTap: _openSearch,
-          ),
+          IrmaIconButton(key: const Key('search_button'), icon: CupertinoIcons.search, size: 28, onTap: _openSearch),
           IrmaIconButton(
             key: _addDataButtonKey,
             icon: CupertinoIcons.add_circled_solid,
@@ -209,8 +204,11 @@ class _NoCredentialsYet extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TranslatedText('data_tab.empty.title',
-                    style: theme.textTheme.displayLarge, textAlign: TextAlign.center),
+                TranslatedText(
+                  'data_tab.empty.title',
+                  style: theme.textTheme.displayLarge,
+                  textAlign: TextAlign.center,
+                ),
                 SizedBox(height: theme.defaultSpacing),
                 TranslatedText('data_tab.empty.subtitle', textAlign: TextAlign.center),
               ],
@@ -232,9 +230,10 @@ class _AllCredentialsList extends ConsumerWidget {
     final credentials = ref.watch(credentialsProvider);
 
     return switch (credentials) {
-      AsyncData(:final value) => value.isEmpty
-          ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
-          : _CredentialsTypeList(credentials: value.values.toList(growable: false)),
+      AsyncData(:final value) =>
+        value.isEmpty
+            ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
+            : _CredentialsTypeList(credentials: value.values.toList(growable: false)),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };
@@ -253,24 +252,24 @@ class _CredentialsTypeList extends StatelessWidget {
       key: const Key('credentials_type_list'),
       padding: EdgeInsets.only(top: theme.defaultSpacing),
       children: [
-        ...credentials.map(
-          (c) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: theme.smallSpacing,
-                left: theme.defaultSpacing,
-                right: theme.defaultSpacing,
-              ),
-              child: IrmaCredentialTypeCard(
-                credType: c.credentialType,
-                onTap: () => context.pushCredentialsDetailsScreen(
-                  CredentialsDetailsRouteParams(
-                      categoryName: 'home.nav_bar.data', credentialTypeId: c.credentialType.fullId),
+        ...credentials.map((c) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: theme.smallSpacing,
+              left: theme.defaultSpacing,
+              right: theme.defaultSpacing,
+            ),
+            child: IrmaCredentialTypeCard(
+              credType: c.credentialType,
+              onTap: () => context.pushCredentialsDetailsScreen(
+                CredentialsDetailsRouteParams(
+                  categoryName: 'home.nav_bar.data',
+                  credentialTypeId: c.credentialType.fullId,
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        }),
       ],
     );
   }

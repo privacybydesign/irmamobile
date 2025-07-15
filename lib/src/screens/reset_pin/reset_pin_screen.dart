@@ -17,25 +17,16 @@ class ResetPinScreen extends StatelessWidget {
     final isSmallScreen = MediaQuery.of(context).size.height < 670;
 
     return Scaffold(
-      appBar: const IrmaAppBar(
-        titleTranslationKey: 'reset_pin.title',
-      ),
+      appBar: const IrmaAppBar(titleTranslationKey: 'reset_pin.title'),
       body: DynamicLayout(
-        hero: SvgPicture.asset(
-          'assets/reset/forgot_pin_illustration.svg',
-          height: isSmallScreen ? 250 : null,
-        ),
+        hero: SvgPicture.asset('assets/reset/forgot_pin_illustration.svg', height: isSmallScreen ? 250 : null),
         content: Column(
           children: [
             TranslatedText(
               'reset_pin.header',
-              style: theme.themeData.textTheme.displaySmall!.copyWith(
-                color: theme.dark,
-              ),
+              style: theme.themeData.textTheme.displaySmall!.copyWith(color: theme.dark),
             ),
-            SizedBox(
-              height: theme.tinySpacing,
-            ),
+            SizedBox(height: theme.tinySpacing),
             TranslatedText(
               'reset_pin.explanation',
               style: theme.themeData.textTheme.bodyMedium,
@@ -44,15 +35,8 @@ class ResetPinScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          YiviThemedButton(
-            style: YiviButtonStyle.outlined,
-            label: 'ui.cancel',
-            onPressed: context.pop,
-          ),
-          YiviThemedButton(
-            label: 'reset_pin.reset',
-            onPressed: () => showConfirmDeleteDialog(context),
-          ),
+          YiviThemedButton(style: YiviButtonStyle.outlined, label: 'ui.cancel', onPressed: context.pop),
+          YiviThemedButton(label: 'reset_pin.reset', onPressed: () => showConfirmDeleteDialog(context)),
         ],
       ),
     );

@@ -15,92 +15,84 @@ class TestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IrmaTheme(
-        builder: (_) => MaterialApp(
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: 'assets/locales',
-                forcedLocale: const Locale('nl', 'NL'),
-              ),
-            ),
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate
-          ],
-          home: SessionErrorScreen(
-            error: error,
-            onTapClose: () {},
-          ),
+    builder: (_) => MaterialApp(
+      localizationsDelegates: [
+        FlutterI18nDelegate(
+          translationLoader: FileTranslationLoader(basePath: 'assets/locales', forcedLocale: const Locale('nl', 'NL')),
         ),
-      );
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      home: SessionErrorScreen(error: error, onTapClose: () {}),
+    ),
+  );
 }
 
 void main() {
   const errorScreenKey = ValueKey('error_screen');
-  testWidgets(
-    'errorType = transport',
-    (WidgetTester tester) async {
-      final error = SessionError(errorType: 'transport', info: 'info');
+  testWidgets('errorType = transport', (WidgetTester tester) async {
+    final error = SessionError(errorType: 'transport', info: 'info');
 
-      await tester.pumpWidget(TestWidget(error));
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(TestWidget(error));
+    await tester.pumpAndSettle();
 
-      expect(find.byKey(const ValueKey('no_internet_screen')), findsOneWidget);
-    },
-  );
+    expect(find.byKey(const ValueKey('no_internet_screen')), findsOneWidget);
+  });
 
-  testWidgets(
-    'errorType = pairingRejected',
-    (WidgetTester tester) async {
-      final error = SessionError(errorType: 'pairingRejected', info: 'info');
+  testWidgets('errorType = pairingRejected', (WidgetTester tester) async {
+    final error = SessionError(errorType: 'pairingRejected', info: 'info');
 
-      await tester.pumpWidget(TestWidget(error));
-      await tester.pumpAndSettle();
-      expect(find.byKey(errorScreenKey), findsOneWidget);
-    },
-  );
+    await tester.pumpWidget(TestWidget(error));
+    await tester.pumpAndSettle();
+    expect(find.byKey(errorScreenKey), findsOneWidget);
+  });
 
-  testWidgets(
-    'remoteError = USER_NOT_FOUND',
-    (WidgetTester tester) async {
-      final error = SessionError(errorType: '', info: '', remoteError: RemoteError(errorName: 'USER_NOT_FOUND'));
+  testWidgets('remoteError = USER_NOT_FOUND', (WidgetTester tester) async {
+    final error = SessionError(
+      errorType: '',
+      info: '',
+      remoteError: RemoteError(errorName: 'USER_NOT_FOUND'),
+    );
 
-      await tester.pumpWidget(TestWidget(error));
-      await tester.pumpAndSettle();
-      expect(find.byType(BlockedScreen), findsOneWidget);
-    },
-  );
+    await tester.pumpWidget(TestWidget(error));
+    await tester.pumpAndSettle();
+    expect(find.byType(BlockedScreen), findsOneWidget);
+  });
 
-  testWidgets(
-    'remoteError = SESSION_UNKNOWN',
-    (WidgetTester tester) async {
-      final error = SessionError(errorType: '', info: '', remoteError: RemoteError(errorName: 'SESSION_UNKNOWN'));
+  testWidgets('remoteError = SESSION_UNKNOWN', (WidgetTester tester) async {
+    final error = SessionError(
+      errorType: '',
+      info: '',
+      remoteError: RemoteError(errorName: 'SESSION_UNKNOWN'),
+    );
 
-      await tester.pumpWidget(TestWidget(error));
-      await tester.pumpAndSettle();
-      expect(find.byKey(errorScreenKey), findsOneWidget);
-    },
-  );
+    await tester.pumpWidget(TestWidget(error));
+    await tester.pumpAndSettle();
+    expect(find.byKey(errorScreenKey), findsOneWidget);
+  });
 
-  testWidgets(
-    'remoteError = UNEXPECTED_REQUEST',
-    (WidgetTester tester) async {
-      final error = SessionError(errorType: '', info: '', remoteError: RemoteError(errorName: 'UNEXPECTED_REQUEST'));
+  testWidgets('remoteError = UNEXPECTED_REQUEST', (WidgetTester tester) async {
+    final error = SessionError(
+      errorType: '',
+      info: '',
+      remoteError: RemoteError(errorName: 'UNEXPECTED_REQUEST'),
+    );
 
-      await tester.pumpWidget(TestWidget(error));
-      await tester.pumpAndSettle();
-      expect(find.byKey(errorScreenKey), findsOneWidget);
-    },
-  );
+    await tester.pumpWidget(TestWidget(error));
+    await tester.pumpAndSettle();
+    expect(find.byKey(errorScreenKey), findsOneWidget);
+  });
 
-  testWidgets(
-    'unknown error',
-    (WidgetTester tester) async {
-      final error = SessionError(errorType: '', info: '', remoteError: RemoteError(errorName: ''));
+  testWidgets('unknown error', (WidgetTester tester) async {
+    final error = SessionError(
+      errorType: '',
+      info: '',
+      remoteError: RemoteError(errorName: ''),
+    );
 
-      await tester.pumpWidget(TestWidget(error));
-      await tester.pumpAndSettle();
-      expect(find.byKey(errorScreenKey), findsOneWidget);
-    },
-  );
+    await tester.pumpWidget(TestWidget(error));
+    await tester.pumpAndSettle();
+    expect(find.byKey(errorScreenKey), findsOneWidget);
+  });
 }

@@ -63,10 +63,7 @@ class SessionRepository {
 
   SessionState _eventHandler(SessionState prevState, SessionEvent event) {
     if (event is FailureSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: event.error,
-      );
+      return prevState.copyWith(status: SessionStatus.error, error: event.error);
     } else if (event is KeyshareEnrollmentMissingSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.error,
@@ -92,18 +89,11 @@ class SessionRepository {
         ),
       );
     } else if (event is StatusUpdateSessionEvent) {
-      return prevState.copyWith(
-        status: event.status.toSessionStatus(),
-      );
+      return prevState.copyWith(status: event.status.toSessionStatus());
     } else if (event is ClientReturnURLSetSessionEvent) {
-      return prevState.copyWith(
-        clientReturnURL: ReturnURL.parse(event.clientReturnURL),
-      );
+      return prevState.copyWith(clientReturnURL: ReturnURL.parse(event.clientReturnURL));
     } else if (event is PairingRequiredSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.pairing,
-        pairingCode: event.pairingCode,
-      );
+      return prevState.copyWith(status: SessionStatus.pairing, pairingCode: event.pairingCode);
     } else if (event is RequestIssuancePermissionSessionEvent) {
       try {
         _validateCandidates(event.disclosuresCandidates);
@@ -123,10 +113,7 @@ class SessionRepository {
         isSignatureSession: false,
         disclosuresCandidates: ConDisCon.fromRaw(event.disclosuresCandidates, (DisclosureCandidate dc) => dc),
         issuedCredentials: event.issuedCredentials
-            .map((raw) => Credential.fromRaw(
-                  irmaConfiguration: repo.irmaConfiguration,
-                  rawCredential: raw,
-                ))
+            .map((raw) => Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: raw))
             .toList(),
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
@@ -153,20 +140,17 @@ class SessionRepository {
         disclosureChoices: ConCon.fromRaw(event.disclosureChoices, (AttributeIdentifier attrId) => attrId),
       );
     } else if (event is SuccessSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.success,
-      );
+      return prevState.copyWith(status: SessionStatus.success);
     } else if (event is CanceledSessionEvent) {
       return prevState.copyWith(status: SessionStatus.canceled);
     } else if (event is RequestPinSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.requestPin,
-      );
+      return prevState.copyWith(status: SessionStatus.requestPin);
     } else if (event is RespondPermissionEvent) {
       return prevState.copyWith(
         status: SessionStatus.communicating,
-        disclosureChoices:
-            event.proceed ? ConCon.fromRaw(event.disclosureChoices, (AttributeIdentifier attrId) => attrId) : null,
+        disclosureChoices: event.proceed
+            ? ConCon.fromRaw(event.disclosureChoices, (AttributeIdentifier attrId) => attrId)
+            : null,
         dismissed: !event.proceed,
       );
     }

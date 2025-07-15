@@ -69,12 +69,11 @@ class IrmaClientBridge extends IrmaBridge {
   };
 
   // Create a lookup of unmarshallers
-  static final Map<String, EventUnmarshaller> _eventUnmarshallerLookup =
-      _eventUnmarshallers.map((Type t, EventUnmarshaller u) => MapEntry<String, EventUnmarshaller>(t.toString(), u));
+  static final Map<String, EventUnmarshaller> _eventUnmarshallerLookup = _eventUnmarshallers.map(
+    (Type t, EventUnmarshaller u) => MapEntry<String, EventUnmarshaller>(t.toString(), u),
+  );
 
-  IrmaClientBridge({
-    this.debugLogging = false,
-  }) : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
+  IrmaClientBridge({this.debugLogging = false}) : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
     // Start listening to method calls from the native side
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }

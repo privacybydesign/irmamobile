@@ -36,6 +36,8 @@ void main() {
     }
 
     expect(
-        () => Pointer.fromString('https://privacybydesign.foundation/'), throwsA(const TypeMatcher<MissingPointer>()));
+      () => Pointer.fromString('https://privacybydesign.foundation/'),
+      throwsA(const TypeMatcher<MissingPointer>()),
+    );
   });
 }

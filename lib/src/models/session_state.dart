@@ -55,16 +55,9 @@ class SessionState {
   // the user previously tried to obtain via the credential store
   // or by reobtain a credential from the data tab.
   bool get didIssuePreviouslyLaunchedCredential =>
-      issuedCredentials?.any(
-        (cred) => previouslyLaunchedCredentials.contains(cred.info.fullId),
-      ) ??
-      false;
+      issuedCredentials?.any((cred) => previouslyLaunchedCredentials.contains(cred.info.fullId)) ?? false;
 
-  bool get isFinished => [
-        SessionStatus.success,
-        SessionStatus.canceled,
-        SessionStatus.error,
-      ].contains(status);
+  bool get isFinished => [SessionStatus.success, SessionStatus.canceled, SessionStatus.error].contains(status);
 
   SessionState copyWith({
     SessionStatus? status,
@@ -116,7 +109,6 @@ enum SessionStatus {
 }
 
 extension SessionStatusParser on String {
-  SessionStatus? toSessionStatus() => SessionStatus.values.firstWhereOrNull(
-        (v) => v.toString() == 'SessionStatus.$this',
-      );
+  SessionStatus? toSessionStatus() =>
+      SessionStatus.values.firstWhereOrNull((v) => v.toString() == 'SessionStatus.$this');
 }

@@ -21,12 +21,10 @@ class IrmaRepositoryProvider extends InheritedWidget {
   bool updateShouldNotify(IrmaRepositoryProvider oldWidget) => oldWidget.repository != repository;
 }
 
-final irmaRepositoryProvider = Provider<IrmaRepository>(
-  (ref) {
-    final preferences = ref.watch(preferencesProvider);
-    return IrmaRepository(
-      client: IrmaClientBridge(debugLogging: kDebugMode),
-      preferences: preferences,
-    );
-  },
-);
+final irmaRepositoryProvider = Provider<IrmaRepository>((ref) {
+  final preferences = ref.watch(preferencesProvider);
+  return IrmaRepository(
+    client: IrmaClientBridge(debugLogging: kDebugMode),
+    preferences: preferences,
+  );
+});

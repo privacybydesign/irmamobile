@@ -68,19 +68,10 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       key: const Key('irma_app_bar'),
       backgroundColor: theme.light,
-      shape: hasBorder
-          ? Border(
-              bottom: BorderSide(
-                color: theme.tertiary,
-              ),
-            )
-          : null,
+      shape: hasBorder ? Border(bottom: BorderSide(color: theme.tertiary)) : null,
       centerTitle: true,
       leading: leading,
-      title: TranslatedText(
-        titleTranslationKey ?? (title ?? ''),
-        style: theme.textTheme.displaySmall,
-      ),
+      title: TranslatedText(titleTranslationKey ?? (title ?? ''), style: theme.textTheme.displaySmall),
       actions: actions,
       automaticallyImplyLeading: false,
     );

@@ -15,11 +15,7 @@ class DisclosurePermissionInitial implements DisclosurePermissionBlocState {}
 class DisclosurePermissionIntroduction implements DisclosurePermissionBlocState {}
 
 /// Enum with all possible DisclosurePermissionSteps.
-enum DisclosurePermissionStepName {
-  issueWizard,
-  previouslyAddedCredentialsOverview,
-  choicesOverview,
-}
+enum DisclosurePermissionStepName { issueWizard, previouslyAddedCredentialsOverview, choicesOverview }
 
 /// Abstract class containing all behaviour of a state that is a planned step.
 abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState {
@@ -27,7 +23,7 @@ abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState
   final UnmodifiableListView<DisclosurePermissionStepName> plannedSteps;
 
   DisclosurePermissionStep({required List<DisclosurePermissionStepName> plannedSteps})
-      : plannedSteps = UnmodifiableListView(plannedSteps);
+    : plannedSteps = UnmodifiableListView(plannedSteps);
 
   /// Index of the current step in the list of planned steps.
   DisclosurePermissionStepName get currentStepName;
@@ -58,9 +54,9 @@ abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
     required Map<int, Con<ChoosableDisclosureCredential>> optionalChoices,
     required Set<int> changeableChoices,
     required this.hasAdditionalOptionalChoices,
-  })  : requiredChoices = UnmodifiableMapView(requiredChoices),
-        optionalChoices = UnmodifiableMapView(optionalChoices),
-        changeableChoices = UnmodifiableSetView(changeableChoices);
+  }) : requiredChoices = UnmodifiableMapView(requiredChoices),
+       optionalChoices = UnmodifiableMapView(optionalChoices),
+       changeableChoices = UnmodifiableSetView(changeableChoices);
 
   Map<int, Con<ChoosableDisclosureCredential>> get choices => {...requiredChoices, ...optionalChoices};
 
@@ -92,11 +88,11 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
     required List<MapEntry<int, DisCon<TemplateDisclosureCredential>>> candidatesList,
     required Map<int, int> selectedConIndices,
     required Map<int, bool> obtained,
-  })  : assert(candidates.keys.every((i) => selectedConIndices.containsKey(i) && obtained.containsKey(i))),
-        candidates = UnmodifiableMapView(candidates),
-        candidatesList = UnmodifiableListView(candidatesList),
-        selectedConIndices = UnmodifiableMapView(selectedConIndices),
-        obtained = UnmodifiableMapView(obtained);
+  }) : assert(candidates.keys.every((i) => selectedConIndices.containsKey(i) && obtained.containsKey(i))),
+       candidates = UnmodifiableMapView(candidates),
+       candidatesList = UnmodifiableListView(candidatesList),
+       selectedConIndices = UnmodifiableMapView(selectedConIndices),
+       obtained = UnmodifiableMapView(obtained);
 
   /// Returns the discon that should currently be handled.
   MapEntry<int, DisCon<TemplateDisclosureCredential>>? get currentDiscon =>
@@ -177,9 +173,9 @@ class DisclosurePermissionObtainCredentials implements DisclosurePermissionBlocS
     required this.parentState,
     required List<TemplateDisclosureCredential> templates,
     List<bool>? obtained,
-  })  : assert(obtained == null || obtained.length == templates.length),
-        templates = UnmodifiableListView(templates),
-        obtained = UnmodifiableListView(obtained ?? List.filled(templates.length, false));
+  }) : assert(obtained == null || obtained.length == templates.length),
+       templates = UnmodifiableListView(templates),
+       obtained = UnmodifiableListView(obtained ?? List.filled(templates.length, false));
 }
 
 /// Abstract state containing all overlapping behaviour between DisclosurePermissionChangeChoice
@@ -194,27 +190,24 @@ abstract class DisclosurePermissionMakeChoice implements DisclosurePermissionBlo
   /// Index of the Con within this DisCon that is currently selected.
   final int selectedConIndex;
 
-  DisclosurePermissionMakeChoice({
-    required this.parentState,
-    required this.discon,
-    required this.selectedConIndex,
-  }) : assert(selectedConIndex < discon.length);
+  DisclosurePermissionMakeChoice({required this.parentState, required this.discon, required this.selectedConIndex})
+    : assert(selectedConIndex < discon.length);
 
   /// Returns a map with all con indices that are choosable and the corresponding Cons as map value.
   Map<int, Con<ChoosableDisclosureCredential>> get choosableCons => {
-        for (int i = 0; i < discon.length; i++)
-          if (discon[i].every((cred) => cred is ChoosableDisclosureCredential))
-            i: Con(discon[i].whereType<ChoosableDisclosureCredential>())
-      };
+    for (int i = 0; i < discon.length; i++)
+      if (discon[i].every((cred) => cred is ChoosableDisclosureCredential))
+        i: Con(discon[i].whereType<ChoosableDisclosureCredential>()),
+  };
 
   /// All template cons within this choice. This also includes choices with combinations of
   /// ChoosableDisclosureCredentials and TemplateDisclosureCredentials. Of those choices,
   /// only the TemplateDisclosureCredentials are returned.
   Map<int, Con<TemplateDisclosureCredential>> get templateCons => {
-        for (int i = 0; i < discon.length; i++)
-          if (discon[i].any((cred) => cred is TemplateDisclosureCredential))
-            i: Con(discon[i].whereType<TemplateDisclosureCredential>())
-      };
+    for (int i = 0; i < discon.length; i++)
+      if (discon[i].any((cred) => cred is TemplateDisclosureCredential))
+        i: Con(discon[i].whereType<TemplateDisclosureCredential>()),
+  };
 
   /// The con that is currently selected.
   Con<DisclosureCredential> get selectedCon => discon[selectedConIndex];
@@ -267,18 +260,15 @@ class DisclosurePermissionWrongCredentialsObtained implements DisclosurePermissi
     required this.parentState,
     required List<TemplateDisclosureCredential> templates,
     required List<ChoosableDisclosureCredential> obtainedCredentials,
-  })  : templates = UnmodifiableListView(templates),
-        obtainedCredentials = UnmodifiableListView(obtainedCredentials);
+  }) : templates = UnmodifiableListView(templates),
+       obtainedCredentials = UnmodifiableListView(obtainedCredentials);
 }
 
 class DisclosurePermissionCredentialInformation implements DisclosurePermissionBlocState {
   final DisclosurePermissionBlocState parentState;
   final CredentialType credentialType;
 
-  DisclosurePermissionCredentialInformation({
-    required this.parentState,
-    required this.credentialType,
-  });
+  DisclosurePermissionCredentialInformation({required this.parentState, required this.credentialType});
 }
 
 /// State to indicate that the requestDisclosurePermission phase has been finished.

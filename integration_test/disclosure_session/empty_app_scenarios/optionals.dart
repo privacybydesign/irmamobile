@@ -80,19 +80,10 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
 
   // The last card should contain text Demo E-mail address
   final optionalCardFinder = find.byType(IrmaCredentialCard).last;
-  expect(
-    find.descendant(
-      of: optionalCardFinder,
-      matching: find.text('Demo Email address'),
-    ),
-    findsOneWidget,
-  );
+  expect(find.descendant(of: optionalCardFinder, matching: find.text('Demo Email address')), findsOneWidget);
 
   // Check if this optional card has a remove button
-  final optionalCardCloseButtonFinder = find.descendant(
-    of: optionalCardFinder,
-    matching: find.byType(IrmaIconButton),
-  );
+  final optionalCardCloseButtonFinder = find.descendant(of: optionalCardFinder, matching: find.byType(IrmaIconButton));
   expect(optionalCardCloseButtonFinder, findsOneWidget);
 
   // Remove the optional credential
@@ -128,13 +119,7 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   await tester.tapAndSettle(find.text('Done'));
 
   // Last (optional) card should be phone number now
-  expect(
-    find.descendant(
-      of: optionalCardFinder,
-      matching: find.text('Demo Mobile phone number'),
-    ),
-    findsOneWidget,
-  );
+  expect(find.descendant(of: optionalCardFinder, matching: find.text('Demo Mobile phone number')), findsOneWidget);
 
   await tester.tapAndSettle(find.text('Share data'));
 

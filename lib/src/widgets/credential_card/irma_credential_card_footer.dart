@@ -16,11 +16,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
 
   final EdgeInsetsGeometry padding;
 
-  const IrmaCredentialCardFooter({
-    required this.credentialView,
-    this.expiryDate,
-    this.padding = EdgeInsets.zero,
-  });
+  const IrmaCredentialCardFooter({required this.credentialView, this.expiryDate, this.padding = EdgeInsets.zero});
 
   bool get _isExpiringSoon => expiryDate?.expiresSoon ?? false;
 
@@ -34,14 +30,9 @@ class IrmaCredentialCardFooter extends StatelessWidget {
           credentialView.expired
               ? 'credential.expired_on'
               : _isExpiringSoon
-                  ? 'credential.expires_on'
-                  : 'credential.valid_until',
-          translationParams: {
-            'date': printableDate(
-              expiryDate!.dateTime!,
-              lang,
-            ),
-          },
+              ? 'credential.expires_on'
+              : 'credential.valid_until',
+          translationParams: {'date': printableDate(expiryDate!.dateTime!, lang)},
         ),
         style: theme.textTheme.bodyMedium!.copyWith(color: theme.dark),
       );
@@ -58,10 +49,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
           child: YiviThemedButton(
             label: 'credential.options.reobtain',
             style: YiviButtonStyle.filled,
-            onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(
-              context,
-              credentialView.fullId,
-            ),
+            onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialView.fullId),
           ),
         );
       }
@@ -83,10 +71,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final children = [
-      _buildFooterText(context, theme),
-      _buildReobtainOption(context, theme),
-    ].nonNulls;
+    final children = [_buildFooterText(context, theme), _buildReobtainOption(context, theme)].nonNulls;
 
     if (children.isNotEmpty) {
       return Padding(

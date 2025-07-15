@@ -127,11 +127,7 @@ class SessionPointer implements Pointer {
   @JsonKey(name: 'continueOnSecondDevice')
   bool continueOnSecondDevice;
 
-  SessionPointer({
-    required this.u,
-    required this.irmaqr,
-    this.continueOnSecondDevice = false,
-  });
+  SessionPointer({required this.u, required this.irmaqr, this.continueOnSecondDevice = false});
 
   factory SessionPointer.fromJson(Map<String, dynamic> json) => _$SessionPointerFromJson(json);
   Map<String, dynamic> toJson() => _$SessionPointerToJson(this);
@@ -147,10 +143,8 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   IssueWizardSessionPointer(this._wizardPointer, this._sessionPointer);
 
-  factory IssueWizardSessionPointer.fromJson(Map<String, dynamic> json) => IssueWizardSessionPointer(
-        IssueWizardPointer.fromJson(json),
-        SessionPointer.fromJson(json),
-      );
+  factory IssueWizardSessionPointer.fromJson(Map<String, dynamic> json) =>
+      IssueWizardSessionPointer(IssueWizardPointer.fromJson(json), SessionPointer.fromJson(json));
 
   @override
   bool get continueOnSecondDevice => _sessionPointer.continueOnSecondDevice;
@@ -168,10 +162,7 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
   String get u => _sessionPointer.u;
 
   @override
-  Map<String, dynamic> toJson() => {
-        ..._wizardPointer.toJson(),
-        ..._sessionPointer.toJson(),
-      };
+  Map<String, dynamic> toJson() => {..._wizardPointer.toJson(), ..._sessionPointer.toJson()};
 
   @override
   Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {
@@ -216,12 +207,12 @@ class SessionError {
 
   @override
   String toString() => [
-        if (remoteStatus != null && remoteStatus! > 0) '$remoteStatus ',
-        errorType,
-        if (info.isNotEmpty) ' ($info)',
-        if (wrappedError.isNotEmpty) ': $wrappedError',
-        if (remoteError != null) '\n$remoteError',
-      ].join();
+    if (remoteStatus != null && remoteStatus! > 0) '$remoteStatus ',
+    errorType,
+    if (info.isNotEmpty) ' ($info)',
+    if (wrappedError.isNotEmpty) ': $wrappedError',
+    if (remoteError != null) '\n$remoteError',
+  ].join();
 }
 
 @JsonSerializable()
@@ -243,12 +234,8 @@ class RemoteError {
   @JsonKey(name: 'stacktrace')
   final String? stacktrace;
 
-  RemoteError copyWithoutStacktrace() => RemoteError(
-        status: status,
-        errorName: errorName,
-        description: description,
-        message: message,
-      );
+  RemoteError copyWithoutStacktrace() =>
+      RemoteError(status: status, errorName: errorName, description: description, message: message);
 
   factory RemoteError.fromJson(Map<String, dynamic> json) => _$RemoteErrorFromJson(json);
   Map<String, dynamic> toJson() => _$RemoteErrorToJson(this);

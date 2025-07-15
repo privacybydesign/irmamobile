@@ -15,10 +15,7 @@ class IssueWizardSuccessScreen extends StatelessWidget {
   final IssueWizardSuccessScreenArgs args;
   final VoidCallback onDismiss;
 
-  const IssueWizardSuccessScreen({
-    required this.args,
-    required this.onDismiss,
-  });
+  const IssueWizardSuccessScreen({required this.args, required this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +23,12 @@ class IssueWizardSuccessScreen extends StatelessWidget {
 
     return ActionFeedback(
       success: true,
-      titleTranslationKey:
-          args.headerTranslation != null ? args.headerTranslation!.translate(lang) : 'issue_wizard.success.header',
-      explanationTranslationKey:
-          args.contentTranslation != null ? args.contentTranslation!.translate(lang) : 'issue_wizard.success.content',
+      titleTranslationKey: args.headerTranslation != null
+          ? args.headerTranslation!.translate(lang)
+          : 'issue_wizard.success.header',
+      explanationTranslationKey: args.contentTranslation != null
+          ? args.contentTranslation!.translate(lang)
+          : 'issue_wizard.success.content',
       onDismiss: onDismiss,
     );
   }

@@ -50,11 +50,7 @@ class TranslatedRichText extends StatelessWidget {
         final spansAfter = rawAfter.isNotEmpty ? _replaceRichParams(rawAfter) : <InlineSpan>[];
 
         // The recursive calls above guarantee that all spans are found, so we can immediately return.
-        return [
-          ...spansBefore,
-          translationParams[paramKey]!,
-          ...spansAfter,
-        ];
+        return [...spansBefore, translationParams[paramKey]!, ...spansAfter];
       }
     }
 

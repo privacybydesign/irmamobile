@@ -37,41 +37,24 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    Future<void> testToggle(
-      WidgetTester tester,
-      String key,
-      bool defaultValue,
-      Stream<bool> valueStream,
-    ) async {
+    Future<void> testToggle(WidgetTester tester, String key, bool defaultValue, Stream<bool> valueStream) async {
       var toggleFinder = find.byKey(Key(key));
       await tester.scrollUntilVisible(toggleFinder.hitTestable(), 50);
 
       // Find the actual Switch in the ToggleTile
-      var switchFinder = find.descendant(
-        of: toggleFinder,
-        matching: find.byType(CupertinoSwitch),
-      );
+      var switchFinder = find.descendant(of: toggleFinder, matching: find.byType(CupertinoSwitch));
 
       // Check default value
-      expect(
-        (switchFinder.evaluate().single.widget as CupertinoSwitch).value,
-        defaultValue,
-      );
+      expect((switchFinder.evaluate().single.widget as CupertinoSwitch).value, defaultValue);
 
       // Toggle it
       await tester.tapAndSettle(toggleFinder);
 
       // Check switch tile is toggled
-      expect(
-        (switchFinder.evaluate().single.widget as CupertinoSwitch).value,
-        !defaultValue,
-      );
+      expect((switchFinder.evaluate().single.widget as CupertinoSwitch).value, !defaultValue);
 
       // Check if value in repo is toggled
-      expect(
-        await valueStream.first,
-        !defaultValue,
-      );
+      expect(await valueStream.first, !defaultValue);
     }
 
     testWidgets('reach', (tester) async {
@@ -79,57 +62,36 @@ void main() {
       expect(find.byType(SettingsScreen), findsOneWidget);
     });
 
-    testWidgets(
-      'toggles',
-      (tester) async {
-        final repo = irmaBinding.repository;
-        await initAndNavToSettingsScreen(tester);
+    testWidgets('toggles', (tester) async {
+      final repo = irmaBinding.repository;
+      await initAndNavToSettingsScreen(tester);
 
-        // ! Note: there is no test to toggle the scanner on startup
-        // ! because it will ask for camera permissions
+      // ! Note: there is no test to toggle the scanner on startup
+      // ! because it will ask for camera permissions
 
-        await testToggle(
-          tester,
-          'report_toggle',
-          false,
-          repo.preferences.getReportErrors(),
-        );
-        if (Platform.isAndroid) {
-          await testToggle(
-            tester,
-            'screenshot_toggle',
-            true,
-            repo.preferences.getScreenshotsEnabled(),
-          );
-        }
+      await testToggle(tester, 'report_toggle', false, repo.preferences.getReportErrors());
+      if (Platform.isAndroid) {
+        await testToggle(tester, 'screenshot_toggle', true, repo.preferences.getScreenshotsEnabled());
+      }
 
-        // Dev mode is enabled by default in the test binding
-        // so the toggle should be visible.
-        await testToggle(
-          tester,
-          'dev_mode_toggle',
-          true,
-          repo.getDeveloperMode(),
-        );
+      // Dev mode is enabled by default in the test binding
+      // so the toggle should be visible.
+      await testToggle(tester, 'dev_mode_toggle', true, repo.getDeveloperMode());
 
-        // Now go back and return to settings again
-        await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
-        await tester.tapAndSettle(find.byKey(const Key('open_settings_screen_button')));
+      // Now go back and return to settings again
+      await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+      await tester.tapAndSettle(find.byKey(const Key('open_settings_screen_button')));
 
-        // Dev mode toggle should be gone now
-        expect(find.byKey(const Key('dev_mode_toggle')), findsNothing);
-      },
-    );
+      // Dev mode toggle should be gone now
+      expect(find.byKey(const Key('dev_mode_toggle')), findsNothing);
+    });
 
     testWidgets('change-pin', (tester) async {
       await initAndNavToSettingsScreen(tester);
 
       final changePinButtonFinder = find.text('Change PIN').hitTestable();
       await tester.scrollUntilVisible(changePinButtonFinder, 50);
-      await tester.tapAndSettle(
-        changePinButtonFinder,
-        duration: const Duration(milliseconds: 750),
-      );
+      await tester.tapAndSettle(changePinButtonFinder, duration: const Duration(milliseconds: 750));
 
       // Enter current pin
       const shortPin = '12345';
@@ -144,18 +106,11 @@ void main() {
       await enterPin(tester, longPin);
 
       // Next button
-      final nextButtonFinder = find
-          .byKey(
-            const Key('pin_next'),
-          )
-          .hitTestable();
+      final nextButtonFinder = find.byKey(const Key('pin_next')).hitTestable();
 
       await tester.waitFor(nextButtonFinder);
       await tester.ensureVisible(nextButtonFinder);
-      await tester.tapAndSettle(
-        nextButtonFinder,
-        duration: const Duration(milliseconds: 750),
-      );
+      await tester.tapAndSettle(nextButtonFinder, duration: const Duration(milliseconds: 750));
 
       // Enter new PIN (again) and continue
       await enterPin(tester, longPin);
@@ -166,31 +121,20 @@ void main() {
       await tester.waitFor(confirmPinResetDialogFinder);
 
       // Confirm it
-      await tester.tapAndSettle(find.byKey(
-        const Key('dialog_confirm_button'),
-      ));
+      await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
 
       // Expect snack bar
       var snackBarFinder = find.byType(SnackBar);
-      await tester.waitFor(
-        snackBarFinder,
-        timeout: const Duration(seconds: 15),
-      );
+      await tester.waitFor(snackBarFinder, timeout: const Duration(seconds: 15));
 
       // Check text in snackbar
       expect(
-        find.descendant(
-          of: snackBarFinder,
-          matching: find.text('Success! Your new PIN has been saved'),
-        ),
+        find.descendant(of: snackBarFinder, matching: find.text('Success! Your new PIN has been saved')),
         findsOneWidget,
       );
 
       // Wait for snackbar to disappear
-      await tester.waitUntilDisappeared(
-        snackBarFinder,
-        timeout: const Duration(seconds: 5),
-      );
+      await tester.waitUntilDisappeared(snackBarFinder, timeout: const Duration(seconds: 5));
 
       // Go back to MoreTab
       final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
@@ -221,10 +165,7 @@ void main() {
       await enterPin(tester, longPin);
 
       // Press next button
-      await tester.tapAndSettle(
-        nextButtonFinder,
-        duration: const Duration(milliseconds: 750),
-      );
+      await tester.tapAndSettle(nextButtonFinder, duration: const Duration(milliseconds: 750));
 
       // Press prefer shorter pin link
       final shorterPinLinkFinder = find.text('Prefer a shorter PIN?').hitTestable();
@@ -240,21 +181,13 @@ void main() {
       await tester.waitFor(confirmPinResetDialogFinder);
 
       // Confirm it
-      await tester.tapAndSettle(find.byKey(
-        const Key('dialog_confirm_button'),
-      ));
+      await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
 
       // Expect snack bar
-      await tester.waitFor(
-        snackBarFinder,
-        timeout: const Duration(seconds: 15),
-      );
+      await tester.waitFor(snackBarFinder, timeout: const Duration(seconds: 15));
 
       // Wait for snackbar to disappear
-      await tester.waitUntilDisappeared(
-        snackBarFinder,
-        timeout: const Duration(seconds: 5),
-      );
+      await tester.waitUntilDisappeared(snackBarFinder, timeout: const Duration(seconds: 5));
 
       // Go back to MoreTab
       await tester.tapAndSettle(backButtonFinder);
@@ -315,10 +248,7 @@ void main() {
       );
 
       // Expect the use system language toggle to be on
-      expect(
-        (systemLanguageSwitchFinder.evaluate().single.widget as CupertinoSwitch).value,
-        true,
-      );
+      expect((systemLanguageSwitchFinder.evaluate().single.widget as CupertinoSwitch).value, true);
 
       // System language radio should not be visible
       final systemLanguageRadioFinder = find.byKey(const Key('language_select'));
@@ -331,10 +261,7 @@ void main() {
       expect(systemLanguageRadioFinder, findsOneWidget);
 
       // Expect the use system language toggle to be off
-      expect(
-        (systemLanguageSwitchFinder.evaluate().single.widget as CupertinoSwitch).value,
-        false,
-      );
+      expect((systemLanguageSwitchFinder.evaluate().single.widget as CupertinoSwitch).value, false);
 
       // Press the option for Dutch
       await tester.tapAndSettle(find.text('Nederlands'));
@@ -348,13 +275,7 @@ void main() {
 
       // This should be reflected in the app bar title
       final appBarFinder = find.byType(IrmaAppBar);
-      expect(
-        find.descendant(
-          of: appBarFinder,
-          matching: find.text('Taal'),
-        ),
-        findsOneWidget,
-      );
+      expect(find.descendant(of: appBarFinder, matching: find.text('Taal')), findsOneWidget);
 
       // Toggle the use system language again
       await tester.tapAndSettle(systemLanguageToggleFinder);
@@ -366,13 +287,7 @@ void main() {
       expect(appWidget.forcedLocale?.languageCode, 'en');
 
       // This should be reflected in the app bar title
-      expect(
-        find.descendant(
-          of: appBarFinder,
-          matching: find.text('Language'),
-        ),
-        findsOneWidget,
-      );
+      expect(find.descendant(of: appBarFinder, matching: find.text('Language')), findsOneWidget);
     });
   });
 }

@@ -15,25 +15,14 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
   String? _email;
   String? _pin;
 
-  EnrollmentBloc({
-    required this.language,
-    required this.repo,
-  }) : super(EnrollmentIntroduction());
+  EnrollmentBloc({required this.language, required this.repo}) : super(EnrollmentIntroduction());
 
   Future<EnrollmentState> _enroll() async {
-    var enrollment = await repo.enroll(
-      email: _email?.trim() ?? '',
-      pin: _pin!,
-      language: language,
-    );
+    var enrollment = await repo.enroll(email: _email?.trim() ?? '', pin: _pin!, language: language);
     if (enrollment is EnrollmentFailureEvent) {
-      return EnrollmentFailed(
-        error: enrollment.error,
-      );
+      return EnrollmentFailed(error: enrollment.error);
     } else if (_email != null) {
-      return EnrollmentEmailSent(
-        email: _email!,
-      );
+      return EnrollmentEmailSent(email: _email!);
     }
     return EnrollmentCompleted();
   }
@@ -56,9 +45,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
           yield EnrollmentAcceptTerms();
         }
       } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentIntroduction(
-          currentStepIndex: state.currentStepIndex > 0 ? state.currentStepIndex - 1 : 0,
-        );
+        yield EnrollmentIntroduction(currentStepIndex: state.currentStepIndex > 0 ? state.currentStepIndex - 1 : 0);
       }
     }
     // Accept terms
@@ -69,15 +56,11 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         }
         yield EnrollmentChoosePin();
       } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentIntroduction(
-          currentStepIndex: IntroductionScreen.introductionSteps.length - 1,
-        );
+        yield EnrollmentIntroduction(currentStepIndex: IntroductionScreen.introductionSteps.length - 1);
       }
       // Terms are toggled
       else if (event is EnrollmentTermsUpdated) {
-        yield EnrollmentAcceptTerms(
-          isAccepted: event.isAccepted,
-        );
+        yield EnrollmentAcceptTerms(isAccepted: event.isAccepted);
       }
     }
     // Choose Pin
@@ -86,9 +69,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         _pin = event.pin;
         yield EnrollmentConfirmPin();
       } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentAcceptTerms(
-          isAccepted: true,
-        );
+        yield EnrollmentAcceptTerms(isAccepted: true);
       }
     }
     // Confirm Pin
@@ -100,15 +81,12 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         if (_pin == event.pin) {
           yield EnrollmentProvideEmail();
         } else {
-          yield EnrollmentConfirmPin(
-            confirmationFailed: true,
-          );
+          yield EnrollmentConfirmPin(confirmationFailed: true);
         }
       } else if (event is EnrollmentPreviousPressed) {
         yield EnrollmentChoosePin();
       }
     }
-
     // Provide email
     else if (state is EnrollmentProvideEmail) {
       if (event is EnrollmentEmailProvided || event is EnrollmentEmailSkipped) {
@@ -124,9 +102,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         yield EnrollmentCompleted();
       }
     } else if (state is EnrollmentFailed && event is EnrollmentPreviousPressed) {
-      yield EnrollmentProvideEmail(
-        email: _email,
-      );
+      yield EnrollmentProvideEmail(email: _email);
     }
   }
 }

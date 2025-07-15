@@ -12,10 +12,7 @@ class ActivityDetailIssuance extends StatelessWidget {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailIssuance({
-    required this.logEntry,
-    required this.irmaConfiguration,
-  });
+  const ActivityDetailIssuance({required this.logEntry, required this.irmaConfiguration});
 
   @override
   Widget build(BuildContext context) {
@@ -26,26 +23,16 @@ class ActivityDetailIssuance extends StatelessWidget {
       children: [
         //If is this issuance also has disclosed attributes
         if (logEntry.disclosedAttributes.isNotEmpty) ...[
-          ActivityDetailDisclosure(
-            logEntry: logEntry,
-            irmaConfiguration: irmaConfiguration,
-          ),
+          ActivityDetailDisclosure(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
           SizedBox(height: theme.smallSpacing),
         ],
-        TranslatedText(
-          'activity.received_data',
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
+        TranslatedText('activity.received_data', style: theme.themeData.textTheme.headlineMedium, isHeader: true),
         SizedBox(height: theme.smallSpacing),
         for (var rawCredential in logEntry.issuedCredentials)
           IrmaCredentialCard.fromCredential(
-            Credential.fromRaw(
-              irmaConfiguration: irmaConfiguration,
-              rawCredential: rawCredential,
-            ),
+            Credential.fromRaw(irmaConfiguration: irmaConfiguration, rawCredential: rawCredential),
             hideFooter: true,
-          )
+          ),
       ],
     );
   }

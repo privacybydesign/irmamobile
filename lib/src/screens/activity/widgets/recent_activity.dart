@@ -17,10 +17,7 @@ class RecentActivity extends StatefulWidget {
   final int amountOfLogs;
   final VoidCallback onTap;
 
-  const RecentActivity({
-    required this.onTap,
-    this.amountOfLogs = 2,
-  });
+  const RecentActivity({required this.onTap, this.amountOfLogs = 2});
 
   @override
   State<RecentActivity> createState() => _RecentActivityState();
@@ -56,9 +53,7 @@ class _RecentActivityState extends State<RecentActivity> {
   }
 
   void _loadLogs() {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(LoadLogsEvent(
-      max: widget.amountOfLogs,
-    ));
+    IrmaRepositoryProvider.of(context).bridgedDispatch(LoadLogsEvent(max: widget.amountOfLogs));
   }
 
   @override
@@ -85,10 +80,7 @@ class _RecentActivityState extends State<RecentActivity> {
                 Expanded(
                   child: Semantics(
                     header: true,
-                    child: TranslatedText(
-                      'home_tab.recent_activity',
-                      style: theme.textTheme.headlineMedium,
-                    ),
+                    child: TranslatedText('home_tab.recent_activity', style: theme.textTheme.headlineMedium),
                   ),
                 ),
                 Flexible(
@@ -99,7 +91,7 @@ class _RecentActivityState extends State<RecentActivity> {
                     isTransparent: true,
                     onPressed: widget.onTap,
                   ),
-                )
+                ),
               ],
             ),
             SizedBox(height: theme.defaultSpacing),
@@ -111,10 +103,7 @@ class _RecentActivityState extends State<RecentActivity> {
                         .map(
                           (logEntry) => Padding(
                             padding: EdgeInsets.only(bottom: theme.smallSpacing),
-                            child: ActivityCard(
-                              logEntry: logEntry,
-                              irmaConfiguration: irmaConfiguration,
-                            ),
+                            child: ActivityCard(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
                           ),
                         )
                         .toList(),

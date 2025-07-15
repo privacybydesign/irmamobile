@@ -8,10 +8,7 @@ class DisclosurePermissionConfirmDialog extends StatelessWidget {
   final RequestorInfo requestor;
   final bool isSignatureSession;
 
-  const DisclosurePermissionConfirmDialog({
-    required this.requestor,
-    this.isSignatureSession = false,
-  });
+  const DisclosurePermissionConfirmDialog({required this.requestor, this.isSignatureSession = false});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +18,7 @@ class DisclosurePermissionConfirmDialog extends StatelessWidget {
       titleTranslationKey: 'disclosure_permission.confirm_dialog.${isSignatureSession ? 'title_signature' : 'title'}',
       contentTranslationKey:
           'disclosure_permission.confirm_dialog.${isSignatureSession ? 'explanation_signature' : 'explanation'}',
-      contentTranslationParams: {
-        'requestorName': requestor.name.translate(lang),
-      },
+      contentTranslationParams: {'requestorName': requestor.name.translate(lang)},
       confirmTranslationKey:
           'disclosure_permission.confirm_dialog.${isSignatureSession ? 'confirm_signature' : 'confirm'}',
       cancelTranslationKey:

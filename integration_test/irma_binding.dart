@@ -39,9 +39,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
 
   factory IntegrationTestIrmaBinding.ensureInitialized() {
     SecurityContextBinding.ensureInitialized();
-    _instance ??= IntegrationTestIrmaBinding._(
-      IrmaClientBridge(debugLogging: true),
-    );
+    _instance ??= IntegrationTestIrmaBinding._(IrmaClientBridge(debugLogging: true));
     return _instance!;
   }
 
@@ -65,10 +63,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
 
     // Ensure test scheme is available.
     if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(_testKeyshareSchemeId)) {
-      _bridge.dispatch(InstallSchemeEvent(
-        url: _testKeyshareSchemeUrl,
-        publicKey: _testKeyshareSchemePublicKey,
-      ));
+      _bridge.dispatch(InstallSchemeEvent(url: _testKeyshareSchemeUrl, publicKey: _testKeyshareSchemePublicKey));
       currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
       if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(_testKeyshareSchemeId)) {
         throw Exception('No test scheme installed');
@@ -89,12 +84,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
 
     // Ensure enrollment status is set as expected.
     if (enrollmentStatus == EnrollmentStatus.enrolled) {
-      _bridge.dispatch(EnrollEvent(
-        email: '',
-        pin: '12345',
-        language: 'en',
-        schemeId: _testKeyshareSchemeId,
-      ));
+      _bridge.dispatch(EnrollEvent(email: '', pin: '12345', language: 'en', schemeId: _testKeyshareSchemeId));
       await _preferences!.setLongPin(false);
       await _expectBridgeEventGuarded((event) => event is EnrollmentSuccessEvent);
     }
