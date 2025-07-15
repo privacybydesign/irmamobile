@@ -87,7 +87,10 @@ Future<void> randomBlindTest(WidgetTester tester, IntegrationTestIrmaBinding irm
 
   // And it should have a anonymous voting number
   // in the attribute list
-  final cardAttList = find.descendant(of: credentialCardFinder, matching: find.byType(IrmaCredentialCardAttributeList));
+  final cardAttList = find.descendant(
+    of: credentialCardFinder,
+    matching: find.byType(IrmaCredentialCardAttributeList),
+  );
 
   final cardAttListText = tester.getAllText(cardAttList);
   final firstAttributeName = cardAttListText.first;
@@ -97,7 +100,13 @@ Future<void> randomBlindTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   final confirmButtonFinder = find.text('Sign and share');
   await tester.tapAndSettle(confirmButtonFinder);
 
-  await evaluateShareDialog(tester, isSignatureSession: true);
+  await evaluateShareDialog(
+    tester,
+    isSignatureSession: true,
+  );
 
-  await evaluateFeedback(tester, isSignatureSession: true);
+  await evaluateFeedback(
+    tester,
+    isSignatureSession: true,
+  );
 }

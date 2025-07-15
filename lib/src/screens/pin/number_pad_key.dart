@@ -6,7 +6,7 @@ class _NumberPadKey extends StatelessWidget {
   final NumberCallback onEnterNumber;
 
   _NumberPadKey(this.onEnterNumber, this.number, [this.subtitle])
-    : super(key: Key('number_pad_key_${number.toString()}'));
+      : super(key: Key('number_pad_key_${number.toString()}'));
 
   @override
   Widget build(BuildContext context) {

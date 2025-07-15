@@ -57,10 +57,15 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
     of: find.byType(IrmaCredentialCard),
     matching: find.byIcon(Icons.close).hitTestable(),
   );
-  await tester.scrollUntilVisible(deleteOptionalDataButton.hitTestable(), 50);
+  await tester.scrollUntilVisible(
+    deleteOptionalDataButton.hitTestable(),
+    50,
+  );
   await tester.tapAndSettle(deleteOptionalDataButton);
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(
+    find.text('Share data'),
+  );
 
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
@@ -76,9 +81,13 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
     find.byType(IrmaCredentialCard).first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {'Email address': 'test@example.com'},
+    attributes: {
+      'Email address': 'test@example.com',
+    },
   );
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(
+    find.text('Share data'),
+  );
 
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
@@ -93,8 +102,13 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
   // That's the session that is completely empty.
   final secondActivityCardFinder = find.byType(ActivityCard).at(1).hitTestable();
   await tester.scrollUntilVisible(secondActivityCardFinder, 50);
-  await tester.tapAndSettle(secondActivityCardFinder);
+  await tester.tapAndSettle(
+    secondActivityCardFinder,
+  );
 
   // Expect the no data card
-  expect(find.byType(IrmaEmptyCredentialCard), findsOneWidget);
+  expect(
+    find.byType(IrmaEmptyCredentialCard),
+    findsOneWidget,
+  );
 }

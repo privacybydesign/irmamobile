@@ -17,7 +17,10 @@ class BlockedScreen extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        appBar: const IrmaAppBar(titleTranslationKey: 'error.details_title', leading: null),
+        appBar: const IrmaAppBar(
+          titleTranslationKey: 'error.details_title',
+          leading: null,
+        ),
         body: const IrmaInfoScaffoldBody(
           imagePath: 'assets/error/general_error_illustration.svg',
           titleTranslationKey: 'error.title',

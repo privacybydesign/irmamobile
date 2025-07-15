@@ -51,27 +51,40 @@ class _MoreTabState extends State<MoreTab> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final spacerWidget = SizedBox(height: theme.mediumSpacing);
-
-    Widget buildHeaderText(String translationKey) => Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: TranslatedText(
-        translationKey,
-        isHeader: true,
-        style: theme.textTheme.bodyLarge!.copyWith(color: theme.neutralExtraDark),
-      ),
+    final spacerWidget = SizedBox(
+      height: theme.mediumSpacing,
     );
+
+    Widget buildHeaderText(
+      String translationKey,
+    ) =>
+        Padding(
+          padding: EdgeInsets.only(bottom: theme.smallSpacing),
+          child: TranslatedText(
+            translationKey,
+            isHeader: true,
+            style: theme.textTheme.bodyLarge!.copyWith(
+              color: theme.neutralExtraDark,
+            ),
+          ),
+        );
 
     return Scaffold(
       backgroundColor: IrmaTheme.of(context).backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: 'home.nav_bar.more', leading: null),
+      appBar: IrmaAppBar(
+        titleTranslationKey: 'home.nav_bar.more',
+        leading: null,
+      ),
       body: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Semantics(sortKey: const OrdinalSortKey(0), child: buildHeaderText('more_tab.app_management')),
+            Semantics(
+              sortKey: const OrdinalSortKey(0),
+              child: buildHeaderText('more_tab.app_management'),
+            ),
             TilesCard(
               children: [
                 InternalLinkTile(
@@ -102,7 +115,10 @@ class _MoreTabState extends State<MoreTab> {
                   iconData: Icons.info_outline_rounded,
                   urlLinkKey: 'more_tab.irma_website_link',
                 ),
-                ContactLinkTile(labelTranslationKey: 'more_tab.contact', iconData: Icons.mail_outline_rounded),
+                ContactLinkTile(
+                  labelTranslationKey: 'more_tab.contact',
+                  iconData: Icons.mail_outline_rounded,
+                )
               ],
             ),
             spacerWidget,

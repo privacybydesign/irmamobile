@@ -42,17 +42,19 @@ class PinBox extends StatelessWidget {
       height: height,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
-        border: Border.all(color: getBorderColor(theme), width: highlightBorder ? 2 : 1),
-        color: disabled ? Colors.grey : Colors.white,
-      ),
+          borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
+          border: Border.all(
+            color: getBorderColor(theme),
+            width: highlightBorder ? 2 : 1,
+          ),
+          color: disabled ? Colors.grey : Colors.white),
       child: Text(
         char,
         style: Theme.of(context).textTheme.displaySmall?.copyWith(
-          fontSize: height / 2 + 4,
-          height: 22.0 / 18.0,
-          color: completed ? theme.secondary : Colors.grey,
-        ),
+              fontSize: height / 2 + 4,
+              height: 22.0 / 18.0,
+              color: completed ? theme.secondary : Colors.grey,
+            ),
       ),
     );
   }

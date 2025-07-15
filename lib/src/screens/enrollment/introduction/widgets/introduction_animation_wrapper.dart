@@ -4,7 +4,10 @@ import 'package:lottie/lottie.dart';
 class IntroductionAnimationWrapper extends StatefulWidget {
   final Widget child;
 
-  const IntroductionAnimationWrapper({super.key, required this.child});
+  const IntroductionAnimationWrapper({
+    super.key,
+    required this.child,
+  });
 
   @override
   State<IntroductionAnimationWrapper> createState() => _IntroductionAnimationWrapperState();
@@ -53,23 +56,24 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
     );
 
     final aligningLottieWidget = AnimatedAlign(
-      duration: alignDuration,
-      curve: Curves.fastOutSlowIn,
-      alignment: lottieIsCompleted ? Alignment.topCenter : Alignment.center,
-      child: Padding(
-        padding: EdgeInsets.only(top: screenSize.height * 0.05),
-        child: lottieWidget,
-      ),
-      onEnd: () {
-        setState(() => alignIsCompleted = true);
+        duration: alignDuration,
+        curve: Curves.fastOutSlowIn,
+        alignment: lottieIsCompleted ? Alignment.topCenter : Alignment.center,
+        child: Padding(
+          padding: EdgeInsets.only(top: screenSize.height * 0.05),
+          child: lottieWidget,
+        ),
+        onEnd: () {
+          setState(
+            () => alignIsCompleted = true,
+          );
 
-        // By adding a callback for the duration of the
-        // last part of the animation we know when we are fully done
-        Future.delayed(crossFadeDuration, () {
-          animationFullyCompleted = true;
+          // By adding a callback for the duration of the
+          // last part of the animation we know when we are fully done
+          Future.delayed(crossFadeDuration, () {
+            animationFullyCompleted = true;
+          });
         });
-      },
-    );
 
     return AnimatedCrossFade(
       duration:
@@ -80,7 +84,11 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
       reverseDuration: const Duration(seconds: 10),
       crossFadeState: alignIsCompleted ? CrossFadeState.showSecond : CrossFadeState.showFirst,
       firstChild: aligningLottieWidget,
-      secondChild: SizedBox(width: screenSize.width, height: screenSize.height, child: widget.child),
+      secondChild: SizedBox(
+        width: screenSize.width,
+        height: screenSize.height,
+        child: widget.child,
+      ),
     );
   }
 }

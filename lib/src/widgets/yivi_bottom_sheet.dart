@@ -10,7 +10,10 @@ void showYiviBottomSheet({required BuildContext context, required Widget child})
     builder: (context) => Container(
       decoration: BoxDecoration(
         color: theme.backgroundPrimary,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(30.0),
+          topRight: Radius.circular(30.0),
+        ),
       ),
       padding: const EdgeInsets.all(16.0),
       child: child,

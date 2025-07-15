@@ -6,7 +6,10 @@ import '../../../widgets/irma_app_bar.dart';
 class SessionHelperScreen extends StatefulWidget {
   final String initialRequest;
 
-  const SessionHelperScreen({super.key, required this.initialRequest});
+  const SessionHelperScreen({
+    super.key,
+    required this.initialRequest,
+  });
 
   @override
   State<StatefulWidget> createState() => _SessionHelperScreenState();
@@ -23,17 +26,24 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: IrmaAppBar(
-      titleTranslationKey: 'debug.session_helper',
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.send),
-          onPressed: () => IrmaRepositoryProvider.of(context).startTestSession(_controller.text),
+        appBar: IrmaAppBar(
+          titleTranslationKey: 'debug.session_helper',
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.send),
+              onPressed: () => IrmaRepositoryProvider.of(context).startTestSession(
+                _controller.text,
+              ),
+            ),
+          ],
         ),
-      ],
-    ),
-    body: SafeArea(
-      child: TextField(controller: _controller, keyboardType: TextInputType.multiline, maxLines: null, expands: true),
-    ),
-  );
+        body: SafeArea(
+          child: TextField(
+            controller: _controller,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            expands: true,
+          ),
+        ),
+      );
 }

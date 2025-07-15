@@ -11,19 +11,25 @@ class EnrollmentPinChosen implements EnrollmentBlocEvent {
 class EnrollmentPinConfirmed implements EnrollmentBlocEvent {
   final String pin;
 
-  EnrollmentPinConfirmed(this.pin);
+  EnrollmentPinConfirmed(
+    this.pin,
+  );
 }
 
 class EnrollmentTermsUpdated implements EnrollmentBlocEvent {
   final bool isAccepted;
 
-  EnrollmentTermsUpdated({required this.isAccepted});
+  EnrollmentTermsUpdated({
+    required this.isAccepted,
+  });
 }
 
 class EnrollmentEmailProvided implements EnrollmentBlocEvent {
   final String email;
 
-  EnrollmentEmailProvided(this.email);
+  EnrollmentEmailProvided(
+    this.email,
+  );
 }
 
 class EnrollmentEmailSkipped implements EnrollmentBlocEvent {}

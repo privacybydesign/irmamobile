@@ -22,12 +22,26 @@ class PrototypesScreen extends StatelessWidget {
   final pinBloc5 = EnterPinStateBloc(5);
   final pinBloc16 = EnterPinStateBloc(16);
 
-  Widget _buildTile(BuildContext context, String title, Widget screen) => ListTile(
-    title: Text(title),
-    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => screen)),
-  );
+  Widget _buildTile(
+    BuildContext context,
+    String title,
+    Widget screen,
+  ) =>
+      ListTile(
+        title: Text(title),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => screen,
+          ),
+        ),
+      );
 
-  Widget _toggleSetPinSize({required BuildContext context, required bool isShort, required String instructionKey}) {
+  Widget _toggleSetPinSize({
+    required BuildContext context,
+    required bool isShort,
+    required String instructionKey,
+  }) {
     final size = isShort ? 5 : 16;
     final pinBloc = isShort ? pinBloc5 : pinBloc16;
 
@@ -37,8 +51,11 @@ class PrototypesScreen extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                _toggleSetPinSize(context: context, isShort: !isShort, instructionKey: instructionKey),
+            builder: (context) => _toggleSetPinSize(
+              context: context,
+              isShort: !isShort,
+              instructionKey: instructionKey,
+            ),
           ),
         );
       },
@@ -53,59 +70,135 @@ class PrototypesScreen extends StatelessWidget {
       appBar: AppBar(centerTitle: true, title: const Text('Screens')),
       body: ListView(
         children: [
-          _buildTile(context, 'Haptics', HapticScreen(onBack: Navigator.of(context).pop)),
-          _buildTile(context, 'Basic pin input, exactly 5 digits', PinScreenTest(maxPinSize: 5, pinBloc: pinBloc5)),
+          _buildTile(
+            context,
+            'Haptics',
+            HapticScreen(
+              onBack: Navigator.of(context).pop,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Basic pin input, exactly 5 digits',
+            PinScreenTest(
+              maxPinSize: 5,
+              pinBloc: pinBloc5,
+            ),
+          ),
           _buildTile(
             context,
             'Basic pin input, >5 digits, at most 16',
-            PinScreenTest(maxPinSize: 16, pinBloc: pinBloc16),
+            PinScreenTest(
+              maxPinSize: 16,
+              pinBloc: pinBloc16,
+            ),
           ),
           _buildTile(
             context,
             'Onboarding pin, pin size = 5',
-            _toggleSetPinSize(context: context, isShort: true, instructionKey: 'enrollment.choose_pin.title'),
+            _toggleSetPinSize(
+              context: context,
+              isShort: true,
+              instructionKey: 'enrollment.choose_pin.title',
+            ),
           ),
           _buildTile(
             context,
             'Onboarding pin, pin size > 5',
-            _toggleSetPinSize(context: context, isShort: false, instructionKey: 'enrollment.choose_pin.title'),
+            _toggleSetPinSize(
+              context: context,
+              isShort: false,
+              instructionKey: 'enrollment.choose_pin.title',
+            ),
           ),
           _buildTile(
             context,
             'Reset pin, pin size = 5',
-            _toggleSetPinSize(context: context, isShort: true, instructionKey: 'change_pin.enter_pin.title'),
+            _toggleSetPinSize(
+              context: context,
+              isShort: true,
+              instructionKey: 'change_pin.enter_pin.title',
+            ),
           ),
           _buildTile(
             context,
             'Reset pin, pin size > 5',
-            _toggleSetPinSize(context: context, isShort: false, instructionKey: 'change_pin.enter_pin.title'),
+            _toggleSetPinSize(
+              context: context,
+              isShort: false,
+              instructionKey: 'change_pin.enter_pin.title',
+            ),
           ),
-          _buildTile(context, 'Arrow back - Issuance', const ArrowBack(type: ArrowBackType.issuance)),
-          _buildTile(context, 'Arrow back - Signature', const ArrowBack(type: ArrowBackType.signature)),
-          _buildTile(context, 'Arrow back - Disclosure', const ArrowBack(type: ArrowBackType.disclosure)),
-          _buildTile(context, 'Update required', RequiredUpdateScreen()),
-          _buildTile(context, 'Root warning', const RootedWarningScreen()),
+          _buildTile(
+            context,
+            'Arrow back - Issuance',
+            const ArrowBack(type: ArrowBackType.issuance),
+          ),
+          _buildTile(
+            context,
+            'Arrow back - Signature',
+            const ArrowBack(
+              type: ArrowBackType.signature,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Arrow back - Disclosure',
+            const ArrowBack(type: ArrowBackType.disclosure),
+          ),
+          _buildTile(
+            context,
+            'Update required',
+            RequiredUpdateScreen(),
+          ),
+          _buildTile(
+            context,
+            'Root warning',
+            const RootedWarningScreen(),
+          ),
           _buildTile(
             context,
             'No internet',
-            NoInternetScreen(onTapClose: Navigator.of(context).pop, onTapRetry: () {}),
+            NoInternetScreen(
+              onTapClose: Navigator.of(context).pop,
+              onTapRetry: () {},
+            ),
           ),
-          _buildTile(context, 'Blocked', BlockedScreen()),
-          _buildTile(context, 'General error', ErrorScreen(onTapClose: Navigator.of(context).pop)),
+          _buildTile(
+            context,
+            'Blocked',
+            BlockedScreen(),
+          ),
+          _buildTile(
+            context,
+            'General error',
+            ErrorScreen(
+              onTapClose: Navigator.of(context).pop,
+            ),
+          ),
           _buildTile(
             context,
             'Error: pairing rejected',
-            ErrorScreen(onTapClose: Navigator.of(context).pop, type: ErrorType.pairingRejected),
+            ErrorScreen(
+              onTapClose: Navigator.of(context).pop,
+              type: ErrorType.pairingRejected,
+            ),
           ),
           _buildTile(
             context,
             'Pairing required',
-            PairingRequired(pairingCode: '4567', onDismiss: Navigator.of(context).pop),
+            PairingRequired(
+              pairingCode: '4567',
+              onDismiss: Navigator.of(context).pop,
+            ),
           ),
           _buildTile(
             context,
             'Error: session unknown / unexpected request',
-            ErrorScreen(onTapClose: Navigator.of(context).pop, type: ErrorType.expired),
+            ErrorScreen(
+              onTapClose: Navigator.of(context).pop,
+              type: ErrorType.expired,
+            ),
           ),
           _buildTile(
             context,
@@ -182,17 +275,30 @@ class PrototypesScreen extends StatelessWidget {
               onDismiss: Navigator.pop,
             ),
           ),
-          _buildTile(context, 'Splash screen', const SplashScreen()),
-          _buildTile(context, 'Loading screen', LoadingScreen()),
+          _buildTile(
+            context,
+            'Splash screen',
+            const SplashScreen(),
+          ),
+          _buildTile(
+            context,
+            'Loading screen',
+            LoadingScreen(),
+          ),
           _buildTile(
             context,
             'Disclosure permission introduction',
-            DisclosurePermissionIntroductionScreen(onEvent: (_) {}, onDismiss: () {}),
+            DisclosurePermissionIntroductionScreen(
+              onEvent: (_) {},
+              onDismiss: () {},
+            ),
           ),
           _buildTile(
             context,
             'Name changed screen',
-            NameChangedScreen(onContinuePressed: () => Navigator.of(context).pop()),
+            NameChangedScreen(
+              onContinuePressed: () => Navigator.of(context).pop(),
+            ),
           ),
         ],
       ),

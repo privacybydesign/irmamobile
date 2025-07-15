@@ -25,7 +25,10 @@ class InternalTranslatedContent extends NotificationTranslatedContent {
   final String titleTranslationKey;
   final String messageTranslationKey;
 
-  InternalTranslatedContent({required this.titleTranslationKey, required this.messageTranslationKey});
+  InternalTranslatedContent({
+    required this.titleTranslationKey,
+    required this.messageTranslationKey,
+  });
 
   @override
   Map<String, dynamic> toJson() {
@@ -43,7 +46,10 @@ class ExternalTranslatedContent extends NotificationTranslatedContent {
   final TranslatedValue translatedTitle;
   final TranslatedValue translatedMessage;
 
-  ExternalTranslatedContent({required this.translatedTitle, required this.translatedMessage});
+  ExternalTranslatedContent({
+    required this.translatedTitle,
+    required this.translatedMessage,
+  });
 
   @override
   Map<String, dynamic> toJson() {

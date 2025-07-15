@@ -33,12 +33,17 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
       appBarTitle: 'disclosure_permission.issue_wizard.title',
       onDismiss: onDismiss,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(
+          theme.defaultSpacing,
+        ),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IssuerVerifierHeader(title: requestor.name.translate(lang), imagePath: requestor.logoPath),
+              IssuerVerifierHeader(
+                title: requestor.name.translate(lang),
+                imagePath: requestor.logoPath,
+              ),
               SizedBox(height: theme.defaultSpacing),
               SessionProgressIndicator(
                 step: state.currentStepIndex + 1,
@@ -51,8 +56,12 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
                 currentCandidateKey: state.currentDiscon?.key,
                 candidatesList: state.candidatesList,
                 selectedConIndices: state.selectedConIndices,
-                onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
-              ),
+                onChoiceUpdated: (int conIndex) => onEvent(
+                  DisclosurePermissionChoiceUpdated(
+                    conIndex: conIndex,
+                  ),
+                ),
+              )
             ],
           ),
         ),

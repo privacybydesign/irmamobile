@@ -16,9 +16,14 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   final IrmaRepository _repo;
   List<Notification> _notifications = [];
 
-  final List<NotificationHandler> _notificationHandlers = [CredentialStatusNotificationsHandler()];
+  final List<NotificationHandler> _notificationHandlers = [
+    CredentialStatusNotificationsHandler(),
+  ];
 
-  NotificationsBloc({required IrmaRepository repo}) : _repo = repo, super((NotificationsInitial()));
+  NotificationsBloc({
+    required IrmaRepository repo,
+  })  : _repo = repo,
+        super((NotificationsInitial()));
 
   @override
   Stream<NotificationsState> mapEventToState(NotificationsEvent event) async* {
@@ -154,7 +159,9 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       if (serializedNotifications != '') {
         final jsonDecodedNotifications = jsonDecode(serializedNotifications);
         notifications = jsonDecodedNotifications
-            .map<Notification>((jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification))
+            .map<Notification>(
+              (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
+            )
             .toList();
       }
     } catch (e, stackTrace) {

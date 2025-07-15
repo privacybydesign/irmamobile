@@ -10,7 +10,10 @@ class DisclosureTemplateStepper extends StatelessWidget {
   final UnmodifiableListView<TemplateDisclosureCredential> templates;
   final TemplateDisclosureCredential? currentItem;
 
-  const DisclosureTemplateStepper({required this.templates, required this.currentItem});
+  const DisclosureTemplateStepper({
+    required this.templates,
+    required this.currentItem,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,12 @@ class DisclosureTemplateStepper extends StatelessWidget {
     return IrmaStepper(
       currentIndex: currentItemIndex == -1 ? null : currentItemIndex,
       children: templates
-          .map((cred) => DisclosureIssueWizardCredentialCards(credentials: [cred], isActive: cred == currentItem))
+          .map(
+            (cred) => DisclosureIssueWizardCredentialCards(
+              credentials: [cred],
+              isActive: cred == currentItem,
+            ),
+          )
           .toList(),
     );
   }

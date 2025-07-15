@@ -15,12 +15,12 @@ bool _pinMustNotContainPatternAbcba(List<int> pin) => !(pin[0] == pin[4] && pin[
 bool _pinMustNotContainPatternAbcab(List<int> pin) => !(pin[0] == pin[3] && pin[1] == pin[4] && pin[0] != pin[1]);
 
 bool Function(List<int>) _sequenceChecker(int delta) => (List<int> pin) {
-  bool tracker = true;
-  for (var i = 0; i < pin.length - 1 && tracker; i++) {
-    tracker &= (pin[i] + delta) % 10 == pin[i + 1];
-  }
-  return tracker;
-};
+      bool tracker = true;
+      for (var i = 0; i < pin.length - 1 && tracker; i++) {
+        tracker &= (pin[i] + delta) % 10 == pin[i + 1];
+      }
+      return tracker;
+    };
 
 bool _pinMustNotBeMemberOfSeriesAscDesc(List<int> pin) {
   final isAsc = _sequenceChecker(1);

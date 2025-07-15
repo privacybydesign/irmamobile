@@ -29,23 +29,32 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
     this.iconColor,
     this.linkDialogText,
     this.linkTranslationKey,
-  }) : assert(iconColor == null || icon != null, 'Icon color can only be used when an icon is provided'),
-       assert(
-         linkTranslationKey != null || linkDialogText == null,
-         'If you specify a linkKey, also set a linkDialogKey',
-       ),
-       assert(imagePath == null || icon == null, 'You cannot provide both an icon and an image path');
+  })  : assert(
+          iconColor == null || icon != null,
+          'Icon color can only be used when an icon is provided',
+        ),
+        assert(
+          linkTranslationKey != null || linkDialogText == null,
+          'If you specify a linkKey, also set a linkDialogKey',
+        ),
+        assert(
+          imagePath == null || icon == null,
+          'You cannot provide both an icon and an image path',
+        );
 
   Future _showIrmaDialog(BuildContext context) async => showDialog(
-    context: context,
-    builder: (context) {
-      return IrmaDialog(
-        title: FlutterI18n.translate(context, 'error.details_title'),
-        content: linkDialogText!,
-        child: YiviThemedButton(label: 'error.button_ok', onPressed: () => Navigator.of(context).pop()),
+        context: context,
+        builder: (context) {
+          return IrmaDialog(
+            title: FlutterI18n.translate(context, 'error.details_title'),
+            content: linkDialogText!,
+            child: YiviThemedButton(
+              label: 'error.button_ok',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          );
+        },
       );
-    },
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +67,12 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null || imagePath != null) ...[
-              if (icon != null) Icon(icon, color: iconColor ?? theme.themeData.colorScheme.secondary, size: 125),
+              if (icon != null)
+                Icon(
+                  icon,
+                  color: iconColor ?? theme.themeData.colorScheme.secondary,
+                  size: 125,
+                ),
               if (imagePath != null)
                 (imagePath!.endsWith('svg')) ? SvgPicture.asset(imagePath!) : Image.asset(imagePath!),
               SizedBox(height: theme.mediumSpacing),
@@ -87,11 +101,14 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                 },
                 child: TranslatedText(
                   linkTranslationKey!,
-                  style: theme.textTheme.bodyMedium?.copyWith(decoration: TextDecoration.underline, color: theme.link),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    decoration: TextDecoration.underline,
+                    color: theme.link,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
-            ],
+            ]
           ],
         ),
       ),

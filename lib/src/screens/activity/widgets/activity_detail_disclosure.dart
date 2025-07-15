@@ -16,18 +16,26 @@ class ActivityDetailDisclosure extends StatelessWidget {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailDisclosure({required this.logEntry, required this.irmaConfiguration});
+  const ActivityDetailDisclosure({
+    required this.logEntry,
+    required this.irmaConfiguration,
+  });
 
-  Widget _buildCredentialCard(BuildContext context, List<DisclosedAttribute> disclosedAttributes) {
-    final mappedAttributes = disclosedAttributes
-        .map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e))
-        .toList();
+  Widget _buildCredentialCard(
+    BuildContext context,
+    List<DisclosedAttribute> disclosedAttributes,
+  ) {
+    final mappedAttributes =
+        disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
     final credentialView = CredentialView.fromAttributes(
       irmaConfiguration: irmaConfiguration,
       attributes: mappedAttributes,
     );
 
-    return IrmaCredentialCard(credentialView: credentialView, hideFooter: true);
+    return IrmaCredentialCard(
+      credentialView: credentialView,
+      hideFooter: true,
+    );
   }
 
   @override
@@ -38,10 +46,16 @@ class ActivityDetailDisclosure extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TranslatedText('activity.data_shared', style: theme.themeData.textTheme.headlineMedium, isHeader: true),
+        TranslatedText(
+          'activity.data_shared',
+          style: theme.themeData.textTheme.headlineMedium,
+          isHeader: true,
+        ),
         SizedBox(height: theme.smallSpacing),
         // If all disclosed attributes are empty render one empty data card
-        if (groupedDisclosedAttributes.every((disclosedAttributes) => disclosedAttributes.isEmpty))
+        if (groupedDisclosedAttributes.every(
+          (disclosedAttributes) => disclosedAttributes.isEmpty,
+        ))
           IrmaEmptyCredentialCard()
         // Else build credential cards for all the
         // disclosedAttributes that are not empty
@@ -49,7 +63,10 @@ class ActivityDetailDisclosure extends StatelessWidget {
           for (var disclosedAttributes in groupedDisclosedAttributes.where(
             (disclosedAttributes) => disclosedAttributes.isNotEmpty,
           ))
-            _buildCredentialCard(context, disclosedAttributes),
+            _buildCredentialCard(
+              context,
+              disclosedAttributes,
+            ),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
@@ -62,13 +79,21 @@ class ActivityDetailDisclosure extends StatelessWidget {
           IrmaQuote(quote: logEntry.signedMessage?.message),
         ],
         SizedBox(height: theme.defaultSpacing),
-        TranslatedText('activity.shared_with', style: theme.themeData.textTheme.headlineMedium, isHeader: true),
+        TranslatedText(
+          'activity.shared_with',
+          style: theme.themeData.textTheme.headlineMedium,
+          isHeader: true,
+        ),
         SizedBox(height: theme.smallSpacing),
         IssuerVerifierHeader(
-          title: logEntry.serverName?.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
-          titleTextStyle: IrmaTheme.of(context).textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600),
+          title: logEntry.serverName?.name.translate(
+            FlutterI18n.currentLocale(context)!.languageCode,
+          ),
+          titleTextStyle: IrmaTheme.of(context).textTheme.headlineSmall!.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
           imagePath: logEntry.serverName?.logoPath,
-        ),
+        )
       ],
     );
   }

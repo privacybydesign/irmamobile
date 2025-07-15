@@ -6,7 +6,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
   final BuildContext context;
 
   _UnsecurePinWarningTextButton({required this.scaffoldKey, required this.bloc})
-    : context = scaffoldKey.currentContext!;
+      : context = scaffoldKey.currentContext!;
 
   void _showSecurePinRules(EnterPinState state) {
     final theme = IrmaTheme.of(context);
@@ -19,7 +19,10 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
             children: [
               Text(
                 FlutterI18n.translate(context, 'secure_pin.title'),
-                style: theme.textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w700, color: Colors.black),
+                style: theme.textTheme.displaySmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
               ),
             ],
           ),
@@ -28,7 +31,10 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                CircleAvatar(backgroundColor: Colors.grey.shade300, child: const SizedBox.square(dimension: 32)),
+                CircleAvatar(
+                  backgroundColor: Colors.grey.shade300,
+                  child: const SizedBox.square(dimension: 32),
+                ),
                 IconButton(
                   alignment: Alignment.center,
                   onPressed: () => Navigator.pop(context),
@@ -47,7 +53,10 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       SizedBox(height: theme.screenPadding),
       Align(
         alignment: Alignment.centerLeft,
-        child: Text(FlutterI18n.translate(context, 'secure_pin.subtitle'), style: theme.textTheme.bodyMedium),
+        child: Text(
+          FlutterI18n.translate(context, 'secure_pin.subtitle'),
+          style: theme.textTheme.bodyMedium,
+        ),
       ),
       SizedBox(height: theme.screenPadding),
       ..._listBuilder(context, state),
@@ -67,7 +76,11 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
     } else {
       showYiviBottomSheet(
         context: context,
-        child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: rules),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: rules,
+        ),
       );
     }
   }
@@ -91,7 +104,10 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
                   style: theme.textTheme.bodySmall?.copyWith(color: theme.warning, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(width: 2.0),
-                Icon(Icons.info_outlined, color: theme.warning),
+                Icon(
+                  Icons.info_outlined,
+                  color: theme.warning,
+                ),
               ],
             ),
           ),

@@ -51,8 +51,11 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
   }
 
   void _onSkipPressed() async {
-    final confirmed =
-        await showDialog<bool>(context: context, builder: (context) => SkipEmailConfirmationDialog()) ?? false;
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => SkipEmailConfirmationDialog(),
+        ) ??
+        false;
     if (confirmed) widget.onEmailSkipped();
   }
 
@@ -76,7 +79,9 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
             child: IntrinsicHeight(
               child: Form(
                 key: _emailFormKey,
-                onChanged: () => setState(() => _emailFormIsValid = _emailFormKey.currentState!.validate()),
+                onChanged: () => setState(
+                  () => _emailFormIsValid = _emailFormKey.currentState!.validate(),
+                ),
                 child: Column(
                   children: [
                     Padding(
@@ -85,7 +90,10 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          TranslatedText('enrollment.email.provide.header', style: theme.textTheme.displaySmall),
+                          TranslatedText(
+                            'enrollment.email.provide.header',
+                            style: theme.textTheme.displaySmall,
+                          ),
                           SizedBox(height: theme.defaultSpacing),
                           const TranslatedText('enrollment.email.provide.explanation'),
                           SizedBox(height: theme.mediumSpacing),
@@ -101,8 +109,8 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                         onPrimaryPressed: _emailFormIsValid ? _onContinuePressed : null,
                         secondaryButtonLabel: 'ui.skip',
                         onSecondaryPressed: _onSkipPressed,
-                      ),
-                    ],
+                      )
+                    ]
                   ],
                 ),
               ),

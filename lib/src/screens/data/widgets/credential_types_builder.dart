@@ -8,13 +8,17 @@ import '../../../providers/irma_repository_provider.dart';
 import '../../../util/language.dart';
 import '../../../widgets/progress.dart';
 
-typedef GroupedCredentialTypesBuilder =
-    Widget Function(BuildContext context, Map<String, List<CredentialType>> groupedCredentialTypes);
+typedef GroupedCredentialTypesBuilder = Widget Function(
+  BuildContext context,
+  Map<String, List<CredentialType>> groupedCredentialTypes,
+);
 
 class CredentialTypesBuilder extends StatelessWidget {
   final GroupedCredentialTypesBuilder builder;
 
-  const CredentialTypesBuilder({required this.builder});
+  const CredentialTypesBuilder({
+    required this.builder,
+  });
 
   List<CredentialType> _distinctCredentialTypes(Iterable<CredentialType> credentialTypes) {
     var idSet = <String>{};
@@ -39,10 +43,14 @@ class CredentialTypesBuilder extends StatelessWidget {
         final credentials = snapshot.data!;
 
         // Filter out keyshare credentials
-        final nonKeyShareCredentials = credentials.values.where((cred) => !cred.isKeyshareCredential);
+        final nonKeyShareCredentials = credentials.values.where(
+          (cred) => !cred.isKeyshareCredential,
+        );
 
         // Map them to their credential types
-        final nonKeyShareCredentialTypes = nonKeyShareCredentials.map((e) => e.info.credentialType);
+        final nonKeyShareCredentialTypes = nonKeyShareCredentials.map(
+          (e) => e.info.credentialType,
+        );
 
         // Filter out duplicates
         final distinctCredentialTypes = _distinctCredentialTypes(nonKeyShareCredentialTypes);
@@ -60,7 +68,10 @@ class CredentialTypesBuilder extends StatelessWidget {
           groupedCredentialTypes[otherTranslation] = otherCredentials;
         }
 
-        return builder(context, groupedCredentialTypes);
+        return builder(
+          context,
+          groupedCredentialTypes,
+        );
       },
     );
   }

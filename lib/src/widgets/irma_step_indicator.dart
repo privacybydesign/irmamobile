@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
 
-enum IrmaStepIndicatorStyle { filled, outlined, success }
+enum IrmaStepIndicatorStyle {
+  filled,
+  outlined,
+  success,
+}
 
 class IrmaStepIndicator extends StatelessWidget {
   final int step;
   final IrmaStepIndicatorStyle style;
 
-  const IrmaStepIndicator({super.key, required this.step, this.style = IrmaStepIndicatorStyle.filled});
+  const IrmaStepIndicator({
+    super.key,
+    required this.step,
+    this.style = IrmaStepIndicatorStyle.filled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +30,9 @@ class IrmaStepIndicator extends StatelessWidget {
             ? theme.success
             // If style is outlined background is secondary.
             : style == IrmaStepIndicatorStyle.filled
-            ? theme.themeData.colorScheme.secondary
-            // Else background is white.
-            : Colors.white,
+                ? theme.themeData.colorScheme.secondary
+                // Else background is white.
+                : Colors.white,
         border: Border.all(
           color: style == IrmaStepIndicatorStyle.success ? theme.success : theme.themeData.colorScheme.secondary,
           width: 1,
@@ -33,16 +41,18 @@ class IrmaStepIndicator extends StatelessWidget {
       child: FittedBox(
         fit: BoxFit.fitHeight,
         child: style == IrmaStepIndicatorStyle.success
-            ? const Icon(Icons.check, color: Colors.white)
+            ? const Icon(
+                Icons.check,
+                color: Colors.white,
+              )
             : Text(
                 step.toString(),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodySmall!.copyWith(
                   height: 1.2,
                   fontWeight: FontWeight.bold,
-                  color: style == IrmaStepIndicatorStyle.outlined
-                      ? theme.themeData.colorScheme.secondary
-                      : Colors.white,
+                  color:
+                      style == IrmaStepIndicatorStyle.outlined ? theme.themeData.colorScheme.secondary : Colors.white,
                 ),
               ),
       ),

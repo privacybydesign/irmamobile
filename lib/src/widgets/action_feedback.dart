@@ -35,14 +35,22 @@ class ActionFeedback extends StatelessWidget {
         appBarTitle: success ? 'disclosure.feedback.header.success' : 'ui.error',
         onDismiss: onDismiss,
         body: DynamicLayout(
-          hero: success ? SuccessGraphic() : SvgPicture.asset('assets/error/general_error_illustration.svg'),
+          hero: success
+              ? SuccessGraphic()
+              : SvgPicture.asset(
+                  'assets/error/general_error_illustration.svg',
+                ),
           content: Column(
             children: [
               TranslatedText(
                 titleTranslationKey,
-                style: theme.themeData.textTheme.displaySmall!.copyWith(color: theme.dark),
+                style: theme.themeData.textTheme.displaySmall!.copyWith(
+                  color: theme.dark,
+                ),
               ),
-              SizedBox(height: theme.tinySpacing),
+              SizedBox(
+                height: theme.tinySpacing,
+              ),
               TranslatedText(
                 explanationTranslationKey,
                 translationParams: explanationTranslationParams,
@@ -51,7 +59,13 @@ class ActionFeedback extends StatelessWidget {
               ),
             ],
           ),
-          actions: [YiviThemedButton(key: const Key('ok_button'), label: 'action_feedback.ok', onPressed: onDismiss)],
+          actions: [
+            YiviThemedButton(
+              key: const Key('ok_button'),
+              label: 'action_feedback.ok',
+              onPressed: onDismiss,
+            ),
+          ],
         ),
       ),
     );

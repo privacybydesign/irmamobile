@@ -15,9 +15,18 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Icon(followsRule ? Icons.check : Icons.close, size: 16, color: followsRule ? Colors.green : Colors.red),
+          Icon(
+            followsRule ? Icons.check : Icons.close,
+            size: 16,
+            color: followsRule ? Colors.green : Colors.red,
+          ),
           const SizedBox(width: 8),
-          Expanded(child: Text(FlutterI18n.translate(context, descriptionKey), style: theme.textTheme.bodyMedium)),
+          Expanded(
+            child: Text(
+              FlutterI18n.translate(context, descriptionKey),
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
         ],
       ),
     );

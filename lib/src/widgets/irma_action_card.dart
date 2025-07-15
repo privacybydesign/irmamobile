@@ -35,8 +35,12 @@ class IrmaActionCard extends StatelessWidget {
       child: TranslatedText(
         titleKey,
         style: isFancy
-            ? theme.textTheme.displayMedium!.copyWith(color: contentColor)
-            : theme.textTheme.headlineMedium!.copyWith(color: theme.dark),
+            ? theme.textTheme.displayMedium!.copyWith(
+                color: contentColor,
+              )
+            : theme.textTheme.headlineMedium!.copyWith(
+                color: theme.dark,
+              ),
       ),
     );
 
@@ -45,26 +49,45 @@ class IrmaActionCard extends StatelessWidget {
       flexibleSubtitleTextWidget = Flexible(
         child: TranslatedText(
           subtitleKey!,
-          style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, color: contentColor, fontWeight: FontWeight.w600),
+          style: theme.textTheme.bodyMedium!.copyWith(
+            fontSize: 14,
+            color: contentColor,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       );
     }
 
-    final iconWidget = Icon(icon, size: isFancy ? 62 : 36, color: contentColor);
+    final iconWidget = Icon(
+      icon,
+      size: isFancy ? 62 : 36,
+      color: contentColor,
+    );
 
     return Semantics(
       button: true,
-      label: FlutterI18n.translate(context, titleKey),
+      label: FlutterI18n.translate(
+        context,
+        titleKey,
+      ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(8),
+        ),
         child: ExcludeSemantics(
           child: Stack(
             children: [
               // Background
               Positioned.fill(
                 child: isFancy
-                    ? SvgPicture.asset('assets/ui/btn-bg.svg', alignment: Alignment.center, fit: BoxFit.fill)
-                    : const IrmaCard(hasShadow: false),
+                    ? SvgPicture.asset(
+                        'assets/ui/btn-bg.svg',
+                        alignment: Alignment.center,
+                        fit: BoxFit.fill,
+                      )
+                    : const IrmaCard(
+                        hasShadow: false,
+                      ),
               ),
 
               // Content
@@ -90,7 +113,7 @@ class IrmaActionCard extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              iconWidget,
+                              iconWidget
                             ],
                           )
                         // Layout where the text and the icon stick to the top
@@ -103,19 +126,27 @@ class IrmaActionCard extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   flexibleTitleTextWidget,
-                                  SizedBox(width: theme.smallSpacing),
-                                  iconWidget,
+                                  SizedBox(
+                                    width: theme.smallSpacing,
+                                  ),
+                                  iconWidget
                                 ],
                               ),
                               if (flexibleSubtitleTextWidget != null) ...[
-                                SizedBox(height: theme.smallSpacing),
-                                Row(children: [flexibleSubtitleTextWidget]),
-                              ],
+                                SizedBox(
+                                  height: theme.smallSpacing,
+                                ),
+                                Row(
+                                  children: [
+                                    flexibleSubtitleTextWidget,
+                                  ],
+                                )
+                              ]
                             ],
                           ),
                   ),
                 ),
-              ),
+              )
             ],
           ),
         ),

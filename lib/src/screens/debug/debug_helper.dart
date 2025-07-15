@@ -9,7 +9,9 @@ class DebugHelper {
   static final _random = Random();
   final IrmaConfiguration irmaConfig;
 
-  DebugHelper({required this.irmaConfig});
+  DebugHelper({
+    required this.irmaConfig,
+  });
 
   static String disclosureSessionRequest() {
     return '''
@@ -89,7 +91,9 @@ class DebugHelper {
       return '"${attributeType.id}": "$value"';
     }).toList();
 
-    return _issuanceSessionRequest([_credentialRequest(credentialType, attributeValues)]);
+    return _issuanceSessionRequest(
+      [_credentialRequest(credentialType, attributeValues)],
+    );
   }
 
   Future<String> randomIssuanceRequest(int amount) async {

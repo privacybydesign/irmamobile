@@ -33,8 +33,12 @@ class SessionScaffold extends StatelessWidget {
         actions: [
           if (onDismiss != null)
             Padding(
-              padding: EdgeInsets.only(right: theme.defaultSpacing),
-              child: IrmaCloseButton(onTap: onDismiss),
+              padding: EdgeInsets.only(
+                right: theme.defaultSpacing,
+              ),
+              child: IrmaCloseButton(
+                onTap: onDismiss,
+              ),
             ),
         ],
       ),

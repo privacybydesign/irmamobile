@@ -7,7 +7,11 @@ part of 'credential_detail_navigation_action.dart';
 // **************************************************************************
 
 CredentialDetailNavigationAction _$CredentialDetailNavigationActionFromJson(Map<String, dynamic> json) =>
-    CredentialDetailNavigationAction(credentialTypeId: json['credentialTypeId'] as String);
+    CredentialDetailNavigationAction(
+      credentialTypeId: json['credentialTypeId'] as String,
+    );
 
 Map<String, dynamic> _$CredentialDetailNavigationActionToJson(CredentialDetailNavigationAction instance) =>
-    <String, dynamic>{'credentialTypeId': instance.credentialTypeId};
+    <String, dynamic>{
+      'credentialTypeId': instance.credentialTypeId,
+    };

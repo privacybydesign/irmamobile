@@ -10,6 +10,12 @@ class GreyedOut extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!filterActive) return child;
 
-    return ColorFiltered(colorFilter: ColorFilter.mode(Colors.white.withAlpha(128), BlendMode.modulate), child: child);
+    return ColorFiltered(
+      colorFilter: ColorFilter.mode(
+        Colors.white.withAlpha(128),
+        BlendMode.modulate,
+      ),
+      child: child,
+    );
   }
 }

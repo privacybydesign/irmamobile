@@ -11,18 +11,29 @@ import '../util.dart';
 
 Future<void> evaluateIntroduction(WidgetTester tester) async {
   // Wait for the screen to appear
-  await tester.waitFor(find.byType(DisclosurePermissionIntroductionScreen));
+  await tester.waitFor(
+    find.byType(DisclosurePermissionIntroductionScreen),
+  );
 
   // Check the app bar
-  final appBarTextFinder = find.descendant(of: find.byType(IrmaAppBar), matching: find.text('Get going'));
+  final appBarTextFinder = find.descendant(
+    of: find.byType(IrmaAppBar),
+    matching: find.text('Get going'),
+  );
   expect(appBarTextFinder, findsOneWidget);
 
   // Check the body text
   expect(find.text('Share your data'), findsOneWidget);
-  expect(find.text('Collect the required data to be able to share it with requesting parties.'), findsOneWidget);
+  expect(
+    find.text('Collect the required data to be able to share it with requesting parties.'),
+    findsOneWidget,
+  );
 
   // Check and press the continue button
-  final continueButtonFinder = find.descendant(of: find.byType(YiviThemedButton), matching: find.text('Get going'));
+  final continueButtonFinder = find.descendant(
+    of: find.byType(YiviThemedButton),
+    matching: find.text('Get going'),
+  );
   expect(continueButtonFinder, findsOneWidget);
   await tester.tapAndSettle(continueButtonFinder);
 }
@@ -35,12 +46,21 @@ Future<void> evaluateFeedback(
   // Expect the success screen
   final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
   expect(feedbackScreenFinder, findsOneWidget);
-  expect((feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType, feedbackType);
+  expect(
+    (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
+    feedbackType,
+  );
 
   if (feedbackType == DisclosureFeedbackType.success) {
     // Expect the SuccessGraphic in the feedback screen
     final successGraphicFinder = find.byType(SuccessGraphic);
-    expect(find.descendant(of: feedbackScreenFinder, matching: successGraphicFinder), findsOneWidget);
+    expect(
+      find.descendant(
+        of: feedbackScreenFinder,
+        matching: successGraphicFinder,
+      ),
+      findsOneWidget,
+    );
 
     expect(find.textContaining('You signed the request'), isSignatureSession ? findsOneWidget : findsNothing);
     expect(find.textContaining('Your data is disclosed'), isSignatureSession ? findsNothing : findsOneWidget);
@@ -54,13 +74,17 @@ Future<void> evaluateFeedback(
   expect(find.byType(SessionScreen), findsNothing);
 }
 
-Future<void> evaluateShareDialog(WidgetTester tester, {isSignatureSession = false}) async {
+Future<void> evaluateShareDialog(
+  WidgetTester tester, {
+  isSignatureSession = false,
+}) async {
   expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
 
   expect(
-    find.textContaining(isSignatureSession ? 'You are about to sign the message' : 'You are about to share data'),
-    findsOneWidget,
-  );
+      find.textContaining(
+        isSignatureSession ? 'You are about to sign the message' : 'You are about to share data',
+      ),
+      findsOneWidget);
 
   await tester.tapAndSettle(
     find.descendant(

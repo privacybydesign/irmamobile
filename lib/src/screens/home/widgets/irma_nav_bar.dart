@@ -7,13 +7,22 @@ import '../../notifications/bloc/notifications_bloc.dart';
 import '../../notifications/widgets/notification_bell.dart';
 import 'irma_nav_button.dart';
 
-enum IrmaNavBarTab { data, activity, notifications, more }
+enum IrmaNavBarTab {
+  data,
+  activity,
+  notifications,
+  more,
+}
 
 class IrmaNavBar extends StatelessWidget {
   final Function(IrmaNavBarTab tab) onChangeTab;
   final IrmaNavBarTab selectedTab;
 
-  const IrmaNavBar({super.key, required this.onChangeTab, this.selectedTab = IrmaNavBarTab.data});
+  const IrmaNavBar({
+    super.key,
+    required this.onChangeTab,
+    this.selectedTab = IrmaNavBarTab.data,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +38,18 @@ class IrmaNavBar extends StatelessWidget {
       height: MediaQuery.of(context).size.height > 450 ? 95 : 85,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: theme.tertiary)),
+        border: Border(
+          top: BorderSide(
+            color: theme.tertiary,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade600.withAlpha(128),
             blurRadius: 10.0,
             spreadRadius: 1.0,
             offset: const Offset(0, 7),
-          ),
+          )
         ],
       ),
       child: Row(
@@ -57,7 +70,9 @@ class IrmaNavBar extends StatelessWidget {
             isSelected: IrmaNavBarTab.activity == selectedTab,
           ),
           // Spacing for the QR scan button
-          const SizedBox(width: 90),
+          const SizedBox(
+            width: 90,
+          ),
           IrmaNavButton(
             key: const Key('nav_button_notifications'),
             tab: IrmaNavBarTab.notifications,
@@ -71,7 +86,7 @@ class IrmaNavBar extends StatelessWidget {
             tab: IrmaNavBarTab.more,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.more == selectedTab,
-          ),
+          )
         ],
       ),
     );

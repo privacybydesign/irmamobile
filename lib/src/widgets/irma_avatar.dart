@@ -12,9 +12,20 @@ class IrmaAvatar extends StatelessWidget {
   final String? logoSemanticsLabel;
   final String? initials;
 
-  const IrmaAvatar({this.size = 48, this.logoImage, this.logoPath, this.initials, this.logoSemanticsLabel})
-    : assert((logoImage != null || logoPath != null) || initials != null, 'Provide initials or a logo'),
-      assert(logoImage == null || logoPath == null, 'Provide a logoImage or a logoPath, not both');
+  const IrmaAvatar({
+    this.size = 48,
+    this.logoImage,
+    this.logoPath,
+    this.initials,
+    this.logoSemanticsLabel,
+  })  : assert(
+          (logoImage != null || logoPath != null) || initials != null,
+          'Provide initials or a logo',
+        ),
+        assert(
+          logoImage == null || logoPath == null,
+          'Provide a logoImage or a logoPath, not both',
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +43,8 @@ class IrmaAvatar extends StatelessWidget {
     return Semantics(
       excludeSemantics: image == null,
       label: image != null && logoSemanticsLabel != null
-          ? FlutterI18n.translate(
-              context,
-              'disclosure.logo_semantic',
-              translationParams: {'otherParty': logoSemanticsLabel!},
-            )
+          ? FlutterI18n.translate(context, 'disclosure.logo_semantic',
+              translationParams: {'otherParty': logoSemanticsLabel!})
           : null,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size / 2),
@@ -44,8 +52,7 @@ class IrmaAvatar extends StatelessWidget {
           color: theme.neutralExtraLight,
           height: size,
           width: size,
-          child:
-              image ??
+          child: image ??
               Container(
                 height: size / 2,
                 padding: EdgeInsets.all(theme.smallSpacing),
@@ -55,7 +62,10 @@ class IrmaAvatar extends StatelessWidget {
                     initials!.toUpperCase(),
                     textAlign: TextAlign.center,
                     textHeightBehavior: const TextHeightBehavior(applyHeightToFirstAscent: false),
-                    style: TextStyle(color: theme.neutral, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: theme.neutral,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

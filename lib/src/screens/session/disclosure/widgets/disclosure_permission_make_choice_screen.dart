@@ -13,7 +13,10 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
   final DisclosurePermissionMakeChoice state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
 
-  const DisclosurePermissionMakeChoiceScreen({required this.state, required this.onEvent});
+  const DisclosurePermissionMakeChoiceScreen({
+    required this.state,
+    required this.onEvent,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +26,9 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
       appBarTitle: state is DisclosurePermissionChangeChoice
           ? 'disclosure_permission.change_choice'
           : 'disclosure_permission.choose',
-      onPrevious: () => onEvent(DisclosurePermissionPreviousPressed()),
+      onPrevious: () => onEvent(
+        DisclosurePermissionPreviousPressed(),
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: SafeArea(

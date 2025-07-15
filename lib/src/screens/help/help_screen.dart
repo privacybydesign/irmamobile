@@ -17,11 +17,17 @@ class HelpScreen extends StatefulWidget {
 class _HelpScreenState extends State<HelpScreen> {
   final ScrollController _controller = ScrollController();
 
-  Widget _buildHeader(IrmaThemeData theme, String translationKey) => TranslatedText(
-    translationKey,
-    isHeader: true,
-    style: theme.textTheme.bodyLarge!.copyWith(color: theme.neutralExtraDark),
-  );
+  Widget _buildHeader(
+    IrmaThemeData theme,
+    String translationKey,
+  ) =>
+      TranslatedText(
+        translationKey,
+        isHeader: true,
+        style: theme.textTheme.bodyLarge!.copyWith(
+          color: theme.neutralExtraDark,
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +35,14 @@ class _HelpScreenState extends State<HelpScreen> {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(titleTranslationKey: 'help.faq'),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'help.faq',
+      ),
       body: SingleChildScrollView(
         controller: _controller,
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(
+          theme.defaultSpacing,
+        ),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,28 +71,24 @@ class _HelpScreenState extends State<HelpScreen> {
               SizedBox(height: theme.smallSpacing),
               HelpItem(
                 headerTranslationKey: 'help.question_4',
-                body: HelpCarousel(
-                  items: [
-                    HelpCarouselItem('assets/help/mobile_login/app.svg', 'help.answer_4.step_1'),
-                    HelpCarouselItem('assets/help/mobile_login/pin.svg', 'help.answer_4.step_2'),
-                    HelpCarouselItem('assets/help/mobile_login/disclosure.svg', 'help.answer_4.step_3'),
-                    HelpCarouselItem('assets/help/mobile_login/success.svg', 'help.answer_4.step_4'),
-                  ],
-                ),
+                body: HelpCarousel(items: [
+                  HelpCarouselItem('assets/help/mobile_login/app.svg', 'help.answer_4.step_1'),
+                  HelpCarouselItem('assets/help/mobile_login/pin.svg', 'help.answer_4.step_2'),
+                  HelpCarouselItem('assets/help/mobile_login/disclosure.svg', 'help.answer_4.step_3'),
+                  HelpCarouselItem('assets/help/mobile_login/success.svg', 'help.answer_4.step_4'),
+                ]),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
                 headerTranslationKey: 'help.question_5',
-                body: HelpCarousel(
-                  items: [
-                    HelpCarouselItem('assets/help/computer_login/app.svg', 'help.answer_5.step_1'),
-                    HelpCarouselItem('assets/help/computer_login/pin.svg', 'help.answer_5.step_2'),
-                    HelpCarouselItem('assets/help/computer_login/scan.svg', 'help.answer_5.step_3'),
-                    HelpCarouselItem('assets/help/computer_login/disclosure.svg', 'help.answer_5.step_4'),
-                    HelpCarouselItem('assets/help/computer_login/success.svg', 'help.answer_5.step_5'),
-                  ],
-                ),
+                body: HelpCarousel(items: [
+                  HelpCarouselItem('assets/help/computer_login/app.svg', 'help.answer_5.step_1'),
+                  HelpCarouselItem('assets/help/computer_login/pin.svg', 'help.answer_5.step_2'),
+                  HelpCarouselItem('assets/help/computer_login/scan.svg', 'help.answer_5.step_3'),
+                  HelpCarouselItem('assets/help/computer_login/disclosure.svg', 'help.answer_5.step_4'),
+                  HelpCarouselItem('assets/help/computer_login/success.svg', 'help.answer_5.step_5'),
+                ]),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.defaultSpacing),
@@ -122,16 +128,26 @@ class _HelpScreenState extends State<HelpScreen> {
               SizedBox(height: theme.smallSpacing),
               HelpItem(
                 headerTranslationKey: 'help.question_11',
-                body: IrmaMarkdown(FlutterI18n.translate(context, 'help.answer_11')),
+                body: IrmaMarkdown(
+                  FlutterI18n.translate(context, 'help.answer_11'),
+                ),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, 'help.ask'),
+              _buildHeader(
+                theme,
+                'help.ask',
+              ),
               SizedBox(height: theme.defaultSpacing),
-              TranslatedText('help.send', style: theme.textTheme.bodyMedium),
+              TranslatedText(
+                'help.send',
+                style: theme.textTheme.bodyMedium,
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-                child: const ContactLink(translationKey: 'help.email'),
+                child: const ContactLink(
+                  translationKey: 'help.email',
+                ),
               ),
             ],
           ),

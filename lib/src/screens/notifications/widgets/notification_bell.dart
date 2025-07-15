@@ -20,8 +20,17 @@ class NotificationBell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Icon(outlined ? Icons.notifications_outlined : Icons.notifications, size: 28, color: color),
-        if (showIndicator) Positioned(top: 5, right: 5, child: NotificationIndicator()),
+        Icon(
+          outlined ? Icons.notifications_outlined : Icons.notifications,
+          size: 28,
+          color: color,
+        ),
+        if (showIndicator)
+          Positioned(
+            top: 5,
+            right: 5,
+            child: NotificationIndicator(),
+          )
       ],
     );
   }

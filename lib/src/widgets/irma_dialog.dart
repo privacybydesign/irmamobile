@@ -11,16 +11,23 @@ class IrmaDialog extends StatelessWidget {
   final Widget child;
   final String? image;
 
-  const IrmaDialog({required this.title, required this.content, required this.child, this.image});
+  const IrmaDialog({
+    required this.title,
+    required this.content,
+    required this.child,
+    this.image,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     return AnimatedPadding(
-      padding:
-          MediaQuery.of(context).viewInsets +
-          EdgeInsets.symmetric(horizontal: theme.mediumSpacing, vertical: theme.defaultSpacing),
+      padding: MediaQuery.of(context).viewInsets +
+          EdgeInsets.symmetric(
+            horizontal: theme.mediumSpacing,
+            vertical: theme.defaultSpacing,
+          ),
       duration: const Duration(milliseconds: 100),
       curve: Curves.decelerate,
       child: MediaQuery.removeViewInsets(
@@ -38,7 +45,9 @@ class IrmaDialog extends StatelessWidget {
               child: Material(
                 color: theme.surfacePrimary,
                 elevation: 24.0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(theme.smallSpacing)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(theme.smallSpacing),
+                ),
                 type: MaterialType.card,
                 child: Stack(
                   children: [
@@ -72,8 +81,13 @@ class IrmaDialog extends StatelessWidget {
                                 ),
                                 if (image != null) ...[
                                   SizedBox(height: theme.defaultSpacing),
-                                  Center(child: Image.asset(image!, width: 240)),
-                                ],
+                                  Center(
+                                    child: Image.asset(
+                                      image!,
+                                      width: 240,
+                                    ),
+                                  ),
+                                ]
                               ],
                             ),
                           ),

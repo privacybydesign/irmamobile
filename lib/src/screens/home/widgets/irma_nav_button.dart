@@ -9,14 +9,14 @@ final _navBarTabTranslationKeys = {
   IrmaNavBarTab.data: 'home.nav_bar.data',
   IrmaNavBarTab.activity: 'home.nav_bar.activity',
   IrmaNavBarTab.notifications: 'home.nav_bar.notifications',
-  IrmaNavBarTab.more: 'home.nav_bar.more',
+  IrmaNavBarTab.more: 'home.nav_bar.more'
 };
 
 final _navBarTabHintKeys = {
   IrmaNavBarTab.data: 'home.nav_bar_hints.data',
   IrmaNavBarTab.activity: 'home.nav_bar_hints.activity',
   IrmaNavBarTab.notifications: 'home.nav_bar_hints.notifications',
-  IrmaNavBarTab.more: 'home.nav_bar_hints.more',
+  IrmaNavBarTab.more: 'home.nav_bar_hints.more'
 };
 
 class IrmaNavButton extends StatelessWidget {
@@ -33,10 +33,8 @@ class IrmaNavButton extends StatelessWidget {
     this.isSelected = false,
     this.changeTab,
     this.builder,
-  }) : assert(
-         (builder == null && iconData != null) || (builder != null && iconData == null),
-         'one of them should have a value, but not both',
-       );
+  }) : assert((builder == null && iconData != null) || (builder != null && iconData == null),
+            'one of them should have a value, but not both');
 
   @override
   Widget build(BuildContext context) {
@@ -56,11 +54,19 @@ class IrmaNavButton extends StatelessWidget {
               if (builder != null)
                 builder!.call(isSelected, isSelected ? activeColor : inactiveColor)
               else
-                Icon(iconData!, size: 28, color: isSelected ? activeColor : inactiveColor),
-              SizedBox(height: theme.tinySpacing),
+                Icon(
+                  iconData!,
+                  size: 28,
+                  color: isSelected ? activeColor : inactiveColor,
+                ),
+              SizedBox(
+                height: theme.tinySpacing,
+              ),
               TranslatedText(
                 _navBarTabTranslationKeys[tab]!,
-                style: theme.themeData.textTheme.titleLarge!.copyWith(color: isSelected ? activeColor : inactiveColor),
+                style: theme.themeData.textTheme.titleLarge!.copyWith(
+                  color: isSelected ? activeColor : inactiveColor,
+                ),
               ),
             ],
           ),

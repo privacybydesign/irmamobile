@@ -35,7 +35,11 @@ class IrmaQrScanButton extends StatelessWidget {
             width: 72,
             child: Stack(
               children: [
-                Positioned.fill(child: SvgPicture.asset('assets/ui/round-btn-bg.svg')),
+                Positioned.fill(
+                  child: SvgPicture.asset(
+                    'assets/ui/round-btn-bg.svg',
+                  ),
+                ),
                 Positioned.fill(
                   child: ClipOval(
                     child: Material(
@@ -45,16 +49,22 @@ class IrmaQrScanButton extends StatelessWidget {
                         label: FlutterI18n.translate(context, 'home.nav_bar.scan_qr'),
                         child: InkWell(
                           onTap: () => openQrCodeScanner(context),
-                          child: Icon(Icons.qr_code_scanner_rounded, color: theme.light, size: 42),
+                          child: Icon(
+                            Icons.qr_code_scanner_rounded,
+                            color: theme.light,
+                            size: 42,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
-          SizedBox(height: theme.tinySpacing),
+          SizedBox(
+            height: theme.tinySpacing,
+          ),
           ExcludeSemantics(
             child: TranslatedText(
               'home.nav_bar.scan_qr',

@@ -37,11 +37,12 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
   });
 
   Future<void> _showConfirmationDialog(BuildContext context, bool isSignatureSession) async {
-    final confirmed =
-        await showDialog<bool>(
+    final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) =>
-              DisclosurePermissionConfirmDialog(requestor: requestor, isSignatureSession: isSignatureSession),
+          builder: (context) => DisclosurePermissionConfirmDialog(
+            requestor: requestor,
+            isSignatureSession: isSignatureSession,
+          ),
         ) ??
         false;
 
@@ -73,9 +74,13 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                       style: YiviButtonStyle.outlined,
                       size: YiviButtonSize.small,
                       isTransparent: true,
-                      onPressed: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
+                      onPressed: () => onEvent(
+                        DisclosurePermissionChangeChoicePressed(
+                          disconIndex: choiceEntry.key,
+                        ),
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -88,7 +93,11 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                       icon: Icons.close,
                       size: 22,
                       padding: EdgeInsets.zero,
-                      onTap: () => onEvent(DisclosurePermissionRemoveOptionalDataPressed(disconIndex: choiceEntry.key)),
+                      onTap: () => onEvent(
+                        DisclosurePermissionRemoveOptionalDataPressed(
+                          disconIndex: choiceEntry.key,
+                        ),
+                      ),
                     )
                   : null,
             ),
@@ -121,10 +130,15 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
       contentTranslationKey = 'disclosure_permission.previously_added.explanation';
     } else if (returnURL != null && returnURL!.isPhoneNumber) {
       contentTranslationKey = 'disclosure_permission.call.disclosure_explanation';
-      contentTranslationsParams = {'otherParty': requestor.name.translate(lang), 'phoneNumber': returnURL!.phoneNumber};
+      contentTranslationsParams = {
+        'otherParty': requestor.name.translate(lang),
+        'phoneNumber': returnURL!.phoneNumber,
+      };
     } else {
       contentTranslationKey = 'disclosure_permission.overview.explanation';
-      contentTranslationsParams = {'requestorName': requestor.name.translate(lang)};
+      contentTranslationsParams = {
+        'requestorName': requestor.name.translate(lang),
+      };
     }
 
     return SessionScaffold(
@@ -138,7 +152,10 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IssuerVerifierHeader(title: requestor.name.translate(lang), imagePath: requestor.logoPath),
+              IssuerVerifierHeader(
+                title: requestor.name.translate(lang),
+                imagePath: requestor.logoPath,
+              ),
               SessionProgressIndicator(
                 step: state.currentStepIndex + 1,
                 stepCount: state.plannedSteps.length,
@@ -147,40 +164,45 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               ),
               if (state is DisclosurePermissionChoicesOverview && state.isSignatureSession) ...[
                 SizedBox(height: theme.defaultSpacing),
-                TranslatedText('disclosure_permission.overview.sign', style: theme.themeData.textTheme.headlineMedium),
-                Padding(
-                  padding: EdgeInsets.only(top: theme.smallSpacing, bottom: theme.defaultSpacing),
-                  child: IrmaQuote(key: const Key('signature_message'), quote: state.signedMessage),
+                TranslatedText(
+                  'disclosure_permission.overview.sign',
+                  style: theme.themeData.textTheme.headlineMedium,
                 ),
-              ],
-              ...state.requiredChoices.entries.mapIndexed(
-                (i, choiceEntry) => _buildChoiceEntry(
-                  context,
-                  choiceEntry,
-                  optional: false,
-                  changeable: state.changeableChoices.contains(choiceEntry.key),
+                Padding(
                   padding: EdgeInsets.only(
-                    // We add extra padding between the choices, so we have to exclude the first entry.
-                    top: i == 0 ? theme.defaultSpacing : theme.mediumSpacing,
+                    top: theme.smallSpacing,
                     bottom: theme.defaultSpacing,
                   ),
+                  child: IrmaQuote(
+                    key: const Key('signature_message'),
+                    quote: state.signedMessage,
+                  ),
                 ),
-              ),
-              if (state.optionalChoices.isNotEmpty) ...[
-                TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headlineMedium),
-                ...state.optionalChoices.entries.mapIndexed(
-                  (i, choiceEntry) => _buildChoiceEntry(
+              ],
+              ...state.requiredChoices.entries.mapIndexed((i, choiceEntry) => _buildChoiceEntry(
                     context,
                     choiceEntry,
-                    optional: true,
+                    optional: false,
                     changeable: state.changeableChoices.contains(choiceEntry.key),
                     padding: EdgeInsets.only(
                       // We add extra padding between the choices, so we have to exclude the first entry.
                       top: i == 0 ? theme.defaultSpacing : theme.mediumSpacing,
                       bottom: theme.defaultSpacing,
                     ),
-                  ),
-                ),
+                  )),
+              if (state.optionalChoices.isNotEmpty) ...[
+                TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headlineMedium),
+                ...state.optionalChoices.entries.mapIndexed((i, choiceEntry) => _buildChoiceEntry(
+                      context,
+                      choiceEntry,
+                      optional: true,
+                      changeable: state.changeableChoices.contains(choiceEntry.key),
+                      padding: EdgeInsets.only(
+                        // We add extra padding between the choices, so we have to exclude the first entry.
+                        top: i == 0 ? theme.defaultSpacing : theme.mediumSpacing,
+                        bottom: theme.defaultSpacing,
+                      ),
+                    )),
               ],
               if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
                 TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.headlineMedium),
@@ -203,10 +225,10 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         // If the choices cannot be made valid at all, then we show a close button.
         primaryButtonLabel: state.choicesCanBeValid
             ? (state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-                  ? 'disclosure_permission.next_step'
-                  : isSignatureSession
-                  ? 'disclosure_permission.overview.confirm_sign'
-                  : 'disclosure_permission.overview.confirm')
+                ? 'disclosure_permission.next_step'
+                : isSignatureSession
+                    ? 'disclosure_permission.overview.confirm_sign'
+                    : 'disclosure_permission.overview.confirm')
             : 'disclosure_permission.close',
         onPrimaryPressed: state.choicesCanBeValid
             ? (state.choicesValid ? () => onEvent(DisclosurePermissionNextPressed()) : null)

@@ -13,14 +13,14 @@ Future<void> issueCredential(
   Duration validity = const Duration(days: 365),
   bool revoked = false,
 }) async {
-  mockBridge.mockIssuanceSession(sessionID, credentials, validity: validity, revoked: revoked);
-
-  repo.bridgedDispatch(
-    NewSessionEvent(
-      sessionID: sessionID,
-      request: SessionPointer(irmaqr: 'issuing', u: ''),
-    ),
+  mockBridge.mockIssuanceSession(
+    sessionID,
+    credentials,
+    validity: validity,
+    revoked: revoked,
   );
+
+  repo.bridgedDispatch(NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')));
   await repo
       .getSessionState(sessionID)
       .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);

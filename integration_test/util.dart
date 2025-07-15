@@ -18,9 +18,9 @@ extension WidgetTesterUtil on WidgetTester {
 
   /// Waits for the given widget to appear. When the timeout passes, an exception is given.
   Future<void> waitFor(Finder f, {Duration timeout = const Duration(minutes: 1)}) => Future.doWhile(() async {
-    await pumpAndSettle();
-    return !any(f);
-  }).timeout(timeout);
+        await pumpAndSettle();
+        return !any(f);
+      }).timeout(timeout);
 
   /// Waits for the given widget to disappear. When the timeout passes, an exception is given.
   Future<void> waitUntilDisappeared(Finder f, {Duration timeout = const Duration(minutes: 1)}) =>
@@ -31,7 +31,9 @@ extension WidgetTesterUtil on WidgetTester {
 
   /// Returns the data strings of all populated Text widgets being descendant of the given widget. If the
   /// given widget is a Text widget itself, it only returns the data string of that Text widget.
-  Iterable<String> getAllText(Finder f) => widgetList(
-    find.descendant(of: f, matching: find.byType(Text), matchRoot: true),
-  ).cast<Text>().where((w) => w.data != null).map((w) => w.data!);
+  Iterable<String> getAllText(Finder f) =>
+      widgetList(find.descendant(of: f, matching: find.byType(Text), matchRoot: true))
+          .cast<Text>()
+          .where((w) => w.data != null)
+          .map((w) => w.data!);
 }

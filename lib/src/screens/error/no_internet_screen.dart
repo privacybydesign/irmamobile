@@ -10,7 +10,7 @@ class NoInternetScreen extends StatelessWidget {
   final VoidCallback? onTapRetry;
 
   const NoInternetScreen({required this.onTapClose, this.onTapRetry})
-    : super(key: const ValueKey('no_internet_screen'));
+      : super(key: const ValueKey('no_internet_screen'));
 
   @override
   Widget build(BuildContext context) {

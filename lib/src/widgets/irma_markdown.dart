@@ -8,7 +8,10 @@ class IrmaMarkdown extends StatelessWidget {
   final String data;
   final MarkdownStyleSheet? styleSheet;
 
-  const IrmaMarkdown(this.data, {this.styleSheet});
+  const IrmaMarkdown(
+    this.data, {
+    this.styleSheet,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +23,15 @@ class IrmaMarkdown extends StatelessWidget {
       sizedImageBuilder: (config) => Container(),
       // Define small style sheet, and merge in any passed styleSheet
       styleSheet: MarkdownStyleSheet.fromTheme(theme.themeData)
-          .merge(
-            MarkdownStyleSheet(
-              h1: theme.textTheme.displayLarge,
-              h2: theme.textTheme.displayMedium,
-              h3: theme.textTheme.displaySmall,
-              h4: theme.textTheme.headlineMedium,
-              strong: theme.textTheme.bodyLarge,
-              a: theme.hyperlinkTextStyle,
-              textScaler: MediaQuery.textScalerOf(context),
-            ),
-          )
+          .merge(MarkdownStyleSheet(
+            h1: theme.textTheme.displayLarge,
+            h2: theme.textTheme.displayMedium,
+            h3: theme.textTheme.displaySmall,
+            h4: theme.textTheme.headlineMedium,
+            strong: theme.textTheme.bodyLarge,
+            a: theme.hyperlinkTextStyle,
+            textScaler: MediaQuery.textScalerOf(context),
+          ))
           .merge(styleSheet),
 
       // View links in in-app browser

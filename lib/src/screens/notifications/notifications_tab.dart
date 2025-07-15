@@ -43,10 +43,15 @@ class _NotificationsTabState extends State<NotificationsTab> {
       final credType = repo.irmaConfiguration.credentialTypes[action.credentialTypeId]!;
       final translatedAttributeType = credType.name.translate(lang);
 
-      _notificationsBloc.add(MarkNotificationAsRead(notification.id));
+      _notificationsBloc.add(
+        MarkNotificationAsRead(notification.id),
+      );
 
       context.pushCredentialsDetailsScreen(
-        CredentialsDetailsRouteParams(categoryName: translatedAttributeType, credentialTypeId: action.credentialTypeId),
+        CredentialsDetailsRouteParams(
+          categoryName: translatedAttributeType,
+          credentialTypeId: action.credentialTypeId,
+        ),
       );
     }
   }
@@ -63,14 +68,22 @@ class _NotificationsTabState extends State<NotificationsTab> {
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Flexible(child: TranslatedText('notifications.empty', textAlign: TextAlign.center))],
+              children: [
+                Flexible(
+                    child: TranslatedText(
+                  'notifications.empty',
+                  textAlign: TextAlign.center,
+                ))
+              ],
             ),
-          ),
+          )
         ],
       );
 
   void _onRefresh() {
-    _notificationsBloc.add(LoadNotifications());
+    _notificationsBloc.add(
+      LoadNotifications(),
+    );
   }
 
   @override
@@ -81,12 +94,17 @@ class _NotificationsTabState extends State<NotificationsTab> {
       value: BlocProvider.of<NotificationsBloc>(context),
       child: Scaffold(
         backgroundColor: theme.backgroundTertiary,
-        appBar: const IrmaAppBar(titleTranslationKey: 'notifications.title', leading: null),
+        appBar: const IrmaAppBar(
+          titleTranslationKey: 'notifications.title',
+          leading: null,
+        ),
         body: SafeArea(
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
             builder: (context, state) {
               if (state is NotificationsLoading) {
-                return Center(child: LoadingIndicator());
+                return Center(
+                  child: LoadingIndicator(),
+                );
               } else if (state is NotificationsLoaded) {
                 final notifications = state.notifications;
 
@@ -95,7 +113,9 @@ class _NotificationsTabState extends State<NotificationsTab> {
                   child: notifications.isEmpty
                       ? _emptyListIndicator(theme)
                       : ListView.builder(
-                          padding: EdgeInsets.all(theme.defaultSpacing),
+                          padding: EdgeInsets.all(
+                            theme.defaultSpacing,
+                          ),
                           itemCount: state.notifications.length,
                           itemBuilder: (context, index) {
                             final notification = notifications[index];

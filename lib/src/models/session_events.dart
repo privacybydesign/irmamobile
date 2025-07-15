@@ -40,8 +40,11 @@ class NewSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class RespondPermissionEvent extends SessionEvent {
-  RespondPermissionEvent({required int sessionID, required this.proceed, required this.disclosureChoices})
-    : super(sessionID);
+  RespondPermissionEvent({
+    required int sessionID,
+    required this.proceed,
+    required this.disclosureChoices,
+  }) : super(sessionID);
 
   @JsonKey(name: 'Proceed')
   final bool proceed;
@@ -117,7 +120,10 @@ class SuccessSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class FailureSessionEvent extends SessionEvent {
-  FailureSessionEvent({required int sessionID, required this.error}) : super(sessionID);
+  FailureSessionEvent({
+    required int sessionID,
+    required this.error,
+  }) : super(sessionID);
 
   @JsonKey(name: 'Error')
   final SessionError error;
@@ -249,8 +255,11 @@ class KeyshareEnrollmentDeletedSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class KeyshareBlockedSessionEvent extends SessionEvent {
-  KeyshareBlockedSessionEvent({required int sessionID, required this.schemeManagerID, required this.duration})
-    : super(sessionID);
+  KeyshareBlockedSessionEvent({
+    required int sessionID,
+    required this.schemeManagerID,
+    required this.duration,
+  }) : super(sessionID);
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;

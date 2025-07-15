@@ -10,7 +10,11 @@ class YiviChoosePinScaffold extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final ValueNotifier<String> newPinNotifier;
 
-  YiviChoosePinScaffold({required this.submit, required this.onBack, required this.newPinNotifier});
+  YiviChoosePinScaffold({
+    required this.submit,
+    required this.onBack,
+    required this.newPinNotifier,
+  });
 
   void _submit(String pin) {
     newPinNotifier.value = pin;

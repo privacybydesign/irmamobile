@@ -7,9 +7,9 @@ class ConfirmPinResetDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const IrmaConfirmationDialog(
-    contentTranslationKey: 'change_pin.dialog.body',
-    titleTranslationKey: 'change_pin.dialog.title',
-    cancelTranslationKey: 'change_pin.dialog.cancel',
-    confirmTranslationKey: 'change_pin.dialog.ok',
-  );
+        contentTranslationKey: 'change_pin.dialog.body',
+        titleTranslationKey: 'change_pin.dialog.title',
+        cancelTranslationKey: 'change_pin.dialog.cancel',
+        confirmTranslationKey: 'change_pin.dialog.ok',
+      );
 }

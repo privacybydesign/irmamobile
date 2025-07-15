@@ -14,17 +14,29 @@ class AddDataScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(titleTranslationKey: 'data.add.title'),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'data.add.title',
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TranslatedText('data.add.choose', style: theme.textTheme.bodyMedium),
-              SizedBox(height: theme.defaultSpacing),
+              TranslatedText(
+                'data.add.choose',
+                style: theme.textTheme.bodyMedium,
+              ),
+              SizedBox(
+                height: theme.defaultSpacing,
+              ),
               StoreCredentialTypesBuilder(
-                builder: (context, groupedCredentialTypes, groupedObtainedCredentialTypes) => Column(
+                builder: (
+                  context,
+                  groupedCredentialTypes,
+                  groupedObtainedCredentialTypes,
+                ) =>
+                    Column(
                   children: groupedCredentialTypes.entries
                       .map(
                         (credentialTypesByCategory) => CredentialCategoryList(
@@ -37,7 +49,7 @@ class AddDataScreen extends StatelessWidget {
                       )
                       .toList(growable: false),
                 ),
-              ),
+              )
             ],
           ),
         ),

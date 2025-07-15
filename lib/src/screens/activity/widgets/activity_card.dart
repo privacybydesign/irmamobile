@@ -15,7 +15,10 @@ class ActivityCard extends StatelessWidget {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityCard({required this.logEntry, required this.irmaConfiguration});
+  const ActivityCard({
+    required this.logEntry,
+    required this.irmaConfiguration,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,10 @@ class ActivityCard extends StatelessWidget {
       semanticLabel = FlutterI18n.translate(
         context,
         'activity.data_deleted_semantics',
-        translationParams: {'issuerName': title, 'date': localizedTimeStamp},
+        translationParams: {
+          'issuerName': title,
+          'date': localizedTimeStamp,
+        },
       );
 
       if (credType.logo != null) {
@@ -64,21 +70,30 @@ class ActivityCard extends StatelessWidget {
         semanticLabel = FlutterI18n.translate(
           context,
           'activity.data_received_semantics',
-          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
+          translationParams: {
+            'otherParty': title,
+            'date': localizedTimeStamp,
+          },
         );
       } else if (logEntry.type == LogEntryType.disclosing) {
         subtitleTranslationKey = 'activity.data_shared';
         semanticLabel = FlutterI18n.translate(
           context,
           'activity.data_shared_semantics',
-          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
+          translationParams: {
+            'otherParty': title,
+            'date': localizedTimeStamp,
+          },
         );
       } else if (logEntry.type == LogEntryType.signing) {
         subtitleTranslationKey = 'activity.message_signed';
         semanticLabel = FlutterI18n.translate(
           context,
           'activity.signed_message_semantics',
-          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
+          translationParams: {
+            'otherParty': title,
+            'date': localizedTimeStamp,
+          },
         );
       }
 
@@ -104,8 +119,14 @@ class ActivityCard extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          IrmaAvatar(size: 52, logoPath: logo, initials: title != '' ? title[0] : null),
-                          SizedBox(width: theme.smallSpacing),
+                          IrmaAvatar(
+                            size: 52,
+                            logoPath: logo,
+                            initials: title != '' ? title[0] : null,
+                          ),
+                          SizedBox(
+                            width: theme.smallSpacing,
+                          ),
                           Flexible(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,7 +134,9 @@ class ActivityCard extends StatelessWidget {
                                 TranslatedText(localizedTimeStamp),
                                 Text(
                                   title,
-                                  style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark),
+                                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
+                                    color: theme.dark,
+                                  ),
                                 ),
                                 TranslatedText(
                                   subtitleTranslationKey,
@@ -121,14 +144,17 @@ class ActivityCard extends StatelessWidget {
                                     fontSize: 14,
                                     color: theme.dark,
                                   ),
-                                ),
+                                )
                               ],
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ),
-                    Icon(Icons.chevron_right, color: Colors.grey.shade700),
+                    Icon(
+                      Icons.chevron_right,
+                      color: Colors.grey.shade700,
+                    ),
                   ],
                 ),
               ),

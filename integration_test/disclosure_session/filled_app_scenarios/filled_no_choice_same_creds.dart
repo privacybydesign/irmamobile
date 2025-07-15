@@ -41,7 +41,10 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
 
   // Find and press change choice
   final changeChoiceFinder = find.text('Change choice');
-  await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
+  await tester.scrollUntilVisible(
+    changeChoiceFinder.hitTestable(),
+    50,
+  );
   await tester.tapAndSettle(changeChoiceFinder);
 
   final credentialCardsFinder = find.byType(IrmaCredentialCard);
@@ -54,7 +57,9 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
     isSelected: true,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {'Email address': 'first-email@example.com'},
+    attributes: {
+      'Email address': 'first-email@example.com',
+    },
   );
 
   final secondCredentialCard = credentialCardsFinder.at(1);
@@ -64,17 +69,26 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
     isSelected: false,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {'Email address': 'second-email@example.com'},
+    attributes: {
+      'Email address': 'second-email@example.com',
+    },
   );
 
   // Scroll to the second credential
-  await tester.scrollUntilVisible(secondCredentialCard, 50);
+  await tester.scrollUntilVisible(
+    secondCredentialCard,
+    50,
+  );
 
   // Select the second credential
   await tester.tapAndSettle(secondCredentialCard);
 
   // Second credential should be selected now
-  await evaluateCredentialCard(tester, secondCredentialCard, isSelected: true);
+  await evaluateCredentialCard(
+    tester,
+    secondCredentialCard,
+    isSelected: true,
+  );
 
   // Press done
   final doneButterFinder = find.text('Done').hitTestable();
@@ -90,7 +104,9 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
     credentialCardsFinder.first,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {'Email address': 'second-email@example.com'},
+    attributes: {
+      'Email address': 'second-email@example.com',
+    },
   );
 
   // Finish the flow

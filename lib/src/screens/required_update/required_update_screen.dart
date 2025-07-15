@@ -27,7 +27,10 @@ class RequiredUpdateScreen extends StatelessWidget {
           } else {
             throw Exception('Unsupported platform');
           }
-          launchUrl(Uri.parse(url), mode: LaunchMode.externalNonBrowserApplication);
+          launchUrl(
+            Uri.parse(url),
+            mode: LaunchMode.externalNonBrowserApplication,
+          );
         },
       ),
     );

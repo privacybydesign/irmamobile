@@ -15,7 +15,11 @@ class _ScalableText extends StatelessWidget {
         width: constraints.maxWidth,
         child: FittedBox(
           fit: BoxFit.fitHeight,
-          child: Text(string, textAlign: TextAlign.center, style: textStyle),
+          child: Text(
+            string,
+            textAlign: TextAlign.center,
+            style: textStyle,
+          ),
         ),
       ),
     );

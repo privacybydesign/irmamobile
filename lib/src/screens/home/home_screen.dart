@@ -61,9 +61,14 @@ class HomeScreen extends StatelessWidget {
               resizeToAvoidBottomInset: false,
               floatingActionButton: Padding(
                 padding: EdgeInsets.only(bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0),
-                child: const IrmaQrScanButton(key: Key('nav_button_scanner')),
+                child: const IrmaQrScanButton(
+                  key: Key('nav_button_scanner'),
+                ),
               ),
-              bottomNavigationBar: IrmaNavBar(selectedTab: tabState, onChangeTab: changeTab),
+              bottomNavigationBar: IrmaNavBar(
+                selectedTab: tabState,
+                onChangeTab: changeTab,
+              ),
             ),
           ),
         );

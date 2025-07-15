@@ -7,55 +7,56 @@ part of 'session_events.dart';
 // **************************************************************************
 
 Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'Request': instance.request,
-  'previouslyLaunchedCredentials': instance.previouslyLaunchedCredentials.toList(),
-};
+      'SessionID': instance.sessionID,
+      'Request': instance.request,
+      'previouslyLaunchedCredentials': instance.previouslyLaunchedCredentials.toList(),
+    };
 
 RespondPermissionEvent _$RespondPermissionEventFromJson(Map<String, dynamic> json) => RespondPermissionEvent(
-  sessionID: (json['SessionID'] as num).toInt(),
-  proceed: json['Proceed'] as bool,
-  disclosureChoices: (json['DisclosureChoices'] as List<dynamic>)
-      .map((e) => (e as List<dynamic>).map((e) => AttributeIdentifier.fromJson(e as Map<String, dynamic>)).toList())
-      .toList(),
-);
+      sessionID: (json['SessionID'] as num).toInt(),
+      proceed: json['Proceed'] as bool,
+      disclosureChoices: (json['DisclosureChoices'] as List<dynamic>)
+          .map((e) => (e as List<dynamic>).map((e) => AttributeIdentifier.fromJson(e as Map<String, dynamic>)).toList())
+          .toList(),
+    );
 
 Map<String, dynamic> _$RespondPermissionEventToJson(RespondPermissionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'Proceed': instance.proceed,
-  'DisclosureChoices': instance.disclosureChoices,
-};
+      'SessionID': instance.sessionID,
+      'Proceed': instance.proceed,
+      'DisclosureChoices': instance.disclosureChoices,
+    };
 
 RespondPinEvent _$RespondPinEventFromJson(Map<String, dynamic> json) => RespondPinEvent(
-  sessionID: (json['SessionID'] as num).toInt(),
-  proceed: json['Proceed'] as bool,
-  pin: json['Pin'] as String?,
-);
+      sessionID: (json['SessionID'] as num).toInt(),
+      proceed: json['Proceed'] as bool,
+      pin: json['Pin'] as String?,
+    );
 
 Map<String, dynamic> _$RespondPinEventToJson(RespondPinEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'Proceed': instance.proceed,
-  'Pin': instance.pin,
-};
+      'SessionID': instance.sessionID,
+      'Proceed': instance.proceed,
+      'Pin': instance.pin,
+    };
 
-DismissSessionEvent _$DismissSessionEventFromJson(Map<String, dynamic> json) =>
-    DismissSessionEvent(sessionID: (json['SessionID'] as num).toInt());
+DismissSessionEvent _$DismissSessionEventFromJson(Map<String, dynamic> json) => DismissSessionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+    );
 
 Map<String, dynamic> _$DismissSessionEventToJson(DismissSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-};
+      'SessionID': instance.sessionID,
+    };
 
 StatusUpdateSessionEvent _$StatusUpdateSessionEventFromJson(Map<String, dynamic> json) => StatusUpdateSessionEvent(
-  sessionID: (json['SessionID'] as num).toInt(),
-  action: json['Action'] as String,
-  status: json['Status'] as String,
-);
+      sessionID: (json['SessionID'] as num).toInt(),
+      action: json['Action'] as String,
+      status: json['Status'] as String,
+    );
 
 Map<String, dynamic> _$StatusUpdateSessionEventToJson(StatusUpdateSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'Action': instance.action,
-  'Status': instance.status,
-};
+      'SessionID': instance.sessionID,
+      'Action': instance.action,
+      'Status': instance.status,
+    };
 
 ClientReturnURLSetSessionEvent _$ClientReturnURLSetSessionEventFromJson(Map<String, dynamic> json) =>
     ClientReturnURLSetSessionEvent(
@@ -64,31 +65,36 @@ ClientReturnURLSetSessionEvent _$ClientReturnURLSetSessionEventFromJson(Map<Stri
     );
 
 Map<String, dynamic> _$ClientReturnURLSetSessionEventToJson(ClientReturnURLSetSessionEvent instance) =>
-    <String, dynamic>{'SessionID': instance.sessionID, 'ClientReturnURL': instance.clientReturnURL};
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'ClientReturnURL': instance.clientReturnURL,
+    };
 
-SuccessSessionEvent _$SuccessSessionEventFromJson(Map<String, dynamic> json) =>
-    SuccessSessionEvent(sessionID: (json['SessionID'] as num).toInt());
+SuccessSessionEvent _$SuccessSessionEventFromJson(Map<String, dynamic> json) => SuccessSessionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+    );
 
 Map<String, dynamic> _$SuccessSessionEventToJson(SuccessSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-};
+      'SessionID': instance.sessionID,
+    };
 
 FailureSessionEvent _$FailureSessionEventFromJson(Map<String, dynamic> json) => FailureSessionEvent(
-  sessionID: (json['SessionID'] as num).toInt(),
-  error: SessionError.fromJson(json['Error'] as Map<String, dynamic>),
-);
+      sessionID: (json['SessionID'] as num).toInt(),
+      error: SessionError.fromJson(json['Error'] as Map<String, dynamic>),
+    );
 
 Map<String, dynamic> _$FailureSessionEventToJson(FailureSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'Error': instance.error,
-};
+      'SessionID': instance.sessionID,
+      'Error': instance.error,
+    };
 
-CanceledSessionEvent _$CanceledSessionEventFromJson(Map<String, dynamic> json) =>
-    CanceledSessionEvent(sessionID: (json['SessionID'] as num).toInt());
+CanceledSessionEvent _$CanceledSessionEventFromJson(Map<String, dynamic> json) => CanceledSessionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+    );
 
 Map<String, dynamic> _$CanceledSessionEventToJson(CanceledSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-};
+      'SessionID': instance.sessionID,
+    };
 
 RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFromJson(Map<String, dynamic> json) =>
     RequestIssuancePermissionSessionEvent(
@@ -101,17 +107,11 @@ RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFro
       disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
       ),
-      disclosuresCandidates:
-          (json['DisclosuresCandidates'] as List<dynamic>?)
-              ?.map(
-                (e) => (e as List<dynamic>)
-                    .map(
-                      (e) => (e as List<dynamic>)
-                          .map((e) => DisclosureCandidate.fromJson(e as Map<String, dynamic>))
-                          .toList(),
-                    )
-                    .toList(),
-              )
+      disclosuresCandidates: (json['DisclosuresCandidates'] as List<dynamic>?)
+              ?.map((e) => (e as List<dynamic>)
+                  .map((e) =>
+                      (e as List<dynamic>).map((e) => DisclosureCandidate.fromJson(e as Map<String, dynamic>)).toList())
+                  .toList())
               .toList() ??
           const [],
     );
@@ -127,48 +127,45 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
     };
 
 RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSessionEventFromJson(
-  Map<String, dynamic> json,
-) => RequestVerificationPermissionSessionEvent(
-  sessionID: (json['SessionID'] as num).toInt(),
-  serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
-  satisfiable: json['Satisfiable'] as bool,
-  disclosuresCandidates: (json['DisclosuresCandidates'] as List<dynamic>)
-      .map(
-        (e) => (e as List<dynamic>)
-            .map(
-              (e) => (e as List<dynamic>).map((e) => DisclosureCandidate.fromJson(e as Map<String, dynamic>)).toList(),
-            )
-            .toList(),
-      )
-      .toList(),
-  isSignatureSession: json['IsSignatureSession'] as bool,
-  disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
-    (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
-  ),
-  signedMessage: json['SignedMessage'] as String?,
-);
+        Map<String, dynamic> json) =>
+    RequestVerificationPermissionSessionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+      satisfiable: json['Satisfiable'] as bool,
+      disclosuresCandidates: (json['DisclosuresCandidates'] as List<dynamic>)
+          .map((e) => (e as List<dynamic>)
+              .map((e) =>
+                  (e as List<dynamic>).map((e) => DisclosureCandidate.fromJson(e as Map<String, dynamic>)).toList())
+              .toList())
+          .toList(),
+      isSignatureSession: json['IsSignatureSession'] as bool,
+      disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
+      ),
+      signedMessage: json['SignedMessage'] as String?,
+    );
 
 Map<String, dynamic> _$RequestVerificationPermissionSessionEventToJson(
-  RequestVerificationPermissionSessionEvent instance,
-) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'ServerName': instance.serverName,
-  'Satisfiable': instance.satisfiable,
-  'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
-  'DisclosuresCandidates': instance.disclosuresCandidates,
-  'IsSignatureSession': instance.isSignatureSession,
-  'SignedMessage': instance.signedMessage,
-};
+        RequestVerificationPermissionSessionEvent instance) =>
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'ServerName': instance.serverName,
+      'Satisfiable': instance.satisfiable,
+      'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
+      'DisclosuresCandidates': instance.disclosuresCandidates,
+      'IsSignatureSession': instance.isSignatureSession,
+      'SignedMessage': instance.signedMessage,
+    };
 
 RequestPinSessionEvent _$RequestPinSessionEventFromJson(Map<String, dynamic> json) => RequestPinSessionEvent(
-  sessionID: (json['SessionID'] as num).toInt(),
-  remainingAttempts: (json['RemainingAttempts'] as num).toInt(),
-);
+      sessionID: (json['SessionID'] as num).toInt(),
+      remainingAttempts: (json['RemainingAttempts'] as num).toInt(),
+    );
 
 Map<String, dynamic> _$RequestPinSessionEventToJson(RequestPinSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'RemainingAttempts': instance.remainingAttempts,
-};
+      'SessionID': instance.sessionID,
+      'RemainingAttempts': instance.remainingAttempts,
+    };
 
 PairingRequiredSessionEvent _$PairingRequiredSessionEventFromJson(Map<String, dynamic> json) =>
     PairingRequiredSessionEvent(
@@ -177,9 +174,9 @@ PairingRequiredSessionEvent _$PairingRequiredSessionEventFromJson(Map<String, dy
     );
 
 Map<String, dynamic> _$PairingRequiredSessionEventToJson(PairingRequiredSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'PairingCode': instance.pairingCode,
-};
+      'SessionID': instance.sessionID,
+      'PairingCode': instance.pairingCode,
+    };
 
 KeyshareEnrollmentMissingSessionEvent _$KeyshareEnrollmentMissingSessionEventFromJson(Map<String, dynamic> json) =>
     KeyshareEnrollmentMissingSessionEvent(
@@ -188,7 +185,10 @@ KeyshareEnrollmentMissingSessionEvent _$KeyshareEnrollmentMissingSessionEventFro
     );
 
 Map<String, dynamic> _$KeyshareEnrollmentMissingSessionEventToJson(KeyshareEnrollmentMissingSessionEvent instance) =>
-    <String, dynamic>{'SessionID': instance.sessionID, 'SchemeManagerID': instance.schemeManagerID};
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'SchemeManagerID': instance.schemeManagerID,
+    };
 
 KeyshareEnrollmentDeletedSessionEvent _$KeyshareEnrollmentDeletedSessionEventFromJson(Map<String, dynamic> json) =>
     KeyshareEnrollmentDeletedSessionEvent(
@@ -197,7 +197,10 @@ KeyshareEnrollmentDeletedSessionEvent _$KeyshareEnrollmentDeletedSessionEventFro
     );
 
 Map<String, dynamic> _$KeyshareEnrollmentDeletedSessionEventToJson(KeyshareEnrollmentDeletedSessionEvent instance) =>
-    <String, dynamic>{'SessionID': instance.sessionID, 'SchemeManagerID': instance.schemeManagerID};
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'SchemeManagerID': instance.schemeManagerID,
+    };
 
 KeyshareBlockedSessionEvent _$KeyshareBlockedSessionEventFromJson(Map<String, dynamic> json) =>
     KeyshareBlockedSessionEvent(
@@ -207,18 +210,21 @@ KeyshareBlockedSessionEvent _$KeyshareBlockedSessionEventFromJson(Map<String, dy
     );
 
 Map<String, dynamic> _$KeyshareBlockedSessionEventToJson(KeyshareBlockedSessionEvent instance) => <String, dynamic>{
-  'SessionID': instance.sessionID,
-  'SchemeManagerID': instance.schemeManagerID,
-  'Duration': instance.duration,
-};
+      'SessionID': instance.sessionID,
+      'SchemeManagerID': instance.schemeManagerID,
+      'Duration': instance.duration,
+    };
 
 KeyshareEnrollmentIncompleteSessionEvent _$KeyshareEnrollmentIncompleteSessionEventFromJson(
-  Map<String, dynamic> json,
-) => KeyshareEnrollmentIncompleteSessionEvent(
-  sessionID: (json['SessionID'] as num).toInt(),
-  schemeManagerID: json['SchemeManagerID'] as String,
-);
+        Map<String, dynamic> json) =>
+    KeyshareEnrollmentIncompleteSessionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      schemeManagerID: json['SchemeManagerID'] as String,
+    );
 
 Map<String, dynamic> _$KeyshareEnrollmentIncompleteSessionEventToJson(
-  KeyshareEnrollmentIncompleteSessionEvent instance,
-) => <String, dynamic>{'SessionID': instance.sessionID, 'SchemeManagerID': instance.schemeManagerID};
+        KeyshareEnrollmentIncompleteSessionEvent instance) =>
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'SchemeManagerID': instance.schemeManagerID,
+    };

@@ -21,28 +21,67 @@ void main() {
 
     group('special-scenarios', () {
       // Session with an optional attribute that cannot be null
-      testWidgets('nullables', (tester) => nullablesTest(tester, irmaBinding));
+      testWidgets(
+        'nullables',
+        (tester) => nullablesTest(
+          tester,
+          irmaBinding,
+        ),
+      );
 
       // Disclosure session and signing a message
-      testWidgets('signing', (tester) => signingTest(tester, irmaBinding));
+      testWidgets(
+        'signing',
+        (tester) => signingTest(
+          tester,
+          irmaBinding,
+        ),
+      );
 
       // Issuance and disclosure in one session
       testWidgets(
         'combined-disclosure-issuance-session',
-        (tester) => combinedDisclosureIssuanceSessionTest(tester, irmaBinding),
+        (tester) => combinedDisclosureIssuanceSessionTest(
+          tester,
+          irmaBinding,
+        ),
       );
 
       // Entering a session with a revoked credential
-      testWidgets('revocation', (tester) => revocationTest(tester, irmaBinding));
+      testWidgets(
+        'revocation',
+        (tester) => revocationTest(
+          tester,
+          irmaBinding,
+        ),
+      );
 
       // Address from municipality with different attribute order
-      testWidgets('attribute-order', (tester) => attributeOrderTest(tester, irmaBinding));
+      testWidgets(
+        'attribute-order',
+        (tester) => attributeOrderTest(
+          tester,
+          irmaBinding,
+        ),
+      );
 
       // Disclosing stempas credential which is an unobtainable credential (no IssueURL) and contains a random blind attribute.
-      testWidgets('random-blind', (tester) => randomBlindTest(tester, irmaBinding));
+      testWidgets(
+        'random-blind',
+        (tester) => randomBlindTest(
+          tester,
+          irmaBinding,
+        ),
+      );
 
       // Decline disclosure at the last moment
-      testWidgets('decline-disclosure', (tester) => declineDisclosure(tester, irmaBinding));
+      testWidgets(
+        'decline-disclosure',
+        (tester) => declineDisclosure(
+          tester,
+          irmaBinding,
+        ),
+      );
     });
   });
 }

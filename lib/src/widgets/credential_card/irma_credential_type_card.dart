@@ -13,7 +13,12 @@ class IrmaCredentialTypeCard extends StatelessWidget {
   final bool checked;
   final IconData? trailingIcon;
 
-  const IrmaCredentialTypeCard({required this.credType, this.onTap, this.checked = false, this.trailingIcon});
+  const IrmaCredentialTypeCard({
+    required this.credType,
+    this.onTap,
+    this.checked = false,
+    this.trailingIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +27,10 @@ class IrmaCredentialTypeCard extends StatelessWidget {
 
     const logoContainerSize = 52.0;
 
-    Widget avatar = IrmaAvatar(size: logoContainerSize, logoPath: credType.logo);
+    Widget avatar = IrmaAvatar(
+      size: logoContainerSize,
+      logoPath: credType.logo,
+    );
 
     // If the credential is checked, add a check mark to the avatar
     if (checked) {
@@ -30,7 +38,11 @@ class IrmaCredentialTypeCard extends StatelessWidget {
         alignment: Alignment.topRight,
         children: [
           avatar,
-          Icon(Icons.check_circle, color: theme.success, size: logoContainerSize * 0.3),
+          Icon(
+            Icons.check_circle,
+            color: theme.success,
+            size: logoContainerSize * 0.3,
+          )
         ],
       );
     }
@@ -46,25 +58,40 @@ class IrmaCredentialTypeCard extends StatelessWidget {
             child: Row(
               children: [
                 ExcludeSemantics(child: avatar),
-                SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+                SizedBox(
+                  width: theme.defaultSpacing - theme.tinySpacing,
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         getTranslation(context, credType.name),
-                        style: theme.textTheme.headlineMedium!.copyWith(color: theme.dark),
+                        style: theme.textTheme.headlineMedium!.copyWith(
+                          color: theme.dark,
+                        ),
                       ),
-                      SizedBox(height: theme.tinySpacing),
+                      SizedBox(
+                        height: theme.tinySpacing,
+                      ),
                       Text(
-                        getTranslation(context, repo.irmaConfiguration.issuers[credType.fullIssuerId]!.name),
-                        style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14),
+                        getTranslation(
+                          context,
+                          repo.irmaConfiguration.issuers[credType.fullIssuerId]!.name,
+                        ),
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 SizedBox(width: theme.smallSpacing),
-                Icon(trailingIcon ?? Icons.chevron_right, size: 24, color: theme.neutralExtraDark),
+                Icon(
+                  trailingIcon ?? Icons.chevron_right,
+                  size: 24,
+                  color: theme.neutralExtraDark,
+                ),
               ],
             ),
           ),

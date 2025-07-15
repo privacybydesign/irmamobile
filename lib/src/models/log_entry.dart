@@ -31,10 +31,17 @@ class LoadLogsEvent extends Event {
   Map<String, dynamic> toJson() => _$LoadLogsEventToJson(this);
 }
 
-enum LogEntryType { disclosing, signing, issuing, removal }
+enum LogEntryType {
+  disclosing,
+  signing,
+  issuing,
+  removal,
+}
 
 LogEntryType _toLogEntryType(String type) {
-  return LogEntryType.values.firstWhere((v) => v.toString() == 'LogEntryType.$type');
+  return LogEntryType.values.firstWhere(
+    (v) => v.toString() == 'LogEntryType.$type',
+  );
 }
 
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>

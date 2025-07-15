@@ -21,8 +21,12 @@ class _PinIndicator extends StatelessWidget {
     final textColor = isPinVisible ? theme.secondary : Colors.transparent;
 
     final style = maxPinSize != shortPinSize
-        ? theme.textTheme.headlineSmall?.copyWith(color: textColor)
-        : theme.textTheme.displayMedium?.copyWith(color: textColor);
+        ? theme.textTheme.headlineSmall?.copyWith(
+            color: textColor,
+          )
+        : theme.textTheme.displayMedium?.copyWith(
+            color: textColor,
+          );
 
     final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
 
@@ -49,7 +53,10 @@ class _PinIndicator extends StatelessWidget {
 
     // prevent the row from collapsing
     if (pinSize == 0 && maxPinSize != shortPinSize) {
-      return SizedBox(width: 0, height: 19.scaleToDesignSize(context));
+      return SizedBox(
+        width: 0,
+        height: 19.scaleToDesignSize(context),
+      );
     }
 
     final constraints = BoxConstraints.tightFor(width: scaledEdgeSize, height: scaledEdgeSize);
@@ -61,8 +68,12 @@ class _PinIndicator extends StatelessWidget {
       label: joinedPin.isEmpty
           ? FlutterI18n.translate(context, 'pin_accessibility.empty_pin_input')
           : isPinVisible
-          ? joinedPin
-          : FlutterI18n.plural(context, 'pin_accessibility.digits_entered', pinState.pin.length),
+              ? joinedPin
+              : FlutterI18n.plural(
+                  context,
+                  'pin_accessibility.digits_entered',
+                  pinState.pin.length,
+                ),
       child: ExcludeSemantics(
         child: Row(
           mainAxisAlignment: isMaxPin5 ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
@@ -82,9 +93,16 @@ class _PinIndicator extends StatelessWidget {
                     style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
                   ),
                 ),
-                if (i < pinSize) Container(constraints: constraints, decoration: circleFilledDecoration),
+                if (i < pinSize)
+                  Container(
+                    constraints: constraints,
+                    decoration: circleFilledDecoration,
+                  ),
                 if (isMaxPin5 && i >= pinSize)
-                  Container(constraints: constraints, decoration: circleOutlinedDecoration),
+                  Container(
+                    constraints: constraints,
+                    decoration: circleOutlinedDecoration,
+                  ),
               ],
             ),
             growable: false,

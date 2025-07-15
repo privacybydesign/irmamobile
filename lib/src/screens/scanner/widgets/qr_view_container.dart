@@ -30,6 +30,9 @@ class _QRViewContainerState extends State<QRViewContainer> {
 
   @override
   Widget build(BuildContext context) {
-    return QRView(key: _qrKey, onQRViewCreated: _onQRViewCreated);
+    return QRView(
+      key: _qrKey,
+      onQRViewCreated: _onQRViewCreated,
+    );
   }
 }

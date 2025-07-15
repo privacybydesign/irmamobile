@@ -84,9 +84,9 @@ class YiviPinScreen extends StatelessWidget {
     this.enabled = true,
     this.listener,
     this.submitButtonVisibilityListener,
-  }) : assert(instructionKey != null && instruction == null || instruction != null && instructionKey == null),
-       assert(checkSecurePin ? scaffoldKey != null : true),
-       super(key: key);
+  })  : assert(instructionKey != null && instruction == null || instruction != null && instructionKey == null),
+        assert(checkSecurePin ? scaffoldKey != null : true),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -98,9 +98,15 @@ class YiviPinScreen extends StatelessWidget {
           builder: (context, state) {
             final showSecurePinText = state.pin.length >= shortPinSize && !state.goodEnough;
             if (Orientation.portrait == orientation) {
-              return _bodyPortrait(context, showSecurePinText: showSecurePinText);
+              return _bodyPortrait(
+                context,
+                showSecurePinText: showSecurePinText,
+              );
             } else {
-              return bodyLandscape(context, showSecurePinText: showSecurePinText);
+              return bodyLandscape(
+                context,
+                showSecurePinText: showSecurePinText,
+              );
             }
           },
         );
@@ -108,18 +114,27 @@ class YiviPinScreen extends StatelessWidget {
     );
   }
 
-  Row bodyLandscape(BuildContext context, {required bool showSecurePinText}) {
+  Row bodyLandscape(
+    BuildContext context, {
+    required bool showSecurePinText,
+  }) {
     final leftColumnChildren = [
       _buildInstructionText(context),
       _buildDecoratedPinDots(context),
       if (checkSecurePin && showSecurePinText) _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
       if (onTogglePinSize != null)
         Center(
-          child: Link(onTap: onTogglePinSize!, label: FlutterI18n.translate(context, _getTogglePinSizeSemanticKey())),
+          child: Link(
+            onTap: onTogglePinSize!,
+            label: FlutterI18n.translate(context, _getTogglePinSizeSemanticKey()),
+          ),
         ),
       if (onForgotPin != null)
         Center(
-          child: Link(onTap: onForgotPin!, label: FlutterI18n.translate(context, 'pin.button_forgot')),
+          child: Link(
+            onTap: onForgotPin!,
+            label: FlutterI18n.translate(context, 'pin.button_forgot'),
+          ),
         ),
       _buildNextButton(),
     ];
@@ -129,30 +144,43 @@ class YiviPinScreen extends StatelessWidget {
     final separatedChildren = Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [if (lt5Children) _buildScaledLogo(context), ...leftColumnChildren],
+      children: [
+        if (lt5Children) _buildScaledLogo(context),
+        ...leftColumnChildren,
+      ],
     );
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight, minWidth: constraints.maxWidth),
-                  child: IntrinsicHeight(child: separatedChildren),
+          child: LayoutBuilder(builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                  minWidth: constraints.maxWidth,
                 ),
-              );
-            },
+                child: IntrinsicHeight(
+                  child: separatedChildren,
+                ),
+              ),
+            );
+          }),
+        ),
+        Expanded(
+          child: _NumberPad(
+            onEnterNumber: pinBloc.add,
           ),
         ),
-        Expanded(child: _NumberPad(onEnterNumber: pinBloc.add)),
       ],
     );
   }
 
-  Column _bodyPortrait(BuildContext context, {required bool showSecurePinText}) {
+  Column _bodyPortrait(
+    BuildContext context, {
+    required bool showSecurePinText,
+  }) {
     final theme = IrmaTheme.of(context);
     return Column(
       children: [
@@ -166,7 +194,10 @@ class YiviPinScreen extends StatelessWidget {
             builder: (context, constraints) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight, minWidth: constraints.maxWidth),
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                    minWidth: constraints.maxWidth,
+                  ),
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
@@ -185,10 +216,13 @@ class YiviPinScreen extends StatelessWidget {
                                   label: FlutterI18n.translate(context, _getTogglePinSizeSemanticKey()),
                                 ),
                               if (onForgotPin != null)
-                                Link(onTap: onForgotPin!, label: FlutterI18n.translate(context, 'pin.button_forgot')),
+                                Link(
+                                  onTap: onForgotPin!,
+                                  label: FlutterI18n.translate(context, 'pin.button_forgot'),
+                                ),
                             ],
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
@@ -197,7 +231,11 @@ class YiviPinScreen extends StatelessWidget {
             },
           ),
         ),
-        Expanded(child: _NumberPad(onEnterNumber: pinBloc.add)),
+        Expanded(
+          child: _NumberPad(
+            onEnterNumber: pinBloc.add,
+          ),
+        ),
         if (maxPinSize != shortPinSize)
           Padding(
             padding: EdgeInsets.only(top: theme.screenPadding),
@@ -217,10 +255,16 @@ class YiviPinScreen extends StatelessWidget {
         Stack(
           alignment: Alignment.center,
           children: [
-            FractionallySizedBox(widthFactor: .72, child: pinDots),
+            FractionallySizedBox(
+              widthFactor: .72,
+              child: pinDots,
+            ),
             Align(
               alignment: Alignment.topRight,
-              child: Padding(padding: const EdgeInsets.only(right: 8), child: _buildListeningPinVisibilityButton()),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildListeningPinVisibilityButton(),
+              ),
             ),
           ],
         ),
@@ -230,7 +274,10 @@ class YiviPinScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Divider(height: 1.0, color: theme.secondary),
+                Divider(
+                  height: 1.0,
+                  color: theme.secondary,
+                ),
                 if (displayPinLength)
                   Align(
                     alignment: Alignment.bottomRight,
@@ -239,12 +286,11 @@ class YiviPinScreen extends StatelessWidget {
                       builder: (context, state) => Text(
                         '${state.pin.length}/$maxPinSize',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w300,
-                          color: state.pin.isNotEmpty ? theme.secondary : Colors.transparent,
-                        ),
+                            fontWeight: FontWeight.w300,
+                            color: state.pin.isNotEmpty ? theme.secondary : Colors.transparent),
                       ),
                     ),
-                  ),
+                  )
               ],
             ),
           ),
@@ -284,7 +330,9 @@ class YiviPinScreen extends StatelessWidget {
       child: Ink(
         width: 32,
         height: 32,
-        decoration: const BoxDecoration(shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+        ),
         child: Semantics(
           button: true,
           child: InkWell(
@@ -294,7 +342,10 @@ class YiviPinScreen extends StatelessWidget {
               icon,
               size: 24,
               color: theme.secondary,
-              semanticLabel: FlutterI18n.translate(context, semanticLabelKey),
+              semanticLabel: FlutterI18n.translate(
+                context,
+                semanticLabelKey,
+              ),
             ),
           ),
         ),
@@ -314,7 +365,10 @@ class YiviPinScreen extends StatelessWidget {
 
     switch (visibility) {
       case WidgetVisibility.gone:
-        return Visibility(visible: false, child: button);
+        return Visibility(
+          visible: false,
+          child: button,
+        );
       case WidgetVisibility.invisible:
         return Visibility(
           maintainSize: true,
@@ -362,7 +416,10 @@ class YiviPinScreen extends StatelessWidget {
       'assets/non-free/logo_no_margin.svg',
       width: 127.scaleToDesignSize(context),
       height: 71.scaleToDesignSize(context),
-      semanticsLabel: FlutterI18n.translate(context, 'accessibility.irma_logo'),
+      semanticsLabel: FlutterI18n.translate(
+        context,
+        'accessibility.irma_logo',
+      ),
     );
   }
 

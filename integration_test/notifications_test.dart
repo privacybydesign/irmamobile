@@ -63,7 +63,10 @@ void main() {
       expect(notificationsScreenFinder, findsOneWidget);
 
       // Expect page title
-      final screenTitleFinder = find.descendant(of: find.byType(IrmaAppBar), matching: find.text('Notifications'));
+      final screenTitleFinder = find.descendant(
+        of: find.byType(IrmaAppBar),
+        matching: find.text('Notifications'),
+      );
       expect(screenTitleFinder, findsOneWidget);
 
       // Expect empty state message
@@ -189,7 +192,10 @@ void main() {
 
       // To make the action action work, we need to actually have the credential in the app
       await issueIrmaTubeMember(tester, irmaBinding);
-      await tester.tapAndSettle(find.descendant(of: find.byType(YiviThemedButton), matching: find.text('OK')));
+      await tester.tapAndSettle(find.descendant(
+        of: find.byType(YiviThemedButton),
+        matching: find.text('OK'),
+      ));
 
       // Tap the bell, expect a notification screen
       await tester.tapAndSettle(notificationBellFinder);

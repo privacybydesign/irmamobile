@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../widgets/action_feedback.dart';
 
-enum DisclosureFeedbackType { success, canceled, notSatisfiable }
+enum DisclosureFeedbackType {
+  success,
+  canceled,
+  notSatisfiable,
+}
 
 class DisclosureFeedbackScreen extends StatefulWidget {
   static const _translationKeys = {
@@ -23,8 +27,8 @@ class DisclosureFeedbackScreen extends StatefulWidget {
     required this.otherParty,
     required this.onDismiss,
     bool? isSignatureSession,
-  }) : isSignatureSession = isSignatureSession ?? false,
-       _translationKey = _translationKeys[feedbackType];
+  })  : isSignatureSession = isSignatureSession ?? false,
+        _translationKey = _translationKeys[feedbackType];
 
   @override
   State<StatefulWidget> createState() {

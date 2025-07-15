@@ -72,9 +72,7 @@ void main() {
       // Check enabling developer mode.
       await tester.scrollUntilVisible(versionButtonFinder, 100);
       await tester.drag(
-        find.byType(SingleChildScrollView),
-        const Offset(0, -50),
-      ); // To prevent the 'Scan QR' button to overlap.
+          find.byType(SingleChildScrollView), const Offset(0, -50)); // To prevent the 'Scan QR' button to overlap.
       await tester.pumpAndSettle();
 
       await tapVersionButton7Times();
@@ -157,14 +155,15 @@ void main() {
       final questionFinder = find.text('Why does the data in the Yivi app have limited validity?').hitTestable();
       await tester.scrollUntilVisible(questionFinder, -50);
       await tester.tapAndSettle(questionFinder);
-      expect(
-        find.textContaining("That way you can directly show that you're older than 18.").hitTestable(),
-        findsOneWidget,
-      );
+      expect(find.textContaining("That way you can directly show that you're older than 18.").hitTestable(),
+          findsOneWidget);
 
       // Check if the contact link is present
       await tester.scrollUntilVisible(
-        find.descendant(of: find.byType(ContactLink), matching: find.text('Send an e-mail')),
+        find.descendant(
+          of: find.byType(ContactLink),
+          matching: find.text('Send an e-mail'),
+        ),
         75,
       );
     });

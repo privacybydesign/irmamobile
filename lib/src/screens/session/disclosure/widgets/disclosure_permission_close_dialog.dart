@@ -4,8 +4,11 @@ import '../../../../widgets/irma_confirmation_dialog.dart';
 
 class DisclosurePermissionCloseDialog extends StatelessWidget {
   static Future<void> show(BuildContext context, {Function()? onConfirm}) async {
-    final confirmed =
-        await showDialog<bool>(context: context, builder: (context) => DisclosurePermissionCloseDialog()) ?? false;
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => DisclosurePermissionCloseDialog(),
+        ) ??
+        false;
 
     if (!context.mounted) return;
 

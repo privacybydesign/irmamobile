@@ -18,14 +18,21 @@ class Credentials extends UnmodifiableMapView<String, Credential> {
   }) {
     return Credentials(
       rawCredentials.asMap().map<String, Credential>((_, rawCredential) {
-        final credential = Credential.fromRaw(irmaConfiguration: irmaConfiguration, rawCredential: rawCredential);
+        final credential = Credential.fromRaw(
+          irmaConfiguration: irmaConfiguration,
+          rawCredential: rawCredential,
+        );
         return MapEntry(credential.hash, credential);
       }),
     );
   }
 
   Credentials rebuiltRemoveWhere(bool Function(String, Credential) test) {
-    return Credentials(Map.fromEntries(entries.expand((entry) => test(entry.key, entry.value) ? [] : [entry])));
+    return Credentials(
+      Map.fromEntries(
+        entries.expand((entry) => test(entry.key, entry.value) ? [] : [entry]),
+      ),
+    );
   }
 }
 
@@ -73,9 +80,15 @@ class CredentialView implements CredentialInfo {
       if (attrType == null) {
         throw Exception('Attribute type $attrType not present in configuration');
       }
-      return Attribute(attributeType: attrType, value: AttributeValue.fromRaw(attrType, entry.value));
+      return Attribute(
+        attributeType: attrType,
+        value: AttributeValue.fromRaw(attrType, entry.value),
+      );
     });
-    return CredentialView.fromAttributes(irmaConfiguration: irmaConfiguration, attributes: attributes);
+    return CredentialView.fromAttributes(
+      irmaConfiguration: irmaConfiguration,
+      attributes: attributes,
+    );
   }
 
   UnmodifiableListView<Attribute> get attributes => UnmodifiableListView(_attributes);
@@ -128,7 +141,10 @@ class Credential extends CredentialView {
         throw Exception('Attribute type $attrType not present in configuration');
       }
 
-      return Attribute(attributeType: attrType, value: AttributeValue.fromRaw(attrType, entry.value));
+      return Attribute(
+        attributeType: attrType,
+        value: AttributeValue.fromRaw(attrType, entry.value),
+      );
     });
 
     return Credential(

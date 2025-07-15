@@ -9,10 +9,18 @@ class ChoosePinScreen extends StatelessWidget {
   final VoidCallback onPrevious;
   final ValueNotifier<String> newPinNotifier;
 
-  const ChoosePinScreen({required this.onChoosePin, required this.onPrevious, required this.newPinNotifier});
+  const ChoosePinScreen({
+    required this.onChoosePin,
+    required this.onPrevious,
+    required this.newPinNotifier,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return YiviChoosePinScaffold(newPinNotifier: newPinNotifier, submit: onChoosePin, onBack: onPrevious);
+    return YiviChoosePinScaffold(
+      newPinNotifier: newPinNotifier,
+      submit: onChoosePin,
+      onBack: onPrevious,
+    );
   }
 }

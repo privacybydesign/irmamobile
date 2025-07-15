@@ -9,12 +9,16 @@ class HelpItem extends StatelessWidget {
   final String headerTranslationKey;
   final Widget body;
 
-  const HelpItem({required this.parentScrollController, required this.headerTranslationKey, required this.body});
+  const HelpItem({
+    required this.parentScrollController,
+    required this.headerTranslationKey,
+    required this.body,
+  });
 
   @override
   Widget build(BuildContext context) => Collapsible(
-    header: FlutterI18n.translate(context, headerTranslationKey),
-    parentScrollController: parentScrollController,
-    content: body,
-  );
+        header: FlutterI18n.translate(context, headerTranslationKey),
+        parentScrollController: parentScrollController,
+        content: body,
+      );
 }

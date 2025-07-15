@@ -23,7 +23,10 @@ class ChangePinEvent extends ChangePinBaseEvent {
 
 @JsonSerializable()
 class ChangePinErrorEvent extends ChangePinBaseEvent {
-  ChangePinErrorEvent({required this.schemeManagerID, required this.error});
+  ChangePinErrorEvent({
+    required this.schemeManagerID,
+    required this.error,
+  });
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;

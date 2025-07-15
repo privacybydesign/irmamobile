@@ -5,7 +5,9 @@ import '../theme/theme.dart';
 class _YiviProgressIndicatorElement extends StatelessWidget {
   final bool isActive;
 
-  const _YiviProgressIndicatorElement({required this.isActive});
+  const _YiviProgressIndicatorElement({
+    required this.isActive,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,10 @@ class YiviProgressIndicator extends StatelessWidget {
   final int stepIndex;
   final int stepCount;
 
-  const YiviProgressIndicator({required this.stepIndex, required this.stepCount});
+  const YiviProgressIndicator({
+    required this.stepIndex,
+    required this.stepCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +41,9 @@ class YiviProgressIndicator extends StatelessWidget {
         stepCount,
         (int index) => Padding(
           padding: const EdgeInsets.only(right: 6),
-          child: _YiviProgressIndicatorElement(isActive: index == stepIndex),
+          child: _YiviProgressIndicatorElement(
+            isActive: index == stepIndex,
+          ),
         ),
         growable: false,
       ),

@@ -5,7 +5,9 @@ import '../../../widgets/action_feedback.dart';
 class IssuanceSuccessScreen extends StatelessWidget {
   final Function(BuildContext) onDismiss;
 
-  const IssuanceSuccessScreen({required this.onDismiss});
+  const IssuanceSuccessScreen({
+    required this.onDismiss,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -22,7 +22,10 @@ class EnrollmentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
     return BlocProvider(
-      create: (_) => EnrollmentBloc(language: FlutterI18n.currentLocale(context)!.languageCode, repo: repo),
+      create: (_) => EnrollmentBloc(
+        language: FlutterI18n.currentLocale(context)!.languageCode,
+        repo: repo,
+      ),
       child: _ProvidedEnrollmentScreen(repo: repo),
     );
   }
@@ -77,7 +80,9 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
         if (state is EnrollmentChoosePin) {
           return ChoosePinScreen(
             onPrevious: addOnPreviousPressed,
-            onChoosePin: (pin) => addEvent(EnrollmentPinChosen(pin)),
+            onChoosePin: (pin) => addEvent(
+              EnrollmentPinChosen(pin),
+            ),
             newPinNotifier: newPin,
           );
         }
@@ -85,7 +90,9 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
           return ConfirmPinScreen(
             newPinNotifier: newPin,
             onPrevious: addOnPreviousPressed,
-            submitConfirmationPin: (pin) => addEvent(EnrollmentPinConfirmed(pin)),
+            submitConfirmationPin: (pin) => addEvent(
+              EnrollmentPinConfirmed(pin),
+            ),
             onPinMismatch: () {
               showDialog(
                 barrierDismissible: false,
@@ -105,18 +112,27 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             email: state.email,
             onPrevious: addOnPreviousPressed,
             onEmailSkipped: () => addEvent(EnrollmentEmailSkipped()),
-            onEmailProvided: (email) => addEvent(EnrollmentEmailProvided(email)),
+            onEmailProvided: (email) => addEvent(
+              EnrollmentEmailProvided(email),
+            ),
           );
         }
         if (state is EnrollmentEmailSent) {
-          return EmailSentScreen(email: state.email, onContinue: addOnNextPressed);
+          return EmailSentScreen(
+            email: state.email,
+            onContinue: addOnNextPressed,
+          );
         }
         if (state is EnrollmentAcceptTerms) {
           return AcceptTermsScreen(
             isAccepted: state.isAccepted,
             onPrevious: addOnPreviousPressed,
             onContinue: addOnNextPressed,
-            onToggleAccepted: (isAccepted) => addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted)),
+            onToggleAccepted: (isAccepted) => addEvent(
+              EnrollmentTermsUpdated(
+                isAccepted: isAccepted,
+              ),
+            ),
           );
         }
         if (state is EnrollmentFailed) {
@@ -126,7 +142,11 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
           );
         }
         // If state is loading/initial/submitting show centered loading indicator
-        return Scaffold(body: Center(child: LoadingIndicator()));
+        return Scaffold(
+          body: Center(
+            child: LoadingIndicator(),
+          ),
+        );
       },
     );
   }

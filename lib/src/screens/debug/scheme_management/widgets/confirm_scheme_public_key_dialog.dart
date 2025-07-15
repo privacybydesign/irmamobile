@@ -5,7 +5,9 @@ import '../../../../widgets/irma_confirmation_dialog.dart';
 class ConfirmSchemePublicKeyDialog extends StatelessWidget {
   final String publicKey;
 
-  const ConfirmSchemePublicKeyDialog({required this.publicKey});
+  const ConfirmSchemePublicKeyDialog({
+    required this.publicKey,
+  });
 
   @override
   Widget build(BuildContext context) {

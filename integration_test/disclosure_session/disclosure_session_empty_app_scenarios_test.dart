@@ -21,17 +21,29 @@ void main() {
 
     group('empty-app-scenarios', () {
       // Full name AND nationality
-      testWidgets('no-choice', (tester) => noChoiceTest(tester, irmaBinding));
+      testWidgets(
+        'no-choice',
+        (tester) => noChoiceTest(tester, irmaBinding),
+      );
 
       // Email OR your mobile number
-      testWidgets('choice', (tester) => choiceTest(tester, irmaBinding));
+      testWidgets(
+        'choice',
+        (tester) => choiceTest(tester, irmaBinding),
+      );
 
       // Email AND mobile number
-      testWidgets('no-choice-multiple-creds', (tester) => noChoiceMultipleCredsTest(tester, irmaBinding));
+      testWidgets(
+        'no-choice-multiple-creds',
+        (tester) => noChoiceMultipleCredsTest(tester, irmaBinding),
+      );
 
       // Address from multiplicity OR iDIN
       // AND your AGB code (from Nuts)
-      testWidgets('choice-mixed', (tester) => choiceMixedTest(tester, irmaBinding));
+      testWidgets(
+        'choice-mixed',
+        (tester) => choiceMixedTest(tester, irmaBinding),
+      );
 
       // TODO Fix this test
       // // Student/employee id from university OR
@@ -43,14 +55,20 @@ void main() {
 
       // Bank account number from iDeal. BIC has to be RABONL2U. AND
       // Initials, family name and city from iDIN. The city has to be Arnhem
-      testWidgets('specific-attribute-values', (tester) => specificAttributeValuesTest(tester, irmaBinding));
+      testWidgets(
+        'specific-attribute-values',
+        (tester) => specificAttributeValuesTest(tester, irmaBinding),
+      );
 
       // Address from iDIN or municipality
       // And optionally mobile number or e-mail address
       testWidgets('optionals', (tester) => optionalsTest(tester, irmaBinding));
 
       // E-mail address or nothing
-      testWidgets('completely-optional', (tester) => completelyOptionalTest(tester, irmaBinding));
+      testWidgets(
+        'completely-optional',
+        (tester) => completelyOptionalTest(tester, irmaBinding),
+      );
     });
   });
 }

@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
   @Deprecated(
-    "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications",
-  )
+      "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications")
   final double spacing = _spaceBase;
   final double tinySpacing = _spaceBase / 4; // 4
   final double smallSpacing = _spaceBase / 2; // 8
@@ -27,7 +26,7 @@ class IrmaThemeData {
   final Color surfaceSecondary = const Color(0xFFEAF3F9); // Used on cards that are active etc.
   Color surfaceTertiary = const Color(0xffF0DEDE); // Used on cards that expired
 
-  // Grey swatch
+// Grey swatch
   final Color dark = Colors.black;
   final Color neutralExtraDark = const Color(0xFF484747);
   final Color neutralDark = const Color(0xFF757375);
@@ -120,8 +119,18 @@ class IrmaThemeData {
         fontWeight: FontWeight.w400,
         color: neutralExtraDark,
       ),
-      titleLarge: TextStyle(fontSize: 10, height: 16 / 10, fontWeight: FontWeight.w500, color: neutralExtraDark),
-      bodyLarge: TextStyle(fontFamily: secondaryFontFamily, fontSize: 16.0, fontWeight: FontWeight.bold, color: dark),
+      titleLarge: TextStyle(
+        fontSize: 10,
+        height: 16 / 10,
+        fontWeight: FontWeight.w500,
+        color: neutralExtraDark,
+      ),
+      bodyLarge: TextStyle(
+        fontFamily: secondaryFontFamily,
+        fontSize: 16.0,
+        fontWeight: FontWeight.bold,
+        color: dark,
+      ),
       bodyMedium: TextStyle(
         fontFamily: secondaryFontFamily,
         fontSize: 16.0,
@@ -129,10 +138,30 @@ class IrmaThemeData {
         fontWeight: FontWeight.w400,
         color: dark,
       ),
-      labelSmall: TextStyle(fontSize: 12.0, height: 16.0 / 12.0, fontWeight: FontWeight.w600, color: dark),
-      titleMedium: TextStyle(fontSize: 16.0, height: 22.0 / 18.0, fontWeight: FontWeight.normal, color: dark),
-      titleSmall: TextStyle(fontSize: 16.0, height: 22.0 / 16.0, fontWeight: FontWeight.w500, color: dark),
-      bodySmall: TextStyle(fontSize: 14.0, height: 24.0 / 14.0, fontWeight: FontWeight.normal, color: dark),
+      labelSmall: TextStyle(
+        fontSize: 12.0,
+        height: 16.0 / 12.0,
+        fontWeight: FontWeight.w600,
+        color: dark,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 16.0,
+        height: 22.0 / 18.0,
+        fontWeight: FontWeight.normal,
+        color: dark,
+      ),
+      titleSmall: TextStyle(
+        fontSize: 16.0,
+        height: 22.0 / 16.0,
+        fontWeight: FontWeight.w500,
+        color: dark,
+      ),
+      bodySmall: TextStyle(
+        fontSize: 14.0,
+        height: 24.0 / 14.0,
+        fontWeight: FontWeight.normal,
+        color: dark,
+      ),
       labelLarge: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 16,
@@ -145,10 +174,28 @@ class IrmaThemeData {
     //Init Input Decoration Theme
     final inputDecorationTheme = InputDecorationTheme(
       labelStyle: textTheme.labelSmall,
-      enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: secondary, width: 2.0)),
-      errorBorder: UnderlineInputBorder(borderSide: BorderSide(color: error, width: 2.0)),
-      disabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey,
+        ),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: secondary,
+          width: 2.0,
+        ),
+      ),
+      errorBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: error,
+          width: 2.0,
+        ),
+      ),
+      disabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey,
+        ),
+      ),
       errorStyle: textTheme.bodyMedium?.copyWith(color: error),
     );
 
@@ -156,13 +203,20 @@ class IrmaThemeData {
     final appBarTheme = AppBarTheme(
       elevation: 0,
       color: backgroundPrimary,
-      iconTheme: IconThemeData(color: dark),
+      iconTheme: IconThemeData(
+        color: dark,
+      ),
       toolbarTextStyle: textTheme.bodyMedium,
       titleTextStyle: textTheme.titleLarge,
     );
 
     //Init extra textstyles
-    textButtonTextStyle = TextStyle(fontSize: 16.0, height: 19.0 / 16.0, fontWeight: FontWeight.w600, color: secondary);
+    textButtonTextStyle = TextStyle(
+      fontSize: 16.0,
+      height: 19.0 / 16.0,
+      fontWeight: FontWeight.w600,
+      color: secondary,
+    );
     hyperlinkTextStyle = TextStyle(
       fontFamily: secondaryFontFamily,
       fontSize: 16.0,
@@ -172,9 +226,19 @@ class IrmaThemeData {
       decoration: TextDecoration.underline,
     );
 
-    boldBody = TextStyle(fontSize: 16.0, height: 24.0 / 16.0, fontWeight: FontWeight.w600, color: dark);
+    boldBody = TextStyle(
+      fontSize: 16.0,
+      height: 24.0 / 16.0,
+      fontWeight: FontWeight.w600,
+      color: dark,
+    );
 
-    highlightedTextStyle = TextStyle(fontSize: 16.0, height: 19.0 / 16.0, fontWeight: FontWeight.w600, color: primary);
+    highlightedTextStyle = TextStyle(
+      fontSize: 16.0,
+      height: 19.0 / 16.0,
+      fontWeight: FontWeight.w600,
+      color: primary,
+    );
 
     // Init final ThemeData composed of all theme components.
     themeData = ThemeData(
@@ -193,7 +257,10 @@ class IrmaTheme extends InheritedWidget {
   final IrmaThemeData data = IrmaThemeData();
   // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
   // must be wrapped in a Builder.
-  IrmaTheme({super.key, required WidgetBuilder builder}) : super(child: Builder(builder: builder));
+  IrmaTheme({super.key, required WidgetBuilder builder})
+      : super(
+          child: Builder(builder: builder),
+        );
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {

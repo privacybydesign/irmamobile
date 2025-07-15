@@ -10,7 +10,12 @@ class Illustrator extends StatefulWidget {
   final double height;
   final double width;
 
-  const Illustrator({required this.imageSet, required this.textSet, required this.height, required this.width});
+  const Illustrator({
+    required this.imageSet,
+    required this.textSet,
+    required this.height,
+    required this.width,
+  });
 
   @override
   State<Illustrator> createState() => _IllustratorState();
@@ -31,15 +36,11 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
   }
 
   String slideshowAccessibilityDescription(int page) {
-    return FlutterI18n.translate(
-      context,
-      'accessibility.slideshow',
-      translationParams: {
-        'i': (page + 1).toString(),
-        'n': widget.imageSet.length.toString(),
-        'description': widget.textSet[page],
-      },
-    );
+    return FlutterI18n.translate(context, 'accessibility.slideshow', translationParams: {
+      'i': (page + 1).toString(),
+      'n': widget.imageSet.length.toString(),
+      'description': widget.textSet[page],
+    });
   }
 
   @override
@@ -50,9 +51,8 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
       excludeSemantics: true,
       container: true,
       value: slideshowAccessibilityDescription(currentPage),
-      increasedValue: currentPage + 1 < widget.imageSet.length
-          ? slideshowAccessibilityDescription(currentPage + 1)
-          : null,
+      increasedValue:
+          currentPage + 1 < widget.imageSet.length ? slideshowAccessibilityDescription(currentPage + 1) : null,
       decreasedValue: currentPage > 0 ? slideshowAccessibilityDescription(currentPage - 1) : null,
       onIncrease: currentPage + 1 < widget.imageSet.length
           ? () {
@@ -96,22 +96,37 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
               ),
             ),
           ),
-          SizedBox(height: theme.defaultSpacing),
+          SizedBox(
+            height: theme.defaultSpacing,
+          ),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             child: SizedBox(
               width: widget.width,
-              child: Text(widget.textSet[currentPage], key: ValueKey<int>(currentPage), textAlign: TextAlign.center),
+              child: Text(
+                widget.textSet[currentPage],
+                key: ValueKey<int>(currentPage),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
           if (widget.imageSet.length > 1) ...[
-            SizedBox(height: theme.defaultSpacing),
+            SizedBox(
+              height: theme.defaultSpacing,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [YiviProgressIndicator(stepCount: widget.imageSet.length, stepIndex: currentPage)],
+              children: [
+                YiviProgressIndicator(
+                  stepCount: widget.imageSet.length,
+                  stepIndex: currentPage,
+                ),
+              ],
             ),
           ],
-          SizedBox(height: theme.smallSpacing),
+          SizedBox(
+            height: theme.smallSpacing,
+          ),
         ],
       ),
     );

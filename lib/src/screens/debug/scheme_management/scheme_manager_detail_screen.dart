@@ -23,7 +23,9 @@ import '../util/snackbar.dart';
 class SchemeManagerDetailScreen extends StatelessWidget {
   final String schemeManagerId;
 
-  const SchemeManagerDetailScreen(this.schemeManagerId);
+  const SchemeManagerDetailScreen(
+    this.schemeManagerId,
+  );
 
   Future<String?> _requestPin(BuildContext context, String title, String instruction) async {
     final repo = IrmaRepositoryProvider.of(context);
@@ -62,7 +64,9 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       FlutterI18n.translate(
         context,
         'debug.scheme_management.verify_pin.content',
-        translationParams: {'scheme': schemeManagerId},
+        translationParams: {
+          'scheme': schemeManagerId,
+        },
       ),
     );
     if (pin == null) return;
@@ -72,11 +76,12 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     final event = await repo.getEvents().whereType<AuthenticationEvent>().first;
 
     if (event is AuthenticationErrorEvent) {
-      navigator.push(
-        MaterialPageRoute(
-          builder: (context) => ErrorScreen(details: event.error.toString(), onTapClose: () => navigator.pop()),
+      navigator.push(MaterialPageRoute(
+        builder: (context) => ErrorScreen(
+          details: event.error.toString(),
+          onTapClose: () => navigator.pop(),
         ),
-      );
+      ));
     } else {
       if (!context.mounted) return;
       showSnackbar(
@@ -104,7 +109,9 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       FlutterI18n.translate(
         context,
         'debug.scheme_management.request_pin.content',
-        translationParams: {'scheme': schemeManagerId},
+        translationParams: {
+          'scheme': schemeManagerId,
+        },
       ),
     );
     if (pin == null) return;
@@ -128,20 +135,28 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       FlutterI18n.translate(
         context,
         'debug.scheme_management.activating',
-        translationParams: {'scheme': schemeManagerId},
+        translationParams: {
+          'scheme': schemeManagerId,
+        },
       ),
     );
 
     final repo = IrmaRepositoryProvider.of(context);
-    repo.bridgedDispatch(EnrollEvent(email: email, pin: pin, language: language, schemeId: schemeManagerId));
+    repo.bridgedDispatch(EnrollEvent(
+      email: email,
+      pin: pin,
+      language: language,
+      schemeId: schemeManagerId,
+    ));
 
     final event = await repo.getEvents().whereType<EnrollmentEvent>().first;
     if (event is EnrollmentFailureEvent) {
-      navigator.push(
-        MaterialPageRoute(
-          builder: (context) => ErrorScreen(details: event.error.toString(), onTapClose: () => navigator.pop()),
+      navigator.push(MaterialPageRoute(
+        builder: (context) => ErrorScreen(
+          details: event.error.toString(),
+          onTapClose: () => navigator.pop(),
         ),
-      );
+      ));
     } else {
       if (!context.mounted) return;
       showSnackbar(
@@ -149,20 +164,30 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         FlutterI18n.translate(
           context,
           'debug.scheme_management.activate_success',
-          translationParams: {'scheme': schemeManagerId},
+          translationParams: {
+            'scheme': schemeManagerId,
+          },
         ),
       );
     }
   }
 
   void _onDeleteScheme(BuildContext context) {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(RemoveSchemeEvent(schemeId: schemeManagerId));
+    IrmaRepositoryProvider.of(context).bridgedDispatch(RemoveSchemeEvent(
+      schemeId: schemeManagerId,
+    ));
     Navigator.of(context).pop();
 
     if (!context.mounted) return;
     showSnackbar(
       context,
-      FlutterI18n.translate(context, 'debug.scheme_management.remove', translationParams: {'scheme': schemeManagerId}),
+      FlutterI18n.translate(
+        context,
+        'debug.scheme_management.remove',
+        translationParams: {
+          'scheme': schemeManagerId,
+        },
+      ),
     );
   }
 
@@ -172,10 +197,17 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return StreamBuilder<CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>>(
-      stream: combine2(repo.getEnrollmentStatusEvent(), repo.getIrmaConfiguration()),
+      stream: combine2(
+        repo.getEnrollmentStatusEvent(),
+        repo.getIrmaConfiguration(),
+      ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Scaffold(body: Center(child: IrmaProgress()));
+          return Scaffold(
+            body: Center(
+              child: IrmaProgress(),
+            ),
+          );
         }
 
         final enrollmentStatus = snapshot.data!.a;
@@ -212,7 +244,12 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         return Scaffold(
           appBar: IrmaAppBar(
             title: schemeManager.id,
-            actions: [IrmaIconButton(icon: Icons.delete, onTap: () => _onDeleteScheme(context))],
+            actions: [
+              IrmaIconButton(
+                icon: Icons.delete,
+                onTap: () => _onDeleteScheme(context),
+              )
+            ],
           ),
           body: SingleChildScrollView(
             padding: EdgeInsets.all(theme.screenPadding),
@@ -220,7 +257,10 @@ class SchemeManagerDetailScreen extends StatelessWidget {
               children: [
                 // These values are not translated because they are the same in English and Dutch.
                 if (!schemeManager.demo)
-                  ListTile(title: const Text('Status'), trailing: ActiveIndicator(schemeIsActive)),
+                  ListTile(
+                    title: const Text('Status'),
+                    trailing: ActiveIndicator(schemeIsActive),
+                  ),
 
                 ListTile(
                   title: const Text('Type'),
@@ -244,7 +284,10 @@ class SchemeManagerDetailScreen extends StatelessWidget {
                   subtitle: Text(schemeManager.timestampServer.isNotEmpty ? schemeManager.timestampServer : '(none)'),
                 ),
 
-                ListTile(title: const Text('App ID'), subtitle: Text(appId ?? '(none)')),
+                ListTile(
+                  title: const Text('App ID'),
+                  subtitle: Text(appId ?? '(none)'),
+                )
               ],
             ),
           ),

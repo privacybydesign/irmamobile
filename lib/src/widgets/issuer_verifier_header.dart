@@ -27,13 +27,19 @@ class IssuerVerifierHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final title = this.title?.replaceBreakingHyphens() ?? FlutterI18n.translate(context, 'ui.unknown');
+    final title = this.title?.replaceBreakingHyphens() ??
+        FlutterI18n.translate(
+          context,
+          'ui.unknown',
+        );
 
     return IrmaCard(
       color: backgroundColor,
       hasShadow: false,
       padding: EdgeInsets.zero,
-      margin: EdgeInsets.all(theme.smallSpacing),
+      margin: EdgeInsets.all(
+        theme.smallSpacing,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -44,11 +50,16 @@ class IssuerVerifierHeader extends StatelessWidget {
             logoSemanticsLabel: title,
             initials: title != '' ? title[0] : null,
           ),
-          SizedBox(width: theme.smallSpacing),
+          SizedBox(
+            width: theme.smallSpacing,
+          ),
           Flexible(
             child: Text(
               title,
-              style: titleTextStyle ?? theme.textTheme.bodyLarge!.copyWith(color: textColor ?? theme.neutralExtraDark),
+              style: titleTextStyle ??
+                  theme.textTheme.bodyLarge!.copyWith(
+                    color: textColor ?? theme.neutralExtraDark,
+                  ),
             ),
           ),
         ],

@@ -35,13 +35,12 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
         // Check if there is already a notification for this credential
         final CredentialStatusNotification? existingNotification =
             updatedNotifications.firstWhereOrNull((notification) {
-                  if (notification is CredentialStatusNotification) {
-                    return notification.credentialHash == cred.hash;
-                  }
+          if (notification is CredentialStatusNotification) {
+            return notification.credentialHash == cred.hash;
+          }
 
-                  return false;
-                })
-                as CredentialStatusNotification?;
+          return false;
+        }) as CredentialStatusNotification?;
 
         if (existingNotification != null) {
           // If the existing has a different type, remove the old one and add a new one later

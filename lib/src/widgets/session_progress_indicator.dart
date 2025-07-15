@@ -11,9 +11,19 @@ class SessionProgressIndicator extends StatelessWidget {
   final String? contentTranslationKey;
   final Map<String, String>? contentTranslationParams;
 
-  const SessionProgressIndicator({this.step, this.stepCount, this.contentTranslationKey, this.contentTranslationParams})
-    : assert(step == null || stepCount != null, 'A stepCount is required when providing a step'),
-      assert(stepCount == null || step != null, 'A step is required when providing a stepCount');
+  const SessionProgressIndicator({
+    this.step,
+    this.stepCount,
+    this.contentTranslationKey,
+    this.contentTranslationParams,
+  })  : assert(
+          step == null || stepCount != null,
+          'A stepCount is required when providing a step',
+        ),
+        assert(
+          stepCount == null || step != null,
+          'A step is required when providing a stepCount',
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +32,9 @@ class SessionProgressIndicator extends StatelessWidget {
 
     return IrmaCard(
       hasShadow: false,
-      padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+      padding: EdgeInsets.symmetric(
+        vertical: theme.defaultSpacing,
+      ),
       style: IrmaCardStyle.highlighted,
       margin: EdgeInsets.all(theme.defaultSpacing),
       child: Column(
@@ -31,12 +43,20 @@ class SessionProgressIndicator extends StatelessWidget {
           if (showProgress) ...[
             TranslatedText(
               'ui.step_of_steps',
-              translationParams: {'i': step.toString(), 'n': stepCount.toString()},
-              style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14, color: theme.neutralExtraDark),
+              translationParams: {
+                'i': step.toString(),
+                'n': stepCount.toString(),
+              },
+              style: theme.themeData.textTheme.bodyMedium!.copyWith(
+                fontSize: 14,
+                color: theme.neutralExtraDark,
+              ),
             ),
             Padding(
               padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-              child: IrmaLinearProgressIndicator(filledPercentage: step! / stepCount! * 100),
+              child: IrmaLinearProgressIndicator(
+                filledPercentage: step! / stepCount! * 100,
+              ),
             ),
           ],
           if (contentTranslationKey != null)
@@ -46,11 +66,13 @@ class SessionProgressIndicator extends StatelessWidget {
                   child: TranslatedText(
                     contentTranslationKey!,
                     translationParams: contentTranslationParams,
-                    style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark),
+                    style: theme.themeData.textTheme.headlineMedium!.copyWith(
+                      color: theme.dark,
+                    ),
                   ),
-                ),
+                )
               ],
-            ),
+            )
         ],
       ),
     );

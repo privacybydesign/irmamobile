@@ -49,19 +49,27 @@ class AcceptTermsScreen extends StatelessWidget {
                         SizedBox(height: theme.mediumSpacing),
 
                         // Explanation
-                        const TranslatedText('enrollment.terms_and_conditions.explanation', textAlign: TextAlign.start),
+                        const TranslatedText(
+                          'enrollment.terms_and_conditions.explanation',
+                          textAlign: TextAlign.start,
+                        ),
                         SizedBox(height: theme.mediumSpacing),
 
                         TermsBulletList(),
                         const Spacer(),
 
-                        TermsCheckBox(isAccepted: isAccepted, onToggleAccepted: onToggleAccepted),
+                        TermsCheckBox(
+                          isAccepted: isAccepted,
+                          onToggleAccepted: onToggleAccepted,
+                        ),
 
                         // If not in landscape mode, add some spacing
                         if (MediaQuery.of(context).orientation == Orientation.portrait)
-                          SizedBox(height: theme.defaultSpacing),
+                          SizedBox(
+                            height: theme.defaultSpacing,
+                          ),
 
-                        ErrorReportingCheckBox(),
+                        ErrorReportingCheckBox()
                       ],
                     ),
                   ),
@@ -71,7 +79,10 @@ class AcceptTermsScreen extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: EnrollmentNavBar(onPrevious: onPrevious, onContinue: isAccepted ? onContinue : null),
+      bottomNavigationBar: EnrollmentNavBar(
+        onPrevious: onPrevious,
+        onContinue: isAccepted ? onContinue : null,
+      ),
     );
   }
 }

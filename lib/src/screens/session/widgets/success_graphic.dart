@@ -12,5 +12,7 @@ class _SuccessGraphicState extends State<SuccessGraphic> {
   final int randomImageIndex = Random().nextInt(5) + 1;
 
   @override
-  Widget build(BuildContext context) => SvgPicture.asset('assets/success/success_$randomImageIndex.svg');
+  Widget build(BuildContext context) => SvgPicture.asset(
+        'assets/success/success_$randomImageIndex.svg',
+      );
 }

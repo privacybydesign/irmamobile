@@ -25,8 +25,16 @@ class DebugScreen extends StatefulWidget {
 class _DebugScreenState extends State<DebugScreen> {
   late final DebugHelper _debugHelper;
 
-  Widget _buildListTile(IconData icon, String translationKey, {Function()? onTap}) =>
-      ListTile(leading: Icon(icon), title: TranslatedText(translationKey), onTap: onTap);
+  Widget _buildListTile(
+    IconData icon,
+    String translationKey, {
+    Function()? onTap,
+  }) =>
+      ListTile(
+        leading: Icon(icon),
+        title: TranslatedText(translationKey),
+        onTap: onTap,
+      );
 
   @override
   initState() {
@@ -40,8 +48,10 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   Future<void> _deleteAllDeletableCards(IrmaRepository repo) async {
-    final confirmed =
-        await showDialog<bool>(context: context, builder: (context) => DeleteAllCredentialsConfirmationDialog()) ??
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => DeleteAllCredentialsConfirmationDialog(),
+        ) ??
         false;
 
     if (!confirmed) return;
@@ -57,15 +67,25 @@ class _DebugScreenState extends State<DebugScreen> {
     }
 
     if (!mounted) return;
-    showSnackbar(context, FlutterI18n.translate(context, 'debug.delete_credentials.success'));
+    showSnackbar(
+      context,
+      FlutterI18n.translate(context, 'debug.delete_credentials.success'),
+    );
   }
 
   void _onOpenSchemeManagement() async {
-    final confirmed =
-        await showDialog<bool>(context: context, builder: (context) => SchemeManagementWarningDialog()) ?? false;
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => SchemeManagementWarningDialog(),
+        ) ??
+        false;
 
     if (confirmed && mounted) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => SchemeManagementScreen()));
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SchemeManagementScreen(),
+        ),
+      );
     }
   }
 
@@ -74,10 +94,16 @@ class _DebugScreenState extends State<DebugScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
-      appBar: const IrmaAppBar(titleTranslationKey: 'debug.title'),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'debug.title',
+      ),
       body: ListView(
         children: [
-          _buildListTile(Icons.list_alt, 'debug.scheme_management.title', onTap: _onOpenSchemeManagement),
+          _buildListTile(
+            Icons.list_alt,
+            'debug.scheme_management.title',
+            onTap: _onOpenSchemeManagement,
+          ),
           _buildListTile(
             Icons.badge,
             'debug.issue_digid',
@@ -97,18 +123,27 @@ class _DebugScreenState extends State<DebugScreen> {
           _buildListTile(
             Icons.play_arrow,
             'debug.custom_issue_wizard',
-            onTap: () => handlePointer(context, IssueWizardPointer('irma-demo-requestors.ivido.demo-client')),
+            onTap: () => handlePointer(
+              context,
+              IssueWizardPointer('irma-demo-requestors.ivido.demo-client'),
+            ),
           ),
           _buildListTile(
             Icons.share,
             'debug.start_session',
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => SessionHelperScreen(initialRequest: DebugHelper.disclosureSessionRequest()),
+                builder: (context) => SessionHelperScreen(
+                  initialRequest: DebugHelper.disclosureSessionRequest(),
+                ),
               ),
             ),
           ),
-          _buildListTile(Icons.delete, 'debug.delete_credentials.delete', onTap: () => _deleteAllDeletableCards(repo)),
+          _buildListTile(
+            Icons.delete,
+            'debug.delete_credentials.delete',
+            onTap: () => _deleteAllDeletableCards(repo),
+          ),
         ],
       ),
     );

@@ -1,1 +1,5 @@
-enum EnrollmentStatus { undetermined, unenrolled, enrolled }
+enum EnrollmentStatus {
+  undetermined,
+  unenrolled,
+  enrolled,
+}

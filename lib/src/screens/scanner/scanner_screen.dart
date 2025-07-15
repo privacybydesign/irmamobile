@@ -75,7 +75,11 @@ class ScannerScreenState extends State<ScannerScreen> {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
-      appBar: isLandscape ? null : const IrmaAppBar(titleTranslationKey: 'qr_scanner.title'),
+      appBar: isLandscape
+          ? null
+          : const IrmaAppBar(
+              titleTranslationKey: 'qr_scanner.title',
+            ),
       body: _buildBody(isLandscape),
     );
   }
@@ -94,6 +98,9 @@ class ScannerScreenState extends State<ScannerScreen> {
       return Container();
     }
 
-    return QRScanner(key: _qrKey, onFound: (code) => onQrScanned(code));
+    return QRScanner(
+      key: _qrKey,
+      onFound: (code) => onQrScanned(code),
+    );
   }
 }

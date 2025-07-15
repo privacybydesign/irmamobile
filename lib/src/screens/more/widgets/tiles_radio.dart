@@ -10,7 +10,12 @@ class RadioTilesCard extends StatefulWidget {
   final Function(int index) onChanged;
   final int? defaultSelectedIndex;
 
-  const RadioTilesCard({super.key, required this.options, required this.onChanged, this.defaultSelectedIndex});
+  const RadioTilesCard({
+    super.key,
+    required this.options,
+    required this.onChanged,
+    this.defaultSelectedIndex,
+  });
 
   @override
   State<RadioTilesCard> createState() => _RadioTilesCardState();
@@ -40,7 +45,11 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
             (i, option) => Tile(
               labelTranslationKey: option,
               onTap: () => _onChangeOptions(i),
-              trailing: i == _selectedIndex ? const Icon(Icons.check) : const SizedBox(),
+              trailing: i == _selectedIndex
+                  ? const Icon(
+                      Icons.check,
+                    )
+                  : const SizedBox(),
             ),
           )
           .toList(growable: false),

@@ -4,7 +4,11 @@ import 'package:flutter_svg/svg.dart';
 import '../theme/theme.dart';
 import 'translated_text.dart';
 
-enum YiviButtonStyle { fancy, outlined, filled }
+enum YiviButtonStyle {
+  fancy,
+  outlined,
+  filled,
+}
 
 class YiviButtonSize {
   final double _value;
@@ -30,26 +34,40 @@ class YiviThemedButton extends StatelessWidget {
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
-  }) : assert(!isTransparent || style != YiviButtonStyle.fancy, 'Fancy button cannot be transparent');
+  }) : assert(
+          !isTransparent || style != YiviButtonStyle.fancy,
+          'Fancy button cannot be transparent',
+        );
 
   Widget _buildFancyButton(Widget child) => Stack(
-    children: [
-      Positioned.fill(
-        bottom: 0.0,
-        child: ExcludeSemantics(
-          child: SvgPicture.asset('assets/ui/btn-bg.svg', alignment: Alignment.center, fit: BoxFit.fill),
-        ),
-      ),
-      Positioned.fill(
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(onTap: onPressed, child: child),
-        ),
-      ),
-    ],
-  );
+        children: [
+          Positioned.fill(
+            bottom: 0.0,
+            child: ExcludeSemantics(
+              child: SvgPicture.asset(
+                'assets/ui/btn-bg.svg',
+                alignment: Alignment.center,
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: onPressed,
+                child: child,
+              ),
+            ),
+          ),
+        ],
+      );
 
-  Widget _buildNormalButton(Widget child, IrmaThemeData theme, BorderRadiusGeometry borderRadius) {
+  Widget _buildNormalButton(
+    Widget child,
+    IrmaThemeData theme,
+    BorderRadiusGeometry borderRadius,
+  ) {
     return Material(
       color: isTransparent ? Colors.transparent : theme.light,
       child: InkWell(
@@ -57,11 +75,18 @@ class YiviThemedButton extends StatelessWidget {
         child: Ink(
           decoration: style == YiviButtonStyle.filled
               // Filled button
-              ? BoxDecoration(color: isTransparent ? null : theme.secondary, borderRadius: borderRadius)
+              ? BoxDecoration(
+                  color: isTransparent ? null : theme.secondary,
+                  borderRadius: borderRadius,
+                )
               // Outlined button
               : BoxDecoration(
                   borderRadius: borderRadius,
-                  border: Border.all(width: 1.7, style: BorderStyle.solid, color: theme.neutralExtraDark),
+                  border: Border.all(
+                    width: 1.7,
+                    style: BorderStyle.solid,
+                    color: theme.neutralExtraDark,
+                  ),
                 ),
           child: child,
         ),
@@ -73,7 +98,9 @@ class YiviThemedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    const borderRadius = BorderRadius.all(Radius.circular(8));
+    const borderRadius = BorderRadius.all(
+      Radius.circular(8),
+    );
 
     double buttonHeight = size.value;
     double? buttonWidth;
@@ -83,14 +110,19 @@ class YiviThemedButton extends StatelessWidget {
 
     TextStyle baseTextStyle = theme.textTheme.labelLarge!;
     if (size == YiviButtonSize.small) {
-      baseTextStyle = baseTextStyle.copyWith(fontFamily: theme.secondaryFontFamily, fontSize: 14);
+      baseTextStyle = baseTextStyle.copyWith(
+        fontFamily: theme.secondaryFontFamily,
+        fontSize: 14,
+      );
     }
 
     final centeredTextWidget = Center(
       child: TranslatedText(
         label,
         textAlign: TextAlign.center,
-        style: baseTextStyle.copyWith(color: style == YiviButtonStyle.outlined ? theme.neutralExtraDark : theme.light),
+        style: baseTextStyle.copyWith(
+          color: style == YiviButtonStyle.outlined ? theme.neutralExtraDark : theme.light,
+        ),
       ),
     );
 
@@ -103,7 +135,11 @@ class YiviThemedButton extends StatelessWidget {
           borderRadius: borderRadius,
           child: style == YiviButtonStyle.fancy
               ? _buildFancyButton(centeredTextWidget)
-              : _buildNormalButton(centeredTextWidget, theme, borderRadius),
+              : _buildNormalButton(
+                  centeredTextWidget,
+                  theme,
+                  borderRadius,
+                ),
         ),
       ),
     );
@@ -111,7 +147,10 @@ class YiviThemedButton extends StatelessWidget {
     // Grey out button if it's disabled
     if (onPressed == null) {
       buttonWidget = ColorFiltered(
-        colorFilter: ColorFilter.mode(Colors.white.withAlpha(128), BlendMode.modulate),
+        colorFilter: ColorFilter.mode(
+          Colors.white.withAlpha(128),
+          BlendMode.modulate,
+        ),
         child: buttonWidget,
       );
     }

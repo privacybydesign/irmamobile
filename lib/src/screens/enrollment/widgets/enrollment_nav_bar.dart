@@ -7,7 +7,11 @@ class EnrollmentNavBar extends StatelessWidget {
   final VoidCallback? onPrevious;
   final VoidCallback? onContinue;
 
-  const EnrollmentNavBar({super.key, this.onPrevious, this.onContinue});
+  const EnrollmentNavBar({
+    super.key,
+    this.onPrevious,
+    this.onContinue,
+  });
 
   @override
   Widget build(BuildContext context) {

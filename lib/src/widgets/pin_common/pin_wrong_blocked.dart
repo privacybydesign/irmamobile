@@ -9,7 +9,10 @@ class PinWrongBlockedDialog extends StatelessWidget {
   final void Function()? onClose;
   final int blocked;
 
-  const PinWrongBlockedDialog({required this.blocked, this.onClose}) : assert(blocked > 0);
+  const PinWrongBlockedDialog({
+    required this.blocked,
+    this.onClose,
+  }) : assert(blocked > 0);
 
   @override
   Widget build(BuildContext context) {

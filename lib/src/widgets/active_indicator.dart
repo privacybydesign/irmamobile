@@ -5,7 +5,9 @@ import '../theme/theme.dart';
 class ActiveIndicator extends StatelessWidget {
   final bool isActive;
 
-  const ActiveIndicator(this.isActive);
+  const ActiveIndicator(
+    this.isActive,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +17,10 @@ class ActiveIndicator extends StatelessWidget {
     return Container(
       width: 8,
       height: 8,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+      ),
     );
   }
 }

@@ -7,7 +7,9 @@ import '../../widgets/irma_info_scaffold_body.dart';
 class RootedWarningScreen extends StatelessWidget {
   final VoidCallback? onAcceptRiskButtonPressed;
 
-  const RootedWarningScreen({this.onAcceptRiskButtonPressed});
+  const RootedWarningScreen({
+    this.onAcceptRiskButtonPressed,
+  });
 
   @override
   Widget build(BuildContext context) {

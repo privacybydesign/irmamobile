@@ -25,7 +25,12 @@ class DisclosurePermission extends StatelessWidget {
   final RequestorInfo requestor;
   final ReturnURL? returnURL;
 
-  const DisclosurePermission({required this.sessionId, required this.repo, required this.requestor, this.returnURL});
+  const DisclosurePermission({
+    required this.sessionId,
+    required this.repo,
+    required this.requestor,
+    this.returnURL,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +41,10 @@ class DisclosurePermission extends StatelessWidget {
         onObtainCredential: (CredentialType credType) =>
             IrmaRepositoryProvider.of(context).openIssueURL(context, credType.fullId),
       ),
-      child: ProvidedDisclosurePermission(requestor, returnURL),
+      child: ProvidedDisclosurePermission(
+        requestor,
+        returnURL,
+      ),
     );
   }
 }
@@ -45,7 +53,10 @@ class ProvidedDisclosurePermission extends StatelessWidget {
   final RequestorInfo requestor;
   final ReturnURL? returnURL;
 
-  const ProvidedDisclosurePermission(this.requestor, this.returnURL);
+  const ProvidedDisclosurePermission(
+    this.requestor,
+    this.returnURL,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +108,10 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                 }
 
                 if (state is DisclosurePermissionIntroduction) {
-                  return DisclosurePermissionIntroductionScreen(onEvent: addEvent, onDismiss: onDismiss);
+                  return DisclosurePermissionIntroductionScreen(
+                    onEvent: addEvent,
+                    onDismiss: onDismiss,
+                  );
                 } else if (state is DisclosurePermissionIssueWizard) {
                   return DisclosurePermissionIssueWizardScreen(
                     requestor: requestor,
@@ -106,7 +120,10 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                     onDismiss: onDismiss,
                   );
                 } else if (state is DisclosurePermissionMakeChoice) {
-                  return DisclosurePermissionMakeChoiceScreen(state: state, onEvent: addEvent);
+                  return DisclosurePermissionMakeChoiceScreen(
+                    state: state,
+                    onEvent: addEvent,
+                  );
                 } else if (state is DisclosurePermissionObtainCredentials) {
                   return DisclosurePermissionObtainCredentialsScreen(
                     state: state,
@@ -131,7 +148,11 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                 }
 
                 // If state is loading/initial show centered loading indicator
-                return Scaffold(body: Center(child: LoadingIndicator()));
+                return Scaffold(
+                  body: Center(
+                    child: LoadingIndicator(),
+                  ),
+                );
               },
             ),
           ),

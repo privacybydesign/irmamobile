@@ -23,8 +23,14 @@ class ChangeLanguageRadio extends StatelessWidget {
     return RadioTilesCard(
       key: const Key('language_select'),
       onChanged: (i) => _onChangedLanguage(i, prefs),
-      defaultSelectedIndex: supportedLocales.indexWhere((locale) => locale.languageCode == lang),
-      options: supportedLocales.map((locale) => locale.languageName()).toList(),
+      defaultSelectedIndex: supportedLocales.indexWhere(
+        (locale) => locale.languageCode == lang,
+      ),
+      options: supportedLocales
+          .map(
+            (locale) => locale.languageName(),
+          )
+          .toList(),
     );
   }
 }

@@ -3,7 +3,11 @@ class VersionInformation {
   final int requiredVersion;
   final int availableVersion;
 
-  VersionInformation({required this.availableVersion, required this.requiredVersion, required this.currentVersion});
+  VersionInformation({
+    required this.availableVersion,
+    required this.requiredVersion,
+    required this.currentVersion,
+  });
 
   bool updateAvailable() {
     return availableVersion > currentVersion;

@@ -32,7 +32,11 @@ class AddDataQuestions extends StatelessWidget {
     if (showDisclosureInfo) {
       markdown = '${FlutterI18n.translate(context, 'data.add.details.disclosure_info_markdown')}\n\n';
     }
-    markdown = markdown + getTranslation(context, bodyText).replaceAll('\\n', '\n\n');
+    markdown = markdown +
+        getTranslation(context, bodyText).replaceAll(
+          '\\n',
+          '\n\n',
+        );
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
@@ -40,7 +44,12 @@ class AddDataQuestions extends StatelessWidget {
         initiallyExpanded: initiallyExpanded,
         header: FlutterI18n.translate(context, headerTranslationKey),
         parentScrollController: parentScrollController,
-        content: SizedBox(width: double.infinity, child: IrmaMarkdown(markdown)),
+        content: SizedBox(
+          width: double.infinity,
+          child: IrmaMarkdown(
+            markdown,
+          ),
+        ),
       ),
     );
   }

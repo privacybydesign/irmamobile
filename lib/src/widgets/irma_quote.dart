@@ -10,9 +10,19 @@ class IrmaQuote extends StatelessWidget {
   final RichText? richQuote;
   final Color? color;
 
-  const IrmaQuote({super.key, this.quote, this.richQuote, this.color})
-    : assert(quote != null || richQuote != null, 'No quote given. Set quote or richQuote.'),
-      assert(quote == null || richQuote == null, 'Either set quote or richQuote, not both.');
+  const IrmaQuote({
+    super.key,
+    this.quote,
+    this.richQuote,
+    this.color,
+  })  : assert(
+          quote != null || richQuote != null,
+          'No quote given. Set quote or richQuote.',
+        ),
+        assert(
+          quote == null || richQuote == null,
+          'Either set quote or richQuote, not both.',
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +41,16 @@ class IrmaQuote extends StatelessWidget {
                     styleSheet: MarkdownStyleSheet.fromTheme(
                       ThemeData(
                         textTheme: TextTheme(
-                          bodyMedium: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.normal),
+                          bodyMedium: theme.textTheme.bodyMedium!.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ),
                     ),
                   )
                 : richQuote!,
-          ),
+          )
         ],
       ),
     );

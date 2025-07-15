@@ -43,7 +43,10 @@ Future<void> main() async {
 class IrmaApp extends ConsumerWidget {
   final Locale? defaultLanguage;
 
-  const IrmaApp({super.key, this.defaultLanguage});
+  const IrmaApp({
+    super.key,
+    this.defaultLanguage,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,7 +77,11 @@ class IrmaApp extends ConsumerWidget {
               // If there is no preferred locale and no default locale,
               // appLocale will be null and the system locale will be used
 
-              return App(irmaRepository: repository, forcedLocale: appLocale, notificationsBloc: notificationsBloc);
+              return App(
+                irmaRepository: repository,
+                forcedLocale: appLocale,
+                notificationsBloc: notificationsBloc,
+              );
             },
           ),
         ),

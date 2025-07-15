@@ -42,11 +42,17 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   expect(disConStepperFinder, findsOneWidget);
 
   // The discon stepper should have one choice
-  final choiceFinder = find.descendant(of: disConStepperFinder, matching: find.byType(DisclosurePermissionChoice));
+  final choiceFinder = find.descendant(
+    of: disConStepperFinder,
+    matching: find.byType(DisclosurePermissionChoice),
+  );
   expect(choiceFinder, findsOneWidget);
 
   // The choice should consist of two cards
-  final choiceCardsFinder = find.descendant(of: choiceFinder, matching: find.byType(IrmaCredentialCard));
+  final choiceCardsFinder = find.descendant(
+    of: choiceFinder,
+    matching: find.byType(IrmaCredentialCard),
+  );
   expect(choiceCardsFinder, findsNWidgets(2));
 
   // First card in the choice should be selected
@@ -100,7 +106,10 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   expect(choiceFinder, findsNothing);
 
   // Now the discon stepper should consist of two cards
-  final disConCardsFinder = find.descendant(of: disConStepperFinder, matching: find.byType(IrmaCredentialCard));
+  final disConCardsFinder = find.descendant(
+    of: disConStepperFinder,
+    matching: find.byType(IrmaCredentialCard),
+  );
   expect(disConCardsFinder, findsNWidgets(2));
 
   // Now only the second discon card should be highlighted
@@ -126,7 +135,9 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // Obtain the data from Nuts
-  await issueCredentials(tester, irmaBinding, {'irma-demo.nuts.agb.agbcode': '7722255556'});
+  await issueCredentials(tester, irmaBinding, {
+    'irma-demo.nuts.agb.agbcode': '7722255556',
+  });
 
   // Issue wizard should be completed
   expect(find.text('All required data has been added'), findsOneWidget);

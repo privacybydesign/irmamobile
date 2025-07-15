@@ -8,7 +8,11 @@ class SchemeManagerTile extends StatelessWidget {
   final bool? isActive;
   final Function()? onTap;
 
-  const SchemeManagerTile({required this.schemeManager, required this.isActive, this.onTap});
+  const SchemeManagerTile({
+    required this.schemeManager,
+    required this.isActive,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {

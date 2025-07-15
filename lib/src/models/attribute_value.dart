@@ -46,7 +46,10 @@ class TextValue implements AttributeValue {
   // A raw TextValue is received as TranslatedValue.
   factory TextValue.fromRaw(TranslatedValue rawAttribute) {
     if (!rawAttribute.hasTranslation('')) throw Exception('No raw value could be found');
-    return TextValue(translated: rawAttribute, raw: rawAttribute.translate(''));
+    return TextValue(
+      translated: rawAttribute,
+      raw: rawAttribute.translate(''),
+    );
   }
 
   TranslatedValue toRaw() => TranslatedValue.fromJson({...translated.toJson(), '': raw});
@@ -64,7 +67,10 @@ class PhotoValue implements AttributeValue {
   factory PhotoValue.fromRaw(TranslatedValue rawAttribute) {
     final textValue = TextValue.fromRaw(rawAttribute);
     return PhotoValue(
-      image: Image.memory(const Base64Decoder().convert(textValue.raw), fit: BoxFit.fitWidth),
+      image: Image.memory(
+        const Base64Decoder().convert(textValue.raw),
+        fit: BoxFit.fitWidth,
+      ),
       raw: textValue.raw,
     );
   }
@@ -86,9 +92,15 @@ class YesNoValue implements TextValue {
     // flutter_i18n does not provide access to its strings directly, and we
     // don't have a buildcontext here, so this is the least worst option.
     if (raw.toLowerCase() == 'yes' || raw.toLowerCase() == 'ja') {
-      return const TranslatedValue({'en': 'Yes', 'nl': 'Ja'});
+      return const TranslatedValue({
+        'en': 'Yes',
+        'nl': 'Ja',
+      });
     } else if (raw.toLowerCase() == 'no' || raw.toLowerCase() == 'nee') {
-      return const TranslatedValue({'en': 'No', 'nl': 'Nee'});
+      return const TranslatedValue({
+        'en': 'No',
+        'nl': 'Nee',
+      });
     } else {
       return textValue.translated;
     }

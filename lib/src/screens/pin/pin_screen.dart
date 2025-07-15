@@ -22,7 +22,12 @@ class PinScreen extends StatefulWidget {
   final Function() onAuthenticated;
   final Widget? leading;
 
-  const PinScreen({super.key, required this.onAuthenticated, this.initialEvent, this.leading});
+  const PinScreen({
+    super.key,
+    required this.onAuthenticated,
+    this.initialEvent,
+    this.leading,
+  });
 
   @override
   State<PinScreen> createState() => _PinScreenState();
@@ -113,7 +118,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     }
     showDialog(
       context: context,
-      builder: (context) => PinWrongBlockedDialog(blocked: secondsBlocked),
+      builder: (context) => PinWrongBlockedDialog(
+        blocked: secondsBlocked,
+      ),
     );
   }
 
@@ -121,16 +128,14 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     if (!mounted) {
       return;
     }
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => SessionErrorScreen(
-          error: pinState.error,
-          onTapClose: () {
-            Navigator.of(context).pop();
-          },
-        ),
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => SessionErrorScreen(
+        error: pinState.error,
+        onTapClose: () {
+          Navigator.of(context).pop();
+        },
       ),
-    );
+    ));
   }
 
   @override
@@ -161,7 +166,11 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         }
 
         return YiviPinScaffold(
-          appBar: IrmaAppBar(title: '', hasBorder: false, leading: widget.leading),
+          appBar: IrmaAppBar(
+            title: '',
+            hasBorder: false,
+            leading: widget.leading,
+          ),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),
             builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
@@ -182,7 +191,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                   final enabled = (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
 
                   void submit(String pin) {
-                    _pinBloc.add(Unlock(pin: pin, repo: IrmaRepositoryProvider.of(context)));
+                    _pinBloc.add(
+                      Unlock(pin: pin, repo: IrmaRepositoryProvider.of(context)),
+                    );
                   }
 
                   return Stack(

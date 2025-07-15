@@ -28,7 +28,9 @@ void main() {
     testWidgets('issue-wizard', (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
-      await irmaBinding.repository.startTestIssueWizard('irma-demo-requestors.ivido.demo-client');
+      await irmaBinding.repository.startTestIssueWizard(
+        'irma-demo-requestors.ivido.demo-client',
+      );
 
       // This takes quite some time
       await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -41,7 +43,13 @@ void main() {
       expect(headerFinder, findsOneWidget);
 
       // Expect the header with the right text
-      expect(find.descendant(of: headerFinder, matching: find.text('Ivido PHE')), findsOneWidget);
+      expect(
+        find.descendant(
+          of: headerFinder,
+          matching: find.text('Ivido PHE'),
+        ),
+        findsOneWidget,
+      );
 
       // Expect the right background color from Ivido
       final headerWidget = headerFinder.evaluate().first.widget as IssuerVerifierHeader;
@@ -75,17 +83,27 @@ void main() {
         // Somehow there are two scrollables on the screen, we need to target the last one when scrolling.
         final lastScrollableFinder = find.byType(Scrollable).last;
 
-        await tester.scrollUntilVisible(collapsibleFinder, 100, scrollable: lastScrollableFinder);
+        await tester.scrollUntilVisible(
+          collapsibleFinder,
+          100,
+          scrollable: lastScrollableFinder,
+        );
 
         // Expect the question text to be present on this collapsible
-        final questionFinder = find.descendant(of: collapsibleFinder, matching: find.text(question).hitTestable());
+        final questionFinder = find.descendant(
+          of: collapsibleFinder,
+          matching: find.text(question).hitTestable(),
+        );
         expect(questionFinder, findsOneWidget);
 
         // Unfold answer.
         await tester.tapAndSettle(questionFinder);
 
         // The collapsible should have IrmaMarkdown as content
-        final markDownFinder = find.descendant(of: collapsibleFinder, matching: find.byType(IrmaMarkdown));
+        final markDownFinder = find.descendant(
+          of: collapsibleFinder,
+          matching: find.byType(IrmaMarkdown),
+        );
         expect(markDownFinder, findsOneWidget);
 
         // Because markdown is hard to test we compare the expected markdown with the markdown in the widget
@@ -102,35 +120,64 @@ void main() {
 
       // Check the progress indicator
       final progressIndicatorFinder = find.byType(SessionProgressIndicator);
-      expect(find.descendant(of: progressIndicatorFinder, matching: find.text('Step 1 of 2')), findsOneWidget);
+      expect(
+        find.descendant(
+          of: progressIndicatorFinder,
+          matching: find.text('Step 1 of 2'),
+        ),
+        findsOneWidget,
+      );
 
       // Expect stepper with two cards
       final stepperFinder = find.byType(IrmaStepper);
       expect(stepperFinder, findsOneWidget);
 
-      final stepperCardsFinder = find.descendant(of: stepperFinder, matching: find.byType(IrmaCard));
+      final stepperCardsFinder = find.descendant(
+        of: stepperFinder,
+        matching: find.byType(IrmaCard),
+      );
       expect(stepperCardsFinder, findsNWidgets(2));
 
       // Expect the right content on the first card
-      expect(tester.getAllText(stepperCardsFinder.first), [
-        'Demo Personal data',
-        'Retrieve your personal data from the dutch personal records database ("Basis Registratie Personen", BRP). You do this with DigiD. You need this information to show who you are.',
-      ]);
+      expect(
+        tester.getAllText(stepperCardsFinder.first),
+        [
+          'Demo Personal data',
+          'Retrieve your personal data from the dutch personal records database ("Basis Registratie Personen", BRP). You do this with DigiD. You need this information to show who you are.',
+        ],
+      );
 
       // Expect the right content on the second card
-      expect(tester.getAllText(stepperCardsFinder.at(1)), [
-        'Demo Ivido Login',
-        'Retrieve your Ivido login pass. This way you can log at Ivido in easily and safely.',
-      ]);
+      expect(
+        tester.getAllText(stepperCardsFinder.at(1)),
+        [
+          'Demo Ivido Login',
+          'Retrieve your Ivido login pass. This way you can log at Ivido in easily and safely.',
+        ],
+      );
 
       // Retrieve the demo personal data
-      await issueMunicipalityPersonalData(tester, irmaBinding, continueOnSecondDevice: false);
+      await issueMunicipalityPersonalData(
+        tester,
+        irmaBinding,
+        continueOnSecondDevice: false,
+      );
 
       // Check the progress indicator again
-      expect(find.descendant(of: progressIndicatorFinder, matching: find.text('Step 2 of 2')), findsOneWidget);
+      expect(
+        find.descendant(
+          of: progressIndicatorFinder,
+          matching: find.text('Step 2 of 2'),
+        ),
+        findsOneWidget,
+      );
 
       // Issue the Ivido login card.
-      await issueDemoIvidoLogin(tester, irmaBinding, continueOnSecondDevice: false);
+      await issueDemoIvidoLogin(
+        tester,
+        irmaBinding,
+        continueOnSecondDevice: false,
+      );
 
       // Press OK and complete the issue wizard
       await tester.tapAndSettle(find.text('OK'));

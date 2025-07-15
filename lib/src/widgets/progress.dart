@@ -16,8 +16,14 @@ class IrmaProgress extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           LoadingIndicator(),
-          SizedBox(height: theme.defaultSpacing),
-          TranslatedText('ui.loading', style: theme.textTheme.displaySmall, textAlign: TextAlign.center),
+          SizedBox(
+            height: theme.defaultSpacing,
+          ),
+          TranslatedText(
+            'ui.loading',
+            style: theme.textTheme.displaySmall,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

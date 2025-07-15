@@ -45,7 +45,9 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: widget.categoryName),
+      appBar: IrmaAppBar(
+        titleTranslationKey: widget.categoryName,
+      ),
       body: switch (credentials) {
         AsyncData(:final value) => _buildCredentialsList(value),
         AsyncError(:final error) => Center(child: Text(error.toString())),
@@ -60,12 +62,16 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
       height: double.infinity,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+        padding: EdgeInsets.symmetric(
+          horizontal: theme.defaultSpacing,
+        ),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: theme.mediumSpacing),
+              SizedBox(
+                height: theme.mediumSpacing,
+              ),
               ...credentials.map(
                 (cred) => IrmaCredentialCard.fromCredential(
                   cred,
@@ -73,17 +79,21 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
                       // Credential must either be reobtainable or deletable
                       // for the options bottom sheet to be accessible
                       cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
-                      ? null
-                      : Transform.translate(
-                          offset: Offset(theme.smallSpacing, -10),
-                          child: IconButton(
-                            onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
-                            icon: const Icon(Icons.more_horiz_sharp),
-                          ),
-                        ),
+                          ? null
+                          : Transform.translate(
+                              offset: Offset(theme.smallSpacing, -10),
+                              child: IconButton(
+                                onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
+                                icon: const Icon(
+                                  Icons.more_horiz_sharp,
+                                ),
+                              ),
+                            ),
                 ),
               ),
-              SizedBox(height: theme.mediumSpacing),
+              SizedBox(
+                height: theme.mediumSpacing,
+              ),
             ],
           ),
         ),
@@ -112,8 +122,11 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
   }
 
   Future<void> _showConfirmDeleteDialog(BuildContext context, Credential credential) async {
-    final confirmed =
-        await showDialog<bool>(context: context, builder: (context) => DeleteCredentialConfirmationDialog()) ?? false;
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => DeleteCredentialConfirmationDialog(),
+        ) ??
+        false;
     if (confirmed && context.mounted) {
       _deleteCredential(context, credential);
       _showDeletedSnackbar();
@@ -122,7 +135,9 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
 
   void _deleteCredential(BuildContext context, Credential credential) {
     if (!credential.info.credentialType.disallowDelete) {
-      IrmaRepositoryProvider.of(context).bridgedDispatch(DeleteCredentialEvent(hash: credential.hash));
+      IrmaRepositoryProvider.of(context).bridgedDispatch(
+        DeleteCredentialEvent(hash: credential.hash),
+      );
     }
   }
 
@@ -132,7 +147,9 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
       SnackBar(
         content: TranslatedText(
           'credential.options.delete_success',
-          style: theme.themeData.textTheme.bodyMedium!.copyWith(color: theme.light),
+          style: theme.themeData.textTheme.bodyMedium!.copyWith(
+            color: theme.light,
+          ),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: theme.themeData.colorScheme.secondary,

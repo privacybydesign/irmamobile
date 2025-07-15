@@ -8,7 +8,10 @@ class EnrollmentFailedScreen extends StatelessWidget {
   final VoidCallback onPrevious;
   final VoidCallback onRetryEnrollment;
 
-  const EnrollmentFailedScreen({required this.onPrevious, required this.onRetryEnrollment});
+  const EnrollmentFailedScreen({
+    required this.onPrevious,
+    required this.onRetryEnrollment,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +20,13 @@ class EnrollmentFailedScreen extends StatelessWidget {
         titleTranslationKey: 'ui.error',
         leading: YiviBackButton(onTap: onPrevious),
       ),
-      bottomNavigationBar: IrmaBottomBar(primaryButtonLabel: 'ui.retry', onPrimaryPressed: onRetryEnrollment),
-      body: const IrmaErrorScaffoldBody(type: ErrorType.general),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: 'ui.retry',
+        onPrimaryPressed: onRetryEnrollment,
+      ),
+      body: const IrmaErrorScaffoldBody(
+        type: ErrorType.general,
+      ),
     );
   }
 }

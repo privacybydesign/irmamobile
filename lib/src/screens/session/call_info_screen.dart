@@ -14,7 +14,11 @@ class CallInfoScreen extends StatelessWidget {
   final Function()? onContinue;
   final Function()? onCancel;
 
-  const CallInfoScreen({required this.otherParty, this.onContinue, this.onCancel});
+  const CallInfoScreen({
+    required this.otherParty,
+    this.onContinue,
+    this.onCancel,
+  });
 
   String _appendPlatformToTranslationKey(String translationKey) =>
       '${translationKey}_${Platform.isAndroid ? 'android' : 'ios'}';
@@ -46,32 +50,45 @@ class CallInfoScreen extends StatelessWidget {
                 quote: FlutterI18n.translate(
                   context,
                   'disclosure_permission.call.disclosure_success',
-                  translationParams: {'otherParty': otherParty},
+                  translationParams: {
+                    'otherParty': otherParty,
+                  },
                 ),
               ),
-              SizedBox(height: theme.defaultSpacing),
-              TranslatedText(
-                _appendPlatformToTranslationKey('disclosure_permission.call.explanation_header'),
-                style: theme.themeData.textTheme.headlineMedium,
+              SizedBox(
+                height: theme.defaultSpacing,
               ),
-              SizedBox(height: theme.tinySpacing),
               TranslatedText(
-                _appendPlatformToTranslationKey('disclosure_permission.call.explanation'),
+                  _appendPlatformToTranslationKey(
+                    'disclosure_permission.call.explanation_header',
+                  ),
+                  style: theme.themeData.textTheme.headlineMedium),
+              SizedBox(
+                height: theme.tinySpacing,
+              ),
+              TranslatedText(
+                _appendPlatformToTranslationKey(
+                  'disclosure_permission.call.explanation',
+                ),
                 style: theme.themeData.textTheme.bodySmall,
               ),
               // Android requires an extra step
               if (Platform.isAndroid) ...[
-                SizedBox(height: theme.mediumSpacing),
+                SizedBox(
+                  height: theme.mediumSpacing,
+                ),
                 TranslatedText(
                   'disclosure_permission.call.extra_explanation_header_android',
                   style: theme.themeData.textTheme.headlineMedium,
                 ),
-                SizedBox(height: theme.tinySpacing),
+                SizedBox(
+                  height: theme.tinySpacing,
+                ),
                 TranslatedText(
                   'disclosure_permission.call.extra_explanation_android',
                   style: theme.themeData.textTheme.bodySmall,
                 ),
-              ],
+              ]
             ],
           ),
         ),

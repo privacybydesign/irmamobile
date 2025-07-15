@@ -45,7 +45,12 @@ class IssuancePermission extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-          child: IrmaQuote(quote: FlutterI18n.translate(context, 'issuance.description')),
+          child: IrmaQuote(
+            quote: FlutterI18n.translate(
+              context,
+              'issuance.description',
+            ),
+          ),
         ),
         IssuingDetail(issuedCredentials),
       ],
@@ -54,9 +59,9 @@ class IssuancePermission extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SessionScaffold(
-    appBarTitle: 'issuance.title',
-    bottomNavigationBar: _buildNavigationBar(context),
-    body: _buildPermissionWidget(context),
-    onDismiss: onDismiss,
-  );
+        appBarTitle: 'issuance.title',
+        bottomNavigationBar: _buildNavigationBar(context),
+        body: _buildPermissionWidget(context),
+        onDismiss: onDismiss,
+      );
 }

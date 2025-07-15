@@ -47,28 +47,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     Widget buildHeaderText(String translationKey) => Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: Semantics(header: true, child: TranslatedText(translationKey, style: theme.textTheme.headlineMedium)),
-    );
+          padding: EdgeInsets.only(bottom: theme.smallSpacing),
+          child: Semantics(
+            header: true,
+            child: TranslatedText(
+              translationKey,
+              style: theme.textTheme.headlineMedium,
+            ),
+          ),
+        );
 
     Widget buildExplanationText(String translationKey) => Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing, horizontal: theme.defaultSpacing),
-      child: TranslatedText(
-        translationKey,
-        style: theme.textTheme.bodyMedium!.copyWith(fontSize: 14, color: theme.neutral),
-      ),
-    );
+          padding: EdgeInsets.symmetric(
+            vertical: theme.smallSpacing,
+            horizontal: theme.defaultSpacing,
+          ),
+          child: TranslatedText(
+            translationKey,
+            style: theme.textTheme.bodyMedium!.copyWith(
+              fontSize: 14,
+              color: theme.neutral,
+            ),
+          ),
+        );
 
-    final spacerWidget = SizedBox(height: theme.defaultSpacing);
+    final spacerWidget = SizedBox(
+      height: theme.defaultSpacing,
+    );
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(titleTranslationKey: 'settings.title'),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'settings.title',
+      ),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: EdgeInsets.all(
+            theme.defaultSpacing,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -142,10 +160,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 Future<void> showConfirmDeleteDialog(BuildContext context) async {
-  final confirmed =
-      await showDialog<bool>(context: context, builder: (context) => DeleteDataConfirmationDialog()) ?? false;
+  final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => DeleteDataConfirmationDialog(),
+      ) ??
+      false;
 
   if (confirmed && context.mounted) {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(ClearAllDataEvent());
+    IrmaRepositoryProvider.of(context).bridgedDispatch(
+      ClearAllDataEvent(),
+    );
   }
 }

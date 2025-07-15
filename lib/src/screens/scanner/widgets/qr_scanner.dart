@@ -13,7 +13,10 @@ import 'qr_view_container.dart';
 class QRScanner extends StatefulWidget {
   final void Function(Pointer) onFound;
 
-  const QRScanner({super.key, required this.onFound});
+  const QRScanner({
+    super.key,
+    required this.onFound,
+  });
 
   @override
   State<StatefulWidget> createState() => QRScannerState();
@@ -69,11 +72,10 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
           ),
         ),
         SafeArea(
-          child: FractionallySizedBox(
-            heightFactor: _qrInstructionHeightFactor,
-            child: QRInstruction(found: found, error: error),
-          ),
-        ),
+            child: FractionallySizedBox(
+          heightFactor: _qrInstructionHeightFactor,
+          child: QRInstruction(found: found, error: error),
+        )),
         if (isLandscape)
           SafeArea(
             child: Align(
@@ -92,7 +94,7 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
                 ),
               ),
             ),
-          ),
+          )
       ],
     );
   }

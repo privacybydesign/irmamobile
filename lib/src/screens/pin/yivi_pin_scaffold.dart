@@ -7,21 +7,19 @@ class YiviPinScaffold extends StatelessWidget {
   const YiviPinScaffold({super.key, required this.body, this.appBar});
 
   Widget _applyTabletSupport(bool isTabletDevice) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const commonShortestPhoneEdge = 414.0;
-        const commonLargestPhoneEdge = 736.0; // iPad mini shortest edge = 768 (1024 x 768)
-        if (isTabletDevice) {
-          return SizedBox(
-            width: commonShortestPhoneEdge,
-            height: min(constraints.maxHeight, commonLargestPhoneEdge),
-            child: body,
-          );
-        } else {
-          return body;
-        }
-      },
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      const commonShortestPhoneEdge = 414.0;
+      const commonLargestPhoneEdge = 736.0; // iPad mini shortest edge = 768 (1024 x 768)
+      if (isTabletDevice) {
+        return SizedBox(
+          width: commonShortestPhoneEdge,
+          height: min(constraints.maxHeight, commonLargestPhoneEdge),
+          child: body,
+        );
+      } else {
+        return body;
+      }
+    });
   }
 
   @override

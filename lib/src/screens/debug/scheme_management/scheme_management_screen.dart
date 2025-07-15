@@ -41,7 +41,9 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final repo = IrmaRepositoryProvider.of(context);
-      _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(_onErrorEvent);
+      _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
+            _onErrorEvent,
+          );
     });
   }
 
@@ -54,8 +56,11 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
 
     navigator.push(
       MaterialPageRoute(
-        builder: (context) =>
-            ErrorScreen.fromEvent(error: event, onTapClose: () => navigator.pop(), reportable: !errorReported),
+        builder: (context) => ErrorScreen.fromEvent(
+          error: event,
+          onTapClose: () => navigator.pop(),
+          reportable: !errorReported,
+        ),
       ),
     );
   }
@@ -63,7 +68,10 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   Future<void> _onInstallScheme() async {
     final repo = IrmaRepositoryProvider.of(context);
 
-    final schemeUrl = await showDialog<String>(context: context, builder: (context) => const ProvideSchemeUrlDialog());
+    final schemeUrl = await showDialog<String>(
+      context: context,
+      builder: (context) => const ProvideSchemeUrlDialog(),
+    );
 
     if (schemeUrl == null) return;
 
@@ -89,16 +97,20 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
 
     // Show the second dialog to confirm the public key.
-    final publicKeyConfirmed =
-        await showDialog<bool>(
+    final publicKeyConfirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => ConfirmSchemePublicKeyDialog(publicKey: publicKey),
+          builder: (context) => ConfirmSchemePublicKeyDialog(
+            publicKey: publicKey,
+          ),
         ) ??
         false;
 
     if (!publicKeyConfirmed) return;
 
-    repo.bridgedDispatch(InstallSchemeEvent(url: schemeUrl, publicKey: publicKey));
+    repo.bridgedDispatch(InstallSchemeEvent(
+      url: schemeUrl,
+      publicKey: publicKey,
+    ));
 
     try {
       await repo.getEvents().whereType<EnrollmentStatusEvent>().first.timeout(const Duration(seconds: 5));
@@ -109,12 +121,24 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
 
     if (mounted) {
-      showSnackbar(context, FlutterI18n.translate(context, 'debug.scheme_management.success'));
+      showSnackbar(
+        context,
+        FlutterI18n.translate(
+          context,
+          'debug.scheme_management.success',
+        ),
+      );
     }
   }
 
   Future<void> _onUpdateSchemes() async {
-    showSnackbar(context, FlutterI18n.translate(context, 'debug.scheme_management.updating'));
+    showSnackbar(
+      context,
+      FlutterI18n.translate(
+        context,
+        'debug.scheme_management.updating',
+      ),
+    );
 
     final repo = IrmaRepositoryProvider.of(context);
     repo.bridgedDispatch(UpdateSchemesEvent());
@@ -128,12 +152,23 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
 
     if (mounted) {
-      showSnackbar(context, FlutterI18n.translate(context, 'debug.scheme_management.update_success'));
+      showSnackbar(
+        context,
+        FlutterI18n.translate(
+          context,
+          'debug.scheme_management.update_success',
+        ),
+      );
     }
   }
 
-  void _onSchemeManagerTileTap(String schemeManagerId) =>
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => SchemeManagerDetailScreen(schemeManagerId)));
+  void _onSchemeManagerTileTap(String schemeManagerId) => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SchemeManagerDetailScreen(
+            schemeManagerId,
+          ),
+        ),
+      );
 
   @override
   void dispose() {
@@ -149,14 +184,24 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'debug.scheme_management.title',
-        actions: [IrmaIconButton(icon: Icons.add, onTap: () => _onInstallScheme())],
+        actions: [
+          IrmaIconButton(
+            icon: Icons.add,
+            onTap: () => _onInstallScheme(),
+          )
+        ],
       ),
       body: SafeArea(
         child: StreamBuilder<CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>>(
-          stream: combine2(repo.getEnrollmentStatusEvent(), repo.getIrmaConfiguration()),
+          stream: combine2(
+            repo.getEnrollmentStatusEvent(),
+            repo.getIrmaConfiguration(),
+          ),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return Center(child: IrmaProgress());
+              return Center(
+                child: IrmaProgress(),
+              );
             }
             final enrollmentStatus = snapshot.data!.a;
             final irmaConfiguration = snapshot.data!.b;
@@ -174,14 +219,17 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                     onTap: () => _onSchemeManagerTileTap(schemeManager.id),
                   ),
                 SizedBox(height: theme.defaultSpacing),
-                const TranslatedText('debug.scheme_management.requestor_schemes'),
+                const TranslatedText(
+                  'debug.scheme_management.requestor_schemes',
+                ),
                 for (final schemeId in irmaConfiguration.requestorSchemes.keys)
                   ListTile(
                     title: Text(schemeId),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            RequestorSchemeDetailScreen(requestorScheme: irmaConfiguration.requestorSchemes[schemeId]!),
+                        builder: (context) => RequestorSchemeDetailScreen(
+                          requestorScheme: irmaConfiguration.requestorSchemes[schemeId]!,
+                        ),
                       ),
                     ),
                   ),
