@@ -18,6 +18,12 @@
     "collapse_hint": "Klik dubbel om dicht te vouwen",
     "refresh": "Verversen"
   },
+  "new_terms_and_conditions": {
+    "title": "Nieuwe voorwaarden",
+    "explanation_markdown": "Het beheer van Yivi ligt sinds kort bij een andere organisatie ([Yivi B.V.](https://yivi.app/about_yivi)).\n\nDaarom zijn de voorwaarden iets veranderd.\n\nWe vragen je ze te [lezen]({terms_url}) en hieronder akkoord te gaan.",
+    "accept": "Akkoord",
+    "dismiss": "Niet nu"
+  },
   "action_feedback": {
     "ok": "OK"
   },
@@ -293,7 +299,7 @@
       "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
       "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
       "point_3": "Niemand kijkt mee, ook Yivi niet!",
-      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://www.yivi.app/algemene-voorwaarden)"
+      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})"
     },
     "error_reporting": {
       "accept": {

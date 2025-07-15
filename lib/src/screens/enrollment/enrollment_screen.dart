@@ -40,9 +40,11 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     // we have to await the locked setting, because it could come after the enrollment status,
     // causing us to be automatically redirected to the pin screen when we're already unlocked...
     final locked = await repo.getLocked().first;
+
     if (!context.mounted) {
       return;
     }
+
     if (locked) {
       context.goPinScreen();
     } else {
@@ -128,11 +130,10 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             isAccepted: state.isAccepted,
             onPrevious: addOnPreviousPressed,
             onContinue: addOnNextPressed,
-            onToggleAccepted: (isAccepted) => addEvent(
-              EnrollmentTermsUpdated(
-                isAccepted: isAccepted,
-              ),
-            ),
+            onToggleAccepted: (isAccepted) {
+              repo.preferences.markLatestTermsAsAccepted(isAccepted);
+              addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted));
+            },
           );
         }
         if (state is EnrollmentFailed) {

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - More differentiation between verified and unverified requestors during disclosure
+- Add changed terms & conditions dialog that shows up when the terms have changed
 
 ## [7.8.1] - 2025-05-07
 ### Changed

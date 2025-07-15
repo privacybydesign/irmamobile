@@ -1,8 +1,15 @@
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class IrmaPreferences {
-  IrmaPreferences(StreamingSharedPreferences preferences)
-      : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
+  final String mostRecentTermsUrlNl;
+  final String mostRecentTermsUrlEn;
+
+  IrmaPreferences(
+    StreamingSharedPreferences preferences, {
+    required this.mostRecentTermsUrlNl,
+    required this.mostRecentTermsUrlEn,
+  })  : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
+        _acceptedTermsUrl = preferences.getString(_acceptedTermsUrlKey, defaultValue: 'no-terms-accepted'),
         // Please don't arbitrarily change this value, this could hinder the upgrade flow
         // For users before the pin size >5 was introduced.
         _longPin = preferences.getBool(_longPinKey, defaultValue: true),
@@ -21,7 +28,15 @@ class IrmaPreferences {
     preferences.remove(_developerModePrefVisibleKey);
   }
 
-  static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
+  static Future<IrmaPreferences> fromInstance({
+    required String mostRecentTermsUrlNl,
+    required String mostRecentTermsUrlEn,
+  }) async =>
+      IrmaPreferences(
+        await StreamingSharedPreferences.instance,
+        mostRecentTermsUrlNl: mostRecentTermsUrlNl,
+        mostRecentTermsUrlEn: mostRecentTermsUrlEn,
+      );
 
   // =============================================================================
 
@@ -63,6 +78,9 @@ class IrmaPreferences {
   // Used to store all notifications
   static const String _serializedNotificationsKey = 'preference.notifications';
   final Preference<String> _serializedNotifications;
+
+  static const String _acceptedTermsUrlKey = 'preferences.accepted_terms_url';
+  final Preference<String> _acceptedTermsUrl;
 
   // =============================================================================
 
@@ -107,6 +125,11 @@ class IrmaPreferences {
   Stream<String> getSerializedNotifications() => _serializedNotifications;
 
   Future<bool> setSerializedNotifications(String value) => _serializedNotifications.setValue(value);
+
+  Stream<bool> hasAcceptedLatestTerms() => _acceptedTermsUrl.map((url) => url == mostRecentTermsUrlNl);
+
+  Future<bool> markLatestTermsAsAccepted(bool accepted) =>
+      _acceptedTermsUrl.setValue(accepted ? mostRecentTermsUrlNl : 'no-terms-accepted');
 
   Future<void> clearAll() {
     // Reset all preferences to their default values

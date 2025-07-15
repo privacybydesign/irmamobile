@@ -38,6 +38,7 @@ import 'src/screens/scanner/scanner_screen.dart';
 import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
+import 'src/screens/terms_changed/terms_changed_dialog.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
 
@@ -73,10 +74,16 @@ GoRouter createRouter(BuildContext buildContext) {
           return NoTransitionPage(
             name: '/pin',
             child: Builder(builder: (context) {
-              return PinScreen(
-                onAuthenticated: context.goHomeScreenWithoutTransition,
-                leading:
-                    YiviAppBarQrCodeButton(onTap: () => openQrCodeScanner(context, requireAuthBeforeSession: true)),
+              return TermsChangedListener(
+                child: PinScreen(
+                  onAuthenticated: context.goHomeScreenWithoutTransition,
+                  leading: YiviAppBarQrCodeButton(
+                    onTap: () => openQrCodeScanner(
+                      context,
+                      requireAuthBeforeSession: true,
+                    ),
+                  ),
+                ),
               );
             }),
           );
@@ -361,8 +368,13 @@ class RedirectionTriggers {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(appLocked, showNameChangedMessage, showDeviceRootedWarning, versionInformation, enrollmentStatus);
+  int get hashCode => Object.hash(
+        appLocked,
+        showNameChangedMessage,
+        showDeviceRootedWarning,
+        versionInformation,
+        enrollmentStatus,
+      );
 }
 
 Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {

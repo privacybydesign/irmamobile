@@ -45,9 +45,15 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     return _instance!;
   }
 
-  Future<void> setUp({EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled}) async {
+  Future<void> setUp(
+      {EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled, bool acceptedTermsAndConditions = true}) async {
     assert(enrollmentStatus != EnrollmentStatus.undetermined);
-    _preferences ??= await IrmaPreferences.fromInstance();
+    _preferences ??= await IrmaPreferences.fromInstance(
+      mostRecentTermsUrlNl: 'testurl',
+      mostRecentTermsUrlEn: 'testurl',
+    );
+
+    _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
 
     _bridge.dispatch(AppReadyEvent());
     EnrollmentStatusEvent currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
