@@ -17,3 +17,6 @@ analyzer:
     directives_ordering: warning
     prefer_single_quotes: warning
     avoid_escaping_inner_quotes: warning
+
+formatter:
+  page_width: 120

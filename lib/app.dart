@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../routing.dart';
@@ -18,6 +17,7 @@ import '../../src/screens/rooted_warning/repository.dart';
 import '../../src/theme/theme.dart';
 import 'src/providers/irma_repository_provider.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
+import 'src/util/privacy_screen.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -181,9 +181,9 @@ class AppState extends State<App> with WidgetsBindingObserver {
     _privacyScreenLoaded = false;
     _screenshotPrefSubscription = widget.irmaRepository.preferences.getScreenshotsEnabled().listen((enabled) async {
       if (enabled) {
-        await FlutterPrivacyScreen.disablePrivacyScreen();
+        await PrivacyScreen.disablePrivacyScreen();
       } else {
-        await FlutterPrivacyScreen.enablePrivacyScreen();
+        await PrivacyScreen.enablePrivacyScreen();
       }
       if (!_privacyScreenLoaded) setState(() => _privacyScreenLoaded = true);
     });

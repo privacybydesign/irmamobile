@@ -18,7 +18,7 @@ class HapticScreen extends StatelessWidget {
     required this.onBack,
   });
 
-  _showSnackBar(BuildContext context, String title) {
+  void _showSnackBar(BuildContext context, String title) {
     final snackBar = SnackBar(
       duration: const Duration(milliseconds: 500),
       content: Text(title),

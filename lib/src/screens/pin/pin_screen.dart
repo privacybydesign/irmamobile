@@ -97,7 +97,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     });
   }
 
-  _showWrongAttemptsDialog(PinState pinState) {
+  void _showWrongAttemptsDialog(PinState pinState) {
     if (!mounted) {
       return;
     }
@@ -112,7 +112,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     );
   }
 
-  _showBlockedDialog(int secondsBlocked) {
+  void _showBlockedDialog(int secondsBlocked) {
     if (!mounted) {
       return;
     }
@@ -124,7 +124,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     );
   }
 
-  _goToSessionErrorScreen(PinState pinState) {
+  void _goToSessionErrorScreen(PinState pinState) {
     if (!mounted) {
       return;
     }

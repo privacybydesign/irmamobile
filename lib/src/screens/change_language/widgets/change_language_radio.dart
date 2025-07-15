@@ -10,7 +10,7 @@ import '../../more/widgets/tiles_radio.dart';
 class ChangeLanguageRadio extends StatelessWidget {
   final supportedLocales = AppState.defaultSupportedLocales();
 
-  _onChangedLanguage(int index, IrmaPreferences prefs) async {
+  Future<void> _onChangedLanguage(int index, IrmaPreferences prefs) async {
     final selectedLocale = supportedLocales[index];
     await prefs.setPreferredLanguageCode(selectedLocale.languageCode);
   }

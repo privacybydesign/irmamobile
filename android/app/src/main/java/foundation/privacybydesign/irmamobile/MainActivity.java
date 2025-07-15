@@ -21,6 +21,7 @@ import io.flutter.plugins.GeneratedPluginRegistrant;
 
 import foundation.privacybydesign.irmamobile.irma_mobile_bridge.IrmaMobileBridge;
 import foundation.privacybydesign.irmamobile.plugins.iiab.IIABPlugin;
+import foundation.privacybydesign.irmamobile.plugins.privacy_screen.PrivacyScreenPlugin;
 import irmagobridge.Irmagobridge;
 
 public class MainActivity extends FlutterActivity {
@@ -47,6 +48,7 @@ public class MainActivity extends FlutterActivity {
   public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     GeneratedPluginRegistrant.registerWith(flutterEngine);
     flutterEngine.getPlugins().add(new IIABPlugin());
+    flutterEngine.getPlugins().add(new PrivacyScreenPlugin());
 
     // Start up the irmamobile bridge
     MethodChannel channel = new MethodChannel(

@@ -56,7 +56,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  _buildCredentialsList(List<Credential> credentials) {
+  SizedBox _buildCredentialsList(List<Credential> credentials) {
     final theme = IrmaTheme.of(context);
     return SizedBox(
       height: double.infinity,
@@ -104,7 +104,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async {
+  Future<void> _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async {
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => IrmaCredentialCardOptionsBottomSheet(
