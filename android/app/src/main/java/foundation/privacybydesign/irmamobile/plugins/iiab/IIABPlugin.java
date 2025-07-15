@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.app.Activity;
 import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import android.graphics.Color;
 
 public class IIABPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware {
@@ -50,18 +51,31 @@ public class IIABPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
 
     @Override
     public void onMethodCall(MethodCall call, Result result) {
-        switch (call.method) {
-            case "open_browser":
-                try {
-                    String url = call.<String>arguments();
-                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                    builder.setToolbarColor(Color.parseColor("#FFFFFF"));
-                    CustomTabsIntent customTabsIntent = builder.build();
-                    customTabsIntent.launchUrl(mainActivity, Uri.parse(url));
-                } catch (Exception e) {
-                    result.error("", e.toString(), e);
-                    return;
-                }
+        if ("open_browser".equals(call.method)) {
+            try {
+                String url = call.<String>arguments();
+
+                int toolbarColor = Color.parseColor("#FFFFFF");
+
+                CustomTabColorSchemeParams darkParams = new CustomTabColorSchemeParams.Builder()
+                        .setToolbarColor(toolbarColor)
+                        .build();
+
+                CustomTabColorSchemeParams defaultParams = new CustomTabColorSchemeParams.Builder()
+                        .setNavigationBarColor(toolbarColor)
+                        .build();
+
+                CustomTabsIntent intent = new CustomTabsIntent.Builder()
+                        .setColorScheme(CustomTabsIntent.COLOR_SCHEME_SYSTEM)
+                        .setColorSchemeParams(CustomTabsIntent.COLOR_SCHEME_DARK, darkParams)
+                        .setDefaultColorSchemeParams(defaultParams)
+                        .build();
+
+                intent.launchUrl(mainActivity, Uri.parse(url));
+            } catch (Exception e) {
+                result.error("failed to launchUrl", e.toString(), e);
+                return;
+            }
         }
         result.success(null);
     }

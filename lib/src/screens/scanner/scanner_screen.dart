@@ -54,7 +54,7 @@ class ScannerScreenState extends State<ScannerScreen> {
     await handlePointer(context, pointer, pushReplacement: pushReplacement);
   }
 
-  _asyncResetQrScanner() {
+  void _asyncResetQrScanner() {
     if (isRunningIntegrationTest()) {
       return;
     }

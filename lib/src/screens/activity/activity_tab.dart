@@ -80,6 +80,9 @@ class _ActivityTabState extends State<ActivityTab> {
     // After list is initially rendered, there might not be enough logs to trigger the scroll controller.
     // In that case, load more logs to fully fill the screen.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!_scrollController.position.haveDimensions) {
+        return;
+      }
       if (_scrollController.position.maxScrollExtent - _scrollController.position.minScrollExtent < 80) {
         _loadMoreLogs();
       }

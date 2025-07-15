@@ -36,7 +36,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
   const _ProvidedEnrollmentScreen({required this.repo});
 
-  _onEnrollmentCompleted(BuildContext context) async {
+  Future<void> _onEnrollmentCompleted(BuildContext context) async {
     // we have to await the locked setting, because it could come after the enrollment status,
     // causing us to be automatically redirected to the pin screen when we're already unlocked...
     final locked = await repo.getLocked().first;
