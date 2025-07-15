@@ -49,7 +49,7 @@ void main() {
   });
 }
 
-testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaRepository repo) async {
+Future<void> testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaRepository repo) async {
   await pumpIrmaApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
@@ -74,7 +74,7 @@ testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaReposi
   await unlockAndWaitForHome(tester);
 }
 
-testBackFromQrScanner(WidgetTester tester, Locale locale, IrmaRepository repo) async {
+Future<void> testBackFromQrScanner(WidgetTester tester, Locale locale, IrmaRepository repo) async {
   await pumpIrmaApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
@@ -91,7 +91,7 @@ testBackFromQrScanner(WidgetTester tester, Locale locale, IrmaRepository repo) a
   await unlockAndWaitForHome(tester);
 }
 
-testIssuance(WidgetTester tester, Locale locale, IrmaRepository repo) async {
+Future<void> testIssuance(WidgetTester tester, Locale locale, IrmaRepository repo) async {
   await pumpIrmaApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
@@ -112,13 +112,13 @@ testIssuance(WidgetTester tester, Locale locale, IrmaRepository repo) async {
   await tester.waitFor(find.byType(DataTab).hitTestable());
 }
 
-tapQrScannerButton(WidgetTester tester) async {
+Future<void> tapQrScannerButton(WidgetTester tester) async {
   // should be on the pin screen, find the qr scanner button and press it
   final qrButton = find.byType(YiviAppBarQrCodeButton);
   await tester.tapAndSettle(qrButton);
 }
 
-pretendToScanIssuanceQrCode(WidgetTester tester, Locale locale) async {
+Future<void> pretendToScanIssuanceQrCode(WidgetTester tester, Locale locale) async {
   final attributes = createMunicipalityPersonalDataAttributes(locale);
   final session = await createIssuanceSession(attributes: attributes);
 

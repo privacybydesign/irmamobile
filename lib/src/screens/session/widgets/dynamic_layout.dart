@@ -31,7 +31,7 @@ class DynamicLayout extends StatelessWidget {
     );
   }
 
-  _buildLandscapeLayout(
+  Padding _buildLandscapeLayout(
     IrmaThemeData theme,
     BoxConstraints constraints,
     bool isSmallScreen,
@@ -82,7 +82,7 @@ class DynamicLayout extends StatelessWidget {
     );
   }
 
-  _buildPortraitLayout(
+  ConstrainedBox _buildPortraitLayout(
     IrmaThemeData theme,
     Size screenSize,
     BoxConstraints constraints,

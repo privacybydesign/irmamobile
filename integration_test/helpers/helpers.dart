@@ -32,7 +32,7 @@ Future<void> unlockAndWaitForHome(WidgetTester tester) async {
   await tester.waitFor(find.byType(DataTab).hitTestable());
 }
 
-unlock(WidgetTester tester) async {
+Future<void> unlock(WidgetTester tester) async {
   await enterPin(tester, '12345');
 }
 

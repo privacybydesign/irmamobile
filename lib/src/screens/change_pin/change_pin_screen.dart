@@ -53,7 +53,7 @@ class ProvidedChangePinScreen extends StatefulWidget {
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  get theme => IrmaTheme.of(context);
+  IrmaThemeData get theme => IrmaTheme.of(context);
   final newPin = ValueNotifier<String>('');
 
   Map<String, WidgetBuilder> _routeBuilders() {

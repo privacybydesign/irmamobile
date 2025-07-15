@@ -1,4 +1,6 @@
-import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
+import 'dart:io';
+
+import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
 
 import '../../data/irma_preferences.dart';
 
@@ -24,7 +26,14 @@ class DetectRootedDeviceIrmaPrefsRepository implements DetectRootedDeviceReposit
   }
 
   @override
-  Future<bool> isDeviceRooted() {
-    return FlutterJailbreakDetection.jailbroken;
+  Future<bool> isDeviceRooted() async {
+    final isJailBroken = await JailbreakRootDetection.instance.isJailBroken;
+
+    // On ios we add the check for simulators, so the warning doesn't show in simulators
+    if (Platform.isIOS) {
+      return isJailBroken && await JailbreakRootDetection.instance.isRealDevice;
+    }
+
+    return isJailBroken;
   }
 }

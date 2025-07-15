@@ -74,7 +74,7 @@ class _DataTabState extends ConsumerState<DataTab> {
     );
   }
 
-  _openSearch() {
+  void _openSearch() {
     _searchQueryChanged('');
     setState(() {
       _searchActive = true;
@@ -82,13 +82,13 @@ class _DataTabState extends ConsumerState<DataTab> {
     });
   }
 
-  _closeSearch() {
+  void _closeSearch() {
     setState(() {
       _searchActive = false;
     });
   }
 
-  _searchQueryChanged(String query) {
+  void _searchQueryChanged(String query) {
     ref.read(credentialsSearchQueryProvider.notifier).state = query;
   }
 }
@@ -168,7 +168,7 @@ class _NoCredentialsYet extends StatelessWidget {
     );
   }
 
-  _buildLandscapeOrientation(BuildContext context) {
+  Padding _buildLandscapeOrientation(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Padding(
       padding: EdgeInsets.all(theme.screenPadding),
@@ -194,7 +194,7 @@ class _NoCredentialsYet extends StatelessWidget {
     );
   }
 
-  _buildPortraitOrientation(BuildContext context) {
+  Padding _buildPortraitOrientation(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Padding(
       padding: EdgeInsets.all(theme.defaultSpacing),
@@ -277,7 +277,7 @@ class _CredentialsTypeList extends StatelessWidget {
 }
 
 class _CredentialsSearchResults extends ConsumerWidget {
-  _buildNoCredentialsFound(BuildContext context, String query) {
+  Center _buildNoCredentialsFound(BuildContext context, String query) {
     final theme = IrmaTheme.of(context);
     return Center(
       child: Padding(
