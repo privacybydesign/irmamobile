@@ -6,12 +6,14 @@ import 'issuance_test.dart' as issuance_test;
 import 'issue_wizard_test.dart' as issue_wizard_test;
 import 'login_test.dart' as login_test;
 import 'more_tab_test.dart' as more_tab_test;
+import 'new_terms_test.dart' as new_terms;
 import 'notifications_test.dart' as notifications_test;
 import 'qr_on_pin_screen_test.dart' as qr_on_pin_screen_test;
 import 'settings_test.dart' as settings_test;
 
 /// Wrapper to execute all tests at once.
 void main() {
+  new_terms.main();
   search_test.main();
   qr_on_pin_screen_test.main();
   enroll_test.main();

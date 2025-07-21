@@ -11,9 +11,16 @@ import 'src/theme/theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final preferences = await IrmaPreferences.fromInstance(
+    mostRecentTermsUrlNl: 'testurl',
+    mostRecentTermsUrlEn: 'testurl',
+  );
+  preferences.markLatestTermsAsAccepted(true);
+
   final repository = IrmaRepository(
     client: IrmaMockBridge(),
-    preferences: await IrmaPreferences.fromInstance(),
+    preferences: preferences,
   );
 
   runApp(ProviderScope(child: PrototypesApp(repository: repository)));
