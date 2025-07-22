@@ -229,12 +229,12 @@ class _AllCredentialsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(credentialsProvider);
+    final credentials = ref.watch(credentialInfoListProvider);
 
     return switch (credentials) {
       AsyncData(:final value) => value.isEmpty
           ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
-          : _CredentialsTypeList(credentials: value.values.toList(growable: false)),
+          : _CredentialsTypeList(credentials: value),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };
@@ -244,7 +244,7 @@ class _AllCredentialsList extends ConsumerWidget {
 class _CredentialsTypeList extends StatelessWidget {
   const _CredentialsTypeList({required this.credentials});
 
-  final List<Credential> credentials;
+  final List<CredentialInfo> credentials;
 
   @override
   Widget build(BuildContext context) {
