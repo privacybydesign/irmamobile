@@ -119,7 +119,7 @@ class Credential extends CredentialView {
   final DateTime signedOn;
   final DateTime expires;
   final String hash;
-  final String credentialFormat;
+  final List<String> credentialFormats;
 
   Credential({
     required super.info,
@@ -128,7 +128,7 @@ class Credential extends CredentialView {
     required super.attributes,
     required super.revoked,
     required this.hash,
-    required this.credentialFormat,
+    required this.credentialFormats,
   }) : super(expired: expires.isBefore(DateTime.now()));
 
   factory Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential}) {
@@ -156,7 +156,7 @@ class Credential extends CredentialView {
       attributes: attributes,
       revoked: rawCredential.revoked,
       hash: rawCredential.hash,
-      credentialFormat: rawCredential.credentialFormat,
+      credentialFormats: rawCredential.credentialFormats,
     );
   }
 }
@@ -214,7 +214,7 @@ class RawCredential {
     required this.hash,
     required this.revoked,
     required this.revocationSupported,
-    required this.credentialFormat,
+    required this.credentialFormats,
   });
 
   @JsonKey(name: 'ID')
@@ -244,8 +244,8 @@ class RawCredential {
   @JsonKey(name: 'RevocationSupported')
   final bool revocationSupported;
 
-  @JsonKey(name: 'CredentialFormat')
-  final String credentialFormat;
+  @JsonKey(name: 'CredentialFormats')
+  final List<String> credentialFormats;
 
   factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
 

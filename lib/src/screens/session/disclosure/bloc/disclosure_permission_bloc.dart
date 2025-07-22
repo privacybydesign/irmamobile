@@ -764,7 +764,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           );
         } else {
           return ChoosableDisclosureCredential(
-            credentialFormat: credential.credentialFormat,
+            credentialFormats: credential.credentialFormats,
             info: credential.info,
             attributes: attributes,
             previouslyAdded: !_newlyAddedCredentialHashes.contains(credential.hash),

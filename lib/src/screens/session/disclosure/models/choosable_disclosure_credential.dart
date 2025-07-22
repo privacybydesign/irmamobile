@@ -8,7 +8,7 @@ import 'template_disclosure_credential.dart';
 /// DisclosureCredential that is choosable and only contains the attributes that are going to be disclosed in the session.
 class ChoosableDisclosureCredential extends DisclosureCredential {
   final String credentialHash;
-  final String credentialFormat;
+  final List<String> credentialFormats;
 
   /// Indicates whether the backing credential was already present when the disclosure session started.
   final bool previouslyAdded;
@@ -23,7 +23,7 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
     required super.expired,
     required super.revoked,
     required this.credentialHash,
-    required this.credentialFormat,
+    required this.credentialFormats,
     required this.previouslyAdded,
   }) : identifiers = UnmodifiableListView(attributes.map((attr) => AttributeIdentifier(
               type: attr.attributeType.fullId,
@@ -37,7 +37,7 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
   }) {
     assert(credential.info.fullId == template.fullId);
     return ChoosableDisclosureCredential(
-      credentialFormat: credential.credentialFormat,
+      credentialFormats: credential.credentialFormats,
       info: credential.info,
       attributes: credential.attributes
           .where((credAttr) =>

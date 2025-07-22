@@ -23,12 +23,12 @@ class IrmaCredentialCard extends StatelessWidget {
   final bool hideFooter;
   final bool hideAttributes;
   final bool disabled;
-  final String credentialFormat;
+  final List<String> credentialFormats;
 
   const IrmaCredentialCard({
     super.key,
     required this.credentialView,
-    required this.credentialFormat,
+    required this.credentialFormats,
     this.compareTo,
     this.onTap,
     this.headerTrailing,
@@ -52,7 +52,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideAttributes = false,
     this.disabled = false,
   })  : credentialView = credential,
-        credentialFormat = credential.credentialFormat,
+        credentialFormats = credential.credentialFormats,
         expiryDate = CardExpiryDate(credential.expires);
 
   @override
@@ -62,7 +62,7 @@ class IrmaCredentialCard extends StatelessWidget {
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom:8.0),
+      padding: const EdgeInsets.only(bottom: 8.0),
       child: IrmaCard(
         style: credentialView.valid ? style : IrmaCardStyle.danger,
         onTap: onTap,
@@ -75,8 +75,7 @@ class IrmaCredentialCard extends StatelessWidget {
             GreyedOut(
               filterActive: disabled,
               child: IrmaCredentialCardHeader(
-                credentialName:
-                    getTranslation(context, credentialView.credentialType.name),
+                credentialName: getTranslation(context, credentialView.credentialType.name),
                 issuerName: getTranslation(context, credentialView.issuer.name),
                 logo: credentialView.credentialType.logo,
                 trailing: headerTrailing,
@@ -86,8 +85,7 @@ class IrmaCredentialCard extends StatelessWidget {
               ),
             ),
             // If there are attributes in this credential, then we show the attribute list
-            if (credentialView.attributesWithValue.isNotEmpty &&
-                !hideAttributes) ...[
+            if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
               IrmaDivider(color: credentialView.valid ? null : theme.danger),
               IrmaCredentialCardAttributeList(
                 credentialView.attributes,
@@ -100,11 +98,15 @@ class IrmaCredentialCard extends StatelessWidget {
                 expiryDate: expiryDate,
                 padding: EdgeInsets.only(top: theme.smallSpacing),
               ),
-            if (credentialFormat == 'idemix' || credentialFormat == 'dc+sd-jwt')
-              Padding(
-                padding: EdgeInsets.only(top: theme.defaultSpacing),
-                child: CredentialFormatTag(format: credentialFormat),
-              ),
+            SizedBox(height: theme.smallSpacing),
+            Row(
+              spacing: theme.smallSpacing,
+              children: [
+                for (final credentialFormat in credentialFormats)
+                  if (credentialFormat == 'idemix' || credentialFormat == 'dc+sd-jwt')
+                    CredentialFormatTag(format: credentialFormat),
+              ],
+            )
           ],
         ),
       ),
@@ -129,7 +131,10 @@ class CredentialFormatTag extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16),
-        child: Text(text, style: textStyle!.copyWith(color: Colors.white, fontWeight: FontWeight.bold),),
+        child: Text(
+          text,
+          style: textStyle!.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

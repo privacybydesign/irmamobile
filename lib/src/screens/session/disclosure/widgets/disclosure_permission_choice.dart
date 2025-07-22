@@ -41,8 +41,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                           }
                         },
                   child: IrmaCredentialCard(
-                    credentialFormat:
-                        credential is ChoosableDisclosureCredential ? credential.credentialFormat : 'unknown',
+                    credentialFormats: credential is ChoosableDisclosureCredential ? credential.credentialFormats : [],
                     padding: EdgeInsets.zero,
                     credentialView: credential,
                     compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,

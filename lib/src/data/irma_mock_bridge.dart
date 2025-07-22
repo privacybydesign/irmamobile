@@ -244,7 +244,7 @@ class IrmaMockBridge extends IrmaBridge {
             hash: 'session-$sessionId-$i', // Use the session id as a dummy hash to make it unique and predicable.
             revoked: revoked,
             revocationSupported: revoked,
-            credentialFormat: 'idemix',
+            credentialFormats: ['idemix'],
           );
         }).toList();
 
