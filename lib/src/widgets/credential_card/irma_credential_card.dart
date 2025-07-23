@@ -102,9 +102,7 @@ class IrmaCredentialCard extends StatelessWidget {
             Row(
               spacing: theme.smallSpacing,
               children: [
-                for (final credentialFormat in credentialFormats)
-                  if (credentialFormat == 'idemix' || credentialFormat == 'dc+sd-jwt')
-                    CredentialFormatTag(format: credentialFormat),
+                for (final credentialFormat in credentialFormats) CredentialFormatTag(format: credentialFormat),
               ],
             )
           ],
