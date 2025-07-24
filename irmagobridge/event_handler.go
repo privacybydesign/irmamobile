@@ -201,7 +201,7 @@ func (ah *eventHandler) updateSchemes() error {
 }
 
 func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
-	var logEntries []*irmaclient.LogEntry
+	var logEntries []irmaclient.LogInfo
 	var err error
 
 	// When before is not sent, it gets Go's default value 0 and 0 is never a valid id
@@ -214,49 +214,8 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 		return err
 	}
 
-	logsOutgoing := make([]*logEntry, len(logEntries))
-	for i, entry := range logEntries {
-		var removedCredentials = make(map[irma.CredentialTypeIdentifier]map[irma.AttributeTypeIdentifier]irma.TranslatedString)
-		if entry.Type == irmaclient.ActionRemoval {
-			for credentialTypeId, attributeValues := range entry.Removed {
-				var removedCredential = make(map[irma.AttributeTypeIdentifier]irma.TranslatedString)
-				attributeTypes := client.GetIrmaConfiguration().CredentialTypes[credentialTypeId].AttributeTypes
-				for index, attributeValue := range attributeValues {
-					typ := attributeTypes[index]
-					if typ.RevocationAttribute {
-						continue
-					}
-					removedCredential[typ.GetAttributeTypeIdentifier()] = attributeValue
-				}
-				removedCredentials[credentialTypeId] = removedCredential
-			}
-		}
-		disclosedCredentials, err := entry.GetDisclosedCredentials(client.GetIrmaConfiguration())
-		if err != nil {
-			return err
-		}
-		issuedCredentials, err := entry.GetIssuedCredentials(client.GetIrmaConfiguration())
-		if err != nil {
-			return err
-		}
-		signedMessage, err := entry.GetSignedMessage()
-		if err != nil {
-			return err
-		}
-		logsOutgoing[i] = &logEntry{
-			ID:                   entry.ID,
-			Type:                 entry.Type,
-			Time:                 entry.Time,
-			ServerName:           entry.ServerName,
-			IssuedCredentials:    issuedCredentials,
-			DisclosedCredentials: disclosedCredentials,
-			SignedMessage:        signedMessage,
-			RemovedCredentials:   removedCredentials,
-		}
-	}
-
 	dispatchEvent(&logsEvent{
-		LogEntries: logsOutgoing,
+		LogEntries: logEntries,
 	})
 
 	return nil

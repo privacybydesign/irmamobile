@@ -1,10 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'attribute.dart';
-import 'credentials.dart';
 import 'event.dart';
 import 'session.dart';
-import 'translated_value.dart';
 
 part 'log_entry.g.dart';
 
@@ -13,7 +10,7 @@ class LogsEvent extends Event {
   LogsEvent({required this.logEntries});
 
   @JsonKey(name: 'LogEntries')
-  final List<LogEntry> logEntries;
+  final List<LogInfo> logEntries;
 
   factory LogsEvent.fromJson(Map<String, dynamic> json) => _$LogsEventFromJson(json);
 }
@@ -31,70 +28,160 @@ class LoadLogsEvent extends Event {
   Map<String, dynamic> toJson() => _$LoadLogsEventToJson(this);
 }
 
-enum LogEntryType {
-  disclosing,
-  signing,
-  issuing,
+enum LogType {
+  disclosure,
+  signature,
+  issuance,
   removal,
 }
 
-LogEntryType _toLogEntryType(String type) {
-  return LogEntryType.values.firstWhere(
-    (v) => v.toString() == 'LogEntryType.$type',
+enum Protocol {
+  irma,
+  openid4vp,
+}
+
+enum CredentialFormat {
+  idemix,
+  sdjwtvc,
+}
+
+LogType _toLogEntryType(String type) {
+  return LogType.values.firstWhere(
+    (v) => v.toString() == 'LogType.$type',
   );
+}
+
+Protocol _toProtocol(String protocol) {
+  return switch (protocol) {
+    'irma' => Protocol.irma,
+    'openid4vp' => Protocol.openid4vp,
+    _ => throw Exception('invalid protocol: $protocol'),
+  };
+}
+
+CredentialFormat _toCredentialFormat(String format) {
+  return switch (format) {
+    'dc+sd-jwt' => CredentialFormat.sdjwtvc,
+    'idemix' => CredentialFormat.idemix,
+    _ => throw Exception('invalid credential format: $format')
+  };
+}
+
+List<CredentialFormat> _toCredentialFormatList(dynamic value) {
+  if (value == null) {
+    return [];
+  }
+  return (value as List<dynamic>).map((v) => _toCredentialFormat(v as String)).toList();
 }
 
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
     DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
 
 @JsonSerializable(createToJson: false)
-class LogEntry {
-  const LogEntry({
+class LogInfo {
+  const LogInfo({
     required this.id,
     required this.type,
     required this.time,
-    required this.issuedCredentials,
-    required this.disclosedAttributes,
-    required this.removedCredentials,
-    this.serverName,
-    this.signedMessage,
+    required this.issuanceLog,
+    required this.disclosureLog,
+    required this.signedMessageLog,
+    required this.removalLog,
   });
 
   @JsonKey(name: 'ID')
   final int id;
 
   @JsonKey(name: 'Type', fromJson: _toLogEntryType)
-  final LogEntryType type;
+  final LogType type;
 
   @JsonKey(name: 'Time', fromJson: _epochSecondsToDateTime)
   final DateTime time;
 
-  @JsonKey(name: 'ServerName')
-  // Due to some legacy log entries, serverName might be null sometimes. This should be fixed in irmago.
-  final RequestorInfo? serverName;
+  @JsonKey(name: 'IssuanceLog')
+  final IssuanceLog? issuanceLog;
 
-  @JsonKey(name: 'IssuedCredentials')
-  final List<RawCredential> issuedCredentials;
+  @JsonKey(name: 'DisclosureLog')
+  final DisclosureLog? disclosureLog;
 
-  @JsonKey(name: 'DisclosedCredentials')
-  final List<List<DisclosedAttribute>> disclosedAttributes;
+  @JsonKey(name: 'SignedMessageLog')
+  final SignedMessageLog? signedMessageLog;
 
-  @JsonKey(name: 'RemovedCredentials')
-  final Map<String, Map<String, TranslatedValue>> removedCredentials;
+  @JsonKey(name: 'RemovalLog')
+  final RemovalLog? removalLog;
 
-  @JsonKey(name: 'SignedMessage')
-  final SignedMessage? signedMessage;
-
-  factory LogEntry.fromJson(Map<String, dynamic> json) => _$LogEntryFromJson(json);
+  factory LogInfo.fromJson(Map<String, dynamic> json) => _$LogInfoFromJson(json);
 }
 
-@JsonSerializable()
-class SignedMessage {
-  SignedMessage({required this.message});
+@JsonSerializable(createToJson: false)
+class IssuanceLog {
+  IssuanceLog({required this.protocol, required this.credentials, required this.disclosedCredentials});
 
-  @JsonKey(name: 'message')
+  @JsonKey(name: 'Protocol', fromJson: _toProtocol)
+  final Protocol protocol;
+
+  @JsonKey(name: 'Credentials')
+  final List<CredentialLog> credentials;
+
+  @JsonKey(name: 'DisclosedCredentials')
+  final List<CredentialLog> disclosedCredentials;
+
+  factory IssuanceLog.fromJson(Map<String, dynamic> json) => _$IssuanceLogFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class DisclosureLog {
+  DisclosureLog({required this.protocol, required this.credentials, required this.verifier});
+
+  @JsonKey(name: 'Protocol', fromJson: _toProtocol)
+  final Protocol protocol;
+
+  @JsonKey(name: 'Credentials')
+  final List<CredentialLog> credentials;
+
+  @JsonKey(name: 'Verifier')
+  final RequestorInfo verifier;
+
+  factory DisclosureLog.fromJson(Map<String, dynamic> json) => _$DisclosureLogFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class SignedMessageLog extends DisclosureLog {
+  SignedMessageLog({
+    required super.protocol,
+    required super.credentials,
+    required super.verifier,
+    required this.message,
+  });
+
+  @JsonKey(name: 'Message')
   final String message;
 
-  factory SignedMessage.fromJson(Map<String, dynamic> json) => _$SignedMessageFromJson(json);
-  Map<String, dynamic> toJson() => _$SignedMessageToJson(this);
+  factory SignedMessageLog.fromJson(Map<String, dynamic> json) => _$SignedMessageLogFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class RemovalLog {
+  RemovalLog({required this.credentials});
+
+  @JsonKey(name: 'Credentials')
+  final List<CredentialLog> credentials;
+
+  factory RemovalLog.fromJson(Map<String, dynamic> json) => _$RemovalLogFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class CredentialLog {
+  CredentialLog({required this.formats, required this.credentialType, required this.attributes});
+
+  @JsonKey(name: 'Formats', fromJson: _toCredentialFormatList)
+  final List<CredentialFormat> formats;
+
+  @JsonKey(name: 'CredentialType')
+  final String credentialType;
+
+  @JsonKey(name: 'Attributes')
+  final Map<String, String> attributes;
+
+  factory CredentialLog.fromJson(Map<String, dynamic> json) => _$CredentialLogFromJson(json);
 }
