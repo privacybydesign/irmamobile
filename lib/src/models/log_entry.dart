@@ -59,7 +59,7 @@ Protocol _toProtocol(String protocol) {
   };
 }
 
-CredentialFormat _toCredentialFormat(String format) {
+CredentialFormat stringToCredentialFormat(String format) {
   return switch (format) {
     'dc+sd-jwt' => CredentialFormat.sdjwtvc,
     'idemix' => CredentialFormat.idemix,
@@ -71,7 +71,7 @@ List<CredentialFormat> _toCredentialFormatList(dynamic value) {
   if (value == null) {
     return [];
   }
-  return (value as List<dynamic>).map((v) => _toCredentialFormat(v as String)).toList();
+  return (value as List<dynamic>).map((v) => stringToCredentialFormat(v as String)).toList();
 }
 
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>

@@ -11,6 +11,7 @@ import '../models/credentials.dart';
 import '../models/enrollment_events.dart';
 import '../models/event.dart';
 import '../models/irma_configuration.dart';
+import '../models/log_entry.dart';
 import '../models/native_events.dart';
 import '../models/session.dart';
 import '../models/session_events.dart';
@@ -244,7 +245,7 @@ class IrmaMockBridge extends IrmaBridge {
             hash: 'session-$sessionId-$i', // Use the session id as a dummy hash to make it unique and predicable.
             revoked: revoked,
             revocationSupported: revoked,
-            credentialFormats: ['idemix'],
+            format: CredentialFormat.idemix,
           );
         }).toList();
 

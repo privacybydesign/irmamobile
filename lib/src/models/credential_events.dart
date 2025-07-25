@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'credentials.dart';
 import 'event.dart';
+import 'log_entry.dart';
 
 part 'credential_events.g.dart';
 
@@ -18,10 +19,10 @@ class CredentialsEvent extends Event {
 
 @JsonSerializable()
 class DeleteCredentialEvent extends Event {
-  DeleteCredentialEvent({required this.hash});
+  DeleteCredentialEvent({required this.hashByFormat});
 
-  @JsonKey(name: 'Hash')
-  final String hash;
+  @JsonKey(name: 'HashByFormat')
+  final Map<CredentialFormat, String> hashByFormat;
 
   factory DeleteCredentialEvent.fromJson(Map<String, dynamic> json) => _$DeleteCredentialEventFromJson(json);
   Map<String, dynamic> toJson() => _$DeleteCredentialEventToJson(this);

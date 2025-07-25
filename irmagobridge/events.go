@@ -45,7 +45,7 @@ type respondPinEvent struct {
 }
 
 type deleteCredentialEvent struct {
-	Hash string
+  HashByFormat map[irmaclient.CredentialFormat]string
 }
 
 type dismissSessionEvent struct {

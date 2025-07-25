@@ -24,12 +24,50 @@ final credentialsProvider = StreamProvider<Credentials>((ref) async* {
   }
 });
 
-// A list of all credentials of the given credential type id
-final credentialsForTypeProvider = FutureProviderFamily<List<Credential>, String>((ref, credentialTypeId) async {
-  final credentials = await ref.watch(credentialsProvider.future);
+String _hashAttributeValuesAndCredentialType(Credential cred) {
+  var toHash = cred.credentialType.fullId;
 
-  final filteredCredentials =
-      credentials.values.where((cred) => cred.info.credentialType.fullId == credentialTypeId).toList();
+  for (final attr in cred.attributesWithValue.sortedBy((av) => av.attributeType.fullId)) {
+    toHash += '${attr.attributeType.fullId}${attr.value.raw}';
+  }
+  return toHash;
+}
+
+final multiFormatCredentialsProvider = StreamProvider<List<MultiFormatCredential>>((ref) async* {
+  final allCredentials = await ref.watch(credentialsProvider.future);
+
+  Map<String, List<Credential>> result = {};
+
+  for (final cred in allCredentials.values) {
+    final hash = _hashAttributeValuesAndCredentialType(cred);
+    if (result.containsKey(hash)) {
+      result[hash]!.add(cred);
+    } else {
+      result[hash] = [cred];
+    }
+  }
+  yield result.values.map((creds) {
+    final first = creds[0];
+    return MultiFormatCredential(
+      credentialType: first.credentialType,
+      attributes: first.attributes,
+      hashByFormat: Map.fromEntries(creds.map((cred) => MapEntry(cred.format, cred.hash))),
+      signedOn: first.signedOn,
+      expires: first.expires,
+      expired: first.expired,
+      revoked: first.revoked,
+      issuer: first.issuer,
+      valid: first.valid,
+    );
+  }).toList();
+});
+
+// A list of all credentials of the given credential type id
+final credentialsForTypeProvider =
+    FutureProviderFamily<List<MultiFormatCredential>, String>((ref, credentialTypeId) async {
+  final credentials = await ref.watch(multiFormatCredentialsProvider.future);
+
+  final filteredCredentials = credentials..where((cred) => cred.credentialType.fullId == credentialTypeId).toList();
 
   return filteredCredentials;
 });

@@ -23,13 +23,18 @@ class DisclosureIssueWizardCredentialCards extends StatelessWidget {
         (cred) {
           final isDisabled = cred is TemplateDisclosureCredential && !cred.obtainable;
           return IrmaCredentialCard(
-            credentialFormats: [],
-            credentialView: cred,
+            hashByFormat: {},
             style: isActive && !isDisabled ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
             compareTo: cred.attributes,
             hideAttributes: hideAttributes,
             hideFooter: !isActive,
             disabled: isDisabled,
+            type: cred.credentialType,
+            issuer: cred.issuer,
+            attributes: cred.attributes,
+            valid: cred.valid,
+            expired: cred.expired,
+            revoked: cred.revoked,
           );
         },
       ).toList(),

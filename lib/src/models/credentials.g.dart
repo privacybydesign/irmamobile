@@ -18,7 +18,7 @@ RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) => RawCredentia
       hash: json['Hash'] as String,
       revoked: json['Revoked'] as bool,
       revocationSupported: json['RevocationSupported'] as bool,
-      credentialFormats: (json['CredentialFormats'] as List<dynamic>).map((e) => e as String).toList(),
+      format: stringToCredentialFormat(json['CredentialFormat'] as String),
     );
 
 Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) => <String, dynamic>{
@@ -31,5 +31,10 @@ Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) => <String, d
       'Hash': instance.hash,
       'Revoked': instance.revoked,
       'RevocationSupported': instance.revocationSupported,
-      'CredentialFormats': instance.credentialFormats,
+      'CredentialFormat': _$CredentialFormatEnumMap[instance.format]!,
     };
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'sdjwtvc',
+};

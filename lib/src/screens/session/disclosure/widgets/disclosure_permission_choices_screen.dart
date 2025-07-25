@@ -85,22 +85,29 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               ),
             ),
           for (int i = 0; i < choiceEntry.value.length; i++)
-            IrmaCredentialCard(
-              credentialFormats: choiceEntry.value[i].credentialFormats,
-              credentialView: choiceEntry.value[i],
-              padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
-              headerTrailing: optional && i == 0
-                  ? IrmaIconButton(
-                      icon: Icons.close,
-                      size: 22,
-                      padding: EdgeInsets.zero,
-                      onTap: () => onEvent(
-                        DisclosurePermissionRemoveOptionalDataPressed(
-                          disconIndex: choiceEntry.key,
+            Center(
+              child: IrmaCredentialCard(
+                hashByFormat: {choiceEntry.value[i].format: choiceEntry.value[i].credentialHash},
+                padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+                headerTrailing: optional && i == 0
+                    ? IrmaIconButton(
+                        icon: Icons.close,
+                        size: 22,
+                        padding: EdgeInsets.zero,
+                        onTap: () => onEvent(
+                          DisclosurePermissionRemoveOptionalDataPressed(
+                            disconIndex: choiceEntry.key,
+                          ),
                         ),
-                      ),
-                    )
-                  : null,
+                      )
+                    : null,
+                type: choiceEntry.value[i].credentialType,
+                issuer: choiceEntry.value[i].issuer,
+                attributes: choiceEntry.value[i].attributes,
+                valid: choiceEntry.value[i].valid,
+                expired: choiceEntry.value[i].expired,
+                revoked: choiceEntry.value[i].revoked,
+              ),
             ),
         ],
       ),

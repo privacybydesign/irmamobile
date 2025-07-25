@@ -56,7 +56,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  SizedBox _buildCredentialsList(List<Credential> credentials) {
+  SizedBox _buildCredentialsList(List<MultiFormatCredential> credentials) {
     final theme = IrmaTheme.of(context);
     return SizedBox(
       height: double.infinity,
@@ -73,12 +73,12 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
                 height: theme.mediumSpacing,
               ),
               ...credentials.map(
-                (cred) => IrmaCredentialCard.fromCredential(
+                (cred) => IrmaCredentialCard.fromMultiFormatCredential(
                   cred,
                   headerTrailing:
                       // Credential must either be reobtainable or deletable
                       // for the options bottom sheet to be accessible
-                      cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
+                      cred.credentialType.disallowDelete && cred.credentialType.issueUrl.isEmpty
                           ? null
                           : Transform.translate(
                               offset: Offset(theme.smallSpacing, -10),
@@ -101,17 +101,17 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  Future<void> _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async {
+  Future<void> _showCredentialOptionsBottomSheet(BuildContext context, MultiFormatCredential cred) async {
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => IrmaCredentialCardOptionsBottomSheet(
-        onDelete: cred.info.credentialType.disallowDelete
+        onDelete: cred.credentialType.disallowDelete
             ? null
             : () async {
                 Navigator.of(context).pop();
                 await _showConfirmDeleteDialog(_scaffoldKey.currentContext!, cred);
               },
-        onReobtain: cred.info.credentialType.issueUrl.isEmpty
+        onReobtain: cred.credentialType.issueUrl.isEmpty
             ? null
             : () {
                 Navigator.of(context).pop();
@@ -121,7 +121,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  Future<void> _showConfirmDeleteDialog(BuildContext context, Credential credential) async {
+  Future<void> _showConfirmDeleteDialog(BuildContext context, MultiFormatCredential credential) async {
     final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => DeleteCredentialConfirmationDialog(),
@@ -133,10 +133,10 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     }
   }
 
-  void _deleteCredential(BuildContext context, Credential credential) {
-    if (!credential.info.credentialType.disallowDelete) {
+  void _deleteCredential(BuildContext context, MultiFormatCredential credential) {
+    if (!credential.credentialType.disallowDelete) {
       IrmaRepositoryProvider.of(context).bridgedDispatch(
-        DeleteCredentialEvent(hash: credential.hash),
+        DeleteCredentialEvent(hashByFormat: credential.hashByFormat),
       );
     }
   }
@@ -157,9 +157,9 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  void _reobtainCredential(BuildContext context, Credential credential) {
-    if (credential.info.credentialType.issueUrl.isNotEmpty) {
-      IrmaRepositoryProvider.of(context).openIssueURL(context, credential.info.fullId);
+  void _reobtainCredential(BuildContext context, MultiFormatCredential credential) {
+    if (credential.credentialType.issueUrl.isNotEmpty) {
+      IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType.fullId);
     }
   }
 }
