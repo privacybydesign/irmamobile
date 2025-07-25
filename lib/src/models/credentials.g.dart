@@ -31,10 +31,5 @@ Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) => <String, d
       'Hash': instance.hash,
       'Revoked': instance.revoked,
       'RevocationSupported': instance.revocationSupported,
-      'CredentialFormat': _$CredentialFormatEnumMap[instance.format]!,
+      'CredentialFormat': credentialFormatToString(instance.format),
     };
-
-const _$CredentialFormatEnumMap = {
-  CredentialFormat.idemix: 'idemix',
-  CredentialFormat.sdjwtvc: 'sdjwtvc',
-};

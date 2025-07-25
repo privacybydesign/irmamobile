@@ -59,6 +59,13 @@ Protocol _toProtocol(String protocol) {
   };
 }
 
+String credentialFormatToString(CredentialFormat format) {
+  return switch (format) {
+    CredentialFormat.sdjwtvc => 'dc+sd-jwt',
+    CredentialFormat.idemix => 'idemix',
+  };
+}
+
 CredentialFormat stringToCredentialFormat(String format) {
   return switch (format) {
     'dc+sd-jwt' => CredentialFormat.sdjwtvc,

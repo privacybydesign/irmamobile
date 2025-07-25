@@ -46,12 +46,13 @@ final multiFormatCredentialsProvider = StreamProvider<List<MultiFormatCredential
       result[hash] = [cred];
     }
   }
-  yield result.values.map((creds) {
-    final first = creds[0];
+  yield result.entries.map((creds) {
+    final first = creds.value[0];
     return MultiFormatCredential(
+      identifier: creds.key,
       credentialType: first.credentialType,
       attributes: first.attributes,
-      hashByFormat: Map.fromEntries(creds.map((cred) => MapEntry(cred.format, cred.hash))),
+      hashByFormat: Map.fromEntries(creds.value.map((cred) => MapEntry(cred.format, cred.hash))),
       signedOn: first.signedOn,
       expires: first.expires,
       expired: first.expired,
@@ -67,7 +68,7 @@ final credentialsForTypeProvider =
     FutureProviderFamily<List<MultiFormatCredential>, String>((ref, credentialTypeId) async {
   final credentials = await ref.watch(multiFormatCredentialsProvider.future);
 
-  final filteredCredentials = credentials..where((cred) => cred.credentialType.fullId == credentialTypeId).toList();
+  final filteredCredentials = credentials.where((cred) => cred.credentialType.fullId == credentialTypeId).toList();
 
   return filteredCredentials;
 });
@@ -75,10 +76,10 @@ final credentialsForTypeProvider =
 final credentialsSearchQueryProvider = StateProvider((ref) => '');
 
 // A list of credentials filtered by the query in the `credentialsSearchQueryProvider`
-final credentialsSearchResultsProvider = FutureProvider.family<List<Credential>, Locale>(
+final credentialsSearchResultsProvider = FutureProvider.family<List<MultiFormatCredential>, Locale>(
   (ref, locale) async {
     final query = ref.watch(credentialsSearchQueryProvider);
-    final credentials = await ref.watch(credentialsProvider.future);
+    final credentials = await ref.watch(multiFormatCredentialsProvider.future);
     final repo = ref.watch(irmaRepositoryProvider);
 
     final searchEntries = _credentialsToSearchEntries(credentials, locale, repo.irmaConfiguration);
@@ -129,8 +130,9 @@ double _scoreForSearchEntry(_SearchEntry credential, String query) {
   return credentialSimilarity * 0.7 + issuerSimilarity * 0.3;
 }
 
-List<_SearchEntry> _credentialsToSearchEntries(Credentials credentials, Locale locale, IrmaConfiguration config) {
-  return credentials.values.map((credential) {
+List<_SearchEntry> _credentialsToSearchEntries(
+    List<MultiFormatCredential> credentials, Locale locale, IrmaConfiguration config) {
+  return credentials.map((credential) {
     final credentialName =
         credential.credentialType.name.translate(locale.languageCode).toLowerCase().replaceAll('-', '');
 
@@ -140,11 +142,14 @@ List<_SearchEntry> _credentialsToSearchEntries(Credentials credentials, Locale l
             .replaceAll('-', '') ??
         '';
 
-    final hash = credential.hash;
+    final hash = credential.identifier;
     return _SearchEntry(hash: hash, credentialType: credentialName, issuerName: issuer);
   }).toList(growable: false);
 }
 
-List<Credential> _searchEntriesToCredentials(Credentials credentials, List<_SearchEntry> entries) {
-  return entries.map((entry) => credentials[entry.hash]!).toList(growable: false);
+List<MultiFormatCredential> _searchEntriesToCredentials(
+  List<MultiFormatCredential> credentials,
+  List<_SearchEntry> entries,
+) {
+  return entries.map((entry) => credentials.firstWhere((c) => c.identifier == entry.hash)).toList(growable: false);
 }

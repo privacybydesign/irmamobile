@@ -245,7 +245,7 @@ class RawCredential {
   @JsonKey(name: 'RevocationSupported')
   final bool revocationSupported;
 
-  @JsonKey(name: 'CredentialFormat', fromJson: stringToCredentialFormat)
+  @JsonKey(name: 'CredentialFormat', fromJson: stringToCredentialFormat, toJson: credentialFormatToString)
   final CredentialFormat format;
 
   factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
@@ -260,6 +260,7 @@ class RawCredential {
 // A credential referencing multiple credential instances with the same attribute values and credential type
 // in different credential formats
 class MultiFormatCredential {
+  final String identifier;
   final bool expired;
   final bool revoked;
   final Issuer issuer;
@@ -271,6 +272,7 @@ class MultiFormatCredential {
   final bool valid;
 
   MultiFormatCredential({
+    required this.identifier,
     required this.credentialType,
     required this.attributes,
     required this.hashByFormat,
