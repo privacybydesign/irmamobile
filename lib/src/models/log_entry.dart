@@ -122,7 +122,12 @@ class LogInfo {
 
 @JsonSerializable(createToJson: false)
 class IssuanceLog {
-  IssuanceLog({required this.protocol, required this.credentials, required this.disclosedCredentials});
+  IssuanceLog({
+    required this.protocol,
+    required this.credentials,
+    required this.disclosedCredentials,
+    required this.issuer,
+  });
 
   @JsonKey(name: 'Protocol', fromJson: _toProtocol)
   final Protocol protocol;
@@ -132,6 +137,9 @@ class IssuanceLog {
 
   @JsonKey(name: 'DisclosedCredentials')
   final List<CredentialLog> disclosedCredentials;
+
+  @JsonKey(name: 'Issuer')
+  final RequestorInfo issuer;
 
   factory IssuanceLog.fromJson(Map<String, dynamic> json) => _$IssuanceLogFromJson(json);
 }

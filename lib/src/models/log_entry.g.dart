@@ -37,6 +37,7 @@ IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
       disclosedCredentials: (json['DisclosedCredentials'] as List<dynamic>)
           .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
           .toList(),
+      issuer: RequestorInfo.fromJson(json['Issuer'] as Map<String, dynamic>),
     );
 
 DisclosureLog _$DisclosureLogFromJson(Map<String, dynamic> json) => DisclosureLog(
