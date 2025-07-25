@@ -250,6 +250,7 @@ class IrmaMockBridge extends IrmaBridge {
         }).toList();
 
         yield RequestIssuancePermissionSessionEvent(
+          issueSdJwts: false,
           sessionID: sessionId,
           serverName: RequestorInfo(name: TranslatedValue.fromString('test')),
           satisfiable: true,

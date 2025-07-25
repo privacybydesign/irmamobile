@@ -3,6 +3,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../models/attribute.dart';
 import '../models/credentials.dart';
+import '../models/log_entry.dart';
 import '../models/return_url.dart';
 import '../models/session.dart';
 import '../models/session_events.dart';
@@ -122,12 +123,27 @@ class SessionRepository {
         canBeFinished: canBeFinished,
         isSignatureSession: false,
         disclosuresCandidates: ConDisCon.fromRaw(event.disclosuresCandidates, (DisclosureCandidate dc) => dc),
-        issuedCredentials: event.issuedCredentials
-            .map((raw) => Credential.fromRaw(
-                  irmaConfiguration: repo.irmaConfiguration,
-                  rawCredential: raw,
-                ))
-            .toList(),
+        issuedCredentials: event.issuedCredentials.map((raw) {
+          final c = Credential.fromRaw(
+            irmaConfiguration: repo.irmaConfiguration,
+            rawCredential: raw,
+          );
+          return MultiFormatCredential(
+            identifier: '',
+            credentialType: c.credentialType,
+            attributes: [],
+            hashByFormat: {
+              c.format: c.hash,
+              if (event.issueSdJwts) CredentialFormat.sdjwtvc: '',
+            },
+            signedOn: c.signedOn,
+            expires: c.expires,
+            expired: c.expired,
+            revoked: c.revoked,
+            issuer: c.issuer,
+            valid: c.valid,
+          );
+        }).toList(),
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
       try {

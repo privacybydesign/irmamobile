@@ -57,6 +57,7 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 
 	sh.permissionHandler = ph
 	dispatchEvent(&requestIssuancePermissionSessionEvent{
+		IssueSdJwts:           request.RequestSdJwts,
 		SessionID:             sh.sessionID,
 		ServerName:            serverName,
 		Satisfiable:           satisfiable,

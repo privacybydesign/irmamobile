@@ -147,6 +147,7 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
     required this.serverName,
     required this.satisfiable,
     required this.issuedCredentials,
+    required this.issueSdJwts,
     this.disclosuresLabels,
     this.disclosuresCandidates = const [],
   }) : super(sessionID);
@@ -159,6 +160,9 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
 
   @JsonKey(name: 'IssuedCredentials')
   final List<RawCredential> issuedCredentials;
+
+  @JsonKey(name: 'IssueSdJwts')
+  final bool issueSdJwts;
 
   @JsonKey(name: 'DisclosuresLabels')
   final Map<int, TranslatedValue>? disclosuresLabels;
