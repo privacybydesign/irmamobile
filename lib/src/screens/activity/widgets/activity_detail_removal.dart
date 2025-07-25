@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
@@ -8,7 +7,7 @@ import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/translated_text.dart';
 
 class ActivityDetailRemoval extends StatelessWidget {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   const ActivityDetailRemoval({
@@ -19,12 +18,8 @@ class ActivityDetailRemoval extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final removedCredentials = logEntry.removedCredentials.entries
-        .map((entry) => CredentialView.fromRawAttributes(
-              irmaConfiguration: irmaConfiguration,
-              rawAttributes: entry.value,
-            ))
-        .toList();
+
+    final removedCredentials = logEntry.removalLog?.credentials ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,10 +33,9 @@ class ActivityDetailRemoval extends StatelessWidget {
         for (var removedCredential in removedCredentials)
           Padding(
             padding: EdgeInsets.only(top: theme.smallSpacing),
-            child: IrmaCredentialCard(
-              credentialFormats: [],
-              credentialView: removedCredential,
-              hideFooter: true,
+            child: IrmaCredentialCard.fromCredentialLog(
+              irmaConfiguration,
+              removedCredential,
             ),
           )
       ],

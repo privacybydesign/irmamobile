@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../../models/attribute.dart';
-import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
-import '../../../widgets/credential_card/irma_empty_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/issuer_verifier_header.dart';
 import '../../../widgets/translated_text.dart';
 
 class ActivityDetailDisclosure extends StatelessWidget {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   const ActivityDetailDisclosure({
@@ -21,28 +18,12 @@ class ActivityDetailDisclosure extends StatelessWidget {
     required this.irmaConfiguration,
   });
 
-  Widget _buildCredentialCard(
-    BuildContext context,
-    List<DisclosedAttribute> disclosedAttributes,
-  ) {
-    final mappedAttributes =
-        disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
-    final credentialView = CredentialView.fromAttributes(
-      irmaConfiguration: irmaConfiguration,
-      attributes: mappedAttributes,
-    );
-
-    return IrmaCredentialCard(
-      credentialFormats: [],
-      credentialView: credentialView,
-      hideFooter: true,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final groupedDisclosedAttributes = logEntry.disclosedAttributes;
+
+    final requestor =
+        logEntry.type == LogType.disclosure ? logEntry.disclosureLog!.verifier : logEntry.signedMessageLog!.verifier;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,21 +35,14 @@ class ActivityDetailDisclosure extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         // If all disclosed attributes are empty render one empty data card
-        if (groupedDisclosedAttributes.every(
-          (disclosedAttributes) => disclosedAttributes.isEmpty,
-        ))
-          IrmaEmptyCredentialCard()
-        // Else build credential cards for all the
-        // disclosedAttributes that are not empty
-        else
-          for (var disclosedAttributes in groupedDisclosedAttributes.where(
-            (disclosedAttributes) => disclosedAttributes.isNotEmpty,
-          ))
-            _buildCredentialCard(
-              context,
-              disclosedAttributes,
-            ),
-        if (logEntry.type == LogEntryType.signing) ...[
+        for (var credential in logEntry.type == LogType.disclosure
+            ? logEntry.disclosureLog!.credentials
+            : logEntry.signedMessageLog!.credentials)
+          IrmaCredentialCard.fromCredentialLog(
+            irmaConfiguration,
+            credential,
+          ),
+        if (logEntry.type == LogType.signature) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
             child: TranslatedText(
@@ -77,7 +51,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
               isHeader: true,
             ),
           ),
-          IrmaQuote(quote: logEntry.signedMessage?.message),
+          IrmaQuote(quote: logEntry.signedMessageLog!.message),
         ],
         SizedBox(height: theme.defaultSpacing),
         TranslatedText(
@@ -87,13 +61,13 @@ class ActivityDetailDisclosure extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         IssuerVerifierHeader(
-          title: logEntry.serverName?.name.translate(
+          title: requestor.name.translate(
             FlutterI18n.currentLocale(context)!.languageCode,
           ),
           titleTextStyle: IrmaTheme.of(context).textTheme.headlineSmall!.copyWith(
                 fontWeight: FontWeight.w600,
               ),
-          imagePath: logEntry.serverName?.logoPath,
+          imagePath: requestor.logoPath,
         )
       ],
     );

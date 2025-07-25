@@ -12,7 +12,7 @@ import '../../../widgets/irma_card.dart';
 import '../../../widgets/translated_text.dart';
 
 class ActivityCard extends StatelessWidget {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   const ActivityCard({
@@ -39,8 +39,8 @@ class ActivityCard extends StatelessWidget {
       },
     );
 
-    if (logEntry.type == LogEntryType.removal) {
-      final credType = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first]!;
+    if (logEntry.type == LogType.removal) {
+      final credType = irmaConfiguration.credentialTypes[logEntry.removalLog!.credentials.first.credentialType]!;
       title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(lang);
       subtitleTranslationKey = 'activity.data_deleted';
       semanticLabel = FlutterI18n.translate(
@@ -56,16 +56,7 @@ class ActivityCard extends StatelessWidget {
         logo = credType.logo;
       }
     } else {
-      String? serverName;
-      if (logEntry.serverName != null) {
-        serverName = logEntry.serverName!.name.translate(lang);
-        title = serverName;
-        if (logEntry.serverName!.logoPath != null) {
-          logo = logEntry.serverName!.logoPath;
-        }
-      }
-
-      if (logEntry.type == LogEntryType.issuing) {
+      if (logEntry.type == LogType.issuance) {
         subtitleTranslationKey = 'activity.data_received';
         semanticLabel = FlutterI18n.translate(
           context,
@@ -75,7 +66,13 @@ class ActivityCard extends StatelessWidget {
             'date': localizedTimeStamp,
           },
         );
-      } else if (logEntry.type == LogEntryType.disclosing) {
+      } else if (logEntry.type == LogType.disclosure) {
+        final serverName = logEntry.disclosureLog!.verifier.name.translate(lang);
+        title = serverName;
+        if (logEntry.disclosureLog!.verifier.logoPath != null) {
+          logo = logEntry.disclosureLog!.verifier.logoPath;
+        }
+
         subtitleTranslationKey = 'activity.data_shared';
         semanticLabel = FlutterI18n.translate(
           context,
@@ -85,7 +82,7 @@ class ActivityCard extends StatelessWidget {
             'date': localizedTimeStamp,
           },
         );
-      } else if (logEntry.type == LogEntryType.signing) {
+      } else if (logEntry.type == LogType.signature) {
         subtitleTranslationKey = 'activity.message_signed';
         semanticLabel = FlutterI18n.translate(
           context,
@@ -107,7 +104,7 @@ class ActivityCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: Material(
           child: InkWell(
-            onTap: () => context.pushActivityDetailsScreen(logEntry: logEntry, config: irmaConfiguration),
+            onTap: () => context.pushActivityDetailsScreen(logInfo: logEntry, config: irmaConfiguration),
             child: Semantics(
               excludeSemantics: true,
               child: Padding(
@@ -119,11 +116,12 @@ class ActivityCard extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          IrmaAvatar(
-                            size: 52,
-                            logoPath: logo,
-                            initials: title != '' ? title[0] : null,
-                          ),
+                          if (logo != null)
+                            IrmaAvatar(
+                              size: 52,
+                              logoPath: logo,
+                              initials: title != '' ? title[0] : null,
+                            ),
                           SizedBox(
                             width: theme.smallSpacing,
                           ),

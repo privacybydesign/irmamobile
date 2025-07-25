@@ -220,18 +220,7 @@ type keyshareEnrollmentIncompleteSessionEvent struct {
 }
 
 type logsEvent struct {
-	LogEntries []*logEntry
-}
-
-type logEntry struct {
-	ID                   uint64
-	Type                 irma.Action
-	Time                 irma.Timestamp
-	ServerName           *irma.RequestorInfo
-	IssuedCredentials    irma.CredentialInfoList
-	DisclosedCredentials [][]*irma.DisclosedAttribute
-	SignedMessage        *irma.SignedMessage
-	RemovedCredentials   map[irma.CredentialTypeIdentifier]map[irma.AttributeTypeIdentifier]irma.TranslatedString
+	LogEntries []irmaclient.LogInfo
 }
 
 // //

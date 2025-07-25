@@ -97,7 +97,7 @@ class _ActivityTabState extends State<ActivityTab> {
   }
 
   Widget _buildLogEntries(
-      BuildContext context, IrmaConfiguration irmaConfiguration, List<LogEntry> logEntries, bool moreLogsAvailable) {
+      BuildContext context, IrmaConfiguration irmaConfiguration, List<LogInfo> logEntries, bool moreLogsAvailable) {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);

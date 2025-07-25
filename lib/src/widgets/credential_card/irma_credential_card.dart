@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../models/attribute.dart';
+import '../../models/attribute_value.dart';
 import '../../models/credentials.dart';
+import '../../models/irma_configuration.dart';
+import '../../models/log_entry.dart';
+import '../../models/translated_value.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../greyed_out.dart';
@@ -39,6 +43,33 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideAttributes = false,
     this.disabled = false,
   });
+
+  static IrmaCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential) {
+    final attributes = credential.attributes.entries.map((entry) {
+      final attributeId = '${credential.credentialType}.${entry.key}';
+      final attributeType = irmaConfiguration.attributeTypes[attributeId];
+      final attributeValue = AttributeValue.fromRaw(
+        attributeType!,
+        TranslatedValue({
+          '': entry.value,
+          'en': entry.value,
+          'nl': entry.value,
+        }),
+      );
+      return Attribute(attributeType: attributeType, value: attributeValue);
+    }).toList();
+
+    final credentialView = CredentialView.fromAttributes(
+      irmaConfiguration: irmaConfiguration,
+      attributes: attributes,
+    );
+
+    return IrmaCredentialCard(
+      credentialFormats: [],
+      credentialView: credentialView,
+      hideFooter: true,
+    );
+  }
 
   IrmaCredentialCard.fromCredential(
     Credential credential, {

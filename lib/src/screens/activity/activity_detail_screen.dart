@@ -12,14 +12,14 @@ import 'widgets/activity_detail_issuance.dart';
 import 'widgets/activity_detail_removal.dart';
 
 class ActivityDetailsScreenArgs {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   ActivityDetailsScreenArgs({required this.logEntry, required this.irmaConfiguration});
 }
 
 class ActivityDetailsScreen extends StatelessWidget {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   ActivityDetailsScreen({
@@ -48,24 +48,20 @@ class ActivityDetailsScreen extends StatelessWidget {
               children: [
                 Builder(
                   builder: (context) {
-                    switch (logEntry.type) {
-                      case LogEntryType.signing:
-                      case LogEntryType.disclosing:
-                        return ActivityDetailDisclosure(
+                    return switch (logEntry.type) {
+                      LogType.disclosure || LogType.signature => ActivityDetailDisclosure(
                           logEntry: logEntry,
                           irmaConfiguration: irmaConfiguration,
-                        );
-                      case LogEntryType.issuing:
-                        return ActivityDetailIssuance(
+                        ),
+                      LogType.issuance => ActivityDetailIssuance(
                           logEntry: logEntry,
                           irmaConfiguration: irmaConfiguration,
-                        );
-                      case LogEntryType.removal:
-                        return ActivityDetailRemoval(
+                        ),
+                      LogType.removal => ActivityDetailRemoval(
                           logEntry: logEntry,
                           irmaConfiguration: irmaConfiguration,
-                        );
-                    }
+                        )
+                    };
                   },
                 ),
                 //Always add the timestamp of the activity on the bottom

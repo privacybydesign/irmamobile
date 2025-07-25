@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/translated_text.dart';
-import 'activity_detail_disclosure.dart';
 
 class ActivityDetailIssuance extends StatelessWidget {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   const ActivityDetailIssuance({
@@ -21,15 +19,18 @@ class ActivityDetailIssuance extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
+    final issuanceLog = logEntry.issuanceLog!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //If is this issuance also has disclosed attributes
-        if (logEntry.disclosedAttributes.isNotEmpty) ...[
-          ActivityDetailDisclosure(
-            logEntry: logEntry,
-            irmaConfiguration: irmaConfiguration,
-          ),
+        if (issuanceLog.disclosedCredentials.isNotEmpty) ...[
+          for (final cred in issuanceLog.disclosedCredentials)
+            Padding(
+              padding: EdgeInsets.only(top: theme.smallSpacing),
+              child: IrmaCredentialCard.fromCredentialLog(irmaConfiguration, cred),
+            ),
           SizedBox(height: theme.smallSpacing),
         ],
         TranslatedText(
@@ -38,13 +39,13 @@ class ActivityDetailIssuance extends StatelessWidget {
           isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
-        for (var rawCredential in logEntry.issuedCredentials)
-          IrmaCredentialCard.fromCredential(
-            Credential.fromRaw(
-              irmaConfiguration: irmaConfiguration,
-              rawCredential: rawCredential,
+        for (var rawCredential in issuanceLog.credentials)
+          Padding(
+            padding: EdgeInsets.only(top: theme.smallSpacing),
+            child: IrmaCredentialCard.fromCredentialLog(
+              irmaConfiguration,
+              rawCredential,
             ),
-            hideFooter: true,
           )
       ],
     );
