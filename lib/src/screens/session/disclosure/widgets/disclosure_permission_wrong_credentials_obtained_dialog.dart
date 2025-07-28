@@ -39,12 +39,13 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
           ),
           ...state.templates.map(
             (cred) => IrmaCredentialCard(
+              // TODO: find out the correct format asked here...
               hashByFormat: {},
               compareTo: cred.attributes,
               hideFooter: true,
               type: cred.credentialType,
               issuer: cred.issuer,
-              attributes: [],
+              attributes: cred.attributes,
               valid: cred.valid,
               expired: cred.expired,
               revoked: cred.revoked,

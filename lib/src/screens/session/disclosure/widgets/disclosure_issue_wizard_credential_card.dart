@@ -35,6 +35,7 @@ class DisclosureIssueWizardCredentialCards extends StatelessWidget {
             valid: cred.valid,
             expired: cred.expired,
             revoked: cred.revoked,
+            isTemplate: cred is TemplateDisclosureCredential,
           );
         },
       ).toList(),

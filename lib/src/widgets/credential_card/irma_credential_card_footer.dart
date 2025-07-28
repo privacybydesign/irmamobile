@@ -3,7 +3,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/irma_configuration.dart';
 import '../../providers/irma_repository_provider.dart';
-import '../../screens/session/disclosure/models/template_disclosure_credential.dart';
 import '../../theme/theme.dart';
 import '../../util/date_formatter.dart';
 import '../information_box.dart';
@@ -17,6 +16,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
   final bool revoked;
   final Issuer issuer;
   final CardExpiryDate? expiryDate;
+  final bool isTemplate;
 
   final EdgeInsetsGeometry padding;
 
@@ -28,6 +28,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
     required this.revoked,
     this.expiryDate,
     this.padding = EdgeInsets.zero,
+    this.isTemplate = false,
   });
 
   bool get _isExpiringSoon => expiryDate?.expiresSoon ?? false;
@@ -73,7 +74,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
           ),
         );
       }
-    } else if (!valid || credentialView is TemplateDisclosureCredential) {
+    } else if (!valid || isTemplate) {
       return InformationBox(
         message: FlutterI18n.translate(
           context,

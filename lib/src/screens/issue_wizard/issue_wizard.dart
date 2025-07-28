@@ -187,7 +187,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
         final logoFile = File(wizardData?.logoPath ?? '');
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
-            : Image.asset('assets/non-free/irmalogo.png', excludeFromSemantics: true);
+            : Image.asset('assets/non-free/logo.png', excludeFromSemantics: true);
 
         if (_showIntro) {
           return IssueWizardInfo(

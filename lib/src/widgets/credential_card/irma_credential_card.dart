@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/attribute.dart';
@@ -24,8 +23,8 @@ class IrmaCredentialCard extends StatelessWidget {
   final Issuer issuer;
   final bool expired;
   final bool revoked;
+  final bool isTemplate;
 
-  // final CredentialView credentialView;
   final List<Attribute>? compareTo;
   final Function()? onTap;
   final IrmaCardStyle style;
@@ -55,6 +54,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = false,
     this.hideAttributes = false,
     this.disabled = false,
+    this.isTemplate = false,
   });
 
   static IrmaCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential) {
@@ -100,6 +100,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = false,
     this.hideAttributes = false,
     this.disabled = false,
+    this.isTemplate = false,
   })  : attributes = credential.attributes,
         valid = credential.valid,
         type = credential.credentialType,
@@ -120,6 +121,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = false,
     this.hideAttributes = false,
     this.disabled = false,
+    this.isTemplate = false,
   })  : attributes = credential.attributes,
         valid = credential.valid,
         type = credential.credentialType,
@@ -159,7 +161,7 @@ class IrmaCredentialCard extends StatelessWidget {
               ),
             ),
             // If there are attributes in this credential, then we show the attribute list
-            if (attributes.none((a) => a.value is! NullValue) && !hideAttributes) ...[
+            if (attributes.any((a) => a.value is! NullValue) && !hideAttributes) ...[
               IrmaDivider(color: valid ? null : theme.danger),
               IrmaCredentialCardAttributeList(
                 attributes,
@@ -174,6 +176,7 @@ class IrmaCredentialCard extends StatelessWidget {
                 expired: expired,
                 valid: valid,
                 expiryDate: expiryDate,
+                isTemplate: isTemplate,
                 padding: EdgeInsets.only(top: theme.smallSpacing),
               ),
             SizedBox(height: theme.smallSpacing),
