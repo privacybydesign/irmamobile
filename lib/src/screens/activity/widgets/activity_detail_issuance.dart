@@ -27,37 +27,37 @@ class ActivityDetailIssuance extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TranslatedText(
-          'activity.data_shared',
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
-        SizedBox(height: theme.smallSpacing),
         //If is this issuance also has disclosed attributes
         if (issuanceLog.disclosedCredentials.isNotEmpty) ...[
+          TranslatedText(
+            'activity.data_shared',
+            style: theme.themeData.textTheme.headlineMedium,
+            isHeader: true,
+          ),
+          SizedBox(height: theme.smallSpacing),
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: IrmaCredentialCard.fromCredentialLog(irmaConfiguration, cred),
             ),
           SizedBox(height: theme.smallSpacing),
-        ],
-        TranslatedText(
-          'activity.shared_with',
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
-        SizedBox(height: theme.smallSpacing),
-        IssuerVerifierHeader(
-          title: requestor.name.translate(
-            FlutterI18n.currentLocale(context)!.languageCode,
+          TranslatedText(
+            'activity.shared_with',
+            style: theme.themeData.textTheme.headlineMedium,
+            isHeader: true,
           ),
-          titleTextStyle: IrmaTheme.of(context).textTheme.headlineSmall!.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-          imagePath: requestor.logoPath,
-        ),
-        SizedBox(height: theme.defaultSpacing),
+          SizedBox(height: theme.smallSpacing),
+          IssuerVerifierHeader(
+            title: requestor.name.translate(
+              FlutterI18n.currentLocale(context)!.languageCode,
+            ),
+            titleTextStyle: IrmaTheme.of(context).textTheme.headlineSmall!.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+            imagePath: requestor.logoPath,
+          ),
+          SizedBox(height: theme.defaultSpacing),
+        ],
         TranslatedText(
           'activity.received_data',
           style: theme.themeData.textTheme.headlineMedium,
