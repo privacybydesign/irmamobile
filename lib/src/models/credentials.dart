@@ -5,6 +5,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'attribute.dart';
 import 'attribute_value.dart';
 import 'irma_configuration.dart';
+import 'log_entry.dart';
 import 'translated_value.dart';
 
 part 'credentials.g.dart';
@@ -119,7 +120,7 @@ class Credential extends CredentialView {
   final DateTime signedOn;
   final DateTime expires;
   final String hash;
-  final List<String> credentialFormats;
+  final CredentialFormat format;
 
   Credential({
     required super.info,
@@ -128,7 +129,7 @@ class Credential extends CredentialView {
     required super.attributes,
     required super.revoked,
     required this.hash,
-    required this.credentialFormats,
+    required this.format,
   }) : super(expired: expires.isBefore(DateTime.now()));
 
   factory Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential}) {
@@ -156,7 +157,7 @@ class Credential extends CredentialView {
       attributes: attributes,
       revoked: rawCredential.revoked,
       hash: rawCredential.hash,
-      credentialFormats: rawCredential.credentialFormats,
+      format: rawCredential.format,
     );
   }
 }
@@ -214,7 +215,7 @@ class RawCredential {
     required this.hash,
     required this.revoked,
     required this.revocationSupported,
-    required this.credentialFormats,
+    required this.format,
   });
 
   @JsonKey(name: 'ID')
@@ -244,8 +245,8 @@ class RawCredential {
   @JsonKey(name: 'RevocationSupported')
   final bool revocationSupported;
 
-  @JsonKey(name: 'CredentialFormats')
-  final List<String> credentialFormats;
+  @JsonKey(name: 'CredentialFormat', fromJson: stringToCredentialFormat, toJson: credentialFormatToString)
+  final CredentialFormat format;
 
   factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
 
@@ -254,4 +255,32 @@ class RawCredential {
   String get fullIssuerId => '$schemeManagerId.$issuerId';
 
   String get fullId => '$fullIssuerId.$id';
+}
+
+// A credential referencing multiple credential instances with the same attribute values and credential type
+// in different credential formats
+class MultiFormatCredential {
+  final String identifier;
+  final bool expired;
+  final bool revoked;
+  final Issuer issuer;
+  final CredentialType credentialType;
+  final List<Attribute> attributes;
+  final Map<CredentialFormat, String> hashByFormat;
+  final DateTime signedOn;
+  final DateTime expires;
+  final bool valid;
+
+  MultiFormatCredential({
+    required this.identifier,
+    required this.credentialType,
+    required this.attributes,
+    required this.hashByFormat,
+    required this.signedOn,
+    required this.expires,
+    required this.expired,
+    required this.revoked,
+    required this.issuer,
+    required this.valid,
+  });
 }

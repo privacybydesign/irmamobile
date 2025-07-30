@@ -59,7 +59,14 @@ Protocol _toProtocol(String protocol) {
   };
 }
 
-CredentialFormat _toCredentialFormat(String format) {
+String credentialFormatToString(CredentialFormat format) {
+  return switch (format) {
+    CredentialFormat.sdjwtvc => 'dc+sd-jwt',
+    CredentialFormat.idemix => 'idemix',
+  };
+}
+
+CredentialFormat stringToCredentialFormat(String format) {
   return switch (format) {
     'dc+sd-jwt' => CredentialFormat.sdjwtvc,
     'idemix' => CredentialFormat.idemix,
@@ -71,7 +78,7 @@ List<CredentialFormat> _toCredentialFormatList(dynamic value) {
   if (value == null) {
     return [];
   }
-  return (value as List<dynamic>).map((v) => _toCredentialFormat(v as String)).toList();
+  return (value as List<dynamic>).map((v) => stringToCredentialFormat(v as String)).toList();
 }
 
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
@@ -115,7 +122,12 @@ class LogInfo {
 
 @JsonSerializable(createToJson: false)
 class IssuanceLog {
-  IssuanceLog({required this.protocol, required this.credentials, required this.disclosedCredentials});
+  IssuanceLog({
+    required this.protocol,
+    required this.credentials,
+    required this.disclosedCredentials,
+    required this.issuer,
+  });
 
   @JsonKey(name: 'Protocol', fromJson: _toProtocol)
   final Protocol protocol;
@@ -125,6 +137,9 @@ class IssuanceLog {
 
   @JsonKey(name: 'DisclosedCredentials')
   final List<CredentialLog> disclosedCredentials;
+
+  @JsonKey(name: 'Issuer')
+  final RequestorInfo issuer;
 
   factory IssuanceLog.fromJson(Map<String, dynamic> json) => _$IssuanceLogFromJson(json);
 }

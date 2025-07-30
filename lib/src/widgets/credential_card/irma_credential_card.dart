@@ -17,7 +17,14 @@ import 'irma_credential_card_header.dart';
 import 'models/card_expiry_date.dart';
 
 class IrmaCredentialCard extends StatelessWidget {
-  final CredentialView credentialView;
+  final List<Attribute> attributes;
+  final bool valid;
+  final CredentialType type;
+  final Issuer issuer;
+  final bool expired;
+  final bool revoked;
+  final bool isTemplate;
+
   final List<Attribute>? compareTo;
   final Function()? onTap;
   final IrmaCardStyle style;
@@ -27,12 +34,17 @@ class IrmaCredentialCard extends StatelessWidget {
   final bool hideFooter;
   final bool hideAttributes;
   final bool disabled;
-  final List<String> credentialFormats;
+  final Map<CredentialFormat, String> hashByFormat;
 
   const IrmaCredentialCard({
     super.key,
-    required this.credentialView,
-    required this.credentialFormats,
+    required this.type,
+    required this.issuer,
+    required this.attributes,
+    required this.valid,
+    required this.expired,
+    required this.revoked,
+    required this.hashByFormat,
     this.compareTo,
     this.onTap,
     this.headerTrailing,
@@ -42,6 +54,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = false,
     this.hideAttributes = false,
     this.disabled = false,
+    this.isTemplate = false,
   });
 
   static IrmaCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential) {
@@ -65,11 +78,37 @@ class IrmaCredentialCard extends StatelessWidget {
     );
 
     return IrmaCredentialCard(
-      credentialFormats: [],
-      credentialView: credentialView,
+      valid: credentialView.valid,
+      type: credentialView.credentialType,
+      issuer: credentialView.issuer,
+      expired: credentialView.expired,
+      revoked: credentialView.revoked,
+      hashByFormat: Map.fromEntries(credential.formats.map((f) => MapEntry(f, ''))),
+      attributes: credentialView.attributes,
       hideFooter: true,
     );
   }
+
+  IrmaCredentialCard.fromMultiFormatCredential(
+    MultiFormatCredential credential, {
+    super.key,
+    this.compareTo,
+    this.onTap,
+    this.style = IrmaCardStyle.normal,
+    this.headerTrailing,
+    this.padding,
+    this.hideFooter = false,
+    this.hideAttributes = false,
+    this.disabled = false,
+    this.isTemplate = false,
+  })  : attributes = credential.attributes,
+        valid = credential.valid,
+        type = credential.credentialType,
+        expired = credential.expired,
+        revoked = credential.revoked,
+        issuer = credential.issuer,
+        hashByFormat = credential.hashByFormat,
+        expiryDate = CardExpiryDate(credential.expires);
 
   IrmaCredentialCard.fromCredential(
     Credential credential, {
@@ -82,8 +121,14 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = false,
     this.hideAttributes = false,
     this.disabled = false,
-  })  : credentialView = credential,
-        credentialFormats = credential.credentialFormats,
+    this.isTemplate = false,
+  })  : attributes = credential.attributes,
+        valid = credential.valid,
+        type = credential.credentialType,
+        expired = credential.expired,
+        revoked = credential.revoked,
+        issuer = credential.issuer,
+        hashByFormat = {credential.format: credential.hash},
         expiryDate = CardExpiryDate(credential.expires);
 
   @override
@@ -95,7 +140,7 @@ class IrmaCredentialCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: IrmaCard(
-        style: credentialView.valid ? style : IrmaCardStyle.danger,
+        style: valid ? style : IrmaCardStyle.danger,
         onTap: onTap,
         padding: padding,
         child: Column(
@@ -106,34 +151,39 @@ class IrmaCredentialCard extends StatelessWidget {
             GreyedOut(
               filterActive: disabled,
               child: IrmaCredentialCardHeader(
-                credentialName: getTranslation(context, credentialView.credentialType.name),
-                issuerName: getTranslation(context, credentialView.issuer.name),
-                logo: credentialView.credentialType.logo,
+                credentialName: getTranslation(context, type.name),
+                issuerName: getTranslation(context, issuer.name),
+                logo: type.logo,
                 trailing: headerTrailing,
-                isExpired: credentialView.expired,
-                isRevoked: credentialView.revoked,
+                isExpired: expired,
+                isRevoked: revoked,
                 isExpiringSoon: isExpiringSoon,
               ),
             ),
             // If there are attributes in this credential, then we show the attribute list
-            if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
-              IrmaDivider(color: credentialView.valid ? null : theme.danger),
+            if (attributes.any((a) => a.value is! NullValue) && !hideAttributes) ...[
+              IrmaDivider(color: valid ? null : theme.danger),
               IrmaCredentialCardAttributeList(
-                credentialView.attributes,
+                attributes,
                 compareTo: compareTo,
               ),
             ],
             if (!hideFooter)
               IrmaCredentialCardFooter(
-                credentialView: credentialView,
+                credentialView: type,
+                issuer: issuer,
+                revoked: revoked,
+                expired: expired,
+                valid: valid,
                 expiryDate: expiryDate,
+                isTemplate: isTemplate,
                 padding: EdgeInsets.only(top: theme.smallSpacing),
               ),
             SizedBox(height: theme.smallSpacing),
             Row(
               spacing: theme.smallSpacing,
               children: [
-                for (final credentialFormat in credentialFormats) CredentialFormatTag(format: credentialFormat),
+                for (final credentialFormat in hashByFormat.keys) CredentialFormatTag(format: credentialFormat),
               ],
             )
           ],
@@ -146,12 +196,12 @@ class IrmaCredentialCard extends StatelessWidget {
 class CredentialFormatTag extends StatelessWidget {
   const CredentialFormatTag({super.key, required this.format});
 
-  final String format;
+  final CredentialFormat format;
 
   @override
   Widget build(BuildContext context) {
-    final text = format == 'idemix' ? 'Yivi' : 'Eudi';
-    final color = format == 'idemix' ? Colors.red.shade800 : Colors.blue.shade800;
+    final text = format == CredentialFormat.idemix ? 'Yivi' : 'Eudi';
+    final color = format == CredentialFormat.idemix ? Colors.red.shade800 : Colors.blue.shade800;
     final textStyle = IrmaTheme.of(context).textTheme.bodySmall;
     return Container(
       decoration: BoxDecoration(

@@ -1,9 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../models/credentials.dart';
+import '../../models/irma_configuration.dart';
 import '../../providers/irma_repository_provider.dart';
-import '../../screens/session/disclosure/models/template_disclosure_credential.dart';
 import '../../theme/theme.dart';
 import '../../util/date_formatter.dart';
 import '../information_box.dart';
@@ -11,15 +10,25 @@ import '../yivi_themed_button.dart';
 import 'models/card_expiry_date.dart';
 
 class IrmaCredentialCardFooter extends StatelessWidget {
-  final CredentialView credentialView;
+  final CredentialType credentialView;
+  final bool valid;
+  final bool expired;
+  final bool revoked;
+  final Issuer issuer;
   final CardExpiryDate? expiryDate;
+  final bool isTemplate;
 
   final EdgeInsetsGeometry padding;
 
   const IrmaCredentialCardFooter({
+    required this.valid,
+    required this.expired,
+    required this.issuer,
     required this.credentialView,
+    required this.revoked,
     this.expiryDate,
     this.padding = EdgeInsets.zero,
+    this.isTemplate = false,
   });
 
   bool get _isExpiringSoon => expiryDate?.expiresSoon ?? false;
@@ -27,11 +36,11 @@ class IrmaCredentialCardFooter extends StatelessWidget {
   Widget? _buildFooterText(BuildContext context, IrmaThemeData theme) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
-    if (!credentialView.revoked && (expiryDate != null || expiryDate?.dateTime != null)) {
+    if (!revoked && (expiryDate != null || expiryDate?.dateTime != null)) {
       return Text(
         FlutterI18n.translate(
           context,
-          credentialView.expired
+          expired
               ? 'credential.expired_on'
               : _isExpiringSoon
                   ? 'credential.expires_on'
@@ -52,7 +61,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
 
   Widget? _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
     if (credentialView.obtainable) {
-      if (!credentialView.valid || _isExpiringSoon) {
+      if (!valid || _isExpiringSoon) {
         return Padding(
           padding: EdgeInsets.only(top: theme.smallSpacing),
           child: YiviThemedButton(
@@ -65,13 +74,13 @@ class IrmaCredentialCardFooter extends StatelessWidget {
           ),
         );
       }
-    } else if (!credentialView.valid || credentialView is TemplateDisclosureCredential) {
+    } else if (!valid || isTemplate) {
       return InformationBox(
         message: FlutterI18n.translate(
           context,
           'credential.not_obtainable',
           translationParams: {
-            'issuerName': credentialView.issuer.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
+            'issuerName': issuer.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
           },
         ),
       );

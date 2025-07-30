@@ -16,9 +16,16 @@ Map<String, dynamic> _$CredentialsEventToJson(CredentialsEvent instance) => <Str
     };
 
 DeleteCredentialEvent _$DeleteCredentialEventFromJson(Map<String, dynamic> json) => DeleteCredentialEvent(
-      hash: json['Hash'] as String,
+      hashByFormat: (json['HashByFormat'] as Map<String, dynamic>).map(
+        (k, e) => MapEntry($enumDecode(_$CredentialFormatEnumMap, k), e as String),
+      ),
     );
 
 Map<String, dynamic> _$DeleteCredentialEventToJson(DeleteCredentialEvent instance) => <String, dynamic>{
-      'Hash': instance.hash,
+      'HashByFormat': hashByFormatToString(instance.hashByFormat),
     };
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'sdjwtvc',
+};

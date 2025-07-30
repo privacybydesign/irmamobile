@@ -40,17 +40,24 @@ class DisclosurePermissionChoice extends StatelessWidget {
                             onChoiceUpdated(option.key);
                           }
                         },
-                  child: IrmaCredentialCard(
-                    credentialFormats: credential is ChoosableDisclosureCredential ? credential.credentialFormats : [],
-                    padding: EdgeInsets.zero,
-                    credentialView: credential,
-                    compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
-                    disabled: isDisabled,
-                    headerTrailing: credential == option.value.first
-                        ? RadioIndicator(
-                            isSelected: option.key == selectedConIndex,
-                          )
-                        : null,
+                  child: Center(
+                    child: IrmaCredentialCard(
+                      hashByFormat: credential is ChoosableDisclosureCredential ? {} : {},
+                      padding: EdgeInsets.zero,
+                      compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                      disabled: isDisabled,
+                      headerTrailing: credential == option.value.first
+                          ? RadioIndicator(
+                              isSelected: option.key == selectedConIndex,
+                            )
+                          : null,
+                      type: credential.credentialType,
+                      issuer: credential.issuer,
+                      attributes: credential.attributes,
+                      valid: credential.valid,
+                      expired: credential.expired,
+                      revoked: credential.revoked,
+                    ),
                   ),
                 ),
               )

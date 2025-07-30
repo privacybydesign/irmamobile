@@ -45,7 +45,7 @@ type respondPinEvent struct {
 }
 
 type deleteCredentialEvent struct {
-	Hash string
+	HashByFormat map[irmaclient.CredentialFormat]string
 }
 
 type dismissSessionEvent struct {
@@ -171,6 +171,7 @@ type requestIssuancePermissionSessionEvent struct {
 	SessionID             int
 	ServerName            *irma.RequestorInfo
 	Satisfiable           bool
+	IssueSdJwts           bool
 	IssuedCredentials     irma.CredentialInfoList
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString

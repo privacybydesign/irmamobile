@@ -15,7 +15,7 @@ class SessionState {
   final ReturnURL? clientReturnURL;
   final bool? isSignatureSession;
   final String? signedMessage;
-  final List<Credential>? issuedCredentials;
+  final List<MultiFormatCredential>? issuedCredentials;
   final ConCon<AttributeIdentifier>? disclosureChoices;
   final bool? satisfiable;
   final bool? canBeFinished;
@@ -56,7 +56,7 @@ class SessionState {
   // or by reobtain a credential from the data tab.
   bool get didIssuePreviouslyLaunchedCredential =>
       issuedCredentials?.any(
-        (cred) => previouslyLaunchedCredentials.contains(cred.info.fullId),
+        (cred) => previouslyLaunchedCredentials.contains(cred.credentialType.fullId),
       ) ??
       false;
 
@@ -73,7 +73,7 @@ class SessionState {
     ReturnURL? clientReturnURL,
     bool? isSignatureSession,
     String? signedMessage,
-    List<Credential>? issuedCredentials,
+    List<MultiFormatCredential>? issuedCredentials,
     ConCon<AttributeIdentifier>? disclosureChoices,
     bool? satisfiable,
     bool? canBeFinished,

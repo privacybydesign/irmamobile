@@ -57,6 +57,11 @@ class ActivityCard extends StatelessWidget {
       }
     } else {
       if (logEntry.type == LogType.issuance) {
+        final serverName = logEntry.issuanceLog!.issuer.name.translate(lang);
+        title = serverName;
+        if (logEntry.issuanceLog!.issuer.logoPath != null) {
+          logo = logEntry.issuanceLog!.issuer.logoPath;
+        }
         subtitleTranslationKey = 'activity.data_received';
         semanticLabel = FlutterI18n.translate(
           context,
@@ -83,6 +88,11 @@ class ActivityCard extends StatelessWidget {
           },
         );
       } else if (logEntry.type == LogType.signature) {
+        final serverName = logEntry.signedMessageLog!.verifier.name.translate(lang);
+        title = serverName;
+        if (logEntry.signedMessageLog!.verifier.logoPath != null) {
+          logo = logEntry.signedMessageLog!.verifier.logoPath;
+        }
         subtitleTranslationKey = 'activity.message_signed';
         semanticLabel = FlutterI18n.translate(
           context,
@@ -116,12 +126,11 @@ class ActivityCard extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (logo != null)
-                            IrmaAvatar(
-                              size: 52,
-                              logoPath: logo,
-                              initials: title != '' ? title[0] : null,
-                            ),
+                          IrmaAvatar(
+                            size: 52,
+                            logoPath: logo,
+                            initials: title != '' ? title[0] : null,
+                          ),
                           SizedBox(
                             width: theme.smallSpacing,
                           ),

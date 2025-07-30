@@ -226,7 +226,7 @@ class _SessionScreenState extends State<SessionScreen> {
 
     final issuedWizardCred = widget.arguments.wizardActive &&
         widget.arguments.wizardCred != null &&
-        (session.issuedCredentials?.map((c) => c.info.fullId).contains(widget.arguments.wizardCred) ?? false);
+        (session.issuedCredentials?.map((c) => c.credentialType.fullId).contains(widget.arguments.wizardCred) ?? false);
 
     // It concerns a mobile session.
     if (session.clientReturnURL != null && !issuedWizardCred) {

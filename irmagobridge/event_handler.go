@@ -160,7 +160,7 @@ func (ah *eventHandler) clearAllData() (err error) {
 
 // Delete an individual credential
 func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
-	if err := client.RemoveCredentialByHash(event.Hash); err != nil {
+	if err := client.RemoveCredentialsByHash(event.HashByFormat); err != nil {
 		return err
 	}
 

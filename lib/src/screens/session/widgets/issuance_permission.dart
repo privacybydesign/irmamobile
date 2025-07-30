@@ -13,7 +13,7 @@ class IssuancePermission extends StatelessWidget {
   final Function()? onGivePermission;
 
   final bool satisfiable;
-  final List<Credential> issuedCredentials;
+  final List<MultiFormatCredential> issuedCredentials;
 
   const IssuancePermission({
     super.key,

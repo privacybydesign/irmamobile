@@ -104,6 +104,7 @@ RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFro
       issuedCredentials: (json['IssuedCredentials'] as List<dynamic>)
           .map((e) => RawCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
+      issueSdJwts: json['IssueSdJwts'] as bool,
       disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
       ),
@@ -122,6 +123,7 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
       'ServerName': instance.serverName,
       'Satisfiable': instance.satisfiable,
       'IssuedCredentials': instance.issuedCredentials,
+      'IssueSdJwts': instance.issueSdJwts,
       'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
       'DisclosuresCandidates': instance.disclosuresCandidates,
     };
