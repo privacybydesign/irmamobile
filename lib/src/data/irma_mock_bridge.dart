@@ -246,6 +246,7 @@ class IrmaMockBridge extends IrmaBridge {
             revoked: revoked,
             revocationSupported: revoked,
             format: CredentialFormat.idemix,
+            instanceCount: 0,
           );
         }).toList();
 

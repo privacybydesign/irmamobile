@@ -133,6 +133,8 @@ class SessionRepository {
           revoked: c.revoked,
           issuer: c.issuer,
           valid: c.valid,
+          // TODO: present the instance count of sdjwts here
+          instanceCount: 0,
         );
       }).toList();
 

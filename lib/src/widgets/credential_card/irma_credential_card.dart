@@ -35,6 +35,7 @@ class IrmaCredentialCard extends StatelessWidget {
   final bool hideAttributes;
   final bool disabled;
   final Map<CredentialFormat, String> hashByFormat;
+  final int? instanceCount;
 
   const IrmaCredentialCard({
     super.key,
@@ -45,6 +46,7 @@ class IrmaCredentialCard extends StatelessWidget {
     required this.expired,
     required this.revoked,
     required this.hashByFormat,
+    this.instanceCount,
     this.compareTo,
     this.onTap,
     this.headerTrailing,
@@ -108,6 +110,7 @@ class IrmaCredentialCard extends StatelessWidget {
         revoked = credential.revoked,
         issuer = credential.issuer,
         hashByFormat = credential.hashByFormat,
+        instanceCount = credential.instanceCount,
         expiryDate = CardExpiryDate(credential.expires);
 
   IrmaCredentialCard.fromCredential(
@@ -129,7 +132,8 @@ class IrmaCredentialCard extends StatelessWidget {
         revoked = credential.revoked,
         issuer = credential.issuer,
         hashByFormat = {credential.format: credential.hash},
-        expiryDate = CardExpiryDate(credential.expires);
+        expiryDate = CardExpiryDate(credential.expires),
+        instanceCount = credential.instanceCount;
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +184,7 @@ class IrmaCredentialCard extends StatelessWidget {
                 padding: EdgeInsets.only(top: theme.smallSpacing),
               ),
             SizedBox(height: theme.smallSpacing),
+            if (instanceCount != null) Text('Instance count: $instanceCount'),
             Row(
               spacing: theme.smallSpacing,
               children: [

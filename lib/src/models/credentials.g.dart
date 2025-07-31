@@ -19,6 +19,7 @@ RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) => RawCredentia
       revoked: json['Revoked'] as bool,
       revocationSupported: json['RevocationSupported'] as bool,
       format: stringToCredentialFormat(json['CredentialFormat'] as String),
+      instanceCount: (json['InstanceCount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) => <String, dynamic>{
@@ -32,4 +33,5 @@ Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) => <String, d
       'Revoked': instance.revoked,
       'RevocationSupported': instance.revocationSupported,
       'CredentialFormat': credentialFormatToString(instance.format),
+      'InstanceCount': instance.instanceCount,
     };

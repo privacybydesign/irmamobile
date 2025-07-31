@@ -6,6 +6,7 @@ import 'package:string_similarity/string_similarity.dart';
 
 import '../models/credentials.dart';
 import '../models/irma_configuration.dart';
+import '../models/log_entry.dart';
 import 'irma_repository_provider.dart';
 
 final credentialsProvider = StreamProvider<Credentials>((ref) async* {
@@ -59,6 +60,7 @@ final multiFormatCredentialsProvider = StreamProvider<List<MultiFormatCredential
       revoked: first.revoked,
       issuer: first.issuer,
       valid: first.valid,
+      instanceCount: creds.value.firstWhereOrNull((c) => c.format == CredentialFormat.sdjwtvc)?.instanceCount ?? 0,
     );
   }).toList();
 });
