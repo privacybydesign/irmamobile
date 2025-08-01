@@ -12,6 +12,7 @@ import '../../theme/theme.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
+import '../../widgets/yivi_credential_card/yivi_credential_card.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/progress.dart';
 import '../../widgets/translated_text.dart';
@@ -46,7 +47,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
       key: _scaffoldKey,
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
-        titleTranslationKey: widget.categoryName,
+        title: '',
       ),
       body: switch (credentials) {
         AsyncData(:final value) => _buildCredentialsList(value),
@@ -73,7 +74,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
                 height: theme.mediumSpacing,
               ),
               ...credentials.map(
-                (cred) => IrmaCredentialCard.fromMultiFormatCredential(
+                (cred) => YiviCredentialCard.fromMultiFormatCredential(
                   cred,
                   headerTrailing:
                       // Credential must either be reobtainable or deletable

@@ -277,7 +277,7 @@ class MultiFormatCredential {
   final DateTime signedOn;
   final DateTime expires;
   final bool valid;
-  final int instanceCount;
+  final int? instanceCount;
 
   MultiFormatCredential({
     required this.identifier,

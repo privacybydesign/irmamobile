@@ -60,7 +60,7 @@ final multiFormatCredentialsProvider = StreamProvider<List<MultiFormatCredential
       revoked: first.revoked,
       issuer: first.issuer,
       valid: first.valid,
-      instanceCount: creds.value.firstWhereOrNull((c) => c.format == CredentialFormat.sdjwtvc)?.instanceCount ?? 0,
+      instanceCount: creds.value.firstWhereOrNull((c) => c.format == CredentialFormat.sdjwtvc)?.instanceCount,
     );
   }).toList();
 });

@@ -88,11 +88,14 @@
   },
   "credential": {
     "no_data": "Geen gegevens",
-    "valid_until": "Geldig tot: {date}",
+    "valid_until": "Geldig tot",
     "expires_on": "Verloopt op: {date}",
     "expired_on": "Verlopen op {date}",
     "date_at_time": "{date} om {time}",
-    "issued_by": "Uitgegeven door:",
+    "issued_by": "via",
+    "sharable": "Deelbaar",
+    "sharable_count": "Nog {count} keer",
+    "sharable_unlimited": "Onbeperkt",
     "options": {
       "title": "Opties",
       "reobtain": "Opnieuw ophalen",
