@@ -154,7 +154,7 @@ class YiviCredentialCard extends StatelessWidget {
             // Only the header should be greyed out when the card is disabled.
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: headerTrailing != null ? [headerTrailing!] : [],
+              children: headerTrailing != null ? [headerTrailing!] : [SizedBox(height: theme.defaultSpacing)],
             ),
             GreyedOut(
               filterActive: disabled,

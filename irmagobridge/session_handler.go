@@ -34,7 +34,7 @@ func (sh *sessionHandler) Success(result string) {
 	dispatchEvent(&successSessionEvent{
 		SessionID: sh.sessionID,
 	})
-  dispatchCredentialsEvent()
+	dispatchCredentialsEvent()
 }
 
 func (sh *sessionHandler) Failure(err *irma.SessionError) {
@@ -42,14 +42,14 @@ func (sh *sessionHandler) Failure(err *irma.SessionError) {
 		SessionID: sh.sessionID,
 		Error:     &sessionError{err},
 	})
-  dispatchCredentialsEvent()
+	dispatchCredentialsEvent()
 }
 
 func (sh *sessionHandler) Cancelled() {
 	dispatchEvent(&canceledSessionEvent{
 		SessionID: sh.sessionID,
 	})
-  dispatchCredentialsEvent()
+	dispatchCredentialsEvent()
 }
 
 func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceRequest, satisfiable bool, candidates [][]irmaclient.DisclosureCandidates, serverName *irma.RequestorInfo, ph irmaclient.PermissionHandler) {
@@ -60,7 +60,6 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 
 	sh.permissionHandler = ph
 	dispatchEvent(&requestIssuancePermissionSessionEvent{
-		IssueSdJwts:           request.RequestSdJwts,
 		SessionID:             sh.sessionID,
 		ServerName:            serverName,
 		Satisfiable:           satisfiable,

@@ -121,7 +121,7 @@ class Credential extends CredentialView {
   final DateTime expires;
   final String hash;
   final CredentialFormat format;
-  final int instanceCount;
+  final int? instanceCount;
 
   Credential({
     required super.info,
@@ -253,7 +253,7 @@ class RawCredential {
   final CredentialFormat format;
 
   @JsonKey(name: 'InstanceCount')
-  final int instanceCount;
+  final int? instanceCount;
 
   factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
 
