@@ -24,6 +24,22 @@ final credentialsProvider = StreamProvider<Credentials>((ref) async* {
   }
 });
 
+// A list of all credential types for which at least one instance exists in the app
+final credentialInfoListProvider = StreamProvider<List<CredentialInfo>>((ref) async* {
+  final allCredentials = await ref.watch(credentialsProvider.future);
+  final infos = allCredentials.values.map((c) => c as CredentialInfo);
+
+  final Set<String> seenIds = {};
+  final List<CredentialInfo> result = [];
+  for (final info in infos) {
+    if (!seenIds.contains(info.fullId)) {
+      result.add(info);
+      seenIds.add(info.fullId);
+    }
+  }
+  yield result;
+});
+
 // A list of all credentials of the given credential type id
 final credentialsForTypeProvider = FutureProviderFamily<List<Credential>, String>((ref, credentialTypeId) async {
   final credentials = await ref.watch(credentialsProvider.future);
