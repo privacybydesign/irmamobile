@@ -38,7 +38,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return Scaffold(
       appBar: IrmaAppBar(
-        title: requestorScheme.id,
+        titleString: requestorScheme.id,
         actions: [
           IrmaIconButton(
             icon: Icons.delete,

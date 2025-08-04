@@ -141,61 +141,58 @@ class YiviCredentialCard extends StatelessWidget {
 
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: IrmaCard(
-        style: valid ? style : IrmaCardStyle.danger,
-        onTap: onTap,
-        padding: padding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GreyedOut(
-              filterActive: disabled,
-              child: YiviCredentialCardHeader(
-                credentialName: getTranslation(context, type.name),
-                issuerName: getTranslation(context, issuer.name),
-                logo: type.logo,
-                trailing: headerTrailing,
-                isExpired: expired,
-                isRevoked: revoked,
-                isExpiringSoon: isExpiringSoon,
-              ),
+    return IrmaCard(
+      style: valid ? style : IrmaCardStyle.danger,
+      onTap: onTap,
+      padding: padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GreyedOut(
+            filterActive: disabled,
+            child: YiviCredentialCardHeader(
+              credentialName: getTranslation(context, type.name),
+              issuerName: getTranslation(context, issuer.name),
+              logo: type.logo,
+              trailing: headerTrailing,
+              isExpired: expired,
+              isRevoked: revoked,
+              isExpiringSoon: isExpiringSoon,
             ),
-            // If there are attributes in this credential, then we show the attribute list
-            if (attributes.any((a) => a.value is! NullValue) && !hideAttributes) ...[
-              IrmaDivider(
-                color: valid ? null : theme.danger,
-                padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-              ),
-              YiviCredentialCardAttributeList(
-                attributes,
-                compareTo: compareTo,
-              ),
-            ],
-            if (!hideFooter)
-              Column(
-                children: [
-                  IrmaDivider(
-                    color: valid ? null : theme.danger,
-                    padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-                  ),
-                  YiviCredentialCardFooter(
-                    credentialType: type,
-                    issuer: issuer,
-                    revoked: revoked,
-                    expired: expired,
-                    valid: valid,
-                    expiryDate: expiryDate,
-                    isTemplate: isTemplate,
-                    instanceCount: instanceCount,
-                    // padding: EdgeInsets.only(top: theme.smallSpacing),
-                  ),
-                ],
-              ),
+          ),
+          // If there are attributes in this credential, then we show the attribute list
+          if (attributes.any((a) => a.value is! NullValue) && !hideAttributes) ...[
+            IrmaDivider(
+              color: valid ? null : theme.danger,
+              padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+            ),
+            YiviCredentialCardAttributeList(
+              attributes,
+              compareTo: compareTo,
+            ),
           ],
-        ),
+          if (!hideFooter)
+            Column(
+              children: [
+                IrmaDivider(
+                  color: valid ? null : theme.danger,
+                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+                ),
+                YiviCredentialCardFooter(
+                  credentialType: type,
+                  issuer: issuer,
+                  revoked: revoked,
+                  expired: expired,
+                  valid: valid,
+                  expiryDate: expiryDate,
+                  isTemplate: isTemplate,
+                  instanceCount: instanceCount,
+                  // padding: EdgeInsets.only(top: theme.smallSpacing),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }

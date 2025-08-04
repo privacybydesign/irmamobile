@@ -17,7 +17,7 @@ class ResetPinScreen extends StatelessWidget {
     final isSmallScreen = MediaQuery.of(context).size.height < 670;
 
     return Scaffold(
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'reset_pin.title',
       ),
       body: DynamicLayout(

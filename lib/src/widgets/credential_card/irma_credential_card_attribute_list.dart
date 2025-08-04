@@ -59,7 +59,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => Scaffold(
                 appBar: IrmaAppBar(
-                  title: attribute.attributeType.name.translate(lang),
+                  titleString: attribute.attributeType.name.translate(lang),
                 ),
                 body: SingleChildScrollView(
                   child: Center(child: image),

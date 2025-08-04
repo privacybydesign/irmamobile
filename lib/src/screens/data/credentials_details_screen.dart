@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,6 +13,7 @@ import '../../theme/theme.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
 import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_avatar.dart';
 import '../../widgets/progress.dart';
 import '../../widgets/translated_text.dart';
 import '../../widgets/yivi_credential_card/yivi_credential_card.dart';
@@ -27,7 +29,52 @@ class CredentialsDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScreen> {
+  static const _scrollUnderThreshold = 200.0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _scrollController = ScrollController();
+  bool _scrollUnder = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > _scrollUnderThreshold) {
+        if (!_scrollUnder) {
+          setState(() {
+            _scrollUnder = true;
+          });
+        }
+      } else {
+        if (_scrollUnder) {
+          setState(() {
+            _scrollUnder = false;
+          });
+        }
+      }
+    });
+  }
+
+  IrmaAppBar _createTitle(MultiFormatCredential c) {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final name = c.credentialType.name.translate(lang);
+    final theme = IrmaTheme.of(context);
+    return IrmaAppBar(
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        // crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: theme.smallSpacing,
+        children: [
+          Transform.translate(
+            offset: Offset(0, 5),
+            child: IrmaAvatar(logoPath: c.credentialType.logo, size: 20),
+          ),
+          Text(name, style: theme.textTheme.displaySmall),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +89,15 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
       }
     });
 
+    final IrmaAppBar? appBar = switch (credentials) {
+      AsyncData(:final value) => value.firstOrNull != null && _scrollUnder ? _createTitle(value.first) : null,
+      _ => null,
+    };
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(
-        title: '',
-      ),
+      appBar: appBar ?? IrmaAppBar(title: Container()),
       body: switch (credentials) {
         AsyncData(:final value) => _buildCredentialsList(value),
         AsyncError(:final error) => Center(child: Text(error.toString())),
@@ -61,6 +111,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
+        controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(
           horizontal: theme.defaultSpacing,
@@ -70,29 +121,32 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: theme.mediumSpacing,
+                height: theme.defaultSpacing,
               ),
               ...credentials.map(
-                (cred) => YiviCredentialCard.fromMultiFormatCredential(
-                  cred,
-                  headerTrailing:
-                      // Credential must either be reobtainable or deletable
-                      // for the options bottom sheet to be accessible
-                      cred.credentialType.disallowDelete && cred.credentialType.issueUrl.isEmpty
-                          ? null
-                          : Transform.translate(
-                              offset: Offset(theme.smallSpacing, -10),
-                              child: IconButton(
-                                onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
-                                icon: const Icon(
-                                  Icons.more_horiz_sharp,
+                (cred) => Padding(
+                  padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                  child: YiviCredentialCard.fromMultiFormatCredential(
+                    cred,
+                    headerTrailing:
+                        // Credential must either be reobtainable or deletable
+                        // for the options bottom sheet to be accessible
+                        cred.credentialType.disallowDelete && cred.credentialType.issueUrl.isEmpty
+                            ? null
+                            : Transform.translate(
+                                offset: Offset(theme.smallSpacing, -10),
+                                child: IconButton(
+                                  onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
+                                  icon: const Icon(
+                                    Icons.more_horiz_sharp,
+                                  ),
                                 ),
                               ),
-                            ),
+                  ),
                 ),
               ),
               SizedBox(
-                height: theme.mediumSpacing,
+                height: theme.largeSpacing,
               ),
             ],
           ),
