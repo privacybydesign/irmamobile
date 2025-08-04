@@ -4,9 +4,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/issuer_verifier_header.dart';
 import '../../../widgets/translated_text.dart';
+import '../../../widgets/yivi_credential_card/yivi_credential_card.dart';
 
 class ActivityDetailIssuance extends StatelessWidget {
   final LogInfo logEntry;
@@ -38,7 +38,7 @@ class ActivityDetailIssuance extends StatelessWidget {
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: IrmaCredentialCard.fromCredentialLog(irmaConfiguration, cred),
+              child: YiviCredentialCard.fromCredentialLog(irmaConfiguration, cred),
             ),
           SizedBox(height: theme.smallSpacing),
           TranslatedText(
@@ -67,7 +67,7 @@ class ActivityDetailIssuance extends StatelessWidget {
         for (var rawCredential in issuanceLog.credentials)
           Padding(
             padding: EdgeInsets.only(bottom: theme.smallSpacing),
-            child: IrmaCredentialCard.fromCredentialLog(
+            child: YiviCredentialCard.fromCredentialLog(
               irmaConfiguration,
               rawCredential,
             ),

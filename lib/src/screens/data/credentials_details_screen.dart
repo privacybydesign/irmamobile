@@ -10,12 +10,11 @@ import '../../providers/credentials_provider.dart';
 import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
-import '../../widgets/credential_card/irma_credential_card.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
-import '../../widgets/yivi_credential_card/yivi_credential_card.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/progress.dart';
 import '../../widgets/translated_text.dart';
+import '../../widgets/yivi_credential_card/yivi_credential_card.dart';
 
 class CredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String categoryName;

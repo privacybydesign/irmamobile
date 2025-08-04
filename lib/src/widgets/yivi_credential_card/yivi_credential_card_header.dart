@@ -27,46 +27,55 @@ class YiviCredentialCardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Stack(
       children: [
-        ExcludeSemantics(child: IrmaAvatar(logoPath: logo, size: 80)),
-        SizedBox(height: theme.mediumSpacing),
+        Align(
+          alignment: Alignment.topRight,
+          child: trailing,
+        ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              credentialName,
-              style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark, fontSize: 20),
-              textAlign: TextAlign.center,
+            if (trailing != null) SizedBox(height: theme.mediumSpacing) else SizedBox(height: theme.smallSpacing),
+            ExcludeSemantics(child: IrmaAvatar(logoPath: logo, size: 80)),
+            SizedBox(height: theme.mediumSpacing),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  credentialName,
+                  style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark, fontSize: 20),
+                  textAlign: TextAlign.center,
+                ),
+                if (issuerName != null)
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: theme.tinySpacing,
+                    ),
+                    child: Row(
+                      spacing: 4,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TranslatedText(
+                          'credential.issued_by',
+                          style: theme.themeData.textTheme.bodyMedium,
+                        ),
+                        Text(
+                          issuerName!,
+                          style: theme.themeData.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  )
+              ],
             ),
-            if (issuerName != null)
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: theme.tinySpacing,
-                ),
-                child: Row(
-                  spacing: 4,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TranslatedText(
-                      'credential.issued_by',
-                      style: theme.themeData.textTheme.bodyMedium,
-                    ),
-                    Text(
-                      issuerName!,
-                      style: theme.themeData.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              )
+            // if (trailing != null) ...[
+            //   SizedBox(width: theme.smallSpacing),
+            //   trailing!,
+            // ],
           ],
         ),
-        // if (trailing != null) ...[
-        //   SizedBox(width: theme.smallSpacing),
-        //   trailing!,
-        // ],
       ],
     );
   }
