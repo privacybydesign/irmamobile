@@ -229,12 +229,12 @@ class _AllCredentialsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(multiFormatCredentialsProvider);
+    final credentials = ref.watch(credentialInfoListProvider);
 
     return switch (credentials) {
       AsyncData(:final value) => value.isEmpty
           ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
-          : _CredentialsTypeList(credentials: value),
+          : _CredentialsTypeList(credentials: credentials.value),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };

@@ -24,6 +24,21 @@ final credentialsProvider = StreamProvider<Credentials>((ref) async* {
   }
 });
 
+// A list of all credential types for which at least one instance exists in the app
+final credentialInfoListProvider = StreamProvider<List<MultiFormatCredential>>((ref) async* {
+  final allCredentials = await ref.watch(multiFormatCredentialsProvider.future);
+
+  final Set<String> seenIds = {};
+  final List<MultiFormatCredential> result = [];
+  for (final info in allCredentials) {
+    if (!seenIds.contains(info.credentialType.fullId)) {
+      result.add(info);
+      seenIds.add(info.credentialType.fullId);
+    }
+  }
+  yield result;
+});
+
 String _hashAttributeValuesAndCredentialType(Credential cred) {
   var toHash = cred.credentialType.fullId;
 
