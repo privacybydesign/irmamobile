@@ -87,7 +87,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
           for (int i = 0; i < choiceEntry.value.length; i++)
             Center(
               child: YiviCredentialCard(
-                hideFooter: false,
+                hideFooter: true,
                 hashByFormat: {choiceEntry.value[i].format: choiceEntry.value[i].credentialHash},
                 padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
                 headerTrailing: optional && i == 0

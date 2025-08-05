@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/attribute.dart';
 import '../../models/attribute_value.dart';
@@ -6,12 +7,15 @@ import '../../models/credentials.dart';
 import '../../models/irma_configuration.dart';
 import '../../models/log_entry.dart';
 import '../../models/translated_value.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../credential_card/models/card_expiry_date.dart';
 import '../greyed_out.dart';
+import '../information_box.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
+import '../yivi_themed_button.dart';
 import 'yivi_credential_card_attribute_list.dart';
 import 'yivi_credential_card_footer.dart';
 import 'yivi_credential_card_header.dart';
@@ -191,8 +195,40 @@ class YiviCredentialCard extends StatelessWidget {
                 ),
               ],
             ),
+          _buildReobtainOption(context, theme),
         ],
       ),
     );
+  }
+
+  bool get _isExpiringSoon => expiryDate?.expiresSoon ?? false;
+
+  Widget _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
+    if (type.obtainable) {
+      if (!valid || _isExpiringSoon) {
+        return Padding(
+          padding: EdgeInsets.only(top: theme.smallSpacing),
+          child: YiviThemedButton(
+            label: 'credential.options.reobtain',
+            style: YiviButtonStyle.filled,
+            onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(
+              context,
+              type.fullId,
+            ),
+          ),
+        );
+      }
+    } else if (!valid || isTemplate) {
+      return InformationBox(
+        message: FlutterI18n.translate(
+          context,
+          'credential.not_obtainable',
+          translationParams: {
+            'issuerName': issuer.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
+          },
+        ),
+      );
+    }
+    return Container();
   }
 }

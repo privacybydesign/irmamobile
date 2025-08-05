@@ -36,8 +36,6 @@ class YiviCredentialCardFooter extends StatelessWidget {
     this.instanceCount,
   });
 
-  bool get _isExpiringSoon => expiryDate?.expiresSoon ?? false;
-
   Widget? _buildFooterText(BuildContext context, IrmaThemeData theme) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
@@ -94,42 +92,12 @@ class YiviCredentialCardFooter extends StatelessWidget {
     return null;
   }
 
-  Widget? _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
-    if (credentialType.obtainable) {
-      if (!valid || _isExpiringSoon) {
-        return Padding(
-          padding: EdgeInsets.only(top: theme.smallSpacing),
-          child: YiviThemedButton(
-            label: 'credential.options.reobtain',
-            style: YiviButtonStyle.filled,
-            onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(
-              context,
-              credentialType.fullId,
-            ),
-          ),
-        );
-      }
-    } else if (!valid || isTemplate) {
-      return InformationBox(
-        message: FlutterI18n.translate(
-          context,
-          'credential.not_obtainable',
-          translationParams: {
-            'issuerName': issuer.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
-          },
-        ),
-      );
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     final children = [
       _buildFooterText(context, theme),
-      _buildReobtainOption(context, theme),
     ].nonNulls;
 
     if (children.isNotEmpty) {

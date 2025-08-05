@@ -42,6 +42,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                         },
                   child: Center(
                     child: YiviCredentialCard(
+                      hideFooter: true,
                       hashByFormat: credential is ChoosableDisclosureCredential ? {} : {},
                       padding: EdgeInsets.zero,
                       compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
