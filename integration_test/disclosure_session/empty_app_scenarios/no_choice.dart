@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
@@ -31,7 +31,7 @@ Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBi
 
   // First, the missing required disjunctions should be obtained using an issue wizard.
   expect(find.text('Collect data'), findsOneWidget);
-  expect(tester.widgetList(find.byType(IrmaCredentialCard)).length, 1);
+  expect(tester.widgetList(find.byType(YiviCredentialCard)).length, 1);
 
   // Continue and expect the AddDataDetailsScreen
   await tester.tapAndSettle(find.text('Obtain data'));

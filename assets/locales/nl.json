@@ -92,7 +92,7 @@
     "expires_on": "Verloopt op: {date}",
     "expired_on": "Verlopen op {date}",
     "date_at_time": "{date} om {time}",
-    "issued_by": "via",
+    "issued_by": "via {issuer}",
     "sharable": "Deelbaar",
     "sharable_count": "Nog {count} keer",
     "sharable_unlimited": "Onbeperkt",

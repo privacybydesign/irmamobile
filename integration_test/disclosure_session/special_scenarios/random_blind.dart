@@ -4,8 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_attribute_list.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 
 import '../../helpers/helpers.dart';
@@ -74,7 +74,7 @@ Future<void> randomBlindTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   expect(actualQuoteText, expectedQuoteText);
 
   // One IrmaCredentialCard should be present
-  final credentialCardFinder = find.byType(IrmaCredentialCard);
+  final credentialCardFinder = find.byType(YiviCredentialCard);
   expect(credentialCardFinder, findsOneWidget);
 
   // The credential should be a stempas credential
@@ -89,7 +89,7 @@ Future<void> randomBlindTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   // in the attribute list
   final cardAttList = find.descendant(
     of: credentialCardFinder,
-    matching: find.byType(IrmaCredentialCardAttributeList),
+    matching: find.byType(YiviCredentialCardAttributeList),
   );
 
   final cardAttListText = tester.getAllText(cardAttList);

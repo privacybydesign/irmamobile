@@ -5,10 +5,10 @@ import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_empty_credential_card.dart';
+import '../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/issuer_verifier_header.dart';
 import '../../../widgets/translated_text.dart';
-import '../../../widgets/yivi_credential_card/yivi_credential_card.dart';
 
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogInfo logEntry;

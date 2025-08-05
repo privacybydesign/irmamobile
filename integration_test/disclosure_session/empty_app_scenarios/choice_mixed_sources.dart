@@ -6,7 +6,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_per
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_obtain_credentials_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_template_stepper.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -65,13 +65,13 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   // The template stepper should have two items
   final templateCardsFinder = find.descendant(
     of: templateStepperFinder,
-    matching: find.byType(IrmaCredentialCard),
+    matching: find.byType(YiviCredentialCard),
   );
   expect(templateCardsFinder, findsNWidgets(2));
 
   // The first card should be highlighted
-  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
-  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().first.widget as YiviCredentialCard).style, IrmaCardStyle.highlighted);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as YiviCredentialCard).style, IrmaCardStyle.normal);
 
   // Continue and expect the AddDataDetailsScreen
   await tester.tapAndSettle(find.text('Obtain data'));
@@ -79,8 +79,8 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // The second card should now be highlighted
-  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  expect((templateCardsFinder.evaluate().first.widget as YiviCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as YiviCredentialCard).style, IrmaCardStyle.highlighted);
 
   // Continue and expect the AddDataDetailsScreen
   await tester.tapAndSettle(find.text('Obtain data'));
@@ -88,8 +88,8 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await issueEmailAddress(tester, irmaBinding);
 
   // Both should be finished now
-  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().first.widget as YiviCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as YiviCredentialCard).style, IrmaCardStyle.normal);
 
   // Button should say done now
   await tester.tapAndSettle(find.text('Done'));

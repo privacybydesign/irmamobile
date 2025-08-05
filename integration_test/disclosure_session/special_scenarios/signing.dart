@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 
@@ -44,7 +44,7 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
 
   expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
 
-  final cardsFinder = find.byType(IrmaCredentialCard);
+  final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -39,7 +39,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // Expect one credential card to be present
-  final cardFinder = find.byType(IrmaCredentialCard);
+  final cardFinder = find.byType(YiviCredentialCard);
   expect(cardFinder, findsOneWidget);
 
   // Card should be filled and have correct header

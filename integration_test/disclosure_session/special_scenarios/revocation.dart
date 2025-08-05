@@ -4,8 +4,8 @@ import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_close_button.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
@@ -66,7 +66,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
 
   // Find all credential cards
-  final cardsFinder = find.byType(IrmaCredentialCard);
+  final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);
 
   // Close the session
@@ -104,7 +104,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   expect(credentialDetailScreenFinder, findsOneWidget);
 
   // Expect the actual credential card
-  final credentialCardsFinder = find.byType(IrmaCredentialCard);
+  final credentialCardsFinder = find.byType(YiviCredentialCard);
   expect(credentialCardsFinder, findsOneWidget);
 
   final credentialCardFinder = credentialCardsFinder.first;

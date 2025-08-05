@@ -12,11 +12,11 @@ import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
+import '../../widgets/credential_card/yivi_credential_card.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_avatar.dart';
 import '../../widgets/progress.dart';
 import '../../widgets/translated_text.dart';
-import '../../widgets/yivi_credential_card/yivi_credential_card.dart';
 
 class CredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String categoryName;
@@ -35,24 +35,32 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
   final _scrollController = ScrollController();
   bool _scrollUnder = false;
 
+  void _scrollListener() {
+    if (_scrollController.offset > _scrollUnderThreshold) {
+      if (!_scrollUnder) {
+        setState(() {
+          _scrollUnder = true;
+        });
+      }
+    } else {
+      if (_scrollUnder) {
+        setState(() {
+          _scrollUnder = false;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      if (_scrollController.offset > _scrollUnderThreshold) {
-        if (!_scrollUnder) {
-          setState(() {
-            _scrollUnder = true;
-          });
-        }
-      } else {
-        if (_scrollUnder) {
-          setState(() {
-            _scrollUnder = false;
-          });
-        }
-      }
-    });
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.removeListener(_scrollListener);
   }
 
   IrmaAppBar _createTitle(MultiFormatCredential c) {
@@ -67,7 +75,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
         spacing: theme.smallSpacing,
         children: [
           Transform.translate(
-            offset: Offset(0, 5),
+            offset: Offset(0, 4),
             child: IrmaAvatar(logoPath: c.credentialType.logo, size: 20),
           ),
           Text(name, style: theme.textTheme.displaySmall),

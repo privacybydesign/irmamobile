@@ -96,7 +96,7 @@ final credentialsSearchQueryProvider = StateProvider((ref) => '');
 final credentialsSearchResultsProvider = FutureProvider.family<List<MultiFormatCredential>, Locale>(
   (ref, locale) async {
     final query = ref.watch(credentialsSearchQueryProvider);
-    final credentials = await ref.watch(multiFormatCredentialsProvider.future);
+    final credentials = await ref.watch(credentialInfoListProvider.future);
     final repo = ref.watch(irmaRepositoryProvider);
 
     final searchEntries = _credentialsToSearchEntries(credentials, locale, repo.irmaConfiguration);

@@ -188,7 +188,6 @@ class YiviCredentialCard extends StatelessWidget {
                   expiryDate: expiryDate,
                   isTemplate: isTemplate,
                   instanceCount: instanceCount,
-                  // padding: EdgeInsets.only(top: theme.smallSpacing),
                 ),
               ],
             ),
