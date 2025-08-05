@@ -71,7 +71,6 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
       title: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        // crossAxisAlignment: CrossAxisAlignment.center,
         spacing: theme.smallSpacing,
         children: [
           Transform.translate(

@@ -42,9 +42,12 @@ class ActivityDetailDisclosure extends StatelessWidget {
           for (var credential in logEntry.type == LogType.disclosure
               ? logEntry.disclosureLog!.credentials
               : logEntry.signedMessageLog!.credentials)
-            YiviCredentialCard.fromCredentialLog(
-              irmaConfiguration,
-              credential,
+            Padding(
+              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              child: YiviCredentialCard.fromCredentialLog(
+                irmaConfiguration,
+                credential,
+              ),
             ),
         if (logEntry.type == LogType.signature) ...[
           Padding(
@@ -57,7 +60,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           ),
           IrmaQuote(quote: logEntry.signedMessageLog!.message),
         ],
-        SizedBox(height: theme.defaultSpacing),
+        SizedBox(height: theme.smallSpacing),
         TranslatedText(
           'activity.shared_with',
           style: theme.themeData.textTheme.headlineMedium,
