@@ -35,7 +35,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   // Should go straight to overview screen,
   // because the address has already been obtained
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  await tester.waitFor(find.text('Share my data with demo.privacybydesign.foundation'));
+  await tester.waitFor(find.text('Share my data with is.demo.staging.yivi.app'));
 
   // Expect the already obtained municipality address
   final cardsFinder = find.byType(YiviCredentialCard);
@@ -133,7 +133,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
 
   // Expect choices overview
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
+  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
 
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(

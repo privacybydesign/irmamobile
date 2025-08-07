@@ -151,7 +151,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // The title should have changed though
-  expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
+  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
 
   // Now two filled cards should be visible
   expect(cardsFinder, findsNWidgets(2));

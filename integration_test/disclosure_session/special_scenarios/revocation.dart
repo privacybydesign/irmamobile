@@ -63,7 +63,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   // The disclosure permission overview screen should be visible.
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
   expect(find.text('Share my data'), findsOneWidget);
-  expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
+  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
 
   // Find all credential cards
   final cardsFinder = find.byType(YiviCredentialCard);

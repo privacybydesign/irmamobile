@@ -128,7 +128,7 @@ Future<void> filledOptionalDisjunctionTest(
 
   expect(find.text('Share my data'), findsOneWidget);
   expect(
-    find.text('Share my data with demo.privacybydesign.foundation'),
+    find.text('Share my data with is.demo.staging.yivi.app'),
     findsOneWidget,
   );
 
