@@ -157,7 +157,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
   await tester.tapAndSettle(find.text('Next step'));
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
+  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,

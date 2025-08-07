@@ -42,7 +42,7 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
     'Message to be signed by user',
   );
 
-  expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
+  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
 
   final cardsFinder = find.byType(IrmaCredentialCard);
   expect(cardsFinder, findsOneWidget);
