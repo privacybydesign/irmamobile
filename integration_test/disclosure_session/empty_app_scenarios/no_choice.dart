@@ -51,7 +51,7 @@ Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBi
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,
-    localizedRequestorName: 'demo.privacybydesign.foundation',
+    localizedRequestorName: 'is.demo.staging.yivi.app',
     isVerified: false,
   );
 

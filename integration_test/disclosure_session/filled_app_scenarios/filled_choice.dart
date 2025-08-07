@@ -172,7 +172,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,
-    localizedRequestorName: 'demo.privacybydesign.foundation',
+    localizedRequestorName: 'is.demo.staging.yivi.app',
     isVerified: false,
   );
 

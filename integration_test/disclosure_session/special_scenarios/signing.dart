@@ -39,7 +39,7 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,
-    localizedRequestorName: 'demo.privacybydesign.foundation',
+    localizedRequestorName: 'is.demo.staging.yivi.app',
     isVerified: false,
   );
 
