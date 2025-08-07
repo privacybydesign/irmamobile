@@ -63,7 +63,7 @@ Future<void> callingSessionTest(WidgetTester tester, IntegrationTestIrmaBinding 
 
   // Check the content of the IrmaQuote
   final actualQuoteText = (quoteFinder.evaluate().first.widget as IrmaQuote).quote;
-  const expectedQuoteText = 'Data has been shared with demo.privacybydesign.foundation';
+  const expectedQuoteText = 'Data has been shared with is.demo.staging.yivi.app';
   expect(actualQuoteText, expectedQuoteText);
 
   final actualScreenText = tester.getAllText(callInfoScreenFinder);

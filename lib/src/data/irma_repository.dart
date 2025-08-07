@@ -583,7 +583,7 @@ class IrmaRepository {
 }
 
 Future<SessionPointer> createTestSession(String requestBody, {bool continueOnSecondDevice = true}) async {
-  final Uri uri = Uri.parse('https://demo.privacybydesign.foundation/backend/session');
+  final Uri uri = Uri.parse('https://is.demo.staging.yivi.app/session');
 
   final request = await HttpClient().postUrl(uri);
   request.headers.set('Content-Type', 'application/json');
