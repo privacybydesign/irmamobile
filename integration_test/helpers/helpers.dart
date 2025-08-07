@@ -181,7 +181,7 @@ String generateRevocationKey() {
 
 /// Revokes a previously issued credential.
 Future<void> revokeCredential(String credId, String revocationKey) async {
-  final Uri uri = Uri.parse('https://demo.privacybydesign.foundation/backend/revocation');
+  final Uri uri = Uri.parse('https://is.demo.staging.yivi.app/revocation');
 
   final request = await HttpClient().postUrl(uri);
   request.headers.set('Content-Type', 'application/json');
