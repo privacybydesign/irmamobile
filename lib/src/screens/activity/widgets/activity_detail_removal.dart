@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/yivi_credential_card.dart';
+import '../../../widgets/credential_card/yivi_compact_credential_card.dart';
 import '../../../widgets/translated_text.dart';
 
 class ActivityDetailRemoval extends StatelessWidget {
@@ -33,7 +33,7 @@ class ActivityDetailRemoval extends StatelessWidget {
         for (var removedCredential in removedCredentials)
           Padding(
             padding: EdgeInsets.only(top: theme.smallSpacing),
-            child: YiviCredentialCard.fromCredentialLog(
+            child: YiviCompactCredentialCard.fromCredentialLog(
               irmaConfiguration,
               removedCredential,
             ),

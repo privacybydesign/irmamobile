@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../theme/theme.dart';
-import '../../../../widgets/credential_card/yivi_credential_card.dart';
+import '../../../../widgets/credential_card/yivi_compact_credential_card.dart';
 import '../../../../widgets/irma_dialog.dart';
 import '../../../../widgets/yivi_themed_button.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -25,7 +25,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
       child: Column(
         children: [
           ...state.obtainedCredentials.mapIndexed(
-            (i, cred) => YiviCredentialCard(
+            (i, cred) => YiviCompactCredentialCard(
               hashByFormat: {cred.format: cred.credentialHash},
               compareTo: state.templates[i].attributes,
               hideFooter: true,
@@ -38,7 +38,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
             ),
           ),
           ...state.templates.map(
-            (cred) => YiviCredentialCard(
+            (cred) => YiviCompactCredentialCard(
               // TODO: find out the correct format asked here...
               hashByFormat: {},
               compareTo: cred.attributes,
