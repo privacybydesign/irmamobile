@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -33,7 +33,7 @@ Future<void> nullablesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   expect(find.byType(DisclosureDisconStepper), findsOneWidget);
 
   // One Credential card should be visible
-  final cardsFinder = find.byType(IrmaCredentialCard);
+  final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

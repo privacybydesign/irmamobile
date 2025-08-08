@@ -246,11 +246,11 @@ class IrmaMockBridge extends IrmaBridge {
             revoked: revoked,
             revocationSupported: revoked,
             format: CredentialFormat.idemix,
+            instanceCount: 0,
           );
         }).toList();
 
         yield RequestIssuancePermissionSessionEvent(
-          issueSdJwts: false,
           sessionID: sessionId,
           serverName: RequestorInfo(name: TranslatedValue.fromString('test')),
           satisfiable: true,

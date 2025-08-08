@@ -113,7 +113,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   PreferredSizeWidget _scaffoldTitle() {
     return IrmaAppBar(
       leading: YiviBackButton(onTap: _cancel),
-      title: widget.title,
+      titleString: widget.title,
     );
   }
 

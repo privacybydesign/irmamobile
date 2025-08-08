@@ -34,7 +34,7 @@ class ActivityDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.activity',
       ),
       body: SizedBox(

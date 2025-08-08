@@ -77,7 +77,7 @@ class ScannerScreenState extends State<ScannerScreen> {
     return Scaffold(
       appBar: isLandscape
           ? null
-          : const IrmaAppBar(
+          : IrmaAppBar(
               titleTranslationKey: 'qr_scanner.title',
             ),
       body: _buildBody(isLandscape),

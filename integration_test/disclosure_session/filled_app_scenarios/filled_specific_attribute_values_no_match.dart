@@ -3,7 +3,7 @@ import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -35,7 +35,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
   expect(find.text('Obtain my data step by step and share it with the requesting party after that'), findsOneWidget);
 
-  final cardsFinder = find.byType(IrmaCredentialCard);
+  final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
@@ -67,7 +67,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   // Dialog should show two credential cards
   final dialogCardsFinder = find.descendant(
     of: wrongCredAddedDialogFinder,
-    matching: find.byType(IrmaCredentialCard),
+    matching: find.byType(YiviCredentialCard),
   );
   expect(dialogCardsFinder, findsNWidgets(2));
 

@@ -5,7 +5,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_dis
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -46,7 +46,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
   expect(find.byType(DisclosureDisconStepper), findsOneWidget);
 
   // One Credential card should be visible
-  final cardsFinder = find.byType(IrmaCredentialCard);
+  final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

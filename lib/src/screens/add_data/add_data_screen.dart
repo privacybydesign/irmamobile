@@ -14,7 +14,7 @@ class AddDataScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'data.add.title',
       ),
       body: SingleChildScrollView(

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -42,7 +42,7 @@ Future<void> attributeOrderTest(WidgetTester tester, IntegrationTestIrmaBinding 
   // Check the attribute order.
   await evaluateCredentialCard(
     tester,
-    find.byType(IrmaCredentialCard),
+    find.byType(YiviCredentialCard),
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
     attributes: {

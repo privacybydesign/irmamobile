@@ -125,7 +125,7 @@ class SessionRepository {
           attributes: c.attributes,
           hashByFormat: {
             c.format: c.hash,
-            if (event.issueSdJwts) CredentialFormat.sdjwtvc: '',
+            if (c.instanceCount != null) CredentialFormat.sdjwtvc: '',
           },
           signedOn: c.signedOn,
           expires: c.expires,
@@ -133,6 +133,8 @@ class SessionRepository {
           revoked: c.revoked,
           issuer: c.issuer,
           valid: c.valid,
+          // TODO: present the instance count of sdjwts here
+          instanceCount: c.instanceCount,
         );
       }).toList();
 

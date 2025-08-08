@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -46,7 +46,7 @@ Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, Integrat
   // Expect add data screen
   expect(find.byType(IssuancePermission), findsOneWidget);
 
-  final cardsFinder = find.byType(IrmaCredentialCard);
+  final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,

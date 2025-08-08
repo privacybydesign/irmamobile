@@ -13,7 +13,7 @@ class ChangeLanguageScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'settings.language',
       ),
       body: SizedBox(

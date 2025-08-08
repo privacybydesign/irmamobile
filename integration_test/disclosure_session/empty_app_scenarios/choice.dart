@@ -3,7 +3,7 @@ import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
@@ -49,7 +49,7 @@ Future<void> choiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBind
   // The choice should consist of two options/cards
   final cardsFinder = find.descendant(
     of: disconChoiceFinder,
-    matching: find.byType(IrmaCredentialCard),
+    matching: find.byType(YiviCredentialCard),
   );
   expect(cardsFinder, findsNWidgets(2));
 

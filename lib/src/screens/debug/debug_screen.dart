@@ -95,7 +95,7 @@ class _DebugScreenState extends State<DebugScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'debug.title',
       ),
       body: ListView(

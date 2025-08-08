@@ -5,7 +5,7 @@ import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/notifications/notifications_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_bell.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
@@ -221,7 +221,7 @@ void main() {
 
       // Expect the actual credential card
       // Note: the credential card is not actually revoked, so the card does not reflect this.
-      final credentialCardFinder = find.byType(IrmaCredentialCard);
+      final credentialCardFinder = find.byType(YiviCredentialCard);
       await evaluateCredentialCard(
         tester,
         credentialCardFinder.first,

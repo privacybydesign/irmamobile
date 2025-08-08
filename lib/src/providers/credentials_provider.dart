@@ -6,6 +6,7 @@ import 'package:string_similarity/string_similarity.dart';
 
 import '../models/credentials.dart';
 import '../models/irma_configuration.dart';
+import '../models/log_entry.dart';
 import 'irma_repository_provider.dart';
 
 final credentialsProvider = StreamProvider<Credentials>((ref) async* {
@@ -74,6 +75,7 @@ final multiFormatCredentialsProvider = StreamProvider<List<MultiFormatCredential
       revoked: first.revoked,
       issuer: first.issuer,
       valid: first.valid,
+      instanceCount: creds.value.firstWhereOrNull((c) => c.format == CredentialFormat.sdjwtvc)?.instanceCount,
     );
   }).toList();
 });
@@ -94,7 +96,7 @@ final credentialsSearchQueryProvider = StateProvider((ref) => '');
 final credentialsSearchResultsProvider = FutureProvider.family<List<MultiFormatCredential>, Locale>(
   (ref, locale) async {
     final query = ref.watch(credentialsSearchQueryProvider);
-    final credentials = await ref.watch(multiFormatCredentialsProvider.future);
+    final credentials = await ref.watch(credentialInfoListProvider.future);
     final repo = ref.watch(irmaRepositoryProvider);
 
     final searchEntries = _credentialsToSearchEntries(credentials, locale, repo.irmaConfiguration);

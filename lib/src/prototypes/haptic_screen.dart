@@ -42,7 +42,7 @@ class HapticScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: IrmaAppBar(
-        title: 'Haptics',
+        titleString: 'Haptics',
         leading: YiviBackButton(onTap: onBack),
       ),
       body: SingleChildScrollView(
