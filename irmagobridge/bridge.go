@@ -150,8 +150,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// Initialize the client
 	irmaConfigurationPath := filepath.Join(assetsPath, "irma_configuration")
-  eudiConfigurationPath := filepath.Join(assetsPath, "eudi_configuration")
-	client, err = irmaclient.New(appVersionDataPath, irmaConfigurationPath, eudiConfigurationPath, bridgeClientHandler, signer, aesKeyCopy)
+	client, err = irmaclient.New(appVersionDataPath, irmaConfigurationPath, bridgeClientHandler, signer, aesKeyCopy)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
