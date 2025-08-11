@@ -23,6 +23,8 @@ class YiviCompactCredentialCardHeader extends StatelessWidget {
     this.isRevoked = false,
   });
 
+  static const logoContainerSize = 52.0;
+
   Widget statusText(IrmaThemeData theme) {
     if (isRevoked) {
       return TranslatedText(
@@ -70,7 +72,7 @@ class YiviCompactCredentialCardHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (trailing != null) SizedBox(height: theme.mediumSpacing) else SizedBox(height: theme.smallSpacing),
-              ExcludeSemantics(child: IrmaAvatar(logoPath: logo, size: 40)),
+              ExcludeSemantics(child: IrmaAvatar(logoPath: logo, size: logoContainerSize)),
               SizedBox(width: theme.defaultSpacing),
               Expanded(
                 child: Column(
