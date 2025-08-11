@@ -135,6 +135,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
                   padding: EdgeInsets.only(bottom: theme.defaultSpacing),
                   child: YiviCredentialCard.fromMultiFormatCredential(
                     cred,
+                    compact: false,
                     headerTrailing:
                         // Credential must either be reobtainable or deletable
                         // for the options bottom sheet to be accessible

@@ -21,6 +21,7 @@ import 'yivi_credential_card_footer.dart';
 import 'yivi_credential_card_header.dart';
 
 class YiviCredentialCard extends StatelessWidget {
+  final bool compact;
   final List<Attribute> attributes;
   final bool valid;
   final CredentialType type;
@@ -50,6 +51,7 @@ class YiviCredentialCard extends StatelessWidget {
     required this.expired,
     required this.revoked,
     required this.hashByFormat,
+    required this.compact,
     this.instanceCount,
     this.compareTo,
     this.onTap,
@@ -63,7 +65,8 @@ class YiviCredentialCard extends StatelessWidget {
     this.isTemplate = false,
   });
 
-  static YiviCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential) {
+  static YiviCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential,
+      {required bool compact}) {
     final attributes = credential.attributes.entries.map((entry) {
       final attributeId = '${credential.credentialType}.${entry.key}';
       final attributeType = irmaConfiguration.attributeTypes[attributeId];
@@ -84,6 +87,7 @@ class YiviCredentialCard extends StatelessWidget {
     );
 
     return YiviCredentialCard(
+      compact: compact,
       valid: credentialView.valid,
       type: credentialView.credentialType,
       issuer: credentialView.issuer,
@@ -98,6 +102,7 @@ class YiviCredentialCard extends StatelessWidget {
   YiviCredentialCard.fromMultiFormatCredential(
     MultiFormatCredential credential, {
     super.key,
+    required this.compact,
     this.compareTo,
     this.onTap,
     this.style = IrmaCardStyle.normal,
@@ -120,6 +125,7 @@ class YiviCredentialCard extends StatelessWidget {
   YiviCredentialCard.fromCredential(
     Credential credential, {
     super.key,
+    required this.compact,
     this.compareTo,
     this.onTap,
     this.style = IrmaCardStyle.normal,
@@ -156,6 +162,7 @@ class YiviCredentialCard extends StatelessWidget {
           GreyedOut(
             filterActive: disabled,
             child: YiviCredentialCardHeader(
+              compact: compact,
               credentialName: getTranslation(context, type.name),
               issuerName: getTranslation(context, issuer.name),
               logo: type.logo,

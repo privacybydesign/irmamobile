@@ -5,7 +5,7 @@ import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_empty_credential_card.dart';
-import '../../../widgets/credential_card/yivi_compact_credential_card.dart';
+import '../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/issuer_verifier_header.dart';
 import '../../../widgets/translated_text.dart';
@@ -44,9 +44,10 @@ class ActivityDetailDisclosure extends StatelessWidget {
               : logEntry.signedMessageLog!.credentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCompactCredentialCard.fromCredentialLog(
+              child: YiviCredentialCard.fromCredentialLog(
                 irmaConfiguration,
                 credential,
+                compact: true,
               ),
             ),
         if (logEntry.type == LogType.signature) ...[
