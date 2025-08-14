@@ -16,10 +16,10 @@ import 'package:irmamobile/src/providers/preferences_provider.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_footer.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_footer.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_header.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/radio_indicator.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
@@ -144,14 +144,14 @@ Future<void> issueCredentials(
   await tester.waitFor(issuancePageFinder);
 
   // Check whether all credentials are displayed.
-  expect(find.byType(IrmaCredentialCard), findsNWidgets(groupedAttributes.length));
+  expect(find.byType(YiviCredentialCard), findsNWidgets(groupedAttributes.length));
 
   // Check whether all attributes are displayed in the right order.
   for (final credTypeId in groupedAttributes.keys) {
     final credType = irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
     expect(find.text(credType.name.translate(locale.languageCode)).last, findsOneWidget);
   }
-  final attributeTexts = tester.getAllText(find.byType(IrmaCredentialCardAttributeList)).toList();
+  final attributeTexts = tester.getAllText(find.byType(YiviCredentialCardAttributeList)).toList();
   final attributeEntries = attributes.entries.toList();
 
   for (int i = 0; i < attributes.length; i++) {
@@ -217,7 +217,7 @@ Future<void> evaluateCredentialCard(
   expect(
     find.descendant(
       of: credentialCardFinder,
-      matching: find.byType(IrmaCredentialCard),
+      matching: find.byType(YiviCredentialCard),
       matchRoot: true,
     ),
     findsOneWidget,
@@ -225,7 +225,7 @@ Future<void> evaluateCredentialCard(
 
   if (style != null) {
     expect(
-      (credentialCardFinder.evaluate().first.widget as IrmaCredentialCard).style,
+      (credentialCardFinder.evaluate().first.widget as YiviCredentialCard).style,
       style,
     );
   }
@@ -237,7 +237,7 @@ Future<void> evaluateCredentialCard(
     // Card should have a header
     final cardHeaderFinder = find.descendant(
       of: credentialCardFinder,
-      matching: find.byType(IrmaCredentialCardHeader),
+      matching: find.byType(YiviCredentialCardHeader),
     );
     expect(cardHeaderFinder, findsOneWidget);
 
@@ -285,8 +285,7 @@ Future<void> evaluateCredentialCard(
 
       // Compare the issuer credential name
       if (issuerName != null) {
-        expect(cardHeaderText.elementAt(1), 'Issued by:');
-        expect(cardHeaderText.elementAt(2), issuerName);
+        expect(cardHeaderText.elementAt(1), 'by $issuerName');
       }
     }
   }
@@ -295,7 +294,7 @@ Future<void> evaluateCredentialCard(
     // Card should have an attribute list
     final cardAttList = find.descendant(
       of: credentialCardFinder,
-      matching: find.byType(IrmaCredentialCardAttributeList),
+      matching: find.byType(YiviCredentialCardAttributeList),
     );
 
     if (attributes.isNotEmpty) {
@@ -359,7 +358,7 @@ Future<void> evaluateCredentialCard(
 
   // Check the footer
   if (footerText != null || shouldCheckCardStatus) {
-    final footerFinder = find.byType(IrmaCredentialCardFooter);
+    final footerFinder = find.byType(YiviCredentialCardFooter);
 
     if (shouldCheckCardStatus) {
       final isReobtainable = isExpired != null && isExpired || isRevoked != null && isRevoked;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/attribute.dart';
 import '../../models/attribute_value.dart';
@@ -6,17 +7,21 @@ import '../../models/credentials.dart';
 import '../../models/irma_configuration.dart';
 import '../../models/log_entry.dart';
 import '../../models/translated_value.dart';
+import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
+import '../credential_card/models/card_expiry_date.dart';
 import '../greyed_out.dart';
+import '../information_box.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
-import 'irma_credential_card_attribute_list.dart';
-import 'irma_credential_card_footer.dart';
-import 'irma_credential_card_header.dart';
-import 'models/card_expiry_date.dart';
+import '../yivi_themed_button.dart';
+import 'yivi_credential_card_attribute_list.dart';
+import 'yivi_credential_card_footer.dart';
+import 'yivi_credential_card_header.dart';
 
-class IrmaCredentialCard extends StatelessWidget {
+class YiviCredentialCard extends StatelessWidget {
+  final bool compact;
   final List<Attribute> attributes;
   final bool valid;
   final CredentialType type;
@@ -35,8 +40,9 @@ class IrmaCredentialCard extends StatelessWidget {
   final bool hideAttributes;
   final bool disabled;
   final Map<CredentialFormat, String> hashByFormat;
+  final int? instanceCount;
 
-  const IrmaCredentialCard({
+  const YiviCredentialCard({
     super.key,
     required this.type,
     required this.issuer,
@@ -45,6 +51,8 @@ class IrmaCredentialCard extends StatelessWidget {
     required this.expired,
     required this.revoked,
     required this.hashByFormat,
+    required this.compact,
+    this.instanceCount,
     this.compareTo,
     this.onTap,
     this.headerTrailing,
@@ -57,7 +65,8 @@ class IrmaCredentialCard extends StatelessWidget {
     this.isTemplate = false,
   });
 
-  static IrmaCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential) {
+  static YiviCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential,
+      {required bool compact}) {
     final attributes = credential.attributes.entries.map((entry) {
       final attributeId = '${credential.credentialType}.${entry.key}';
       final attributeType = irmaConfiguration.attributeTypes[attributeId];
@@ -77,7 +86,8 @@ class IrmaCredentialCard extends StatelessWidget {
       attributes: attributes,
     );
 
-    return IrmaCredentialCard(
+    return YiviCredentialCard(
+      compact: compact,
       valid: credentialView.valid,
       type: credentialView.credentialType,
       issuer: credentialView.issuer,
@@ -89,9 +99,10 @@ class IrmaCredentialCard extends StatelessWidget {
     );
   }
 
-  IrmaCredentialCard.fromMultiFormatCredential(
+  YiviCredentialCard.fromMultiFormatCredential(
     MultiFormatCredential credential, {
     super.key,
+    required this.compact,
     this.compareTo,
     this.onTap,
     this.style = IrmaCardStyle.normal,
@@ -108,11 +119,13 @@ class IrmaCredentialCard extends StatelessWidget {
         revoked = credential.revoked,
         issuer = credential.issuer,
         hashByFormat = credential.hashByFormat,
+        instanceCount = credential.instanceCount,
         expiryDate = CardExpiryDate(credential.expires);
 
-  IrmaCredentialCard.fromCredential(
+  YiviCredentialCard.fromCredential(
     Credential credential, {
     super.key,
+    required this.compact,
     this.compareTo,
     this.onTap,
     this.style = IrmaCardStyle.normal,
@@ -129,7 +142,8 @@ class IrmaCredentialCard extends StatelessWidget {
         revoked = credential.revoked,
         issuer = credential.issuer,
         hashByFormat = {credential.format: credential.hash},
-        expiryDate = CardExpiryDate(credential.expires);
+        expiryDate = CardExpiryDate(credential.expires),
+        instanceCount = credential.instanceCount;
 
   @override
   Widget build(BuildContext context) {
@@ -137,84 +151,91 @@ class IrmaCredentialCard extends StatelessWidget {
 
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: IrmaCard(
-        style: valid ? style : IrmaCardStyle.danger,
-        onTap: onTap,
-        padding: padding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Only the header should be greyed out when the card is disabled.
-            GreyedOut(
-              filterActive: disabled,
-              child: IrmaCredentialCardHeader(
-                credentialName: getTranslation(context, type.name),
-                issuerName: getTranslation(context, issuer.name),
-                logo: type.logo,
-                trailing: headerTrailing,
-                isExpired: expired,
-                isRevoked: revoked,
-                isExpiringSoon: isExpiringSoon,
-              ),
+    return IrmaCard(
+      style: valid ? style : IrmaCardStyle.danger,
+      onTap: onTap,
+      padding: padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GreyedOut(
+            filterActive: disabled,
+            child: YiviCredentialCardHeader(
+              compact: compact,
+              credentialName: getTranslation(context, type.name),
+              issuerName: getTranslation(context, issuer.name),
+              logo: type.logo,
+              trailing: headerTrailing,
+              isExpired: expired,
+              isRevoked: revoked,
+              isExpiringSoon: isExpiringSoon,
             ),
-            // If there are attributes in this credential, then we show the attribute list
-            if (attributes.any((a) => a.value is! NullValue) && !hideAttributes) ...[
-              IrmaDivider(color: valid ? null : theme.danger),
-              IrmaCredentialCardAttributeList(
-                attributes,
-                compareTo: compareTo,
-              ),
-            ],
-            if (!hideFooter)
-              IrmaCredentialCardFooter(
-                credentialView: type,
-                issuer: issuer,
-                revoked: revoked,
-                expired: expired,
-                valid: valid,
-                expiryDate: expiryDate,
-                isTemplate: isTemplate,
-                padding: EdgeInsets.only(top: theme.smallSpacing),
-              ),
-            SizedBox(height: theme.smallSpacing),
-            Row(
-              spacing: theme.smallSpacing,
-              children: [
-                for (final credentialFormat in hashByFormat.keys) CredentialFormatTag(format: credentialFormat),
-              ],
-            )
+          ),
+          // If there are attributes in this credential, then we show the attribute list
+          if (attributes.any((a) => a.value is! NullValue) && !hideAttributes) ...[
+            IrmaDivider(
+              color: valid ? null : theme.danger,
+              padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+            ),
+            YiviCredentialCardAttributeList(
+              attributes,
+              compareTo: compareTo,
+            ),
           ],
-        ),
+          if (!hideFooter)
+            Column(
+              children: [
+                IrmaDivider(
+                  color: valid ? null : theme.danger,
+                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+                ),
+                YiviCredentialCardFooter(
+                  credentialType: type,
+                  issuer: issuer,
+                  revoked: revoked,
+                  expired: expired,
+                  valid: valid,
+                  expiryDate: expiryDate,
+                  isTemplate: isTemplate,
+                  instanceCount: instanceCount,
+                ),
+              ],
+            ),
+          _buildReobtainOption(context, theme),
+        ],
       ),
     );
   }
-}
 
-class CredentialFormatTag extends StatelessWidget {
-  const CredentialFormatTag({super.key, required this.format});
+  bool get _isExpiringSoon => expiryDate?.expiresSoon ?? false;
 
-  final CredentialFormat format;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = format == CredentialFormat.idemix ? 'Yivi' : 'Eudi';
-    final color = format == CredentialFormat.idemix ? Colors.red.shade800 : Colors.blue.shade800;
-    final textStyle = IrmaTheme.of(context).textTheme.bodySmall;
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        color: color,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16),
-        child: Text(
-          text,
-          style: textStyle!.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+  Widget _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
+    if (type.obtainable) {
+      if (!valid || _isExpiringSoon) {
+        return Padding(
+          padding: EdgeInsets.only(top: theme.smallSpacing),
+          child: YiviThemedButton(
+            label: 'credential.options.reobtain',
+            style: YiviButtonStyle.filled,
+            onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(
+              context,
+              type.fullId,
+            ),
+          ),
+        );
+      }
+    } else if (!valid || isTemplate) {
+      return InformationBox(
+        message: FlutterI18n.translate(
+          context,
+          'credential.not_obtainable',
+          translationParams: {
+            'issuerName': issuer.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
+          },
         ),
-      ),
-    );
+      );
+    }
+    return Container();
   }
 }

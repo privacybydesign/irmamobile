@@ -5,8 +5,8 @@ import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_attribute_list.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -50,18 +50,18 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   // The discon stepper should two cards
   final choiceCardsFinder = find.descendant(
     of: disConStepperFinder,
-    matching: find.byType(IrmaCredentialCard),
+    matching: find.byType(YiviCredentialCard),
   );
   expect(choiceCardsFinder, findsNWidgets(2));
 
   // First card should be highlighted.
   final firstCardFinder = choiceCardsFinder.first;
-  expect((firstCardFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  expect((firstCardFinder.evaluate().first.widget as YiviCredentialCard).style, IrmaCardStyle.highlighted);
 
   // First card should show an attribute list
   final firstCardAttListFinder = find.descendant(
     of: firstCardFinder,
-    matching: find.byType(IrmaCredentialCardAttributeList),
+    matching: find.byType(YiviCredentialCardAttributeList),
   );
   expect(firstCardAttListFinder, findsOneWidget);
 
@@ -126,7 +126,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   // Second card should also show an attribute list
   final secondCardAttListFinder = find.descendant(
     of: secondCardFinder,
-    matching: find.byType(IrmaCredentialCardAttributeList),
+    matching: find.byType(YiviCredentialCardAttributeList),
   );
   expect(secondCardAttListFinder, findsOneWidget);
 
@@ -164,7 +164,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   // Dialog should show two credential cards
   final dialogCardsFinder = find.descendant(
     of: wrongCredAddedDialogFinder,
-    matching: find.byType(IrmaCredentialCard),
+    matching: find.byType(YiviCredentialCard),
   );
   expect(dialogCardsFinder, findsNWidgets(2));
 
@@ -175,7 +175,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   // First card in dialog should have an attribute list
   final firstDialogCardAttListFinder = find.descendant(
     of: firstDialogCardFinder,
-    matching: find.byType(IrmaCredentialCardAttributeList),
+    matching: find.byType(YiviCredentialCardAttributeList),
   );
   expect(firstDialogCardAttListFinder, findsOneWidget);
 
@@ -202,7 +202,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   // Second card in dialog should also have an attribute list
   final secondDialogCardAttListFinder = find.descendant(
     of: secondDialogCardFinder,
-    matching: find.byType(IrmaCredentialCardAttributeList),
+    matching: find.byType(YiviCredentialCardAttributeList),
   );
   expect(secondDialogCardAttListFinder, findsOneWidget);
 
@@ -246,7 +246,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   expect(
     find.descendant(
       of: dialogCardsFinder,
-      matching: find.byType(IrmaCredentialCardAttributeList),
+      matching: find.byType(YiviCredentialCardAttributeList),
     ),
     findsNothing,
   );

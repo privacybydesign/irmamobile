@@ -6,7 +6,7 @@ import '../../../../models/return_url.dart';
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
-import '../../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_icon_button.dart';
@@ -86,7 +86,9 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
             ),
           for (int i = 0; i < choiceEntry.value.length; i++)
             Center(
-              child: IrmaCredentialCard(
+              child: YiviCredentialCard(
+                compact: true,
+                hideFooter: true,
                 hashByFormat: {choiceEntry.value[i].format: choiceEntry.value[i].credentialHash},
                 padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
                 headerTrailing: optional && i == 0

@@ -52,8 +52,8 @@ class HomeScreen extends StatelessWidget {
           child: PendingPointerListener(
             child: Scaffold(
               body: switch (tabState) {
-                IrmaNavBarTab.notifications => NotificationsTab(),
                 IrmaNavBarTab.data => DataTab(),
+                IrmaNavBarTab.notifications => NotificationsTab(),
                 IrmaNavBarTab.activity => ActivityTab(),
                 IrmaNavBarTab.more => MoreTab(onChangeTab: changeTab),
               },

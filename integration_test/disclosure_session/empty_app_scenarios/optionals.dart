@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_icon_button.dart';
 
 import '../../helpers/helpers.dart';
@@ -79,7 +79,7 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   expect(optionalDataHeaderFinder, findsOneWidget);
 
   // The last card should contain text Demo E-mail address
-  final optionalCardFinder = find.byType(IrmaCredentialCard).last;
+  final optionalCardFinder = find.byType(YiviCredentialCard).last;
   expect(
     find.descendant(
       of: optionalCardFinder,

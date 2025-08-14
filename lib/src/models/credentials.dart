@@ -121,6 +121,7 @@ class Credential extends CredentialView {
   final DateTime expires;
   final String hash;
   final CredentialFormat format;
+  final int? instanceCount;
 
   Credential({
     required super.info,
@@ -130,6 +131,7 @@ class Credential extends CredentialView {
     required super.revoked,
     required this.hash,
     required this.format,
+    required this.instanceCount,
   }) : super(expired: expires.isBefore(DateTime.now()));
 
   factory Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential}) {
@@ -158,6 +160,7 @@ class Credential extends CredentialView {
       revoked: rawCredential.revoked,
       hash: rawCredential.hash,
       format: rawCredential.format,
+      instanceCount: rawCredential.instanceCount,
     );
   }
 }
@@ -216,6 +219,7 @@ class RawCredential {
     required this.revoked,
     required this.revocationSupported,
     required this.format,
+    required this.instanceCount,
   });
 
   @JsonKey(name: 'ID')
@@ -248,6 +252,9 @@ class RawCredential {
   @JsonKey(name: 'CredentialFormat', fromJson: stringToCredentialFormat, toJson: credentialFormatToString)
   final CredentialFormat format;
 
+  @JsonKey(name: 'InstanceCount')
+  final int? instanceCount;
+
   factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
 
   Map<String, dynamic> toJson() => _$RawCredentialToJson(this);
@@ -270,6 +277,7 @@ class MultiFormatCredential {
   final DateTime signedOn;
   final DateTime expires;
   final bool valid;
+  final int? instanceCount;
 
   MultiFormatCredential({
     required this.identifier,
@@ -282,5 +290,6 @@ class MultiFormatCredential {
     required this.revoked,
     required this.issuer,
     required this.valid,
+    required this.instanceCount,
   });
 }

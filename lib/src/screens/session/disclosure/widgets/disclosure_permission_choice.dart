@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
-import '../../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../../widgets/radio_indicator.dart';
 import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_credential.dart';
@@ -41,7 +41,8 @@ class DisclosurePermissionChoice extends StatelessWidget {
                           }
                         },
                   child: Center(
-                    child: IrmaCredentialCard(
+                    child: YiviCredentialCard(
+                      hideFooter: true,
                       hashByFormat: credential is ChoosableDisclosureCredential ? {} : {},
                       padding: EdgeInsets.zero,
                       compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
@@ -57,6 +58,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                       valid: credential.valid,
                       expired: credential.expired,
                       revoked: credential.revoked,
+                      compact: true,
                     ),
                   ),
                 ),
