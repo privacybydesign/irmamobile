@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:irmamobile/src/models/credentials.dart';
 
 import '../data/irma_preferences.dart';
+import '../models/credentials.dart';
 import 'credentials_provider.dart';
 import 'preferences_provider.dart';
 
@@ -38,8 +38,7 @@ final credentialOrderRepoProvider = Provider(
 enum NewItemPolicy { append, prepend }
 
 /// ----- Controller: reconciles external items with stored order
-final itemsControllerProvider =
-    AsyncNotifierProvider<ItemsController, List<CredentialInfo>>(
+final itemsControllerProvider = AsyncNotifierProvider<ItemsController, List<CredentialInfo>>(
   ItemsController.new,
 );
 
