@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../models/credentials.dart';
+import '../../providers/credentials_list_provider.dart';
 import '../../providers/credentials_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
@@ -39,7 +40,10 @@ class _DataTabState extends ConsumerState<DataTab> {
       return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: theme.backgroundTertiary,
-        appBar: YiviSearchBar(focusNode: _focusNode, onCancel: _closeSearch, onQueryChanged: _searchQueryChanged),
+        appBar: YiviSearchBar(
+            focusNode: _focusNode,
+            onCancel: _closeSearch,
+            onQueryChanged: _searchQueryChanged),
         body: _CredentialsSearchResults(),
       );
     }
@@ -102,30 +106,37 @@ class _ToAddDataButtonPointingImage extends StatefulWidget {
   final GlobalKey addDataButtonKey;
 
   @override
-  State<_ToAddDataButtonPointingImage> createState() => _ToAddDataButtonPointingImageState();
+  State<_ToAddDataButtonPointingImage> createState() =>
+      _ToAddDataButtonPointingImageState();
 }
 
-class _ToAddDataButtonPointingImageState extends State<_ToAddDataButtonPointingImage> {
+class _ToAddDataButtonPointingImageState
+    extends State<_ToAddDataButtonPointingImage> {
   final _imageKey = GlobalKey(debugLabel: 'to_add_data_pointing_image_key');
   static const pi = 3.1415;
   double rotationAngle = 0.0;
 
   double _calculateRotation() {
-    final addDataButtonRenderBox = widget.addDataButtonKey.currentContext?.findRenderObject() as RenderBox?;
-    final imageRenderBox = _imageKey.currentContext?.findRenderObject() as RenderBox?;
+    final addDataButtonRenderBox = widget.addDataButtonKey.currentContext
+        ?.findRenderObject() as RenderBox?;
+    final imageRenderBox =
+        _imageKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (imageRenderBox == null || addDataButtonRenderBox == null) {
       return 100.0;
     }
 
-    final plusButtonCenter = addDataButtonRenderBox.localToGlobal(addDataButtonRenderBox.size.center(Offset.zero));
-    final imageCenter = imageRenderBox.localToGlobal(imageRenderBox.size.center(Offset.zero));
+    final plusButtonCenter = addDataButtonRenderBox
+        .localToGlobal(addDataButtonRenderBox.size.center(Offset.zero));
+    final imageCenter =
+        imageRenderBox.localToGlobal(imageRenderBox.size.center(Offset.zero));
 
     final deltaX = plusButtonCenter.dx - imageCenter.dx;
     final deltaY = imageCenter.dy - plusButtonCenter.dy;
     final targetAngle = atan2(deltaY, deltaX);
 
-    final referenceAngleDeg = 55.0; // angle of the arm inside the image in degrees
+    final referenceAngleDeg =
+        55.0; // angle of the arm inside the image in degrees
     final referenceAngle = referenceAngleDeg * pi / 180.0;
 
     return targetAngle - referenceAngle;
@@ -146,7 +157,8 @@ class _ToAddDataButtonPointingImageState extends State<_ToAddDataButtonPointingI
       transform: Matrix4.identity()
         ..rotateY(pi) // 180-degree flip (π radians)
         ..rotateZ(rotationAngle),
-      child: SvgPicture.asset(key: _imageKey, 'assets/arrow_back/pointing_up.svg'),
+      child:
+          SvgPicture.asset(key: _imageKey, 'assets/arrow_back/pointing_up.svg'),
     );
   }
 }
@@ -182,9 +194,12 @@ class _NoCredentialsYet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TranslatedText('data_tab.empty.title', style: theme.textTheme.displayLarge, textAlign: TextAlign.start),
+                TranslatedText('data_tab.empty.title',
+                    style: theme.textTheme.displayLarge,
+                    textAlign: TextAlign.start),
                 SizedBox(height: theme.defaultSpacing),
-                TranslatedText('data_tab.empty.subtitle', textAlign: TextAlign.start),
+                TranslatedText('data_tab.empty.subtitle',
+                    textAlign: TextAlign.start),
               ],
             ),
           ),
@@ -210,9 +225,11 @@ class _NoCredentialsYet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TranslatedText('data_tab.empty.title',
-                    style: theme.textTheme.displayLarge, textAlign: TextAlign.center),
+                    style: theme.textTheme.displayLarge,
+                    textAlign: TextAlign.center),
                 SizedBox(height: theme.defaultSpacing),
-                TranslatedText('data_tab.empty.subtitle', textAlign: TextAlign.center),
+                TranslatedText('data_tab.empty.subtitle',
+                    textAlign: TextAlign.center),
               ],
             ),
           ],
@@ -234,7 +251,7 @@ class _AllCredentialsList extends ConsumerWidget {
     return switch (credentials) {
       AsyncData(:final value) => value.isEmpty
           ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
-          : _CredentialsTypeList(credentials: value),
+          : ReorderableCredentialList(),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };
@@ -265,7 +282,8 @@ class _CredentialsTypeList extends StatelessWidget {
                 credType: c.credentialType,
                 onTap: () => context.pushCredentialsDetailsScreen(
                   CredentialsDetailsRouteParams(
-                      categoryName: 'home.nav_bar.data', credentialTypeId: c.credentialType.fullId),
+                      categoryName: 'home.nav_bar.data',
+                      credentialTypeId: c.credentialType.fullId),
                 ),
               ),
             );
@@ -304,6 +322,51 @@ class _CredentialsSearchResults extends ConsumerWidget {
           : _CredentialsTypeList(credentials: credentials),
       loading: () => CircularProgressIndicator(),
       error: (error, trace) => Text(error.toString()),
+    );
+  }
+}
+
+// ================================================================================
+
+class ReorderableCredentialList extends ConsumerWidget {
+  const ReorderableCredentialList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final credentials = ref.watch(itemsControllerProvider);
+    final controller = ref.read(itemsControllerProvider.notifier);
+
+    final theme = IrmaTheme.of(context);
+
+    return credentials.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Error: $e')),
+      data: (items) => ReorderableListView.builder(
+        padding: EdgeInsets.only(
+          bottom: theme.smallSpacing,
+          left: theme.defaultSpacing,
+          right: theme.defaultSpacing,
+        ),
+        itemCount: items.length,
+        onReorder: controller.reorder,
+        buildDefaultDragHandles: false,
+        itemBuilder: (_, i) {
+          final cred = items[i];
+
+          return ReorderableDragStartListener(
+            key: ValueKey(cred.fullId),
+            index: i,
+            child: IrmaCredentialTypeCard(
+              credType: cred.credentialType,
+              onTap: () => context.pushCredentialsDetailsScreen(
+                CredentialsDetailsRouteParams(
+                    categoryName: 'home.nav_bar.data',
+                    credentialTypeId: cred.credentialType.fullId),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
