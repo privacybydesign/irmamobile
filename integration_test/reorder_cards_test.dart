@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_type_card.dart';
 
@@ -12,11 +11,6 @@ import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
-  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
-  // this line makes sure the text entering works on Firebase iOS on-device integration tests
-  binding.testTextInput.register();
-
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
@@ -76,8 +70,6 @@ void main() {
 
       // now delete a card and make sure the order is updated correctly
       await deletePersonalDataCard(tester);
-      // wait for snackbar to disappear
-      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       final orderAfterDeleteOnDisk = irmaBinding.repository.preferences.getCredentialOrder();
       final orderAfterDeleteOnScreen = getCredentialOrderOnScreen(tester);
@@ -134,6 +126,9 @@ Future<void> deletePersonalDataCard(WidgetTester tester) async {
   // Press the delete button in the dialog
   final dialogDeleteButtonFinder = find.text('Delete');
   await tester.tapAndSettle(dialogDeleteButtonFinder);
+
+  // wait for snackbar to disappear
+  await tester.pumpAndSettle(const Duration(seconds: 5));
 }
 
 List<String> getCredentialOrderOnScreen(WidgetTester tester) {
