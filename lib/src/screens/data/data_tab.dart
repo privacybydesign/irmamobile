@@ -334,16 +334,14 @@ class _ReorderableCredentialList extends ConsumerWidget {
           },
           onReorder: controller.reorder,
           proxyDecorator: (child, index, animation) {
+            // ReorderableListView is a bit wanky when using padding to create space between cards.
+            // It will show a shadow around the padded area, which looks weird. Therefore we remove the shadow altogether.
             return Material(
               type: MaterialType.transparency,
               child: child,
             );
           },
-          padding: EdgeInsets.only(
-            top: theme.defaultSpacing,
-            left: theme.defaultSpacing,
-            right: theme.defaultSpacing,
-          ),
+          padding: EdgeInsets.all(theme.defaultSpacing),
           itemCount: items.length,
           buildDefaultDragHandles: false,
           itemBuilder: (_, i) {

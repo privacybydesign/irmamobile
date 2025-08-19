@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_type_card.dart';
 
 import 'helpers/helpers.dart';
@@ -19,11 +21,11 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group('reorder-cards', () {
+  group('card-reordering', () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets('can-long-press-drag-cards', (tester) async {
+    testWidgets('reorder-cards-behavior', (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
 
       final beforeOrderOnDisk = irmaBinding.repository.preferences.getCredentialOrder();
@@ -41,28 +43,29 @@ void main() {
         ]),
       );
 
-      final cardFinder = find.byType(IrmaCredentialTypeCard).first;
-      final dragGesture = await tester.startGesture(tester.getCenter(cardFinder), kind: PointerDeviceKind.touch);
+      final firstCard = find.byType(IrmaCredentialTypeCard).first;
+      final gesture = await tester.startGesture(tester.getCenter(firstCard), kind: PointerDeviceKind.touch);
 
       // long press
       await tester.pump(const Duration(milliseconds: 600));
-      // drag
-      await dragGesture.moveBy(const Offset(0, 200));
+      // drag down
+      await gesture.moveBy(const Offset(0, 200));
 
       await tester.pump();
 
       // release
-      await dragGesture.up();
+      await gesture.up();
       await tester.pumpAndSettle();
 
+      // give it some time to update shared preferences
       await Future.delayed(Duration(seconds: 1));
-      final afterOrderOnDisk = irmaBinding.repository.preferences.getCredentialOrder();
 
-      final afterOrderOnScreen = getCredentialOrderOnScreen(tester);
+      final orderAfterDragOnDisk = irmaBinding.repository.preferences.getCredentialOrder();
+      final orderAfterDragOnScreen = getCredentialOrderOnScreen(tester);
 
-      expect(afterOrderOnScreen, equals(afterOrderOnDisk));
+      expect(orderAfterDragOnScreen, equals(orderAfterDragOnDisk));
       expect(
-        afterOrderOnDisk,
+        orderAfterDragOnDisk,
         equals([
           'irma-demo.gemeente.address',
           'irma-demo.ivido.login',
@@ -71,8 +74,67 @@ void main() {
           'irma-demo.IRMATube.member'
         ]),
       );
+
+      // now delete a card and make sure the order is updated correctly
+      await deletePersonalDataCard(tester);
+      // wait for snackbar to disappear
+      await tester.pumpAndSettle(const Duration(seconds: 5));
+
+      final orderAfterDeleteOnDisk = irmaBinding.repository.preferences.getCredentialOrder();
+      final orderAfterDeleteOnScreen = getCredentialOrderOnScreen(tester);
+
+      expect(orderAfterDeleteOnScreen, equals(orderAfterDeleteOnDisk));
+      expect(
+        orderAfterDeleteOnDisk,
+        equals([
+          'irma-demo.gemeente.address',
+          'irma-demo.ivido.login',
+          'irma-demo.sidn-pbdf.email',
+          'irma-demo.IRMATube.member'
+        ]),
+      );
+
+      // after issuing again it should now be the top one
+      await issueMunicipalityPersonalData(tester, irmaBinding);
+      await tester.tapAndSettle(find.byKey(const Key('ok_button')));
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+      final finalOrderOnDisk = irmaBinding.repository.preferences.getCredentialOrder();
+      final finalOrderOnScreen = getCredentialOrderOnScreen(tester);
+
+      expect(finalOrderOnScreen, equals(finalOrderOnDisk));
+      expect(
+        finalOrderOnDisk,
+        equals([
+          'irma-demo.gemeente.personalData',
+          'irma-demo.gemeente.address',
+          'irma-demo.ivido.login',
+          'irma-demo.sidn-pbdf.email',
+          'irma-demo.IRMATube.member'
+        ]),
+      );
     });
   });
+}
+
+Future<void> deletePersonalDataCard(WidgetTester tester) async {
+  await tester.tapAndSettle(find.byType(IrmaCredentialTypeCard).at(2));
+
+  // Open the bottom sheet
+  final bottomSheetButtonFinder = find.byIcon(Icons.more_horiz_sharp);
+  await tester.tapAndSettle(bottomSheetButtonFinder);
+
+  // Press the delete button
+  final deleteButtonFinder = find.text('Delete data');
+  await tester.tapAndSettle(deleteButtonFinder);
+
+  // Expect the delete confirmation dialog
+  final deleteConfirmationDialogFinder = find.byType(DeleteCredentialConfirmationDialog);
+  expect(deleteConfirmationDialogFinder, findsOneWidget);
+
+  // Press the delete button in the dialog
+  final dialogDeleteButtonFinder = find.text('Delete');
+  await tester.tapAndSettle(dialogDeleteButtonFinder);
 }
 
 List<String> getCredentialOrderOnScreen(WidgetTester tester) {

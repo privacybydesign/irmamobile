@@ -64,6 +64,7 @@ class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
         state = AsyncData(merged);
         // Optionally clean up persisted order (remove non-existent IDs)
         _debouncedSave(merged);
+        _order = merged.map((c) => c.fullId).toList();
       },
     );
 
@@ -111,9 +112,6 @@ class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
     } else {
       visible.insertAll(0, newOnes);
     }
-
-    // Update in-memory order to match merged result
-    _order = visible.map((e) => e.fullId).toList();
     return visible;
   }
 
