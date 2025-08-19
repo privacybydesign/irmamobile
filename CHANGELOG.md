@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Add changed terms & conditions dialog that shows up when the terms have changed
+- Add ability to reorder credential type cards in the data tab with long-press + drag
 
 ## [7.8.1] - 2025-05-07
 ### Changed
