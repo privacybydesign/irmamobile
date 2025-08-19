@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -138,8 +137,12 @@ Future<void> deletePersonalDataCard(WidgetTester tester) async {
 }
 
 List<String> getCredentialOrderOnScreen(WidgetTester tester) {
-  final cardFinder = find.byType(IrmaCredentialTypeCard);
-  return tester.widgetList<IrmaCredentialTypeCard>(cardFinder).map((e) => e.credType.fullId).toList();
+  return tester
+      .widgetList<IrmaCredentialTypeCard>(
+        find.byType(IrmaCredentialTypeCard, skipOffstage: false),
+      )
+      .map((c) => c.credType.fullId)
+      .toList();
 }
 
 Future<void> pumpFilledAppOnDataPage(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
