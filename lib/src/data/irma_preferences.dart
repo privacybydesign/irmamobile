@@ -22,7 +22,7 @@ class IrmaPreferences {
         _showNameChangedNotification = preferences.getBool(_showNameChangedNotificationKey, defaultValue: true),
         _lastSchemeUpdate = preferences.getInt(_lastSchemeUpdateKey, defaultValue: 0),
         _serializedNotifications = preferences.getString(_serializedNotificationsKey, defaultValue: ''),
-        _credentialOrder=preferences.getStringList(_credentialOrderKey, defaultValue: []) {
+        _credentialOrder = preferences.getStringList(_credentialOrderKey, defaultValue: []) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
