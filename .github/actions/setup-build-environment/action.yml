@@ -54,6 +54,10 @@ runs:
     - name: Ensure Go mobile is installed
       run: ./ci_scripts/install_gomobile.sh
       shell: bash
+    - name: Use correct Xcode version
+      if: runner.os == 'macOS'
+      run: sudo xcode-select --switch /Applications/Xcode_16.4.app
+      shell: bash
     - name: Check Cocoapods cache
       id: cocoapods-cache
       if: runner.os == 'macOS'
