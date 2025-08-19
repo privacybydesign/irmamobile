@@ -45,7 +45,7 @@ final itemsControllerProvider = AsyncNotifierProvider<ItemsController, List<Cred
 class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
   Timer? _debounce;
   List<String> _order = const []; // persisted order of IDs
-  NewItemPolicy policy = NewItemPolicy.append;
+  final NewItemPolicy _policy = NewItemPolicy.prepend;
 
   @override
   Future<List<CredentialInfo>> build() async {
@@ -60,7 +60,7 @@ class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
         if (items == null) {
           return;
         }
-        final merged = _reconcile(items, _order, policy);
+        final merged = _reconcile(items, _order, _policy);
         state = AsyncData(merged);
         // Optionally clean up persisted order (remove non-existent IDs)
         _debouncedSave(merged);
@@ -69,8 +69,8 @@ class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
 
     // Seed with current external value (if available)
     final ext = await ref.read(credentialInfoListProvider.future);
-    final merged = _reconcile(ext, _order, policy);
-    _order = merged.map((e) => e.id).toList();
+    final merged = _reconcile(ext, _order, _policy);
+    _order = merged.map((e) => e.fullId).toList();
     return merged;
   }
 
@@ -81,7 +81,7 @@ class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
     final moved = current.removeAt(oldIndex);
     current.insert(newIndex, moved);
     state = AsyncData(current);
-    _order = current.map((e) => e.id).toList();
+    _order = current.map((e) => e.fullId).toList();
     _debouncedSave(current);
   }
 
@@ -93,7 +93,7 @@ class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
     List<String> storedOrder,
     NewItemPolicy p,
   ) {
-    final byId = {for (final it in external) it.id: it};
+    final byId = {for (final it in external) it.fullId: it};
     final visible = <CredentialInfo>[];
 
     // 1) Keep items that still exist in the stored order
@@ -113,7 +113,7 @@ class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
     }
 
     // Update in-memory order to match merged result
-    _order = visible.map((e) => e.id).toList();
+    _order = visible.map((e) => e.fullId).toList();
     return visible;
   }
 
@@ -123,7 +123,7 @@ class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
       const Duration(milliseconds: 400),
       () async {
         await ref.read(credentialOrderRepoProvider).saveOrder(
-              items.map((e) => e.id).toList(),
+              items.map((e) => e.fullId).toList(),
             );
       },
     );
