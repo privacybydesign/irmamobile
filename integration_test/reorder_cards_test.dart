@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_type_card.dart';
 
@@ -11,6 +12,7 @@ import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
