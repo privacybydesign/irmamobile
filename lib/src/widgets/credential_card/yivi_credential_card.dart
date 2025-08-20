@@ -42,6 +42,10 @@ class YiviCredentialCard extends StatelessWidget {
   final Map<CredentialFormat, String> hashByFormat;
   final int? instanceCount;
 
+  /// when the instance count becomes lower than this,
+  /// the re-obtain button shows and the instance count becomes the warning color
+  static const int lowInstanceCountThreshold = 10;
+
   const YiviCredentialCard({
     super.key,
     required this.type,
@@ -149,10 +153,8 @@ class YiviCredentialCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final isExpiringSoon = expiryDate?.expiresSoon ?? false;
-
     return IrmaCard(
-      style: valid ? style : IrmaCardStyle.danger,
+      style: _isExpiredInAnyWay() ? IrmaCardStyle.danger : style,
       onTap: onTap,
       padding: padding,
       child: Column(
@@ -167,9 +169,9 @@ class YiviCredentialCard extends StatelessWidget {
               issuerName: getTranslation(context, issuer.name),
               logo: type.logo,
               trailing: headerTrailing,
-              isExpired: expired,
+              isExpired: _isExpiredInAnyWay(),
               isRevoked: revoked,
-              isExpiringSoon: isExpiringSoon,
+              isExpiringSoon: _isExpiringSoonInAnyWay(),
             ),
           ),
           // If there are attributes in this credential, then we show the attribute list
@@ -187,15 +189,15 @@ class YiviCredentialCard extends StatelessWidget {
             Column(
               children: [
                 IrmaDivider(
-                  color: valid ? null : theme.danger,
+                  color: _isExpiredInAnyWay() ? theme.danger : null,
                   padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
                 ),
                 YiviCredentialCardFooter(
                   credentialType: type,
                   issuer: issuer,
                   revoked: revoked,
-                  expired: expired,
-                  valid: valid,
+                  instanceBasedExpireState: _getInstanceCountBasedExpireState(),
+                  timeBasedExpireState: _getTimeBasedExpireState(),
                   expiryDate: expiryDate,
                   isTemplate: isTemplate,
                   instanceCount: instanceCount,
@@ -208,11 +210,47 @@ class YiviCredentialCard extends StatelessWidget {
     );
   }
 
-  bool get _isExpiringSoon => expiryDate?.expiresSoon ?? false;
+  ExpireState _getTimeBasedExpireState() {
+    if (expired) {
+      return ExpireState.expired;
+    }
+    if (expiryDate?.expiresSoon ?? false) {
+      return ExpireState.almostExpired;
+    }
+    return ExpireState.notExpired;
+  }
+
+  ExpireState _getInstanceCountBasedExpireState() {
+    // idemix only, so doesn't expire
+    if (instanceCount == null) {
+      return ExpireState.notExpired;
+    }
+    if (instanceCount! <= 0) {
+      return ExpireState.expired;
+    }
+    if (instanceCount! <= lowInstanceCountThreshold) {
+      return ExpireState.almostExpired;
+    }
+    return ExpireState.notExpired;
+  }
+
+  bool _isExpiringSoonInAnyWay() {
+    final timeBased = _getTimeBasedExpireState();
+    final instanceBased = _getInstanceCountBasedExpireState();
+
+    return timeBased != ExpireState.notExpired || instanceBased != ExpireState.notExpired;
+  }
+
+  bool _isExpiredInAnyWay() {
+    final timeBased = _getTimeBasedExpireState();
+    final instanceBased = _getInstanceCountBasedExpireState();
+
+    return timeBased == ExpireState.expired || instanceBased == ExpireState.expired;
+  }
 
   Widget _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
     if (type.obtainable) {
-      if (!valid || _isExpiringSoon) {
+      if (_isExpiringSoonInAnyWay()) {
         return Padding(
           padding: EdgeInsets.only(top: theme.smallSpacing),
           child: YiviThemedButton(

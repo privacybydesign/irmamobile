@@ -3,38 +3,49 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/irma_configuration.dart';
-import '../../providers/irma_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/date_formatter.dart';
 import '../credential_card/models/card_expiry_date.dart';
-import '../information_box.dart';
 import '../irma_divider.dart';
 import '../translated_text.dart';
-import '../yivi_themed_button.dart';
+
+enum ExpireState {
+  notExpired,
+  almostExpired,
+  expired,
+}
 
 class YiviCredentialCardFooter extends StatelessWidget {
   final CredentialType credentialType;
-  final bool valid;
-  final bool expired;
   final bool revoked;
   final Issuer issuer;
   final CardExpiryDate? expiryDate;
   final int? instanceCount;
   final bool isTemplate;
+  final ExpireState timeBasedExpireState;
+  final ExpireState instanceBasedExpireState;
 
   final EdgeInsetsGeometry padding;
 
   const YiviCredentialCardFooter({
-    required this.valid,
-    required this.expired,
     required this.issuer,
     required this.credentialType,
     required this.revoked,
+    required this.timeBasedExpireState,
+    required this.instanceBasedExpireState,
     this.expiryDate,
     this.padding = EdgeInsets.zero,
     this.isTemplate = false,
     this.instanceCount,
   });
+
+  Color? _getTextColorForExpireState(ExpireState state, IrmaThemeData theme) {
+    return switch (state) {
+      ExpireState.notExpired => null,
+      ExpireState.almostExpired => theme.warning,
+      ExpireState.expired => theme.error,
+    };
+  }
 
   Widget? _buildFooterText(BuildContext context, IrmaThemeData theme) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
@@ -56,7 +67,10 @@ class YiviCredentialCardFooter extends StatelessWidget {
                       expiryDate!.dateTime!,
                       lang,
                     ),
-                    style: theme.textTheme.bodyLarge!.copyWith(fontSize: 14),
+                    style: theme.textTheme.bodyLarge!.copyWith(
+                      fontSize: 14,
+                      color: _getTextColorForExpireState(timeBasedExpireState, theme),
+                    ),
                   ),
                 ],
               ),
@@ -67,14 +81,23 @@ class YiviCredentialCardFooter extends StatelessWidget {
               child: Column(
                 spacing: theme.tinySpacing,
                 children: [
-                  TranslatedText('credential.sharable', style: TextStyle(fontSize: 14)),
+                  TranslatedText(
+                    'credential.sharable',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: _getTextColorForExpireState(instanceBasedExpireState, theme),
+                    ),
+                  ),
                   if (instanceCount != null)
                     TranslatedText(
                       'credential.sharable_count',
                       translationParams: {
                         'count': '${instanceCount!}',
                       },
-                      style: theme.textTheme.bodyLarge!.copyWith(fontSize: 14),
+                      style: theme.textTheme.bodyLarge!.copyWith(
+                        fontSize: 14,
+                        color: _getTextColorForExpireState(instanceBasedExpireState, theme),
+                      ),
                     )
                   else
                     TranslatedText(
@@ -96,18 +119,12 @@ class YiviCredentialCardFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final children = [
-      _buildFooterText(context, theme),
-    ].nonNulls;
+    final footer = _buildFooterText(context, theme);
 
-    if (children.isNotEmpty) {
+    if (footer != null) {
       return Padding(
         padding: padding,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children.toList(),
-        ),
+        child: Center(child: footer),
       );
     }
     return Container();
