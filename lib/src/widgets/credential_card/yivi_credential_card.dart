@@ -44,7 +44,7 @@ class YiviCredentialCard extends StatelessWidget {
 
   /// when the instance count becomes lower than this,
   /// the re-obtain button shows and the instance count becomes the warning color
-  static const int lowInstanceCountThreshold = 10;
+  static const int lowInstanceCountThreshold = 5;
 
   const YiviCredentialCard({
     super.key,
@@ -252,7 +252,7 @@ class YiviCredentialCard extends StatelessWidget {
     if (type.obtainable) {
       if (_isExpiringSoonInAnyWay()) {
         return Padding(
-          padding: EdgeInsets.only(top: theme.smallSpacing),
+          padding: EdgeInsets.only(top: theme.defaultSpacing),
           child: YiviThemedButton(
             label: 'credential.options.reobtain',
             style: YiviButtonStyle.filled,

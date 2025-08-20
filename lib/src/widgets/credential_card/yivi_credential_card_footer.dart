@@ -85,7 +85,6 @@ class YiviCredentialCardFooter extends StatelessWidget {
                     'credential.sharable',
                     style: TextStyle(
                       fontSize: 14,
-                      color: _getTextColorForExpireState(instanceBasedExpireState, theme),
                     ),
                   ),
                   if (instanceCount != null)
