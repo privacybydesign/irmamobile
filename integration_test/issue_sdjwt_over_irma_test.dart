@@ -21,7 +21,7 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    Future<void> testIssueMunicipalityWithSdJwt(
+    Future<void> testIssueEmailWithSdJwt(
       WidgetTester tester,
       Locale locale,
     ) async {
@@ -81,13 +81,13 @@ void main() {
     }
 
     testWidgets(
-      'issue-municipality-en',
-      (tester) => testIssueMunicipalityWithSdJwt(tester, const Locale('en', 'EN')),
+      'issue-email-en',
+      (tester) => testIssueEmailWithSdJwt(tester, const Locale('en', 'EN')),
     );
 
     testWidgets(
-      'issue-municipality-nl',
-      (tester) => testIssueMunicipalityWithSdJwt(tester, const Locale('nl', 'NL')),
+      'issue-email-nl',
+      (tester) => testIssueEmailWithSdJwt(tester, const Locale('nl', 'NL')),
     );
   });
 }

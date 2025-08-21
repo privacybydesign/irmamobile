@@ -19,25 +19,35 @@ Future<void> issueEmailAddress(
   IntegrationTestIrmaBinding irmaBinding, {
   Locale? locale,
   int? sdJwtBatchSize,
-}) =>
-    issueCredentials(
-      tester,
-      irmaBinding,
-      locale: locale,
-      {
-        'irma-demo.sidn-pbdf.email.email': 'test@example.com',
-        'irma-demo.sidn-pbdf.email.domain': 'example.com',
-      },
-      sdJwtBatchSize: sdJwtBatchSize,
-    );
+}) async {
+  await issueCredentials(
+    tester,
+    irmaBinding,
+    {
+      'irma-demo.sidn-pbdf.email.email': 'test@example.com',
+      'irma-demo.sidn-pbdf.email.domain': 'example.com',
+    },
+    sdJwtBatchSize: sdJwtBatchSize,
+    locale: locale,
+  );
+}
 
 Future<void> issueMobileNumber(
   WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
-    issueCredentials(tester, irmaBinding, {
+  IntegrationTestIrmaBinding irmaBinding, {
+  Locale? locale,
+  int? sdJwtBatchSize,
+}) async {
+  await issueCredentials(
+    tester,
+    irmaBinding,
+    {
       'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
-    });
+    },
+    locale: locale,
+    sdJwtBatchSize: sdJwtBatchSize,
+  );
+}
 
 Future<void> issueMunicipalityAddress(
   WidgetTester tester,
