@@ -110,11 +110,14 @@ Future<void> issueCredentials(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
   Map<String, String> attributes, {
-  Locale locale = const Locale('en', 'EN'),
+  Locale? locale,
   Map<String, String> revocationKeys = const {},
   bool continueOnSecondDevice = true,
   bool declineOffer = false,
+  int? sdJwtBatchSize,
 }) async {
+  locale ??= Locale('en', 'EN');
+
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
     attributes.entries,
     (attr) => attr.key.split('.').take(3).join('.'),
@@ -126,6 +129,7 @@ Future<void> issueCredentials(
               for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value,
             },
             if (revocationKeys.containsKey(credEntry.key)) 'revocationKey': revocationKeys[credEntry.key],
+            if (sdJwtBatchSize != null) 'sdJwtBatchSize': sdJwtBatchSize,
           })
       .toList());
 
@@ -144,7 +148,20 @@ Future<void> issueCredentials(
   await tester.waitFor(issuancePageFinder);
 
   // Check whether all credentials are displayed.
-  expect(find.byType(YiviCredentialCard), findsNWidgets(groupedAttributes.length));
+  final credentialCards = tester.widgetList<YiviCredentialCard>(find.byType(YiviCredentialCard, skipOffstage: false));
+  expect(credentialCards.length, equals(groupedAttributes.length));
+
+  if (sdJwtBatchSize != null) {
+    for (final card in credentialCards) {
+      expect(card.instanceCount, equals(sdJwtBatchSize));
+    }
+
+    if (locale == Locale('nl', 'NL')) {
+      expect(find.text('Nog $sdJwtBatchSize keer', skipOffstage: false), findsNWidgets(groupedAttributes.length));
+    } else {
+      expect(find.text('$sdJwtBatchSize times left', skipOffstage: false), findsNWidgets(groupedAttributes.length));
+    }
+  }
 
   // Check whether all attributes are displayed in the right order.
   for (final credTypeId in groupedAttributes.keys) {

@@ -16,12 +16,20 @@ Future<void> issueIrmaTubeMember(
 
 Future<void> issueEmailAddress(
   WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
-    issueCredentials(tester, irmaBinding, {
-      'irma-demo.sidn-pbdf.email.email': 'test@example.com',
-      'irma-demo.sidn-pbdf.email.domain': 'example.com',
-    });
+  IntegrationTestIrmaBinding irmaBinding, {
+  Locale? locale,
+  int? sdJwtBatchSize,
+}) =>
+    issueCredentials(
+      tester,
+      irmaBinding,
+      locale: locale,
+      {
+        'irma-demo.sidn-pbdf.email.email': 'test@example.com',
+        'irma-demo.sidn-pbdf.email.domain': 'example.com',
+      },
+      sdJwtBatchSize: sdJwtBatchSize,
+    );
 
 Future<void> issueMobileNumber(
   WidgetTester tester,
@@ -129,6 +137,7 @@ Future<void> issueMunicipalityPersonalData(
   IntegrationTestIrmaBinding irmaBinding, {
   Locale locale = const Locale('en', 'EN'),
   bool continueOnSecondDevice = true,
+  int? sdJwtBatchSize,
 }) async {
   final attributes = createMunicipalityPersonalDataAttributes(locale);
   await issueCredentials(
@@ -137,6 +146,7 @@ Future<void> issueMunicipalityPersonalData(
     attributes,
     locale: locale,
     continueOnSecondDevice: continueOnSecondDevice,
+    sdJwtBatchSize: sdJwtBatchSize,
   );
 }
 
