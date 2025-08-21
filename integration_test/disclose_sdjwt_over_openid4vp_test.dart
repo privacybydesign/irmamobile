@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 
 import 'disclosure_session/disclosure_helpers.dart';
@@ -23,13 +25,13 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     testWidgets(
-      'disclose-email-openid4vp',
-      (tester) => testDiscloseSdJwtOverOpenID4VP(tester, irmaBinding),
+      'filled-app-disclose-with-choice',
+      (tester) => testDiscloseSdJwtWithChoices(tester, irmaBinding),
     );
 
     testWidgets(
-      'disclose-with-choice',
-      (tester) => testDiscloseSdJwtWithChoices(tester, irmaBinding),
+      'filled-app-disclose-email-openid4vp',
+      (tester) => testDiscloseSdJwtOverOpenID4VP(tester, irmaBinding),
     );
   });
 }
@@ -110,7 +112,7 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 
-  // TODO: evaluate credential count has been decreased
+  // TODO: evaluate credential count has been decreased for both credentials
 }
 
 Future<void> testDiscloseSdJwtWithChoices(
@@ -146,7 +148,7 @@ Future<void> testDiscloseSdJwtWithChoices(
         'id': 'phone-query',
         'format': 'dc+sd-jwt',
         'meta': {
-          'vct_values': ['pbdf.sidn-pbdf.mobilenumber']
+          'vct_values': ['irma-demo.sidn-pbdf.mobilenumber']
         },
         'claims': [
           {
@@ -168,7 +170,61 @@ Future<void> testDiscloseSdJwtWithChoices(
   final sessionUrl = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
 
-  await Future.delayed(Duration(seconds: 100));
+  await evaluateIntroduction(tester);
+
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+
+  // expect one card, namely the email credential
+  final cardFinder = find.byType(YiviCredentialCard);
+  expect(cardFinder, findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    cardFinder,
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'test@example.com',
+    },
+  );
+
+  // tap on change button
+  await tester.tapAndSettle(find.text('Change choice'));
+
+  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+
+  // expect two credentials: email and phone...
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  expect(cardsFinder, findsNWidgets(2));
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(0),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'test@example.com',
+    },
+  );
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(1),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Mobile phone number',
+    attributes: {
+      'Mobile phone number': '0612345678',
+    },
+  );
+
+  // pick the phone
+  await tester.tapAndSettle(cardsFinder.at(1));
+  // go back
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  // share
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  // confirm
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
+
+  // TODO: evaluate phone cred count has decreased and email not
 }
 
 Future<String> startOpenID4VPSession(Map<String, dynamic> dcqlQuery) async {
