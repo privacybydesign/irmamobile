@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_obtain_credentials_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import 'disclosure_session/disclosure_helpers.dart';
 import 'helpers/helpers.dart';
@@ -25,6 +26,21 @@ void main() {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
+
+    testWidgets(
+      'disclose-sdjwt-thats-not-there',
+      (tester) => testDiscloseSdJwtThatsNotThere(tester, irmaBinding),
+    );
+
+    testWidgets(
+      'zero-credential-instance-count-shows-reobtain-button-and-red-card',
+      (tester) => testZeroInstanceCountShowsReobtainButton(tester, irmaBinding),
+    );
+
+    testWidgets(
+      'low-credential-instance-count-shows-reobtain-button',
+      (tester) => testLowCredentialInstanceCountShowsReobtainButton(tester, irmaBinding),
+    );
 
     testWidgets(
       'filled-app-disclose-with-choice',
@@ -44,6 +60,169 @@ void main() {
     // disclosure with predetermined value
     // disclosure with multiple predetermined values
   });
+}
+
+Future<void> testDiscloseSdJwtThatsNotThere(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  final dcql = {
+    'credentials': [
+      {
+        'id': '32f54163-7166-48f1-93d8-ff217bdb0653',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.email']
+        },
+        'claims': [
+          {
+            'path': ['email']
+          },
+        ]
+      },
+    ],
+  };
+
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  await tester.pumpAndSettle();
+
+  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  final cardFinder = find.byType(YiviCredentialCard);
+  expect(cardFinder, findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    cardFinder,
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+  );
+}
+
+Future<void> testZeroInstanceCountShowsReobtainButton(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  const credentialCount = 1;
+
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: credentialCount);
+  await tester.pumpAndSettle();
+
+  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+  final dcql = {
+    'credentials': [
+      {
+        'id': '32f54163-7166-48f1-93d8-ff217bdb0653',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.email']
+        },
+        'claims': [
+          {
+            'path': ['email']
+          },
+        ]
+      },
+    ],
+  };
+
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  // share button
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
+
+  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard),
+    instancesRemaining: 0,
+    style: IrmaCardStyle.danger,
+    isExpired: true,
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'test@example.com',
+      'Email domain name': 'example.com',
+    },
+  );
+}
+
+Future<void> testLowCredentialInstanceCountShowsReobtainButton(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  // threshold is 5, so issue one more to reach it after a single disclosure
+  const credentialCount = 6;
+
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: credentialCount);
+  await tester.pumpAndSettle();
+
+  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+  final dcql = {
+    'credentials': [
+      {
+        'id': '32f54163-7166-48f1-93d8-ff217bdb0653',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.email']
+        },
+        'claims': [
+          {
+            'path': ['email']
+          },
+        ]
+      },
+    ],
+  };
+
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard, skipOffstage: false),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'test@example.com',
+    },
+  );
+
+  // share button
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
+
+  // evaluate email is about to expire
+  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard),
+    instancesRemaining: credentialCount - 1,
+    isExpiringSoon: true,
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'test@example.com',
+      'Email domain name': 'example.com',
+    },
+  );
 }
 
 Future<void> testDiscloseSdJwtOverOpenID4VP(

@@ -250,8 +250,14 @@ Future<void> evaluateCredentialCard(
   }
 
   if (style != null) {
+    // the style is detemined definitively inside of the build function of the credential card
+    // so there is no way of knowing it for certain other than to look it up in the irma card
+    final irmaCardFinder = find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(IrmaCard),
+    );
     expect(
-      (credentialCardFinder.evaluate().first.widget as YiviCredentialCard).style,
+      (irmaCardFinder.evaluate().first.widget as IrmaCard).style,
       style,
     );
   }
@@ -272,7 +278,7 @@ Future<void> evaluateCredentialCard(
     final credentialStatusTexts = {
       'revoked': 'Revoked',
       'expired': 'Expired',
-      'expiring': 'Expiring soon',
+      'expiring': 'About to expire',
     };
 
     if (shouldCheckCardStatus && credentialStatusTexts.values.contains(cardHeaderText.first)) {
@@ -387,7 +393,7 @@ Future<void> evaluateCredentialCard(
     final footerFinder = find.byType(YiviCredentialCardFooter);
 
     if (shouldCheckCardStatus) {
-      final isReobtainable = isExpired != null && isExpired || isRevoked != null && isRevoked;
+      final isReobtainable = (isExpired ?? false) || (isRevoked ?? false) || (isExpiringSoon ?? false);
 
       // Find reobtainable button
       final reobtainButtonFinder = find.descendant(
