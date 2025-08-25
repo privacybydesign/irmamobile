@@ -38,11 +38,11 @@ final credentialOrderRepoProvider = Provider(
 enum NewItemPolicy { append, prepend }
 
 /// ----- Controller: reconciles external items with stored order
-final itemsControllerProvider = AsyncNotifierProvider<ItemsController, List<CredentialInfo>>(
-  ItemsController.new,
+final credentialOrderControllerProvider = AsyncNotifierProvider<CredentialOrderController, List<CredentialInfo>>(
+  CredentialOrderController.new,
 );
 
-class ItemsController extends AsyncNotifier<List<CredentialInfo>> {
+class CredentialOrderController extends AsyncNotifier<List<CredentialInfo>> {
   Timer? _debounce;
   List<String> _order = const []; // persisted order of IDs
   final NewItemPolicy _policy = NewItemPolicy.prepend;

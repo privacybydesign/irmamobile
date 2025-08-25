@@ -316,8 +316,8 @@ class _ReorderableCredentialList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(itemsControllerProvider);
-    final controller = ref.read(itemsControllerProvider.notifier);
+    final credentials = ref.watch(credentialOrderControllerProvider);
+    final controller = ref.read(credentialOrderControllerProvider.notifier);
 
     final theme = IrmaTheme.of(context);
 
@@ -349,7 +349,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
 
             return Padding(
               key: ValueKey(cred.fullId),
-              padding: const EdgeInsets.only(bottom: 8.0),
+              padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: ReorderableDelayedDragStartListener(
                 index: i,
                 child: IrmaCredentialTypeCard(
