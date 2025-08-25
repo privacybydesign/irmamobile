@@ -21,7 +21,8 @@ class IrmaPreferences {
         _preferredLanguageCode = preferences.getString(_preferredLanguageKey, defaultValue: ''),
         _showNameChangedNotification = preferences.getBool(_showNameChangedNotificationKey, defaultValue: true),
         _lastSchemeUpdate = preferences.getInt(_lastSchemeUpdateKey, defaultValue: 0),
-        _serializedNotifications = preferences.getString(_serializedNotificationsKey, defaultValue: '') {
+        _serializedNotifications = preferences.getString(_serializedNotificationsKey, defaultValue: ''),
+        _credentialOrder = preferences.getStringList(_credentialOrderKey, defaultValue: []) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -79,8 +80,13 @@ class IrmaPreferences {
   static const String _serializedNotificationsKey = 'preference.notifications';
   final Preference<String> _serializedNotifications;
 
-  static const String _acceptedTermsUrlKey = 'preferences.accepted_terms_url';
+  static const String _acceptedTermsUrlKey = 'preference.accepted_terms_url';
   final Preference<String> _acceptedTermsUrl;
+
+  // Used to store the prefered order of credentials in the data tab
+  static const String _credentialOrderKey = 'preference.credential_order';
+  // list of credential ids stored as json string
+  final Preference<List<String>> _credentialOrder;
 
   // =============================================================================
 
@@ -130,6 +136,10 @@ class IrmaPreferences {
 
   Future<bool> markLatestTermsAsAccepted(bool accepted) =>
       _acceptedTermsUrl.setValue(accepted ? mostRecentTermsUrlNl : 'no-terms-accepted');
+
+  List<String> getCredentialOrder() => _credentialOrder.getValue();
+
+  Future<bool> setCredentialOrder(List<String> order) => _credentialOrder.setValue(order);
 
   Future<void> clearAll() {
     // Reset all preferences to their default values
