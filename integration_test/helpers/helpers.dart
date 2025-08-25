@@ -13,6 +13,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/providers/irma_repository_provider.dart';
 import 'package:irmamobile/src/providers/preferences_provider.dart';
+import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
@@ -20,6 +21,7 @@ import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_attribute_list.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_footer.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_header.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/radio_indicator.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
@@ -221,6 +223,7 @@ Future<void> evaluateCredentialCard(
   Finder credentialCardFinder, {
   String? credentialName,
   String? issuerName,
+  int? instancesRemaining,
   Map<String, String>? attributes,
   Map<String, String>? attributesCompareTo,
   bool? isSelected,
@@ -239,6 +242,12 @@ Future<void> evaluateCredentialCard(
     ),
     findsOneWidget,
   );
+
+  if (instancesRemaining != null) {
+    final footer = find.byType(YiviCredentialCardFooter);
+    final instanceCountFinder = find.descendant(of: footer, matching: find.text('$instancesRemaining times left'));
+    expect(instanceCountFinder, findsOneWidget);
+  }
 
   if (style != null) {
     expect(
@@ -440,4 +449,17 @@ Future<void> evaluateNotificationCard(
       read,
     );
   }
+}
+
+Future<void> navigateBack(WidgetTester tester) async {
+  await tester.tapAndSettle(find.byType(YiviBackButton));
+}
+
+Future<void> navigateToCredentialDetailsPage(WidgetTester tester, String credId) async {
+  var categoryTileFinder = find.byKey(Key('${credId}_tile')).hitTestable();
+  await tester.scrollUntilVisible(categoryTileFinder, 75);
+  await tester.tapAndSettle(categoryTileFinder);
+
+  // Expect detail page
+  expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
 }

@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import 'disclosure_session/disclosure_helpers.dart';
 import 'helpers/helpers.dart';
@@ -33,6 +35,14 @@ void main() {
       'filled-app-disclose-email-openid4vp',
       (tester) => testDiscloseSdJwtOverOpenID4VP(tester, irmaBinding),
     );
+
+    // disclose one credential that is not there
+    // disclose two credentials of which one is not there
+    // select one of two possible email addresses
+    // optional disclose one attribute
+    // optional disclose whole credential
+    // disclosure with predetermined value
+    // disclosure with multiple predetermined values
   });
 }
 
@@ -112,7 +122,32 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 
-  // TODO: evaluate credential count has been decreased for both credentials
+  // evaluate phone and email instance counts have both decreased
+  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'test@example.com',
+      'Email domain name': 'example.com',
+    },
+    instancesRemaining: credentialCount - 1,
+  );
+
+  await navigateBack(tester);
+  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.mobilenumber');
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Mobile phone number',
+    attributes: {
+      'Mobile phone number': '0612345678',
+    },
+    instancesRemaining: credentialCount - 1,
+  );
 }
 
 Future<void> testDiscloseSdJwtWithChoices(
@@ -224,7 +259,32 @@ Future<void> testDiscloseSdJwtWithChoices(
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 
-  // TODO: evaluate phone cred count has decreased and email not
+  // evaluate phone cred count has decreased and email not
+  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'test@example.com',
+      'Email domain name': 'example.com',
+    },
+    instancesRemaining: credentialCount,
+  );
+
+  await navigateBack(tester);
+  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.mobilenumber');
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Mobile phone number',
+    attributes: {
+      'Mobile phone number': '0612345678',
+    },
+    instancesRemaining: credentialCount - 1,
+  );
 }
 
 Future<String> startOpenID4VPSession(Map<String, dynamic> dcqlQuery) async {
