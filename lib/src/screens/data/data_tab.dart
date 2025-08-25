@@ -2,11 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../models/credentials.dart';
+import '../../providers/credentials_list_provider.dart';
 import '../../providers/credentials_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/navigation.dart';
@@ -232,9 +234,8 @@ class _AllCredentialsList extends ConsumerWidget {
     final credentials = ref.watch(credentialInfoListProvider);
 
     return switch (credentials) {
-      AsyncData(:final value) => value.isEmpty
-          ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
-          : _CredentialsTypeList(credentials: value),
+      AsyncData(:final value) =>
+        value.isEmpty ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey) : _ReorderableCredentialList(),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
     };
@@ -304,6 +305,67 @@ class _CredentialsSearchResults extends ConsumerWidget {
           : _CredentialsTypeList(credentials: credentials),
       loading: () => CircularProgressIndicator(),
       error: (error, trace) => Text(error.toString()),
+    );
+  }
+}
+
+// ================================================================================
+
+class _ReorderableCredentialList extends ConsumerWidget {
+  const _ReorderableCredentialList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final credentials = ref.watch(credentialOrderControllerProvider);
+    final controller = ref.read(credentialOrderControllerProvider.notifier);
+
+    final theme = IrmaTheme.of(context);
+
+    return credentials.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Error: $e')),
+      data: (items) {
+        return ReorderableListView.builder(
+          onReorderStart: (index) {
+            HapticFeedback.mediumImpact();
+          },
+          onReorderEnd: (index) {
+            HapticFeedback.mediumImpact();
+          },
+          onReorder: controller.reorder,
+          proxyDecorator: (child, index, animation) {
+            // ReorderableListView is a bit wanky when using padding to create space between cards.
+            // It will show a shadow around the padded area, which looks weird. Therefore we remove the shadow altogether.
+            return Material(
+              type: MaterialType.transparency,
+              child: child,
+            );
+          },
+          padding: EdgeInsets.all(theme.defaultSpacing),
+          itemCount: items.length,
+          buildDefaultDragHandles: false,
+          itemBuilder: (_, i) {
+            final cred = items[i];
+
+            return Padding(
+              key: ValueKey(cred.fullId),
+              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              child: ReorderableDelayedDragStartListener(
+                index: i,
+                child: IrmaCredentialTypeCard(
+                  credType: cred.credentialType,
+                  onTap: () => context.pushCredentialsDetailsScreen(
+                    CredentialsDetailsRouteParams(
+                      categoryName: 'home.nav_bar.data',
+                      credentialTypeId: cred.credentialType.fullId,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
