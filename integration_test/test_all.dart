@@ -1,8 +1,10 @@
 import 'activity_test.dart' as activity_test;
 import 'data_search_test.dart' as search_test;
+import 'disclose_sdjwt_over_openid4vp_test.dart' as openid4vp_test;
 import 'disclosure_session/disclosure_session_test_all.dart' as disclosure_session;
 import 'enroll_test.dart' as enroll_test;
 import 'issuance_test.dart' as issuance_test;
+import 'issue_sdjwt_over_irma_test.dart' as irma_sdjwt_test;
 import 'issue_wizard_test.dart' as issue_wizard_test;
 import 'login_test.dart' as login_test;
 import 'more_tab_test.dart' as more_tab_test;
@@ -14,6 +16,8 @@ import 'settings_test.dart' as settings_test;
 
 /// Wrapper to execute all tests at once.
 void main() {
+  irma_sdjwt_test.main();
+  openid4vp_test.main();
   reorder_cards_test.main();
   new_terms.main();
   search_test.main();
