@@ -46,27 +46,30 @@ class ActivityDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Builder(
-                  builder: (context) {
-                    switch (logEntry.type) {
-                      case LogEntryType.signing:
-                      case LogEntryType.disclosing:
-                        return ActivityDetailDisclosure(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        );
-                      case LogEntryType.issuing:
-                        return ActivityDetailIssuance(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        );
-                      case LogEntryType.removal:
-                        return ActivityDetailRemoval(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        );
-                    }
-                  },
+                Padding(
+                  padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                  child: Builder(
+                    builder: (context) {
+                      switch (logEntry.type) {
+                        case LogEntryType.signing:
+                        case LogEntryType.disclosing:
+                          return ActivityDetailDisclosure(
+                            logEntry: logEntry,
+                            irmaConfiguration: irmaConfiguration,
+                          );
+                        case LogEntryType.issuing:
+                          return ActivityDetailIssuance(
+                            logEntry: logEntry,
+                            irmaConfiguration: irmaConfiguration,
+                          );
+                        case LogEntryType.removal:
+                          return ActivityDetailRemoval(
+                            logEntry: logEntry,
+                            irmaConfiguration: irmaConfiguration,
+                          );
+                      }
+                    },
+                  ),
                 ),
                 //Always add the timestamp of the activity on the bottom
                 SizedBox(height: theme.smallSpacing),
