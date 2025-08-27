@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_obtain_credentials_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
@@ -59,6 +59,7 @@ void main() {
     // optional disclose whole credential
     // disclosure with predetermined value
     // disclosure with multiple predetermined values
+    // check logs for disclosed credentials
   });
 }
 
@@ -99,6 +100,24 @@ Future<void> testDiscloseSdJwtThatsNotThere(
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
     credentialName: 'Demo Email address',
   );
+
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+
+  // we can't actually open the browser in the integration test, so we'll just start an issuance session
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
+
+  expect(find.text('All required data has been added'), findsOneWidget);
+  await tester.tapAndSettle(find.text('Next step'));
+
+  // Expect the choices screen
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  await tester.tapAndSettle(find.text('Share data'));
+
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
 }
 
 Future<void> testZeroInstanceCountShowsReobtainButton(

@@ -158,7 +158,7 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
   final bool satisfiable;
 
   @JsonKey(name: 'IssuedCredentials')
-  final List<RawCredential> issuedCredentials;
+  final List<RawMultiFormatCredential> issuedCredentials;
 
   @JsonKey(name: 'DisclosuresLabels')
   final Map<int, TranslatedValue>? disclosuresLabels;

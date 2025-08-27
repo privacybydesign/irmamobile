@@ -167,11 +167,23 @@ type canceledSessionEvent struct {
 	SessionID int
 }
 
+type rawMultiFormatCredential struct {
+	ID              string
+	IssuerID        string
+	SchemeManagerID string
+	Revoked         bool
+	Attributes      map[irma.AttributeTypeIdentifier]irma.TranslatedString
+	HashByFormat    map[irmaclient.CredentialFormat]string
+	SignedOn        irma.Timestamp
+	Expires         irma.Timestamp
+	InstanceCount   *uint
+}
+
 type requestIssuancePermissionSessionEvent struct {
 	SessionID             int
 	ServerName            *irma.RequestorInfo
 	Satisfiable           bool
-	IssuedCredentials     irma.CredentialInfoList
+	IssuedCredentials     []rawMultiFormatCredential
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
 	DisclosuresCandidates [][]irmaclient.DisclosureCandidates

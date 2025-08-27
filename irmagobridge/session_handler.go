@@ -59,11 +59,43 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	}
 
 	sh.permissionHandler = ph
+
+	issuedCreds := []rawMultiFormatCredential{}
+	for _, cred := range request.CredentialInfoList {
+		mfCred := rawMultiFormatCredential{
+			ID:              cred.ID,
+			IssuerID:        cred.IssuerID,
+			SchemeManagerID: cred.SchemeManagerID,
+			Revoked:         cred.Revoked,
+			Attributes:      cred.Attributes,
+			HashByFormat: map[irmaclient.CredentialFormat]string{
+				irmaclient.Format_Idemix: cred.Hash,
+			},
+			SignedOn:      cred.SignedOn,
+			Expires:       cred.Expires,
+			InstanceCount: cred.InstanceCount,
+		}
+
+		if cred.InstanceCount != nil {
+			attrs := map[string]any{}
+			for id, att := range cred.Attributes {
+				attrs[id.Name()] = att[""]
+			}
+
+			hash, err := irmaclient.CreateHashForSdJwtVc(cred.Identifier().String(), attrs)
+			if err == nil {
+				mfCred.HashByFormat[irmaclient.Format_SdJwtVc] = hash
+			}
+		}
+
+		issuedCreds = append(issuedCreds, mfCred)
+	}
+
 	dispatchEvent(&requestIssuancePermissionSessionEvent{
 		SessionID:             sh.sessionID,
 		ServerName:            serverName,
 		Satisfiable:           satisfiable,
-		IssuedCredentials:     request.CredentialInfoList,
+		IssuedCredentials:     issuedCreds,
 		Disclosures:           disclose,
 		DisclosuresLabels:     request.Labels,
 		DisclosuresCandidates: candidates,

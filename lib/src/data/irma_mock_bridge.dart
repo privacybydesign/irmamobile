@@ -254,7 +254,7 @@ class IrmaMockBridge extends IrmaBridge {
           sessionID: sessionId,
           serverName: RequestorInfo(name: TranslatedValue.fromString('test')),
           satisfiable: true,
-          issuedCredentials: issuedCredentials,
+          issuedCredentials: issuedCredentials.map(RawMultiFormatCredential.fromRawCredential).toList(),
         );
 
         // Wait for the RespondPermissionEvent to come.
