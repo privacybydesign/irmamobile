@@ -108,6 +108,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   expect(credentialCardsFinder, findsOneWidget);
 
   final credentialCardFinder = credentialCardsFinder.first;
+
   await evaluateCredentialCard(
     tester,
     credentialCardFinder,

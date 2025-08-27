@@ -185,7 +185,7 @@ class YiviCredentialCard extends StatelessWidget {
               compareTo: compareTo,
             ),
           ],
-          if (!hideFooter)
+          if (!hideFooter && !revoked)
             Column(
               children: [
                 IrmaDivider(
@@ -250,7 +250,7 @@ class YiviCredentialCard extends StatelessWidget {
 
   Widget _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
     if (type.obtainable) {
-      if (_isExpiringSoonInAnyWay()) {
+      if (_isExpiringSoonInAnyWay() || revoked) {
         return Padding(
           padding: EdgeInsets.only(top: theme.defaultSpacing),
           child: YiviThemedButton(

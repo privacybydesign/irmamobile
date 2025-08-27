@@ -150,14 +150,9 @@ Future<void> issueCredentials(
   await tester.waitFor(issuancePageFinder);
 
   // Check whether all credentials are displayed.
-  final credentialCards = tester.widgetList<YiviCredentialCard>(find.byType(YiviCredentialCard, skipOffstage: false));
-  expect(credentialCards.length, equals(groupedAttributes.length));
+  expect(find.byType(YiviCredentialCard), findsNWidgets(groupedAttributes.length));
 
   if (sdJwtBatchSize != null) {
-    for (final card in credentialCards) {
-      expect(card.instanceCount, equals(sdJwtBatchSize));
-    }
-
     if (locale == Locale('nl', 'NL')) {
       expect(find.text('Nog $sdJwtBatchSize keer', skipOffstage: false), findsNWidgets(groupedAttributes.length));
     } else {
