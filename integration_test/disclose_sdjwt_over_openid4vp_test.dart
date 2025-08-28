@@ -29,6 +29,11 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     testWidgets(
+      'claim-sets-pick-first-satisfying-option',
+      (tester) => testClaimSetsPickFirstSatisfyingOption(tester, irmaBinding),
+    );
+
+    testWidgets(
       'claim-with-multiple-value-options-two-match',
       (tester) => testClaimWithMultipleValueOptionsTwoMatch(tester, irmaBinding),
     );
@@ -91,6 +96,70 @@ void main() {
     // check logs for disclosed credentials
     // disclosure session with a credential that is present but with an instance count of 0
   });
+}
+
+Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com', domain: 'example.com');
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@template.com', domain: 'template.com');
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'thee@not.com', domain: 'not.com');
+
+  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+  // either email of exactly 'one@example.com' or any email with 'template.com' as domain
+  final dcql = {
+    'credentials': [
+      {
+        'id': 'mail',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.email']
+        },
+        'claims': [
+          {
+            'id': 'email-cond',
+            'path': ['email'],
+            'values': ['one@example.com']
+          },
+          {
+            'id': 'domain-cond',
+            'path': ['domain'],
+            'values': ['template.com']
+          },
+          {
+            'id': 'email-general',
+            'path': ['email'],
+          },
+        ],
+        'claim_sets': [
+          ['email-cond'],
+          ['domain-cond', 'email-general']
+        ],
+      },
+    ],
+  };
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  await tester.pumpAndSettle();
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  expect(cardsFinder, findsOneWidget);
+
+  await tester.tapAndSettle(find.text('Change choice'));
+  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+
+  // make sure there are two choices available
+  expect(cardsFinder, findsNWidgets(2));
+  expect(find.descendant(of: cardsFinder, matching: find.text('one@example.com')), findsOneWidget);
+  expect(find.descendant(of: cardsFinder, matching: find.text('two@template.com')), findsOneWidget);
+
+  // go back
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await shareAndFinishDisclosureSession(tester);
 }
 
 Future<void> testClaimWithMultipleValueOptionsTwoMatch(
