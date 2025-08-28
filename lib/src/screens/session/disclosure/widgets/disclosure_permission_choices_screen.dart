@@ -93,6 +93,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
                 headerTrailing: optional && i == 0
                     ? IrmaIconButton(
+                        key: const Key('remove_optional_data_button'),
                         icon: Icons.close,
                         size: 22,
                         padding: EdgeInsets.zero,

@@ -29,6 +29,16 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     testWidgets(
+      'claim-value-one-present-one-not',
+      (tester) => testClaimValueOnePresentOneNot(tester, irmaBinding),
+    );
+
+    testWidgets(
+      'optionally-disclose-extra-credential',
+      (tester) => testOptionallyDiscloseExtraCredential(tester, irmaBinding),
+    );
+
+    testWidgets(
       'select-one-of-two-possible-emails-and-two-possible-phones',
       (tester) => testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(tester, irmaBinding),
     );
@@ -74,12 +84,207 @@ void main() {
     );
 
     // optional disclose one attribute
-    // optional disclose whole credential
     // disclosure with predetermined value, one matching, one not
     // disclosure with multiple predetermined values
     // check logs for disclosed credentials
     // disclosure session with a credential that is present but with an instance count of 0
   });
+}
+
+Future<void> testClaimValueOnePresentOneNot(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com');
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@example.com');
+
+  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+  final dcql = {
+    'credentials': [
+      {
+        'id': 'mail',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.email']
+        },
+        'claims': [
+          {
+            'id': 'em',
+            'path': ['email'],
+            'values': ['two@example.com']
+          },
+          {
+            'id': 'do',
+            'path': ['domain']
+          },
+        ]
+      },
+    ],
+  };
+
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  await tester.pumpAndSettle();
+
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  expect(cardsFinder, findsOneWidget);
+
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder,
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'two@example.com',
+      'Email domain name': 'example.com',
+    },
+  );
+
+  // share
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  // confirm
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
+}
+
+Future<void> testOptionallyDiscloseExtraCredential(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com');
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@example.com');
+  await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10, phone: '0612345678');
+
+  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+  final dcql = {
+    'credentials': [
+      {
+        'id': 'phone',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.mobilenumber']
+        },
+        'claims': [
+          {
+            'id': 'mn',
+            'path': ['mobilenumber']
+          },
+        ]
+      },
+      {
+        'id': 'mail',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.email']
+        },
+        'claims': [
+          {
+            'id': 'em',
+            'path': ['email']
+          },
+          {
+            'id': 'do',
+            'path': ['domain']
+          },
+        ]
+      },
+    ],
+    'credential_sets': [
+      {
+        'required': false,
+        'options': [
+          ['mail']
+        ],
+      },
+      {
+        'options': [
+          ['phone']
+        ],
+      },
+    ],
+  };
+
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  await tester.pumpAndSettle();
+
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+
+  expect(cardsFinder, findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder,
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Mobile phone number',
+    attributes: {
+      'Mobile phone number': '0612345678',
+    },
+  );
+
+  final addOptionalDataButton = find.text('Add optional data');
+  await tester.scrollUntilVisible(addOptionalDataButton, 100);
+  expect(addOptionalDataButton, findsOneWidget);
+
+  await tester.tapAndSettle(addOptionalDataButton);
+
+  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+
+  expect(cardsFinder, findsNWidgets(2));
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(0),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'one@example.com',
+      'Email domain name': 'example.com',
+    },
+  );
+  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(1),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'two@example.com',
+      'Email domain name': 'example.com',
+    },
+  );
+
+  // confirm choice/go back
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+
+  expect(cardsFinder, findsNWidgets(2));
+
+  // now shows chosen credential card
+  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(1),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'one@example.com',
+      'Email domain name': 'example.com',
+    },
+  );
+
+  // remove the optional credential card
+  await tester.tapAndSettle(find.byKey(const Key('remove_optional_data_button')));
+  expect(addOptionalDataButton, findsOneWidget);
+
+  // share
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  // confirm
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
 }
 
 Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
@@ -162,7 +367,7 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
   await tester.scrollUntilVisible(lastMobileFinder, 100);
   await tester.tapAndSettle(lastMobileFinder);
 
-  // back
+  // confirm choice/go back
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
   // share
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
