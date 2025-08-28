@@ -15,7 +15,7 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group('sd-jwt vc issuance over irma', () {
+  group('sdjwtvc-issuance-over-irma', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());

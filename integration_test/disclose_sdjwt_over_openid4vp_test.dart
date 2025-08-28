@@ -29,6 +29,10 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     testWidgets(
+      'claim-with-multiple-value-options-two-match',
+      (tester) => testClaimWithMultipleValueOptionsTwoMatch(tester, irmaBinding),
+    );
+    testWidgets(
       'claim-value-one-present-one-not',
       (tester) => testClaimValueOnePresentOneNot(tester, irmaBinding),
     );
@@ -84,11 +88,78 @@ void main() {
     );
 
     // optional disclose one attribute
-    // disclosure with predetermined value, one matching, one not
-    // disclosure with multiple predetermined values
     // check logs for disclosed credentials
     // disclosure session with a credential that is present but with an instance count of 0
   });
+}
+
+Future<void> testClaimWithMultipleValueOptionsTwoMatch(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com');
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@example.com');
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'three@example.com');
+
+  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+  final dcql = {
+    'credentials': [
+      {
+        'id': 'mail',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.email']
+        },
+        'claims': [
+          {
+            'id': 'em',
+            'path': ['email'],
+            'values': ['one@example.com', 'three@example.com']
+          },
+          {
+            'id': 'do',
+            'path': ['domain']
+          },
+        ]
+      },
+    ],
+  };
+
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  await tester.pumpAndSettle();
+
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  expect(cardsFinder, findsOneWidget);
+
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder,
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'one@example.com',
+      'Email domain name': 'example.com',
+    },
+  );
+
+  await tester.tapAndSettle(find.text('Change choice'));
+  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+
+  // make sure there are two choices available
+  expect(cardsFinder, findsNWidgets(2));
+  expect(find.descendant(of: cardsFinder, matching: find.text('one@example.com')), findsOneWidget);
+  expect(find.descendant(of: cardsFinder, matching: find.text('three@example.com')), findsOneWidget);
+
+  // go back
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await shareAndFinishDisclosureSession(tester);
 }
 
 Future<void> testClaimValueOnePresentOneNot(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -143,11 +214,7 @@ Future<void> testClaimValueOnePresentOneNot(WidgetTester tester, IntegrationTest
     },
   );
 
-  // share
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // confirm
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 }
 
 Future<void> testOptionallyDiscloseExtraCredential(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -280,11 +347,7 @@ Future<void> testOptionallyDiscloseExtraCredential(WidgetTester tester, Integrat
   await tester.tapAndSettle(find.byKey(const Key('remove_optional_data_button')));
   expect(addOptionalDataButton, findsOneWidget);
 
-  // share
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // confirm
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 }
 
 Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
@@ -369,11 +432,7 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
 
   // confirm choice/go back
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // share
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // confirm
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 }
 
 /// Issues phone and email both twice, then asks for one of each, should present two choice buttons
@@ -462,12 +521,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   );
 
   await tester.tapAndSettle(find.byType(YiviBackButton));
-
-  // share
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // confirm
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 }
 
 /// Issue two email addresses and allow the user to pick between them
@@ -536,11 +590,7 @@ Future<void> testOneCredentialTwoChoices(WidgetTester tester, IntegrationTestIrm
   await tester.tapAndSettle(cardsFinder.at(1));
   // go back
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // share
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // confirm
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 }
 
 /// Disclose email and phone, but only email is already present -> should start issuance session for phone
@@ -636,10 +686,7 @@ Future<void> testOneMissingOnePresent(
     },
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
-
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 }
 
 /// Starts the issuance flow during disclosure
@@ -694,10 +741,7 @@ Future<void> testDiscloseSdJwtThatsNotThere(
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share data'));
-
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 }
 
 Future<void> testZeroInstanceCountShowsReobtainButton(
@@ -734,11 +778,7 @@ Future<void> testZeroInstanceCountShowsReobtainButton(
   irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
   await evaluateIntroduction(tester);
 
-  // share button
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 
   await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
   await evaluateCredentialCard(
@@ -802,11 +842,7 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
     },
   );
 
-  // share button
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 
   // evaluate email is about to expire
   await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
@@ -898,11 +934,7 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
     },
   );
 
-  // share button
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 
   // evaluate phone and email instance counts have both decreased
   await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
@@ -1036,11 +1068,7 @@ Future<void> testDiscloseSdJwtWithChoices(
   await tester.tapAndSettle(cardsFinder.at(1));
   // go back
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // share
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
-  // confirm
-  await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await shareAndFinishDisclosureSession(tester);
 
   // evaluate phone cred count has decreased and email not
   await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
@@ -1118,3 +1146,11 @@ Taj1ayt6dUgKQY/xZBO3AiAPYGwRlZMzbeCTFQ2ORLJiSowRtXzbmXpNDSyvtn7e
 Dw==
 -----END CERTIFICATE-----
 ''';
+
+Future<void> shareAndFinishDisclosureSession(WidgetTester tester) async {
+  // share
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  // confirm
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
+}
