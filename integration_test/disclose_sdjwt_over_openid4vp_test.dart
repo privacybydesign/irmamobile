@@ -447,6 +447,7 @@ Future<void> testDiscloseSdJwtWithChoices(
     },
   );
 
+  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
   // pick the phone
   await tester.tapAndSettle(cardsFinder.at(1));
   // go back

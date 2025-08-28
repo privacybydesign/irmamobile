@@ -228,7 +228,6 @@ Future<void> evaluateCredentialCard(
   bool? isExpired,
   bool? isExpiringSoon,
 }) async {
-// Find one IrmaCredentialCard with the provided finder
   expect(
     find.descendant(
       of: credentialCardFinder,
@@ -239,7 +238,7 @@ Future<void> evaluateCredentialCard(
   );
 
   if (instancesRemaining != null) {
-    final footer = find.byType(YiviCredentialCardFooter);
+    final footer = find.descendant(of: credentialCardFinder, matching: find.byType(YiviCredentialCardFooter));
     final instanceCountFinder = find.descendant(of: footer, matching: find.text('$instancesRemaining times left'));
     expect(instanceCountFinder, findsOneWidget);
   }
