@@ -19,13 +19,15 @@ Future<void> issueEmailAddress(
   IntegrationTestIrmaBinding irmaBinding, {
   Locale? locale,
   int? sdJwtBatchSize,
+  String email = 'test@example.com',
+  String domain = 'example.com',
 }) async {
   await issueCredentials(
     tester,
     irmaBinding,
     {
-      'irma-demo.sidn-pbdf.email.email': 'test@example.com',
-      'irma-demo.sidn-pbdf.email.domain': 'example.com',
+      'irma-demo.sidn-pbdf.email.email': email,
+      'irma-demo.sidn-pbdf.email.domain': domain,
     },
     sdJwtBatchSize: sdJwtBatchSize,
     locale: locale,
@@ -35,6 +37,7 @@ Future<void> issueEmailAddress(
 Future<void> issueMobileNumber(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
+  String phone = '0612345678',
   Locale? locale,
   int? sdJwtBatchSize,
 }) async {
@@ -42,7 +45,7 @@ Future<void> issueMobileNumber(
     tester,
     irmaBinding,
     {
-      'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
+      'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': phone,
     },
     locale: locale,
     sdJwtBatchSize: sdJwtBatchSize,
