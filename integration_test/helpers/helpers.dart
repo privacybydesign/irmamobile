@@ -106,24 +106,21 @@ Future<SessionPointer> createIssuanceSession({
   );
 }
 
-/// Starts an issuing session that adds the given credentials to the IRMA app.
-/// The attributes should be specified in the display order.
-Future<void> issueCredentials(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-  Map<String, String> attributes, {
-  Locale? locale,
-  Map<String, String> revocationKeys = const {},
-  bool continueOnSecondDevice = true,
-  bool declineOffer = false,
-  int? sdJwtBatchSize,
-}) async {
-  locale ??= Locale('en', 'EN');
-
+Map<String, List<MapEntry<String, String>>> groupAttributes(Map<String, String> attributes) {
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
     attributes.entries,
     (attr) => attr.key.split('.').take(3).join('.'),
   );
+  return groupedAttributes;
+}
+
+Future<void> startIssuanceSession(
+  IntegrationTestIrmaBinding irmaBinding,
+  Map<String, List<MapEntry<String, String>>> groupedAttributes, {
+  Map<String, String> revocationKeys = const {},
+  bool continueOnSecondDevice = true,
+  int? sdJwtBatchSize,
+}) async {
   final credentialsJson = jsonEncode(groupedAttributes.entries
       .map((credEntry) => {
             'credential': credEntry.key,
@@ -144,6 +141,29 @@ Future<void> issueCredentials(
     }
   ''',
     continueOnSecondDevice: continueOnSecondDevice,
+  );
+}
+
+/// Starts an issuing session that adds the given credentials to the IRMA app.
+/// The attributes should be specified in the display order.
+Future<void> issueCredentials(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+  Map<String, String> attributes, {
+  Locale? locale,
+  Map<String, String> revocationKeys = const {},
+  bool continueOnSecondDevice = true,
+  bool declineOffer = false,
+  int? sdJwtBatchSize,
+}) async {
+  locale ??= Locale('en', 'EN');
+  final groupedAttributes = groupAttributes(attributes);
+  await startIssuanceSession(
+    irmaBinding,
+    groupedAttributes,
+    revocationKeys: revocationKeys,
+    continueOnSecondDevice: continueOnSecondDevice,
+    sdJwtBatchSize: sdJwtBatchSize,
   );
 
   var issuancePageFinder = find.byType(IssuancePermission);

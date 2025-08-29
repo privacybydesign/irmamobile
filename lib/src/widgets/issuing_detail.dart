@@ -20,7 +20,7 @@ class IssuingDetail extends StatelessWidget {
         padding: EdgeInsets.only(
           bottom: IrmaTheme.of(context).defaultSpacing,
         ),
-        child: YiviCredentialCard.fromMultiFormatCredential(credential, compact: false),
+        child: YiviCredentialCard.fromMultiFormatCredential(credential, compact: false, lowInstanceCountThreshold: 0),
       );
     }).toList();
   }
