@@ -44,7 +44,8 @@ class YiviCredentialCard extends StatelessWidget {
 
   /// when the instance count becomes lower than this,
   /// the re-obtain button shows and the instance count becomes the warning color
-  static const int lowInstanceCountThreshold = 5;
+  final int lowInstanceCountThreshold;
+  static const _defaultLowInstanceCountThreshold = 5;
 
   const YiviCredentialCard({
     super.key,
@@ -67,6 +68,7 @@ class YiviCredentialCard extends StatelessWidget {
     this.hideAttributes = false,
     this.disabled = false,
     this.isTemplate = false,
+    this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   });
 
   static YiviCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential,
@@ -116,6 +118,7 @@ class YiviCredentialCard extends StatelessWidget {
     this.hideAttributes = false,
     this.disabled = false,
     this.isTemplate = false,
+    this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   })  : attributes = credential.attributes,
         valid = credential.valid,
         type = credential.credentialType,
@@ -139,6 +142,7 @@ class YiviCredentialCard extends StatelessWidget {
     this.hideAttributes = false,
     this.disabled = false,
     this.isTemplate = false,
+    this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   })  : attributes = credential.attributes,
         valid = credential.valid,
         type = credential.credentialType,
@@ -185,7 +189,7 @@ class YiviCredentialCard extends StatelessWidget {
               compareTo: compareTo,
             ),
           ],
-          if (!hideFooter)
+          if (!hideFooter && !revoked)
             Column(
               children: [
                 IrmaDivider(
@@ -250,7 +254,7 @@ class YiviCredentialCard extends StatelessWidget {
 
   Widget _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
     if (type.obtainable) {
-      if (_isExpiringSoonInAnyWay()) {
+      if (_isExpiringSoonInAnyWay() || revoked) {
         return Padding(
           padding: EdgeInsets.only(top: theme.defaultSpacing),
           child: YiviThemedButton(

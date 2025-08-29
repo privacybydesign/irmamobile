@@ -71,10 +71,8 @@ final multiFormatCredentialsProvider = StreamProvider<List<MultiFormatCredential
       hashByFormat: Map.fromEntries(creds.value.map((cred) => MapEntry(cred.format, cred.hash))),
       signedOn: first.signedOn,
       expires: first.expires,
-      expired: first.expired,
       revoked: first.revoked,
       issuer: first.issuer,
-      valid: first.valid,
       instanceCount: creds.value.firstWhereOrNull((c) => c.format == CredentialFormat.sdjwtvc)?.instanceCount,
     );
   }).toList();

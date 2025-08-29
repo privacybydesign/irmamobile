@@ -53,7 +53,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
       mostRecentTermsUrlEn: 'testurl',
     );
 
-    _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
+    await _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
 
     _bridge.dispatch(AppReadyEvent());
     EnrollmentStatusEvent currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>(

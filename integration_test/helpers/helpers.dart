@@ -13,6 +13,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/providers/irma_repository_provider.dart';
 import 'package:irmamobile/src/providers/preferences_provider.dart';
+import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
@@ -20,6 +21,7 @@ import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_attribute_list.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_footer.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_header.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/radio_indicator.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
@@ -104,24 +106,21 @@ Future<SessionPointer> createIssuanceSession({
   );
 }
 
-/// Starts an issuing session that adds the given credentials to the IRMA app.
-/// The attributes should be specified in the display order.
-Future<void> issueCredentials(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-  Map<String, String> attributes, {
-  Locale? locale,
-  Map<String, String> revocationKeys = const {},
-  bool continueOnSecondDevice = true,
-  bool declineOffer = false,
-  int? sdJwtBatchSize,
-}) async {
-  locale ??= Locale('en', 'EN');
-
+Map<String, List<MapEntry<String, String>>> groupAttributes(Map<String, String> attributes) {
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
     attributes.entries,
     (attr) => attr.key.split('.').take(3).join('.'),
   );
+  return groupedAttributes;
+}
+
+Future<void> startIssuanceSession(
+  IntegrationTestIrmaBinding irmaBinding,
+  Map<String, List<MapEntry<String, String>>> groupedAttributes, {
+  Map<String, String> revocationKeys = const {},
+  bool continueOnSecondDevice = true,
+  int? sdJwtBatchSize,
+}) async {
   final credentialsJson = jsonEncode(groupedAttributes.entries
       .map((credEntry) => {
             'credential': credEntry.key,
@@ -143,19 +142,37 @@ Future<void> issueCredentials(
   ''',
     continueOnSecondDevice: continueOnSecondDevice,
   );
+}
+
+/// Starts an issuing session that adds the given credentials to the IRMA app.
+/// The attributes should be specified in the display order.
+Future<void> issueCredentials(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+  Map<String, String> attributes, {
+  Locale? locale,
+  Map<String, String> revocationKeys = const {},
+  bool continueOnSecondDevice = true,
+  bool declineOffer = false,
+  int? sdJwtBatchSize,
+}) async {
+  locale ??= Locale('en', 'EN');
+  final groupedAttributes = groupAttributes(attributes);
+  await startIssuanceSession(
+    irmaBinding,
+    groupedAttributes,
+    revocationKeys: revocationKeys,
+    continueOnSecondDevice: continueOnSecondDevice,
+    sdJwtBatchSize: sdJwtBatchSize,
+  );
 
   var issuancePageFinder = find.byType(IssuancePermission);
   await tester.waitFor(issuancePageFinder);
 
   // Check whether all credentials are displayed.
-  final credentialCards = tester.widgetList<YiviCredentialCard>(find.byType(YiviCredentialCard, skipOffstage: false));
-  expect(credentialCards.length, equals(groupedAttributes.length));
+  expect(find.byType(YiviCredentialCard), findsNWidgets(groupedAttributes.length));
 
   if (sdJwtBatchSize != null) {
-    for (final card in credentialCards) {
-      expect(card.instanceCount, equals(sdJwtBatchSize));
-    }
-
     if (locale == Locale('nl', 'NL')) {
       expect(find.text('Nog $sdJwtBatchSize keer', skipOffstage: false), findsNWidgets(groupedAttributes.length));
     } else {
@@ -221,6 +238,7 @@ Future<void> evaluateCredentialCard(
   Finder credentialCardFinder, {
   String? credentialName,
   String? issuerName,
+  int? instancesRemaining,
   Map<String, String>? attributes,
   Map<String, String>? attributesCompareTo,
   bool? isSelected,
@@ -230,7 +248,6 @@ Future<void> evaluateCredentialCard(
   bool? isExpired,
   bool? isExpiringSoon,
 }) async {
-// Find one IrmaCredentialCard with the provided finder
   expect(
     find.descendant(
       of: credentialCardFinder,
@@ -240,9 +257,21 @@ Future<void> evaluateCredentialCard(
     findsOneWidget,
   );
 
+  if (instancesRemaining != null) {
+    final footer = find.descendant(of: credentialCardFinder, matching: find.byType(YiviCredentialCardFooter));
+    final instanceCountFinder = find.descendant(of: footer, matching: find.text('$instancesRemaining times left'));
+    expect(instanceCountFinder, findsOneWidget);
+  }
+
   if (style != null) {
+    // the style is detemined definitively inside of the build function of the credential card
+    // so there is no way of knowing it for certain other than to look it up in the irma card
+    final irmaCardFinder = find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(IrmaCard),
+    );
     expect(
-      (credentialCardFinder.evaluate().first.widget as YiviCredentialCard).style,
+      (irmaCardFinder.evaluate().first.widget as IrmaCard).style,
       style,
     );
   }
@@ -263,7 +292,7 @@ Future<void> evaluateCredentialCard(
     final credentialStatusTexts = {
       'revoked': 'Revoked',
       'expired': 'Expired',
-      'expiring': 'Expiring soon',
+      'expiring': 'About to expire',
     };
 
     if (shouldCheckCardStatus && credentialStatusTexts.values.contains(cardHeaderText.first)) {
@@ -378,7 +407,7 @@ Future<void> evaluateCredentialCard(
     final footerFinder = find.byType(YiviCredentialCardFooter);
 
     if (shouldCheckCardStatus) {
-      final isReobtainable = isExpired != null && isExpired || isRevoked != null && isRevoked;
+      final isReobtainable = (isExpired ?? false) || (isRevoked ?? false) || (isExpiringSoon ?? false);
 
       // Find reobtainable button
       final reobtainButtonFinder = find.descendant(
@@ -440,4 +469,17 @@ Future<void> evaluateNotificationCard(
       read,
     );
   }
+}
+
+Future<void> navigateBack(WidgetTester tester) async {
+  await tester.tapAndSettle(find.byType(YiviBackButton));
+}
+
+Future<void> navigateToCredentialDetailsPage(WidgetTester tester, String credId) async {
+  var categoryTileFinder = find.byKey(Key('${credId}_tile')).hitTestable();
+  await tester.scrollUntilVisible(categoryTileFinder, 75);
+  await tester.tapAndSettle(categoryTileFinder);
+
+  // Expect detail page
+  expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
 }

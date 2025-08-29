@@ -28,7 +28,7 @@ class DisclosureIssueWizardCredentialCards extends StatelessWidget {
             style: isActive && !isDisabled ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
             compareTo: cred.attributes,
             hideAttributes: hideAttributes,
-            hideFooter: !isActive,
+            hideFooter: true,
             disabled: isDisabled,
             type: cred.credentialType,
             issuer: cred.issuer,

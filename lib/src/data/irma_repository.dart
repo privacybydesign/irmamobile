@@ -569,6 +569,12 @@ class IrmaRepository {
     }
   }
 
+  void startTestSessionFromUrl(String url) {
+    final sessionPtr = Pointer.fromString(url) as SessionPointer;
+    sessionPtr.continueOnSecondDevice = true;
+    _pendingPointerSubject.add(sessionPtr);
+  }
+
   /// Only meant for testing and debug purposes.
   Future<void> startTestSession(String requestBody, {continueOnSecondDevice = true}) async {
     final sessionPtr = await createTestSession(requestBody, continueOnSecondDevice: continueOnSecondDevice);

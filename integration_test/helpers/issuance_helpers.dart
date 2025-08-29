@@ -19,25 +19,38 @@ Future<void> issueEmailAddress(
   IntegrationTestIrmaBinding irmaBinding, {
   Locale? locale,
   int? sdJwtBatchSize,
-}) =>
-    issueCredentials(
-      tester,
-      irmaBinding,
-      locale: locale,
-      {
-        'irma-demo.sidn-pbdf.email.email': 'test@example.com',
-        'irma-demo.sidn-pbdf.email.domain': 'example.com',
-      },
-      sdJwtBatchSize: sdJwtBatchSize,
-    );
+  String email = 'test@example.com',
+  String domain = 'example.com',
+}) async {
+  await issueCredentials(
+    tester,
+    irmaBinding,
+    {
+      'irma-demo.sidn-pbdf.email.email': email,
+      'irma-demo.sidn-pbdf.email.domain': domain,
+    },
+    sdJwtBatchSize: sdJwtBatchSize,
+    locale: locale,
+  );
+}
 
 Future<void> issueMobileNumber(
   WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
-    issueCredentials(tester, irmaBinding, {
-      'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
-    });
+  IntegrationTestIrmaBinding irmaBinding, {
+  String phone = '0612345678',
+  Locale? locale,
+  int? sdJwtBatchSize,
+}) async {
+  await issueCredentials(
+    tester,
+    irmaBinding,
+    {
+      'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': phone,
+    },
+    locale: locale,
+    sdJwtBatchSize: sdJwtBatchSize,
+  );
+}
 
 Future<void> issueMunicipalityAddress(
   WidgetTester tester,
