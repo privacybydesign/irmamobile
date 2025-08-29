@@ -11,6 +11,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_per
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import 'disclosure_session/disclosure_helpers.dart';
 import 'helpers/helpers.dart';
@@ -27,6 +28,11 @@ void main() {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
+
+    testWidgets(
+      'empty-sdjwt-still-option',
+      (tester) => testEmptySdJwtStillShowsInOptions(tester, irmaBinding),
+    );
 
     testWidgets(
       'claim-sets-pick-first-satisfying-option',
@@ -94,8 +100,68 @@ void main() {
 
     // optional disclose one attribute
     // check logs for disclosed credentials
-    // disclosure session with a credential that is present but with an instance count of 0
   });
+}
+
+Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 1, email: 'one@example.com', domain: 'example.com');
+
+  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+
+  final dcql = {
+    'credentials': [
+      {
+        'id': 'mail',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['irma-demo.sidn-pbdf.email']
+        },
+        'claims': [
+          {
+            'id': 'em',
+            'path': ['email'],
+          },
+        ],
+      },
+    ],
+  };
+
+  // first session to get to instance count of 0
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  await tester.pumpAndSettle();
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  expect(cardsFinder, findsOneWidget);
+  await evaluateCredentialCard(tester, cardsFinder);
+
+  await shareAndFinishDisclosureSession(tester);
+
+  // second session to make sure it still shows up in the list of options
+  final session2Url = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(session2Url);
+  // await evaluateIntroduction(tester);
+
+  await tester.pumpAndSettle();
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+
+  expect(cardsFinder, findsOneWidget);
+  await evaluateCredentialCard(tester, cardsFinder, isExpired: true);
+
+  // make sure the share button is disabled, so it can't be pressed...
+  final shareButton = tester.widget<YiviThemedButton>(find.widgetWithText(YiviThemedButton, 'Share data'));
+  expect(shareButton.onPressed, isNull);
+
+  // issue it again...
+  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 1, email: 'one@example.com', domain: 'example.com');
+
+  // make sure the session can now be finished
+  await shareAndFinishDisclosureSession(tester);
 }
 
 Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {

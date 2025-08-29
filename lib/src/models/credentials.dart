@@ -42,11 +42,13 @@ class CredentialView implements CredentialInfo {
   final bool expired;
   final bool revoked;
   final List<Attribute> _attributes;
+  final int? instanceCount;
 
   CredentialView({
     required this.info,
     this.expired = false,
     this.revoked = false,
+    this.instanceCount,
     required Iterable<Attribute> attributes,
   }) : _attributes = attributes.toList() {
     assert(_attributes.every((attr) => attr.attributeType.fullCredentialId == info.fullId));
@@ -93,12 +95,17 @@ class CredentialView implements CredentialInfo {
   }
 
   UnmodifiableListView<Attribute> get attributes => UnmodifiableListView(_attributes);
+
   Iterable<Attribute> get attributesWithValue => _attributes.where((att) => att.value is! NullValue);
 
   bool get isKeyshareCredential =>
       attributes.any((attr) => info.schemeManager.keyshareAttributes.contains(attr.attributeType.fullId));
-  bool get valid => !expired && !revoked;
+
   bool get obtainable => credentialType.issueUrl.isNotEmpty;
+
+  bool get valid => !expiredOrEmpty && !revoked;
+
+  bool get expiredOrEmpty => expired || (instanceCount == null ? false : instanceCount == 0);
 
   @override
   CredentialType get credentialType => info.credentialType;
@@ -121,7 +128,6 @@ class Credential extends CredentialView {
   final DateTime expires;
   final String hash;
   final CredentialFormat format;
-  final int? instanceCount;
 
   Credential({
     required super.info,
@@ -131,7 +137,7 @@ class Credential extends CredentialView {
     required super.revoked,
     required this.hash,
     required this.format,
-    required this.instanceCount,
+    required super.instanceCount,
   }) : super(expired: expires.isBefore(DateTime.now()));
 
   factory Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential}) {
@@ -394,7 +400,8 @@ class MultiFormatCredential {
   }
 
   bool get expired => expires.isBefore(DateTime.now());
-  bool get valid => !expired && !revoked;
+
+  bool get valid => !expired && !revoked && (instanceCount == null ? true : instanceCount != 0);
 }
 
 Map<CredentialFormat, String> parseHashByFormat(Map<String, dynamic> json) {

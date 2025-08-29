@@ -773,7 +773,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             info: credential.info,
             attributes: attributes,
             previouslyAdded: !_newlyAddedCredentialHashes.contains(credential.hash),
-            expired: credential.expired,
+            expired: credential.expiredOrEmpty,
             revoked: credential.revoked,
             credentialHash: credential.hash,
           );
