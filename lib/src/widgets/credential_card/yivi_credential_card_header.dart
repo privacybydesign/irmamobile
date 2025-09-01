@@ -65,6 +65,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
       return Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               status ?? Container(),
               if (trailing != null) trailing!,
