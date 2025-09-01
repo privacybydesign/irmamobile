@@ -12,15 +12,20 @@ class RequestorVerificationExplanationBottomSheet extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return IrmaBottomSheet(
-      title: TranslatedText(
-        'disclosure_permission.overview.requestor_verification.bottom_sheet.title',
-        style: theme.textTheme.displaySmall,
+      title: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: TranslatedText(
+          'disclosure_permission.overview.requestor_verification.bottom_sheet.title',
+          style: theme.textTheme.displaySmall!.copyWith(overflow: TextOverflow.visible, height: 1.5),
+        ),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+        padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.defaultSpacing, bottom: 100),
         child: IrmaMarkdown(
           FlutterI18n.translate(
-              context, 'disclosure_permission.overview.requestor_verification.bottom_sheet.content_markdown'),
+            context,
+            'disclosure_permission.overview.requestor_verification.bottom_sheet.content_markdown',
+          ),
         ),
       ),
     );

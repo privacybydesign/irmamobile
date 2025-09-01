@@ -210,12 +210,12 @@
       "confirm": "Gegevens delen",
       "confirm_sign": "Ondertekenen en deel",
       "requestor_verification" : {
-        "verified_suffix" : "is door ons geverifieerd",
-        "unverified_suffix" : "is niet door ons geverifieerd.",
+        "verified_suffix" : "vraagt om je gegevens. Dit is een bekende partij die zich bij Yivi heeft geregistreerd.",
+        "unverified_suffix" : "vraagt om je gegevens. Waarschuwing: deze partij is niet bekend bij Yivi.",
         "explanation" : "Wat betekent dit?",
         "bottom_sheet": {
-          "title": "Geverifieerde organisaties",
-          "content_markdown": "Als een organisatie geverifieerd is, betekent dit dat wij de organisatie hebben gecontroleerd.\\\nJij kunt er dan vanuit gaan dat je je gegevens veilig kunt delen.\\\n\\\n**Is een organisatie niet geverifieerd?**\\\nDan kun je nog steeds je gegevens delen, maar kun je er niet automatisch vanuit gaan dat je de organisatie kunt vertrouwen.\\\n\\\nTwijfel je? Dan raden we je aan om zelf contact op te nemen met de organisatie waarmee je je gegevens wil delen.\\\n\\\nWil je je als organisatie laten verifiëren? Ga dan naar https://portal.yivi.app."
+          "title": "Bekende en onbekende organisaties",
+          "content_markdown": "Iedere organisatie kan gegevens van jou opvragen uit je Yivi app.\nJe gaat zelf wel of niet akkoord om die gegevens te delen.\nYivi helpt je daarbij.\n\n\n\nOrganisaties kunnen zich bij Yivi melden. Dan wordt\ngecontroleerd om wie het gaat en worden hun gegevens\n(waaronder naam en logo) vastgelegd en gecontroleerd.\n\nEr komt dan een groen vinkje bij te staan.\nJe kunt dan met meer vertrouwen je gegevens delen.\n\nJe kunt de lijst met geregistreerde organisaties\nvinden op de [Yivi Portal](https://portal.yivi.app/organizations).\n\nMet organisaties die zich niet bij Yivi geregistreerd\nhebben kun je nog steeds je gegevens delen. Dat is\ndan echter helemaal je eigen verantwoordelijkheid.\nEr is geen zekerheid met wie je dan je gegevens\ndeelt.\n\nTwijfel je? Neem dan contact om met de organisatie\nzelf. Je kunt aanraden dat ze zich bij Yivi\nregistreren op:\n\n[https://portal.yivi.app](https://portal.yivi.app)."
         }
       }
     },

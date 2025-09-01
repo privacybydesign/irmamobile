@@ -59,9 +59,11 @@ class _IrmaBottomSheetState extends State<IrmaBottomSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-                  child: widget.title ?? Container(),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+                    child: widget.title ?? Container(),
+                  ),
                 ),
                 IrmaCloseButton(),
               ],
