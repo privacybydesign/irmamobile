@@ -123,10 +123,12 @@ Future<void> evaluateRequestorHeader(
   String requestorHeaderText = requestorHeaderRichTextWidget.text.toPlainText();
 
   if (isVerified) {
-    final expectedVerifiedText = '$localizedRequestorName has been verified by us.';
+    final expectedVerifiedText =
+        '$localizedRequestorName is asking for your data. This is a known party that has registered itself with Yivi.';
     expect(requestorHeaderText, expectedVerifiedText);
   } else {
-    final expectedUnverifiedText = '$localizedRequestorName has not been verified by us.';
+    final expectedUnverifiedText =
+        '$localizedRequestorName is asking for your data. Warning: this party is not known by Yivi.';
     expect(requestorHeaderText, expectedUnverifiedText);
   }
 }
