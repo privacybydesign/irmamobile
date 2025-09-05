@@ -2,15 +2,20 @@ package foundation.privacybydesign.irmamobile.irma_mobile_bridge;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ApplicationInfo;
+import android.net.Uri;
+import android.os.Build;
+
+import androidx.annotation.NonNull;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
-
-import org.json.JSONObject;
-import org.json.JSONException;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -18,54 +23,57 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import irmagobridge.Irmagobridge;
 
-import android.net.Uri;
-import android.content.Intent;
-
 public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMobileBridge {
   private final MethodChannel channel;
   private final Activity activity;
   private Uri initialURL;
-  private boolean debug;
   private boolean appReady;
   private String nativeError;
+  private final Context context;
 
   public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
     this.activity = activity;
     this.initialURL = initialURL;
+    this.context = context;
     appReady = false;
+  }
 
+  private void init() {
     try {
       IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
       byte[] aesKey = AESKey.getKey(context);
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+      assert pi.applicationInfo != null;
       Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(),
-          new ECDSA(context), aesKey);
-      this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        new ECDSA(context), aesKey);
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
-      String exception = e.toString();
+      StringBuilder exception = new StringBuilder(e.toString());
       Throwable cause = e.getCause();
       while (cause != null) {
-        exception += "\nCaused by: " + cause.toString();
+        exception.append("\nCaused by: ").append(cause.toString());
         cause = cause.getCause();
       }
-      String[] stackTrace = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray(String[]::new);
+      String[] stackTrace = null;
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        stackTrace = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray(String[]::new);
+      }
 
       JSONObject jsonObject = new JSONObject();
       try {
-        jsonObject.put("Exception", exception);
+        jsonObject.put("Exception", exception.toString());
         jsonObject.put("Stack", String.join("\n", stackTrace));
         jsonObject.put("Fatal", true);
         this.nativeError = jsonObject.toString();
       } catch (JSONException jsonException) {
         this.nativeError = String.format("{\"Exception\":\"%s\",\"Stack\":\"\",\"Fatal\":true}",
-            "Unable to parse Java exception");
+          "Unable to parse Java exception");
       }
     }
   }
 
   @Override
-  public void onMethodCall(MethodCall call, Result result) {
+  public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (this.nativeError != null) {
       channel.invokeMethod("ErrorEvent", this.nativeError);
       return;
@@ -75,9 +83,10 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       // Send a previously recorded initial URL back to the UI once the app is ready
       case "AppReadyEvent":
         appReady = true;
+        activity.runOnUiThread(this::init);
         if (initialURL != null) {
           channel.invokeMethod("HandleURLEvent",
-              String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
+            String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
         }
 
         break;
@@ -93,18 +102,13 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
 
   @Override
   public void dispatchFromGo(String name, String payload) {
-    activity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        channel.invokeMethod(name, payload);
-      }
-    });
+    activity.runOnUiThread(() -> channel.invokeMethod(name, payload));
   }
 
-  public boolean onNewIntent(Intent intent) {
+  public void onNewIntent(Intent intent) {
     Uri link = intent.getData();
     if (link == null) {
-      return true;
+      return;
     }
 
     if (appReady) {
@@ -112,13 +116,13 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     } else {
       initialURL = link;
     }
-    return true;
   }
 
   @Override
   public void debugLog(String message) {
-    if (debug)
-      System.out.printf("[IrmaMobileBridgePlugin] %s\n", message);
+    if (appReady) {
+      activity.runOnUiThread(() -> channel.invokeMethod("GoLog", message));
+    }
   }
 
   public void stop() {

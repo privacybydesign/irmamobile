@@ -66,7 +66,6 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
             name: "irma.app/irma_mobile_bridge", binaryMessenger: registrar.messenger())
 
         let instance = IrmaMobileBridgePlugin(channel: channel)
-        instance.start()
 
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
@@ -85,6 +84,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         }
 
         if call.method == "AppReadyEvent" {
+            self.start()
             appReady = true
             if let initialURL = initialURL {
                 channel.invokeMethod(
