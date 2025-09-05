@@ -48,6 +48,8 @@ abstract class Pointer {
       RegExp('(?<=^https://irma.app/-pilot/session#).*'),
       RegExp('(?<=^https://open.yivi.app/-/session#).*'),
       RegExp('(?<=^https://open.yivi.app/-pilot/session#).*'),
+      RegExp('(?<=^https://open.staging.yivi.app/-/session#).*'),
+      RegExp('(?<=^https://open.staging.yivi.app/-pilot/session#).*'),
       RegExp('.*', multiLine: true, dotAll: true),
     ];
 

@@ -1,6 +1,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="foundation.privacybydesign.irmamobile">
+>
 
     <!-- Override label (this is what is displayed as the app's name)-->
-    <application android:label="Yivi 2023"/>
+    <application android:label="Yivi 2023">
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+        <intent-filter android:autoVerify="true">
+          <action android:name="android.intent.action.VIEW" />
+          <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.BROWSABLE" />
+          <data android:scheme="https" android:host="open.staging.yivi.app" android:pathPrefix="/-/" />
+        </intent-filter>
+    </activity>
+    </application>
 </manifest>
