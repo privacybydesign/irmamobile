@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/activity/activity_detail_screen.dart';
+import 'package:irmamobile/src/screens/activity/activity_tab.dart';
+import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
@@ -11,6 +14,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_per
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
+import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import 'disclosure_session/disclosure_helpers.dart';
@@ -100,6 +104,19 @@ void main() {
   });
 }
 
+Future<void> navigateToLatestActivity(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  // navigate to activity page
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
+  expect(find.byType(ActivityTab), findsOneWidget);
+
+  // pick top card
+  await tester.tapAndSettle(find.byType(ActivityCard).at(0));
+  expect(find.byType(ActivityDetailsScreen), findsOneWidget);
+}
+
 Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 1, email: 'one@example.com', domain: 'example.com');
@@ -142,7 +159,6 @@ Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationT
   // second session to make sure it still shows up in the list of options
   final session2Url = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session2Url);
-  // await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
@@ -159,6 +175,20 @@ Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationT
 
   // make sure the session can now be finished
   await shareAndFinishDisclosureSession(tester);
+
+  // check a correct activity is showing up for the openid4vp session
+  await navigateToLatestActivity(tester, irmaBinding);
+
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'one@example.com',
+    },
+  );
+  await evaluateRequestor(tester, find.byType(IssuerVerifierHeader), 'Yivi B.V.');
 }
 
 Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -687,6 +717,33 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
 
   await tester.tapAndSettle(find.byType(YiviBackButton));
   await shareAndFinishDisclosureSession(tester);
+
+  await navigateToLatestActivity(tester, irmaBinding);
+
+  // expect two credentials to be shared
+  expect(cardsFinder, findsExactly(2));
+
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(0),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Email address',
+    attributes: {
+      'Email address': 'one@example.com',
+      'Email domain name': 'example.com',
+    },
+  );
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(1),
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: 'Demo Mobile phone number',
+    attributes: {
+      'Mobile phone number': '0687654321',
+    },
+  );
+
+  await evaluateRequestor(tester, find.byType(IssuerVerifierHeader), 'Yivi B.V.');
 }
 
 /// Issue two email addresses and allow the user to pick between them
