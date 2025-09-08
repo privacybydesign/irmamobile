@@ -29,6 +29,7 @@ import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
 import 'src/screens/notifications/notifications_tab.dart';
+import 'src/screens/passport/mrz_reader_screen.dart';
 import 'src/screens/pin/pin_screen.dart';
 import 'src/screens/required_update/required_update_screen.dart';
 import 'src/screens/reset_pin/reset_pin_screen.dart';
@@ -150,10 +151,19 @@ GoRouter createRouter(BuildContext buildContext) {
                 builder: (context, state) {
                   final credentialType = state.extra as CredentialType;
                   return AddDataDetailsScreen(
-                    credentialType: credentialType,
-                    onCancel: context.pop,
-                    onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
-                  );
+                      credentialType: credentialType,
+                      onCancel: context.pop,
+                      onAdd: () => {
+                            if (credentialType.fullId == 'pbdf-staging.pbdf.passport')
+                              {
+                                // Open the MzrReaderScreen
+                                context.pushPassportMrzReaderScreen()
+                              }
+                            else
+                              {
+                                IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
+                              }
+                          });
                 },
               )
             ],
@@ -228,6 +238,13 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/update_required',
         builder: (context, state) => RequiredUpdateScreen(),
+      ),
+      GoRoute(
+        path: '/mzr_reader',
+        builder: (context, state) => MzrReaderScreen(
+          onManualAdd: () => {},
+          onCancel: () => context.pop(),
+        ),
       ),
     ],
     redirect: (context, state) {

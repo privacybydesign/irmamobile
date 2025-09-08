@@ -125,6 +125,11 @@ extension RoutingHelpers on BuildContext {
     pushReplacement(uri.toString());
   }
 
+  void pushPassportMrzReaderScreen() {
+    final uri = Uri(path: '/mzr_reader');
+    push(uri.toString());
+  }
+
   Future<void> pushIssueWizardScreen(IssueWizardRouteParams params) async {
     final uri = Uri(path: '/issue_wizard', queryParameters: params.toQueryParams());
     await push(uri.toString());

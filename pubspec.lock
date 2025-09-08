@@ -137,6 +137,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.10.1"
+  camera:
+    dependency: "direct main"
+    description:
+      name: camera
+      sha256: d6ec2cbdbe2fa8f5e0d07d8c06368fe4effa985a4a5ddade9cc58a8cd849557d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.2"
+  camera_android_camerax:
+    dependency: transitive
+    description:
+      name: camera_android_camerax
+      sha256: "2d438248554f44766bf9ea34c117a5bb0074e241342ef7c22c768fb431335234"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.21"
+  camera_avfoundation:
+    dependency: transitive
+    description:
+      name: camera_avfoundation
+      sha256: "951ef122d01ebba68b7a54bfe294e8b25585635a90465c311b2f875ae72c412f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.21+2"
+  camera_platform_interface:
+    dependency: "direct main"
+    description:
+      name: camera_platform_interface
+      sha256: "2f757024a48696ff4814a789b0bd90f5660c0fb25f393ab4564fb483327930e2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.10.0"
+  camera_web:
+    dependency: transitive
+    description:
+      name: camera_web
+      sha256: "595f28c89d1fb62d77c73c633193755b781c6d2e0ebcd8dc25b763b514e6ba8f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.5"
   characters:
     dependency: transitive
     description:
@@ -384,6 +424,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.6"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: b0694b7fb1689b0e6cc193b3f1fcac6423c4f93c74fb20b806c6b6f196db0c31
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.30"
   flutter_riverpod:
     dependency: "direct main"
     description:
@@ -447,6 +495,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "16.0.0"
+  google_mlkit_commons:
+    dependency: "direct main"
+    description:
+      name: google_mlkit_commons
+      sha256: "8f40fbac10685cad4715d11e6a0d86837d9ad7168684dfcad29610282a88e67a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.0"
+  google_mlkit_text_recognition:
+    dependency: "direct main"
+    description:
+      name: google_mlkit_text_recognition
+      sha256: "96173ad4dd7fd06c660e22ac3f9e9f1798a517fe7e48bee68eeec83853224224"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.0"
   graphs:
     dependency: transitive
     description:
@@ -652,6 +716,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  mrz_parser:
+    dependency: "direct main"
+    description:
+      name: mrz_parser
+      sha256: a7efa848a7d91c538a1c364dc63864d4cb60556037c32218d846aea473e971a7
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   native_device_orientation:
     dependency: "direct main"
     description:
@@ -1386,5 +1458,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.8.0 <4.0.0"
-  flutter: ">=3.27.0"
+  dart: ">=3.8.1 <4.0.0"
+  flutter: ">=3.32.8"

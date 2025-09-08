@@ -639,6 +639,15 @@
     "hint_state_on": "Double tap to turn off",
     "hint_state_off": "Double tap to turn on"
   },
+  "passport": {
+    "scan": {
+      "title": "Scan passport",
+      "success": "Success",
+      "success_explanation": "The passport has been successfully scanned.",
+      "manual": "Enter manually",
+      "error": "Could not read passport. Please try again."
+    }
+  },
   "debug": {
     "title": "Debugging",
     "issue_digid": "Issue DigiD",
