@@ -13,8 +13,8 @@ typedef MRZController = GlobalKey<MRZScannerState>;
 /// Data returned on continue.
 typedef ManualEntryData = ({
   String documentNr,
-  String dateOfBirth,
-  String expiryDate,
+  DateTime dateOfBirth,
+  DateTime expiryDate,
 });
 
 class ManualEntryScreen extends StatefulWidget {
@@ -72,15 +72,26 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
 
   void _onContinuePressed() {
     final form = _manualEntryFormKey.currentState;
-    // Only now run real validators (this may surface errors on any field)
     if (form != null && form.validate()) {
       final data = (
         documentNr: _documentNrCtrl.text.trim(),
-        dateOfBirth: _dateOfBirthCtrl.text.trim(),
-        expiryDate: _expiryDateCtrl.text.trim(),
+        dateOfBirth: _parseDate(_dateOfBirthCtrl.text.trim()),
+        expiryDate: _parseDate(_expiryDateCtrl.text.trim()),
       );
       widget.onContinue(data);
     }
+  }
+
+  DateTime _parseDate(String input) {
+    // assuming format dd-MM-yyyy
+    final parts = input.split('-');
+    if (parts.length != 3) {
+      throw FormatException("Invalid date format: $input");
+    }
+    final day = int.parse(parts[0]);
+    final month = int.parse(parts[1]);
+    final year = int.parse(parts[2]);
+    return DateTime(year, month, day);
   }
 
   @override
@@ -127,8 +138,8 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                           DateInputField(
                             controller: _expiryDateCtrl,
                             fieldKey: const Key('passport_expiry_date_field'),
-                            labelI18nKey: 'passport.manual.fields.data_of_expiry',
-                            requiredI18nKey: 'passport.manual.fields.data_of_expiry_required',
+                            labelI18nKey: 'passport.manual.fields.date_of_expiry',
+                            requiredI18nKey: 'passport.manual.fields.date_of_expiry_required',
                             formatDate: (ctx, d) => "${d.day.toString().padLeft(2, '0')}-"
                                 "${d.month.toString().padLeft(2, '0')}-"
                                 '${d.year}',

@@ -659,6 +659,21 @@
         "date_of_expiry": "Date of expiry",
         "date_of_expiry_required": "Date of expiry is required"
       }
+    },
+    "nfc": {
+      "title": "Read passport",
+      "nfc_enabled": "NFC enabled",
+      "nfc_disabled": "NFC disabled",
+      "connecting": "Connecting...",
+      "authenticating": "Authenticating...",
+      "reading": "Reading...",
+      "error": "Could not read passport. Please try again.",
+      "nfc_not_supported": "NFC is not supported on this device.",
+      "nfc_disabled_explanation": "NFC is disabled. Please enable NFC in the system settings and try again.",
+      "nfc_interrupted": "Reading interrupted. Try again, holding your phone steady on your passport.",
+      "tip_1": "Don't move your phone. The reading usually only takes 10-20 seconds.",
+      "tip_2": "Hold the back of your phone against the photo page of your passport. That's where the chip we need to read is located.",
+      "tip_3": "Having trouble reading? Try removing your phone's case. This often helps strengthen the NFC signal."
     }
   },
   "debug": {
