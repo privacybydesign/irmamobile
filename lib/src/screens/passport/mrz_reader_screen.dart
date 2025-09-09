@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
-import 'widgets/mrz_scanner.dart';
+import 'widgets/mzr_scanner.dart';
 
 typedef MRZController = GlobalKey<MRZScannerState>;
 
@@ -44,7 +44,7 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
               MRZScanner(
                 controller: controller,
                 onSuccess: (mrzResult, lines) async {
-                  // Navigator.of(context, rootNavigator: true).pop(mrzResult);
+                  Navigator.of(context, rootNavigator: true).pop(mrzResult);
                 },
               ),
             ],
