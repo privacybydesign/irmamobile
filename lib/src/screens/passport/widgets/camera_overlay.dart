@@ -27,14 +27,31 @@ class MRZCameraOverlay extends StatelessWidget {
             ),
             _WhiteOverlay(rect: overlayRect),
             Positioned(
-              top: 32,
-              left: 16,
-              child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 32),
-                onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                tooltip: 'Close',
+              left: overlayRect.left + 8,
+              bottom: (c.maxHeight - overlayRect.bottom) + 20, // 20px boven de onderrand
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 14,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 14,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mrz_parser/mrz_parser.dart';
 
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
@@ -8,10 +9,12 @@ import 'widgets/mzr_scanner.dart';
 typedef MRZController = GlobalKey<MRZScannerState>;
 
 class MzrReaderScreen extends StatefulWidget {
+  final Function(MRZResult mrzResult) onSuccess;
   final VoidCallback onManualAdd;
   final VoidCallback onCancel;
 
   const MzrReaderScreen({
+    required this.onSuccess,
     required this.onManualAdd,
     required this.onCancel,
   });
@@ -32,29 +35,17 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
       appBar: IrmaAppBar(
         titleTranslationKey: 'passport.scan.title',
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: theme.defaultSpacing,
-              ),
-              MRZScanner(
-                controller: controller,
-                onSuccess: (mrzResult, lines) async {
-                  Navigator.of(context, rootNavigator: true).pop(mrzResult);
-                },
-              ),
-            ],
-          ),
-        ),
+      body: MRZScanner(
+        controller: controller,
+        showOverlay: true,
+        onSuccess: (mrzResult, lines) async {
+          widget.onSuccess(mrzResult);
+        },
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'passport.scan.manual',
         onPrimaryPressed: widget.onManualAdd,
-        secondaryButtonLabel: 'data.add.details.back_button',
+        secondaryButtonLabel: 'ui.cancel',
         onSecondaryPressed: widget.onCancel,
         alignment: IrmaBottomBarAlignment.vertical,
       ),

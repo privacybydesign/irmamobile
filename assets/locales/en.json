@@ -646,6 +646,19 @@
       "success_explanation": "The passport has been successfully scanned.",
       "manual": "Enter manually",
       "error": "Could not read passport. Please try again."
+    },
+    "manual": {
+      "title": "Enter passport details",
+      "explanation": "We need the document number, date of birth and date of expiry of your passport to access the NFC chip of the passport.",
+      "fields": {
+        "document_nr": "Document number",
+        "document_nr_required": "Document number is required",
+        "document_nr_invalid": "Document number is invalid",
+        "date_of_birth": "Date of birth",
+        "date_of_birth_required": "Date of birth is required",
+        "date_of_expiry": "Date of expiry",
+        "date_of_expiry_required": "Date of expiry is required"
+      }
     }
   },
   "debug": {

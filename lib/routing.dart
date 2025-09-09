@@ -29,7 +29,9 @@ import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
 import 'src/screens/notifications/notifications_tab.dart';
+import 'src/screens/passport/manual_entry_screen.dart';
 import 'src/screens/passport/mrz_reader_screen.dart';
+import 'src/screens/passport/nfc_reading_screen.dart';
 import 'src/screens/pin/pin_screen.dart';
 import 'src/screens/required_update/required_update_screen.dart';
 import 'src/screens/reset_pin/reset_pin_screen.dart';
@@ -242,9 +244,32 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/mzr_reader',
         builder: (context, state) => MzrReaderScreen(
-          onManualAdd: () => {},
+          onSuccess: (mrzResult) => context.pop(mrzResult),
+          onManualAdd: () => context.pushPassportManualEnterScreen(),
           onCancel: () => context.pop(),
         ),
+      ),
+      GoRoute(
+          path: '/passport_manual_enter',
+          builder: (context, state) => ManualEntryScreen(
+                onCancel: () => context.pop(),
+                onContinue: (data) => context.pushNfcReadingScreen(NfcReadingRouteParams(
+                  docNumber: data.documentNr,
+                  dateOfBirth: DateTime.parse(data.dateOfBirth),
+                  dateOfExpiry: DateTime.parse(data.expiryDate),
+                )),
+              )),
+      GoRoute(
+        path: '/nfc_reading',
+        builder: (context, state) {
+          final args = NfcReadingRouteParams.fromQueryParams(state.uri.queryParameters);
+          return NfcReadingScreen(
+            docNumber: args.docNumber,
+            dateOfBirth: args.dateOfBirth,
+            dateOfExpiry: args.dateOfExpiry,
+            onCancel: () => context.pop(),
+          );
+        },
       ),
     ],
     redirect: (context, state) {
