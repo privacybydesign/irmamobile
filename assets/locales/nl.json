@@ -639,6 +639,64 @@
     "hint_state_on": "Tik dubbel om uit te zetten",
     "hint_state_off": "Tik dubbel om aan te zetten"
   },
+  "passport": {
+    "scan": {
+      "title": "Scan paspoort",
+      "success": "Succes",
+      "success_explanation": "Het paspoort is succesvol gescand.",
+      "manual": "Handmatig invoeren",
+      "error": "Kon paspoort niet lezen. Probeer het opnieuw."
+    },
+    "manual": {
+      "title": "Voer paspoortgegevens in",
+      "explanation": "We hebben het documentnummer, de geboortedatum en de vervaldatum van uw paspoort nodig om toegang te krijgen tot de NFC-chip van het paspoort.",
+      "fields": {
+        "document_nr": "Documentnummer",
+        "document_nr_required": "Documentnummer is verplicht",
+        "document_nr_invalid": "Documentnummer is ongeldig",
+        "date_of_birth": "Geboortedatum",
+        "date_of_birth_required": "Geboortedatum is verplicht",
+        "date_of_expiry": "Vervaldatum",
+        "date_of_expiry_required": "Vervaldatum is verplicht"
+      }
+    },
+    "nfc": {
+      "title": "Lees paspoort",
+      "nfc_enabled": "NFC ingeschakeld",
+      "nfc_disabled": "NFC uitgeschakeld",
+      "reading": "Lezen...",
+      "error": "Kon paspoort niet lezen. Probeer het opnieuw.",
+      "nfc_not_supported": "NFC wordt niet ondersteund op dit apparaat.",
+      "nfc_disabled_explanation": "NFC is uitgeschakeld. Schakel NFC in via de systeeminstellingen en probeer het opnieuw.",
+      "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd uw telefoon stil op uw paspoort.",
+      "tip_1": "Beweeg uw telefoon niet. Het lezen duurt meestal slechts 10-20 seconden.",
+      "tip_2": "Houd de achterkant van uw telefoon tegen de fotopagina van uw paspoort. Daar bevindt zich de chip die we moeten lezen.",
+      "tip_3": "Problemen met lezen? Probeer de hoes van uw telefoon te verwijderen. Dit helpt vaak het NFC-signaal te versterken.",
+      "success": "Succes",
+      "success_explanation": "Paspoort succesvol gelezen",
+      "idle": "Klaar om paspoort te lezen",
+      "cancelling": "Bezig met annuleren...",
+      "hold_near_photo_page": "Houd uw telefoon bij de fotopagina van het paspoort",
+      "cancelled": "Geannuleerd",
+      "connecting": "Verbinden met paspoort...",
+      "finished": "Voltooid",
+      "reading_card_access": "Lezen van EF.CardAccess ...",
+      "reading_card_security": "Lezen van EF.CardSecurity ...",
+      "authenticating": "Authenticatie met paspoort...",
+      "reading_passport_data": "Paspoortgegevens lezen...",
+      "reading_ef_com": "Lezen van EF.COM ...",
+      "reading_data_groups": "Lezen van datagroepen",
+      "performing_security_verification": "Bezig met veiligheidsverificatie...",
+      "doing_aa": "Uitvoeren van AA ...",
+      "reading_ef_sod": "Lezen van EF.SOD ...",
+      "completed_successfully": "Paspoort succesvol uitgelezen!",
+      "error_generic": "Er is een fout opgetreden bij het lezen van het paspoort!",
+      "failed_initiate_session": "Kan sessie met paspoort niet starten. Controleer de ingevoerde gegevens!",
+      "timeout_waiting_for_tag": "Time-out tijdens het wachten op paspoorttag",
+      "tag_lost_try_again": "Tag is verloren. Probeer opnieuw!",
+      "cancelled_by_user": "Geannuleerd door gebruiker"
+    }
+  },
   "debug": {
     "title": "Debuggen",
     "issue_digid": "Uitgifte DigiD proef",
