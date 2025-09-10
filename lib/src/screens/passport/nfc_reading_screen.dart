@@ -1,14 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:vcmrtd/vcmrtd.dart';
 
 import '../../data/passport_repository.dart';
 import '../../models/nfc_reading_state.dart';
 import '../../models/passport_data_result.dart';
 import '../../models/passport_error_info.dart';
+import '../../models/session.dart';
 import '../../theme/theme.dart';
+import '../../util/handle_pointer.dart';
+import '../../util/nonce_parser.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_linear_progresss_indicator.dart';
@@ -19,20 +25,14 @@ class NfcReadingScreen extends StatefulWidget {
   final DateTime dateOfBirth;
   final DateTime dateOfExpiry;
   final VoidCallback? onCancel;
-  final VoidCallback? onRetryCheckNfc;
   final ValueChanged<PassportDataResult>? onComplete;
-  final Uint8List? nonce;
-  final String? sessionId;
 
   const NfcReadingScreen({
     required this.docNumber,
     required this.dateOfBirth,
     required this.dateOfExpiry,
     this.onCancel,
-    this.onRetryCheckNfc,
     this.onComplete,
-    this.nonce,
-    this.sessionId,
     super.key,
   });
 
@@ -43,7 +43,7 @@ class NfcReadingScreen extends StatefulWidget {
 class _NfcReadingScreenState extends State<NfcReadingScreen> implements PassportListener {
   final PassportRepository _repo = PassportRepository();
 
-  var _isNfcAvailable = false;
+  var _isNfcAvailable = true;
 
   final List<String> _tips = <String>[
     'passport.nfc.tip_1',
@@ -71,13 +71,17 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
     _progress = 0.0;
     _stateKey = 'passport.nfc.connecting';
     setState(() {});
+
+    final (sessionId, nonce) = await _getPassportIssuanceSession();
+    final nonceBytes = stringToUint8List(nonce);
+
     await _repo.readWithMRZ(
       documentNumber: widget.docNumber,
       birthDate: widget.dateOfBirth,
       expiryDate: widget.dateOfExpiry,
       countryCode: 'NLD',
-      sessionId: widget.sessionId,
-      nonce: widget.nonce,
+      sessionId: sessionId,
+      nonce: nonceBytes,
       listener: this,
     );
   }
@@ -147,9 +151,6 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
   }
 
   @override
-  void onDataGroupRead(String name, String hex) {}
-
-  @override
   void onAuthenticated() {}
 
   @override
@@ -166,8 +167,63 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
   }
 
   @override
-  void onComplete(PassportDataResult result) {
-    widget.onComplete?.call(result);
+  void onComplete(PassportDataResult result) async {
+    await _startIssuance(result);
+  }
+
+  Future<void> _startIssuance(PassportDataResult passportDataResult) async {
+    // Create secure data payload
+    final payload = passportDataResult.toJson();
+
+    // Get the signed IRMA JWt from the passport issuer
+    final responseBody = await _getIrmaSessionJwt(payload);
+    final irmaServerUrlParam = responseBody['irma_server_url'];
+    final jwtUrlParam = responseBody['jwt'];
+
+    // Start the session
+    final sessionResponseBody = await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
+    final sessionPtr = sessionResponseBody['sessionPtr'];
+
+    await handlePointer(context, Pointer.fromString(json.encode(sessionPtr)), pushReplacement: false);
+    context.go('/home');
+  }
+
+  Future<(String, String)> _getPassportIssuanceSession() async {
+    final storeResp = await http.post(Uri.parse('https://passport-issuer.staging.yivi.app/api/start-validation'),
+        headers: {'Content-Type': 'application/json'});
+    if (storeResp.statusCode != 200) {
+      throw Exception('Store failed: ${storeResp.statusCode} ${storeResp.body}');
+    }
+
+    var response = json.decode(storeResp.body);
+    return (response['session_id'].toString(), response['nonce'].toString());
+  }
+
+  Future<dynamic> _getIrmaSessionJwt(Map<String, dynamic> payload) async {
+    final String jsonPayload = json.encode(payload);
+    final storeResp = await http.post(
+      Uri.parse('https://passport-issuer.staging.yivi.app/api/verify-and-issue'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonPayload,
+    );
+    if (storeResp.statusCode != 200) {
+      throw Exception('Store failed: ${storeResp.statusCode} ${storeResp.body}');
+    }
+
+    return json.decode(storeResp.body);
+  }
+
+  Future<dynamic> _startIrmaSession(String jwt, String irmaServerUrl) async {
+    // Start the IRMA session
+    final response = await http.post(
+      Uri.parse('$irmaServerUrl/session'),
+      body: jwt,
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Store failed: ${response.statusCode} ${response.body}');
+    }
+
+    return json.decode(response.body);
   }
 
   @override
@@ -239,8 +295,7 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
               alignment: IrmaBottomBarAlignment.vertical,
               primaryButtonLabel: 'ui.retry',
               onPrimaryPressed: () {
-                widget.onRetryCheckNfc?.call();
-                _startReading();
+                _initNFCState();
               },
               secondaryButtonLabel: 'ui.cancel',
               onSecondaryPressed: () {

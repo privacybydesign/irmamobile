@@ -20,10 +20,6 @@ abstract class PassportListener {
   /// Called as reading progresses [0.0 - 1.0].
   void onProgress(double value) {}
 
-  /// Called after a single data group is read successfully.
-  /// [name] is e.g. "DG1", [hex] is the hex-encoded content.
-  void onDataGroupRead(String name, String hex) {}
-
   /// Called when authentication (PACE/BAC, AA) finishes successfully.
   void onAuthenticated() {}
 
@@ -252,11 +248,11 @@ class PassportRepository {
 
         if (mrtdData.com!.dgTags.contains(cfg.tag)) {
           try {
-            final dg = await cfg.readFunction(passport);
-            final hex = (dg as dynamic).toBytes().hex();
-            if (hex.isNotEmpty) {
-              dataGroups[cfg.name] = hex;
-              listener?.onDataGroupRead(cfg.name, hex);
+            final dgData = await cfg.readFunction(passport);
+            // Convert data group to hex string
+            final hexData = dgData.toBytes().hex();
+            if (hexData.isNotEmpty) {
+              dataGroups[cfg.name] = hexData;
             }
           } catch (e) {
             debugPrint('Failed to read ${cfg.name}: $e');
@@ -278,7 +274,6 @@ class PassportRepository {
             final hex = mrtdData.dg15!.toBytes().hex();
             if (hex.isNotEmpty) {
               dataGroups['DG15'] = hex;
-              listener?.onDataGroupRead('DG15', hex);
             }
           }
 
