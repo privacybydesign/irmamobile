@@ -45,6 +45,10 @@ import 'src/screens/terms_changed/terms_changed_dialog.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
 
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
@@ -52,6 +56,8 @@ GoRouter createRouter(BuildContext buildContext) {
   final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment', '/scanner', '/modal_pin'};
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
+    observers: [routeObserver],
     initialLocation: '/loading',
     refreshListenable: redirectionTriggers,
     errorBuilder: (context, state) => RouteNotFoundScreen(),

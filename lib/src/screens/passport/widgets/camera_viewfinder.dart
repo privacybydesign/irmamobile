@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
+import '../../../../routing.dart';
 import 'camera_overlay.dart';
 
 class MRZCameraView extends StatefulWidget {
@@ -16,7 +16,7 @@ class MRZCameraView extends StatefulWidget {
     required this.showOverlay,
   });
 
-  final Function(InputImage inputImage) onImage;
+  final Future<bool> Function(InputImage inputImage) onImage;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
 
@@ -24,7 +24,7 @@ class MRZCameraView extends StatefulWidget {
   MRZCameraViewState createState() => MRZCameraViewState();
 }
 
-class MRZCameraViewState extends State<MRZCameraView> {
+class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBindingObserver {
   CameraController? _controller;
   int _cameraIndex = 1;
   List<CameraDescription> cameras = [];
@@ -54,18 +54,49 @@ class MRZCameraViewState extends State<MRZCameraView> {
         );
       }
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
+      debugPrint(e.toString());
     }
 
     _startLiveFeed();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
   void dispose() {
-    _stopLiveFeed();
+    routeObserver.unsubscribe(this);
     super.dispose();
+  }
+
+  @override
+  void didPush() async {
+    // Called when the current route has been pushed.
+    await _startLiveFeed();
+  }
+
+  @override
+  void didPushNext() async {
+    // Called when a new route has been pushed, and this route is no longer visible.
+    await _stopLiveFeed();
+  }
+
+  // Called when the top route has been popped and this route shows again.
+  @override
+  void didPopNext() async {
+    await _startLiveFeed();
+  }
+
+  // Called when this route is popped.
+  @override
+  void didPop() async {
+    await _stopLiveFeed();
   }
 
   @override
@@ -112,6 +143,15 @@ class MRZCameraViewState extends State<MRZCameraView> {
   }
 
   Future _startLiveFeed() async {
+    if (cameras.isEmpty) return;
+
+    if (_controller != null && _controller!.value.isInitialized) {
+      if (!_controller!.value.isStreamingImages) {
+        await _controller!.startImageStream(_processCameraImage);
+      }
+      return;
+    }
+
     final camera = cameras[_cameraIndex];
     _controller = CameraController(
       camera,
@@ -130,7 +170,11 @@ class MRZCameraViewState extends State<MRZCameraView> {
   }
 
   Future _stopLiveFeed() async {
-    await _controller?.stopImageStream();
+    try {
+      if (_controller?.value.isStreamingImages == true) {
+        await _controller?.stopImageStream();
+      }
+    } catch (_) {}
     await _controller?.dispose();
     _controller = null;
   }
@@ -138,7 +182,11 @@ class MRZCameraViewState extends State<MRZCameraView> {
   Future _processCameraImage(CameraImage image) async {
     final inputImage = _inputImageFromCameraImage(image);
     if (inputImage == null) return;
-    widget.onImage(inputImage);
+    widget.onImage(inputImage).then((success) {
+      if (success) {
+        _stopLiveFeed();
+      }
+    });
   }
 
   final _orientations = {

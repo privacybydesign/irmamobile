@@ -50,6 +50,10 @@ dependencies:
   camera: ^0.10.0+4
   google_mlkit_commons: ^0.11.0
   camera_platform_interface: ^2.2.2
+  vcmrtd:
+    git:
+      url: https://github.com/privacybydesign/vcmrtd.git
+      ref: v0.1.2
 
 dev_dependencies:
   flutter_test:

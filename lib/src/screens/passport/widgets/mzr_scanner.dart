@@ -46,20 +46,22 @@ class MRZScannerState extends State<MRZScanner> {
     );
   }
 
-  void _parseScannedText(List<String> lines) {
+  bool _parseScannedText(List<String> lines) {
     try {
       final data = MRZParser.parse(lines);
       _isBusy = true;
 
       widget.onSuccess(data, lines);
+      return true;
     } catch (e) {
       _isBusy = false;
     }
+    return false;
   }
 
-  Future<void> _processImage(InputImage inputImage) async {
-    if (!_canProcess) return;
-    if (_isBusy) return;
+  Future<bool> _processImage(InputImage inputImage) async {
+    if (!_canProcess) return false;
+    if (_isBusy) return false;
     _isBusy = true;
 
     try {
@@ -77,12 +79,13 @@ class MRZScannerState extends State<MRZScanner> {
       List<String>? result = MRZHelper.getFinalListToParse([...ableToScanText]);
 
       if (result != null) {
-        _parseScannedText([...result]);
+        return _parseScannedText([...result]);
       } else {
         _isBusy = false;
       }
     } catch (e) {
       _isBusy = false;
     }
+    return false;
   }
 }

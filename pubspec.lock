@@ -313,6 +313,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
+  diffie_hellman:
+    dependency: transitive
+    description:
+      name: diffie_hellman
+      sha256: cf88adea8d7c56ed145e95db87e61297c52d236c2faace48fbcb425a73ddeba6
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   email_validator:
     dependency: "direct main"
     description:
@@ -329,6 +337,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.7"
+  expandable:
+    dependency: transitive
+    description:
+      name: expandable
+      sha256: "9604d612d4d1146dafa96c6d8eec9c2ff0994658d6d09fed720ab788c7f5afc2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.1"
   fake_async:
     dependency: transitive
     description:
@@ -424,6 +440,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.6"
+  flutter_nfc_kit:
+    dependency: transitive
+    description:
+      name: flutter_nfc_kit
+      sha256: "3cc4059626fa672031261512299458dd274de4ccb57a7f0ee0951ddd70a048e5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.6.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -660,6 +684,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.1.1"
+  logger:
+    dependency: transitive
+    description:
+      name: logger
+      sha256: "55d6c23a6c15db14920e037fe7e0dc32e7cdaf3b64b4b25df2d541b5b6b81c0c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.6.1"
   logging:
     dependency: transitive
     description:
@@ -732,6 +764,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  ndef:
+    dependency: transitive
+    description:
+      name: ndef
+      sha256: "5083507cff4bb823b2a198a27ea2c70c4d6bc27a97b66097d966a250e1615d54"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.4"
   nested:
     dependency: transitive
     description:
@@ -900,6 +940,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  pointycastle:
+    dependency: transitive
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "0f361ed6e729e770c64ef59169934545643a3450"
+      url: "https://github.com/privacybydesign/pc-dart.git"
+    source: git
+    version: "4.0.0"
   pool:
     dependency: transitive
     description:
@@ -1241,6 +1290,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.16.0"
+  tripledes_nullsafety:
+    dependency: transitive
+    description:
+      name: tripledes_nullsafety
+      sha256: "39589b5271e96f2abc592f046e14c3dbcd87bd140c1e6f10f4005e6fb0c28b68"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   typed_data:
     dependency: transitive
     description:
@@ -1329,6 +1386,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.1"
+  vcmrtd:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "v0.1.2"
+      resolved-ref: cc0383acb9d2936ce0c20cb6ba056c6fa4e9648d
+      url: "https://github.com/privacybydesign/vcmrtd.git"
+    source: git
+    version: "2.0.0"
   vector_graphics:
     dependency: transitive
     description:

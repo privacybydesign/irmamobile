@@ -1,28 +1,28 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:vcmrtd/vcmrtd.dart';
 
+import '../../data/passport_repository.dart';
+import '../../models/nfc_reading_state.dart';
+import '../../models/passport_data_result.dart';
+import '../../models/passport_error_info.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_linear_progresss_indicator.dart';
 import '../../widgets/translated_text.dart';
 
-enum _NfcUiState {
-  disabled, // NFC off
-  scanning, // NFC on, trying to connect/read
-}
-
 class NfcReadingScreen extends StatefulWidget {
   final String docNumber;
   final DateTime dateOfBirth;
   final DateTime dateOfExpiry;
-
   final VoidCallback? onCancel;
-
-  /// UI-only: fired when the user taps "Opnieuw proberen" in the NFC-disabled state.
-  /// Hook this up to your actual NFC re-check/init logic and call setState accordingly.
   final VoidCallback? onRetryCheckNfc;
+  final ValueChanged<PassportDataResult>? onComplete;
+  final Uint8List? nonce;
+  final String? sessionId;
 
   const NfcReadingScreen({
     required this.docNumber,
@@ -30,6 +30,9 @@ class NfcReadingScreen extends StatefulWidget {
     required this.dateOfExpiry,
     this.onCancel,
     this.onRetryCheckNfc,
+    this.onComplete,
+    this.nonce,
+    this.sessionId,
     super.key,
   });
 
@@ -37,15 +40,11 @@ class NfcReadingScreen extends StatefulWidget {
   State<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
 
-class _NfcReadingScreenState extends State<NfcReadingScreen> {
-  // ---- Simple UI state machine (no real NFC logic) ----
-  _NfcUiState _state = _NfcUiState.scanning;
+class _NfcReadingScreenState extends State<NfcReadingScreen> implements PassportListener {
+  final PassportRepository _repo = PassportRepository();
 
-  // Expose simple setters you can call after wiring real NFC checks.
-  void showDisabled() => setState(() => _state = _NfcUiState.disabled);
-  void showScanning() => setState(() => _state = _NfcUiState.scanning);
+  var _isNfcAvailable = false;
 
-  // ---- Rotating tips (only visible in scanning state) ----
   final List<String> _tips = <String>[
     'passport.nfc.tip_1',
     'passport.nfc.tip_2',
@@ -54,6 +53,10 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> {
   int _tipIndex = 0;
   Timer? _tipTimer;
 
+  double _progress = 0.0;
+  String _stateKey = 'passport.nfc.connecting';
+  String _hintKey = 'passport.nfc.hold_near';
+
   @override
   void initState() {
     super.initState();
@@ -61,29 +64,124 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> {
       if (!mounted) return;
       setState(() => _tipIndex = (_tipIndex + 1) % _tips.length);
     });
+    _initNFCState();
+  }
+
+  Future<void> _startReading() async {
+    _progress = 0.0;
+    _stateKey = 'passport.nfc.connecting';
+    setState(() {});
+    await _repo.readWithMRZ(
+      documentNumber: widget.docNumber,
+      birthDate: widget.dateOfBirth,
+      expiryDate: widget.dateOfExpiry,
+      countryCode: 'NLD',
+      sessionId: widget.sessionId,
+      nonce: widget.nonce,
+      listener: this,
+    );
+  }
+
+  Future<void> _initNFCState() async {
+    bool isNfcAvailable;
+    try {
+      NfcStatus status = await NfcProvider.nfcStatus;
+      isNfcAvailable = status == NfcStatus.enabled;
+    } on PlatformException {
+      isNfcAvailable = false;
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _isNfcAvailable = isNfcAvailable;
+    });
+
+    if (_isNfcAvailable) {
+      await _startReading();
+    }
   }
 
   @override
   void dispose() {
     _tipTimer?.cancel();
+    _repo.cancel();
     super.dispose();
+  }
+
+  @override
+  void onStateChanged(NFCReadingState state) {
+    switch (state) {
+      case NFCReadingState.waiting:
+      case NFCReadingState.connecting:
+      case NFCReadingState.authenticating:
+      case NFCReadingState.reading:
+        _stateKey = 'passport.nfc.connecting';
+        break;
+      case NFCReadingState.error:
+        break;
+      case NFCReadingState.cancelling:
+        _stateKey = 'passport.nfc.cancelling';
+        break;
+      case NFCReadingState.success:
+        _stateKey = 'passport.nfc.success';
+        break;
+      case NFCReadingState.idle:
+        _stateKey = 'passport.nfc.idle';
+        break;
+    }
+  }
+
+  @override
+  void onMessage(String message) {
+    setState(() {
+      _stateKey = message;
+    });
+  }
+
+  @override
+  void onProgress(double value) {
+    setState(() {
+      _progress = value.clamp(0.0, 1.0);
+    });
+  }
+
+  @override
+  void onDataGroupRead(String name, String hex) {}
+
+  @override
+  void onAuthenticated() {}
+
+  @override
+  void onError(PassportErrorInfo error) {
+    setState(() {
+      _progress = 0.0;
+      _stateKey = 'passport.nfc.error';
+    });
+  }
+
+  @override
+  void onCancelled() {
+    widget.onCancel?.call();
+  }
+
+  @override
+  void onComplete(PassportDataResult result) {
+    widget.onComplete?.call(result);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final bool isDisabled = _state == _NfcUiState.disabled;
-
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
-        titleTranslationKey: 'passport.nfc.title', // "Paspoort uitlezen"
+        titleTranslationKey: 'passport.nfc.title',
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Top row: “NFC ingeschakeld” (green) vs “NFC is uitgeschakeld” (red)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: Row(
@@ -91,61 +189,64 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: isDisabled ? theme.error : theme.success,
+                      color: _isNfcAvailable ? theme.success : theme.error,
                       shape: BoxShape.circle,
                     ),
                     width: 40,
                     height: 40,
                     alignment: Alignment.center,
                     child: Icon(
-                      isDisabled ? Icons.close : Icons.check,
+                      _isNfcAvailable ? Icons.check : Icons.close,
                       color: Colors.white,
                       size: 24,
                     ),
                   ),
                   const SizedBox(width: 12),
                   TranslatedText(
-                    isDisabled ? 'passport.nfc.nfc_disabled' : 'passport.nfc.nfc_enabled',
+                    _isNfcAvailable ? 'passport.nfc.nfc_enabled' : 'passport.nfc.nfc_disabled',
                   ),
                 ],
               ),
             ),
-
-            // Middle content switches by state
             Expanded(
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                child: isDisabled
-                    ? _DisabledContent(theme: theme, key: const ValueKey('disabled'))
-                    : _ScanningContent(
-                        theme: theme,
-                        tipKey: _tips[_tipIndex],
-                        tipIndex: _tipIndex,
-                        key: ValueKey('scanning-$_tipIndex'),
-                      ),
-              ),
+                  duration: const Duration(milliseconds: 250),
+                  child: _isNfcAvailable
+                      ? _ScanningContent(
+                          theme: theme,
+                          tipKey: _tips[_tipIndex],
+                          tipIndex: _tipIndex,
+                          progressPercent: (_progress * 100).clamp(0, 100).toDouble(),
+                          statusKey: _stateKey,
+                          hintKey: _hintKey,
+                          key: ValueKey('scanning-$_tipIndex-$_progress'),
+                        )
+                      : _DisabledContent(theme: theme, key: const ValueKey('disabled'))),
             ),
           ],
         ),
       ),
-
-      // Bottom bar: when disabled show primary "Opnieuw proberen" + secondary "Annuleren".
-      // When scanning, only show "Annuleren".
-      bottomNavigationBar: isDisabled
+      bottomNavigationBar: _isNfcAvailable
           ? IrmaBottomBar(
               alignment: IrmaBottomBarAlignment.vertical,
-              primaryButtonLabel: 'ui.retry', // "Opnieuw proberen"
-              onPrimaryPressed: () {
-                // UI-only hook; parent can re-check NFC and then call showScanning()/showDisabled()
-                widget.onRetryCheckNfc?.call();
-              },
               secondaryButtonLabel: 'ui.cancel',
-              onSecondaryPressed: widget.onCancel,
+              onSecondaryPressed: () {
+                _repo.cancel();
+                widget.onCancel?.call();
+              },
             )
           : IrmaBottomBar(
               alignment: IrmaBottomBarAlignment.vertical,
+              primaryButtonLabel: 'ui.retry',
+              onPrimaryPressed: () {
+                widget.onRetryCheckNfc?.call();
+                _startReading();
+              },
               secondaryButtonLabel: 'ui.cancel',
-              onSecondaryPressed: widget.onCancel,
+              onSecondaryPressed: () {
+                _repo.cancel();
+                widget.onCancel?.call();
+              },
             ),
     );
   }
@@ -165,7 +266,6 @@ class _DisabledContent extends StatelessWidget {
           children: [
             Icon(Icons.nfc, size: 80, color: theme.error),
             SizedBox(height: theme.largeSpacing),
-            // “Het uitlezen van je paspoort lukt niet ...”
             TranslatedText(
               'passport.nfc.nfc_disabled_explanation',
               textAlign: TextAlign.center,
@@ -183,12 +283,18 @@ class _ScanningContent extends StatelessWidget {
     required this.theme,
     required this.tipKey,
     required this.tipIndex,
+    required this.progressPercent,
+    required this.statusKey,
+    this.hintKey,
     super.key,
   });
 
   final IrmaThemeData theme;
   final String tipKey;
   final int tipIndex;
+  final double progressPercent;
+  final String statusKey;
+  final String? hintKey;
 
   @override
   Widget build(BuildContext context) {
@@ -198,9 +304,11 @@ class _ScanningContent extends StatelessWidget {
       children: [
         Icon(Icons.nfc, size: 80, color: theme.link),
         SizedBox(height: theme.mediumSpacing),
-        TranslatedText('passport.nfc.connecting'),
+        TranslatedText(statusKey, style: theme.textTheme.headlineMedium),
+        SizedBox(height: theme.smallSpacing),
+        TranslatedText(hintKey ?? '', style: theme.textTheme.bodyMedium),
         SizedBox(height: theme.mediumSpacing),
-        const IrmaLinearProgressIndicator(filledPercentage: 20),
+        IrmaLinearProgressIndicator(filledPercentage: progressPercent),
         SizedBox(height: theme.largeSpacing),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
