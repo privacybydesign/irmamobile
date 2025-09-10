@@ -55,7 +55,7 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
 
   double _progress = 0.0;
   String _stateKey = 'passport.nfc.connecting';
-  String _hintKey = 'passport.nfc.hold_near';
+  String _hintKey = 'passport.nfc.hold_near_photo_page';
 
   @override
   void initState() {
@@ -135,7 +135,7 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
   @override
   void onMessage(String message) {
     setState(() {
-      _stateKey = message;
+      _hintKey = message;
     });
   }
 

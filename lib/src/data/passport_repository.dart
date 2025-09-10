@@ -1,4 +1,3 @@
-// passport_repository/lib/src/passport_repository_impl.dart
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -44,13 +43,11 @@ class PassportRepository {
 
   PassportRepository();
 
-  /// Cancel the ongoing read (if any).
   Future<void> cancel() async {
     _isCancelled = true;
-    await _disconnect('Cancelling...');
+    await _disconnect('passport.nfc.cancelling');
   }
 
-  /// Read using MRZ values. Determines PACE based on country code (NLD => PACE).
   Future<void> readWithMRZ({
     required String documentNumber,
     required DateTime birthDate,
@@ -81,19 +78,19 @@ class PassportRepository {
     }
 
     try {
-      setState(NFCReadingState.waiting, msg: 'Hold your phone near the passport photo page', progress: 0.0);
+      setState(NFCReadingState.waiting, msg: 'passport.nfc.hold_near_photo_page', progress: 0.0);
 
       if (_isCancelled) return;
-      await _nfc.connect(iosAlertMessage: 'Hold your phone near Biometric Passport');
+      await _nfc.connect(iosAlertMessage: 'passport.nfc.hold_near_photo_page');
 
       if (_isCancelled) {
-        await _disconnect('Cancelled');
+        await _disconnect('passport.nfc.cancelled');
         listener?.onCancelled();
         return;
       }
 
       final passport = Passport(_nfc);
-      setState(NFCReadingState.connecting, msg: 'Connecting to passport...');
+      setState(NFCReadingState.connecting, msg: 'passport.nfc.connecting');
 
       await _perform(passport, accessKey, isPace, sessionId: sessionId, nonce: nonce, listener: listener);
     } on Exception catch (e) {
@@ -101,7 +98,7 @@ class PassportRepository {
         _handleError(e, listener);
       }
     } finally {
-      await _disconnect('Finished');
+      await _disconnect('passport.nfc.finished');
     }
   }
 
@@ -117,22 +114,18 @@ class PassportRepository {
     mrtdData.isPACE = isPace;
     mrtdData.isDBA = accessKey is DBAKey ? (accessKey.PACE_REF_KEY_TAG == 0x01) : false;
 
-    listener?.onMessage('Reading EF.CardAccess ...');
+    listener?.onMessage('passport.nfc.reading_card_access');
     try {
       mrtdData.cardAccess = await passport.readEfCardAccess();
-    } on PassportError {
-      // ignore & continue
-    }
+    } on PassportError {}
 
-    listener?.onMessage('Reading EF.CardSecurity ...');
+    listener?.onMessage('passport.nfc.reading_card_security');
     try {
       mrtdData.cardSecurity = await passport.readEfCardSecurity();
-    } on PassportError {
-      // ignore & continue
-    }
+    } on PassportError {}
 
     listener?.onStateChanged(NFCReadingState.authenticating);
-    listener?.onMessage('Authenticating with passport...');
+    listener?.onMessage('passport.nfc.authenticating');
 
     if (isPace) {
       await passport.startSessionPACE(accessKey, mrtdData.cardAccess!);
@@ -156,11 +149,11 @@ class PassportRepository {
     PassportListener? listener,
   }) async {
     listener?.onStateChanged(NFCReadingState.reading);
-    listener?.onMessage('Reading passport data...');
+    listener?.onMessage('passport.nfc.reading_passport_data');
     listener?.onProgress(0.1);
 
     try {
-      _nfc.setIosAlertMessage('Reading EF.COM ...');
+      _nfc.setIosAlertMessage('passport.nfc.reading_ef_com');
       mrtdData.com = await passport.readEfCOM();
 
       final configs = <DataGroupConfig>[
@@ -244,7 +237,7 @@ class PassportRepository {
         ),
       ];
 
-      _nfc.setIosAlertMessage('Reading Data Groups');
+      _nfc.setIosAlertMessage('passport.nfc.reading_data_groups');
 
       final Map<String, String> dataGroups = {};
       double current = 0.2;
@@ -252,7 +245,7 @@ class PassportRepository {
       for (final cfg in configs) {
         if (_isCancelled) {
           listener?.onStateChanged(NFCReadingState.cancelling);
-          await _disconnect('Cancelled by user');
+          await _disconnect('passport.nfc.cancelled_by_user');
           listener?.onCancelled();
           throw Exception('Cancelled');
         }
@@ -260,7 +253,6 @@ class PassportRepository {
         if (mrtdData.com!.dgTags.contains(cfg.tag)) {
           try {
             final dg = await cfg.readFunction(passport);
-            // All DG types from vcmrtd implement toBytes()
             final hex = (dg as dynamic).toBytes().hex();
             if (hex.isNotEmpty) {
               dataGroups[cfg.name] = hex;
@@ -275,9 +267,8 @@ class PassportRepository {
         listener?.onProgress(current.clamp(0.0, 0.9));
       }
 
-      // DG15 + Active Authentication
       if (sessionId != null && nonce != null && mrtdData.com!.dgTags.contains(EfDG15.TAG)) {
-        listener?.onMessage('Performing security verification...');
+        listener?.onMessage('passport.nfc.performing_security_verification');
         listener?.onStateChanged(NFCReadingState.authenticating);
         listener?.onProgress(0.9);
 
@@ -291,19 +282,18 @@ class PassportRepository {
             }
           }
 
-          _nfc.setIosAlertMessage('Doing AA ...');
+          _nfc.setIosAlertMessage('passport.nfc.doing_aa');
           mrtdData.aaSig = await passport.activeAuthenticate(nonce);
         } catch (e) {
           debugPrint('Failed to read DG15 or perform AA: $e');
         }
       }
 
-      // EF.SOD
-      _nfc.setIosAlertMessage('Reading EF.SOD ...');
+      _nfc.setIosAlertMessage('passport.nfc.reading_ef_sod');
       mrtdData.sod = await passport.readEfSOD();
       final efSodHex = mrtdData.sod?.toBytes().hex() ?? '';
 
-      listener?.onMessage('Passport reading completed successfully!');
+      listener?.onMessage('passport.nfc.completed_successfully');
       listener?.onProgress(1.0);
 
       return PassportDataResult(
@@ -321,11 +311,11 @@ class PassportRepository {
 
   void _handleError(Object e, PassportListener? listener) {
     final se = e.toString().toLowerCase();
-    String msg = 'An error has occurred while reading Passport!';
+    String msg = 'passport.nfc.error_generic';
 
     if (e is PassportError) {
       if (se.contains('security status not satisfied')) {
-        msg = 'Failed to initiate session with passport. Check input data!';
+        msg = 'passport.nfc.failed_initiate_session';
       }
       debugPrint('PassportError: ${e.message}');
     } else {
@@ -333,9 +323,9 @@ class PassportRepository {
     }
 
     if (se.contains('timeout')) {
-      msg = 'Timeout while waiting for Passport tag';
+      msg = 'passport.nfc.timeout_waiting_for_tag';
     } else if (se.contains('tag was lost')) {
-      msg = 'Tag was lost. Please try again!';
+      msg = 'passport.nfc.tag_lost_try_again';
     } else if (se.contains('invalidated by user')) {
       msg = '';
     }
@@ -350,10 +340,8 @@ class PassportRepository {
       if (msg.isNotEmpty) {
         await _nfc.disconnect(iosErrorMessage: msg);
       } else {
-        await _nfc.disconnect(iosAlertMessage: 'Finished');
+        await _nfc.disconnect(iosAlertMessage: 'passport.nfc.finished');
       }
-    } catch (e) {
-      // ignore disconnect errors
-    }
+    } catch (e) {}
   }
 }
