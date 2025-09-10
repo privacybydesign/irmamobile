@@ -184,7 +184,10 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
     final sessionResponseBody = await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
     final sessionPtr = sessionResponseBody['sessionPtr'];
 
+    if (!mounted) return;
     await handlePointer(context, Pointer.fromString(json.encode(sessionPtr)), pushReplacement: false);
+
+    if (!mounted) return;
     context.go('/home');
   }
 
