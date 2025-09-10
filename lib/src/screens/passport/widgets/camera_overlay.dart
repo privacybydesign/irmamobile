@@ -33,7 +33,7 @@ class MRZCameraOverlay extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text(
-                    "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+                    '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 14,
@@ -43,7 +43,7 @@ class MRZCameraOverlay extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+                    '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 14,

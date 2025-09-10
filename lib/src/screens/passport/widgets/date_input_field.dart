@@ -43,7 +43,7 @@ class DateInputField extends StatelessWidget {
     final baseTextStyle = theme.textTheme.bodyMedium;
 
     // Default formatting: yyyy-MM-dd
-    String defaultFormat(BuildContext _, DateTime d) => "${d.toLocal()}".split(' ').first;
+    String defaultFormat(BuildContext _, DateTime d) => '${d.toLocal()}'.split(' ').first;
 
     return TextFormField(
       key: fieldKey ?? const Key('date_input_field'),
@@ -78,6 +78,7 @@ class DateInputField extends StatelessWidget {
         );
         if (pickedDate != null) {
           final fmt = formatDate ?? defaultFormat;
+          if (!context.mounted) return;
           controller.text = fmt(context, pickedDate);
         }
       },

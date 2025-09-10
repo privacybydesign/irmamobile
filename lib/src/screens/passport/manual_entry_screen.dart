@@ -86,7 +86,7 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
     // assuming format dd-MM-yyyy
     final parts = input.split('-');
     if (parts.length != 3) {
-      throw FormatException("Invalid date format: $input");
+      throw FormatException('Invalid date format: $input');
     }
     final day = int.parse(parts[0]);
     final month = int.parse(parts[1]);
