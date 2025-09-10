@@ -43,11 +43,10 @@ android {
     productFlavors {
         alpha {
             dimension "track"
-            applicationId "foundation.privacybydesign.irmamobile.alpha"
+            applicationIdSuffix ".alpha"
         }
         beta {
             dimension "track"
-            applicationId "org.irmacard.cardemu"
         }
     }
 
