@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -12,6 +13,7 @@ import 'src/models/log_entry.dart';
 import 'src/models/translated_value.dart';
 import 'src/models/version_information.dart';
 import 'src/providers/irma_repository_provider.dart';
+import 'src/providers/passport_repository_provider.dart';
 import 'src/screens/activity/activity_detail_screen.dart';
 import 'src/screens/add_data/add_data_details_screen.dart';
 import 'src/screens/add_data/add_data_screen.dart';
@@ -49,7 +51,7 @@ final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<v
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-GoRouter createRouter(BuildContext buildContext) {
+GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
 
@@ -162,12 +164,25 @@ GoRouter createRouter(BuildContext buildContext) {
                     credentialType: credentialType,
                     onCancel: context.pop,
                     onAdd: () {
-                      if (credentialType.fullId == 'pbdf-staging.pbdf.passport') {
-                        // Open the MzrReaderScreen
-                        context.pushPassportMrzReaderScreen();
-                      } else {
-                        IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId);
+                      if (credentialType.id == 'passport') {
+                        var url = credentialType.issueUrl.values.first;
+                        if (url.isNotEmpty) {
+                          var uri = Uri.parse(url);
+
+                          var baseUri = Uri(
+                            scheme: uri.scheme,
+                            host: uri.host,
+                            port: uri.hasPort ? uri.port : null,
+                          );
+
+                          final repo = ref.read(passportRepositoryProvider);
+                          repo.hostName = baseUri.toString();
+                          // Open the MzrReaderScreen
+                          context.pushPassportMrzReaderScreen();
+                          return;
+                        }
                       }
+                      IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId);
                     },
                   );
                 },
@@ -247,16 +262,18 @@ GoRouter createRouter(BuildContext buildContext) {
       ),
       GoRoute(
         path: '/mzr_reader',
-        builder: (context, state) => MzrReaderScreen(
-          onSuccess: (mrzResult) => context.pushNfcReadingScreen(NfcReadingRouteParams(
-            docNumber: mrzResult.documentNumber,
-            dateOfBirth: mrzResult.birthDate,
-            dateOfExpiry: mrzResult.expiryDate,
-            countryCode: mrzResult.countryCode,
-          )),
-          onManualAdd: () => context.pushPassportManualEnterScreen(),
-          onCancel: () => context.pop(),
-        ),
+        builder: (context, state) {
+          return MzrReaderScreen(
+            onSuccess: (mrzResult) => context.pushNfcReadingScreen(NfcReadingRouteParams(
+              docNumber: mrzResult.documentNumber,
+              dateOfBirth: mrzResult.birthDate,
+              dateOfExpiry: mrzResult.expiryDate,
+              countryCode: mrzResult.countryCode,
+            )),
+            onManualAdd: () => context.pushPassportManualEnterScreen(),
+            onCancel: () => context.pop(),
+          );
+        },
       ),
       GoRoute(
           path: '/passport_manual_enter',

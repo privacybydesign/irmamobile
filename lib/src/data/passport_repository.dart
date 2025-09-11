@@ -37,6 +37,8 @@ class PassportRepository {
   final NfcProvider _nfc = NfcProvider();
   bool _isCancelled = false;
 
+  late String hostName;
+
   PassportRepository();
 
   Future<void> cancel() async {

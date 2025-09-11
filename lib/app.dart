@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../routing.dart';
@@ -21,7 +22,7 @@ import 'src/util/privacy_screen.dart';
 
 const schemeUpdateIntervalHours = 3;
 
-class App extends StatefulWidget {
+class App extends ConsumerStatefulWidget {
   final IrmaRepository irmaRepository;
   final Locale? forcedLocale;
   final NotificationsBloc notificationsBloc;
@@ -34,10 +35,10 @@ class App extends StatefulWidget {
   });
 
   @override
-  AppState createState() => AppState();
+  ConsumerState<App> createState() => AppState();
 }
 
-class AppState extends State<App> with WidgetsBindingObserver {
+class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   late final DetectRootedDeviceIrmaPrefsRepository _detectRootedDeviceRepo;
 
   StreamSubscription<Pointer?>? _pointerSubscription;
@@ -130,7 +131,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
     } catch (_) {
       final repo = IrmaRepositoryProvider.of(context);
       _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences);
-      _router = createRouter(context);
+      _router = createRouter(context, ref);
     }
   }
 

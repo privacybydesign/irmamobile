@@ -201,13 +201,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
       final jwtUrlParam = responseBody['jwt'];
 
       // Start the session
-      final sessionResponseBody =
-          await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
+      final sessionResponseBody = await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
       final sessionPtr = sessionResponseBody['sessionPtr'];
 
       if (!mounted) return;
-      await handlePointer(context, Pointer.fromString(json.encode(sessionPtr)),
-          pushReplacement: false);
+      await handlePointer(context, Pointer.fromString(json.encode(sessionPtr)), pushReplacement: false);
 
       if (!mounted) return;
       _pendingIssuanceResult = null;
@@ -218,7 +216,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
         _stateKey = 'passport.nfc.error';
         _hintKey = 'passport.nfc.error_generic';
         _tipKey = 'passport.nfc.tip_3';
-      _issuanceError = true;
+        _issuanceError = true;
       });
     }
   }
@@ -240,8 +238,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   }
 
   Future<(String, String)> _getPassportIssuanceSession() async {
-    final storeResp = await http.post(Uri.parse('https://passport-issuer.staging.yivi.app/api/start-validation'),
-        headers: {'Content-Type': 'application/json'});
+    final storeResp = await http
+        .post(Uri.parse('${_repo.hostName}/api/start-validation'), headers: {'Content-Type': 'application/json'});
     if (storeResp.statusCode != 200) {
       throw Exception('Store failed: ${storeResp.statusCode} ${storeResp.body}');
     }
@@ -253,7 +251,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   Future<dynamic> _getIrmaSessionJwt(Map<String, dynamic> payload) async {
     final String jsonPayload = json.encode(payload);
     final storeResp = await http.post(
-      Uri.parse('https://passport-issuer.staging.yivi.app/api/verify-and-issue'),
+      Uri.parse('${_repo.hostName}/api/verify-and-issue'),
       headers: {'Content-Type': 'application/json'},
       body: jsonPayload,
     );
@@ -322,14 +320,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
                       ? _ScanningContent(
                           theme: theme,
                           tipKey: _tipKey,
-                          progressPercent:
-                              (_progress * 100).clamp(0, 100).toDouble(),
+                          progressPercent: (_progress * 100).clamp(0, 100).toDouble(),
                           statusKey: _stateKey,
                           hintKey: _hintKey,
                           key: ValueKey('scanning-$_tipKey-$_progress'),
                         )
-                      : _DisabledContent(
-                          theme: theme, key: const ValueKey('disabled'))),
+                      : _DisabledContent(theme: theme, key: const ValueKey('disabled'))),
             ),
           ],
         ),
@@ -337,10 +333,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
       bottomNavigationBar: _isNfcAvailable
           ? IrmaBottomBar(
               alignment: IrmaBottomBarAlignment.vertical,
-              primaryButtonLabel:
-                  _stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
-              onPrimaryPressed:
-                  _stateKey == 'passport.nfc.error' ? _handleRetry : null,
+              primaryButtonLabel: _stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
+              onPrimaryPressed: _stateKey == 'passport.nfc.error' ? _handleRetry : null,
               secondaryButtonLabel: 'ui.cancel',
               onSecondaryPressed: _handleCancel,
             )
@@ -362,8 +356,7 @@ Future<bool> _showCancelDialog(BuildContext context) async {
         context: context,
         builder: (ctx) => AlertDialog(
           title: const TranslatedText('passport.nfc.cancel_dialog.title'),
-          content:
-              const TranslatedText('passport.nfc.cancel_dialog.explanation'),
+          content: const TranslatedText('passport.nfc.cancel_dialog.explanation'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
