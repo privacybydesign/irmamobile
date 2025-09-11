@@ -195,11 +195,13 @@ class NfcReadingRouteParams {
   final String docNumber;
   final DateTime dateOfBirth;
   final DateTime dateOfExpiry;
+  final String? countryCode;
 
   NfcReadingRouteParams({
     required this.docNumber,
     required this.dateOfBirth,
     required this.dateOfExpiry,
+    this.countryCode,
   });
 
   Map<String, String> toQueryParams() {
@@ -207,6 +209,7 @@ class NfcReadingRouteParams {
       'doc_number': docNumber,
       'date_of_birth': dateOfBirth.toIso8601String(),
       'date_of_expiry': dateOfExpiry.toIso8601String(),
+      if (countryCode != null) 'country_code': countryCode!,
     };
   }
 
@@ -215,6 +218,7 @@ class NfcReadingRouteParams {
       docNumber: params['doc_number']!,
       dateOfBirth: DateTime.parse(params['date_of_birth']!),
       dateOfExpiry: DateTime.parse(params['date_of_expiry']!),
+      countryCode: params['country_code'],
     );
   }
 }

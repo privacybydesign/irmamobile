@@ -694,7 +694,13 @@
       "failed_initiate_session": "Kan sessie met paspoort niet starten. Controleer de ingevoerde gegevens!",
       "timeout_waiting_for_tag": "Time-out tijdens het wachten op paspoorttag",
       "tag_lost_try_again": "Tag is verloren. Probeer opnieuw!",
-      "cancelled_by_user": "Geannuleerd door gebruiker"
+      "cancelled_by_user": "Geannuleerd door gebruiker",
+      "cancel_dialog": {
+        "title": "Paspoortlezen annuleren?",
+        "explanation": "Weet u zeker dat u het paspoortlezen wilt annuleren?",
+        "confirm": "Ja",
+        "decline": "Nee"
+      }
     }
   },
   "debug": {

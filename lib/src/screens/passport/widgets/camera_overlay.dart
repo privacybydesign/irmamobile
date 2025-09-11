@@ -38,12 +38,12 @@ class MRZCameraOverlay extends StatelessWidget {
                 children: [
                   Text(
                     '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                    style: theme.textTheme.mrzLabel,
+                    style: theme.mrzLabel,
                   ),
                   SizedBox(height: theme.tinySpacing),
                   Text(
                     '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                    style: theme.textTheme.mrzLabel,
+                    style: theme.mrzLabel,
                   ),
                 ],
               ),

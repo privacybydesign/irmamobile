@@ -252,6 +252,7 @@ GoRouter createRouter(BuildContext buildContext) {
             docNumber: mrzResult.documentNumber,
             dateOfBirth: mrzResult.birthDate,
             dateOfExpiry: mrzResult.expiryDate,
+            countryCode: mrzResult.countryCode,
           )),
           onManualAdd: () => context.pushPassportManualEnterScreen(),
           onCancel: () => context.pop(),
@@ -275,7 +276,8 @@ GoRouter createRouter(BuildContext buildContext) {
             docNumber: args.docNumber,
             dateOfBirth: args.dateOfBirth,
             dateOfExpiry: args.dateOfExpiry,
-            onCancel: () => context.pop(),
+            countryCode: args.countryCode,
+            onCancel: () => context.goHomeScreen(),
           );
         },
       ),

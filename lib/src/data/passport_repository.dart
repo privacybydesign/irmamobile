@@ -53,12 +53,45 @@ class PassportRepository {
     Uint8List? nonce,
     PassportListener? listener,
   }) async {
-    final paceMode = (countryCode == 'NLD');
-    final key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: paceMode);
-    await _read(accessKey: key, isPace: paceMode, sessionId: sessionId, nonce: nonce, listener: listener);
+    final isPaceCandidate = countryCode != null && paceCountriesAlpha3.contains(countryCode.toUpperCase());
+
+    var key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: isPaceCandidate);
+
+    try {
+      await _readAttempt(
+        accessKey: key,
+        isPace: isPaceCandidate,
+        sessionId: sessionId,
+        nonce: nonce,
+        listener: listener,
+      );
+      return;
+    } on Exception catch (e) {
+      if (_isCancelled) return;
+      if (isPaceCandidate) {
+        // Retry with BAC when PACE fails
+        try {
+          key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: false);
+          await _readAttempt(
+            accessKey: key,
+            isPace: false,
+            sessionId: sessionId,
+            nonce: nonce,
+            listener: listener,
+          );
+          return;
+        } on Exception catch (e2) {
+          if (!_isCancelled) {
+            _handleError(e2, listener);
+          }
+        }
+      } else if (!_isCancelled) {
+        _handleError(e, listener);
+      }
+    }
   }
 
-  Future<void> _read({
+  Future<void> _readAttempt({
     required AccessKey accessKey,
     required bool isPace,
     String? sessionId,
@@ -73,30 +106,35 @@ class PassportRepository {
       if (progress != null) listener?.onProgress(progress.clamp(0.0, 1.0));
     }
 
+    setState(NFCReadingState.waiting, msg: 'passport.nfc.hold_near_photo_page', progress: 0.0);
+
+    if (_isCancelled) return;
+    await _nfc.connect(iosAlertMessage: 'passport.nfc.hold_near_photo_page');
+
+    if (_isCancelled) {
+      await _disconnect('passport.nfc.cancelled');
+      listener?.onCancelled();
+      return;
+    }
+
+    final passport = Passport(_nfc);
+    setState(NFCReadingState.connecting, msg: 'passport.nfc.connecting');
+
     try {
-      setState(NFCReadingState.waiting, msg: 'passport.nfc.hold_near_photo_page', progress: 0.0);
-
-      if (_isCancelled) return;
-      await _nfc.connect(iosAlertMessage: 'passport.nfc.hold_near_photo_page');
-
-      if (_isCancelled) {
-        await _disconnect('passport.nfc.cancelled');
-        listener?.onCancelled();
-        return;
-      }
-
-      final passport = Passport(_nfc);
-      setState(NFCReadingState.connecting, msg: 'passport.nfc.connecting');
-
       await _perform(passport, accessKey, isPace, sessionId: sessionId, nonce: nonce, listener: listener);
-    } on Exception catch (e) {
-      if (!_isCancelled) {
-        _handleError(e, listener);
-      }
     } finally {
       await _disconnect('passport.nfc.finished');
     }
   }
+
+  static const Set<String> paceCountriesAlpha3 = {
+    'AUT', 'BEL', 'BGR', 'HRV', 'CYP', 'CZE', 'DNK', 'EST', 'FIN', 'FRA', 'DEU', 'GRC',
+    'HUN', 'IRL', 'ITA', 'LVA', 'LTU', 'LUX', 'MLT', 'NLD', 'POL', 'PRT', 'ROU', 'SVK',
+    'SVN', 'ESP', 'SWE', // EU 27
+    'ISL', 'LIE', 'NOR', // EEA
+    'CHE', // Switzerland
+    'GBR', // Great Britain
+  };
 
   Future<void> _perform(
     Passport passport,
@@ -113,12 +151,16 @@ class PassportRepository {
     listener?.onMessage('passport.nfc.reading_card_access');
     try {
       mrtdData.cardAccess = await passport.readEfCardAccess();
-    } on PassportError {}
+    } on PassportError {
+      debugPrint('Failed to read EF.CardAccess');
+    }
 
     listener?.onMessage('passport.nfc.reading_card_security');
     try {
       mrtdData.cardSecurity = await passport.readEfCardSecurity();
-    } on PassportError {}
+    } on PassportError {
+      debugPrint('Failed to read EF.CardSecurity');
+    }
 
     listener?.onStateChanged(NFCReadingState.authenticating);
     listener?.onMessage('passport.nfc.authenticating');
