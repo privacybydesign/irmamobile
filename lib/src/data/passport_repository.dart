@@ -151,12 +151,16 @@ class PassportRepository {
     listener?.onMessage('passport.nfc.reading_card_access');
     try {
       mrtdData.cardAccess = await passport.readEfCardAccess();
-    } on PassportError {}
+    } on PassportError {
+      debugPrint('Failed to read EF.CardAccess');
+    }
 
     listener?.onMessage('passport.nfc.reading_card_security');
     try {
       mrtdData.cardSecurity = await passport.readEfCardSecurity();
-    } on PassportError {}
+    } on PassportError {
+      debugPrint('Failed to read EF.CardSecurity');
+    }
 
     listener?.onStateChanged(NFCReadingState.authenticating);
     listener?.onMessage('passport.nfc.authenticating');
