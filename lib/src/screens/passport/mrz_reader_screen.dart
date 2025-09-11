@@ -9,7 +9,7 @@ import 'widgets/mzr_scanner.dart';
 typedef MRZController = GlobalKey<MRZScannerState>;
 
 class MzrReaderScreen extends StatefulWidget {
-  final Function(MRZResult mrzResult) onSuccess;
+  final Function(MRZResult mrzResult, String countryCode) onSuccess;
   final VoidCallback onManualAdd;
   final VoidCallback onCancel;
 
@@ -39,7 +39,8 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
         controller: controller,
         showOverlay: true,
         onSuccess: (mrzResult, lines) async {
-          widget.onSuccess(mrzResult);
+          final countryCode = lines.first.substring(2, 5);
+          widget.onSuccess(mrzResult, countryCode);
         },
       ),
       bottomNavigationBar: IrmaBottomBar(

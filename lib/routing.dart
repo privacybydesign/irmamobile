@@ -248,10 +248,12 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/mzr_reader',
         builder: (context, state) => MzrReaderScreen(
-          onSuccess: (mrzResult) => context.pushNfcReadingScreen(NfcReadingRouteParams(
+          onSuccess: (mrzResult, countryCode) =>
+              context.pushNfcReadingScreen(NfcReadingRouteParams(
             docNumber: mrzResult.documentNumber,
             dateOfBirth: mrzResult.birthDate,
             dateOfExpiry: mrzResult.expiryDate,
+            countryCode: countryCode,
           )),
           onManualAdd: () => context.pushPassportManualEnterScreen(),
           onCancel: () => context.pop(),
@@ -275,7 +277,8 @@ GoRouter createRouter(BuildContext buildContext) {
             docNumber: args.docNumber,
             dateOfBirth: args.dateOfBirth,
             dateOfExpiry: args.dateOfExpiry,
-            onCancel: () => context.pop(),
+            countryCode: args.countryCode,
+            onCancel: () => context.goHomeScreen(),
           );
         },
       ),
