@@ -159,14 +159,15 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
       enableAudio: false,
       imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
     );
-    _controller?.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
 
-      _controller?.startImageStream(_processCameraImage);
-      setState(() {});
-    });
+    await _controller?.initialize();
+    if (!mounted) {
+      return;
+    }
+
+    await _controller?.startImageStream(_processCameraImage);
+
+    setState(() {});
   }
 
   Future _stopLiveFeed() async {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../theme/theme.dart';
+
 class MRZCameraOverlay extends StatelessWidget {
   const MRZCameraOverlay({
     required this.child,
@@ -11,6 +13,8 @@ class MRZCameraOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return LayoutBuilder(
       builder: (_, c) {
         final overlayRect = _calculateOverlaySize(Size(c.maxWidth, c.maxHeight));
@@ -31,25 +35,15 @@ class MRZCameraOverlay extends StatelessWidget {
               bottom: (c.maxHeight - overlayRect.bottom) + 20, // 20px boven de onderrand
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 14,
-                      color: Colors.white,
-                      letterSpacing: 2,
-                    ),
+                    style: theme.textTheme.mrzLabel,
                   ),
-                  SizedBox(height: 4),
+                  SizedBox(height: theme.tinySpacing),
                   Text(
                     '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 14,
-                      color: Colors.white,
-                      letterSpacing: 2,
-                    ),
+                    style: theme.textTheme.mrzLabel,
                   ),
                 ],
               ),

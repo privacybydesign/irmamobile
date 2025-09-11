@@ -169,6 +169,12 @@ class IrmaThemeData {
         fontWeight: FontWeight.w700,
         color: light,
       ),
+      mrzLabel: TextStyle(
+        fontFamily: 'monospace',
+        fontSize: 14,
+        color: light,
+        letterSpacing: 2,
+      ),
     );
 
     //Init Input Decoration Theme

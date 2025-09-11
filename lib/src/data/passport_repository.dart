@@ -337,6 +337,8 @@ class PassportRepository {
       } else {
         await _nfc.disconnect(iosAlertMessage: 'passport.nfc.finished');
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Error during NFC disconnect: $e');
+    }
   }
 }

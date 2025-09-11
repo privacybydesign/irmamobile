@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:vcmrtd/vcmrtd.dart';
 
@@ -12,6 +12,7 @@ import '../../models/nfc_reading_state.dart';
 import '../../models/passport_data_result.dart';
 import '../../models/passport_error_info.dart';
 import '../../models/session.dart';
+import '../../providers/passport_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/handle_pointer.dart';
 import '../../util/nonce_parser.dart';
@@ -20,7 +21,7 @@ import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_linear_progresss_indicator.dart';
 import '../../widgets/translated_text.dart';
 
-class NfcReadingScreen extends StatefulWidget {
+class NfcReadingScreen extends ConsumerStatefulWidget {
   final String docNumber;
   final DateTime dateOfBirth;
   final DateTime dateOfExpiry;
@@ -37,11 +38,11 @@ class NfcReadingScreen extends StatefulWidget {
   });
 
   @override
-  State<NfcReadingScreen> createState() => _NfcReadingScreenState();
+  ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
 
-class _NfcReadingScreenState extends State<NfcReadingScreen> implements PassportListener {
-  final PassportRepository _repo = PassportRepository();
+class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements PassportListener {
+  late PassportRepository _repo;
 
   var _isNfcAvailable = true;
 
@@ -60,30 +61,15 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
   @override
   void initState() {
     super.initState();
+
+    _repo = ref.read(passportRepositoryProvider);
+
     _tipTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       if (!mounted) return;
       setState(() => _tipIndex = (_tipIndex + 1) % _tips.length);
     });
+
     _initNFCState();
-  }
-
-  Future<void> _startReading() async {
-    _progress = 0.0;
-    _stateKey = 'passport.nfc.connecting';
-    setState(() {});
-
-    final (sessionId, nonce) = await _getPassportIssuanceSession();
-    final nonceBytes = stringToUint8List(nonce);
-
-    await _repo.readWithMRZ(
-      documentNumber: widget.docNumber,
-      birthDate: widget.dateOfBirth,
-      expiryDate: widget.dateOfExpiry,
-      countryCode: 'NLD',
-      sessionId: sessionId,
-      nonce: nonceBytes,
-      listener: this,
-    );
   }
 
   Future<void> _initNFCState() async {
@@ -104,6 +90,25 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
     if (_isNfcAvailable) {
       await _startReading();
     }
+  }
+
+  Future<void> _startReading() async {
+    _progress = 0.0;
+    _stateKey = 'passport.nfc.connecting';
+    setState(() {});
+
+    final (sessionId, nonce) = await _getPassportIssuanceSession();
+    final nonceBytes = stringToUint8List(nonce);
+
+    await _repo.readWithMRZ(
+      documentNumber: widget.docNumber,
+      birthDate: widget.dateOfBirth,
+      expiryDate: widget.dateOfExpiry,
+      countryCode: 'NLD',
+      sessionId: sessionId,
+      nonce: nonceBytes,
+      listener: this,
+    );
   }
 
   @override
@@ -188,7 +193,7 @@ class _NfcReadingScreenState extends State<NfcReadingScreen> implements Passport
     await handlePointer(context, Pointer.fromString(json.encode(sessionPtr)), pushReplacement: false);
 
     if (!mounted) return;
-    context.go('/home');
+    // context.go('/home');
   }
 
   Future<(String, String)> _getPassportIssuanceSession() async {

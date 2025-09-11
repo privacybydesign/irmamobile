@@ -159,19 +159,17 @@ GoRouter createRouter(BuildContext buildContext) {
                 builder: (context, state) {
                   final credentialType = state.extra as CredentialType;
                   return AddDataDetailsScreen(
-                      credentialType: credentialType,
-                      onCancel: context.pop,
-                      onAdd: () => {
-                            if (credentialType.fullId == 'pbdf-staging.pbdf.passport')
-                              {
-                                // Open the MzrReaderScreen
-                                context.pushPassportMrzReaderScreen()
-                              }
-                            else
-                              {
-                                IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
-                              }
-                          });
+                    credentialType: credentialType,
+                    onCancel: context.pop,
+                    onAdd: () {
+                      if (credentialType.fullId == 'pbdf-staging.pbdf.passport') {
+                        // Open the MzrReaderScreen
+                        context.pushPassportMrzReaderScreen();
+                      } else {
+                        IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId);
+                      }
+                    },
+                  );
                 },
               )
             ],
