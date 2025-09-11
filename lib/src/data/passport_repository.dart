@@ -53,11 +53,9 @@ class PassportRepository {
     Uint8List? nonce,
     PassportListener? listener,
   }) async {
-    final isPaceCandidate =
-        countryCode != null && _paceCountries.contains(countryCode.toUpperCase());
+    final isPaceCandidate = countryCode != null && paceCountriesAlpha3.contains(countryCode.toUpperCase());
 
-    var key =
-        DBAKey(documentNumber, birthDate, expiryDate, paceMode: isPaceCandidate);
+    var key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: isPaceCandidate);
 
     try {
       await _readAttempt(
@@ -108,8 +106,7 @@ class PassportRepository {
       if (progress != null) listener?.onProgress(progress.clamp(0.0, 1.0));
     }
 
-    setState(NFCReadingState.waiting,
-        msg: 'passport.nfc.hold_near_photo_page', progress: 0.0);
+    setState(NFCReadingState.waiting, msg: 'passport.nfc.hold_near_photo_page', progress: 0.0);
 
     if (_isCancelled) return;
     await _nfc.connect(iosAlertMessage: 'passport.nfc.hold_near_photo_page');
@@ -124,46 +121,19 @@ class PassportRepository {
     setState(NFCReadingState.connecting, msg: 'passport.nfc.connecting');
 
     try {
-      await _perform(passport, accessKey, isPace,
-          sessionId: sessionId, nonce: nonce, listener: listener);
+      await _perform(passport, accessKey, isPace, sessionId: sessionId, nonce: nonce, listener: listener);
     } finally {
       await _disconnect('passport.nfc.finished');
     }
   }
 
-  static const Set<String> _paceCountries = {
-    'AUT',
-    'BEL',
-    'BGR',
-    'HRV',
-    'CYP',
-    'CZE',
-    'DNK',
-    'EST',
-    'FIN',
-    'FRA',
-    'DEU',
-    'GRC',
-    'HUN',
-    'IRL',
-    'ITA',
-    'LVA',
-    'LTU',
-    'LUX',
-    'MLT',
-    'NLD',
-    'POL',
-    'PRT',
-    'ROU',
-    'SVK',
-    'SVN',
-    'ESP',
-    'SWE',
-    'ISL',
-    'LIE',
-    'NOR',
-    'CHE',
-    'GBR',
+  static const Set<String> paceCountriesAlpha3 = {
+    'AUT', 'BEL', 'BGR', 'HRV', 'CYP', 'CZE', 'DNK', 'EST', 'FIN', 'FRA', 'DEU', 'GRC',
+    'HUN', 'IRL', 'ITA', 'LVA', 'LTU', 'LUX', 'MLT', 'NLD', 'POL', 'PRT', 'ROU', 'SVK',
+    'SVN', 'ESP', 'SWE', // EU 27
+    'ISL', 'LIE', 'NOR', // EEA
+    'CHE', // Switzerland
+    'GBR', // Great Britain
   };
 
   Future<void> _perform(
