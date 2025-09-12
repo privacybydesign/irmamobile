@@ -171,13 +171,24 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
   }
 
   Future _stopLiveFeed() async {
+    final c = _controller;
+    // first to a setState to make sure the build method doesn't use the controller while it's disposed
+    setState(() {
+      _controller = null;
+    });
+
+    // wait a little bit to make sure the controller is no longer used
+    await Future.delayed(const Duration(milliseconds: 20));
+
+    // stop stream & dispose
     try {
-      if (_controller?.value.isStreamingImages == true) {
-        await _controller?.stopImageStream();
+      if (c?.value.isStreamingImages == true) {
+        await c?.stopImageStream();
       }
-    } catch (_) {}
-    await _controller?.dispose();
-    _controller = null;
+    } catch (e) {
+      debugPrint('failed to stop image stream: $e');
+    }
+    await c?.dispose();
   }
 
   Future _processCameraImage(CameraImage image) async {

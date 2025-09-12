@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../routing.dart';
-import '../../src/data/irma_repository.dart';
 import '../../src/models/applifecycle_changed_event.dart';
 import '../../src/models/enrollment_status.dart';
 import '../../src/models/event.dart';
@@ -17,19 +16,18 @@ import '../../src/models/update_schemes_event.dart';
 import '../../src/screens/rooted_warning/repository.dart';
 import '../../src/theme/theme.dart';
 import 'src/providers/irma_repository_provider.dart';
+import 'src/providers/preferences_provider.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
 import 'src/util/privacy_screen.dart';
 
 const schemeUpdateIntervalHours = 3;
 
 class App extends ConsumerStatefulWidget {
-  final IrmaRepository irmaRepository;
   final Locale? forcedLocale;
   final NotificationsBloc notificationsBloc;
 
   const App({
     super.key,
-    required this.irmaRepository,
     required this.notificationsBloc,
     this.forcedLocale,
   });
@@ -100,13 +98,16 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   Future<void> _listenShowNameChangedNotification() async {
-    final showNameChangedNotification = await widget.irmaRepository.preferences.getShowNameChangedNotification().first;
+    final repo = ref.read(irmaRepositoryProvider);
+    final prefs = ref.read(preferencesProvider);
+
+    final showNameChangedNotification = await prefs.getShowNameChangedNotification().first;
 
     if (showNameChangedNotification) {
-      _enrollmentStatusSubscription = widget.irmaRepository.getEnrollmentStatus().listen((event) {
+      _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen((event) {
         // If the user is unenrolled we never want to show the name changed notification again
         if (event == EnrollmentStatus.unenrolled) {
-          widget.irmaRepository.preferences.setShowNameChangedNotification(false);
+          repo.preferences.setShowNameChangedNotification(false);
           _enrollmentStatusSubscription?.cancel();
         }
       });
@@ -114,11 +115,13 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   Future<void> _handleUpdateSchemes() async {
-    final lastSchemeUpdate = await widget.irmaRepository.preferences.getLastSchemeUpdate().first;
+    final repo = ref.read(irmaRepositoryProvider);
+    final prefs = ref.read(preferencesProvider);
+    final lastSchemeUpdate = await prefs.getLastSchemeUpdate().first;
 
     if (DateTime.now().difference(lastSchemeUpdate).inHours > schemeUpdateIntervalHours) {
-      widget.irmaRepository.preferences.setLastSchemeUpdate(DateTime.now());
-      widget.irmaRepository.bridgedDispatch(UpdateSchemesEvent());
+      prefs.setLastSchemeUpdate(DateTime.now());
+      repo.bridgedDispatch(UpdateSchemesEvent());
     }
   }
 
@@ -137,7 +140,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    widget.irmaRepository.dispatch(AppLifecycleChangedEvent(state));
+    final repo = ref.read(irmaRepositoryProvider);
+    repo.dispatch(AppLifecycleChangedEvent(state));
 
     // Resumed = when the app regains focus after being inactive or paused in the background
     if (state == AppLifecycleState.resumed) {
@@ -157,16 +161,16 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     if (prevLifeCycleStates.contains(AppLifecycleState.paused) &&
         prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
         state == AppLifecycleState.resumed) {
-      final status = await widget.irmaRepository
+      final status = await repo
           .getEnrollmentStatus()
           .firstWhere((status) => status != EnrollmentStatus.undetermined);
       // First check whether we should redo pin verification
-      final lastActive = await widget.irmaRepository.getLastActiveTime().first;
-      final locked = await widget.irmaRepository.getLocked().first;
+      final lastActive = await repo.getLastActiveTime().first;
+      final locked = await repo.getLocked().first;
 
       if (status == EnrollmentStatus.enrolled) {
         if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
-          widget.irmaRepository.lock();
+          repo.lock();
         }
       }
     }
@@ -178,9 +182,10 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   void _listenScreenshotPref() {
+    final prefs = ref.read(preferencesProvider);
     // We only wait for the privacy screen to be loaded on start-up.
     _privacyScreenLoaded = false;
-    _screenshotPrefSubscription = widget.irmaRepository.preferences.getScreenshotsEnabled().listen((enabled) async {
+    _screenshotPrefSubscription = prefs.getScreenshotsEnabled().listen((enabled) async {
       if (enabled) {
         await PrivacyScreen.disablePrivacyScreen();
       } else {
