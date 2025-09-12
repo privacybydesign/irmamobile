@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:vcmrtd/vcmrtd.dart';
@@ -10,7 +11,6 @@ import 'package:vcmrtd/vcmrtd.dart';
 import '../../data/passport_repository.dart';
 import '../../models/nfc_reading_state.dart';
 import '../../models/passport_data_result.dart';
-import '../../models/passport_error_info.dart';
 import '../../models/session.dart';
 import '../../providers/passport_repository_provider.dart';
 import '../../theme/theme.dart';
@@ -152,9 +152,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   }
 
   @override
-  void onMessage(String message) {
+  void onMessage(NfcProvider nfc, String messageKey) {
+    final translation = FlutterI18n.translate(context, messageKey);
+    nfc.setIosAlertMessage(translation);
+
     setState(() {
-      _hintKey = message;
+      _hintKey = messageKey;
     });
   }
 
@@ -162,21 +165,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   void onProgress(double value) {
     setState(() {
       _progress = value.clamp(0.0, 1.0);
-    });
-  }
-
-  @override
-  void onAuthenticated() {}
-
-  @override
-  void onError(PassportErrorInfo error) {
-    setState(() {
-      _progress = 0.0;
-      _stateKey = 'passport.nfc.error';
-      _hintKey = 'passport.nfc.error';
-      _tipKey = 'passport.nfc.tip_3';
-      _issuanceError = false;
-      _pendingIssuanceResult = null;
     });
   }
 
@@ -189,6 +177,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   void onComplete(PassportDataResult result) async {
     _pendingIssuanceResult = result;
     await _startIssuance(result);
+  }
+
+  @override
+  void onError() {
+    setState(() {
+      _progress = 0.0;
+      _issuanceError = false;
+      _pendingIssuanceResult = null;
+    });
   }
 
   Future<void> _startIssuance(PassportDataResult passportDataResult) async {
