@@ -154,7 +154,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   @override
   void onMessage(NfcProvider nfc, String messageKey) {
     final translation = FlutterI18n.translate(context, messageKey);
-    nfc.setIosAlertMessage(translation);
+    if (nfc.isConnected()) {
+      nfc.setIosAlertMessage(translation);
+    }
 
     setState(() {
       _hintKey = messageKey;
@@ -202,7 +204,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
       final sessionPtr = sessionResponseBody['sessionPtr'];
 
       if (!mounted) return;
-      await handlePointer(context, Pointer.fromString(json.encode(sessionPtr)), pushReplacement: false);
+      final SessionPointer pointer = Pointer.fromString(json.encode(sessionPtr)) as SessionPointer;
+      pointer.continueOnSecondDevice = true;
+      await handlePointer(context, pointer, pushReplacement: false);
 
       if (!mounted) return;
       _pendingIssuanceResult = null;
