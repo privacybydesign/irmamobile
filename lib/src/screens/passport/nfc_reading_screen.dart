@@ -194,7 +194,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
     // Create secure data payload
     final payload = passportDataResult.toJson();
     try {
-      // Get the signed IRMA JWt from the passport issuer
+      // Get the signed IRMA JWT from the passport issuer
       final responseBody = await _getIrmaSessionJwt(payload);
       final irmaServerUrlParam = responseBody['irma_server_url'];
       final jwtUrlParam = responseBody['jwt'];
@@ -204,7 +204,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
       final sessionPtr = sessionResponseBody['sessionPtr'];
 
       if (!mounted) return;
-      final SessionPointer pointer = Pointer.fromString(json.encode(sessionPtr)) as SessionPointer;
+
+      final pointer = Pointer.fromString(json.encode(sessionPtr)) as SessionPointer;
+
+      // This should be true so that the app doesn't want to go back to the browser
       pointer.continueOnSecondDevice = true;
       await handlePointer(context, pointer, pushReplacement: false);
 
