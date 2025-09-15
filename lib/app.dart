@@ -161,9 +161,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     if (prevLifeCycleStates.contains(AppLifecycleState.paused) &&
         prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
         state == AppLifecycleState.resumed) {
-      final status = await repo
-          .getEnrollmentStatus()
-          .firstWhere((status) => status != EnrollmentStatus.undetermined);
+      final status = await repo.getEnrollmentStatus().firstWhere((status) => status != EnrollmentStatus.undetermined);
       // First check whether we should redo pin verification
       final lastActive = await repo.getLastActiveTime().first;
       final locked = await repo.getLocked().first;

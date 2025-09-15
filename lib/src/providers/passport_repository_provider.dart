@@ -1,25 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vcmrtd/vcmrtd.dart';
 
 import '../data/passport_repository.dart';
 
-class PassportRepositoryProvider extends InheritedWidget {
-  final PassportRepository repository;
+final passportReaderProvider = StateNotifierProvider.autoDispose<PassportReader, PassportReadingState>((ref) {
+  final r = PassportReader(NfcProvider());
 
-  const PassportRepositoryProvider({required this.repository, required super.child});
+  // when the widget is no longer used, we want to cancel the reader
+  ref.onDispose(r.cancel);
+  return r;
+});
 
-  static PassportRepository of(BuildContext context) {
-    final PassportRepositoryProvider? result = context.dependOnInheritedWidgetOfExactType<PassportRepositoryProvider>();
-    assert(result != null, 'No PassportRepository found in context');
-    return result!.repository;
-  }
-
-  @override
-  bool updateShouldNotify(PassportRepositoryProvider oldWidget) => oldWidget.repository != repository;
-}
-
-final passportRepositoryProvider = Provider<PassportRepository>(
-  (ref) {
-    return PassportRepository();
-  },
-);
+final passportUrlProvider = StateProvider((ref) => '');
