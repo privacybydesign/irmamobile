@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/passport_issuer.dart';
-import '../../data/passport_repository.dart';
+import '../../data/passport_reader.dart';
 import '../../models/nfc_reading_state.dart';
 import '../../models/passport_data_result.dart';
 import '../../providers/passport_repository_provider.dart';
@@ -55,7 +55,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
 
     final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer.startSessionAtPassportIssuer();
 
-    await ref.read(passportReaderProvider.notifier).readWithMRZ(
+    final result = await ref.read(passportReaderProvider.notifier).readWithMRZ(
           documentNumber: widget.docNumber,
           birthDate: widget.dateOfBirth,
           expiryDate: widget.dateOfExpiry,
@@ -64,18 +64,21 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
           nonce: stringToUint8List(nonce),
         );
 
-    final state = ref.read(passportReaderProvider);
-
-    if (state case PassportReadingSuccess(result: final result)) {
+    if (result != null) {
       try {
+        // start the issuance session at the irma server
         final sessionPtr = await passportIssuer.startIrmaIssuanceSession(result);
-        if (!mounted || sessionPtr == null) {
+        if (!mounted) {
           return;
         }
+
+        // handle it like any other external issuance session
         await handlePointer(context, sessionPtr);
       } catch (e) {
         debugPrint('issuance error: $e');
       }
+    } else {
+      debugPrint('canceled passport irma issuance session because the passport data result is null');
     }
   }
 
@@ -127,17 +130,21 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
             ),
             Expanded(
               child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: _isNfcAvailable
-                      ? _ScanningContent(
-                          theme: theme,
-                          tipKey: uiState.tipKey,
-                          progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
-                          statusKey: uiState.stateKey,
-                          hintKey: uiState.hintKey,
-                          key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
-                        )
-                      : _DisabledContent(theme: theme, key: const ValueKey('disabled'))),
+                duration: const Duration(milliseconds: 250),
+                child: _isNfcAvailable
+                    ? _ScanningContent(
+                        theme: theme,
+                        tipKey: uiState.tipKey,
+                        progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
+                        statusKey: uiState.stateKey,
+                        hintKey: uiState.hintKey,
+                        key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
+                      )
+                    : _DisabledContent(
+                        theme: theme,
+                        key: const ValueKey('disabled'),
+                      ),
+              ),
             ),
           ],
         ),

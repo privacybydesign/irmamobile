@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:vcmrtd/vcmrtd.dart';
 
-import '../data/passport_repository.dart';
+import '../data/passport_reader.dart';
 
 final passportReaderProvider = StateNotifierProvider.autoDispose<PassportReader, PassportReadingState>((ref) {
   final r = PassportReader(NfcProvider());

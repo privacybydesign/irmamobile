@@ -58,7 +58,7 @@ class PassportReader extends StateNotifier<PassportReadingState> {
     state = PassportReadingCancelled();
   }
 
-  Future<void> readWithMRZ({
+  Future<PassportDataResult?> readWithMRZ({
     required String documentNumber,
     required DateTime birthDate,
     required DateTime expiryDate,
@@ -71,26 +71,24 @@ class PassportReader extends StateNotifier<PassportReadingState> {
     final key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: isPaceCandidate);
 
     try {
-      await _readAttempt(
+      return await _readAttempt(
         accessKey: key,
         isPace: isPaceCandidate,
         sessionId: sessionId,
         nonce: nonce,
       );
-      return;
     } catch (e) {
-      if (_isCancelled) return;
+      if (_isCancelled) return null;
       if (isPaceCandidate) {
         // Retry with BAC when PACE fails
         try {
           final key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: false);
-          await _readAttempt(
+          return await _readAttempt(
             accessKey: key,
             isPace: false,
             sessionId: sessionId,
             nonce: nonce,
           );
-          return;
         } on Exception catch (e2) {
           if (!_isCancelled) {
             _handleError(e2);
@@ -100,9 +98,10 @@ class PassportReader extends StateNotifier<PassportReadingState> {
         _handleError(e);
       }
     }
+    return null;
   }
 
-  Future<void> _readAttempt({
+  Future<PassportDataResult?> _readAttempt({
     required AccessKey accessKey,
     required bool isPace,
     String? sessionId,
@@ -114,13 +113,13 @@ class PassportReader extends StateNotifier<PassportReadingState> {
       message: 'passport.nfc.hold_near_photo_page',
     );
 
-    if (_isCancelled) return;
+    if (_isCancelled) return null;
     await _nfc.connect(iosAlertMessage: 'passport.nfc.hold_near_photo_page');
 
     if (_isCancelled) {
       await _disconnect('passport.nfc.cancelled');
       state = PassportReadingCancelled();
-      return;
+      return null;
     }
 
     final passport = Passport(_nfc);
@@ -130,11 +129,13 @@ class PassportReader extends StateNotifier<PassportReadingState> {
       message: 'passport.nfc.connecting',
     );
 
+    PassportDataResult? result;
     try {
-      await _perform(passport, accessKey, isPace, sessionId: sessionId, nonce: nonce);
+      result = await _perform(passport, accessKey, isPace, sessionId: sessionId, nonce: nonce);
     } finally {
       await _disconnect(null);
     }
+    return result;
   }
 
   static const Set<String> paceCountriesAlpha3 = {
@@ -146,7 +147,7 @@ class PassportReader extends StateNotifier<PassportReadingState> {
     'GBR', // Great Britain
   };
 
-  Future<void> _perform(
+  Future<PassportDataResult> _perform(
     Passport passport,
     AccessKey accessKey,
     bool isPace, {
@@ -202,6 +203,7 @@ class PassportReader extends StateNotifier<PassportReadingState> {
     final result = await _readDataGroups(passport, mrtdData, sessionId: sessionId, nonce: nonce);
 
     state = PassportReadingSuccess(result: result);
+    return result;
   }
 
   Future<PassportDataResult> _readDataGroups(

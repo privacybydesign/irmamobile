@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,12 +15,26 @@ class NonceAndSessionId {
   NonceAndSessionId({required this.nonce, required this.sessionId});
 }
 
-class DefaultPassportIssuer {
+/// Interface for passport issuance http requests so they can be mocked/spied in the integration tests
+abstract class PassportIssuer {
+  /// Starts a session at the passport issuer server, which will return a nonce and
+  /// session id to be used during passport reading to prove the readout is not a replay.
+  Future<NonceAndSessionId> startSessionAtPassportIssuer();
+
+  /// Initiates the issuance session at the irma server and returns a session pointer,
+  /// which the app will use to start the normal issuance session flow.
+  Future<SessionPointer> startIrmaIssuanceSession(PassportDataResult passportDataResult);
+}
+
+/// Default passport issuer implementation that is used in production and talks to actual
+/// passport issuer & irma servers
+class DefaultPassportIssuer implements PassportIssuer {
   final String hostName;
 
   DefaultPassportIssuer({required this.hostName});
 
   // Start a passport issuer session (so not irma session yet)
+  @override
   Future<NonceAndSessionId> startSessionAtPassportIssuer() async {
     final storeResp =
         await http.post(Uri.parse('$hostName/api/start-validation'), headers: {'Content-Type': 'application/json'});
@@ -34,28 +47,24 @@ class DefaultPassportIssuer {
   }
 
   // Starts the issuance session with the irma server with passport scan result
-  Future<SessionPointer?> startIrmaIssuanceSession(PassportDataResult passportDataResult) async {
+  @override
+  Future<SessionPointer> startIrmaIssuanceSession(PassportDataResult passportDataResult) async {
     // Create secure data payload
     final payload = passportDataResult.toJson();
-    try {
-      // Get the signed IRMA JWT from the passport issuer
-      final responseBody = await _getIrmaSessionJwt(hostName, payload);
-      final irmaServerUrlParam = responseBody['irma_server_url'];
-      final jwtUrlParam = responseBody['jwt'];
+    // Get the signed IRMA JWT from the passport issuer
+    final responseBody = await _getIrmaSessionJwt(hostName, payload);
+    final irmaServerUrlParam = responseBody['irma_server_url'];
+    final jwtUrlParam = responseBody['jwt'];
 
-      // Start the session
-      final sessionResponseBody = await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
-      final sessionPtr = sessionResponseBody['sessionPtr'];
+    // Start the session
+    final sessionResponseBody = await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
+    final sessionPtr = sessionResponseBody['sessionPtr'];
 
-      final pointer = Pointer.fromString(json.encode(sessionPtr)) as SessionPointer;
+    final pointer = Pointer.fromString(json.encode(sessionPtr)) as SessionPointer;
 
-      // This should be true so that the app doesn't want to go back to the browser
-      pointer.continueOnSecondDevice = true;
-      return pointer;
-    } catch (e) {
-      debugPrint('error: $e');
-      return null;
-    }
+    // This should be true so that the app doesn't want to go back to the browser
+    pointer.continueOnSecondDevice = true;
+    return pointer;
   }
 
   Future<dynamic> _getIrmaSessionJwt(String hostName, Map<String, dynamic> payload) async {
@@ -86,7 +95,7 @@ class DefaultPassportIssuer {
   }
 }
 
-final passportIssuerProvider = Provider((ref) {
+final passportIssuerProvider = Provider<PassportIssuer>((ref) {
   final url = ref.watch(passportUrlProvider);
   return DefaultPassportIssuer(hostName: url);
 });
