@@ -227,8 +227,7 @@ class IrmaThemeData {
       decoration: TextDecoration.underline,
     );
 
-    mrzLabel:
-    TextStyle(
+    mrzLabel = TextStyle(
       fontFamily: 'monospace',
       fontSize: 14,
       color: light,

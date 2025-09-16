@@ -7,7 +7,6 @@ import 'package:vcmrtd/vcmrtd.dart';
 import '../models/nfc_reading_state.dart';
 import '../models/passport_data_group_config.dart';
 import '../models/passport_data_result.dart';
-import '../models/passport_error_info.dart';
 import '../models/passport_mrtd_data.dart';
 
 abstract class PassportListener {
@@ -15,16 +14,13 @@ abstract class PassportListener {
   void onStateChanged(NFCReadingState state) {}
 
   /// Called with a human-friendly status or platform alert text (iOS).
-  void onMessage(String message) {}
+  void onMessage(NfcProvider nfc, String message) {}
 
   /// Called as reading progresses [0.0 - 1.0].
   void onProgress(double value) {}
 
-  /// Called when authentication (PACE/BAC, AA) finishes successfully.
-  void onAuthenticated() {}
-
   /// Called when an error occurs.
-  void onError(PassportErrorInfo error) {}
+  void onError() {}
 
   /// Called at the very end with the full result.
   void onComplete(PassportDataResult result) {}
@@ -36,6 +32,8 @@ abstract class PassportListener {
 class PassportRepository {
   final NfcProvider _nfc = NfcProvider();
   bool _isCancelled = false;
+
+  late String hostName;
 
   PassportRepository();
 
@@ -102,7 +100,7 @@ class PassportRepository {
 
     void setState(NFCReadingState s, {String? msg, double? progress}) {
       listener?.onStateChanged(s);
-      if (msg != null) listener?.onMessage(msg);
+      if (msg != null) listener?.onMessage(_nfc, msg);
       if (progress != null) listener?.onProgress(progress.clamp(0.0, 1.0));
     }
 
@@ -123,7 +121,7 @@ class PassportRepository {
     try {
       await _perform(passport, accessKey, isPace, sessionId: sessionId, nonce: nonce, listener: listener);
     } finally {
-      await _disconnect('passport.nfc.finished');
+      await _disconnect(null);
     }
   }
 
@@ -148,14 +146,14 @@ class PassportRepository {
     mrtdData.isPACE = isPace;
     mrtdData.isDBA = accessKey is DBAKey ? (accessKey.PACE_REF_KEY_TAG == 0x01) : false;
 
-    listener?.onMessage('passport.nfc.reading_card_access');
+    listener?.onMessage(_nfc, 'passport.nfc.reading_card_access');
     try {
       mrtdData.cardAccess = await passport.readEfCardAccess();
     } on PassportError {
       debugPrint('Failed to read EF.CardAccess');
     }
 
-    listener?.onMessage('passport.nfc.reading_card_security');
+    listener?.onMessage(_nfc, 'passport.nfc.reading_card_security');
     try {
       mrtdData.cardSecurity = await passport.readEfCardSecurity();
     } on PassportError {
@@ -163,7 +161,7 @@ class PassportRepository {
     }
 
     listener?.onStateChanged(NFCReadingState.authenticating);
-    listener?.onMessage('passport.nfc.authenticating');
+    listener?.onMessage(_nfc, 'passport.nfc.authenticating');
 
     if (isPace) {
       await passport.startSessionPACE(accessKey, mrtdData.cardAccess!);
@@ -171,7 +169,7 @@ class PassportRepository {
       await passport.startSession(accessKey as DBAKey);
     }
 
-    listener?.onAuthenticated();
+    listener?.onProgress(0.1);
 
     final result = await _readDataGroups(passport, mrtdData, sessionId: sessionId, nonce: nonce, listener: listener);
     listener?.onStateChanged(NFCReadingState.success);
@@ -187,95 +185,92 @@ class PassportRepository {
     PassportListener? listener,
   }) async {
     listener?.onStateChanged(NFCReadingState.reading);
-    listener?.onMessage('passport.nfc.reading_passport_data');
+    listener?.onMessage(_nfc, 'passport.nfc.reading_passport_data');
     listener?.onProgress(0.1);
 
     try {
-      _nfc.setIosAlertMessage('passport.nfc.reading_ef_com');
       mrtdData.com = await passport.readEfCOM();
 
       final configs = <DataGroupConfig>[
         DataGroupConfig(
           tag: EfDG1.TAG,
           name: 'DG1',
-          progressIncrement: 0.1,
+          progressIncrement: 0.2,
           readFunction: (p) async => mrtdData.dg1 = await p.readEfDG1(),
         ),
         DataGroupConfig(
           tag: EfDG2.TAG,
           name: 'DG2',
-          progressIncrement: 0.1,
+          progressIncrement: 0.5,
           readFunction: (p) async => mrtdData.dg2 = await p.readEfDG2(),
         ),
         DataGroupConfig(
           tag: EfDG5.TAG,
           name: 'DG5',
-          progressIncrement: 0.1,
+          progressIncrement: 0.6,
           readFunction: (p) async => mrtdData.dg5 = await p.readEfDG5(),
         ),
         DataGroupConfig(
           tag: EfDG6.TAG,
           name: 'DG6',
-          progressIncrement: 0.05,
+          progressIncrement: 0.7,
           readFunction: (p) async => mrtdData.dg6 = await p.readEfDG6(),
         ),
         DataGroupConfig(
           tag: EfDG7.TAG,
           name: 'DG7',
-          progressIncrement: 0.05,
+          progressIncrement: 0.7,
           readFunction: (p) async => mrtdData.dg7 = await p.readEfDG7(),
         ),
         DataGroupConfig(
           tag: EfDG8.TAG,
           name: 'DG8',
-          progressIncrement: 0.05,
+          progressIncrement: 0.7,
           readFunction: (p) async => mrtdData.dg8 = await p.readEfDG8(),
         ),
         DataGroupConfig(
           tag: EfDG9.TAG,
           name: 'DG9',
-          progressIncrement: 0.05,
+          progressIncrement: 0.7,
           readFunction: (p) async => mrtdData.dg9 = await p.readEfDG9(),
         ),
         DataGroupConfig(
           tag: EfDG10.TAG,
           name: 'DG10',
-          progressIncrement: 0.05,
+          progressIncrement: 0.7,
           readFunction: (p) async => mrtdData.dg10 = await p.readEfDG10(),
         ),
         DataGroupConfig(
           tag: EfDG11.TAG,
           name: 'DG11',
-          progressIncrement: 0.05,
+          progressIncrement: 0.75,
           readFunction: (p) async => mrtdData.dg11 = await p.readEfDG11(),
         ),
         DataGroupConfig(
           tag: EfDG12.TAG,
           name: 'DG12',
-          progressIncrement: 0.05,
+          progressIncrement: 0.75,
           readFunction: (p) async => mrtdData.dg12 = await p.readEfDG12(),
         ),
         DataGroupConfig(
           tag: EfDG13.TAG,
           name: 'DG13',
-          progressIncrement: 0.05,
+          progressIncrement: 0.8,
           readFunction: (p) async => mrtdData.dg13 = await p.readEfDG13(),
         ),
         DataGroupConfig(
           tag: EfDG14.TAG,
           name: 'DG14',
-          progressIncrement: 0.05,
+          progressIncrement: 0.8,
           readFunction: (p) async => mrtdData.dg14 = await p.readEfDG14(),
         ),
         DataGroupConfig(
           tag: EfDG16.TAG,
           name: 'DG16',
-          progressIncrement: 0.05,
+          progressIncrement: 0.8,
           readFunction: (p) async => mrtdData.dg16 = await p.readEfDG16(),
         ),
       ];
-
-      _nfc.setIosAlertMessage('passport.nfc.reading_data_groups');
 
       final Map<String, String> dataGroups = {};
       double current = 0.2;
@@ -306,7 +301,7 @@ class PassportRepository {
       }
 
       if (sessionId != null && nonce != null && mrtdData.com!.dgTags.contains(EfDG15.TAG)) {
-        listener?.onMessage('passport.nfc.performing_security_verification');
+        listener?.onMessage(_nfc, 'passport.nfc.performing_security_verification');
         listener?.onStateChanged(NFCReadingState.authenticating);
         listener?.onProgress(0.9);
 
@@ -319,18 +314,16 @@ class PassportRepository {
             }
           }
 
-          _nfc.setIosAlertMessage('passport.nfc.doing_aa');
           mrtdData.aaSig = await passport.activeAuthenticate(nonce);
         } catch (e) {
           debugPrint('Failed to read DG15 or perform AA: $e');
         }
       }
 
-      _nfc.setIosAlertMessage('passport.nfc.reading_ef_sod');
       mrtdData.sod = await passport.readEfSOD();
       final efSodHex = mrtdData.sod?.toBytes().hex() ?? '';
 
-      listener?.onMessage('passport.nfc.completed_successfully');
+      listener?.onMessage(_nfc, 'passport.nfc.completed_successfully');
       listener?.onProgress(1.0);
 
       return PassportDataResult(
@@ -368,16 +361,16 @@ class PassportRepository {
     }
 
     listener?.onStateChanged(NFCReadingState.error);
-    listener?.onMessage(msg);
-    listener?.onError(PassportErrorInfo(msg, e));
+    listener?.onMessage(_nfc, msg);
+    listener?.onError();
   }
 
-  Future<void> _disconnect(String msg) async {
+  Future<void> _disconnect(String? msg) async {
     try {
-      if (msg.isNotEmpty) {
+      if (msg != null && msg.isNotEmpty) {
         await _nfc.disconnect(iosErrorMessage: msg);
       } else {
-        await _nfc.disconnect(iosAlertMessage: 'passport.nfc.finished');
+        await _nfc.disconnect();
       }
     } catch (e) {
       debugPrint('Error during NFC disconnect: $e');

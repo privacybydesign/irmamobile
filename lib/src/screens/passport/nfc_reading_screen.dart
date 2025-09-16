@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:vcmrtd/vcmrtd.dart';
@@ -10,7 +11,6 @@ import 'package:vcmrtd/vcmrtd.dart';
 import '../../data/passport_repository.dart';
 import '../../models/nfc_reading_state.dart';
 import '../../models/passport_data_result.dart';
-import '../../models/passport_error_info.dart';
 import '../../models/session.dart';
 import '../../providers/passport_repository_provider.dart';
 import '../../theme/theme.dart';
@@ -152,9 +152,14 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   }
 
   @override
-  void onMessage(String message) {
+  void onMessage(NfcProvider nfc, String messageKey) {
+    final translation = FlutterI18n.translate(context, messageKey);
+    if (nfc.isConnected()) {
+      nfc.setIosAlertMessage(translation);
+    }
+
     setState(() {
-      _hintKey = message;
+      _hintKey = messageKey;
     });
   }
 
@@ -162,21 +167,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   void onProgress(double value) {
     setState(() {
       _progress = value.clamp(0.0, 1.0);
-    });
-  }
-
-  @override
-  void onAuthenticated() {}
-
-  @override
-  void onError(PassportErrorInfo error) {
-    setState(() {
-      _progress = 0.0;
-      _stateKey = 'passport.nfc.error';
-      _hintKey = 'passport.nfc.error';
-      _tipKey = 'passport.nfc.tip_3';
-      _issuanceError = false;
-      _pendingIssuanceResult = null;
     });
   }
 
@@ -191,23 +181,35 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
     await _startIssuance(result);
   }
 
+  @override
+  void onError() {
+    setState(() {
+      _progress = 0.0;
+      _issuanceError = false;
+      _pendingIssuanceResult = null;
+    });
+  }
+
   Future<void> _startIssuance(PassportDataResult passportDataResult) async {
     // Create secure data payload
     final payload = passportDataResult.toJson();
     try {
-      // Get the signed IRMA JWt from the passport issuer
+      // Get the signed IRMA JWT from the passport issuer
       final responseBody = await _getIrmaSessionJwt(payload);
       final irmaServerUrlParam = responseBody['irma_server_url'];
       final jwtUrlParam = responseBody['jwt'];
 
       // Start the session
-      final sessionResponseBody =
-          await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
+      final sessionResponseBody = await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
       final sessionPtr = sessionResponseBody['sessionPtr'];
 
       if (!mounted) return;
-      await handlePointer(context, Pointer.fromString(json.encode(sessionPtr)),
-          pushReplacement: false);
+
+      final pointer = Pointer.fromString(json.encode(sessionPtr)) as SessionPointer;
+
+      // This should be true so that the app doesn't want to go back to the browser
+      pointer.continueOnSecondDevice = true;
+      await handlePointer(context, pointer, pushReplacement: false);
 
       if (!mounted) return;
       _pendingIssuanceResult = null;
@@ -218,7 +220,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
         _stateKey = 'passport.nfc.error';
         _hintKey = 'passport.nfc.error_generic';
         _tipKey = 'passport.nfc.tip_3';
-      _issuanceError = true;
+        _issuanceError = true;
       });
     }
   }
@@ -240,8 +242,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   }
 
   Future<(String, String)> _getPassportIssuanceSession() async {
-    final storeResp = await http.post(Uri.parse('https://passport-issuer.staging.yivi.app/api/start-validation'),
-        headers: {'Content-Type': 'application/json'});
+    final storeResp = await http
+        .post(Uri.parse('${_repo.hostName}/api/start-validation'), headers: {'Content-Type': 'application/json'});
     if (storeResp.statusCode != 200) {
       throw Exception('Store failed: ${storeResp.statusCode} ${storeResp.body}');
     }
@@ -253,7 +255,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
   Future<dynamic> _getIrmaSessionJwt(Map<String, dynamic> payload) async {
     final String jsonPayload = json.encode(payload);
     final storeResp = await http.post(
-      Uri.parse('https://passport-issuer.staging.yivi.app/api/verify-and-issue'),
+      Uri.parse('${_repo.hostName}/api/verify-and-issue'),
       headers: {'Content-Type': 'application/json'},
       body: jsonPayload,
     );
@@ -322,14 +324,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
                       ? _ScanningContent(
                           theme: theme,
                           tipKey: _tipKey,
-                          progressPercent:
-                              (_progress * 100).clamp(0, 100).toDouble(),
+                          progressPercent: (_progress * 100).clamp(0, 100).toDouble(),
                           statusKey: _stateKey,
                           hintKey: _hintKey,
                           key: ValueKey('scanning-$_tipKey-$_progress'),
                         )
-                      : _DisabledContent(
-                          theme: theme, key: const ValueKey('disabled'))),
+                      : _DisabledContent(theme: theme, key: const ValueKey('disabled'))),
             ),
           ],
         ),
@@ -337,10 +337,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
       bottomNavigationBar: _isNfcAvailable
           ? IrmaBottomBar(
               alignment: IrmaBottomBarAlignment.vertical,
-              primaryButtonLabel:
-                  _stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
-              onPrimaryPressed:
-                  _stateKey == 'passport.nfc.error' ? _handleRetry : null,
+              primaryButtonLabel: _stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
+              onPrimaryPressed: _stateKey == 'passport.nfc.error' ? _handleRetry : null,
               secondaryButtonLabel: 'ui.cancel',
               onSecondaryPressed: _handleCancel,
             )
@@ -362,8 +360,7 @@ Future<bool> _showCancelDialog(BuildContext context) async {
         context: context,
         builder: (ctx) => AlertDialog(
           title: const TranslatedText('passport.nfc.cancel_dialog.title'),
-          content:
-              const TranslatedText('passport.nfc.cancel_dialog.explanation'),
+          content: const TranslatedText('passport.nfc.cancel_dialog.explanation'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
