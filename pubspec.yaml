@@ -55,6 +55,7 @@ dependencies:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
       ref: v0.1.2
+  mask_text_input_formatter: ^2.9.0
 
 dev_dependencies:
   flutter_test:

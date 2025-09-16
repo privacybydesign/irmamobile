@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../../theme/theme.dart';
-import '../../../widgets/translated_text.dart';
 
 class DateInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -41,6 +41,9 @@ class DateInputField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final baseTextStyle = theme.textTheme.bodyMedium;
+    // Using an independant mask here, since on Samsung devices, the input formatter for dates will not add "-" or "/" separators
+    final dateMask =
+        MaskTextInputFormatter(mask: '####-##-##', filter: {'#': RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
 
     // Default formatting: yyyy-MM-dd
     String defaultFormat(BuildContext _, DateTime d) => '${d.toLocal()}'.split(' ').first;
@@ -48,17 +51,36 @@ class DateInputField extends StatelessWidget {
     return TextFormField(
       key: fieldKey ?? const Key('date_input_field'),
       controller: controller,
-      readOnly: true, // force use of the date picker
+      readOnly: false,
+      inputFormatters: [dateMask],
+      keyboardType: TextInputType.number,
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.only(top: -10.0),
-        label: TranslatedText(
-          labelI18nKey,
-          style: baseTextStyle,
-        ),
+        hintText: 'YYYY-MM-DD',
+        hintStyle: baseTextStyle?.apply(color: baseTextStyle.color?.withValues(alpha: 0.5)),
+        contentPadding: const EdgeInsets.only(bottom: 8.0),
+        labelText: FlutterI18n.translate(context, labelI18nKey),
+        labelStyle: baseTextStyle,
         floatingLabelAlignment: FloatingLabelAlignment.start,
         floatingLabelBehavior: FloatingLabelBehavior.always,
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.calendar_today),
+          onPressed: () async {
+            final now = DateTime.now();
+            final pickedDate = await showDatePicker(
+              context: context,
+              initialDate: initialDate ?? DateTime(now.year - 25),
+              firstDate: firstDate ?? DateTime(1900),
+              lastDate: lastDate ?? DateTime(2100),
+            );
+            if (pickedDate != null) {
+              final fmt = formatDate ?? defaultFormat;
+              if (!context.mounted) return;
+              controller.text = fmt(context, pickedDate);
+            }
+          },
+        ),
       ),
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
@@ -66,21 +88,6 @@ class DateInputField extends StatelessWidget {
           return FlutterI18n.translate(context, requiredI18nKey);
         }
         return null;
-      },
-      onTap: () async {
-        FocusScope.of(context).requestFocus(FocusNode()); // hide keyboard
-        final now = DateTime.now();
-        final pickedDate = await showDatePicker(
-          context: context,
-          initialDate: initialDate ?? DateTime(now.year - 25),
-          firstDate: firstDate ?? DateTime(1900),
-          lastDate: lastDate ?? DateTime(2100),
-        );
-        if (pickedDate != null) {
-          final fmt = formatDate ?? defaultFormat;
-          if (!context.mounted) return;
-          controller.text = fmt(context, pickedDate);
-        }
       },
     );
   }
