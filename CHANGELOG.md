@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- More differentiation between verified and unverified requestors during disclosure
+- Show warning to users when disclosing attributes to unverified requestors
 - Add changed terms & conditions dialog that shows up when the terms have changed
 - Add ability to reorder credential type cards in the data tab with long-press + drag
 
