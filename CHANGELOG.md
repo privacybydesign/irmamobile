@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [7.9.0]
+## [7.9.0] - 2025-09-17
 ### Changed
 - Show warning to users when disclosing attributes to unverified requestors
 - Add changed terms & conditions dialog that shows up when the terms have changed
