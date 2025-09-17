@@ -62,6 +62,7 @@ class IrmaThemeData {
   // Other textstyles that cannot be included in TextTheme
   late final TextStyle textButtonTextStyle;
   late final TextStyle hyperlinkTextStyle;
+  late final TextStyle mrzLabel;
   late final TextStyle boldBody;
   late final TextStyle highlightedTextStyle;
 
@@ -224,6 +225,13 @@ class IrmaThemeData {
       fontWeight: FontWeight.w700,
       color: link,
       decoration: TextDecoration.underline,
+    );
+
+    mrzLabel = TextStyle(
+      fontFamily: 'monospace',
+      fontSize: 14,
+      color: light,
+      letterSpacing: 2,
     );
 
     boldBody = TextStyle(
