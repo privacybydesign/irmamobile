@@ -17,6 +17,8 @@ typedef ManualEntryData = ({
   DateTime expiryDate,
 });
 
+/// This screen is for when the camera doesn't work(?)
+/// TODO: can this be some kind of sheet or other option on the scanner normal screen?
 class ManualEntryScreen extends StatefulWidget {
   /// Now receives the collected data from the 3 fields.
   final void Function(ManualEntryData data) onContinue;
