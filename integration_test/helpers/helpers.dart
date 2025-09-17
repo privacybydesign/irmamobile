@@ -23,8 +23,8 @@ import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_foot
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_header.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
-import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
 import 'package:irmamobile/src/widgets/radio_indicator.dart';
+import 'package:irmamobile/src/widgets/requestor_header.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import '../irma_binding.dart';
@@ -237,7 +237,7 @@ Future<void> revokeCredential(String credId, String revocationKey) async {
 Future<void> evaluateRequestor(WidgetTester tester, Finder reqeustorInfoFinder, String expectedName) async {
   final finder = find.descendant(
     of: reqeustorInfoFinder,
-    matching: find.byType(IssuerVerifierHeader),
+    matching: find.byType(RequestorHeader),
     matchRoot: true,
   );
   expect(finder, findsAtLeast(1));

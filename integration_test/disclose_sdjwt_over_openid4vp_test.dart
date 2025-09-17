@@ -14,7 +14,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_per
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
-import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
+import 'package:irmamobile/src/widgets/requestor_header.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import 'disclosure_session/disclosure_helpers.dart';
@@ -188,7 +188,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationT
       'Email address': 'one@example.com',
     },
   );
-  await evaluateRequestor(tester, find.byType(IssuerVerifierHeader), 'Yivi B.V.');
+  await evaluateRequestor(tester, find.byType(RequestorHeader), 'Yivi B.V.');
 }
 
 Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -743,7 +743,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
     },
   );
 
-  await evaluateRequestor(tester, find.byType(IssuerVerifierHeader), 'Yivi B.V.');
+  await evaluateRequestor(tester, find.byType(RequestorHeader), 'Yivi B.V.');
 }
 
 /// Issue two email addresses and allow the user to pick between them
