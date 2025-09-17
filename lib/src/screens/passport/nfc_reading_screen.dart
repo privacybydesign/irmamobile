@@ -39,15 +39,18 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
 }
 
 class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
-  // FIXME: make this more dynamic...
-  final _isNfcAvailable = true;
-
   void cancel() async {
     final userWantsCancel = await _showCancelDialog(context);
 
     if (userWantsCancel) {
       ref.read(passportReaderProvider.notifier).cancel();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    startSession();
   }
 
   void startSession() async {
@@ -92,6 +95,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
     final theme = IrmaTheme.of(context);
 
     final passportState = ref.watch(passportReaderProvider);
+
+    if (passportState is PassportReaderNfcUnavailable) {
+      return _buildNfcUnavailableScreen(context);
+    }
+
     final uiState = passportReadingStateToUiState(passportState);
 
     return Scaffold(
@@ -108,138 +116,156 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    decoration: BoxDecoration(
-                      color: _isNfcAvailable ? theme.success : theme.error,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: BoxDecoration(color: theme.success, shape: BoxShape.circle),
                     width: 40,
                     height: 40,
                     alignment: Alignment.center,
-                    child: Icon(
-                      _isNfcAvailable ? Icons.check : Icons.close,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                    child: Icon(Icons.check, color: Colors.white, size: 24),
                   ),
                   const SizedBox(width: 12),
-                  TranslatedText(
-                    _isNfcAvailable ? 'passport.nfc.nfc_enabled' : 'passport.nfc.nfc_disabled',
-                  ),
+                  TranslatedText('passport.nfc.nfc_enabled'),
                 ],
               ),
             ),
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
-                child: _isNfcAvailable
-                    ? _ScanningContent(
-                        theme: theme,
-                        tipKey: uiState.tipKey,
-                        progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
-                        statusKey: uiState.stateKey,
-                        hintKey: uiState.hintKey,
-                        key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
-                      )
-                    : _DisabledContent(
-                        theme: theme,
-                        key: const ValueKey('disabled'),
-                      ),
+                child: _ScanningContent(
+                  theme: theme,
+                  tipKey: uiState.tipKey,
+                  progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
+                  statusKey: uiState.stateKey,
+                  hintKey: uiState.hintKey,
+                  key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
+                ),
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: _isNfcAvailable
-          ? IrmaBottomBar(
-              alignment: IrmaBottomBarAlignment.vertical,
-              primaryButtonLabel: uiState.stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
-              onPrimaryPressed: uiState.stateKey == 'passport.nfc.error' ? retry : null,
-              secondaryButtonLabel: 'ui.cancel',
-              onSecondaryPressed: cancel,
-            )
-          : IrmaBottomBar(
-              alignment: IrmaBottomBarAlignment.vertical,
-              primaryButtonLabel: 'ui.retry',
-              onPrimaryPressed: retry,
-              secondaryButtonLabel: 'ui.cancel',
-              onSecondaryPressed: cancel,
-            ),
+      bottomNavigationBar: IrmaBottomBar(
+        alignment: IrmaBottomBarAlignment.vertical,
+        primaryButtonLabel: uiState.stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
+        onPrimaryPressed: uiState.stateKey == 'passport.nfc.error' ? retry : null,
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
+      ),
     );
   }
 
-  _UiState passportReadingStateToUiState(PassportReadingState state) {
+  Widget _buildNfcUnavailableScreen(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Scaffold(
+      backgroundColor: theme.backgroundTertiary,
+      appBar: IrmaAppBar(titleTranslationKey: 'passport.nfc.title'),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(color: theme.error, shape: BoxShape.circle),
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.close, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  TranslatedText('passport.nfc.nfc_disabled'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: _DisabledContent(theme: theme, key: const ValueKey('disabled')),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        alignment: IrmaBottomBarAlignment.vertical,
+        primaryButtonLabel: 'ui.retry',
+        onPrimaryPressed: retry,
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
+      ),
+    );
+  }
+
+  _UiState passportReadingStateToUiState(PassportReaderState state) {
     return switch (state) {
-      PassportReadingPending() => _UiState(
+      PassportReaderPending() => _UiState(
           progress: 0.0,
           stateKey: 'passport.nfc.connecting',
           tipKey: 'passport.nfc.hold_near_photo_page',
           hintKey: 'passport.nfc.tip_2',
         ),
-      PassportReadingInProgress(message: final hintKey, :final nfcState, :final progress) => switch (nfcState) {
-          NFCReadingState.waiting || NFCReadingState.connecting => _UiState(
-              progress: progress,
-              stateKey: 'passport.nfc.connecting',
-              tipKey: 'passport.nfc.tip_2',
-              hintKey: hintKey,
-            ),
-          NFCReadingState.reading || NFCReadingState.authenticating => _UiState(
-              progress: progress,
-              stateKey: 'passport.nfc.connecting',
-              tipKey: 'passport.nfc.tip_1',
-              hintKey: hintKey,
-            ),
-          NFCReadingState.success => _UiState(
-              progress: progress,
-              stateKey: 'passport.nfc.success',
-              tipKey: 'passport.nfc.tip_1',
-              hintKey: hintKey,
-            ),
-          NFCReadingState.error => _UiState(
-              progress: progress,
-              stateKey: 'passport.nfc.error',
-              tipKey: 'passport.nfc.tip_3',
-              hintKey: hintKey,
-            ),
-          NFCReadingState.idle => _UiState(
-              progress: progress,
-              stateKey: 'passport.nfc.idle',
-              tipKey: 'passport.nfc.tip_3',
-              hintKey: hintKey,
-            ),
-          NFCReadingState.cancelling => _UiState(
-              progress: progress,
-              stateKey: 'passport.nfc.cancelling',
-              tipKey: 'passport.nfc.tip_3',
-              hintKey: hintKey,
-            ),
-        },
-      PassportReadingSuccess() => _UiState(
+      PassportReaderConnecting() => _UiState(
+          progress: 0.0,
+          stateKey: 'passport.nfc.connecting',
+          tipKey: 'passport.nfc.tip_2',
+          hintKey: 'passport.nfc.hold_near_photo_page',
+        ),
+      PassportReaderAuthenticating() => _UiState(
+          progress: 0.1,
+          stateKey: 'passport.nfc.connecting',
+          tipKey: 'passport.nfc.tip_2',
+          hintKey: 'passport.nfc.hold_near_photo_page',
+        ),
+      PassportReaderReadingCardAccess() => _UiState(
+          progress: 0.2,
+          stateKey: 'passport.nfc.reading_card_access',
+          tipKey: 'passport.nfc.tip_3',
+          hintKey: 'passport.nfc.tip_3',
+        ),
+      PassportReaderReadingCardSecurity() => _UiState(
+          progress: 0.3,
+          stateKey: 'passport.nfc.reading_card_security',
+          tipKey: 'passport.nfc.tip_3',
+          hintKey: 'passport.nfc.tip_3',
+        ),
+      PassportReaderReadingPassportData() => _UiState(
+          progress: 0.4,
+          stateKey: 'passport.nfc.reading_passport_data',
+          tipKey: 'passport.nfc.tip_1',
+          hintKey: 'passport.nfc.tip_1',
+        ),
+      PassportReaderActiveAuthenticating() => _UiState(
+          progress: 0.9,
+          stateKey: 'passport.nfc.performing_security_verification',
+          tipKey: 'passport.nfc.tip_1',
+          hintKey: 'passport.nfc.tip_1',
+        ),
+      PassportReaderSuccess() => _UiState(
           progress: 1,
           stateKey: 'passport.nfc.success',
-          tipKey: 'passport.nfc.tip_3',
-          hintKey: 'passport.nfc.tip_2',
+          tipKey: 'passport.nfc.success_explanation',
+          hintKey: 'passport.nfc.success_explanation',
         ),
-      PassportReadingFailed() => _UiState(
+      PassportReaderFailed(:final error) => _UiState(
           progress: 0,
           stateKey: 'passport.nfc.error',
-          tipKey: 'passport.nfc.tip_3',
-          hintKey: 'passport.nfc.error_generic',
-        ),
-      PassportReadingCancelled() => _UiState(
-          progress: 0,
-          stateKey: '',
-          tipKey: '',
-          hintKey: '',
-        ),
-      PassportReadingCancelling() => _UiState(
-          progress: 0,
-          stateKey: '',
-          tipKey: '',
-          hintKey: '',
+          tipKey: _readingErrorToHintKey(error),
+          hintKey: _readingErrorToHintKey(error),
         ),
       _ => throw Exception('unexpected state: $state'),
     };
   }
+}
+
+String _readingErrorToHintKey(PassportReadingError error) {
+  return switch (error) {
+    PassportReadingError.unknown => 'passport.nfc.error_generic',
+    PassportReadingError.timeoutWaitingForTag => 'passport.nfc.timeout_waiting_for_tag',
+    PassportReadingError.tagLost => 'passport.nfc.tag_lost_try_again',
+    PassportReadingError.failedToInitiateSession => 'passport.nfc.failed_initiate_session',
+    PassportReadingError.invalidatedByUser => '',
+  };
 }
 
 Future<bool> _showCancelDialog(BuildContext context) async {
