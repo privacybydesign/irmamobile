@@ -58,42 +58,45 @@ class IrmaCredentialCard extends StatelessWidget {
 
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
-    return IrmaCard(
-      style: credentialView.valid ? style : IrmaCardStyle.danger,
-      onTap: onTap,
-      padding: padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Only the header should be greyed out when the card is disabled.
-          GreyedOut(
-            filterActive: disabled,
-            child: IrmaCredentialCardHeader(
-              credentialName: getTranslation(context, credentialView.credentialType.name),
-              issuerName: getTranslation(context, credentialView.issuer.name),
-              logo: credentialView.credentialType.logo,
-              trailing: headerTrailing,
-              isExpired: credentialView.expired,
-              isRevoked: credentialView.revoked,
-              isExpiringSoon: isExpiringSoon,
+    return Padding(
+      padding: EdgeInsets.only(bottom: theme.smallSpacing),
+      child: IrmaCard(
+        style: credentialView.valid ? style : IrmaCardStyle.danger,
+        onTap: onTap,
+        padding: padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Only the header should be greyed out when the card is disabled.
+            GreyedOut(
+              filterActive: disabled,
+              child: IrmaCredentialCardHeader(
+                credentialName: getTranslation(context, credentialView.credentialType.name),
+                issuerName: getTranslation(context, credentialView.issuer.name),
+                logo: credentialView.credentialType.logo,
+                trailing: headerTrailing,
+                isExpired: credentialView.expired,
+                isRevoked: credentialView.revoked,
+                isExpiringSoon: isExpiringSoon,
+              ),
             ),
-          ),
-          // If there are attributes in this credential, then we show the attribute list
-          if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
-            IrmaDivider(color: credentialView.valid ? null : theme.danger),
-            IrmaCredentialCardAttributeList(
-              credentialView.attributes,
-              compareTo: compareTo,
-            ),
+            // If there are attributes in this credential, then we show the attribute list
+            if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
+              IrmaDivider(color: credentialView.valid ? null : theme.danger),
+              IrmaCredentialCardAttributeList(
+                credentialView.attributes,
+                compareTo: compareTo,
+              ),
+            ],
+            if (!hideFooter)
+              IrmaCredentialCardFooter(
+                credentialView: credentialView,
+                expiryDate: expiryDate,
+                padding: EdgeInsets.only(top: theme.smallSpacing),
+              ),
           ],
-          if (!hideFooter)
-            IrmaCredentialCardFooter(
-              credentialView: credentialView,
-              expiryDate: expiryDate,
-              padding: EdgeInsets.only(top: theme.smallSpacing),
-            ),
-        ],
+        ),
       ),
     );
   }

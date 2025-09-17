@@ -11,7 +11,7 @@ import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_icon_button.dart';
 import '../../../../widgets/irma_quote.dart';
-import '../../../../widgets/issuer_verifier_header.dart';
+import '../../../../widgets/requestor_header.dart';
 import '../../../../widgets/session_progress_indicator.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../../widgets/yivi_themed_button.dart';
@@ -152,9 +152,9 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IssuerVerifierHeader(
-                title: requestor.name.translate(lang),
-                imagePath: requestor.logoPath,
+              RequestorHeader(
+                requestorInfo: requestor,
+                isVerified: !requestor.unverified,
               ),
               SessionProgressIndicator(
                 step: state.currentStepIndex + 1,

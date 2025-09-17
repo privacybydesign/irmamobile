@@ -2,7 +2,7 @@ name: irmamobile
 description: IRMA Authentication
 
 # A build number cannot be reused once a build is in use on Android.
-version: 7.8.1+4194476
+version: 7.9.0+4194477
 
 environment:
   sdk: "^3.6.0"
@@ -56,7 +56,6 @@ dev_dependencies:
   flutter_native_splash: ^2.4.6
   build_runner: ^2.5.4
   flutter_launcher_icons: ^0.14.1
-  custom_lint: ^0.7.5
   riverpod_lint: ^2.6.5
 
 flutter_native_splash:
