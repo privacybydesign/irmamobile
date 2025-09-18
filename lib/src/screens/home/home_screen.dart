@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../models/native_events.dart';
 import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/rounded_display.dart';
 import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
@@ -28,8 +26,6 @@ class HomeTabState extends Bloc<IrmaNavBarTab, IrmaNavBarTab> {
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     changeTab(IrmaNavBarTab tab) {
       context.read<HomeTabState>().add(tab);
     }
