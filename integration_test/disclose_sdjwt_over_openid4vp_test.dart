@@ -108,12 +108,14 @@ Future<void> navigateToLatestActivity(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  // navigate to activity page
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
-  expect(find.byType(ActivityTab), findsOneWidget);
+  expect(find.byKey(const Key('nav_button_activity')), findsOneWidget);
+
+  await tester.tap(find.byKey(const Key('nav_button_activity'), skipOffstage: false));
+  // for some reason pump and settle fails here in landscape mode, so we'll just do this instead...
+  await tester.pump(const Duration(seconds: 1));
 
   // pick top card
-  await tester.tapAndSettle(find.byType(ActivityCard).at(0));
+  await tester.tapAndSettle(find.byType(ActivityCard, skipOffstage: false).at(0));
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
 }
 
@@ -242,8 +244,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, Integra
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
-  await tester.tapAndSettle(find.text('Change choice'));
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  await tapChangeChoicesButton(tester);
 
   // make sure there are three choices available (two existing + option to issue new one)
   expect(cardsFinder, findsNWidgets(3));
@@ -315,7 +316,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
     },
   );
 
-  await tester.tapAndSettle(find.text('Change choice'));
+  await tapChangeChoicesButton(tester);
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
 
   // make sure there are two existing choices available + one obtain data
@@ -383,7 +384,7 @@ Future<void> testClaimValueOnePresentOneNot(WidgetTester tester, IntegrationTest
     },
   );
 
-  await tester.tapAndSettle(find.text('Change choice', skipOffstage: false));
+  await tapChangeChoicesButton(tester);
   expect(cardsFinder, findsNWidgets(2));
 
   expect(find.text('Obtain new data'), findsOneWidget);
@@ -599,10 +600,8 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  final choiceButtonFinder = find.text('Change choice');
-  expect(choiceButtonFinder, findsOneWidget);
 
-  await tester.tapAndSettle(choiceButtonFinder);
+  await tapChangeChoicesButton(tester);
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
 
   // expect 4 existing credentials + 2 buttons to obtain new ones
@@ -678,10 +677,11 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  final choiceButtonFinder = find.text('Change choice');
+  final choiceButtonFinder = find.text('Change choice', skipOffstage: false);
   expect(choiceButtonFinder, findsNWidgets(2));
 
   // change the email
+  await tester.scrollUntilVisible(choiceButtonFinder.at(0), 100);
   await tester.tapAndSettle(choiceButtonFinder.at(0));
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
 
@@ -780,7 +780,7 @@ Future<void> testOneCredentialTwoChoices(WidgetTester tester, IntegrationTestIrm
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
-  await tester.tapAndSettle(find.text('Change choice'));
+  await tapChangeChoicesButton(tester);
 
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
 
@@ -1277,8 +1277,7 @@ Future<void> testDiscloseSdJwtWithChoices(
     },
   );
 
-  // tap on change button
-  await tester.tapAndSettle(find.text('Change choice'));
+  await tapChangeChoicesButton(tester);
 
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
 
@@ -1395,4 +1394,10 @@ Future<void> shareAndFinishDisclosureSession(WidgetTester tester) async {
   // confirm
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
+}
+
+Future<void> tapChangeChoicesButton(WidgetTester tester) async {
+  final changeChoiceFinder =find.text('Change choice', skipOffstage: false);
+  await tester.scrollUntilVisible(changeChoiceFinder, 100);
+  await tester.tapAndSettle(changeChoiceFinder);
 }
