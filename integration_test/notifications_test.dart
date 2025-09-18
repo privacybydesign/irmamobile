@@ -34,6 +34,49 @@ void main() {
     const mockedCredentialCache =
         '[{"id":"#55175","softDeleted":false,"read":false,"content":{"titleTranslationKey":"notifications.credential_status.revoked.title","messageTranslationKey":"notifications.credential_status.revoked.message","translationType":"internalTranslatedContent"},"timestamp":"2023-07-14T11:11:31.794803","credentialHash":"session-43-0","type":"revoked","credentialTypeId":"irma-demo.IRMATube.member","action":{"credentialTypeId":"irma-demo.IRMATube.member","actionType":"credentialDetailNavigationAction"},"notificationType":"credentialStatusNotification"}]';
 
+    const twoMockedCredentialsCache = '''
+      [
+        {
+          "id": "#55175",
+          "softDeleted": false,
+          "read": false,
+          "content": {
+            "titleTranslationKey": "notifications.credential_status.revoked.title",
+            "messageTranslationKey": "notifications.credential_status.revoked.message",
+            "translationType": "internalTranslatedContent"
+          },
+          "timestamp": "2023-07-14T11:11:31.794803",
+          "credentialHash": "session-43-0",
+          "type": "revoked",
+          "credentialTypeId": "irma-demo.IRMATube.member",
+          "action": {
+            "credentialTypeId": "irma-demo.IRMATube.member",
+            "actionType": "credentialDetailNavigationAction"
+          },
+          "notificationType": "credentialStatusNotification"
+        },
+        {
+          "id": "#55176",
+          "softDeleted": false,
+          "read": false,
+          "content": {
+            "titleTranslationKey": "notifications.credential_status.revoked.title",
+            "messageTranslationKey": "notifications.credential_status.revoked.message",
+            "translationType": "internalTranslatedContent"
+          },
+          "timestamp": "2023-07-15T11:11:31.794803",
+          "credentialHash": "session-44-0",
+          "type": "revoked",
+          "credentialTypeId": "irma-demo.sidn-pbdf.mobilenumber",
+          "action": {
+            "credentialTypeId": "irma-demo.IRMATube.member",
+            "actionType": "credentialDetailNavigationAction"
+          },
+          "notificationType": "credentialStatusNotification"
+        }
+      ]
+    ''';
+
     testWidgets('reach', (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       // NotificationBell should be visible
@@ -78,7 +121,7 @@ void main() {
     });
 
     testWidgets('filled-state', (tester) async {
-      await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
+      await irmaBinding.repository.preferences.setSerializedNotifications(twoMockedCredentialsCache);
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Expect the NotificationBell to be visible
@@ -90,12 +133,12 @@ void main() {
 
       // Expect one NotificationCard
       final notificationCardFinder = find.byType(NotificationCard);
-      expect(notificationCardFinder, findsOneWidget);
+      expect(notificationCardFinder, findsExactly(2));
 
       // Evaluate the NotificationCard
       await evaluateNotificationCard(
         tester,
-        notificationCardFinder,
+        notificationCardFinder.at(0),
         title: 'Data revoked',
         content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
       );
