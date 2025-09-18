@@ -32,12 +32,18 @@ class IrmaBottomBarBase extends StatelessWidget {
               offset: const Offset(0, 7),
             )
           ]),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: mediaQuery.size.height > 450 ? theme.defaultSpacing : theme.smallSpacing,
-          horizontal: theme.defaultSpacing,
+      child: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        bottom: true,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: theme.smallSpacing,
+            horizontal: theme.defaultSpacing,
+          ),
+          child: child,
         ),
-        child: child,
       ),
     );
   }

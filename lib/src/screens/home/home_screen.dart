@@ -50,24 +50,32 @@ class HomeScreen extends StatelessWidget {
             }
           },
           child: PendingPointerListener(
-            child: Scaffold(
-              body: switch (tabState) {
-                IrmaNavBarTab.notifications => NotificationsTab(),
-                IrmaNavBarTab.data => DataTab(),
-                IrmaNavBarTab.activity => ActivityTab(),
-                IrmaNavBarTab.more => MoreTab(onChangeTab: changeTab),
-              },
-              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-              resizeToAvoidBottomInset: false,
-              floatingActionButton: Padding(
-                padding: EdgeInsets.only(bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0),
-                child: const IrmaQrScanButton(
-                  key: Key('nav_button_scanner'),
+            child: Container(
+              color: Colors.white,
+              child: SafeArea(
+                left: false,
+                right: false,
+                top: false,
+                child: Scaffold(
+                  body: switch (tabState) {
+                    IrmaNavBarTab.notifications => NotificationsTab(),
+                    IrmaNavBarTab.data => DataTab(),
+                    IrmaNavBarTab.activity => ActivityTab(),
+                    IrmaNavBarTab.more => MoreTab(onChangeTab: changeTab),
+                  },
+                  floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+                  resizeToAvoidBottomInset: false,
+                  floatingActionButton: Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: const IrmaQrScanButton(
+                      key: Key('nav_button_scanner'),
+                    ),
+                  ),
+                  bottomNavigationBar: IrmaNavBar(
+                    selectedTab: tabState,
+                    onChangeTab: changeTab,
+                  ),
                 ),
-              ),
-              bottomNavigationBar: IrmaNavBar(
-                selectedTab: tabState,
-                onChangeTab: changeTab,
               ),
             ),
           ),

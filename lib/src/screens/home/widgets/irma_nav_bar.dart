@@ -32,27 +32,16 @@ class IrmaNavBar extends StatelessWidget {
       padding: EdgeInsets.only(
         left: theme.tinySpacing,
         right: theme.tinySpacing,
-        bottom: hasRoundedDisplay(context) ? theme.defaultSpacing : 0,
+        bottom: 0,
       ),
       // Reduce vertical padding for screens with limited height (i.e. landscape mode).
-      height: MediaQuery.of(context).size.height > 450 ? 95 : 85,
+      height: 60,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: theme.tertiary,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade600.withAlpha(128),
-            blurRadius: 10.0,
-            spreadRadius: 1.0,
-            offset: const Offset(0, 7),
-          )
-        ],
+        border: Border(top: BorderSide(color: theme.tertiary)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IrmaNavButton(
