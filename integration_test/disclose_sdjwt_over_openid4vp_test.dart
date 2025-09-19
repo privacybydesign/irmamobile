@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/activity/activity_detail_screen.dart';
-import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
