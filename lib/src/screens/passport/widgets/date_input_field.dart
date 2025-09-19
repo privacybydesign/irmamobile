@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../../theme/theme.dart';
@@ -46,7 +47,7 @@ class DateInputField extends StatelessWidget {
         MaskTextInputFormatter(mask: '####-##-##', filter: {'#': RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
 
     // Default formatting: yyyy-MM-dd
-    String defaultFormat(BuildContext _, DateTime d) => '${d.toLocal()}'.split(' ').first;
+    String defaultFormat(BuildContext _, DateTime d) => DateFormat('yyyy-MM-dd').format(d);
 
     return TextFormField(
       key: fieldKey ?? const Key('date_input_field'),
@@ -70,6 +71,8 @@ class DateInputField extends StatelessWidget {
             final now = DateTime.now();
             final pickedDate = await showDatePicker(
               context: context,
+              initialDatePickerMode: DatePickerMode.day,
+              initialEntryMode: DatePickerEntryMode.calendarOnly,
               initialDate: initialDate ?? DateTime(now.year - 25),
               firstDate: firstDate ?? DateTime(1900),
               lastDate: lastDate ?? DateTime(2100),
