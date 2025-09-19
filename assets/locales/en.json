@@ -657,7 +657,8 @@
         "date_of_birth": "Date of birth",
         "date_of_birth_required": "Date of birth is required",
         "date_of_expiry": "Date of expiry",
-        "date_of_expiry_required": "Date of expiry is required"
+        "date_of_expiry_required": "Date of expiry is required",
+        "date_invalid": "Date is invalid"
       }
     },
     "nfc": {

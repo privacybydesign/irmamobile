@@ -17,6 +17,9 @@ class DateInputField extends StatelessWidget {
   /// I18n key for the "required" validation message.
   final String requiredI18nKey;
 
+  /// I18n key for the "required" validation message.
+  final String invalidI18nKey = 'passport.manual.fields.date_invalid';
+
   /// Optional: date picker bounds & default.
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -46,8 +49,9 @@ class DateInputField extends StatelessWidget {
     final dateMask =
         MaskTextInputFormatter(mask: '####-##-##', filter: {'#': RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy);
 
+    final dateFormat = DateFormat('yyyy-MM-dd');
     // Default formatting: yyyy-MM-dd
-    String defaultFormat(BuildContext _, DateTime d) => DateFormat('yyyy-MM-dd').format(d);
+    String defaultFormat(BuildContext _, DateTime d) => dateFormat.format(d);
 
     return TextFormField(
       key: fieldKey ?? const Key('date_input_field'),
@@ -59,7 +63,7 @@ class DateInputField extends StatelessWidget {
       style: baseTextStyle,
       decoration: InputDecoration(
         hintText: 'YYYY-MM-DD',
-        hintStyle: baseTextStyle?.apply(color: baseTextStyle.color?.withValues(alpha: 0.5)),
+        hintStyle: baseTextStyle?.copyWith(color: baseTextStyle.color?.withValues(alpha: 0.5)),
         contentPadding: const EdgeInsets.only(bottom: 8.0),
         labelText: FlutterI18n.translate(context, labelI18nKey),
         labelStyle: baseTextStyle,
@@ -90,6 +94,11 @@ class DateInputField extends StatelessWidget {
         if (value == null || value.isEmpty) {
           return FlutterI18n.translate(context, requiredI18nKey);
         }
+        final parsed = dateFormat.tryParse(value);
+        if (parsed == null) return FlutterI18n.translate(context, invalidI18nKey);
+
+        final roundtrip = dateFormat.format(parsed);
+        if (roundtrip != value) return FlutterI18n.translate(context, invalidI18nKey);
         return null;
       },
     );
