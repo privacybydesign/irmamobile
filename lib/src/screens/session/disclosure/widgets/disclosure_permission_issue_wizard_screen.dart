@@ -42,14 +42,12 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
                 requestorInfo: requestor,
                 isVerified: !requestor.unverified,
               ),
-              SizedBox(height: theme.defaultSpacing),
               SessionProgressIndicator(
                 step: state.currentStepIndex + 1,
                 stepCount: state.plannedSteps.length,
                 contentTranslationKey:
                     'disclosure_permission.issue_wizard.explanation_${state.isCompleted ? 'complete' : 'incomplete'}',
               ),
-              SizedBox(height: theme.defaultSpacing),
               DisclosureDisconStepper(
                 currentCandidateKey: state.currentDiscon?.key,
                 candidatesList: state.candidatesList,
