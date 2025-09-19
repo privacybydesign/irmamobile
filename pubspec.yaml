@@ -3,6 +3,7 @@ description: IRMA Authentication
 
 # A build number cannot be reused once a build is in use on Android.
 version: 7.8.1+4194476
+publish_to: none
 
 environment:
   sdk: "^3.6.0"
@@ -55,6 +56,7 @@ dependencies:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
       ref: v0.1.2
+  mask_text_input_formatter: ^2.9.0
 
 dev_dependencies:
   flutter_test:

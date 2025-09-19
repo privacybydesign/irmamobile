@@ -657,7 +657,8 @@
         "date_of_birth": "Geboortedatum",
         "date_of_birth_required": "Geboortedatum is verplicht",
         "date_of_expiry": "Vervaldatum",
-        "date_of_expiry_required": "Vervaldatum is verplicht"
+        "date_of_expiry_required": "Vervaldatum is verplicht",
+        "date_invalid": "Datum is ongeldig"
       }
     },
     "nfc": {
