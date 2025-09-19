@@ -120,12 +120,15 @@ class _NotificationsTabState extends State<NotificationsTab> {
                           itemBuilder: (context, index) {
                             final notification = notifications[index];
 
-                            return IrmaDismissible(
-                              key: Key(notification.id),
-                              onDismissed: () => _onNotificationDismiss(notification),
-                              child: NotificationCard(
-                                notification: notification,
-                                onTap: () => _onNotificationTap(notification),
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                              child: IrmaDismissible(
+                                key: Key(notification.id),
+                                onDismissed: () => _onNotificationDismiss(notification),
+                                child: NotificationCard(
+                                  notification: notification,
+                                  onTap: () => _onNotificationTap(notification),
+                                ),
                               ),
                             );
                           },

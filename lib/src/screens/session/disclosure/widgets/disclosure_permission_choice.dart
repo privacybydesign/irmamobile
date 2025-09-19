@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/radio_indicator.dart';
@@ -21,39 +20,35 @@ class DisclosurePermissionChoice extends StatelessWidget {
   });
 
   Widget _buildChoiceOption(BuildContext context, MapEntry<int, Con<DisclosureCredential>> option) {
-    final theme = IrmaTheme.of(context);
     final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
 
-    return Padding(
-      padding: EdgeInsets.all(theme.tinySpacing),
-      child: Semantics(
-        button: true,
-        child: Column(
-          children: option.value
-              .map(
-                (credential) => GestureDetector(
-                  onTap: isDisabled
-                      ? null
-                      : () {
-                          if (isActive) {
-                            onChoiceUpdated(option.key);
-                          }
-                        },
-                  child: IrmaCredentialCard(
-                    padding: EdgeInsets.zero,
-                    credentialView: credential,
-                    compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
-                    disabled: isDisabled,
-                    headerTrailing: credential == option.value.first
-                        ? RadioIndicator(
-                            isSelected: option.key == selectedConIndex,
-                          )
-                        : null,
-                  ),
+    return Semantics(
+      button: true,
+      child: Column(
+        children: option.value
+            .map(
+              (credential) => GestureDetector(
+                onTap: isDisabled
+                    ? null
+                    : () {
+                        if (isActive) {
+                          onChoiceUpdated(option.key);
+                        }
+                      },
+                child: IrmaCredentialCard(
+                  padding: EdgeInsets.zero,
+                  credentialView: credential,
+                  compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                  disabled: isDisabled,
+                  headerTrailing: credential == option.value.first
+                      ? RadioIndicator(
+                          isSelected: option.key == selectedConIndex,
+                        )
+                      : null,
                 ),
-              )
-              .toList(),
-        ),
+              ),
+            )
+            .toList(),
       ),
     );
   }

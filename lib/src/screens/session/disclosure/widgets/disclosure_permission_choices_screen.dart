@@ -186,8 +186,8 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     changeable: state.changeableChoices.contains(choiceEntry.key),
                     padding: EdgeInsets.only(
                       // We add extra padding between the choices, so we have to exclude the first entry.
-                      top: i == 0 ? theme.defaultSpacing : theme.mediumSpacing,
-                      bottom: theme.defaultSpacing,
+                      top: theme.smallSpacing,
+                      bottom: theme.smallSpacing,
                     ),
                   )),
               if (state.optionalChoices.isNotEmpty) ...[
