@@ -34,6 +34,7 @@ func (sh *sessionHandler) Success(result string) {
 	dispatchEvent(&successSessionEvent{
 		SessionID: sh.sessionID,
 	})
+	dispatchCredentialsEvent()
 }
 
 func (sh *sessionHandler) Failure(err *irma.SessionError) {
@@ -41,12 +42,14 @@ func (sh *sessionHandler) Failure(err *irma.SessionError) {
 		SessionID: sh.sessionID,
 		Error:     &sessionError{err},
 	})
+	dispatchCredentialsEvent()
 }
 
 func (sh *sessionHandler) Cancelled() {
 	dispatchEvent(&canceledSessionEvent{
 		SessionID: sh.sessionID,
 	})
+	dispatchCredentialsEvent()
 }
 
 func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceRequest, satisfiable bool, candidates [][]irmaclient.DisclosureCandidates, serverName *irma.RequestorInfo, ph irmaclient.PermissionHandler) {
@@ -56,11 +59,43 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	}
 
 	sh.permissionHandler = ph
+
+	issuedCreds := []rawMultiFormatCredential{}
+	for _, cred := range request.CredentialInfoList {
+		mfCred := rawMultiFormatCredential{
+			ID:              cred.ID,
+			IssuerID:        cred.IssuerID,
+			SchemeManagerID: cred.SchemeManagerID,
+			Revoked:         cred.Revoked,
+			Attributes:      cred.Attributes,
+			HashByFormat: map[irmaclient.CredentialFormat]string{
+				irmaclient.Format_Idemix: cred.Hash,
+			},
+			SignedOn:      cred.SignedOn,
+			Expires:       cred.Expires,
+			InstanceCount: cred.InstanceCount,
+		}
+
+		if cred.InstanceCount != nil {
+			attrs := map[string]any{}
+			for id, att := range cred.Attributes {
+				attrs[id.Name()] = att[""]
+			}
+
+			hash, err := irmaclient.CreateHashForSdJwtVc(cred.Identifier().String(), attrs)
+			if err == nil {
+				mfCred.HashByFormat[irmaclient.Format_SdJwtVc] = hash
+			}
+		}
+
+		issuedCreds = append(issuedCreds, mfCred)
+	}
+
 	dispatchEvent(&requestIssuancePermissionSessionEvent{
 		SessionID:             sh.sessionID,
 		ServerName:            serverName,
 		Satisfiable:           satisfiable,
-		IssuedCredentials:     request.CredentialInfoList,
+		IssuedCredentials:     issuedCreds,
 		Disclosures:           disclose,
 		DisclosuresLabels:     request.Labels,
 		DisclosuresCandidates: candidates,
@@ -109,10 +144,6 @@ func (sh *sessionHandler) PairingRequired(pairingCode string) {
 		SessionID:   sh.sessionID,
 		PairingCode: pairingCode,
 	})
-}
-
-func (sh *sessionHandler) RequestSchemeManagerPermission(manager *irma.SchemeManager, callback func(proceed bool)) {
-	callback(false)
 }
 
 func (sh *sessionHandler) KeyshareEnrollmentMissing(manager irma.SchemeManagerIdentifier) {

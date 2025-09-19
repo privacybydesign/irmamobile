@@ -160,7 +160,7 @@ func (ah *eventHandler) clearAllData() (err error) {
 
 // Delete an individual credential
 func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
-	if err := client.RemoveCredentialByHash(event.Hash); err != nil {
+	if err := client.RemoveCredentialsByHash(event.HashByFormat); err != nil {
 		return err
 	}
 
@@ -191,7 +191,7 @@ func (ah *eventHandler) findSessionHandler(sessionID int) (*sessionHandler, erro
 }
 
 func (ah *eventHandler) updateSchemes() error {
-	err := client.Configuration.UpdateSchemes()
+	err := client.GetIrmaConfiguration().UpdateSchemes()
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func (ah *eventHandler) updateSchemes() error {
 }
 
 func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
-	var logEntries []*irmaclient.LogEntry
+	var logEntries []irmaclient.LogInfo
 	var err error
 
 	// When before is not sent, it gets Go's default value 0 and 0 is never a valid id
@@ -214,49 +214,8 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 		return err
 	}
 
-	logsOutgoing := make([]*logEntry, len(logEntries))
-	for i, entry := range logEntries {
-		var removedCredentials = make(map[irma.CredentialTypeIdentifier]map[irma.AttributeTypeIdentifier]irma.TranslatedString)
-		if entry.Type == irmaclient.ActionRemoval {
-			for credentialTypeId, attributeValues := range entry.Removed {
-				var removedCredential = make(map[irma.AttributeTypeIdentifier]irma.TranslatedString)
-				attributeTypes := client.Configuration.CredentialTypes[credentialTypeId].AttributeTypes
-				for index, attributeValue := range attributeValues {
-					typ := attributeTypes[index]
-					if typ.RevocationAttribute {
-						continue
-					}
-					removedCredential[typ.GetAttributeTypeIdentifier()] = attributeValue
-				}
-				removedCredentials[credentialTypeId] = removedCredential
-			}
-		}
-		disclosedCredentials, err := entry.GetDisclosedCredentials(client.Configuration)
-		if err != nil {
-			return err
-		}
-		issuedCredentials, err := entry.GetIssuedCredentials(client.Configuration)
-		if err != nil {
-			return err
-		}
-		signedMessage, err := entry.GetSignedMessage()
-		if err != nil {
-			return err
-		}
-		logsOutgoing[i] = &logEntry{
-			ID:                   entry.ID,
-			Type:                 entry.Type,
-			Time:                 entry.Time,
-			ServerName:           entry.ServerName,
-			IssuedCredentials:    issuedCredentials,
-			DisclosedCredentials: disclosedCredentials,
-			SignedMessage:        signedMessage,
-			RemovedCredentials:   removedCredentials,
-		}
-	}
-
 	dispatchEvent(&logsEvent{
-		LogEntries: logsOutgoing,
+		LogEntries: logEntries,
 	})
 
 	return nil
@@ -268,11 +227,11 @@ func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
 }
 
 func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEvent) error {
-	wizard := client.Configuration.IssueWizards[event.ID]
+	wizard := client.GetIrmaConfiguration().IssueWizards[event.ID]
 	if wizard == nil {
 		return errors.New("issue wizard not found")
 	}
-	contents, err := wizard.Path(client.Configuration, client.CredentialInfoList())
+	contents, err := wizard.Path(client.GetIrmaConfiguration(), client.CredentialInfoList())
 	if err != nil {
 		return errors.WrapPrefix(err, "failed to process issue wizard", 0)
 	}
@@ -284,7 +243,7 @@ func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEven
 }
 
 func (ah *eventHandler) installScheme(event *installSchemeEvent) error {
-	err := client.Configuration.InstallScheme(event.URL, []byte(event.PublicKey))
+	err := client.GetIrmaConfiguration().InstallScheme(event.URL, []byte(event.PublicKey))
 	if err != nil {
 		return err
 	}

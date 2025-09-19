@@ -25,7 +25,7 @@ void main() {
       mostRecentTermsUrlNl: 'testurl',
       mostRecentTermsUrlEn: 'testurl',
     );
-    preferences.markLatestTermsAsAccepted(true);
+    await preferences.markLatestTermsAsAccepted(true);
 
     repo = IrmaRepository(client: mockBridge, preferences: preferences);
 

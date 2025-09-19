@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/attribute.dart';
-import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/credential_card/irma_empty_credential_card.dart';
+import '../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/requestor_header.dart';
 import '../../../widgets/translated_text.dart';
 
 class ActivityDetailDisclosure extends StatelessWidget {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   const ActivityDetailDisclosure({
@@ -20,32 +18,9 @@ class ActivityDetailDisclosure extends StatelessWidget {
     required this.irmaConfiguration,
   });
 
-  Widget _buildCredentialCard(
-    BuildContext context,
-    List<DisclosedAttribute> disclosedAttributes,
-  ) {
-    final mappedAttributes =
-        disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
-    final credentialView = CredentialView.fromAttributes(
-      irmaConfiguration: irmaConfiguration,
-      attributes: mappedAttributes,
-    );
-
-    final theme = IrmaTheme.of(context);
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: IrmaCredentialCard(
-        credentialView: credentialView,
-        hideFooter: true,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final groupedDisclosedAttributes = logEntry.disclosedAttributes;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,21 +32,21 @@ class ActivityDetailDisclosure extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         // If all disclosed attributes are empty render one empty data card
-        if (groupedDisclosedAttributes.every(
-          (disclosedAttributes) => disclosedAttributes.isEmpty,
-        ))
+        if (noDisclosedCredentials(logEntry))
           IrmaEmptyCredentialCard()
-        // Else build credential cards for all the
-        // disclosedAttributes that are not empty
         else
-          for (var disclosedAttributes in groupedDisclosedAttributes.where(
-            (disclosedAttributes) => disclosedAttributes.isNotEmpty,
-          ))
-            _buildCredentialCard(
-              context,
-              disclosedAttributes,
+          for (var credential in logEntry.type == LogType.disclosure
+              ? logEntry.disclosureLog!.credentials
+              : logEntry.signedMessageLog!.credentials)
+            Padding(
+              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              child: YiviCredentialCard.fromCredentialLog(
+                irmaConfiguration,
+                credential,
+                compact: true,
+              ),
             ),
-        if (logEntry.type == LogEntryType.signing) ...[
+        if (logEntry.type == LogType.signature) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
             child: TranslatedText(
@@ -80,9 +55,9 @@ class ActivityDetailDisclosure extends StatelessWidget {
               isHeader: true,
             ),
           ),
-          IrmaQuote(quote: logEntry.signedMessage?.message),
+          IrmaQuote(quote: logEntry.signedMessageLog!.message),
         ],
-        SizedBox(height: theme.defaultSpacing),
+        SizedBox(height: theme.smallSpacing),
         TranslatedText(
           'activity.shared_with',
           style: theme.themeData.textTheme.headlineMedium,
@@ -90,9 +65,15 @@ class ActivityDetailDisclosure extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         RequestorHeader(
-          requestorInfo: logEntry.serverName,
+          requestorInfo: logEntry.requestorInfo,
         )
       ],
     );
+  }
+
+  bool noDisclosedCredentials(LogInfo info) {
+    return info.type == LogType.disclosure
+        ? info.disclosureLog!.credentials.isEmpty
+        : info.signedMessageLog!.credentials.isEmpty;
   }
 }

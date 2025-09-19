@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -43,7 +43,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // Expect cards to have the right content
-  final cardsFinder = find.byType(IrmaCredentialCard);
+  final cardsFinder = find.byType(YiviCredentialCard);
 
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../widgets/credential_card/yivi_credential_card.dart';
+import '../../../widgets/requestor_header.dart';
 import '../../../widgets/translated_text.dart';
-import 'activity_detail_disclosure.dart';
 
 class ActivityDetailIssuance extends StatelessWidget {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   const ActivityDetailIssuance({
@@ -21,16 +20,34 @@ class ActivityDetailIssuance extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
+    final issuanceLog = logEntry.issuanceLog!;
+    final requestor = issuanceLog.issuer;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //If is this issuance also has disclosed attributes
-        if (logEntry.disclosedAttributes.isNotEmpty) ...[
-          ActivityDetailDisclosure(
-            logEntry: logEntry,
-            irmaConfiguration: irmaConfiguration,
+        if (issuanceLog.disclosedCredentials.isNotEmpty) ...[
+          TranslatedText(
+            'activity.data_shared',
+            style: theme.themeData.textTheme.headlineMedium,
+            isHeader: true,
           ),
           SizedBox(height: theme.smallSpacing),
+          for (final cred in issuanceLog.disclosedCredentials)
+            Padding(
+              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              child: YiviCredentialCard.fromCredentialLog(irmaConfiguration, cred, compact: true),
+            ),
+          SizedBox(height: theme.smallSpacing),
+          TranslatedText(
+            'activity.shared_with',
+            style: theme.themeData.textTheme.headlineMedium,
+            isHeader: true,
+          ),
+          SizedBox(height: theme.smallSpacing),
+          RequestorHeader(requestorInfo: requestor, isVerified: !requestor.unverified),
+          SizedBox(height: theme.defaultSpacing),
         ],
         TranslatedText(
           'activity.received_data',
@@ -38,15 +55,13 @@ class ActivityDetailIssuance extends StatelessWidget {
           isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
-        for (var rawCredential in logEntry.issuedCredentials)
+        for (var rawCredential in issuanceLog.credentials)
           Padding(
             padding: EdgeInsets.only(bottom: theme.smallSpacing),
-            child: IrmaCredentialCard.fromCredential(
-              Credential.fromRaw(
-                irmaConfiguration: irmaConfiguration,
-                rawCredential: rawCredential,
-              ),
-              hideFooter: true,
+            child: YiviCredentialCard.fromCredentialLog(
+              irmaConfiguration,
+              rawCredential,
+              compact: true,
             ),
           )
       ],

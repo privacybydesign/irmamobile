@@ -88,11 +88,14 @@
   },
   "credential": {
     "no_data": "No data",
-    "valid_until": "Valid until: {date}",
+    "valid_until": "Valid until",
     "expires_on": "Expires on {date}",
     "expired_on": "Expired on {date}",
     "date_at_time": "{date} at {time}",
-    "issued_by": "Issued by:",
+    "issued_by": "by {issuer}",
+    "sharable": "Sharable",
+    "sharable_count": "{count} times left",
+    "sharable_unlimited": "Unlimited",
     "options": {
       "title": "Options",
       "reobtain": "Reobtain",
