@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 
@@ -51,13 +50,10 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       StringBuilder exception = new StringBuilder(e.toString());
       Throwable cause = e.getCause();
       while (cause != null) {
-        exception.append("\nCaused by: ").append(cause.toString());
+        exception.append("\nCaused by: ").append(cause);
         cause = cause.getCause();
       }
-      String[] stackTrace = null;
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        stackTrace = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray(String[]::new);
-      }
+      String[] stackTrace = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).toArray(String[]::new);
 
       JSONObject jsonObject = new JSONObject();
       try {
