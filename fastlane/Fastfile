@@ -42,7 +42,7 @@ lane :android_build_irmagobridge do
     sh(
       "gomobile", "bind",
       "-target", "android",
-      "-androidapi", "23",
+      "-androidapi", "24",
       "-o", "android/irmagobridge/irmagobridge.aar",
       "github.com/privacybydesign/irmamobile/irmagobridge"
     )

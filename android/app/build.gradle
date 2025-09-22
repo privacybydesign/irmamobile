@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    compileSdkVersion 35
+    compileSdkVersion 36
     namespace 'foundation.privacybydesign.irmamobile'
 
     lintOptions {
@@ -32,8 +32,8 @@ android {
 
     defaultConfig {
         applicationId "org.irmacard.cardemu"
-        minSdkVersion 23
-        targetSdkVersion 35
+        minSdkVersion 24
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
