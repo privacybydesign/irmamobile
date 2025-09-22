@@ -7,6 +7,8 @@ version: 7.9.0+4194478
 environment:
   sdk: "^3.6.0"
 
+publish_to: none
+
 dependencies:
   flutter:
     sdk: flutter
@@ -38,7 +40,9 @@ dependencies:
   shared_preferences: ^2.0.7
   async: ^2.11.0
   streaming_shared_preferences: ^2.0.0
-  jailbreak_root_detection: ^1.1.6
+  jailbreak_root_detection:
+    git:
+      url: https://github.com/privacybydesign/jailbreak_root_detection
   visibility_detector: ^0.4.0+2
   quiver: ^3.0.1
   timeline_tile: ^2.0.0
