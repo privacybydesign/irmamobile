@@ -30,10 +30,13 @@ dependencies:
   url_launcher: ^6.0.10
   json_annotation: ^4.8.0
   rxdart: ^0.28.0
-  package_info_plus: ^8.1.1
+  package_info_plus: ^9.0.0
   collection: ^1.18.0
   qr_code_scanner_plus: ^2.0.10+1
-  native_device_orientation: ^2.0.3
+  native_device_orientation:
+    git:
+      url: https://github.com/smith8h/flutter_native_device_orientation
+      ref: android
   share_plus: 11.0.0
   intl: ^0.20.2
   flutter_markdown: ^0.7.4+1
