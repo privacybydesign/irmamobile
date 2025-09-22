@@ -33,25 +33,26 @@ dependencies:
   package_info_plus: ^9.0.0
   collection: ^1.18.0
   qr_code_scanner_plus: ^2.0.10+1
-  native_device_orientation:
-    git:
-      url: https://github.com/smith8h/flutter_native_device_orientation
-      ref: android
   share_plus: 11.0.0
   intl: ^0.20.2
   flutter_markdown: ^0.7.4+1
   shared_preferences: ^2.0.7
   async: ^2.11.0
   streaming_shared_preferences: ^2.0.0
-  jailbreak_root_detection:
-    git:
-      url: https://github.com/privacybydesign/jailbreak_root_detection
   visibility_detector: ^0.4.0+2
   quiver: ^3.0.1
   timeline_tile: ^2.0.0
   lottie: ^3.1.3
   permission_handler: ^12.0.1
   flutter_riverpod: ^2.6.1
+  # Temporary forks because their original repos are not compatible with new android api's.
+  # Should be reverted back to their published version when they're made compatible.
+  jailbreak_root_detection:
+    git:
+      url: https://github.com/privacybydesign/jailbreak_root_detection
+  native_device_orientation:
+    git:
+      url: https://github.com/privacybydesign/flutter_native_device_orientation
 
 dev_dependencies:
   flutter_test:

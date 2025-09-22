@@ -649,9 +649,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: android
+      ref: HEAD
       resolved-ref: b2c718afdb8f2502a28fd5c37886c3929c6adb64
-      url: "https://github.com/smith8h/flutter_native_device_orientation"
+      url: "https://github.com/privacybydesign/flutter_native_device_orientation"
     source: git
     version: "2.0.3"
   nested:
