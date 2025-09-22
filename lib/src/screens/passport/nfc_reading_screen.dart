@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/passport_issuer.dart';
 import '../../data/passport_reader.dart';
-import '../../models/nfc_reading_state.dart';
 import '../../models/passport_data_result.dart';
 import '../../providers/passport_repository_provider.dart';
 import '../../theme/theme.dart';
