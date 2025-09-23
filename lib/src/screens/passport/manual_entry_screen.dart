@@ -43,15 +43,6 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
 
   bool _canContinue = false; // soft validity during typing
 
-  @override
-  void initState() {
-    super.initState();
-    // Recompute soft validity whenever any field changes
-    _documentNrCtrl.addListener(_recomputeCanContinue);
-    _dateOfBirthCtrl.addListener(_recomputeCanContinue);
-    _expiryDateCtrl.addListener(_recomputeCanContinue);
-  }
-
   void _recomputeCanContinue() {
     // Keep this light: avoid calling validate() here.
     final docOk = _documentNrCtrl.text.trim().isNotEmpty;
@@ -62,14 +53,6 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
     if (can != _canContinue) {
       setState(() => _canContinue = can);
     }
-  }
-
-  @override
-  void dispose() {
-    _documentNrCtrl.dispose();
-    _dateOfBirthCtrl.dispose();
-    _expiryDateCtrl.dispose();
-    super.dispose();
   }
 
   void _onContinuePressed() {
@@ -90,9 +73,9 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
     if (parts.length != 3) {
       throw FormatException('Invalid date format: $input');
     }
-    final day = int.parse(parts[0]);
+    final year = int.parse(parts[0]);
     final month = int.parse(parts[1]);
-    final year = int.parse(parts[2]);
+    final day = int.parse(parts[2]);
     return DateTime(year, month, day);
   }
 

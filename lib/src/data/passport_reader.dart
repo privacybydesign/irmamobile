@@ -115,7 +115,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     }
 
     _isCancelled = false;
-    final isPaceCandidate = countryCode != null && paceCountriesAlpha3.contains(countryCode.toUpperCase());
+    final isPaceCandidate = countryCode == null || paceCountriesAlpha3.contains(countryCode.toUpperCase());
 
     final key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: isPaceCandidate);
 
