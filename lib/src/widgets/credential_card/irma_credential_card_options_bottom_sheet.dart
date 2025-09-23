@@ -19,50 +19,54 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
     required String translationKey,
     required IrmaThemeData theme,
     Function()? onTap,
-  }) =>
-      ListTile(
-        onTap: onTap,
-        contentPadding: EdgeInsets.zero,
-        minLeadingWidth: 0,
-        leading: Icon(
-          icon,
-          color: theme.themeData.colorScheme.secondary,
-        ),
-        title: TranslatedText(
-          translationKey,
-          style: theme.textTheme.bodyMedium,
-        ),
-      );
+  }) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: EdgeInsets.zero,
+      minLeadingWidth: 0,
+      leading: Icon(
+        icon,
+        color: theme.themeData.colorScheme.secondary,
+      ),
+      title: TranslatedText(
+        translationKey,
+        style: theme.textTheme.bodyMedium,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     return IrmaBottomSheet(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TranslatedText(
-            'credential.options.title',
-            style: theme.textTheme.displaySmall,
-          ),
-          SizedBox(height: theme.defaultSpacing),
-          if (onReobtain != null)
-            _buildOptionTile(
-              theme: theme,
-              icon: Icons.cached,
-              translationKey: 'credential.options.reobtain',
-              onTap: onReobtain,
-            ),
-          if (onReobtain != null && onDelete != null) const IrmaDivider(),
-          if (onDelete != null)
-            _buildOptionTile(
-              theme: theme,
-              icon: Icons.delete,
-              translationKey: 'credential.options.delete',
-              onTap: onDelete,
-            ),
-        ],
+      title: TranslatedText(
+        'credential.options.title',
+        style: theme.textTheme.displaySmall,
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IrmaDivider(),
+            if (onReobtain != null)
+              _buildOptionTile(
+                theme: theme,
+                icon: Icons.cached,
+                translationKey: 'credential.options.reobtain',
+                onTap: onReobtain,
+              ),
+            if (onReobtain != null && onDelete != null) const IrmaDivider(),
+            if (onDelete != null)
+              _buildOptionTile(
+                theme: theme,
+                icon: Icons.delete,
+                translationKey: 'credential.options.delete',
+                onTap: onDelete,
+              ),
+          ],
+        ),
       ),
     );
   }
