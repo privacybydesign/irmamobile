@@ -64,6 +64,10 @@ class MRZScannerState extends State<MRZScanner> {
     try {
       final recognizedText = await _textRecognizer.processImage(inputImage);
       String fullText = recognizedText.text;
+      // Terminate as quickly as possible.
+      if (fullText.isEmpty) {
+        return false;
+      }
       String trimmedText = fullText.replaceAll(' ', '');
       List allText = trimmedText.split('\n');
 

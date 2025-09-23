@@ -175,8 +175,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                             port: uri.hasPort ? uri.port : null,
                           );
 
-                          final repo = ref.read(passportRepositoryProvider);
-                          repo.hostName = baseUri.toString();
+                          // Set the url to use for the issuance session to the issuer url in the scheme
+                          ref.read(passportUrlProvider.notifier).state = baseUri.toString();
+
                           // Open the MzrReaderScreen
                           context.pushPassportMrzReaderScreen();
                           return;
@@ -264,27 +265,32 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: '/mzr_reader',
         builder: (context, state) {
           return MzrReaderScreen(
-            onSuccess: (mrzResult) => context.pushNfcReadingScreen(NfcReadingRouteParams(
-              docNumber: mrzResult.documentNumber,
-              dateOfBirth: mrzResult.birthDate,
-              dateOfExpiry: mrzResult.expiryDate,
-              countryCode: mrzResult.countryCode,
-            )),
+            onSuccess: (mrzResult) => context.pushNfcReadingScreen(
+              NfcReadingRouteParams(
+                docNumber: mrzResult.documentNumber,
+                dateOfBirth: mrzResult.birthDate,
+                dateOfExpiry: mrzResult.expiryDate,
+                countryCode: mrzResult.countryCode,
+              ),
+            ),
             onManualAdd: () => context.pushPassportManualEnterScreen(),
             onCancel: () => context.pop(),
           );
         },
       ),
       GoRoute(
-          path: '/passport_manual_enter',
-          builder: (context, state) => ManualEntryScreen(
-                onCancel: () => context.pop(),
-                onContinue: (data) => context.pushNfcReadingScreen(NfcReadingRouteParams(
-                  docNumber: data.documentNr,
-                  dateOfBirth: data.dateOfBirth,
-                  dateOfExpiry: data.expiryDate,
-                )),
-              )),
+        path: '/passport_manual_enter',
+        builder: (context, state) => ManualEntryScreen(
+          onCancel: () => context.pop(),
+          onContinue: (data) => context.pushNfcReadingScreen(
+            NfcReadingRouteParams(
+              docNumber: data.documentNr,
+              dateOfBirth: data.dateOfBirth,
+              dateOfExpiry: data.expiryDate,
+            ),
+          ),
+        ),
+      ),
       GoRoute(
         path: '/nfc_reading',
         builder: (context, state) {

@@ -8,6 +8,7 @@ import 'widgets/mzr_scanner.dart';
 
 typedef MRZController = GlobalKey<MRZScannerState>;
 
+/// Mzr reading is the process of obtaining mrz data via the camera
 class MzrReaderScreen extends StatefulWidget {
   final Function(MRZResult mrzResult) onSuccess;
   final VoidCallback onManualAdd;

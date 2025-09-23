@@ -1,17 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
-import 'package:vcmrtd/vcmrtd.dart';
 
-import '../../data/passport_repository.dart';
-import '../../models/nfc_reading_state.dart';
+import '../../data/passport_issuer.dart';
+import '../../data/passport_reader.dart';
 import '../../models/passport_data_result.dart';
-import '../../models/session.dart';
 import '../../providers/passport_repository_provider.dart';
 import '../../theme/theme.dart';
 import '../../util/handle_pointer.dart';
@@ -43,245 +37,69 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
 
-class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements PassportListener {
-  late PassportRepository _repo;
+class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
+  void cancel() async {
+    final userWantsCancel = await _showCancelDialog(context);
 
-  var _isNfcAvailable = true;
-  double _progress = 0.0;
-  String _stateKey = 'passport.nfc.connecting';
-  String _hintKey = 'passport.nfc.hold_near_photo_page';
-  String _tipKey = 'passport.nfc.tip_2';
-
-  PassportDataResult? _pendingIssuanceResult;
-  bool _issuanceError = false;
+    if (userWantsCancel) {
+      ref.read(passportReaderProvider.notifier).cancel();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-
-    _repo = ref.read(passportRepositoryProvider);
-
-    _initNFCState();
+    startSession();
   }
 
-  Future<void> _initNFCState() async {
-    bool isNfcAvailable;
-    try {
-      NfcStatus status = await NfcProvider.nfcStatus;
-      isNfcAvailable = status == NfcStatus.enabled;
-    } on PlatformException {
-      isNfcAvailable = false;
-    }
+  void startSession() async {
+    final passportIssuer = ref.read(passportIssuerProvider);
 
-    if (!mounted) return;
+    final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer.startSessionAtPassportIssuer();
 
-    setState(() {
-      _isNfcAvailable = isNfcAvailable;
-    });
+    final result = await ref.read(passportReaderProvider.notifier).readWithMRZ(
+          documentNumber: widget.docNumber,
+          birthDate: widget.dateOfBirth,
+          expiryDate: widget.dateOfExpiry,
+          countryCode: widget.countryCode,
+          sessionId: sessionId,
+          nonce: stringToUint8List(nonce),
+        );
 
-    if (_isNfcAvailable) {
-      await _startReading();
-    }
-  }
+    if (result != null) {
+      try {
+        // start the issuance session at the irma server
+        final sessionPtr = await passportIssuer.startIrmaIssuanceSession(result);
+        if (!mounted) {
+          return;
+        }
 
-  Future<void> _startReading() async {
-    _progress = 0.0;
-    _stateKey = 'passport.nfc.connecting';
-    _hintKey = 'passport.nfc.hold_near_photo_page';
-    _tipKey = 'passport.nfc.tip_2';
-    _issuanceError = false;
-    _pendingIssuanceResult = null;
-    setState(() {});
-
-    try {
-      final (sessionId, nonce) = await _getPassportIssuanceSession();
-      final nonceBytes = stringToUint8List(nonce);
-
-      await _repo.readWithMRZ(
-        documentNumber: widget.docNumber,
-        birthDate: widget.dateOfBirth,
-        expiryDate: widget.dateOfExpiry,
-        countryCode: widget.countryCode,
-        sessionId: sessionId,
-        nonce: nonceBytes,
-        listener: this,
-      );
-    } catch (_) {
-      setState(() {
-        _progress = 0.0;
-        _stateKey = 'passport.nfc.error';
-        _hintKey = 'passport.nfc.error_generic';
-        _tipKey = 'passport.nfc.tip_3';
-        _issuanceError = true;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _repo.cancel();
-    super.dispose();
-  }
-
-  @override
-  void onStateChanged(NFCReadingState state) {
-    switch (state) {
-      case NFCReadingState.waiting:
-      case NFCReadingState.connecting:
-        _stateKey = 'passport.nfc.connecting';
-        _tipKey = 'passport.nfc.tip_2';
-        break;
-      case NFCReadingState.authenticating:
-      case NFCReadingState.reading:
-        _stateKey = 'passport.nfc.connecting';
-        _tipKey = 'passport.nfc.tip_1';
-        break;
-      case NFCReadingState.error:
-        _tipKey = 'passport.nfc.tip_3';
-        break;
-      case NFCReadingState.cancelling:
-        _stateKey = 'passport.nfc.cancelling';
-        break;
-      case NFCReadingState.success:
-        _stateKey = 'passport.nfc.success';
-        break;
-      case NFCReadingState.idle:
-        _stateKey = 'passport.nfc.idle';
-        break;
-    }
-  }
-
-  @override
-  void onMessage(NfcProvider nfc, String messageKey) {
-    final translation = FlutterI18n.translate(context, messageKey);
-    if (nfc.isConnected()) {
-      nfc.setIosAlertMessage(translation);
-    }
-
-    setState(() {
-      _hintKey = messageKey;
-    });
-  }
-
-  @override
-  void onProgress(double value) {
-    setState(() {
-      _progress = value.clamp(0.0, 1.0);
-    });
-  }
-
-  @override
-  void onCancelled() {
-    widget.onCancel?.call();
-  }
-
-  @override
-  void onComplete(PassportDataResult result) async {
-    _pendingIssuanceResult = result;
-    await _startIssuance(result);
-  }
-
-  @override
-  void onError() {
-    setState(() {
-      _progress = 0.0;
-      _issuanceError = false;
-      _pendingIssuanceResult = null;
-    });
-  }
-
-  Future<void> _startIssuance(PassportDataResult passportDataResult) async {
-    // Create secure data payload
-    final payload = passportDataResult.toJson();
-    try {
-      // Get the signed IRMA JWT from the passport issuer
-      final responseBody = await _getIrmaSessionJwt(payload);
-      final irmaServerUrlParam = responseBody['irma_server_url'];
-      final jwtUrlParam = responseBody['jwt'];
-
-      // Start the session
-      final sessionResponseBody = await _startIrmaSession(jwtUrlParam, irmaServerUrlParam);
-      final sessionPtr = sessionResponseBody['sessionPtr'];
-
-      if (!mounted) return;
-
-      final pointer = Pointer.fromString(json.encode(sessionPtr)) as SessionPointer;
-
-      // This should be true so that the app doesn't want to go back to the browser
-      pointer.continueOnSecondDevice = true;
-      await handlePointer(context, pointer, pushReplacement: false);
-
-      if (!mounted) return;
-      _pendingIssuanceResult = null;
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _progress = 0.0;
-        _stateKey = 'passport.nfc.error';
-        _hintKey = 'passport.nfc.error_generic';
-        _tipKey = 'passport.nfc.tip_3';
-        _issuanceError = true;
-      });
-    }
-  }
-
-  void _handleRetry() {
-    if (_issuanceError && _pendingIssuanceResult != null) {
-      _startIssuance(_pendingIssuanceResult!);
+        // handle it like any other external issuance session
+        await handlePointer(context, sessionPtr);
+      } catch (e) {
+        debugPrint('issuance error: $e');
+      }
     } else {
-      _startReading();
+      debugPrint('canceled passport irma issuance session because the passport data result is null');
     }
   }
 
-  void _handleCancel() async {
-    final shouldCancel = await _showCancelDialog(context);
-    if (shouldCancel) {
-      _repo.cancel();
-      widget.onCancel?.call();
-    }
-  }
-
-  Future<(String, String)> _getPassportIssuanceSession() async {
-    final storeResp = await http
-        .post(Uri.parse('${_repo.hostName}/api/start-validation'), headers: {'Content-Type': 'application/json'});
-    if (storeResp.statusCode != 200) {
-      throw Exception('Store failed: ${storeResp.statusCode} ${storeResp.body}');
-    }
-
-    var response = json.decode(storeResp.body);
-    return (response['session_id'].toString(), response['nonce'].toString());
-  }
-
-  Future<dynamic> _getIrmaSessionJwt(Map<String, dynamic> payload) async {
-    final String jsonPayload = json.encode(payload);
-    final storeResp = await http.post(
-      Uri.parse('${_repo.hostName}/api/verify-and-issue'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonPayload,
-    );
-    if (storeResp.statusCode != 200) {
-      throw Exception('Store failed: ${storeResp.statusCode} ${storeResp.body}');
-    }
-
-    return json.decode(storeResp.body);
-  }
-
-  Future<dynamic> _startIrmaSession(String jwt, String irmaServerUrl) async {
-    // Start the IRMA session
-    final response = await http.post(
-      Uri.parse('$irmaServerUrl/session'),
-      body: jwt,
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Store failed: ${response.statusCode} ${response.body}');
-    }
-
-    return json.decode(response.body);
+  void retry() {
+    ref.read(passportReaderProvider.notifier).cancel();
+    startSession();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    final passportState = ref.watch(passportReaderProvider);
+
+    if (passportState is PassportReaderNfcUnavailable) {
+      return _buildNfcUnavailableScreen(context);
+    }
+
+    final uiState = passportReadingStateToUiState(passportState);
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
@@ -297,62 +115,158 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> implements 
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    decoration: BoxDecoration(
-                      color: _isNfcAvailable ? theme.success : theme.error,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: BoxDecoration(color: theme.success, shape: BoxShape.circle),
                     width: 40,
                     height: 40,
                     alignment: Alignment.center,
-                    child: Icon(
-                      _isNfcAvailable ? Icons.check : Icons.close,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                    child: Icon(Icons.check, color: Colors.white, size: 24),
                   ),
                   const SizedBox(width: 12),
-                  TranslatedText(
-                    _isNfcAvailable ? 'passport.nfc.nfc_enabled' : 'passport.nfc.nfc_disabled',
-                  ),
+                  TranslatedText('passport.nfc.nfc_enabled'),
                 ],
               ),
             ),
             Expanded(
               child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: _isNfcAvailable
-                      ? _ScanningContent(
-                          theme: theme,
-                          tipKey: _tipKey,
-                          progressPercent: (_progress * 100).clamp(0, 100).toDouble(),
-                          statusKey: _stateKey,
-                          hintKey: _hintKey,
-                          key: ValueKey('scanning-$_tipKey-$_progress'),
-                        )
-                      : _DisabledContent(theme: theme, key: const ValueKey('disabled'))),
+                duration: const Duration(milliseconds: 250),
+                child: _ScanningContent(
+                  theme: theme,
+                  tipKey: uiState.tipKey,
+                  progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
+                  statusKey: uiState.stateKey,
+                  hintKey: uiState.hintKey,
+                  key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
+                ),
+              ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: _isNfcAvailable
-          ? IrmaBottomBar(
-              alignment: IrmaBottomBarAlignment.vertical,
-              primaryButtonLabel: _stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
-              onPrimaryPressed: _stateKey == 'passport.nfc.error' ? _handleRetry : null,
-              secondaryButtonLabel: 'ui.cancel',
-              onSecondaryPressed: _handleCancel,
-            )
-          : IrmaBottomBar(
-              alignment: IrmaBottomBarAlignment.vertical,
-              primaryButtonLabel: 'ui.retry',
-              onPrimaryPressed: () {
-                _initNFCState();
-              },
-              secondaryButtonLabel: 'ui.cancel',
-              onSecondaryPressed: _handleCancel,
-            ),
+      bottomNavigationBar: IrmaBottomBar(
+        alignment: IrmaBottomBarAlignment.vertical,
+        primaryButtonLabel: uiState.stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
+        onPrimaryPressed: uiState.stateKey == 'passport.nfc.error' ? retry : null,
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
+      ),
     );
   }
+
+  Widget _buildNfcUnavailableScreen(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Scaffold(
+      backgroundColor: theme.backgroundTertiary,
+      appBar: IrmaAppBar(titleTranslationKey: 'passport.nfc.title'),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(color: theme.error, shape: BoxShape.circle),
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.close, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  TranslatedText('passport.nfc.nfc_disabled'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: _DisabledContent(theme: theme, key: const ValueKey('disabled')),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        alignment: IrmaBottomBarAlignment.vertical,
+        primaryButtonLabel: 'ui.retry',
+        onPrimaryPressed: retry,
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
+      ),
+    );
+  }
+
+  _UiState passportReadingStateToUiState(PassportReaderState state) {
+    return switch (state) {
+      PassportReaderPending() => _UiState(
+          progress: 0.0,
+          stateKey: 'passport.nfc.connecting',
+          tipKey: 'passport.nfc.hold_near_photo_page',
+          hintKey: 'passport.nfc.tip_2',
+        ),
+      PassportReaderConnecting() => _UiState(
+          progress: 0.0,
+          stateKey: 'passport.nfc.connecting',
+          tipKey: 'passport.nfc.tip_2',
+          hintKey: 'passport.nfc.hold_near_photo_page',
+        ),
+      PassportReaderAuthenticating() => _UiState(
+          progress: 0.1,
+          stateKey: 'passport.nfc.connecting',
+          tipKey: 'passport.nfc.tip_2',
+          hintKey: 'passport.nfc.hold_near_photo_page',
+        ),
+      PassportReaderReadingCardAccess() => _UiState(
+          progress: 0.2,
+          stateKey: 'passport.nfc.reading_card_access',
+          tipKey: 'passport.nfc.tip_3',
+          hintKey: 'passport.nfc.tip_3',
+        ),
+      PassportReaderReadingCardSecurity() => _UiState(
+          progress: 0.3,
+          stateKey: 'passport.nfc.reading_card_security',
+          tipKey: 'passport.nfc.tip_3',
+          hintKey: 'passport.nfc.tip_3',
+        ),
+      PassportReaderReadingPassportData() => _UiState(
+          progress: 0.4,
+          stateKey: 'passport.nfc.reading_passport_data',
+          tipKey: 'passport.nfc.tip_1',
+          hintKey: 'passport.nfc.tip_1',
+        ),
+      PassportReaderActiveAuthenticating() => _UiState(
+          progress: 0.9,
+          stateKey: 'passport.nfc.performing_security_verification',
+          tipKey: 'passport.nfc.tip_1',
+          hintKey: 'passport.nfc.tip_1',
+        ),
+      PassportReaderSuccess() => _UiState(
+          progress: 1,
+          stateKey: 'passport.nfc.success',
+          tipKey: 'passport.nfc.success_explanation',
+          hintKey: 'passport.nfc.success_explanation',
+        ),
+      PassportReaderFailed(:final error) => _UiState(
+          progress: 0,
+          stateKey: 'passport.nfc.error',
+          tipKey: _readingErrorToHintKey(error),
+          hintKey: _readingErrorToHintKey(error),
+        ),
+      PassportReaderCancelling() => _UiState(progress: 0, stateKey: 'passport.nfc.cancelled', tipKey: '', hintKey: ''),
+      PassportReaderCancelled() => _UiState(progress: 0, stateKey: 'passport.nfc.cancelled', tipKey: '', hintKey: ''),
+      _ => throw Exception('unexpected state: $state'),
+    };
+  }
+}
+
+String _readingErrorToHintKey(PassportReadingError error) {
+  return switch (error) {
+    PassportReadingError.unknown => 'passport.nfc.error_generic',
+    PassportReadingError.timeoutWaitingForTag => 'passport.nfc.timeout_waiting_for_tag',
+    PassportReadingError.tagLost => 'passport.nfc.tag_lost_try_again',
+    PassportReadingError.failedToInitiateSession => 'passport.nfc.failed_initiate_session',
+    PassportReadingError.invalidatedByUser => '',
+  };
 }
 
 Future<bool> _showCancelDialog(BuildContext context) async {
@@ -427,7 +341,9 @@ class _ScanningContent extends StatelessWidget {
         SizedBox(height: theme.mediumSpacing),
         TranslatedText(statusKey, style: theme.textTheme.headlineMedium),
         SizedBox(height: theme.smallSpacing),
-        TranslatedText(hintKey ?? '', style: theme.textTheme.bodyMedium),
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+            child: TranslatedText(hintKey ?? '', style: theme.textTheme.bodyMedium, textAlign: TextAlign.center)),
         SizedBox(height: theme.mediumSpacing),
         IrmaLinearProgressIndicator(filledPercentage: progressPercent),
         SizedBox(height: theme.largeSpacing),
@@ -456,4 +372,13 @@ class _ScanningContent extends StatelessWidget {
       ],
     );
   }
+}
+
+class _UiState {
+  final String tipKey;
+  final double progress;
+  final String stateKey;
+  final String hintKey;
+
+  _UiState({required this.tipKey, required this.progress, required this.stateKey, required this.hintKey});
 }
