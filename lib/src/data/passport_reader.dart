@@ -70,7 +70,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
   Future<void> checkNfcAvailability() async {
     try {
       NfcStatus status = await NfcProvider.nfcStatus;
-      if (status == NfcStatus.enabled) {
+      if (status != NfcStatus.enabled) {
         state = PassportReaderNfcUnavailable();
       }
     } catch (e) {
