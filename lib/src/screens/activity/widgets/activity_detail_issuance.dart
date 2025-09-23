@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/yivi_credential_card.dart';
-import '../../../widgets/issuer_verifier_header.dart';
+import '../../../widgets/requestor_header.dart';
 import '../../../widgets/translated_text.dart';
 
 class ActivityDetailIssuance extends StatelessWidget {
@@ -47,15 +46,7 @@ class ActivityDetailIssuance extends StatelessWidget {
             isHeader: true,
           ),
           SizedBox(height: theme.smallSpacing),
-          IssuerVerifierHeader(
-            title: requestor.name.translate(
-              FlutterI18n.currentLocale(context)!.languageCode,
-            ),
-            titleTextStyle: IrmaTheme.of(context).textTheme.headlineSmall!.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-            imagePath: requestor.logoPath,
-          ),
+          RequestorHeader(requestorInfo: requestor, isVerified: !requestor.unverified),
           SizedBox(height: theme.defaultSpacing),
         ],
         TranslatedText(

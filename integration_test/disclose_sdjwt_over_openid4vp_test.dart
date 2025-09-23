@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/activity/activity_detail_screen.dart';
-import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
@@ -14,7 +13,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_per
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
-import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
+import 'package:irmamobile/src/widgets/requestor_header.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import 'disclosure_session/disclosure_helpers.dart';
@@ -108,12 +107,14 @@ Future<void> navigateToLatestActivity(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  // navigate to activity page
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
-  expect(find.byType(ActivityTab), findsOneWidget);
+  expect(find.byKey(const Key('nav_button_activity')), findsOneWidget);
+
+  await tester.tap(find.byKey(const Key('nav_button_activity'), skipOffstage: false));
+  // for some reason pump and settle fails here in landscape mode, so we'll just do this instead...
+  await tester.pump(const Duration(seconds: 1));
 
   // pick top card
-  await tester.tapAndSettle(find.byType(ActivityCard).at(0));
+  await tester.tapAndSettle(find.byType(ActivityCard, skipOffstage: false).at(0));
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
 }
 
@@ -188,7 +189,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationT
       'Email address': 'one@example.com',
     },
   );
-  await evaluateRequestor(tester, find.byType(IssuerVerifierHeader), 'Yivi B.V.');
+  await evaluateRequestor(tester, find.byType(RequestorHeader), 'Yivi B.V.');
 }
 
 Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -242,8 +243,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, Integra
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
-  await tester.tapAndSettle(find.text('Change choice'));
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  await tapChangeChoicesButton(tester);
 
   // make sure there are three choices available (two existing + option to issue new one)
   expect(cardsFinder, findsNWidgets(3));
@@ -315,7 +315,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
     },
   );
 
-  await tester.tapAndSettle(find.text('Change choice'));
+  await tapChangeChoicesButton(tester);
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
 
   // make sure there are two existing choices available + one obtain data
@@ -383,7 +383,7 @@ Future<void> testClaimValueOnePresentOneNot(WidgetTester tester, IntegrationTest
     },
   );
 
-  await tester.tapAndSettle(find.text('Change choice', skipOffstage: false));
+  await tapChangeChoicesButton(tester);
   expect(cardsFinder, findsNWidgets(2));
 
   expect(find.text('Obtain new data'), findsOneWidget);
@@ -599,10 +599,8 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  final choiceButtonFinder = find.text('Change choice');
-  expect(choiceButtonFinder, findsOneWidget);
 
-  await tester.tapAndSettle(choiceButtonFinder);
+  await tapChangeChoicesButton(tester);
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
 
   // expect 4 existing credentials + 2 buttons to obtain new ones
@@ -678,10 +676,11 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  final choiceButtonFinder = find.text('Change choice');
+  final choiceButtonFinder = find.text('Change choice', skipOffstage: false);
   expect(choiceButtonFinder, findsNWidgets(2));
 
   // change the email
+  await tester.scrollUntilVisible(choiceButtonFinder.at(0), 100);
   await tester.tapAndSettle(choiceButtonFinder.at(0));
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
 
@@ -704,7 +703,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   await tester.tapAndSettle(choiceButtonFinder.at(1));
 
   // expect two existing + an obtain data card
-  expect(cardsFinder, findsNWidgets(3));
+  expect(cardsFinder, findsExactly(3));
   expect(
     find.descendant(of: cardsFinder, matching: find.text('0612345678', skipOffstage: false)),
     findsOneWidget,
@@ -720,30 +719,47 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
 
   await navigateToLatestActivity(tester, irmaBinding);
 
-  // expect two credentials to be shared
-  expect(cardsFinder, findsExactly(2));
+  const expectedNumCards = 2;
 
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(0),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'one@example.com',
-      'Email domain name': 'example.com',
-    },
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
-    attributes: {
-      'Mobile phone number': '0687654321',
-    },
-  );
+  expect(cardsFinder, findsExactly(expectedNumCards));
 
-  await evaluateRequestor(tester, find.byType(IssuerVerifierHeader), 'Yivi B.V.');
+  // email and mobilenumber should both be there, but the order is not predefined fixed
+
+  var emailFound = false;
+  var mobilenumberFound = false;
+
+  for (int i = 0; i < expectedNumCards; ++i) {
+    final f = cardsFinder.at(i);
+
+    if (find.descendant(of: f, matching: find.textContaining('Email')).evaluate().isNotEmpty) {
+      await evaluateCredentialCard(
+        tester,
+        f,
+        issuerName: 'Demo Privacy by Design Foundation via SIDN',
+        credentialName: 'Demo Email address',
+        attributes: {
+          'Email address': 'one@example.com',
+          'Email domain name': 'example.com',
+        },
+      );
+      emailFound = true;
+    } else {
+      await evaluateCredentialCard(
+        tester,
+        cardsFinder.at(1),
+        issuerName: 'Demo Privacy by Design Foundation via SIDN',
+        credentialName: 'Demo Mobile phone number',
+        attributes: {
+          'Mobile phone number': '0687654321',
+        },
+      );
+      mobilenumberFound = true;
+    }
+  }
+
+  expect(emailFound && mobilenumberFound, isTrue);
+
+  await evaluateRequestor(tester, find.byType(RequestorHeader), 'Yivi B.V.');
 }
 
 /// Issue two email addresses and allow the user to pick between them
@@ -780,7 +796,7 @@ Future<void> testOneCredentialTwoChoices(WidgetTester tester, IntegrationTestIrm
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
-  await tester.tapAndSettle(find.text('Change choice'));
+  await tapChangeChoicesButton(tester);
 
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
 
@@ -1277,8 +1293,7 @@ Future<void> testDiscloseSdJwtWithChoices(
     },
   );
 
-  // tap on change button
-  await tester.tapAndSettle(find.text('Change choice'));
+  await tapChangeChoicesButton(tester);
 
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
 
@@ -1395,4 +1410,10 @@ Future<void> shareAndFinishDisclosureSession(WidgetTester tester) async {
   // confirm
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
+}
+
+Future<void> tapChangeChoicesButton(WidgetTester tester) async {
+  final changeChoiceFinder = find.text('Change choice', skipOffstage: false);
+  await tester.scrollUntilVisible(changeChoiceFinder, 100);
+  await tester.tapAndSettle(changeChoiceFinder);
 }

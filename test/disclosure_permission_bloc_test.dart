@@ -27,7 +27,7 @@ void main() {
       mostRecentTermsUrlNl: 'testurl',
       mostRecentTermsUrlEn: 'testurl',
     );
-    preferences.markLatestTermsAsAccepted(true);
+    await preferences.markLatestTermsAsAccepted(true);
 
     repo = IrmaRepository(client: mockBridge, preferences: preferences);
     await repo.getCredentials().first; // Wait until AppReadyEvent has been processed.
@@ -97,6 +97,7 @@ void main() {
     expect(issueWizardBlocState.candidates.keys, [0]);
     expect(issueWizardBlocState.candidates[0]?.length, 1);
     expect(issueWizardBlocState.candidates[0]?[0][0].fullId, 'irma-demo.IRMATube.member');
+    expect(issueWizardBlocState.candidates[0]?[0][0].expiredOrEmpty, false);
 
     bloc.add(DisclosurePermissionNextPressed());
 
@@ -114,6 +115,7 @@ void main() {
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
         'irma-demo.IRMATube.member.id');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '12345');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].expiredOrEmpty, false);
 
     bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 0));
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());

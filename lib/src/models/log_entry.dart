@@ -117,6 +117,13 @@ class LogInfo {
   @JsonKey(name: 'RemovalLog')
   final RemovalLog? removalLog;
 
+  RequestorInfo? get requestorInfo => switch (type) {
+        LogType.disclosure => disclosureLog!.verifier,
+        LogType.signature => signedMessageLog!.verifier,
+        LogType.issuance => issuanceLog!.issuer,
+        LogType.removal => null,
+      };
+
   factory LogInfo.fromJson(Map<String, dynamic> json) => _$LogInfoFromJson(json);
 }
 
