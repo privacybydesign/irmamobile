@@ -270,7 +270,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       }
 
       if (sessionId != null && nonce != null && mrtdData.com!.dgTags.contains(EfDG15.TAG)) {
-        state = PassportReaderAuthenticating();
+        state = PassportReaderActiveAuthenticating();
 
         try {
           mrtdData.dg15 = await passport.readEfDG15();

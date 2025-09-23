@@ -252,6 +252,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
           tipKey: _readingErrorToHintKey(error),
           hintKey: _readingErrorToHintKey(error),
         ),
+      PassportReaderCancelling() => _UiState(progress: 0, stateKey: 'passport.nfc.cancelled', tipKey: '', hintKey: ''),
+      PassportReaderCancelled() => _UiState(progress: 0, stateKey: 'passport.nfc.cancelled', tipKey: '', hintKey: ''),
       _ => throw Exception('unexpected state: $state'),
     };
   }
@@ -339,7 +341,9 @@ class _ScanningContent extends StatelessWidget {
         SizedBox(height: theme.mediumSpacing),
         TranslatedText(statusKey, style: theme.textTheme.headlineMedium),
         SizedBox(height: theme.smallSpacing),
-        TranslatedText(hintKey ?? '', style: theme.textTheme.bodyMedium),
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+            child: TranslatedText(hintKey ?? '', style: theme.textTheme.bodyMedium, textAlign: TextAlign.center)),
         SizedBox(height: theme.mediumSpacing),
         IrmaLinearProgressIndicator(filledPercentage: progressPercent),
         SizedBox(height: theme.largeSpacing),
