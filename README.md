@@ -44,6 +44,8 @@ attaching data to signed statements. These data can be relevant properties, such
       apt install openjdk-17-jdk
 
       # On MacOS
+      brew install openjdk@17
+      flutter config --
       # TODO: Install via `brew install openjdk@17`, but how to replace system Java?
 
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
