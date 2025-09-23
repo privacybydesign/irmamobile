@@ -211,7 +211,16 @@
       "sign": "This is the message you're signing:",
       "explanation": "Share my data with {requestorName}",
       "confirm": "Share data",
-      "confirm_sign": "Sign and share"
+      "confirm_sign": "Sign and share",
+      "requestor_verification" : {
+        "verified_suffix" : "is asking for your data. This is a known party that has registered itself with Yivi.",
+        "unverified_suffix" : "is asking for your data. Warning: this party is not known by Yivi.",
+        "explanation" : "What does this mean?",
+        "bottom_sheet": {
+          "title": "Known and unknown organizations",
+          "content_markdown" : "Any organization can request data from your Yivi app.\nYou decide whether or not to agree to share that data.\nYivi helps you with this.\n\nOrganizations can register with Yivi. It is then checked who they are.\nTheir information (including name and logo) is recorded and verified.\nA green check mark will appear next to their name, so\nyou can share your data with more confidence.\nYou can find the list of registered organizations on the [Yivi Portal](https://portal.yivi.app/organizations).\n\nWith organizations that have not registered with Yivi,\nyou can still share your data.\nHowever, this is entirely your own responsibility.\nThere is no certainty about who you are sharing your data with.\n\nAre you unsure? Contact the organization directly.\nYou can recommend that they register with Yivi at:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
+        }
+      }
     },
     "confirm_dialog": {
       "title": "Share data",
@@ -657,7 +666,8 @@
         "date_of_birth": "Date of birth",
         "date_of_birth_required": "Date of birth is required",
         "date_of_expiry": "Date of expiry",
-        "date_of_expiry_required": "Date of expiry is required"
+        "date_of_expiry_required": "Date of expiry is required",
+        "date_invalid": "Date is invalid"
       }
     },
     "nfc": {

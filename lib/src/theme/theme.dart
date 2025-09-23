@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
@@ -209,6 +210,10 @@ class IrmaThemeData {
       ),
       toolbarTextStyle: textTheme.bodyMedium,
       titleTextStyle: textTheme.titleLarge,
+      systemOverlayStyle: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
     );
 
     //Init extra textstyles

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../../widgets/radio_indicator.dart';
@@ -22,49 +21,45 @@ class DisclosurePermissionChoice extends StatelessWidget {
   });
 
   Widget _buildChoiceOption(BuildContext context, MapEntry<int, Con<DisclosureCredential>> option) {
-    final theme = IrmaTheme.of(context);
     final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
 
-    return Padding(
-      padding: EdgeInsets.all(theme.tinySpacing),
-      child: Semantics(
-        button: true,
-        child: Column(
-          children: option.value
-              .map(
-                (credential) => GestureDetector(
-                  onTap: isDisabled
-                      ? null
-                      : () {
-                          if (isActive) {
-                            onChoiceUpdated(option.key);
-                          }
-                        },
-                  child: Center(
-                    child: YiviCredentialCard(
-                      hideFooter: true,
-                      hashByFormat: credential is ChoosableDisclosureCredential ? {} : {},
-                      padding: EdgeInsets.zero,
-                      compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
-                      disabled: isDisabled,
-                      headerTrailing: credential == option.value.first
-                          ? RadioIndicator(
-                              isSelected: option.key == selectedConIndex,
-                            )
-                          : null,
-                      type: credential.credentialType,
-                      issuer: credential.issuer,
-                      attributes: credential.attributes,
-                      valid: credential.valid,
-                      expired: credential.expired,
-                      revoked: credential.revoked,
-                      compact: true,
-                    ),
+    return Semantics(
+      button: true,
+      child: Column(
+        children: option.value
+            .map(
+              (credential) => GestureDetector(
+                onTap: isDisabled
+                    ? null
+                    : () {
+                        if (isActive) {
+                          onChoiceUpdated(option.key);
+                        }
+                      },
+                child: Center(
+                  child: YiviCredentialCard(
+                    hideFooter: true,
+                    hashByFormat: credential is ChoosableDisclosureCredential ? {} : {},
+                    padding: EdgeInsets.zero,
+                    compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                    disabled: isDisabled,
+                    headerTrailing: credential == option.value.first
+                        ? RadioIndicator(
+                            isSelected: option.key == selectedConIndex,
+                          )
+                        : null,
+                    type: credential.credentialType,
+                    issuer: credential.issuer,
+                    attributes: credential.attributes,
+                    valid: credential.valid,
+                    expired: credential.expired,
+                    revoked: credential.revoked,
+                    compact: true,
                   ),
                 ),
-              )
-              .toList(),
-        ),
+              ),
+            )
+            .toList(),
       ),
     );
   }

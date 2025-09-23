@@ -164,7 +164,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
   }
 
   Future<void> _showCredentialOptionsBottomSheet(BuildContext context, MultiFormatCredential cred) async {
-    showModalBottomSheet<void>(
+    showModalBottomSheet(
       context: context,
       builder: (context) => IrmaCredentialCardOptionsBottomSheet(
         onDelete: cred.credentialType.disallowDelete

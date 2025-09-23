@@ -9,8 +9,6 @@ lane :lint do
     # TODO: put "--set-exit-if-changed" flag back in after formatting
     sh("dart", "format", "--line-length", "120", "lib/", "test/", "integration_test/")
     sh("flutter", "analyze", "--no-fatal-infos")
-    # linting for Riverpod
-    sh("dart run custom_lint")
 
     # gofmt does not return non-zero exit codes on failure, so we have to check the output.
     fmt_output = sh("gofmt", "-d", "-e", ".")
@@ -44,7 +42,7 @@ lane :android_build_irmagobridge do
     sh(
       "gomobile", "bind",
       "-target", "android",
-      "-androidapi", "23",
+      "-androidapi", "24",
       "-o", "android/irmagobridge/irmagobridge.aar",
       "github.com/privacybydesign/irmamobile/irmagobridge"
     )

@@ -136,31 +136,33 @@ class _ActivityTabState extends State<ActivityTab> {
       },
     ).flattened.toList();
 
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      controller: _scrollController,
-      padding: EdgeInsets.symmetric(
-        vertical: theme.smallSpacing,
-        horizontal: theme.defaultSpacing,
+    return SafeArea(
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        controller: _scrollController,
+        padding: EdgeInsets.symmetric(
+          vertical: theme.smallSpacing,
+          horizontal: theme.defaultSpacing,
+        ),
+        children: [
+          if (groupedItems.isEmpty)
+            const Center(
+              child: TranslatedText('activity.empty_placeholder'),
+            )
+          else ...[
+            ...groupedItems,
+            Padding(
+              padding: EdgeInsets.only(
+                top: theme.defaultSpacing,
+                bottom: theme.mediumSpacing,
+              ),
+              child: EndOfListIndicator(
+                isLoading: moreLogsAvailable,
+              ),
+            ),
+          ]
+        ],
       ),
-      children: [
-        if (groupedItems.isEmpty)
-          const Center(
-            child: TranslatedText('activity.empty_placeholder'),
-          )
-        else ...[
-          ...groupedItems,
-          Padding(
-            padding: EdgeInsets.only(
-              top: theme.defaultSpacing,
-              bottom: theme.mediumSpacing,
-            ),
-            child: EndOfListIndicator(
-              isLoading: moreLogsAvailable,
-            ),
-          ),
-        ]
-      ],
     );
   }
 

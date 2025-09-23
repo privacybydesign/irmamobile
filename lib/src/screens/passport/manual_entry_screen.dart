@@ -132,9 +132,6 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                             fieldKey: const Key('passport_dob_field'),
                             labelI18nKey: 'passport.manual.fields.date_of_birth',
                             requiredI18nKey: 'passport.manual.fields.date_of_birth_required',
-                            formatDate: (ctx, d) => "${d.day.toString().padLeft(2, '0')}-"
-                                "${d.month.toString().padLeft(2, '0')}-"
-                                '${d.year}',
                           ),
                           SizedBox(height: theme.mediumSpacing),
                           DateInputField(
@@ -142,9 +139,6 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                             fieldKey: const Key('passport_expiry_date_field'),
                             labelI18nKey: 'passport.manual.fields.date_of_expiry',
                             requiredI18nKey: 'passport.manual.fields.date_of_expiry_required',
-                            formatDate: (ctx, d) => "${d.day.toString().padLeft(2, '0')}-"
-                                "${d.month.toString().padLeft(2, '0')}-"
-                                '${d.year}',
                           ),
                         ],
                       ),

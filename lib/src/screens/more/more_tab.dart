@@ -149,6 +149,7 @@ class _MoreTabState extends State<MoreTab> {
             ),
             spacerWidget,
             const VersionButton(),
+            const SizedBox(height: 50),
           ],
         ),
       ),

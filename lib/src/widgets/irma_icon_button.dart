@@ -24,22 +24,22 @@ class IrmaIconButton extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final borderRadius = BorderRadius.circular(25.0);
 
-    return Padding(
-      padding: padding ?? const EdgeInsets.all(12),
-      child: Semantics(
-        button: true,
-        label: semanticsLabelKey != null
-            ? FlutterI18n.translate(
-                context,
-                semanticsLabelKey!,
-              )
-            : null,
-        child: Material(
-          color: Colors.transparent,
+    return Semantics(
+      button: true,
+      label: semanticsLabelKey != null
+          ? FlutterI18n.translate(
+              context,
+              semanticsLabelKey!,
+            )
+          : null,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: borderRadius,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: borderRadius,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: borderRadius,
+          child: Padding(
+            padding: padding ?? const EdgeInsets.all(12),
             child: Icon(
               icon,
               size: size,
