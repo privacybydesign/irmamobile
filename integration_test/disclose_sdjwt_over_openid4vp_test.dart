@@ -703,7 +703,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   await tester.tapAndSettle(choiceButtonFinder.at(1));
 
   // expect two existing + an obtain data card
-  expect(cardsFinder, findsNWidgets(3));
+  expect(cardsFinder, findsExactly(3));
   expect(
     find.descendant(of: cardsFinder, matching: find.text('0612345678', skipOffstage: false)),
     findsOneWidget,
@@ -719,28 +719,45 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
 
   await navigateToLatestActivity(tester, irmaBinding);
 
-  // expect two credentials to be shared
-  expect(cardsFinder, findsExactly(2));
+  const expectedNumCards = 2;
 
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(0),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'one@example.com',
-      'Email domain name': 'example.com',
-    },
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.at(1),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
-    attributes: {
-      'Mobile phone number': '0687654321',
-    },
-  );
+  expect(cardsFinder, findsExactly(expectedNumCards));
+
+  // email and mobilenumber should both be there, but the order is not predefined fixed
+
+  var emailFound = false;
+  var mobilenumberFound = false;
+
+  for (int i = 0; i < expectedNumCards; ++i) {
+    final f = cardsFinder.at(i);
+
+    if (find.descendant(of: f, matching: find.textContaining('Email')).evaluate().isNotEmpty) {
+      await evaluateCredentialCard(
+        tester,
+        f,
+        issuerName: 'Demo Privacy by Design Foundation via SIDN',
+        credentialName: 'Demo Email address',
+        attributes: {
+          'Email address': 'one@example.com',
+          'Email domain name': 'example.com',
+        },
+      );
+      emailFound = true;
+    } else {
+      await evaluateCredentialCard(
+        tester,
+        cardsFinder.at(1),
+        issuerName: 'Demo Privacy by Design Foundation via SIDN',
+        credentialName: 'Demo Mobile phone number',
+        attributes: {
+          'Mobile phone number': '0687654321',
+        },
+      );
+      mobilenumberFound = true;
+    }
+  }
+
+  expect(emailFound && mobilenumberFound, isTrue);
 
   await evaluateRequestor(tester, find.byType(RequestorHeader), 'Yivi B.V.');
 }
@@ -1396,7 +1413,7 @@ Future<void> shareAndFinishDisclosureSession(WidgetTester tester) async {
 }
 
 Future<void> tapChangeChoicesButton(WidgetTester tester) async {
-  final changeChoiceFinder =find.text('Change choice', skipOffstage: false);
+  final changeChoiceFinder = find.text('Change choice', skipOffstage: false);
   await tester.scrollUntilVisible(changeChoiceFinder, 100);
   await tester.tapAndSettle(changeChoiceFinder);
 }
