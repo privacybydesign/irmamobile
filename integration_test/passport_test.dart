@@ -1,17 +1,24 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/data/passport_issuer.dart';
 import 'package:irmamobile/src/data/passport_reader.dart';
+import 'package:irmamobile/src/providers/passport_repository_provider.dart';
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/models/passport_data_result.dart';
 import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/providers/passport_repository_provider.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/screens/passport/mrz_reader_screen.dart';
+import 'package:irmamobile/src/screens/passport/nfc_reading_screen.dart';
+import 'package:irmamobile/src/screens/passport/widgets/mzr_scanner.dart';
 import 'package:irmamobile/src/util/navigation.dart';
+import 'package:mrz_parser/mrz_parser.dart';
 import 'package:vcmrtd/vcmrtd.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'helpers/helpers.dart';
 import 'irma_binding.dart';
@@ -25,6 +32,122 @@ void main() {
   group('passport', () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
+
+    testWidgets('adding passport credential opens MRZ scanner screen', (tester) async {
+      await openPassportDetailsScreen(tester, irmaBinding);
+
+      await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+
+      await tester.waitFor(find.byType(MzrReaderScreen));
+    });
+
+    testWidgets('scanning MRZ for Dutch passport starts NFC reading flow', (tester) async {
+      final fakeReader = FakePassportReader(
+        statesDuringRead: [
+          PassportReaderConnecting(),
+          PassportReaderReadingCardAccess(),
+          PassportReaderReadingCardSecurity(),
+          PassportReaderReadingPassportData(dataGroup: 'DG1'),
+          PassportReaderActiveAuthenticating(),
+        ],
+      );
+      final fakeIssuer = FakePassportIssuer();
+
+      await openPassportDetailsScreen(
+        tester,
+        irmaBinding,
+        overrides: [
+          passportReaderProvider.overrideWith((ref) => fakeReader),
+          passportIssuerProvider.overrideWithValue(fakeIssuer),
+        ],
+      );
+
+      await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+      await tester.waitFor(find.byType(MzrReaderScreen));
+      await tester.waitFor(find.byType(MRZScanner));
+
+      final fakeMrz = _FakeMrzResult(
+        documentNumber: 'XR0000001',
+        birthDate: DateTime(1990, 1, 1),
+        expiryDate: DateTime(2030, 12, 31),
+        countryCode: 'NLD',
+      );
+
+      final scannerState = tester.state<MRZScannerState>(find.byType(MRZScanner));
+      scannerState.widget.onSuccess(fakeMrz, const ['P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<', 'XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00']);
+
+      await tester.pumpAndSettle();
+
+      await tester.waitFor(find.byType(NfcReadingScreen));
+      expect(fakeReader.readCallCount, greaterThanOrEqualTo(1));
+      expect(fakeReader.lastDocumentNumber, fakeMrz.documentNumber);
+      expect(fakeReader.lastBirthDate, fakeMrz.birthDate);
+      expect(fakeReader.lastExpiryDate, fakeMrz.expiryDate);
+      expect(fakeReader.lastCountryCode, fakeMrz.countryCode);
+
+      await tester.waitFor(find.text('NFC enabled'));
+    });
+
+    testWidgets('user can cancel MRZ scanning and return to add data details', (tester) async {
+      await openPassportDetailsScreen(tester, irmaBinding);
+
+      await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+      await tester.waitFor(find.byType(MzrReaderScreen));
+
+      final cancelButton = find.byKey(const Key('bottom_bar_secondary'));
+      await tester.tapAndSettle(cancelButton);
+
+      await tester.waitFor(find.byType(AddDataDetailsScreen));
+    });
+
+    testWidgets('nfc failure after MRZ scan shows retry option', (tester) async {
+      final fakeReader = FakePassportReader(
+        statesDuringRead: [
+          PassportReaderConnecting(),
+          PassportReaderFailed(error: PassportReadingError.timeoutWaitingForTag),
+        ],
+      );
+      final fakeIssuer = FakePassportIssuer();
+
+      await openPassportDetailsScreen(
+        tester,
+        irmaBinding,
+        overrides: [
+          passportReaderProvider.overrideWith((ref) => fakeReader),
+          passportIssuerProvider.overrideWithValue(fakeIssuer),
+        ],
+      );
+
+      await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+      await tester.waitFor(find.byType(MzrReaderScreen));
+      await tester.waitFor(find.byType(MRZScanner));
+
+      final fakeMrz = _FakeMrzResult(
+        documentNumber: 'XR0000001',
+        birthDate: DateTime(1990, 1, 1),
+        expiryDate: DateTime(2030, 12, 31),
+        countryCode: 'NLD',
+      );
+
+      final scannerState = tester.state<MRZScannerState>(find.byType(MRZScanner));
+      scannerState.widget.onSuccess(fakeMrz, const ['P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<', 'XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00']);
+
+      await tester.pumpAndSettle();
+
+      await tester.waitFor(find.byType(NfcReadingScreen));
+      await tester.waitFor(find.text('Could not read passport. Please try again.'));
+      await tester.waitFor(find.text('Timeout while waiting for Passport tag'));
+
+      expect(fakeReader.readCallCount, 1);
+
+      final retryButton = find.byKey(const Key('bottom_bar_primary'));
+      await tester.tapAndSettle(retryButton);
+
+      await tester.pumpAndSettle();
+
+      expect(fakeReader.cancelCount, 1);
+      expect(fakeReader.readCallCount, 2);
+    });
 
     testWidgets('manual entry continues to NFC flow when NFC is enabled', (tester) async {
       final fakeResult = PassportDataResult(dataGroups: const {}, efSod: '');
@@ -125,6 +248,35 @@ Future<void> navigateToNfcScreen(
   await tester.pumpAndSettle();
 }
 
+Future<void> openPassportDetailsScreen(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding, {
+  List<Override> overrides = const [],
+}) async {
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    null,
+    overrides.isEmpty ? null : overrides,
+  );
+
+  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
+  await tester.tapAndSettle(addDataButton);
+
+  final passportCredential = binding.repository.irmaConfiguration.credentialTypes.values
+      .firstWhere((type) => type.id == 'passport');
+
+  final passportTile = find.byKey(Key('${passportCredential.fullId}_tile'));
+  await tester.scrollUntilVisible(
+    passportTile,
+    300,
+    scrollable: find.byType(Scrollable).last,
+  );
+  await tester.tapAndSettle(passportTile);
+
+  await tester.waitFor(find.byType(AddDataDetailsScreen));
+}
+
 class FakePassportIssuer implements PassportIssuer {
   int startSessionCount = 0;
 
@@ -156,7 +308,12 @@ class FakePassportReader extends PassportReader {
   final Completer<void>? onCancelCompleter;
 
   bool readCalled = false;
+  int readCallCount = 0;
   int cancelCount = 0;
+  String? lastDocumentNumber;
+  DateTime? lastBirthDate;
+  DateTime? lastExpiryDate;
+  String? lastCountryCode;
 
   @override
   Future<void> checkNfcAvailability() async {
@@ -175,6 +332,11 @@ class FakePassportReader extends PassportReader {
     required Uint8List nonce,
   }) async {
     readCalled = true;
+    readCallCount += 1;
+    lastDocumentNumber = documentNumber;
+    lastBirthDate = birthDate;
+    lastExpiryDate = expiryDate;
+    lastCountryCode = countryCode;
     if (state is PassportReaderNfcUnavailable) {
       return null;
     }
@@ -201,6 +363,30 @@ class FakePassportReader extends PassportReader {
       onCancelCompleter!.complete();
     }
   }
+}
+
+class _FakeMrzResult implements MRZResult {
+  _FakeMrzResult({
+    required this.documentNumber,
+    required this.birthDate,
+    required this.expiryDate,
+    required this.countryCode,
+  });
+
+  @override
+  final String documentNumber;
+
+  @override
+  final DateTime birthDate;
+
+  @override
+  final DateTime expiryDate;
+
+  @override
+  final String? countryCode;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _FakeNfcProvider extends NfcProvider {
