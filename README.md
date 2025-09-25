@@ -44,7 +44,8 @@ attaching data to signed statements. These data can be relevant properties, such
       apt install openjdk-17-jdk
 
       # On MacOS
-      # TODO: Install via `brew install openjdk@17`, but how to replace system Java?
+      brew install openjdk@17
+      flutter config --jdk-dir /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
   Make sure to install the build-tools and platform for Android >= 28. In addition
@@ -187,7 +188,7 @@ cd ./ios && pod install
 ## Edit irmago directly
 Sometimes it can be useful to directly edit irmago while debugging.
 ```bash
-go mod replace github.com/privacybydesign/irmago=<irmago_path_on_your_pc>
+go mod edit -replace github.com/privacybydesign/irmago=<irmago_path_on_your_pc>
 go mod tidy
 ./bind_go.sh
 ```

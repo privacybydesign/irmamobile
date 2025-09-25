@@ -90,7 +90,6 @@ class IrmaApp extends ConsumerWidget {
               // appLocale will be null and the system locale will be used
 
               return App(
-                irmaRepository: repository,
                 forcedLocale: appLocale,
                 notificationsBloc: notificationsBloc,
               );
