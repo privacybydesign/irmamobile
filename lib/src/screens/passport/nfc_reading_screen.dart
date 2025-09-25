@@ -268,7 +268,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
     String progressFormatter(double progress) {
       const numStages = 10;
       final prog = (progress * numStages).toInt();
-      return '🔵' * prog + '⚪️' * (numStages - prog);
+      return '🟢' * prog + '⚪️' * (numStages - prog);
     }
 
     return IosNfcMessages(

@@ -22,6 +22,11 @@ class PassportReaderCancelled extends PassportReaderState {}
 
 class PassportReaderCancelling extends PassportReaderState {}
 
+class PassportReaderFailed extends PassportReaderState {
+  PassportReaderFailed({required this.error});
+  final PassportReadingError error;
+}
+
 class PassportReaderConnecting extends PassportReaderState {}
 
 class PassportReaderReadingCardAccess extends PassportReaderState {}
@@ -31,18 +36,14 @@ class PassportReaderReadingCardSecurity extends PassportReaderState {}
 class PassportReaderAuthenticating extends PassportReaderState {}
 
 class PassportReaderReadingPassportData extends PassportReaderState {
-  PassportReaderReadingPassportData({required this.dataGroup});
+  PassportReaderReadingPassportData({required this.dataGroup, required this.progress});
   final String dataGroup;
+  final double progress;
 }
 
 class PassportReaderActiveAuthenticating extends PassportReaderState {}
 
 class PassportReaderSecurityVerification extends PassportReaderState {}
-
-class PassportReaderFailed extends PassportReaderState {
-  PassportReaderFailed({required this.error});
-  final PassportReadingError error;
-}
 
 class PassportReaderSuccess extends PassportReaderState {
   PassportReaderSuccess({required this.result});
@@ -95,6 +96,23 @@ class IosNfcMessages {
   });
 }
 
+double progressForState(PassportReaderState state) {
+  return switch (state) {
+    PassportReaderCancelled() => 0.0,
+    PassportReaderCancelling() => 0.0,
+    PassportReaderFailed() => 0.0,
+    PassportReaderConnecting() => 0.0,
+    PassportReaderReadingCardAccess() => 0.1,
+    PassportReaderReadingCardSecurity() => 0.2,
+    PassportReaderAuthenticating() => 0.4,
+    PassportReaderReadingPassportData(:final progress) => 0.5 + progress / 2.0,
+    PassportReaderActiveAuthenticating() => 0.8,
+    PassportReaderSecurityVerification() => 0.9,
+    PassportReaderSuccess() => 1.0,
+    _ => throw Exception('unexpected state: $state'),
+  };
+}
+
 class PassportReader extends StateNotifier<PassportReaderState> {
   final NfcProvider _nfc;
   bool _isCancelled = false;
@@ -126,10 +144,12 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     }
   }
 
-  Future<void> setIosAlertMessage(String message) async {
+  Future<void> _setIosAlertMessage(String message, String Function(double) progressFormatter) async {
     debugPrint('setIosAlertMessage()');
     if (_nfc.isConnected()) {
-      _nfc.setIosAlertMessage(message);
+      final progress = progressForState(state);
+      final formattedProgress = progressFormatter(progress);
+      _nfc.setIosAlertMessage('$formattedProgress\n$message');
     }
   }
 
@@ -242,7 +262,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     mrtdData.isDBA = accessKey is DBAKey && (accessKey.PACE_REF_KEY_TAG == 0x01);
 
     state = PassportReaderReadingCardAccess();
-    setIosAlertMessage(iosNfcMessages.readingCardAccess);
+    _setIosAlertMessage(iosNfcMessages.readingCardAccess, iosNfcMessages.progressFormatter);
 
     try {
       mrtdData.cardAccess = await passport.readEfCardAccess();
@@ -251,7 +271,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     }
 
     state = PassportReaderReadingCardSecurity();
-    setIosAlertMessage(iosNfcMessages.readingCardSecurity);
+    _setIosAlertMessage(iosNfcMessages.readingCardSecurity, iosNfcMessages.progressFormatter);
 
     try {
       // FIXME: is this not fatal?
@@ -261,7 +281,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     }
 
     state = PassportReaderAuthenticating();
-    setIosAlertMessage(iosNfcMessages.authenticating);
+    _setIosAlertMessage(iosNfcMessages.authenticating, iosNfcMessages.progressFormatter);
 
     if (isPace) {
       await passport.startSessionPACE(accessKey, mrtdData.cardAccess!);
@@ -270,12 +290,12 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     }
 
     state = PassportReaderAuthenticating();
-    setIosAlertMessage(iosNfcMessages.authenticating);
+    _setIosAlertMessage(iosNfcMessages.authenticating, iosNfcMessages.progressFormatter);
 
     final result = await _readDataGroups(iosNfcMessages, passport, mrtdData, sessionId: sessionId, nonce: nonce);
 
     state = PassportReaderSuccess(result: result);
-    setIosAlertMessage(iosNfcMessages.completedSuccessfully);
+    _setIosAlertMessage(iosNfcMessages.completedSuccessfully, iosNfcMessages.progressFormatter);
     return result;
   }
 
@@ -313,14 +333,13 @@ class PassportReader extends StateNotifier<PassportReaderState> {
           }
         }
 
-        state = PassportReaderReadingPassportData(dataGroup: cfg.name);
-        final progress = iosNfcMessages.progressFormatter(cfg.progressStage);
-        setIosAlertMessage('${iosNfcMessages.readingPassportData}\n$progress');
+        state = PassportReaderReadingPassportData(dataGroup: cfg.name, progress: cfg.progressStage);
+        _setIosAlertMessage(iosNfcMessages.readingPassportData, iosNfcMessages.progressFormatter);
       }
 
       if (sessionId != null && nonce != null && mrtdData.com!.dgTags.contains(EfDG15.TAG)) {
         state = PassportReaderActiveAuthenticating();
-        setIosAlertMessage(iosNfcMessages.authenticating);
+        _setIosAlertMessage(iosNfcMessages.authenticating, iosNfcMessages.progressFormatter);
 
         try {
           mrtdData.dg15 = await passport.readEfDG15();
@@ -348,7 +367,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
         aaSignature: mrtdData.aaSig,
       );
       state = PassportReaderSuccess(result: result);
-      setIosAlertMessage(iosNfcMessages.completedSuccessfully);
+      _setIosAlertMessage(iosNfcMessages.completedSuccessfully, iosNfcMessages.progressFormatter);
       return result;
     } catch (e) {
       _handleError(iosNfcMessages, e);
@@ -363,7 +382,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     if (e is PassportError) {
       if (se.contains('security status not satisfied')) {
         error = PassportReadingError.failedToInitiateSession;
-        setIosAlertMessage(iosNfcMessages.failedToInitiateSession);
+        _setIosAlertMessage(iosNfcMessages.failedToInitiateSession, iosNfcMessages.progressFormatter);
       }
       debugPrint('PassportError: ${e.message}');
     } else {
@@ -372,13 +391,13 @@ class PassportReader extends StateNotifier<PassportReaderState> {
 
     if (se.contains('timeout')) {
       error = PassportReadingError.timeoutWaitingForTag;
-      setIosAlertMessage(iosNfcMessages.timeoutWaitingForTag);
+      _setIosAlertMessage(iosNfcMessages.timeoutWaitingForTag, iosNfcMessages.progressFormatter);
     } else if (se.contains('tag was lost')) {
       error = PassportReadingError.tagLost;
-      setIosAlertMessage(iosNfcMessages.tagLostTryAgain);
+      _setIosAlertMessage(iosNfcMessages.tagLostTryAgain, iosNfcMessages.progressFormatter);
     } else if (se.contains('invalidated by user')) {
       error = PassportReadingError.invalidatedByUser;
-      setIosAlertMessage(iosNfcMessages.cancelledByUser);
+      _setIosAlertMessage(iosNfcMessages.cancelledByUser, iosNfcMessages.progressFormatter);
     }
 
     state = PassportReaderFailed(error: error);
