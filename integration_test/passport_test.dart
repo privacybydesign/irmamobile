@@ -131,7 +131,7 @@ class FakePassportIssuer implements PassportIssuer {
   @override
   Future<NonceAndSessionId> startSessionAtPassportIssuer() async {
     startSessionCount += 1;
-    return NonceAndSessionId(nonce: '0011', sessionId: 'session-123');
+    return NonceAndSessionId(nonce: 'd4e5f6a7d4e5f6a7', sessionId: '4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b');
   }
 
   @override
@@ -207,12 +207,12 @@ class _FakeNfcProvider extends NfcProvider {
   bool _connected = false;
 
   @override
-  Future<void> connect({String? iosAlertMessage}) async {
+  Future<void> connect({Duration? timeout, String iosAlertMessage = ""}) async {
     _connected = true;
   }
 
   @override
-  Future<void> disconnect({String? iosErrorMessage}) async {
+  Future<void> disconnect({String? iosAlertMessage, String? iosErrorMessage}) async {
     _connected = false;
   }
 
@@ -220,5 +220,7 @@ class _FakeNfcProvider extends NfcProvider {
   bool isConnected() => _connected;
 
   @override
-  void setIosAlertMessage(String message) {}
+  Future<void> setIosAlertMessage(String message) async {
+    // Do nothing.
+  }
 }
