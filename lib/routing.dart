@@ -9,24 +9,29 @@ import 'src/data/irma_repository.dart';
 import 'src/models/enrollment_status.dart';
 import 'src/models/irma_configuration.dart';
 import 'src/models/log_entry.dart';
+import 'src/models/native_events.dart';
 import 'src/models/translated_value.dart';
 import 'src/models/version_information.dart';
 import 'src/providers/irma_repository_provider.dart';
 import 'src/screens/activity/activity_detail_screen.dart';
+import 'src/screens/activity/activity_tab.dart';
 import 'src/screens/add_data/add_data_details_screen.dart';
 import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_language/change_language_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
 import 'src/screens/data/credentials_details_screen.dart';
+import 'src/screens/data/data_tab.dart';
 import 'src/screens/debug/debug_screen.dart';
 import 'src/screens/enrollment/enrollment_screen.dart';
 import 'src/screens/error/error_screen.dart';
 import 'src/screens/help/help_screen.dart';
-import 'src/screens/home/home_screen.dart';
+import 'src/screens/home/widgets/irma_nav_bar.dart';
 import 'src/screens/home/widgets/irma_qr_scan_button.dart';
+import 'src/screens/home/widgets/pending_pointer_listener.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
+import 'src/screens/more/more_tab.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
 import 'src/screens/notifications/notifications_tab.dart';
 import 'src/screens/pin/pin_screen.dart';
@@ -41,6 +46,77 @@ import 'src/screens/settings/settings_screen.dart';
 import 'src/screens/terms_changed/terms_changed_dialog.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
+
+// Shell scaffold that hosts the tabbed navigation using IrmaNavBar and QR FAB.
+class HomeShellScaffold extends StatelessWidget {
+  final StatefulNavigationShell navigationShell;
+  const HomeShellScaffold({super.key, required this.navigationShell});
+
+  IrmaNavBarTab _indexToTab(int index) => switch (index) {
+        0 => IrmaNavBarTab.data,
+        1 => IrmaNavBarTab.activity,
+        2 => IrmaNavBarTab.notifications,
+        3 => IrmaNavBarTab.more,
+        _ => IrmaNavBarTab.data,
+      };
+
+  int _tabToIndex(IrmaNavBarTab tab) => switch (tab) {
+        IrmaNavBarTab.data => 0,
+        IrmaNavBarTab.activity => 1,
+        IrmaNavBarTab.notifications => 2,
+        IrmaNavBarTab.more => 3,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final repo = IrmaRepositoryProvider.of(context);
+    final currentTab = _indexToTab(navigationShell.currentIndex);
+
+    void changeTab(IrmaNavBarTab tab) {
+      final newIndex = _tabToIndex(tab);
+      if (newIndex == navigationShell.currentIndex) {
+        // If re-selecting the current tab we do nothing (could add pop-to-root logic here if desired)
+        return;
+      }
+      navigationShell.goBranch(newIndex, initialLocation: false);
+    }
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (currentTab == IrmaNavBarTab.data) {
+          // Background the app on Android when already on the first tab
+            repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+        } else {
+          changeTab(IrmaNavBarTab.data);
+        }
+      },
+      child: PendingPointerListener(
+        child: Container(
+          color: Colors.white,
+          child: SafeArea(
+            left: false,
+            right: false,
+            top: false,
+            child: Scaffold(
+              body: navigationShell, // Active branch content
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+              resizeToAvoidBottomInset: false,
+              floatingActionButton: const Padding(
+                padding: EdgeInsets.only(bottom: 6),
+                child: IrmaQrScanButton(key: Key('nav_button_scanner')),
+              ),
+              bottomNavigationBar: IrmaNavBar(
+                selectedTab: currentTab,
+                onChangeTab: changeTab,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 GoRouter createRouter(BuildContext buildContext) {
   final repo = IrmaRepositoryProvider.of(buildContext);
@@ -111,71 +187,130 @@ GoRouter createRouter(BuildContext buildContext) {
         path: '/enrollment',
         builder: (context, state) => EnrollmentScreen(),
       ),
-      GoRoute(
-        path: '/home',
-        pageBuilder: (context, state) {
-          if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
-            TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
-            return NoTransitionPage(name: '/home', child: HomeScreen());
-          }
-          return MaterialPage(name: '/home', child: HomeScreen());
-        },
-        routes: [
-          GoRoute(
-            path: 'credentials_details',
-            builder: (context, state) {
-              final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
-              return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
-            },
-          ),
-          GoRoute(
-            path: 'activity_details',
-            builder: (context, state) {
-              final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
-              return ActivityDetailsScreen(
-                args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
-              );
-            },
-          ),
-          GoRoute(
-            path: 'help',
-            builder: (context, state) => HelpScreen(),
-          ),
-          GoRoute(
-            path: 'add_data',
-            builder: (context, state) => AddDataScreen(),
-            routes: [
-              GoRoute(
-                path: 'details',
-                builder: (context, state) {
-                  final credentialType = state.extra as CredentialType;
-                  return AddDataDetailsScreen(
-                    credentialType: credentialType,
-                    onCancel: context.pop,
-                    onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
-                  );
-                },
-              )
-            ],
-          ),
-          GoRoute(
-            path: 'debug',
-            builder: (context, state) => const DebugScreen(),
-          ),
-          GoRoute(
-            path: 'settings',
-            builder: (context, state) => SettingsScreen(),
-            routes: [
-              GoRoute(
-                path: 'change_language',
-                builder: (context, state) => ChangeLanguageScreen(),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'notifications',
-            builder: (context, state) => NotificationsTab(),
-          ),
+      // New stateful shell for home/tabbed experience
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => HomeShellScaffold(navigationShell: navigationShell),
+        branches: [
+          // Data tab branch
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/home',
+              pageBuilder: (context, state) {
+                if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
+                  TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
+                  return NoTransitionPage(name: '/home', child: DataTab());
+                }
+                return MaterialPage(name: '/home', child: DataTab());
+              },
+              routes: [
+                GoRoute(
+                  path: 'credentials_details',
+                  builder: (context, state) {
+                    final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
+                    return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
+                  },
+                ),
+                GoRoute(
+                  path: 'add_data',
+                  builder: (context, state) => AddDataScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'details',
+                      builder: (context, state) {
+                        final credentialType = state.extra as CredentialType;
+                        return AddDataDetailsScreen(
+                          credentialType: credentialType,
+                          onCancel: context.pop,
+                          onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // Keep legacy path for credentials details directly (redundant safeguard if accessed directly)
+          ]),
+          // Activity tab branch
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/home/activity',
+              builder: (context, state) => ActivityTab(),
+            ),
+            GoRoute(
+              path: '/home/activity_details',
+              builder: (context, state) {
+                final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
+                return ActivityDetailsScreen(
+                  args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+                );
+              },
+            ),
+          ]),
+          // Notifications tab branch
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/home/notifications',
+              builder: (context, state) => NotificationsTab(),
+            ),
+          ]),
+          // More tab branch
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/home/more',
+              builder: (context, state) => MoreTab(onChangeTab: (tab) {
+                // Allow MoreTab to programmatically switch tabs if needed
+                final shell = StatefulNavigationShell.of(context);
+                // Map IrmaNavBarTab to branch index
+                final index = switch (tab) {
+                  IrmaNavBarTab.data => 0,
+                  IrmaNavBarTab.activity => 1,
+                  IrmaNavBarTab.notifications => 2,
+                  IrmaNavBarTab.more => 3,
+                };
+                shell.goBranch(index, initialLocation: false);
+              }),
+              routes: [
+                GoRoute(
+                  path: 'settings',
+                  builder: (context, state) => SettingsScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'change_language',
+                      builder: (context, state) => ChangeLanguageScreen(),
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  path: 'help',
+                  builder: (context, state) => HelpScreen(),
+                ),
+                GoRoute(
+                  path: 'debug',
+                  builder: (context, state) => const DebugScreen(),
+                ),
+              ],
+            ),
+            // Legacy direct paths kept for backward compatibility with existing navigation helpers
+            GoRoute(
+              path: '/home/help',
+              builder: (context, state) => HelpScreen(),
+            ),
+            GoRoute(
+              path: '/home/debug',
+              builder: (context, state) => const DebugScreen(),
+            ),
+            GoRoute(
+              path: '/home/settings',
+              builder: (context, state) => SettingsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'change_language',
+                  builder: (context, state) => ChangeLanguageScreen(),
+                ),
+              ],
+            ),
+          ]),
         ],
       ),
       GoRoute(
