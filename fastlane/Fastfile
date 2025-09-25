@@ -159,7 +159,7 @@ lane :ios_build_app do |options|
   # and beta builds for app store distribution.
   case options[:flavor]
   when "alpha"
-    display_name = "Yivi 2023"
+    display_name = "Yivi Alpha"
     app_identifier = "foundation.privacybydesign.irmamob.alpha"
     export_method = "ad-hoc"
   when "beta"
