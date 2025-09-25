@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/data/passport_issuer.dart';
 import 'package:irmamobile/src/data/passport_reader.dart';
-import 'package:irmamobile/src/providers/passport_repository_provider.dart';
-import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/models/passport_data_result.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/providers/passport_repository_provider.dart';
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/passport/mrz_reader_screen.dart';
 import 'package:irmamobile/src/screens/passport/nfc_reading_screen.dart';
@@ -18,7 +18,6 @@ import 'package:irmamobile/src/screens/passport/widgets/mzr_scanner.dart';
 import 'package:irmamobile/src/util/navigation.dart';
 import 'package:mrz_parser/mrz_parser.dart';
 import 'package:vcmrtd/vcmrtd.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'helpers/helpers.dart';
 import 'irma_binding.dart';
@@ -74,7 +73,8 @@ void main() {
       );
 
       final scannerState = tester.state<MRZScannerState>(find.byType(MRZScanner));
-      scannerState.widget.onSuccess(fakeMrz, const ['P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<', 'XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00']);
+      scannerState.widget.onSuccess(
+          fakeMrz, const ['P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<', 'XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00']);
 
       await tester.pumpAndSettle();
 
@@ -130,7 +130,8 @@ void main() {
       );
 
       final scannerState = tester.state<MRZScannerState>(find.byType(MRZScanner));
-      scannerState.widget.onSuccess(fakeMrz, const ['P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<', 'XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00']);
+      scannerState.widget.onSuccess(
+          fakeMrz, const ['P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<', 'XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00']);
 
       await tester.pumpAndSettle();
 
@@ -263,8 +264,8 @@ Future<void> openPassportDetailsScreen(
   final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
   await tester.tapAndSettle(addDataButton);
 
-  final passportCredential = binding.repository.irmaConfiguration.credentialTypes.values
-      .firstWhere((type) => type.id == 'passport');
+  final passportCredential =
+      binding.repository.irmaConfiguration.credentialTypes.values.firstWhere((type) => type.id == 'passport');
 
   final passportTile = find.byKey(Key('${passportCredential.fullId}_tile'));
   await tester.scrollUntilVisible(
@@ -383,7 +384,7 @@ class _FakeMrzResult implements MRZResult {
   final DateTime expiryDate;
 
   @override
-  final String? countryCode;
+  final String countryCode;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
