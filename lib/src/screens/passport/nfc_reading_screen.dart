@@ -12,8 +12,10 @@ import '../../util/handle_pointer.dart';
 import '../../util/nonce_parser.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
+import '../../widgets/irma_confirmation_dialog.dart';
 import '../../widgets/irma_linear_progresss_indicator.dart';
 import '../../widgets/translated_text.dart';
+import '../settings/settings_screen.dart';
 
 class NfcReadingScreen extends ConsumerStatefulWidget {
   final String docNumber;
@@ -270,23 +272,18 @@ String _readingErrorToHintKey(PassportReadingError error) {
 }
 
 Future<bool> _showCancelDialog(BuildContext context) async {
-  return await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const TranslatedText('passport.nfc.cancel_dialog.title'),
-          content: const TranslatedText('passport.nfc.cancel_dialog.explanation'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const TranslatedText('passport.nfc.cancel_dialog.decline'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const TranslatedText('passport.nfc.cancel_dialog.confirm'),
-            ),
-          ],
-        ),
-      ) ??
+  return await showDialog(
+          context: context,
+          builder: (context) {
+            return IrmaConfirmationDialog(
+              titleTranslationKey: 'passport.nfc.cancel_dialog.title',
+              contentTranslationKey: 'passport.nfc.cancel_dialog.explanation',
+              cancelTranslationKey: 'passport.nfc.cancel_dialog.decline',
+              confirmTranslationKey: 'passport.nfc.cancel_dialog.confirm',
+              onCancelPressed: () => Navigator.of(context).pop(false),
+              onConfirmPressed: () => Navigator.of(context).pop(true),
+            );
+          }) ??
       false;
 }
 
