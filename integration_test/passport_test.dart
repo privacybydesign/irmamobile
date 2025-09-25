@@ -319,12 +319,13 @@ class FakePassportReader extends PassportReader {
   @override
   Future<void> checkNfcAvailability() async {
     if (_initialState != null) {
-      state = _initialState!;
+      state = _initialState;
     }
   }
 
   @override
   Future<PassportDataResult?> readWithMRZ({
+    required IosNfcMessages iosNfcMessages,
     required String documentNumber,
     required DateTime birthDate,
     required DateTime expiryDate,

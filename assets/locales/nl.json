@@ -654,7 +654,7 @@
       "success": "Succes",
       "success_explanation": "Het paspoort is succesvol gescand.",
       "manual": "Handmatig invoeren",
-      "error": "Kon paspoort niet lezen. Probeer het opnieuw."
+      "error": "Kon paspoort niet lezen.\nProbeer het opnieuw."
     },
     "manual": {
       "title": "Voer paspoortgegevens in",
@@ -675,7 +675,7 @@
       "nfc_enabled": "NFC ingeschakeld",
       "nfc_disabled": "NFC uitgeschakeld",
       "reading": "Lezen...",
-      "error": "Kon paspoort niet lezen. Probeer het opnieuw.",
+      "error": "Kon paspoort niet lezen.\nProbeer het opnieuw.",
       "nfc_not_supported": "NFC wordt niet ondersteund op dit apparaat.",
       "nfc_disabled_explanation": "NFC is uitgeschakeld. Schakel NFC in via de systeeminstellingen en probeer het opnieuw.",
       "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd uw telefoon stil op uw paspoort.",

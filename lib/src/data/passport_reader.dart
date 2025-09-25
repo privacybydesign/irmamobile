@@ -59,6 +59,42 @@ enum PassportReadingError {
 
 // ===============================================================
 
+class IosNfcMessages {
+  final String holdNearPhotoPage;
+  final String cancelling;
+  final String cancelled;
+  final String connecting;
+  final String readingCardAccess;
+  final String readingCardSecurity;
+  final String authenticating;
+  final String readingPassportData;
+  final String cancelledByUser;
+  final String performingSecurityVerification;
+  final String completedSuccessfully;
+  final String timeoutWaitingForTag;
+  final String failedToInitiateSession;
+  final String tagLostTryAgain;
+  final String Function(double) progressFormatter;
+
+  const IosNfcMessages({
+    required this.progressFormatter,
+    required this.holdNearPhotoPage,
+    required this.cancelling,
+    required this.cancelled,
+    required this.connecting,
+    required this.readingCardAccess,
+    required this.readingCardSecurity,
+    required this.authenticating,
+    required this.readingPassportData,
+    required this.cancelledByUser,
+    required this.performingSecurityVerification,
+    required this.completedSuccessfully,
+    required this.timeoutWaitingForTag,
+    required this.failedToInitiateSession,
+    required this.tagLostTryAgain,
+  });
+}
+
 class PassportReader extends StateNotifier<PassportReaderState> {
   final NfcProvider _nfc;
   bool _isCancelled = false;
@@ -98,6 +134,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
   }
 
   Future<PassportDataResult?> readWithMRZ({
+    required IosNfcMessages iosNfcMessages,
     required String documentNumber,
     required DateTime birthDate,
     required DateTime expiryDate,
@@ -121,6 +158,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
 
     try {
       return await _readAttempt(
+        iosNfcMessages: iosNfcMessages,
         accessKey: key,
         isPace: isPaceCandidate,
         sessionId: sessionId,
@@ -133,6 +171,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
         try {
           final key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: false);
           return await _readAttempt(
+            iosNfcMessages: iosNfcMessages,
             accessKey: key,
             isPace: false,
             sessionId: sessionId,
@@ -140,17 +179,18 @@ class PassportReader extends StateNotifier<PassportReaderState> {
           );
         } on Exception catch (e2) {
           if (!_isCancelled) {
-            _handleError(e2);
+            _handleError(iosNfcMessages, e2);
           }
         }
       } else if (!_isCancelled) {
-        _handleError(e);
+        _handleError(iosNfcMessages, e);
       }
     }
     return null;
   }
 
   Future<PassportDataResult?> _readAttempt({
+    required IosNfcMessages iosNfcMessages,
     required AccessKey accessKey,
     required bool isPace,
     String? sessionId,
@@ -160,10 +200,10 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     state = PassportReaderConnecting();
 
     if (_isCancelled) return null;
-    await _nfc.connect(iosAlertMessage: 'passport.nfc.hold_near_photo_page');
+    await _nfc.connect(iosAlertMessage: iosNfcMessages.holdNearPhotoPage);
 
     if (_isCancelled) {
-      await _disconnect('passport.nfc.cancelled');
+      await _disconnect(iosNfcMessages.cancelled);
       state = PassportReaderCancelled();
       return null;
     }
@@ -172,7 +212,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
 
     PassportDataResult? result;
     try {
-      result = await _perform(passport, accessKey, isPace, sessionId: sessionId, nonce: nonce);
+      result = await _perform(iosNfcMessages, passport, accessKey, isPace, sessionId: sessionId, nonce: nonce);
     } finally {
       await _disconnect(null);
     }
@@ -189,6 +229,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
   };
 
   Future<PassportDataResult> _perform(
+    IosNfcMessages iosNfcMessages,
     Passport passport,
     AccessKey accessKey,
     bool isPace, {
@@ -201,6 +242,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     mrtdData.isDBA = accessKey is DBAKey && (accessKey.PACE_REF_KEY_TAG == 0x01);
 
     state = PassportReaderReadingCardAccess();
+    setIosAlertMessage(iosNfcMessages.readingCardAccess);
 
     try {
       mrtdData.cardAccess = await passport.readEfCardAccess();
@@ -209,6 +251,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     }
 
     state = PassportReaderReadingCardSecurity();
+    setIosAlertMessage(iosNfcMessages.readingCardSecurity);
 
     try {
       // FIXME: is this not fatal?
@@ -218,6 +261,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     }
 
     state = PassportReaderAuthenticating();
+    setIosAlertMessage(iosNfcMessages.authenticating);
 
     if (isPace) {
       await passport.startSessionPACE(accessKey, mrtdData.cardAccess!);
@@ -226,14 +270,17 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     }
 
     state = PassportReaderAuthenticating();
+    setIosAlertMessage(iosNfcMessages.authenticating);
 
-    final result = await _readDataGroups(passport, mrtdData, sessionId: sessionId, nonce: nonce);
+    final result = await _readDataGroups(iosNfcMessages, passport, mrtdData, sessionId: sessionId, nonce: nonce);
 
     state = PassportReaderSuccess(result: result);
+    setIosAlertMessage(iosNfcMessages.completedSuccessfully);
     return result;
   }
 
   Future<PassportDataResult> _readDataGroups(
+    IosNfcMessages iosNfcMessages,
     Passport passport,
     MrtdData mrtdData, {
     String? sessionId,
@@ -267,10 +314,13 @@ class PassportReader extends StateNotifier<PassportReaderState> {
         }
 
         state = PassportReaderReadingPassportData(dataGroup: cfg.name);
+        final progress = iosNfcMessages.progressFormatter(cfg.progressStage);
+        setIosAlertMessage('${iosNfcMessages.readingPassportData}\n$progress');
       }
 
       if (sessionId != null && nonce != null && mrtdData.com!.dgTags.contains(EfDG15.TAG)) {
         state = PassportReaderActiveAuthenticating();
+        setIosAlertMessage(iosNfcMessages.authenticating);
 
         try {
           mrtdData.dg15 = await passport.readEfDG15();
@@ -298,20 +348,22 @@ class PassportReader extends StateNotifier<PassportReaderState> {
         aaSignature: mrtdData.aaSig,
       );
       state = PassportReaderSuccess(result: result);
+      setIosAlertMessage(iosNfcMessages.completedSuccessfully);
       return result;
     } catch (e) {
-      _handleError(e);
+      _handleError(iosNfcMessages, e);
       rethrow;
     }
   }
 
-  void _handleError(Object e) {
+  void _handleError(IosNfcMessages iosNfcMessages, Object e) {
     final se = e.toString().toLowerCase();
     PassportReadingError error = PassportReadingError.unknown;
 
     if (e is PassportError) {
       if (se.contains('security status not satisfied')) {
         error = PassportReadingError.failedToInitiateSession;
+        setIosAlertMessage(iosNfcMessages.failedToInitiateSession);
       }
       debugPrint('PassportError: ${e.message}');
     } else {
@@ -320,10 +372,13 @@ class PassportReader extends StateNotifier<PassportReaderState> {
 
     if (se.contains('timeout')) {
       error = PassportReadingError.timeoutWaitingForTag;
+      setIosAlertMessage(iosNfcMessages.timeoutWaitingForTag);
     } else if (se.contains('tag was lost')) {
       error = PassportReadingError.tagLost;
+      setIosAlertMessage(iosNfcMessages.tagLostTryAgain);
     } else if (se.contains('invalidated by user')) {
       error = PassportReadingError.invalidatedByUser;
+      setIosAlertMessage(iosNfcMessages.cancelledByUser);
     }
 
     state = PassportReaderFailed(error: error);
@@ -342,31 +397,31 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       DataGroupConfig(
         tag: EfDG1.TAG,
         name: 'DG1',
-        progressStage: 0.2,
+        progressStage: 0.1,
         readFunction: (p) async => mrtdData.dg1 = await p.readEfDG1(),
       ),
       DataGroupConfig(
         tag: EfDG2.TAG,
         name: 'DG2',
-        progressStage: 0.5,
+        progressStage: 0.2,
         readFunction: (p) async => mrtdData.dg2 = await p.readEfDG2(),
       ),
       DataGroupConfig(
         tag: EfDG5.TAG,
         name: 'DG5',
-        progressStage: 0.6,
+        progressStage: 0.4,
         readFunction: (p) async => mrtdData.dg5 = await p.readEfDG5(),
       ),
       DataGroupConfig(
         tag: EfDG6.TAG,
         name: 'DG6',
-        progressStage: 0.7,
+        progressStage: 0.5,
         readFunction: (p) async => mrtdData.dg6 = await p.readEfDG6(),
       ),
       DataGroupConfig(
         tag: EfDG7.TAG,
         name: 'DG7',
-        progressStage: 0.7,
+        progressStage: 0.6,
         readFunction: (p) async => mrtdData.dg7 = await p.readEfDG7(),
       ),
       DataGroupConfig(
@@ -378,43 +433,43 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       DataGroupConfig(
         tag: EfDG9.TAG,
         name: 'DG9',
-        progressStage: 0.7,
+        progressStage: 0.75,
         readFunction: (p) async => mrtdData.dg9 = await p.readEfDG9(),
       ),
       DataGroupConfig(
         tag: EfDG10.TAG,
         name: 'DG10',
-        progressStage: 0.7,
+        progressStage: 0.8,
         readFunction: (p) async => mrtdData.dg10 = await p.readEfDG10(),
       ),
       DataGroupConfig(
         tag: EfDG11.TAG,
         name: 'DG11',
-        progressStage: 0.75,
+        progressStage: 0.85,
         readFunction: (p) async => mrtdData.dg11 = await p.readEfDG11(),
       ),
       DataGroupConfig(
         tag: EfDG12.TAG,
         name: 'DG12',
-        progressStage: 0.75,
+        progressStage: 0.9,
         readFunction: (p) async => mrtdData.dg12 = await p.readEfDG12(),
       ),
       DataGroupConfig(
         tag: EfDG13.TAG,
         name: 'DG13',
-        progressStage: 0.8,
+        progressStage: 0.9,
         readFunction: (p) async => mrtdData.dg13 = await p.readEfDG13(),
       ),
       DataGroupConfig(
         tag: EfDG14.TAG,
         name: 'DG14',
-        progressStage: 0.8,
+        progressStage: 0.95,
         readFunction: (p) async => mrtdData.dg14 = await p.readEfDG14(),
       ),
       DataGroupConfig(
         tag: EfDG16.TAG,
         name: 'DG16',
-        progressStage: 0.8,
+        progressStage: 1.0,
         readFunction: (p) async => mrtdData.dg16 = await p.readEfDG16(),
       ),
     ];
