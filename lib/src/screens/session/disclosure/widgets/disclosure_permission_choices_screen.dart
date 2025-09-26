@@ -6,7 +6,7 @@ import '../../../../models/return_url.dart';
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
-import '../../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_icon_button.dart';
@@ -64,7 +64,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         children: [
           if (changeable)
             Padding(
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              padding: EdgeInsets.only(bottom: theme.smallSpacing, top: theme.smallSpacing),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -85,21 +85,32 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               ),
             ),
           for (int i = 0; i < choiceEntry.value.length; i++)
-            IrmaCredentialCard(
-              credentialView: choiceEntry.value[i],
-              padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
-              headerTrailing: optional && i == 0
-                  ? IrmaIconButton(
-                      icon: Icons.close,
-                      size: 22,
-                      padding: EdgeInsets.zero,
-                      onTap: () => onEvent(
-                        DisclosurePermissionRemoveOptionalDataPressed(
-                          disconIndex: choiceEntry.key,
+            Center(
+              child: YiviCredentialCard(
+                compact: true,
+                hideFooter: true,
+                hashByFormat: {choiceEntry.value[i].format: choiceEntry.value[i].credentialHash},
+                padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+                headerTrailing: optional && i == 0
+                    ? IrmaIconButton(
+                        key: const Key('remove_optional_data_button'),
+                        icon: Icons.close,
+                        size: 22,
+                        padding: EdgeInsets.zero,
+                        onTap: () => onEvent(
+                          DisclosurePermissionRemoveOptionalDataPressed(
+                            disconIndex: choiceEntry.key,
+                          ),
                         ),
-                      ),
-                    )
-                  : null,
+                      )
+                    : null,
+                type: choiceEntry.value[i].credentialType,
+                issuer: choiceEntry.value[i].issuer,
+                attributes: choiceEntry.value[i].attributes,
+                valid: choiceEntry.value[i].valid,
+                expired: choiceEntry.value[i].expired,
+                revoked: choiceEntry.value[i].revoked,
+              ),
             ),
         ],
       ),

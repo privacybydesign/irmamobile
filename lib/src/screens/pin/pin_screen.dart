@@ -167,7 +167,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
         return YiviPinScaffold(
           appBar: IrmaAppBar(
-            title: '',
+            titleString: '',
             hasBorder: false,
             leading: widget.leading,
           ),

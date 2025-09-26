@@ -12,14 +12,14 @@ import 'widgets/activity_detail_issuance.dart';
 import 'widgets/activity_detail_removal.dart';
 
 class ActivityDetailsScreenArgs {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   ActivityDetailsScreenArgs({required this.logEntry, required this.irmaConfiguration});
 }
 
 class ActivityDetailsScreen extends StatelessWidget {
-  final LogEntry logEntry;
+  final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
   ActivityDetailsScreen({
@@ -34,7 +34,7 @@ class ActivityDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.activity',
       ),
       body: SizedBox(
@@ -46,30 +46,23 @@ class ActivityDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-                  child: Builder(
-                    builder: (context) {
-                      switch (logEntry.type) {
-                        case LogEntryType.signing:
-                        case LogEntryType.disclosing:
-                          return ActivityDetailDisclosure(
-                            logEntry: logEntry,
-                            irmaConfiguration: irmaConfiguration,
-                          );
-                        case LogEntryType.issuing:
-                          return ActivityDetailIssuance(
-                            logEntry: logEntry,
-                            irmaConfiguration: irmaConfiguration,
-                          );
-                        case LogEntryType.removal:
-                          return ActivityDetailRemoval(
-                            logEntry: logEntry,
-                            irmaConfiguration: irmaConfiguration,
-                          );
-                      }
-                    },
-                  ),
+                Builder(
+                  builder: (context) {
+                    return switch (logEntry.type) {
+                      LogType.disclosure || LogType.signature => ActivityDetailDisclosure(
+                          logEntry: logEntry,
+                          irmaConfiguration: irmaConfiguration,
+                        ),
+                      LogType.issuance => ActivityDetailIssuance(
+                          logEntry: logEntry,
+                          irmaConfiguration: irmaConfiguration,
+                        ),
+                      LogType.removal => ActivityDetailRemoval(
+                          logEntry: logEntry,
+                          irmaConfiguration: irmaConfiguration,
+                        )
+                    };
+                  },
                 ),
                 //Always add the timestamp of the activity on the bottom
                 SizedBox(height: theme.smallSpacing),

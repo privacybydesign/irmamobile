@@ -37,7 +37,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
     return navigator.push(
       MaterialPageRoute(
         builder: (context) => YiviPinScaffold(
-          appBar: IrmaAppBar(title: title, hasBorder: false),
+          appBar: IrmaAppBar(titleString: title, hasBorder: false),
           body: YiviPinScreen(
             instruction: instruction,
             pinBloc: EnterPinStateBloc(maxPinSize),
@@ -243,7 +243,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: IrmaAppBar(
-            title: schemeManager.id,
+            titleString: schemeManager.id,
             actions: [
               IrmaIconButton(
                 icon: Icons.delete,

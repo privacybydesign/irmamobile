@@ -3,7 +3,7 @@ import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -51,7 +51,7 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   // The choice should consist of two cards
   final choiceCardsFinder = find.descendant(
     of: choiceFinder,
-    matching: find.byType(IrmaCredentialCard),
+    matching: find.byType(YiviCredentialCard),
   );
   expect(choiceCardsFinder, findsNWidgets(2));
 
@@ -108,7 +108,7 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   // Now the discon stepper should consist of two cards
   final disConCardsFinder = find.descendant(
     of: disConStepperFinder,
-    matching: find.byType(IrmaCredentialCard),
+    matching: find.byType(YiviCredentialCard),
   );
   expect(disConCardsFinder, findsNWidgets(2));
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
-import '../../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../../widgets/radio_indicator.dart';
+import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_credential.dart';
 import '../models/template_disclosure_credential.dart';
 
@@ -21,6 +23,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   Widget _buildChoiceOption(BuildContext context, MapEntry<int, Con<DisclosureCredential>> option) {
     final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
+    final theme = IrmaTheme.of(context);
 
     return Semantics(
       button: true,
@@ -35,16 +38,27 @@ class DisclosurePermissionChoice extends StatelessWidget {
                           onChoiceUpdated(option.key);
                         }
                       },
-                child: IrmaCredentialCard(
-                  padding: EdgeInsets.zero,
-                  credentialView: credential,
-                  compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
-                  disabled: isDisabled,
-                  headerTrailing: credential == option.value.first
-                      ? RadioIndicator(
-                          isSelected: option.key == selectedConIndex,
-                        )
-                      : null,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                  child: YiviCredentialCard(
+                    hideFooter: true,
+                    hashByFormat: credential is ChoosableDisclosureCredential ? {} : {},
+                    padding: EdgeInsets.zero,
+                    compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                    disabled: isDisabled,
+                    headerTrailing: credential == option.value.first
+                        ? RadioIndicator(
+                            isSelected: option.key == selectedConIndex,
+                          )
+                        : null,
+                    type: credential.credentialType,
+                    issuer: credential.issuer,
+                    attributes: credential.attributes,
+                    valid: credential.valid,
+                    expired: credential.expired,
+                    revoked: credential.revoked,
+                    compact: true,
+                  ),
                 ),
               ),
             )

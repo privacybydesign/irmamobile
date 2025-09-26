@@ -24,7 +24,7 @@ class EmailSentScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
       key: const Key('email_sent_screen'),
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'enrollment.email.confirm.title',
         leading: null,
       ),

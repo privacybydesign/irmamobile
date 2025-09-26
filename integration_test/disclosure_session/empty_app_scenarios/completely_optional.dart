@@ -4,8 +4,8 @@ import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_empty_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
@@ -54,7 +54,7 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // Delete optional data from selection again.
   final deleteOptionalDataButton = find.descendant(
-    of: find.byType(IrmaCredentialCard),
+    of: find.byType(YiviCredentialCard),
     matching: find.byIcon(Icons.close).hitTestable(),
   );
   await tester.scrollUntilVisible(
@@ -78,7 +78,7 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   await evaluateCredentialCard(
     tester,
-    find.byType(IrmaCredentialCard).first,
+    find.byType(YiviCredentialCard).first,
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {

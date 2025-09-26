@@ -17,21 +17,22 @@ class IrmaBottomBarBase extends StatelessWidget {
     return Container(
       width: mediaQuery.size.width,
       decoration: BoxDecoration(
-          color: theme.surfacePrimary,
-          border: const Border(
-            top: BorderSide(
-              color: Colors.white,
-              width: 2.0,
-            ),
+        color: theme.surfacePrimary,
+        border: const Border(
+          top: BorderSide(
+            color: Colors.white,
+            width: 2.0,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade600.withAlpha(128),
-              blurRadius: 10.0,
-              spreadRadius: 1.0,
-              offset: const Offset(0, 7),
-            )
-          ]),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade600.withAlpha(128),
+            blurRadius: 10.0,
+            spreadRadius: 1.0,
+            offset: const Offset(0, 7),
+          )
+        ],
+      ),
       child: SafeArea(
         top: false,
         left: false,

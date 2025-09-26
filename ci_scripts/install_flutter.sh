@@ -3,13 +3,13 @@
 # The environment variables FLUTTER_HOME needs to be set and "$FLUTTER_HOME/bin" needs to be added to the PATH.
 set -euxo pipefail
 
-FLUTTER_VERSION="3.32.6"
+FLUTTER_VERSION="3.35.4"
 FLUTTER_CHANNEL="stable"
 
 # these checksums are made by downloading the SDK from https://docs.flutter.dev/release/archive and running
 # `shasum -a 256 <file>` over them
-FLUTTER_CHECKSUM_LINUX="1c838fe8dd5bf93722bf42bf5da59425bf809cbfed17fea8385771e78ccf442b"
-FLUTTER_CHECKSUM_MACOS="34df2364c8d15e0d5046ec2c0ed7796e709ba2f39e8d3364157da74cdf99d74b"
+FLUTTER_CHECKSUM_LINUX="151c75539aa1c01b874954d7b6e0006a622a3f12c76fd7f1fcafad27e6a2d68a"
+FLUTTER_CHECKSUM_MACOS="9b6bba4610c36655963a201fd2cee66402dbe71d9a8dd981c48b45121d13fe18"
 
 if [[ -z "$FLUTTER_HOME" ]]; then
   echo "Environment variable FLUTTER_HOME needs to be set"

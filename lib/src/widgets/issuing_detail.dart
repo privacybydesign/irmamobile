@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../models/credentials.dart';
 import '../theme/theme.dart';
-import 'credential_card/irma_credential_card.dart';
+import 'credential_card/yivi_credential_card.dart';
 
 class IssuingDetail extends StatelessWidget {
-  final List<Credential> credentials;
+  final List<MultiFormatCredential> credentials;
 
   const IssuingDetail(this.credentials);
 
@@ -20,7 +20,7 @@ class IssuingDetail extends StatelessWidget {
         padding: EdgeInsets.only(
           bottom: IrmaTheme.of(context).defaultSpacing,
         ),
-        child: IrmaCredentialCard.fromCredential(credential),
+        child: YiviCredentialCard.fromMultiFormatCredential(credential, compact: false, lowInstanceCountThreshold: 0),
       );
     }).toList();
   }

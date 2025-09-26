@@ -6,7 +6,7 @@ import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/success_graphic.dart';
 import 'package:irmamobile/src/widgets/credential_card/delete_credential_confirmation_dialog.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 
 import 'helpers/helpers.dart';
 import 'helpers/issuance_helpers.dart';
@@ -67,7 +67,7 @@ void main() {
       expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
 
       // Expect to find a card
-      final credentialCardFinder = find.byType(IrmaCredentialCard);
+      final credentialCardFinder = find.byType(YiviCredentialCard);
       expect(credentialCardFinder, findsOneWidget);
     }
 
@@ -128,7 +128,7 @@ void main() {
       expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
 
       // Expect that it has one card.
-      final credentialCardsFinder = find.byType(IrmaCredentialCard);
+      final credentialCardsFinder = find.byType(YiviCredentialCard);
       expect(credentialCardsFinder, findsOneWidget);
 
       // Expect the card to have the correct content

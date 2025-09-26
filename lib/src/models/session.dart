@@ -22,6 +22,23 @@ abstract class Pointer {
   Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor});
 
   factory Pointer.fromString(String content) {
+    if (content.startsWith('eudi-openid4vp://')) {
+      final uri = Uri.parse(content);
+      final requestUri = uri.queryParameters['request_uri'];
+      final clientId = uri.queryParameters['client_id'];
+      if (clientId == null) {
+        throw MissingPointer(details: 'expected "client_id" to be present in query parameters, but it wasn\'t');
+      }
+      if (requestUri == null) {
+        throw MissingPointer(details: 'expected "request_uri" to be present in query parameters, but it wasn\'t');
+      }
+      return SessionPointer(
+        u: content,
+        irmaqr: 'disclosing',
+        protocol: 'openid4vp',
+      );
+    }
+
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
     final regexps = [
       RegExp('(?<=^irma://qr/json/).*'),
@@ -31,6 +48,8 @@ abstract class Pointer {
       RegExp('(?<=^https://irma.app/-pilot/session#).*'),
       RegExp('(?<=^https://open.yivi.app/-/session#).*'),
       RegExp('(?<=^https://open.yivi.app/-pilot/session#).*'),
+      RegExp('(?<=^https://open.staging.yivi.app/-/session#).*'),
+      RegExp('(?<=^https://open.staging.yivi.app/-pilot/session#).*'),
       RegExp('.*', multiLine: true, dotAll: true),
     ];
 
@@ -120,6 +139,9 @@ class SessionPointer implements Pointer {
   @JsonKey(name: 'irmaqr', required: true)
   final String irmaqr;
 
+  @JsonKey(name: 'protocol', required: false)
+  String? protocol;
+
   /// Whether the session should be continued on the mobile device,
   /// or on the device which has displayed a QR code.
   /// Field is not always specified in QRs now.
@@ -130,6 +152,7 @@ class SessionPointer implements Pointer {
   SessionPointer({
     required this.u,
     required this.irmaqr,
+    this.protocol,
     this.continueOnSecondDevice = false,
   });
 
@@ -166,6 +189,14 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   @override
   String get u => _sessionPointer.u;
+
+  @override
+  String? get protocol => _sessionPointer.protocol;
+
+  @override
+  set protocol(String? protocol) {
+    _sessionPointer.protocol = protocol;
+  }
 
   @override
   Map<String, dynamic> toJson() => {

@@ -113,6 +113,10 @@ class SessionRepository {
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = event.disclosuresCandidates.every((discon) => discon.isNotEmpty);
 
+      final issuedCredentials = event.issuedCredentials.map((raw) {
+        return MultiFormatCredential.fromRawMultiFormatCredential(raw, repo.irmaConfiguration);
+      }).toList();
+
       return prevState.copyWith(
         status: event.disclosuresCandidates.isEmpty
             ? SessionStatus.requestIssuancePermission
@@ -122,12 +126,7 @@ class SessionRepository {
         canBeFinished: canBeFinished,
         isSignatureSession: false,
         disclosuresCandidates: ConDisCon.fromRaw(event.disclosuresCandidates, (DisclosureCandidate dc) => dc),
-        issuedCredentials: event.issuedCredentials
-            .map((raw) => Credential.fromRaw(
-                  irmaConfiguration: repo.irmaConfiguration,
-                  rawCredential: raw,
-                ))
-            .toList(),
+        issuedCredentials: issuedCredentials,
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
       try {

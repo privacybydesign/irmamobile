@@ -9,11 +9,11 @@ import '../irma_app_bar.dart';
 import '../irma_divider.dart';
 import '../translated_text.dart';
 
-class IrmaCredentialCardAttributeList extends StatelessWidget {
+class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;
   final List<Attribute>? compareTo;
 
-  const IrmaCredentialCardAttributeList(
+  const YiviCredentialCardAttributeList(
     this.attributes, {
     this.compareTo,
   });
@@ -33,7 +33,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
 
     Text buildLabel(Attribute a) => Text(
           a.attributeType.name.translate(lang),
-          style: theme.themeData.textTheme.bodyMedium,
+          style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
         );
 
     TranslatedText buildTextContent(Attribute attribute, TextValue attrValue) {
@@ -59,7 +59,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => Scaffold(
                 appBar: IrmaAppBar(
-                  title: attribute.attributeType.name.translate(lang),
+                  titleString: attribute.attributeType.name.translate(lang),
                 ),
                 body: SingleChildScrollView(
                   child: Center(child: image),
@@ -79,6 +79,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
     }
 
     return Column(
+      spacing: theme.smallSpacing,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
