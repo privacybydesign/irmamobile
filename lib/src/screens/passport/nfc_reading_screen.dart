@@ -45,6 +45,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
 
     if (userWantsCancel) {
       ref.read(passportReaderProvider.notifier).cancel();
+      widget.onCancel?.call();
     }
   }
 
@@ -106,50 +107,45 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
     final uiState = passportReadingStateToUiState(passportState);
 
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'passport.nfc.title',
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            SizedBox(height: theme.largeSpacing),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+        child: OrientationBuilder(
+          builder: (context, orientation) {
+            if (orientation == Orientation.landscape) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(child: _buildStatus(context, uiState)),
+                  Flexible(
+                      child: Padding(
+                    padding: EdgeInsets.all(theme.defaultSpacing),
+                    child: _buildNfcSection(
+                      context,
+                      EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.smallSpacing),
+                    ),
+                  )),
+                ],
+              );
+            }
+            return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  decoration: BoxDecoration(color: theme.success, shape: BoxShape.circle),
-                  width: 40,
-                  height: 40,
-                  alignment: Alignment.center,
-                  child: Icon(Icons.check, color: Colors.white, size: 24),
+                _buildNfcSection(
+                  context,
+                  EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.largeSpacing),
                 ),
-                const SizedBox(width: 12),
-                TranslatedText('passport.nfc.nfc_enabled'),
+                SizedBox(height: theme.largeSpacing),
+                _buildStatus(context, uiState),
               ],
-            ),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                child: Padding(
-                  padding: EdgeInsets.all(theme.defaultSpacing),
-                  child: _ScanningContent(
-                    theme: theme,
-                    tipKey: uiState.tipKey,
-                    progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
-                    statusKey: uiState.stateKey,
-                    hintKey: uiState.hintKey,
-                    key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        alignment: IrmaBottomBarAlignment.vertical,
         primaryButtonLabel: uiState.stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
         onPrimaryPressed: uiState.stateKey == 'passport.nfc.error' ? retry : null,
         secondaryButtonLabel: 'ui.cancel',
@@ -158,38 +154,105 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
     );
   }
 
+  Widget _buildNfcSection(BuildContext context, EdgeInsets padding, {bool disabled = false}) {
+    final theme = IrmaTheme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.backgroundTertiary,
+        borderRadius: BorderRadius.circular(20),
+        border: BoxBorder.all(color: theme.tertiary),
+      ),
+      child: Padding(
+        padding: padding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.nfc, size: 100, color: disabled ? theme.error : theme.link),
+            SizedBox(height: theme.mediumSpacing),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  decoration: BoxDecoration(color: disabled ? theme.error : theme.success, shape: BoxShape.circle),
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  child: Icon(disabled ? Icons.close : Icons.check, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 12),
+                TranslatedText(disabled ? 'passport.nfc.nfc_disabled' : 'passport.nfc.nfc_enabled'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatus(BuildContext context, _UiState uiState) {
+    final theme = IrmaTheme.of(context);
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      child: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: _ScanningContent(
+          tipKey: uiState.tipKey,
+          progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
+          statusKey: uiState.stateKey,
+          hintKey: uiState.hintKey,
+          key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
+        ),
+      ),
+    );
+  }
+
   Widget _buildNfcUnavailableScreen(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(titleTranslationKey: 'passport.nfc.title'),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+        child: Center(
+          child: OrientationBuilder(builder: (context, orientation) {
+            if (orientation == Orientation.landscape) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(color: theme.error, shape: BoxShape.circle),
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    child: Icon(Icons.close, color: Colors.white, size: 24),
+                  Flexible(
+                    child: TranslatedText(
+                      'passport.nfc.nfc_disabled_explanation',
+                      textAlign: TextAlign.start,
+                      maxLines: 4,
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  TranslatedText('passport.nfc.nfc_disabled'),
+                  Flexible(
+                    child: _buildNfcSection(
+                      context,
+                      EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.smallSpacing),
+                      disabled: true,
+                    ),
+                  ),
                 ],
-              ),
-            ),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                child: _DisabledContent(theme: theme, key: const ValueKey('disabled')),
-              ),
-            ),
-          ],
+              );
+            }
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildNfcSection(
+                    context, EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.largeSpacing),
+                    disabled: true),
+                SizedBox(height: theme.largeSpacing),
+                TranslatedText(
+                  'passport.nfc.nfc_disabled_explanation',
+                  textAlign: TextAlign.center,
+                  maxLines: 4,
+                ),
+              ],
+            );
+          }),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
@@ -203,63 +266,80 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
   }
 
   _UiState passportReadingStateToUiState(PassportReaderState state) {
+    final progress = progressForState(state);
     return switch (state) {
       PassportReaderPending() => _UiState(
-          progress: 0.0,
+          progress: progress,
           stateKey: 'passport.nfc.connecting',
           tipKey: 'passport.nfc.hold_near_photo_page',
           hintKey: 'passport.nfc.tip_2',
         ),
       PassportReaderConnecting() => _UiState(
-          progress: 0.0,
+          progress: progress,
           stateKey: 'passport.nfc.connecting',
           tipKey: 'passport.nfc.tip_2',
           hintKey: 'passport.nfc.hold_near_photo_page',
         ),
       PassportReaderAuthenticating() => _UiState(
-          progress: 0.1,
+          progress: progress,
           stateKey: 'passport.nfc.connecting',
           tipKey: 'passport.nfc.tip_2',
           hintKey: 'passport.nfc.hold_near_photo_page',
         ),
       PassportReaderReadingCardAccess() => _UiState(
-          progress: 0.2,
+          progress: progress,
           stateKey: 'passport.nfc.reading_card_access',
           tipKey: 'passport.nfc.tip_3',
           hintKey: 'passport.nfc.tip_3',
         ),
       PassportReaderReadingCardSecurity() => _UiState(
-          progress: 0.3,
+          progress: progress,
           stateKey: 'passport.nfc.reading_card_security',
           tipKey: 'passport.nfc.tip_3',
           hintKey: 'passport.nfc.tip_3',
         ),
       PassportReaderReadingPassportData() => _UiState(
-          progress: 0.4,
+          progress: progress,
           stateKey: 'passport.nfc.reading_passport_data',
           tipKey: 'passport.nfc.tip_1',
           hintKey: 'passport.nfc.tip_1',
         ),
       PassportReaderActiveAuthenticating() => _UiState(
-          progress: 0.9,
+          progress: progress,
+          stateKey: 'passport.nfc.performing_security_verification',
+          tipKey: 'passport.nfc.tip_1',
+          hintKey: 'passport.nfc.tip_1',
+        ),
+      PassportReaderSecurityVerification() => _UiState(
+          progress: progress,
           stateKey: 'passport.nfc.performing_security_verification',
           tipKey: 'passport.nfc.tip_1',
           hintKey: 'passport.nfc.tip_1',
         ),
       PassportReaderSuccess() => _UiState(
-          progress: 1,
+          progress: progress,
           stateKey: 'passport.nfc.success',
           tipKey: 'passport.nfc.success_explanation',
           hintKey: 'passport.nfc.success_explanation',
         ),
       PassportReaderFailed(:final error) => _UiState(
-          progress: 0,
+          progress: progress,
           stateKey: 'passport.nfc.error',
           tipKey: _readingErrorToHintKey(error),
           hintKey: _readingErrorToHintKey(error),
         ),
-      PassportReaderCancelling() => _UiState(progress: 0, stateKey: 'passport.nfc.cancelled', tipKey: '', hintKey: ''),
-      PassportReaderCancelled() => _UiState(progress: 0, stateKey: 'passport.nfc.cancelled', tipKey: '', hintKey: ''),
+      PassportReaderCancelling() => _UiState(
+          progress: progress,
+          stateKey: 'passport.nfc.cancelled',
+          tipKey: '',
+          hintKey: '',
+        ),
+      PassportReaderCancelled() => _UiState(
+          progress: progress,
+          stateKey: 'passport.nfc.cancelled',
+          tipKey: '',
+          hintKey: '',
+        ),
       _ => throw Exception('unexpected state: $state'),
     };
   }
@@ -317,35 +397,8 @@ Future<bool> _showCancelDialog(BuildContext context) async {
       false;
 }
 
-class _DisabledContent extends StatelessWidget {
-  const _DisabledContent({required this.theme, super.key});
-  final IrmaThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.nfc, size: 80, color: theme.error),
-            SizedBox(height: theme.largeSpacing),
-            TranslatedText(
-              'passport.nfc.nfc_disabled_explanation',
-              textAlign: TextAlign.center,
-              maxLines: 4,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ScanningContent extends StatelessWidget {
   const _ScanningContent({
-    required this.theme,
     required this.tipKey,
     required this.progressPercent,
     required this.statusKey,
@@ -353,7 +406,6 @@ class _ScanningContent extends StatelessWidget {
     super.key,
   });
 
-  final IrmaThemeData theme;
   final String tipKey;
   final double progressPercent;
   final String statusKey;
@@ -361,46 +413,41 @@ class _ScanningContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final isLandscape = MediaQuery.orientationOf(context) == Orientation.landscape;
+
+    final textAlign = isLandscape ? TextAlign.start : TextAlign.center;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: isLandscape ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
-        Icon(Icons.nfc, size: 80, color: theme.link),
-        SizedBox(height: theme.mediumSpacing),
         TranslatedText(
           statusKey,
-          style: theme.textTheme.headlineMedium,
-          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+          textAlign: textAlign,
         ),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: theme.defaultSpacing),
+        TranslatedText(hintKey ?? '', style: theme.textTheme.bodyMedium, textAlign: textAlign),
+        SizedBox(height: theme.defaultSpacing),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-          child: TranslatedText(hintKey ?? '', style: theme.textTheme.bodyMedium, textAlign: TextAlign.center),
-        ),
-        SizedBox(height: theme.mediumSpacing),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+          padding: isLandscape ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: theme.mediumSpacing),
           child: IrmaLinearProgressIndicator(filledPercentage: progressPercent),
         ),
-        SizedBox(height: theme.largeSpacing),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: SizedBox(
-            height: 48,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 350),
-              transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
-              child: TranslatedText(
-                tipKey,
-                key: ValueKey(tipKey),
-                textAlign: TextAlign.center,
-                maxLines: 3,
-                style: TextStyle(
-                  color: theme.secondary,
-                  fontSize: 16,
-                  height: 1.4,
-                  overflow: TextOverflow.visible,
-                ),
-              ),
+        SizedBox(height: theme.defaultSpacing),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 350),
+          transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+          child: TranslatedText(
+            tipKey,
+            key: ValueKey(tipKey),
+            textAlign: textAlign,
+            maxLines: 3,
+            style: TextStyle(
+              color: theme.secondary,
+              fontSize: 16,
+              height: 1.4,
+              overflow: TextOverflow.visible,
             ),
           ),
         ),
