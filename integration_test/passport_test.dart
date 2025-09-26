@@ -46,7 +46,7 @@ void main() {
           PassportReaderConnecting(),
           PassportReaderReadingCardAccess(),
           PassportReaderReadingCardSecurity(),
-          PassportReaderReadingPassportData(dataGroup: 'DG1'),
+          PassportReaderReadingPassportData(dataGroup: 'DG1', progress: 0.0),
           PassportReaderActiveAuthenticating(),
         ],
       );
@@ -157,7 +157,7 @@ void main() {
           PassportReaderConnecting(),
           PassportReaderReadingCardAccess(),
           PassportReaderReadingCardSecurity(),
-          PassportReaderReadingPassportData(dataGroup: 'DG1'),
+          PassportReaderReadingPassportData(dataGroup: 'DG1', progress: 0.0),
           PassportReaderActiveAuthenticating(),
           PassportReaderSuccess(result: fakeResult),
         ],
