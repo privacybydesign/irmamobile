@@ -61,6 +61,10 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
         backgroundColor: theme.backgroundTertiary,
         appBar: IrmaAppBar(
           titleTranslationKey: 'passport.scan.title',
+          leading: YiviBackButton(
+            key: const Key('bottom_bar_secondary'),
+            onTap: widget.onCancel,
+          ),
         ),
         body: MRZScanner(
           controller: controller,
@@ -69,14 +73,17 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
             widget.onSuccess(mrzResult);
           },
         ),
-        floatingActionButton: _ManualEntryButton(onTap: widget.onManualAdd),
+        floatingActionButton: _ManualEntryButton(
+          key: const Key('bottom_bar_primary'),
+          onTap: widget.onManualAdd,
+        ),
       );
     });
   }
 }
 
 class _ManualEntryButton extends StatelessWidget {
-  const _ManualEntryButton({required this.onTap});
+  const _ManualEntryButton({super.key, required this.onTap});
 
   final Function() onTap;
 

@@ -11,6 +11,7 @@ import 'package:irmamobile/src/models/passport_data_result.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/providers/passport_repository_provider.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/passport/mrz_reader_screen.dart';
 import 'package:irmamobile/src/screens/passport/nfc_reading_screen.dart';
@@ -211,7 +212,8 @@ void main() {
       await tester.waitFor(find.text('Cancel passport reading?'));
       await tester.tapAndSettle(find.text('Yes'));
 
-      await tester.waitFor(find.text('Cancelled'));
+      // cancelling the flow should return to the home page
+      await tester.waitFor(find.byType(DataTab).hitTestable());
 
       expect(fakeReader.cancelCount, 1);
     });
@@ -395,7 +397,7 @@ class _FakeNfcProvider extends NfcProvider {
   bool _connected = false;
 
   @override
-  Future<void> connect({Duration? timeout, String iosAlertMessage = ""}) async {
+  Future<void> connect({Duration? timeout, String iosAlertMessage = ''}) async {
     _connected = true;
   }
 
