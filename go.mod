@@ -1,14 +1,13 @@
 module github.com/privacybydesign/irmamobile
 
 go 1.24
-go 1.24
 
 toolchain go1.24.7
 
 require (
 	github.com/go-errors/errors v1.4.2
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
-	github.com/privacybydesign/irmago v0.18.2-0.20250915115650-8cf08c9ddf3a
+	github.com/privacybydesign/irmago v0.18.2-0.20250926071958-8c454b02609f
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/mobile v0.0.0-20240213143359-d1f7d3436075
 )
@@ -88,5 +87,3 @@ require (
 	gorm.io/driver/sqlserver v1.5.2 // indirect
 	gorm.io/gorm v1.25.5 // indirect
 )
-
-replace github.com/privacybydesign/irmago => ../irmago

@@ -110,18 +110,20 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
     if (_controller?.value.isInitialized == false || _controller?.value.isInitialized == null) {
       return Container();
     }
-    if (_controller?.value.isInitialized == false) {
-      return Container();
-    }
 
-    final size = MediaQuery.of(context).size;
+    final mediaQuery = MediaQuery.of(context);
     // calculate scale depending on screen and camera ratios
     // this is actually size.aspectRatio / (1 / camera.aspectRatio)
     // because camera preview size is received as landscape
     // but we're calculating for portrait orientation
-    var scale = size.aspectRatio * _controller!.value.aspectRatio;
-    // to prevent scaling down, invert the value
-    if (scale < 1) scale = 1 / scale;
+    var scale = mediaQuery.size.aspectRatio * _controller!.value.aspectRatio;
+
+    if (mediaQuery.orientation == Orientation.landscape) {
+      scale = 1;
+    } else {
+      // to prevent scaling down, invert the value
+      if (scale < 1) scale = 1 / scale;
+    }
 
     return Container(
       color: Colors.black,
@@ -132,7 +134,7 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
             scale: scale,
             child: Center(
               child: AspectRatio(
-                aspectRatio: 9 / 16,
+                aspectRatio: mediaQuery.orientation == Orientation.portrait ? 9 / 16 : 16 / 9,
                 child: CameraPreview(_controller!),
               ),
             ),

@@ -90,6 +90,9 @@ class _DateInputFieldState extends State<DateInputField> {
             );
             if (pickedDate != null && mounted) {
               final fmt = widget.formatDate ?? _defaultFormat;
+              if (!context.mounted) {
+                return;
+              }
               final text = fmt(context, pickedDate);
               // Set both text and caret to end to avoid selection glitches.
               widget.controller.value = widget.controller.value.copyWith(

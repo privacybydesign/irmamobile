@@ -98,6 +98,7 @@ class IosNfcMessages {
 
 double progressForState(PassportReaderState state) {
   return switch (state) {
+    PassportReaderPending() => 0.0,
     PassportReaderCancelled() => 0.0,
     PassportReaderCancelling() => 0.0,
     PassportReaderFailed() => 0.0,
