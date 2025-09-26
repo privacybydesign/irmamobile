@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
@@ -7,8 +6,6 @@ import 'package:mrz_parser/mrz_parser.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_themed_button.dart';
-import '../../widgets/yivi_themed_button.dart';
 import 'widgets/mzr_scanner.dart';
 
 typedef MRZController = GlobalKey<MRZScannerState>;

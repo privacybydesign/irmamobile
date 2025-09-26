@@ -37,12 +37,12 @@ class MRZCameraOverlay extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+                    '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
                     style: theme.mrzLabel,
                   ),
                   SizedBox(height: theme.tinySpacing),
                   Text(
-                    '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+                    '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
                     style: theme.mrzLabel,
                   ),
                 ],
