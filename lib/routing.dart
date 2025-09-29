@@ -127,11 +127,11 @@ class HomeShellScaffold extends StatelessWidget {
               floatingActionButton: showOnThisRoute(context) ? Padding(
                 padding: EdgeInsets.only(bottom: 6),
                 child: IrmaQrScanButton(key: Key('nav_button_scanner')),
-              ): SizedBox(height: 0, width: 0), // not just null because we avoid the transition when showing/hiding this way
+              ): SizedBox.shrink(), // not just null because we avoid the transition when showing/hiding this way
               bottomNavigationBar: showOnThisRoute(context) ? IrmaNavBar(
                 selectedTab: currentTab,
                 onChangeTab: changeTab,
-              ) : SizedBox(height: 0, width: 0), // not just null because we avoid the transition when showing/hiding this way
+              ) : SizedBox.shrink(),
             ),
           ),
         ),
