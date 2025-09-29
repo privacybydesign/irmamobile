@@ -71,7 +71,6 @@ class IrmaApp extends ConsumerWidget {
         child: MultiBlocProvider(
           providers: [
             BlocProvider(create: (context) => notificationsBloc..add(Initialize())),
-            BlocProvider(create: (context) => HomeTabState()),
           ],
           child: PreferredLocaleBuilder(
             builder: (context, preferredLocale) {

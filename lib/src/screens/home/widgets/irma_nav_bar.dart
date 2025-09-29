@@ -26,7 +26,6 @@ class IrmaNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-
     return Container(
       padding: EdgeInsets.only(
         left: theme.tinySpacing,

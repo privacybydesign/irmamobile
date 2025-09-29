@@ -58,15 +58,15 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: context.goSettingsScreen),
+      EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: context.pushSettingsScreen),
       ChoosePinScreen.routeName: (_) => ChoosePinScreen(
             onChoosePin: _chooseNewPin,
-            onPrevious: context.goSettingsScreen,
+            onPrevious: context.pushSettingsScreen,
             newPinNotifier: newPin,
           ),
       ConfirmPin.routeName: (_) => ConfirmPin(
             confirmNewPin: _confirmNewPin,
-            cancel: context.goSettingsScreen,
+            cancel: context.pushSettingsScreen,
             returnToChoosePin: _returnToChoosePin,
             onPinMismatch: _handlePinMismatch,
             newPinNotifier: newPin,
@@ -127,7 +127,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   }
 
   void _handleResetPinSuccess() {
-    context.goSettingsScreen();
+    context.pushSettingsScreen();
     _onSuccessShowFloatingSnackbar();
   }
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -52,7 +53,7 @@ class HomeShellScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   const HomeShellScaffold({super.key, required this.navigationShell});
 
-  IrmaNavBarTab _indexToTab(int index) => switch (index) {
+  static IrmaNavBarTab _indexToTab(int index) => switch (index) {
         0 => IrmaNavBarTab.data,
         1 => IrmaNavBarTab.activity,
         2 => IrmaNavBarTab.notifications,
@@ -60,33 +61,53 @@ class HomeShellScaffold extends StatelessWidget {
         _ => IrmaNavBarTab.data,
       };
 
-  int _tabToIndex(IrmaNavBarTab tab) => switch (tab) {
+  static int _tabToIndex(IrmaNavBarTab tab) => switch (tab) {
         IrmaNavBarTab.data => 0,
         IrmaNavBarTab.activity => 1,
         IrmaNavBarTab.notifications => 2,
         IrmaNavBarTab.more => 3,
       };
 
+  void changeTab(IrmaNavBarTab tab) {
+    final newIndex = _tabToIndex(tab);
+    debugPrint('Switching to tab $tab (index $newIndex)');
+    if (newIndex == navigationShell.currentIndex) {
+      return;
+    }
+    navigationShell.goBranch(newIndex, initialLocation: false);
+  }
+
+  static bool showOnThisRoute(BuildContext context) {
+    var routeUri = Router.of(context).routeInformationProvider?.value.uri.path ?? '';
+
+    switch (routeUri) {
+      case '/home/credentials_details':
+      case '/home/more/settings/change_language':
+      case '/home/activity_details':
+      case '/home/add_data':
+      case '/home/add_data/details':
+        return false;
+      default:
+        return true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
     final currentTab = _indexToTab(navigationShell.currentIndex);
 
-    void changeTab(IrmaNavBarTab tab) {
-      final newIndex = _tabToIndex(tab);
-      if (newIndex == navigationShell.currentIndex) {
-        // If re-selecting the current tab we do nothing (could add pop-to-root logic here if desired)
-        return;
-      }
-      navigationShell.goBranch(newIndex, initialLocation: false);
-    }
-
     return PopScope(
       canPop: false,
+      // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
+      // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
+      // root route in the navigator. In that case, we background the app on Android.
+      // On iOS, there is no back button so we don't have to handle this case.
       onPopInvokedWithResult: (didPop, result) {
+        debugPrint('Back button pressed, $currentTab');
         if (currentTab == IrmaNavBarTab.data) {
           // Background the app on Android when already on the first tab
-            repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+          repo.bridgedDispatch(AndroidSendToBackgroundEvent());
         } else {
           changeTab(IrmaNavBarTab.data);
         }
@@ -99,17 +120,18 @@ class HomeShellScaffold extends StatelessWidget {
             right: false,
             top: false,
             child: Scaffold(
-              body: navigationShell, // Active branch content
+              body: navigationShell,
+              // Active branch content
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               resizeToAvoidBottomInset: false,
-              floatingActionButton: const Padding(
+              floatingActionButton: showOnThisRoute(context) ? Padding(
                 padding: EdgeInsets.only(bottom: 6),
                 child: IrmaQrScanButton(key: Key('nav_button_scanner')),
-              ),
-              bottomNavigationBar: IrmaNavBar(
+              ): SizedBox(height: 0, width: 0), // not just null because we avoid the transition when showing/hiding this way
+              bottomNavigationBar: showOnThisRoute(context) ? IrmaNavBar(
                 selectedTab: currentTab,
                 onChangeTab: changeTab,
-              ),
+              ) : SizedBox(height: 0, width: 0), // not just null because we avoid the transition when showing/hiding this way
             ),
           ),
         ),
@@ -178,7 +200,7 @@ GoRouter createRouter(BuildContext buildContext) {
         path: '/reset_pin',
         builder: (context, state) => ResetPinScreen(),
       ),
-      // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
+      // FIXME: this cannot be a sub route of /home/more/settings, because it uses its own navigator internally
       GoRoute(
         path: '/change_pin',
         builder: (context, state) => ChangePinScreen(),
@@ -187,7 +209,7 @@ GoRouter createRouter(BuildContext buildContext) {
         path: '/enrollment',
         builder: (context, state) => EnrollmentScreen(),
       ),
-      // New stateful shell for home/tabbed experience
+
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => HomeShellScaffold(navigationShell: navigationShell),
         branches: [
@@ -204,14 +226,14 @@ GoRouter createRouter(BuildContext buildContext) {
               },
               routes: [
                 GoRoute(
-                  path: 'credentials_details',
+                  path: '/credentials_details',
                   builder: (context, state) {
                     final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
                     return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
                   },
                 ),
                 GoRoute(
-                  path: 'add_data',
+                  path: '/add_data',
                   builder: (context, state) => AddDataScreen(),
                   routes: [
                     GoRoute(
@@ -227,24 +249,23 @@ GoRouter createRouter(BuildContext buildContext) {
                     ),
                   ],
                 ),
-              ],
+                GoRoute(
+                  path: '/activity_details',
+                  builder: (context, state) {
+                    final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
+                    return ActivityDetailsScreen(
+                      args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+                    );
+                  },
+                ),
+              ]
             ),
-            // Keep legacy path for credentials details directly (redundant safeguard if accessed directly)
           ]),
           // Activity tab branch
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/home/activity',
               builder: (context, state) => ActivityTab(),
-            ),
-            GoRoute(
-              path: '/home/activity_details',
-              builder: (context, state) {
-                final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
-                return ActivityDetailsScreen(
-                  args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
-                );
-              },
             ),
           ]),
           // Notifications tab branch
@@ -257,59 +278,33 @@ GoRouter createRouter(BuildContext buildContext) {
           // More tab branch
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/home/more',
-              builder: (context, state) => MoreTab(onChangeTab: (tab) {
-                // Allow MoreTab to programmatically switch tabs if needed
-                final shell = StatefulNavigationShell.of(context);
-                // Map IrmaNavBarTab to branch index
-                final index = switch (tab) {
-                  IrmaNavBarTab.data => 0,
-                  IrmaNavBarTab.activity => 1,
-                  IrmaNavBarTab.notifications => 2,
-                  IrmaNavBarTab.more => 3,
-                };
-                shell.goBranch(index, initialLocation: false);
-              }),
-              routes: [
-                GoRoute(
-                  path: 'settings',
-                  builder: (context, state) => SettingsScreen(),
-                  routes: [
-                    GoRoute(
-                      path: 'change_language',
-                      builder: (context, state) => ChangeLanguageScreen(),
-                    ),
-                  ],
-                ),
-                GoRoute(
-                  path: 'help',
-                  builder: (context, state) => HelpScreen(),
-                ),
-                GoRoute(
-                  path: 'debug',
-                  builder: (context, state) => const DebugScreen(),
-                ),
-              ],
-            ),
-            // Legacy direct paths kept for backward compatibility with existing navigation helpers
-            GoRoute(
-              path: '/home/help',
-              builder: (context, state) => HelpScreen(),
-            ),
-            GoRoute(
-              path: '/home/debug',
-              builder: (context, state) => const DebugScreen(),
-            ),
-            GoRoute(
-              path: '/home/settings',
-              builder: (context, state) => SettingsScreen(),
-              routes: [
-                GoRoute(
-                  path: 'change_language',
-                  builder: (context, state) => ChangeLanguageScreen(),
-                ),
-              ],
-            ),
+                path: '/home/more',
+                builder: (context, state) => MoreTab(onChangeTab: (tab) {
+                      context.goHomeScreenWithoutTransition();
+                      if (tab != IrmaNavBarTab.data) {
+                        context.push('/home/${tab.name}');
+                      }
+                    }),
+                routes: [
+                  GoRoute(
+                    path: '/help',
+                    builder: (context, state) => HelpScreen(),
+                  ),
+                  GoRoute(
+                    path: '/debug',
+                    builder: (context, state) => const DebugScreen(),
+                  ),
+                  GoRoute(
+                    path: '/settings',
+                    builder: (context, state) => SettingsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: '/change_language',
+                        builder: (context, state) => ChangeLanguageScreen(),
+                      ),
+                    ],
+                  ),
+                ]),
           ]),
         ],
       ),

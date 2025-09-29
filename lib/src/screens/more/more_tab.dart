@@ -91,18 +91,18 @@ class _MoreTabState extends State<MoreTab> {
                   key: Key('open_settings_screen_button'),
                   labelTranslationKey: 'more_tab.settings',
                   iconData: Icons.settings_outlined,
-                  onTap: context.goSettingsScreen,
+                  onTap: context.pushSettingsScreen,
                 ),
                 InternalLinkTile(
                   labelTranslationKey: 'more_tab.faq',
                   iconData: Icons.help_outline_rounded,
-                  onTap: context.goHelpScreen,
+                  onTap: context.pushHelpScreen,
                 ),
                 if (showDebugging)
                   InternalLinkTile(
                     labelTranslationKey: 'more_tab.debugging',
                     iconData: Icons.code_rounded,
-                    onTap: context.goDebugScreen,
+                    onTap: context.pushDebugScreen,
                   ),
               ],
             ),
