@@ -6,7 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Add support for disclosing SD-JWT VC credentials over the OpenID4VP protocol
+- Add support for issuing SD-JWT VC credentials over the IRMA protocol
+- Show credential instance count in credential details view
 - Upgrade Flutter to 3.35.4
+- Minimum Android API level was bumped from 23 to 24
+
+### Fixed
+- Some padding issues
+- Irma configuration assets are now copied more reliably using the asset manager on Android
+
+### Internal
+- Alpha builds are now called Yivi Alpha instead of Yivi 2023
+- Go logging now consistently shows up when running the app with debugging
 
 ## [7.9.0] - 2025-09-19
 ### Changed
