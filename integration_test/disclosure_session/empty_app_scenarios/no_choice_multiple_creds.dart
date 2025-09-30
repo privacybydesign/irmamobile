@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
@@ -44,7 +44,7 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
   // The discon stepper should consist of two cards
   final cardsFinder = find.descendant(
     of: disConStepperFinder,
-    matching: find.byType(IrmaCredentialCard),
+    matching: find.byType(YiviCredentialCard),
   );
   expect(cardsFinder, findsNWidgets(2));
 

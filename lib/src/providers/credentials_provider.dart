@@ -6,6 +6,7 @@ import 'package:string_similarity/string_similarity.dart';
 
 import '../models/credentials.dart';
 import '../models/irma_configuration.dart';
+import '../models/log_entry.dart';
 import 'irma_repository_provider.dart';
 
 final credentialsProvider = StreamProvider<Credentials>((ref) async* {
@@ -25,27 +26,64 @@ final credentialsProvider = StreamProvider<Credentials>((ref) async* {
 });
 
 // A list of all credential types for which at least one instance exists in the app
-final credentialInfoListProvider = StreamProvider<List<CredentialInfo>>((ref) async* {
-  final allCredentials = await ref.watch(credentialsProvider.future);
-  final infos = allCredentials.values.map((c) => c as CredentialInfo);
+final credentialInfoListProvider = StreamProvider<List<MultiFormatCredential>>((ref) async* {
+  final allCredentials = await ref.watch(multiFormatCredentialsProvider.future);
 
   final Set<String> seenIds = {};
-  final List<CredentialInfo> result = [];
-  for (final info in infos) {
-    if (!seenIds.contains(info.fullId)) {
+  final List<MultiFormatCredential> result = [];
+  for (final info in allCredentials) {
+    if (!seenIds.contains(info.credentialType.fullId)) {
       result.add(info);
-      seenIds.add(info.fullId);
+      seenIds.add(info.credentialType.fullId);
     }
   }
   yield result;
 });
 
-// A list of all credentials of the given credential type id
-final credentialsForTypeProvider = FutureProviderFamily<List<Credential>, String>((ref, credentialTypeId) async {
-  final credentials = await ref.watch(credentialsProvider.future);
+String _hashAttributeValuesAndCredentialType(Credential cred) {
+  var toHash = cred.credentialType.fullId;
 
-  final filteredCredentials =
-      credentials.values.where((cred) => cred.info.credentialType.fullId == credentialTypeId).toList();
+  for (final attr in cred.attributesWithValue.sortedBy((av) => av.attributeType.fullId)) {
+    toHash += '${attr.attributeType.fullId}${attr.value.raw}';
+  }
+  return toHash;
+}
+
+final multiFormatCredentialsProvider = StreamProvider<List<MultiFormatCredential>>((ref) async* {
+  final allCredentials = await ref.watch(credentialsProvider.future);
+
+  Map<String, List<Credential>> result = {};
+
+  for (final cred in allCredentials.values) {
+    final hash = _hashAttributeValuesAndCredentialType(cred);
+    if (result.containsKey(hash)) {
+      result[hash]!.add(cred);
+    } else {
+      result[hash] = [cred];
+    }
+  }
+  yield result.entries.map((creds) {
+    final first = creds.value[0];
+    return MultiFormatCredential(
+      identifier: creds.key,
+      credentialType: first.credentialType,
+      attributes: first.attributes,
+      hashByFormat: Map.fromEntries(creds.value.map((cred) => MapEntry(cred.format, cred.hash))),
+      signedOn: first.signedOn,
+      expires: first.expires,
+      revoked: first.revoked,
+      issuer: first.issuer,
+      instanceCount: creds.value.firstWhereOrNull((c) => c.format == CredentialFormat.sdjwtvc)?.instanceCount,
+    );
+  }).toList();
+});
+
+// A list of all credentials of the given credential type id
+final credentialsForTypeProvider =
+    FutureProviderFamily<List<MultiFormatCredential>, String>((ref, credentialTypeId) async {
+  final credentials = await ref.watch(multiFormatCredentialsProvider.future);
+
+  final filteredCredentials = credentials.where((cred) => cred.credentialType.fullId == credentialTypeId).toList();
 
   return filteredCredentials;
 });
@@ -53,10 +91,10 @@ final credentialsForTypeProvider = FutureProviderFamily<List<Credential>, String
 final credentialsSearchQueryProvider = StateProvider((ref) => '');
 
 // A list of credentials filtered by the query in the `credentialsSearchQueryProvider`
-final credentialsSearchResultsProvider = FutureProvider.family<List<Credential>, Locale>(
+final credentialsSearchResultsProvider = FutureProvider.family<List<MultiFormatCredential>, Locale>(
   (ref, locale) async {
     final query = ref.watch(credentialsSearchQueryProvider);
-    final credentials = await ref.watch(credentialsProvider.future);
+    final credentials = await ref.watch(credentialInfoListProvider.future);
     final repo = ref.watch(irmaRepositoryProvider);
 
     final searchEntries = _credentialsToSearchEntries(credentials, locale, repo.irmaConfiguration);
@@ -107,8 +145,9 @@ double _scoreForSearchEntry(_SearchEntry credential, String query) {
   return credentialSimilarity * 0.7 + issuerSimilarity * 0.3;
 }
 
-List<_SearchEntry> _credentialsToSearchEntries(Credentials credentials, Locale locale, IrmaConfiguration config) {
-  return credentials.values.map((credential) {
+List<_SearchEntry> _credentialsToSearchEntries(
+    List<MultiFormatCredential> credentials, Locale locale, IrmaConfiguration config) {
+  return credentials.map((credential) {
     final credentialName =
         credential.credentialType.name.translate(locale.languageCode).toLowerCase().replaceAll('-', '');
 
@@ -118,11 +157,14 @@ List<_SearchEntry> _credentialsToSearchEntries(Credentials credentials, Locale l
             .replaceAll('-', '') ??
         '';
 
-    final hash = credential.hash;
+    final hash = credential.identifier;
     return _SearchEntry(hash: hash, credentialType: credentialName, issuerName: issuer);
   }).toList(growable: false);
 }
 
-List<Credential> _searchEntriesToCredentials(Credentials credentials, List<_SearchEntry> entries) {
-  return entries.map((entry) => credentials[entry.hash]!).toList(growable: false);
+List<MultiFormatCredential> _searchEntriesToCredentials(
+  List<MultiFormatCredential> credentials,
+  List<_SearchEntry> entries,
+) {
+  return entries.map((entry) => credentials.firstWhere((c) => c.identifier == entry.hash)).toList(growable: false);
 }

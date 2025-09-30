@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/go-errors/errors"
 	irma "github.com/privacybydesign/irmago"
@@ -149,16 +150,21 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	irma.Logger.Hooks.Add(&errorReporter{})
 
 	// Initialize the client
-	configurationPath := filepath.Join(assetsPath, "irma_configuration")
-	client, err = irmaclient.New(appVersionDataPath, configurationPath, bridgeClientHandler, signer, aesKeyCopy)
+	irmaConfigurationPath := filepath.Join(assetsPath, "irma_configuration")
+
+	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
+	irma.Logger.SetLevel(logrus.TraceLevel)
+	client, err = irmaclient.New(appVersionDataPath, irmaConfigurationPath, bridgeClientHandler, signer, aesKeyCopy)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
 	}
 
-	if client.Preferences.DeveloperMode {
-		irma.Logger.SetLevel(logrus.TraceLevel)
+	if !client.GetPreferences().DeveloperMode {
+		irma.Logger.SetLevel(logrus.ErrorLevel)
 	}
+
+	client.InitJobs(60 * time.Minute)
 }
 
 func dispatchEvent(event interface{}) {

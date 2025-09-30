@@ -38,17 +38,17 @@ final credentialOrderRepoProvider = Provider(
 enum NewItemPolicy { append, prepend }
 
 /// ----- Controller: reconciles external items with stored order
-final credentialOrderControllerProvider = AsyncNotifierProvider<CredentialOrderController, List<CredentialInfo>>(
+final credentialOrderControllerProvider = AsyncNotifierProvider<CredentialOrderController, List<MultiFormatCredential>>(
   CredentialOrderController.new,
 );
 
-class CredentialOrderController extends AsyncNotifier<List<CredentialInfo>> {
+class CredentialOrderController extends AsyncNotifier<List<MultiFormatCredential>> {
   Timer? _debounce;
   List<String> _order = const []; // persisted order of IDs
   final NewItemPolicy _policy = NewItemPolicy.prepend;
 
   @override
-  Future<List<CredentialInfo>> build() async {
+  Future<List<MultiFormatCredential>> build() async {
     // Load persisted order once
     _order = await ref.read(credentialOrderRepoProvider).loadOrder();
 
@@ -64,14 +64,14 @@ class CredentialOrderController extends AsyncNotifier<List<CredentialInfo>> {
         state = AsyncData(merged);
         // Optionally clean up persisted order (remove non-existent IDs)
         _debouncedSave(merged);
-        _order = merged.map((c) => c.fullId).toList();
+        _order = merged.map((c) => c.credentialType.fullId).toList();
       },
     );
 
     // Seed with current external value (if available)
     final ext = await ref.read(credentialInfoListProvider.future);
     final merged = _reconcile(ext, _order, _policy);
-    _order = merged.map((e) => e.fullId).toList();
+    _order = merged.map((e) => e.credentialType.fullId).toList();
     return merged;
   }
 
@@ -82,20 +82,20 @@ class CredentialOrderController extends AsyncNotifier<List<CredentialInfo>> {
     final moved = current.removeAt(oldIndex);
     current.insert(newIndex, moved);
     state = AsyncData(current);
-    _order = current.map((e) => e.fullId).toList();
+    _order = current.map((e) => e.credentialType.fullId).toList();
     _debouncedSave(current);
   }
 
   /// Merge logic:
   /// - keep IDs in stored order if they still exist
   /// - add any new external IDs at end/start (policy)
-  List<CredentialInfo> _reconcile(
-    List<CredentialInfo> external,
+  List<MultiFormatCredential> _reconcile(
+    List<MultiFormatCredential> external,
     List<String> storedOrder,
     NewItemPolicy p,
   ) {
-    final byId = {for (final it in external) it.fullId: it};
-    final visible = <CredentialInfo>[];
+    final byId = {for (final it in external) it.credentialType.fullId: it};
+    final visible = <MultiFormatCredential>[];
 
     // 1) Keep items that still exist in the stored order
     for (final id in storedOrder) {
@@ -115,13 +115,13 @@ class CredentialOrderController extends AsyncNotifier<List<CredentialInfo>> {
     return visible;
   }
 
-  void _debouncedSave(List<CredentialInfo> items) {
+  void _debouncedSave(List<MultiFormatCredential> items) {
     _debounce?.cancel();
     _debounce = Timer(
       const Duration(milliseconds: 400),
       () async {
         await ref.read(credentialOrderRepoProvider).saveOrder(
-              items.map((e) => e.fullId).toList(),
+              items.map((e) => e.credentialType.fullId).toList(),
             );
       },
     );

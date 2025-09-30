@@ -94,7 +94,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
       value: BlocProvider.of<NotificationsBloc>(context),
       child: Scaffold(
         backgroundColor: theme.backgroundTertiary,
-        appBar: const IrmaAppBar(
+        appBar: IrmaAppBar(
           titleTranslationKey: 'notifications.title',
           leading: null,
         ),

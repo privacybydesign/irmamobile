@@ -37,7 +37,7 @@ func (conf *WrappedConfiguration) MarshalJSON() ([]byte, error) {
 }
 
 func dispatchConfigurationEvent() {
-	t := WrappedConfiguration(*client.Configuration)
+	t := WrappedConfiguration(*client.GetIrmaConfiguration())
 	dispatchEvent(&irmaConfigurationEvent{
 		IrmaConfiguration: &t,
 	})
@@ -59,6 +59,6 @@ func dispatchEnrollmentStatusEvent() {
 
 func dispatchPreferencesEvent() {
 	dispatchEvent(&clientPreferencesEvent{
-		Preferences: client.Preferences,
+		Preferences: client.GetPreferences(),
 	})
 }

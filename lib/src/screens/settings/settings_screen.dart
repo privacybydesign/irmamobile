@@ -77,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'settings.title',
       ),
       body: SizedBox(

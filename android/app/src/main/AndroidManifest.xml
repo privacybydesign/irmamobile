@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="foundation.privacybydesign.irmamobile">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -57,6 +56,12 @@
               <category android:name="android.intent.category.BROWSABLE" />
               <data android:scheme="irma" />
               <data android:scheme="cardemu"/>
+            </intent-filter>
+            <intent-filter>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:scheme="eudi-openid4vp" />
             </intent-filter>
         </activity>
         <meta-data

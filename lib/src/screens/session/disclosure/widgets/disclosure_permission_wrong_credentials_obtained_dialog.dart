@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../theme/theme.dart';
-import '../../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../../widgets/irma_dialog.dart';
 import '../../../../widgets/yivi_themed_button.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -25,17 +25,32 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
       child: Column(
         children: [
           ...state.obtainedCredentials.mapIndexed(
-            (i, cred) => IrmaCredentialCard(
-              credentialView: cred,
+            (i, cred) => YiviCredentialCard(
+              compact: true,
+              hashByFormat: {cred.format: cred.credentialHash},
               compareTo: state.templates[i].attributes,
               hideFooter: true,
+              type: cred.credentialType,
+              issuer: cred.issuer,
+              attributes: cred.attributes,
+              valid: cred.valid,
+              expired: cred.expired,
+              revoked: cred.revoked,
             ),
           ),
           ...state.templates.map(
-            (cred) => IrmaCredentialCard(
-              credentialView: cred,
+            (cred) => YiviCredentialCard(
+              compact: true,
+              // TODO: find out the correct format asked here...
+              hashByFormat: {},
               compareTo: cred.attributes,
               hideFooter: true,
+              type: cred.credentialType,
+              issuer: cred.issuer,
+              attributes: cred.attributes,
+              valid: cred.valid,
+              expired: cred.expired,
+              revoked: cred.revoked,
             ),
           ),
           SizedBox(height: theme.defaultSpacing),

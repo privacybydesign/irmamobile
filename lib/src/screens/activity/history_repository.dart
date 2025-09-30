@@ -4,26 +4,26 @@ import 'package:collection/collection.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../data/irma_repository.dart';
-import '../../models/credentials.dart';
+import '../../models/irma_configuration.dart';
 import '../../models/log_entry.dart';
 
-class LogEntries extends UnmodifiableListView<LogEntry> {
+class LogEntries extends UnmodifiableListView<LogInfo> {
   LogEntries(super.list);
 }
 
 class HistoryState {
-  final UnmodifiableListView<LogEntry> logEntries;
+  final UnmodifiableListView<LogInfo> logEntries;
   final bool loading;
   final bool moreLogsAvailable;
 
   HistoryState({
-    List<LogEntry> logEntries = const [],
+    List<LogInfo> logEntries = const [],
     this.loading = false,
     this.moreLogsAvailable = false,
   }) : logEntries = UnmodifiableListView(logEntries);
 
   HistoryState copyWith({
-    List<LogEntry>? logEntries,
+    List<LogInfo>? logEntries,
     bool? loading,
     bool? moreLogsAvailable,
   }) {
@@ -35,9 +35,15 @@ class HistoryState {
   }
 }
 
-class HistoryRepository {
-  static const _serverNameOptional = [LogEntryType.issuing, LogEntryType.removal];
+bool _isKeyshareCredential(IrmaConfiguration config, CredentialLog log) {
+  return log.attributes.keys.any(
+    (attr) => config.schemeManagers.values.any(
+      (scheme) => scheme.keyshareAttributes.contains('${log.credentialType}.$attr'),
+    ),
+  );
+}
 
+class HistoryRepository {
   IrmaRepository repo;
 
   final _historyStateSubject = BehaviorSubject<HistoryState>();
@@ -51,18 +57,14 @@ class HistoryRepository {
           logEntries: event.before == null ? [] : prevState.logEntries,
         );
       } else if (event is LogsEvent) {
-        // Some legacy log formats don't specify a serverName. For disclosing and signing logs this is an issue,
-        // because the serverName has a prominent place in the UX there. For now we skip those as temporary solution.
-        // TODO: Remove filtering when legacy logs are converted to the right format in irmago
-        final supportedLogEntries =
-            event.logEntries.where((entry) => _serverNameOptional.contains(entry.type) || entry.serverName != null);
+        bool containsKeyshareCredential(LogInfo e) {
+          return e.issuanceLog?.credentials.any((c) {
+                return _isKeyshareCredential(repo.irmaConfiguration, c);
+              }) ??
+              false;
+        }
 
-        bool containsKeyshareCredential(LogEntry e) => e.issuedCredentials.any((c) =>
-            Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: c).isKeyshareCredential);
-
-        // FIXME: We assume that when the activityLogEntries list is empty, then all log entries are loaded.
-        // If an user adds multiple keyshare servers one after another, this assumption will break.
-        final activityLogEntries = supportedLogEntries.where((entry) => !containsKeyshareCredential(entry));
+        final activityLogEntries = event.logEntries.where((entry) => !containsKeyshareCredential(entry));
 
         return prevState.copyWith(
           loading: false,

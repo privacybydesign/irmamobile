@@ -80,6 +80,10 @@ class IrmaClientBridge extends IrmaBridge {
   }
 
   Future<void> _handleMethodCall(MethodCall call) async {
+    if (call.method == 'GoLog') {
+      debugPrint('[GO]: ${call.arguments}');
+      return;
+    }
     try {
       final data = jsonDecode(call.arguments as String) as Map<String, dynamic>;
       final unmarshaller = _eventUnmarshallerLookup[call.method];

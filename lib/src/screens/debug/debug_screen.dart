@@ -47,6 +47,7 @@ class _DebugScreenState extends State<DebugScreen> {
     });
   }
 
+  // FIXME: make this compatible with new credential system
   Future<void> _deleteAllDeletableCards(IrmaRepository repo) async {
     final confirmed = await showDialog<bool>(
           context: context,
@@ -63,7 +64,7 @@ class _DebugScreenState extends State<DebugScreen> {
         continue;
       }
 
-      repo.bridgedDispatch(DeleteCredentialEvent(hash: credential.hash));
+      repo.bridgedDispatch(DeleteCredentialEvent(hashByFormat: {}));
     }
 
     if (!mounted) return;
@@ -94,7 +95,7 @@ class _DebugScreenState extends State<DebugScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'debug.title',
       ),
       body: ListView(

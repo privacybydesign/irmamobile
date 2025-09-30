@@ -46,8 +46,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     _sessionEventSubscription = repo
         .getEvents()
         .whereType<RequestIssuancePermissionSessionEvent>()
-        .expand((event) => event.issuedCredentials.map((cred) => cred.hash))
-        .listen(_newlyAddedCredentialHashes.add);
+        .expand((event) => event.issuedCredentials.map((cred) {
+              return cred.hashByFormat.values;
+            }))
+        .listen((values) {
+      _newlyAddedCredentialHashes.addAll(values);
+    });
     repo.preferences.getCompletedDisclosurePermissionIntro().first.then((introCompleted) {
       if (isClosed) return;
       if (introCompleted) {
@@ -764,10 +768,11 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           );
         } else {
           return ChoosableDisclosureCredential(
+            format: credential.format,
             info: credential.info,
             attributes: attributes,
             previouslyAdded: !_newlyAddedCredentialHashes.contains(credential.hash),
-            expired: credential.expired,
+            expired: credential.expiredOrEmpty,
             revoked: credential.revoked,
             credentialHash: credential.hash,
           );

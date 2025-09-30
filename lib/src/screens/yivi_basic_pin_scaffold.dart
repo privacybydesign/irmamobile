@@ -18,7 +18,7 @@ class YiviBasicPinScaffold extends StatelessWidget {
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
-        title: '',
+        titleString: '',
         leading: YiviBackButton(
           onTap: cancel != null
               ? () async {

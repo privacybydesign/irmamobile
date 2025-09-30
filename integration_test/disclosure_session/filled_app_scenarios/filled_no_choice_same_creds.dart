@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
@@ -47,7 +47,7 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
   );
   await tester.tapAndSettle(changeChoiceFinder);
 
-  final credentialCardsFinder = find.byType(IrmaCredentialCard);
+  final credentialCardsFinder = find.byType(YiviCredentialCard);
   const demoEmailCredentialName = 'Demo Email address';
   const demoEmailIssuerName = 'Demo Privacy by Design Foundation via SIDN';
 

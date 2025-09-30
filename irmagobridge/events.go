@@ -45,7 +45,7 @@ type respondPinEvent struct {
 }
 
 type deleteCredentialEvent struct {
-	Hash string
+	HashByFormat map[irmaclient.CredentialFormat]string
 }
 
 type dismissSessionEvent struct {
@@ -167,11 +167,23 @@ type canceledSessionEvent struct {
 	SessionID int
 }
 
+type rawMultiFormatCredential struct {
+	ID              string
+	IssuerID        string
+	SchemeManagerID string
+	Revoked         bool
+	Attributes      map[irma.AttributeTypeIdentifier]irma.TranslatedString
+	HashByFormat    map[irmaclient.CredentialFormat]string
+	SignedOn        irma.Timestamp
+	Expires         irma.Timestamp
+	InstanceCount   *uint
+}
+
 type requestIssuancePermissionSessionEvent struct {
 	SessionID             int
 	ServerName            *irma.RequestorInfo
 	Satisfiable           bool
-	IssuedCredentials     irma.CredentialInfoList
+	IssuedCredentials     []rawMultiFormatCredential
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
 	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
@@ -220,18 +232,7 @@ type keyshareEnrollmentIncompleteSessionEvent struct {
 }
 
 type logsEvent struct {
-	LogEntries []*logEntry
-}
-
-type logEntry struct {
-	ID                   uint64
-	Type                 irma.Action
-	Time                 irma.Timestamp
-	ServerName           *irma.RequestorInfo
-	IssuedCredentials    irma.CredentialInfoList
-	DisclosedCredentials [][]*irma.DisclosedAttribute
-	SignedMessage        *irma.SignedMessage
-	RemovedCredentials   map[irma.CredentialTypeIdentifier]map[irma.AttributeTypeIdentifier]irma.TranslatedString
+	LogEntries []irmaclient.LogInfo
 }
 
 // //

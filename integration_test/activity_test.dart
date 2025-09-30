@@ -4,7 +4,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/activity/activity_detail_screen.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_detail_issuance.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 
 import 'helpers/helpers.dart';
 import 'helpers/issuance_helpers.dart';
@@ -52,7 +52,7 @@ void main() {
         expect(find.text('Received data'), findsOneWidget);
 
         // Find the activity card and check the content
-        final activityCardFinder = find.byType(IrmaCredentialCard).first;
+        final activityCardFinder = find.byType(YiviCredentialCard).first;
         await evaluateCredentialCard(
           tester,
           activityCardFinder,

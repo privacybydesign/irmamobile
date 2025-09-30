@@ -97,7 +97,7 @@ class _ActivityTabState extends State<ActivityTab> {
   }
 
   Widget _buildLogEntries(
-      BuildContext context, IrmaConfiguration irmaConfiguration, List<LogEntry> logEntries, bool moreLogsAvailable) {
+      BuildContext context, IrmaConfiguration irmaConfiguration, List<LogInfo> logEntries, bool moreLogsAvailable) {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);
@@ -136,31 +136,33 @@ class _ActivityTabState extends State<ActivityTab> {
       },
     ).flattened.toList();
 
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      controller: _scrollController,
-      padding: EdgeInsets.symmetric(
-        vertical: theme.smallSpacing,
-        horizontal: theme.defaultSpacing,
+    return SafeArea(
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        controller: _scrollController,
+        padding: EdgeInsets.symmetric(
+          vertical: theme.smallSpacing,
+          horizontal: theme.defaultSpacing,
+        ),
+        children: [
+          if (groupedItems.isEmpty)
+            const Center(
+              child: TranslatedText('activity.empty_placeholder'),
+            )
+          else ...[
+            ...groupedItems,
+            Padding(
+              padding: EdgeInsets.only(
+                top: theme.defaultSpacing,
+                bottom: theme.mediumSpacing,
+              ),
+              child: EndOfListIndicator(
+                isLoading: moreLogsAvailable,
+              ),
+            ),
+          ]
+        ],
       ),
-      children: [
-        if (groupedItems.isEmpty)
-          const Center(
-            child: TranslatedText('activity.empty_placeholder'),
-          )
-        else ...[
-          ...groupedItems,
-          Padding(
-            padding: EdgeInsets.only(
-              top: theme.defaultSpacing,
-              bottom: theme.mediumSpacing,
-            ),
-            child: EndOfListIndicator(
-              isLoading: moreLogsAvailable,
-            ),
-          ),
-        ]
-      ],
     );
   }
 

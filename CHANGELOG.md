@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.10.0] - 2025-10-07
+### Changed
+- Add support for disclosing SD-JWT VC credentials over the OpenID4VP protocol
+- Add support for issuing SD-JWT VC credentials over the IRMA protocol
+- Show credential instance count in credential details view
+- Upgrade Flutter to 3.35.4
+- Minimum Android API level was bumped from 23 to 24
+- Upgrade irmago to 0.19.0
+
+### Fixed
+- Some padding issues
+- Irma configuration assets are now copied more reliably using the asset manager on Android
+- Issue that made log logo paths invalid on iOS after each update/recompilation
+
+### Internal
+- Alpha builds are now called Yivi Alpha instead of Yivi 2023
+- Go logging now consistently shows up when running the app with debugging
+
 ## [7.9.0] - 2025-09-19
 ### Changed
 - Show warning to users when disclosing attributes to unverified requestors
@@ -498,6 +516,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.10.0]: https://github.com/privacybydesign/irmamobile/compare/v7.9.0...v7.10.0
 [7.9.0]: https://github.com/privacybydesign/irmamobile/compare/v7.8.1...v7.9.0
 [7.8.1]: https://github.com/privacybydesign/irmamobile/compare/v7.8.0...v7.8.1
 [7.8.0]: https://github.com/privacybydesign/irmamobile/compare/v7.7.0...v7.8.0

@@ -245,7 +245,7 @@ class _AllCredentialsList extends ConsumerWidget {
 class _CredentialsTypeList extends StatelessWidget {
   const _CredentialsTypeList({required this.credentials});
 
-  final List<CredentialInfo> credentials;
+  final List<MultiFormatCredential> credentials;
 
   @override
   Widget build(BuildContext context) {
@@ -348,7 +348,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
             final cred = items[i];
 
             return Padding(
-              key: ValueKey(cred.fullId),
+              key: ValueKey(cred.credentialType.fullId),
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: ReorderableDelayedDragStartListener(
                 index: i,

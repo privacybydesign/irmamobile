@@ -102,7 +102,7 @@ RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFro
       serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
       satisfiable: json['Satisfiable'] as bool,
       issuedCredentials: (json['IssuedCredentials'] as List<dynamic>)
-          .map((e) => RawCredential.fromJson(e as Map<String, dynamic>))
+          .map((e) => RawMultiFormatCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
       disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),

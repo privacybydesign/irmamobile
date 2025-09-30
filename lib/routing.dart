@@ -131,7 +131,7 @@ GoRouter createRouter(BuildContext buildContext) {
           GoRoute(
             path: 'activity_details',
             builder: (context, state) {
-              final (logEntry, irmaConfiguration) = state.extra as (LogEntry, IrmaConfiguration);
+              final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
               return ActivityDetailsScreen(
                 args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
               );
