@@ -50,6 +50,10 @@ class DocumentNrInputField extends StatelessWidget {
         FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
       ],
       decoration: InputDecoration(
+        hint: TranslatedText(
+          'passport.manual.fields.document_nr',
+          style: baseTextStyle?.copyWith(color: baseTextStyle.color?.withValues(alpha: 0.5)),
+        ),
         contentPadding: const EdgeInsets.only(top: -10.0),
         label: TranslatedText(
           'passport.manual.fields.document_nr',
