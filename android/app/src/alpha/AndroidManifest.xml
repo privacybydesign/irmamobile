@@ -2,7 +2,7 @@
 >
 
     <!-- Override label (this is what is displayed as the app's name)-->
-    <application android:label="Yivi 2023">
+    <application android:label="Yivi Alpha">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"

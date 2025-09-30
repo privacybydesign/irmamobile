@@ -527,12 +527,11 @@ packages:
   jailbreak_root_detection:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "31c272e3dcaca4255ddcb6dd67b86b65b3005398"
-      url: "https://github.com/privacybydesign/jailbreak_root_detection"
-    source: git
-    version: "1.1.6"
+      name: jailbreak_root_detection
+      sha256: "5000177b9a27428e9c47d2b98f21ab707bef5869c036f9bda4f4f95f4ad67d72"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0+1"
   jni:
     dependency: transitive
     description:
