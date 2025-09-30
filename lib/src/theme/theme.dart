@@ -203,7 +203,7 @@ class IrmaThemeData {
     //Init App Bar Theme
     final appBarTheme = AppBarTheme(
       elevation: 0,
-      color: backgroundPrimary,
+      backgroundColor: backgroundPrimary,
       iconTheme: IconThemeData(
         color: dark,
       ),

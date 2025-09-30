@@ -42,7 +42,8 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
               ),
               if (state.templateCons.isNotEmpty) ...[
                 Padding(
-                  padding: EdgeInsets.only(bottom: theme.smallSpacing, left: theme.smallSpacing, top: theme.mediumSpacing),
+                  padding:
+                      EdgeInsets.only(bottom: theme.smallSpacing, left: theme.smallSpacing, top: theme.mediumSpacing),
                   child: TranslatedText(
                     'disclosure_permission.obtain_new',
                     style: theme.themeData.textTheme.headlineMedium,

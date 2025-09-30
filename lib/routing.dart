@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -28,7 +27,6 @@ import 'src/screens/error/error_screen.dart';
 import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/widgets/irma_nav_bar.dart';
 import 'src/screens/home/widgets/irma_qr_scan_button.dart';
-import 'src/screens/home/widgets/pending_pointer_listener.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
 import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
