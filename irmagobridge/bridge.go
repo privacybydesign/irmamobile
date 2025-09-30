@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/go-errors/errors"
 	irma "github.com/privacybydesign/irmago"
@@ -162,6 +163,8 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	if !client.GetPreferences().DeveloperMode {
 		irma.Logger.SetLevel(logrus.ErrorLevel)
 	}
+
+	client.InitJobs(60 * time.Minute)
 }
 
 func dispatchEvent(event interface{}) {

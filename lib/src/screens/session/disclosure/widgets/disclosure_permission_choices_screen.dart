@@ -64,7 +64,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         children: [
           if (changeable)
             Padding(
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              padding: EdgeInsets.only(bottom: theme.smallSpacing, top: theme.smallSpacing),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/yivi_credential_card.dart';
 import '../../../../widgets/radio_indicator.dart';
@@ -22,6 +23,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   Widget _buildChoiceOption(BuildContext context, MapEntry<int, Con<DisclosureCredential>> option) {
     final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
+    final theme = IrmaTheme.of(context);
 
     return Semantics(
       button: true,
@@ -36,7 +38,8 @@ class DisclosurePermissionChoice extends StatelessWidget {
                           onChoiceUpdated(option.key);
                         }
                       },
-                child: Center(
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: theme.smallSpacing),
                   child: YiviCredentialCard(
                     hideFooter: true,
                     hashByFormat: credential is ChoosableDisclosureCredential ? {} : {},
