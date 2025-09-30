@@ -91,7 +91,7 @@ class _MoreTabState extends State<MoreTab> {
                   key: Key('open_settings_screen_button'),
                   labelTranslationKey: 'more_tab.settings',
                   iconData: Icons.settings_outlined,
-                  onTap: context.pushSettingsScreen,
+                  onTap: context.goSettingsScreen,
                 ),
                 InternalLinkTile(
                   labelTranslationKey: 'more_tab.faq',
@@ -102,7 +102,7 @@ class _MoreTabState extends State<MoreTab> {
                   InternalLinkTile(
                     labelTranslationKey: 'more_tab.debugging',
                     iconData: Icons.code_rounded,
-                    onTap: context.pushDebugScreen,
+                    onTap: context.goDebugScreen,
                   ),
               ],
             ),

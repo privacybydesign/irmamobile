@@ -55,16 +55,16 @@ extension RoutingHelpers on BuildContext {
     go('/pin');
   }
 
-  void pushSettingsScreen() {
-    push('/more/settings');
+  void goSettingsScreen() {
+    go('/more/settings');
   }
 
   void goHelpScreen() {
     go('/more/help');
   }
 
-  void pushDebugScreen() {
-    push('/more/debug');
+  void goDebugScreen() {
+    go('/more/debug');
   }
 
   void goNotificationsScreen() {
