@@ -226,7 +226,7 @@ GoRouter createRouter(BuildContext buildContext) {
         path: '/reset_pin',
         builder: (context, state) => ResetPinScreen(),
       ),
-      // FIXME: this cannot be a sub route of /home/more/settings, because it uses its own navigator internally
+      // FIXME: this cannot be a sub route of /more/settings, because it uses its own navigator internally
       GoRoute(
         path: '/change_pin',
         builder: (context, state) => ChangePinScreen(),
