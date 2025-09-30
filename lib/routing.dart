@@ -238,8 +238,9 @@ GoRouter createRouter(BuildContext buildContext) {
         builder: (context, state, navigationShell) => HomeShellScaffold(navigationShell: navigationShell),
         branches: [
           // Data tab branch
-          StatefulShellBranch(routes: [
-            GoRoute(
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/home',
                 pageBuilder: (context, state) {
                   if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
@@ -275,45 +276,52 @@ GoRouter createRouter(BuildContext buildContext) {
                       ),
                     ],
                   ),
-                ]),
-          ]),
+                ],
+              ),
+            ],
+          ),
           // Activity tab branch
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/activity',
-              builder: (context, state) => _TabPopScope(child: ActivityTab()),
-              routes: [
-                GoRoute(
-                  path: '/activity_details',
-                  builder: (context, state) {
-                    final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
-                    return ActivityDetailsScreen(
-                      args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/activity',
+                builder: (context, state) => _TabPopScope(child: ActivityTab()),
+                routes: [
+                  GoRoute(
+                    path: '/activity_details',
+                    builder: (context, state) {
+                      final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
+                      return ActivityDetailsScreen(
+                        args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
           // Notifications tab branch
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/notifications',
-              builder: (context, state) => _TabPopScope(child: NotificationsTab()),
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/notifications',
+                builder: (context, state) => _TabPopScope(child: NotificationsTab()),
+              ),
+            ],
+          ),
           // More tab branch
-          StatefulShellBranch(routes: [
-            GoRoute(
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/more',
                 builder: (context, state) => _TabPopScope(
-                      child: MoreTab(onChangeTab: (tab) {
-                        context.goHomeScreenWithoutTransition();
-                        if (tab != IrmaNavBarTab.data) {
-                          context.push('/${tab.name}');
-                        }
-                      }),
-                    ),
+                  child: MoreTab(onChangeTab: (tab) {
+                    context.goHomeScreenWithoutTransition();
+                    if (tab != IrmaNavBarTab.data) {
+                      context.push('/${tab.name}');
+                    }
+                  }),
+                ),
                 routes: [
                   GoRoute(
                     path: '/help',
@@ -333,8 +341,10 @@ GoRouter createRouter(BuildContext buildContext) {
                       ),
                     ],
                   ),
-                ]),
-          ]),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
