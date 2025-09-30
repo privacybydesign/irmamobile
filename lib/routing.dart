@@ -69,6 +69,10 @@ class HomeShellScaffold extends StatefulWidget {
         IrmaNavBarTab.more => 3,
       };
 
+  // Determine whether to show the nav bar and FAB on the current route
+  // We don't want to show it on certain detail pages or settings pages
+  // This is a bit of a hack, but it works while we don't have a lot of routes the FAB isn't on
+  // I don't want to unnest these pages from the shell route bc that would look really ugly
   static bool showOnThisRoute(BuildContext context) {
     var routeUri = Router.of(context).routeInformationProvider?.value.uri.path ?? '';
 
@@ -76,8 +80,8 @@ class HomeShellScaffold extends StatefulWidget {
       case '/home/credentials_details':
       case '/more/settings/change_language':
       case '/activity/activity_details':
-      case '/add_data':
-      case '/add_data/details':
+      case '/home/add_data':
+      case '/home/add_data/details':
         return false;
       default:
         return true;
@@ -92,24 +96,14 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold> {
   void changeTab(IrmaNavBarTab tab) {
     final newIndex = HomeShellScaffold._tabToIndex(tab);
     final currentIndex = widget.navigationShell.currentIndex;
-    if (newIndex == currentIndex) return;
-    widget.navigationShell.goBranch(newIndex, initialLocation: false);
+
+    if (newIndex != currentIndex) widget.navigationShell.goBranch(newIndex, initialLocation: false);
   }
 
   void handlePop() {
     final currentTab = HomeShellScaffold._indexToTab(widget.navigationShell.currentIndex);
-    debugPrint('Back button pressed on tab $currentTab (index ${widget.navigationShell.currentIndex})');
-
-    // Check if child navigator can pop
-    final childCanPop = widget.navigationShell.shellRouteContext.navigatorKey.currentState?.canPop() ?? false;
-
-    if (childCanPop) {
-      widget.navigationShell.shellRouteContext.navigatorKey.currentState?.pop();
-      return;
-    }
 
     if (currentTab == IrmaNavBarTab.data) {
-      // Background the app on Android when already on the first tab
       IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
     } else {
       widget.navigationShell.goBranch(0, initialLocation: false);
@@ -118,7 +112,6 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
     final currentTab = HomeShellScaffold._indexToTab(widget.navigationShell.currentIndex);
 
     return PopScope(
@@ -318,13 +311,13 @@ GoRouter createRouter(BuildContext buildContext) {
             GoRoute(
                 path: '/more',
                 builder: (context, state) => _TabPopScope(
-                  child: MoreTab(onChangeTab: (tab) {
-                    context.goHomeScreenWithoutTransition();
-                    if (tab != IrmaNavBarTab.data) {
-                      context.push('/${tab.name}');
-                    }
-                  }),
-                ),
+                      child: MoreTab(onChangeTab: (tab) {
+                        context.goHomeScreenWithoutTransition();
+                        if (tab != IrmaNavBarTab.data) {
+                          context.push('/${tab.name}');
+                        }
+                      }),
+                    ),
                 routes: [
                   GoRoute(
                     path: '/help',
