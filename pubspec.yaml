@@ -45,11 +45,9 @@ dependencies:
   lottie: ^3.1.3
   permission_handler: ^12.0.1
   flutter_riverpod: ^2.6.1
+  jailbreak_root_detection: ^1.2.0+1
   # Temporary forks because their original repos are not compatible with new android api's.
   # Should be reverted back to their published version when they're made compatible.
-  jailbreak_root_detection:
-    git:
-      url: https://github.com/privacybydesign/jailbreak_root_detection
   native_device_orientation:
     git:
       url: https://github.com/privacybydesign/flutter_native_device_orientation
