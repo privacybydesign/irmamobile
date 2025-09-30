@@ -187,7 +187,7 @@ cd ./ios && pod install
 ## Edit irmago directly
 Sometimes it can be useful to directly edit irmago while debugging.
 ```bash
-go mod replace github.com/privacybydesign/irmago=<irmago_path_on_your_pc>
+go mod edit -replace github.com/privacybydesign/irmago=<irmago_path_on_your_pc>
 go mod tidy
 ./bind_go.sh
 ```
