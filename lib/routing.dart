@@ -119,30 +119,28 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold> {
       onPopInvokedWithResult: (didPop, result) {
         handlePop();
       },
-      child: PendingPointerListener(
-        child: Container(
-          color: Colors.white,
-          child: SafeArea(
-            left: false,
-            right: false,
-            top: false,
-            child: Scaffold(
-              body: widget.navigationShell,
-              floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-              resizeToAvoidBottomInset: false,
-              floatingActionButton: HomeShellScaffold.showOnThisRoute(context)
-                  ? const Padding(
-                      padding: EdgeInsets.only(bottom: 6),
-                      child: IrmaQrScanButton(key: Key('nav_button_scanner')),
-                    )
-                  : const SizedBox.shrink(),
-              bottomNavigationBar: HomeShellScaffold.showOnThisRoute(context)
-                  ? IrmaNavBar(
-                      selectedTab: currentTab,
-                      onChangeTab: changeTab,
-                    )
-                  : const SizedBox.shrink(),
-            ),
+      child: Container(
+        color: Colors.white,
+        child: SafeArea(
+          left: false,
+          right: false,
+          top: false,
+          child: Scaffold(
+            body: widget.navigationShell,
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+            resizeToAvoidBottomInset: false,
+            floatingActionButton: HomeShellScaffold.showOnThisRoute(context)
+                ? const Padding(
+                    padding: EdgeInsets.only(bottom: 6),
+                    child: IrmaQrScanButton(key: Key('nav_button_scanner')),
+                  )
+                : const SizedBox.shrink(),
+            bottomNavigationBar: HomeShellScaffold.showOnThisRoute(context)
+                ? IrmaNavBar(
+                    selectedTab: currentTab,
+                    onChangeTab: changeTab,
+                  )
+                : const SizedBox.shrink(),
           ),
         ),
       ),
