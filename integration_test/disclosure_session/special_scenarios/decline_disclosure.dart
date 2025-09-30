@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_close_dialog.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_close_button.dart';
@@ -55,5 +55,5 @@ Future<void> declineDisclosure(WidgetTester tester, IntegrationTestIrmaBinding i
   expect(disclosureCloseDialogFinder, findsNothing);
 
   // Finally, expect to be back on the home screen
-  expect(find.byType(HomeScreen), findsOneWidget);
+  expect(find.byType(DataTab), findsOneWidget);
 }

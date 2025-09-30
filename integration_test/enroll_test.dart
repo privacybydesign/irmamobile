@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/enrollment/accept_terms/accept_terms_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/accept_terms/widgets/error_reporting_check_box.dart';
 import 'package:irmamobile/src/screens/enrollment/choose_pin/choose_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/enrollment_instruction.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_sheet.dart';
 import 'package:irmamobile/src/widgets/irma_close_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
@@ -282,7 +282,7 @@ void main() {
         await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
 
         // Wait for home screen
-        await tester.waitFor(find.byType(HomeScreen));
+        await tester.waitFor(find.byType(DataTab));
       },
     );
 
@@ -327,7 +327,7 @@ void main() {
         await tester.tapAndSettle(bottomBarPrimaryButtonFinder);
 
         // Wait for home screen
-        await tester.waitFor(find.byType(HomeScreen));
+        await tester.waitFor(find.byType(DataTab));
       },
       // On physical iOS devices we run the integration test in release mode, as instructed.
       // https://github.com/flutter/flutter/tree/main/packages/integration_test#ios-device-testing

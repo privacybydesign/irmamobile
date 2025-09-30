@@ -9,7 +9,6 @@ import 'app.dart';
 import 'src/data/irma_preferences.dart';
 import 'src/providers/irma_repository_provider.dart';
 import 'src/providers/preferences_provider.dart';
-import 'src/screens/home/home_screen.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
 import 'src/sentry/sentry.dart';
 import 'src/util/navigation.dart';

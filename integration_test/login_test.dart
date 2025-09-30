@@ -1,9 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
-
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
@@ -79,7 +78,7 @@ void main() {
       await enterPin(tester, '12345');
 
       // Expect to be on the home screen
-      final homeScreenFinder = find.byType(HomeScreen);
+      final homeScreenFinder = find.byType(DataTab);
       expect(homeScreenFinder, findsOneWidget);
     });
 

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_empty_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 
@@ -93,7 +93,7 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
   await evaluateFeedback(tester);
 
   // Navigate to to activity tab
-  expect(find.byType(HomeScreen), findsOneWidget);
+  expect(find.byType(DataTab), findsOneWidget);
   await tester.tap(find.byKey(const Key('nav_button_activity')));
   await tester.pump(const Duration(milliseconds: 500));
   expect(find.byType(ActivityTab), findsOneWidget);

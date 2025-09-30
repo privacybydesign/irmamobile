@@ -4,12 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/screens/change_language/change_language_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin_reset_dialog.dart';
+import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
@@ -267,7 +266,7 @@ void main() {
       await enterPin(tester, shortPin);
 
       // Expect home screen
-      final homeScreenFinder = find.byType(HomeScreen);
+      final homeScreenFinder = find.byType(DataTab);
       expect(homeScreenFinder, findsOneWidget);
     });
 
