@@ -49,8 +49,9 @@ import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
 
 // Shell scaffold that hosts the tabbed navigation using IrmaNavBar and QR FAB.
-class HomeShellScaffold extends StatelessWidget {
+class HomeShellScaffold extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
+
   const HomeShellScaffold({super.key, required this.navigationShell});
 
   static IrmaNavBarTab _indexToTab(int index) => switch (index) {
@@ -68,24 +69,15 @@ class HomeShellScaffold extends StatelessWidget {
         IrmaNavBarTab.more => 3,
       };
 
-  void changeTab(IrmaNavBarTab tab) {
-    final newIndex = _tabToIndex(tab);
-    debugPrint('Switching to tab $tab (index $newIndex)');
-    if (newIndex == navigationShell.currentIndex) {
-      return;
-    }
-    navigationShell.goBranch(newIndex, initialLocation: false);
-  }
-
   static bool showOnThisRoute(BuildContext context) {
     var routeUri = Router.of(context).routeInformationProvider?.value.uri.path ?? '';
 
     switch (routeUri) {
       case '/home/credentials_details':
-      case '/home/more/settings/change_language':
-      case '/home/activity_details':
-      case '/home/add_data':
-      case '/home/add_data/details':
+      case '/more/settings/change_language':
+      case '/activity/activity_details':
+      case '/add_data':
+      case '/add_data/details':
         return false;
       default:
         return true;
@@ -93,24 +85,46 @@ class HomeShellScaffold extends StatelessWidget {
   }
 
   @override
+  State<HomeShellScaffold> createState() => _HomeShellScaffoldState();
+}
+
+class _HomeShellScaffoldState extends State<HomeShellScaffold> {
+  void changeTab(IrmaNavBarTab tab) {
+    final newIndex = HomeShellScaffold._tabToIndex(tab);
+    final currentIndex = widget.navigationShell.currentIndex;
+    if (newIndex == currentIndex) return;
+    widget.navigationShell.goBranch(newIndex, initialLocation: false);
+  }
+
+  void handlePop() {
+    final currentTab = HomeShellScaffold._indexToTab(widget.navigationShell.currentIndex);
+    debugPrint('Back button pressed on tab $currentTab (index ${widget.navigationShell.currentIndex})');
+
+    // Check if child navigator can pop
+    final childCanPop = widget.navigationShell.shellRouteContext.navigatorKey.currentState?.canPop() ?? false;
+
+    if (childCanPop) {
+      widget.navigationShell.shellRouteContext.navigatorKey.currentState?.pop();
+      return;
+    }
+
+    if (currentTab == IrmaNavBarTab.data) {
+      // Background the app on Android when already on the first tab
+      IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
+    } else {
+      widget.navigationShell.goBranch(0, initialLocation: false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
-    final currentTab = _indexToTab(navigationShell.currentIndex);
+    final currentTab = HomeShellScaffold._indexToTab(widget.navigationShell.currentIndex);
 
     return PopScope(
       canPop: false,
-      // We wrap this widget in a PopScope to make sure a back press on Android returns the user to the
-      // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
-      // root route in the navigator. In that case, we background the app on Android.
-      // On iOS, there is no back button so we don't have to handle this case.
       onPopInvokedWithResult: (didPop, result) {
-        debugPrint('Back button pressed, $currentTab');
-        if (currentTab == IrmaNavBarTab.data) {
-          // Background the app on Android when already on the first tab
-          repo.bridgedDispatch(AndroidSendToBackgroundEvent());
-        } else {
-          changeTab(IrmaNavBarTab.data);
-        }
+        handlePop();
       },
       child: PendingPointerListener(
         child: Container(
@@ -120,22 +134,43 @@ class HomeShellScaffold extends StatelessWidget {
             right: false,
             top: false,
             child: Scaffold(
-              body: navigationShell,
-              // Active branch content
+              body: widget.navigationShell,
               floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
               resizeToAvoidBottomInset: false,
-              floatingActionButton: showOnThisRoute(context) ? Padding(
-                padding: EdgeInsets.only(bottom: 6),
-                child: IrmaQrScanButton(key: Key('nav_button_scanner')),
-              ): SizedBox.shrink(), // not just null because we avoid the transition when showing/hiding this way
-              bottomNavigationBar: showOnThisRoute(context) ? IrmaNavBar(
-                selectedTab: currentTab,
-                onChangeTab: changeTab,
-              ) : SizedBox.shrink(),
+              floatingActionButton: HomeShellScaffold.showOnThisRoute(context)
+                  ? const Padding(
+                      padding: EdgeInsets.only(bottom: 6),
+                      child: IrmaQrScanButton(key: Key('nav_button_scanner')),
+                    )
+                  : const SizedBox.shrink(),
+              bottomNavigationBar: HomeShellScaffold.showOnThisRoute(context)
+                  ? IrmaNavBar(
+                      selectedTab: currentTab,
+                      onChangeTab: changeTab,
+                    )
+                  : const SizedBox.shrink(),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+// we need to wrap the tab pages individually in a pop scope because they each have their own navigator and were ignoring a pop
+class _TabPopScope extends StatelessWidget {
+  final Widget child;
+
+  const _TabPopScope({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        Navigator.of(context, rootNavigator: true).maybePop();
+      },
+      child: child,
     );
   }
 }
@@ -216,39 +251,49 @@ GoRouter createRouter(BuildContext buildContext) {
           // Data tab branch
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/home',
-              pageBuilder: (context, state) {
-                if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
-                  TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
-                  return NoTransitionPage(name: '/home', child: DataTab());
-                }
-                return MaterialPage(name: '/home', child: DataTab());
-              },
+                path: '/home',
+                pageBuilder: (context, state) {
+                  if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
+                    TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
+                    return NoTransitionPage(name: '/home', child: DataTab());
+                  }
+                  return MaterialPage(name: '/home', child: DataTab());
+                },
+                routes: [
+                  GoRoute(
+                    path: '/credentials_details',
+                    builder: (context, state) {
+                      final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
+                      return CredentialsDetailsScreen(
+                          categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
+                    },
+                  ),
+                  GoRoute(
+                    path: '/add_data',
+                    builder: (context, state) => AddDataScreen(),
+                    routes: [
+                      GoRoute(
+                        path: '/details',
+                        builder: (context, state) {
+                          final credentialType = state.extra as CredentialType;
+                          return AddDataDetailsScreen(
+                            credentialType: credentialType,
+                            onCancel: context.pop,
+                            onAdd: () =>
+                                IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ]),
+          ]),
+          // Activity tab branch
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/activity',
+              builder: (context, state) => _TabPopScope(child: ActivityTab()),
               routes: [
-                GoRoute(
-                  path: '/credentials_details',
-                  builder: (context, state) {
-                    final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
-                    return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
-                  },
-                ),
-                GoRoute(
-                  path: '/add_data',
-                  builder: (context, state) => AddDataScreen(),
-                  routes: [
-                    GoRoute(
-                      path: 'details',
-                      builder: (context, state) {
-                        final credentialType = state.extra as CredentialType;
-                        return AddDataDetailsScreen(
-                          credentialType: credentialType,
-                          onCancel: context.pop,
-                          onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
-                        );
-                      },
-                    ),
-                  ],
-                ),
                 GoRoute(
                   path: '/activity_details',
                   builder: (context, state) {
@@ -258,33 +303,28 @@ GoRouter createRouter(BuildContext buildContext) {
                     );
                   },
                 ),
-              ]
-            ),
-          ]),
-          // Activity tab branch
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/home/activity',
-              builder: (context, state) => ActivityTab(),
+              ],
             ),
           ]),
           // Notifications tab branch
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/home/notifications',
-              builder: (context, state) => NotificationsTab(),
+              path: '/notifications',
+              builder: (context, state) => _TabPopScope(child: NotificationsTab()),
             ),
           ]),
           // More tab branch
           StatefulShellBranch(routes: [
             GoRoute(
-                path: '/home/more',
-                builder: (context, state) => MoreTab(onChangeTab: (tab) {
-                      context.goHomeScreenWithoutTransition();
-                      if (tab != IrmaNavBarTab.data) {
-                        context.push('/home/${tab.name}');
-                      }
-                    }),
+                path: '/more',
+                builder: (context, state) => _TabPopScope(
+                  child: MoreTab(onChangeTab: (tab) {
+                    context.goHomeScreenWithoutTransition();
+                    if (tab != IrmaNavBarTab.data) {
+                      context.push('/${tab.name}');
+                    }
+                  }),
+                ),
                 routes: [
                   GoRoute(
                     path: '/help',

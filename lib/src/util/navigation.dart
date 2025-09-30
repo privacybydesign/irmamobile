@@ -56,19 +56,19 @@ extension RoutingHelpers on BuildContext {
   }
 
   void pushSettingsScreen() {
-    push('/home/more/settings');
+    push('/more/settings');
   }
 
-  void pushHelpScreen() {
-    push('/home/more/help');
+  void goHelpScreen() {
+    go('/more/help');
   }
 
   void pushDebugScreen() {
-    push('/home/more/debug');
+    push('/more/debug');
   }
 
   void goNotificationsScreen() {
-    go('/home/notifications');
+    go('/notifications');
   }
 
   void goEnrollmentScreen() {
@@ -84,7 +84,7 @@ extension RoutingHelpers on BuildContext {
   }
 
   void pushLanguageSettingsScreen() {
-    push('/home/more/settings/change_language');
+    push('/more/settings/change_language');
   }
 
   void pushChangePinScreen() {
@@ -92,7 +92,7 @@ extension RoutingHelpers on BuildContext {
   }
 
   void pushActivityDetailsScreen({required LogInfo logInfo, required IrmaConfiguration config}) {
-    push('/home/activity_details', extra: (logInfo, config));
+    push('/activity/activity_details', extra: (logInfo, config));
   }
 
   void pushCredentialsDetailsScreen(CredentialsDetailsRouteParams params) {
