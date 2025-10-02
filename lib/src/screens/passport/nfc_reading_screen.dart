@@ -49,13 +49,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) => startSession());
-  }
-
   void startSession() async {
     final passportIssuer = ref.read(passportIssuerProvider);
 
@@ -102,6 +95,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
 
     if (passportState is PassportReaderNfcUnavailable) {
       return _buildNfcUnavailableScreen(context);
+    }
+    if (passportState is PassportReaderPending) {
+      return _buildInstructionsScreen(context);
     }
 
     final uiState = passportReadingStateToUiState(passportState);
@@ -205,6 +201,62 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
           hintKey: uiState.hintKey,
           key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInstructionsScreen(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
+      appBar: IrmaAppBar(titleTranslationKey: 'passport.nfc.title'),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+          child: OrientationBuilder(builder: (context, orientation) {
+            if (orientation == Orientation.landscape) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Flexible(
+                    child: TranslatedText(
+                      'passport.nfc.introduction',
+                      textAlign: TextAlign.start,
+                      maxLines: 4,
+                    ),
+                  ),
+                  Flexible(
+                    child: _buildNfcSection(
+                      context,
+                      EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.largeSpacing),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildNfcSection(
+                  context,
+                  EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.largeSpacing),
+                ),
+                SizedBox(height: theme.largeSpacing),
+                TranslatedText(
+                  'passport.nfc.introduction',
+                  textAlign: TextAlign.center,
+                  maxLines: 4,
+                ),
+              ],
+            );
+          }),
+        ),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: 'passport.nfc.start_scanning',
+        onPrimaryPressed: startSession,
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
       ),
     );
   }
