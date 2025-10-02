@@ -82,65 +82,57 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final mediaQuery = MediaQuery.of(context);
-    final keyboardIsActive = mediaQuery.viewInsets.bottom > 0;
-    final isLandscape = mediaQuery.size.width > 450;
 
-    return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: 'passport.manual.title'),
-      body: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: IntrinsicHeight(
-              child: Form(
-                key: _manualEntryFormKey,
-                onChanged: () {
-                  _recomputeCanContinue();
-                },
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(theme.defaultSpacing),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const TranslatedText('passport.manual.explanation'),
-                          SizedBox(height: theme.mediumSpacing),
-                          DocumentNrInputField(controller: _documentNrCtrl),
-                          SizedBox(height: theme.mediumSpacing),
-                          DateInputField(
-                            controller: _dateOfBirthCtrl,
-                            fieldKey: const Key('passport_dob_field'),
-                            labelI18nKey: 'passport.manual.fields.date_of_birth',
-                            requiredI18nKey: 'passport.manual.fields.date_of_birth_required',
-                          ),
-                          SizedBox(height: theme.mediumSpacing),
-                          DateInputField(
-                            controller: _expiryDateCtrl,
-                            fieldKey: const Key('passport_expiry_date_field'),
-                            labelI18nKey: 'passport.manual.fields.date_of_expiry',
-                            requiredI18nKey: 'passport.manual.fields.date_of_expiry_required',
-                          ),
-                        ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: theme.backgroundTertiary,
+        appBar: IrmaAppBar(titleTranslationKey: 'passport.manual.title'),
+        body: SizedBox(
+          height: double.infinity,
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Form(
+              key: _manualEntryFormKey,
+              onChanged: () {
+                _recomputeCanContinue();
+              },
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const TranslatedText('passport.manual.explanation'),
+                      SizedBox(height: theme.mediumSpacing),
+                      DocumentNrInputField(controller: _documentNrCtrl),
+                      SizedBox(height: theme.mediumSpacing),
+                      DateInputField(
+                        controller: _dateOfBirthCtrl,
+                        fieldKey: const Key('passport_dob_field'),
+                        labelI18nKey: 'passport.manual.fields.date_of_birth',
+                        requiredI18nKey: 'passport.manual.fields.date_of_birth_required',
                       ),
-                    ),
-                    if (!keyboardIsActive || !isLandscape) ...[
-                      const Spacer(),
-                      IrmaBottomBar(
-                        primaryButtonLabel: 'ui.continue',
-                        onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-                        secondaryButtonLabel: 'ui.cancel',
-                        onSecondaryPressed: widget.onCancel,
-                        alignment: IrmaBottomBarAlignment.vertical,
+                      SizedBox(height: theme.mediumSpacing),
+                      DateInputField(
+                        controller: _expiryDateCtrl,
+                        fieldKey: const Key('passport_expiry_date_field'),
+                        labelI18nKey: 'passport.manual.fields.date_of_expiry',
+                        requiredI18nKey: 'passport.manual.fields.date_of_expiry_required',
                       ),
+                      SizedBox(height: theme.largeSpacing),
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: 'ui.continue',
+          onPrimaryPressed: _canContinue ? _onContinuePressed : null,
+          secondaryButtonLabel: 'ui.cancel',
+          onSecondaryPressed: widget.onCancel,
         ),
       ),
     );
