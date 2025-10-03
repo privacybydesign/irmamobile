@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../data/passport_issuer.dart';
 import '../../data/passport_reader.dart';
@@ -16,6 +17,7 @@ import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_confirmation_dialog.dart';
 import '../../widgets/irma_linear_progresss_indicator.dart';
 import '../../widgets/translated_text.dart';
+import 'widgets/passport_animation.dart';
 
 class NfcReadingScreen extends ConsumerStatefulWidget {
   final String docNumber;
@@ -116,26 +118,17 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Flexible(child: _buildStatus(context, uiState)),
-                  Flexible(
-                      child: Padding(
-                    padding: EdgeInsets.all(theme.defaultSpacing),
-                    child: _buildNfcSection(
-                      context,
-                      EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.smallSpacing),
-                    ),
-                  )),
+                  Flexible(child: PassportNfcScanningAnimation()),
                 ],
               );
             }
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
               children: [
-                _buildNfcSection(
-                  context,
-                  EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.largeSpacing),
-                ),
+                Flexible(child: PassportNfcScanningAnimation()),
                 SizedBox(height: theme.largeSpacing),
-                _buildStatus(context, uiState),
+                Flexible(child: _buildStatus(context, uiState)),
               ],
             );
           },
@@ -198,7 +191,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
           tipKey: uiState.tipKey,
           progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
           statusKey: uiState.stateKey,
-          hintKey: uiState.hintKey,
           key: ValueKey('scanning-${uiState.tipKey}-${uiState.progress}'),
         ),
       ),
@@ -208,7 +200,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
   Widget _buildInstructionsScreen(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(titleTranslationKey: 'passport.nfc.title'),
       body: SafeArea(
         child: Padding(
@@ -225,22 +217,14 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
                       maxLines: 4,
                     ),
                   ),
-                  Flexible(
-                    child: _buildNfcSection(
-                      context,
-                      EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.largeSpacing),
-                    ),
-                  ),
+                  Flexible(child: PassportNfcScanningAnimation()),
                 ],
               );
             }
             return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                _buildNfcSection(
-                  context,
-                  EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.largeSpacing),
-                ),
+                PassportNfcScanningAnimation(),
                 SizedBox(height: theme.largeSpacing),
                 TranslatedText(
                   'passport.nfc.introduction',
@@ -324,73 +308,61 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
           progress: progress,
           stateKey: 'passport.nfc.connecting',
           tipKey: 'passport.nfc.hold_near_photo_page',
-          hintKey: 'passport.nfc.tip_2',
         ),
       PassportReaderConnecting() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.connecting',
           tipKey: 'passport.nfc.tip_2',
-          hintKey: 'passport.nfc.hold_near_photo_page',
         ),
       PassportReaderAuthenticating() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.connecting',
           tipKey: 'passport.nfc.tip_2',
-          hintKey: 'passport.nfc.hold_near_photo_page',
         ),
       PassportReaderReadingCardAccess() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.reading_card_access',
           tipKey: 'passport.nfc.tip_3',
-          hintKey: 'passport.nfc.tip_3',
         ),
       PassportReaderReadingCardSecurity() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.reading_card_security',
           tipKey: 'passport.nfc.tip_3',
-          hintKey: 'passport.nfc.tip_3',
         ),
       PassportReaderReadingPassportData() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.reading_passport_data',
           tipKey: 'passport.nfc.tip_1',
-          hintKey: 'passport.nfc.tip_1',
         ),
       PassportReaderActiveAuthenticating() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.performing_security_verification',
           tipKey: 'passport.nfc.tip_1',
-          hintKey: 'passport.nfc.tip_1',
         ),
       PassportReaderSecurityVerification() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.performing_security_verification',
           tipKey: 'passport.nfc.tip_1',
-          hintKey: 'passport.nfc.tip_1',
         ),
       PassportReaderSuccess() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.success',
           tipKey: 'passport.nfc.success_explanation',
-          hintKey: 'passport.nfc.success_explanation',
         ),
       PassportReaderFailed(:final error) => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.error',
           tipKey: _readingErrorToHintKey(error),
-          hintKey: _readingErrorToHintKey(error),
         ),
       PassportReaderCancelling() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.cancelled',
           tipKey: '',
-          hintKey: '',
         ),
       PassportReaderCancelled() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.cancelled',
           tipKey: '',
-          hintKey: '',
         ),
       _ => throw Exception('unexpected state: $state'),
     };
@@ -454,14 +426,12 @@ class _ScanningContent extends StatelessWidget {
     required this.tipKey,
     required this.progressPercent,
     required this.statusKey,
-    this.hintKey,
     super.key,
   });
 
   final String tipKey;
   final double progressPercent;
   final String statusKey;
-  final String? hintKey;
 
   @override
   Widget build(BuildContext context) {
@@ -471,7 +441,8 @@ class _ScanningContent extends StatelessWidget {
     final textAlign = isLandscape ? TextAlign.start : TextAlign.center;
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: isLandscape ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         TranslatedText(
@@ -479,14 +450,7 @@ class _ScanningContent extends StatelessWidget {
           style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
           textAlign: textAlign,
         ),
-        SizedBox(height: theme.defaultSpacing),
-        TranslatedText(hintKey ?? '', style: theme.textTheme.bodyMedium, textAlign: textAlign),
-        SizedBox(height: theme.defaultSpacing),
-        Padding(
-          padding: isLandscape ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: theme.mediumSpacing),
-          child: IrmaLinearProgressIndicator(filledPercentage: progressPercent),
-        ),
-        SizedBox(height: theme.defaultSpacing),
+        SizedBox(height: theme.smallSpacing),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 350),
           transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
@@ -503,6 +467,11 @@ class _ScanningContent extends StatelessWidget {
             ),
           ),
         ),
+        SizedBox(height: theme.largeSpacing),
+        Padding(
+          padding: isLandscape ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+          child: IrmaLinearProgressIndicator(filledPercentage: progressPercent),
+        ),
       ],
     );
   }
@@ -512,7 +481,6 @@ class _UiState {
   final String tipKey;
   final double progress;
   final String stateKey;
-  final String hintKey;
 
-  _UiState({required this.tipKey, required this.progress, required this.stateKey, required this.hintKey});
+  _UiState({required this.tipKey, required this.progress, required this.stateKey});
 }
