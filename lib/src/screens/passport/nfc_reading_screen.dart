@@ -5,6 +5,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../routing.dart';
 import '../../data/passport_issuer.dart';
 import '../../data/passport_reader.dart';
 import '../../models/passport_data_result.dart';
@@ -41,7 +42,7 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
 }
 
-class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
+class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteAware {
   void cancel() async {
     final userWantsCancel = await _showCancelDialog(context);
 
@@ -49,6 +50,26 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
       ref.read(passportReaderProvider.notifier).cancel();
       widget.onCancel?.call();
     }
+  }
+
+  @override
+  void didPopNext() {
+    ref.read(passportReaderProvider.notifier).reset();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   void startSession() async {
@@ -99,7 +120,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
       return _buildNfcUnavailableScreen(context);
     }
     if (passportState is PassportReaderPending) {
-      return _buildInstructionsScreen(context);
+      return _buildIntroductionScreen(context);
     }
 
     final uiState = passportReadingStateToUiState(passportState);
@@ -197,7 +218,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
     );
   }
 
-  Widget _buildInstructionsScreen(BuildContext context) {
+  Widget _buildIntroductionScreen(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
@@ -214,7 +235,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
                     child: TranslatedText(
                       'passport.nfc.introduction',
                       textAlign: TextAlign.start,
-                      maxLines: 4,
                     ),
                   ),
                   Flexible(child: PassportNfcScanningAnimation()),
@@ -229,7 +249,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> {
                 TranslatedText(
                   'passport.nfc.introduction',
                   textAlign: TextAlign.center,
-                  maxLines: 4,
                 ),
               ],
             );

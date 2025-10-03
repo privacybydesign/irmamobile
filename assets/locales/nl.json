@@ -671,7 +671,7 @@
       }
     },
     "nfc": {
-      "introduction": "Je gaat nu de gegevens uit je paspoort lezen.\n\nDruk op start en houdt vervolgens je paspoort tegen de achterkant van je telefoon aan.",
+      "introduction": "Je gaat nu de gegevens uit je paspoort lezen.\n\nOpen je paspoort en houdt de achterkant van je telefoon tegen de foto aan. Druk vervolgens op start om het uitlezen te starten.",
       "start_scanning": "Start uitlezen",
       "title": "Lees paspoort",
       "nfc_enabled": "NFC ingeschakeld",
