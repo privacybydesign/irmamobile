@@ -41,8 +41,6 @@ class PassportReaderReadingPassportData extends PassportReaderState {
   final double progress;
 }
 
-class PassportReaderActiveAuthenticating extends PassportReaderState {}
-
 class PassportReaderSecurityVerification extends PassportReaderState {}
 
 class PassportReaderSuccess extends PassportReaderState {
@@ -107,7 +105,6 @@ double progressForState(PassportReaderState state) {
     PassportReaderReadingCardSecurity() => 0.2,
     PassportReaderAuthenticating() => 0.4,
     PassportReaderReadingPassportData(:final progress) => 0.5 + progress / 2.0,
-    PassportReaderActiveAuthenticating() => 0.8,
     PassportReaderSecurityVerification() => 0.9,
     PassportReaderSuccess() => 1.0,
     _ => throw Exception('unexpected state: $state'),
@@ -344,7 +341,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       }
 
       if (sessionId != null && nonce != null && mrtdData.com!.dgTags.contains(EfDG15.TAG)) {
-        state = PassportReaderActiveAuthenticating();
+        state = PassportReaderSecurityVerification();
         _setIosAlertMessage(iosNfcMessages.authenticating, iosNfcMessages.progressFormatter);
 
         try {

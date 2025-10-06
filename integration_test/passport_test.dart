@@ -48,7 +48,7 @@ void main() {
           PassportReaderReadingCardAccess(),
           PassportReaderReadingCardSecurity(),
           PassportReaderReadingPassportData(dataGroup: 'DG1', progress: 0.0),
-          PassportReaderActiveAuthenticating(),
+          PassportReaderSecurityVerification(),
           PassportReaderSuccess(result: PassportDataResult(dataGroups: {}, efSod: '')),
         ],
       );
@@ -168,7 +168,7 @@ void main() {
           PassportReaderReadingCardAccess(),
           PassportReaderReadingCardSecurity(),
           PassportReaderReadingPassportData(dataGroup: 'DG1', progress: 0.0),
-          PassportReaderActiveAuthenticating(),
+          PassportReaderSecurityVerification(),
           PassportReaderSuccess(result: fakeResult),
         ],
       );
@@ -371,12 +371,6 @@ class FakePassportReader extends PassportReader {
     }
 
     return null;
-  }
-
-  @override
-  Future<void> checkNfcAvailability() async {
-    // Do nothing since the state is already PassportReaderNfcUnavailable on initial state when applicable.
-    await Future<void>.delayed(Duration.zero);
   }
 
   @override
