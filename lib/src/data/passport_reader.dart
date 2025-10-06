@@ -118,7 +118,9 @@ class PassportReader extends StateNotifier<PassportReaderState> {
   final NfcProvider _nfc;
   bool _isCancelled = false;
 
-  PassportReader(this._nfc) : super(PassportReaderPending());
+  PassportReader(this._nfc) : super(PassportReaderPending()) {
+    _checkNfcAvailability();
+  }
 
   Future<void> _checkNfcAvailability() async {
     try {

@@ -80,13 +80,19 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.waitFor(find.byType(NfcReadingScreen));
+
+      // Wait for NFC screen and press "Start scanning" button
+      await tester.waitFor(find.byType(NfcReadingScreen));
+      final startScanningButton = find.byKey(const Key('bottom_bar_primary'));
+      await tester.tapAndSettle(startScanningButton);
+
       expect(fakeReader.readCallCount, greaterThanOrEqualTo(1));
       expect(fakeReader.lastDocumentNumber, fakeMrz.documentNumber);
       expect(fakeReader.lastBirthDate, fakeMrz.birthDate);
       expect(fakeReader.lastExpiryDate, fakeMrz.expiryDate);
       expect(fakeReader.lastCountryCode, fakeMrz.countryCode);
 
-      await tester.waitFor(find.text('NFC enabled'));
+      await tester.waitFor(find.text('Read passport'));
     });
 
     testWidgets('user can cancel MRZ scanning and return to add data details', (tester) async {
@@ -136,7 +142,11 @@ void main() {
 
       await tester.pumpAndSettle();
 
+      // Start scanning
       await tester.waitFor(find.byType(NfcReadingScreen));
+      final startScanningButton = find.byKey(const Key('bottom_bar_primary'));
+      await tester.tapAndSettle(startScanningButton);
+
       await tester.waitFor(find.text('Could not read passport. Please try again.'));
       await tester.waitFor(find.text('Timeout while waiting for Passport tag'));
 
@@ -167,10 +177,14 @@ void main() {
 
       await navigateToNfcScreen(tester, irmaBinding, fakeReader, fakeIssuer);
 
+      // Wait for NFC screen and press "Start scanning" button
+      await tester.waitFor(find.byType(NfcReadingScreen));
+      final startScanningButton = find.byKey(const Key('bottom_bar_primary'));
+      await tester.tapAndSettle(startScanningButton);
+
       expect(fakeIssuer.startSessionCount, 1);
       expect(fakeReader.readCalled, isTrue);
 
-      await tester.waitFor(find.text('NFC enabled'));
       await tester.waitFor(find.text('Success'));
       await tester.waitFor(find.text('Passport reading completed successfully'));
     });
@@ -203,6 +217,11 @@ void main() {
       final fakeIssuer = FakePassportIssuer();
 
       await navigateToNfcScreen(tester, irmaBinding, fakeReader, fakeIssuer);
+
+      // Wait for NFC screen and press "Start scanning" button
+      await tester.waitFor(find.byType(NfcReadingScreen));
+      final startScanningButton = find.byKey(const Key('bottom_bar_primary'));
+      await tester.tapAndSettle(startScanningButton);
 
       await tester.waitFor(find.text('Connecting to passport...'));
 
@@ -303,7 +322,11 @@ class FakePassportReader extends PassportReader {
     this.onCancelCompleter,
   })  : _initialState = initialState,
         _statesDuringRead = statesDuringRead,
-        super(_FakeNfcProvider());
+        super(_FakeNfcProvider()) {
+    if (_initialState != null) {
+      state = _initialState;
+    }
+  }
 
   final PassportReaderState? _initialState;
   final List<PassportReaderState> _statesDuringRead;
@@ -317,13 +340,6 @@ class FakePassportReader extends PassportReader {
   DateTime? lastBirthDate;
   DateTime? lastExpiryDate;
   String? lastCountryCode;
-
-  @override
-  Future<void> checkNfcAvailability() async {
-    if (_initialState != null) {
-      state = _initialState;
-    }
-  }
 
   @override
   Future<PassportDataResult?> readWithMRZ({
@@ -341,6 +357,7 @@ class FakePassportReader extends PassportReader {
     lastBirthDate = birthDate;
     lastExpiryDate = expiryDate;
     lastCountryCode = countryCode;
+
     if (state is PassportReaderNfcUnavailable) {
       return null;
     }
