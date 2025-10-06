@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../../routing.dart';
 import '../../data/passport_issuer.dart';
@@ -111,8 +112,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final passportState = ref.watch(passportReaderProvider);
 
     if (passportState is PassportReaderNfcUnavailable) {
@@ -124,39 +123,39 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
     final uiState = passportReadingStateToUiState(passportState);
 
-    return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: 'passport.nfc.title',
+    if (passportState is PassportReaderFailed) {
+      return _buildError(context, uiState);
+    }
+
+    return _NfcScaffold(
+      instruction: _buildStatus(context, uiState),
+      illustration: PassportNfcScanningAnimation(),
+      bottomNavigationBar: IrmaBottomBar(
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
       ),
-      body: SafeArea(
-        child: OrientationBuilder(
-          builder: (context, orientation) {
-            if (orientation == Orientation.landscape) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(child: _buildStatus(context, uiState)),
-                  Flexible(child: PassportNfcScanningAnimation()),
-                ],
-              );
-            }
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Flexible(child: PassportNfcScanningAnimation()),
-                SizedBox(height: theme.largeSpacing),
-                Flexible(child: _buildStatus(context, uiState)),
-              ],
-            );
-          },
-        ),
+    );
+  }
+
+  Widget _buildError(BuildContext context, _UiState uiState) {
+    final theme = IrmaTheme.of(context);
+    return _NfcScaffold(
+      instruction: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _OrientationAwareTranslatedText(uiState.stateKey, style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20)),
+          SizedBox(height: theme.defaultSpacing),
+          _OrientationAwareTranslatedText(uiState.tipKey),
+        ],
+      ),
+      illustration: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: SvgPicture.asset('assets/error/general_error_illustration.svg'),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: uiState.stateKey == 'passport.nfc.error' ? 'ui.retry' : null,
-        onPrimaryPressed: uiState.stateKey == 'passport.nfc.error' ? retry : null,
+        primaryButtonLabel: 'ui.retry',
+        onPrimaryPressed: retry,
         secondaryButtonLabel: 'ui.cancel',
         onSecondaryPressed: cancel,
       ),
@@ -218,42 +217,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
   }
 
   Widget _buildIntroductionScreen(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: 'passport.nfc.title'),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-          child: OrientationBuilder(builder: (context, orientation) {
-            if (orientation == Orientation.landscape) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Flexible(
-                    child: TranslatedText(
-                      'passport.nfc.introduction',
-                      textAlign: TextAlign.start,
-                    ),
-                  ),
-                  Flexible(child: PassportNfcScanningAnimation()),
-                ],
-              );
-            }
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                PassportNfcScanningAnimation(),
-                SizedBox(height: theme.largeSpacing),
-                TranslatedText(
-                  'passport.nfc.introduction',
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
+    return _NfcScaffold(
+      instruction: _OrientationAwareTranslatedText('passport.nfc.introduction'),
+      illustration: PassportNfcScanningAnimation(),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'passport.nfc.start_scanning',
         onPrimaryPressed: startSession,
@@ -264,51 +230,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
   }
 
   Widget _buildNfcUnavailableScreen(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
-      appBar: IrmaAppBar(titleTranslationKey: 'passport.nfc.title'),
-      body: SafeArea(
-        child: Center(
-          child: OrientationBuilder(builder: (context, orientation) {
-            if (orientation == Orientation.landscape) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Flexible(
-                    child: TranslatedText(
-                      'passport.nfc.nfc_disabled_explanation',
-                      textAlign: TextAlign.start,
-                      maxLines: 4,
-                    ),
-                  ),
-                  Flexible(
-                    child: _buildNfcSection(
-                      context,
-                      EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.smallSpacing),
-                      disabled: true,
-                    ),
-                  ),
-                ],
-              );
-            }
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildNfcSection(
-                    context, EdgeInsets.symmetric(horizontal: theme.hugeSpacing, vertical: theme.largeSpacing),
-                    disabled: true),
-                SizedBox(height: theme.largeSpacing),
-                TranslatedText(
-                  'passport.nfc.nfc_disabled_explanation',
-                  textAlign: TextAlign.center,
-                  maxLines: 4,
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
+    return _NfcScaffold(
+      instruction: _OrientationAwareTranslatedText('passport.nfc.nfc_disabled_explanation'),
+      illustration: _buildNfcSection(context, EdgeInsets.zero, disabled: true),
       bottomNavigationBar: IrmaBottomBar(
         alignment: IrmaBottomBarAlignment.vertical,
         primaryButtonLabel: 'ui.retry',
@@ -409,6 +333,76 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       timeoutWaitingForTag: FlutterI18n.translate(context, 'passport.nfc.timeout_waiting_for_tag'),
       failedToInitiateSession: FlutterI18n.translate(context, 'passport.nfc.failed_initiate_session'),
       tagLostTryAgain: FlutterI18n.translate(context, 'passport.nfc.tag_lost_try_again'),
+    );
+  }
+}
+
+class _NfcScaffold extends StatelessWidget {
+  const _NfcScaffold({
+    required this.instruction,
+    required this.illustration,
+    required this.bottomNavigationBar,
+  });
+
+  final Widget instruction;
+  final Widget illustration;
+  final Widget bottomNavigationBar;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
+      appBar: IrmaAppBar(titleTranslationKey: 'passport.nfc.title'),
+      body: SafeArea(
+        child: Center(
+          child: OrientationBuilder(
+            builder: (context, orientation) {
+              if (orientation == Orientation.landscape) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(child: instruction),
+                    Flexible(child: illustration),
+                  ],
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Flexible(child: illustration),
+                  SizedBox(height: theme.largeSpacing),
+                  Flexible(child: instruction),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+      bottomNavigationBar: bottomNavigationBar,
+    );
+  }
+}
+
+class _OrientationAwareTranslatedText extends StatelessWidget {
+  const _OrientationAwareTranslatedText(this.translationKey, {this.style});
+
+  final String translationKey;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
+    final theme = IrmaTheme.of(context);
+    final alignment = isPortrait ? TextAlign.center : TextAlign.start;
+    final insets = isPortrait ? EdgeInsets.symmetric(horizontal: theme.defaultSpacing) : EdgeInsets.zero;
+
+    return Padding(
+      padding: insets,
+      child: TranslatedText(translationKey, textAlign: alignment, style: style),
     );
   }
 }
