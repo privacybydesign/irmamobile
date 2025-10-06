@@ -96,13 +96,13 @@ class _MoreTabState extends State<MoreTab> {
                 InternalLinkTile(
                   labelTranslationKey: 'more_tab.faq',
                   iconData: Icons.help_outline_rounded,
-                  onTap: context.goHelpScreen,
+                  onTap: context.pushHelpScreen,
                 ),
                 if (showDebugging)
                   InternalLinkTile(
                     labelTranslationKey: 'more_tab.debugging',
                     iconData: Icons.code_rounded,
-                    onTap: context.goDebugScreen,
+                    onTap: context.pushDebugScreen,
                   ),
               ],
             ),

@@ -113,13 +113,13 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold> {
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
             resizeToAvoidBottomInset: false,
             floatingActionButton: const Padding(
-                    padding: EdgeInsets.only(bottom: 6),
-                    child: IrmaQrScanButton(key: Key('nav_button_scanner')),
-                  ),
-            bottomNavigationBar:IrmaNavBar(
-                    selectedTab: currentTab,
-                    onChangeTab: changeTab,
-                  ),
+              padding: EdgeInsets.only(bottom: 6),
+              child: IrmaQrScanButton(key: Key('nav_button_scanner')),
+            ),
+            bottomNavigationBar: IrmaNavBar(
+              selectedTab: currentTab,
+              onChangeTab: changeTab,
+            ),
           ),
         ),
       ),
@@ -222,8 +222,7 @@ GoRouter createRouter(BuildContext buildContext) {
         path: '/home/credentials_details',
         builder: (context, state) {
           final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
-          return CredentialsDetailsScreen(
-              categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
+          return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
         },
       ),
       GoRoute(
@@ -237,8 +236,7 @@ GoRouter createRouter(BuildContext buildContext) {
               return AddDataDetailsScreen(
                 credentialType: credentialType,
                 onCancel: context.pop,
-                onAdd: () =>
-                    IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
+                onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
               );
             },
           ),
@@ -254,10 +252,13 @@ GoRouter createRouter(BuildContext buildContext) {
         },
       ),
       GoRoute(
-        path: '/more/settings/change_language',
-        builder: (context, state) => ChangeLanguageScreen(),
+        path: '/more/help',
+        builder: (context, state) => HelpScreen(),
       ),
-
+      GoRoute(
+        path: '/more/debug',
+        builder: (context, state) => const DebugScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => HomeShellScaffold(navigationShell: navigationShell),
         branches: [
@@ -309,16 +310,14 @@ GoRouter createRouter(BuildContext buildContext) {
                 ),
                 routes: [
                   GoRoute(
-                    path: '/help',
-                    builder: (context, state) => HelpScreen(),
-                  ),
-                  GoRoute(
-                    path: '/debug',
-                    builder: (context, state) => const DebugScreen(),
-                  ),
-                  GoRoute(
                     path: '/settings',
                     builder: (context, state) => SettingsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: '/change_language',
+                        builder: (context, state) => ChangeLanguageScreen(),
+                      ),
+                    ],
                   ),
                 ],
               ),

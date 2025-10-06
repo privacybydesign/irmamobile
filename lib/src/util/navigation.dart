@@ -59,12 +59,12 @@ extension RoutingHelpers on BuildContext {
     go('/more/settings');
   }
 
-  void goHelpScreen() {
-    go('/more/help');
+  void pushHelpScreen() {
+    push('/more/help');
   }
 
-  void goDebugScreen() {
-    go('/more/debug');
+  void pushDebugScreen() {
+    push('/more/debug');
   }
 
   void goNotificationsScreen() {
