@@ -57,8 +57,8 @@ class _PassportNfcScanningAnimationState extends State<PassportNfcScanningAnimat
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-      offset: const Offset(0, -20),
-      child: Lottie.asset('assets/passport/nfc.json', controller: _controller, alignment: Alignment(0, 0.5)),
+      offset: const Offset(0, 0),
+      child: Lottie.asset('assets/passport/nfc.json', alignment: Alignment(0, 0.5)),
     );
   }
 }
