@@ -375,6 +375,12 @@ class FakePassportReader extends PassportReader {
   }
 
   @override
+  Future<void> checkNfcAvailability() async {
+    // Do nothing since the state is already PassportReaderNfcUnavailable on initial state when applicable.
+    await Future<void>.delayed(Duration.zero);
+  }
+
+  @override
   Future<void> cancel() async {
     cancelCount += 1;
     state = PassportReaderCancelling();
