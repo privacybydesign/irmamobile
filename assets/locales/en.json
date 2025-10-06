@@ -672,6 +672,7 @@
     },
     "nfc": {
       "introduction": "You'll now scan the data inside your passport.\n\nOpen your passport and hold the back of your phone against photo. Press start to start the scanning process.",
+      "continue": "Continue",
       "start_scanning": "Start scanning",
       "title": "Read passport",
       "nfc_enabled": "NFC enabled",

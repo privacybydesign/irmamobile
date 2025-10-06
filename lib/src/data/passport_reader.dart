@@ -119,10 +119,10 @@ class PassportReader extends StateNotifier<PassportReaderState> {
   bool _isCancelled = false;
 
   PassportReader(this._nfc) : super(PassportReaderPending()) {
-    checkNfcAvailability();
+    _checkNfcAvailability();
   }
 
-  Future<void> checkNfcAvailability() async {
+  Future<void> _checkNfcAvailability() async {
     try {
       NfcStatus status = await NfcProvider.nfcStatus;
       if (status != NfcStatus.enabled) {
@@ -170,7 +170,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
   }) async {
     debugPrint('readWithMRZ()');
 
-    await checkNfcAvailability();
+    await _checkNfcAvailability();
 
     // when nfc is unavailable we can't scan it...
     if (state is PassportReaderNfcUnavailable) {

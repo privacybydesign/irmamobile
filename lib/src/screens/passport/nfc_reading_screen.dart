@@ -54,7 +54,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
   @override
   void didPopNext() {
-    ref.read(passportReaderProvider.notifier).reset();
+    debugPrint('did pop next');
+    if (ref.read(passportReaderProvider) is! PassportReaderSuccess) {
+      ref.read(passportReaderProvider.notifier).reset();
+    }
   }
 
   @override
@@ -72,12 +75,28 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     super.dispose();
   }
 
+  void startIssuance(PassportDataResult result) async {
+    final passportIssuer = ref.read(passportIssuerProvider);
+    try {
+      // start the issuance session at the irma server
+      final sessionPtr = await passportIssuer.startIrmaIssuanceSession(result);
+      if (!mounted) {
+        return;
+      }
+
+      // handle it like any other external issuance session
+      await handlePointer(context, sessionPtr);
+    } catch (e) {
+      debugPrint('issuance error: $e');
+    }
+  }
+
   void startSession() async {
     final passportIssuer = ref.read(passportIssuerProvider);
 
     final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer.startSessionAtPassportIssuer();
 
-    final result = await ref.read(passportReaderProvider.notifier).readWithMRZ(
+    ref.read(passportReaderProvider.notifier).readWithMRZ(
           iosNfcMessages: _getTranslatedIosNfcMessages(),
           documentNumber: widget.docNumber,
           birthDate: widget.dateOfBirth,
@@ -86,23 +105,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
           sessionId: sessionId,
           nonce: stringToUint8List(nonce),
         );
-
-    if (result != null) {
-      try {
-        // start the issuance session at the irma server
-        final sessionPtr = await passportIssuer.startIrmaIssuanceSession(result);
-        if (!mounted) {
-          return;
-        }
-
-        // handle it like any other external issuance session
-        await handlePointer(context, sessionPtr);
-      } catch (e) {
-        debugPrint('issuance error: $e');
-      }
-    } else {
-      debugPrint('canceled passport irma issuance session because the passport data result is null');
-    }
   }
 
   void retry() {
@@ -119,6 +121,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     }
     if (passportState is PassportReaderPending) {
       return _buildIntroductionScreen(context);
+    }
+    if (passportState case PassportReaderSuccess(result: final result)) {
+      return _buildSuccess(context, result);
     }
 
     final uiState = passportReadingStateToUiState(passportState);
@@ -196,6 +201,34 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSuccess(BuildContext context, PassportDataResult result) {
+    final theme = IrmaTheme.of(context);
+    return _NfcScaffold(
+      instruction: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: MediaQuery.orientationOf(context) == Orientation.portrait
+            ? CrossAxisAlignment.center
+            : CrossAxisAlignment.start,
+        children: [
+          _OrientationAwareTranslatedText(
+            'passport.nfc.success',
+            style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+          ),
+          SizedBox(height: theme.defaultSpacing),
+          _OrientationAwareTranslatedText('passport.nfc.success_explanation'),
+        ],
+      ),
+      illustration: SvgPicture.asset('assets/success/success_5.svg'),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: 'passport.nfc.continue',
+        onPrimaryPressed: () => startIssuance(result),
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
       ),
     );
   }
