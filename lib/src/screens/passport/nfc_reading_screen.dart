@@ -339,7 +339,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
         ),
       PassportReaderReadingCardAccess() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.reading_card_access',
+          stateKey: 'passport.nfc.reading_card_security',
           tipKey: 'passport.nfc.tip_3',
         ),
       PassportReaderReadingCardSecurity() => _UiState(
@@ -399,7 +399,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       cancelling: FlutterI18n.translate(context, 'passport.nfc.cancelling'),
       cancelled: FlutterI18n.translate(context, 'passport.nfc.cancelled'),
       connecting: FlutterI18n.translate(context, 'passport.nfc.connecting'),
-      readingCardAccess: FlutterI18n.translate(context, 'passport.nfc.reading_card_access'),
+      readingCardAccess: FlutterI18n.translate(context, 'passport.nfc.reading_card_security'),
       readingCardSecurity: FlutterI18n.translate(context, 'passport.nfc.reading_card_security'),
       authenticating: FlutterI18n.translate(context, 'passport.nfc.authenticating'),
       readingPassportData: FlutterI18n.translate(context, 'passport.nfc.reading_passport_data'),
