@@ -4,14 +4,12 @@ import 'package:lottie/lottie.dart';
 class PassportNfcScanningAnimation extends StatefulWidget {
   const PassportNfcScanningAnimation({
     super.key,
-    this.forwardDuration = const Duration(seconds: 3),
-    this.holdDuration = const Duration(seconds: 2),
-    this.reverseDuration = const Duration(milliseconds: 1500),
+    this.forwardDuration = const Duration(seconds: 7),
+    this.holdDuration = const Duration(seconds: 1),
   });
 
   final Duration forwardDuration;
   final Duration holdDuration;
-  final Duration reverseDuration;
 
   @override
   State<PassportNfcScanningAnimation> createState() => _PassportNfcScanningAnimationState();
@@ -42,15 +40,9 @@ class _PassportNfcScanningAnimationState extends State<PassportNfcScanningAnimat
       }
       _controller.value = 0;
       _controller.duration = widget.forwardDuration;
-      await _controller.forward();
+      await _controller.animateTo(7 / 8);
 
-      await Future.delayed(widget.holdDuration);
-
-      if (!_continue) {
-        return;
-      }
-      _controller.duration = widget.reverseDuration;
-      await _controller.reverse();
+      //await Future.delayed(widget.holdDuration);
     }
   }
 
@@ -58,7 +50,11 @@ class _PassportNfcScanningAnimationState extends State<PassportNfcScanningAnimat
   Widget build(BuildContext context) {
     return Transform.translate(
       offset: const Offset(0, 0),
-      child: Lottie.asset('assets/passport/nfc.json', alignment: Alignment(0, 0.5)),
+      child: Lottie.asset(
+        'assets/passport/nfc.json',
+        alignment: Alignment(0, 0.5),
+        controller: _controller,
+      ),
     );
   }
 }
