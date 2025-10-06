@@ -67,25 +67,6 @@ class HomeShellScaffold extends StatefulWidget {
         IrmaNavBarTab.more => 3,
       };
 
-  // Determine whether to show the nav bar and FAB on the current route
-  // We don't want to show it on certain detail pages or settings pages
-  // This is a bit of a hack, but it works while we don't have a lot of routes the FAB isn't on
-  // I don't want to unnest these pages from the shell route bc that would look really ugly
-  static bool showOnThisRoute(BuildContext context) {
-    var routeUri = Router.of(context).routeInformationProvider?.value.uri.path ?? '';
-
-    switch (routeUri) {
-      case '/home/credentials_details':
-      case '/more/settings/change_language':
-      case '/activity/activity_details':
-      case '/home/add_data':
-      case '/home/add_data/details':
-        return false;
-      default:
-        return true;
-    }
-  }
-
   @override
   State<HomeShellScaffold> createState() => _HomeShellScaffoldState();
 }
@@ -127,18 +108,14 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold> {
             body: widget.navigationShell,
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
             resizeToAvoidBottomInset: false,
-            floatingActionButton: HomeShellScaffold.showOnThisRoute(context)
-                ? const Padding(
+            floatingActionButton: const Padding(
                     padding: EdgeInsets.only(bottom: 6),
                     child: IrmaQrScanButton(key: Key('nav_button_scanner')),
-                  )
-                : const SizedBox.shrink(),
-            bottomNavigationBar: HomeShellScaffold.showOnThisRoute(context)
-                ? IrmaNavBar(
+                  ),
+            bottomNavigationBar:IrmaNavBar(
                     selectedTab: currentTab,
                     onChangeTab: changeTab,
-                  )
-                : const SizedBox.shrink(),
+                  ),
           ),
         ),
       ),
@@ -234,6 +211,49 @@ GoRouter createRouter(BuildContext buildContext) {
         builder: (context, state) => EnrollmentScreen(),
       ),
 
+      // loose routes so they're outside the shell scaffold thus no nav bar or QR button
+      // would be super cool if there was a better way to do this
+      // an "exclusion" list for the navbar didn't work because of IOS's swipe back gesture
+      GoRoute(
+        path: '/home/credentials_details',
+        builder: (context, state) {
+          final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
+          return CredentialsDetailsScreen(
+              categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
+        },
+      ),
+      GoRoute(
+        path: '/home/add_data',
+        builder: (context, state) => AddDataScreen(),
+        routes: [
+          GoRoute(
+            path: '/details',
+            builder: (context, state) {
+              final credentialType = state.extra as CredentialType;
+              return AddDataDetailsScreen(
+                credentialType: credentialType,
+                onCancel: context.pop,
+                onAdd: () =>
+                    IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
+              );
+            },
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/activity/activity_details',
+        builder: (context, state) {
+          final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
+          return ActivityDetailsScreen(
+            args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/more/settings/change_language',
+        builder: (context, state) => ChangeLanguageScreen(),
+      ),
+
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => HomeShellScaffold(navigationShell: navigationShell),
         branches: [
@@ -249,34 +269,6 @@ GoRouter createRouter(BuildContext buildContext) {
                   }
                   return MaterialPage(name: '/home', child: DataTab());
                 },
-                routes: [
-                  GoRoute(
-                    path: '/credentials_details',
-                    builder: (context, state) {
-                      final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
-                      return CredentialsDetailsScreen(
-                          categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
-                    },
-                  ),
-                  GoRoute(
-                    path: '/add_data',
-                    builder: (context, state) => AddDataScreen(),
-                    routes: [
-                      GoRoute(
-                        path: '/details',
-                        builder: (context, state) {
-                          final credentialType = state.extra as CredentialType;
-                          return AddDataDetailsScreen(
-                            credentialType: credentialType,
-                            onCancel: context.pop,
-                            onAdd: () =>
-                                IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
               ),
             ],
           ),
@@ -286,17 +278,6 @@ GoRouter createRouter(BuildContext buildContext) {
               GoRoute(
                 path: '/activity',
                 builder: (context, state) => _TabPopScope(child: ActivityTab()),
-                routes: [
-                  GoRoute(
-                    path: '/activity_details',
-                    builder: (context, state) {
-                      final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
-                      return ActivityDetailsScreen(
-                        args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
-                      );
-                    },
-                  ),
-                ],
               ),
             ],
           ),
@@ -334,12 +315,6 @@ GoRouter createRouter(BuildContext buildContext) {
                   GoRoute(
                     path: '/settings',
                     builder: (context, state) => SettingsScreen(),
-                    routes: [
-                      GoRoute(
-                        path: '/change_language',
-                        builder: (context, state) => ChangeLanguageScreen(),
-                      ),
-                    ],
                   ),
                 ],
               ),
