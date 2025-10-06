@@ -671,6 +671,8 @@
       }
     },
     "nfc": {
+      "introduction": "You'll now scan the data inside your passport.\n\nOpen your passport and hold the back of your phone against photo. Press start to start the scanning process.",
+      "start_scanning": "Start scanning",
       "title": "Read passport",
       "nfc_enabled": "NFC enabled",
       "nfc_disabled": "NFC disabled",
@@ -690,8 +692,8 @@
       "cancelled": "Cancelled",
       "connecting": "Connecting to passport...",
       "finished": "Finished",
-      "reading_card_access": "Reading EF.CardAccess ...",
-      "reading_card_security": "Reading EF.CardSecurity ...",
+      "reading_card_access": "Reading EF.CardAccess...",
+      "reading_card_security": "Reading EF.CardSecurity...",
       "authenticating": "Authenticating with passport...",
       "reading_passport_data": "Reading passport data...",
       "performing_security_verification": "Performing security verification...",

@@ -83,7 +83,7 @@ PODS:
     - Flutter
     - MTBBarcodeScanner
   - Sentry/HybridSDK (8.52.1)
-  - sentry_flutter (9.4.0):
+  - sentry_flutter (9.6.0):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.52.1)
@@ -170,7 +170,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   camera_avfoundation: be3be85408cd4126f250386828e9b1dfa40ab436
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_nfc_kit: e1b71583eafd2c9650bc86844a7f2d185fb414f6
   google_mlkit_commons: 2abe6a70e1824e431d16a51085cb475b672c8aab
@@ -197,7 +197,7 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   qr_code_scanner_plus: 7e087021bc69873140e0754750eb87d867bed755
   Sentry: 2cbbe3592f30050c60e916c63c7f5a2fa584005e
-  sentry_flutter: 1eb95b9a23885019951a5914685219ed2799105f
+  sentry_flutter: 9b1e3e6934cb7040ffb71383c95a35f73523180c
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d

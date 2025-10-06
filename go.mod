@@ -90,5 +90,3 @@ require (
 	gorm.io/driver/sqlserver v1.5.2 // indirect
 	gorm.io/gorm v1.25.5 // indirect
 )
-
-replace github.com/privacybydesign/irmago => ../irmago

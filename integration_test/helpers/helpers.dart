@@ -50,12 +50,18 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
 
-Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defaultLanguage]) async {
+Future<void> pumpIrmaApp(
+  WidgetTester tester,
+  IrmaRepository repo, [
+  Locale? defaultLanguage,
+  List<Override>? providerOverrides,
+]) async {
   await tester.pumpWidgetAndSettle(
     ProviderScope(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
+        if (providerOverrides != null) ...providerOverrides,
       ],
       child: IrmaApp(
         defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
@@ -72,8 +78,13 @@ Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defa
 }
 
 // Pump a new app and unlock it
-Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo, [Locale? locale]) async {
-  await pumpIrmaApp(tester, repo, locale);
+Future<void> pumpAndUnlockApp(
+  WidgetTester tester,
+  IrmaRepository repo, [
+  Locale? locale,
+  List<Override>? providerOverrides,
+]) async {
+  await pumpIrmaApp(tester, repo, locale, providerOverrides);
   await unlockAndWaitForHome(tester);
 }
 

@@ -30,24 +30,27 @@ class MRZCameraOverlay extends StatelessWidget {
               ),
             ),
             _WhiteOverlay(rect: overlayRect),
-            Positioned(
-              left: overlayRect.left + 8,
-              bottom: (c.maxHeight - overlayRect.bottom) + 20, // 20px boven de onderrand
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                    style: theme.mrzLabel,
-                  ),
-                  SizedBox(height: theme.tinySpacing),
-                  Text(
-                    '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                    style: theme.mrzLabel,
-                  ),
-                ],
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: c.maxHeight - overlayRect.bottom + 20), // 20px above the bottom
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+                      style: theme.mrzLabel,
+                    ),
+                    SizedBox(height: theme.tinySpacing),
+                    Text(
+                      '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+                      style: theme.mrzLabel,
+                    ),
+                  ],
+                ),
               ),
-            ),
+            )
           ],
         );
       },
