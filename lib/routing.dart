@@ -76,7 +76,11 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold> {
     final newIndex = HomeShellScaffold._tabToIndex(tab);
     final currentIndex = widget.navigationShell.currentIndex;
 
-    if (newIndex != currentIndex) widget.navigationShell.goBranch(newIndex, initialLocation: false);
+    if (newIndex != currentIndex) {
+      widget.navigationShell.goBranch(newIndex, initialLocation: false);
+    } else {
+      widget.navigationShell.goBranch(newIndex, initialLocation: true);
+    }
   }
 
   void handlePop() {
