@@ -672,7 +672,6 @@
     },
     "nfc": {
       "introduction": "You'll now scan the data inside your passport.\n\nOpen your passport and hold the back of your phone against photo. Press start to start the scanning process.",
-      "continue": "Continue",
       "start_scanning": "Start scanning",
       "title": "Read passport",
       "nfc_enabled": "NFC enabled",
@@ -697,11 +696,11 @@
       "authenticating": "Authenticating with passport...",
       "reading_passport_data": "Reading passport data...",
       "performing_security_verification": "Performing security verification...",
-      "completed_successfully": "Passport reading completed successfully!",
-      "error_generic": "An error has occurred while reading Passport!",
-      "failed_initiate_session": "Failed to initiate session with passport. Check input data!",
+      "completed_successfully": "Passport reading completed successfully.",
+      "error_generic": "An error has occurred while reading Passport.",
+      "failed_initiate_session": "Failed to initiate session with passport.",
       "timeout_waiting_for_tag": "Timeout while waiting for Passport tag",
-      "tag_lost_try_again": "Tag was lost. Please try again!",
+      "tag_lost_try_again": "Tag was lost. Please try again.",
       "cancelled_by_user": "Cancelled by user",
       "cancel_dialog": {
         "title": "Cancel passport reading?",
