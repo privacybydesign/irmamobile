@@ -327,6 +327,11 @@ class FakePassportReader extends PassportReader {
     }
   }
 
+  @override
+  Future<void> checkNfcAvailability() async {
+    await Future.delayed(Duration.zero);
+  }
+
   final PassportReaderState? _initialState;
   final List<PassportReaderState> _statesDuringRead;
   final Completer<void>? readDelayCompleter;
@@ -368,6 +373,10 @@ class FakePassportReader extends PassportReader {
 
     if (readDelayCompleter != null) {
       await readDelayCompleter!.future;
+    }
+
+    if (state case PassportReaderSuccess(result: final result)) {
+      return result;
     }
 
     return null;
