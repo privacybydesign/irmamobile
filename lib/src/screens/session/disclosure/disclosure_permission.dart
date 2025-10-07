@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/irma_repository.dart';
 import '../../../models/irma_configuration.dart';
@@ -19,7 +20,7 @@ import 'widgets/disclosure_permission_make_choice_screen.dart';
 import 'widgets/disclosure_permission_obtain_credentials_screen.dart';
 import 'widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart';
 
-class DisclosurePermission extends StatelessWidget {
+class DisclosurePermission extends ConsumerWidget {
   final int sessionId;
   final IrmaRepository repo;
   final RequestorInfo requestor;
@@ -33,13 +34,13 @@ class DisclosurePermission extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return BlocProvider(
       create: (_) => DisclosurePermissionBloc(
         sessionID: sessionId,
         repo: repo,
         onObtainCredential: (CredentialType credType) =>
-            IrmaRepositoryProvider.of(context).openIssueURL(context, credType.fullId),
+            IrmaRepositoryProvider.of(context).openIssueURL(context, credType, ref),
       ),
       child: ProvidedDisclosurePermission(
         requestor,

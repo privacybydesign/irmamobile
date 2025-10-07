@@ -43,6 +43,12 @@ extension RoutingHelpers on BuildContext {
     Navigator.of(this).popUntil(ModalRoute.withName('/issue_wizard'));
   }
 
+  void popToUnderlyingSession() {
+    // we have to at least do one pop in case the current screen is already a session
+    Navigator.of(this).pop();
+    Navigator.of(this).popUntil(ModalRoute.withName('/session'));
+  }
+
   void goHomeScreenWithoutTransition() {
     TransitionStyleProvider.performInstantTransitionToHomeScreen(this);
   }

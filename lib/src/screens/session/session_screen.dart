@@ -88,7 +88,7 @@ class _SessionScreenState extends State<SessionScreen> {
     if (widget.arguments.wizardActive) {
       context.popToWizardScreen();
     } else if (widget.arguments.hasUnderlyingSession) {
-      context.pop();
+      context.popToUnderlyingSession();
     } else {
       context.goHomeScreen();
     }
@@ -209,7 +209,7 @@ class _SessionScreenState extends State<SessionScreen> {
     // In case of issuance during disclosure, another session is open in a screen lower in the stack.
     // Ignore clientReturnUrl in this case (issuance) and pop immediately.
     if (session.isIssuanceSession && widget.arguments.hasUnderlyingSession) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
+      WidgetsBinding.instance.addPostFrameCallback((_) => context.popToUnderlyingSession());
       return _buildLoadingScreen(true);
     }
 

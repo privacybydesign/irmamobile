@@ -164,26 +164,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     credentialType: credentialType,
                     onCancel: context.pop,
                     onAdd: () {
-                      if (credentialType.id == 'passport') {
-                        var url = credentialType.issueUrl.values.first;
-                        if (url.isNotEmpty) {
-                          var uri = Uri.parse(url);
-
-                          var baseUri = Uri(
-                            scheme: uri.scheme,
-                            host: uri.host,
-                            port: uri.hasPort ? uri.port : null,
-                          );
-
-                          // Set the url to use for the issuance session to the issuer url in the scheme
-                          ref.read(passportUrlProvider.notifier).state = baseUri.toString();
-
-                          // Open the MzrReaderScreen
-                          context.pushPassportMrzReaderScreen();
-                          return;
-                        }
-                      }
-                      IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId);
+                      IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType, ref);
                     },
                   );
                 },
