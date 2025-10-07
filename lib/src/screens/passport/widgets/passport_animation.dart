@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-class PassportNfcScanningAnimation extends StatefulWidget {
-  const PassportNfcScanningAnimation({
-    super.key,
-    this.forwardDuration = const Duration(seconds: 7),
-    this.holdDuration = const Duration(seconds: 1),
-  });
+import '../../../util/test_detection.dart';
 
-  final Duration forwardDuration;
-  final Duration holdDuration;
+class PassportNfcScanningAnimation extends StatelessWidget {
+  const PassportNfcScanningAnimation({super.key});
 
   @override
-  State<PassportNfcScanningAnimation> createState() => _PassportNfcScanningAnimationState();
+  Widget build(BuildContext context) {
+    final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
+    return TickerMode(enabled: !isIntegrationTest, child: _PassportNfcScanningAnimation());
+  }
 }
 
-class _PassportNfcScanningAnimationState extends State<PassportNfcScanningAnimation> with TickerProviderStateMixin {
+class _PassportNfcScanningAnimation extends StatefulWidget {
+  const _PassportNfcScanningAnimation();
+
+  final forwardDuration = const Duration(seconds: 7);
+  final holdDuration = const Duration(seconds: 1);
+
+  @override
+  State<_PassportNfcScanningAnimation> createState() => _PassportNfcScanningAnimationState();
+}
+
+class _PassportNfcScanningAnimationState extends State<_PassportNfcScanningAnimation> with TickerProviderStateMixin {
   late final AnimationController _controller;
   bool _continue = true;
 
@@ -41,8 +49,6 @@ class _PassportNfcScanningAnimationState extends State<PassportNfcScanningAnimat
       _controller.value = 0;
       _controller.duration = widget.forwardDuration;
       await _controller.animateTo(7 / 8);
-
-      //await Future.delayed(widget.holdDuration);
     }
   }
 

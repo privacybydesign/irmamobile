@@ -21,9 +21,10 @@ class ScannerScreenState extends State<ScannerScreen> {
   late final GlobalKey<QRScannerState> _qrKey;
 
   @override
-  void initState() {
-    super.initState();
-    if (!isRunningIntegrationTest()) {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isRunningIntegrationTest = TestContext.isRunningIntegrationTest(context);
+    if (!isRunningIntegrationTest) {
       _qrKey = GlobalKey(debugLabel: 'qr_scanner_key');
     }
   }
@@ -55,7 +56,7 @@ class ScannerScreenState extends State<ScannerScreen> {
   }
 
   void _asyncResetQrScanner() {
-    if (isRunningIntegrationTest()) {
+    if (TestContext.isRunningIntegrationTest(context)) {
       return;
     }
     Future.delayed(Duration(milliseconds: 100), _qrKey.currentState?.reset);
@@ -88,7 +89,7 @@ class ScannerScreenState extends State<ScannerScreen> {
     // During integration tests we can't really scan QR codes,
     // so we'll just not render the whole scanner.
     // This will also prevent the permission dialog from being shown
-    if (isRunningIntegrationTest()) {
+    if (TestContext.isRunningIntegrationTest(context)) {
       // when in landscape, the back button is rendered on the qr scanner widget
       // so we'll add one manually here, since the scanner is not rendered in the tests
       // and we still need a back button

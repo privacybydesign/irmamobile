@@ -17,6 +17,7 @@ import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
+import 'package:irmamobile/src/util/test_detection.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_attribute_list.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_footer.dart';
@@ -63,8 +64,10 @@ Future<void> pumpIrmaApp(
         preferencesProvider.overrideWithValue(repo.preferences),
         if (providerOverrides != null) ...providerOverrides,
       ],
-      child: IrmaApp(
-        defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
+      child: TestContext(
+        child: IrmaApp(
+          defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
+        ),
       ),
     ),
   );

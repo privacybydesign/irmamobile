@@ -21,6 +21,7 @@ import 'package:mrz_parser/mrz_parser.dart';
 import 'package:vcmrtd/vcmrtd.dart';
 
 import 'helpers/helpers.dart';
+import 'helpers/issuance_helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
@@ -162,7 +163,9 @@ void main() {
 
     testWidgets('manual entry continues to NFC flow when NFC is enabled', (tester) async {
       final fakeResult = PassportDataResult(dataGroups: const {}, efSod: '');
+      final readCompleter = Completer();
       final fakeReader = FakePassportReader(
+        readDelayCompleter: readCompleter,
         statesDuringRead: [
           PassportReaderConnecting(),
           PassportReaderReadingCardAccess(),
@@ -179,13 +182,16 @@ void main() {
       // Wait for NFC screen and press "Start scanning" button
       await tester.waitFor(find.byType(NfcReadingScreen));
       final startScanningButton = find.byKey(const Key('bottom_bar_primary'));
-      await tester.tapAndSettle(startScanningButton);
+      await tester.tap(startScanningButton);
 
       expect(fakeIssuer.startSessionCount, 1);
       expect(fakeReader.readCalled, isTrue);
 
-      await tester.waitFor(find.text('Success'));
-      await tester.waitFor(find.text('Passport reading completed successfully'));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Success'), findsOneWidget);
+      expect(find.text('Passport reading completed successfully'), findsOneWidget);
+
+      readCompleter.complete();
     });
 
     testWidgets('nfc disabled shows disabled UI and retry cancels current attempt', (tester) async {
@@ -266,7 +272,7 @@ Future<void> navigateToNfcScreen(
   await tester.waitFor(continueButton.hitTestable());
   await tester.tapAndSettle(continueButton);
 
-  await tester.pumpAndSettle();
+  await tester.pump(const Duration(seconds: 1));
 }
 
 Future<void> openPassportDetailsScreen(
@@ -309,7 +315,9 @@ class FakePassportIssuer implements PassportIssuer {
 
   @override
   Future<SessionPointer> startIrmaIssuanceSession(PassportDataResult passportDataResult) async {
-    return SessionPointer(u: 'https://example.com', irmaqr: 'issue', continueOnSecondDevice: true);
+    final attributes = createMunicipalityPersonalDataAttributes(const Locale('en'));
+    final session = await createIssuanceSession(attributes: attributes);
+    return session;
   }
 }
 
