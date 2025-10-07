@@ -13,7 +13,6 @@ import 'src/models/log_entry.dart';
 import 'src/models/translated_value.dart';
 import 'src/models/version_information.dart';
 import 'src/providers/irma_repository_provider.dart';
-import 'src/providers/passport_repository_provider.dart';
 import 'src/screens/activity/activity_detail_screen.dart';
 import 'src/screens/add_data/add_data_details_screen.dart';
 import 'src/screens/add_data/add_data_screen.dart';
