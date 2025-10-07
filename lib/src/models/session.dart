@@ -22,7 +22,7 @@ abstract class Pointer {
   Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor});
 
   factory Pointer.fromString(String content) {
-    if (content.startsWith('eudi-openid4vp://')) {
+    if (content.startsWith('eudi-openid4vp://') || content.startsWith('openid4vp://')) {
       final uri = Uri.parse(content);
       final requestUri = uri.queryParameters['request_uri'];
       final clientId = uri.queryParameters['client_id'];
