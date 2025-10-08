@@ -115,7 +115,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
   @override
   Widget build(BuildContext context) {
-    final passportState = ref.watch(passportReaderProvider);
+    var passportState = ref.watch(passportReaderProvider);
+    passportState = PassportReaderNfcUnavailable();
 
     if (passportState is PassportReaderNfcUnavailable) {
       return _buildNfcUnavailableScreen(context);
@@ -179,7 +180,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.nfc, size: 100, color: disabled ? theme.error : theme.link),
+            Flexible(child: Icon(Icons.nfc, size: 100, color: disabled ? theme.error : theme.link)),
             SizedBox(height: theme.mediumSpacing),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -233,11 +234,14 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
   }
 
   Widget _buildNfcUnavailableScreen(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return _NfcScaffold(
       instruction: _OrientationAwareTranslatedText('passport.nfc.nfc_disabled_explanation'),
-      illustration: _buildNfcSection(context, EdgeInsets.zero, disabled: true),
+      illustration: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: _buildNfcSection(context, EdgeInsets.symmetric(horizontal: theme.largeSpacing), disabled: true),
+      ),
       bottomNavigationBar: IrmaBottomBar(
-        alignment: IrmaBottomBarAlignment.vertical,
         primaryButtonLabel: 'ui.retry',
         onPrimaryPressed: retry,
         secondaryButtonLabel: 'ui.cancel',
