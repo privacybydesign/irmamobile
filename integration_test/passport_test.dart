@@ -144,8 +144,7 @@ void main() {
 
       // Start scanning
       await tester.waitFor(find.byType(NfcReadingScreen));
-      final startScanningButton = find.byKey(const Key('bottom_bar_primary'));
-      await tester.tapAndSettle(startScanningButton);
+      await tester.tapAndSettle(find.text('Start scanning'));
 
       await tester.waitFor(find.text('Could not read passport. Please try again.'));
       await tester.waitFor(find.text('Timeout while waiting for Passport tag'));

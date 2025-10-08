@@ -115,8 +115,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
   @override
   Widget build(BuildContext context) {
-    var passportState = ref.watch(passportReaderProvider);
-    passportState = PassportReaderNfcUnavailable();
+    final passportState = ref.watch(passportReaderProvider);
 
     if (passportState is PassportReaderNfcUnavailable) {
       return _buildNfcUnavailableScreen(context);
