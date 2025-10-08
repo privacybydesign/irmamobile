@@ -137,7 +137,7 @@ class _ToAddDataButtonPointingImageState extends State<_ToAddDataButtonPointingI
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rotation = _calculateRotation();
-      if (rotationAngle != rotation) {
+      if ((rotationAngle * 10000).round() != (rotation * 10000).round()) {
         setState(() => rotationAngle = rotation);
       }
     });
