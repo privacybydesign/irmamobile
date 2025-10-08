@@ -1381,7 +1381,7 @@ Future<String> startOpenID4VPSession(Map<String, dynamic> dcqlQuery) async {
   }
 
   final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
-  final sessionUrl = Uri(scheme: 'eudi-openid4vp', queryParameters: responseObject, host: '');
+  final sessionUrl = Uri(scheme: 'openid4vp', queryParameters: responseObject, host: '');
   return sessionUrl.toString();
 }
 

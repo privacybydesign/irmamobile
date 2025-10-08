@@ -43,6 +43,7 @@
 				<array>
 					<string>irma</string>
           <string>eudi-openid4vp</string>
+          <string>openid4vp</string>
 				</array>
 			</dict>
 		</array>
