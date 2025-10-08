@@ -56,8 +56,6 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
     } catch (e) {
       debugPrint(e.toString());
     }
-
-    _startLiveFeed();
   }
 
   @override
@@ -162,6 +160,10 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
       imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
     );
 
+    if (!mounted) {
+      return;
+    }
+
     await _controller?.initialize();
     if (!mounted) {
       return;
@@ -173,6 +175,9 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
   }
 
   Future _stopLiveFeed() async {
+    if (_controller == null) {
+      return;
+    }
     final c = _controller;
     // first to a setState to make sure the build method doesn't use the controller while it's disposed
     setState(() {
