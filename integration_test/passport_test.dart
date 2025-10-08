@@ -17,6 +17,7 @@ import 'package:irmamobile/src/screens/passport/mrz_reader_screen.dart';
 import 'package:irmamobile/src/screens/passport/nfc_reading_screen.dart';
 import 'package:irmamobile/src/screens/passport/widgets/mzr_scanner.dart';
 import 'package:irmamobile/src/util/navigation.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:mrz_parser/mrz_parser.dart';
 import 'package:vcmrtd/vcmrtd.dart';
 
@@ -26,7 +27,11 @@ import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  // this line makes sure the text entering works on Firebase iOS on-device integration tests
+  binding.testTextInput.register();
+
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
@@ -40,6 +45,8 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
 
       await tester.waitFor(find.byType(MzrReaderScreen));
+      // move back to close the camera feed...
+      await tester.tapAndSettle(find.byType(YiviBackButton));
     });
 
     testWidgets('scanning MRZ for Dutch passport starts NFC reading flow', (tester) async {
@@ -91,8 +98,6 @@ void main() {
       expect(fakeReader.lastBirthDate, fakeMrz.birthDate);
       expect(fakeReader.lastExpiryDate, fakeMrz.expiryDate);
       expect(fakeReader.lastCountryCode, fakeMrz.countryCode);
-
-      // await tester.waitFor(find.text('Read passport'));
     });
 
     testWidgets('user can cancel MRZ scanning and return to add data details', (tester) async {

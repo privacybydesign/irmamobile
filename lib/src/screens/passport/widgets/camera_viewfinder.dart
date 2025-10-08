@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
 import '../../../../routing.dart';
+import '../../../util/test_detection.dart';
 import 'camera_overlay.dart';
 
 class MRZCameraView extends StatefulWidget {
@@ -32,10 +33,15 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
   @override
   void initState() {
     super.initState();
-    initCamera();
+    WidgetsBinding.instance.addPostFrameCallback((_) => initCamera());
   }
 
   initCamera() async {
+    // inside of integration tests we don't want to use the actual camera
+    if (TestContext.isRunningIntegrationTest(context)) {
+      return;
+    }
+
     cameras = await availableCameras();
 
     try {
