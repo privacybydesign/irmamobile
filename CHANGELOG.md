@@ -6,7 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Add passport scanning and issuance functionality
+- Minimum Android API level was bumped from 24 to 26
+- Minimum iOS deployment target was bumped from 12.0 to 15.6
 - Add support for `openid4vp://` scheme for OpenID4VP sessions
+
+### Internal
+- Integration tests no longer need to be run or built with the `--dart-define YIVI_INTEGRATION_TEST=true` argument
 
 ## [7.10.0] - 2025-10-07
 ### Changed
