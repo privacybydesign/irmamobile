@@ -56,6 +56,8 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
     } catch (e) {
       debugPrint(e.toString());
     }
+
+    _startLiveFeed();
   }
 
   @override

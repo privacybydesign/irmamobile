@@ -72,7 +72,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     super.dispose();
   }
 
-  void _startSession() async {
+  void _startScanning() async {
     final passportIssuer = ref.read(passportIssuerProvider);
 
     final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer.startSessionAtPassportIssuer();
@@ -110,7 +110,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
   void retry() {
     ref.read(passportReaderProvider.notifier).cancel();
-    _startSession();
+    _startScanning();
   }
 
   @override
@@ -126,7 +126,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
     final uiState = passportReadingStateToUiState(passportState);
 
-    if (passportState is PassportReaderFailed) {
+    if (passportState is PassportReaderFailed || passportState is PassportReaderCancelled) {
       return _buildError(context, uiState);
     }
 
@@ -143,15 +143,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
   Widget _buildError(BuildContext context, _UiState uiState) {
     final theme = IrmaTheme.of(context);
     return _NfcScaffold(
-      instruction: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _OrientationAwareTranslatedText(uiState.stateKey, style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20)),
-          SizedBox(height: theme.defaultSpacing),
-          _OrientationAwareTranslatedText(uiState.tipKey),
-        ],
-      ),
+      instruction: _TitleAndBody(titleKey: uiState.stateKey, bodyKey: uiState.tipKey),
       illustration: Padding(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: SvgPicture.asset('assets/error/general_error_illustration.svg'),
@@ -225,7 +217,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       illustration: PassportNfcScanningAnimation(),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'passport.nfc.start_scanning',
-        onPrimaryPressed: _startSession,
+        onPrimaryPressed: _startScanning,
         secondaryButtonLabel: 'ui.cancel',
         onSecondaryPressed: cancel,
       ),
@@ -300,12 +292,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       PassportReaderCancelling() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.cancelled',
-          tipKey: '',
+          tipKey: 'passport.nfc.cancelled_by_user',
         ),
       PassportReaderCancelled() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.cancelled',
-          tipKey: '',
+          tipKey: 'passport.nfc.cancelled_by_user',
         ),
       _ => throw Exception('unexpected state: $state'),
     };
@@ -334,6 +326,29 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       timeoutWaitingForTag: FlutterI18n.translate(context, 'passport.nfc.timeout_waiting_for_tag'),
       failedToInitiateSession: FlutterI18n.translate(context, 'passport.nfc.failed_initiate_session'),
       tagLostTryAgain: FlutterI18n.translate(context, 'passport.nfc.tag_lost_try_again'),
+    );
+  }
+}
+
+class _TitleAndBody extends StatelessWidget {
+  const _TitleAndBody({required this.titleKey, required this.bodyKey});
+
+  final String titleKey;
+  final String bodyKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
+    return Column(
+      crossAxisAlignment: isPortrait ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _OrientationAwareTranslatedText(titleKey, style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20)),
+        SizedBox(height: theme.defaultSpacing),
+        _OrientationAwareTranslatedText(bodyKey),
+      ],
     );
   }
 }

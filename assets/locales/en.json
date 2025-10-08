@@ -701,7 +701,7 @@
       "failed_initiate_session": "Failed to initiate session with passport.",
       "timeout_waiting_for_tag": "Timeout while waiting for Passport tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
-      "cancelled_by_user": "Cancelled by user",
+      "cancelled_by_user": "You cancelled the scanning process.",
       "cancel_dialog": {
         "title": "Cancel passport reading?",
         "explanation": "Are you sure you want to cancel the passport reading?",
