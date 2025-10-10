@@ -60,6 +60,14 @@ class _PassportNfcScanningAnimationState extends State<_PassportNfcScanningAnima
         'assets/passport/nfc.json',
         alignment: Alignment(0, 0.5),
         controller: _controller,
+        frameBuilder: (context, child, composition) {
+          if (composition == null) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          return child;
+        },
       ),
     );
   }
