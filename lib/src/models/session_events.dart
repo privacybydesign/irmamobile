@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'attribute.dart';
 import 'credentials.dart';
 import 'event.dart';
+import 'irma_configuration.dart';
 import 'session.dart';
 import 'translated_value.dart';
 
@@ -169,6 +170,24 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
   factory RequestIssuancePermissionSessionEvent.fromJson(Map<String, dynamic> json) =>
       _$RequestIssuancePermissionSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$RequestIssuancePermissionSessionEventToJson(this);
+}
+
+@JsonSerializable(createToJson: false)
+class RequestAuthorizationCodeIssuancePermissionSessionEvent extends SessionEvent {
+  @JsonKey(name: 'AuthorizationServer')
+  final String authorizationServer;
+
+  @JsonKey(name: 'CredentialInfoList')
+  final List<CredentialType> credentialInfoList;
+
+  RequestAuthorizationCodeIssuancePermissionSessionEvent({
+    required int sessionID,
+    required this.authorizationServer,
+    required this.credentialInfoList,
+  }) : super(sessionID);
+
+  factory RequestAuthorizationCodeIssuancePermissionSessionEvent.fromJson(Map<String, dynamic> json) =>
+      _$RequestAuthorizationCodeIssuancePermissionSessionEventFromJson(json);
 }
 
 @JsonSerializable()

@@ -102,6 +102,20 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	})
 }
 
+func (sh *sessionHandler) RequestAuthorizationCodeFlowIssuancePermission(
+	request *irma.AuthorizationCodeIssuanceRequest,
+	requestorInfo *irma.RequestorInfo,
+	ph irmaclient.PermissionHandler,
+) {
+	action := requestAuthorizationCodeFlowIssuancePermission{
+		SessionID:           sh.sessionID,
+		AuthorizationServer: request.AuthorizationServer,
+		CredentialInfoList:  request.CredentialInfoList,
+	}
+	sh.permissionHandler = ph
+	dispatchEvent(action)
+}
+
 func (sh *sessionHandler) RequestVerificationPermission(request *irma.DisclosureRequest, satisfiable bool, candidates [][]irmaclient.DisclosureCandidates, serverName *irma.RequestorInfo, ph irmaclient.PermissionHandler) {
 	action := &requestVerificationPermissionSessionEvent{
 		SessionID:             sh.sessionID,
