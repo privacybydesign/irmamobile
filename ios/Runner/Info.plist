@@ -58,10 +58,6 @@
     <array>
       <string>8008</string>
     </array>
-    <key>UIRequiredDeviceCapabilities</key>
-    <array>
-      <string>nfc</string>
-    </array>
 		<key>NFCReaderUsageDescription</key>
 		<string>Reading passport</string>
 		<key>CFBundleVersion</key>
