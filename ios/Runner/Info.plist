@@ -42,8 +42,9 @@
 				<key>CFBundleURLSchemes</key>
 				<array>
 					<string>irma</string>
-          <string>eudi-openid4vp</string>
-          <string>openid4vp</string>
+					<string>eudi-openid4vp</string>
+					<string>openid4vp</string>
+		  			<string>openid-credential-offer</string>
 				</array>
 			</dict>
 		</array>

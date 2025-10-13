@@ -39,6 +39,22 @@ abstract class Pointer {
       );
     }
 
+    if (content.startsWith('openid-credential-offer://')) {
+      final uri = Uri.parse(content);
+      final credentialOfferUri = uri.queryParameters['credential_offer_uri'];
+      final credentialOffer = uri.queryParameters['credential_offer'];
+      if (credentialOfferUri == null && credentialOffer == null) {
+        throw MissingPointer(
+            details:
+                'expected "credential_offer" or "credential_offer_uri" to be present in query parameters, but it wasn\'t');
+      }
+      return SessionPointer(
+        u: content,
+        irmaqr: 'issuing',
+        protocol: 'openid4vci',
+      );
+    }
+
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
     final regexps = [
       RegExp('(?<=^irma://qr/json/).*'),
