@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -29,6 +30,9 @@ import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'src/screens/loading/loading_screen.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
 import 'src/screens/notifications/notifications_tab.dart';
+import 'src/screens/passport/manual_entry_screen.dart';
+import 'src/screens/passport/mrz_reader_screen.dart';
+import 'src/screens/passport/nfc_reading_screen.dart';
 import 'src/screens/pin/pin_screen.dart';
 import 'src/screens/required_update/required_update_screen.dart';
 import 'src/screens/reset_pin/reset_pin_screen.dart';
@@ -42,13 +46,19 @@ import 'src/screens/terms_changed/terms_changed_dialog.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
 
-GoRouter createRouter(BuildContext buildContext) {
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
+GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
 
   final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment', '/scanner', '/modal_pin'};
 
   return GoRouter(
+    navigatorKey: rootNavigatorKey,
+    observers: [routeObserver],
     initialLocation: '/loading',
     refreshListenable: redirectionTriggers,
     errorBuilder: (context, state) => RouteNotFoundScreen(),
@@ -152,7 +162,9 @@ GoRouter createRouter(BuildContext buildContext) {
                   return AddDataDetailsScreen(
                     credentialType: credentialType,
                     onCancel: context.pop,
-                    onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType.fullId),
+                    onAdd: () {
+                      IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType, ref);
+                    },
                   );
                 },
               )
@@ -228,6 +240,49 @@ GoRouter createRouter(BuildContext buildContext) {
       GoRoute(
         path: '/update_required',
         builder: (context, state) => RequiredUpdateScreen(),
+      ),
+      GoRoute(
+        path: '/mzr_reader',
+        builder: (context, state) {
+          return MzrReaderScreen(
+            onSuccess: (mrzResult) => context.pushNfcReadingScreen(
+              NfcReadingRouteParams(
+                docNumber: mrzResult.documentNumber,
+                dateOfBirth: mrzResult.birthDate,
+                dateOfExpiry: mrzResult.expiryDate,
+                countryCode: mrzResult.countryCode,
+              ),
+            ),
+            onManualAdd: () => context.pushPassportManualEnterScreen(),
+            onCancel: () => context.pop(),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/passport_manual_enter',
+        builder: (context, state) => ManualEntryScreen(
+          onCancel: () => context.pop(),
+          onContinue: (data) => context.pushNfcReadingScreen(
+            NfcReadingRouteParams(
+              docNumber: data.documentNr,
+              dateOfBirth: data.dateOfBirth,
+              dateOfExpiry: data.expiryDate,
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/nfc_reading',
+        builder: (context, state) {
+          final args = NfcReadingRouteParams.fromQueryParams(state.uri.queryParameters);
+          return NfcReadingScreen(
+            docNumber: args.docNumber,
+            dateOfBirth: args.dateOfBirth,
+            dateOfExpiry: args.dateOfExpiry,
+            countryCode: args.countryCode,
+            onCancel: () => context.goHomeScreen(),
+          );
+        },
       ),
     ],
     redirect: (context, state) {

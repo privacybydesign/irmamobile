@@ -111,7 +111,9 @@ void main() {
 }
 
 Future<void> deletePersonalDataCard(WidgetTester tester) async {
-  await tester.tapAndSettle(find.byType(IrmaCredentialTypeCard).at(2));
+  final cardFinder = find.byType(IrmaCredentialTypeCard).at(2);
+  await tester.scrollUntilVisible(cardFinder, 100);
+  await tester.tapAndSettle(cardFinder);
 
   // Open the bottom sheet
   final bottomSheetButtonFinder = find.byIcon(Icons.more_horiz_sharp);

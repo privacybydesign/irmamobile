@@ -43,6 +43,12 @@ extension RoutingHelpers on BuildContext {
     Navigator.of(this).popUntil(ModalRoute.withName('/issue_wizard'));
   }
 
+  void popToUnderlyingSession() {
+    // we have to at least do one pop in case the current screen is already a session
+    Navigator.of(this).pop();
+    Navigator.of(this).popUntil(ModalRoute.withName('/session'));
+  }
+
   void goHomeScreenWithoutTransition() {
     TransitionStyleProvider.performInstantTransitionToHomeScreen(this);
   }
@@ -125,6 +131,21 @@ extension RoutingHelpers on BuildContext {
     pushReplacement(uri.toString());
   }
 
+  void pushPassportMrzReaderScreen() {
+    final uri = Uri(path: '/mzr_reader');
+    push(uri.toString());
+  }
+
+  void pushPassportManualEnterScreen() {
+    final uri = Uri(path: '/passport_manual_enter');
+    push(uri.toString());
+  }
+
+  void pushNfcReadingScreen(NfcReadingRouteParams params) {
+    final uri = Uri(path: '/nfc_reading', queryParameters: params.toQueryParams());
+    push(uri.toString());
+  }
+
   Future<void> pushIssueWizardScreen(IssueWizardRouteParams params) async {
     final uri = Uri(path: '/issue_wizard', queryParameters: params.toQueryParams());
     await push(uri.toString());
@@ -170,6 +191,40 @@ class IssueWizardRouteParams {
     return IssueWizardRouteParams(
       wizardID: params['wizard_id']!,
       sessionID: params.containsKey('session_id') ? int.parse(params['session_id']!) : null,
+    );
+  }
+}
+
+// =============================================================================================
+
+class NfcReadingRouteParams {
+  final String docNumber;
+  final DateTime dateOfBirth;
+  final DateTime dateOfExpiry;
+  final String? countryCode;
+
+  NfcReadingRouteParams({
+    required this.docNumber,
+    required this.dateOfBirth,
+    required this.dateOfExpiry,
+    this.countryCode,
+  });
+
+  Map<String, String> toQueryParams() {
+    return {
+      'doc_number': docNumber,
+      'date_of_birth': dateOfBirth.toIso8601String(),
+      'date_of_expiry': dateOfExpiry.toIso8601String(),
+      if (countryCode != null) 'country_code': countryCode!,
+    };
+  }
+
+  static NfcReadingRouteParams fromQueryParams(Map<String, String> params) {
+    return NfcReadingRouteParams(
+      docNumber: params['doc_number']!,
+      dateOfBirth: DateTime.parse(params['date_of_birth']!),
+      dateOfExpiry: DateTime.parse(params['date_of_expiry']!),
+      countryCode: params['country_code'],
     );
   }
 }

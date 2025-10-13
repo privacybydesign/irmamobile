@@ -221,7 +221,7 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
 
   void _reobtainCredential(BuildContext context, MultiFormatCredential credential) {
     if (credential.credentialType.issueUrl.isNotEmpty) {
-      IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType.fullId);
+      IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType, ref);
     }
   }
 }

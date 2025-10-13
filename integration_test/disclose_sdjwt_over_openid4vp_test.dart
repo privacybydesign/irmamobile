@@ -4,12 +4,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/data/passport_issuer.dart';
+import 'package:irmamobile/src/data/passport_reader.dart';
+import 'package:irmamobile/src/models/passport_data_result.dart';
+import 'package:irmamobile/src/providers/passport_repository_provider.dart';
 import 'package:irmamobile/src/screens/activity/activity_detail_screen.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
+import 'package:irmamobile/src/screens/passport/mrz_reader_screen.dart';
+import 'package:irmamobile/src/screens/passport/nfc_reading_screen.dart';
+import 'package:irmamobile/src/screens/passport/widgets/mzr_scanner.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
+import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
@@ -19,6 +27,7 @@ import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 import 'disclosure_session/disclosure_helpers.dart';
 import 'helpers/helpers.dart';
 import 'helpers/issuance_helpers.dart';
+import 'helpers/passport_helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
@@ -31,6 +40,11 @@ void main() {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
+
+    testWidgets(
+      'disclosing-passport-opens-passport-scanning-flow',
+      (tester) => testDisclosePassportOpensPassportScanner(tester, irmaBinding),
+    );
 
     testWidgets(
       'empty-sdjwt-still-option',
@@ -101,6 +115,99 @@ void main() {
       (tester) => testDiscloseSdJwtOverOpenID4VP(tester, irmaBinding),
     );
   });
+}
+
+Future<void> testDisclosePassportOpensPassportScanner(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  final fakeReader = FakePassportReader(
+    statesDuringRead: [
+      PassportReaderConnecting(),
+      PassportReaderReadingCardAccess(),
+      PassportReaderReadingCardSecurity(),
+      PassportReaderReadingPassportData(dataGroup: 'DG1', progress: 0.0),
+      PassportReaderSecurityVerification(),
+      PassportReaderSuccess(result: PassportDataResult(dataGroups: {}, efSod: '')),
+    ],
+  );
+  final fakeIssuer = FakePassportIssuer();
+
+  await pumpAndUnlockApp(
+    tester,
+    irmaBinding.repository,
+    Locale('en'),
+    [
+      passportReaderProvider.overrideWith((ref) => fakeReader),
+      passportIssuerProvider.overrideWithValue(fakeIssuer),
+    ],
+  );
+
+  final dcql = {
+    'credentials': [
+      {
+        'id': 'country',
+        'format': 'dc+sd-jwt',
+        'meta': {
+          'vct_values': ['pbdf-staging.pbdf.passport']
+        },
+        'claims': [
+          {
+            'id': 'c',
+            'path': ['country'],
+          },
+        ],
+      },
+    ],
+  };
+
+  // first session to get to instance count of 0
+  final sessionUrl = await startOpenID4VPSession(dcql);
+  irmaBinding.repository.startTestSessionFromUrl(sessionUrl);
+  await evaluateIntroduction(tester);
+
+  await tester.pumpAndSettle();
+  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+
+  await tester.tapAndSettle(find.text('Obtain data'));
+
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  await tester.tapAndSettle(find.text('Add'));
+
+  await tester.waitFor(find.byType(MzrReaderScreen));
+
+  final fakeMrz = FakeMrzResult(
+    documentNumber: 'XR0000001',
+    birthDate: DateTime(1990, 1, 1),
+    expiryDate: DateTime(2030, 12, 31),
+    countryCode: 'NLD',
+  );
+
+  final scannerState = tester.state<MRZScannerState>(find.byType(MRZScanner));
+  scannerState.widget.onSuccess(
+      fakeMrz, const ['P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<', 'XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00']);
+
+  await tester.pumpAndSettle();
+
+  // Wait for NFC screen and press "Start scanning" button
+  await tester.waitFor(find.byType(NfcReadingScreen));
+  final startScanningButton = find.byKey(const Key('bottom_bar_primary'));
+  await tester.tapAndSettle(startScanningButton);
+
+  expect(fakeReader.readCallCount, greaterThanOrEqualTo(1));
+  expect(fakeReader.lastDocumentNumber, fakeMrz.documentNumber);
+  expect(fakeReader.lastBirthDate, fakeMrz.birthDate);
+  expect(fakeReader.lastExpiryDate, fakeMrz.expiryDate);
+  expect(fakeReader.lastCountryCode, fakeMrz.countryCode);
+
+  // after reading passport an issuance session will start
+  await tester.waitFor(find.byType(SessionScreen));
+
+  // press the continue button
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+
+  // should be back at the issue wizard screen
+  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
 }
 
 Future<void> navigateToLatestActivity(

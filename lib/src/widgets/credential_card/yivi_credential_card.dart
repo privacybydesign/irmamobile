@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/attribute.dart';
 import '../../models/attribute_value.dart';
@@ -20,7 +21,7 @@ import 'yivi_credential_card_attribute_list.dart';
 import 'yivi_credential_card_footer.dart';
 import 'yivi_credential_card_header.dart';
 
-class YiviCredentialCard extends StatelessWidget {
+class YiviCredentialCard extends ConsumerWidget {
   final bool compact;
   final List<Attribute> attributes;
   final bool valid;
@@ -154,7 +155,7 @@ class YiviCredentialCard extends StatelessWidget {
         instanceCount = credential.instanceCount;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
 
     return IrmaCard(
@@ -208,7 +209,7 @@ class YiviCredentialCard extends StatelessWidget {
                 ),
               ],
             ),
-          _buildReobtainOption(context, theme),
+          _buildReobtainOption(context, theme, ref),
         ],
       ),
     );
@@ -252,7 +253,7 @@ class YiviCredentialCard extends StatelessWidget {
     return timeBased == ExpireState.expired || instanceBased == ExpireState.expired;
   }
 
-  Widget _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
+  Widget _buildReobtainOption(BuildContext context, IrmaThemeData theme, WidgetRef ref) {
     if (type.obtainable) {
       if (_isExpiringSoonInAnyWay() || revoked) {
         return Padding(
@@ -262,7 +263,8 @@ class YiviCredentialCard extends StatelessWidget {
             style: YiviButtonStyle.filled,
             onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(
               context,
-              type.fullId,
+              type,
+              ref,
             ),
           ),
         );

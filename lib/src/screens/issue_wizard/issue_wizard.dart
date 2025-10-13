@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../data/irma_repository.dart';
+import '../../models/irma_configuration.dart';
 import '../../models/issue_wizard.dart';
 import '../../models/session.dart';
 import '../../models/session_events.dart';
@@ -18,16 +20,16 @@ import '../../util/handle_pointer.dart';
 import '../../util/language.dart';
 import '../../util/navigation.dart';
 
-class IssueWizardScreen extends StatefulWidget {
+class IssueWizardScreen extends ConsumerStatefulWidget {
   final IssueWizardRouteParams arguments;
 
   const IssueWizardScreen({super.key, required this.arguments});
 
   @override
-  State<IssueWizardScreen> createState() => _IssueWizardScreenState();
+  ConsumerState<IssueWizardScreen> createState() => _IssueWizardScreenState();
 }
 
-class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindingObserver {
+class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with WidgetsBindingObserver {
   bool _showIntro = true;
   int? _sessionID;
   StreamSubscription<SessionState>? _sessionSubscription;
@@ -150,7 +152,18 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
     // Handle the different wizard item types
     switch (item?.type) {
       case 'credential':
-        _repo.openIssueURL(context, item?.credential ?? '');
+        if (item?.credential != null) {
+          final components = item!.credential!.split('.');
+          final type = CredentialType(
+            id: components[2],
+            name: TranslatedValue.empty(),
+            issuerId: components[1],
+            schemeManagerId: components[0],
+            isSingleton: false,
+            description: TranslatedValue.empty(),
+          );
+          _repo.openIssueURL(context, type, ref);
+        }
         break;
       case 'session':
         handlePointer(
