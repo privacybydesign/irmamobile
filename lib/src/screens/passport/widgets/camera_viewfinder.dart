@@ -96,7 +96,14 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
   // Called when the top route has been popped and this route shows again.
   @override
   void didPopNext() async {
-    await _startLiveFeed();
+    // For some reason an exception is sometimes triggered when going back from a session screen.
+    // This doesn't have any effect for the user, but in order to prevent it from showing up in
+    // Sentry logging we catch it here and pretend like nothing happened...
+    try {
+      await _startLiveFeed();
+    } catch (e) {
+      debugPrint('error while starting live feed: $e');
+    }
   }
 
   // Called when this route is popped.
