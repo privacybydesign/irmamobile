@@ -5,6 +5,7 @@ import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
+import 'package:irmamobile/src/models/protocol.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
@@ -55,7 +56,9 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
-    repo.bridgedDispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')));
+    repo.bridgedDispatch(
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
+    );
 
     // When doing a disclosure session the first time, we should see the introduction.
     expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
@@ -193,7 +196,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('issuance-in-disclosure-condiscon', () async {
@@ -241,7 +247,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -517,7 +523,10 @@ void main() {
     // Confirm all choices.
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('discon', () async {
@@ -546,7 +555,7 @@ void main() {
     );
     expect(bloc.state, isA<DisclosurePermissionInitial>());
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -580,7 +589,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('issuance-in-disclosure-specific-attributes', () async {
@@ -612,7 +624,7 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -759,7 +771,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('same-credential-type-in-multiple-outer-cons', () async {
@@ -784,7 +799,7 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -887,7 +902,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('optional-attribute', () async {
@@ -908,7 +926,7 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -966,7 +984,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('multiple-optional-attributes', () async {
@@ -1003,7 +1024,7 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1070,7 +1091,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('optional-attributes-mix', () async {
@@ -1106,7 +1130,7 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1198,7 +1222,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('recalculate-planned-steps', () async {
@@ -1231,7 +1258,7 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1319,7 +1346,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('single-discon-complex-inner-con', () async {
@@ -1360,7 +1390,7 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1479,7 +1509,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('multiple-credentials-issued', () async {
@@ -1507,7 +1540,7 @@ void main() {
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1551,7 +1584,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('introduction', () async {
@@ -1578,7 +1614,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1591,7 +1627,10 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     bloc.add(DisclosurePermissionNextPressed());
 
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
 
     mockBridge.mockDisclosureSession(44, [
       [
@@ -1609,7 +1648,7 @@ void main() {
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // In the second session, the introduction should be skipped.
@@ -1619,7 +1658,10 @@ void main() {
     expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
     bloc2.add(DisclosurePermissionNextPressed());
 
-    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('expired-credential', () async {
@@ -1651,7 +1693,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1685,7 +1727,10 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     bloc.add(DisclosurePermissionNextPressed());
 
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('revoked-credential', () async {
@@ -1723,7 +1768,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1791,7 +1836,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
 
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('unobtainable-credential', () async {
@@ -1821,7 +1869,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1850,7 +1898,10 @@ void main() {
       RespondPermissionEvent(sessionID: 42, proceed: false, disclosureChoices: [[]]),
     );
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.canceled);
+    await repo
+        .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.canceled);
   });
 
   test('unobtainable-expired-credential', () async {
@@ -1902,7 +1953,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -1917,7 +1968,10 @@ void main() {
       RespondPermissionEvent(sessionID: 44, proceed: false, disclosureChoices: [[]]),
     );
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.canceled);
+    await repo
+        .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.canceled);
 
     mockBridge.mockDisclosureSession(45, [
       [
@@ -1938,7 +1992,7 @@ void main() {
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -1977,7 +2031,10 @@ void main() {
 
     bloc2.add(DisclosurePermissionNextPressed());
 
-    await repo.getSessionState(45).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(45)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('credential-status-sorting', () async {
@@ -2036,7 +2093,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2082,7 +2139,10 @@ void main() {
     // Confirm all choices.
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(45).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(45)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('changeable-choices', () async {
@@ -2127,7 +2187,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2156,7 +2216,10 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('signed-message', () async {
@@ -2184,7 +2247,7 @@ void main() {
     expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     // When doing a disclosure session the first time, we should see the introduction.
@@ -2280,7 +2343,10 @@ void main() {
     // Confirm all choices.
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
 
     // Test session again to test for copy state inconsistencies.
     mockBridge.mockDisclosureSession(44, sessionReq, signedMessage: 'test message 2');
@@ -2293,7 +2359,7 @@ void main() {
     expect(bloc2.state, isA<DisclosurePermissionInitial>());
 
     repo.bridgedDispatch(
-      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '', protocol: Protocol.irma)),
     );
 
     expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -2318,7 +2384,10 @@ void main() {
     // Confirm all choices.
     bloc2.add(DisclosurePermissionNextPressed());
     expect(await bloc2.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
+    await repo
+        .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
+        .firstWhere((session) => session.status == SessionStatus.success);
   });
 }
 
@@ -2337,11 +2406,17 @@ Future<void> _issueCredential(
     revoked: revoked,
   );
 
-  repo.bridgedDispatch(NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')));
+  repo.bridgedDispatch(
+    NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '', protocol: Protocol.irma)),
+  );
   await repo
       .getSessionState(sessionID)
+      .map((state) => state as IrmaSessionState)
       .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
 
   repo.bridgedDispatch(RespondPermissionEvent(sessionID: sessionID, proceed: true, disclosureChoices: [[]]));
-  await repo.getSessionState(sessionID).firstWhere((session) => session.status == SessionStatus.success);
+  await repo
+      .getSessionState(sessionID)
+      .map((state) => state as IrmaSessionState)
+      .firstWhere((session) => session.status == SessionStatus.success);
 }
