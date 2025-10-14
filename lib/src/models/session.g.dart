@@ -28,7 +28,7 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
   return SessionPointer(
     u: json['u'] as String,
     irmaqr: json['irmaqr'] as String,
-    protocol: json['protocol'] as String?,
+    protocol: _protocolFromJsonAlwaysIrma(json['protocol'] as String?),
     continueOnSecondDevice: json['continueOnSecondDevice'] as bool? ?? false,
   );
 }
@@ -36,7 +36,7 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) => <String, dynamic>{
       'u': instance.u,
       'irmaqr': instance.irmaqr,
-      'protocol': instance.protocol,
+      'protocol': protocolToString(instance.protocol),
       'continueOnSecondDevice': instance.continueOnSecondDevice,
     };
 

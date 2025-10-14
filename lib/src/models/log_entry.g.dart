@@ -31,7 +31,7 @@ LogInfo _$LogInfoFromJson(Map<String, dynamic> json) => LogInfo(
     );
 
 IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
-      protocol: _toProtocol(json['Protocol'] as String),
+      protocol: stringToProtocol(json['Protocol'] as String),
       credentials:
           (json['Credentials'] as List<dynamic>).map((e) => CredentialLog.fromJson(e as Map<String, dynamic>)).toList(),
       disclosedCredentials: (json['DisclosedCredentials'] as List<dynamic>)
@@ -41,14 +41,14 @@ IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
     );
 
 DisclosureLog _$DisclosureLogFromJson(Map<String, dynamic> json) => DisclosureLog(
-      protocol: _toProtocol(json['Protocol'] as String),
+      protocol: stringToProtocol(json['Protocol'] as String),
       credentials:
           (json['Credentials'] as List<dynamic>).map((e) => CredentialLog.fromJson(e as Map<String, dynamic>)).toList(),
       verifier: RequestorInfo.fromJson(json['Verifier'] as Map<String, dynamic>),
     );
 
 SignedMessageLog _$SignedMessageLogFromJson(Map<String, dynamic> json) => SignedMessageLog(
-      protocol: _toProtocol(json['Protocol'] as String),
+      protocol: stringToProtocol(json['Protocol'] as String),
       credentials:
           (json['Credentials'] as List<dynamic>).map((e) => CredentialLog.fromJson(e as Map<String, dynamic>)).toList(),
       verifier: RequestorInfo.fromJson(json['Verifier'] as Map<String, dynamic>),

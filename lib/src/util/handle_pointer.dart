@@ -72,6 +72,7 @@ Future<int> _startSessionAndNavigate(
   repo.bridgedDispatch(event);
 
   final params = SessionRouteParams(
+    protocol: sessionPointer.protocol,
     sessionID: event.sessionID,
     sessionType: event.request.irmaqr,
     hasUnderlyingSession: hasActiveSessions,

@@ -39,7 +39,7 @@ void main() {
     repo.bridgedDispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')));
 
     final disclosureSessionStream = repo.getSessionState(42).asBroadcastStream();
-    SessionState disclosureSession = await disclosureSessionStream
+    IrmaSessionState disclosureSession = await disclosureSessionStream
         .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
@@ -125,7 +125,7 @@ void main() {
 
     // The disclosure session should not be satisfiable yet.
     final disclosureSessionStream = repo.getSessionState(42).asBroadcastStream();
-    SessionState disclosureSession = await disclosureSessionStream
+    IrmaSessionState disclosureSession = await disclosureSessionStream
         .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);

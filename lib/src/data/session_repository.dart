@@ -3,6 +3,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../models/attribute.dart';
 import '../models/credentials.dart';
+import '../models/protocol.dart';
 import '../models/return_url.dart';
 import '../models/session.dart';
 import '../models/session_events.dart';
@@ -27,7 +28,9 @@ class SessionRepository {
       SessionState? nextState;
       if (prevStates.containsKey(event.sessionID)) {
         final prevState = prevStates[event.sessionID]!;
-        nextState = _eventHandler(prevState, event);
+        if (prevState is IrmaSessionState) {
+          nextState = _irmaSessionEventHandler(prevState, event);
+        }
       } else if (event is NewSessionEvent) {
         nextState = _newSessionState(event);
       }
@@ -50,18 +53,22 @@ class SessionRepository {
       // Error with url will be resolved by bridge, so we don't have to act on that.
       serverName = RequestorInfo(name: const TranslatedValue.empty());
     }
-    return SessionState(
-      sessionID: event.sessionID,
-      clientReturnURL: null,
-      continueOnSecondDevice: event.request.continueOnSecondDevice,
-      previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
-      status: SessionStatus.initialized,
-      serverName: serverName,
-      sessionType: event.request.irmaqr,
-    );
+    if (event.request.protocol == Protocol.openid4vci) {
+      return OpenID4VciSessionState(sessionID: event.sessionID);
+    } else {
+      return IrmaSessionState(
+        sessionID: event.sessionID,
+        clientReturnURL: null,
+        continueOnSecondDevice: event.request.continueOnSecondDevice,
+        previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
+        status: SessionStatus.initialized,
+        serverName: serverName,
+        sessionType: event.request.irmaqr,
+      );
+    }
   }
 
-  SessionState _eventHandler(SessionState prevState, SessionEvent event) {
+  IrmaSessionState _irmaSessionEventHandler(IrmaSessionState prevState, SessionEvent event) {
     if (event is FailureSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.error,
@@ -199,6 +206,11 @@ class SessionRepository {
 
   Future<bool> hasActiveSessions() async {
     final sessions = await _sessionStatesSubject.first;
-    return sessions.values.any((session) => session.status == SessionStatus.requestDisclosurePermission);
+    return sessions.values.any((session) {
+      if (session is IrmaSessionState) {
+        return session.status == SessionStatus.requestDisclosurePermission;
+      }
+      return false;
+    });
   }
 }

@@ -7,6 +7,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/native_events.dart';
+import '../../models/protocol.dart';
 import '../../models/return_url.dart';
 import '../../models/session.dart';
 import '../../models/session_events.dart';
@@ -27,19 +28,32 @@ import 'widgets/issuance_success_screen.dart';
 import 'widgets/pairing_required.dart';
 import 'widgets/session_scaffold.dart';
 
-class SessionScreen extends StatefulWidget {
+class SessionScreen extends StatelessWidget {
+  const SessionScreen({super.key, required this.arguments});
   final SessionRouteParams arguments;
 
-  const SessionScreen({required this.arguments}) : super();
-
   @override
-  State<SessionScreen> createState() => _SessionScreenState();
+  Widget build(BuildContext context) {
+    if (arguments.protocol == Protocol.openid4vci) {
+      return Placeholder();
+    }
+    return IrmaSessionScreen(arguments: arguments);
+  }
 }
 
-class _SessionScreenState extends State<SessionScreen> {
+class IrmaSessionScreen extends StatefulWidget {
+  final SessionRouteParams arguments;
+
+  const IrmaSessionScreen({required this.arguments}) : super();
+
+  @override
+  State<IrmaSessionScreen> createState() => _IrmaSessionScreenState();
+}
+
+class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
   late IrmaRepository _repo;
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
-  late Stream<SessionState> _sessionStateStream;
+  late Stream<IrmaSessionState> _sessionStateStream;
 
   @override
   void initState() {
@@ -50,7 +64,7 @@ class _SessionScreenState extends State<SessionScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _repo = IrmaRepositoryProvider.of(context);
-    _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID);
+    _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID).map((state) => state as IrmaSessionState);
   }
 
   @override
@@ -75,7 +89,7 @@ class _SessionScreenState extends State<SessionScreen> {
     _repo.bridgedDispatch(DismissSessionEvent(sessionID: widget.arguments.sessionID));
   }
 
-  void _giveIssuancePermission(SessionState session) {
+  void _giveIssuancePermission(IrmaSessionState session) {
     _repo.bridgedDispatch(RespondPermissionEvent(
       sessionID: widget.arguments.sessionID,
       proceed: true,
@@ -127,12 +141,12 @@ class _SessionScreenState extends State<SessionScreen> {
     }
   }
 
-  Widget _buildDismissed(SessionState session) {
+  Widget _buildDismissed(IrmaSessionState session) {
     WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
-  Widget _buildFinishedContinueSecondDevice(SessionState session) {
+  Widget _buildFinishedContinueSecondDevice(IrmaSessionState session) {
     if (session.isIssuanceSession) {
       final issuedCredentialTypeIds = session.issuedCredentials?.map((e) => e.credentialType.fullId) ?? [];
       _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
@@ -160,7 +174,7 @@ class _SessionScreenState extends State<SessionScreen> {
     );
   }
 
-  Widget _buildFinishedReturnPhoneNumber(SessionState session) {
+  Widget _buildFinishedReturnPhoneNumber(IrmaSessionState session) {
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
 
     // Navigate to call info screen when session succeeded.
@@ -204,7 +218,7 @@ class _SessionScreenState extends State<SessionScreen> {
     }
   }
 
-  Widget _buildFinished(SessionState session) {
+  Widget _buildFinished(IrmaSessionState session) {
     // In case of issuance during disclosure, another session is open in a screen lower in the stack.
     // Ignore clientReturnUrl in this case (issuance) and pop immediately.
     if (session.isIssuanceSession && widget.arguments.hasUnderlyingSession) {
@@ -273,7 +287,7 @@ class _SessionScreenState extends State<SessionScreen> {
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
-  Widget _buildErrorScreen(SessionState session) {
+  Widget _buildErrorScreen(IrmaSessionState session) {
     return ValueListenableBuilder(
       valueListenable: _displayArrowBack,
       builder: (BuildContext context, bool displayArrowBack, Widget? child) {
@@ -335,7 +349,7 @@ class _SessionScreenState extends State<SessionScreen> {
         _sessionStateStream.distinct(
             (prev, curr) => prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
       ),
-      builder: (BuildContext context, AsyncSnapshot<CombinedState2<bool, SessionState>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<CombinedState2<bool, IrmaSessionState>> snapshot) {
         if (!snapshot.hasData) {
           return _buildLoadingScreen(widget.arguments.sessionType == 'issuing');
         }
