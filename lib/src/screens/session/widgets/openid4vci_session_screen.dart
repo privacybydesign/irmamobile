@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models/native_events.dart';
@@ -10,7 +10,11 @@ import '../../../models/session_events.dart';
 import '../../../models/session_state.dart';
 import '../../../providers/irma_repository_provider.dart';
 import '../../../providers/session_state_provider.dart';
+import '../../../theme/theme.dart';
 import '../../../util/navigation.dart';
+import '../../../widgets/credential_card/yivi_credential_type_info_card.dart';
+import '../../../widgets/irma_bottom_bar.dart';
+import '../../../widgets/irma_quote.dart';
 import '../../error/session_error_screen.dart';
 import 'arrow_back_screen.dart';
 import 'session_scaffold.dart';
@@ -75,13 +79,50 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
     if (state.error != null) {
       return _buildErrorScreen(state.error!, state.continueOnSecondDevice);
     }
+    final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
       appBarTitle: 'issuance.title',
-      body: Center(child: Text('OpenID4VCI session')),
+      body: SingleChildScrollView(
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing, vertical: theme.smallSpacing),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+                child: IrmaQuote(
+                  quote: FlutterI18n.translate(
+                    context,
+                    'issuance.description',
+                  ),
+                ),
+              ),
+              ...state.credentialInfoList!.map(
+                (cred) => Padding(
+                  padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: CredentialTypeInfoCard(info: cred),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
       onDismiss: _dismissSession,
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: FlutterI18n.translate(context, 'issuance.add'),
+        onPrimaryPressed: _givePermission,
+        secondaryButtonLabel: FlutterI18n.translate(context, 'issuance.cancel'),
+        onSecondaryPressed: _dismissSession,
+      ),
     );
   }
+
+  void _givePermission() {}
 
   void _dismissSession() {
     ref.read(irmaRepositoryProvider).bridgedDispatch(DismissSessionEvent(sessionID: widget.params.sessionID));

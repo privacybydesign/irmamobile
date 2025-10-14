@@ -12,6 +12,12 @@ part 'credentials.g.dart';
 
 @JsonSerializable(createToJson: false)
 class CredentialTypeInfo {
+  @JsonKey(name: 'IssuerName')
+  final TranslatedValue issuerName;
+
+  @JsonKey(name: 'Name')
+  final TranslatedValue name;
+
   @JsonKey(name: 'VerifiableCredentialType')
   final String verifiableCredentialType;
 
@@ -22,6 +28,8 @@ class CredentialTypeInfo {
   final CredentialFormat credentialFormat;
 
   CredentialTypeInfo({
+    required this.issuerName,
+    required this.name,
     required this.verifiableCredentialType,
     required this.attributes,
     required this.credentialFormat,

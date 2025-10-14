@@ -7,6 +7,8 @@ part of 'credentials.dart';
 // **************************************************************************
 
 CredentialTypeInfo _$CredentialTypeInfoFromJson(Map<String, dynamic> json) => CredentialTypeInfo(
+      issuerName: TranslatedValue.fromJson(json['IssuerName'] as Map<String, dynamic>?),
+      name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
       verifiableCredentialType: json['VerifiableCredentialType'] as String,
       attributes: (json['Attributes'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
