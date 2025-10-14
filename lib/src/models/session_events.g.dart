@@ -132,8 +132,10 @@ RequestAuthorizationCodeIssuancePermissionSessionEvent _$RequestAuthorizationCod
       sessionID: (json['SessionID'] as num).toInt(),
       authorizationServer: json['AuthorizationServer'] as String,
       credentialInfoList: (json['CredentialInfoList'] as List<dynamic>)
-          .map((e) => CredentialType.fromJson(e as Map<String, dynamic>))
+          .map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
+      serverName:
+          json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     );
 
 RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSessionEventFromJson(

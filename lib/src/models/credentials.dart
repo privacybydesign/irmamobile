@@ -10,6 +10,26 @@ import 'translated_value.dart';
 
 part 'credentials.g.dart';
 
+@JsonSerializable(createToJson: false)
+class CredentialTypeInfo {
+  @JsonKey(name: 'VerifiableCredentialType')
+  final String verifiableCredentialType;
+
+  @JsonKey(name: 'Attributes')
+  final Map<String, TranslatedValue> attributes;
+
+  @JsonKey(name: 'CredentialFormat')
+  final CredentialFormat credentialFormat;
+
+  CredentialTypeInfo({
+    required this.verifiableCredentialType,
+    required this.attributes,
+    required this.credentialFormat,
+  });
+
+  factory CredentialTypeInfo.fromJson(Map<String, dynamic> json) => _$CredentialTypeInfoFromJson(json);
+}
+
 class Credentials extends UnmodifiableMapView<String, Credential> {
   Credentials(super.map);
 

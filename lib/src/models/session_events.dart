@@ -174,16 +174,20 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
 
 @JsonSerializable(createToJson: false)
 class RequestAuthorizationCodeIssuancePermissionSessionEvent extends SessionEvent {
+  @JsonKey(name: 'ServerName', required: false)
+  final RequestorInfo? serverName;
+
   @JsonKey(name: 'AuthorizationServer')
   final String authorizationServer;
 
   @JsonKey(name: 'CredentialInfoList')
-  final List<CredentialType> credentialInfoList;
+  final List<CredentialTypeInfo> credentialInfoList;
 
   RequestAuthorizationCodeIssuancePermissionSessionEvent({
     required int sessionID,
     required this.authorizationServer,
     required this.credentialInfoList,
+    this.serverName,
   }) : super(sessionID);
 
   factory RequestAuthorizationCodeIssuancePermissionSessionEvent.fromJson(Map<String, dynamic> json) =>

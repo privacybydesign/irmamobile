@@ -16,7 +16,37 @@ class SessionState {
 }
 
 class OpenID4VciSessionState extends SessionState {
-  OpenID4VciSessionState({required super.sessionID});
+  OpenID4VciSessionState({
+    required super.sessionID,
+    required this.continueOnSecondDevice,
+    this.error,
+    this.serverName,
+    this.authorizationServer,
+    this.credentialInfoList,
+  });
+
+  final bool continueOnSecondDevice;
+  final SessionError? error;
+  final RequestorInfo? serverName;
+  final String? authorizationServer;
+  final List<CredentialTypeInfo>? credentialInfoList;
+
+  OpenID4VciSessionState copyWith({
+    SessionError? error,
+    RequestorInfo? serverName,
+    String? authorizationServer,
+    List<CredentialTypeInfo>? credentialInfoList,
+    bool? continueOnSecondDevice,
+  }) {
+    return OpenID4VciSessionState(
+      sessionID: sessionID,
+      continueOnSecondDevice: continueOnSecondDevice ?? this.continueOnSecondDevice,
+      error: error ?? this.error,
+      serverName: serverName ?? this.serverName,
+      authorizationServer: authorizationServer ?? this.authorizationServer,
+      credentialInfoList: credentialInfoList ?? this.credentialInfoList,
+    );
+  }
 
   @override
   bool get isIssuanceSession => true;

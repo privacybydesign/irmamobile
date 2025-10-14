@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import '../../models/protocol.dart';
 import '../../util/navigation.dart';
 import 'widgets/irma_session_screen.dart';
+import 'widgets/openid4vci_session_screen.dart';
 
 class SessionScreen extends StatelessWidget {
-  const SessionScreen({super.key, required this.arguments});
-  final SessionRouteParams arguments;
+  const SessionScreen({super.key, required this.params});
+  final SessionRouteParams params;
 
   @override
   Widget build(BuildContext context) {
-    if (arguments.protocol == Protocol.openid4vci) {
-      return Placeholder();
-    }
-    return IrmaSessionScreen(arguments: arguments);
+    return switch (params.protocol) {
+      Protocol.openid4vci => OpenID4VciSessionScreen(params: params),
+      Protocol.irma || Protocol.openid4vp => IrmaSessionScreen(params: params),
+    };
   }
 }

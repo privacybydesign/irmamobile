@@ -191,6 +191,7 @@ type requestIssuancePermissionSessionEvent struct {
 
 type requestAuthorizationCodeFlowIssuancePermission struct {
 	SessionID           int
+	ServerName          *irma.RequestorInfo
 	AuthorizationServer string
 	CredentialInfoList  []*irma.CredentialTypeInfo
 }

@@ -28,9 +28,9 @@ import '../widgets/pairing_required.dart';
 import '../widgets/session_scaffold.dart';
 
 class IrmaSessionScreen extends StatefulWidget {
-  final SessionRouteParams arguments;
+  final SessionRouteParams params;
 
-  const IrmaSessionScreen({required this.arguments}) : super();
+  const IrmaSessionScreen({required this.params}) : super();
 
   @override
   State<IrmaSessionScreen> createState() => _IrmaSessionScreenState();
@@ -50,7 +50,7 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _repo = IrmaRepositoryProvider.of(context);
-    _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID).map((state) => state as IrmaSessionState);
+    _sessionStateStream = _repo.getSessionState(widget.params.sessionID).map((state) => state as IrmaSessionState);
   }
 
   @override
@@ -72,21 +72,21 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
   }
 
   void _dismissSession() {
-    _repo.bridgedDispatch(DismissSessionEvent(sessionID: widget.arguments.sessionID));
+    _repo.bridgedDispatch(DismissSessionEvent(sessionID: widget.params.sessionID));
   }
 
   void _giveIssuancePermission(IrmaSessionState session) {
     _repo.bridgedDispatch(RespondPermissionEvent(
-      sessionID: widget.arguments.sessionID,
+      sessionID: widget.params.sessionID,
       proceed: true,
       disclosureChoices: session.disclosureChoices ?? [],
     ));
   }
 
   void _popToUnderlyingOrHome() {
-    if (widget.arguments.wizardActive) {
+    if (widget.params.wizardActive) {
       context.popToWizardScreen();
-    } else if (widget.arguments.hasUnderlyingSession) {
+    } else if (widget.params.hasUnderlyingSession) {
       context.popToUnderlyingSession();
     } else {
       context.goHomeScreen();
@@ -114,7 +114,7 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
       } else {
         _repo.dispatch(
           FailureSessionEvent(
-            sessionID: widget.arguments.sessionID,
+            sessionID: widget.params.sessionID,
             error: SessionError(
               errorType: 'clientReturnUrl',
               info: 'the clientReturnUrl could not be handled',
@@ -177,7 +177,7 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
           } catch (e) {
             _repo.dispatch(
               FailureSessionEvent(
-                sessionID: widget.arguments.sessionID,
+                sessionID: widget.params.sessionID,
                 error: SessionError(
                   errorType: 'clientReturnUrl',
                   info: 'the phone number in the clientReturnUrl could not be handled',
@@ -207,7 +207,7 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
   Widget _buildFinished(IrmaSessionState session) {
     // In case of issuance during disclosure, another session is open in a screen lower in the stack.
     // Ignore clientReturnUrl in this case (issuance) and pop immediately.
-    if (session.isIssuanceSession && widget.arguments.hasUnderlyingSession) {
+    if (session.isIssuanceSession && widget.params.hasUnderlyingSession) {
       WidgetsBinding.instance.addPostFrameCallback((_) => context.popToUnderlyingSession());
       return _buildLoadingScreen(true);
     }
@@ -223,9 +223,9 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
       return _buildFinishedContinueSecondDevice(session);
     }
 
-    final issuedWizardCred = widget.arguments.wizardActive &&
-        widget.arguments.wizardCred != null &&
-        (session.issuedCredentials?.map((c) => c.credentialType.fullId).contains(widget.arguments.wizardCred) ?? false);
+    final issuedWizardCred = widget.params.wizardActive &&
+        widget.params.wizardCred != null &&
+        (session.issuedCredentials?.map((c) => c.credentialType.fullId).contains(widget.params.wizardCred) ?? false);
 
     // It concerns a mobile session.
     if (session.clientReturnURL != null && !issuedWizardCred) {
@@ -243,12 +243,12 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
           _popToUnderlyingOrHome();
         }
       });
-    } else if (widget.arguments.wizardActive || session.didIssuePreviouslyLaunchedCredential) {
+    } else if (widget.params.wizardActive || session.didIssuePreviouslyLaunchedCredential) {
       // If the wizard is active or this concerns a combined session, pop accordingly.
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) => widget.arguments.wizardActive ? context.popToWizardScreen() : Navigator.of(context).pop(),
+        (_) => widget.params.wizardActive ? context.popToWizardScreen() : Navigator.of(context).pop(),
       );
-    } else if (widget.arguments.hasUnderlyingSession) {
+    } else if (widget.params.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
       // if it is a mobile session and there was no clientReturnUrl.
       WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
@@ -287,7 +287,7 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
       child: SessionErrorScreen(
         error: session.error,
         onTapClose: () async {
-          if (widget.arguments.wizardActive) {
+          if (widget.params.wizardActive) {
             context.popToWizardScreen();
           } else if (session.continueOnSecondDevice) {
             context.goHomeScreen();
@@ -337,7 +337,7 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
       ),
       builder: (BuildContext context, AsyncSnapshot<CombinedState2<bool, IrmaSessionState>> snapshot) {
         if (!snapshot.hasData) {
-          return _buildLoadingScreen(widget.arguments.sessionType == 'issuing');
+          return _buildLoadingScreen(widget.params.sessionType == 'issuing');
         }
 
         // Prevent stealing focus from pin screen in case app is locked
@@ -378,7 +378,7 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
             );
           case SessionStatus.requestPin:
             return SessionPinScreen(
-              sessionID: widget.arguments.sessionID,
+              sessionID: widget.params.sessionID,
               title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
             );
           case SessionStatus.error:

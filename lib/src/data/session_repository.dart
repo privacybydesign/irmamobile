@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../models/attribute.dart';
@@ -30,6 +31,8 @@ class SessionRepository {
         final prevState = prevStates[event.sessionID]!;
         if (prevState is IrmaSessionState) {
           nextState = _irmaSessionEventHandler(prevState, event);
+        } else if (prevState is OpenID4VciSessionState) {
+          nextState = _openid4vciEventHandler(prevState, event);
         }
       } else if (event is NewSessionEvent) {
         nextState = _newSessionState(event);
@@ -54,7 +57,10 @@ class SessionRepository {
       serverName = RequestorInfo(name: const TranslatedValue.empty());
     }
     if (event.request.protocol == Protocol.openid4vci) {
-      return OpenID4VciSessionState(sessionID: event.sessionID);
+      return OpenID4VciSessionState(
+        sessionID: event.sessionID,
+        continueOnSecondDevice: event.request.continueOnSecondDevice,
+      );
     } else {
       return IrmaSessionState(
         sessionID: event.sessionID,
@@ -66,6 +72,21 @@ class SessionRepository {
         sessionType: event.request.irmaqr,
       );
     }
+  }
+
+  OpenID4VciSessionState _openid4vciEventHandler(OpenID4VciSessionState prevState, SessionEvent event) {
+    if (event is RequestAuthorizationCodeIssuancePermissionSessionEvent) {
+      return prevState.copyWith(
+        serverName: event.serverName,
+        authorizationServer: event.authorizationServer,
+        credentialInfoList: event.credentialInfoList,
+      );
+    }
+    if (event is FailureSessionEvent) {
+      return prevState.copyWith(error: event.error);
+    }
+    debugPrint('Unknown event: $event for state $prevState');
+    return prevState;
   }
 
   IrmaSessionState _irmaSessionEventHandler(IrmaSessionState prevState, SessionEvent event) {
