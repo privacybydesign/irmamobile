@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -29,7 +30,9 @@ import '../models/session.dart';
 import '../models/session_events.dart';
 import '../models/session_state.dart';
 import '../models/version_information.dart';
+import '../providers/passport_repository_provider.dart';
 import '../sentry/sentry.dart';
+import '../util/navigation.dart';
 import 'irma_bridge.dart';
 import 'irma_preferences.dart';
 import 'session_repository.dart';
@@ -491,14 +494,43 @@ class IrmaRepository {
     );
   }
 
+  // Passport issuance is a special case where we use the scanner built into the app as the issuer
+  void _startPassportIssuance(
+    BuildContext context,
+    CredentialType type,
+    WidgetRef ref,
+  ) {
+    var url = type.issueUrl.values.first;
+    if (url.isNotEmpty) {
+      var uri = Uri.parse(url);
+
+      var baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(passportUrlProvider.notifier).state = baseUri.toString();
+
+      // Open the MzrReaderScreen
+      context.pushPassportMrzReaderScreen();
+    }
+  }
+
   Future<void> openIssueURL(
     BuildContext context,
-    String type,
+    CredentialType type,
+    WidgetRef ref,
   ) async {
+    if (type.id == 'passport') {
+      return _startPassportIssuance(context, type, ref);
+    }
+
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final irmaConfig = await _irmaConfigurationSubject.first;
-    final cred = irmaConfig.credentialTypes[type];
+    final cred = irmaConfig.credentialTypes[type.fullId];
 
     if (cred == null) {
       throw UnsupportedError('Credential type $type not found in irma config');
@@ -512,11 +544,11 @@ class IrmaRepository {
     final alreadyObtainedCredentials = await _credentialsSubject.first;
     final alreadyObtainedCredentialsTypes = alreadyObtainedCredentials.values.map((cred) => cred.credentialType.fullId);
 
-    if (cred.isInCredentialStore || alreadyObtainedCredentialsTypes.contains(type)) {
+    if (cred.isInCredentialStore || alreadyObtainedCredentialsTypes.contains(type.fullId)) {
       final state = await _credentialObtainState.first;
       final updatedLaunchedCredentials = {
         ...state.previouslyLaunchedCredentials,
-        type,
+        type.fullId,
       };
 
       _credentialObtainState.add(_CredentialObtainState(

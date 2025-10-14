@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../providers/irma_repository_provider.dart';
 import '../../../../theme/theme.dart';
@@ -8,7 +9,7 @@ import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 import 'disclosure_template_stepper.dart';
 
-class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
+class DisclosurePermissionObtainCredentialsScreen extends ConsumerWidget {
   final DisclosurePermissionObtainCredentials state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
   final Function() onDismiss;
@@ -19,19 +20,20 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
     required this.onDismiss,
   });
 
-  void _onButtonPressed(BuildContext context) {
+  void _onButtonPressed(BuildContext context, WidgetRef ref) {
     if (state.allObtained) {
       onEvent(DisclosurePermissionNextPressed());
     } else {
       IrmaRepositoryProvider.of(context).openIssueURL(
         context,
-        state.currentIssueWizardItem!.credentialType.fullId,
+        state.currentIssueWizardItem!.credentialType,
+        ref,
       );
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
@@ -51,7 +53,7 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: state.allObtained ? 'ui.done' : 'disclosure_permission.obtain_data',
-        onPrimaryPressed: () => _onButtonPressed(context),
+        onPrimaryPressed: () => _onButtonPressed(context, ref),
       ),
     );
   }

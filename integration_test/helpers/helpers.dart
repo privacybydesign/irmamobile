@@ -17,6 +17,7 @@ import 'package:irmamobile/src/screens/data/credentials_details_screen.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/notifications/widgets/notification_card.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
+import 'package:irmamobile/src/util/test_detection.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_attribute_list.dart';
 import 'package:irmamobile/src/widgets/credential_card/yivi_credential_card_footer.dart';
@@ -50,15 +51,23 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
 
-Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defaultLanguage]) async {
+Future<void> pumpIrmaApp(
+  WidgetTester tester,
+  IrmaRepository repo, [
+  Locale? defaultLanguage,
+  List<Override>? providerOverrides,
+]) async {
   await tester.pumpWidgetAndSettle(
     ProviderScope(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
+        if (providerOverrides != null) ...providerOverrides,
       ],
-      child: IrmaApp(
-        defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
+      child: TestContext(
+        child: IrmaApp(
+          defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
+        ),
       ),
     ),
   );
@@ -72,8 +81,13 @@ Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defa
 }
 
 // Pump a new app and unlock it
-Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo, [Locale? locale]) async {
-  await pumpIrmaApp(tester, repo, locale);
+Future<void> pumpAndUnlockApp(
+  WidgetTester tester,
+  IrmaRepository repo, [
+  Locale? locale,
+  List<Override>? providerOverrides,
+]) async {
+  await pumpIrmaApp(tester, repo, locale, providerOverrides);
   await unlockAndWaitForHome(tester);
 }
 

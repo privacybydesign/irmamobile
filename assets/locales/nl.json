@@ -212,10 +212,10 @@
       "explanation": "Deel mijn gegevens met {requestorName}",
       "confirm": "Gegevens delen",
       "confirm_sign": "Ondertekenen en deel",
-      "requestor_verification" : {
-        "verified_suffix" : "vraagt om je gegevens. Dit is een bekende partij die zich bij Yivi heeft geregistreerd.",
-        "unverified_suffix" : "vraagt om je gegevens. Waarschuwing: deze partij is niet bekend bij Yivi.",
-        "explanation" : "Wat betekent dit?",
+      "requestor_verification": {
+        "verified_suffix": "vraagt om je gegevens. Dit is een bekende partij die zich bij Yivi heeft geregistreerd.",
+        "unverified_suffix": "vraagt om je gegevens. Waarschuwing: deze partij is niet bekend bij Yivi.",
+        "explanation": "Wat betekent dit?",
         "bottom_sheet": {
           "title": "Bekende en onbekende organisaties",
           "content_markdown": "Iedere organisatie kan gegevens van jou opvragen uit je Yivi app.\nJe kiest zelf of je akkoord gaat om die gegevens te delen.\nYivi helpt je daarbij.\n\n\n\nOrganisaties kunnen zich bij Yivi melden. Dan wordt\ngecontroleerd om wie het gaat en worden hun gegevens\n(waaronder naam en logo) vastgelegd en gecontroleerd.\n\nEr komt dan een groen vinkje bij te staan.\nJe kunt dan met meer vertrouwen je gegevens delen.\n\nJe kunt de lijst met geregistreerde organisaties\nvinden op de [Yivi Portal](https://portal.yivi.app/organizations).\n\nMet organisaties die zich niet bij Yivi geregistreerd\nhebben kun je nog steeds je gegevens delen. Dat is\ndan echter helemaal je eigen verantwoordelijkheid.\nEr is geen zekerheid met wie je dan je gegevens\ndeelt.\n\nTwijfel je? Neem dan contact om met de organisatie\nzelf. Je kunt aanraden dat ze zich bij Yivi\nregistreren op:\n\n[https://portal.yivi.app](https://portal.yivi.app)."
@@ -330,7 +330,7 @@
     "button_back": "Terug",
     "button_reset": "Begin opnieuw",
     "details_title": "Foutmelding",
-    "report": "Als het fout blijft gaan, laat het dan weten aan ons weten.",
+    "report": "Als het fout blijft gaan, laat het dan aan ons weten.",
     "types": {
       "general": "Er is iets misgegaan.",
       "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook zijn dat je Yivi meer dan één jaar niet hebt gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
@@ -647,6 +647,68 @@
     "describe_state_off": "Schakelaar die uitstaat",
     "hint_state_on": "Tik dubbel om uit te zetten",
     "hint_state_off": "Tik dubbel om aan te zetten"
+  },
+  "passport": {
+    "scan": {
+      "title": "Scan paspoort",
+      "success": "Succes",
+      "success_explanation": "Het paspoort is succesvol gescand.",
+      "manual": "Handmatig invoeren",
+      "error": "Kon paspoort niet lezen.\nProbeer het opnieuw."
+    },
+    "manual": {
+      "title": "Voer paspoortgegevens in",
+      "explanation": "We hebben het documentnummer, de geboortedatum en de vervaldatum van uw paspoort nodig om toegang te krijgen tot de NFC-chip van het paspoort.",
+      "fields": {
+        "document_nr": "Documentnummer",
+        "document_nr_required": "Documentnummer is verplicht",
+        "document_nr_invalid": "Documentnummer is ongeldig",
+        "date_of_birth": "Geboortedatum",
+        "date_of_birth_required": "Geboortedatum is verplicht",
+        "date_of_expiry": "Vervaldatum",
+        "date_of_expiry_required": "Vervaldatum is verplicht",
+        "date_invalid": "Datum is ongeldig"
+      }
+    },
+    "nfc": {
+      "introduction": "Je gaat nu de gegevens uit je paspoort lezen.\n\nOpen je paspoort en houdt de achterkant van je telefoon tegen de foto aan. Druk vervolgens op start om het uitlezen te starten.",
+      "start_scanning": "Start uitlezen",
+      "title": "Lees paspoort",
+      "nfc_enabled": "NFC ingeschakeld",
+      "nfc_disabled": "NFC uitgeschakeld",
+      "reading": "Lezen...",
+      "error": "Kon paspoort niet lezen.\nProbeer het opnieuw.",
+      "nfc_not_supported": "NFC wordt niet ondersteund op dit apparaat.",
+      "nfc_disabled_explanation": "NFC is uitgeschakeld. Schakel NFC in via de systeeminstellingen en probeer het opnieuw.",
+      "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd uw telefoon stil op uw paspoort.",
+      "tip_1": "Beweeg uw telefoon niet. Het lezen duurt meestal slechts 10-20 seconden.",
+      "tip_2": "Houd de achterkant van uw telefoon tegen de fotopagina van uw paspoort. Daar bevindt zich de chip die we moeten lezen.",
+      "tip_3": "Problemen met lezen? Probeer de hoes van uw telefoon te verwijderen. Dit helpt vaak het NFC-signaal te versterken.",
+      "success": "Succes",
+      "success_explanation": "Paspoort succesvol uitgelezen.",
+      "idle": "Klaar om paspoort te lezen",
+      "cancelling": "Bezig met annuleren...",
+      "hold_near_photo_page": "Houd uw telefoon bij de fotopagina van het paspoort",
+      "cancelled": "Geannuleerd",
+      "connecting": "Verbinden met paspoort...",
+      "finished": "Voltooid",
+      "reading_card_security": "De toegang van de NFC-chip wordt bepaald...",
+      "authenticating": "Authenticatie met paspoort...",
+      "reading_passport_data": "Paspoortgegevens lezen...",
+      "performing_security_verification": "Bezig met veiligheidsverificatie...",
+      "completed_successfully": "Paspoort succesvol uitgelezen.",
+      "error_generic": "Er is een fout opgetreden bij het lezen van het paspoort.",
+      "failed_initiate_session": "Kan sessie met paspoort niet starten. Controleer de ingevoerde gegevens.",
+      "timeout_waiting_for_tag": "Time-out tijdens het wachten op paspoorttag",
+      "tag_lost_try_again": "Tag is verloren. Probeer het opnieuw.",
+      "cancelled_by_user": "U heeft het scannen geannuleerd.",
+      "cancel_dialog": {
+        "title": "Paspoortlezen annuleren?",
+        "explanation": "Weet u zeker dat u het paspoortlezen wilt annuleren?",
+        "confirm": "Ja",
+        "decline": "Nee"
+      }
+    }
   },
   "debug": {
     "title": "Debuggen",
