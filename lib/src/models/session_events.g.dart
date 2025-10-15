@@ -139,9 +139,8 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
       'DisclosuresCandidates': instance.disclosuresCandidates,
     };
 
-RequestAuthorizationCodeIssuancePermissionSessionEvent _$RequestAuthorizationCodeIssuancePermissionSessionEventFromJson(
-        Map<String, dynamic> json) =>
-    RequestAuthorizationCodeIssuancePermissionSessionEvent(
+RequestAuthorizationCodeEvent _$RequestAuthorizationCodeEventFromJson(Map<String, dynamic> json) =>
+    RequestAuthorizationCodeEvent(
       sessionID: (json['SessionID'] as num).toInt(),
       authorizationServer: json['AuthorizationServer'] as String,
       credentialInfoList: (json['CredentialInfoList'] as List<dynamic>)

@@ -195,7 +195,7 @@ type requestIssuancePermissionSessionEvent struct {
 	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
 }
 
-type requestAuthorizationCodeFlowIssuancePermission struct {
+type requestAuthorizationCodeEvent struct {
 	SessionID           int
 	ServerName          *irma.RequestorInfo
 	AuthorizationServer string

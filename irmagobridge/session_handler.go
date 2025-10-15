@@ -103,12 +103,12 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	})
 }
 
-func (sh *sessionHandler) RequestAuthorizationCodeFlowIssuancePermission(
+func (sh *sessionHandler) RequestAuthorizationCode(
 	request *irma.AuthorizationCodeIssuanceRequest,
 	requestorInfo *irma.RequestorInfo,
 	ph irmaclient.AuthorizationCodeHandler,
 ) {
-	action := requestAuthorizationCodeFlowIssuancePermission{
+	action := requestAuthorizationCodeEvent{
 		SessionID:           sh.sessionID,
 		AuthorizationServer: request.AuthorizationServer,
 		CredentialInfoList:  request.CredentialInfoList,
