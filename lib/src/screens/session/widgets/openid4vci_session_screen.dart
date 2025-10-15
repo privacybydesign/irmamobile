@@ -115,14 +115,27 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
       onDismiss: _dismissSession,
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'issuance.add'),
-        onPrimaryPressed: _givePermission,
+        onPrimaryPressed: () => _startAuthorizationCodeFlow(state),
         secondaryButtonLabel: FlutterI18n.translate(context, 'issuance.cancel'),
         onSecondaryPressed: _dismissSession,
       ),
     );
   }
 
-  void _givePermission() {}
+  void _startAuthorizationCodeFlow(OpenID4VciSessionState state) {
+    final uri = Uri.parse(state.authorizationServer!);
+    final request = Uri(
+      host: uri.host,
+      scheme: uri.scheme,
+      queryParameters: {
+        'state': state.sessionID.toString(),
+        'response_type': 'code',
+        'redirect_uri': 'https://open.yivi.app/-/cb'
+      },
+    );
+
+    ref.read(irmaRepositoryProvider).openURLExternally(request.toString());
+  }
 
   void _dismissSession() {
     ref.read(irmaRepositoryProvider).bridgedDispatch(DismissSessionEvent(sessionID: widget.params.sessionID));

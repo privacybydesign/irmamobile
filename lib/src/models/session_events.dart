@@ -4,7 +4,6 @@ import 'package:json_annotation/json_annotation.dart';
 import 'attribute.dart';
 import 'credentials.dart';
 import 'event.dart';
-import 'irma_configuration.dart';
 import 'session.dart';
 import 'translated_value.dart';
 
@@ -37,6 +36,26 @@ class NewSessionEvent extends SessionEvent {
   final Set<String> previouslyLaunchedCredentials;
 
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
+}
+
+@JsonSerializable()
+class RespondAuthorizationCodeEvent extends SessionEvent {
+  RespondAuthorizationCodeEvent({
+    required int sessionID,
+    required this.proceed,
+    required this.authorizationCode,
+  }) : super(sessionID);
+
+  @JsonKey(name: 'Proceed')
+  final bool proceed;
+
+  // Authorization response code for OpenID4VCI sessions
+  @JsonKey(name: 'AuthorizationCode')
+  final String authorizationCode;
+
+  factory RespondAuthorizationCodeEvent.fromJson(Map<String, dynamic> json) =>
+      _$RespondAuthorizationCodeEventFromJson(json);
+  Map<String, dynamic> toJson() => _$RespondAuthorizationCodeEventToJson(this);
 }
 
 @JsonSerializable()

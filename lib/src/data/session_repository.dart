@@ -219,6 +219,23 @@ class SessionRepository {
     }
   }
 
+  void handleOpenID4VciAuthCodeCallback(String url) {
+    try {
+      final uri = Uri.parse(url);
+      // state should be the session ID
+      final state = int.parse(uri.queryParameters['state']!);
+      final code = uri.queryParameters['code']!;
+
+      repo.bridgedDispatch(RespondAuthorizationCodeEvent(
+        sessionID: state,
+        authorizationCode: code,
+        proceed: true,
+      ));
+    } catch (e) {
+      debugPrint('failed to parse openid4vci authorization response');
+    }
+  }
+
   SessionState? getCurrentSessionState(int sessionID) => _sessionStatesSubject.value[sessionID];
 
   Stream<SessionState> getSessionState(int sessionID) => _sessionStatesSubject

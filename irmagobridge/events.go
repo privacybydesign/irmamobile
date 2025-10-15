@@ -32,6 +32,12 @@ type newSessionEvent struct {
 	Request   json.RawMessage
 }
 
+type respondAuthorizationCodeEvent struct {
+	SessionID         int
+	Proceed           bool
+	AuthorizationCode string
+}
+
 type respondPermissionEvent struct {
 	SessionID         int
 	Proceed           bool

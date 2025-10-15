@@ -12,6 +12,19 @@ Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <Strin
       'previouslyLaunchedCredentials': instance.previouslyLaunchedCredentials.toList(),
     };
 
+RespondAuthorizationCodeEvent _$RespondAuthorizationCodeEventFromJson(Map<String, dynamic> json) =>
+    RespondAuthorizationCodeEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      proceed: json['Proceed'] as bool,
+      authorizationCode: json['AuthorizationCode'] as String,
+    );
+
+Map<String, dynamic> _$RespondAuthorizationCodeEventToJson(RespondAuthorizationCodeEvent instance) => <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'Proceed': instance.proceed,
+      'AuthorizationCode': instance.authorizationCode,
+    };
+
 RespondPermissionEvent _$RespondPermissionEventFromJson(Map<String, dynamic> json) => RespondPermissionEvent(
       sessionID: (json['SessionID'] as num).toInt(),
       proceed: json['Proceed'] as bool,

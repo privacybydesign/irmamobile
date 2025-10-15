@@ -6,10 +6,11 @@ import (
 )
 
 type sessionHandler struct {
-	sessionID         int
-	dismisser         irmaclient.SessionDismisser
-	permissionHandler irmaclient.PermissionHandler
-	pinHandler        irmaclient.PinHandler
+	sessionID                int
+	dismisser                irmaclient.SessionDismisser
+	permissionHandler        irmaclient.PermissionHandler
+	authorizationCodeHandler irmaclient.AuthorizationCodeHandler
+	pinHandler               irmaclient.PinHandler
 }
 
 // SessionHandler implements irmaclient.Handler
@@ -105,14 +106,14 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 func (sh *sessionHandler) RequestAuthorizationCodeFlowIssuancePermission(
 	request *irma.AuthorizationCodeIssuanceRequest,
 	requestorInfo *irma.RequestorInfo,
-	ph irmaclient.PermissionHandler,
+	ph irmaclient.AuthorizationCodeHandler,
 ) {
 	action := requestAuthorizationCodeFlowIssuancePermission{
 		SessionID:           sh.sessionID,
 		AuthorizationServer: request.AuthorizationServer,
 		CredentialInfoList:  request.CredentialInfoList,
 	}
-	sh.permissionHandler = ph
+	sh.authorizationCodeHandler = ph
 	dispatchEvent(action)
 }
 
