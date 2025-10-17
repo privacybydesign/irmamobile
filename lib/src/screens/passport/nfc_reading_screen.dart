@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../routing.dart';
 import '../../data/passport_issuer.dart';
 import '../../data/passport_reader.dart';
 import '../../models/passport_data_result.dart';
 import '../../providers/passport_repository_provider.dart';
+import '../../sentry/sentry.dart';
 import '../../theme/theme.dart';
 import '../../util/handle_pointer.dart';
 import '../../util/nonce_parser.dart';
@@ -19,7 +21,6 @@ import '../../widgets/irma_confirmation_dialog.dart';
 import '../../widgets/irma_dialog.dart';
 import '../../widgets/irma_linear_progresss_indicator.dart';
 import '../../widgets/translated_text.dart';
-import '../../widgets/yivi_themed_button.dart';
 import 'widgets/passport_animation.dart';
 
 class NfcReadingScreen extends ConsumerStatefulWidget {
@@ -383,12 +384,33 @@ Future _showLogsDialog(BuildContext context, String logs) async {
   return showDialog(
     context: context,
     builder: (context) {
-      return IrmaDialog(
-        title: FlutterI18n.translate(context, 'error.details_title'),
-        content: logs,
-        child: YiviThemedButton(
-          label: 'error.button_ok',
-          onPressed: () => Navigator.of(context).pop(),
+      final theme = IrmaTheme.of(context);
+      return YiviDialog(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IrmaAppBar(
+              titleTranslationKey: 'error.details_title',
+              leading: null,
+            ),
+            SingleChildScrollView(
+              padding: EdgeInsets.all(theme.defaultSpacing),
+              child: Text(logs),
+            ),
+            IrmaBottomBar(
+              primaryButtonLabel: 'error.button_send_to_irma',
+              secondaryButtonLabel: 'error.button_ok',
+              onPrimaryPressed: () async {
+                reportError(logs, StackTrace.current, userInitiated: true);
+                if (context.mounted) {
+                  context.pop();
+                }
+              },
+              onSecondaryPressed: () {
+                context.pop();
+              },
+            ),
+          ],
         ),
       );
     },
