@@ -188,7 +188,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     final key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: isPaceCandidate);
 
     try {
-      _log.add('First read attempt, PACE: $isPaceCandidate');
+      _log.add('First read attempt, (PACE: $isPaceCandidate)');
       return await _readAttempt(
         iosNfcMessages: iosNfcMessages,
         accessKey: key,
@@ -353,6 +353,8 @@ class PassportReader extends StateNotifier<PassportReaderState> {
             _log.add('Failed to read ${cfg.name}: $e');
             debugPrint('Failed to read data group ${cfg.name}: $e');
           }
+        } else {
+          _log.add('Skipped reading data group ${cfg.name}');
         }
 
         state = PassportReaderReadingPassportData(dataGroup: cfg.name, progress: cfg.progressStage);
@@ -365,7 +367,9 @@ class PassportReader extends StateNotifier<PassportReaderState> {
         _setIosAlertMessage(iosNfcMessages.authenticating, iosNfcMessages.progressFormatter);
 
         try {
+          _log.add('Reading EfDG15');
           mrtdData.dg15 = await passport.readEfDG15();
+          _log.add('Successfully read EfDG15');
           if (mrtdData.dg15 != null) {
             final hex = mrtdData.dg15!.toBytes().hex();
             if (hex.isNotEmpty) {
@@ -373,13 +377,19 @@ class PassportReader extends StateNotifier<PassportReaderState> {
             }
           }
 
+          _log.add('Performing active authentication');
           mrtdData.aaSig = await passport.activeAuthenticate(nonce);
+          _log.add('Active authentication successful');
         } catch (e) {
           _log.add('Failed to read DG15 or perform AA: $e');
         }
+      } else {
+        _log.add('Skipped security verification');
       }
 
+      _log.add('Reading EfSOD');
       mrtdData.sod = await passport.readEfSOD();
+      _log.add('Successfully read EfSOD');
       final efSodHex = mrtdData.sod?.toBytes().hex() ?? '';
 
       final result = PassportDataResult(
