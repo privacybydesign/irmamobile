@@ -386,31 +386,38 @@ Future _showLogsDialog(BuildContext context, String logs) async {
     builder: (context) {
       final theme = IrmaTheme.of(context);
       return YiviDialog(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IrmaAppBar(
-              titleTranslationKey: 'error.details_title',
-              leading: null,
-            ),
-            SingleChildScrollView(
-              padding: EdgeInsets.all(theme.defaultSpacing),
-              child: Text(logs),
-            ),
-            IrmaBottomBar(
-              primaryButtonLabel: 'error.button_send_to_irma',
-              secondaryButtonLabel: 'error.button_ok',
-              onPrimaryPressed: () async {
-                reportError(logs, StackTrace.current, userInitiated: true);
-                if (context.mounted) {
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IrmaAppBar(
+                titleTranslationKey: 'error.details_title',
+                leading: null,
+              ),
+              Flexible(
+                fit: FlexFit.loose,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  child: Text(logs),
+                ),
+              ),
+              IrmaBottomBar(
+                primaryButtonLabel: 'error.button_send_to_irma',
+                secondaryButtonLabel: 'error.button_ok',
+                onPrimaryPressed: () async {
+                  reportError(logs, StackTrace.current, userInitiated: true);
+                  if (context.mounted) {
+                    context.pop();
+                  }
+                },
+                onSecondaryPressed: () {
                   context.pop();
-                }
-              },
-              onSecondaryPressed: () {
-                context.pop();
-              },
-            ),
-          ],
+                },
+              ),
+            ],
+          ),
         ),
       );
     },
