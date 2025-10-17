@@ -4,18 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../routing.dart';
 import '../../data/passport_issuer.dart';
 import '../../data/passport_reader.dart';
 import '../../models/passport_data_result.dart';
 import '../../providers/passport_repository_provider.dart';
+import '../../sentry/sentry.dart';
 import '../../theme/theme.dart';
 import '../../util/handle_pointer.dart';
 import '../../util/nonce_parser.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_confirmation_dialog.dart';
+import '../../widgets/irma_dialog.dart';
 import '../../widgets/irma_linear_progresss_indicator.dart';
 import '../../widgets/translated_text.dart';
 import 'widgets/passport_animation.dart';
@@ -54,7 +57,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
   @override
   void didPopNext() {
-    ref.read(passportReaderProvider.notifier).reset();
+    if (ref.read(passportReaderProvider) is! PassportReaderFailed) {
+      ref.read(passportReaderProvider.notifier).reset();
+    }
   }
 
   @override
@@ -126,8 +131,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
     final uiState = passportReadingStateToUiState(passportState);
 
-    if (passportState is PassportReaderFailed || passportState is PassportReaderCancelled) {
-      return _buildError(context, uiState);
+    if (passportState case PassportReaderFailed(:final logs)) {
+      return _buildError(context, uiState, logs);
+    }
+
+    if (passportState is PassportReaderCancelled) {
+      return _buildCancelled(context, uiState);
     }
 
     return _NfcScaffold(
@@ -140,7 +149,48 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     );
   }
 
-  Widget _buildError(BuildContext context, _UiState uiState) {
+  Widget _buildError(BuildContext context, _UiState uiState, String logs) {
+    final theme = IrmaTheme.of(context);
+    final isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
+
+    return _NfcScaffold(
+      instruction: Column(
+        crossAxisAlignment: isPortrait ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _OrientationAwareTranslatedText(uiState.stateKey, style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20)),
+          SizedBox(height: theme.defaultSpacing),
+          _OrientationAwareTranslatedText(uiState.tipKey),
+          SizedBox(height: theme.defaultSpacing),
+          GestureDetector(
+            onTap: () {
+              _showLogsDialog(context, logs);
+            },
+            child: _OrientationAwareTranslatedText(
+              'error.button_show_error',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                decoration: TextDecoration.underline,
+                color: theme.link,
+              ),
+            ),
+          ),
+        ],
+      ),
+      illustration: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: SvgPicture.asset('assets/error/general_error_illustration.svg'),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: 'ui.retry',
+        onPrimaryPressed: retry,
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
+      ),
+    );
+  }
+
+  Widget _buildCancelled(BuildContext context, _UiState uiState) {
     final theme = IrmaTheme.of(context);
     return _NfcScaffold(
       instruction: _TitleAndBody(titleKey: uiState.stateKey, bodyKey: uiState.tipKey),
@@ -328,6 +378,43 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       tagLostTryAgain: FlutterI18n.translate(context, 'passport.nfc.tag_lost_try_again'),
     );
   }
+}
+
+Future _showLogsDialog(BuildContext context, String logs) async {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      final theme = IrmaTheme.of(context);
+      return YiviDialog(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IrmaAppBar(
+              titleTranslationKey: 'error.details_title',
+              leading: null,
+            ),
+            SingleChildScrollView(
+              padding: EdgeInsets.all(theme.defaultSpacing),
+              child: Text(logs),
+            ),
+            IrmaBottomBar(
+              primaryButtonLabel: 'error.button_send_to_irma',
+              secondaryButtonLabel: 'error.button_ok',
+              onPrimaryPressed: () async {
+                reportError(logs, StackTrace.current, userInitiated: true);
+                if (context.mounted) {
+                  context.pop();
+                }
+              },
+              onSecondaryPressed: () {
+                context.pop();
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
 
 class _TitleAndBody extends StatelessWidget {
