@@ -108,7 +108,7 @@ void main() {
       final fakeReader = FakePassportReader(
         statesDuringRead: [
           PassportReaderConnecting(),
-          PassportReaderFailed(error: PassportReadingError.timeoutWaitingForTag),
+          PassportReaderFailed(error: PassportReadingError.timeoutWaitingForTag, logs: ''),
         ],
       );
       final fakeIssuer = FakePassportIssuer();

@@ -16,8 +16,11 @@ import '../../util/nonce_parser.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_confirmation_dialog.dart';
+import '../../widgets/irma_dialog.dart';
+import '../../widgets/irma_error_scaffold_body.dart';
 import '../../widgets/irma_linear_progresss_indicator.dart';
 import '../../widgets/translated_text.dart';
+import '../../widgets/yivi_themed_button.dart';
 import 'widgets/passport_animation.dart';
 
 class NfcReadingScreen extends ConsumerStatefulWidget {
@@ -54,7 +57,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
   @override
   void didPopNext() {
-    ref.read(passportReaderProvider.notifier).reset();
+    if (ref.read(passportReaderProvider) is! PassportReaderFailed) {
+      ref.read(passportReaderProvider.notifier).reset();
+    }
   }
 
   @override
@@ -126,8 +131,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
     final uiState = passportReadingStateToUiState(passportState);
 
-    if (passportState is PassportReaderFailed || passportState is PassportReaderCancelled) {
-      return _buildError(context, uiState);
+    if (passportState case PassportReaderFailed(:final logs)) {
+      return _buildError(context, uiState, logs);
+    }
+
+    if (passportState is PassportReaderCancelled) {
+      return _buildCancelled(context, uiState);
     }
 
     return _NfcScaffold(
@@ -140,7 +149,48 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     );
   }
 
-  Widget _buildError(BuildContext context, _UiState uiState) {
+  Widget _buildError(BuildContext context, _UiState uiState, String logs) {
+    final theme = IrmaTheme.of(context);
+    final isPortrait = MediaQuery.orientationOf(context) == Orientation.portrait;
+
+    return _NfcScaffold(
+      instruction: Column(
+        crossAxisAlignment: isPortrait ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _OrientationAwareTranslatedText(uiState.stateKey, style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20)),
+          SizedBox(height: theme.defaultSpacing),
+          _OrientationAwareTranslatedText(uiState.tipKey),
+          SizedBox(height: theme.defaultSpacing),
+          GestureDetector(
+            onTap: () {
+              _showLogsDialog(context, logs);
+            },
+            child: _OrientationAwareTranslatedText(
+              'error.button_show_error',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                decoration: TextDecoration.underline,
+                color: theme.link,
+              ),
+            ),
+          ),
+        ],
+      ),
+      illustration: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: SvgPicture.asset('assets/error/general_error_illustration.svg'),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: 'ui.retry',
+        onPrimaryPressed: retry,
+        secondaryButtonLabel: 'ui.cancel',
+        onSecondaryPressed: cancel,
+      ),
+    );
+  }
+
+  Widget _buildCancelled(BuildContext context, _UiState uiState) {
     final theme = IrmaTheme.of(context);
     return _NfcScaffold(
       instruction: _TitleAndBody(titleKey: uiState.stateKey, bodyKey: uiState.tipKey),
@@ -328,6 +378,22 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       tagLostTryAgain: FlutterI18n.translate(context, 'passport.nfc.tag_lost_try_again'),
     );
   }
+}
+
+Future _showLogsDialog(BuildContext context, String logs) async {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return IrmaDialog(
+        title: FlutterI18n.translate(context, 'error.details_title'),
+        content: logs,
+        child: YiviThemedButton(
+          label: 'error.button_ok',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      );
+    },
+  );
 }
 
 class _TitleAndBody extends StatelessWidget {
