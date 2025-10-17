@@ -1,8 +1,11 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../models/attribute.dart';
 import '../models/credentials.dart';
+import '../models/log_entry.dart';
+import '../models/protocol.dart';
 import '../models/return_url.dart';
 import '../models/session.dart';
 import '../models/session_events.dart';
@@ -27,7 +30,11 @@ class SessionRepository {
       SessionState? nextState;
       if (prevStates.containsKey(event.sessionID)) {
         final prevState = prevStates[event.sessionID]!;
-        nextState = _eventHandler(prevState, event);
+        if (prevState is IrmaSessionState) {
+          nextState = _irmaSessionEventHandler(prevState, event);
+        } else if (prevState is OpenID4VciSessionState) {
+          nextState = _openid4vciEventHandler(prevState, event);
+        }
       } else if (event is NewSessionEvent) {
         nextState = _newSessionState(event);
       }
@@ -50,18 +57,68 @@ class SessionRepository {
       // Error with url will be resolved by bridge, so we don't have to act on that.
       serverName = RequestorInfo(name: const TranslatedValue.empty());
     }
-    return SessionState(
-      sessionID: event.sessionID,
-      clientReturnURL: null,
-      continueOnSecondDevice: event.request.continueOnSecondDevice,
-      previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
-      status: SessionStatus.initialized,
-      serverName: serverName,
-      sessionType: event.request.irmaqr,
-    );
+    if (event.request.protocol == Protocol.openid4vci) {
+      return OpenID4VciSessionState(
+        sessionID: event.sessionID,
+        continueOnSecondDevice: event.request.continueOnSecondDevice,
+      );
+    } else {
+      return IrmaSessionState(
+        sessionID: event.sessionID,
+        clientReturnURL: null,
+        continueOnSecondDevice: event.request.continueOnSecondDevice,
+        previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
+        status: SessionStatus.initialized,
+        serverName: serverName,
+        sessionType: event.request.irmaqr,
+      );
+    }
   }
 
-  SessionState _eventHandler(SessionState prevState, SessionEvent event) {
+  OpenID4VciSessionState _openid4vciEventHandler(OpenID4VciSessionState prevState, SessionEvent event) {
+    return prevState.copyWith(
+      continueOnSecondDevice: true,
+      authorizationServer: 'https://google.com',
+      serverName: RequestorInfo(name: TranslatedValue({'en': 'Yivi', 'nl': 'Yivi'})),
+      credentialInfoList: [
+        CredentialTypeInfo(
+          issuerName: TranslatedValue({'en': 'Yivi', 'nl': 'Yivi'}),
+          name: TranslatedValue({'en': 'Email', 'nl': 'E-mail'}),
+          verifiableCredentialType: 'pbdf.pbdf.email',
+          attributes: {
+            'email': TranslatedValue({'en': 'Email address', 'nl': 'E-mailadres'}),
+            'domain': TranslatedValue({'en': 'Email domain', 'nl': 'E-mailadres domein'}),
+          },
+          credentialFormat: CredentialFormat.sdjwtvc,
+        ),
+        CredentialTypeInfo(
+          issuerName: TranslatedValue({'en': 'Yivi', 'nl': 'Yivi'}),
+          name: TranslatedValue({'en': 'Linkedin', 'nl': 'Linkedin'}),
+          verifiableCredentialType: 'pbdf.pbdf.linkedin',
+          attributes: {
+            'firstname': TranslatedValue({'en': 'First name', 'nl': 'Voornaam'}),
+            'lastname': TranslatedValue({'en': 'Last name', 'nl': 'Achternaam'}),
+            'fullname': TranslatedValue({'en': 'Full name', 'nl': 'Volledige name'}),
+          },
+          credentialFormat: CredentialFormat.sdjwtvc,
+        ),
+      ],
+    );
+    if (event is RequestAuthorizationCodeEvent) {
+      return prevState.copyWith(
+        serverName: event.serverName,
+        authorizationServer: event.authorizationServer,
+        credentialInfoList: event.credentialInfoList,
+      );
+    }
+    if (event is FailureSessionEvent) {
+      return prevState.copyWith(error: event.error);
+    }
+    debugPrint('Unknown event: $event for state $prevState');
+    return prevState;
+  }
+
+  IrmaSessionState _irmaSessionEventHandler(IrmaSessionState prevState, SessionEvent event) {
     if (event is FailureSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.error,
@@ -191,6 +248,23 @@ class SessionRepository {
     }
   }
 
+  void handleOpenID4VciAuthCodeCallback(String url) {
+    try {
+      final uri = Uri.parse(url);
+      // state should be the session ID
+      final state = int.parse(uri.queryParameters['state']!);
+      final code = uri.queryParameters['code']!;
+
+      repo.bridgedDispatch(RespondAuthorizationCodeEvent(
+        sessionID: state,
+        authorizationCode: code,
+        proceed: true,
+      ));
+    } catch (e) {
+      debugPrint('failed to parse openid4vci authorization response');
+    }
+  }
+
   SessionState? getCurrentSessionState(int sessionID) => _sessionStatesSubject.value[sessionID];
 
   Stream<SessionState> getSessionState(int sessionID) => _sessionStatesSubject
@@ -199,6 +273,11 @@ class SessionRepository {
 
   Future<bool> hasActiveSessions() async {
     final sessions = await _sessionStatesSubject.first;
-    return sessions.values.any((session) => session.status == SessionStatus.requestDisclosurePermission);
+    return sessions.values.any((session) {
+      if (session is IrmaSessionState) {
+        return session.status == SessionStatus.requestDisclosurePermission;
+      }
+      return false;
+    });
   }
 }

@@ -194,7 +194,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: '/session',
         builder: (context, state) {
           final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
-          return SessionScreen(arguments: args);
+          return SessionScreen(params: args);
         },
       ),
       GoRoute(

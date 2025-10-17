@@ -39,6 +39,26 @@ class NewSessionEvent extends SessionEvent {
 }
 
 @JsonSerializable()
+class RespondAuthorizationCodeEvent extends SessionEvent {
+  RespondAuthorizationCodeEvent({
+    required int sessionID,
+    required this.proceed,
+    required this.authorizationCode,
+  }) : super(sessionID);
+
+  @JsonKey(name: 'Proceed')
+  final bool proceed;
+
+  // Authorization response code for OpenID4VCI sessions
+  @JsonKey(name: 'AuthorizationCode')
+  final String authorizationCode;
+
+  factory RespondAuthorizationCodeEvent.fromJson(Map<String, dynamic> json) =>
+      _$RespondAuthorizationCodeEventFromJson(json);
+  Map<String, dynamic> toJson() => _$RespondAuthorizationCodeEventToJson(this);
+}
+
+@JsonSerializable()
 class RespondPermissionEvent extends SessionEvent {
   RespondPermissionEvent({
     required int sessionID,
@@ -169,6 +189,28 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
   factory RequestIssuancePermissionSessionEvent.fromJson(Map<String, dynamic> json) =>
       _$RequestIssuancePermissionSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$RequestIssuancePermissionSessionEventToJson(this);
+}
+
+@JsonSerializable(createToJson: false)
+class RequestAuthorizationCodeEvent extends SessionEvent {
+  @JsonKey(name: 'ServerName', required: false)
+  final RequestorInfo? serverName;
+
+  @JsonKey(name: 'AuthorizationServer')
+  final String authorizationServer;
+
+  @JsonKey(name: 'CredentialInfoList')
+  final List<CredentialTypeInfo> credentialInfoList;
+
+  RequestAuthorizationCodeEvent({
+    required int sessionID,
+    required this.authorizationServer,
+    required this.credentialInfoList,
+    this.serverName,
+  }) : super(sessionID);
+
+  factory RequestAuthorizationCodeEvent.fromJson(Map<String, dynamic> json) =>
+      _$RequestAuthorizationCodeEventFromJson(json);
 }
 
 @JsonSerializable()

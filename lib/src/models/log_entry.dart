@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'event.dart';
+import 'protocol.dart';
 import 'session.dart';
 
 part 'log_entry.g.dart';
@@ -35,11 +36,6 @@ enum LogType {
   removal,
 }
 
-enum Protocol {
-  irma,
-  openid4vp,
-}
-
 enum CredentialFormat {
   idemix,
   sdjwtvc,
@@ -49,14 +45,6 @@ LogType _toLogEntryType(String type) {
   return LogType.values.firstWhere(
     (v) => v.toString() == 'LogType.$type',
   );
-}
-
-Protocol _toProtocol(String protocol) {
-  return switch (protocol) {
-    'irma' => Protocol.irma,
-    'openid4vp' => Protocol.openid4vp,
-    _ => throw Exception('invalid protocol: $protocol'),
-  };
 }
 
 String credentialFormatToString(CredentialFormat format) {
@@ -136,7 +124,7 @@ class IssuanceLog {
     required this.issuer,
   });
 
-  @JsonKey(name: 'Protocol', fromJson: _toProtocol)
+  @JsonKey(name: 'Protocol', fromJson: stringToProtocol)
   final Protocol protocol;
 
   @JsonKey(name: 'Credentials')
@@ -155,7 +143,7 @@ class IssuanceLog {
 class DisclosureLog {
   DisclosureLog({required this.protocol, required this.credentials, required this.verifier});
 
-  @JsonKey(name: 'Protocol', fromJson: _toProtocol)
+  @JsonKey(name: 'Protocol', fromJson: stringToProtocol)
   final Protocol protocol;
 
   @JsonKey(name: 'Credentials')

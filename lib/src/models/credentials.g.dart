@@ -6,6 +6,21 @@ part of 'credentials.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+CredentialTypeInfo _$CredentialTypeInfoFromJson(Map<String, dynamic> json) => CredentialTypeInfo(
+      issuerName: TranslatedValue.fromJson(json['IssuerName'] as Map<String, dynamic>?),
+      name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
+      verifiableCredentialType: json['VerifiableCredentialType'] as String,
+      attributes: (json['Attributes'] as Map<String, dynamic>).map(
+        (k, e) => MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
+      ),
+      credentialFormat: $enumDecode(_$CredentialFormatEnumMap, json['CredentialFormat']),
+    );
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'sdjwtvc',
+};
+
 RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) => RawCredential(
       id: json['ID'] as String,
       issuerId: json['IssuerID'] as String,
@@ -61,8 +76,3 @@ Map<String, dynamic> _$RawMultiFormatCredentialToJson(RawMultiFormatCredential i
       'Expires': instance.expires,
       'InstanceCount': instance.instanceCount,
     };
-
-const _$CredentialFormatEnumMap = {
-  CredentialFormat.idemix: 'idemix',
-  CredentialFormat.sdjwtvc: 'sdjwtvc',
-};
