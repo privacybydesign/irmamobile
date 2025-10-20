@@ -424,7 +424,7 @@ Future _showLogsDialog(BuildContext context, String logs) async {
                 primaryButtonLabel: 'error.button_send_to_irma',
                 secondaryButtonLabel: 'error.button_ok',
                 onPrimaryPressed: () async {
-                  reportError(logs, StackTrace.current, userInitiated: true);
+                  reportError(Exception(logs), StackTrace.current, userInitiated: true);
                   if (context.mounted) {
                     context.pop();
                   }

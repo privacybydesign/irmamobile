@@ -131,7 +131,6 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       }
       _log.add('NFC status: $status');
     } catch (e) {
-      debugPrint('failed to get nfc status: $e');
       _log.add('Failed to get NFC status: $e');
     }
   }
@@ -155,7 +154,6 @@ class PassportReader extends StateNotifier<PassportReaderState> {
   }
 
   Future<void> _setIosAlertMessage(String message, String Function(double) progressFormatter) async {
-    debugPrint('setIosAlertMessage()');
     if (_nfc.isConnected()) {
       final progress = progressForState(state);
       final formattedProgress = progressFormatter(progress);
@@ -172,7 +170,6 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     required String sessionId,
     required Uint8List nonce,
   }) async {
-    debugPrint('readWithMRZ()');
     _log = ['Reading with MRZ'];
 
     await checkNfcAvailability();
@@ -283,7 +280,6 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       _log.add('Reading card access successful');
     } on PassportError catch (e) {
       _log.add('Reading card access failed: $e');
-      debugPrint('Failed to read EF.CardAccess');
     }
 
     _log.add('Reading card security');
@@ -296,7 +292,6 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       _log.add('Reading card security successful');
     } on PassportError catch (e) {
       _log.add('Reading card security failed: $e');
-      debugPrint('Failed to read EF.CardSecurity');
     }
 
     _log.add('Authenticating (pace: $isPace)');
@@ -349,6 +344,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
             if (hexData.isNotEmpty) {
               dataGroups[cfg.name] = hexData;
             }
+            _log.add('Reading data group ${cfg.name} successful');
           } catch (e) {
             _log.add('Failed to read ${cfg.name}: $e');
             debugPrint('Failed to read data group ${cfg.name}: $e');
@@ -433,9 +429,13 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       _setIosAlertMessage(iosNfcMessages.cancelledByUser, iosNfcMessages.progressFormatter);
     }
 
-    final logs = 'NFC reading failed:\n - ${_log.join('\n - ')}\n\nException: $e';
-    reportError(logs, StackTrace.current);
+    final logs = 'NFC reading failed:\n - ${_compileLogs()}\n\nException: $e';
+    reportError(Exception(logs), StackTrace.current);
     state = PassportReaderFailed(error: error, logs: logs);
+  }
+
+  String _compileLogs() {
+    return _log.join('\n - ');
   }
 
   Future<void> _disconnect(String? msg) async {
