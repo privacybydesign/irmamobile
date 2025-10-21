@@ -315,11 +315,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
           stateKey: 'passport.nfc.reading_card_security',
           tipKey: 'passport.nfc.tip_3',
         ),
-      PassportReaderReadingCardSecurity() => _UiState(
-          progress: progress,
-          stateKey: 'passport.nfc.reading_card_security',
-          tipKey: 'passport.nfc.tip_3',
-        ),
       PassportReaderReadingPassportData() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.reading_passport_data',

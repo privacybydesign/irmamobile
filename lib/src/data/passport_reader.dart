@@ -33,8 +33,6 @@ class PassportReaderConnecting extends PassportReaderState {}
 
 class PassportReaderReadingCardAccess extends PassportReaderState {}
 
-class PassportReaderReadingCardSecurity extends PassportReaderState {}
-
 class PassportReaderAuthenticating extends PassportReaderState {}
 
 class PassportReaderReadingPassportData extends PassportReaderState {
@@ -104,7 +102,6 @@ double progressForState(PassportReaderState state) {
     PassportReaderFailed() => 0.0,
     PassportReaderConnecting() => 0.0,
     PassportReaderReadingCardAccess() => 0.1,
-    PassportReaderReadingCardSecurity() => 0.2,
     PassportReaderAuthenticating() => 0.4,
     PassportReaderReadingPassportData(:final progress) => 0.5 + progress / 2.0,
     PassportReaderSecurityVerification() => 0.9,
@@ -115,6 +112,7 @@ double progressForState(PassportReaderState state) {
 
 class PassportReader extends StateNotifier<PassportReaderState> {
   final NfcProvider _nfc;
+  MrtdData? _mrtdData;
   bool _isCancelled = false;
   List<String> _log = [];
 
@@ -123,15 +121,15 @@ class PassportReader extends StateNotifier<PassportReaderState> {
   }
 
   Future<void> checkNfcAvailability() async {
-    _log.add('Checking NFC availability');
+    _addLog('Checking NFC availability');
     try {
       NfcStatus status = await NfcProvider.nfcStatus;
       if (status != NfcStatus.enabled) {
         state = PassportReaderNfcUnavailable();
       }
-      _log.add('NFC status: $status');
+      _addLog('NFC status: $status');
     } catch (e) {
-      _log.add('Failed to get NFC status: $e');
+      _addLog('Failed to get NFC status: $e');
     }
   }
 
@@ -142,7 +140,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
 
   Future<void> cancel() async {
     _isCancelled = true;
-    _log.add('NFC scanning cancelled');
+    _addLog('NFC scanning cancelled');
     state = PassportReaderCancelling();
     await _disconnect('passport.nfc.cancelling');
 
@@ -179,13 +177,11 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       return null;
     }
 
-    _isCancelled = false;
     final isPaceCandidate = countryCode == null || paceCountriesAlpha3.contains(countryCode.toUpperCase());
 
     final key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: isPaceCandidate);
 
     try {
-      _log.add('First read attempt, (PACE: $isPaceCandidate)');
       return await _readAttempt(
         iosNfcMessages: iosNfcMessages,
         accessKey: key,
@@ -194,27 +190,7 @@ class PassportReader extends StateNotifier<PassportReaderState> {
         nonce: nonce,
       );
     } catch (e) {
-      if (_isCancelled) return null;
-      if (isPaceCandidate) {
-        // Retry with BAC when PACE fails
-        _log.add('Second read attempt, retry with BAC');
-        try {
-          final key = DBAKey(documentNumber, birthDate, expiryDate, paceMode: false);
-          return await _readAttempt(
-            iosNfcMessages: iosNfcMessages,
-            accessKey: key,
-            isPace: false,
-            sessionId: sessionId,
-            nonce: nonce,
-          );
-        } on Exception catch (e2) {
-          if (!_isCancelled) {
-            _handleError(iosNfcMessages, e2);
-          }
-        }
-      } else if (!_isCancelled) {
-        _handleError(iosNfcMessages, e);
-      }
+      _handleError(iosNfcMessages, e);
     }
     return null;
   }
@@ -226,18 +202,10 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     String? sessionId,
     Uint8List? nonce,
   }) async {
-    _log.add('Connecting...');
+    _addLog('Connecting...');
     state = PassportReaderConnecting();
 
-    if (_isCancelled) return null;
     await _nfc.connect(iosAlertMessage: iosNfcMessages.holdNearPhotoPage);
-
-    if (_isCancelled) {
-      _log.add('Cancelled by user');
-      await _disconnect(iosNfcMessages.cancelled);
-      state = PassportReaderCancelled();
-      return null;
-    }
 
     final passport = Passport(_nfc);
 
@@ -259,6 +227,25 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     'GBR', // Great Britain
   };
 
+  Future<void> _startSession(Passport passport, AccessKey accessKey) async {
+    await _readCardAccess(passport);
+    if (_mrtdData!.isPACE!) {
+      await passport.startSessionPACE(accessKey, _mrtdData!.cardAccess!);
+    } else {
+      await passport.startSession(accessKey as DBAKey);
+    }
+  }
+
+  Future<void> _readCardAccess(Passport passport) async {
+    passport.reset();
+    try {
+      _mrtdData!.cardAccess = await passport.readEfCardAccess();
+      _addLog('Reading card access successful');
+    } on PassportError catch (e) {
+      _addLog('Reading card access failed: $e');
+    }
+  }
+
   Future<PassportDataResult> _perform(
     IosNfcMessages iosNfcMessages,
     Passport passport,
@@ -267,63 +254,88 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     String? sessionId,
     Uint8List? nonce,
   }) async {
-    final mrtdData = MrtdData();
-    mrtdData.isPACE = isPace;
-    mrtdData.isDBA = accessKey is DBAKey && (accessKey.PACE_REF_KEY_TAG == 0x01);
+    _mrtdData = MrtdData();
+    _mrtdData!.isPACE = isPace;
+    _mrtdData!.isDBA = accessKey is DBAKey && (accessKey.PACE_REF_KEY_TAG == 0x01);
 
-    _log.add('Reading card access (isPace: $isPace, isDBA: ${mrtdData.isDBA})');
+    _addLog('Reading card access (isPace: $isPace, isDBA: ${_mrtdData!.isDBA})');
     state = PassportReaderReadingCardAccess();
     _setIosAlertMessage(iosNfcMessages.readingCardAccess, iosNfcMessages.progressFormatter);
 
-    try {
-      mrtdData.cardAccess = await passport.readEfCardAccess();
-      _log.add('Reading card access successful');
-    } on PassportError catch (e) {
-      _log.add('Reading card access failed: $e');
-    }
+    await _readCardAccess(passport);
 
-    _log.add('Reading card security');
-    state = PassportReaderReadingCardSecurity();
-    _setIosAlertMessage(iosNfcMessages.readingCardSecurity, iosNfcMessages.progressFormatter);
-
-    try {
-      // FIXME: is this not fatal?
-      mrtdData.cardSecurity = await passport.readEfCardSecurity();
-      _log.add('Reading card security successful');
-    } on PassportError catch (e) {
-      _log.add('Reading card security failed: $e');
-    }
-
-    _log.add('Authenticating (pace: $isPace)');
+    _addLog('Authenticating (pace: $isPace)');
     state = PassportReaderAuthenticating();
     _setIosAlertMessage(iosNfcMessages.authenticating, iosNfcMessages.progressFormatter);
 
-    if (isPace) {
-      await passport.startSessionPACE(accessKey, mrtdData.cardAccess!);
-    } else {
-      await passport.startSession(accessKey as DBAKey);
-    }
+    await _startSession(passport, accessKey);
 
     state = PassportReaderAuthenticating();
     _setIosAlertMessage(iosNfcMessages.authenticating, iosNfcMessages.progressFormatter);
 
-    final result = await _readDataGroups(iosNfcMessages, passport, mrtdData, sessionId: sessionId, nonce: nonce);
+    final result = await _readDataGroups(
+      iosNfcMessages,
+      accessKey,
+      passport,
+      _mrtdData!,
+      sessionId: sessionId,
+      nonce: nonce,
+    );
 
-    _log.add('Reading successful');
+    _addLog('Reading successful');
     state = PassportReaderSuccess(result: result);
     _setIosAlertMessage(iosNfcMessages.completedSuccessfully, iosNfcMessages.progressFormatter);
     return result;
   }
 
+  Future<DataGroup> _repeatedlyReadDg(
+    Passport passport,
+    Future<DataGroup> Function(Passport) readFunction,
+    AccessKey accessKey,
+  ) async {
+    for (int i = 0; i < 5; ++i) {
+      try {
+        return await readFunction(passport);
+      } catch (e) {
+        if (i < 4) {
+          await Future.delayed(Duration(milliseconds: 300));
+          _addLog('Reading DG failed: $e, retring... (${_nfc.isConnected()})');
+          await _reconnect(passport, accessKey);
+          continue;
+        }
+        rethrow;
+      }
+    }
+    throw Exception('unreachable');
+  }
+
+  _reconnect(Passport passport, accessKey) async {
+    try {
+      await _nfc.reconnect();
+    } catch (e) {
+      _addLog('Reconnect failed: $e');
+      return;
+    }
+    try {
+      // reset the secure communication
+      passport.reset();
+      await _startSession(passport, accessKey);
+      _addLog('Successfully restarted session after losing NFC Tag');
+    } catch (e) {
+      _addLog('_startSession failed: $e');
+    }
+  }
+
   Future<PassportDataResult> _readDataGroups(
     IosNfcMessages iosNfcMessages,
+    AccessKey accessKey,
     Passport passport,
     MrtdData mrtdData, {
     String? sessionId,
     Uint8List? nonce,
   }) async {
     try {
-      _log.add('Reading EF COM');
+      _addLog('Reading EF COM');
       mrtdData.com = await passport.readEfCOM();
 
       final Map<String, String> dataGroups = {};
@@ -337,20 +349,22 @@ class PassportReader extends StateNotifier<PassportReaderState> {
 
         if (mrtdData.com!.dgTags.contains(cfg.tag)) {
           try {
-            _log.add('Reading data group ${cfg.name}');
-            final dgData = await cfg.readFunction(passport);
+            _addLog('Reading data group ${cfg.name}');
+
+            final dgData = await _repeatedlyReadDg(passport, cfg.readFunction, accessKey);
             // Convert data group to hex string
             final hexData = dgData.toBytes().hex();
             if (hexData.isNotEmpty) {
               dataGroups[cfg.name] = hexData;
             }
-            _log.add('Reading data group ${cfg.name} successful');
+            _addLog('Reading data group ${cfg.name} successful');
           } catch (e) {
-            _log.add('Failed to read ${cfg.name}: $e');
+            _addLog('Failed to read ${cfg.name}: $e');
             debugPrint('Failed to read data group ${cfg.name}: $e');
+            rethrow;
           }
         } else {
-          _log.add('Skipped reading data group ${cfg.name}');
+          _addLog('Skipped reading data group ${cfg.name}');
         }
 
         state = PassportReaderReadingPassportData(dataGroup: cfg.name, progress: cfg.progressStage);
@@ -358,14 +372,14 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       }
 
       if (sessionId != null && nonce != null && mrtdData.com!.dgTags.contains(EfDG15.TAG)) {
-        _log.add('Security verification');
+        _addLog('Security verification');
         state = PassportReaderSecurityVerification();
         _setIosAlertMessage(iosNfcMessages.authenticating, iosNfcMessages.progressFormatter);
 
         try {
-          _log.add('Reading EfDG15');
+          _addLog('Reading EfDG15');
           mrtdData.dg15 = await passport.readEfDG15();
-          _log.add('Successfully read EfDG15');
+          _addLog('Successfully read EfDG15');
           if (mrtdData.dg15 != null) {
             final hex = mrtdData.dg15!.toBytes().hex();
             if (hex.isNotEmpty) {
@@ -373,19 +387,19 @@ class PassportReader extends StateNotifier<PassportReaderState> {
             }
           }
 
-          _log.add('Performing active authentication');
+          _addLog('Performing active authentication');
           mrtdData.aaSig = await passport.activeAuthenticate(nonce);
-          _log.add('Active authentication successful');
+          _addLog('Active authentication successful');
         } catch (e) {
-          _log.add('Failed to read DG15 or perform AA: $e');
+          _addLog('Failed to read DG15 or perform AA: $e');
         }
       } else {
-        _log.add('Skipped security verification');
+        _addLog('Skipped security verification');
       }
 
-      _log.add('Reading EfSOD');
+      _addLog('Reading EfSOD');
       mrtdData.sod = await passport.readEfSOD();
-      _log.add('Successfully read EfSOD');
+      _addLog('Successfully read EfSOD');
       final efSodHex = mrtdData.sod?.toBytes().hex() ?? '';
 
       final result = PassportDataResult(
@@ -438,13 +452,18 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     return _log.join('\n - ');
   }
 
+  void _addLog(String message) {
+    _log.add(message);
+    debugPrint(message);
+  }
+
   Future<void> _disconnect(String? msg) async {
-    _log.add('Disconnectig, message: $msg');
+    _addLog('Disconnectig, message: $msg');
     try {
       await _nfc.disconnect(iosErrorMessage: msg);
-      _log.add('Disconnectig successful');
+      _addLog('Disconnectig successful');
     } catch (e) {
-      _log.add('Disconnectig failed: $e');
+      _addLog('Disconnectig failed: $e');
       debugPrint('Error during NFC disconnect: $e');
     }
   }
