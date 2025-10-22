@@ -10,106 +10,6 @@ import '../models/passport_data_result.dart';
 import '../models/passport_mrtd_data.dart';
 import '../sentry/sentry.dart';
 
-// ===============================================================
-// all the different states the passport reader can be in
-
-class PassportReaderState {}
-
-class PassportReaderNfcUnavailable extends PassportReaderState {}
-
-class PassportReaderPending extends PassportReaderState {}
-
-class PassportReaderCancelled extends PassportReaderState {}
-
-class PassportReaderCancelling extends PassportReaderState {}
-
-class PassportReaderFailed extends PassportReaderState {
-  PassportReaderFailed({required this.error, required this.logs});
-  final String logs;
-  final PassportReadingError error;
-}
-
-class PassportReaderConnecting extends PassportReaderState {}
-
-class PassportReaderReadingCardAccess extends PassportReaderState {}
-
-class PassportReaderAuthenticating extends PassportReaderState {}
-
-class PassportReaderReadingPassportData extends PassportReaderState {
-  PassportReaderReadingPassportData({required this.dataGroup, required this.progress});
-  final String dataGroup;
-  final double progress;
-}
-
-class PassportReaderSecurityVerification extends PassportReaderState {}
-
-class PassportReaderSuccess extends PassportReaderState {
-  PassportReaderSuccess({required this.result});
-  final PassportDataResult result;
-}
-
-enum PassportReadingError {
-  unknown,
-  timeoutWaitingForTag,
-  tagLost,
-  failedToInitiateSession,
-  invalidatedByUser,
-}
-
-// ===============================================================
-
-class IosNfcMessages {
-  final String holdNearPhotoPage;
-  final String cancelling;
-  final String cancelled;
-  final String connecting;
-  final String readingCardAccess;
-  final String readingCardSecurity;
-  final String authenticating;
-  final String readingPassportData;
-  final String cancelledByUser;
-  final String performingSecurityVerification;
-  final String completedSuccessfully;
-  final String timeoutWaitingForTag;
-  final String failedToInitiateSession;
-  final String tagLostTryAgain;
-  final String Function(double) progressFormatter;
-
-  const IosNfcMessages({
-    required this.progressFormatter,
-    required this.holdNearPhotoPage,
-    required this.cancelling,
-    required this.cancelled,
-    required this.connecting,
-    required this.readingCardAccess,
-    required this.readingCardSecurity,
-    required this.authenticating,
-    required this.readingPassportData,
-    required this.cancelledByUser,
-    required this.performingSecurityVerification,
-    required this.completedSuccessfully,
-    required this.timeoutWaitingForTag,
-    required this.failedToInitiateSession,
-    required this.tagLostTryAgain,
-  });
-}
-
-double progressForState(PassportReaderState state) {
-  return switch (state) {
-    PassportReaderPending() => 0.0,
-    PassportReaderCancelled() => 0.0,
-    PassportReaderCancelling() => 0.0,
-    PassportReaderFailed() => 0.0,
-    PassportReaderConnecting() => 0.0,
-    PassportReaderReadingCardAccess() => 0.1,
-    PassportReaderAuthenticating() => 0.4,
-    PassportReaderReadingPassportData(:final progress) => 0.5 + progress / 2.0,
-    PassportReaderSecurityVerification() => 0.9,
-    PassportReaderSuccess() => 1.0,
-    _ => throw Exception('unexpected state: $state'),
-  };
-}
-
 class PassportReader extends StateNotifier<PassportReaderState> {
   final NfcProvider _nfc;
   MrtdData? _mrtdData;
@@ -171,6 +71,9 @@ class PassportReader extends StateNotifier<PassportReaderState> {
     _log = ['Reading with MRZ'];
 
     await checkNfcAvailability();
+    if (_nfc.isConnected()) {
+      _nfc.disconnect();
+    }
 
     // when nfc is unavailable we can't scan it...
     if (state is PassportReaderNfcUnavailable) {
@@ -550,4 +453,104 @@ class PassportReader extends StateNotifier<PassportReaderState> {
       ),
     ];
   }
+}
+
+// ===============================================================
+// all the different states the passport reader can be in
+
+class PassportReaderState {}
+
+class PassportReaderNfcUnavailable extends PassportReaderState {}
+
+class PassportReaderPending extends PassportReaderState {}
+
+class PassportReaderCancelled extends PassportReaderState {}
+
+class PassportReaderCancelling extends PassportReaderState {}
+
+class PassportReaderFailed extends PassportReaderState {
+  PassportReaderFailed({required this.error, required this.logs});
+  final String logs;
+  final PassportReadingError error;
+}
+
+class PassportReaderConnecting extends PassportReaderState {}
+
+class PassportReaderReadingCardAccess extends PassportReaderState {}
+
+class PassportReaderAuthenticating extends PassportReaderState {}
+
+class PassportReaderReadingPassportData extends PassportReaderState {
+  PassportReaderReadingPassportData({required this.dataGroup, required this.progress});
+  final String dataGroup;
+  final double progress;
+}
+
+class PassportReaderSecurityVerification extends PassportReaderState {}
+
+class PassportReaderSuccess extends PassportReaderState {
+  PassportReaderSuccess({required this.result});
+  final PassportDataResult result;
+}
+
+enum PassportReadingError {
+  unknown,
+  timeoutWaitingForTag,
+  tagLost,
+  failedToInitiateSession,
+  invalidatedByUser,
+}
+
+// ===============================================================
+
+class IosNfcMessages {
+  final String holdNearPhotoPage;
+  final String cancelling;
+  final String cancelled;
+  final String connecting;
+  final String readingCardAccess;
+  final String readingCardSecurity;
+  final String authenticating;
+  final String readingPassportData;
+  final String cancelledByUser;
+  final String performingSecurityVerification;
+  final String completedSuccessfully;
+  final String timeoutWaitingForTag;
+  final String failedToInitiateSession;
+  final String tagLostTryAgain;
+  final String Function(double) progressFormatter;
+
+  const IosNfcMessages({
+    required this.progressFormatter,
+    required this.holdNearPhotoPage,
+    required this.cancelling,
+    required this.cancelled,
+    required this.connecting,
+    required this.readingCardAccess,
+    required this.readingCardSecurity,
+    required this.authenticating,
+    required this.readingPassportData,
+    required this.cancelledByUser,
+    required this.performingSecurityVerification,
+    required this.completedSuccessfully,
+    required this.timeoutWaitingForTag,
+    required this.failedToInitiateSession,
+    required this.tagLostTryAgain,
+  });
+}
+
+double progressForState(PassportReaderState state) {
+  return switch (state) {
+    PassportReaderPending() => 0.0,
+    PassportReaderCancelled() => 0.0,
+    PassportReaderCancelling() => 0.0,
+    PassportReaderFailed() => 0.0,
+    PassportReaderConnecting() => 0.0,
+    PassportReaderReadingCardAccess() => 0.1,
+    PassportReaderAuthenticating() => 0.4,
+    PassportReaderReadingPassportData(:final progress) => 0.5 + progress / 2.0,
+    PassportReaderSecurityVerification() => 0.9,
+    PassportReaderSuccess() => 1.0,
+    _ => throw Exception('unexpected state: $state'),
+  };
 }
