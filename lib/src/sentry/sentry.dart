@@ -41,6 +41,17 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
   }
 }
 
+/// Reports a message to Sentry at the info log level if the user gave permission
+Future<void> reportFeedback(String message, {bool userInitiated = false}) async {
+  if (dsn != '') {
+    if (_reportErrorsPreferenceValue || userInitiated) {
+      Sentry.captureMessage(message);
+    }
+  }
+  debugPrint('report feedback: $message');
+}
+
+/// Reports a the error to Sentry if the user gave permission
 Future<void> reportError(dynamic error, dynamic stackTrace, {bool userInitiated = false}) async {
   // If Sentry is not configured, we report the error to Flutter such that the test framework can detect it.
   if (dsn == '') {

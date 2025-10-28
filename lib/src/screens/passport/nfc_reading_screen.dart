@@ -6,16 +6,15 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vcmrtd/vcmrtd.dart';
 
 import '../../../routing.dart';
-import '../../data/passport_issuer.dart';
-import '../../data/passport_reader.dart';
-import '../../models/passport_data_result.dart';
-import '../../providers/passport_repository_provider.dart';
+import '../../models/session.dart';
+import '../../providers/passport_issuer_provider.dart';
+import '../../providers/passport_reader_provider.dart';
 import '../../sentry/sentry.dart';
 import '../../theme/theme.dart';
 import '../../util/handle_pointer.dart';
-import '../../util/nonce_parser.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_confirmation_dialog.dart';
@@ -84,17 +83,17 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer.startSessionAtPassportIssuer();
 
     final result = await ref.read(passportReaderProvider.notifier).readWithMRZ(
-          iosNfcMessages: _getTranslatedIosNfcMessages(),
+          iosNfcMessages: _createIosNfcMessageMapper(),
           documentNumber: widget.docNumber,
           birthDate: widget.dateOfBirth,
           expiryDate: widget.dateOfExpiry,
           countryCode: widget.countryCode,
-          sessionId: sessionId,
-          nonce: stringToUint8List(nonce),
+          activeAuthenticationParams: NonceAndSessionId(nonce: nonce, sessionId: sessionId),
         );
 
     if (result != null) {
-      await _startIssuance(result);
+      final (pdr, _) = result;
+      await _startIssuance(pdr);
     }
   }
 
@@ -108,7 +107,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       }
 
       // handle it like any other external issuance session
-      await handlePointer(context, sessionPtr);
+      await handlePointer(
+        context,
+        SessionPointer(u: sessionPtr.u, irmaqr: sessionPtr.irmaqr, continueOnSecondDevice: true),
+      );
     } catch (e) {
       debugPrint('issuance error: $e');
     }
@@ -310,22 +312,27 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
           stateKey: 'passport.nfc.connecting',
           tipKey: 'passport.nfc.tip_2',
         ),
+      PassportReaderReadingCOM() => _UiState(
+          progress: progress,
+          stateKey: 'passport.nfc.reading_passport_data',
+          tipKey: 'passport.nfc.tip_3',
+        ),
       PassportReaderReadingCardAccess() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.reading_card_security',
           tipKey: 'passport.nfc.tip_3',
         ),
-      PassportReaderReadingCardSecurity() => _UiState(
-          progress: progress,
-          stateKey: 'passport.nfc.reading_card_security',
-          tipKey: 'passport.nfc.tip_3',
-        ),
-      PassportReaderReadingPassportData() => _UiState(
+      PassportReaderReadingDataGroup() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.reading_passport_data',
           tipKey: 'passport.nfc.tip_1',
         ),
-      PassportReaderSecurityVerification() => _UiState(
+      PassportReaderReadingSOD() => _UiState(
+          progress: progress,
+          stateKey: 'passport.nfc.reading_passport_data',
+          tipKey: 'passport.nfc.tip_2',
+        ),
+      PassportReaderActiveAuthentication() => _UiState(
           progress: progress,
           stateKey: 'passport.nfc.performing_security_verification',
           tipKey: 'passport.nfc.tip_1',
@@ -354,30 +361,35 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     };
   }
 
-  IosNfcMessages _getTranslatedIosNfcMessages() {
+  IosNfcMessageMapper _createIosNfcMessageMapper() {
     String progressFormatter(double progress) {
       const numStages = 10;
       final prog = (progress * numStages).toInt();
       return '🟢' * prog + '⚪️' * (numStages - prog);
     }
 
-    return IosNfcMessages(
-      progressFormatter: progressFormatter,
-      holdNearPhotoPage: FlutterI18n.translate(context, 'passport.nfc.hold_near_photo_page'),
-      cancelling: FlutterI18n.translate(context, 'passport.nfc.cancelling'),
-      cancelled: FlutterI18n.translate(context, 'passport.nfc.cancelled'),
-      connecting: FlutterI18n.translate(context, 'passport.nfc.connecting'),
-      readingCardAccess: FlutterI18n.translate(context, 'passport.nfc.reading_card_security'),
-      readingCardSecurity: FlutterI18n.translate(context, 'passport.nfc.reading_card_security'),
-      authenticating: FlutterI18n.translate(context, 'passport.nfc.authenticating'),
-      readingPassportData: FlutterI18n.translate(context, 'passport.nfc.reading_passport_data'),
-      cancelledByUser: FlutterI18n.translate(context, 'passport.nfc.cancelled_by_user'),
-      performingSecurityVerification: FlutterI18n.translate(context, 'passport.nfc.performing_security_verification'),
-      completedSuccessfully: FlutterI18n.translate(context, 'passport.nfc.completed_successfully'),
-      timeoutWaitingForTag: FlutterI18n.translate(context, 'passport.nfc.timeout_waiting_for_tag'),
-      failedToInitiateSession: FlutterI18n.translate(context, 'passport.nfc.failed_initiate_session'),
-      tagLostTryAgain: FlutterI18n.translate(context, 'passport.nfc.tag_lost_try_again'),
-    );
+    return (state) {
+      final progress = progressFormatter(progressForState(state));
+
+      final message = switch (state) {
+        PassportReaderPending() => FlutterI18n.translate(context, 'passport.nfc.hold_near_photo_page'),
+        PassportReaderCancelled() => FlutterI18n.translate(context, 'passport.nfc.cancelled'),
+        PassportReaderCancelling() => FlutterI18n.translate(context, 'passport.nfc.cancelling'),
+        PassportReaderFailed() => FlutterI18n.translate(context, 'passport.nfc.error'),
+        PassportReaderConnecting() => FlutterI18n.translate(context, 'passport.nfc.connecting'),
+        PassportReaderReadingCardAccess() => FlutterI18n.translate(context, 'passport.nfc.reading_card_security'),
+        PassportReaderReadingCOM() => FlutterI18n.translate(context, 'passport.nfc.reading_passport_data'),
+        PassportReaderAuthenticating() => FlutterI18n.translate(context, 'passport.nfc.authenticating'),
+        PassportReaderReadingDataGroup() => FlutterI18n.translate(context, 'passport.nfc.reading_passport_data'),
+        PassportReaderReadingSOD() => FlutterI18n.translate(context, 'passport.nfc.reading_passport_data'),
+        PassportReaderActiveAuthentication() =>
+          FlutterI18n.translate(context, 'passport.nfc.performing_security_verification'),
+        PassportReaderSuccess() => FlutterI18n.translate(context, 'passport.nfc.success_explanation'),
+        _ => '',
+      };
+
+      return '$progress\n$message';
+    };
   }
 }
 
@@ -424,7 +436,7 @@ Future _showLogsDialog(BuildContext context, String logs) async {
                 primaryButtonLabel: 'error.button_send_to_irma',
                 secondaryButtonLabel: 'error.button_ok',
                 onPrimaryPressed: () async {
-                  reportError(logs, StackTrace.current, userInitiated: true);
+                  reportError(Exception(logs), StackTrace.current, userInitiated: true);
                   if (context.mounted) {
                     context.pop();
                   }
