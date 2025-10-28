@@ -3,16 +3,15 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/src/data/passport_issuer.dart';
-import 'package:irmamobile/src/data/passport_reader.dart';
-import 'package:irmamobile/src/models/passport_data_result.dart';
-import 'package:irmamobile/src/providers/passport_repository_provider.dart';
+import 'package:irmamobile/src/providers/passport_issuer_provider.dart';
+import 'package:irmamobile/src/providers/passport_reader_provider.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/passport/mrz_reader_screen.dart';
 import 'package:irmamobile/src/screens/passport/nfc_reading_screen.dart';
 import 'package:irmamobile/src/screens/passport/widgets/mzr_scanner.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:vcmrtd/vcmrtd.dart';
 
 import 'helpers/passport_helpers.dart';
 import 'irma_binding.dart';
@@ -46,10 +45,9 @@ void main() {
         statesDuringRead: [
           PassportReaderConnecting(),
           PassportReaderReadingCardAccess(),
-          PassportReaderReadingCardSecurity(),
-          PassportReaderReadingPassportData(dataGroup: 'DG1', progress: 0.0),
-          PassportReaderSecurityVerification(),
-          PassportReaderSuccess(result: PassportDataResult(dataGroups: {}, efSod: '')),
+          PassportReaderReadingDataGroup(dataGroup: 'DG1', progress: 0.0),
+          PassportReaderActiveAuthentication(),
+          PassportReaderSuccess(),
         ],
       );
       final fakeIssuer = FakePassportIssuer();
@@ -158,17 +156,15 @@ void main() {
     });
 
     testWidgets('manual entry continues to NFC flow when NFC is enabled', (tester) async {
-      final fakeResult = PassportDataResult(dataGroups: const {}, efSod: '');
       final readCompleter = Completer();
       final fakeReader = FakePassportReader(
         readDelayCompleter: readCompleter,
         statesDuringRead: [
           PassportReaderConnecting(),
           PassportReaderReadingCardAccess(),
-          PassportReaderReadingCardSecurity(),
-          PassportReaderReadingPassportData(dataGroup: 'DG1', progress: 0.0),
-          PassportReaderSecurityVerification(),
-          PassportReaderSuccess(result: fakeResult),
+          PassportReaderReadingDataGroup(dataGroup: 'DG1', progress: 0.0),
+          PassportReaderActiveAuthentication(),
+          PassportReaderSuccess(),
         ],
       );
       final fakeIssuer = FakePassportIssuer();

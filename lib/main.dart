@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logging/logging.dart';
 
 import 'app.dart';
 import 'src/data/irma_preferences.dart';
@@ -18,11 +17,6 @@ import 'src/util/security_context_binding.dart';
 import 'src/widgets/preferred_language_builder.dart';
 
 Future<void> main() async {
-  Logger.root.level = Level.ALL;
-  Logger.root.onRecord.listen((record) {
-    debugPrint('${record.loggerName} ${record.level.name}: ${record.time}: ${record.message}');
-  });
-
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(details.exception, details.stack ?? StackTrace.empty);
   };

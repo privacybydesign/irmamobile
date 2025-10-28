@@ -1,14 +1,10 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/data/passport_issuer.dart';
-import 'package:irmamobile/src/data/passport_reader.dart';
-import 'package:irmamobile/src/models/passport_data_result.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/providers/passport_repository_provider.dart';
+import 'package:irmamobile/src/providers/passport_issuer_provider.dart';
+import 'package:irmamobile/src/providers/passport_reader_provider.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/util/navigation.dart';
@@ -90,10 +86,15 @@ class FakePassportIssuer implements PassportIssuer {
   }
 
   @override
-  Future<SessionPointer> startIrmaIssuanceSession(PassportDataResult passportDataResult) async {
+  Future<IrmaSessionPointer> startIrmaIssuanceSession(PassportDataResult passportDataResult) async {
     final attributes = createMunicipalityPersonalDataAttributes(const Locale('en'));
     final session = await createIssuanceSession(attributes: attributes);
-    return session;
+    return IrmaSessionPointer(u: session.u, irmaqr: session.irmaqr);
+  }
+
+  @override
+  Future<VerificationResponse> verifyPassport(PassportDataResult passportDataResult) {
+    throw UnimplementedError();
   }
 }
 
@@ -130,14 +131,13 @@ class FakePassportReader extends PassportReader {
   String? lastCountryCode;
 
   @override
-  Future<PassportDataResult?> readWithMRZ({
-    required IosNfcMessages iosNfcMessages,
+  Future<(PassportDataResult, MrtdData)?> readWithMRZ({
     required String documentNumber,
     required DateTime birthDate,
     required DateTime expiryDate,
     required String? countryCode,
-    required String sessionId,
-    required Uint8List nonce,
+    required IosNfcMessageMapper iosNfcMessages,
+    NonceAndSessionId? activeAuthenticationParams,
   }) async {
     readCalled = true;
     readCallCount += 1;
@@ -159,8 +159,8 @@ class FakePassportReader extends PassportReader {
       await readDelayCompleter!.future;
     }
 
-    if (state case PassportReaderSuccess(result: final result)) {
-      return result;
+    if (state case PassportReaderSuccess()) {
+      return (PassportDataResult(dataGroups: {}, efSod: ''), MrtdData());
     }
 
     return null;
