@@ -30,7 +30,7 @@ import '../models/session.dart';
 import '../models/session_events.dart';
 import '../models/session_state.dart';
 import '../models/version_information.dart';
-import '../providers/passport_repository_provider.dart';
+import '../providers/passport_issuer_provider.dart';
 import '../sentry/sentry.dart';
 import '../util/navigation.dart';
 import 'irma_bridge.dart';
