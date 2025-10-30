@@ -12,6 +12,19 @@ Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <Strin
       'previouslyLaunchedCredentials': instance.previouslyLaunchedCredentials.toList(),
     };
 
+RespondAuthorizationCodeEvent _$RespondAuthorizationCodeEventFromJson(Map<String, dynamic> json) =>
+    RespondAuthorizationCodeEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      proceed: json['Proceed'] as bool,
+      authorizationCode: json['AuthorizationCode'] as String,
+    );
+
+Map<String, dynamic> _$RespondAuthorizationCodeEventToJson(RespondAuthorizationCodeEvent instance) => <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'Proceed': instance.proceed,
+      'AuthorizationCode': instance.authorizationCode,
+    };
+
 RespondPermissionEvent _$RespondPermissionEventFromJson(Map<String, dynamic> json) => RespondPermissionEvent(
       sessionID: (json['SessionID'] as num).toInt(),
       proceed: json['Proceed'] as bool,
@@ -125,6 +138,17 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
       'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
       'DisclosuresCandidates': instance.disclosuresCandidates,
     };
+
+RequestAuthorizationCodeEvent _$RequestAuthorizationCodeEventFromJson(Map<String, dynamic> json) =>
+    RequestAuthorizationCodeEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      authorizationServer: json['AuthorizationServer'] as String,
+      credentialInfoList: (json['CredentialInfoList'] as List<dynamic>)
+          .map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      serverName:
+          json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+    );
 
 RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSessionEventFromJson(
         Map<String, dynamic> json) =>

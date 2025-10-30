@@ -32,6 +32,12 @@ type newSessionEvent struct {
 	Request   json.RawMessage
 }
 
+type respondAuthorizationCodeEvent struct {
+	SessionID         int
+	Proceed           bool
+	AuthorizationCode string
+}
+
 type respondPermissionEvent struct {
 	SessionID         int
 	Proceed           bool
@@ -187,6 +193,13 @@ type requestIssuancePermissionSessionEvent struct {
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
 	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
+}
+
+type requestAuthorizationCodeEvent struct {
+	SessionID           int
+	ServerName          *irma.RequestorInfo
+	AuthorizationServer string
+	CredentialInfoList  []*irma.CredentialTypeInfo
 }
 
 type requestVerificationPermissionSessionEvent struct {
