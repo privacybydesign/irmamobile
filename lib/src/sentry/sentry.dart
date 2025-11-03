@@ -48,7 +48,9 @@ Future<void> reportFeedback(String message, {bool userInitiated = false}) async 
       Sentry.captureMessage(message);
     }
   }
-  debugPrint('report feedback: $message');
+  if (kDebugMode) {
+    debugPrint('report feedback: $message');
+  }
 }
 
 /// Reports a the error to Sentry if the user gave permission
