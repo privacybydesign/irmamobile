@@ -80,8 +80,10 @@ class IrmaClientBridge extends IrmaBridge {
   }
 
   Future<void> _handleMethodCall(MethodCall call) async {
-    if (call.method == 'GoLog' && kDebugMode) {
-      debugPrint('[GO]: ${call.arguments}');
+    if (call.method == 'GoLog') {
+      if (kDebugMode) {
+        debugPrint('[GO]: ${call.arguments}');
+      }
       return;
     }
     try {
