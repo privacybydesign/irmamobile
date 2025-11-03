@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -112,7 +113,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
         SessionPointer(u: sessionPtr.u, irmaqr: sessionPtr.irmaqr, continueOnSecondDevice: true),
       );
     } catch (e) {
-      debugPrint('issuance error: $e');
+      if (kDebugMode) {
+        debugPrint('issuance error: $e');
+      }
     }
   }
 
