@@ -754,7 +754,7 @@ packages:
       path: "."
       ref: master
       resolved-ref: b6b9736a55433eb75883a4e8597a8e5b0662d4fe
-      url: "https://github.com/DibranMulder/mrz_parser.git"
+      url: "https://github.com/privacybydesign/mrz_parser"
     source: git
     version: "2.0.1"
   native_device_orientation:
