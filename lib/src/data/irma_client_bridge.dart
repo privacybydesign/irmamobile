@@ -81,7 +81,9 @@ class IrmaClientBridge extends IrmaBridge {
 
   Future<void> _handleMethodCall(MethodCall call) async {
     if (call.method == 'GoLog') {
-      debugPrint('[GO]: ${call.arguments}');
+      if (kDebugMode) {
+        debugPrint('[GO]: ${call.arguments}');
+      }
       return;
     }
     try {
@@ -98,9 +100,13 @@ class IrmaClientBridge extends IrmaBridge {
         // the irma config event has so much data in its payload it bloats all logs,
         // therefore we explicitly don't print the payload
         if (call.method == 'IrmaConfigurationEvent') {
-          debugPrint('Received bridge event: ${call.method} -- payload omitted');
+          if (kDebugMode) {
+            debugPrint('Received bridge event: ${call.method} -- payload omitted');
+          }
         } else {
-          debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
+          if (kDebugMode) {
+            debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
+          }
         }
       }
 
@@ -116,7 +122,7 @@ class IrmaClientBridge extends IrmaBridge {
   @override
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
-    if (debugLogging) {
+    if (debugLogging && kDebugMode) {
       debugPrint('Sending ${event.runtimeType.toString()} to bridge: $encodedEvent');
     }
 

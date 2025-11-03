@@ -751,10 +751,11 @@ packages:
   mrz_parser:
     dependency: "direct main"
     description:
-      name: mrz_parser
-      sha256: a7efa848a7d91c538a1c364dc63864d4cb60556037c32218d846aea473e971a7
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: master
+      resolved-ref: b6b9736a55433eb75883a4e8597a8e5b0662d4fe
+      url: "https://github.com/privacybydesign/mrz_parser"
+    source: git
     version: "2.0.1"
   native_device_orientation:
     dependency: "direct main"
@@ -1391,8 +1392,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.2.0"
-      resolved-ref: f122e98d4a38f38312d3375abc3ecea9c3abd282
+      ref: "v0.2.2"
+      resolved-ref: bf708ac58733233f3f58db20e298fde4e4d8ab49
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"
