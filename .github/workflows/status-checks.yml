@@ -239,9 +239,9 @@ jobs:
         run: |
           gcloud firebase test ios run \
             --test ${{ matrix.file_name }} \
-            --timeout 7m \
-            --device=model=iphone13pro,orientation=portrait \
-            --device=model=iphone13pro,orientation=landscape
+            --timeout 10m \
+            --device=model=iphone15,orientation=portrait,version=18.0 \
+            --device=model=iphone15,orientation=landscape,version=18.0
   # this summary is needed to report a final result for the ios test matrix
   # this job is added to the branch protection rules, so the matrix has to fully pass before merge
   integration-test-ios-summary:
