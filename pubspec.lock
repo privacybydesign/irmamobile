@@ -1391,8 +1391,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.2.1"
-      resolved-ref: d48001e4a781bc507c7838125a1971e21587e49d
+      ref: "v0.2.2"
+      resolved-ref: bf708ac58733233f3f58db20e298fde4e4d8ab49
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"
