@@ -380,7 +380,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       PassportReaderReadingDataGroup() => 'passport.nfc.reading_passport_data',
       PassportReaderReadingSOD() => 'passport.nfc.reading_passport_data',
       PassportReaderActiveAuthentication() => 'passport.nfc.performing_security_verification',
-      PassportReaderSuccess() => 'passport.nfc.success_explanation',
+      PassportReaderSuccess() => 'passport.nfc.success',
       _ => '',
     };
   }
