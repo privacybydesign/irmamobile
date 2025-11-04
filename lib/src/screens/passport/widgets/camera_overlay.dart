@@ -18,6 +18,8 @@ class MRZCameraOverlay extends StatelessWidget {
     return LayoutBuilder(
       builder: (_, c) {
         final overlayRect = _calculateOverlaySize(Size(c.maxWidth, c.maxHeight));
+        final numChars = maxLtApprox(overlayRect.width, theme.mrzLabel);
+        final guidelines = '<' * numChars;
         return Stack(
           children: [
             child,
@@ -34,20 +36,23 @@ class MRZCameraOverlay extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: EdgeInsets.only(bottom: c.maxHeight - overlayRect.bottom + 20), // 20px above the bottom
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                      style: theme.mrzLabel,
-                    ),
-                    SizedBox(height: theme.tinySpacing),
-                    Text(
-                      '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
-                      style: theme.mrzLabel,
-                    ),
-                  ],
+                child: SizedBox(
+                  width: overlayRect.width - theme.defaultSpacing,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        guidelines,
+                        style: theme.mrzLabel,
+                      ),
+                      SizedBox(height: theme.tinySpacing),
+                      Text(
+                        guidelines,
+                        style: theme.mrzLabel,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -96,6 +101,7 @@ class _WhiteOverlay extends StatelessWidget {
   const _WhiteOverlay({
     required this.rect,
   });
+
   final RRect rect;
 
   @override
@@ -113,4 +119,20 @@ class _WhiteOverlay extends StatelessWidget {
       ),
     );
   }
+}
+
+double textWidth(String s, TextStyle style) {
+  final tp = TextPainter(
+    text: TextSpan(text: s, style: style),
+    textDirection: TextDirection.ltr,
+    maxLines: 1,
+  )..layout(); // no maxWidth => measures intrinsic width
+  return tp.size.width;
+}
+
+int maxLtApprox(double maxWidth, TextStyle style, {double padding = 0}) {
+  final available = (maxWidth - padding).clamp(0, double.infinity);
+  final one = textWidth('<', style);
+  if (one == 0) return 0;
+  return (available / one).floor();
 }
