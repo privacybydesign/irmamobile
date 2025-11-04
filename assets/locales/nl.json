@@ -650,10 +650,10 @@
   },
   "passport": {
     "scan": {
-      "title": "Scan paspoort",
+      "title": "Paspoort scannen",
       "success": "Succes",
       "success_explanation": "Het paspoort is succesvol gescand.",
-      "manual": "Handmatig invoeren",
+      "manual": "Voer handmatig in",
       "error": "Kon paspoort niet lezen.\nProbeer het opnieuw."
     },
     "manual": {

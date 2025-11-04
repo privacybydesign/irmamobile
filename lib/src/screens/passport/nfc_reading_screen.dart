@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -299,68 +300,88 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
   _UiState passportReadingStateToUiState(PassportReaderState state) {
     final progress = progressForState(state);
+    final stateKey = _getTranslationKeyForState(state);
+
     return switch (state) {
       PassportReaderPending() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.connecting',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.hold_near_photo_page',
         ),
       PassportReaderConnecting() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.connecting',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.tip_2',
         ),
       PassportReaderAuthenticating() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.connecting',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.tip_2',
         ),
       PassportReaderReadingCOM() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.reading_passport_data',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.tip_3',
         ),
       PassportReaderReadingCardAccess() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.reading_card_security',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.tip_3',
         ),
       PassportReaderReadingDataGroup() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.reading_passport_data',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.tip_1',
         ),
       PassportReaderReadingSOD() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.reading_passport_data',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.tip_2',
         ),
       PassportReaderActiveAuthentication() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.performing_security_verification',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.tip_1',
         ),
       PassportReaderSuccess() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.success',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.success_explanation',
         ),
       PassportReaderFailed(:final error) => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.error',
+          stateKey: stateKey,
           tipKey: _readingErrorToHintKey(error),
         ),
       PassportReaderCancelling() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.cancelled',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.cancelled_by_user',
         ),
       PassportReaderCancelled() => _UiState(
           progress: progress,
-          stateKey: 'passport.nfc.cancelled',
+          stateKey: stateKey,
           tipKey: 'passport.nfc.cancelled_by_user',
         ),
       _ => throw Exception('unexpected state: $state'),
+    };
+  }
+
+  String _getTranslationKeyForState(PassportReaderState state) {
+    return switch (state) {
+      PassportReaderPending() => 'passport.nfc.hold_near_photo_page',
+      PassportReaderCancelled() => 'passport.nfc.cancelled',
+      PassportReaderCancelling() => 'passport.nfc.cancelling',
+      PassportReaderFailed() => 'passport.nfc.error',
+      PassportReaderConnecting() => 'passport.nfc.connecting',
+      PassportReaderReadingCardAccess() => 'passport.nfc.reading_card_security',
+      PassportReaderReadingCOM() => 'passport.nfc.reading_passport_data',
+      PassportReaderAuthenticating() => 'passport.nfc.authenticating',
+      PassportReaderReadingDataGroup() => 'passport.nfc.reading_passport_data',
+      PassportReaderReadingSOD() => 'passport.nfc.reading_passport_data',
+      PassportReaderActiveAuthentication() => 'passport.nfc.performing_security_verification',
+      PassportReaderSuccess() => 'passport.nfc.success_explanation',
+      _ => '',
     };
   }
 
@@ -371,29 +392,31 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       return '🟢' * prog + '⚪️' * (numStages - prog);
     }
 
+    final ios16OrHigher = _isiOS26OrHigher();
+
     return (state) {
       final progress = progressFormatter(progressForState(state));
 
-      final message = switch (state) {
-        PassportReaderPending() => FlutterI18n.translate(context, 'passport.nfc.hold_near_photo_page'),
-        PassportReaderCancelled() => FlutterI18n.translate(context, 'passport.nfc.cancelled'),
-        PassportReaderCancelling() => FlutterI18n.translate(context, 'passport.nfc.cancelling'),
-        PassportReaderFailed() => FlutterI18n.translate(context, 'passport.nfc.error'),
-        PassportReaderConnecting() => FlutterI18n.translate(context, 'passport.nfc.connecting'),
-        PassportReaderReadingCardAccess() => FlutterI18n.translate(context, 'passport.nfc.reading_card_security'),
-        PassportReaderReadingCOM() => FlutterI18n.translate(context, 'passport.nfc.reading_passport_data'),
-        PassportReaderAuthenticating() => FlutterI18n.translate(context, 'passport.nfc.authenticating'),
-        PassportReaderReadingDataGroup() => FlutterI18n.translate(context, 'passport.nfc.reading_passport_data'),
-        PassportReaderReadingSOD() => FlutterI18n.translate(context, 'passport.nfc.reading_passport_data'),
-        PassportReaderActiveAuthentication() =>
-          FlutterI18n.translate(context, 'passport.nfc.performing_security_verification'),
-        PassportReaderSuccess() => FlutterI18n.translate(context, 'passport.nfc.success_explanation'),
-        _ => '',
-      };
+      // on iOS 26 only one line is shown, so we'll use that for progress
+      if (ios16OrHigher) {
+        return progress;
+      }
 
+      // on lower iOS versions a second line can be shown, so we'll use that for showing a message
+      final message = FlutterI18n.translate(context, _getTranslationKeyForState(state));
       return '$progress\n$message';
     };
   }
+}
+
+bool _isiOS26OrHigher() {
+  if (!Platform.isIOS) return false;
+
+  final match = RegExp(r'iOS (\d+)(?:\.(\d+))?').firstMatch(Platform.operatingSystemVersion);
+  if (match == null) return false;
+
+  final major = int.tryParse(match.group(1) ?? '0') ?? 0;
+  return major >= 26; // replace with 26 or whichever major version you want
 }
 
 Future _showLogsDialog(BuildContext context, String logs) async {
