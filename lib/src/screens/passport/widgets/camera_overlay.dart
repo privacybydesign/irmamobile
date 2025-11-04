@@ -18,7 +18,7 @@ class MRZCameraOverlay extends StatelessWidget {
     return LayoutBuilder(
       builder: (_, c) {
         final overlayRect = _calculateOverlaySize(Size(c.maxWidth, c.maxHeight));
-        final numChars = maxLtApprox(overlayRect.width, theme.mrzLabel);
+        final numChars = maxLtApprox(overlayRect.width - theme.tinySpacing, theme.mrzLabel);
         final guidelines = '<' * numChars;
         return Stack(
           children: [
@@ -36,23 +36,20 @@ class MRZCameraOverlay extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: EdgeInsets.only(bottom: c.maxHeight - overlayRect.bottom + 20), // 20px above the bottom
-                child: SizedBox(
-                  width: overlayRect.width - theme.defaultSpacing,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        guidelines,
-                        style: theme.mrzLabel,
-                      ),
-                      SizedBox(height: theme.tinySpacing),
-                      Text(
-                        guidelines,
-                        style: theme.mrzLabel,
-                      ),
-                    ],
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      guidelines,
+                      style: theme.mrzLabel,
+                    ),
+                    SizedBox(height: theme.tinySpacing),
+                    Text(
+                      guidelines,
+                      style: theme.mrzLabel,
+                    ),
+                  ],
                 ),
               ),
             )
