@@ -15,11 +15,13 @@ class MRZCameraView extends StatefulWidget {
     required this.onImage,
     this.initialDirection = CameraLensDirection.back,
     required this.showOverlay,
+    required this.showOverlaySuccess,
   });
 
   final Future<bool> Function(InputImage inputImage) onImage;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
+  final bool showOverlaySuccess;
 
   @override
   MRZCameraViewState createState() => MRZCameraViewState();
@@ -115,7 +117,9 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.showOverlay ? MRZCameraOverlay(child: _liveFeedBody()) : _liveFeedBody(),
+      body: widget.showOverlay
+          ? MRZCameraOverlay(success: widget.showOverlaySuccess, child: _liveFeedBody())
+          : _liveFeedBody(),
     );
   }
 
@@ -218,7 +222,7 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
     if (inputImage == null) return;
     widget.onImage(inputImage).then((success) {
       if (success) {
-        _stopLiveFeed();
+        Future.delayed(const Duration(seconds: 1), _stopLiveFeed);
       }
     });
   }

@@ -16,6 +16,7 @@ class MRZScanner extends StatefulWidget {
   final Function(MRZResult mrzResult, List<String> lines) onSuccess;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
+
   @override
   // ignore: library_private_types_in_public_api
   MRZScannerState createState() => MRZScannerState();
@@ -26,6 +27,7 @@ class MRZScannerState extends State<MRZScanner> {
   bool _canProcess = true;
   bool _isBusy = false;
   List result = [];
+  bool success = false;
 
   @override
   void dispose() async {
@@ -38,6 +40,7 @@ class MRZScannerState extends State<MRZScanner> {
   Widget build(BuildContext context) {
     return MRZCameraView(
       showOverlay: widget.showOverlay,
+      showOverlaySuccess: success,
       initialDirection: widget.initialDirection,
       onImage: _processImage,
     );
@@ -48,7 +51,21 @@ class MRZScannerState extends State<MRZScanner> {
       final data = MRZParser.parse(lines);
       _isBusy = true;
 
-      widget.onSuccess(data, lines);
+      if (!success) {
+        setState(() {
+          success = true;
+        });
+
+        // call onSuccess after a second of showing the success state...
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            setState(() {
+              success = false;
+            });
+          }
+          widget.onSuccess(data, lines);
+        });
+      }
       return true;
     } catch (e) {
       _isBusy = false;
