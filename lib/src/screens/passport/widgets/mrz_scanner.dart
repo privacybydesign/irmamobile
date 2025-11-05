@@ -48,7 +48,6 @@ class MRZScannerState extends State<MRZScanner> {
 
   bool _parseScannedText(List<String> lines) {
     try {
-      debugPrint('parse');
       final data = MRZParser.parse(lines);
       _isBusy = true;
 
