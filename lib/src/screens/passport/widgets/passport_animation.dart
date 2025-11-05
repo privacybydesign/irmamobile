@@ -4,20 +4,41 @@ import 'package:lottie/lottie.dart';
 import '../../../util/test_detection.dart';
 
 class PassportNfcScanningAnimation extends StatelessWidget {
-  const PassportNfcScanningAnimation({super.key});
+  const PassportNfcScanningAnimation({
+    super.key,
+    this.forwardDuration = const Duration(seconds: 3),
+    this.holdDuration = const Duration(seconds: 2),
+    this.reverseDuration = const Duration(milliseconds: 1500),
+  });
+
+  final Duration forwardDuration;
+  final Duration holdDuration;
+  final Duration reverseDuration;
 
   @override
   Widget build(BuildContext context) {
     final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
-    return TickerMode(enabled: !isIntegrationTest, child: _PassportNfcScanningAnimation());
+    return TickerMode(
+      enabled: !isIntegrationTest,
+      child: _PassportNfcScanningAnimation(
+        forwardDuration: forwardDuration,
+        holdDuration: holdDuration,
+        reverseDuration: reverseDuration,
+      ),
+    );
   }
 }
 
 class _PassportNfcScanningAnimation extends StatefulWidget {
-  const _PassportNfcScanningAnimation();
+  const _PassportNfcScanningAnimation({
+    required this.forwardDuration,
+    required this.holdDuration,
+    required this.reverseDuration,
+  });
 
-  final forwardDuration = const Duration(seconds: 7);
-  final holdDuration = const Duration(seconds: 1);
+  final Duration forwardDuration;
+  final Duration holdDuration;
+  final Duration reverseDuration;
 
   @override
   State<_PassportNfcScanningAnimation> createState() => _PassportNfcScanningAnimationState();
@@ -48,18 +69,26 @@ class _PassportNfcScanningAnimationState extends State<_PassportNfcScanningAnima
       }
       _controller.value = 0;
       _controller.duration = widget.forwardDuration;
-      await _controller.animateTo(7 / 8);
+      await _controller.forward();
+
+      await Future.delayed(widget.holdDuration);
+
+      if (!_continue) {
+        return;
+      }
+      _controller.duration = widget.reverseDuration;
+      await _controller.reverse();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-      offset: const Offset(0, 0),
+      offset: const Offset(0, -20),
       child: Lottie.asset(
         'assets/passport/nfc.json',
-        alignment: Alignment(0, 0.5),
         controller: _controller,
+        alignment: Alignment(0, 0.5),
         frameBuilder: (context, child, composition) {
           if (composition == null) {
             return Center(

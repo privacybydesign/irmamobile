@@ -11,7 +11,7 @@ import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/passport/mrz_reader_screen.dart';
 import 'package:irmamobile/src/screens/passport/nfc_reading_screen.dart';
-import 'package:irmamobile/src/screens/passport/widgets/mzr_scanner.dart';
+import 'package:irmamobile/src/screens/passport/widgets/mrz_scanner.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';

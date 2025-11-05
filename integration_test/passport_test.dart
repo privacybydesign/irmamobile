@@ -9,7 +9,7 @@ import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/passport/mrz_reader_screen.dart';
 import 'package:irmamobile/src/screens/passport/nfc_reading_screen.dart';
-import 'package:irmamobile/src/screens/passport/widgets/mzr_scanner.dart';
+import 'package:irmamobile/src/screens/passport/widgets/mrz_scanner.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:vcmrtd/vcmrtd.dart';
 

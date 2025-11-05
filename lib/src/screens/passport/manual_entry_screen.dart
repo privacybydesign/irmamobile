@@ -6,7 +6,7 @@ import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/translated_text.dart';
 import 'widgets/date_input_field.dart';
 import 'widgets/document_nr_input_field.dart';
-import 'widgets/mzr_scanner.dart';
+import 'widgets/mrz_scanner.dart';
 
 typedef MRZController = GlobalKey<MRZScannerState>;
 

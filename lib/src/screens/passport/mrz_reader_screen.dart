@@ -6,7 +6,7 @@ import 'package:mrz_parser/mrz_parser.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
-import 'widgets/mzr_scanner.dart';
+import 'widgets/mrz_scanner.dart';
 
 typedef MRZController = GlobalKey<MRZScannerState>;
 
