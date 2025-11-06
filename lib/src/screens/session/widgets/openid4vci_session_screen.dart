@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,6 +31,7 @@ class OpenID4VciSessionScreen extends ConsumerStatefulWidget {
 
 class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScreen> {
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier(false);
+  final FlutterAppAuth _appAuth = const FlutterAppAuth();
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +83,19 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
     }
     final theme = IrmaTheme.of(context);
 
+    Iterable<Padding> credentialDetails = [];
+    if (state.credentialInfoList != null) {
+      credentialDetails = state.credentialInfoList!.map(
+        (cred) => Padding(
+          padding: EdgeInsets.only(bottom: theme.smallSpacing),
+          child: SizedBox(
+            width: double.infinity,
+            child: CredentialTypeInfoCard(info: cred),
+          ),
+        ),
+      );
+    }
+
     return SessionScaffold(
       appBarTitle: 'issuance.title',
       body: SingleChildScrollView(
@@ -99,15 +114,7 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
                   ),
                 ),
               ),
-              ...state.credentialInfoList!.map(
-                (cred) => Padding(
-                  padding: EdgeInsets.only(bottom: theme.smallSpacing),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: CredentialTypeInfoCard(info: cred),
-                  ),
-                ),
-              )
+              ...credentialDetails,
             ],
           ),
         ),
@@ -115,29 +122,56 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
       onDismiss: _dismissSession,
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'issuance.add'),
-        onPrimaryPressed: () => _startAuthorizationCodeFlow(state),
+        onPrimaryPressed: () => _signInWithAutoCodeExchange(state),
         secondaryButtonLabel: FlutterI18n.translate(context, 'issuance.cancel'),
         onSecondaryPressed: _dismissSession,
       ),
     );
   }
 
-  void _startAuthorizationCodeFlow(OpenID4VciSessionState state) {
-    final uri = Uri.parse(state.authorizationServer!);
-    final request = Uri(
-      host: uri.host,
-      scheme: uri.scheme,
-      queryParameters: {
-        'state': state.sessionID.toString(),
-        'response_type': 'code',
-        'redirect_uri': 'https://open.yivi.app/-/cb'
+  Future<void> _signInWithAutoCodeExchange(OpenID4VciSessionState state) async {
+    final request = AuthorizationTokenRequest(
+      // TODO: the client_id should be provided by the Wallet Attestation using Attestation Based Client Auth: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#I-D.ietf-oauth-attestation-based-client-auth
+      // For now, we hard-code a clientId we can use
+      //state.authorizationRequestParameters!.clientId,
+      // Entra: '65d1d280-0f23-4763-bf41-ea4c17cde792'
+      'FiEH7ZmdnrDphzAjvdk9scynlm0A1XV9',
+
+      'yivi-app://callback',
+      discoveryUrl: state.authorizationRequestParameters!.issuerDiscoveryUrl,
+      scopes: state.authorizationRequestParameters!.scopes,
+      additionalParameters: {
+        'issuer_state': state.authorizationRequestParameters!.issuerState!,
+        'resource': state.authorizationRequestParameters!.resource,
       },
     );
 
-    ref.read(irmaRepositoryProvider).openURLExternally(request.toString());
+    // TODO: handle errors with try/catch
+    final AuthorizationTokenResponse result = await _appAuth.authorizeAndExchangeCode(request);
+
+    // Handle the result (e.g., store tokens, proceed with issuance, etc.)
+    ref.read(irmaRepositoryProvider).bridgedDispatch(RespondAuthorizationCodeAndExchangeForTokenEvent(
+        sessionID: state.sessionID,
+        proceed: true,
+        accessToken: result.accessToken!,
+        refreshToken: result.refreshToken));
+
+    // final uri = Uri.parse(state.authorizationServer!);
+    // final request = Uri(
+    //   host: uri.host,
+    //   scheme: uri.scheme,
+    //   queryParameters: {
+    //     'state': state.sessionID.toString(),
+    //     'response_type': 'code',
+    //     'redirect_uri': 'https://open.yivi.app/-/callback'
+    //   },
+    // );
+
+    // ref.read(irmaRepositoryProvider).openURLExternally(request.toString());
   }
 
   void _dismissSession() {
+    // TODO: call appAuth.endSession(request) ?
     ref.read(irmaRepositoryProvider).bridgedDispatch(DismissSessionEvent(sessionID: widget.params.sessionID));
   }
 }

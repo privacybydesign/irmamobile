@@ -65,6 +65,7 @@ dependencies:
   native_device_orientation:
     git:
       url: https://github.com/privacybydesign/flutter_native_device_orientation
+  flutter_appauth: ^11.0.0
 
 dev_dependencies:
   flutter_test:

@@ -65,6 +65,11 @@ class IrmaClientBridge extends IrmaBridge {
 
     ErrorEvent: (j) => ErrorEvent.fromJson(j),
 
+    RequestAuthorizationCodeAndExchangeForTokenEvent: (j) =>
+        RequestAuthorizationCodeAndExchangeForTokenEvent.fromJson(j),
+
+    RequestOpenId4VciIssuancePermissionSessionEvent: (j) => RequestOpenId4VciIssuancePermissionSessionEvent.fromJson(j),
+
     // FooBar: (j) => FooBar.fromJson(j),
   };
 

@@ -175,18 +175,13 @@ class IrmaRepository {
     } else if (event is EnrollmentEvent) {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
-      // this is a callback for openid4vci sessions
-      if (event.url.startsWith('https://open.yivi.app/-/cb')) {
-        _sessionRepository.handleOpenID4VciAuthCodeCallback(event.url);
-      } else {
-        try {
-          final pointer = Pointer.fromString(event.url);
-          _pendingPointerSubject.add(pointer);
-          _resumedWithURLSubject.add(true);
-          closeInAppWebView();
-        } on MissingPointer catch (e, stackTrace) {
-          reportError(e, stackTrace);
-        }
+      try {
+        final pointer = Pointer.fromString(event.url);
+        _pendingPointerSubject.add(pointer);
+        _resumedWithURLSubject.add(true);
+        closeInAppWebView();
+      } on MissingPointer catch (e, stackTrace) {
+        reportError(e, stackTrace);
       }
     } else if (event is NewSessionEvent) {
       _pendingPointerSubject.add(null);

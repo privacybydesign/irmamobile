@@ -112,18 +112,18 @@ func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
 	return nil
 }
 
-func (ah *eventHandler) respondAuthorizationCode(event *respondAuthorizationCodeEvent) error {
+func (ah *eventHandler) respondAuthorizationCodeAndExchangeForToken(event *respondAuthorizationCodeAndExchangeForTokenEvent) error {
 	sh, err := ah.findSessionHandler(event.SessionID)
 	if err != nil {
 		return err
 	}
-	if sh.authorizationCodeHandler == nil {
+	if sh.accessTokenHandler == nil {
 		return errors.Errorf("Unset authorizationCodeHandler in RespondAuthorizationCode")
 	}
 
 	go func() {
 		defer recoverFromPanic("Handling ResponseAuthorizationCode event panicked")
-		sh.authorizationCodeHandler(event.Proceed, event.AuthorizationCode)
+		sh.accessTokenHandler(event.Proceed, event.AccessToken, event.RefreshToken)
 	}()
 
 	return nil

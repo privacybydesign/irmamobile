@@ -6,11 +6,11 @@ import (
 )
 
 type sessionHandler struct {
-	sessionID                int
-	dismisser                irmaclient.SessionDismisser
-	permissionHandler        irmaclient.PermissionHandler
-	authorizationCodeHandler irmaclient.AuthorizationCodeHandler
-	pinHandler               irmaclient.PinHandler
+	sessionID          int
+	dismisser          irmaclient.SessionDismisser
+	permissionHandler  irmaclient.PermissionHandler
+	accessTokenHandler irmaclient.TokenHandler
+	pinHandler         irmaclient.PinHandler
 }
 
 // SessionHandler implements irmaclient.Handler
@@ -103,17 +103,29 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	})
 }
 
-func (sh *sessionHandler) RequestAuthorizationCode(
-	request *irma.AuthorizationCodeIssuanceRequest,
+func (sh *sessionHandler) RequestOpenId4VciIssuancePermission(
+	request *irma.OpenId4VciIssuanceRequest,
 	requestorInfo *irma.RequestorInfo,
-	ph irmaclient.AuthorizationCodeHandler,
+	callback irmaclient.PermissionHandler,
 ) {
-	action := requestAuthorizationCodeEvent{
-		SessionID:           sh.sessionID,
-		AuthorizationServer: request.AuthorizationServer,
-		CredentialInfoList:  request.CredentialInfoList,
+	action := &requestOpenId4VciIssuancePermissionSessionEvent{
+		SessionID:                      sh.sessionID,
+		ServerName:                     requestorInfo,
+		CredentialInfoList:             request.CredentialInfoList,
+		AuthorizationRequestParameters: request.AuthorizationRequestParameters,
 	}
-	sh.authorizationCodeHandler = ph
+	sh.permissionHandler = callback
+	dispatchEvent(action)
+}
+
+func (sh *sessionHandler) RequestAuthorizationCodeAndExchangeForToken(
+	request *irma.AuthorizationCodeAndTokenExchangeRequest,
+	handler irmaclient.TokenHandler,
+) {
+	action := &requestAuthorizationCodeAndExchangeForTokenEvent{
+		SessionID: sh.sessionID,
+	}
+	sh.accessTokenHandler = handler
 	dispatchEvent(action)
 }
 

@@ -32,10 +32,11 @@ type newSessionEvent struct {
 	Request   json.RawMessage
 }
 
-type respondAuthorizationCodeEvent struct {
-	SessionID         int
-	Proceed           bool
-	AuthorizationCode string
+type respondAuthorizationCodeAndExchangeForTokenEvent struct {
+	SessionID    int
+	Proceed      bool
+	AccessToken  string
+	RefreshToken *string
 }
 
 type respondPermissionEvent struct {
@@ -195,11 +196,15 @@ type requestIssuancePermissionSessionEvent struct {
 	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
 }
 
-type requestAuthorizationCodeEvent struct {
-	SessionID           int
-	ServerName          *irma.RequestorInfo
-	AuthorizationServer string
-	CredentialInfoList  []*irma.CredentialTypeInfo
+type requestOpenId4VciIssuancePermissionSessionEvent struct {
+	SessionID                      int
+	ServerName                     *irma.RequestorInfo
+	CredentialInfoList             irma.CredentialTypeInfoList
+	AuthorizationRequestParameters irma.AuthorizationRequestParameters
+}
+
+type requestAuthorizationCodeAndExchangeForTokenEvent struct {
+	SessionID int
 }
 
 type requestVerificationPermissionSessionEvent struct {

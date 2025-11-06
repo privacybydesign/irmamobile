@@ -4,7 +4,6 @@ import 'package:rxdart/rxdart.dart';
 
 import '../models/attribute.dart';
 import '../models/credentials.dart';
-import '../models/log_entry.dart';
 import '../models/protocol.dart';
 import '../models/return_url.dart';
 import '../models/session.dart';
@@ -76,40 +75,22 @@ class SessionRepository {
   }
 
   OpenID4VciSessionState _openid4vciEventHandler(OpenID4VciSessionState prevState, SessionEvent event) {
-    return prevState.copyWith(
-      continueOnSecondDevice: true,
-      authorizationServer: 'https://google.com',
-      serverName: RequestorInfo(name: TranslatedValue({'en': 'Yivi', 'nl': 'Yivi'})),
-      credentialInfoList: [
-        CredentialTypeInfo(
-          issuerName: TranslatedValue({'en': 'Yivi', 'nl': 'Yivi'}),
-          name: TranslatedValue({'en': 'Email', 'nl': 'E-mail'}),
-          verifiableCredentialType: 'pbdf.pbdf.email',
-          attributes: {
-            'email': TranslatedValue({'en': 'Email address', 'nl': 'E-mailadres'}),
-            'domain': TranslatedValue({'en': 'Email domain', 'nl': 'E-mailadres domein'}),
-          },
-          credentialFormat: CredentialFormat.sdjwtvc,
-        ),
-        CredentialTypeInfo(
-          issuerName: TranslatedValue({'en': 'Yivi', 'nl': 'Yivi'}),
-          name: TranslatedValue({'en': 'Linkedin', 'nl': 'Linkedin'}),
-          verifiableCredentialType: 'pbdf.pbdf.linkedin',
-          attributes: {
-            'firstname': TranslatedValue({'en': 'First name', 'nl': 'Voornaam'}),
-            'lastname': TranslatedValue({'en': 'Last name', 'nl': 'Achternaam'}),
-            'fullname': TranslatedValue({'en': 'Full name', 'nl': 'Volledige name'}),
-          },
-          credentialFormat: CredentialFormat.sdjwtvc,
-        ),
-      ],
-    );
-    if (event is RequestAuthorizationCodeEvent) {
+    if (event is RequestOpenId4VciIssuancePermissionSessionEvent) {
       return prevState.copyWith(
         serverName: event.serverName,
-        authorizationServer: event.authorizationServer,
         credentialInfoList: event.credentialInfoList,
+        authorizationRequestParameters: AuthorizationRequestParametersState(
+          issuerDiscoveryUrl: event.authorizationRequestParameters.issuerDiscoveryUrl,
+          clientId: event.authorizationRequestParameters.clientId,
+          issuerState: event.authorizationRequestParameters.issuerState,
+          resource: event.authorizationRequestParameters.resource,
+          scopes: event.authorizationRequestParameters.scopes,
+        ),
       );
+    }
+
+    if (event is RespondAuthorizationCodeAndExchangeForTokenEvent) {
+      return prevState;
     }
     if (event is FailureSessionEvent) {
       return prevState.copyWith(error: event.error);
@@ -245,23 +226,6 @@ class SessionRepository {
           }
         }
       }
-    }
-  }
-
-  void handleOpenID4VciAuthCodeCallback(String url) {
-    try {
-      final uri = Uri.parse(url);
-      // state should be the session ID
-      final state = int.parse(uri.queryParameters['state']!);
-      final code = uri.queryParameters['code']!;
-
-      repo.bridgedDispatch(RespondAuthorizationCodeEvent(
-        sessionID: state,
-        authorizationCode: code,
-        proceed: true,
-      ));
-    } catch (e) {
-      debugPrint('failed to parse openid4vci authorization response');
     }
   }
 

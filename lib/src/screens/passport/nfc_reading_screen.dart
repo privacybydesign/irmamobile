@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vcmrtd/vcmrtd.dart';
 
 import '../../../routing.dart';
+import '../../models/protocol.dart';
 import '../../models/session.dart';
 import '../../providers/passport_issuer_provider.dart';
 import '../../providers/passport_reader_provider.dart';
@@ -111,7 +112,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       // handle it like any other external issuance session
       await handlePointer(
         context,
-        SessionPointer(u: sessionPtr.u, irmaqr: sessionPtr.irmaqr, continueOnSecondDevice: true),
+        SessionPointer(
+            u: sessionPtr.u, irmaqr: sessionPtr.irmaqr, protocol: Protocol.irma, continueOnSecondDevice: true),
       );
     } catch (e) {
       if (kDebugMode) {
