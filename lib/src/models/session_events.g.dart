@@ -165,12 +165,6 @@ AuthorizationRequestParameters _$AuthorizationRequestParametersFromJson(Map<Stri
       issuerState: json['IssuerState'] as String?,
     );
 
-RequestAuthorizationCodeAndExchangeForTokenEvent _$RequestAuthorizationCodeAndExchangeForTokenEventFromJson(
-        Map<String, dynamic> json) =>
-    RequestAuthorizationCodeAndExchangeForTokenEvent(
-      sessionID: (json['SessionID'] as num).toInt(),
-    );
-
 RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSessionEventFromJson(
         Map<String, dynamic> json) =>
     RequestVerificationPermissionSessionEvent(

@@ -106,7 +106,7 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 func (sh *sessionHandler) RequestOpenId4VciIssuancePermission(
 	request *irma.OpenId4VciIssuanceRequest,
 	requestorInfo *irma.RequestorInfo,
-	callback irmaclient.PermissionHandler,
+	callback irmaclient.TokenHandler,
 ) {
 	action := &requestOpenId4VciIssuancePermissionSessionEvent{
 		SessionID:                      sh.sessionID,
@@ -114,18 +114,7 @@ func (sh *sessionHandler) RequestOpenId4VciIssuancePermission(
 		CredentialInfoList:             request.CredentialInfoList,
 		AuthorizationRequestParameters: request.AuthorizationRequestParameters,
 	}
-	sh.permissionHandler = callback
-	dispatchEvent(action)
-}
-
-func (sh *sessionHandler) RequestAuthorizationCodeAndExchangeForToken(
-	request *irma.AuthorizationCodeAndTokenExchangeRequest,
-	handler irmaclient.TokenHandler,
-) {
-	action := &requestAuthorizationCodeAndExchangeForTokenEvent{
-		SessionID: sh.sessionID,
-	}
-	sh.accessTokenHandler = handler
+	sh.accessTokenHandler = callback
 	dispatchEvent(action)
 }
 

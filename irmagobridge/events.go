@@ -203,10 +203,6 @@ type requestOpenId4VciIssuancePermissionSessionEvent struct {
 	AuthorizationRequestParameters irma.AuthorizationRequestParameters
 }
 
-type requestAuthorizationCodeAndExchangeForTokenEvent struct {
-	SessionID int
-}
-
 type requestVerificationPermissionSessionEvent struct {
 	SessionID             int
 	ServerName            *irma.RequestorInfo

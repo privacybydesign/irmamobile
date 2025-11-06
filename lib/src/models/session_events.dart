@@ -245,14 +245,6 @@ class AuthorizationRequestParameters {
       _$AuthorizationRequestParametersFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
-class RequestAuthorizationCodeAndExchangeForTokenEvent extends SessionEvent {
-  RequestAuthorizationCodeAndExchangeForTokenEvent({required int sessionID}) : super(sessionID);
-
-  factory RequestAuthorizationCodeAndExchangeForTokenEvent.fromJson(Map<String, dynamic> json) =>
-      _$RequestAuthorizationCodeAndExchangeForTokenEventFromJson(json);
-}
-
 @JsonSerializable()
 class RequestVerificationPermissionSessionEvent extends SessionEvent {
   RequestVerificationPermissionSessionEvent({
