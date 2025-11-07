@@ -16,6 +16,7 @@ import '../../../util/navigation.dart';
 import '../../../widgets/credential_card/yivi_credential_type_info_card.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_quote.dart';
+import '../../../widgets/requestor_header.dart';
 import '../../error/session_error_screen.dart';
 import 'arrow_back_screen.dart';
 import 'session_scaffold.dart';
@@ -83,18 +84,16 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
     }
     final theme = IrmaTheme.of(context);
 
-    Iterable<Padding> credentialDetails = [];
-    if (state.credentialInfoList != null) {
-      credentialDetails = state.credentialInfoList!.map(
-        (cred) => Padding(
-          padding: EdgeInsets.only(bottom: theme.smallSpacing),
-          child: SizedBox(
-            width: double.infinity,
-            child: CredentialTypeInfoCard(info: cred),
+    final credentialDetails = state.credentialInfoList?.map(
+          (cred) => Padding(
+            padding: EdgeInsets.only(bottom: theme.smallSpacing),
+            child: SizedBox(
+              width: double.infinity,
+              child: CredentialTypeInfoCard(info: cred),
+            ),
           ),
-        ),
-      );
-    }
+        ) ??
+        [];
 
     return SessionScaffold(
       appBarTitle: 'issuance.title',
@@ -105,6 +104,13 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+                child: RequestorHeader(
+                  requestorInfo: state.serverName,
+                  isVerified: !(state.serverName?.unverified ?? true),
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
                 child: IrmaQuote(
