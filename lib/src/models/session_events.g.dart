@@ -12,6 +12,24 @@ Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <Strin
       'previouslyLaunchedCredentials': instance.previouslyLaunchedCredentials.toList(),
     };
 
+RespondAuthorizationCodeAndExchangeForTokenEvent _$RespondAuthorizationCodeAndExchangeForTokenEventFromJson(
+        Map<String, dynamic> json) =>
+    RespondAuthorizationCodeAndExchangeForTokenEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      proceed: json['Proceed'] as bool,
+      accessToken: json['AccessToken'] as String,
+      refreshToken: json['RefreshToken'] as String?,
+    );
+
+Map<String, dynamic> _$RespondAuthorizationCodeAndExchangeForTokenEventToJson(
+        RespondAuthorizationCodeAndExchangeForTokenEvent instance) =>
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'Proceed': instance.proceed,
+      'AccessToken': instance.accessToken,
+      'RefreshToken': instance.refreshToken,
+    };
+
 RespondPermissionEvent _$RespondPermissionEventFromJson(Map<String, dynamic> json) => RespondPermissionEvent(
       sessionID: (json['SessionID'] as num).toInt(),
       proceed: json['Proceed'] as bool,
@@ -125,6 +143,27 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
       'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
       'DisclosuresCandidates': instance.disclosuresCandidates,
     };
+
+RequestOpenId4VciIssuancePermissionSessionEvent _$RequestOpenId4VciIssuancePermissionSessionEventFromJson(
+        Map<String, dynamic> json) =>
+    RequestOpenId4VciIssuancePermissionSessionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+      authorizationRequestParameters:
+          AuthorizationRequestParameters.fromJson(json['AuthorizationRequestParameters'] as Map<String, dynamic>),
+      credentialInfoList: (json['CredentialInfoList'] as List<dynamic>?)
+          ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+AuthorizationRequestParameters _$AuthorizationRequestParametersFromJson(Map<String, dynamic> json) =>
+    AuthorizationRequestParameters(
+      issuerDiscoveryUrl: json['IssuerDiscoveryUrl'] as String,
+      clientId: json['ClientID'] as String,
+      resource: json['Resource'] as String,
+      scopes: (json['Scopes'] as List<dynamic>).map((e) => e as String).toList(),
+      issuerState: json['IssuerState'] as String?,
+    );
 
 RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSessionEventFromJson(
         Map<String, dynamic> json) =>

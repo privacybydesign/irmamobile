@@ -72,7 +72,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   void _listenForSessionState() {
     _sessionStateSubscription = _repo
         .getSessionState(sessionID)
-        .map((session) => _mapSessionStateToBlocState(state, session))
+        .where((session) => session is IrmaSessionState)
+        .map((session) => _mapSessionStateToBlocState(state, session as IrmaSessionState))
         .where((newState) => newState != state) // To prevent the DisclosurePermissionInitial state is added twice.
         .listen(emit);
   }
@@ -80,7 +81,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   @override
   Stream<DisclosurePermissionBlocState> mapEventToState(DisclosurePermissionBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
-    final session = _repo.getCurrentSessionState(sessionID)!;
+    // openid4vp and irma share the irma session state, so this cast is always safe for disclosure sessions
+    final session = _repo.getCurrentSessionState(sessionID)! as IrmaSessionState;
 
     if (state is DisclosurePermissionIntroduction && event is DisclosurePermissionNextPressed) {
       _listenForSessionState();
@@ -347,7 +349,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     }
   }
 
-  DisclosurePermissionBlocState _mapSessionStateToBlocState(DisclosurePermissionBlocState state, SessionState session) {
+  DisclosurePermissionBlocState _mapSessionStateToBlocState(
+      DisclosurePermissionBlocState state, IrmaSessionState session) {
     if (session.status != SessionStatus.requestDisclosurePermission) {
       if (state is! DisclosurePermissionInitial &&
           state is! DisclosurePermissionIntroduction &&
@@ -553,7 +556,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     }
   }
 
-  DisclosurePermissionIssueWizard _refreshIssueWizard(DisclosurePermissionIssueWizard prevState, SessionState session) {
+  DisclosurePermissionIssueWizard _refreshIssueWizard(
+      DisclosurePermissionIssueWizard prevState, IrmaSessionState session) {
     final candidates = prevState.candidates.map(
       (i, prevDiscon) => MapEntry(i, _refreshDisCon(i, prevDiscon, session)),
     );
@@ -630,7 +634,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   DisclosurePermissionObtainCredentials _refreshObtainedCredentials(
     DisclosurePermissionObtainCredentials prevState,
-    SessionState session,
+    IrmaSessionState session,
   ) {
     // Reverse list to make sure newest credentials are considered first.
     final newlyAddedCredentials = _newlyAddedCredentialHashes.reversed
@@ -650,7 +654,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   DisCon<DisclosureCredential> _refreshDisCon(
     int prevDisconIndex,
     DisCon<DisclosureCredential> prevDiscon,
-    SessionState session,
+    IrmaSessionState session,
   ) {
     final discon = _parseCandidatesDisCon(session.disclosuresCandidates![prevDisconIndex]);
     final includedCredTypeIds = prevDiscon.expand((con) => con.map((cred) => cred.fullId)).toSet();
@@ -829,7 +833,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   List<DisclosurePermissionStepName> _calculatePlannedSteps(
     Map<int, DisCon<DisclosureCredential>> candidates,
     Map<int, int> selectedConIndices,
-    SessionState session,
+    IrmaSessionState session,
   ) {
     final hasPrevAddedCreds = session.disclosuresCandidates!.length > candidates.length ||
         candidates.entries.any((disconEntry) =>
@@ -848,7 +852,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   }
 
   DisclosurePermissionAddOptionalData _generateAddOptionalDataState({
-    required SessionState session,
+    required IrmaSessionState session,
     required DisclosurePermissionChoices parentState,
     required Iterable<int> alreadyAddedOptionalDisconIndices,
     DisclosurePermissionAddOptionalData? prevState,

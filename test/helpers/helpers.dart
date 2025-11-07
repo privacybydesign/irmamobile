@@ -1,6 +1,7 @@
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
+import 'package:irmamobile/src/models/protocol.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
@@ -20,11 +21,17 @@ Future<void> issueCredential(
     revoked: revoked,
   );
 
-  repo.bridgedDispatch(NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')));
+  repo.bridgedDispatch(
+    NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '', protocol: Protocol.irma)),
+  );
   await repo
       .getSessionState(sessionID)
+      .map((state) => state as IrmaSessionState)
       .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
 
   repo.bridgedDispatch(RespondPermissionEvent(sessionID: sessionID, proceed: true, disclosureChoices: [[]]));
-  await repo.getSessionState(sessionID).firstWhere((session) => session.status == SessionStatus.success);
+  await repo
+      .getSessionState(sessionID)
+      .map((state) => state as IrmaSessionState)
+      .firstWhere((session) => session.status == SessionStatus.success);
 }
