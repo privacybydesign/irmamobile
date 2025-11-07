@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [7.11.0] - 2025-10-13
+## [7.11.1] - 2025-11-07
+### Fix
+- Upgrade `vcmrtd` package to `v0.2.4` to fix DG11 parsing issue encountered when reading certain passports
+
+## [7.11.0] - 2025-11-05
 ### Changed
 - Add passport reading and issuance functionality
 - Minimum Android API level was bumped from 24 to 26
@@ -530,6 +534,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.11.1]: https://github.com/privacybydesign/irmamobile/compare/v7.11.0...v7.11.1
 [7.11.0]: https://github.com/privacybydesign/irmamobile/compare/v7.10.0...v7.11.0
 [7.10.0]: https://github.com/privacybydesign/irmamobile/compare/v7.9.0...v7.10.0
 [7.9.0]: https://github.com/privacybydesign/irmamobile/compare/v7.8.1...v7.9.0
