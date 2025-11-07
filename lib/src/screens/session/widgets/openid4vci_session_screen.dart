@@ -11,6 +11,7 @@ import '../../../models/session_events.dart';
 import '../../../models/session_state.dart';
 import '../../../providers/irma_repository_provider.dart';
 import '../../../providers/session_state_provider.dart';
+import '../../../sentry/sentry.dart';
 import '../../../theme/theme.dart';
 import '../../../util/navigation.dart';
 import '../../../widgets/credential_card/yivi_credential_type_info_card.dart';
@@ -152,15 +153,23 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
       },
     );
 
-    // TODO: handle errors with try/catch
-    final AuthorizationTokenResponse result = await _appAuth.authorizeAndExchangeCode(request);
-
-    // Handle the result (e.g., store tokens, proceed with issuance, etc.)
-    ref.read(irmaRepositoryProvider).bridgedDispatch(RespondAuthorizationCodeAndExchangeForTokenEvent(
-        sessionID: state.sessionID,
-        proceed: true,
-        accessToken: result.accessToken!,
-        refreshToken: result.refreshToken));
+    try {
+      final AuthorizationTokenResponse result = await _appAuth.authorizeAndExchangeCode(request);
+      // Handle the result (e.g., store tokens, proceed with issuance, etc.)
+      ref.read(irmaRepositoryProvider).bridgedDispatch(
+            RespondAuthorizationCodeAndExchangeForTokenEvent(
+              sessionID: state.sessionID,
+              proceed: true,
+              accessToken: result.accessToken!,
+              refreshToken: result.refreshToken,
+            ),
+          );
+    } on FlutterAppAuthUserCancelledException catch (e) {
+      // The user can try again after closing the in-app browser, so we don't dismiss the session here
+      debugPrint('User cancelled by closing in-app browser: $e');
+    } catch (e) {
+      reportError(e, StackTrace.current);
+    }
 
     // final uri = Uri.parse(state.authorizationServer!);
     // final request = Uri(
