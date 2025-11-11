@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vcmrtd/vcmrtd.dart';
 
 import '../../../routing.dart';
+import '../../models/mrz.dart';
 import '../../models/session.dart';
 import '../../providers/passport_issuer_provider.dart';
 import '../../providers/passport_reader_provider.dart';
@@ -26,20 +27,13 @@ import '../../widgets/translated_text.dart';
 import 'widgets/passport_animation.dart';
 
 class NfcReadingScreen extends ConsumerStatefulWidget {
-  final String docNumber;
-  final DateTime dateOfBirth;
-  final DateTime dateOfExpiry;
-  final String? countryCode;
+  final ScannedPassportMRZ mrz;
+
   final VoidCallback? onCancel;
-  final ValueChanged<PassportDataResult>? onComplete;
 
   const NfcReadingScreen({
-    required this.docNumber,
-    required this.dateOfBirth,
-    required this.dateOfExpiry,
-    this.countryCode,
+    required this.mrz,
     this.onCancel,
-    this.onComplete,
     super.key,
   });
 
@@ -52,15 +46,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     final userWantsCancel = await _showCancelDialog(context);
 
     if (userWantsCancel) {
-      ref.read(passportReaderProvider.notifier).cancel();
+      _getDocumentReader().cancel();
       widget.onCancel?.call();
     }
   }
 
   @override
   void didPopNext() {
-    if (ref.read(passportReaderProvider) is! PassportReaderFailed) {
-      ref.read(passportReaderProvider.notifier).reset();
+    if (_readDocumentReaderState() is! DocumentReaderFailed) {
+      _getDocumentReader().reset();
     }
   }
 
@@ -84,22 +78,18 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
 
     final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer.startSessionAtPassportIssuer();
 
-    final result = await ref.read(passportReaderProvider.notifier).readWithMRZ(
-          iosNfcMessages: _createIosNfcMessageMapper(),
-          documentNumber: widget.docNumber,
-          birthDate: widget.dateOfBirth,
-          expiryDate: widget.dateOfExpiry,
-          countryCode: widget.countryCode,
-          activeAuthenticationParams: NonceAndSessionId(nonce: nonce, sessionId: sessionId),
-        );
+    final result = await _getDocumentReader().readDocument(
+      iosNfcMessages: _createIosNfcMessageMapper(),
+      activeAuthenticationParams: NonceAndSessionId(nonce: nonce, sessionId: sessionId),
+    );
 
     if (result != null) {
-      final (pdr, _) = result;
-      await _startIssuance(pdr);
+      final (pdr, rawDocumentData) = result;
+      await _startIssuance(rawDocumentData);
     }
   }
 
-  Future<void> _startIssuance(PassportDataResult result) async {
+  Future<void> _startIssuance(RawDocumentData result) async {
     final passportIssuer = ref.read(passportIssuerProvider);
     try {
       // start the issuance session at the irma server
@@ -121,28 +111,28 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
   }
 
   void retry() {
-    ref.read(passportReaderProvider.notifier).cancel();
+    _getDocumentReader().cancel();
     _startScanning();
   }
 
   @override
   Widget build(BuildContext context) {
-    final passportState = ref.watch(passportReaderProvider);
+    final passportState = _watchDocumentReaderState();
 
-    if (passportState is PassportReaderNfcUnavailable) {
+    if (passportState is DocumentReaderNfcUnavailable) {
       return _buildNfcUnavailableScreen(context);
     }
-    if (passportState is PassportReaderPending) {
+    if (passportState is DocumentReaderPending) {
       return _buildIntroductionScreen(context);
     }
 
     final uiState = passportReadingStateToUiState(passportState);
 
-    if (passportState case PassportReaderFailed(:final logs)) {
+    if (passportState case DocumentReaderFailed(:final logs)) {
       return _buildError(context, uiState, logs);
     }
 
-    if (passportState is PassportReaderCancelled) {
+    if (passportState is DocumentReaderCancelled) {
       return _buildCancelled(context, uiState);
     }
 
@@ -298,67 +288,67 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     );
   }
 
-  _UiState passportReadingStateToUiState(PassportReaderState state) {
+  _UiState passportReadingStateToUiState(DocumentReaderState state) {
     final progress = progressForState(state);
     final stateKey = _getTranslationKeyForState(state);
 
     return switch (state) {
-      PassportReaderPending() => _UiState(
+      DocumentReaderPending() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.hold_near_photo_page',
         ),
-      PassportReaderConnecting() => _UiState(
+      DocumentReaderConnecting() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.tip_2',
         ),
-      PassportReaderAuthenticating() => _UiState(
+      DocumentReaderAuthenticating() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.tip_2',
         ),
-      PassportReaderReadingCOM() => _UiState(
+      DocumentReaderReadingCOM() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.tip_3',
         ),
-      PassportReaderReadingCardAccess() => _UiState(
+      DocumentReaderReadingCardAccess() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.tip_3',
         ),
-      PassportReaderReadingDataGroup() => _UiState(
+      DocumentReaderReadingDataGroup() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.tip_1',
         ),
-      PassportReaderReadingSOD() => _UiState(
+      DocumentReaderReadingSOD() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.tip_2',
         ),
-      PassportReaderActiveAuthentication() => _UiState(
+      DocumentReaderActiveAuthentication() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.tip_1',
         ),
-      PassportReaderSuccess() => _UiState(
+      DocumentReaderSuccess() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.success_explanation',
         ),
-      PassportReaderFailed(:final error) => _UiState(
+      DocumentReaderFailed(:final error) => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: _readingErrorToHintKey(error),
         ),
-      PassportReaderCancelling() => _UiState(
+      DocumentReaderCancelling() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.cancelled_by_user',
         ),
-      PassportReaderCancelled() => _UiState(
+      DocumentReaderCancelled() => _UiState(
           progress: progress,
           stateKey: stateKey,
           tipKey: 'passport.nfc.cancelled_by_user',
@@ -367,20 +357,20 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
     };
   }
 
-  String _getTranslationKeyForState(PassportReaderState state) {
+  String _getTranslationKeyForState(DocumentReaderState state) {
     return switch (state) {
-      PassportReaderPending() => 'passport.nfc.hold_near_photo_page',
-      PassportReaderCancelled() => 'passport.nfc.cancelled',
-      PassportReaderCancelling() => 'passport.nfc.cancelling',
-      PassportReaderFailed() => 'passport.nfc.error',
-      PassportReaderConnecting() => 'passport.nfc.connecting',
-      PassportReaderReadingCardAccess() => 'passport.nfc.reading_card_security',
-      PassportReaderReadingCOM() => 'passport.nfc.reading_passport_data',
-      PassportReaderAuthenticating() => 'passport.nfc.authenticating',
-      PassportReaderReadingDataGroup() => 'passport.nfc.reading_passport_data',
-      PassportReaderReadingSOD() => 'passport.nfc.reading_passport_data',
-      PassportReaderActiveAuthentication() => 'passport.nfc.performing_security_verification',
-      PassportReaderSuccess() => 'passport.nfc.success',
+      DocumentReaderPending() => 'passport.nfc.hold_near_photo_page',
+      DocumentReaderCancelled() => 'passport.nfc.cancelled',
+      DocumentReaderCancelling() => 'passport.nfc.cancelling',
+      DocumentReaderFailed() => 'passport.nfc.error',
+      DocumentReaderConnecting() => 'passport.nfc.connecting',
+      DocumentReaderReadingCardAccess() => 'passport.nfc.reading_card_security',
+      DocumentReaderReadingCOM() => 'passport.nfc.reading_passport_data',
+      DocumentReaderAuthenticating() => 'passport.nfc.authenticating',
+      DocumentReaderReadingDataGroup() => 'passport.nfc.reading_passport_data',
+      DocumentReaderReadingSOD() => 'passport.nfc.reading_passport_data',
+      DocumentReaderActiveAuthentication() => 'passport.nfc.performing_security_verification',
+      DocumentReaderSuccess() => 'passport.nfc.success',
       _ => '',
     };
   }
@@ -406,6 +396,18 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       final message = FlutterI18n.translate(context, _getTranslationKeyForState(state));
       return '$progress\n$message';
     };
+  }
+
+  DocumentReaderState _readDocumentReaderState() {
+    return ref.read(passportReaderProvider(widget.mrz));
+  }
+
+  DocumentReaderState _watchDocumentReaderState() {
+    return ref.watch(passportReaderProvider(widget.mrz));
+  }
+
+  DocumentReader<PassportData> _getDocumentReader() {
+    return ref.read(passportReaderProvider(widget.mrz).notifier);
   }
 }
 
@@ -572,13 +574,13 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
   }
 }
 
-String _readingErrorToHintKey(PassportReadingError error) {
+String _readingErrorToHintKey(DocumentReadingError error) {
   return switch (error) {
-    PassportReadingError.unknown => 'passport.nfc.error_generic',
-    PassportReadingError.timeoutWaitingForTag => 'passport.nfc.timeout_waiting_for_tag',
-    PassportReadingError.tagLost => 'passport.nfc.tag_lost_try_again',
-    PassportReadingError.failedToInitiateSession => 'passport.nfc.failed_initiate_session',
-    PassportReadingError.invalidatedByUser => '',
+    DocumentReadingError.unknown => 'passport.nfc.error_generic',
+    DocumentReadingError.timeoutWaitingForTag => 'passport.nfc.timeout_waiting_for_tag',
+    DocumentReadingError.tagLost => 'passport.nfc.tag_lost_try_again',
+    DocumentReadingError.failedToInitiateSession => 'passport.nfc.failed_initiate_session',
+    DocumentReadingError.invalidatedByUser => '',
   };
 }
 

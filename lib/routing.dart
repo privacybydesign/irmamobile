@@ -10,6 +10,7 @@ import 'src/data/irma_repository.dart';
 import 'src/models/enrollment_status.dart';
 import 'src/models/irma_configuration.dart';
 import 'src/models/log_entry.dart';
+import 'src/models/mrz.dart';
 import 'src/models/translated_value.dart';
 import 'src/models/version_information.dart';
 import 'src/providers/irma_repository_provider.dart';
@@ -276,10 +277,12 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         builder: (context, state) {
           final args = NfcReadingRouteParams.fromQueryParams(state.uri.queryParameters);
           return NfcReadingScreen(
-            docNumber: args.docNumber,
-            dateOfBirth: args.dateOfBirth,
-            dateOfExpiry: args.dateOfExpiry,
-            countryCode: args.countryCode,
+            mrz: ScannedPassportMRZ(
+              documentNumber: args.docNumber,
+              countryCode: args.countryCode ?? '',
+              dateOfBirth: args.dateOfBirth,
+              dateOfExpiry: args.dateOfExpiry,
+            ),
             onCancel: () => context.goHomeScreen(),
           );
         },
