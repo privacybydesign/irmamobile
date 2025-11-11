@@ -91,6 +91,25 @@ attaching data to signed statements. These data can be relevant properties, such
   test device. In case you run the flutter project via Android Studio, you can specify the build flavor in the
   run configuration. On iOS, no custom flavor should be specified.
 
+### Building for FDroid
+
+For FDroid builds, Google MLKit dependencies are excluded to comply with FDroid's requirement for fully open-source apps.
+This means the MRZ (Machine Readable Zone) scanner feature is not available in FDroid builds, and users will be directed
+straight to the manual passport entry screen.
+
+To build for FDroid, you need to specify both the `fdroid` flavor and the `HAS_MLKIT=false` dart-define:
+
+```bash
+# For a debug build
+flutter build apk --dart-define=HAS_MLKIT=false --flavor betaFdroid
+
+# For a release build
+flutter build apk --release --dart-define=HAS_MLKIT=false --flavor betaFdroid
+```
+
+Note: The flavor name is a combination of the track (alpha/beta) and store (fdroid/standard) dimensions,
+resulting in flavors like `alphaFdroid`, `betaFdroid`, `alphaStandard`, or `betaStandard`.
+
 * You can use `flutter run -t` to run different app configurations, for example run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.
 
 ## JSON serialization code

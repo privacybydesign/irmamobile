@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../models/irma_configuration.dart';
 import '../models/log_entry.dart';
 import '../models/translated_value.dart';
+import 'build_config.dart';
 
 extension RoutingHelpers on BuildContext {
   void pushScannerScreen({required bool requireAuthBeforeSession}) {
@@ -132,6 +133,11 @@ extension RoutingHelpers on BuildContext {
   }
 
   void pushPassportMrzReaderScreen() {
+    // Skip MRZ scanner for fdroid builds where MLKit is not available
+    if (!hasMlKit) {
+      pushPassportManualEnterScreen();
+      return;
+    }
     final uri = Uri(path: '/mzr_reader');
     push(uri.toString());
   }
