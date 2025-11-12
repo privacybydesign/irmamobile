@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../../../package_name.dart';
+
 class IntroductionAnimationWrapper extends StatefulWidget {
   final Widget child;
 
@@ -46,6 +48,7 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
 
     final lottieWidget = Lottie.asset(
       'assets/non-free/onboarding.json',
+      package: packageName,
       frameRate: FrameRate(60),
       repeat: false,
       controller: _lottieController,

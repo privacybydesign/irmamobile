@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../package_name.dart';
 import '../../theme/theme.dart';
 import '../../widgets/loading_indicator.dart';
 
@@ -29,6 +30,7 @@ class SplashScreen extends StatelessWidget {
           children: [
             SvgPicture.asset(
               'assets/non-free/logo_payoff.svg',
+              package: packageName,
               height: logoHeight,
               width: logoWidth,
               semanticsLabel: FlutterI18n.translate(

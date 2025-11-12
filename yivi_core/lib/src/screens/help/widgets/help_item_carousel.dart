@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../package_name.dart';
 import '../../../theme/theme.dart';
 
 import 'illustrator.dart';
@@ -32,10 +33,12 @@ class _HelpCarouselState extends State<HelpCarousel> {
                   child: item.imagePath.endsWith('svg')
                       ? SvgPicture.asset(
                           item.imagePath,
+                          package: packageName,
                           excludeFromSemantics: true,
                         )
                       : Image.asset(
                           item.imagePath,
+                          package: packageName,
                           excludeFromSemantics: true,
                         ),
                 ),

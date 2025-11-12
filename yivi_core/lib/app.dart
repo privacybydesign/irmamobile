@@ -15,6 +15,7 @@ import '../../src/models/session.dart';
 import '../../src/models/update_schemes_event.dart';
 import '../../src/screens/rooted_warning/repository.dart';
 import '../../src/theme/theme.dart';
+import 'package_name.dart';
 import 'src/providers/irma_repository_provider.dart';
 import 'src/providers/preferences_provider.dart';
 import 'src/screens/notifications/bloc/notifications_bloc.dart';
@@ -61,7 +62,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
       FlutterI18nDelegate(
         translationLoader: FileTranslationLoader(
           fallbackFile: 'en',
-          basePath: 'assets/locales',
+          basePath: 'packages/$packageName/assets/locales',
           forcedLocale: forcedLocale,
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../package_name.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/translated_text.dart';
@@ -23,6 +24,7 @@ class ResetPinScreen extends StatelessWidget {
       body: DynamicLayout(
         hero: SvgPicture.asset(
           'assets/reset/forgot_pin_illustration.svg',
+          package: packageName,
           height: isSmallScreen ? 250 : null,
         ),
         content: Column(

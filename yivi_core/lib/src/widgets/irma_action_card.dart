@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../package_name.dart';
 import '../theme/theme.dart';
 import 'irma_card.dart';
 import 'translated_text.dart';
@@ -82,6 +83,7 @@ class IrmaActionCard extends StatelessWidget {
                 child: isFancy
                     ? SvgPicture.asset(
                         'assets/ui/btn-bg.svg',
+                        package: packageName,
                         alignment: Alignment.center,
                         fit: BoxFit.fill,
                       )

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../package_name.dart';
 import '../theme/theme.dart';
 import 'translated_text.dart';
 
@@ -46,6 +47,7 @@ class YiviThemedButton extends StatelessWidget {
             child: ExcludeSemantics(
               child: SvgPicture.asset(
                 'assets/ui/btn-bg.svg',
+                package: packageName,
                 alignment: Alignment.center,
                 fit: BoxFit.fill,
               ),

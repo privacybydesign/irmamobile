@@ -10,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vcmrtd/vcmrtd.dart';
 
+import '../../../package_name.dart';
 import '../../../routing.dart';
 import '../../models/session.dart';
 import '../../providers/passport_issuer_provider.dart';
@@ -186,7 +187,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       ),
       illustration: Padding(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: SvgPicture.asset('assets/error/general_error_illustration.svg'),
+        child: SvgPicture.asset('assets/error/general_error_illustration.svg', package: packageName),
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'ui.retry',
@@ -203,7 +204,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen> with RouteA
       instruction: _TitleAndBody(titleKey: uiState.stateKey, bodyKey: uiState.tipKey),
       illustration: Padding(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: SvgPicture.asset('assets/error/general_error_illustration.svg'),
+        child: SvgPicture.asset('assets/error/general_error_illustration.svg', package: packageName),
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'ui.retry',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../package_name.dart';
 import '../screens/session/widgets/dynamic_layout.dart';
 import '../screens/session/widgets/session_scaffold.dart';
 import '../screens/session/widgets/success_graphic.dart';
@@ -39,6 +40,7 @@ class ActionFeedback extends StatelessWidget {
               ? SuccessGraphic()
               : SvgPicture.asset(
                   'assets/error/general_error_illustration.svg',
+                  package: packageName,
                 ),
           content: Column(
             children: [

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../../package_name.dart';
 import '../../../util/test_detection.dart';
 
 class PassportNfcScanningAnimation extends StatelessWidget {
@@ -87,6 +88,7 @@ class _PassportNfcScanningAnimationState extends State<_PassportNfcScanningAnima
       offset: const Offset(0, -20),
       child: Lottie.asset(
         'assets/passport/nfc.json',
+        package: packageName,
         controller: _controller,
         alignment: Alignment(0, 0.5),
         frameBuilder: (context, child, composition) {

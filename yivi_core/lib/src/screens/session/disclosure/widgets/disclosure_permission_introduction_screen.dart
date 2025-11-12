@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../../package_name.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../../widgets/yivi_themed_button.dart';
@@ -27,6 +28,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
       body: DynamicLayout(
         hero: SvgPicture.asset(
           'assets/disclosure/disclosure_intro.svg',
+          package: packageName,
         ),
         content: Column(
           children: [

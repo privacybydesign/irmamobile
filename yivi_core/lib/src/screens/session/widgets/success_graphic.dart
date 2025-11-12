@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../../package_name.dart';
+
 class SuccessGraphic extends StatefulWidget {
   @override
   State<SuccessGraphic> createState() => _SuccessGraphicState();
@@ -14,5 +16,6 @@ class _SuccessGraphicState extends State<SuccessGraphic> {
   @override
   Widget build(BuildContext context) => SvgPicture.asset(
         'assets/success/success_$randomImageIndex.svg',
+        package: packageName,
       );
 }

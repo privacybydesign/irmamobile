@@ -7,6 +7,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../package_name.dart';
 import '../../models/credentials.dart';
 import '../../providers/credentials_list_provider.dart';
 import '../../providers/credentials_provider.dart';
@@ -148,7 +149,7 @@ class _ToAddDataButtonPointingImageState extends State<_ToAddDataButtonPointingI
       transform: Matrix4.identity()
         ..rotateY(pi) // 180-degree flip (π radians)
         ..rotateZ(rotationAngle),
-      child: SvgPicture.asset(key: _imageKey, 'assets/arrow_back/pointing_up.svg'),
+      child: SvgPicture.asset(key: _imageKey, 'assets/arrow_back/pointing_up.svg', package: packageName),
     );
   }
 }

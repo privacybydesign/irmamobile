@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 
+import '../../../../package_name.dart';
 import '../../../theme/theme.dart';
 import '../../../util/navigation.dart';
 import '../../../widgets/translated_text.dart';
@@ -115,6 +116,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                 children: [
                   SvgPicture.asset(
                     'assets/arrow_back/pointing_up.svg',
+                    package: packageName,
                     width: 250,
                   ),
                   SizedBox(height: theme.hugeSpacing),

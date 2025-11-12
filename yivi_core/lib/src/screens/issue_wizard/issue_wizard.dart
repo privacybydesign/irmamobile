@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../../package_name.dart';
 import '../../data/irma_repository.dart';
 import '../../models/irma_configuration.dart';
 import '../../models/issue_wizard.dart';
@@ -200,7 +201,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with Widg
         final logoFile = File(wizardData?.logoPath ?? '');
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
-            : Image.asset('assets/non-free/logo.png', excludeFromSemantics: true);
+            : Image.asset('assets/non-free/logo.png', excludeFromSemantics: true, package: packageName);
 
         if (_showIntro) {
           return IssueWizardInfo(

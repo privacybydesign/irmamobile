@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../package_name.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/translated_text.dart';
@@ -19,11 +20,13 @@ class NameChangedScreen extends StatelessWidget {
 
     final oldLogoWidget = Image.asset(
       'assets/non-free/logo_old.png',
+      package: packageName,
       height: 120,
     );
 
     final newLogoWidget = Image.asset(
       'assets/non-free/logo.png',
+      package: packageName,
       height: 150,
     );
 
@@ -61,6 +64,7 @@ class NameChangedScreen extends StatelessWidget {
             headerTextWidget,
             Lottie.asset(
               'assets/non-free/yivi_name_change.json',
+              package: packageName,
               frameRate: FrameRate(60),
               repeat: false,
             ),

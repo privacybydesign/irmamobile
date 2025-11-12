@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../package_name.dart';
 import '../../theme/theme.dart';
 import '../../util/haptics.dart';
 import '../../util/scale.dart';
@@ -414,6 +415,7 @@ class YiviPinScreen extends StatelessWidget {
     // the scaling here
     return SvgPicture.asset(
       'assets/non-free/logo_no_margin.svg',
+      package: packageName,
       width: 127.scaleToDesignSize(context),
       height: 71.scaleToDesignSize(context),
       semanticsLabel: FlutterI18n.translate(

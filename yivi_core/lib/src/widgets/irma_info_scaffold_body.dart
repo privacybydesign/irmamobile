@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../package_name.dart';
 import '../theme/theme.dart';
 import 'irma_dialog.dart';
 import 'translated_text.dart';
@@ -74,7 +75,9 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                   size: 125,
                 ),
               if (imagePath != null)
-                (imagePath!.endsWith('svg')) ? SvgPicture.asset(imagePath!) : Image.asset(imagePath!),
+                (imagePath!.endsWith('svg'))
+                    ? SvgPicture.asset(imagePath!, package: packageName)
+                    : Image.asset(imagePath!, package: packageName),
               SizedBox(height: theme.mediumSpacing),
             ],
             TranslatedText(

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../../package_name.dart';
 import '../../../theme/theme.dart';
 
 class EnrollmentHero extends StatelessWidget {
@@ -31,6 +32,7 @@ class EnrollmentHero extends StatelessWidget {
             )
           : SvgPicture.asset(
               imagePath,
+              package: packageName,
               fit: BoxFit.contain,
             ),
     );

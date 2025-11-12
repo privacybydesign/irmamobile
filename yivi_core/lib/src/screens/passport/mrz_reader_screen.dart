@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mrz_parser/mrz_parser.dart';
 
+import '../../../package_name.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
@@ -99,6 +100,7 @@ class _ManualEntryButton extends StatelessWidget {
           Positioned.fill(
             child: SvgPicture.asset(
               'assets/ui/round-btn-bg.svg',
+              package: packageName,
             ),
           ),
           Positioned.fill(

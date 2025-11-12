@@ -1,0 +1,2 @@
+
+const packageName = 'irmamobile';
