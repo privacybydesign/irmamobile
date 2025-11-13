@@ -1,5 +1,6 @@
 import Flutter
 import Foundation
+import Irmagobridge
 
 
 /// Flutter plugin that implements irmagobridge's IrmaMobileBridge interface for iOS. This plugin forms the bridge between Flutter/Dart and Go.

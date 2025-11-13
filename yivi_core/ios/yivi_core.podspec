@@ -23,6 +23,7 @@ A new Flutter plugin project.
 
   # including the irmago bridge here
   s.vendored_frameworks = 'Irmagobridge.xcframework' 
+  s.resources = ['../../irma_configuration/**/*']
 
   # If your plugin requires a privacy manifest, for example if it uses any
   # required reason APIs, update the PrivacyInfo.xcprivacy file to describe your

@@ -1,4 +1,5 @@
 import Foundation
+import Irmagobridge
 
 enum TEEError: Error {
     case unsupportedAlgorithm
