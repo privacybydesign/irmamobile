@@ -94,6 +94,7 @@ android/irmagobridge/irmagobridge-sources.jar
 **/ios/Runner/GeneratedPluginRegistrant.*
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/build/
+**/ios/Irmagobridge.xcframework
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3

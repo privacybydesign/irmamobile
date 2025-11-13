@@ -25,7 +25,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   sentry_flutter: ^9.4.0
-  irmamobile: 
+  yivi_core: 
     path: ../yivi_core
 
 dev_dependencies:

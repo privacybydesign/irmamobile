@@ -1,8 +1,0 @@
-framework module "Irmagobridge" {
-	header "ref.h"
-    header "Irmagobridge.objc.h"
-    header "Universe.objc.h"
-    header "Irmagobridge.h"
-
-    export *
-}
