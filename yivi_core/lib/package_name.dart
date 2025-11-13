@@ -1,2 +1,1 @@
-
-const packageName = 'irmamobile';
+const packageName = 'yivi_core';

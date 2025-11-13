@@ -4,7 +4,7 @@ import Irmagobridge
 
 
 /// Flutter plugin that implements irmagobridge's IrmaMobileBridge interface for iOS. This plugin forms the bridge between Flutter/Dart and Go.
-class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, FlutterPlugin {
+public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, FlutterPlugin {
     private var channel: FlutterMethodChannel
 
     private var initialURL: String?
@@ -14,7 +14,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
     /// Private constructor. This constructor is called indirectly via register (see below).
     /// - Parameters:
     ///   - channel: Channel to send messages to the Flutter side
-    private init(channel: FlutterMethodChannel) {
+    public init(channel: FlutterMethodChannel) {
         self.channel = channel
         appReady = false
 
@@ -62,7 +62,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
 
     /// Implements the register method of the FlutterPlugin interface. This method is called by Flutter to bootstrap the plugin.
     /// - Parameter registrar: Registration context of the Flutter plugin
-    static func register(with registrar: FlutterPluginRegistrar) {
+    public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "irma.app/irma_mobile_bridge", binaryMessenger: registrar.messenger())
 
@@ -76,7 +76,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
     /// - Parameters:
     ///   - call: Object that specifies the method that should be handled and the corresponding arguments
     ///   - result: Result callback
-    func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         NSLog("handling \(call.method)")
 
         if nativeError != nil {
@@ -99,7 +99,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
 
     /// Implements the DebugLog method of the IrmaMobileBridge interface.
     /// - Parameter message: Message to be logged
-    func debugLog(_ message: String?) {
+    public func debugLog(_ message: String?) {
         channel.invokeMethod("GoLog", arguments: message)
 #if DEBUG
         if message != nil {
@@ -112,7 +112,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
     /// - Parameters:
     ///   - name: name of the method being invoked
     ///   - payload: payload that contains the arguments for the requested method
-    func dispatch(fromGo name: String?, payload: String?) {
+    public func dispatch(fromGo name: String?, payload: String?) {
         let eventName = name ?? "UnknownEvent"
         if eventName != "IrmaConfigurationEvent" {
           debugLog("dispatching \(eventName)(\(payload ?? ""))")
