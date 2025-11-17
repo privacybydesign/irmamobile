@@ -14,10 +14,7 @@ import Flutter
         UIApplication.shared.isStatusBarHidden = false
 
         GeneratedPluginRegistrant.register(with: self)
-        // IrmaMobileBridgePlugin.register(
-        //     with: self.registrar(forPlugin: "IrmaMobileBridgePlugin")!
-        // )
-        // PrivacyScreenPlugin.register(with: self.registrar(forPlugin: "PrivacyScreenPlugin")!)
+
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 }
