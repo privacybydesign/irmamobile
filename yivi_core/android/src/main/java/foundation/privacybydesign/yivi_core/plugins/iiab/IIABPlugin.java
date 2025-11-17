@@ -1,4 +1,4 @@
-package foundation.privacybydesign.irmamobile.plugins.iiab;
+package foundation.privacybydesign.yivi_core.plugins.iiab;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;

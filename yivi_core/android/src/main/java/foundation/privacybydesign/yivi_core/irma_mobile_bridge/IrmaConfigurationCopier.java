@@ -1,4 +1,4 @@
-package foundation.privacybydesign.irmamobile.irma_mobile_bridge;
+package foundation.privacybydesign.yivi_core.irma_mobile_bridge;
 
 import android.content.Context;
 import android.content.res.AssetManager;

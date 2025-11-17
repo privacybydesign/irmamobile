@@ -1,6 +1,6 @@
 // Code originally from: https://github.com/jeroentrappers/flutter_privacy_screen
 
-package foundation.privacybydesign.irmamobile.plugins.privacy_screen;
+package foundation.privacybydesign.yivi_core.plugins.privacy_screen;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
