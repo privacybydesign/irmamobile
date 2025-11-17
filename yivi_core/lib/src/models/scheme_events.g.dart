@@ -6,29 +6,25 @@ part of 'scheme_events.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-InstallSchemeEvent _$InstallSchemeEventFromJson(Map<String, dynamic> json) => InstallSchemeEvent(
+InstallSchemeEvent _$InstallSchemeEventFromJson(Map<String, dynamic> json) =>
+    InstallSchemeEvent(
       url: json['URL'] as String,
       publicKey: json['PublicKey'] as String,
     );
 
-Map<String, dynamic> _$InstallSchemeEventToJson(InstallSchemeEvent instance) => <String, dynamic>{
-      'URL': instance.url,
-      'PublicKey': instance.publicKey,
-    };
+Map<String, dynamic> _$InstallSchemeEventToJson(InstallSchemeEvent instance) =>
+    <String, dynamic>{'URL': instance.url, 'PublicKey': instance.publicKey};
 
-RemoveSchemeEvent _$RemoveSchemeEventFromJson(Map<String, dynamic> json) => RemoveSchemeEvent(
-      schemeId: json['SchemeID'] as String,
-    );
+RemoveSchemeEvent _$RemoveSchemeEventFromJson(Map<String, dynamic> json) =>
+    RemoveSchemeEvent(schemeId: json['SchemeID'] as String);
 
-Map<String, dynamic> _$RemoveSchemeEventToJson(RemoveSchemeEvent instance) => <String, dynamic>{
-      'SchemeID': instance.schemeId,
-    };
+Map<String, dynamic> _$RemoveSchemeEventToJson(RemoveSchemeEvent instance) =>
+    <String, dynamic>{'SchemeID': instance.schemeId};
 
-RemoveRequestorSchemeEvent _$RemoveRequestorSchemeEventFromJson(Map<String, dynamic> json) =>
-    RemoveRequestorSchemeEvent(
-      schemeId: json['SchemeID'] as String,
-    );
+RemoveRequestorSchemeEvent _$RemoveRequestorSchemeEventFromJson(
+  Map<String, dynamic> json,
+) => RemoveRequestorSchemeEvent(schemeId: json['SchemeID'] as String);
 
-Map<String, dynamic> _$RemoveRequestorSchemeEventToJson(RemoveRequestorSchemeEvent instance) => <String, dynamic>{
-      'SchemeID': instance.schemeId,
-    };
+Map<String, dynamic> _$RemoveRequestorSchemeEventToJson(
+  RemoveRequestorSchemeEvent instance,
+) => <String, dynamic>{'SchemeID': instance.schemeId};

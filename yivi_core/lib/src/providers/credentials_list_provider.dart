@@ -38,11 +38,14 @@ final credentialOrderRepoProvider = Provider(
 enum NewItemPolicy { append, prepend }
 
 /// ----- Controller: reconciles external items with stored order
-final credentialOrderControllerProvider = AsyncNotifierProvider<CredentialOrderController, List<MultiFormatCredential>>(
-  CredentialOrderController.new,
-);
+final credentialOrderControllerProvider =
+    AsyncNotifierProvider<
+      CredentialOrderController,
+      List<MultiFormatCredential>
+    >(CredentialOrderController.new);
 
-class CredentialOrderController extends AsyncNotifier<List<MultiFormatCredential>> {
+class CredentialOrderController
+    extends AsyncNotifier<List<MultiFormatCredential>> {
   Timer? _debounce;
   List<String> _order = const []; // persisted order of IDs
   final NewItemPolicy _policy = NewItemPolicy.prepend;
@@ -53,20 +56,17 @@ class CredentialOrderController extends AsyncNotifier<List<MultiFormatCredential
     _order = await ref.read(credentialOrderRepoProvider).loadOrder();
 
     // Listen to external source and reconcile on each update
-    ref.listen(
-      credentialInfoListProvider,
-      (prev, next) async {
-        final items = next.valueOrNull;
-        if (items == null) {
-          return;
-        }
-        final merged = _reconcile(items, _order, _policy);
-        state = AsyncData(merged);
-        // Optionally clean up persisted order (remove non-existent IDs)
-        _debouncedSave(merged);
-        _order = merged.map((c) => c.credentialType.fullId).toList();
-      },
-    );
+    ref.listen(credentialInfoListProvider, (prev, next) async {
+      final items = next.valueOrNull;
+      if (items == null) {
+        return;
+      }
+      final merged = _reconcile(items, _order, _policy);
+      state = AsyncData(merged);
+      // Optionally clean up persisted order (remove non-existent IDs)
+      _debouncedSave(merged);
+      _order = merged.map((c) => c.credentialType.fullId).toList();
+    });
 
     // Seed with current external value (if available)
     final ext = await ref.read(credentialInfoListProvider.future);
@@ -117,14 +117,11 @@ class CredentialOrderController extends AsyncNotifier<List<MultiFormatCredential
 
   void _debouncedSave(List<MultiFormatCredential> items) {
     _debounce?.cancel();
-    _debounce = Timer(
-      const Duration(milliseconds: 400),
-      () async {
-        await ref.read(credentialOrderRepoProvider).saveOrder(
-              items.map((e) => e.credentialType.fullId).toList(),
-            );
-      },
-    );
+    _debounce = Timer(const Duration(milliseconds: 400), () async {
+      await ref
+          .read(credentialOrderRepoProvider)
+          .saveOrder(items.map((e) => e.credentialType.fullId).toList());
+    });
   }
 
   void dispose() {

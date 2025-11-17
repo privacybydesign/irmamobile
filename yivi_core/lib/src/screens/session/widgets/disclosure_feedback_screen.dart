@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../widgets/action_feedback.dart';
 
-enum DisclosureFeedbackType {
-  success,
-  canceled,
-  notSatisfiable,
-}
+enum DisclosureFeedbackType { success, canceled, notSatisfiable }
 
 class DisclosureFeedbackScreen extends StatefulWidget {
   static const _translationKeys = {
@@ -27,8 +23,8 @@ class DisclosureFeedbackScreen extends StatefulWidget {
     required this.otherParty,
     required this.onDismiss,
     bool? isSignatureSession,
-  })  : isSignatureSession = isSignatureSession ?? false,
-        _translationKey = _translationKeys[feedbackType];
+  }) : isSignatureSession = isSignatureSession ?? false,
+       _translationKey = _translationKeys[feedbackType];
 
   @override
   State<StatefulWidget> createState() {
@@ -36,7 +32,8 @@ class DisclosureFeedbackScreen extends StatefulWidget {
   }
 }
 
-class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with WidgetsBindingObserver {
+class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -55,7 +52,8 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
 
     return ActionFeedback(
       success: widget.feedbackType == DisclosureFeedbackType.success,
-      titleTranslationKey: 'disclosure.feedback.header.${widget._translationKey}',
+      titleTranslationKey:
+          'disclosure.feedback.header.${widget._translationKey}',
       titleTranslationParams: otherPartyTranslationParam,
       explanationTranslationKey:
           'disclosure.feedback.text.${widget._translationKey}${widget.isSignatureSession ? '_signature' : ''}',

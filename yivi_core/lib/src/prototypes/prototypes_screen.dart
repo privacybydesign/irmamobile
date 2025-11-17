@@ -22,18 +22,12 @@ class PrototypesScreen extends StatelessWidget {
   final pinBloc5 = EnterPinStateBloc(5);
   final pinBloc16 = EnterPinStateBloc(16);
 
-  Widget _buildTile(
-    BuildContext context,
-    String title,
-    Widget screen,
-  ) =>
+  Widget _buildTile(BuildContext context, String title, Widget screen) =>
       ListTile(
         title: Text(title),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => screen,
-          ),
+          MaterialPageRoute(builder: (context) => screen),
         ),
       );
 
@@ -73,25 +67,17 @@ class PrototypesScreen extends StatelessWidget {
           _buildTile(
             context,
             'Haptics',
-            HapticScreen(
-              onBack: Navigator.of(context).pop,
-            ),
+            HapticScreen(onBack: Navigator.of(context).pop),
           ),
           _buildTile(
             context,
             'Basic pin input, exactly 5 digits',
-            PinScreenTest(
-              maxPinSize: 5,
-              pinBloc: pinBloc5,
-            ),
+            PinScreenTest(maxPinSize: 5, pinBloc: pinBloc5),
           ),
           _buildTile(
             context,
             'Basic pin input, >5 digits, at most 16',
-            PinScreenTest(
-              maxPinSize: 16,
-              pinBloc: pinBloc16,
-            ),
+            PinScreenTest(maxPinSize: 16, pinBloc: pinBloc16),
           ),
           _buildTile(
             context,
@@ -137,25 +123,15 @@ class PrototypesScreen extends StatelessWidget {
           _buildTile(
             context,
             'Arrow back - Signature',
-            const ArrowBack(
-              type: ArrowBackType.signature,
-            ),
+            const ArrowBack(type: ArrowBackType.signature),
           ),
           _buildTile(
             context,
             'Arrow back - Disclosure',
             const ArrowBack(type: ArrowBackType.disclosure),
           ),
-          _buildTile(
-            context,
-            'Update required',
-            RequiredUpdateScreen(),
-          ),
-          _buildTile(
-            context,
-            'Root warning',
-            const RootedWarningScreen(),
-          ),
+          _buildTile(context, 'Update required', RequiredUpdateScreen()),
+          _buildTile(context, 'Root warning', const RootedWarningScreen()),
           _buildTile(
             context,
             'No internet',
@@ -164,17 +140,11 @@ class PrototypesScreen extends StatelessWidget {
               onTapRetry: () {},
             ),
           ),
-          _buildTile(
-            context,
-            'Blocked',
-            BlockedScreen(),
-          ),
+          _buildTile(context, 'Blocked', BlockedScreen()),
           _buildTile(
             context,
             'General error',
-            ErrorScreen(
-              onTapClose: Navigator.of(context).pop,
-            ),
+            ErrorScreen(onTapClose: Navigator.of(context).pop),
           ),
           _buildTile(
             context,
@@ -275,16 +245,8 @@ class PrototypesScreen extends StatelessWidget {
               onDismiss: Navigator.pop,
             ),
           ),
-          _buildTile(
-            context,
-            'Splash screen',
-            const SplashScreen(),
-          ),
-          _buildTile(
-            context,
-            'Loading screen',
-            LoadingScreen(),
-          ),
+          _buildTile(context, 'Splash screen', const SplashScreen()),
+          _buildTile(context, 'Loading screen', LoadingScreen()),
           _buildTile(
             context,
             'Disclosure permission introduction',

@@ -7,10 +7,7 @@ class IrmaBottomSheet extends StatefulWidget {
   final Widget child;
   final Widget? title;
 
-  const IrmaBottomSheet({
-    this.title,
-    required this.child,
-  });
+  const IrmaBottomSheet({this.title, required this.child});
 
   @override
   State<IrmaBottomSheet> createState() => _IrmaBottomSheetState();
@@ -45,23 +42,27 @@ class _IrmaBottomSheetState extends State<IrmaBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         color: theme.backgroundPrimary,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [
           Container(
             decoration: BoxDecoration(
-              color: _scrolledDown ? theme.backgroundSecondary : theme.backgroundPrimary,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              color: _scrolledDown
+                  ? theme.backgroundSecondary
+                  : theme.backgroundPrimary,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: theme.defaultSpacing,
+                    ),
                     child: widget.title ?? Container(),
                   ),
                 ),

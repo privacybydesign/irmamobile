@@ -22,7 +22,9 @@ class TranslatedRichText extends StatelessWidget {
     this.fallbackKey,
     this.style,
     this.textAlign,
-  }) : assert(translationParams.keys.every((k) => semanticsParams.keys.contains(k)));
+  }) : assert(
+         translationParams.keys.every((k) => semanticsParams.keys.contains(k)),
+       );
 
   String _translate(BuildContext context, {bool forSemantics = false}) {
     return FlutterI18n.translate(
@@ -42,19 +44,21 @@ class TranslatedRichText extends StatelessWidget {
         // Found an occurrence of the current parameter.
         // Recursively look for other parameters in the part before the current occurrence.
         final rawBefore = rawTranslation.substring(0, paramIndex);
-        final spansBefore = rawBefore.isNotEmpty ? _replaceRichParams(rawBefore) : <InlineSpan>[];
+        final spansBefore = rawBefore.isNotEmpty
+            ? _replaceRichParams(rawBefore)
+            : <InlineSpan>[];
 
         // Recursively look for other parameters and more occurrences of the current parameter
         // in the part after the current occurrence.
-        final rawAfter = rawTranslation.substring(paramIndex).replaceFirst(RegExp('{$paramKey}'), '');
-        final spansAfter = rawAfter.isNotEmpty ? _replaceRichParams(rawAfter) : <InlineSpan>[];
+        final rawAfter = rawTranslation
+            .substring(paramIndex)
+            .replaceFirst(RegExp('{$paramKey}'), '');
+        final spansAfter = rawAfter.isNotEmpty
+            ? _replaceRichParams(rawAfter)
+            : <InlineSpan>[];
 
         // The recursive calls above guarantee that all spans are found, so we can immediately return.
-        return [
-          ...spansBefore,
-          translationParams[paramKey]!,
-          ...spansAfter,
-        ];
+        return [...spansBefore, translationParams[paramKey]!, ...spansAfter];
       }
     }
 

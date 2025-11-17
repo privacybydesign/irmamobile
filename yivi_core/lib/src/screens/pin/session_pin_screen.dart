@@ -22,13 +22,18 @@ class SessionPinScreen extends StatefulWidget {
   final int sessionID;
   final String title;
 
-  const SessionPinScreen({super.key, required this.sessionID, required this.title});
+  const SessionPinScreen({
+    super.key,
+    required this.sessionID,
+    required this.title,
+  });
 
   @override
   State<SessionPinScreen> createState() => _SessionPinScreenState();
 }
 
-class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBindingObserver {
+class _SessionPinScreenState extends State<SessionPinScreen>
+    with WidgetsBindingObserver {
   late final IrmaRepository _repo;
   late final PinBloc _pinBloc;
   final _navigatorKey = GlobalKey();
@@ -77,12 +82,16 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   }
 
   void _cancel() {
-    _repo.bridgedDispatch(RespondPinEvent(sessionID: widget.sessionID, proceed: false));
+    _repo.bridgedDispatch(
+      RespondPinEvent(sessionID: widget.sessionID, proceed: false),
+    );
   }
 
   void _handleInvalidPin(PinState state) {
     final navigatorContext = _navigatorKey.currentContext;
-    if (navigatorContext != null && state.remainingAttempts != null && state.remainingAttempts! > 0) {
+    if (navigatorContext != null &&
+        state.remainingAttempts != null &&
+        state.remainingAttempts! > 0) {
       showDialog(
         context: navigatorContext,
         useRootNavigator: false,
@@ -100,12 +109,14 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   void _handleError(PinState state) {
     final navigatorContext = _navigatorKey.currentContext;
     if (navigatorContext != null) {
-      Navigator.of(navigatorContext).push(MaterialPageRoute(
-        builder: (context) => SessionErrorScreen(
-          error: state.error,
-          onTapClose: Navigator.of(navigatorContext).pop,
+      Navigator.of(navigatorContext).push(
+        MaterialPageRoute(
+          builder: (context) => SessionErrorScreen(
+            error: state.error,
+            onTapClose: Navigator.of(navigatorContext).pop,
+          ),
         ),
-      ));
+      );
     }
   }
 
@@ -131,7 +142,9 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
       canPop: false,
       onPopInvokedWithResult: (didPop, popResult) async {
         // Wait on irmago response before closing, calling widget expects a result
-        final pinState = await _pinBloc.stream.firstWhere((state) => !state.authenticateInProgress);
+        final pinState = await _pinBloc.stream.firstWhere(
+          (state) => !state.authenticateInProgress,
+        );
         if (!pinState.authenticated) {
           _cancel();
         }
@@ -157,41 +170,53 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                 appBar: _scaffoldTitle(),
                 body: StreamBuilder(
                   stream: _pinBloc.getPinBlockedFor(),
-                  builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
-                    return StreamBuilder<bool>(
-                      stream: prefs.getLongPin(),
-                      builder: (context, snapshot) {
-                        final maxPinSize = (snapshot.data ?? false) ? longPinSize : shortPinSize;
-                        final pinBloc = EnterPinStateBloc(maxPinSize);
+                  builder:
+                      (
+                        BuildContext context,
+                        AsyncSnapshot<Duration> blockedFor,
+                      ) {
+                        return StreamBuilder<bool>(
+                          stream: prefs.getLongPin(),
+                          builder: (context, snapshot) {
+                            final maxPinSize = (snapshot.data ?? false)
+                                ? longPinSize
+                                : shortPinSize;
+                            final pinBloc = EnterPinStateBloc(maxPinSize);
 
-                        final enabled =
-                            (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
+                            final enabled =
+                                (blockedFor.data ?? Duration.zero).inSeconds <=
+                                    0 &&
+                                !state.authenticateInProgress;
 
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            YiviPinScreen(
-                              instructionKey: 'session_pin.subtitle',
-                              maxPinSize: maxPinSize,
-                              onSubmit: (p) => _submit(enabled, p),
-                              pinBloc: pinBloc,
-                              enabled: enabled,
-                              onForgotPin: context.pushResetPinScreen,
-                              listener: (context, state) {
-                                if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
-                                  _submit(enabled, state.toString());
-                                }
-                              },
-                            ),
-                            if (state.authenticateInProgress)
-                              Padding(
-                                  padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                                  child: const CircularProgressIndicator()),
-                          ],
+                            return Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                YiviPinScreen(
+                                  instructionKey: 'session_pin.subtitle',
+                                  maxPinSize: maxPinSize,
+                                  onSubmit: (p) => _submit(enabled, p),
+                                  pinBloc: pinBloc,
+                                  enabled: enabled,
+                                  onForgotPin: context.pushResetPinScreen,
+                                  listener: (context, state) {
+                                    if (maxPinSize == shortPinSize &&
+                                        state.pin.length == maxPinSize) {
+                                      _submit(enabled, state.toString());
+                                    }
+                                  },
+                                ),
+                                if (state.authenticateInProgress)
+                                  Padding(
+                                    padding: EdgeInsets.all(
+                                      IrmaTheme.of(context).defaultSpacing,
+                                    ),
+                                    child: const CircularProgressIndicator(),
+                                  ),
+                              ],
+                            );
+                          },
                         );
                       },
-                    );
-                  },
                 ),
               );
             },

@@ -42,7 +42,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
             Icons.check_circle,
             color: theme.success,
             size: logoContainerSize * 0.3,
-          )
+          ),
         ],
       );
     }
@@ -58,9 +58,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
             child: Row(
               children: [
                 ExcludeSemantics(child: avatar),
-                SizedBox(
-                  width: theme.defaultSpacing - theme.tinySpacing,
-                ),
+                SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,13 +69,14 @@ class IrmaCredentialTypeCard extends StatelessWidget {
                           color: theme.dark,
                         ),
                       ),
-                      SizedBox(
-                        height: theme.tinySpacing,
-                      ),
+                      SizedBox(height: theme.tinySpacing),
                       Text(
                         getTranslation(
                           context,
-                          repo.irmaConfiguration.issuers[credType.fullIssuerId]!.name,
+                          repo
+                              .irmaConfiguration
+                              .issuers[credType.fullIssuerId]!
+                              .name,
                         ),
                         style: theme.textTheme.bodyMedium!.copyWith(
                           fontSize: 14,

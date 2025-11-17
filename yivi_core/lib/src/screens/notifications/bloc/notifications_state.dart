@@ -14,7 +14,8 @@ class NotificationsLoading extends NotificationsState {}
 class NotificationsLoaded extends NotificationsState {
   final List<Notification> notifications;
 
-  bool get hasUnreadNotifications => notifications.any((notification) => !notification.read);
+  bool get hasUnreadNotifications =>
+      notifications.any((notification) => !notification.read);
 
   const NotificationsLoaded(this.notifications);
 }

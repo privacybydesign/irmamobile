@@ -44,15 +44,9 @@ class IrmaConfirmationDialog extends StatelessWidget {
       style: nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 
-    final spacerWidget = SizedBox(
-      height: theme.smallSpacing,
-    );
+    final spacerWidget = SizedBox(height: theme.smallSpacing);
 
-    var buttonWidgets = [
-      confirmButton,
-      spacerWidget,
-      cancelButton,
-    ];
+    var buttonWidgets = [confirmButton, spacerWidget, cancelButton];
 
     if (nudgeCancel) {
       buttonWidgets = buttonWidgets.reversed.toList();
@@ -65,9 +59,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
         contentTranslationKey,
         translationParams: contentTranslationParams,
       ),
-      child: Column(
-        children: buttonWidgets,
-      ),
+      child: Column(children: buttonWidgets),
     );
   }
 }

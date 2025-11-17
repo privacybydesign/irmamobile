@@ -19,9 +19,7 @@ class IrmaDismissible extends StatelessWidget {
 
     final dismissedText = TranslatedText(
       'ui.delete',
-      style: theme.textTheme.bodyLarge!.copyWith(
-        color: theme.light,
-      ),
+      style: theme.textTheme.bodyLarge!.copyWith(color: theme.light),
     );
 
     final background = Container(
@@ -29,9 +27,7 @@ class IrmaDismissible extends StatelessWidget {
         color: theme.error,
         borderRadius: theme.borderRadius,
       ),
-      padding: EdgeInsets.all(
-        theme.defaultSpacing,
-      ),
+      padding: EdgeInsets.all(theme.defaultSpacing),
       alignment: Alignment.centerRight,
       child: dismissedText,
     );

@@ -25,14 +25,13 @@ class _QRViewContainerState extends State<QRViewContainer> {
   }
 
   void _onQRViewCreated(QRViewController controller) {
-    _qrViewSubscription = controller.scannedDataStream.listen((qr) => widget.onFound(qr.code!));
+    _qrViewSubscription = controller.scannedDataStream.listen(
+      (qr) => widget.onFound(qr.code!),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return QRView(
-      key: _qrKey,
-      onQRViewCreated: _onQRViewCreated,
-    );
+    return QRView(key: _qrKey, onQRViewCreated: _onQRViewCreated);
   }
 }

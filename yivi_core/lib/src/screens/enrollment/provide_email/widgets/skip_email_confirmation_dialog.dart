@@ -7,9 +7,11 @@ class SkipEmailConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return const IrmaConfirmationDialog(
       titleTranslationKey: 'enrollment.email.provide.confirm_skip_dialog.title',
-      contentTranslationKey: 'enrollment.email.provide.confirm_skip_dialog.explanation',
+      contentTranslationKey:
+          'enrollment.email.provide.confirm_skip_dialog.explanation',
       confirmTranslationKey: 'ui.skip',
-      cancelTranslationKey: 'enrollment.email.provide.confirm_skip_dialog.decline',
+      cancelTranslationKey:
+          'enrollment.email.provide.confirm_skip_dialog.decline',
       nudgeCancel: true,
     );
   }

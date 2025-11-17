@@ -33,10 +33,7 @@ class TranslatedText extends StatelessWidget {
   Widget _buildMarkdown(String translation, BuildContext context) {
     return IrmaMarkdown(
       translation,
-      styleSheet: MarkdownStyleSheet(
-        textAlign: markdownTextAlign,
-        p: style,
-      ),
+      styleSheet: MarkdownStyleSheet(textAlign: markdownTextAlign, p: style),
     );
   }
 
@@ -63,17 +60,12 @@ class TranslatedText extends StatelessWidget {
     final splitKey = _key.split('.');
 
     if (splitKey.isNotEmpty && splitKey.last.contains('_markdown')) {
-      return _buildMarkdown(
-        _translate(context, _key),
-        context,
-      );
+      return _buildMarkdown(_translate(context, _key), context);
     }
 
     return Semantics(
       header: isHeader,
-      child: _buildText(
-        _translate(context, _key),
-      ),
+      child: _buildText(_translate(context, _key)),
     );
   }
 }

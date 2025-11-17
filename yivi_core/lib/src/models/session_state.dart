@@ -49,22 +49,24 @@ class SessionState {
   // 'redirect' session can also be issuance. Therefore we overrule the sessionType when
   // issuedCredentials is set. IrmaGo enforces that an error is triggered in case of a problematic
   // mismatch between both values, so we can safely do this.
-  bool get isIssuanceSession => issuedCredentials?.isNotEmpty ?? sessionType == 'issuing';
+  bool get isIssuanceSession =>
+      issuedCredentials?.isNotEmpty ?? sessionType == 'issuing';
 
   // Indicates that this session contains a credential that
   // the user previously tried to obtain via the credential store
   // or by reobtain a credential from the data tab.
   bool get didIssuePreviouslyLaunchedCredential =>
       issuedCredentials?.any(
-        (cred) => previouslyLaunchedCredentials.contains(cred.credentialType.fullId),
+        (cred) =>
+            previouslyLaunchedCredentials.contains(cred.credentialType.fullId),
       ) ??
       false;
 
   bool get isFinished => [
-        SessionStatus.success,
-        SessionStatus.canceled,
-        SessionStatus.error,
-      ].contains(status);
+    SessionStatus.success,
+    SessionStatus.canceled,
+    SessionStatus.error,
+  ].contains(status);
 
   SessionState copyWith({
     SessionStatus? status,
@@ -86,7 +88,8 @@ class SessionState {
       continueOnSecondDevice: continueOnSecondDevice,
       status: status ?? this.status,
       serverName: serverName ?? this.serverName,
-      disclosuresCandidates: disclosuresCandidates ?? this.disclosuresCandidates,
+      disclosuresCandidates:
+          disclosuresCandidates ?? this.disclosuresCandidates,
       clientReturnURL: clientReturnURL ?? this.clientReturnURL,
       isSignatureSession: isSignatureSession ?? this.isSignatureSession,
       signedMessage: signedMessage ?? this.signedMessage,
@@ -117,6 +120,6 @@ enum SessionStatus {
 
 extension SessionStatusParser on String {
   SessionStatus? toSessionStatus() => SessionStatus.values.firstWhereOrNull(
-        (v) => v.toString() == 'SessionStatus.$this',
-      );
+    (v) => v.toString() == 'SessionStatus.$this',
+  );
 }

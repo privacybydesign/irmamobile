@@ -6,6 +6,8 @@ part of 'clear_all_data_event.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-ClearAllDataEvent _$ClearAllDataEventFromJson(Map<String, dynamic> json) => ClearAllDataEvent();
+ClearAllDataEvent _$ClearAllDataEventFromJson(Map<String, dynamic> json) =>
+    ClearAllDataEvent();
 
-Map<String, dynamic> _$ClearAllDataEventToJson(ClearAllDataEvent instance) => <String, dynamic>{};
+Map<String, dynamic> _$ClearAllDataEventToJson(ClearAllDataEvent instance) =>
+    <String, dynamic>{};

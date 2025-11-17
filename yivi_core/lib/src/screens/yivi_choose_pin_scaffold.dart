@@ -36,14 +36,17 @@ class YiviChoosePinScaffold extends StatelessWidget {
         stream: prefs.getLongPin(),
         builder: (context, snapshot) {
           final toggleValue = ValueNotifier<bool>(
-            newPinNotifier.value.isNotEmpty ? newPinNotifier.value.length > shortPinSize : (snapshot.data ?? false),
+            newPinNotifier.value.isNotEmpty
+                ? newPinNotifier.value.length > shortPinSize
+                : (snapshot.data ?? false),
           );
           return ValueListenableBuilder<bool>(
             valueListenable: toggleValue,
             builder: (context, longPin, _) {
               final maxPinSize = longPin ? longPinSize : shortPinSize;
               final pinBloc = EnterPinStateBloc(maxPinSize);
-              final instructionKey = 'choose_pin.instruction.${longPin ? 'long' : 'short'}';
+              final instructionKey =
+                  'choose_pin.instruction.${longPin ? 'long' : 'short'}';
               return YiviPinScreen(
                 scaffoldKey: _scaffoldKey,
                 instructionKey: instructionKey,

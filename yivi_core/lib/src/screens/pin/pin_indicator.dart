@@ -5,13 +5,18 @@ class _PinIndicator extends StatelessWidget {
   final ValueNotifier<bool> pinVisibilityValue;
   final EnterPinState pinState;
 
-  const _PinIndicator({required this.maxPinSize, required this.pinVisibilityValue, required this.pinState});
+  const _PinIndicator({
+    required this.maxPinSize,
+    required this.pinVisibilityValue,
+    required this.pinState,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
       valueListenable: pinVisibilityValue,
-      builder: (context, visibility, _) => _togglePinIndicators(context, visibility),
+      builder: (context, visibility, _) =>
+          _togglePinIndicators(context, visibility),
     );
   }
 
@@ -21,12 +26,8 @@ class _PinIndicator extends StatelessWidget {
     final textColor = isPinVisible ? theme.secondary : Colors.transparent;
 
     final style = maxPinSize != shortPinSize
-        ? theme.textTheme.headlineSmall?.copyWith(
-            color: textColor,
-          )
-        : theme.textTheme.displayMedium?.copyWith(
-            color: textColor,
-          );
+        ? theme.textTheme.headlineSmall?.copyWith(color: textColor)
+        : theme.textTheme.displayMedium?.copyWith(color: textColor);
 
     final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
 
@@ -53,13 +54,13 @@ class _PinIndicator extends StatelessWidget {
 
     // prevent the row from collapsing
     if (pinSize == 0 && maxPinSize != shortPinSize) {
-      return SizedBox(
-        width: 0,
-        height: 19.scaleToDesignSize(context),
-      );
+      return SizedBox(width: 0, height: 19.scaleToDesignSize(context));
     }
 
-    final constraints = BoxConstraints.tightFor(width: scaledEdgeSize, height: scaledEdgeSize);
+    final constraints = BoxConstraints.tightFor(
+      width: scaledEdgeSize,
+      height: scaledEdgeSize,
+    );
 
     final isMaxPin5 = maxPinSize == shortPinSize;
     final joinedPin = pinState.pin.join();
@@ -68,15 +69,17 @@ class _PinIndicator extends StatelessWidget {
       label: joinedPin.isEmpty
           ? FlutterI18n.translate(context, 'pin_accessibility.empty_pin_input')
           : isPinVisible
-              ? joinedPin
-              : FlutterI18n.plural(
-                  context,
-                  'pin_accessibility.digits_entered',
-                  pinState.pin.length,
-                ),
+          ? joinedPin
+          : FlutterI18n.plural(
+              context,
+              'pin_accessibility.digits_entered',
+              pinState.pin.length,
+            ),
       child: ExcludeSemantics(
         child: Row(
-          mainAxisAlignment: isMaxPin5 ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
+          mainAxisAlignment: isMaxPin5
+              ? MainAxisAlignment.spaceEvenly
+              : MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: List.generate(
             isMaxPin5 ? shortPinSize : pinSize,
@@ -90,7 +93,9 @@ class _PinIndicator extends StatelessWidget {
                   height: isMaxPin5 ? 36 : 21,
                   child: Text(
                     '${i < pinSize ? pinState.pin.elementAt(i) : ''}',
-                    style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
+                    style: i >= pinSize
+                        ? style?.copyWith(color: Colors.transparent)
+                        : style,
                   ),
                 ),
                 if (i < pinSize)

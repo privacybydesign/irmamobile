@@ -58,19 +58,22 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: context.goSettingsScreen),
+      EnterPin.routeName: (_) => EnterPin(
+        submitOldPin: _submitOldPin,
+        cancel: context.goSettingsScreen,
+      ),
       ChoosePinScreen.routeName: (_) => ChoosePinScreen(
-            onChoosePin: _chooseNewPin,
-            onPrevious: context.goSettingsScreen,
-            newPinNotifier: newPin,
-          ),
+        onChoosePin: _chooseNewPin,
+        onPrevious: context.goSettingsScreen,
+        newPinNotifier: newPin,
+      ),
       ConfirmPin.routeName: (_) => ConfirmPin(
-            confirmNewPin: _confirmNewPin,
-            cancel: context.goSettingsScreen,
-            returnToChoosePin: _returnToChoosePin,
-            onPinMismatch: _handlePinMismatch,
-            newPinNotifier: newPin,
-          ),
+        confirmNewPin: _confirmNewPin,
+        cancel: context.goSettingsScreen,
+        returnToChoosePin: _returnToChoosePin,
+        onPinMismatch: _handlePinMismatch,
+        newPinNotifier: newPin,
+      ),
     };
   }
 
@@ -105,9 +108,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             ?..popUntil(
               (route) => route.settings.name == ChoosePinScreen.routeName,
             )
-            ..pushReplacementNamed(
-              ChoosePinScreen.routeName,
-            );
+            ..pushReplacementNamed(ChoosePinScreen.routeName);
         },
       ),
     );
@@ -118,7 +119,9 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
       SnackBar(
         content: TranslatedText(
           'change_pin.toast',
-          style: theme.themeData.textTheme.bodySmall!.copyWith(color: theme.light),
+          style: theme.themeData.textTheme.bodySmall!.copyWith(
+            color: theme.light,
+          ),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: theme.themeData.colorScheme.secondary,
@@ -190,12 +193,17 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               case ValidationState.valid:
                 HapticFeedback.mediumImpact();
                 // old pin verified, proceed to new pin screen
-                navigatorKey.currentState?.pushReplacementNamed(ChoosePinScreen.routeName);
+                navigatorKey.currentState?.pushReplacementNamed(
+                  ChoosePinScreen.routeName,
+                );
                 break;
               case ValidationState.invalid:
                 HapticFeedback.heavyImpact();
                 assert(state.attemptsRemaining != null);
-                _handleBadPinAttempts(state.attemptsRemaining!, state.blockedUntil);
+                _handleBadPinAttempts(
+                  state.attemptsRemaining!,
+                  state.blockedUntil,
+                );
                 navigatorKey.currentState?.pushNamed(EnterPin.routeName);
                 break;
               case ValidationState.error:

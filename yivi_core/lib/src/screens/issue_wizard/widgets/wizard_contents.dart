@@ -20,7 +20,8 @@ class IssueWizardContents extends StatelessWidget {
   final Image logo;
   final void Function() onBack;
   final void Function(BuildContext context, IssueWizardEvent wizard) onNext;
-  final void Function(VisibilityInfo visibility, IssueWizardEvent wizard) onVisibilityChanged;
+  final void Function(VisibilityInfo visibility, IssueWizardEvent wizard)
+  onVisibilityChanged;
 
   const IssueWizardContents({
     required this.scrollviewKey,
@@ -32,11 +33,17 @@ class IssueWizardContents extends StatelessWidget {
     required this.onVisibilityChanged,
   });
 
-  Widget _buildWizard(BuildContext context, String lang, IssueWizardEvent wizard) {
+  Widget _buildWizard(
+    BuildContext context,
+    String lang,
+    IssueWizardEvent wizard,
+  ) {
     final intro = wizard.wizardData.intro;
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final firstIncomplete = wizard.wizardContents.indexWhere((el) => !el.completed);
+    final firstIncomplete = wizard.wizardContents.indexWhere(
+      (el) => !el.completed,
+    );
     return VisibilityDetector(
       key: const Key('wizard_key'),
       onVisibilityChanged: (v) => onVisibilityChanged(v, wizard),
@@ -48,11 +55,15 @@ class IssueWizardContents extends StatelessWidget {
             SizedBox(height: theme.defaultSpacing),
           ],
           IrmaStepper(
-            currentIndex: wizard.activeItemIndex >= 0 ? wizard.activeItemIndex : null,
+            currentIndex: wizard.activeItemIndex >= 0
+                ? wizard.activeItemIndex
+                : null,
             children: wizard.wizardContents
                 .mapIndexed(
                   (i, item) => IrmaCard(
-                    style: i == firstIncomplete ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+                    style: i == firstIncomplete
+                        ? IrmaCardStyle.highlighted
+                        : IrmaCardStyle.normal,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -82,14 +93,16 @@ class IssueWizardContents extends StatelessWidget {
     final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
         ? FlutterI18n.translate(context, 'issue_wizard.done')
-        : activeItem?.label.translate(lang,
+        : activeItem?.label.translate(
+            lang,
             fallback: FlutterI18n.translate(
               context,
               'issue_wizard.add_credential',
               translationParams: {
                 'credential': activeItem.header.translate(lang),
               },
-            ));
+            ),
+          );
     final wizardContentSize = wizard.wizardContents.length;
 
     return WizardScaffold(
@@ -99,7 +112,9 @@ class IssueWizardContents extends StatelessWidget {
       image: logo,
       onBack: onBack,
       headerBackgroundColor: colorFromCode(wizard.wizardData.color),
-      headerTextColor: wizard.wizardData.color == null ? null : colorFromCode(wizard.wizardData.textColor),
+      headerTextColor: wizard.wizardData.color == null
+          ? null
+          : colorFromCode(wizard.wizardData.textColor),
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,
         onPrimaryPressed: () => onNext(context, wizard),

@@ -10,7 +10,11 @@ class YiviBasicPinScaffold extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final String instructionKey;
 
-  YiviBasicPinScaffold({required this.submit, this.cancel, required this.instructionKey});
+  YiviBasicPinScaffold({
+    required this.submit,
+    this.cancel,
+    required this.instructionKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +28,8 @@ class YiviBasicPinScaffold extends StatelessWidget {
               ? () async {
                   cancel?.call();
                   if (!await Navigator.of(context).maybePop()) {
-                    if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+                    if (context.mounted)
+                      Navigator.of(context, rootNavigator: true).pop();
                   }
                 }
               : null,
@@ -34,7 +39,9 @@ class YiviBasicPinScaffold extends StatelessWidget {
       body: StreamBuilder<bool>(
         stream: prefs.getLongPin(),
         builder: (context, snapshot) {
-          final maxPinSize = (snapshot.data ?? false) ? longPinSize : shortPinSize;
+          final maxPinSize = (snapshot.data ?? false)
+              ? longPinSize
+              : shortPinSize;
           final pinBloc = EnterPinStateBloc(maxPinSize);
 
           return YiviPinScreen(
@@ -43,7 +50,8 @@ class YiviBasicPinScaffold extends StatelessWidget {
             onSubmit: submit,
             pinBloc: pinBloc,
             listener: (context, state) {
-              if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
+              if (maxPinSize == shortPinSize &&
+                  state.pin.length == maxPinSize) {
                 submit(state.toString());
               }
             },

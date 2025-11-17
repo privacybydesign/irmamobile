@@ -14,7 +14,8 @@ class YiviDialog extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return AnimatedPadding(
-      padding: MediaQuery.of(context).viewInsets +
+      padding:
+          MediaQuery.of(context).viewInsets +
           EdgeInsets.symmetric(
             horizontal: theme.mediumSpacing,
             vertical: theme.defaultSpacing,
@@ -73,7 +74,8 @@ class IrmaDialog extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return AnimatedPadding(
-      padding: MediaQuery.of(context).viewInsets +
+      padding:
+          MediaQuery.of(context).viewInsets +
           EdgeInsets.symmetric(
             horizontal: theme.mediumSpacing,
             vertical: theme.defaultSpacing,
@@ -109,12 +111,18 @@ class IrmaDialog extends StatelessWidget {
                         addSemanticIndexes: false,
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                            padding: EdgeInsets.only(
+                              bottom: theme.defaultSpacing,
+                            ),
                             child: Column(
                               children: [
                                 Semantics(
-                                  namesRoute: !Platform.isIOS, // Set to false on iOS to prevent double read
-                                  label: FlutterI18n.translate(context, 'accessibility.alert'),
+                                  namesRoute: !Platform
+                                      .isIOS, // Set to false on iOS to prevent double read
+                                  label: FlutterI18n.translate(
+                                    context,
+                                    'accessibility.alert',
+                                  ),
                                   child: Text(
                                     title,
                                     key: const Key('irma_dialog_title'),
@@ -132,12 +140,9 @@ class IrmaDialog extends StatelessWidget {
                                 if (image != null) ...[
                                   SizedBox(height: theme.defaultSpacing),
                                   Center(
-                                    child: Image.asset(
-                                      image!,
-                                      width: 240,
-                                    ),
+                                    child: Image.asset(image!, width: 240),
                                   ),
-                                ]
+                                ],
                               ],
                             ),
                           ),

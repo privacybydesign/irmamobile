@@ -18,16 +18,21 @@ import 'src/widgets/preferred_language_builder.dart';
 
 Future<void> main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
-    Zone.current.handleUncaughtError(details.exception, details.stack ?? StackTrace.empty);
+    Zone.current.handleUncaughtError(
+      details.exception,
+      details.stack ?? StackTrace.empty,
+    );
   };
 
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
 
     final preferences = await IrmaPreferences.fromInstance(
       // when the terms have changed, these values should be updated in order to trigger a dialog in the app
@@ -55,10 +60,7 @@ Future<void> main() async {
 class IrmaApp extends ConsumerWidget {
   final Locale? defaultLanguage;
 
-  const IrmaApp({
-    super.key,
-    this.defaultLanguage,
-  });
+  const IrmaApp({super.key, this.defaultLanguage});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -70,7 +72,9 @@ class IrmaApp extends ConsumerWidget {
         repository: repository,
         child: MultiBlocProvider(
           providers: [
-            BlocProvider(create: (context) => notificationsBloc..add(Initialize())),
+            BlocProvider(
+              create: (context) => notificationsBloc..add(Initialize()),
+            ),
             BlocProvider(create: (context) => HomeTabState()),
           ],
           child: PreferredLocaleBuilder(

@@ -14,5 +14,6 @@ class HandleURLEvent extends Event {
   @JsonKey(name: 'url')
   final String url;
 
-  factory HandleURLEvent.fromJson(Map<String, dynamic> json) => _$HandleURLEventFromJson(json);
+  factory HandleURLEvent.fromJson(Map<String, dynamic> json) =>
+      _$HandleURLEventFromJson(json);
 }

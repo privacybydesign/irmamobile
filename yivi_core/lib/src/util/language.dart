@@ -3,9 +3,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../models/translated_value.dart';
 
-String getTranslation(BuildContext context, TranslatedValue translations) => translations.translate(
-      FlutterI18n.currentLocale(context)!.languageCode,
-    );
+String getTranslation(BuildContext context, TranslatedValue translations) =>
+    translations.translate(FlutterI18n.currentLocale(context)!.languageCode);
 
 // Extension to get the localized language name
 extension LanguageName on Locale {

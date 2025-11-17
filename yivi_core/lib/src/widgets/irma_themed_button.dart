@@ -61,22 +61,29 @@ class IrmaThemedButton extends StatelessWidget {
 
     final textWidget = Text(
       FlutterI18n.translate(context, label),
-      style: textStyle ?? IrmaTheme.of(context).textTheme.labelLarge!.copyWith(color: textColor),
+      style:
+          textStyle ??
+          IrmaTheme.of(
+            context,
+          ).textTheme.labelLarge!.copyWith(color: textColor),
     );
 
-    final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;
+    final fixedHeight = size != null
+        ? size!.value
+        : IrmaButtonSize.medium.value;
 
     final style = ButtonStyle(
-      backgroundColor: WidgetStateProperty.resolveWith<Color?>((_) => backgroundColor),
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+        (_) => backgroundColor,
+      ),
       side: borderColor != null
-          ? WidgetStateProperty.resolveWith<BorderSide?>((_) => BorderSide(color: borderColor!))
+          ? WidgetStateProperty.resolveWith<BorderSide?>(
+              (_) => BorderSide(color: borderColor!),
+            )
           : null,
       shape: WidgetStateProperty.resolveWith<OutlinedBorder?>((_) => shape),
       padding: WidgetStateProperty.resolveWith<EdgeInsets>(
-        (_) => const EdgeInsets.symmetric(
-          vertical: 10.0,
-          horizontal: 20.0,
-        ),
+        (_) => const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       ),
       minimumSize: WidgetStateProperty.resolveWith<Size>(
         (_) => Size(minWidth, fixedHeight),
@@ -93,13 +100,7 @@ class IrmaThemedButton extends StatelessWidget {
           ? textWidget
           : Row(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon),
-                const SizedBox(
-                  width: 10.0,
-                ),
-                textWidget,
-              ],
+              children: [Icon(icon), const SizedBox(width: 10.0), textWidget],
             ),
     );
   }

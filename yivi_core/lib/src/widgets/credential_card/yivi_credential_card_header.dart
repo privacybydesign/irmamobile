@@ -66,19 +66,19 @@ class YiviCredentialCardHeader extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              status ?? Container(),
-              if (trailing != null) trailing!,
-            ],
+            children: [status ?? Container(), if (trailing != null) trailing!],
           ),
-          if (trailing != null || status != null) SizedBox(height: theme.smallSpacing),
+          if (trailing != null || status != null)
+            SizedBox(height: theme.smallSpacing),
           Stack(
             children: [
               Center(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ExcludeSemantics(child: IrmaAvatar(logoPath: logo, size: _compactLogoSize)),
+                    ExcludeSemantics(
+                      child: IrmaAvatar(logoPath: logo, size: _compactLogoSize),
+                    ),
                     SizedBox(width: theme.defaultSpacing),
                     Expanded(
                       child: Column(
@@ -87,17 +87,17 @@ class YiviCredentialCardHeader extends StatelessWidget {
                         children: [
                           Text(
                             credentialName,
-                            style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark, fontSize: 16),
+                            style: theme.themeData.textTheme.headlineMedium!
+                                .copyWith(color: theme.dark, fontSize: 16),
                             softWrap: true,
                           ),
                           if (issuerName != null)
                             TranslatedText(
                               'credential.issued_by',
-                              style: theme.themeData.textTheme.bodyMedium?.copyWith(fontSize: 14),
-                              translationParams: {
-                                'issuer': issuerName!,
-                              },
-                            )
+                              style: theme.themeData.textTheme.bodyMedium
+                                  ?.copyWith(fontSize: 14),
+                              translationParams: {'issuer': issuerName!},
+                            ),
                         ],
                       ),
                     ),
@@ -112,27 +112,29 @@ class YiviCredentialCardHeader extends StatelessWidget {
 
     return Stack(
       children: [
-        Align(
-          alignment: Alignment.topLeft,
-          child: statusText(theme),
-        ),
-        Align(
-          alignment: Alignment.topRight,
-          child: trailing,
-        ),
+        Align(alignment: Alignment.topLeft, child: statusText(theme)),
+        Align(alignment: Alignment.topRight, child: trailing),
         Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (trailing != null) SizedBox(height: theme.mediumSpacing) else SizedBox(height: theme.smallSpacing),
-              ExcludeSemantics(child: IrmaAvatar(logoPath: logo, size: _expandedLogoSize)),
+              if (trailing != null)
+                SizedBox(height: theme.mediumSpacing)
+              else
+                SizedBox(height: theme.smallSpacing),
+              ExcludeSemantics(
+                child: IrmaAvatar(logoPath: logo, size: _expandedLogoSize),
+              ),
               SizedBox(height: theme.mediumSpacing),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     credentialName,
-                    style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark, fontSize: 20),
+                    style: theme.themeData.textTheme.headlineMedium!.copyWith(
+                      color: theme.dark,
+                      fontSize: 20,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   if (issuerName != null)
@@ -143,12 +145,10 @@ class YiviCredentialCardHeader extends StatelessWidget {
                       child: TranslatedText(
                         'credential.issued_by',
                         style: theme.themeData.textTheme.bodyMedium,
-                        translationParams: {
-                          'issuer': issuerName!,
-                        },
+                        translationParams: {'issuer': issuerName!},
                         textAlign: TextAlign.center,
                       ),
-                    )
+                    ),
                 ],
               ),
             ],

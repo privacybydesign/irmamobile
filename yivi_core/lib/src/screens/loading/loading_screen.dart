@@ -25,7 +25,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
       // when the phone is fast, the enrollment can already have changed before we added the listener
       repo.getEnrollmentStatus().first.then(_enrollmentStatusHandler);
-      _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen(_enrollmentStatusHandler);
+      _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen(
+        _enrollmentStatusHandler,
+      );
     });
   }
 
@@ -64,7 +66,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
         onTimeout: (_) {
           repo.dispatch(
             ErrorEvent(
-              exception: 'Timeout: enrollment status could not be determined within 15 seconds',
+              exception:
+                  'Timeout: enrollment status could not be determined within 15 seconds',
               stack: '',
               fatal: true,
             ),

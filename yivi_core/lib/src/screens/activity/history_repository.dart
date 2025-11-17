@@ -38,7 +38,8 @@ class HistoryState {
 bool _isKeyshareCredential(IrmaConfiguration config, CredentialLog log) {
   return log.attributes.keys.any(
     (attr) => config.schemeManagers.values.any(
-      (scheme) => scheme.keyshareAttributes.contains('${log.credentialType}.$attr'),
+      (scheme) =>
+          scheme.keyshareAttributes.contains('${log.credentialType}.$attr'),
     ),
   );
 }
@@ -50,33 +51,38 @@ class HistoryRepository {
   late StreamSubscription _historyStateSubscription;
 
   HistoryRepository(this.repo) {
-    _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
-      if (event is LoadLogsEvent) {
-        return prevState.copyWith(
-          loading: true,
-          logEntries: event.before == null ? [] : prevState.logEntries,
-        );
-      } else if (event is LogsEvent) {
-        bool containsKeyshareCredential(LogInfo e) {
-          return e.issuanceLog?.credentials.any((c) {
-                return _isKeyshareCredential(repo.irmaConfiguration, c);
-              }) ??
-              false;
-        }
+    _historyStateSubscription = repo
+        .getEvents()
+        .scan<HistoryState>((prevState, event, _) {
+          if (event is LoadLogsEvent) {
+            return prevState.copyWith(
+              loading: true,
+              logEntries: event.before == null ? [] : prevState.logEntries,
+            );
+          } else if (event is LogsEvent) {
+            bool containsKeyshareCredential(LogInfo e) {
+              return e.issuanceLog?.credentials.any((c) {
+                    return _isKeyshareCredential(repo.irmaConfiguration, c);
+                  }) ??
+                  false;
+            }
 
-        final activityLogEntries = event.logEntries.where((entry) => !containsKeyshareCredential(entry));
+            final activityLogEntries = event.logEntries.where(
+              (entry) => !containsKeyshareCredential(entry),
+            );
 
-        return prevState.copyWith(
-          loading: false,
-          logEntries: [...prevState.logEntries, ...activityLogEntries],
-          moreLogsAvailable: activityLogEntries.isNotEmpty,
-        );
-      }
+            return prevState.copyWith(
+              loading: false,
+              logEntries: [...prevState.logEntries, ...activityLogEntries],
+              moreLogsAvailable: activityLogEntries.isNotEmpty,
+            );
+          }
 
-      return prevState;
-    }, HistoryState()).listen((historyState) {
-      _historyStateSubject.add(historyState);
-    });
+          return prevState;
+        }, HistoryState())
+        .listen((historyState) {
+          _historyStateSubject.add(historyState);
+        });
   }
 
   Future<void> dispose() async {

@@ -6,9 +6,7 @@ import 'package:flutter/widgets.dart';
 @immutable
 class _IrmaIconsData extends IconData {
   const _IrmaIconsData(super.codePoint, this.name)
-      : super(
-          fontFamily: 'IrmaIcons',
-        );
+    : super(fontFamily: 'IrmaIcons');
 
   final String name;
 }

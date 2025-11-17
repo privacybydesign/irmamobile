@@ -27,7 +27,9 @@ class Collapsible extends StatefulWidget {
 }
 
 class _CollapsibleState extends State<Collapsible> {
-  static const _expandDuration = Duration(milliseconds: 250); // expand duration of _Collapsible
+  static const _expandDuration = Duration(
+    milliseconds: 250,
+  ); // expand duration of _Collapsible
 
   bool _isExpanded = false;
 
@@ -47,7 +49,8 @@ class _CollapsibleState extends State<Collapsible> {
     RenderObject? scrollableRenderObject;
     context.visitAncestorElements((element) {
       final scrollableWidget = element.widget;
-      if (scrollableWidget is Scrollable && scrollableWidget.controller == widget.parentScrollController) {
+      if (scrollableWidget is Scrollable &&
+          scrollableWidget.controller == widget.parentScrollController) {
         scrollableRenderObject = element.renderObject;
         return false;
       }
@@ -59,16 +62,19 @@ class _CollapsibleState extends State<Collapsible> {
     if (collapsable == null || collapsable is! RenderBox) return;
 
     var desiredScrollPosition = collapsable
-        .localToGlobal(Offset(0, widget.parentScrollController!.offset), ancestor: scrollableRenderObject)
+        .localToGlobal(
+          Offset(0, widget.parentScrollController!.offset),
+          ancestor: scrollableRenderObject,
+        )
         .dy;
-    if (desiredScrollPosition > widget.parentScrollController!.position.maxScrollExtent) {
-      desiredScrollPosition = widget.parentScrollController!.position.maxScrollExtent;
+    if (desiredScrollPosition >
+        widget.parentScrollController!.position.maxScrollExtent) {
+      desiredScrollPosition =
+          widget.parentScrollController!.position.maxScrollExtent;
     }
     widget.parentScrollController!.animateTo(
       desiredScrollPosition,
-      duration: const Duration(
-        milliseconds: 500,
-      ),
+      duration: const Duration(milliseconds: 500),
       curve: Curves.ease,
     );
   }
@@ -79,10 +85,11 @@ class _CollapsibleState extends State<Collapsible> {
     });
     if (Platform.isAndroid) {
       SemanticsService.announce(
-          _isExpanded
-              ? FlutterI18n.translate(context, 'accessibility.expanded')
-              : FlutterI18n.translate(context, 'accessibility.collapsed'),
-          Directionality.of(context));
+        _isExpanded
+            ? FlutterI18n.translate(context, 'accessibility.expanded')
+            : FlutterI18n.translate(context, 'accessibility.collapsed'),
+        Directionality.of(context),
+      );
     }
     _jumpToCollapsable();
   }
@@ -99,10 +106,7 @@ class _CollapsibleState extends State<Collapsible> {
         onExpansionChanged: _onExpansionChanged,
         animatedWidgetFollowingHeader: Padding(
           padding: EdgeInsets.all(theme.tinySpacing),
-          child: Icon(
-            Icons.expand_more,
-            color: theme.neutralExtraDark,
-          ),
+          child: Icon(Icons.expand_more, color: theme.neutralExtraDark),
         ),
         header: Expanded(
           child: Semantics(
@@ -119,10 +123,7 @@ class _CollapsibleState extends State<Collapsible> {
                 left: theme.defaultSpacing,
                 right: theme.defaultSpacing,
               ),
-              child: Text(
-                widget.header,
-                style: theme.textTheme.headlineSmall,
-              ),
+              child: Text(widget.header, style: theme.textTheme.headlineSmall),
             ),
           ),
         ),
@@ -132,7 +133,10 @@ class _CollapsibleState extends State<Collapsible> {
               vertical: theme.smallSpacing,
               horizontal: theme.defaultSpacing,
             ),
-            child: ExcludeSemantics(excluding: !_isExpanded, child: widget.content),
+            child: ExcludeSemantics(
+              excluding: !_isExpanded,
+              child: widget.content,
+            ),
           ),
         ],
       ),

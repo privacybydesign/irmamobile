@@ -6,17 +6,21 @@ part of 'attribute.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-AttributeIdentifier _$AttributeIdentifierFromJson(Map<String, dynamic> json) => AttributeIdentifier(
+AttributeIdentifier _$AttributeIdentifierFromJson(Map<String, dynamic> json) =>
+    AttributeIdentifier(
       type: json['Type'] as String,
       credentialHash: json['CredentialHash'] as String,
     );
 
-Map<String, dynamic> _$AttributeIdentifierToJson(AttributeIdentifier instance) => <String, dynamic>{
-      'Type': instance.type,
-      'CredentialHash': instance.credentialHash,
-    };
+Map<String, dynamic> _$AttributeIdentifierToJson(
+  AttributeIdentifier instance,
+) => <String, dynamic>{
+  'Type': instance.type,
+  'CredentialHash': instance.credentialHash,
+};
 
-DisclosedAttribute _$DisclosedAttributeFromJson(Map<String, dynamic> json) => DisclosedAttribute(
+DisclosedAttribute _$DisclosedAttributeFromJson(Map<String, dynamic> json) =>
+    DisclosedAttribute(
       identifier: json['id'] as String,
       status: json['status'] as String,
       issuanceTime: (json['issuancetime'] as num).toInt(),
@@ -26,7 +30,8 @@ DisclosedAttribute _$DisclosedAttributeFromJson(Map<String, dynamic> json) => Di
       rawValue: json['rawValue'] as String?,
     );
 
-Map<String, dynamic> _$DisclosedAttributeToJson(DisclosedAttribute instance) => <String, dynamic>{
+Map<String, dynamic> _$DisclosedAttributeToJson(DisclosedAttribute instance) =>
+    <String, dynamic>{
       'rawValue': instance.rawValue,
       'value': instance.value,
       'id': instance.identifier,
@@ -34,7 +39,8 @@ Map<String, dynamic> _$DisclosedAttributeToJson(DisclosedAttribute instance) => 
       'issuancetime': instance.issuanceTime,
     };
 
-DisclosureCandidate _$DisclosureCandidateFromJson(Map<String, dynamic> json) => DisclosureCandidate(
+DisclosureCandidate _$DisclosureCandidateFromJson(Map<String, dynamic> json) =>
+    DisclosureCandidate(
       type: json['Type'] as String,
       notRevokable: json['NotRevokable'] as bool? ?? false,
       value: json['Value'] == null
@@ -43,9 +49,11 @@ DisclosureCandidate _$DisclosureCandidateFromJson(Map<String, dynamic> json) => 
       credentialHash: json['CredentialHash'] as String? ?? '',
     );
 
-Map<String, dynamic> _$DisclosureCandidateToJson(DisclosureCandidate instance) => <String, dynamic>{
-      'Type': instance.type,
-      'CredentialHash': instance.credentialHash,
-      'Value': instance.value,
-      'NotRevokable': instance.notRevokable,
-    };
+Map<String, dynamic> _$DisclosureCandidateToJson(
+  DisclosureCandidate instance,
+) => <String, dynamic>{
+  'Type': instance.type,
+  'CredentialHash': instance.credentialHash,
+  'Value': instance.value,
+  'NotRevokable': instance.notRevokable,
+};

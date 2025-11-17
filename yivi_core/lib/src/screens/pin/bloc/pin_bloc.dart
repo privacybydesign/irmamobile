@@ -41,19 +41,17 @@ class PinBloc extends Bloc<PinEvent, PinState> {
         remainingAttempts: 0,
       );
     } else if (event is Authenticate) {
-      yield PinState(
-        authenticateInProgress: true,
-      );
+      yield PinState(authenticateInProgress: true);
 
       final authenticationEvent = await event.dispatch();
       if (authenticationEvent is AuthenticationSuccessEvent) {
-        yield PinState(
-          authenticated: true,
-        );
+        yield PinState(authenticated: true);
       } else if (authenticationEvent is AuthenticationFailedEvent) {
         // To have some timing slack we add some time to the blocked duration.
         if (authenticationEvent.blockedDuration > 0) {
-          final blockedUntil = DateTime.now().add(Duration(seconds: authenticationEvent.blockedDuration + 5));
+          final blockedUntil = DateTime.now().add(
+            Duration(seconds: authenticationEvent.blockedDuration + 5),
+          );
           setPinBlockedUntil(blockedUntil);
           yield PinState(
             pinInvalid: true,
@@ -67,9 +65,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
           );
         }
       } else if (authenticationEvent is AuthenticationErrorEvent) {
-        yield PinState(
-          error: authenticationEvent.error,
-        );
+        yield PinState(error: authenticationEvent.error);
       } else {
         throw Exception('Unexpected subtype of AuthenticationResult');
       }
@@ -88,7 +84,9 @@ class PinBloc extends Bloc<PinEvent, PinState> {
     final delta = blockedUntil.difference(DateTime.now());
     if (delta.inSeconds > 2) {
       _pinBlockedCountdown = CountdownTimer(delta, const Duration(seconds: 1));
-      _pinBlockedCountdown!.map((cd) => cd.remaining).listen(_pinBlockedFor.add);
+      _pinBlockedCountdown!
+          .map((cd) => cd.remaining)
+          .listen(_pinBlockedFor.add);
     } else {
       _pinBlockedFor.add(Duration.zero);
     }

@@ -17,7 +17,10 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return IrmaDialog(
-      title: FlutterI18n.translate(context, 'disclosure_permission.wrong_credentials_added.title'),
+      title: FlutterI18n.translate(
+        context,
+        'disclosure_permission.wrong_credentials_added.title',
+      ),
       content: FlutterI18n.translate(
         context,
         'disclosure_permission.wrong_credentials_added.explanation',
@@ -55,9 +58,10 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
           YiviThemedButton(
-            label: 'disclosure_permission.wrong_credentials_added.dismiss_action',
+            label:
+                'disclosure_permission.wrong_credentials_added.dismiss_action',
             onPressed: () => Navigator.of(context).pop(),
-          )
+          ),
         ],
       ),
     );

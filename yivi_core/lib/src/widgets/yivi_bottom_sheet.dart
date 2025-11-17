@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
 
-void showYiviBottomSheet({required BuildContext context, required Widget child}) {
+void showYiviBottomSheet({
+  required BuildContext context,
+  required Widget child,
+}) {
   final theme = IrmaTheme.of(context);
   showModalBottomSheet(
     isScrollControlled: true,

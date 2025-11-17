@@ -9,9 +9,7 @@ import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
 
 class VersionButton extends StatefulWidget {
-  const VersionButton({
-    super.key,
-  });
+  const VersionButton({super.key});
 
   @override
   State<VersionButton> createState() => _VersionButtonState();
@@ -21,7 +19,10 @@ class _VersionButtonState extends State<VersionButton> {
   int _tapCounter = 0;
 
   String _buildVersionString(AsyncSnapshot<PackageInfo> info) {
-    final String buildHash = version.substring(0, version != 'debugbuild' && 8 < version.length ? 8 : version.length);
+    final String buildHash = version.substring(
+      0,
+      version != 'debugbuild' && 8 < version.length ? 8 : version.length,
+    );
     if (info.hasData) {
       return '${info.data?.version} (${info.data?.buildNumber}, $buildHash)';
     } else {
@@ -38,7 +39,8 @@ class _VersionButtonState extends State<VersionButton> {
       fontWeight: FontWeight.w600,
     );
 
-    void showSnackbar(String translationKey) => ScaffoldMessenger.of(context).showSnackBar(
+    void showSnackbar(String translationKey) =>
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: theme.success,
             content: TranslatedText(translationKey),
@@ -77,29 +79,35 @@ class _VersionButtonState extends State<VersionButton> {
                     builder: (context, credentials) {
                       String? appId;
                       if (credentials.hasData) {
-                        final keyShareCred = credentials.data?.values.firstWhereOrNull(
-                          (cred) => cred.isKeyshareCredential && cred.schemeManager.id == repo.defaultKeyshareScheme,
-                        );
+                        final keyShareCred = credentials.data?.values
+                            .firstWhereOrNull(
+                              (cred) =>
+                                  cred.isKeyshareCredential &&
+                                  cred.schemeManager.id ==
+                                      repo.defaultKeyshareScheme,
+                            );
                         appId = keyShareCred?.attributes.firstOrNull?.value.raw;
                       }
                       return TranslatedText(
                         'more_tab.app_id',
                         style: textStyle,
-                        translationParams: {
-                          'id': appId ?? '',
-                        },
+                        translationParams: {'id': appId ?? ''},
                       );
                     },
                   ),
                   FutureBuilder<PackageInfo>(
                     future: PackageInfo.fromPlatform(),
-                    builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => TranslatedText(
-                      'more_tab.version',
-                      translationParams: {
-                        'version': _buildVersionString(info),
-                      },
-                      style: textStyle,
-                    ),
+                    builder:
+                        (
+                          BuildContext context,
+                          AsyncSnapshot<PackageInfo> info,
+                        ) => TranslatedText(
+                          'more_tab.version',
+                          translationParams: {
+                            'version': _buildVersionString(info),
+                          },
+                          style: textStyle,
+                        ),
                   ),
                 ],
               ),

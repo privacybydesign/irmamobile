@@ -16,14 +16,14 @@ class SessionProgressIndicator extends StatelessWidget {
     this.stepCount,
     this.contentTranslationKey,
     this.contentTranslationParams,
-  })  : assert(
-          step == null || stepCount != null,
-          'A stepCount is required when providing a step',
-        ),
-        assert(
-          stepCount == null || step != null,
-          'A step is required when providing a stepCount',
-        );
+  }) : assert(
+         step == null || stepCount != null,
+         'A stepCount is required when providing a step',
+       ),
+       assert(
+         stepCount == null || step != null,
+         'A step is required when providing a stepCount',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +32,7 @@ class SessionProgressIndicator extends StatelessWidget {
 
     return IrmaCard(
       hasShadow: false,
-      padding: EdgeInsets.symmetric(
-        vertical: theme.defaultSpacing,
-      ),
+      padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
       style: IrmaCardStyle.highlighted,
       margin: EdgeInsets.all(theme.defaultSpacing),
       child: Column(
@@ -70,9 +68,9 @@ class SessionProgressIndicator extends StatelessWidget {
                       color: theme.dark,
                     ),
                   ),
-                )
+                ),
               ],
-            )
+            ),
         ],
       ),
     );

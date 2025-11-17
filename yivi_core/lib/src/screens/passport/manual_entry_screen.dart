@@ -111,14 +111,16 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                         controller: _dateOfBirthCtrl,
                         fieldKey: const Key('passport_dob_field'),
                         labelI18nKey: 'passport.manual.fields.date_of_birth',
-                        requiredI18nKey: 'passport.manual.fields.date_of_birth_required',
+                        requiredI18nKey:
+                            'passport.manual.fields.date_of_birth_required',
                       ),
                       SizedBox(height: theme.mediumSpacing),
                       DateInputField(
                         controller: _expiryDateCtrl,
                         fieldKey: const Key('passport_expiry_date_field'),
                         labelI18nKey: 'passport.manual.fields.date_of_expiry',
-                        requiredI18nKey: 'passport.manual.fields.date_of_expiry_required',
+                        requiredI18nKey:
+                            'passport.manual.fields.date_of_expiry_required',
                       ),
                       SizedBox(height: theme.largeSpacing),
                     ],

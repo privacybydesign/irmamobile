@@ -10,9 +10,7 @@ import 'yivi_themed_button.dart';
 class ContactLink extends StatelessWidget {
   final String translationKey;
 
-  const ContactLink({
-    required this.translationKey,
-  });
+  const ContactLink({required this.translationKey});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +18,9 @@ class ContactLink extends StatelessWidget {
       label: translationKey,
       onTap: () async {
         final String address = FlutterI18n.translate(context, 'help.contact');
-        final String subject = Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
+        final String subject = Uri.encodeComponent(
+          FlutterI18n.translate(context, 'help.mail_subject'),
+        );
         final mail = 'mailto:$address?subject=$subject';
         try {
           await IrmaRepositoryProvider.of(context).openURLExternally(mail);
@@ -30,7 +30,10 @@ class ContactLink extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 return IrmaDialog(
-                  title: FlutterI18n.translate(context, 'help.mail_error_title'),
+                  title: FlutterI18n.translate(
+                    context,
+                    'help.mail_error_title',
+                  ),
                   content: FlutterI18n.translate(context, 'help.mail_error'),
                   child: YiviThemedButton(
                     label: 'help.mail_error_button',
@@ -50,10 +53,7 @@ class Link extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const Link({
-    required this.label,
-    required this.onTap,
-  });
+  const Link({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +64,9 @@ class Link extends StatelessWidget {
         onTap: onTap,
         child: TranslatedText(
           label,
-          style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                decoration: TextDecoration.underline,
-              ),
+          style: IrmaTheme.of(
+            context,
+          ).hyperlinkTextStyle.copyWith(decoration: TextDecoration.underline),
         ),
       ),
     );

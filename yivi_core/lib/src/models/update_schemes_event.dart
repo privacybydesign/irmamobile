@@ -8,6 +8,7 @@ part 'update_schemes_event.g.dart';
 class UpdateSchemesEvent extends Event {
   UpdateSchemesEvent();
 
-  factory UpdateSchemesEvent.fromJson(Map<String, dynamic> json) => _$UpdateSchemesEventFromJson(json);
+  factory UpdateSchemesEvent.fromJson(Map<String, dynamic> json) =>
+      _$UpdateSchemesEventFromJson(json);
   Map<String, dynamic> toJson() => _$UpdateSchemesEventToJson(this);
 }

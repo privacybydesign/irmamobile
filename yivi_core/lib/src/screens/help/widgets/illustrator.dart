@@ -21,7 +21,8 @@ class Illustrator extends StatefulWidget {
   State<Illustrator> createState() => _IllustratorState();
 }
 
-class _IllustratorState extends State<Illustrator> with SingleTickerProviderStateMixin {
+class _IllustratorState extends State<Illustrator>
+    with SingleTickerProviderStateMixin {
   late double height;
   int currentPage = 0;
 
@@ -36,11 +37,15 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
   }
 
   String slideshowAccessibilityDescription(int page) {
-    return FlutterI18n.translate(context, 'accessibility.slideshow', translationParams: {
-      'i': (page + 1).toString(),
-      'n': widget.imageSet.length.toString(),
-      'description': widget.textSet[page],
-    });
+    return FlutterI18n.translate(
+      context,
+      'accessibility.slideshow',
+      translationParams: {
+        'i': (page + 1).toString(),
+        'n': widget.imageSet.length.toString(),
+        'description': widget.textSet[page],
+      },
+    );
   }
 
   @override
@@ -51,12 +56,16 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
       excludeSemantics: true,
       container: true,
       value: slideshowAccessibilityDescription(currentPage),
-      increasedValue:
-          currentPage + 1 < widget.imageSet.length ? slideshowAccessibilityDescription(currentPage + 1) : null,
-      decreasedValue: currentPage > 0 ? slideshowAccessibilityDescription(currentPage - 1) : null,
+      increasedValue: currentPage + 1 < widget.imageSet.length
+          ? slideshowAccessibilityDescription(currentPage + 1)
+          : null,
+      decreasedValue: currentPage > 0
+          ? slideshowAccessibilityDescription(currentPage - 1)
+          : null,
       onIncrease: currentPage + 1 < widget.imageSet.length
           ? () {
-              if (_controller.hasClients && currentPage + 1 < widget.imageSet.length) {
+              if (_controller.hasClients &&
+                  currentPage + 1 < widget.imageSet.length) {
                 _controller.animateToPage(
                   currentPage + 1,
                   duration: const Duration(milliseconds: 400),
@@ -96,9 +105,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
               ),
             ),
           ),
-          SizedBox(
-            height: theme.defaultSpacing,
-          ),
+          SizedBox(height: theme.defaultSpacing),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             child: SizedBox(
@@ -111,9 +118,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
             ),
           ),
           if (widget.imageSet.length > 1) ...[
-            SizedBox(
-              height: theme.defaultSpacing,
-            ),
+            SizedBox(height: theme.defaultSpacing),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -124,9 +129,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
               ],
             ),
           ],
-          SizedBox(
-            height: theme.smallSpacing,
-          ),
+          SizedBox(height: theme.smallSpacing),
         ],
       ),
     );

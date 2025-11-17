@@ -22,5 +22,6 @@ bool hasRoundedDisplay(BuildContext context) {
   // List of known aspect ratios for rounded iOS devices (adjust as necessary)
   final roundedAspectRatios = [2.16, 2.17, 2.34];
 
-  return isRounded && roundedAspectRatios.any((ratio) => (aspectRatio - ratio).abs() < 0.01);
+  return isRounded &&
+      roundedAspectRatios.any((ratio) => (aspectRatio - ratio).abs() < 0.01);
 }

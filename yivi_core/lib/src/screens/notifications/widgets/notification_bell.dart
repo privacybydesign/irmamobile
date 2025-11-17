@@ -26,11 +26,7 @@ class NotificationBell extends StatelessWidget {
           color: color,
         ),
         if (showIndicator)
-          Positioned(
-            top: 5,
-            right: 5,
-            child: NotificationIndicator(),
-          )
+          Positioned(top: 5, right: 5, child: NotificationIndicator()),
       ],
     );
   }

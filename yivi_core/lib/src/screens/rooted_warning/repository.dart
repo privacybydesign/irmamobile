@@ -10,10 +10,12 @@ abstract class DetectRootedDeviceRepository {
   Future<bool> isDeviceRooted();
 }
 
-class DetectRootedDeviceIrmaPrefsRepository implements DetectRootedDeviceRepository {
+class DetectRootedDeviceIrmaPrefsRepository
+    implements DetectRootedDeviceRepository {
   final IrmaPreferences _preferences;
 
-  DetectRootedDeviceIrmaPrefsRepository({required IrmaPreferences preferences}) : _preferences = preferences;
+  DetectRootedDeviceIrmaPrefsRepository({required IrmaPreferences preferences})
+    : _preferences = preferences;
 
   @override
   Stream<bool> hasAcceptedRootedDeviceRisk() {

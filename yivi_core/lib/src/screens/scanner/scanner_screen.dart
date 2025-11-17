@@ -23,7 +23,9 @@ class ScannerScreenState extends State<ScannerScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final isRunningIntegrationTest = TestContext.isRunningIntegrationTest(context);
+    final isRunningIntegrationTest = TestContext.isRunningIntegrationTest(
+      context,
+    );
     if (!isRunningIntegrationTest) {
       _qrKey = GlobalKey(debugLabel: 'qr_scanner_key');
     }
@@ -73,14 +75,13 @@ class ScannerScreenState extends State<ScannerScreen> {
       _asyncResetQrScanner();
     }
 
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
       appBar: isLandscape
           ? null
-          : IrmaAppBar(
-              titleTranslationKey: 'qr_scanner.title',
-            ),
+          : IrmaAppBar(titleTranslationKey: 'qr_scanner.title'),
       body: _buildBody(isLandscape),
     );
   }
@@ -99,9 +100,6 @@ class ScannerScreenState extends State<ScannerScreen> {
       return Container();
     }
 
-    return QRScanner(
-      key: _qrKey,
-      onFound: (code) => onQrScanned(code),
-    );
+    return QRScanner(key: _qrKey, onFound: (code) => onQrScanned(code));
   }
 }

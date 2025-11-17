@@ -19,27 +19,28 @@ class DisclosureIssueWizardCredentialCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: credentials.map(
-        (cred) {
-          final isDisabled = cred is TemplateDisclosureCredential && !cred.obtainable;
-          return YiviCredentialCard(
-            compact: true,
-            hashByFormat: {},
-            style: isActive && !isDisabled ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
-            compareTo: cred.attributes,
-            hideAttributes: hideAttributes,
-            hideFooter: true,
-            disabled: isDisabled,
-            type: cred.credentialType,
-            issuer: cred.issuer,
-            attributes: cred.attributes,
-            valid: cred.valid,
-            expired: cred.expired,
-            revoked: cred.revoked,
-            isTemplate: cred is TemplateDisclosureCredential,
-          );
-        },
-      ).toList(),
+      children: credentials.map((cred) {
+        final isDisabled =
+            cred is TemplateDisclosureCredential && !cred.obtainable;
+        return YiviCredentialCard(
+          compact: true,
+          hashByFormat: {},
+          style: isActive && !isDisabled
+              ? IrmaCardStyle.highlighted
+              : IrmaCardStyle.normal,
+          compareTo: cred.attributes,
+          hideAttributes: hideAttributes,
+          hideFooter: true,
+          disabled: isDisabled,
+          type: cred.credentialType,
+          issuer: cred.issuer,
+          attributes: cred.attributes,
+          valid: cred.valid,
+          expired: cred.expired,
+          revoked: cred.revoked,
+          isTemplate: cred is TemplateDisclosureCredential,
+        );
+      }).toList(),
     );
   }
 }

@@ -17,7 +17,11 @@ class PinWrongAttemptsDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return IrmaDialog(
       title: FlutterI18n.translate(context, 'pin_common.invalid_title'),
-      content: FlutterI18n.plural(context, 'pin_common.invalid_pin.attempts', attemptsRemaining),
+      content: FlutterI18n.plural(
+        context,
+        'pin_common.invalid_pin.attempts',
+        attemptsRemaining,
+      ),
       child: YiviThemedButton(
         label: 'pin_common.invalid_close',
         onPressed: onClose,

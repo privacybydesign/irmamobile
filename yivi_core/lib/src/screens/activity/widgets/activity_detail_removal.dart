@@ -38,7 +38,7 @@ class ActivityDetailRemoval extends StatelessWidget {
               removedCredential,
               compact: true,
             ),
-          )
+          ),
       ],
     );
   }

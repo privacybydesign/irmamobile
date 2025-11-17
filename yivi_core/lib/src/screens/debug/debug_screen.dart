@@ -29,12 +29,11 @@ class _DebugScreenState extends State<DebugScreen> {
     IconData icon,
     String translationKey, {
     Function()? onTap,
-  }) =>
-      ListTile(
-        leading: Icon(icon),
-        title: TranslatedText(translationKey),
-        onTap: onTap,
-      );
+  }) => ListTile(
+    leading: Icon(icon),
+    title: TranslatedText(translationKey),
+    onTap: onTap,
+  );
 
   @override
   initState() {
@@ -49,7 +48,8 @@ class _DebugScreenState extends State<DebugScreen> {
 
   // FIXME: make this compatible with new credential system
   Future<void> _deleteAllDeletableCards(IrmaRepository repo) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (context) => DeleteAllCredentialsConfirmationDialog(),
         ) ??
@@ -75,18 +75,17 @@ class _DebugScreenState extends State<DebugScreen> {
   }
 
   void _onOpenSchemeManagement() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (context) => SchemeManagementWarningDialog(),
         ) ??
         false;
 
     if (confirmed && mounted) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => SchemeManagementScreen(),
-        ),
-      );
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => SchemeManagementScreen()));
     }
   }
 
@@ -95,9 +94,7 @@ class _DebugScreenState extends State<DebugScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
-      appBar: IrmaAppBar(
-        titleTranslationKey: 'debug.title',
-      ),
+      appBar: IrmaAppBar(titleTranslationKey: 'debug.title'),
       body: ListView(
         children: [
           _buildListTile(
@@ -109,7 +106,8 @@ class _DebugScreenState extends State<DebugScreen> {
             Icons.badge,
             'debug.issue_digid',
             onTap: () async {
-              final digidIssuanceRequest = await _debugHelper.digidProefIssuanceRequest();
+              final digidIssuanceRequest = await _debugHelper
+                  .digidProefIssuanceRequest();
               await repo.startTestSession(digidIssuanceRequest);
             },
           ),
@@ -117,7 +115,8 @@ class _DebugScreenState extends State<DebugScreen> {
             Icons.exposure_plus_2,
             'debug.random_issuance',
             onTap: () async {
-              final randomIssuanceRequest = await _debugHelper.randomIssuanceRequest(2);
+              final randomIssuanceRequest = await _debugHelper
+                  .randomIssuanceRequest(2);
               await repo.startTestSession(randomIssuanceRequest);
             },
           ),

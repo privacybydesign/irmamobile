@@ -7,11 +7,7 @@ import 'notification_translated_content.dart';
 
 part 'credential_status_notification.g.dart';
 
-enum CredentialStatusNotificationType {
-  revoked,
-  expired,
-  expiringSoon,
-}
+enum CredentialStatusNotificationType { revoked, expired, expiringSoon }
 
 @JsonSerializable()
 class CredentialStatusNotification extends Notification {
@@ -29,7 +25,9 @@ class CredentialStatusNotification extends Notification {
     content = _getTranslatedNotificationContent(type);
   }
 
-  InternalTranslatedContent _getTranslatedNotificationContent(CredentialStatusNotificationType type) {
+  InternalTranslatedContent _getTranslatedNotificationContent(
+    CredentialStatusNotificationType type,
+  ) {
     String typeTranslationKey;
     switch (type) {
       case CredentialStatusNotificationType.revoked:
@@ -44,15 +42,16 @@ class CredentialStatusNotification extends Notification {
     }
 
     return InternalTranslatedContent(
-      titleTranslationKey: 'notifications.credential_status.$typeTranslationKey.title',
-      messageTranslationKey: 'notifications.credential_status.$typeTranslationKey.message',
+      titleTranslationKey:
+          'notifications.credential_status.$typeTranslationKey.title',
+      messageTranslationKey:
+          'notifications.credential_status.$typeTranslationKey.message',
     );
   }
 
   @override
-  NotificationAction get action => CredentialDetailNavigationAction(
-        credentialTypeId: credentialTypeId,
-      );
+  NotificationAction get action =>
+      CredentialDetailNavigationAction(credentialTypeId: credentialTypeId);
 
   @override
   Map<String, dynamic> toJson() {

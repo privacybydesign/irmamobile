@@ -13,10 +13,7 @@ class _Haptic {
 class HapticScreen extends StatelessWidget {
   final VoidCallback onBack;
 
-  const HapticScreen({
-    super.key,
-    required this.onBack,
-  });
+  const HapticScreen({super.key, required this.onBack});
 
   void _showSnackBar(BuildContext context, String title) {
     final snackBar = SnackBar(
@@ -49,40 +46,38 @@ class HapticScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: Feedback.wrapForTap(() {
-                _showSnackBar(context, feedbackForTap);
-              }, context),
-              child: Text(feedbackForTap),
-            ),
-            ElevatedButton(
-              onPressed: Feedback.wrapForLongPress(() {
-                _showSnackBar(context, feedbackForLongPress);
-              }, context),
-              child: Text(feedbackForLongPress),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(enableFeedback: true),
-              onPressed: () => _showSnackBar(context, enableFeedback),
-              child: Text(enableFeedback),
-            ),
-            ...haptics.map(
-              (h) => ElevatedButton(
-                style: ElevatedButton.styleFrom(enableFeedback: true),
-                onPressed: () {
-                  _showSnackBar(context, h.description);
-                  h.function.call();
-                },
-                child: Text(h.description),
-              ),
-            ),
-          ]
-              .map((w) => SizedBox(
-                    width: double.infinity,
-                    child: w,
-                  ))
-              .toList(growable: false),
+          children:
+              [
+                    ElevatedButton(
+                      onPressed: Feedback.wrapForTap(() {
+                        _showSnackBar(context, feedbackForTap);
+                      }, context),
+                      child: Text(feedbackForTap),
+                    ),
+                    ElevatedButton(
+                      onPressed: Feedback.wrapForLongPress(() {
+                        _showSnackBar(context, feedbackForLongPress);
+                      }, context),
+                      child: Text(feedbackForLongPress),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(enableFeedback: true),
+                      onPressed: () => _showSnackBar(context, enableFeedback),
+                      child: Text(enableFeedback),
+                    ),
+                    ...haptics.map(
+                      (h) => ElevatedButton(
+                        style: ElevatedButton.styleFrom(enableFeedback: true),
+                        onPressed: () {
+                          _showSnackBar(context, h.description);
+                          h.function.call();
+                        },
+                        child: Text(h.description),
+                      ),
+                    ),
+                  ]
+                  .map((w) => SizedBox(width: double.infinity, child: w))
+                  .toList(growable: false),
         ),
       ),
     );

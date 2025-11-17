@@ -8,7 +8,10 @@ import 'notification_handler.dart';
 
 class CredentialStatusNotificationsHandler extends NotificationHandler {
   @override
-  Future<List<Notification>> loadNotifications(IrmaRepository repo, List<Notification> notifications) async {
+  Future<List<Notification>> loadNotifications(
+    IrmaRepository repo,
+    List<Notification> notifications,
+  ) async {
     final List<Notification> updatedNotifications = notifications;
 
     // Wait until the credentials are present
@@ -35,12 +38,13 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
         // Check if there is already a notification for this credential
         final CredentialStatusNotification? existingNotification =
             updatedNotifications.firstWhereOrNull((notification) {
-          if (notification is CredentialStatusNotification) {
-            return notification.credentialHash == cred.hash;
-          }
+                  if (notification is CredentialStatusNotification) {
+                    return notification.credentialHash == cred.hash;
+                  }
 
-          return false;
-        }) as CredentialStatusNotification?;
+                  return false;
+                })
+                as CredentialStatusNotification?;
 
         if (existingNotification != null) {
           // If the existing has a different type, remove the old one and add a new one later
@@ -69,13 +73,17 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
   }
 
   @override
-  List<Notification> cleanUp(IrmaRepository repo, List<Notification> notifications) {
+  List<Notification> cleanUp(
+    IrmaRepository repo,
+    List<Notification> notifications,
+  ) {
     final List<Notification> updatedNotifications = notifications;
 
     // Check if there are any notifications that are soft deleted and have a credential hash that is not in the repo
     // If so, remove them
     updatedNotifications.removeWhere((notification) {
-      if (notification is CredentialStatusNotification && notification.softDeleted) {
+      if (notification is CredentialStatusNotification &&
+          notification.softDeleted) {
         return !repo.credentials.containsKey(notification.credentialHash);
       }
 

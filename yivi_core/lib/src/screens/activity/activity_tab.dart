@@ -38,11 +38,13 @@ class _ActivityTabState extends State<ActivityTab> {
       if (!mounted) {
         return;
       }
-      _repoStateSubscription = IrmaRepositoryProvider.of(context).getEvents().listen((event) {
-        if (event is SuccessSessionEvent) {
-          _loadInitialLogs();
-        }
-      });
+      _repoStateSubscription = IrmaRepositoryProvider.of(context)
+          .getEvents()
+          .listen((event) {
+            if (event is SuccessSessionEvent) {
+              _loadInitialLogs();
+            }
+          });
     });
   }
 
@@ -71,8 +73,9 @@ class _ActivityTabState extends State<ActivityTab> {
   Future<void> _loadMoreLogs() async {
     final historyState = await _historyRepo.getHistoryState().first;
     if (historyState.moreLogsAvailable && !historyState.loading && mounted) {
-      IrmaRepositoryProvider.of(context)
-          .bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.id, max: 10));
+      IrmaRepositoryProvider.of(context).bridgedDispatch(
+        LoadLogsEvent(before: historyState.logEntries.last.id, max: 10),
+      );
     }
   }
 
@@ -83,7 +86,9 @@ class _ActivityTabState extends State<ActivityTab> {
       if (!_scrollController.position.haveDimensions) {
         return;
       }
-      if (_scrollController.position.maxScrollExtent - _scrollController.position.minScrollExtent < 80) {
+      if (_scrollController.position.maxScrollExtent -
+              _scrollController.position.minScrollExtent <
+          80) {
         _loadMoreLogs();
       }
     });
@@ -91,50 +96,55 @@ class _ActivityTabState extends State<ActivityTab> {
 
   void _listenToScroll() {
     // When scrollbar is at the end, load more logs
-    if (_scrollController.position.maxScrollExtent - _scrollController.position.pixels < 80) {
+    if (_scrollController.position.maxScrollExtent -
+            _scrollController.position.pixels <
+        80) {
       _loadMoreLogs();
     }
   }
 
   Widget _buildLogEntries(
-      BuildContext context, IrmaConfiguration irmaConfiguration, List<LogInfo> logEntries, bool moreLogsAvailable) {
+    BuildContext context,
+    IrmaConfiguration irmaConfiguration,
+    List<LogInfo> logEntries,
+    bool moreLogsAvailable,
+  ) {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);
 
-    final groupedItems = List.generate(
-      logEntries.length,
-      (index) {
-        final logEntry = logEntries[index];
-        final insertMonthSeparator = index == 0 || index > 0 && logEntries[index - 1].time.month != logEntry.time.month;
-        return [
-          if (insertMonthSeparator)
-            Padding(
-              padding: EdgeInsets.only(
-                // If is not first add padding to top.
-                top: index > 0 ? theme.defaultSpacing : 0,
-                left: theme.tinySpacing,
-                right: theme.tinySpacing,
-                bottom: theme.tinySpacing,
-              ),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                  style: theme.themeData.textTheme.displaySmall,
-                ),
-              ),
-            ),
+    final groupedItems = List.generate(logEntries.length, (index) {
+      final logEntry = logEntries[index];
+      final insertMonthSeparator =
+          index == 0 ||
+          index > 0 && logEntries[index - 1].time.month != logEntry.time.month;
+      return [
+        if (insertMonthSeparator)
           Padding(
-            padding: EdgeInsets.only(bottom: theme.smallSpacing),
-            child: ActivityCard(
-              logEntry: logEntry,
-              irmaConfiguration: irmaConfiguration,
+            padding: EdgeInsets.only(
+              // If is not first add padding to top.
+              top: index > 0 ? theme.defaultSpacing : 0,
+              left: theme.tinySpacing,
+              right: theme.tinySpacing,
+              bottom: theme.tinySpacing,
+            ),
+            child: Semantics(
+              header: true,
+              child: Text(
+                DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
+                style: theme.themeData.textTheme.displaySmall,
+              ),
             ),
           ),
-        ];
-      },
-    ).flattened.toList();
+        Padding(
+          padding: EdgeInsets.only(bottom: theme.smallSpacing),
+          child: ActivityCard(
+            logEntry: logEntry,
+            irmaConfiguration: irmaConfiguration,
+          ),
+        ),
+      ];
+    }).flattened.toList();
 
     return SafeArea(
       child: ListView(
@@ -146,9 +156,7 @@ class _ActivityTabState extends State<ActivityTab> {
         ),
         children: [
           if (groupedItems.isEmpty)
-            const Center(
-              child: TranslatedText('activity.empty_placeholder'),
-            )
+            const Center(child: TranslatedText('activity.empty_placeholder'))
           else ...[
             ...groupedItems,
             Padding(
@@ -156,11 +164,9 @@ class _ActivityTabState extends State<ActivityTab> {
                 top: theme.defaultSpacing,
                 bottom: theme.mediumSpacing,
               ),
-              child: EndOfListIndicator(
-                isLoading: moreLogsAvailable,
-              ),
+              child: EndOfListIndicator(isLoading: moreLogsAvailable),
             ),
-          ]
+          ],
         ],
       ),
     );
@@ -176,14 +182,22 @@ class _ActivityTabState extends State<ActivityTab> {
         leading: null,
       ),
       body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
-        stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
+        stream: combine2(
+          _historyRepo.repo.getIrmaConfiguration(),
+          _historyRepo.getHistoryState(),
+        ),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: LoadingIndicator());
           }
           final irmaConfiguration = snapshot.data!.a;
           final historyState = snapshot.data!.b;
-          return _buildLogEntries(context, irmaConfiguration, historyState.logEntries, historyState.moreLogsAvailable);
+          return _buildLogEntries(
+            context,
+            irmaConfiguration,
+            historyState.logEntries,
+            historyState.moreLogsAvailable,
+          );
         },
       ),
     );

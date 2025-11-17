@@ -16,11 +16,18 @@ class RequestorVerificationExplanationBottomSheet extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: TranslatedText(
           'disclosure_permission.overview.requestor_verification.bottom_sheet.title',
-          style: theme.textTheme.displaySmall!.copyWith(overflow: TextOverflow.visible, height: 1.5),
+          style: theme.textTheme.displaySmall!.copyWith(
+            overflow: TextOverflow.visible,
+            height: 1.5,
+          ),
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.defaultSpacing, bottom: 100),
+        padding: EdgeInsets.only(
+          left: theme.defaultSpacing,
+          right: theme.defaultSpacing,
+          bottom: 100,
+        ),
         child: IrmaMarkdown(
           FlutterI18n.translate(
             context,

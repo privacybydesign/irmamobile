@@ -42,15 +42,17 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final repo = IrmaRepositoryProvider.of(context);
       _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
-            _onErrorEvent,
-          );
+        _onErrorEvent,
+      );
     });
   }
 
   Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
-    final errorReported = await IrmaRepositoryProvider.of(context).preferences.getReportErrors().first;
+    final errorReported = await IrmaRepositoryProvider.of(
+      context,
+    ).preferences.getReportErrors().first;
 
     if (!mounted) return;
 
@@ -97,23 +99,24 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
 
     // Show the second dialog to confirm the public key.
-    final publicKeyConfirmed = await showDialog<bool>(
+    final publicKeyConfirmed =
+        await showDialog<bool>(
           context: context,
-          builder: (context) => ConfirmSchemePublicKeyDialog(
-            publicKey: publicKey,
-          ),
+          builder: (context) =>
+              ConfirmSchemePublicKeyDialog(publicKey: publicKey),
         ) ??
         false;
 
     if (!publicKeyConfirmed) return;
 
-    repo.bridgedDispatch(InstallSchemeEvent(
-      url: schemeUrl,
-      publicKey: publicKey,
-    ));
+    repo.bridgedDispatch(
+      InstallSchemeEvent(url: schemeUrl, publicKey: publicKey),
+    );
 
     try {
-      await repo.getEvents().whereType<EnrollmentStatusEvent>().first.timeout(const Duration(seconds: 5));
+      await repo.getEvents().whereType<EnrollmentStatusEvent>().first.timeout(
+        const Duration(seconds: 5),
+      );
     } on TimeoutException {
       // Installing the scheme took too long. We therefore assume that it failed.
       // Error is sent as ErrorEvent and will be handled by a listener in initState.
@@ -123,10 +126,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     if (mounted) {
       showSnackbar(
         context,
-        FlutterI18n.translate(
-          context,
-          'debug.scheme_management.success',
-        ),
+        FlutterI18n.translate(context, 'debug.scheme_management.success'),
       );
     }
   }
@@ -134,17 +134,16 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   Future<void> _onUpdateSchemes() async {
     showSnackbar(
       context,
-      FlutterI18n.translate(
-        context,
-        'debug.scheme_management.updating',
-      ),
+      FlutterI18n.translate(context, 'debug.scheme_management.updating'),
     );
 
     final repo = IrmaRepositoryProvider.of(context);
     repo.bridgedDispatch(UpdateSchemesEvent());
 
     try {
-      await repo.getEvents().whereType<IrmaConfigurationEvent>().first.timeout(const Duration(minutes: 1));
+      await repo.getEvents().whereType<IrmaConfigurationEvent>().first.timeout(
+        const Duration(minutes: 1),
+      );
     } on TimeoutException {
       // Installing the scheme took too long. We therefore assume that it failed.
       // Error is sent as ErrorEvent and will be handled by a listener in initState.
@@ -162,11 +161,10 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     }
   }
 
-  void _onSchemeManagerTileTap(String schemeManagerId) => Navigator.of(context).push(
+  void _onSchemeManagerTileTap(String schemeManagerId) =>
+      Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => SchemeManagerDetailScreen(
-            schemeManagerId,
-          ),
+          builder: (context) => SchemeManagerDetailScreen(schemeManagerId),
         ),
       );
 
@@ -185,58 +183,62 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
       appBar: IrmaAppBar(
         titleTranslationKey: 'debug.scheme_management.title',
         actions: [
-          IrmaIconButton(
-            icon: Icons.add,
-            onTap: () => _onInstallScheme(),
-          )
+          IrmaIconButton(icon: Icons.add, onTap: () => _onInstallScheme()),
         ],
       ),
       body: SafeArea(
-        child: StreamBuilder<CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>>(
-          stream: combine2(
-            repo.getEnrollmentStatusEvent(),
-            repo.getIrmaConfiguration(),
-          ),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return Center(
-                child: IrmaProgress(),
-              );
-            }
-            final enrollmentStatus = snapshot.data!.a;
-            final irmaConfiguration = snapshot.data!.b;
+        child:
+            StreamBuilder<
+              CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>
+            >(
+              stream: combine2(
+                repo.getEnrollmentStatusEvent(),
+                repo.getIrmaConfiguration(),
+              ),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: IrmaProgress());
+                }
+                final enrollmentStatus = snapshot.data!.a;
+                final irmaConfiguration = snapshot.data!.b;
 
-            return ListView(
-              padding: EdgeInsets.all(theme.defaultSpacing),
-              children: [
-                const TranslatedText('debug.scheme_management.issuer_schemes'),
-                for (final schemeManager in irmaConfiguration.schemeManagers.values)
-                  SchemeManagerTile(
-                    schemeManager: schemeManager,
-                    isActive: schemeManager.keyshareServer.isNotEmpty
-                        ? enrollmentStatus.enrolledSchemeManagerIds.contains(schemeManager.id)
-                        : null,
-                    onTap: () => _onSchemeManagerTileTap(schemeManager.id),
-                  ),
-                SizedBox(height: theme.defaultSpacing),
-                const TranslatedText(
-                  'debug.scheme_management.requestor_schemes',
-                ),
-                for (final schemeId in irmaConfiguration.requestorSchemes.keys)
-                  ListTile(
-                    title: Text(schemeId),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => RequestorSchemeDetailScreen(
-                          requestorScheme: irmaConfiguration.requestorSchemes[schemeId]!,
+                return ListView(
+                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  children: [
+                    const TranslatedText(
+                      'debug.scheme_management.issuer_schemes',
+                    ),
+                    for (final schemeManager
+                        in irmaConfiguration.schemeManagers.values)
+                      SchemeManagerTile(
+                        schemeManager: schemeManager,
+                        isActive: schemeManager.keyshareServer.isNotEmpty
+                            ? enrollmentStatus.enrolledSchemeManagerIds
+                                  .contains(schemeManager.id)
+                            : null,
+                        onTap: () => _onSchemeManagerTileTap(schemeManager.id),
+                      ),
+                    SizedBox(height: theme.defaultSpacing),
+                    const TranslatedText(
+                      'debug.scheme_management.requestor_schemes',
+                    ),
+                    for (final schemeId
+                        in irmaConfiguration.requestorSchemes.keys)
+                      ListTile(
+                        title: Text(schemeId),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => RequestorSchemeDetailScreen(
+                              requestorScheme:
+                                  irmaConfiguration.requestorSchemes[schemeId]!,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
+                  ],
+                );
+              },
+            ),
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'debug.scheme_management.update',

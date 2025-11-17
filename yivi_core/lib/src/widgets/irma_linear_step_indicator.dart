@@ -35,9 +35,7 @@ class IrmaLinearStepIndicator extends StatelessWidget {
             ),
           ),
           SizedBox(height: theme.smallSpacing),
-          IrmaLinearProgressIndicator(
-            filledPercentage: step / stepCount * 100,
-          )
+          IrmaLinearProgressIndicator(filledPercentage: step / stepCount * 100),
         ],
       ),
     );

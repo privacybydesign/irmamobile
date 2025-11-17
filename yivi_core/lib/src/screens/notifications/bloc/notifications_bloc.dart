@@ -20,10 +20,9 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     CredentialStatusNotificationsHandler(),
   ];
 
-  NotificationsBloc({
-    required IrmaRepository repo,
-  })  : _repo = repo,
-        super((NotificationsInitial()));
+  NotificationsBloc({required IrmaRepository repo})
+    : _repo = repo,
+      super((NotificationsInitial()));
 
   @override
   Stream<NotificationsState> mapEventToState(NotificationsEvent event) async* {
@@ -50,17 +49,25 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     List<Notification> initialNotifications = [];
 
     // Load the cached notifications
-    final serializedNotifications = await _repo.preferences.getSerializedNotifications().first;
+    final serializedNotifications = await _repo.preferences
+        .getSerializedNotifications()
+        .first;
     initialNotifications = _notificationsFromJson(serializedNotifications);
 
     // Run the clean up method of each notification handler
     for (final notificationHandler in _notificationHandlers) {
-      initialNotifications = notificationHandler.cleanUp(_repo, initialNotifications);
+      initialNotifications = notificationHandler.cleanUp(
+        _repo,
+        initialNotifications,
+      );
     }
 
     // Load the new notifications
     for (final notificationHandler in _notificationHandlers) {
-      initialNotifications = await notificationHandler.loadNotifications(_repo, initialNotifications);
+      initialNotifications = await notificationHandler.loadNotifications(
+        _repo,
+        initialNotifications,
+      );
     }
 
     // Update the cached notifications
@@ -68,7 +75,9 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
     _notifications = initialNotifications;
 
-    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+    final filteredNotifications = _filterNonSoftDeletedNotifications(
+      _notifications,
+    );
     yield NotificationsInitialized(filteredNotifications);
   }
 
@@ -79,14 +88,19 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
     // Load the new notifications
     for (final notificationHandler in _notificationHandlers) {
-      updatedNotifications = await notificationHandler.loadNotifications(_repo, updatedNotifications);
+      updatedNotifications = await notificationHandler.loadNotifications(
+        _repo,
+        updatedNotifications,
+      );
     }
 
     // Update the cached notifications
     _updateCachedNotifications(updatedNotifications);
 
     _notifications = updatedNotifications;
-    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+    final filteredNotifications = _filterNonSoftDeletedNotifications(
+      _notifications,
+    );
 
     yield NotificationsInitialized(filteredNotifications);
   }
@@ -103,51 +117,71 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     _updateCachedNotifications(updatedNotifications);
 
     _notifications = updatedNotifications;
-    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+    final filteredNotifications = _filterNonSoftDeletedNotifications(
+      _notifications,
+    );
 
     yield NotificationsLoaded(filteredNotifications);
   }
 
-  Stream<NotificationsState> _mapMarkNotificationAsReadToState(String notificationId) async* {
+  Stream<NotificationsState> _mapMarkNotificationAsReadToState(
+    String notificationId,
+  ) async* {
     yield NotificationsLoading();
 
     final List<Notification> updatedNotifications = _notifications;
 
-    final notificationIndex = updatedNotifications.indexWhere((notification) => notification.id == notificationId);
+    final notificationIndex = updatedNotifications.indexWhere(
+      (notification) => notification.id == notificationId,
+    );
     if (notificationIndex != -1) {
       updatedNotifications[notificationIndex].read = true;
     }
     _updateCachedNotifications(updatedNotifications);
 
     _notifications = updatedNotifications;
-    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+    final filteredNotifications = _filterNonSoftDeletedNotifications(
+      _notifications,
+    );
 
     yield NotificationsLoaded(filteredNotifications);
   }
 
-  Stream<NotificationsState> _mapSoftDeleteNotificationToState(String notificationId) async* {
+  Stream<NotificationsState> _mapSoftDeleteNotificationToState(
+    String notificationId,
+  ) async* {
     yield NotificationsLoading();
 
     final List<Notification> updatedNotifications = _notifications;
 
-    final notificationIndex = updatedNotifications.indexWhere((notification) => notification.id == notificationId);
+    final notificationIndex = updatedNotifications.indexWhere(
+      (notification) => notification.id == notificationId,
+    );
     if (notificationIndex != -1) {
       updatedNotifications[notificationIndex].softDeleted = true;
     }
     _updateCachedNotifications(updatedNotifications);
 
     _notifications = updatedNotifications;
-    final filteredNotifications = _filterNonSoftDeletedNotifications(_notifications);
+    final filteredNotifications = _filterNonSoftDeletedNotifications(
+      _notifications,
+    );
 
     yield NotificationsLoaded(filteredNotifications);
   }
 
-  List<Notification> _filterNonSoftDeletedNotifications(Iterable<Notification> notifications) {
-    final filteredNotifications = notifications.where((notification) => !notification.softDeleted).toList();
+  List<Notification> _filterNonSoftDeletedNotifications(
+    Iterable<Notification> notifications,
+  ) {
+    final filteredNotifications = notifications
+        .where((notification) => !notification.softDeleted)
+        .toList();
     return filteredNotifications;
   }
 
-  Future<void> _updateCachedNotifications(List<Notification> updatedNotifications) async {
+  Future<void> _updateCachedNotifications(
+    List<Notification> updatedNotifications,
+  ) async {
     final serializedNotifications = _notificationsToJson(updatedNotifications);
     await _repo.preferences.setSerializedNotifications(serializedNotifications);
   }
@@ -160,7 +194,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         final jsonDecodedNotifications = jsonDecode(serializedNotifications);
         notifications = jsonDecodedNotifications
             .map<Notification>(
-              (jsonDecodedNotification) => Notification.fromJson(jsonDecodedNotification),
+              (jsonDecodedNotification) =>
+                  Notification.fromJson(jsonDecodedNotification),
             )
             .toList();
       }
@@ -176,7 +211,9 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   }
 
   String _notificationsToJson(List<Notification> notifications) {
-    final mappedNotifications = notifications.map((notification) => notification.toJson()).toList();
+    final mappedNotifications = notifications
+        .map((notification) => notification.toJson())
+        .toList();
     return jsonEncode(mappedNotifications);
   }
 }

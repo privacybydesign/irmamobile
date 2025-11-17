@@ -16,7 +16,8 @@ class AuthenticateEvent extends AuthenticationEvent {
   final String schemeId;
 
   AuthenticateEvent({required this.pin, required this.schemeId});
-  factory AuthenticateEvent.fromJson(Map<String, dynamic> json) => _$AuthenticateEventFromJson(json);
+  factory AuthenticateEvent.fromJson(Map<String, dynamic> json) =>
+      _$AuthenticateEventFromJson(json);
   Map<String, dynamic> toJson() => _$AuthenticateEventToJson(this);
 }
 
@@ -24,7 +25,8 @@ class AuthenticateEvent extends AuthenticationEvent {
 class AuthenticationSuccessEvent extends AuthenticationEvent {
   AuthenticationSuccessEvent();
 
-  factory AuthenticationSuccessEvent.fromJson(Map<String, dynamic> json) => _$AuthenticationSuccessEventFromJson(json);
+  factory AuthenticationSuccessEvent.fromJson(Map<String, dynamic> json) =>
+      _$AuthenticationSuccessEventFromJson(json);
   Map<String, dynamic> toJson() => _$AuthenticationSuccessEventToJson(this);
 }
 
@@ -36,8 +38,12 @@ class AuthenticationFailedEvent extends AuthenticationEvent {
   @JsonKey(name: 'BlockedDuration')
   final int blockedDuration;
 
-  AuthenticationFailedEvent({required this.remainingAttempts, required this.blockedDuration});
-  factory AuthenticationFailedEvent.fromJson(Map<String, dynamic> json) => _$AuthenticationFailedEventFromJson(json);
+  AuthenticationFailedEvent({
+    required this.remainingAttempts,
+    required this.blockedDuration,
+  });
+  factory AuthenticationFailedEvent.fromJson(Map<String, dynamic> json) =>
+      _$AuthenticationFailedEventFromJson(json);
   Map<String, dynamic> toJson() => _$AuthenticationFailedEventToJson(this);
 }
 
@@ -47,6 +53,7 @@ class AuthenticationErrorEvent extends AuthenticationEvent {
   final SessionError error;
 
   AuthenticationErrorEvent({required this.error});
-  factory AuthenticationErrorEvent.fromJson(Map<String, dynamic> json) => _$AuthenticationErrorEventFromJson(json);
+  factory AuthenticationErrorEvent.fromJson(Map<String, dynamic> json) =>
+      _$AuthenticationErrorEventFromJson(json);
   Map<String, dynamic> toJson() => _$AuthenticationErrorEventToJson(this);
 }

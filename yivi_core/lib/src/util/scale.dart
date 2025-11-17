@@ -10,7 +10,8 @@ const designScreenWidth = 375.0;
 const _smallestViewportWidth = 320.0 / designScreenWidth;
 const _largestViewportWidth = 414.0 / designScreenWidth;
 
-double shortestSide(BuildContext context) => MediaQuery.of(context).size.shortestSide;
+double shortestSide(BuildContext context) =>
+    MediaQuery.of(context).size.shortestSide;
 
 extension YiviDesignDouble on double {
   double scaleToDesignSize(BuildContext context) {

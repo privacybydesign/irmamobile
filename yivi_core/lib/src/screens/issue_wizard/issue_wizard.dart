@@ -30,7 +30,8 @@ class IssueWizardScreen extends ConsumerStatefulWidget {
   ConsumerState<IssueWizardScreen> createState() => _IssueWizardScreenState();
 }
 
-class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with WidgetsBindingObserver {
+class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
+    with WidgetsBindingObserver {
   bool _showIntro = true;
   int? _sessionID;
   StreamSubscription<SessionState>? _sessionSubscription;
@@ -41,19 +42,20 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with Widg
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (widget.arguments.sessionID != null && AppLifecycleState.resumed == state) {
+    if (widget.arguments.sessionID != null &&
+        AppLifecycleState.resumed == state) {
       _sessionSubscription = _repo
           .getSessionState(widget.arguments.sessionID!)
           .firstWhere((event) => event.isFinished)
           .asStream()
           .listen((event) {
-        if (mounted) {
-          // Pop to underlying session screen which is showing an error screen
-          // First pop all screens on top of this wizard and then pop the wizard screen itself
-          context.popToWizardScreen();
-          context.pop();
-        }
-      });
+            if (mounted) {
+              // Pop to underlying session screen which is showing an error screen
+              // First pop all screens on top of this wizard and then pop the wizard screen itself
+              context.popToWizardScreen();
+              context.pop();
+            }
+          });
     }
 
     super.didChangeAppLifecycleState(state);
@@ -106,17 +108,24 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with Widg
         successContent = wizard.wizardData.successText;
       }
 
-      context.goIssueWizardSuccessScreen(headerTranslation: successHeader, contentTranslation: successContent);
+      context.goIssueWizardSuccessScreen(
+        headerTranslation: successHeader,
+        contentTranslation: successContent,
+      );
     }
   }
 
-  Future<void> _onVisibilityChanged(VisibilityInfo visibility, IssueWizardEvent wizard) async {
+  Future<void> _onVisibilityChanged(
+    VisibilityInfo visibility,
+    IssueWizardEvent wizard,
+  ) async {
     if (_sessionID == null) return;
 
     // If we became visible and the session that was started by the currently active wizard item
     // is done and has succeeded, we need to progress to the next item or close the wizard.
     final state = await _repo.getSessionState(_sessionID!).first;
-    if (!(visibility.visibleFraction > 0.9 && state.status == SessionStatus.success)) {
+    if (!(visibility.visibleFraction > 0.9 &&
+        state.status == SessionStatus.success)) {
       return;
     }
 
@@ -174,8 +183,18 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with Widg
         break;
       case 'website':
         item?.inApp ?? true
-            ? _repo.openURL(getTranslation(context, item?.url ?? const TranslatedValue.empty()))
-            : _repo.openURLExternally(getTranslation(context, item?.url ?? const TranslatedValue.empty()));
+            ? _repo.openURL(
+                getTranslation(
+                  context,
+                  item?.url ?? const TranslatedValue.empty(),
+                ),
+              )
+            : _repo.openURLExternally(
+                getTranslation(
+                  context,
+                  item?.url ?? const TranslatedValue.empty(),
+                ),
+              );
         break;
     }
   }
@@ -187,7 +206,9 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with Widg
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _repo.getIssueWizard().where((event) => event?.wizardData.id == widget.arguments.wizardID),
+      stream: _repo.getIssueWizard().where(
+        (event) => event?.wizardData.id == widget.arguments.wizardID,
+      ),
       builder: (context, AsyncSnapshot<IssueWizardEvent?> snapshot) {
         if (!snapshot.hasData) {
           return Container(
@@ -201,7 +222,10 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with Widg
         final logoFile = File(wizardData?.logoPath ?? '');
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
-            : Image.asset(yiviAsset('non-free/logo.png'), excludeFromSemantics: true);
+            : Image.asset(
+                yiviAsset('non-free/logo.png'),
+                excludeFromSemantics: true,
+              );
 
         if (_showIntro) {
           return IssueWizardInfo(

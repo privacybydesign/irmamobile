@@ -11,7 +11,9 @@ class SetCrashReportingPreferenceEvent extends Event {
   @JsonKey(name: 'EnableCrashReporting')
   final bool enableCrashReporting;
 
-  factory SetCrashReportingPreferenceEvent.fromJson(Map<String, dynamic> json) =>
-      _$SetCrashReportingPreferenceEventFromJson(json);
-  Map<String, dynamic> toJson() => _$SetCrashReportingPreferenceEventToJson(this);
+  factory SetCrashReportingPreferenceEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$SetCrashReportingPreferenceEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$SetCrashReportingPreferenceEventToJson(this);
 }

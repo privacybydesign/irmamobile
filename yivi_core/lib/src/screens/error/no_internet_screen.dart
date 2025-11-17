@@ -11,7 +11,7 @@ class NoInternetScreen extends StatelessWidget {
   final VoidCallback? onTapRetry;
 
   const NoInternetScreen({required this.onTapClose, this.onTapRetry})
-      : super(key: const ValueKey('no_internet_screen'));
+    : super(key: const ValueKey('no_internet_screen'));
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,9 @@ class NoInternetScreen extends StatelessWidget {
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
         onPrimaryPressed: onTapClose,
-        secondaryButtonLabel: onTapRetry == null ? null : FlutterI18n.translate(context, 'error.button_retry'),
+        secondaryButtonLabel: onTapRetry == null
+            ? null
+            : FlutterI18n.translate(context, 'error.button_retry'),
         onSecondaryPressed: onTapRetry,
       ),
     );

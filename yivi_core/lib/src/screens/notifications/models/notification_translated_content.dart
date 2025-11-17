@@ -38,7 +38,8 @@ class InternalTranslatedContent extends NotificationTranslatedContent {
     return jsonMap;
   }
 
-  factory InternalTranslatedContent.fromJson(Map<String, dynamic> json) => _$InternalTranslatedContentFromJson(json);
+  factory InternalTranslatedContent.fromJson(Map<String, dynamic> json) =>
+      _$InternalTranslatedContentFromJson(json);
 }
 
 @JsonSerializable()
@@ -59,5 +60,6 @@ class ExternalTranslatedContent extends NotificationTranslatedContent {
     return jsonMap;
   }
 
-  factory ExternalTranslatedContent.fromJson(Map<String, dynamic> json) => _$ExternalTranslatedContentFromJson(json);
+  factory ExternalTranslatedContent.fromJson(Map<String, dynamic> json) =>
+      _$ExternalTranslatedContentFromJson(json);
 }

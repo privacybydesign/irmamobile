@@ -8,6 +8,7 @@ part 'clear_all_data_event.g.dart';
 class ClearAllDataEvent extends Event {
   ClearAllDataEvent();
 
-  factory ClearAllDataEvent.fromJson(Map<String, dynamic> json) => _$ClearAllDataEventFromJson(json);
+  factory ClearAllDataEvent.fromJson(Map<String, dynamic> json) =>
+      _$ClearAllDataEventFromJson(json);
   Map<String, dynamic> toJson() => _$ClearAllDataEventToJson(this);
 }

@@ -46,9 +46,7 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
               labelTranslationKey: option,
               onTap: () => _onChangeOptions(i),
               trailing: i == _selectedIndex
-                  ? const Icon(
-                      Icons.check,
-                    )
+                  ? const Icon(Icons.check)
                   : const SizedBox(),
             ),
           )

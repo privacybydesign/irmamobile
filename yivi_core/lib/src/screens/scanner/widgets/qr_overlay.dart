@@ -21,13 +21,19 @@ class QROverlay extends CustomPainter {
   // wrong QR code found
   final bool error;
 
-  QROverlay({required this.found, required this.error, required this.theme, required this.topOffsetFactor});
+  QROverlay({
+    required this.found,
+    required this.error,
+    required this.theme,
+    required this.topOffsetFactor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     // hole size
     double windowSize = size.width * _widthFactor;
-    final maxWindowHeight = size.height - size.height * (topOffsetFactor + _minBottomOffsetFactor);
+    final maxWindowHeight =
+        size.height - size.height * (topOffsetFactor + _minBottomOffsetFactor);
     if (windowSize > maxWindowHeight) {
       windowSize = maxWindowHeight;
     }
@@ -106,7 +112,11 @@ class QROverlay extends CustomPainter {
       final iconPaint = Paint()
         ..color = red
         ..style = PaintingStyle.fill;
-      canvas.drawCircle(Offset((left + right) / 2, (top + bottom) / 2), windowSize * 0.2, iconPaint);
+      canvas.drawCircle(
+        Offset((left + right) / 2, (top + bottom) / 2),
+        windowSize * 0.2,
+        iconPaint,
+      );
       final iconShapePaint = Paint()
         ..color = Colors.white
         ..strokeWidth = 8
@@ -114,17 +124,33 @@ class QROverlay extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke;
       final Path iconShape = Path();
-      iconShape.moveTo((left + right) / 2 - windowSize * 0.06, (top + bottom) / 2 - windowSize * 0.06);
-      iconShape.lineTo((left + right) / 2 + windowSize * 0.06, (top + bottom) / 2 + windowSize * 0.06);
-      iconShape.moveTo((left + right) / 2 - windowSize * 0.06, (top + bottom) / 2 + windowSize * 0.06);
-      iconShape.lineTo((left + right) / 2 + windowSize * 0.06, (top + bottom) / 2 - windowSize * 0.06);
+      iconShape.moveTo(
+        (left + right) / 2 - windowSize * 0.06,
+        (top + bottom) / 2 - windowSize * 0.06,
+      );
+      iconShape.lineTo(
+        (left + right) / 2 + windowSize * 0.06,
+        (top + bottom) / 2 + windowSize * 0.06,
+      );
+      iconShape.moveTo(
+        (left + right) / 2 - windowSize * 0.06,
+        (top + bottom) / 2 + windowSize * 0.06,
+      );
+      iconShape.lineTo(
+        (left + right) / 2 + windowSize * 0.06,
+        (top + bottom) / 2 - windowSize * 0.06,
+      );
       canvas.drawPath(iconShape, iconShapePaint);
     } else if (found) {
       // paint found icon
       final iconPaint = Paint()
         ..color = green
         ..style = PaintingStyle.fill;
-      canvas.drawCircle(Offset((left + right) / 2, (top + bottom) / 2), windowSize * 0.2, iconPaint);
+      canvas.drawCircle(
+        Offset((left + right) / 2, (top + bottom) / 2),
+        windowSize * 0.2,
+        iconPaint,
+      );
       final iconShapePaint = Paint()
         ..color = Colors.white
         ..strokeWidth = 12
@@ -132,9 +158,18 @@ class QROverlay extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..style = PaintingStyle.stroke;
       final Path iconShape = Path();
-      iconShape.moveTo((left + right) / 2 - windowSize * 0.11, (top + bottom) / 2);
-      iconShape.lineTo((left + right) / 2, (top + bottom) / 2 + windowSize * 0.08);
-      iconShape.lineTo((left + right) / 2 + windowSize * 0.09, (top + bottom) / 2 - windowSize * 0.09);
+      iconShape.moveTo(
+        (left + right) / 2 - windowSize * 0.11,
+        (top + bottom) / 2,
+      );
+      iconShape.lineTo(
+        (left + right) / 2,
+        (top + bottom) / 2 + windowSize * 0.08,
+      );
+      iconShape.lineTo(
+        (left + right) / 2 + windowSize * 0.09,
+        (top + bottom) / 2 - windowSize * 0.09,
+      );
       canvas.drawPath(iconShape, iconShapePaint);
     }
   }

@@ -27,7 +27,8 @@ class MRZCameraView extends StatefulWidget {
   MRZCameraViewState createState() => MRZCameraViewState();
 }
 
-class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBindingObserver {
+class MRZCameraViewState extends State<MRZCameraView>
+    with RouteAware, WidgetsBindingObserver {
   CameraController? _controller;
   int _cameraIndex = 1;
   List<CameraDescription> cameras = [];
@@ -47,11 +48,16 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
     cameras = await availableCameras();
 
     try {
-      if (cameras
-          .any((element) => element.lensDirection == widget.initialDirection && element.sensorOrientation == 90)) {
+      if (cameras.any(
+        (element) =>
+            element.lensDirection == widget.initialDirection &&
+            element.sensorOrientation == 90,
+      )) {
         _cameraIndex = cameras.indexOf(
           cameras.firstWhere(
-            (element) => element.lensDirection == widget.initialDirection && element.sensorOrientation == 90,
+            (element) =>
+                element.lensDirection == widget.initialDirection &&
+                element.sensorOrientation == 90,
           ),
         );
       } else {
@@ -118,13 +124,17 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
   Widget build(BuildContext context) {
     return Scaffold(
       body: widget.showOverlay
-          ? MRZCameraOverlay(success: widget.showOverlaySuccess, child: _liveFeedBody())
+          ? MRZCameraOverlay(
+              success: widget.showOverlaySuccess,
+              child: _liveFeedBody(),
+            )
           : _liveFeedBody(),
     );
   }
 
   Widget _liveFeedBody() {
-    if (_controller?.value.isInitialized == false || _controller?.value.isInitialized == null) {
+    if (_controller?.value.isInitialized == false ||
+        _controller?.value.isInitialized == null) {
       return Container();
     }
 
@@ -151,7 +161,9 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
             scale: scale,
             child: Center(
               child: AspectRatio(
-                aspectRatio: mediaQuery.orientation == Orientation.portrait ? 9 / 16 : 16 / 9,
+                aspectRatio: mediaQuery.orientation == Orientation.portrait
+                    ? 9 / 16
+                    : 16 / 9,
                 child: CameraPreview(_controller!),
               ),
             ),
@@ -176,7 +188,9 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
       camera,
       ResolutionPreset.high,
       enableAudio: false,
-      imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
+      imageFormatGroup: Platform.isAndroid
+          ? ImageFormatGroup.nv21
+          : ImageFormatGroup.bgra8888,
     );
 
     if (!mounted) {
@@ -247,14 +261,16 @@ class MRZCameraViewState extends State<MRZCameraView> with RouteAware, WidgetsBi
     if (Platform.isIOS) {
       rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
     } else if (Platform.isAndroid) {
-      var rotationCompensation = _orientations[_controller!.value.deviceOrientation];
+      var rotationCompensation =
+          _orientations[_controller!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
       if (camera.lensDirection == CameraLensDirection.front) {
         // front-facing
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
         // back-facing
-        rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
+        rotationCompensation =
+            (sensorOrientation - rotationCompensation + 360) % 360;
       }
       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
     }

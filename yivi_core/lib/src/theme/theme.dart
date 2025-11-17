@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
   @Deprecated(
-      "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications")
+    "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications",
+  )
   final double spacing = _spaceBase;
   final double tinySpacing = _spaceBase / 4; // 4
   final double smallSpacing = _spaceBase / 2; // 8
@@ -23,11 +24,14 @@ class IrmaThemeData {
   final Color backgroundSecondary = const Color(0xFFFAFAFA);
   Color backgroundTertiary = const Color(0xFFEAF3F9);
 
-  Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
-  final Color surfaceSecondary = const Color(0xFFEAF3F9); // Used on cards that are active etc.
+  Color get surfacePrimary =>
+      light; // Used on cards etc, to contrast with the background
+  final Color surfaceSecondary = const Color(
+    0xFFEAF3F9,
+  ); // Used on cards that are active etc.
   Color surfaceTertiary = const Color(0xffF0DEDE); // Used on cards that expired
 
-// Grey swatch
+  // Grey swatch
   final Color dark = Colors.black;
   final Color neutralExtraDark = const Color(0xFF484747);
   final Color neutralDark = const Color(0xFF757375);
@@ -177,26 +181,16 @@ class IrmaThemeData {
     final inputDecorationTheme = InputDecorationTheme(
       labelStyle: textTheme.labelSmall,
       enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(
-          color: Colors.grey,
-        ),
+        borderSide: BorderSide(color: Colors.grey),
       ),
       focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(
-          color: secondary,
-          width: 2.0,
-        ),
+        borderSide: BorderSide(color: secondary, width: 2.0),
       ),
       errorBorder: UnderlineInputBorder(
-        borderSide: BorderSide(
-          color: error,
-          width: 2.0,
-        ),
+        borderSide: BorderSide(color: error, width: 2.0),
       ),
       disabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(
-          color: Colors.grey,
-        ),
+        borderSide: BorderSide(color: Colors.grey),
       ),
       errorStyle: textTheme.bodyMedium?.copyWith(color: error),
     );
@@ -204,9 +198,7 @@ class IrmaThemeData {
     //Init App Bar Theme
     final appBarTheme = AppBarTheme(
       elevation: 0,
-      iconTheme: IconThemeData(
-        color: dark,
-      ),
+      iconTheme: IconThemeData(color: dark),
       toolbarTextStyle: textTheme.bodyMedium,
       titleTextStyle: textTheme.titleLarge,
       systemOverlayStyle: const SystemUiOverlayStyle(
@@ -256,7 +248,9 @@ class IrmaThemeData {
     themeData = ThemeData(
       fontFamily: primaryFontFamily,
       scaffoldBackgroundColor: backgroundPrimary,
-      bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+      ),
       colorScheme: colorScheme,
       textTheme: textTheme,
       appBarTheme: appBarTheme,
@@ -270,9 +264,7 @@ class IrmaTheme extends InheritedWidget {
   // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
   // must be wrapped in a Builder.
   IrmaTheme({super.key, required WidgetBuilder builder})
-      : super(
-          child: Builder(builder: builder),
-        );
+    : super(child: Builder(builder: builder));
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {

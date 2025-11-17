@@ -17,16 +17,14 @@ class ChangePinEvent extends ChangePinBaseEvent {
   @JsonKey(name: 'NewPin')
   final String newPin;
 
-  factory ChangePinEvent.fromJson(Map<String, dynamic> json) => _$ChangePinEventFromJson(json);
+  factory ChangePinEvent.fromJson(Map<String, dynamic> json) =>
+      _$ChangePinEventFromJson(json);
   Map<String, dynamic> toJson() => _$ChangePinEventToJson(this);
 }
 
 @JsonSerializable()
 class ChangePinErrorEvent extends ChangePinBaseEvent {
-  ChangePinErrorEvent({
-    required this.schemeManagerID,
-    required this.error,
-  });
+  ChangePinErrorEvent({required this.schemeManagerID, required this.error});
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;
@@ -34,7 +32,8 @@ class ChangePinErrorEvent extends ChangePinBaseEvent {
   @JsonKey(name: 'Error')
   final SessionError error;
 
-  factory ChangePinErrorEvent.fromJson(Map<String, dynamic> json) => _$ChangePinErrorEventFromJson(json);
+  factory ChangePinErrorEvent.fromJson(Map<String, dynamic> json) =>
+      _$ChangePinErrorEventFromJson(json);
   Map<String, dynamic> toJson() => _$ChangePinErrorEventToJson(this);
 }
 
@@ -42,13 +41,18 @@ class ChangePinErrorEvent extends ChangePinBaseEvent {
 class ChangePinSuccessEvent extends ChangePinBaseEvent {
   ChangePinSuccessEvent();
 
-  factory ChangePinSuccessEvent.fromJson(Map<String, dynamic> json) => _$ChangePinSuccessEventFromJson(json);
+  factory ChangePinSuccessEvent.fromJson(Map<String, dynamic> json) =>
+      _$ChangePinSuccessEventFromJson(json);
   Map<String, dynamic> toJson() => _$ChangePinSuccessEventToJson(this);
 }
 
 @JsonSerializable()
 class ChangePinFailedEvent extends ChangePinBaseEvent {
-  ChangePinFailedEvent({required this.schemeManagerID, required this.remainingAttempts, required this.timeout});
+  ChangePinFailedEvent({
+    required this.schemeManagerID,
+    required this.remainingAttempts,
+    required this.timeout,
+  });
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;
@@ -59,6 +63,7 @@ class ChangePinFailedEvent extends ChangePinBaseEvent {
   @JsonKey(name: 'Timeout')
   final int timeout;
 
-  factory ChangePinFailedEvent.fromJson(Map<String, dynamic> json) => _$ChangePinFailedEventFromJson(json);
+  factory ChangePinFailedEvent.fromJson(Map<String, dynamic> json) =>
+      _$ChangePinFailedEventFromJson(json);
   Map<String, dynamic> toJson() => _$ChangePinFailedEventToJson(this);
 }

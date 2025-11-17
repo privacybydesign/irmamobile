@@ -13,40 +13,47 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;
   final List<Attribute>? compareTo;
 
-  const YiviCredentialCardAttributeList(
-    this.attributes, {
-    this.compareTo,
-  });
+  const YiviCredentialCardAttributeList(this.attributes, {this.compareTo});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final attributesWithValue = attributes.where((attr) =>
-        attr.value is! NullValue &&
-        (compareTo?.any((attrComp) =>
-                attrComp.value is! NullValue && attr.attributeType.fullId == attrComp.attributeType.fullId) ??
-            true));
+    final attributesWithValue = attributes.where(
+      (attr) =>
+          attr.value is! NullValue &&
+          (compareTo?.any(
+                (attrComp) =>
+                    attrComp.value is! NullValue &&
+                    attr.attributeType.fullId == attrComp.attributeType.fullId,
+              ) ??
+              true),
+    );
 
-    final textValueAttrs = attributesWithValue.where((a) => a.value is TextValue);
-    final photoValueAttrs = attributesWithValue.where((a) => a.value is PhotoValue);
+    final textValueAttrs = attributesWithValue.where(
+      (a) => a.value is TextValue,
+    );
+    final photoValueAttrs = attributesWithValue.where(
+      (a) => a.value is PhotoValue,
+    );
 
     Text buildLabel(Attribute a) => Text(
-          a.attributeType.name.translate(lang),
-          style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
-        );
+      a.attributeType.name.translate(lang),
+      style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
+    );
 
     TranslatedText buildTextContent(Attribute attribute, TextValue attrValue) {
-      final Attribute? compareValue =
-          compareTo?.firstWhereOrNull((e) => e.attributeType.fullId == attribute.attributeType.fullId);
+      final Attribute? compareValue = compareTo?.firstWhereOrNull(
+        (e) => e.attributeType.fullId == attribute.attributeType.fullId,
+      );
       return TranslatedText(
         attrValue.translated.translate(lang),
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
           color: compareValue == null || compareValue.value is NullValue
               ? theme.dark
               : attribute.value.raw == compareValue.value.raw
-                  ? theme.success
-                  : theme.error,
+              ? theme.success
+              : theme.error,
         ),
       );
     }
@@ -61,18 +68,13 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
                 appBar: IrmaAppBar(
                   titleString: attribute.attributeType.name.translate(lang),
                 ),
-                body: SingleChildScrollView(
-                  child: Center(child: image),
-                ),
+                body: SingleChildScrollView(child: Center(child: image)),
               ),
             ),
           );
         },
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 66,
-            maxHeight: 100,
-          ),
+          constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
           child: image,
         ),
       );

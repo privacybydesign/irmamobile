@@ -51,7 +51,8 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
   }
 
   void _onSkipPressed() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (context) => SkipEmailConfirmationDialog(),
         ) ??
@@ -80,7 +81,8 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
               child: Form(
                 key: _emailFormKey,
                 onChanged: () => setState(
-                  () => _emailFormIsValid = _emailFormKey.currentState!.validate(),
+                  () => _emailFormIsValid = _emailFormKey.currentState!
+                      .validate(),
                 ),
                 child: Column(
                   children: [
@@ -95,7 +97,9 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                             style: theme.textTheme.displaySmall,
                           ),
                           SizedBox(height: theme.defaultSpacing),
-                          const TranslatedText('enrollment.email.provide.explanation'),
+                          const TranslatedText(
+                            'enrollment.email.provide.explanation',
+                          ),
                           SizedBox(height: theme.mediumSpacing),
                           EmailInputField(controller: _emailController),
                         ],
@@ -104,13 +108,17 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                     if (!keyboardIsActive || !isLandscape) ...[
                       const Spacer(),
                       IrmaBottomBar(
-                        alignment: isLandscape ? IrmaBottomBarAlignment.horizontal : IrmaBottomBarAlignment.vertical,
+                        alignment: isLandscape
+                            ? IrmaBottomBarAlignment.horizontal
+                            : IrmaBottomBarAlignment.vertical,
                         primaryButtonLabel: 'ui.next',
-                        onPrimaryPressed: _emailFormIsValid ? _onContinuePressed : null,
+                        onPrimaryPressed: _emailFormIsValid
+                            ? _onContinuePressed
+                            : null,
                         secondaryButtonLabel: 'ui.skip',
                         onSecondaryPressed: _onSkipPressed,
-                      )
-                    ]
+                      ),
+                    ],
                   ],
                 ),
               ),

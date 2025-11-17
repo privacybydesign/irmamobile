@@ -5,9 +5,7 @@ import '../theme/theme.dart';
 class IrmaBottomBarBase extends StatelessWidget {
   final Widget child;
 
-  const IrmaBottomBarBase({
-    required this.child,
-  });
+  const IrmaBottomBarBase({required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -18,19 +16,14 @@ class IrmaBottomBarBase extends StatelessWidget {
       width: mediaQuery.size.width,
       decoration: BoxDecoration(
         color: theme.surfacePrimary,
-        border: const Border(
-          top: BorderSide(
-            color: Colors.white,
-            width: 2.0,
-          ),
-        ),
+        border: const Border(top: BorderSide(color: Colors.white, width: 2.0)),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.shade600.withAlpha(128),
             blurRadius: 10.0,
             spreadRadius: 1.0,
             offset: const Offset(0, 7),
-          )
+          ),
         ],
       ),
       child: SafeArea(

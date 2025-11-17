@@ -14,7 +14,8 @@ class IrmaConfigurationEvent extends Event {
   @JsonKey(name: 'IrmaConfiguration')
   final IrmaConfiguration irmaConfiguration;
 
-  factory IrmaConfigurationEvent.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationEventFromJson(json);
+  factory IrmaConfigurationEvent.fromJson(Map<String, dynamic> json) =>
+      _$IrmaConfigurationEventFromJson(json);
 }
 
 @JsonSerializable(createToJson: false)
@@ -54,7 +55,8 @@ class IrmaConfiguration {
   @JsonKey(name: 'Path')
   final String path;
 
-  factory IrmaConfiguration.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationFromJson(json);
+  factory IrmaConfiguration.fromJson(Map<String, dynamic> json) =>
+      _$IrmaConfigurationFromJson(json);
 }
 
 @JsonSerializable(createToJson: false)
@@ -68,7 +70,8 @@ class SchemeManager {
     required this.keyshareServer,
     required this.keyshareWebsite,
     required this.timestampServer,
-    @Deprecated('Use keyshareAttributes instead') required this.keyshareAttribute,
+    @Deprecated('Use keyshareAttributes instead')
+    required this.keyshareAttribute,
     required this.timestamp,
     required this.demo,
   });
@@ -107,14 +110,18 @@ class SchemeManager {
   @JsonKey(name: 'Demo')
   final bool demo;
 
-  factory SchemeManager.fromJson(Map<String, dynamic> json) => _$SchemeManagerFromJson(json);
+  factory SchemeManager.fromJson(Map<String, dynamic> json) =>
+      _$SchemeManagerFromJson(json);
 
   // In the pbdf scheme, not all keyshare attributes are mentioned. Therefore, we hardcode them for now.
   // This should be fixed in the scheme description.
   Iterable<String> get keyshareAttributes => {
-        keyshareAttribute,
-        if (id == 'pbdf') ...['pbdf.sidn-pbdf.irma.pseudonym', 'pbdf.pbdf.mijnirma.email'],
-      };
+    keyshareAttribute,
+    if (id == 'pbdf') ...[
+      'pbdf.sidn-pbdf.irma.pseudonym',
+      'pbdf.pbdf.mijnirma.email',
+    ],
+  };
 }
 
 @JsonSerializable()
@@ -127,7 +134,8 @@ class RequestorScheme {
   @JsonKey(name: 'demo')
   final bool demo;
 
-  factory RequestorScheme.fromJson(Map<String, dynamic> json) => _$RequestorSchemeFromJson(json);
+  factory RequestorScheme.fromJson(Map<String, dynamic> json) =>
+      _$RequestorSchemeFromJson(json);
   Map<String, dynamic> toJson() => _$RequestorSchemeToJson(this);
 }
 
@@ -141,7 +149,8 @@ class AppVersion {
   @JsonKey(name: 'IOS')
   final int iOS;
 
-  factory AppVersion.fromJson(Map<String, dynamic> json) => _$AppVersionFromJson(json);
+  factory AppVersion.fromJson(Map<String, dynamic> json) =>
+      _$AppVersionFromJson(json);
 }
 
 @JsonSerializable(createToJson: false)
@@ -214,7 +223,9 @@ class CredentialType {
   @JsonKey(name: 'Description')
   final TranslatedValue description;
 
-  @JsonKey(name: 'IssueURL') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'IssueURL',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue issueUrl;
 
   @JsonKey(name: 'IsULIssueURL')
@@ -226,28 +237,41 @@ class CredentialType {
   @JsonKey(name: 'IsInCredentialStore')
   final bool isInCredentialStore;
 
-  @JsonKey(name: 'Category') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'Category',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue category;
 
-  @JsonKey(name: 'FAQIntro') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'FAQIntro',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqIntro;
 
-  @JsonKey(name: 'FAQPurpose') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'FAQPurpose',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqPurpose;
 
-  @JsonKey(name: 'FAQContent') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'FAQContent',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqContent;
 
-  @JsonKey(name: 'FAQHowto') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'FAQHowto',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqHowto;
 
-  @JsonKey(name: 'FAQSummary') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'FAQSummary',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqSummary;
 
   @JsonKey(name: 'Logo')
   final String? logo;
 
-  factory CredentialType.fromJson(Map<String, dynamic> json) => _$CredentialTypeFromJson(json);
+  factory CredentialType.fromJson(Map<String, dynamic> json) =>
+      _$CredentialTypeFromJson(json);
 
   String get fullId => '$schemeManagerId.$issuerId.$id';
   String get fullIssuerId => '$schemeManagerId.$issuerId';
@@ -279,7 +303,9 @@ class AttributeType {
   @JsonKey(name: 'Name') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue name;
 
-  @JsonKey(name: 'Description') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'Description',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue description;
 
   @JsonKey(name: 'Index')
@@ -300,11 +326,13 @@ class AttributeType {
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerId;
 
-  factory AttributeType.fromJson(Map<String, dynamic> json) => _$AttributeTypeFromJson(json);
+  factory AttributeType.fromJson(Map<String, dynamic> json) =>
+      _$AttributeTypeFromJson(json);
 
   String get fullId => '$schemeManagerId.$issuerId.$credentialTypeId.$id';
   String get fullCredentialId => '$schemeManagerId.$issuerId.$credentialTypeId';
 
   // Helpers for json annotation
-  static bool _parseOptional(String? raw) => raw != null && raw.toLowerCase() == 'true';
+  static bool _parseOptional(String? raw) =>
+      raw != null && raw.toLowerCase() == 'true';
 }

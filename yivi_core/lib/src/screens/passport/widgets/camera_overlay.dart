@@ -9,7 +9,8 @@ class MRZCameraOverlay extends StatelessWidget {
     super.key,
   });
 
-  static const _documentFrameRatio = 1.42; // Passport's size (ISO/IEC 7810 ID-3) is 125mm × 88mm
+  static const _documentFrameRatio =
+      1.42; // Passport's size (ISO/IEC 7810 ID-3) is 125mm × 88mm
   final Widget child;
   final bool success;
 
@@ -19,8 +20,13 @@ class MRZCameraOverlay extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (_, c) {
-        final overlayRect = _calculateOverlaySize(Size(c.maxWidth, c.maxHeight));
-        final numChars = maxLtApprox(overlayRect.width - theme.tinySpacing, theme.mrzLabel);
+        final overlayRect = _calculateOverlaySize(
+          Size(c.maxWidth, c.maxHeight),
+        );
+        final numChars = maxLtApprox(
+          overlayRect.width - theme.tinySpacing,
+          theme.mrzLabel,
+        );
         final guidelines = '<' * numChars;
         return Stack(
           children: [
@@ -39,13 +45,7 @@ class MRZCameraOverlay extends StatelessWidget {
                 borderColor: theme.success,
                 color: theme.success.withAlpha(150),
               ),
-              Center(
-                child: Icon(
-                  Icons.check,
-                  color: Colors.white,
-                  size: 200,
-                ),
-              )
+              Center(child: Icon(Icons.check, color: Colors.white, size: 200)),
             ] else ...[
               _ColoredBoxOverlay(
                 rect: overlayRect,
@@ -55,25 +55,21 @@ class MRZCameraOverlay extends StatelessWidget {
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: c.maxHeight - overlayRect.bottom + 20), // 20px above the bottom
+                  padding: EdgeInsets.only(
+                    bottom: c.maxHeight - overlayRect.bottom + 20,
+                  ), // 20px above the bottom
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        guidelines,
-                        style: theme.mrzLabel,
-                      ),
+                      Text(guidelines, style: theme.mrzLabel),
                       SizedBox(height: theme.tinySpacing),
-                      Text(
-                        guidelines,
-                        style: theme.mrzLabel,
-                      ),
+                      Text(guidelines, style: theme.mrzLabel),
                     ],
                   ),
                 ),
-              )
-            ]
+              ),
+            ],
           ],
         );
       },
@@ -92,16 +88,19 @@ class MRZCameraOverlay extends StatelessWidget {
     final topOffset = (size.height - height) / 2;
     final leftOffset = (size.width - width) / 2;
 
-    final rect =
-        RRect.fromLTRBR(leftOffset, topOffset, leftOffset + width, topOffset + height, const Radius.circular(8));
+    final rect = RRect.fromLTRBR(
+      leftOffset,
+      topOffset,
+      leftOffset + width,
+      topOffset + height,
+      const Radius.circular(8),
+    );
     return rect;
   }
 }
 
 class _DocumentClipper extends CustomClipper<Path> {
-  _DocumentClipper({
-    required this.rect,
-  });
+  _DocumentClipper({required this.rect});
 
   final RRect rect;
 

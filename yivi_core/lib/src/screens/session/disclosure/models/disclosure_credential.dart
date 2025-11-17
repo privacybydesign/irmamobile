@@ -13,6 +13,6 @@ abstract class DisclosureCredential extends CredentialView with EquatableMixin {
 
   @override
   List<Object?> get props => [
-        {for (final attr in attributes) attr.attributeType.fullId: attr.value.raw}
-      ];
+    {for (final attr in attributes) attr.attributeType.fullId: attr.value.raw},
+  ];
 }

@@ -4,7 +4,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../widgets/camera_permission_dialog.dart';
 
-Future<void> _showCameraPermissionDialog(BuildContext context) => showDialog<void>(
+Future<void> _showCameraPermissionDialog(BuildContext context) =>
+    showDialog<void>(
       context: context,
       builder: (context) => CameraPermissionDialog(),
     );

@@ -6,9 +6,7 @@ import '../../../../widgets/irma_dialog.dart';
 import '../../../../widgets/yivi_themed_button.dart';
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
-  const ProvideSchemeUrlDialog({
-    super.key,
-  });
+  const ProvideSchemeUrlDialog({super.key});
 
   @override
   State<ProvideSchemeUrlDialog> createState() => _ProvideSchemeUrlDialogState();
@@ -22,8 +20,14 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
     final theme = IrmaTheme.of(context);
     final navigator = Navigator.of(context);
 
-    final translatedTitle = FlutterI18n.translate(context, 'debug.scheme_management.install_scheme_dialog.title');
-    final translatedContent = FlutterI18n.translate(context, 'debug.scheme_management.install_scheme_dialog.content');
+    final translatedTitle = FlutterI18n.translate(
+      context,
+      'debug.scheme_management.install_scheme_dialog.title',
+    );
+    final translatedContent = FlutterI18n.translate(
+      context,
+      'debug.scheme_management.install_scheme_dialog.content',
+    );
 
     return IrmaDialog(
       title: translatedTitle,

@@ -15,17 +15,19 @@ class ActivityDetailsScreenArgs {
   final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  ActivityDetailsScreenArgs({required this.logEntry, required this.irmaConfiguration});
+  ActivityDetailsScreenArgs({
+    required this.logEntry,
+    required this.irmaConfiguration,
+  });
 }
 
 class ActivityDetailsScreen extends StatelessWidget {
   final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  ActivityDetailsScreen({
-    required ActivityDetailsScreenArgs args,
-  })  : logEntry = args.logEntry,
-        irmaConfiguration = args.irmaConfiguration;
+  ActivityDetailsScreen({required ActivityDetailsScreenArgs args})
+    : logEntry = args.logEntry,
+      irmaConfiguration = args.irmaConfiguration;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +36,7 @@ class ActivityDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: 'home.nav_bar.activity',
-      ),
+      appBar: IrmaAppBar(titleTranslationKey: 'home.nav_bar.activity'),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
@@ -49,18 +49,19 @@ class ActivityDetailsScreen extends StatelessWidget {
                 Builder(
                   builder: (context) {
                     return switch (logEntry.type) {
-                      LogType.disclosure || LogType.signature => ActivityDetailDisclosure(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        ),
+                      LogType.disclosure ||
+                      LogType.signature => ActivityDetailDisclosure(
+                        logEntry: logEntry,
+                        irmaConfiguration: irmaConfiguration,
+                      ),
                       LogType.issuance => ActivityDetailIssuance(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        ),
+                        logEntry: logEntry,
+                        irmaConfiguration: irmaConfiguration,
+                      ),
                       LogType.removal => ActivityDetailRemoval(
-                          logEntry: logEntry,
-                          irmaConfiguration: irmaConfiguration,
-                        )
+                        logEntry: logEntry,
+                        irmaConfiguration: irmaConfiguration,
+                      ),
                     };
                   },
                 ),

@@ -21,7 +21,8 @@ class TermsCheckBox extends ConsumerWidget {
 
     final preferences = ref.watch(preferencesProvider);
 
-    final termsUrl = (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl'
+    final termsUrl =
+        (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl'
         ? preferences.mostRecentTermsUrlNl
         : preferences.mostRecentTermsUrlEn;
 
@@ -33,13 +34,9 @@ class TermsCheckBox extends ConsumerWidget {
           key: const Key('accept_terms_checkbox'),
           value: isAccepted,
           activeColor: theme.themeData.colorScheme.secondary,
-          onChanged: (isAccepted) => onToggleAccepted(
-            isAccepted ?? false,
-          ),
+          onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
         ),
-        SizedBox(
-          width: theme.smallSpacing,
-        ),
+        SizedBox(width: theme.smallSpacing),
         Flexible(
           child: TranslatedText(
             'enrollment.terms_and_conditions.accept_markdown',

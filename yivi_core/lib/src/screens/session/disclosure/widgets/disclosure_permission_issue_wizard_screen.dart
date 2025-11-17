@@ -31,9 +31,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
       appBarTitle: 'disclosure_permission.issue_wizard.title',
       onDismiss: onDismiss,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(
-          theme.defaultSpacing,
-        ),
+        padding: EdgeInsets.all(theme.defaultSpacing),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,11 +51,9 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
                 candidatesList: state.candidatesList,
                 selectedConIndices: state.selectedConIndices,
                 onChoiceUpdated: (int conIndex) => onEvent(
-                  DisclosurePermissionChoiceUpdated(
-                    conIndex: conIndex,
-                  ),
+                  DisclosurePermissionChoiceUpdated(conIndex: conIndex),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -68,7 +64,9 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
         // If the current step cannot be completed, then we show a close button.
         primaryButtonLabel: state.isCompleted
             ? 'disclosure_permission.next_step'
-            : (state.currentCanBeCompleted ? 'disclosure_permission.obtain_data' : 'disclosure_permission.close'),
+            : (state.currentCanBeCompleted
+                  ? 'disclosure_permission.obtain_data'
+                  : 'disclosure_permission.close'),
         onPrimaryPressed: state.currentCanBeCompleted
             ? () => onEvent(DisclosurePermissionNextPressed())
             : () => onDismiss(skipConfirmation: true),

@@ -16,12 +16,16 @@ class VerifyOldPinBloc extends Bloc<String, OldPinVerificationState> {
     final authenticationEvent = await repo.unlock(event);
 
     if (authenticationEvent is AuthenticationSuccessEvent) {
-      yield const OldPinVerificationState(validationState: ValidationState.valid);
+      yield const OldPinVerificationState(
+        validationState: ValidationState.valid,
+      );
     } else if (authenticationEvent is AuthenticationFailedEvent) {
       yield OldPinVerificationState(
         validationState: ValidationState.invalid,
         attemptsRemaining: authenticationEvent.remainingAttempts,
-        blockedUntil: DateTime.now().add(Duration(seconds: authenticationEvent.blockedDuration)),
+        blockedUntil: DateTime.now().add(
+          Duration(seconds: authenticationEvent.blockedDuration),
+        ),
       );
     } else if (authenticationEvent is AuthenticationErrorEvent) {
       yield OldPinVerificationState(

@@ -8,10 +8,7 @@ import '../../../widgets/translated_text.dart';
 class DocumentNrInputField extends StatelessWidget {
   final TextEditingController controller;
 
-  const DocumentNrInputField({
-    required this.controller,
-    super.key,
-  });
+  const DocumentNrInputField({required this.controller, super.key});
 
   String? _validateDocumentNr(String? value, BuildContext context) {
     if (value == null || value.isEmpty) {
@@ -52,7 +49,9 @@ class DocumentNrInputField extends StatelessWidget {
       decoration: InputDecoration(
         hint: TranslatedText(
           'passport.manual.fields.document_nr',
-          style: baseTextStyle?.copyWith(color: baseTextStyle.color?.withValues(alpha: 0.5)),
+          style: baseTextStyle?.copyWith(
+            color: baseTextStyle.color?.withValues(alpha: 0.5),
+          ),
         ),
         contentPadding: const EdgeInsets.only(top: -10.0),
         label: TranslatedText(

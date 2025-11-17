@@ -11,7 +11,8 @@ class ClientPreferencesEvent extends Event {
   @JsonKey(name: 'Preferences')
   final ClientPreferences clientPreferences;
 
-  factory ClientPreferencesEvent.fromJson(Map<String, dynamic> json) => _$ClientPreferencesEventFromJson(json);
+  factory ClientPreferencesEvent.fromJson(Map<String, dynamic> json) =>
+      _$ClientPreferencesEventFromJson(json);
   Map<String, dynamic> toJson() => _$ClientPreferencesEventToJson(this);
 }
 
@@ -22,6 +23,7 @@ class ClientPreferences {
   @JsonKey(name: 'DeveloperMode')
   final bool developerMode;
 
-  factory ClientPreferences.fromJson(Map<String, dynamic> json) => _$ClientPreferencesFromJson(json);
+  factory ClientPreferences.fromJson(Map<String, dynamic> json) =>
+      _$ClientPreferencesFromJson(json);
   Map<String, dynamic> toJson() => _$ClientPreferencesToJson(this);
 }

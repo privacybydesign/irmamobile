@@ -7,7 +7,8 @@ import '../../../../theme/theme.dart';
 import 'error_reporting_info_bottom_sheet.dart';
 
 class ErrorReportingCheckBox extends StatelessWidget {
-  Future<void> _showErrorReportingInfoBottomSheet(BuildContext context) async => showModalBottomSheet<void>(
+  Future<void> _showErrorReportingInfoBottomSheet(BuildContext context) async =>
+      showModalBottomSheet<void>(
         context: context,
         builder: (_) => ErrorReportingInfoBottomSheet(),
       );
@@ -37,9 +38,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
             );
           },
         ),
-        SizedBox(
-          width: theme.smallSpacing,
-        ),
+        SizedBox(width: theme.smallSpacing),
         Flexible(
           child: Text.rich(
             TextSpan(
@@ -48,14 +47,13 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   style: theme.textTheme.bodyMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
-                  text: '${FlutterI18n.translate(
-                    context,
-                    'enrollment.error_reporting.accept.optional',
-                  )}: ',
+                  text:
+                      '${FlutterI18n.translate(context, 'enrollment.error_reporting.accept.optional')}: ',
                 ),
                 TextSpan(
                   style: theme.hyperlinkTextStyle,
-                  recognizer: TapGestureRecognizer()..onTap = () => _showErrorReportingInfoBottomSheet(context),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => _showErrorReportingInfoBottomSheet(context),
                   text: FlutterI18n.translate(
                     context,
                     'enrollment.error_reporting.accept.share_errors',
@@ -63,15 +61,13 @@ class ErrorReportingCheckBox extends StatelessWidget {
                 ),
                 TextSpan(
                   style: theme.textTheme.bodyMedium,
-                  text: ' ${FlutterI18n.translate(
-                    context,
-                    'enrollment.error_reporting.accept.with_yivi',
-                  )}',
+                  text:
+                      ' ${FlutterI18n.translate(context, 'enrollment.error_reporting.accept.with_yivi')}',
                 ),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }

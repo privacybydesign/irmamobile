@@ -6,7 +6,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
   final BuildContext context;
 
   _UnsecurePinWarningTextButton({required this.scaffoldKey, required this.bloc})
-      : context = scaffoldKey.currentContext!;
+    : context = scaffoldKey.currentContext!;
 
   void _showSecurePinRules(EnterPinState state) {
     final theme = IrmaTheme.of(context);
@@ -40,7 +40,10 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
                     Icons.close_outlined,
-                    semanticLabel: FlutterI18n.translate(context, 'accessibility.close'),
+                    semanticLabel: FlutterI18n.translate(
+                      context,
+                      'accessibility.close',
+                    ),
                     size: 18,
                     color: Colors.grey.shade800,
                   ),
@@ -70,7 +73,8 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       Navigator.of(context).push(
         PageRouteBuilder(
           opaque: false,
-          pageBuilder: (BuildContext context, _, __) => _UnsecurePinFullScreen(state: state),
+          pageBuilder: (BuildContext context, _, __) =>
+              _UnsecurePinFullScreen(state: state),
         ),
       );
     } else {
@@ -101,13 +105,13 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
               children: [
                 Text(
                   FlutterI18n.translate(context, 'secure_pin.info_button'),
-                  style: theme.textTheme.bodySmall?.copyWith(color: theme.warning, fontWeight: FontWeight.w700),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.warning,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(width: 2.0),
-                Icon(
-                  Icons.info_outlined,
-                  color: theme.warning,
-                ),
+                Icon(Icons.info_outlined, color: theme.warning),
               ],
             ),
           ),

@@ -28,11 +28,17 @@ class IssuancePermission extends StatelessWidget {
         ? IrmaBottomBar(
             primaryButtonLabel: FlutterI18n.translate(context, 'issuance.add'),
             onPrimaryPressed: () => onGivePermission?.call(),
-            secondaryButtonLabel: FlutterI18n.translate(context, 'issuance.cancel'),
+            secondaryButtonLabel: FlutterI18n.translate(
+              context,
+              'issuance.cancel',
+            ),
             onSecondaryPressed: () => onDismiss?.call(),
           )
         : IrmaBottomBar(
-            primaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.back'),
+            primaryButtonLabel: FlutterI18n.translate(
+              context,
+              'session.navigation_bar.back',
+            ),
             onPrimaryPressed: () => onDismiss?.call(),
           );
   }
@@ -46,10 +52,7 @@ class IssuancePermission extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
           child: IrmaQuote(
-            quote: FlutterI18n.translate(
-              context,
-              'issuance.description',
-            ),
+            quote: FlutterI18n.translate(context, 'issuance.description'),
           ),
         ),
         IssuingDetail(issuedCredentials),
@@ -59,9 +62,9 @@ class IssuancePermission extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SessionScaffold(
-        appBarTitle: 'issuance.title',
-        bottomNavigationBar: _buildNavigationBar(context),
-        body: _buildPermissionWidget(context),
-        onDismiss: onDismiss,
-      );
+    appBarTitle: 'issuance.title',
+    bottomNavigationBar: _buildNavigationBar(context),
+    body: _buildPermissionWidget(context),
+    onDismiss: onDismiss,
+  );
 }

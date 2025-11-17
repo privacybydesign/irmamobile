@@ -2,7 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 String formatBlockedFor(BuildContext context, Duration blockedFor) {
-  if (blockedFor.isNegative) throw UnsupportedError('User cannot be blocked for a negative duration');
+  if (blockedFor.isNegative)
+    throw UnsupportedError('User cannot be blocked for a negative duration');
 
   var seconds = blockedFor.inSeconds;
   final days = seconds ~/ Duration.secondsPerDay;

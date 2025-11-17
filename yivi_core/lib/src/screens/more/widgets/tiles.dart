@@ -27,7 +27,9 @@ class ContactLinkTile extends StatelessWidget {
       labelTranslationKey: labelTranslationKey,
       onTap: () async {
         final String address = FlutterI18n.translate(context, 'help.contact');
-        final String subject = Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
+        final String subject = Uri.encodeComponent(
+          FlutterI18n.translate(context, 'help.mail_subject'),
+        );
         final mail = 'mailto:$address?subject=$subject';
         try {
           await IrmaRepositoryProvider.of(context).openURLExternally(mail);
@@ -37,7 +39,10 @@ class ContactLinkTile extends StatelessWidget {
               context: context,
               builder: (BuildContext context) {
                 return IrmaDialog(
-                  title: FlutterI18n.translate(context, 'help.mail_error_title'),
+                  title: FlutterI18n.translate(
+                    context,
+                    'help.mail_error_title',
+                  ),
                   content: FlutterI18n.translate(context, 'help.mail_error'),
                   child: YiviThemedButton(
                     label: 'help.mail_error_button',
@@ -102,9 +107,9 @@ class ExternalLinkTile extends StatelessWidget {
       labelTranslationKey: labelTranslationKey,
       onTap: () {
         try {
-          IrmaRepositoryProvider.of(context).openURL(
-            FlutterI18n.translate(context, urlLinkKey),
-          );
+          IrmaRepositoryProvider.of(
+            context,
+          ).openURL(FlutterI18n.translate(context, urlLinkKey));
         } catch (e, stacktrace) {
           // TODO: consider whether we want error screen here
           reportError(e, stacktrace);
@@ -161,8 +166,14 @@ class ToggleTile extends StatelessWidget {
         final value = snapshot.hasData && snapshot.data!;
 
         return Semantics(
-          value: FlutterI18n.translate(context, value ? 'switch.describe_state_on' : 'switch.describe_state_off'),
-          hint: FlutterI18n.translate(context, value ? 'switch.hint_state_on' : 'switch.hint_state_off'),
+          value: FlutterI18n.translate(
+            context,
+            value ? 'switch.describe_state_on' : 'switch.describe_state_off',
+          ),
+          hint: FlutterI18n.translate(
+            context,
+            value ? 'switch.hint_state_on' : 'switch.hint_state_off',
+          ),
           child: Tile(
             isLink: false,
             iconData: iconData,
@@ -208,22 +219,14 @@ class Tile extends StatelessWidget {
           onTap: onTap,
           minLeadingWidth: theme.mediumSpacing,
           leading: iconData != null
-              ? Icon(
-                  iconData,
-                  size: 28,
-                  color: iconColor,
-                )
+              ? Icon(iconData, size: 28, color: iconColor)
               : null,
           title: TranslatedText(
             labelTranslationKey,
             style: theme.textButtonTextStyle,
           ),
-          trailing: trailing ??
-              Icon(
-                Icons.chevron_right,
-                size: 28,
-                color: iconColor,
-              ),
+          trailing:
+              trailing ?? Icon(Icons.chevron_right, size: 28, color: iconColor),
         ),
       ),
     );

@@ -37,7 +37,11 @@ class ActivityDetailIssuance extends StatelessWidget {
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCredentialCard.fromCredentialLog(irmaConfiguration, cred, compact: true),
+              child: YiviCredentialCard.fromCredentialLog(
+                irmaConfiguration,
+                cred,
+                compact: true,
+              ),
             ),
           SizedBox(height: theme.smallSpacing),
           TranslatedText(
@@ -46,7 +50,10 @@ class ActivityDetailIssuance extends StatelessWidget {
             isHeader: true,
           ),
           SizedBox(height: theme.smallSpacing),
-          RequestorHeader(requestorInfo: requestor, isVerified: !requestor.unverified),
+          RequestorHeader(
+            requestorInfo: requestor,
+            isVerified: !requestor.unverified,
+          ),
           SizedBox(height: theme.defaultSpacing),
         ],
         TranslatedText(
@@ -63,7 +70,7 @@ class ActivityDetailIssuance extends StatelessWidget {
               rawCredential,
               compact: true,
             ),
-          )
+          ),
       ],
     );
   }

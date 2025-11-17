@@ -46,19 +46,25 @@ class IrmaClientBridge extends IrmaBridge {
     ClientPreferencesEvent: (j) => ClientPreferencesEvent.fromJson(j),
 
     StatusUpdateSessionEvent: (j) => StatusUpdateSessionEvent.fromJson(j),
-    RequestVerificationPermissionSessionEvent: (j) => RequestVerificationPermissionSessionEvent.fromJson(j),
-    RequestIssuancePermissionSessionEvent: (j) => RequestIssuancePermissionSessionEvent.fromJson(j),
+    RequestVerificationPermissionSessionEvent: (j) =>
+        RequestVerificationPermissionSessionEvent.fromJson(j),
+    RequestIssuancePermissionSessionEvent: (j) =>
+        RequestIssuancePermissionSessionEvent.fromJson(j),
     RequestPinSessionEvent: (j) => RequestPinSessionEvent.fromJson(j),
     PairingRequiredSessionEvent: (j) => PairingRequiredSessionEvent.fromJson(j),
     SuccessSessionEvent: (j) => SuccessSessionEvent.fromJson(j),
     CanceledSessionEvent: (j) => CanceledSessionEvent.fromJson(j),
 
-    KeyshareEnrollmentMissingSessionEvent: (j) => KeyshareEnrollmentMissingSessionEvent.fromJson(j),
-    KeyshareEnrollmentDeletedSessionEvent: (j) => KeyshareEnrollmentDeletedSessionEvent.fromJson(j),
+    KeyshareEnrollmentMissingSessionEvent: (j) =>
+        KeyshareEnrollmentMissingSessionEvent.fromJson(j),
+    KeyshareEnrollmentDeletedSessionEvent: (j) =>
+        KeyshareEnrollmentDeletedSessionEvent.fromJson(j),
     KeyshareBlockedSessionEvent: (j) => KeyshareBlockedSessionEvent.fromJson(j),
-    KeyshareEnrollmentIncompleteSessionEvent: (j) => KeyshareEnrollmentIncompleteSessionEvent.fromJson(j),
+    KeyshareEnrollmentIncompleteSessionEvent: (j) =>
+        KeyshareEnrollmentIncompleteSessionEvent.fromJson(j),
 
-    ClientReturnURLSetSessionEvent: (j) => ClientReturnURLSetSessionEvent.fromJson(j),
+    ClientReturnURLSetSessionEvent: (j) =>
+        ClientReturnURLSetSessionEvent.fromJson(j),
     FailureSessionEvent: (j) => FailureSessionEvent.fromJson(j),
 
     IssueWizardContentsEvent: (j) => IssueWizardContentsEvent.fromJson(j),
@@ -70,11 +76,13 @@ class IrmaClientBridge extends IrmaBridge {
 
   // Create a lookup of unmarshallers
   static final Map<String, EventUnmarshaller> _eventUnmarshallerLookup =
-      _eventUnmarshallers.map((Type t, EventUnmarshaller u) => MapEntry<String, EventUnmarshaller>(t.toString(), u));
+      _eventUnmarshallers.map(
+        (Type t, EventUnmarshaller u) =>
+            MapEntry<String, EventUnmarshaller>(t.toString(), u),
+      );
 
-  IrmaClientBridge({
-    this.debugLogging = false,
-  }) : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
+  IrmaClientBridge({this.debugLogging = false})
+    : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
     // Start listening to method calls from the native side
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
@@ -101,11 +109,15 @@ class IrmaClientBridge extends IrmaBridge {
         // therefore we explicitly don't print the payload
         if (call.method == 'IrmaConfigurationEvent') {
           if (kDebugMode) {
-            debugPrint('Received bridge event: ${call.method} -- payload omitted');
+            debugPrint(
+              'Received bridge event: ${call.method} -- payload omitted',
+            );
           }
         } else {
           if (kDebugMode) {
-            debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
+            debugPrint(
+              'Received bridge event: ${call.method} with payload ${call.arguments}',
+            );
           }
         }
       }
@@ -123,7 +135,9 @@ class IrmaClientBridge extends IrmaBridge {
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
     if (debugLogging && kDebugMode) {
-      debugPrint('Sending ${event.runtimeType.toString()} to bridge: $encodedEvent');
+      debugPrint(
+        'Sending ${event.runtimeType.toString()} to bridge: $encodedEvent',
+      );
     }
 
     _methodChannel.invokeMethod(event.runtimeType.toString(), encodedEvent);

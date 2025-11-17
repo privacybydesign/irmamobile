@@ -40,12 +40,11 @@ class _NotificationsTabState extends State<NotificationsTab> {
 
     if (action != null && action is CredentialDetailNavigationAction) {
       final repo = IrmaRepositoryProvider.of(context);
-      final credType = repo.irmaConfiguration.credentialTypes[action.credentialTypeId]!;
+      final credType =
+          repo.irmaConfiguration.credentialTypes[action.credentialTypeId]!;
       final translatedAttributeType = credType.name.translate(lang);
 
-      _notificationsBloc.add(
-        MarkNotificationAsRead(notification.id),
-      );
+      _notificationsBloc.add(MarkNotificationAsRead(notification.id));
 
       context.pushCredentialsDetailsScreen(
         CredentialsDetailsRouteParams(
@@ -70,20 +69,19 @@ class _NotificationsTabState extends State<NotificationsTab> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Flexible(
-                    child: TranslatedText(
-                  'notifications.empty',
-                  textAlign: TextAlign.center,
-                ))
+                  child: TranslatedText(
+                    'notifications.empty',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ],
             ),
-          )
+          ),
         ],
       );
 
   void _onRefresh() {
-    _notificationsBloc.add(
-      LoadNotifications(),
-    );
+    _notificationsBloc.add(LoadNotifications());
   }
 
   @override
@@ -102,9 +100,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
           child: BlocBuilder<NotificationsBloc, NotificationsState>(
             builder: (context, state) {
               if (state is NotificationsLoading) {
-                return Center(
-                  child: LoadingIndicator(),
-                );
+                return Center(child: LoadingIndicator());
               } else if (state is NotificationsLoaded) {
                 final notifications = state.notifications;
 
@@ -113,18 +109,19 @@ class _NotificationsTabState extends State<NotificationsTab> {
                   child: notifications.isEmpty
                       ? _emptyListIndicator(theme)
                       : ListView.builder(
-                          padding: EdgeInsets.all(
-                            theme.defaultSpacing,
-                          ),
+                          padding: EdgeInsets.all(theme.defaultSpacing),
                           itemCount: state.notifications.length,
                           itemBuilder: (context, index) {
                             final notification = notifications[index];
 
                             return Padding(
-                              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                              padding: EdgeInsets.only(
+                                bottom: theme.smallSpacing,
+                              ),
                               child: IrmaDismissible(
                                 key: Key(notification.id),
-                                onDismissed: () => _onNotificationDismiss(notification),
+                                onDismissed: () =>
+                                    _onNotificationDismiss(notification),
                                 child: NotificationCard(
                                   notification: notification,
                                   onTap: () => _onNotificationTap(notification),
@@ -136,7 +133,9 @@ class _NotificationsTabState extends State<NotificationsTab> {
                 );
               }
 
-              throw Exception('NotificationsScreen does not support this state: $state');
+              throw Exception(
+                'NotificationsScreen does not support this state: $state',
+              );
             },
           ),
         ),

@@ -52,19 +52,24 @@ class RespondPermissionEvent extends SessionEvent {
   @JsonKey(name: 'DisclosureChoices')
   final List<List<AttributeIdentifier>> disclosureChoices;
 
-  factory RespondPermissionEvent.fromJson(Map<String, dynamic> json) => _$RespondPermissionEventFromJson(json);
+  factory RespondPermissionEvent.fromJson(Map<String, dynamic> json) =>
+      _$RespondPermissionEventFromJson(json);
   Map<String, dynamic> toJson() => _$RespondPermissionEventToJson(this);
 }
 
 class ContinueToIssuanceEvent extends SessionEvent {
   final List<List<AttributeIdentifier>> disclosureChoices;
 
-  ContinueToIssuanceEvent({required int sessionID, required this.disclosureChoices}) : super(sessionID);
+  ContinueToIssuanceEvent({
+    required int sessionID,
+    required this.disclosureChoices,
+  }) : super(sessionID);
 }
 
 @JsonSerializable()
 class RespondPinEvent extends SessionEvent {
-  RespondPinEvent({required int sessionID, required this.proceed, this.pin}) : super(sessionID);
+  RespondPinEvent({required int sessionID, required this.proceed, this.pin})
+    : super(sessionID);
 
   @JsonKey(name: 'Proceed')
   final bool proceed;
@@ -72,7 +77,8 @@ class RespondPinEvent extends SessionEvent {
   @JsonKey(name: 'Pin')
   final String? pin;
 
-  factory RespondPinEvent.fromJson(Map<String, dynamic> json) => _$RespondPinEventFromJson(json);
+  factory RespondPinEvent.fromJson(Map<String, dynamic> json) =>
+      _$RespondPinEventFromJson(json);
   Map<String, dynamic> toJson() => _$RespondPinEventToJson(this);
 }
 
@@ -80,13 +86,18 @@ class RespondPinEvent extends SessionEvent {
 class DismissSessionEvent extends SessionEvent {
   DismissSessionEvent({required int sessionID}) : super(sessionID);
 
-  factory DismissSessionEvent.fromJson(Map<String, dynamic> json) => _$DismissSessionEventFromJson(json);
+  factory DismissSessionEvent.fromJson(Map<String, dynamic> json) =>
+      _$DismissSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$DismissSessionEventToJson(this);
 }
 
 @JsonSerializable()
 class StatusUpdateSessionEvent extends SessionEvent {
-  StatusUpdateSessionEvent({required int sessionID, required this.action, required this.status}) : super(sessionID);
+  StatusUpdateSessionEvent({
+    required int sessionID,
+    required this.action,
+    required this.status,
+  }) : super(sessionID);
 
   @JsonKey(name: 'Action')
   final String action;
@@ -94,13 +105,17 @@ class StatusUpdateSessionEvent extends SessionEvent {
   @JsonKey(name: 'Status')
   final String status;
 
-  factory StatusUpdateSessionEvent.fromJson(Map<String, dynamic> json) => _$StatusUpdateSessionEventFromJson(json);
+  factory StatusUpdateSessionEvent.fromJson(Map<String, dynamic> json) =>
+      _$StatusUpdateSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$StatusUpdateSessionEventToJson(this);
 }
 
 @JsonSerializable()
 class ClientReturnURLSetSessionEvent extends SessionEvent {
-  ClientReturnURLSetSessionEvent({required int sessionID, required this.clientReturnURL}) : super(sessionID);
+  ClientReturnURLSetSessionEvent({
+    required int sessionID,
+    required this.clientReturnURL,
+  }) : super(sessionID);
 
   @JsonKey(name: 'ClientReturnURL')
   final String clientReturnURL;
@@ -114,21 +129,21 @@ class ClientReturnURLSetSessionEvent extends SessionEvent {
 class SuccessSessionEvent extends SessionEvent {
   SuccessSessionEvent({required int sessionID}) : super(sessionID);
 
-  factory SuccessSessionEvent.fromJson(Map<String, dynamic> json) => _$SuccessSessionEventFromJson(json);
+  factory SuccessSessionEvent.fromJson(Map<String, dynamic> json) =>
+      _$SuccessSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$SuccessSessionEventToJson(this);
 }
 
 @JsonSerializable()
 class FailureSessionEvent extends SessionEvent {
-  FailureSessionEvent({
-    required int sessionID,
-    required this.error,
-  }) : super(sessionID);
+  FailureSessionEvent({required int sessionID, required this.error})
+    : super(sessionID);
 
   @JsonKey(name: 'Error')
   final SessionError error;
 
-  factory FailureSessionEvent.fromJson(Map<String, dynamic> json) => _$FailureSessionEventFromJson(json);
+  factory FailureSessionEvent.fromJson(Map<String, dynamic> json) =>
+      _$FailureSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$FailureSessionEventToJson(this);
 }
 
@@ -136,7 +151,8 @@ class FailureSessionEvent extends SessionEvent {
 class CanceledSessionEvent extends SessionEvent {
   CanceledSessionEvent({required int sessionID}) : super(sessionID);
 
-  factory CanceledSessionEvent.fromJson(Map<String, dynamic> json) => _$CanceledSessionEventFromJson(json);
+  factory CanceledSessionEvent.fromJson(Map<String, dynamic> json) =>
+      _$CanceledSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$CanceledSessionEventToJson(this);
 }
 
@@ -166,9 +182,11 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
   @JsonKey(name: 'DisclosuresCandidates')
   final List<List<List<DisclosureCandidate>>> disclosuresCandidates;
 
-  factory RequestIssuancePermissionSessionEvent.fromJson(Map<String, dynamic> json) =>
-      _$RequestIssuancePermissionSessionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$RequestIssuancePermissionSessionEventToJson(this);
+  factory RequestIssuancePermissionSessionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$RequestIssuancePermissionSessionEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$RequestIssuancePermissionSessionEventToJson(this);
 }
 
 @JsonSerializable()
@@ -201,25 +219,34 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
   @JsonKey(name: 'SignedMessage')
   final String? signedMessage;
 
-  factory RequestVerificationPermissionSessionEvent.fromJson(Map<String, dynamic> json) =>
-      _$RequestVerificationPermissionSessionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$RequestVerificationPermissionSessionEventToJson(this);
+  factory RequestVerificationPermissionSessionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$RequestVerificationPermissionSessionEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$RequestVerificationPermissionSessionEventToJson(this);
 }
 
 @JsonSerializable()
 class RequestPinSessionEvent extends SessionEvent {
-  RequestPinSessionEvent({required int sessionID, required this.remainingAttempts}) : super(sessionID);
+  RequestPinSessionEvent({
+    required int sessionID,
+    required this.remainingAttempts,
+  }) : super(sessionID);
 
   @JsonKey(name: 'RemainingAttempts')
   final int remainingAttempts;
 
-  factory RequestPinSessionEvent.fromJson(Map<String, dynamic> json) => _$RequestPinSessionEventFromJson(json);
+  factory RequestPinSessionEvent.fromJson(Map<String, dynamic> json) =>
+      _$RequestPinSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$RequestPinSessionEventToJson(this);
 }
 
 @JsonSerializable()
 class PairingRequiredSessionEvent extends SessionEvent {
-  PairingRequiredSessionEvent({required int sessionID, required this.pairingCode}) : super(sessionID);
+  PairingRequiredSessionEvent({
+    required int sessionID,
+    required this.pairingCode,
+  }) : super(sessionID);
 
   @JsonKey(name: 'PairingCode')
   final String pairingCode;
@@ -231,26 +258,36 @@ class PairingRequiredSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class KeyshareEnrollmentMissingSessionEvent extends SessionEvent {
-  KeyshareEnrollmentMissingSessionEvent({required int sessionID, required this.schemeManagerID}) : super(sessionID);
+  KeyshareEnrollmentMissingSessionEvent({
+    required int sessionID,
+    required this.schemeManagerID,
+  }) : super(sessionID);
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;
 
-  factory KeyshareEnrollmentMissingSessionEvent.fromJson(Map<String, dynamic> json) =>
-      _$KeyshareEnrollmentMissingSessionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$KeyshareEnrollmentMissingSessionEventToJson(this);
+  factory KeyshareEnrollmentMissingSessionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$KeyshareEnrollmentMissingSessionEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$KeyshareEnrollmentMissingSessionEventToJson(this);
 }
 
 @JsonSerializable()
 class KeyshareEnrollmentDeletedSessionEvent extends SessionEvent {
-  KeyshareEnrollmentDeletedSessionEvent({required int sessionID, required this.schemeManagerID}) : super(sessionID);
+  KeyshareEnrollmentDeletedSessionEvent({
+    required int sessionID,
+    required this.schemeManagerID,
+  }) : super(sessionID);
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;
 
-  factory KeyshareEnrollmentDeletedSessionEvent.fromJson(Map<String, dynamic> json) =>
-      _$KeyshareEnrollmentDeletedSessionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$KeyshareEnrollmentDeletedSessionEventToJson(this);
+  factory KeyshareEnrollmentDeletedSessionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$KeyshareEnrollmentDeletedSessionEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$KeyshareEnrollmentDeletedSessionEventToJson(this);
 }
 
 @JsonSerializable()
@@ -274,12 +311,17 @@ class KeyshareBlockedSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class KeyshareEnrollmentIncompleteSessionEvent extends SessionEvent {
-  KeyshareEnrollmentIncompleteSessionEvent({required int sessionID, required this.schemeManagerID}) : super(sessionID);
+  KeyshareEnrollmentIncompleteSessionEvent({
+    required int sessionID,
+    required this.schemeManagerID,
+  }) : super(sessionID);
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;
 
-  factory KeyshareEnrollmentIncompleteSessionEvent.fromJson(Map<String, dynamic> json) =>
-      _$KeyshareEnrollmentIncompleteSessionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$KeyshareEnrollmentIncompleteSessionEventToJson(this);
+  factory KeyshareEnrollmentIncompleteSessionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$KeyshareEnrollmentIncompleteSessionEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$KeyshareEnrollmentIncompleteSessionEventToJson(this);
 }

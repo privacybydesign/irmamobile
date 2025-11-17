@@ -12,10 +12,7 @@ class PairingRequired extends StatelessWidget {
   final String pairingCode;
   final Function() onDismiss;
 
-  const PairingRequired({
-    required this.pairingCode,
-    required this.onDismiss,
-  });
+  const PairingRequired({required this.pairingCode, required this.onDismiss});
 
   Widget _buildPinBoxes(BuildContext context, IrmaThemeData theme) {
     final boxes = List<Widget>.generate(
@@ -38,7 +35,10 @@ class PairingRequired extends StatelessWidget {
 
   Widget _buildNavigationBar(BuildContext context) {
     return IrmaBottomBar(
-      secondaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.cancel'),
+      secondaryButtonLabel: FlutterI18n.translate(
+        context,
+        'session.navigation_bar.cancel',
+      ),
       onSecondaryPressed: () => onDismiss(),
     );
   }
@@ -63,7 +63,9 @@ class PairingRequired extends StatelessWidget {
             ),
             SizedBox(
               height:
-                  MediaQuery.of(context).orientation == Orientation.landscape ? theme.mediumSpacing : theme.hugeSpacing,
+                  MediaQuery.of(context).orientation == Orientation.landscape
+                  ? theme.mediumSpacing
+                  : theme.hugeSpacing,
             ),
             _buildPinBoxes(context, theme),
           ],

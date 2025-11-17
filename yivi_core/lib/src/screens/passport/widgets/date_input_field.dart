@@ -70,7 +70,9 @@ class _DateInputFieldState extends State<DateInputField> {
       inputFormatters: <TextInputFormatter>[_dateMask],
       decoration: InputDecoration(
         hintText: 'YYYY-MM-DD',
-        hintStyle: baseTextStyle?.copyWith(color: baseTextStyle.color?.withValues(alpha: 0.5)),
+        hintStyle: baseTextStyle?.copyWith(
+          color: baseTextStyle.color?.withValues(alpha: 0.5),
+        ),
         contentPadding: const EdgeInsets.only(bottom: 8.0),
         labelText: FlutterI18n.translate(context, widget.labelI18nKey),
         labelStyle: baseTextStyle,

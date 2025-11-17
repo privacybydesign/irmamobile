@@ -9,9 +9,7 @@ class DebugHelper {
   static final _random = Random();
   final IrmaConfiguration irmaConfig;
 
-  DebugHelper({
-    required this.irmaConfig,
-  });
+  DebugHelper({required this.irmaConfig});
 
   static String disclosureSessionRequest() {
     return '''
@@ -60,7 +58,9 @@ class DebugHelper {
     ''';
   }
 
-  Map<String, List<AttributeType>> _attributeTypesByCredentialType(IrmaConfiguration irmaConfiguration) {
+  Map<String, List<AttributeType>> _attributeTypesByCredentialType(
+    IrmaConfiguration irmaConfiguration,
+  ) {
     return groupBy<AttributeType, String>(
       irmaConfiguration.attributeTypes.values,
       (attributeType) => attributeType.fullCredentialId,
@@ -82,28 +82,39 @@ class DebugHelper {
   }
 
   Future<String> digidProefIssuanceRequest() async {
-    const credentialTypeId = 'irma-demo.digidproef.personalData'; // We assume this credential is present.
+    const credentialTypeId =
+        'irma-demo.digidproef.personalData'; // We assume this credential is present.
     final credentialType = irmaConfig.credentialTypes[credentialTypeId]!;
-    final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfig)[credentialTypeId]!;
+    final attributeTypesLookup = _attributeTypesByCredentialType(
+      irmaConfig,
+    )[credentialTypeId]!;
 
     final attributeValues = attributeTypesLookup.map((attributeType) {
-      final value = attributeType.displayHint == 'portraitPhoto' ? portraitPhotoMock : _randomAttributeValue();
+      final value = attributeType.displayHint == 'portraitPhoto'
+          ? portraitPhotoMock
+          : _randomAttributeValue();
       return '"${attributeType.id}": "$value"';
     }).toList();
 
-    return _issuanceSessionRequest(
-      [_credentialRequest(credentialType, attributeValues)],
-    );
+    return _issuanceSessionRequest([
+      _credentialRequest(credentialType, attributeValues),
+    ]);
   }
 
   Future<String> randomIssuanceRequest(int amount) async {
-    final credentialTypes = irmaConfig.credentialTypes.values.where((ct) => ct.schemeManagerId == 'irma-demo').toList();
+    final credentialTypes = irmaConfig.credentialTypes.values
+        .where((ct) => ct.schemeManagerId == 'irma-demo')
+        .toList();
     final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfig);
 
     final credentialsJson = List<String>.generate(amount, (int i) {
-      final credentialType = credentialTypes[_random.nextInt(credentialTypes.length)];
+      final credentialType =
+          credentialTypes[_random.nextInt(credentialTypes.length)];
       final attributeValues = attributeTypesLookup[credentialType.fullId]!
-          .map((attributeType) => '"${attributeType.id}": "${_randomAttributeValue()}"')
+          .map(
+            (attributeType) =>
+                '"${attributeType.id}": "${_randomAttributeValue()}"',
+          )
           .toList();
 
       return _credentialRequest(credentialType, attributeValues);

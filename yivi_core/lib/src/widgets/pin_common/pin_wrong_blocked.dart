@@ -9,10 +9,8 @@ class PinWrongBlockedDialog extends StatelessWidget {
   final void Function()? onClose;
   final int blocked;
 
-  const PinWrongBlockedDialog({
-    required this.blocked,
-    this.onClose,
-  }) : assert(blocked > 0);
+  const PinWrongBlockedDialog({required this.blocked, this.onClose})
+    : assert(blocked > 0);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +18,11 @@ class PinWrongBlockedDialog extends StatelessWidget {
 
     return IrmaDialog(
       title: FlutterI18n.translate(context, 'pin_common.blocked_title'),
-      content: FlutterI18n.translate(context, 'pin_common.blocked_pin', translationParams: {'blocked': blockedForStr}),
+      content: FlutterI18n.translate(
+        context,
+        'pin_common.blocked_pin',
+        translationParams: {'blocked': blockedForStr},
+      ),
       child: YiviThemedButton(
         label: 'pin_common.blocked_close',
         onPressed: onClose ?? () => Navigator.of(context).pop(),

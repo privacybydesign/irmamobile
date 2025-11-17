@@ -6,10 +6,7 @@ class IrmaStatusIndicator extends StatelessWidget {
   final bool success;
   final double size;
 
-  const IrmaStatusIndicator({
-    required this.success,
-    this.size = 22.0,
-  });
+  const IrmaStatusIndicator({required this.success, this.size = 22.0});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +25,7 @@ class IrmaStatusIndicator extends StatelessWidget {
           success ? Icons.check_circle : Icons.cancel,
           color: success ? theme.success : theme.error,
           size: size,
-        )
+        ),
       ],
     );
   }

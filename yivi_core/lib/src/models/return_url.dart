@@ -20,9 +20,12 @@ class ReturnURL {
   const ReturnURL._(this.uri);
 
   bool get isPhoneNumber => uri.isScheme('tel');
-  String get phoneNumber => isPhoneNumber ? toString().substring(4).split(',').first : '';
+  String get phoneNumber =>
+      isPhoneNumber ? toString().substring(4).split(',').first : '';
 
-  bool get isInApp => ['http', 'https'].contains(uri.scheme) && uri.queryParameters.containsKey('inapp');
+  bool get isInApp =>
+      ['http', 'https'].contains(uri.scheme) &&
+      uri.queryParameters.containsKey('inapp');
 
   @override
   String toString() => uri.toString();

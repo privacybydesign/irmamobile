@@ -16,9 +16,14 @@ typedef SessionStates = UnmodifiableMapView<int, SessionState>;
 class SessionRepository {
   final IrmaRepository repo;
 
-  final _sessionStatesSubject = BehaviorSubject<SessionStates>.seeded(SessionStates({}));
+  final _sessionStatesSubject = BehaviorSubject<SessionStates>.seeded(
+    SessionStates({}),
+  );
 
-  SessionRepository({required this.repo, required Stream<SessionEvent> sessionEventStream}) {
+  SessionRepository({
+    required this.repo,
+    required Stream<SessionEvent> sessionEventStream,
+  }) {
     // Don't pipe states to the subject directly, because then potential errors are piped to the subject as well.
     sessionEventStream.listen((event) {
       final prevStates = _sessionStatesSubject.value;
@@ -72,7 +77,8 @@ class SessionRepository {
         status: SessionStatus.error,
         error: SessionError(
           errorType: 'keyshareEnrollmentMissing',
-          info: 'user not activated at the keyshare server of scheme ${event.schemeManagerID}',
+          info:
+              'user not activated at the keyshare server of scheme ${event.schemeManagerID}',
         ),
       );
     } else if (event is KeyshareEnrollmentIncompleteSessionEvent) {
@@ -80,7 +86,8 @@ class SessionRepository {
         status: SessionStatus.error,
         error: SessionError(
           errorType: 'keyshareEnrollmentIncomplete',
-          info: 'user enrollment incomplete at the keyshare server of scheme ${event.schemeManagerID}',
+          info:
+              'user enrollment incomplete at the keyshare server of scheme ${event.schemeManagerID}',
         ),
       );
     } else if (event is KeyshareEnrollmentDeletedSessionEvent) {
@@ -88,13 +95,12 @@ class SessionRepository {
         status: SessionStatus.error,
         error: SessionError(
           errorType: 'keyshareEnrollmentDeleted',
-          info: 'user deleted at the keyshare server of scheme ${event.schemeManagerID}',
+          info:
+              'user deleted at the keyshare server of scheme ${event.schemeManagerID}',
         ),
       );
     } else if (event is StatusUpdateSessionEvent) {
-      return prevState.copyWith(
-        status: event.status.toSessionStatus(),
-      );
+      return prevState.copyWith(status: event.status.toSessionStatus());
     } else if (event is ClientReturnURLSetSessionEvent) {
       return prevState.copyWith(
         clientReturnURL: ReturnURL.parse(event.clientReturnURL),
@@ -111,10 +117,15 @@ class SessionRepository {
         return prevState.copyWith(status: SessionStatus.error, error: e);
       }
       // All discons must have an option to choose from. Otherwise the session can never be finished.
-      final canBeFinished = event.disclosuresCandidates.every((discon) => discon.isNotEmpty);
+      final canBeFinished = event.disclosuresCandidates.every(
+        (discon) => discon.isNotEmpty,
+      );
 
       final issuedCredentials = event.issuedCredentials.map((raw) {
-        return MultiFormatCredential.fromRawMultiFormatCredential(raw, repo.irmaConfiguration);
+        return MultiFormatCredential.fromRawMultiFormatCredential(
+          raw,
+          repo.irmaConfiguration,
+        );
       }).toList();
 
       return prevState.copyWith(
@@ -125,7 +136,10 @@ class SessionRepository {
         satisfiable: event.satisfiable,
         canBeFinished: canBeFinished,
         isSignatureSession: false,
-        disclosuresCandidates: ConDisCon.fromRaw(event.disclosuresCandidates, (DisclosureCandidate dc) => dc),
+        disclosuresCandidates: ConDisCon.fromRaw(
+          event.disclosuresCandidates,
+          (DisclosureCandidate dc) => dc,
+        ),
         issuedCredentials: issuedCredentials,
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
@@ -135,7 +149,9 @@ class SessionRepository {
         return prevState.copyWith(status: SessionStatus.error, error: e);
       }
       // All discons must have an option to choose from. Otherwise the session can never be finished.
-      final canBeFinished = event.disclosuresCandidates.every((discon) => discon.isNotEmpty);
+      final canBeFinished = event.disclosuresCandidates.every(
+        (discon) => discon.isNotEmpty,
+      );
 
       return prevState.copyWith(
         status: SessionStatus.requestDisclosurePermission,
@@ -144,28 +160,34 @@ class SessionRepository {
         canBeFinished: canBeFinished,
         isSignatureSession: event.isSignatureSession,
         signedMessage: event.signedMessage,
-        disclosuresCandidates: ConDisCon.fromRaw(event.disclosuresCandidates, (DisclosureCandidate dc) => dc),
+        disclosuresCandidates: ConDisCon.fromRaw(
+          event.disclosuresCandidates,
+          (DisclosureCandidate dc) => dc,
+        ),
       );
     } else if (event is ContinueToIssuanceEvent) {
       return prevState.copyWith(
         status: SessionStatus.requestIssuancePermission,
-        disclosureChoices: ConCon.fromRaw(event.disclosureChoices, (AttributeIdentifier attrId) => attrId),
+        disclosureChoices: ConCon.fromRaw(
+          event.disclosureChoices,
+          (AttributeIdentifier attrId) => attrId,
+        ),
       );
     } else if (event is SuccessSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.success,
-      );
+      return prevState.copyWith(status: SessionStatus.success);
     } else if (event is CanceledSessionEvent) {
       return prevState.copyWith(status: SessionStatus.canceled);
     } else if (event is RequestPinSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.requestPin,
-      );
+      return prevState.copyWith(status: SessionStatus.requestPin);
     } else if (event is RespondPermissionEvent) {
       return prevState.copyWith(
         status: SessionStatus.communicating,
-        disclosureChoices:
-            event.proceed ? ConCon.fromRaw(event.disclosureChoices, (AttributeIdentifier attrId) => attrId) : null,
+        disclosureChoices: event.proceed
+            ? ConCon.fromRaw(
+                event.disclosureChoices,
+                (AttributeIdentifier attrId) => attrId,
+              )
+            : null,
         dismissed: !event.proceed,
       );
     }
@@ -183,7 +205,8 @@ class SessionRepository {
             throw SessionError(
               errorType: 'notSupported',
               info: 'non-attribute disclosures are not supported',
-              wrappedError: '"${cand.type}" consists of three parts; four expected',
+              wrappedError:
+                  '"${cand.type}" consists of three parts; four expected',
             );
           }
         }
@@ -191,7 +214,8 @@ class SessionRepository {
     }
   }
 
-  SessionState? getCurrentSessionState(int sessionID) => _sessionStatesSubject.value[sessionID];
+  SessionState? getCurrentSessionState(int sessionID) =>
+      _sessionStatesSubject.value[sessionID];
 
   Stream<SessionState> getSessionState(int sessionID) => _sessionStatesSubject
       .where((sessionStates) => sessionStates.containsKey(sessionID))
@@ -199,6 +223,8 @@ class SessionRepository {
 
   Future<bool> hasActiveSessions() async {
     final sessions = await _sessionStatesSubject.first;
-    return sessions.values.any((session) => session.status == SessionStatus.requestDisclosurePermission);
+    return sessions.values.any(
+      (session) => session.status == SessionStatus.requestDisclosurePermission,
+    );
   }
 }

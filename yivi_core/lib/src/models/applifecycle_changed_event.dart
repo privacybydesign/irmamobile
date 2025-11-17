@@ -11,6 +11,7 @@ class AppLifecycleChangedEvent extends Event {
 
   AppLifecycleChangedEvent(this.state);
 
-  factory AppLifecycleChangedEvent.fromJson(Map<String, dynamic> json) => _$AppLifecycleChangedEventFromJson(json);
+  factory AppLifecycleChangedEvent.fromJson(Map<String, dynamic> json) =>
+      _$AppLifecycleChangedEventFromJson(json);
   Map<String, dynamic> toJson() => _$AppLifecycleChangedEventToJson(this);
 }

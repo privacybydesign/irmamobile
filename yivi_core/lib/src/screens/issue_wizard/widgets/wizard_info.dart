@@ -26,10 +26,17 @@ class IssueWizardInfo extends StatelessWidget {
     required this.onBack,
   });
 
-  Widget _buildIntro(BuildContext context, String lang, IssueWizard wizardData) {
+  Widget _buildIntro(
+    BuildContext context,
+    String lang,
+    IssueWizard wizardData,
+  ) {
     final theme = IrmaTheme.of(context);
 
-    final collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
+    final collapsableKeys = List<GlobalKey>.generate(
+      wizardData.faq.length,
+      (int index) => GlobalKey(),
+    );
     final items = wizardData.faq
         .asMap()
         .entries
@@ -40,9 +47,7 @@ class IssueWizardInfo extends StatelessWidget {
             parentScrollController: controller,
             content: SizedBox(
               width: double.infinity,
-              child: IrmaMarkdown(
-                q.value.answer.translate(lang),
-              ),
+              child: IrmaMarkdown(q.value.answer.translate(lang)),
             ),
           ),
         )
@@ -74,7 +79,9 @@ class IssueWizardInfo extends StatelessWidget {
       image: logo,
       onBack: onBack,
       headerBackgroundColor: colorFromCode(wizardData.color),
-      headerTextColor: wizardData.color == null ? null : colorFromCode(wizardData.textColor),
+      headerTextColor: wizardData.color == null
+          ? null
+          : colorFromCode(wizardData.textColor),
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: 'issue_wizard.add',
         onPrimaryPressed: onNext,

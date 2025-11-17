@@ -15,10 +15,7 @@ class ActivityCard extends StatelessWidget {
   final LogInfo logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityCard({
-    required this.logEntry,
-    required this.irmaConfiguration,
-  });
+  const ActivityCard({required this.logEntry, required this.irmaConfiguration});
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +37,20 @@ class ActivityCard extends StatelessWidget {
     );
 
     if (logEntry.type == LogType.removal) {
-      final credType = irmaConfiguration.credentialTypes[logEntry.removalLog!.credentials.first.credentialType]!;
-      title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(lang);
+      final credType =
+          irmaConfiguration.credentialTypes[logEntry
+              .removalLog!
+              .credentials
+              .first
+              .credentialType]!;
+      title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(
+        lang,
+      );
       subtitleTranslationKey = 'activity.data_deleted';
       semanticLabel = FlutterI18n.translate(
         context,
         'activity.data_deleted_semantics',
-        translationParams: {
-          'issuerName': title,
-          'date': localizedTimeStamp,
-        },
+        translationParams: {'issuerName': title, 'date': localizedTimeStamp},
       );
 
       if (credType.logo != null) {
@@ -66,13 +67,12 @@ class ActivityCard extends StatelessWidget {
         semanticLabel = FlutterI18n.translate(
           context,
           'activity.data_received_semantics',
-          translationParams: {
-            'otherParty': title,
-            'date': localizedTimeStamp,
-          },
+          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.disclosure) {
-        final serverName = logEntry.disclosureLog!.verifier.name.translate(lang);
+        final serverName = logEntry.disclosureLog!.verifier.name.translate(
+          lang,
+        );
         title = serverName;
         if (logEntry.disclosureLog!.verifier.logoPath != null) {
           logo = logEntry.disclosureLog!.verifier.logoPath;
@@ -82,13 +82,12 @@ class ActivityCard extends StatelessWidget {
         semanticLabel = FlutterI18n.translate(
           context,
           'activity.data_shared_semantics',
-          translationParams: {
-            'otherParty': title,
-            'date': localizedTimeStamp,
-          },
+          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.signature) {
-        final serverName = logEntry.signedMessageLog!.verifier.name.translate(lang);
+        final serverName = logEntry.signedMessageLog!.verifier.name.translate(
+          lang,
+        );
         title = serverName;
         if (logEntry.signedMessageLog!.verifier.logoPath != null) {
           logo = logEntry.signedMessageLog!.verifier.logoPath;
@@ -97,10 +96,7 @@ class ActivityCard extends StatelessWidget {
         semanticLabel = FlutterI18n.translate(
           context,
           'activity.signed_message_semantics',
-          translationParams: {
-            'otherParty': title,
-            'date': localizedTimeStamp,
-          },
+          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
         );
       }
 
@@ -114,7 +110,10 @@ class ActivityCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: Material(
           child: InkWell(
-            onTap: () => context.pushActivityDetailsScreen(logInfo: logEntry, config: irmaConfiguration),
+            onTap: () => context.pushActivityDetailsScreen(
+              logInfo: logEntry,
+              config: irmaConfiguration,
+            ),
             child: Semantics(
               excludeSemantics: true,
               child: Padding(
@@ -131,9 +130,7 @@ class ActivityCard extends StatelessWidget {
                             logoPath: logo,
                             initials: title != '' ? title[0] : null,
                           ),
-                          SizedBox(
-                            width: theme.smallSpacing,
-                          ),
+                          SizedBox(width: theme.smallSpacing),
                           Flexible(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,27 +138,27 @@ class ActivityCard extends StatelessWidget {
                                 TranslatedText(localizedTimeStamp),
                                 Text(
                                   title,
-                                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
-                                    color: theme.dark,
-                                  ),
+                                  style: theme
+                                      .themeData
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(color: theme.dark),
                                 ),
                                 TranslatedText(
                                   subtitleTranslationKey,
-                                  style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                                    fontSize: 14,
-                                    color: theme.dark,
-                                  ),
-                                )
+                                  style: theme.themeData.textTheme.bodyMedium!
+                                      .copyWith(
+                                        fontSize: 14,
+                                        color: theme.dark,
+                                      ),
+                                ),
                               ],
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.chevron_right,
-                      color: Colors.grey.shade700,
-                    ),
+                    Icon(Icons.chevron_right, color: Colors.grey.shade700),
                   ],
                 ),
               ),

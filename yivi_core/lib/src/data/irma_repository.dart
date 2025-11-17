@@ -65,16 +65,26 @@ class IrmaRepository {
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
-      sessionEventStream: _eventSubject.where((event) => event is SessionEvent).cast<SessionEvent>(),
+      sessionEventStream: _eventSubject
+          .where((event) => event is SessionEvent)
+          .cast<SessionEvent>(),
     );
     _credentialsSubject.forEach((creds) async {
       final event = await _issueWizardSubject.first;
       if (event != null) {
-        _issueWizardSubject.add(await processIssueWizard(event.wizardData.id, event.wizardContents, creds));
+        _issueWizardSubject.add(
+          await processIssueWizard(
+            event.wizardData.id,
+            event.wizardContents,
+            creds,
+          ),
+        );
       }
     });
     // Listen for bridge events and send them to our event subject.
-    _bridgeEventSubscription = _bridge.events.listen((event) => _eventSubject.add(event));
+    _bridgeEventSubscription = _bridge.events.listen(
+      (event) => _eventSubject.add(event),
+    );
     bridgedDispatch(AppReadyEvent());
   }
 
@@ -90,8 +100,11 @@ class IrmaRepository {
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
-  final _enrollmentStatusEventSubject = BehaviorSubject<EnrollmentStatusEvent>();
-  final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
+  final _enrollmentStatusEventSubject =
+      BehaviorSubject<EnrollmentStatusEvent>();
+  final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(
+    EnrollmentStatus.undetermined,
+  );
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
@@ -149,10 +162,12 @@ class IrmaRepository {
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is CredentialsEvent) {
-      _credentialsSubject.add(Credentials.fromRaw(
-        irmaConfiguration: await _irmaConfigurationSubject.first,
-        rawCredentials: event.credentials,
-      ));
+      _credentialsSubject.add(
+        Credentials.fromRaw(
+          irmaConfiguration: await _irmaConfigurationSubject.first,
+          rawCredentials: event.credentials,
+        ),
+      );
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
       if (event is AuthenticationSuccessEvent) {
@@ -165,12 +180,17 @@ class IrmaRepository {
       _enrollmentStatusEventSubject.add(event);
       if (event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
         _lockedSubject.add(false);
-      } else if (!event.enrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
-        dispatch(ErrorEvent(
-          exception: 'Expected default keyshare scheme $defaultKeyshareScheme could not be found in configuration',
-          stack: '',
-          fatal: true,
-        ));
+      } else if (!event.enrolledSchemeManagerIds.contains(
+        defaultKeyshareScheme,
+      )) {
+        dispatch(
+          ErrorEvent(
+            exception:
+                'Expected default keyshare scheme $defaultKeyshareScheme could not be found in configuration',
+            stack: '',
+            fatal: true,
+          ),
+        );
       }
     } else if (event is EnrollmentEvent) {
       _enrollmentEventSubject.add(event);
@@ -199,11 +219,13 @@ class IrmaRepository {
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
     } else if (event is IssueWizardContentsEvent) {
-      _issueWizardSubject.add(await processIssueWizard(
-        event.id,
-        event.wizardContents,
-        await _credentialsSubject.first,
-      ));
+      _issueWizardSubject.add(
+        await processIssueWizard(
+          event.id,
+          event.wizardContents,
+          await _credentialsSubject.first,
+        ),
+      );
     }
   }
 
@@ -223,14 +245,14 @@ class IrmaRepository {
   void removeLaunchedCredentials(Iterable<String> credentialTypeIds) {
     final state = _credentialObtainState.value;
     final updatedLaunchedCredentials = state.previouslyLaunchedCredentials
-        .where(
-          (credTypeId) => !credentialTypeIds.contains(credTypeId),
-        )
+        .where((credTypeId) => !credentialTypeIds.contains(credTypeId))
         .toSet();
 
-    _credentialObtainState.add(_CredentialObtainState(
-      previouslyLaunchedCredentials: updatedLaunchedCredentials,
-    ));
+    _credentialObtainState.add(
+      _CredentialObtainState(
+        previouslyLaunchedCredentials: updatedLaunchedCredentials,
+      ),
+    );
   }
 
   // -- Scheme manager, issuer, credential and attribute definitions
@@ -254,11 +276,22 @@ class IrmaRepository {
   }
 
   // -- Enrollment
-  Future<EnrollmentEvent> enroll({required String email, required String pin, required String language}) {
+  Future<EnrollmentEvent> enroll({
+    required String email,
+    required String pin,
+    required String language,
+  }) {
     _lockedSubject.add(false);
     _blockedSubject.add(null);
 
-    bridgedDispatch(EnrollEvent(email: email, pin: pin, language: language, schemeId: defaultKeyshareScheme));
+    bridgedDispatch(
+      EnrollEvent(
+        email: email,
+        pin: pin,
+        language: language,
+        schemeId: defaultKeyshareScheme,
+      ),
+    );
 
     return _enrollmentEventSubject.where((event) {
       switch (event.runtimeType) {
@@ -281,7 +314,9 @@ class IrmaRepository {
     yield* _enrollmentStatusEventSubject.map((event) {
       if (event.enrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
         return EnrollmentStatus.enrolled;
-      } else if (event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
+      } else if (event.unenrolledSchemeManagerIds.contains(
+        defaultKeyshareScheme,
+      )) {
         return EnrollmentStatus.unenrolled;
       } else {
         return EnrollmentStatus.undetermined;
@@ -289,7 +324,8 @@ class IrmaRepository {
     });
   }
 
-  Stream<EnrollmentStatusEvent> getEnrollmentStatusEvent() => _enrollmentStatusEventSubject.stream;
+  Stream<EnrollmentStatusEvent> getEnrollmentStatusEvent() =>
+      _enrollmentStatusEventSubject.stream;
 
   // -- Authentication
   void lock({DateTime? unblockTime}) {
@@ -299,11 +335,17 @@ class IrmaRepository {
   }
 
   void setDeveloperMode(bool enabled) {
-    bridgedDispatch(ClientPreferencesEvent(clientPreferences: ClientPreferences(developerMode: enabled)));
+    bridgedDispatch(
+      ClientPreferencesEvent(
+        clientPreferences: ClientPreferences(developerMode: enabled),
+      ),
+    );
   }
 
   Future<AuthenticationEvent> unlock(String pin) {
-    bridgedDispatch(AuthenticateEvent(pin: pin, schemeId: defaultKeyshareScheme));
+    bridgedDispatch(
+      AuthenticateEvent(pin: pin, schemeId: defaultKeyshareScheme),
+    );
 
     return _authenticationEventSubject.where((event) {
       switch (event.runtimeType) {
@@ -349,39 +391,42 @@ class IrmaRepository {
   Stream<VersionInformation> getVersionInformation() async* {
     final packageInfo = await PackageInfo.fromPlatform();
 
-    yield* _irmaConfigurationSubject.map((irmaConfiguration) {
-      int minimumBuild = 0;
-      for (final scheme in irmaConfiguration.schemeManagers.values) {
-        int thisRequirement = 0;
-        switch (Platform.operatingSystem) {
-          case 'android':
-            thisRequirement = scheme.minimumAppVersion.android;
-            break;
-          case 'ios':
-            thisRequirement = scheme.minimumAppVersion.iOS;
-            break;
-          default:
-            throw Exception('Unsupported Platfrom.operatingSystem');
-        }
-        if (thisRequirement > minimumBuild) {
-          minimumBuild = thisRequirement;
-        }
-      }
+    yield* _irmaConfigurationSubject
+        .map((irmaConfiguration) {
+          int minimumBuild = 0;
+          for (final scheme in irmaConfiguration.schemeManagers.values) {
+            int thisRequirement = 0;
+            switch (Platform.operatingSystem) {
+              case 'android':
+                thisRequirement = scheme.minimumAppVersion.android;
+                break;
+              case 'ios':
+                thisRequirement = scheme.minimumAppVersion.iOS;
+                break;
+              default:
+                throw Exception('Unsupported Platfrom.operatingSystem');
+            }
+            if (thisRequirement > minimumBuild) {
+              minimumBuild = thisRequirement;
+            }
+          }
 
-      final currentBuild = int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
+          final currentBuild =
+              int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
 
-      return VersionInformation(
-        availableVersion: minimumBuild,
-        requiredVersion: minimumBuild,
-        currentVersion: currentBuild,
-      );
-    })
+          return VersionInformation(
+            availableVersion: minimumBuild,
+            requiredVersion: minimumBuild,
+            currentVersion: currentBuild,
+          );
+        })
         // When a fatal error occurs, no new IrmaConfiguration will be found anymore. This means we can close the stream.
         .takeUntil(_fatalErrorSubject);
   }
 
   // -- Session
-  SessionState? getCurrentSessionState(int sessionID) => _sessionRepository.getCurrentSessionState(sessionID);
+  SessionState? getCurrentSessionState(int sessionID) =>
+      _sessionRepository.getCurrentSessionState(sessionID);
 
   Stream<SessionState> getSessionState(int sessionID) {
     // Prevent states to be emitted twice when multiple sessions run in parallel.
@@ -397,10 +442,13 @@ class IrmaRepository {
   // 2) handling an incoming URL
   Future<bool> appResumedAutomatically() {
     return Rx.combineLatest2(
-            _resumedFromBrowserSubject.stream, _resumedWithURLSubject.stream, (bool a, bool b) => a || b)
-        .first
-        .then((result) {
-      _resumedFromBrowserSubject.add(false); // App is resumed, so we have to reset the value
+      _resumedFromBrowserSubject.stream,
+      _resumedWithURLSubject.stream,
+      (bool a, bool b) => a || b,
+    ).first.then((result) {
+      _resumedFromBrowserSubject.add(
+        false,
+      ); // App is resumed, so we have to reset the value
       return result;
     });
   }
@@ -415,7 +463,9 @@ class IrmaRepository {
   }
 
   Stream<bool> getDeveloperMode() {
-    return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
+    return _preferencesSubject.stream.map(
+      (pref) => pref.clientPreferences.developerMode,
+    );
   }
 
   BehaviorSubject<IssueWizardEvent?> getIssueWizard() {
@@ -438,11 +488,13 @@ class IrmaRepository {
     final wizardData = conf.issueWizards[id]!;
     final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
     return IssueWizardEvent(
-      haveCredential: wizardData.issues != null && creds.contains(wizardData.issues),
+      haveCredential:
+          wizardData.issues != null && creds.contains(wizardData.issues),
       wizardData: wizardData,
       wizardContents: contents.map((item) {
         // The credential field may be non-nil for any wizard item type
-        final haveCredential = item.credential != null && creds.contains(item.credential);
+        final haveCredential =
+            item.credential != null && creds.contains(item.credential);
         if (item.type != 'credential') {
           return item.copyWith(completed: haveCredential || item.completed);
         }
@@ -467,18 +519,26 @@ class IrmaRepository {
     'https://privacybydesign.foundation/myirma/',
     'https://privacybydesign.foundation/mijnirma/',
     'https://privacybydesign.foundation/demo/',
-    'https://privacybydesign.foundation/demo-en/'
+    'https://privacybydesign.foundation/demo-en/',
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
-      (irmaConfiguration) => _externalBrowserCredtypes
-          .where((type) => type.os == Platform.operatingSystem)
-          .map((type) => irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ?? [])
-          .expand((v) => v)
-          .toList()
-        ..addAll(externalBrowserUrls),
+      (irmaConfiguration) =>
+          _externalBrowserCredtypes
+              .where((type) => type.os == Platform.operatingSystem)
+              .map(
+                (type) =>
+                    irmaConfiguration
+                        .credentialTypes[type.cred]
+                        ?.issueUrl
+                        .values ??
+                    [],
+              )
+              .expand((v) => v)
+              .toList()
+            ..addAll(externalBrowserUrls),
     );
   }
 
@@ -538,22 +598,28 @@ class IrmaRepository {
 
     final url = cred.issueUrl.translate(lang, fallback: '');
     if (url.isEmpty) {
-      throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
+      throw UnsupportedError(
+        'Credential type $type does not have a suitable issue url for $lang',
+      );
     }
 
     final alreadyObtainedCredentials = await _credentialsSubject.first;
-    final alreadyObtainedCredentialsTypes = alreadyObtainedCredentials.values.map((cred) => cred.credentialType.fullId);
+    final alreadyObtainedCredentialsTypes = alreadyObtainedCredentials.values
+        .map((cred) => cred.credentialType.fullId);
 
-    if (cred.isInCredentialStore || alreadyObtainedCredentialsTypes.contains(type.fullId)) {
+    if (cred.isInCredentialStore ||
+        alreadyObtainedCredentialsTypes.contains(type.fullId)) {
       final state = await _credentialObtainState.first;
       final updatedLaunchedCredentials = {
         ...state.previouslyLaunchedCredentials,
         type.fullId,
       };
 
-      _credentialObtainState.add(_CredentialObtainState(
-        previouslyLaunchedCredentials: updatedLaunchedCredentials,
-      ));
+      _credentialObtainState.add(
+        _CredentialObtainState(
+          previouslyLaunchedCredentials: updatedLaunchedCredentials,
+        ),
+      );
     }
 
     // If the issue URL is a universal link, then we ask the OS to open the appropriate application.
@@ -587,13 +653,19 @@ class IrmaRepository {
     }
   }
 
-  Future<void> openURLExternally(String url, {bool suppressQrScanner = false}) async {
+  Future<void> openURLExternally(
+    String url, {
+    bool suppressQrScanner = false,
+  }) async {
     if (suppressQrScanner) {
       _resumedFromBrowserSubject.add(true);
     }
     // On iOS, open Safari rather than Safari view controller
     final uri = Uri.parse(url);
-    final hasOpened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final hasOpened = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
 
     // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
     if (!hasOpened) {
@@ -608,8 +680,14 @@ class IrmaRepository {
   }
 
   /// Only meant for testing and debug purposes.
-  Future<void> startTestSession(String requestBody, {continueOnSecondDevice = true}) async {
-    final sessionPtr = await createTestSession(requestBody, continueOnSecondDevice: continueOnSecondDevice);
+  Future<void> startTestSession(
+    String requestBody, {
+    continueOnSecondDevice = true,
+  }) async {
+    final sessionPtr = await createTestSession(
+      requestBody,
+      continueOnSecondDevice: continueOnSecondDevice,
+    );
     _pendingPointerSubject.add(sessionPtr);
   }
 
@@ -620,7 +698,10 @@ class IrmaRepository {
   }
 }
 
-Future<SessionPointer> createTestSession(String requestBody, {bool continueOnSecondDevice = true}) async {
+Future<SessionPointer> createTestSession(
+  String requestBody, {
+  bool continueOnSecondDevice = true,
+}) async {
   final Uri uri = Uri.parse('https://is.demo.staging.yivi.app/session');
 
   final request = await HttpClient().postUrl(uri);
@@ -635,7 +716,9 @@ Future<SessionPointer> createTestSession(String requestBody, {bool continueOnSec
   }
 
   final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
-  final sessionPtr = SessionPointer.fromJson(responseObject['sessionPtr'] as Map<String, dynamic>);
+  final sessionPtr = SessionPointer.fromJson(
+    responseObject['sessionPtr'] as Map<String, dynamic>,
+  );
 
   sessionPtr.continueOnSecondDevice = continueOnSecondDevice;
   return sessionPtr;

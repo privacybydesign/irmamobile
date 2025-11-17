@@ -29,5 +29,6 @@ class VersionInformation {
   }
 
   @override
-  int get hashCode => Object.hash(currentVersion, requiredVersion, availableVersion);
+  int get hashCode =>
+      Object.hash(currentVersion, requiredVersion, availableVersion);
 }

@@ -47,12 +47,14 @@ class DisclosurePermissionObtainCredentialsScreen extends ConsumerWidget {
             DisclosureTemplateStepper(
               templates: state.templates,
               currentItem: state.currentIssueWizardItem,
-            )
+            ),
           ],
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: state.allObtained ? 'ui.done' : 'disclosure_permission.obtain_data',
+        primaryButtonLabel: state.allObtained
+            ? 'ui.done'
+            : 'disclosure_permission.obtain_data',
         onPrimaryPressed: () => _onButtonPressed(context, ref),
       ),
     );

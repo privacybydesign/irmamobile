@@ -28,32 +28,45 @@ class IssueWizardContentsEvent extends Event {
   @JsonKey(name: 'WizardContents')
   final List<IssueWizardItem> wizardContents;
 
-  factory IssueWizardContentsEvent.fromJson(Map<String, dynamic> json) => _$IssueWizardContentsEventFromJson(json);
+  factory IssueWizardContentsEvent.fromJson(Map<String, dynamic> json) =>
+      _$IssueWizardContentsEventFromJson(json);
   Map<String, dynamic> toJson() => _$IssueWizardContentsEventToJson(this);
 }
 
 class IssueWizardEvent extends Event {
-  IssueWizardEvent({required this.wizardData, required this.wizardContents, this.haveCredential = false});
+  IssueWizardEvent({
+    required this.wizardData,
+    required this.wizardContents,
+    this.haveCredential = false,
+  });
 
   final IssueWizard wizardData;
   final List<IssueWizardItem> wizardContents;
   final bool haveCredential;
 
-  bool get showSuccess => wizardData.successHeader.isNotEmpty && wizardData.successText.isNotEmpty;
-  bool get completed => haveCredential || wizardContents.every((item) => item.completed);
-  IssueWizardItem? get activeItem => wizardContents.firstWhereOrNull((item) => !item.completed);
-  int get activeItemIndex => wizardContents.indexWhere((item) => !item.completed);
+  bool get showSuccess =>
+      wizardData.successHeader.isNotEmpty && wizardData.successText.isNotEmpty;
+  bool get completed =>
+      haveCredential || wizardContents.every((item) => item.completed);
+  IssueWizardItem? get activeItem =>
+      wizardContents.firstWhereOrNull((item) => !item.completed);
+  int get activeItemIndex =>
+      wizardContents.indexWhere((item) => !item.completed);
 
   /// A copy of the event with the currently active item marked completed.
   IssueWizardEvent get nextEvent => IssueWizardEvent(
-        wizardData: wizardData,
-        haveCredential: haveCredential,
-        wizardContents: wizardContents
-            .asMap()
-            .entries
-            .map((e) => e.value.copyWith(completed: e.key == activeItemIndex || e.value.completed))
-            .toList(),
-      );
+    wizardData: wizardData,
+    haveCredential: haveCredential,
+    wizardContents: wizardContents
+        .asMap()
+        .entries
+        .map(
+          (e) => e.value.copyWith(
+            completed: e.key == activeItemIndex || e.value.completed,
+          ),
+        )
+        .toList(),
+  );
 }
 
 @JsonSerializable()
@@ -108,16 +121,21 @@ class IssueWizard {
   @JsonKey(name: 'intro') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue intro;
 
-  @JsonKey(name: 'successHeader') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'successHeader',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue successHeader;
 
-  @JsonKey(name: 'successText') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'successText',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue successText;
 
   @JsonKey(name: 'expandDependencies')
   final bool expandDependencies;
 
-  factory IssueWizard.fromJson(Map<String, dynamic> json) => _$IssueWizardFromJson(json);
+  factory IssueWizard.fromJson(Map<String, dynamic> json) =>
+      _$IssueWizardFromJson(json);
   Map<String, dynamic> toJson() => _$IssueWizardToJson(this);
 }
 
@@ -131,7 +149,8 @@ class IssueWizardQA {
   @JsonKey(name: 'answer')
   final TranslatedValue answer;
 
-  factory IssueWizardQA.fromJson(Map<String, dynamic> json) => _$IssueWizardQAFromJson(json);
+  factory IssueWizardQA.fromJson(Map<String, dynamic> json) =>
+      _$IssueWizardQAFromJson(json);
   Map<String, dynamic> toJson() => _$IssueWizardQAToJson(this);
 }
 
@@ -155,7 +174,9 @@ class IssueWizardItem {
   @JsonKey(name: 'credential')
   final String? credential;
 
-  @JsonKey(name: 'header') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'header',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue header;
 
   @JsonKey(name: 'text') // Default value is set by fromJson of TranslatedValue
@@ -199,6 +220,7 @@ class IssueWizardItem {
     );
   }
 
-  factory IssueWizardItem.fromJson(Map<String, dynamic> json) => _$IssueWizardItemFromJson(json);
+  factory IssueWizardItem.fromJson(Map<String, dynamic> json) =>
+      _$IssueWizardItemFromJson(json);
   Map<String, dynamic> toJson() => _$IssueWizardItemToJson(this);
 }

@@ -13,12 +13,15 @@ class CredentialsEvent extends Event {
   @JsonKey(name: 'Credentials')
   final List<RawCredential> credentials;
 
-  factory CredentialsEvent.fromJson(Map<String, dynamic> json) => _$CredentialsEventFromJson(json);
+  factory CredentialsEvent.fromJson(Map<String, dynamic> json) =>
+      _$CredentialsEventFromJson(json);
   Map<String, dynamic> toJson() => _$CredentialsEventToJson(this);
 }
 
 Map<String, dynamic> hashByFormatToString(Map<CredentialFormat, String> value) {
-  return value.map((key, value) => MapEntry(credentialFormatToString(key), value));
+  return value.map(
+    (key, value) => MapEntry(credentialFormatToString(key), value),
+  );
 }
 
 @JsonSerializable()
@@ -28,6 +31,7 @@ class DeleteCredentialEvent extends Event {
   @JsonKey(name: 'HashByFormat', toJson: hashByFormatToString)
   final Map<CredentialFormat, String> hashByFormat;
 
-  factory DeleteCredentialEvent.fromJson(Map<String, dynamic> json) => _$DeleteCredentialEventFromJson(json);
+  factory DeleteCredentialEvent.fromJson(Map<String, dynamic> json) =>
+      _$DeleteCredentialEventFromJson(json);
   Map<String, dynamic> toJson() => _$DeleteCredentialEventToJson(this);
 }

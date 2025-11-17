@@ -19,18 +19,28 @@ class MissingPointer implements Exception {
 
 /// Interface for all pointers referring to new sessions and issue wizards.
 abstract class Pointer {
-  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor});
+  Future<void> validate({
+    required IrmaRepository irmaRepository,
+    RequestorInfo? requestor,
+  });
 
   factory Pointer.fromString(String content) {
-    if (content.startsWith('eudi-openid4vp://') || content.startsWith('openid4vp://')) {
+    if (content.startsWith('eudi-openid4vp://') ||
+        content.startsWith('openid4vp://')) {
       final uri = Uri.parse(content);
       final requestUri = uri.queryParameters['request_uri'];
       final clientId = uri.queryParameters['client_id'];
       if (clientId == null) {
-        throw MissingPointer(details: 'expected "client_id" to be present in query parameters, but it wasn\'t');
+        throw MissingPointer(
+          details:
+              'expected "client_id" to be present in query parameters, but it wasn\'t',
+        );
       }
       if (requestUri == null) {
-        throw MissingPointer(details: 'expected "request_uri" to be present in query parameters, but it wasn\'t');
+        throw MissingPointer(
+          details:
+              'expected "request_uri" to be present in query parameters, but it wasn\'t',
+        );
       }
       return SessionPointer(
         u: content,
@@ -93,11 +103,15 @@ class IssueWizardPointer implements Pointer {
 
   IssueWizardPointer(this.wizard);
 
-  factory IssueWizardPointer.fromJson(Map<String, dynamic> json) => _$IssueWizardPointerFromJson(json);
+  factory IssueWizardPointer.fromJson(Map<String, dynamic> json) =>
+      _$IssueWizardPointerFromJson(json);
   Map<String, dynamic> toJson() => _$IssueWizardPointerToJson(this);
 
   @override
-  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {
+  Future<void> validate({
+    required IrmaRepository irmaRepository,
+    RequestorInfo? requestor,
+  }) async {
     if (await irmaRepository.getIssueWizardActive().first) {
       throw UnsupportedError('cannot start wizard within a wizard');
     }
@@ -113,7 +127,9 @@ class IssueWizardPointer implements Pointer {
     final demoScheme = irmaConfiguration.requestorSchemes[scheme]!.demo;
     final developerMode = await irmaRepository.getDeveloperMode().first;
     if (!developerMode && demoScheme) {
-      throw UnsupportedError('cannot start wizard from demo scheme: developer mode not enabled');
+      throw UnsupportedError(
+        'cannot start wizard from demo scheme: developer mode not enabled',
+      );
     }
 
     final wizardData = irmaConfiguration.issueWizards[wizard]!;
@@ -125,7 +141,9 @@ class IssueWizardPointer implements Pointer {
       throw UnsupportedError('cannot start wizard: unknown requestor');
     }
     if (wizardData.id.split('.').getRange(0, 2).join('.') != requestor.id) {
-      throw UnsupportedError('cannot start wizard not belonging to session requestor');
+      throw UnsupportedError(
+        'cannot start wizard not belonging to session requestor',
+      );
     }
   }
 }
@@ -156,11 +174,15 @@ class SessionPointer implements Pointer {
     this.continueOnSecondDevice = false,
   });
 
-  factory SessionPointer.fromJson(Map<String, dynamic> json) => _$SessionPointerFromJson(json);
+  factory SessionPointer.fromJson(Map<String, dynamic> json) =>
+      _$SessionPointerFromJson(json);
   Map<String, dynamic> toJson() => _$SessionPointerToJson(this);
 
   @override
-  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {}
+  Future<void> validate({
+    required IrmaRepository irmaRepository,
+    RequestorInfo? requestor,
+  }) async {}
 }
 
 /// A pointer that refers to an issue wizard being followed by an IRMA session.
@@ -170,7 +192,8 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   IssueWizardSessionPointer(this._wizardPointer, this._sessionPointer);
 
-  factory IssueWizardSessionPointer.fromJson(Map<String, dynamic> json) => IssueWizardSessionPointer(
+  factory IssueWizardSessionPointer.fromJson(Map<String, dynamic> json) =>
+      IssueWizardSessionPointer(
         IssueWizardPointer.fromJson(json),
         SessionPointer.fromJson(json),
       );
@@ -179,7 +202,8 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
   bool get continueOnSecondDevice => _sessionPointer.continueOnSecondDevice;
 
   @override
-  set continueOnSecondDevice(bool value) => _sessionPointer.continueOnSecondDevice = value;
+  set continueOnSecondDevice(bool value) =>
+      _sessionPointer.continueOnSecondDevice = value;
 
   @override
   String get irmaqr => _sessionPointer.irmaqr;
@@ -200,14 +224,23 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   @override
   Map<String, dynamic> toJson() => {
-        ..._wizardPointer.toJson(),
-        ..._sessionPointer.toJson(),
-      };
+    ..._wizardPointer.toJson(),
+    ..._sessionPointer.toJson(),
+  };
 
   @override
-  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {
-    await _wizardPointer.validate(irmaRepository: irmaRepository, requestor: requestor);
-    await _sessionPointer.validate(irmaRepository: irmaRepository, requestor: requestor);
+  Future<void> validate({
+    required IrmaRepository irmaRepository,
+    RequestorInfo? requestor,
+  }) async {
+    await _wizardPointer.validate(
+      irmaRepository: irmaRepository,
+      requestor: requestor,
+    );
+    await _sessionPointer.validate(
+      irmaRepository: irmaRepository,
+      requestor: requestor,
+    );
   }
 }
 
@@ -242,22 +275,29 @@ class SessionError {
 
   bool get reportable => !['https', 'notSupported'].contains(errorType);
 
-  factory SessionError.fromJson(Map<String, dynamic> json) => _$SessionErrorFromJson(json);
+  factory SessionError.fromJson(Map<String, dynamic> json) =>
+      _$SessionErrorFromJson(json);
   Map<String, dynamic> toJson() => _$SessionErrorToJson(this);
 
   @override
   String toString() => [
-        if (remoteStatus != null && remoteStatus! > 0) '$remoteStatus ',
-        errorType,
-        if (info.isNotEmpty) ' ($info)',
-        if (wrappedError.isNotEmpty) ': $wrappedError',
-        if (remoteError != null) '\n$remoteError',
-      ].join();
+    if (remoteStatus != null && remoteStatus! > 0) '$remoteStatus ',
+    errorType,
+    if (info.isNotEmpty) ' ($info)',
+    if (wrappedError.isNotEmpty) ': $wrappedError',
+    if (remoteError != null) '\n$remoteError',
+  ].join();
 }
 
 @JsonSerializable()
 class RemoteError {
-  RemoteError({this.status, this.errorName, this.description, this.message, this.stacktrace});
+  RemoteError({
+    this.status,
+    this.errorName,
+    this.description,
+    this.message,
+    this.stacktrace,
+  });
 
   @JsonKey(name: 'status')
   final int? status;
@@ -275,13 +315,14 @@ class RemoteError {
   final String? stacktrace;
 
   RemoteError copyWithoutStacktrace() => RemoteError(
-        status: status,
-        errorName: errorName,
-        description: description,
-        message: message,
-      );
+    status: status,
+    errorName: errorName,
+    description: description,
+    message: message,
+  );
 
-  factory RemoteError.fromJson(Map<String, dynamic> json) => _$RemoteErrorFromJson(json);
+  factory RemoteError.fromJson(Map<String, dynamic> json) =>
+      _$RemoteErrorFromJson(json);
   Map<String, dynamic> toJson() => _$RemoteErrorToJson(this);
 
   @override
@@ -296,7 +337,9 @@ class RequestorInfo {
   @JsonKey(name: 'name')
   final TranslatedValue name;
 
-  @JsonKey(name: 'industry') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(
+    name: 'industry',
+  ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue industry;
 
   @JsonKey(name: 'logo')
@@ -320,6 +363,7 @@ class RequestorInfo {
     this.logo,
     this.logoPath,
   });
-  factory RequestorInfo.fromJson(Map<String, dynamic> json) => _$RequestorInfoFromJson(json);
+  factory RequestorInfo.fromJson(Map<String, dynamic> json) =>
+      _$RequestorInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RequestorInfoToJson(this);
 }

@@ -9,7 +9,11 @@ import 'irma_icon_indicator.dart';
 import 'requestor_verification_explanation_bottom_sheet.dart';
 import 'translated_text.dart';
 
-_buildRequestorAvatar({required String? title, Image? image, String? imagePath}) {
+_buildRequestorAvatar({
+  required String? title,
+  Image? image,
+  String? imagePath,
+}) {
   return IrmaAvatar(
     size: 48,
     logoImage: image,
@@ -23,10 +27,7 @@ class RequestorHeader extends StatelessWidget {
   final RequestorInfo? requestorInfo;
   final bool? isVerified;
 
-  const RequestorHeader({
-    this.requestorInfo,
-    this.isVerified,
-  });
+  const RequestorHeader({this.requestorInfo, this.isVerified});
 
   _showCredentialOptionsBottomSheet(BuildContext context) async {
     return showModalBottomSheet<void>(
@@ -48,10 +49,7 @@ class RequestorHeader extends StatelessWidget {
 
     final localizedRequestorName = requestorInfo != null
         ? requestorInfo!.name.translate(lang)
-        : FlutterI18n.translate(
-            context,
-            'ui.unknown',
-          );
+        : FlutterI18n.translate(context, 'ui.unknown');
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,
@@ -70,17 +68,21 @@ class RequestorHeader extends StatelessWidget {
           onTap: () => _showCredentialOptionsBottomSheet(context),
           child: TranslatedText(
             'disclosure_permission.overview.requestor_verification.explanation',
-            style: theme.hyperlinkTextStyle.copyWith(fontWeight: FontWeight.normal),
+            style: theme.hyperlinkTextStyle.copyWith(
+              fontWeight: FontWeight.normal,
+            ),
           ),
         ),
       );
 
       if (isVerified!) {
         backgroundColorOverride = theme.success.withAlpha(opacity);
-        mainTextSuffixTranslationKey = 'disclosure_permission.overview.requestor_verification.verified_suffix';
+        mainTextSuffixTranslationKey =
+            'disclosure_permission.overview.requestor_verification.verified_suffix';
       } else {
         backgroundColorOverride = theme.error.withAlpha(opacity);
-        mainTextSuffixTranslationKey = 'disclosure_permission.overview.requestor_verification.unverified_suffix';
+        mainTextSuffixTranslationKey =
+            'disclosure_permission.overview.requestor_verification.unverified_suffix';
       }
 
       // Wrap the avatar in a Stack and position the verification status indicator
@@ -90,9 +92,7 @@ class RequestorHeader extends StatelessWidget {
           Positioned(
             top: 0,
             right: 0,
-            child: IrmaStatusIndicator(
-              success: isVerified!,
-            ),
+            child: IrmaStatusIndicator(success: isVerified!),
           ),
         ],
       );
@@ -115,7 +115,7 @@ class RequestorHeader extends StatelessWidget {
             TextSpan(
               text: translatedMainTextSuffix,
               style: mainTextDefaultStyle,
-            )
+            ),
           ],
         ),
       );
@@ -153,10 +153,7 @@ class IssueWizardRequestorHeader extends StatelessWidget {
     return _RequestorHeaderBase(
       textColor: textColor,
       backgroundColor: backgroundColor,
-      avatar: _buildRequestorAvatar(
-        title: title,
-        image: image,
-      ),
+      avatar: _buildRequestorAvatar(title: title, image: image),
       mainText: Text(
         title ?? '',
         style: IrmaTheme.of(context).themeData.textTheme.headlineMedium,
@@ -198,16 +195,11 @@ class _RequestorHeaderBase extends StatelessWidget {
             padding: EdgeInsets.only(right: theme.tinySpacing),
             child: avatar,
           ),
-          SizedBox(
-            width: theme.smallSpacing,
-          ),
+          SizedBox(width: theme.smallSpacing),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                mainText,
-                if (subtitleText != null) subtitleText!,
-              ],
+              children: [mainText, if (subtitleText != null) subtitleText!],
             ),
           ),
         ],

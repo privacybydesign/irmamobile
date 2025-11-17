@@ -51,23 +51,18 @@ class _MoreTabState extends State<MoreTab> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final spacerWidget = SizedBox(
-      height: theme.mediumSpacing,
-    );
+    final spacerWidget = SizedBox(height: theme.mediumSpacing);
 
-    Widget buildHeaderText(
-      String translationKey,
-    ) =>
-        Padding(
-          padding: EdgeInsets.only(bottom: theme.smallSpacing),
-          child: TranslatedText(
-            translationKey,
-            isHeader: true,
-            style: theme.textTheme.bodyLarge!.copyWith(
-              color: theme.neutralExtraDark,
-            ),
-          ),
-        );
+    Widget buildHeaderText(String translationKey) => Padding(
+      padding: EdgeInsets.only(bottom: theme.smallSpacing),
+      child: TranslatedText(
+        translationKey,
+        isHeader: true,
+        style: theme.textTheme.bodyLarge!.copyWith(
+          color: theme.neutralExtraDark,
+        ),
+      ),
+    );
 
     return Scaffold(
       backgroundColor: IrmaTheme.of(context).backgroundTertiary,
@@ -118,7 +113,7 @@ class _MoreTabState extends State<MoreTab> {
                 ContactLinkTile(
                   labelTranslationKey: 'more_tab.contact',
                   iconData: Icons.mail_outline_rounded,
-                )
+                ),
               ],
             ),
             spacerWidget,

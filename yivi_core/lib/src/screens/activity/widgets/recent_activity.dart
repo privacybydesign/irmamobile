@@ -17,10 +17,7 @@ class RecentActivity extends StatefulWidget {
   final int amountOfLogs;
   final VoidCallback onTap;
 
-  const RecentActivity({
-    required this.onTap,
-    this.amountOfLogs = 2,
-  });
+  const RecentActivity({required this.onTap, this.amountOfLogs = 2});
 
   @override
   State<RecentActivity> createState() => _RecentActivityState();
@@ -40,11 +37,13 @@ class _RecentActivityState extends State<RecentActivity> {
     } catch (_) {
       _loadLogs();
       _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
-      _repoStateSubscription = IrmaRepositoryProvider.of(context).getEvents().listen((event) {
-        if (event is SuccessSessionEvent) {
-          _loadLogs();
-        }
-      });
+      _repoStateSubscription = IrmaRepositoryProvider.of(context)
+          .getEvents()
+          .listen((event) {
+            if (event is SuccessSessionEvent) {
+              _loadLogs();
+            }
+          });
     }
   }
 
@@ -56,9 +55,9 @@ class _RecentActivityState extends State<RecentActivity> {
   }
 
   void _loadLogs() {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(LoadLogsEvent(
-      max: widget.amountOfLogs,
-    ));
+    IrmaRepositoryProvider.of(
+      context,
+    ).bridgedDispatch(LoadLogsEvent(max: widget.amountOfLogs));
   }
 
   @override
@@ -66,7 +65,10 @@ class _RecentActivityState extends State<RecentActivity> {
     final theme = IrmaTheme.of(context);
 
     return StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
-      stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
+      stream: combine2(
+        _historyRepo.repo.getIrmaConfiguration(),
+        _historyRepo.getHistoryState(),
+      ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();
@@ -99,7 +101,7 @@ class _RecentActivityState extends State<RecentActivity> {
                     isTransparent: true,
                     onPressed: widget.onTap,
                   ),
-                )
+                ),
               ],
             ),
             SizedBox(height: theme.defaultSpacing),
@@ -110,7 +112,9 @@ class _RecentActivityState extends State<RecentActivity> {
                     children: logEntries
                         .map(
                           (logEntry) => Padding(
-                            padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                            padding: EdgeInsets.only(
+                              bottom: theme.smallSpacing,
+                            ),
                             child: ActivityCard(
                               logEntry: logEntry,
                               irmaConfiguration: irmaConfiguration,

@@ -27,10 +27,7 @@ class IrmaIconButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticsLabelKey != null
-          ? FlutterI18n.translate(
-              context,
-              semanticsLabelKey!,
-            )
+          ? FlutterI18n.translate(context, semanticsLabelKey!)
           : null,
       child: Material(
         color: Colors.transparent,
@@ -40,11 +37,7 @@ class IrmaIconButton extends StatelessWidget {
           borderRadius: borderRadius,
           child: Padding(
             padding: padding ?? const EdgeInsets.all(12),
-            child: Icon(
-              icon,
-              size: size,
-              color: theme.neutralExtraDark,
-            ),
+            child: Icon(icon, size: size, color: theme.neutralExtraDark),
           ),
         ),
       ),

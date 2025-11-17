@@ -11,7 +11,9 @@ class SecurePinScreenTest extends StatelessWidget {
 
   final VoidCallback? onTogglePinSize;
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>(debugLabel: 'SecurePinScreenTest');
+  final _scaffoldKey = GlobalKey<ScaffoldState>(
+    debugLabel: 'SecurePinScreenTest',
+  );
 
   SecurePinScreenTest({
     super.key,
@@ -50,7 +52,11 @@ class PinScreenTest extends StatefulWidget {
   final VoidCallback? onTogglePinSize;
   final EnterPinStateBloc pinBloc;
 
-  const PinScreenTest({required this.maxPinSize, this.onTogglePinSize, required this.pinBloc});
+  const PinScreenTest({
+    required this.maxPinSize,
+    this.onTogglePinSize,
+    required this.pinBloc,
+  });
 
   @override
   State<StatefulWidget> createState() => _PinScreen();

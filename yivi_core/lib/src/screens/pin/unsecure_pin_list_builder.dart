@@ -17,13 +17,12 @@ List<Widget> _listBuilder(BuildContext context, EnterPinState state) {
     ),
     if (state.pin.length > shortPinSize)
       _UnsecurePinDescriptionTile(
-        followsRule: attributes.contains(SecurePinAttribute.mustContainValidSubset),
+        followsRule: attributes.contains(
+          SecurePinAttribute.mustContainValidSubset,
+        ),
         descriptionKey: 'secure_pin.rules.must_contain_valid_subset',
-      )
+      ),
   ];
 
-  return ListTile.divideTiles(
-    context: context,
-    tiles: tiles,
-  ).toList();
+  return ListTile.divideTiles(context: context, tiles: tiles).toList();
 }

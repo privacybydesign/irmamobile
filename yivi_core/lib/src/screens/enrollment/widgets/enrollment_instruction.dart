@@ -26,7 +26,8 @@ class EnrollmentInstruction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Stack(
       children: [
@@ -42,21 +43,15 @@ class EnrollmentInstruction extends StatelessWidget {
                   stepCount: stepCount!,
                   stepIndex: stepIndex!,
                 ),
-              SizedBox(
-                height: theme.smallSpacing,
-              ),
+              SizedBox(height: theme.smallSpacing),
               TranslatedText(
                 titleTranslationKey,
                 style: theme.textTheme.displayLarge,
               ),
-              SizedBox(
-                height: theme.defaultSpacing,
-              ),
+              SizedBox(height: theme.defaultSpacing),
               TranslatedText(explanationTranslationKey),
               // Extra white space so the content above always stays visible
-              SizedBox(
-                height: theme.defaultSpacing + theme.hugeSpacing,
-              ),
+              SizedBox(height: theme.defaultSpacing + theme.hugeSpacing),
             ],
           ),
         ),

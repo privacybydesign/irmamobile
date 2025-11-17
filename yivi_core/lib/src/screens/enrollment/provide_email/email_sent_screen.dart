@@ -34,36 +34,30 @@ class EmailSentScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing, vertical: theme.defaultSpacing),
+          padding: EdgeInsets.symmetric(
+            horizontal: theme.defaultSpacing,
+            vertical: theme.defaultSpacing,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const IrmaQuote(
                 quote: 'enrollment.email.confirm.explanation_extra_markdown',
               ),
-              SizedBox(
-                height: theme.defaultSpacing,
-              ),
+              SizedBox(height: theme.defaultSpacing),
               Text.rich(
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: '${FlutterI18n.translate(
-                        context,
-                        'enrollment.email.confirm.header',
-                      )} ',
+                      text:
+                          '${FlutterI18n.translate(context, 'enrollment.email.confirm.header')} ',
                     ),
-                    TextSpan(
-                      text: '$email ',
-                      style: theme.textTheme.bodyLarge,
-                    ),
+                    TextSpan(text: '$email ', style: theme.textTheme.bodyLarge),
                   ],
                 ),
               ),
-              SizedBox(
-                height: theme.smallSpacing,
-              ),
-              const TranslatedText('enrollment.email.confirm.explanation')
+              SizedBox(height: theme.smallSpacing),
+              const TranslatedText('enrollment.email.confirm.explanation'),
             ],
           ),
         ),

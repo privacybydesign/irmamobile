@@ -2,9 +2,7 @@ part of 'yivi_pin_screen.dart';
 
 class _UnsecurePinFullScreen extends StatelessWidget {
   final EnterPinState state;
-  const _UnsecurePinFullScreen({
-    required this.state,
-  });
+  const _UnsecurePinFullScreen({required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +22,7 @@ class _UnsecurePinFullScreen extends StatelessWidget {
             ),
           ),
           const Divider(),
-          ..._listBuilder(context, state)
+          ..._listBuilder(context, state),
         ],
       ),
     );

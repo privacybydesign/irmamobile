@@ -37,7 +37,8 @@ class MRZHelper {
         list[i] = list[i].toUpperCase();
         // to ensure that every letter is uppercase
       }
-      if (double.tryParse(list[i]) == null && !(RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(list[i]))) {
+      if (double.tryParse(list[i]) == null &&
+          !(RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(list[i]))) {
         list[i] = '<';
         // sometimes < sign not recognized well
       }

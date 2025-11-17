@@ -13,16 +13,14 @@ import 'qr_view_container.dart';
 class QRScanner extends StatefulWidget {
   final void Function(Pointer) onFound;
 
-  const QRScanner({
-    super.key,
-    required this.onFound,
-  });
+  const QRScanner({super.key, required this.onFound});
 
   @override
   State<StatefulWidget> createState() => QRScannerState();
 }
 
-class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
+class QRScannerState extends State<QRScanner>
+    with SingleTickerProviderStateMixin {
   static const _qrInstructionHeightFactor = 0.33;
 
   bool found = false;
@@ -55,7 +53,8 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Stack(
       children: [
@@ -67,15 +66,18 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
               found: found,
               error: error,
               theme: IrmaTheme.of(context),
-              topOffsetFactor: isLandscape ? _qrInstructionHeightFactor + 0.07 : _qrInstructionHeightFactor,
+              topOffsetFactor: isLandscape
+                  ? _qrInstructionHeightFactor + 0.07
+                  : _qrInstructionHeightFactor,
             ),
           ),
         ),
         SafeArea(
-            child: FractionallySizedBox(
-          heightFactor: _qrInstructionHeightFactor,
-          child: QRInstruction(found: found, error: error),
-        )),
+          child: FractionallySizedBox(
+            heightFactor: _qrInstructionHeightFactor,
+            child: QRInstruction(found: found, error: error),
+          ),
+        ),
         if (isLandscape)
           SafeArea(
             child: Align(
@@ -86,15 +88,22 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
                   backgroundColor: Colors.grey.shade300,
                   radius: 24,
                   child: IconButton(
-                    tooltip: FlutterI18n.translate(context, 'accessibility.back'),
+                    tooltip: FlutterI18n.translate(
+                      context,
+                      'accessibility.back',
+                    ),
                     padding: EdgeInsets.zero,
                     onPressed: Navigator.of(context).pop,
-                    icon: Icon(Icons.chevron_left, size: 24, color: Colors.grey.shade800),
+                    icon: Icon(
+                      Icons.chevron_left,
+                      size: 24,
+                      color: Colors.grey.shade800,
+                    ),
                   ),
                 ),
               ),
             ),
-          )
+          ),
       ],
     );
   }
@@ -115,7 +124,10 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
     try {
       pointer = Pointer.fromString(qr);
     } catch (e) {
-      SemanticsService.announce(FlutterI18n.translate(context, 'qr_scanner.error.semantic'), TextDirection.ltr);
+      SemanticsService.announce(
+        FlutterI18n.translate(context, 'qr_scanner.error.semantic'),
+        TextDirection.ltr,
+      );
       setState(() {
         error = true;
       });
@@ -128,7 +140,10 @@ class QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixi
     }
 
     // Signal success after a small timeout
-    SemanticsService.announce(FlutterI18n.translate(context, 'qr_scanner.success.semantic'), TextDirection.ltr);
+    SemanticsService.announce(
+      FlutterI18n.translate(context, 'qr_scanner.success.semantic'),
+      TextDirection.ltr,
+    );
     setState(() {
       found = true;
       error = false;

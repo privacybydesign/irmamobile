@@ -24,9 +24,7 @@ class EnrollmentFailedScreen extends StatelessWidget {
         primaryButtonLabel: 'ui.retry',
         onPrimaryPressed: onRetryEnrollment,
       ),
-      body: const IrmaErrorScaffoldBody(
-        type: ErrorType.general,
-      ),
+      body: const IrmaErrorScaffoldBody(type: ErrorType.general),
     );
   }
 }

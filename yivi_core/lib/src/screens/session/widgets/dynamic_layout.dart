@@ -14,10 +14,7 @@ class DynamicLayout extends StatelessWidget {
     required this.actions,
   });
 
-  Row _buildButtonsRow(
-    IrmaThemeData theme,
-    List<Widget> actions,
-  ) {
+  Row _buildButtonsRow(IrmaThemeData theme, List<Widget> actions) {
     final List<Widget> rowChildren = [];
     for (var action in actions) {
       rowChildren.add(Expanded(child: action));
@@ -44,12 +41,8 @@ class DynamicLayout extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: hero,
-            ),
-            SizedBox(
-              width: theme.smallSpacing,
-            ),
+            Expanded(child: hero),
+            SizedBox(width: theme.smallSpacing),
             Expanded(
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -58,16 +51,16 @@ class DynamicLayout extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Center(
-                          child: SingleChildScrollView(
-                            child: content,
-                          ),
+                          child: SingleChildScrollView(child: content),
                         ),
                       ),
                       if (actions != null)
                         Align(
                           alignment: Alignment.bottomCenter,
                           child: Container(
-                            padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                            padding: EdgeInsets.only(
+                              bottom: theme.defaultSpacing,
+                            ),
                             child: _buildButtonsRow(theme, actions),
                           ),
                         ),
@@ -104,12 +97,8 @@ class DynamicLayout extends StatelessWidget {
                 children: [
                   hero,
                   SizedBox(height: theme.mediumSpacing),
-                  Row(
-                    children: [
-                      Expanded(child: content),
-                    ],
-                  ),
-                  if (actions != null) const SizedBox(height: 100)
+                  Row(children: [Expanded(child: content)]),
+                  if (actions != null) const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -136,7 +125,12 @@ class DynamicLayout extends StatelessWidget {
     return LayoutBuilder(
       builder: ((context, constraints) => isLandscape
           ? _buildLandscapeLayout(theme, constraints, isSmallScreen)
-          : _buildPortraitLayout(theme, mediaQuery.size, constraints, isSmallScreen)),
+          : _buildPortraitLayout(
+              theme,
+              mediaQuery.size,
+              constraints,
+              isSmallScreen,
+            )),
     );
   }
 }

@@ -51,12 +51,22 @@ class CredentialView implements CredentialInfo {
     this.instanceCount,
     required Iterable<Attribute> attributes,
   }) : _attributes = attributes.toList() {
-    assert(_attributes.every((attr) => attr.attributeType.fullCredentialId == info.fullId));
+    assert(
+      _attributes.every(
+        (attr) => attr.attributeType.fullCredentialId == info.fullId,
+      ),
+    );
     // Sort by display index if every attribute has one. Otherwise, we sort on regular index.
     if (_attributes.every((attr) => attr.attributeType.displayIndex != null)) {
-      _attributes.sort((a1, a2) => a1.attributeType.displayIndex!.compareTo(a2.attributeType.displayIndex!));
+      _attributes.sort(
+        (a1, a2) => a1.attributeType.displayIndex!.compareTo(
+          a2.attributeType.displayIndex!,
+        ),
+      );
     } else {
-      _attributes.sort((a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index));
+      _attributes.sort(
+        (a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index),
+      );
     }
   }
 
@@ -81,7 +91,9 @@ class CredentialView implements CredentialInfo {
     final attributes = rawAttributes.entries.map((entry) {
       final attrType = irmaConfiguration.attributeTypes[entry.key];
       if (attrType == null) {
-        throw Exception('Attribute type $attrType not present in configuration');
+        throw Exception(
+          'Attribute type $attrType not present in configuration',
+        );
       }
       return Attribute(
         attributeType: attrType,
@@ -94,18 +106,24 @@ class CredentialView implements CredentialInfo {
     );
   }
 
-  UnmodifiableListView<Attribute> get attributes => UnmodifiableListView(_attributes);
+  UnmodifiableListView<Attribute> get attributes =>
+      UnmodifiableListView(_attributes);
 
-  Iterable<Attribute> get attributesWithValue => _attributes.where((att) => att.value is! NullValue);
+  Iterable<Attribute> get attributesWithValue =>
+      _attributes.where((att) => att.value is! NullValue);
 
-  bool get isKeyshareCredential =>
-      attributes.any((attr) => info.schemeManager.keyshareAttributes.contains(attr.attributeType.fullId));
+  bool get isKeyshareCredential => attributes.any(
+    (attr) => info.schemeManager.keyshareAttributes.contains(
+      attr.attributeType.fullId,
+    ),
+  );
 
   bool get obtainable => credentialType.issueUrl.isNotEmpty;
 
   bool get valid => !expiredOrEmpty && !revoked;
 
-  bool get expiredOrEmpty => expired || (instanceCount == null ? false : instanceCount == 0);
+  bool get expiredOrEmpty =>
+      expired || (instanceCount == null ? false : instanceCount == 0);
 
   @override
   CredentialType get credentialType => info.credentialType;
@@ -140,7 +158,10 @@ class Credential extends CredentialView {
     required super.instanceCount,
   }) : super(expired: expires.isBefore(DateTime.now()));
 
-  factory Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential}) {
+  factory Credential.fromRaw({
+    required IrmaConfiguration irmaConfiguration,
+    required RawCredential rawCredential,
+  }) {
     final credInfo = CredentialInfo.fromConfiguration(
       irmaConfiguration: irmaConfiguration,
       credentialIdentifier: rawCredential.fullId,
@@ -149,7 +170,9 @@ class Credential extends CredentialView {
     final attributes = rawCredential.attributes.entries.map((entry) {
       final attrType = irmaConfiguration.attributeTypes[entry.key];
       if (attrType == null) {
-        throw Exception('Attribute type $attrType not present in configuration');
+        throw Exception(
+          'Attribute type $attrType not present in configuration',
+        );
       }
 
       return Attribute(
@@ -160,8 +183,12 @@ class Credential extends CredentialView {
 
     return Credential(
       info: credInfo,
-      signedOn: DateTime.fromMillisecondsSinceEpoch(rawCredential.signedOn * 1000),
-      expires: DateTime.fromMillisecondsSinceEpoch(rawCredential.expires * 1000),
+      signedOn: DateTime.fromMillisecondsSinceEpoch(
+        rawCredential.signedOn * 1000,
+      ),
+      expires: DateTime.fromMillisecondsSinceEpoch(
+        rawCredential.expires * 1000,
+      ),
       attributes: attributes,
       revoked: rawCredential.revoked,
       hash: rawCredential.hash,
@@ -200,7 +227,9 @@ class CredentialInfo {
     final issuer = irmaConfiguration.issuers[issuerId];
     final credentialType = irmaConfiguration.credentialTypes[credentialId];
     if (schemeManager == null || issuer == null || credentialType == null) {
-      throw Exception('Credential type $credentialId not present in configuration');
+      throw Exception(
+        'Credential type $credentialId not present in configuration',
+      );
     }
 
     return CredentialInfo(
@@ -255,13 +284,18 @@ class RawCredential {
   @JsonKey(name: 'RevocationSupported')
   final bool revocationSupported;
 
-  @JsonKey(name: 'CredentialFormat', fromJson: stringToCredentialFormat, toJson: credentialFormatToString)
+  @JsonKey(
+    name: 'CredentialFormat',
+    fromJson: stringToCredentialFormat,
+    toJson: credentialFormatToString,
+  )
   final CredentialFormat format;
 
   @JsonKey(name: 'InstanceCount')
   final int? instanceCount;
 
-  factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
+  factory RawCredential.fromJson(Map<String, dynamic> json) =>
+      _$RawCredentialFromJson(json);
 
   Map<String, dynamic> toJson() => _$RawCredentialToJson(this);
 
@@ -327,7 +361,8 @@ class RawMultiFormatCredential {
     );
   }
 
-  factory RawMultiFormatCredential.fromJson(Map<String, dynamic> json) => _$RawMultiFormatCredentialFromJson(json);
+  factory RawMultiFormatCredential.fromJson(Map<String, dynamic> json) =>
+      _$RawMultiFormatCredentialFromJson(json);
 
   Map<String, dynamic> toJson() => _$RawMultiFormatCredentialToJson(this);
 }
@@ -357,7 +392,10 @@ class MultiFormatCredential {
     required this.instanceCount,
   });
 
-  static MultiFormatCredential fromRawMultiFormatCredential(RawMultiFormatCredential raw, IrmaConfiguration config) {
+  static MultiFormatCredential fromRawMultiFormatCredential(
+    RawMultiFormatCredential raw,
+    IrmaConfiguration config,
+  ) {
     final credInfo = CredentialInfo.fromConfiguration(
       irmaConfiguration: config,
       credentialIdentifier: '${raw.schemeManagerId}.${raw.issuerId}.${raw.id}',
@@ -366,7 +404,9 @@ class MultiFormatCredential {
     final attributes = raw.attributes.entries.map((entry) {
       final attrType = config.attributeTypes[entry.key];
       if (attrType == null) {
-        throw Exception('Attribute type $attrType not present in configuration');
+        throw Exception(
+          'Attribute type $attrType not present in configuration',
+        );
       }
 
       return Attribute(
@@ -375,12 +415,22 @@ class MultiFormatCredential {
       );
     }).toList();
 
-    assert(attributes.every((attr) => attr.attributeType.fullCredentialId == credInfo.fullId));
+    assert(
+      attributes.every(
+        (attr) => attr.attributeType.fullCredentialId == credInfo.fullId,
+      ),
+    );
     // Sort by display index if every attribute has one. Otherwise, we sort on regular index.
     if (attributes.every((attr) => attr.attributeType.displayIndex != null)) {
-      attributes.sort((a1, a2) => a1.attributeType.displayIndex!.compareTo(a2.attributeType.displayIndex!));
+      attributes.sort(
+        (a1, a2) => a1.attributeType.displayIndex!.compareTo(
+          a2.attributeType.displayIndex!,
+        ),
+      );
     } else {
-      attributes.sort((a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index));
+      attributes.sort(
+        (a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index),
+      );
     }
 
     final signedOn = DateTime.fromMillisecondsSinceEpoch(raw.signedOn * 1000);
@@ -401,9 +451,16 @@ class MultiFormatCredential {
 
   bool get expired => expires.isBefore(DateTime.now());
 
-  bool get valid => !expired && !revoked && (instanceCount == null ? true : instanceCount != 0);
+  bool get valid =>
+      !expired &&
+      !revoked &&
+      (instanceCount == null ? true : instanceCount != 0);
 }
 
 Map<CredentialFormat, String> parseHashByFormat(Map<String, dynamic> json) {
-  return Map.fromEntries(json.entries.map((e) => MapEntry(stringToCredentialFormat(e.key), e.value as String)));
+  return Map.fromEntries(
+    json.entries.map(
+      (e) => MapEntry(stringToCredentialFormat(e.key), e.value as String),
+    ),
+  );
 }

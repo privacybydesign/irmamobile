@@ -72,8 +72,11 @@ class YiviCredentialCard extends ConsumerWidget {
     this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   });
 
-  static YiviCredentialCard fromCredentialLog(IrmaConfiguration irmaConfiguration, CredentialLog credential,
-      {required bool compact}) {
+  static YiviCredentialCard fromCredentialLog(
+    IrmaConfiguration irmaConfiguration,
+    CredentialLog credential, {
+    required bool compact,
+  }) {
     final attributes = credential.attributes.entries.map((entry) {
       final attributeId = '${credential.credentialType}.${entry.key}';
       final attributeType = irmaConfiguration.attributeTypes[attributeId];
@@ -100,7 +103,9 @@ class YiviCredentialCard extends ConsumerWidget {
       issuer: credentialView.issuer,
       expired: credentialView.expired,
       revoked: credentialView.revoked,
-      hashByFormat: Map.fromEntries(credential.formats.map((f) => MapEntry(f, ''))),
+      hashByFormat: Map.fromEntries(
+        credential.formats.map((f) => MapEntry(f, '')),
+      ),
       attributes: credentialView.attributes,
       hideFooter: true,
     );
@@ -120,15 +125,15 @@ class YiviCredentialCard extends ConsumerWidget {
     this.disabled = false,
     this.isTemplate = false,
     this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
-  })  : attributes = credential.attributes,
-        valid = credential.valid,
-        type = credential.credentialType,
-        expired = credential.expired,
-        revoked = credential.revoked,
-        issuer = credential.issuer,
-        hashByFormat = credential.hashByFormat,
-        instanceCount = credential.instanceCount,
-        expiryDate = CardExpiryDate(credential.expires);
+  }) : attributes = credential.attributes,
+       valid = credential.valid,
+       type = credential.credentialType,
+       expired = credential.expired,
+       revoked = credential.revoked,
+       issuer = credential.issuer,
+       hashByFormat = credential.hashByFormat,
+       instanceCount = credential.instanceCount,
+       expiryDate = CardExpiryDate(credential.expires);
 
   YiviCredentialCard.fromCredential(
     Credential credential, {
@@ -144,15 +149,15 @@ class YiviCredentialCard extends ConsumerWidget {
     this.disabled = false,
     this.isTemplate = false,
     this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
-  })  : attributes = credential.attributes,
-        valid = credential.valid,
-        type = credential.credentialType,
-        expired = credential.expired,
-        revoked = credential.revoked,
-        issuer = credential.issuer,
-        hashByFormat = {credential.format: credential.hash},
-        expiryDate = CardExpiryDate(credential.expires),
-        instanceCount = credential.instanceCount;
+  }) : attributes = credential.attributes,
+       valid = credential.valid,
+       type = credential.credentialType,
+       expired = credential.expired,
+       revoked = credential.revoked,
+       issuer = credential.issuer,
+       hashByFormat = {credential.format: credential.hash},
+       expiryDate = CardExpiryDate(credential.expires),
+       instanceCount = credential.instanceCount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -180,15 +185,13 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
           ),
           // If there are attributes in this credential, then we show the attribute list
-          if (attributes.any((a) => a.value is! NullValue) && !hideAttributes) ...[
+          if (attributes.any((a) => a.value is! NullValue) &&
+              !hideAttributes) ...[
             IrmaDivider(
               color: valid ? null : theme.danger,
               padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
             ),
-            YiviCredentialCardAttributeList(
-              attributes,
-              compareTo: compareTo,
-            ),
+            YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
           ],
           if (!hideFooter && !revoked)
             Column(
@@ -243,17 +246,23 @@ class YiviCredentialCard extends ConsumerWidget {
     final timeBased = _getTimeBasedExpireState();
     final instanceBased = _getInstanceCountBasedExpireState();
 
-    return timeBased != ExpireState.notExpired || instanceBased != ExpireState.notExpired;
+    return timeBased != ExpireState.notExpired ||
+        instanceBased != ExpireState.notExpired;
   }
 
   bool _isExpiredInAnyWay() {
     final timeBased = _getTimeBasedExpireState();
     final instanceBased = _getInstanceCountBasedExpireState();
 
-    return timeBased == ExpireState.expired || instanceBased == ExpireState.expired;
+    return timeBased == ExpireState.expired ||
+        instanceBased == ExpireState.expired;
   }
 
-  Widget _buildReobtainOption(BuildContext context, IrmaThemeData theme, WidgetRef ref) {
+  Widget _buildReobtainOption(
+    BuildContext context,
+    IrmaThemeData theme,
+    WidgetRef ref,
+  ) {
     if (type.obtainable) {
       if (_isExpiringSoonInAnyWay() || revoked) {
         return Padding(
@@ -261,11 +270,9 @@ class YiviCredentialCard extends ConsumerWidget {
           child: YiviThemedButton(
             label: 'credential.options.reobtain',
             style: YiviButtonStyle.filled,
-            onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(
+            onPressed: () => IrmaRepositoryProvider.of(
               context,
-              type,
-              ref,
-            ),
+            ).openIssueURL(context, type, ref),
           ),
         );
       }
@@ -275,7 +282,9 @@ class YiviCredentialCard extends ConsumerWidget {
           context,
           'credential.not_obtainable',
           translationParams: {
-            'issuerName': issuer.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
+            'issuerName': issuer.name.translate(
+              FlutterI18n.currentLocale(context)!.languageCode,
+            ),
           },
         ),
       );

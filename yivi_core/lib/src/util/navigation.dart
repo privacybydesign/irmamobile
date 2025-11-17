@@ -10,7 +10,9 @@ extension RoutingHelpers on BuildContext {
   void pushScannerScreen({required bool requireAuthBeforeSession}) {
     final uri = Uri(
       path: '/scanner',
-      queryParameters: {'require_auth_before_session': requireAuthBeforeSession.toString()},
+      queryParameters: {
+        'require_auth_before_session': requireAuthBeforeSession.toString(),
+      },
     );
     push(uri.toString());
   }
@@ -81,7 +83,10 @@ extension RoutingHelpers on BuildContext {
     go('/enrollment');
   }
 
-  void goIssueWizardSuccessScreen({TranslatedValue? headerTranslation, TranslatedValue? contentTranslation}) {
+  void goIssueWizardSuccessScreen({
+    TranslatedValue? headerTranslation,
+    TranslatedValue? contentTranslation,
+  }) {
     go('/issue_wizard_success', extra: (headerTranslation, contentTranslation));
   }
 
@@ -97,12 +102,18 @@ extension RoutingHelpers on BuildContext {
     push('/change_pin');
   }
 
-  void pushActivityDetailsScreen({required LogInfo logInfo, required IrmaConfiguration config}) {
+  void pushActivityDetailsScreen({
+    required LogInfo logInfo,
+    required IrmaConfiguration config,
+  }) {
     push('/home/activity_details', extra: (logInfo, config));
   }
 
   void pushCredentialsDetailsScreen(CredentialsDetailsRouteParams params) {
-    final uri = Uri(path: '/home/credentials_details', queryParameters: params.toQueryParams());
+    final uri = Uri(
+      path: '/home/credentials_details',
+      queryParameters: params.toQueryParams(),
+    );
     push(uri.toString());
   }
 
@@ -117,17 +128,26 @@ extension RoutingHelpers on BuildContext {
   }
 
   void pushReplacementUnknownSessionScreen(SessionRouteParams args) {
-    final uri = Uri(path: '/unknown_session', queryParameters: args.toQueryParams());
+    final uri = Uri(
+      path: '/unknown_session',
+      queryParameters: args.toQueryParams(),
+    );
     pushReplacement(uri.toString());
   }
 
   void pushUnknownSessionScreen(SessionRouteParams args) {
-    final uri = Uri(path: '/unknown_session', queryParameters: args.toQueryParams());
+    final uri = Uri(
+      path: '/unknown_session',
+      queryParameters: args.toQueryParams(),
+    );
     push(uri.toString());
   }
 
   void pushReplacementIssueWizardScreen(IssueWizardRouteParams params) {
-    final uri = Uri(path: '/issue_wizard', queryParameters: params.toQueryParams());
+    final uri = Uri(
+      path: '/issue_wizard',
+      queryParameters: params.toQueryParams(),
+    );
     pushReplacement(uri.toString());
   }
 
@@ -142,12 +162,18 @@ extension RoutingHelpers on BuildContext {
   }
 
   void pushNfcReadingScreen(NfcReadingRouteParams params) {
-    final uri = Uri(path: '/nfc_reading', queryParameters: params.toQueryParams());
+    final uri = Uri(
+      path: '/nfc_reading',
+      queryParameters: params.toQueryParams(),
+    );
     push(uri.toString());
   }
 
   Future<void> pushIssueWizardScreen(IssueWizardRouteParams params) async {
-    final uri = Uri(path: '/issue_wizard', queryParameters: params.toQueryParams());
+    final uri = Uri(
+      path: '/issue_wizard',
+      queryParameters: params.toQueryParams(),
+    );
     await push(uri.toString());
   }
 }
@@ -158,7 +184,10 @@ class CredentialsDetailsRouteParams {
   final String categoryName;
   final String credentialTypeId;
 
-  CredentialsDetailsRouteParams({required this.categoryName, required this.credentialTypeId});
+  CredentialsDetailsRouteParams({
+    required this.categoryName,
+    required this.credentialTypeId,
+  });
 
   Map<String, String> toQueryParams() {
     return {
@@ -167,7 +196,9 @@ class CredentialsDetailsRouteParams {
     };
   }
 
-  static CredentialsDetailsRouteParams fromQueryParams(Map<String, String> params) {
+  static CredentialsDetailsRouteParams fromQueryParams(
+    Map<String, String> params,
+  ) {
     return CredentialsDetailsRouteParams(
       categoryName: params['category_name']!,
       credentialTypeId: params['credential_type_id']!,
@@ -184,13 +215,18 @@ class IssueWizardRouteParams {
   IssueWizardRouteParams({required this.wizardID, required this.sessionID});
 
   Map<String, String> toQueryParams() {
-    return {'wizard_id': wizardID, if (sessionID != null) 'session_id': '$sessionID'};
+    return {
+      'wizard_id': wizardID,
+      if (sessionID != null) 'session_id': '$sessionID',
+    };
   }
 
   static IssueWizardRouteParams fromQueryParams(Map<String, String> params) {
     return IssueWizardRouteParams(
       wizardID: params['wizard_id']!,
-      sessionID: params.containsKey('session_id') ? int.parse(params['session_id']!) : null,
+      sessionID: params.containsKey('session_id')
+          ? int.parse(params['session_id']!)
+          : null,
     );
   }
 }
@@ -291,7 +327,8 @@ class TransitionStyleProvider extends StatefulWidget {
   }
 
   static bool shouldPerformInstantTransitionToHome(BuildContext context) {
-    final state = context.findAncestorStateOfType<TransitionStyleProviderState>();
+    final state = context
+        .findAncestorStateOfType<TransitionStyleProviderState>();
     return state!._shouldPerformInstantTransitionToHomeScreen;
   }
 

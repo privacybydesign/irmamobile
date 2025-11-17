@@ -46,7 +46,8 @@ import 'src/screens/terms_changed/terms_changed_dialog.dart';
 import 'src/util/navigation.dart';
 import 'src/widgets/irma_app_bar.dart';
 
-final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -54,7 +55,13 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
 
-  final whiteListedOnLocked = {'/reset_pin', '/loading', '/enrollment', '/scanner', '/modal_pin'};
+  final whiteListedOnLocked = {
+    '/reset_pin',
+    '/loading',
+    '/enrollment',
+    '/scanner',
+    '/modal_pin',
+  };
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
@@ -66,36 +73,44 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: '/scanner',
         builder: (context, state) {
-          final requireAuth = bool.parse(state.uri.queryParameters['require_auth_before_session']!);
+          final requireAuth = bool.parse(
+            state.uri.queryParameters['require_auth_before_session']!,
+          );
           return ScannerScreen(requireAuthBeforeSession: requireAuth);
         },
       ),
       GoRoute(
         path: '/error',
-        builder: (context, state) => ErrorScreen(details: state.extra as String, onTapClose: context.pop),
+        builder: (context, state) => ErrorScreen(
+          details: state.extra as String,
+          onTapClose: context.pop,
+        ),
       ),
       GoRoute(
         path: '/loading',
-        pageBuilder: (context, state) => NoTransitionPage(name: '/loading', child: LoadingScreen()),
+        pageBuilder: (context, state) =>
+            NoTransitionPage(name: '/loading', child: LoadingScreen()),
       ),
       GoRoute(
         path: '/pin',
         pageBuilder: (context, state) {
           return NoTransitionPage(
             name: '/pin',
-            child: Builder(builder: (context) {
-              return TermsChangedListener(
-                child: PinScreen(
-                  onAuthenticated: context.goHomeScreenWithoutTransition,
-                  leading: YiviAppBarQrCodeButton(
-                    onTap: () => openQrCodeScanner(
-                      context,
-                      requireAuthBeforeSession: true,
+            child: Builder(
+              builder: (context) {
+                return TermsChangedListener(
+                  child: PinScreen(
+                    onAuthenticated: context.goHomeScreenWithoutTransition,
+                    leading: YiviAppBarQrCodeButton(
+                      onTap: () => openQrCodeScanner(
+                        context,
+                        requireAuthBeforeSession: true,
+                      ),
                     ),
                   ),
-                ),
-              );
-            }),
+                );
+              },
+            ),
           );
         },
       ),
@@ -124,7 +139,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: '/home',
         pageBuilder: (context, state) {
-          if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(context)) {
+          if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(
+            context,
+          )) {
             TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
             return NoTransitionPage(name: '/home', child: HomeScreen());
           }
@@ -134,23 +151,29 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           GoRoute(
             path: 'credentials_details',
             builder: (context, state) {
-              final args = CredentialsDetailsRouteParams.fromQueryParams(state.uri.queryParameters);
-              return CredentialsDetailsScreen(categoryName: args.categoryName, credentialTypeId: args.credentialTypeId);
+              final args = CredentialsDetailsRouteParams.fromQueryParams(
+                state.uri.queryParameters,
+              );
+              return CredentialsDetailsScreen(
+                categoryName: args.categoryName,
+                credentialTypeId: args.credentialTypeId,
+              );
             },
           ),
           GoRoute(
             path: 'activity_details',
             builder: (context, state) {
-              final (logEntry, irmaConfiguration) = state.extra as (LogInfo, IrmaConfiguration);
+              final (logEntry, irmaConfiguration) =
+                  state.extra as (LogInfo, IrmaConfiguration);
               return ActivityDetailsScreen(
-                args: ActivityDetailsScreenArgs(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+                args: ActivityDetailsScreenArgs(
+                  logEntry: logEntry,
+                  irmaConfiguration: irmaConfiguration,
+                ),
               );
             },
           ),
-          GoRoute(
-            path: 'help',
-            builder: (context, state) => HelpScreen(),
-          ),
+          GoRoute(path: 'help', builder: (context, state) => HelpScreen()),
           GoRoute(
             path: 'add_data',
             builder: (context, state) => AddDataScreen(),
@@ -163,11 +186,13 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     credentialType: credentialType,
                     onCancel: context.pop,
                     onAdd: () {
-                      IrmaRepositoryProvider.of(context).openIssueURL(context, credentialType, ref);
+                      IrmaRepositoryProvider.of(
+                        context,
+                      ).openIssueURL(context, credentialType, ref);
                     },
                   );
                 },
-              )
+              ),
             ],
           ),
           GoRoute(
@@ -193,31 +218,41 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: '/session',
         builder: (context, state) {
-          final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
+          final args = SessionRouteParams.fromQueryParams(
+            state.uri.queryParameters,
+          );
           return SessionScreen(arguments: args);
         },
       ),
       GoRoute(
         path: '/unknown_session',
         builder: (context, state) {
-          final args = SessionRouteParams.fromQueryParams(state.uri.queryParameters);
+          final args = SessionRouteParams.fromQueryParams(
+            state.uri.queryParameters,
+          );
           return UnknownSessionScreen(arguments: args);
         },
       ),
       GoRoute(
         path: '/issue_wizard',
         builder: (context, state) {
-          final args = IssueWizardRouteParams.fromQueryParams(state.uri.queryParameters);
+          final args = IssueWizardRouteParams.fromQueryParams(
+            state.uri.queryParameters,
+          );
           return IssueWizardScreen(arguments: args);
         },
       ),
       GoRoute(
         path: '/issue_wizard_success',
         builder: (context, state) {
-          final (successHeader, successContent) = state.extra as (TranslatedValue?, TranslatedValue?);
+          final (successHeader, successContent) =
+              state.extra as (TranslatedValue?, TranslatedValue?);
           return IssueWizardSuccessScreen(
             onDismiss: context.goHomeScreenWithoutTransition,
-            args: IssueWizardSuccessScreenArgs(headerTranslation: successHeader, contentTranslation: successContent),
+            args: IssueWizardSuccessScreenArgs(
+              headerTranslation: successHeader,
+              contentTranslation: successContent,
+            ),
           );
         },
       ),
@@ -226,7 +261,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         builder: (context, state) {
           return RootedWarningScreen(
             onAcceptRiskButtonPressed: () {
-              DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences).setHasAcceptedRootedDeviceRisk();
+              DetectRootedDeviceIrmaPrefsRepository(
+                preferences: repo.preferences,
+              ).setHasAcceptedRootedDeviceRisk();
             },
           );
         },
@@ -234,7 +271,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: '/name_changed',
         builder: (context, state) {
-          return NameChangedScreen(onContinuePressed: () => repo.preferences.setShowNameChangedNotification(false));
+          return NameChangedScreen(
+            onContinuePressed: () =>
+                repo.preferences.setShowNameChangedNotification(false),
+          );
         },
       ),
       GoRoute(
@@ -274,7 +314,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: '/nfc_reading',
         builder: (context, state) {
-          final args = NfcReadingRouteParams.fromQueryParams(state.uri.queryParameters);
+          final args = NfcReadingRouteParams.fromQueryParams(
+            state.uri.queryParameters,
+          );
           return NfcReadingScreen(
             docNumber: args.docNumber,
             dateOfBirth: args.dateOfBirth,
@@ -286,7 +328,8 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
     ],
     redirect: (context, state) {
-      if (redirectionTriggers.value.enrollmentStatus == EnrollmentStatus.unenrolled) {
+      if (redirectionTriggers.value.enrollmentStatus ==
+          EnrollmentStatus.unenrolled) {
         return '/enrollment';
       }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
@@ -299,7 +342,8 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           redirectionTriggers.value.versionInformation!.updateRequired()) {
         return '/update_required';
       }
-      if (redirectionTriggers.value.appLocked && !whiteListedOnLocked.contains(state.fullPath)) {
+      if (redirectionTriggers.value.appLocked &&
+          !whiteListedOnLocked.contains(state.fullPath)) {
         return '/pin';
       }
       return null;
@@ -319,12 +363,8 @@ class RouteNotFoundScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Page not found'),
-      ),
-      body: const Center(
-        child: Text(''),
-      ),
+      appBar: AppBar(title: const Text('Page not found')),
+      body: const Center(child: Text('')),
     );
   }
 }
@@ -332,10 +372,14 @@ class RouteNotFoundScreen extends StatelessWidget {
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
   late final Stream<RedirectionTriggers> _streamSubscription;
 
-  RedirectionListenable(IrmaRepository repo) : super(RedirectionTriggers.withDefaults()) {
+  RedirectionListenable(IrmaRepository repo)
+    : super(RedirectionTriggers.withDefaults()) {
     final warningStream = _displayDeviceIsRootedWarning(repo);
     final lockedStream = repo.getLocked();
-    final infoStream = repo.getVersionInformation().map<VersionInformation?>((version) => version).defaultIfEmpty(null);
+    final infoStream = repo
+        .getVersionInformation()
+        .map<VersionInformation?>((version) => version)
+        .defaultIfEmpty(null);
     final nameChangedStream = repo.preferences.getShowNameChangedNotification();
     final enrollmentStream = repo.getEnrollmentStatus();
 
@@ -346,7 +390,13 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
       infoStream,
       nameChangedStream,
       enrollmentStream,
-      (deviceRootedWarning, locked, versionInfo, nameChangedWarning, enrollment) {
+      (
+        deviceRootedWarning,
+        locked,
+        versionInfo,
+        nameChangedWarning,
+        enrollment,
+      ) {
         return RedirectionTriggers(
           appLocked: locked,
           showDeviceRootedWarning: deviceRootedWarning,
@@ -382,11 +432,11 @@ class RedirectionTriggers {
   });
 
   RedirectionTriggers.withDefaults()
-      : enrollmentStatus = EnrollmentStatus.undetermined,
-        appLocked = true,
-        showDeviceRootedWarning = false,
-        showNameChangedMessage = false,
-        versionInformation = null;
+    : enrollmentStatus = EnrollmentStatus.undetermined,
+      appLocked = true,
+      showDeviceRootedWarning = false,
+      showNameChangedMessage = false,
+      versionInformation = null;
 
   RedirectionTriggers copyWith({
     bool? appLocked,
@@ -397,8 +447,10 @@ class RedirectionTriggers {
   }) {
     return RedirectionTriggers(
       appLocked: appLocked ?? this.appLocked,
-      showDeviceRootedWarning: showDeviceRootedWarning ?? this.showDeviceRootedWarning,
-      showNameChangedMessage: showNameChangedMessage ?? this.showNameChangedMessage,
+      showDeviceRootedWarning:
+          showDeviceRootedWarning ?? this.showDeviceRootedWarning,
+      showNameChangedMessage:
+          showNameChangedMessage ?? this.showNameChangedMessage,
       versionInformation: versionInformation ?? this.versionInformation,
       enrollmentStatus: enrollmentStatus ?? this.enrollmentStatus,
     );
@@ -424,20 +476,25 @@ class RedirectionTriggers {
 
   @override
   int get hashCode => Object.hash(
-        appLocked,
-        showNameChangedMessage,
-        showDeviceRootedWarning,
-        versionInformation,
-        enrollmentStatus,
-      );
+    appLocked,
+    showNameChangedMessage,
+    showDeviceRootedWarning,
+    versionInformation,
+    enrollmentStatus,
+  );
 }
 
 Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
-  final repo = DetectRootedDeviceIrmaPrefsRepository(preferences: irmaRepo.preferences);
+  final repo = DetectRootedDeviceIrmaPrefsRepository(
+    preferences: irmaRepo.preferences,
+  );
   final streamController = StreamController<bool>();
   repo.isDeviceRooted().then((isRooted) {
     if (isRooted) {
-      repo.hasAcceptedRootedDeviceRisk().map((acceptedRisk) => !acceptedRisk).pipe(streamController);
+      repo
+          .hasAcceptedRootedDeviceRisk()
+          .map((acceptedRisk) => !acceptedRisk)
+          .pipe(streamController);
     } else {
       streamController.add(false);
     }

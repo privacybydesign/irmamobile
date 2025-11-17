@@ -53,16 +53,14 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'data.add.details.title',
-        leading: YiviBackButton(onTap: widget.inDisclosure ? widget.onCancel : null),
+        leading: YiviBackButton(
+          onTap: widget.inDisclosure ? widget.onCancel : null,
+        ),
         actions: [
           if (widget.onDismiss != null)
             Padding(
-              padding: EdgeInsets.only(
-                right: theme.defaultSpacing,
-              ),
-              child: IrmaCloseButton(
-                onTap: widget.onDismiss,
-              ),
+              padding: EdgeInsets.only(right: theme.defaultSpacing),
+              child: IrmaCloseButton(onTap: widget.onDismiss),
             ),
         ],
       ),
@@ -85,15 +83,19 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
                   child: Text(
                     widget.credentialType.faqIntro.isEmpty
                         ?
-                        // Fallback generic add credential text
-                        FlutterI18n.translate(
+                          // Fallback generic add credential text
+                          FlutterI18n.translate(
                             context,
                             'data.add.details.obtain',
                             translationParams: {
-                              'credential': widget.credentialType.name.translate(lang),
+                              'credential': widget.credentialType.name
+                                  .translate(lang),
                             },
                           )
-                        : getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
+                        : getTranslation(
+                            context,
+                            widget.credentialType.faqIntro,
+                          ).replaceAll('\\n', '\n'),
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),
@@ -104,7 +106,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
                     credentialType: widget.credentialType,
                     parentScrollController: _controller,
                   ),
-                )
+                ),
               ],
             ),
           ),

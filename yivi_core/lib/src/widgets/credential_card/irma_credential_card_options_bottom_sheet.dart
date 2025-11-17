@@ -24,14 +24,8 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
       minLeadingWidth: 0,
-      leading: Icon(
-        icon,
-        color: theme.themeData.colorScheme.secondary,
-      ),
-      title: TranslatedText(
-        translationKey,
-        style: theme.textTheme.bodyMedium,
-      ),
+      leading: Icon(icon, color: theme.themeData.colorScheme.secondary),
+      title: TranslatedText(translationKey, style: theme.textTheme.bodyMedium),
     );
   }
 

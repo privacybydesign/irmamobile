@@ -18,7 +18,8 @@ class DisclosurePermissionConfirmDialog extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return IrmaConfirmationDialog(
-      titleTranslationKey: 'disclosure_permission.confirm_dialog.${isSignatureSession ? 'title_signature' : 'title'}',
+      titleTranslationKey:
+          'disclosure_permission.confirm_dialog.${isSignatureSession ? 'title_signature' : 'title'}',
       contentTranslationKey:
           'disclosure_permission.confirm_dialog.${isSignatureSession ? 'explanation_signature' : 'explanation'}',
       contentTranslationParams: {

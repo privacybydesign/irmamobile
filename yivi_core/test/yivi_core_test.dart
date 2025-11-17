@@ -7,7 +7,6 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class MockYiviCorePlatform
     with MockPlatformInterfaceMixin
     implements YiviCorePlatform {
-
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 }

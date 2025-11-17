@@ -31,7 +31,10 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
       child: SafeArea(
         child: Container(
           height: preferredSize.height,
-          padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.smallSpacing),
+          padding: EdgeInsets.only(
+            left: theme.defaultSpacing,
+            right: theme.smallSpacing,
+          ),
           child: Row(
             children: [
               Expanded(

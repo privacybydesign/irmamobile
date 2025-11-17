@@ -17,10 +17,12 @@ class IssuingDetail extends StatelessWidget {
   List<Widget> _buildCards(BuildContext context) {
     return credentials.map((credential) {
       return Padding(
-        padding: EdgeInsets.only(
-          bottom: IrmaTheme.of(context).defaultSpacing,
+        padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
+        child: YiviCredentialCard.fromMultiFormatCredential(
+          credential,
+          compact: false,
+          lowInstanceCountThreshold: 0,
         ),
-        child: YiviCredentialCard.fromMultiFormatCredential(credential, compact: false, lowInstanceCountThreshold: 0),
       );
     }).toList();
   }

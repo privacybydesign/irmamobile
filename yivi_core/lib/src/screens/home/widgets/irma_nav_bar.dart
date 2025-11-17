@@ -6,12 +6,7 @@ import '../../notifications/bloc/notifications_bloc.dart';
 import '../../notifications/widgets/notification_bell.dart';
 import 'irma_nav_button.dart';
 
-enum IrmaNavBarTab {
-  data,
-  activity,
-  notifications,
-  more,
-}
+enum IrmaNavBarTab { data, activity, notifications, more }
 
 class IrmaNavBar extends StatelessWidget {
   final Function(IrmaNavBarTab tab) onChangeTab;
@@ -46,7 +41,9 @@ class IrmaNavBar extends StatelessWidget {
         children: [
           IrmaNavButton(
             key: const Key('nav_button_data'),
-            iconData: selectedTab == IrmaNavBarTab.data ? Icons.person : Icons.person_outline,
+            iconData: selectedTab == IrmaNavBarTab.data
+                ? Icons.person
+                : Icons.person_outline,
             tab: IrmaNavBarTab.data,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.data == selectedTab,
@@ -59,9 +56,7 @@ class IrmaNavBar extends StatelessWidget {
             isSelected: IrmaNavBarTab.activity == selectedTab,
           ),
           // Spacing for the QR scan button
-          const SizedBox(
-            width: 90,
-          ),
+          const SizedBox(width: 90),
           IrmaNavButton(
             key: const Key('nav_button_notifications'),
             tab: IrmaNavBarTab.notifications,
@@ -75,7 +70,7 @@ class IrmaNavBar extends StatelessWidget {
             tab: IrmaNavBarTab.more,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.more == selectedTab,
-          )
+          ),
         ],
       ),
     );
@@ -85,7 +80,9 @@ class IrmaNavBar extends StatelessWidget {
     return BlocBuilder<NotificationsBloc, NotificationsState>(
       builder: (context, state) => NotificationBell(
         color: color,
-        showIndicator: state is NotificationsLoaded ? state.hasUnreadNotifications : false,
+        showIndicator: state is NotificationsLoaded
+            ? state.hasUnreadNotifications
+            : false,
         onTap: () => onChangeTab(IrmaNavBarTab.notifications),
         outlined: !active,
       ),

@@ -35,9 +35,10 @@ class ActivityDetailDisclosure extends StatelessWidget {
         if (noDisclosedCredentials(logEntry))
           IrmaEmptyCredentialCard()
         else
-          for (var credential in logEntry.type == LogType.disclosure
-              ? logEntry.disclosureLog!.credentials
-              : logEntry.signedMessageLog!.credentials)
+          for (var credential
+              in logEntry.type == LogType.disclosure
+                  ? logEntry.disclosureLog!.credentials
+                  : logEntry.signedMessageLog!.credentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: YiviCredentialCard.fromCredentialLog(
@@ -64,9 +65,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
-        RequestorHeader(
-          requestorInfo: logEntry.requestorInfo,
-        )
+        RequestorHeader(requestorInfo: logEntry.requestorInfo),
       ],
     );
   }

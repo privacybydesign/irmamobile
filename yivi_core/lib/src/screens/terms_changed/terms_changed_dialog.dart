@@ -36,21 +36,19 @@ class _TermsChangedListenerState extends ConsumerState<TermsChangedListener> {
     final preferences = ref.read(preferencesProvider);
     final stream = preferences.hasAcceptedLatestTerms();
 
-    _subscription = stream.listen(
-      (accepted) async {
-        if (!accepted && mounted && !_dialogActive) {
-          // making sure the dialog is only showing once, not in a stack...
-          _dialogActive = true;
-          await showDialog(
-            context: context,
-            builder: (context) {
-              return TermsChangedDialog();
-            },
-          );
-          _dialogActive = false;
-        }
-      },
-    );
+    _subscription = stream.listen((accepted) async {
+      if (!accepted && mounted && !_dialogActive) {
+        // making sure the dialog is only showing once, not in a stack...
+        _dialogActive = true;
+        await showDialog(
+          context: context,
+          builder: (context) {
+            return TermsChangedDialog();
+          },
+        );
+        _dialogActive = false;
+      }
+    });
   }
 
   @override
@@ -81,8 +79,11 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
   Widget build(BuildContext context) {
     final prefs = ref.watch(preferencesProvider);
 
-    final isDutch = (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl';
-    final termsUrl = isDutch ? prefs.mostRecentTermsUrlNl : prefs.mostRecentTermsUrlEn;
+    final isDutch =
+        (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl';
+    final termsUrl = isDutch
+        ? prefs.mostRecentTermsUrlNl
+        : prefs.mostRecentTermsUrlEn;
 
     final theme = IrmaTheme.of(context);
 

@@ -22,13 +22,18 @@ class CredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String categoryName;
   final String credentialTypeId;
 
-  const CredentialsDetailsScreen({required this.categoryName, required this.credentialTypeId});
+  const CredentialsDetailsScreen({
+    required this.categoryName,
+    required this.credentialTypeId,
+  });
 
   @override
-  ConsumerState<CredentialsDetailsScreen> createState() => _CredentialsDetailsScreenState();
+  ConsumerState<CredentialsDetailsScreen> createState() =>
+      _CredentialsDetailsScreenState();
 }
 
-class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScreen> {
+class _CredentialsDetailsScreenState
+    extends ConsumerState<CredentialsDetailsScreen> {
   static const _scrollUnderThreshold = 200.0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -97,7 +102,10 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     });
 
     final IrmaAppBar? appBar = switch (credentials) {
-      AsyncData(:final value) => value.firstOrNull != null && _scrollUnder ? _createTitle(value.first) : null,
+      AsyncData(:final value) =>
+        value.firstOrNull != null && _scrollUnder
+            ? _createTitle(value.first)
+            : null,
       _ => null,
     };
 
@@ -120,16 +128,12 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
       child: SingleChildScrollView(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.symmetric(
-          horizontal: theme.defaultSpacing,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: theme.defaultSpacing,
-              ),
+              SizedBox(height: theme.defaultSpacing),
               ...credentials.map(
                 (cred) => Padding(
                   padding: EdgeInsets.only(bottom: theme.defaultSpacing),
@@ -139,23 +143,24 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
                     headerTrailing:
                         // Credential must either be reobtainable or deletable
                         // for the options bottom sheet to be accessible
-                        cred.credentialType.disallowDelete && cred.credentialType.issueUrl.isEmpty
-                            ? null
-                            : Transform.translate(
-                                offset: Offset(theme.smallSpacing, -10),
-                                child: IconButton(
-                                  onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
-                                  icon: const Icon(
-                                    Icons.more_horiz_sharp,
+                        cred.credentialType.disallowDelete &&
+                            cred.credentialType.issueUrl.isEmpty
+                        ? null
+                        : Transform.translate(
+                            offset: Offset(theme.smallSpacing, -10),
+                            child: IconButton(
+                              onPressed: () =>
+                                  _showCredentialOptionsBottomSheet(
+                                    context,
+                                    cred,
                                   ),
-                                ),
-                              ),
+                              icon: const Icon(Icons.more_horiz_sharp),
+                            ),
+                          ),
                   ),
                 ),
               ),
-              SizedBox(
-                height: theme.largeSpacing,
-              ),
+              SizedBox(height: theme.largeSpacing),
             ],
           ),
         ),
@@ -163,7 +168,10 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  Future<void> _showCredentialOptionsBottomSheet(BuildContext context, MultiFormatCredential cred) async {
+  Future<void> _showCredentialOptionsBottomSheet(
+    BuildContext context,
+    MultiFormatCredential cred,
+  ) async {
     showModalBottomSheet(
       context: context,
       builder: (context) => IrmaCredentialCardOptionsBottomSheet(
@@ -171,7 +179,10 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
             ? null
             : () async {
                 Navigator.of(context).pop();
-                await _showConfirmDeleteDialog(_scaffoldKey.currentContext!, cred);
+                await _showConfirmDeleteDialog(
+                  _scaffoldKey.currentContext!,
+                  cred,
+                );
               },
         onReobtain: cred.credentialType.issueUrl.isEmpty
             ? null
@@ -183,8 +194,12 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  Future<void> _showConfirmDeleteDialog(BuildContext context, MultiFormatCredential credential) async {
-    final confirmed = await showDialog<bool>(
+  Future<void> _showConfirmDeleteDialog(
+    BuildContext context,
+    MultiFormatCredential credential,
+  ) async {
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (context) => DeleteCredentialConfirmationDialog(),
         ) ??
@@ -195,7 +210,10 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     }
   }
 
-  void _deleteCredential(BuildContext context, MultiFormatCredential credential) {
+  void _deleteCredential(
+    BuildContext context,
+    MultiFormatCredential credential,
+  ) {
     if (!credential.credentialType.disallowDelete) {
       IrmaRepositoryProvider.of(context).bridgedDispatch(
         DeleteCredentialEvent(hashByFormat: credential.hashByFormat),
@@ -219,9 +237,14 @@ class _CredentialsDetailsScreenState extends ConsumerState<CredentialsDetailsScr
     );
   }
 
-  void _reobtainCredential(BuildContext context, MultiFormatCredential credential) {
+  void _reobtainCredential(
+    BuildContext context,
+    MultiFormatCredential credential,
+  ) {
     if (credential.credentialType.issueUrl.isNotEmpty) {
-      IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType, ref);
+      IrmaRepositoryProvider.of(
+        context,
+      ).openIssueURL(context, credential.credentialType, ref);
     }
   }
 }

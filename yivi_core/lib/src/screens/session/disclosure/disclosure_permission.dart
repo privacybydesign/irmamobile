@@ -40,12 +40,11 @@ class DisclosurePermission extends ConsumerWidget {
         sessionID: sessionId,
         repo: repo,
         onObtainCredential: (CredentialType credType) =>
-            IrmaRepositoryProvider.of(context).openIssueURL(context, credType, ref),
+            IrmaRepositoryProvider.of(
+              context,
+            ).openIssueURL(context, credType, ref),
       ),
-      child: ProvidedDisclosurePermission(
-        requestor,
-        returnURL,
-      ),
+      child: ProvidedDisclosurePermission(requestor, returnURL),
     );
   }
 }
@@ -54,10 +53,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
   final RequestorInfo requestor;
   final ReturnURL? returnURL;
 
-  const ProvidedDisclosurePermission(
-    this.requestor,
-    this.returnURL,
-  );
+  const ProvidedDisclosurePermission(this.requestor, this.returnURL);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +62,10 @@ class ProvidedDisclosurePermission extends StatelessWidget {
     void onConfirmedDismiss() => addEvent(DisclosurePermissionDismissed());
     void onDismiss({bool skipConfirmation = false}) => skipConfirmation
         ? onConfirmedDismiss()
-        : DisclosurePermissionCloseDialog.show(context, onConfirm: onConfirmedDismiss);
+        : DisclosurePermissionCloseDialog.show(
+            context,
+            onConfirm: onConfirmedDismiss,
+          );
 
     // Wrapped with PopScope to gain control over the behavior of the "go back" gesture
     return PopScope(
@@ -86,76 +85,82 @@ class ProvidedDisclosurePermission extends StatelessWidget {
         },
         pages: [
           MaterialPage(
-            child: BlocConsumer<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
-              listener: (context, state) async {
-                final navigator = Navigator.of(context);
+            child:
+                BlocConsumer<
+                  DisclosurePermissionBloc,
+                  DisclosurePermissionBlocState
+                >(
+                  listener: (context, state) async {
+                    final navigator = Navigator.of(context);
 
-                // Prevent dialogs to be stacked when a state refreshes.
-                if (navigator.canPop()) return;
+                    // Prevent dialogs to be stacked when a state refreshes.
+                    if (navigator.canPop()) return;
 
-                if (state is DisclosurePermissionWrongCredentialsObtained) {
-                  await showDialog(
-                    context: context,
-                    useRootNavigator: false,
-                    builder: (context) => DisclosurePermissionWrongCredentialsAddedDialog(state: state),
-                  );
-                  addEvent(DisclosurePermissionDialogDismissed());
-                }
-              },
-              builder: (context, blocState) {
-                var state = blocState;
-                if (state is DisclosurePermissionWrongCredentialsObtained) {
-                  state = state.parentState;
-                }
+                    if (state is DisclosurePermissionWrongCredentialsObtained) {
+                      await showDialog(
+                        context: context,
+                        useRootNavigator: false,
+                        builder: (context) =>
+                            DisclosurePermissionWrongCredentialsAddedDialog(
+                              state: state,
+                            ),
+                      );
+                      addEvent(DisclosurePermissionDialogDismissed());
+                    }
+                  },
+                  builder: (context, blocState) {
+                    var state = blocState;
+                    if (state is DisclosurePermissionWrongCredentialsObtained) {
+                      state = state.parentState;
+                    }
 
-                if (state is DisclosurePermissionIntroduction) {
-                  return DisclosurePermissionIntroductionScreen(
-                    onEvent: addEvent,
-                    onDismiss: onDismiss,
-                  );
-                } else if (state is DisclosurePermissionIssueWizard) {
-                  return DisclosurePermissionIssueWizardScreen(
-                    requestor: requestor,
-                    state: state,
-                    onEvent: addEvent,
-                    onDismiss: onDismiss,
-                  );
-                } else if (state is DisclosurePermissionMakeChoice) {
-                  return DisclosurePermissionMakeChoiceScreen(
-                    state: state,
-                    onEvent: addEvent,
-                  );
-                } else if (state is DisclosurePermissionObtainCredentials) {
-                  return DisclosurePermissionObtainCredentialsScreen(
-                    state: state,
-                    onEvent: addEvent,
-                    onDismiss: onDismiss,
-                  );
-                } else if (state is DisclosurePermissionChoices) {
-                  return DisclosurePermissionChoicesScreen(
-                    requestor: requestor,
-                    state: state,
-                    onEvent: addEvent,
-                    onDismiss: onDismiss,
-                  );
-                } else if (state is DisclosurePermissionCredentialInformation) {
-                  return AddDataDetailsScreen(
-                    inDisclosure: true,
-                    credentialType: state.credentialType,
-                    onDismiss: onDismiss,
-                    onAdd: () => addEvent(DisclosurePermissionNextPressed()),
-                    onCancel: () => addEvent(DisclosurePermissionPreviousPressed()),
-                  );
-                }
+                    if (state is DisclosurePermissionIntroduction) {
+                      return DisclosurePermissionIntroductionScreen(
+                        onEvent: addEvent,
+                        onDismiss: onDismiss,
+                      );
+                    } else if (state is DisclosurePermissionIssueWizard) {
+                      return DisclosurePermissionIssueWizardScreen(
+                        requestor: requestor,
+                        state: state,
+                        onEvent: addEvent,
+                        onDismiss: onDismiss,
+                      );
+                    } else if (state is DisclosurePermissionMakeChoice) {
+                      return DisclosurePermissionMakeChoiceScreen(
+                        state: state,
+                        onEvent: addEvent,
+                      );
+                    } else if (state is DisclosurePermissionObtainCredentials) {
+                      return DisclosurePermissionObtainCredentialsScreen(
+                        state: state,
+                        onEvent: addEvent,
+                        onDismiss: onDismiss,
+                      );
+                    } else if (state is DisclosurePermissionChoices) {
+                      return DisclosurePermissionChoicesScreen(
+                        requestor: requestor,
+                        state: state,
+                        onEvent: addEvent,
+                        onDismiss: onDismiss,
+                      );
+                    } else if (state
+                        is DisclosurePermissionCredentialInformation) {
+                      return AddDataDetailsScreen(
+                        inDisclosure: true,
+                        credentialType: state.credentialType,
+                        onDismiss: onDismiss,
+                        onAdd: () =>
+                            addEvent(DisclosurePermissionNextPressed()),
+                        onCancel: () =>
+                            addEvent(DisclosurePermissionPreviousPressed()),
+                      );
+                    }
 
-                // If state is loading/initial show centered loading indicator
-                return Scaffold(
-                  body: Center(
-                    child: LoadingIndicator(),
-                  ),
-                );
-              },
-            ),
+                    // If state is loading/initial show centered loading indicator
+                    return Scaffold(body: Center(child: LoadingIndicator()));
+                  },
+                ),
           ),
         ],
       ),

@@ -21,25 +21,30 @@ class ErrorScreen extends StatefulWidget {
     ErrorType type = ErrorType.general,
     String? details,
     bool reportable = true,
-  }) =>
-      ErrorScreen._(
-        onTapClose: onTapClose,
-        type: type,
-        details: details,
-        reportable: reportable,
-        onReportError: reportable ? () => reportError(details, null, userInitiated: true) : null,
-      );
+  }) => ErrorScreen._(
+    onTapClose: onTapClose,
+    type: type,
+    details: details,
+    reportable: reportable,
+    onReportError: reportable
+        ? () => reportError(details, null, userInitiated: true)
+        : null,
+  );
 
   /// Display an error screen for an ErrorEvent. The user can choose to report the error to Sentry.
-  factory ErrorScreen.fromEvent({VoidCallback? onTapClose, required ErrorEvent error, bool reportable = true}) =>
-      ErrorScreen._(
-        // Fatal events are unrecoverable, so closing the error is not possible.
-        onTapClose: error.fatal ? null : onTapClose,
-        type: ErrorType.general,
-        details: error.toString(),
-        reportable: reportable,
-        onReportError: () => reportError(error.exception, error.stack, userInitiated: true),
-      );
+  factory ErrorScreen.fromEvent({
+    VoidCallback? onTapClose,
+    required ErrorEvent error,
+    bool reportable = true,
+  }) => ErrorScreen._(
+    // Fatal events are unrecoverable, so closing the error is not possible.
+    onTapClose: error.fatal ? null : onTapClose,
+    type: ErrorType.general,
+    details: error.toString(),
+    reportable: reportable,
+    onReportError: () =>
+        reportError(error.exception, error.stack, userInitiated: true),
+  );
 
   const ErrorScreen._({
     this.onTapClose,
@@ -68,7 +73,9 @@ class _ErrorScreenState extends State<ErrorScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'error.details_title',
-        leading: widget.onTapClose != null ? YiviBackButton(onTap: widget.onTapClose) : null,
+        leading: widget.onTapClose != null
+            ? YiviBackButton(onTap: widget.onTapClose)
+            : null,
       ),
       body: IrmaErrorScaffoldBody(
         type: widget.type,
@@ -76,12 +83,17 @@ class _ErrorScreenState extends State<ErrorScreen> {
         reportable: widget.reportable,
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: widget.onTapClose != null ? FlutterI18n.translate(context, 'error.button_ok') : null,
+        primaryButtonLabel: widget.onTapClose != null
+            ? FlutterI18n.translate(context, 'error.button_ok')
+            : null,
         onPrimaryPressed: widget.onTapClose,
         // If the error has been reported, the secondary button should be disabled, but the label should remain visible.
-        secondaryButtonLabel:
-            widget.onReportError != null ? FlutterI18n.translate(context, 'error.button_send_to_irma') : null,
-        onSecondaryPressed: widget.onReportError != null && !_hasReported ? _onTapReport : null,
+        secondaryButtonLabel: widget.onReportError != null
+            ? FlutterI18n.translate(context, 'error.button_send_to_irma')
+            : null,
+        onSecondaryPressed: widget.onReportError != null && !_hasReported
+            ? _onTapReport
+            : null,
       ),
     );
   }

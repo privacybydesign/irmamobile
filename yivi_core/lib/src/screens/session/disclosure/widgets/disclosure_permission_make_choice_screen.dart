@@ -26,9 +26,7 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
       appBarTitle: state is DisclosurePermissionChangeChoice
           ? 'disclosure_permission.change_choice'
           : 'disclosure_permission.choose',
-      onPrevious: () => onEvent(
-        DisclosurePermissionPreviousPressed(),
-      ),
+      onPrevious: () => onEvent(DisclosurePermissionPreviousPressed()),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: SafeArea(
@@ -38,7 +36,9 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
               DisclosurePermissionChoice(
                 choice: state.choosableCons,
                 selectedConIndex: state.selectedConIndex,
-                onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+                onChoiceUpdated: (int conIndex) => onEvent(
+                  DisclosurePermissionChoiceUpdated(conIndex: conIndex),
+                ),
               ),
               if (state.templateCons.isNotEmpty) ...[
                 Padding(
@@ -56,7 +56,9 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
                 DisclosurePermissionChoice(
                   choice: state.templateCons,
                   selectedConIndex: state.selectedConIndex,
-                  onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+                  onChoiceUpdated: (int conIndex) => onEvent(
+                    DisclosurePermissionChoiceUpdated(conIndex: conIndex),
+                  ),
                 ),
               ],
             ],
@@ -64,7 +66,10 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: state.selectedCon.whereType<TemplateDisclosureCredential>().isNotEmpty
+        primaryButtonLabel:
+            state.selectedCon
+                .whereType<TemplateDisclosureCredential>()
+                .isNotEmpty
             ? 'disclosure_permission.obtain_data'
             : 'ui.done',
         onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed()),

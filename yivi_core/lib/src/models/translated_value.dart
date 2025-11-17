@@ -10,7 +10,8 @@ class TranslatedValue {
   const TranslatedValue(this._map);
   const TranslatedValue.empty() : _map = const {};
 
-  factory TranslatedValue.fromString(String text) => TranslatedValue({_defaultFallbackLang: text});
+  factory TranslatedValue.fromString(String text) =>
+      TranslatedValue({_defaultFallbackLang: text});
 
   bool get isEmpty => _map.isEmpty;
   bool get isNotEmpty => _map.isNotEmpty;
@@ -49,7 +50,8 @@ class TranslatedValue {
   // We manually correct this inconsistency here. This is not needed anymore when we start
   // using json_serializable >= 5.0.0. Then, the fallback value of the default constructor of the model will be used.
   // For this, we first have to upgrade to Flutter >= 2.5.0.
-  factory TranslatedValue.fromJson(Map<String, dynamic>? json) =>
-      json == null ? const TranslatedValue.empty() : TranslatedValue(Map<String, String>.from(json));
+  factory TranslatedValue.fromJson(Map<String, dynamic>? json) => json == null
+      ? const TranslatedValue.empty()
+      : TranslatedValue(Map<String, String>.from(json));
   Map<String, dynamic> toJson() => UnmodifiableMapView(_map);
 }

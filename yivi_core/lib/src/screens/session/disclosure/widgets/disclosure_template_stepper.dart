@@ -17,7 +17,9 @@ class DisclosureTemplateStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final int currentItemIndex = templates.indexWhere((cred) => cred == currentItem);
+    final int currentItemIndex = templates.indexWhere(
+      (cred) => cred == currentItem,
+    );
 
     return IrmaStepper(
       currentIndex: currentItemIndex == -1 ? null : currentItemIndex,

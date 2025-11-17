@@ -5,11 +5,7 @@ import '../../package_name.dart';
 import '../theme/theme.dart';
 import 'translated_text.dart';
 
-enum YiviButtonStyle {
-  fancy,
-  outlined,
-  filled,
-}
+enum YiviButtonStyle { fancy, outlined, filled }
 
 class YiviButtonSize {
   final double _value;
@@ -36,33 +32,30 @@ class YiviThemedButton extends StatelessWidget {
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
   }) : assert(
-          !isTransparent || style != YiviButtonStyle.fancy,
-          'Fancy button cannot be transparent',
-        );
+         !isTransparent || style != YiviButtonStyle.fancy,
+         'Fancy button cannot be transparent',
+       );
 
   Widget _buildFancyButton(Widget child) => Stack(
-        children: [
-          Positioned.fill(
-            bottom: 0.0,
-            child: ExcludeSemantics(
-              child: SvgPicture.asset(
-                yiviAsset('ui/btn-bg.svg'),
-                alignment: Alignment.center,
-                fit: BoxFit.fill,
-              ),
-            ),
+    children: [
+      Positioned.fill(
+        bottom: 0.0,
+        child: ExcludeSemantics(
+          child: SvgPicture.asset(
+            yiviAsset('ui/btn-bg.svg'),
+            alignment: Alignment.center,
+            fit: BoxFit.fill,
           ),
-          Positioned.fill(
-            child: Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                onTap: onPressed,
-                child: child,
-              ),
-            ),
-          ),
-        ],
-      );
+        ),
+      ),
+      Positioned.fill(
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(onTap: onPressed, child: child),
+        ),
+      ),
+    ],
+  );
 
   Widget _buildNormalButton(
     Widget child,
@@ -99,9 +92,7 @@ class YiviThemedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    const borderRadius = BorderRadius.all(
-      Radius.circular(8),
-    );
+    const borderRadius = BorderRadius.all(Radius.circular(8));
 
     double buttonHeight = size.value;
     double? buttonWidth;
@@ -122,7 +113,9 @@ class YiviThemedButton extends StatelessWidget {
         label,
         textAlign: TextAlign.center,
         style: baseTextStyle.copyWith(
-          color: style == YiviButtonStyle.outlined ? theme.neutralExtraDark : theme.light,
+          color: style == YiviButtonStyle.outlined
+              ? theme.neutralExtraDark
+              : theme.light,
         ),
       ),
     );
@@ -136,11 +129,7 @@ class YiviThemedButton extends StatelessWidget {
           borderRadius: borderRadius,
           child: style == YiviButtonStyle.fancy
               ? _buildFancyButton(centeredTextWidget)
-              : _buildNormalButton(
-                  centeredTextWidget,
-                  theme,
-                  borderRadius,
-                ),
+              : _buildNormalButton(centeredTextWidget, theme, borderRadius),
         ),
       ),
     );

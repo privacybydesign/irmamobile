@@ -21,8 +21,13 @@ class DisclosurePermissionChoice extends StatelessWidget {
     this.isActive = true,
   });
 
-  Widget _buildChoiceOption(BuildContext context, MapEntry<int, Con<DisclosureCredential>> option) {
-    final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
+  Widget _buildChoiceOption(
+    BuildContext context,
+    MapEntry<int, Con<DisclosureCredential>> option,
+  ) {
+    final isDisabled = option.value.any(
+      (cred) => cred is TemplateDisclosureCredential && !cred.obtainable,
+    );
     final theme = IrmaTheme.of(context);
 
     return Semantics(
@@ -42,9 +47,13 @@ class DisclosurePermissionChoice extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: theme.smallSpacing),
                   child: YiviCredentialCard(
                     hideFooter: true,
-                    hashByFormat: credential is ChoosableDisclosureCredential ? {} : {},
+                    hashByFormat: credential is ChoosableDisclosureCredential
+                        ? {}
+                        : {},
                     padding: EdgeInsets.zero,
-                    compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                    compareTo: credential is TemplateDisclosureCredential
+                        ? credential.attributes
+                        : null,
                     disabled: isDisabled,
                     headerTrailing: credential == option.value.first
                         ? RadioIndicator(
@@ -69,9 +78,9 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (final entry in choice.entries) _buildChoiceOption(context, entry),
-        ],
-      );
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      for (final entry in choice.entries) _buildChoiceOption(context, entry),
+    ],
+  );
 }

@@ -7,10 +7,7 @@ import '../../../../widgets/yivi_themed_button.dart';
 class PinConfirmationFailedDialog extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const PinConfirmationFailedDialog({
-    super.key,
-    required this.onPressed,
-  });
+  const PinConfirmationFailedDialog({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

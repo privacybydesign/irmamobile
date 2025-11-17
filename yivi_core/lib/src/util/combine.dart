@@ -49,7 +49,12 @@ Stream<CombinedState4<A, B, C, D>> combine4<A, B, C, D>(
   Stream<C> streamC,
   Stream<D> streamD,
 ) {
-  return Rx.combineLatest4(streamA, streamB, streamC, streamD, (A a, B b, C c, D d) {
+  return Rx.combineLatest4(streamA, streamB, streamC, streamD, (
+    A a,
+    B b,
+    C c,
+    D d,
+  ) {
     return CombinedState4<A, B, C, D>(a, b, c, d);
   });
 }

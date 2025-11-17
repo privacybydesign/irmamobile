@@ -40,7 +40,9 @@ class HomeScreen extends StatelessWidget {
           canPop: false,
           onPopInvokedWithResult: (didPop, popResult) {
             if (tabState == IrmaNavBarTab.data) {
-              IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
+              IrmaRepositoryProvider.of(
+                context,
+              ).bridgedDispatch(AndroidSendToBackgroundEvent());
             } else {
               changeTab(IrmaNavBarTab.data);
             }
@@ -59,7 +61,8 @@ class HomeScreen extends StatelessWidget {
                     IrmaNavBarTab.activity => ActivityTab(),
                     IrmaNavBarTab.more => MoreTab(onChangeTab: changeTab),
                   },
-                  floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+                  floatingActionButtonLocation:
+                      FloatingActionButtonLocation.centerDocked,
                   resizeToAvoidBottomInset: false,
                   floatingActionButton: Padding(
                     padding: const EdgeInsets.only(bottom: 6),

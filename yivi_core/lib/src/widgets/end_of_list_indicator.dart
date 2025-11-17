@@ -8,40 +8,27 @@ import 'translated_text.dart';
 class EndOfListIndicator extends StatelessWidget {
   final bool isLoading;
 
-  const EndOfListIndicator({
-    this.isLoading = false,
-  });
+  const EndOfListIndicator({this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     final expandedDividerWidget = Expanded(
-      child: IrmaDivider(
-        color: theme.tertiary,
-      ),
+      child: IrmaDivider(color: theme.tertiary),
     );
 
     final statusIndicatorWidget = Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.defaultSpacing,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
       child: Container(
         width: 24,
         height: 24,
         decoration: isLoading
             ? null
-            : BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.success,
-              ),
+            : BoxDecoration(shape: BoxShape.circle, color: theme.success),
         child: isLoading
             ? LoadingIndicator()
-            : Icon(
-                Icons.check,
-                size: 18,
-                color: theme.light,
-              ),
+            : Icon(Icons.check, size: 18, color: theme.light),
       ),
     );
 
@@ -54,9 +41,7 @@ class EndOfListIndicator extends StatelessWidget {
             expandedDividerWidget,
           ],
         ),
-        SizedBox(
-          height: theme.smallSpacing,
-        ),
+        SizedBox(height: theme.smallSpacing),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: theme.hugeSpacing),
           child: TranslatedText(
@@ -68,7 +53,7 @@ class EndOfListIndicator extends StatelessWidget {
               height: 18 / 12,
             ),
           ),
-        )
+        ),
       ],
     );
   }

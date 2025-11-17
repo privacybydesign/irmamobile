@@ -8,10 +8,7 @@ import '../../../util/handle_pointer.dart';
 
 class PendingPointerListener extends StatefulWidget {
   final Widget child;
-  const PendingPointerListener({
-    super.key,
-    required this.child,
-  });
+  const PendingPointerListener({super.key, required this.child});
 
   @override
   State<PendingPointerListener> createState() => _PendingPointerListenerState();
@@ -26,7 +23,9 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final repo = IrmaRepositoryProvider.of(context);
-      _pointerSubscription = repo.getPendingPointer().listen((Pointer? pointer) {
+      _pointerSubscription = repo.getPendingPointer().listen((
+        Pointer? pointer,
+      ) {
         if (pointer != null && mounted) {
           handlePointer(context, pointer);
         }

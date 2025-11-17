@@ -13,10 +13,7 @@ class InformationBox extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: theme.borderRadius,
-        border: Border.all(
-          color: theme.neutralLight,
-          width: 1,
-        ),
+        border: Border.all(color: theme.neutralLight, width: 1),
       ),
       padding: EdgeInsets.all(theme.defaultSpacing),
       child: Row(
@@ -27,7 +24,9 @@ class InformationBox extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              textHeightBehavior: const TextHeightBehavior(applyHeightToFirstAscent: false),
+              textHeightBehavior: const TextHeightBehavior(
+                applyHeightToFirstAscent: false,
+              ),
             ),
           ),
         ],

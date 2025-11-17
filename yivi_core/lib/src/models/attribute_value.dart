@@ -8,7 +8,10 @@ import 'translated_value.dart';
 abstract class AttributeValue {
   String? get raw;
 
-  factory AttributeValue.fromRaw(AttributeType attributeType, TranslatedValue rawAttribute) {
+  factory AttributeValue.fromRaw(
+    AttributeType attributeType,
+    TranslatedValue rawAttribute,
+  ) {
     // In IrmaGo attribute values are set to an empty map when an optional attribute is empty.
     if (rawAttribute.isEmpty) {
       return NullValue();
@@ -45,14 +48,13 @@ class TextValue implements AttributeValue {
 
   // A raw TextValue is received as TranslatedValue.
   factory TextValue.fromRaw(TranslatedValue rawAttribute) {
-    if (!rawAttribute.hasTranslation('')) throw Exception('No raw value could be found');
-    return TextValue(
-      translated: rawAttribute,
-      raw: rawAttribute.translate(''),
-    );
+    if (!rawAttribute.hasTranslation(''))
+      throw Exception('No raw value could be found');
+    return TextValue(translated: rawAttribute, raw: rawAttribute.translate(''));
   }
 
-  TranslatedValue toRaw() => TranslatedValue.fromJson({...translated.toJson(), '': raw});
+  TranslatedValue toRaw() =>
+      TranslatedValue.fromJson({...translated.toJson(), '': raw});
 }
 
 class PhotoValue implements AttributeValue {
@@ -92,20 +94,15 @@ class YesNoValue implements TextValue {
     // flutter_i18n does not provide access to its strings directly, and we
     // don't have a buildcontext here, so this is the least worst option.
     if (raw.toLowerCase() == 'yes' || raw.toLowerCase() == 'ja') {
-      return const TranslatedValue({
-        'en': 'Yes',
-        'nl': 'Ja',
-      });
+      return const TranslatedValue({'en': 'Yes', 'nl': 'Ja'});
     } else if (raw.toLowerCase() == 'no' || raw.toLowerCase() == 'nee') {
-      return const TranslatedValue({
-        'en': 'No',
-        'nl': 'Nee',
-      });
+      return const TranslatedValue({'en': 'No', 'nl': 'Nee'});
     } else {
       return textValue.translated;
     }
   }
 
   @override
-  TranslatedValue toRaw() => TranslatedValue.fromJson({...translated.toJson(), '': raw});
+  TranslatedValue toRaw() =>
+      TranslatedValue.fromJson({...translated.toJson(), '': raw});
 }

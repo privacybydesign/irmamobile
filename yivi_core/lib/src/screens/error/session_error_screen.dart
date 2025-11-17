@@ -22,10 +22,7 @@ class SessionErrorScreen extends StatelessWidget {
     // Handle internet errors separately
     switch (error?.errorType) {
       case 'transport':
-        return NoInternetScreen(
-          onTapClose: onTapClose,
-          onTapRetry: onTapRetry,
-        );
+        return NoInternetScreen(onTapClose: onTapClose, onTapRetry: onTapRetry);
       case 'pairingRejected':
         return ErrorScreen(
           onTapClose: onTapClose,
@@ -38,15 +35,9 @@ class SessionErrorScreen extends StatelessWidget {
       case 'USER_NOT_REGISTERED':
         return BlockedScreen();
       case 'SESSION_UNKNOWN':
-        return ErrorScreen(
-          onTapClose: onTapClose,
-          type: ErrorType.expired,
-        );
+        return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired);
       case 'UNEXPECTED_REQUEST':
-        return ErrorScreen(
-          onTapClose: onTapClose,
-          type: ErrorType.expired,
-        );
+        return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired);
     }
 
     return ErrorScreen(

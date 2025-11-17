@@ -26,11 +26,7 @@ class ChangeLanguageRadio extends StatelessWidget {
       defaultSelectedIndex: supportedLocales.indexWhere(
         (locale) => locale.languageCode == lang,
       ),
-      options: supportedLocales
-          .map(
-            (locale) => locale.languageName(),
-          )
-          .toList(),
+      options: supportedLocales.map((locale) => locale.languageName()).toList(),
     );
   }
 }

@@ -14,9 +14,7 @@ class AddDataScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(
-        titleTranslationKey: 'data.add.title',
-      ),
+      appBar: IrmaAppBar(titleTranslationKey: 'data.add.title'),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: SafeArea(
@@ -27,29 +25,33 @@ class AddDataScreen extends StatelessWidget {
                 'data.add.choose',
                 style: theme.textTheme.bodyMedium,
               ),
-              SizedBox(
-                height: theme.defaultSpacing,
-              ),
+              SizedBox(height: theme.defaultSpacing),
               StoreCredentialTypesBuilder(
-                builder: (
-                  context,
-                  groupedCredentialTypes,
-                  groupedObtainedCredentialTypes,
-                ) =>
-                    Column(
-                  children: groupedCredentialTypes.entries
-                      .map(
-                        (credentialTypesByCategory) => CredentialCategoryList(
-                          categoryName: credentialTypesByCategory.key,
-                          credentialTypes: credentialTypesByCategory.value,
-                          obtainedCredentialTypes: groupedObtainedCredentialTypes[credentialTypesByCategory.key],
-                          credentialTypeTrailingIcon: Icons.add_circle_sharp,
-                          onCredentialTypeTap: context.pushDataDetailsScreen,
-                        ),
-                      )
-                      .toList(growable: false),
-                ),
-              )
+                builder:
+                    (
+                      context,
+                      groupedCredentialTypes,
+                      groupedObtainedCredentialTypes,
+                    ) => Column(
+                      children: groupedCredentialTypes.entries
+                          .map(
+                            (
+                              credentialTypesByCategory,
+                            ) => CredentialCategoryList(
+                              categoryName: credentialTypesByCategory.key,
+                              credentialTypes: credentialTypesByCategory.value,
+                              obtainedCredentialTypes:
+                                  groupedObtainedCredentialTypes[credentialTypesByCategory
+                                      .key],
+                              credentialTypeTrailingIcon:
+                                  Icons.add_circle_sharp,
+                              onCredentialTypeTap:
+                                  context.pushDataDetailsScreen,
+                            ),
+                          )
+                          .toList(growable: false),
+                    ),
+              ),
             ],
           ),
         ),

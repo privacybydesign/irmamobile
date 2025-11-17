@@ -8,19 +8,20 @@ import '../../../providers/irma_repository_provider.dart';
 import '../../../util/language.dart';
 import '../../../widgets/progress.dart';
 
-typedef GroupedCredentialTypesBuilder = Widget Function(
-  BuildContext context,
-  Map<String, List<CredentialType>> groupedCredentialTypes,
-);
+typedef GroupedCredentialTypesBuilder =
+    Widget Function(
+      BuildContext context,
+      Map<String, List<CredentialType>> groupedCredentialTypes,
+    );
 
 class CredentialTypesBuilder extends StatelessWidget {
   final GroupedCredentialTypesBuilder builder;
 
-  const CredentialTypesBuilder({
-    required this.builder,
-  });
+  const CredentialTypesBuilder({required this.builder});
 
-  List<CredentialType> _distinctCredentialTypes(Iterable<CredentialType> credentialTypes) {
+  List<CredentialType> _distinctCredentialTypes(
+    Iterable<CredentialType> credentialTypes,
+  ) {
     var idSet = <String>{};
     var distinct = <CredentialType>[];
     for (var credType in credentialTypes) {
@@ -53,25 +54,31 @@ class CredentialTypesBuilder extends StatelessWidget {
         );
 
         // Filter out duplicates
-        final distinctCredentialTypes = _distinctCredentialTypes(nonKeyShareCredentialTypes);
+        final distinctCredentialTypes = _distinctCredentialTypes(
+          nonKeyShareCredentialTypes,
+        );
 
         // Group them by category
-        final otherTranslation = FlutterI18n.translate(context, 'data.category_other');
+        final otherTranslation = FlutterI18n.translate(
+          context,
+          'data.category_other',
+        );
         var groupedCredentialTypes = groupBy<CredentialType, String>(
           distinctCredentialTypes,
-          (ct) => ct.category.isNotEmpty ? getTranslation(context, ct.category) : otherTranslation,
+          (ct) => ct.category.isNotEmpty
+              ? getTranslation(context, ct.category)
+              : otherTranslation,
         );
 
         // Make sure other credentials are always at the end
-        final otherCredentials = groupedCredentialTypes.remove(otherTranslation);
+        final otherCredentials = groupedCredentialTypes.remove(
+          otherTranslation,
+        );
         if (otherCredentials != null) {
           groupedCredentialTypes[otherTranslation] = otherCredentials;
         }
 
-        return builder(
-          context,
-          groupedCredentialTypes,
-        );
+        return builder(context, groupedCredentialTypes);
       },
     );
   }

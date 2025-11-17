@@ -9,11 +9,7 @@ import '../credential_card/models/card_expiry_date.dart';
 import '../irma_divider.dart';
 import '../translated_text.dart';
 
-enum ExpireState {
-  notExpired,
-  almostExpired,
-  expired,
-}
+enum ExpireState { notExpired, almostExpired, expired }
 
 class YiviCredentialCardFooter extends StatelessWidget {
   final CredentialType credentialType;
@@ -51,64 +47,70 @@ class YiviCredentialCardFooter extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     if (!revoked && (expiryDate != null || expiryDate?.dateTime != null)) {
-      return LayoutBuilder(builder: (context, constraints) {
-        final fortyFivePercent = constraints.maxWidth * 0.45;
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            SizedBox(
-              width: fortyFivePercent,
-              child: Column(
-                spacing: theme.tinySpacing,
-                children: [
-                  TranslatedText('credential.valid_until', style: TextStyle(fontSize: 14)),
-                  Text(
-                    printableDate(
-                      expiryDate!.dateTime!,
-                      lang,
-                    ),
-                    style: theme.textTheme.bodyLarge!.copyWith(
-                      fontSize: 14,
-                      color: _getTextColorForExpireState(timeBasedExpireState, theme),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IrmaDivider(vertical: true, height: 50),
-            SizedBox(
-              width: fortyFivePercent,
-              child: Column(
-                spacing: theme.tinySpacing,
-                children: [
-                  TranslatedText(
-                    'credential.sharable',
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                  if (instanceCount != null)
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final fortyFivePercent = constraints.maxWidth * 0.45;
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                width: fortyFivePercent,
+                child: Column(
+                  spacing: theme.tinySpacing,
+                  children: [
                     TranslatedText(
-                      'credential.sharable_count',
-                      translationParams: {
-                        'count': '${instanceCount!}',
-                      },
+                      'credential.valid_until',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    Text(
+                      printableDate(expiryDate!.dateTime!, lang),
                       style: theme.textTheme.bodyLarge!.copyWith(
                         fontSize: 14,
-                        color: _getTextColorForExpireState(instanceBasedExpireState, theme),
+                        color: _getTextColorForExpireState(
+                          timeBasedExpireState,
+                          theme,
+                        ),
                       ),
-                    )
-                  else
-                    TranslatedText(
-                      'credential.sharable_unlimited',
-                      style: theme.textTheme.bodyLarge!.copyWith(fontSize: 14),
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        );
-      });
+              IrmaDivider(vertical: true, height: 50),
+              SizedBox(
+                width: fortyFivePercent,
+                child: Column(
+                  spacing: theme.tinySpacing,
+                  children: [
+                    TranslatedText(
+                      'credential.sharable',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    if (instanceCount != null)
+                      TranslatedText(
+                        'credential.sharable_count',
+                        translationParams: {'count': '${instanceCount!}'},
+                        style: theme.textTheme.bodyLarge!.copyWith(
+                          fontSize: 14,
+                          color: _getTextColorForExpireState(
+                            instanceBasedExpireState,
+                            theme,
+                          ),
+                        ),
+                      )
+                    else
+                      TranslatedText(
+                        'credential.sharable_unlimited',
+                        style: theme.textTheme.bodyLarge!.copyWith(
+                          fontSize: 14,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      );
     }
 
     return null;

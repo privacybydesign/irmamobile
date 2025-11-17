@@ -14,7 +14,8 @@ class InstallSchemeEvent extends Event {
 
   InstallSchemeEvent({required this.url, required this.publicKey});
 
-  factory InstallSchemeEvent.fromJson(Map<String, dynamic> json) => _$InstallSchemeEventFromJson(json);
+  factory InstallSchemeEvent.fromJson(Map<String, dynamic> json) =>
+      _$InstallSchemeEventFromJson(json);
   Map<String, dynamic> toJson() => _$InstallSchemeEventToJson(this);
 }
 
@@ -25,7 +26,8 @@ class RemoveSchemeEvent extends Event {
 
   RemoveSchemeEvent({required this.schemeId});
 
-  factory RemoveSchemeEvent.fromJson(Map<String, dynamic> json) => _$RemoveSchemeEventFromJson(json);
+  factory RemoveSchemeEvent.fromJson(Map<String, dynamic> json) =>
+      _$RemoveSchemeEventFromJson(json);
   Map<String, dynamic> toJson() => _$RemoveSchemeEventToJson(this);
 }
 
@@ -36,6 +38,7 @@ class RemoveRequestorSchemeEvent extends Event {
 
   RemoveRequestorSchemeEvent({required this.schemeId});
 
-  factory RemoveRequestorSchemeEvent.fromJson(Map<String, dynamic> json) => _$RemoveRequestorSchemeEventFromJson(json);
+  factory RemoveRequestorSchemeEvent.fromJson(Map<String, dynamic> json) =>
+      _$RemoveRequestorSchemeEventFromJson(json);
   Map<String, dynamic> toJson() => _$RemoveRequestorSchemeEventToJson(this);
 }

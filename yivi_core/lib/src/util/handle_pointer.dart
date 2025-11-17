@@ -10,7 +10,11 @@ import 'navigation.dart';
 /// If no wizard is specified, only the session will be performed.
 /// If no session is specified, the user will be returned to the HomeScreen after completing the wizard.
 /// If pushReplacement is true, then the current screen is being replaced with the handler screen.
-Future<void> handlePointer(BuildContext context, Pointer pointer, {bool pushReplacement = false}) async {
+Future<void> handlePointer(
+  BuildContext context,
+  Pointer pointer, {
+  bool pushReplacement = false,
+}) async {
   try {
     await pointer.validate(irmaRepository: IrmaRepositoryProvider.of(context));
   } catch (e) {
@@ -28,7 +32,11 @@ Future<void> handlePointer(BuildContext context, Pointer pointer, {bool pushRepl
 
   int? sessionID;
   if (pointer is SessionPointer && context.mounted) {
-    sessionID = await _startSessionAndNavigate(context, pointer, pushReplacement);
+    sessionID = await _startSessionAndNavigate(
+      context,
+      pointer,
+      pushReplacement,
+    );
   }
 
   if (pointer is IssueWizardPointer && context.mounted) {
@@ -47,7 +55,10 @@ Future<void> _startIssueWizard(
 
   // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
   // to the wallet, then the session screen is automatically dismissed, which cancels the session.
-  final params = IssueWizardRouteParams(wizardID: wizardPointer.wizard, sessionID: sessionID);
+  final params = IssueWizardRouteParams(
+    wizardID: wizardPointer.wizard,
+    sessionID: sessionID,
+  );
 
   if (pushReplacement) {
     context.pushReplacementIssueWizardScreen(params);
@@ -64,7 +75,8 @@ Future<int> _startSessionAndNavigate(
   final repo = IrmaRepositoryProvider.of(context);
   final event = NewSessionEvent(
     request: sessionPointer,
-    previouslyLaunchedCredentials: await repo.getPreviouslyLaunchedCredentials(),
+    previouslyLaunchedCredentials: await repo
+        .getPreviouslyLaunchedCredentials(),
   );
 
   final hasActiveSessions = await repo.hasActiveSessions();
@@ -76,14 +88,21 @@ Future<int> _startSessionAndNavigate(
     sessionType: event.request.irmaqr,
     hasUnderlyingSession: hasActiveSessions,
     wizardActive: wizardActive,
-    wizardCred: wizardActive ? (await repo.getIssueWizard().first)?.activeItem?.credential : null,
+    wizardCred: wizardActive
+        ? (await repo.getIssueWizard().first)?.activeItem?.credential
+        : null,
   );
 
   if (!context.mounted) {
     return event.sessionID;
   }
 
-  if (const {'issuing', 'disclosing', 'signing', 'redirect'}.contains(params.sessionType)) {
+  if (const {
+    'issuing',
+    'disclosing',
+    'signing',
+    'redirect',
+  }.contains(params.sessionType)) {
     if (pushReplacement) {
       context.pushReplacementSessionScreen(params);
     } else {

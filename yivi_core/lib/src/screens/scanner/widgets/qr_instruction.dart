@@ -10,10 +10,7 @@ class QRInstruction extends StatelessWidget {
   // wrong QR code found
   final bool error;
 
-  const QRInstruction({
-    required this.found,
-    required this.error,
-  });
+  const QRInstruction({required this.found, required this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -42,18 +39,14 @@ class QRInstruction extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: theme.borderRadius,
           color: color,
-          border: Border.all(
-            color: borderColor,
-          ),
+          border: Border.all(color: borderColor),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TranslatedText(
               'qr_scanner.$screen.title',
-              style: theme.textTheme.displaySmall?.copyWith(
-                color: textColor,
-              ),
+              style: theme.textTheme.displaySmall?.copyWith(color: textColor),
               textAlign: TextAlign.center,
             ),
             Flexible(
