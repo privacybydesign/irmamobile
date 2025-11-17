@@ -23,7 +23,7 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
 
     /// Calls the Start method of irmagobridge.
     private func start() {
-        let bundlePath = Bundle.main.bundlePath
+        let bundlePath = Bundle(for: type(of: self)).bundlePath
         let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
 
         // Mark librarypath as non-backup
