@@ -8,19 +8,12 @@ import '../../../theme/theme.dart';
 import '../../../util/navigation.dart';
 import '../../../widgets/translated_text.dart';
 
-enum ArrowBackType {
-  issuance,
-  disclosure,
-  signature,
-  error,
-}
+enum ArrowBackType { issuance, disclosure, signature, error }
 
 class ArrowBack extends StatefulWidget {
   final ArrowBackType type;
 
-  const ArrowBack({
-    required this.type,
-  });
+  const ArrowBack({required this.type});
 
   @override
   State<StatefulWidget> createState() => _ArrowBackState();
@@ -37,13 +30,12 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   ];
 
   void _allowAllOrientations() => SystemChrome.setPreferredOrientations([
-        ...portraitOrientations,
-        ...landscapeOrientations,
-      ]);
+    ...portraitOrientations,
+    ...landscapeOrientations,
+  ]);
 
-  void _forcePortraitOrientation() => SystemChrome.setPreferredOrientations([
-        ...portraitOrientations,
-      ]);
+  void _forcePortraitOrientation() =>
+      SystemChrome.setPreferredOrientations([...portraitOrientations]);
 
   @override
   void initState() {
@@ -85,7 +77,8 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
       useSensor: true,
       builder: (context) {
         final orientation = NativeDeviceOrientationReader.orientation(context);
-        final isNativeLandscape = orientation == NativeDeviceOrientation.landscapeLeft ||
+        final isNativeLandscape =
+            orientation == NativeDeviceOrientation.landscapeLeft ||
             orientation == NativeDeviceOrientation.landscapeRight;
 
         late int quarterTurns;
@@ -108,15 +101,16 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
             // The SingleChildScrollView is used to prevent overflows when the user increases the device text size
             child: SingleChildScrollView(
               // Disable scrolling in landscape mode because the orientation is locked
-              physics: isNativeLandscape ? const NeverScrollableScrollPhysics() : null,
+              physics: isNativeLandscape
+                  ? const NeverScrollableScrollPhysics()
+                  : null,
               padding: EdgeInsets.all(theme.defaultSpacing),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SvgPicture.asset(
-                    'assets/arrow_back/pointing_up.svg',
-                    package: packageName,
+                    yiviAsset('arrow_back/pointing_up.svg'),
                     width: 250,
                   ),
                   SizedBox(height: theme.hugeSpacing),

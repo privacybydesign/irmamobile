@@ -201,7 +201,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen> with Widg
         final logoFile = File(wizardData?.logoPath ?? '');
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
-            : Image.asset('assets/non-free/logo.png', excludeFromSemantics: true, package: packageName);
+            : Image.asset(yiviAsset('non-free/logo.png'), excludeFromSemantics: true);
 
         if (_showIntro) {
           return IssueWizardInfo(

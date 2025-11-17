@@ -46,8 +46,7 @@ class YiviThemedButton extends StatelessWidget {
             bottom: 0.0,
             child: ExcludeSemantics(
               child: SvgPicture.asset(
-                'assets/ui/btn-bg.svg',
-                package: packageName,
+                yiviAsset('ui/btn-bg.svg'),
                 alignment: Alignment.center,
                 fit: BoxFit.fill,
               ),

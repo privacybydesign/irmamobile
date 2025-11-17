@@ -33,12 +33,10 @@ class _HelpCarouselState extends State<HelpCarousel> {
                   child: item.imagePath.endsWith('svg')
                       ? SvgPicture.asset(
                           item.imagePath,
-                          package: packageName,
                           excludeFromSemantics: true,
                         )
                       : Image.asset(
                           item.imagePath,
-                          package: packageName,
                           excludeFromSemantics: true,
                         ),
                 ),

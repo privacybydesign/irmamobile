@@ -27,11 +27,7 @@ class App extends ConsumerStatefulWidget {
   final Locale? forcedLocale;
   final NotificationsBloc notificationsBloc;
 
-  const App({
-    super.key,
-    required this.notificationsBloc,
-    this.forcedLocale,
-  });
+  const App({super.key, required this.notificationsBloc, this.forcedLocale});
 
   @override
   ConsumerState<App> createState() => AppState();
@@ -53,30 +49,32 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
-  List<AppLifecycleState> prevLifeCycleStates = List.filled(2, AppLifecycleState.detached);
+  List<AppLifecycleState> prevLifeCycleStates = List.filled(
+    2,
+    AppLifecycleState.detached,
+  );
 
   AppState();
 
-  static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale? forcedLocale]) {
+  static List<LocalizationsDelegate> defaultLocalizationsDelegates([
+    Locale? forcedLocale,
+  ]) {
     return [
       FlutterI18nDelegate(
         translationLoader: FileTranslationLoader(
           fallbackFile: 'en',
-          basePath: 'packages/$packageName/assets/locales',
+          basePath: yiviAsset('locales'),
           forcedLocale: forcedLocale,
         ),
       ),
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate
+      GlobalCupertinoLocalizations.delegate,
     ];
   }
 
   static List<Locale> defaultSupportedLocales() {
-    return const [
-      Locale('en', 'US'),
-      Locale('nl', 'NL'),
-    ];
+    return const [Locale('en', 'US'), Locale('nl', 'NL')];
   }
 
   @override
@@ -102,10 +100,14 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final repo = ref.read(irmaRepositoryProvider);
     final prefs = ref.read(preferencesProvider);
 
-    final showNameChangedNotification = await prefs.getShowNameChangedNotification().first;
+    final showNameChangedNotification = await prefs
+        .getShowNameChangedNotification()
+        .first;
 
     if (showNameChangedNotification) {
-      _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen((event) {
+      _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen((
+        event,
+      ) {
         // If the user is unenrolled we never want to show the name changed notification again
         if (event == EnrollmentStatus.unenrolled) {
           repo.preferences.setShowNameChangedNotification(false);
@@ -120,7 +122,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final prefs = ref.read(preferencesProvider);
     final lastSchemeUpdate = await prefs.getLastSchemeUpdate().first;
 
-    if (DateTime.now().difference(lastSchemeUpdate).inHours > schemeUpdateIntervalHours) {
+    if (DateTime.now().difference(lastSchemeUpdate).inHours >
+        schemeUpdateIntervalHours) {
       prefs.setLastSchemeUpdate(DateTime.now());
       repo.bridgedDispatch(UpdateSchemesEvent());
     }
@@ -134,7 +137,9 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
       _detectRootedDeviceRepo;
     } catch (_) {
       final repo = IrmaRepositoryProvider.of(context);
-      _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository(preferences: repo.preferences);
+      _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository(
+        preferences: repo.preferences,
+      );
       _router = createRouter(context, ref);
     }
   }
@@ -162,13 +167,18 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     if (prevLifeCycleStates.contains(AppLifecycleState.paused) &&
         prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
         state == AppLifecycleState.resumed) {
-      final status = await repo.getEnrollmentStatus().firstWhere((status) => status != EnrollmentStatus.undetermined);
+      final status = await repo.getEnrollmentStatus().firstWhere(
+        (status) => status != EnrollmentStatus.undetermined,
+      );
       // First check whether we should redo pin verification
       final lastActive = await repo.getLastActiveTime().first;
       final locked = await repo.getLocked().first;
 
       if (status == EnrollmentStatus.enrolled) {
-        if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
+        if (!locked &&
+            lastActive.isBefore(
+              DateTime.now().subtract(const Duration(minutes: 5)),
+            )) {
           repo.lock();
         }
       }
@@ -184,7 +194,9 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final prefs = ref.read(preferencesProvider);
     // We only wait for the privacy screen to be loaded on start-up.
     _privacyScreenLoaded = false;
-    _screenshotPrefSubscription = prefs.getScreenshotsEnabled().listen((enabled) async {
+    _screenshotPrefSubscription = prefs.getScreenshotsEnabled().listen((
+      enabled,
+    ) async {
       if (enabled) {
         await PrivacyScreen.disablePrivacyScreen();
       } else {
@@ -208,7 +220,9 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
           key: const Key('app'),
           title: 'Yivi',
           theme: IrmaTheme.of(context).themeData,
-          localizationsDelegates: defaultLocalizationsDelegates(widget.forcedLocale),
+          localizationsDelegates: defaultLocalizationsDelegates(
+            widget.forcedLocale,
+          ),
           supportedLocales: defaultSupportedLocales(),
           showSemanticsDebugger: false,
           routerConfig: _router,

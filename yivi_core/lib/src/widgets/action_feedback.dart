@@ -18,6 +18,7 @@ class ActionFeedback extends StatelessWidget {
   final Map<String, String>? explanationTranslationParams;
 
   const ActionFeedback({
+    super.key,
     required this.success,
     required this.titleTranslationKey,
     this.titleTranslationParams,
@@ -33,14 +34,15 @@ class ActionFeedback extends StatelessWidget {
     return PopScope(
       canPop: false,
       child: SessionScaffold(
-        appBarTitle: success ? 'disclosure.feedback.header.success' : 'ui.error',
+        appBarTitle: success
+            ? 'disclosure.feedback.header.success'
+            : 'ui.error',
         onDismiss: onDismiss,
         body: DynamicLayout(
           hero: success
               ? SuccessGraphic()
               : SvgPicture.asset(
-                  'assets/error/general_error_illustration.svg',
-                  package: packageName,
+                  yiviAsset('error/general_error_illustration.svg'),
                 ),
           content: Column(
             children: [
@@ -50,9 +52,7 @@ class ActionFeedback extends StatelessWidget {
                   color: theme.dark,
                 ),
               ),
-              SizedBox(
-                height: theme.tinySpacing,
-              ),
+              SizedBox(height: theme.tinySpacing),
               TranslatedText(
                 explanationTranslationKey,
                 translationParams: explanationTranslationParams,

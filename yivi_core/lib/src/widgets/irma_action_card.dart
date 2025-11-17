@@ -82,8 +82,7 @@ class IrmaActionCard extends StatelessWidget {
               Positioned.fill(
                 child: isFancy
                     ? SvgPicture.asset(
-                        'assets/ui/btn-bg.svg',
-                        package: packageName,
+                        yiviAsset('ui/btn-bg.svg'),
                         alignment: Alignment.center,
                         fit: BoxFit.fill,
                       )

@@ -42,10 +42,13 @@ class _PassportNfcScanningAnimation extends StatefulWidget {
   final Duration reverseDuration;
 
   @override
-  State<_PassportNfcScanningAnimation> createState() => _PassportNfcScanningAnimationState();
+  State<_PassportNfcScanningAnimation> createState() =>
+      _PassportNfcScanningAnimationState();
 }
 
-class _PassportNfcScanningAnimationState extends State<_PassportNfcScanningAnimation> with TickerProviderStateMixin {
+class _PassportNfcScanningAnimationState
+    extends State<_PassportNfcScanningAnimation>
+    with TickerProviderStateMixin {
   late final AnimationController _controller;
   bool _continue = true;
 
@@ -87,15 +90,12 @@ class _PassportNfcScanningAnimationState extends State<_PassportNfcScanningAnima
     return Transform.translate(
       offset: const Offset(0, -20),
       child: Lottie.asset(
-        'assets/passport/nfc.json',
-        package: packageName,
+        yiviAsset('passport/nfc.json'),
         controller: _controller,
         alignment: Alignment(0, 0.5),
         frameBuilder: (context, child, composition) {
           if (composition == null) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            return Center(child: CircularProgressIndicator());
           }
           return child;
         },

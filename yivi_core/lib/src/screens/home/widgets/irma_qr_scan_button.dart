@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:yivi_core/package_name.dart';
 
 import '../../../theme/theme.dart';
 import '../../../util/navigation.dart';
@@ -8,13 +9,19 @@ import '../../../util/test_detection.dart';
 import '../../../widgets/translated_text.dart';
 import '../../scanner/util/handle_camera_permission.dart';
 
-Future<void> openQrCodeScanner(BuildContext context, {bool requireAuthBeforeSession = false}) async {
+Future<void> openQrCodeScanner(
+  BuildContext context, {
+  bool requireAuthBeforeSession = false,
+}) async {
   // during tests we'll just pretend like we have permission, because it won't open the camera
   final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
-  final hasCameraPermission = isIntegrationTest || await handleCameraPermission(context);
+  final hasCameraPermission =
+      isIntegrationTest || await handleCameraPermission(context);
 
   if (hasCameraPermission && context.mounted) {
-    context.pushScannerScreen(requireAuthBeforeSession: requireAuthBeforeSession);
+    context.pushScannerScreen(
+      requireAuthBeforeSession: requireAuthBeforeSession,
+    );
   }
 }
 
@@ -26,7 +33,9 @@ class IrmaQrScanButton extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Container(
-      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height > 450 ? 52 : 42),
+      margin: EdgeInsets.only(
+        top: MediaQuery.of(context).size.height > 450 ? 52 : 42,
+      ),
       constraints: const BoxConstraints(maxWidth: 90),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -37,9 +46,7 @@ class IrmaQrScanButton extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: SvgPicture.asset(
-                    'assets/ui/round-btn-bg.svg',
-                  ),
+                  child: SvgPicture.asset(yiviAsset('ui/round-btn-bg.svg')),
                 ),
                 Positioned.fill(
                   child: ClipOval(
@@ -47,7 +54,10 @@ class IrmaQrScanButton extends StatelessWidget {
                       type: MaterialType.transparency,
                       child: Semantics(
                         button: true,
-                        label: FlutterI18n.translate(context, 'home.nav_bar.scan_qr'),
+                        label: FlutterI18n.translate(
+                          context,
+                          'home.nav_bar.scan_qr',
+                        ),
                         child: InkWell(
                           onTap: () => openQrCodeScanner(context),
                           child: Icon(
@@ -59,13 +69,11 @@ class IrmaQrScanButton extends StatelessWidget {
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
-          SizedBox(
-            height: theme.tinySpacing,
-          ),
+          SizedBox(height: theme.tinySpacing),
           ExcludeSemantics(
             child: TranslatedText(
               'home.nav_bar.scan_qr',

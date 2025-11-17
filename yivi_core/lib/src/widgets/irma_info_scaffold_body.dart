@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../../package_name.dart';
 import '../theme/theme.dart';
 import 'irma_dialog.dart';
 import 'translated_text.dart';
@@ -30,32 +29,32 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
     this.iconColor,
     this.linkDialogText,
     this.linkTranslationKey,
-  })  : assert(
-          iconColor == null || icon != null,
-          'Icon color can only be used when an icon is provided',
-        ),
-        assert(
-          linkTranslationKey != null || linkDialogText == null,
-          'If you specify a linkKey, also set a linkDialogKey',
-        ),
-        assert(
-          imagePath == null || icon == null,
-          'You cannot provide both an icon and an image path',
-        );
+  }) : assert(
+         iconColor == null || icon != null,
+         'Icon color can only be used when an icon is provided',
+       ),
+       assert(
+         linkTranslationKey != null || linkDialogText == null,
+         'If you specify a linkKey, also set a linkDialogKey',
+       ),
+       assert(
+         imagePath == null || icon == null,
+         'You cannot provide both an icon and an image path',
+       );
 
   Future _showIrmaDialog(BuildContext context) async => showDialog(
-        context: context,
-        builder: (context) {
-          return IrmaDialog(
-            title: FlutterI18n.translate(context, 'error.details_title'),
-            content: linkDialogText!,
-            child: YiviThemedButton(
-              label: 'error.button_ok',
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          );
-        },
+    context: context,
+    builder: (context) {
+      return IrmaDialog(
+        title: FlutterI18n.translate(context, 'error.details_title'),
+        content: linkDialogText!,
+        child: YiviThemedButton(
+          label: 'error.button_ok',
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       );
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +75,8 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                 ),
               if (imagePath != null)
                 (imagePath!.endsWith('svg'))
-                    ? SvgPicture.asset(imagePath!, package: packageName)
-                    : Image.asset(imagePath!, package: packageName),
+                    ? SvgPicture.asset(imagePath!)
+                    : Image.asset(imagePath!),
               SizedBox(height: theme.mediumSpacing),
             ],
             TranslatedText(
@@ -111,7 +110,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-            ]
+            ],
           ],
         ),
       ),

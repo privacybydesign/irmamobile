@@ -11,9 +11,7 @@ class SplashScreen extends StatelessWidget {
 
   final bool isLoading;
 
-  const SplashScreen({
-    this.isLoading = false,
-  });
+  const SplashScreen({this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +27,7 @@ class SplashScreen extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             SvgPicture.asset(
-              'assets/non-free/logo_payoff.svg',
-              package: packageName,
+              yiviAsset('non-free/logo_payoff.svg'),
               height: logoHeight,
               width: logoWidth,
               semanticsLabel: FlutterI18n.translate(
@@ -44,7 +41,7 @@ class SplashScreen extends StatelessWidget {
                   top: logoHeight + IrmaTheme.of(context).defaultSpacing,
                 ),
                 child: LoadingIndicator(),
-              )
+              ),
           ],
         ),
       ),

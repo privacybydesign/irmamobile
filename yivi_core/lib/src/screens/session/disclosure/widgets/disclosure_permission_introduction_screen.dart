@@ -14,6 +14,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
   final Function() onDismiss;
 
   const DisclosurePermissionIntroductionScreen({
+    super.key,
     required this.onEvent,
     required this.onDismiss,
   });
@@ -26,10 +27,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
       appBarTitle: 'disclosure_permission.introduction.title',
       onDismiss: onDismiss,
       body: DynamicLayout(
-        hero: SvgPicture.asset(
-          'assets/disclosure/disclosure_intro.svg',
-          package: packageName,
-        ),
+        hero: SvgPicture.asset(yiviAsset('disclosure/disclosure_intro.svg')),
         content: Column(
           children: [
             TranslatedText(
@@ -38,9 +36,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
                 color: theme.dark,
               ),
             ),
-            SizedBox(
-              height: theme.tinySpacing,
-            ),
+            SizedBox(height: theme.tinySpacing),
             TranslatedText(
               'disclosure_permission.introduction.explanation',
               style: theme.themeData.textTheme.bodyMedium,
@@ -51,10 +47,8 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
         actions: [
           YiviThemedButton(
             label: 'disclosure_permission.introduction.continue',
-            onPressed: () => onEvent(
-              DisclosurePermissionNextPressed(),
-            ),
-          )
+            onPressed: () => onEvent(DisclosurePermissionNextPressed()),
+          ),
         ],
       ),
     );

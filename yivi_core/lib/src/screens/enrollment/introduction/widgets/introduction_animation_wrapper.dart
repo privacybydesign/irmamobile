@@ -6,16 +6,15 @@ import '../../../../../package_name.dart';
 class IntroductionAnimationWrapper extends StatefulWidget {
   final Widget child;
 
-  const IntroductionAnimationWrapper({
-    super.key,
-    required this.child,
-  });
+  const IntroductionAnimationWrapper({super.key, required this.child});
 
   @override
-  State<IntroductionAnimationWrapper> createState() => _IntroductionAnimationWrapperState();
+  State<IntroductionAnimationWrapper> createState() =>
+      _IntroductionAnimationWrapperState();
 }
 
-class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrapper>
+class _IntroductionAnimationWrapperState
+    extends State<IntroductionAnimationWrapper>
     with SingleTickerProviderStateMixin {
   late final AnimationController _lottieController;
   bool lottieIsCompleted = false;
@@ -47,8 +46,7 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
     const alignDuration = Duration(seconds: 1);
 
     final lottieWidget = Lottie.asset(
-      'assets/non-free/onboarding.json',
-      package: packageName,
+      yiviAsset('non-free/onboarding.json'),
       frameRate: FrameRate(60),
       repeat: false,
       controller: _lottieController,
@@ -59,33 +57,36 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
     );
 
     final aligningLottieWidget = AnimatedAlign(
-        duration: alignDuration,
-        curve: Curves.fastOutSlowIn,
-        alignment: lottieIsCompleted ? Alignment.topCenter : Alignment.center,
-        child: Padding(
-          padding: EdgeInsets.only(top: screenSize.height * 0.05),
-          child: lottieWidget,
-        ),
-        onEnd: () {
-          setState(
-            () => alignIsCompleted = true,
-          );
+      duration: alignDuration,
+      curve: Curves.fastOutSlowIn,
+      alignment: lottieIsCompleted ? Alignment.topCenter : Alignment.center,
+      child: Padding(
+        padding: EdgeInsets.only(top: screenSize.height * 0.05),
+        child: lottieWidget,
+      ),
+      onEnd: () {
+        setState(() => alignIsCompleted = true);
 
-          // By adding a callback for the duration of the
-          // last part of the animation we know when we are fully done
-          Future.delayed(crossFadeDuration, () {
-            animationFullyCompleted = true;
-          });
+        // By adding a callback for the duration of the
+        // last part of the animation we know when we are fully done
+        Future.delayed(crossFadeDuration, () {
+          animationFullyCompleted = true;
         });
+      },
+    );
 
     return AnimatedCrossFade(
       duration:
           // When the animation is fully done we shorten the duration
           // so that rebuilding (e.g changing device orientation) doesn't
           // animate in a weird way
-          animationFullyCompleted ? const Duration(milliseconds: 50) : crossFadeDuration,
+          animationFullyCompleted
+          ? const Duration(milliseconds: 50)
+          : crossFadeDuration,
       reverseDuration: const Duration(seconds: 10),
-      crossFadeState: alignIsCompleted ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+      crossFadeState: alignIsCompleted
+          ? CrossFadeState.showSecond
+          : CrossFadeState.showFirst,
       firstChild: aligningLottieWidget,
       secondChild: SizedBox(
         width: screenSize.width,

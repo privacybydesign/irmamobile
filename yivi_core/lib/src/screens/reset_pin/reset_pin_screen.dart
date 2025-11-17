@@ -18,13 +18,10 @@ class ResetPinScreen extends StatelessWidget {
     final isSmallScreen = MediaQuery.of(context).size.height < 670;
 
     return Scaffold(
-      appBar: IrmaAppBar(
-        titleTranslationKey: 'reset_pin.title',
-      ),
+      appBar: IrmaAppBar(titleTranslationKey: 'reset_pin.title'),
       body: DynamicLayout(
         hero: SvgPicture.asset(
-          'assets/reset/forgot_pin_illustration.svg',
-          package: packageName,
+          yiviAsset('reset/forgot_pin_illustration.svg'),
           height: isSmallScreen ? 250 : null,
         ),
         content: Column(
@@ -35,9 +32,7 @@ class ResetPinScreen extends StatelessWidget {
                 color: theme.dark,
               ),
             ),
-            SizedBox(
-              height: theme.tinySpacing,
-            ),
+            SizedBox(height: theme.tinySpacing),
             TranslatedText(
               'reset_pin.explanation',
               style: theme.themeData.textTheme.bodyMedium,

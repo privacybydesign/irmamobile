@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:yivi_core/package_name.dart';
 
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
@@ -19,8 +20,8 @@ class NoInternetScreen extends StatelessWidget {
         titleTranslationKey: 'error.details_title',
         leading: YiviBackButton(onTap: onTapClose),
       ),
-      body: const IrmaInfoScaffoldBody(
-        imagePath: 'assets/error/no_connection_illustration.svg',
+      body: IrmaInfoScaffoldBody(
+        imagePath: yiviAsset('error/no_connection_illustration.svg'),
         titleTranslationKey: 'error.title',
         bodyTranslationKey: 'error.types.no_internet',
       ),
