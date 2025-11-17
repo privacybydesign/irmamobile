@@ -23,7 +23,6 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     private Activity activity;
     private Context applicationContext;
 
-
     public YiviCorePlugin() {
         Irmagobridge.prestart();
     }
@@ -44,15 +43,15 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     public boolean onNewIntent(@NonNull Intent intent) {
         if (bridge != null) {
             bridge.onNewIntent(intent);
-            return true;
         } else {
             initialURL = intent.getData();
         }
-        return false;
+        return true;
     }
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+        binding.addOnNewIntentListener(this);
         activity = binding.getActivity();
         maybeCreateBridge();
     }
