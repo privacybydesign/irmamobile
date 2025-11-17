@@ -8,6 +8,8 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 
 import foundation.privacybydesign.yivi_core.irma_mobile_bridge.IrmaMobileBridge;
+import foundation.privacybydesign.yivi_core.plugins.iiab.IIABPlugin;
+import foundation.privacybydesign.yivi_core.plugins.privacy_screen.PrivacyScreenPlugin;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -22,6 +24,8 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     private static final String CHANNEL_NAME = "irma.app/irma_mobile_bridge";
     private Activity activity;
     private Context applicationContext;
+    private IIABPlugin webBrowser;
+    private PrivacyScreenPlugin privacyScreenPlugin;
 
     public YiviCorePlugin() {
         Irmagobridge.prestart();
@@ -30,6 +34,8 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     @Override
     public void onDetachedFromActivityForConfigChanges() {
         cleanupActivity();
+        webBrowser.onDetachedFromActivityForConfigChanges();
+        privacyScreenPlugin.onDetachedFromActivityForConfigChanges();
     }
 
     @Override
@@ -37,6 +43,9 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         activity = binding.getActivity();
         binding.addOnNewIntentListener(this);
         maybeCreateBridge();
+
+        webBrowser.onReattachedToActivityForConfigChanges(binding);
+        privacyScreenPlugin.onReattachedToActivityForConfigChanges(binding);
     }
 
     @Override
@@ -54,11 +63,16 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         binding.addOnNewIntentListener(this);
         activity = binding.getActivity();
         maybeCreateBridge();
+
+        webBrowser.onAttachedToActivity(binding);
+        privacyScreenPlugin.onAttachedToActivity(binding);
     }
 
     @Override
     public void onDetachedFromActivity() {
         cleanupActivity();
+        webBrowser.onDetachedFromActivity();
+        privacyScreenPlugin.onDetachedFromActivity();
     }
 
     @Override
@@ -67,6 +81,12 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         applicationContext = binding.getApplicationContext();
         // Don't create the bridge yet; we don't have an Activity.
         // We'll create it in onAttachedToActivity().
+
+        webBrowser = new IIABPlugin();
+        webBrowser.onAttachedToEngine(binding);
+
+        privacyScreenPlugin = new PrivacyScreenPlugin();
+        privacyScreenPlugin.onAttachedToEngine(binding);
     }
 
     @Override
@@ -76,6 +96,9 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
             channel = null;
         }
         applicationContext = null;
+
+        webBrowser.onDetachedFromEngine(binding);
+        privacyScreenPlugin.onDetachedFromEngine(binding);
     }
 
     private void cleanupActivity() {
