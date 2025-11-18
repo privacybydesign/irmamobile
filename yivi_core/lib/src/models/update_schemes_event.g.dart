@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'update_schemes_event.dart';
+part of "update_schemes_event.dart";
 
 // **************************************************************************
 // JsonSerializableGenerator

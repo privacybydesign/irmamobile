@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'clear_all_data_event.dart';
+part of "clear_all_data_event.dart";
 
 // **************************************************************************
 // JsonSerializableGenerator

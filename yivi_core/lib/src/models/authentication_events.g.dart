@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'authentication_events.dart';
+part of "authentication_events.dart";
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -8,12 +8,12 @@ part of 'authentication_events.dart';
 
 AuthenticateEvent _$AuthenticateEventFromJson(Map<String, dynamic> json) =>
     AuthenticateEvent(
-      pin: json['Pin'] as String,
-      schemeId: json['SchemeID'] as String,
+      pin: json["Pin"] as String,
+      schemeId: json["SchemeID"] as String,
     );
 
 Map<String, dynamic> _$AuthenticateEventToJson(AuthenticateEvent instance) =>
-    <String, dynamic>{'Pin': instance.pin, 'SchemeID': instance.schemeId};
+    <String, dynamic>{"Pin": instance.pin, "SchemeID": instance.schemeId};
 
 AuthenticationSuccessEvent _$AuthenticationSuccessEventFromJson(
   Map<String, dynamic> json,
@@ -26,23 +26,23 @@ Map<String, dynamic> _$AuthenticationSuccessEventToJson(
 AuthenticationFailedEvent _$AuthenticationFailedEventFromJson(
   Map<String, dynamic> json,
 ) => AuthenticationFailedEvent(
-  remainingAttempts: (json['RemainingAttempts'] as num).toInt(),
-  blockedDuration: (json['BlockedDuration'] as num).toInt(),
+  remainingAttempts: (json["RemainingAttempts"] as num).toInt(),
+  blockedDuration: (json["BlockedDuration"] as num).toInt(),
 );
 
 Map<String, dynamic> _$AuthenticationFailedEventToJson(
   AuthenticationFailedEvent instance,
 ) => <String, dynamic>{
-  'RemainingAttempts': instance.remainingAttempts,
-  'BlockedDuration': instance.blockedDuration,
+  "RemainingAttempts": instance.remainingAttempts,
+  "BlockedDuration": instance.blockedDuration,
 };
 
 AuthenticationErrorEvent _$AuthenticationErrorEventFromJson(
   Map<String, dynamic> json,
 ) => AuthenticationErrorEvent(
-  error: SessionError.fromJson(json['Error'] as Map<String, dynamic>),
+  error: SessionError.fromJson(json["Error"] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$AuthenticationErrorEventToJson(
   AuthenticationErrorEvent instance,
-) => <String, dynamic>{'Error': instance.error};
+) => <String, dynamic>{"Error": instance.error};
