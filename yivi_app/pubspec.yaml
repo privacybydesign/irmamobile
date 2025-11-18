@@ -19,10 +19,25 @@ dependencies:
     path: ../yivi_core
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
 
-flutter:
+  # the following packages are required by the integrationt tests
+  mrz_parser:
+    git:
+      url: https://github.com/privacybydesign/mrz_parser
+      ref: master
+  vcmrtd:
+    git:
+      url: https://github.com/privacybydesign/vcmrtd.git
+      ref: v0.2.4
+  package_info_plus: ^9.0.0
+  collection: ^1.18.0
+  flutter_riverpod: ^2.6.1
+  rxdart: ^0.28.0
 
+flutter:
   uses-material-design: true
