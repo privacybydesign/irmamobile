@@ -1,4 +1,4 @@
-# irmamobile
+# Yivi App
 
 ## Authentication made easy, privacy-friendly, and secure
 
@@ -102,6 +102,8 @@ _The integration tests are in development, so not all use cases are covered yet.
 
 As preliminary to run the integration tests, you need a fully configured [irmamobile development setup](#development-setup).
 
+The tests are located in the `yivi_app` directory, so `cd` into that before continuing.
+
 ### Run locally using an iOS/Android simulator
 The full set of integration tests can be started in the following way:
 
@@ -186,7 +188,7 @@ cd ./ios && pod install
 ```
 
 ## Edit irmago directly
-Sometimes it can be useful to directly edit irmago while debugging.
+Sometimes it can be useful to directly edit irmago while debugging (do this in the `yivi_core` directory).
 ```bash
 go mod edit -replace github.com/privacybydesign/irmago=<irmago_path_on_your_pc>
 go mod tidy
