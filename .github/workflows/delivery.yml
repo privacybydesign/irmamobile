@@ -20,7 +20,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: irmagobridge-ios
-          path: ios/Runner/Irmagobridge.xcframework/
+          path: yivi_core/ios/Irmagobridge.xcframework/
   build-irmagobridge-android:
     runs-on: ubuntu-latest
     steps:
@@ -32,7 +32,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: irmagobridge-android
-          path: android/irmagobridge/irmagobridge.aar
+          path: yivi_core/android/irmagobridge/irmagobridge.aar
   build-app-ios-alpha:
     # Ad Hoc builds do not require unique build numbers, so we can build this on every push.
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
@@ -49,7 +49,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: irmagobridge-ios
-          path: ios/Runner/Irmagobridge.xcframework/
+          path: yivi_app/ios/Irmagobridge.xcframework/
       - name: Decode binary environment secrets
         env:
           APPLE_DISTRIBUTION_CERTIFICATE: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE }}
@@ -93,7 +93,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: irmagobridge-android
-          path: android/irmagobridge/
+          path: yivi_core/android/irmagobridge/
       - name: Decode binary environment secrets
         env:
           ANDROID_SIGNING_KEYSTORE: ${{ secrets.ANDROID_SIGNING_KEYSTORE }}
@@ -179,7 +179,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: irmagobridge-ios
-          path: ios/Runner/Irmagobridge.xcframework/
+          path: yivi_core/ios/Irmagobridge.xcframework/
       - name: Decode binary environment secrets
         env:
           APPLE_DISTRIBUTION_CERTIFICATE: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE }}
@@ -218,7 +218,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: irmagobridge-android
-          path: android/irmagobridge/
+          path: yivi_core/android/irmagobridge/
       - name: Decode binary environment secrets
         env:
           ANDROID_SIGNING_KEYSTORE: ${{ secrets.ANDROID_SIGNING_KEYSTORE }}

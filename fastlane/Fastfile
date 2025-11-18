@@ -5,7 +5,7 @@ before_all do
 end
 
 lane :lint do
-  Dir.chdir("..") do
+  Dir.chdir("../yivi_core") do
     # TODO: put "--set-exit-if-changed" flag back in after formatting
     sh("dart", "format", "--line-length", "120", "lib/", "test/", "integration_test/")
     sh("flutter", "analyze", "--no-fatal-infos")
@@ -20,7 +20,7 @@ lane :lint do
 end
 
 lane :unit_test do
-  Dir.chdir("..") do
+  Dir.chdir("../yivi_core") do
     sh("flutter", "test")
   end
 end
@@ -38,7 +38,7 @@ lane :android_build do |options|
 end
 
 lane :android_build_irmagobridge do
-  Dir.chdir("..") do
+  Dir.chdir("../yivi_core") do
     sh(
       "gomobile", "bind",
       "-target", "android",
@@ -60,7 +60,7 @@ lane :android_build_apk do |options|
     key_password: options[:key_password]
   )
   Dir.chdir("..") do
-    sh("cp ./build/app/outputs/apk/#{options[:flavor]}/release/*.apk ./fastlane/build/")
+    sh("cp ./yivi_app/build/app/outputs/apk/#{options[:flavor]}/release/*.apk ./fastlane/build/")
   end
 end
 
@@ -75,7 +75,7 @@ lane :android_build_appbundle do |options|
     key_password: options[:key_password]
   )
   Dir.chdir("..") do
-    sh("cp ./build/app/outputs/bundle/#{options[:flavor]}Release/*.aab ./fastlane/build/")
+    sh("cp ./yivi_app/build/app/outputs/bundle/#{options[:flavor]}Release/*.aab ./fastlane/build/")
   end
 end
 
@@ -102,14 +102,14 @@ private_lane :android_build_app do |options|
     cmd += " -PkeyAlias=$FASTLANE_KEY_ALIAS -PkeyPassword=$FASTLANE_KEY_PASSWORD"
   end
 
-  Dir.chdir("..") do
+  Dir.chdir("../yivi_app") do
     sh(cmd)
   end
 end
 
 lane :android_build_integration_test do
   update_schemes()
-  Dir.chdir("..") do
+  Dir.chdir("../yivi_app") do
     sh(
       "flutter", "build", "apk",
       "--flavor", "alpha",
@@ -119,8 +119,8 @@ lane :android_build_integration_test do
     Dir.chdir("./android") do
       sh("./gradlew", "app:assembleAndroidTest")
     end
-    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ./fastlane/build/")
-    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ./fastlane/build/")
+    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ../fastlane/build/")
+    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ../fastlane/build/")
   end
 end
 
@@ -137,7 +137,7 @@ lane :ios_build do |options|
 end
 
 lane :ios_build_irmagobridge do
-  Dir.chdir("..") do
+  Dir.chdir("../yivi_core") do
     sh(
       "gomobile", "bind",
       "-target", "ios",
@@ -173,12 +173,12 @@ lane :ios_build_app do |options|
 
   update_schemes()
   update_app_identifier(
-    xcodeproj: "ios/Runner.xcodeproj",
+    xcodeproj: "yivi_app/ios/Runner.xcodeproj",
     plist_path: "Runner/Info.plist",
     app_identifier: app_identifier
   )
   update_info_plist(
-    xcodeproj: "ios/Runner.xcodeproj",
+    xcodeproj: "yivi_app/ios/Runner.xcodeproj",
     plist_path: "Runner/Info.plist",
     display_name: display_name
   )
@@ -287,7 +287,7 @@ end
 private_lane :write_sentrydata do |options|
   erb(
     template: "fastlane/sentry_dsn.erb",
-    destination: "lib/sentry_dsn.dart",
+    destination: "yivi_core/lib/sentry_dsn.dart",
     placeholders: {
       :dsn => options[:dsn],
       :version => options[:version]
@@ -337,20 +337,20 @@ private_lane :set_provisioning_profile do |options|
       path: provisioning_profile_path
     )
     update_project_provisioning(
-      xcodeproj: "ios/Runner.xcodeproj",
+      xcodeproj: "yivi_app/ios/Runner.xcodeproj",
       profile: provisioning_profile_path,
       target_filter: "^Runner$",
       code_signing_identity: options[:code_signing_identity] || "iPhone Distribution"
     )
     # Set uuid in plist file for flutter
     set_info_plist_value(
-      path: "ios/Runner/Flutter-Build-IPA.plist",
+      path: "yivi_app/ios/Runner/Flutter-Build-IPA.plist",
       key: "provisioningProfiles",
       subkey: "foundation.privacybydesign.irmamob",
       value: uuid
     )
     set_info_plist_value(
-      path: "ios/Runner/Flutter-Build-IPA.plist",
+      path: "yivi_app/ios/Runner/Flutter-Build-IPA.plist",
       key: "provisioningProfiles",
       subkey: "foundation.privacybydesign.irmamob.alpha",
       value: uuid
