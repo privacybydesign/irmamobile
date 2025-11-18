@@ -8,6 +8,7 @@ if [ ! -x "$(command -v "go")" ]; then
 fi
 
 if ! [ -x "$(command -v "gomobile")" ]; then
+  cd yivi_core
   # By not specifying a specific gomobile version, we ensure that the version we pinned in go.mod is used.
   go install golang.org/x/mobile/cmd/gomobile
   gomobile init
