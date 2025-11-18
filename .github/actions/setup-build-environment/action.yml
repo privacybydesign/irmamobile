@@ -9,7 +9,7 @@ runs:
         java-version: 17
     - uses: actions/setup-go@v5
       with:
-        go-version: '1.24'
+        go-version: "1.24"
         cache: true
     - uses: ruby/setup-ruby@v1
       with:
@@ -71,11 +71,16 @@ runs:
         path: yivi_app/ios/Pods
         # Cocoapods depends on Ruby and our Podfile needs the Flutter dependencies to be present.
         key: cocoapods-${{ runner.os }}-${{ hashFiles('Gemfile.lock', 'pubspec.lock', 'ios/Podfile.lock') }}
-    - name: Pre-install Cocoapods to fill cache
+    - name: Pre-install CocoaPods to fill cache
       if: runner.os == 'macOS' && steps.cocoapods-cache.outputs.cache-hit != 'true'
+      working-directory: yivi_app
       run: |
-        cd yivi_app
         flutter pub get
-        cd ios 
-        pod install
+
+        # Fix broken / conflicting trunk repo
+        rm -rf ~/.cocoapods/repos/trunk || true
+        pod repo add trunk https://cdn.cocoapods.org/
+
+        cd ios
+        pod install --verbose
       shell: bash
