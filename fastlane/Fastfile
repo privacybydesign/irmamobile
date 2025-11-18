@@ -146,7 +146,7 @@ lane :ios_build_irmagobridge do
       "gomobile", "bind",
       "-target", "ios",
       "-iosversion", "12.0",
-      "-o", "ios/Runner/Irmagobridge.xcframework",
+      "-o", "ios/Irmagobridge.xcframework",
       "github.com/privacybydesign/irmamobile/irmagobridge"
     )
   end
