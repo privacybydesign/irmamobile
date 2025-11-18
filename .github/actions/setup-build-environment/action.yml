@@ -74,6 +74,8 @@ runs:
     - name: Pre-install Cocoapods to fill cache
       if: runner.os == 'macOS' && steps.cocoapods-cache.outputs.cache-hit != 'true'
       run: |
+        cd yivi_app
         flutter pub get
-        cd yivi_app/ios && pod install
+        cd ios 
+        pod install
       shell: bash
