@@ -1,19 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
 
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
-import 'package:yivi_core/src/widgets/irma_quote.dart';
-import 'package:yivi_core/src/widgets/requestor_header.dart';
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/irma_quote.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> signingTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueEmailAddress(tester, irmaBinding);
 
@@ -39,41 +42,36 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,
-    localizedRequestorName: 'is.demo.staging.yivi.app',
+    localizedRequestorName: "is.demo.staging.yivi.app",
     isVerified: false,
   );
 
   expect(find.text("This is the message you're signing:"), findsOneWidget);
-  final quoteFinder = find.byKey(const Key('signature_message'));
+  final quoteFinder = find.byKey(const Key("signature_message"));
   expect(quoteFinder, findsOneWidget);
   expect(
     (quoteFinder.evaluate().first.widget as IrmaQuote).quote,
-    'Message to be signed by user',
+    "Message to be signed by user",
   );
 
-  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
+  expect(
+    find.text("Share my data with is.demo.staging.yivi.app"),
+    findsOneWidget,
+  );
 
   final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Sign and share'));
+  await tester.tapAndSettle(find.text("Sign and share"));
 
-  await evaluateShareDialog(
-    tester,
-    isSignatureSession: true,
-  );
-  await evaluateFeedback(
-    tester,
-    isSignatureSession: true,
-  );
+  await evaluateShareDialog(tester, isSignatureSession: true);
+  await evaluateFeedback(tester, isSignatureSession: true);
 }

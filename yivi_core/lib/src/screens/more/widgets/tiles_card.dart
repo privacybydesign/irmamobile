@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../widgets/irma_card.dart';
-import '../../../widgets/irma_divider.dart';
+import "../../../widgets/irma_card.dart";
+import "../../../widgets/irma_divider.dart";
 
 class TilesCard extends StatelessWidget {
   final List<Widget> children;

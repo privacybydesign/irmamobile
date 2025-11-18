@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
+import "package:flutter_svg/svg.dart";
+import "package:go_router/go_router.dart";
 
-import '../../../package_name.dart';
-import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/translated_text.dart';
-import '../../widgets/yivi_themed_button.dart';
-import '../session/widgets/dynamic_layout.dart';
-import '../settings/settings_screen.dart';
+import "../../../package_name.dart";
+import "../../theme/theme.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_themed_button.dart";
+import "../session/widgets/dynamic_layout.dart";
+import "../settings/settings_screen.dart";
 
 class ResetPinScreen extends StatelessWidget {
   @override
@@ -18,23 +18,23 @@ class ResetPinScreen extends StatelessWidget {
     final isSmallScreen = MediaQuery.of(context).size.height < 670;
 
     return Scaffold(
-      appBar: IrmaAppBar(titleTranslationKey: 'reset_pin.title'),
+      appBar: IrmaAppBar(titleTranslationKey: "reset_pin.title"),
       body: DynamicLayout(
         hero: SvgPicture.asset(
-          yiviAsset('reset/forgot_pin_illustration.svg'),
+          yiviAsset("reset/forgot_pin_illustration.svg"),
           height: isSmallScreen ? 250 : null,
         ),
         content: Column(
           children: [
             TranslatedText(
-              'reset_pin.header',
+              "reset_pin.header",
               style: theme.themeData.textTheme.displaySmall!.copyWith(
                 color: theme.dark,
               ),
             ),
             SizedBox(height: theme.tinySpacing),
             TranslatedText(
-              'reset_pin.explanation',
+              "reset_pin.explanation",
               style: theme.themeData.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -43,11 +43,11 @@ class ResetPinScreen extends StatelessWidget {
         actions: [
           YiviThemedButton(
             style: YiviButtonStyle.outlined,
-            label: 'ui.cancel',
+            label: "ui.cancel",
             onPressed: context.pop,
           ),
           YiviThemedButton(
-            label: 'reset_pin.reset',
+            label: "reset_pin.reset",
             onPressed: () => showConfirmDeleteDialog(context),
           ),
         ],

@@ -1,12 +1,12 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_bottom_bar.dart';
-import '../../../widgets/irma_quote.dart';
-import '../../../widgets/pin_box.dart';
-import 'session_scaffold.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/irma_quote.dart";
+import "../../../widgets/pin_box.dart";
+import "session_scaffold.dart";
 
 class PairingRequired extends StatelessWidget {
   final String pairingCode;
@@ -37,7 +37,7 @@ class PairingRequired extends StatelessWidget {
     return IrmaBottomBar(
       secondaryButtonLabel: FlutterI18n.translate(
         context,
-        'session.navigation_bar.cancel',
+        "session.navigation_bar.cancel",
       ),
       onSecondaryPressed: () => onDismiss(),
     );
@@ -47,7 +47,7 @@ class PairingRequired extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return SessionScaffold(
-      appBarTitle: 'session.pairing.title',
+      appBarTitle: "session.pairing.title",
       bottomNavigationBar: _buildNavigationBar(context),
       onDismiss: onDismiss,
       body: SingleChildScrollView(
@@ -58,7 +58,7 @@ class PairingRequired extends StatelessWidget {
             IrmaQuote(
               quote: FlutterI18n.translate(
                 context,
-                'session.pairing.instruction',
+                "session.pairing.instruction",
               ),
             ),
             SizedBox(

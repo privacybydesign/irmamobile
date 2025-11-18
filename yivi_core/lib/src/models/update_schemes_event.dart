@@ -1,8 +1,8 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
+import "event.dart";
 
-part 'update_schemes_event.g.dart';
+part "update_schemes_event.g.dart";
 
 @JsonSerializable()
 class UpdateSchemesEvent extends Event {

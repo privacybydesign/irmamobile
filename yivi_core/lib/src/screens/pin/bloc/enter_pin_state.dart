@@ -1,4 +1,4 @@
-part of '../yivi_pin_screen.dart';
+part of "../yivi_pin_screen.dart";
 
 typedef Pin = List<int>;
 typedef UnmodifiablePin = Iterable<int>;
@@ -66,7 +66,7 @@ class EnterPinState {
       attributes = PinQuality.unmodifiable(
         List<SecurePinAttribute>.unmodifiable(const []),
       ),
-      _string = '',
+      _string = "",
       goodEnough = false;
 
   @override

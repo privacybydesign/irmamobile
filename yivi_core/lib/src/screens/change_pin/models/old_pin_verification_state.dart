@@ -1,7 +1,7 @@
-import 'package:flutter/widgets.dart';
+import "package:flutter/widgets.dart";
 
-import '../../../models/session.dart';
-import 'validation_state.dart';
+import "../../../models/session.dart";
+import "validation_state.dart";
 
 @immutable
 class OldPinVerificationState {

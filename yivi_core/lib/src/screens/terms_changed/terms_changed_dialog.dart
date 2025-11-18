@@ -1,16 +1,16 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:go_router/go_router.dart";
 
-import '../../providers/preferences_provider.dart';
-import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_dialog.dart';
-import '../../widgets/translated_text.dart';
+import "../../providers/preferences_provider.dart";
+import "../../theme/theme.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/irma_dialog.dart";
+import "../../widgets/translated_text.dart";
 
 class TermsChangedListener extends ConsumerStatefulWidget {
   const TermsChangedListener({required this.child});
@@ -80,7 +80,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
     final prefs = ref.watch(preferencesProvider);
 
     final isDutch =
-        (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl';
+        (FlutterI18n.currentLocale(context)?.languageCode ?? "en") == "nl";
     final termsUrl = isDutch
         ? prefs.mostRecentTermsUrlNl
         : prefs.mostRecentTermsUrlEn;
@@ -88,25 +88,25 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
     final theme = IrmaTheme.of(context);
 
     return YiviDialog(
-      key: const Key('terms_changed_dialog'),
+      key: const Key("terms_changed_dialog"),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IrmaAppBar(
-            titleTranslationKey: 'new_terms_and_conditions.title',
+            titleTranslationKey: "new_terms_and_conditions.title",
             leading: null,
           ),
           SingleChildScrollView(
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: TranslatedText(
-              'new_terms_and_conditions.explanation_markdown',
-              translationParams: {'terms_url': termsUrl},
+              "new_terms_and_conditions.explanation_markdown",
+              translationParams: {"terms_url": termsUrl},
               markdownTextAlign: WrapAlignment.center,
             ),
           ),
           IrmaBottomBar(
-            primaryButtonLabel: 'new_terms_and_conditions.accept',
-            secondaryButtonLabel: 'new_terms_and_conditions.dismiss',
+            primaryButtonLabel: "new_terms_and_conditions.accept",
+            secondaryButtonLabel: "new_terms_and_conditions.dismiss",
             onPrimaryPressed: () async {
               await prefs.markLatestTermsAsAccepted(true);
               if (context.mounted) {

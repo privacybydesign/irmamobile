@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
-import 'irma_divider.dart';
-import 'loading_indicator.dart';
-import 'translated_text.dart';
+import "../theme/theme.dart";
+import "irma_divider.dart";
+import "loading_indicator.dart";
+import "translated_text.dart";
 
 class EndOfListIndicator extends StatelessWidget {
   final bool isLoading;
@@ -45,7 +45,7 @@ class EndOfListIndicator extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: theme.hugeSpacing),
           child: TranslatedText(
-            isLoading ? 'ui.loading' : 'ui.end_of_list',
+            isLoading ? "ui.loading" : "ui.end_of_list",
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium!.copyWith(
               color: theme.neutralExtraDark,

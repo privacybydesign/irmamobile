@@ -1,4 +1,4 @@
-part of 'yivi_pin_screen.dart';
+part of "yivi_pin_screen.dart";
 
 class _NumberPadKey extends StatelessWidget {
   final int number;
@@ -6,7 +6,7 @@ class _NumberPadKey extends StatelessWidget {
   final NumberCallback onEnterNumber;
 
   _NumberPadKey(this.onEnterNumber, this.number, [this.subtitle])
-    : super(key: Key('number_pad_key_${number.toString()}'));
+    : super(key: Key("number_pad_key_${number.toString()}"));
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class _NumberPadKey extends StatelessWidget {
               children: [
                 Flexible(
                   child: _ScalableText(
-                    '$number',
+                    "$number",
                     heightFactor: (subtitle != null) ? heightFactor : .45,
                     textStyle: bigNumberTextStyle,
                   ),

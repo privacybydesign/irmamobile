@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../theme/theme.dart';
-import '../irma_avatar.dart';
-import '../translated_text.dart';
+import "../../theme/theme.dart";
+import "../irma_avatar.dart";
+import "../translated_text.dart";
 
 class YiviCredentialCardHeader extends StatelessWidget {
   final bool compact;
@@ -28,7 +28,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
   Widget? statusText(IrmaThemeData theme) {
     if (isRevoked) {
       return TranslatedText(
-        'credential.revoked',
+        "credential.revoked",
         style: theme.themeData.textTheme.headlineMedium!.copyWith(
           color: theme.error,
         ),
@@ -36,7 +36,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
     }
     if (isExpired) {
       return TranslatedText(
-        'credential.expired',
+        "credential.expired",
         style: theme.themeData.textTheme.headlineMedium!.copyWith(
           color: theme.error,
         ),
@@ -44,7 +44,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
     }
     if (isExpiringSoon) {
       return TranslatedText(
-        'credential.about_to_expire',
+        "credential.about_to_expire",
         style: theme.themeData.textTheme.headlineMedium!.copyWith(
           color: theme.warning,
         ),
@@ -93,10 +93,10 @@ class YiviCredentialCardHeader extends StatelessWidget {
                           ),
                           if (issuerName != null)
                             TranslatedText(
-                              'credential.issued_by',
+                              "credential.issued_by",
                               style: theme.themeData.textTheme.bodyMedium
                                   ?.copyWith(fontSize: 14),
-                              translationParams: {'issuer': issuerName!},
+                              translationParams: {"issuer": issuerName!},
                             ),
                         ],
                       ),
@@ -143,9 +143,9 @@ class YiviCredentialCardHeader extends StatelessWidget {
                         vertical: theme.tinySpacing,
                       ),
                       child: TranslatedText(
-                        'credential.issued_by',
+                        "credential.issued_by",
                         style: theme.themeData.textTheme.bodyMedium,
-                        translationParams: {'issuer': issuerName!},
+                        translationParams: {"issuer": issuerName!},
                         textAlign: TextAlign.center,
                       ),
                     ),

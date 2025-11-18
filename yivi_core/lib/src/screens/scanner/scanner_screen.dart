@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
-import '../../models/session.dart';
-import '../../util/handle_pointer.dart';
-import '../../util/navigation.dart';
-import '../../util/test_detection.dart';
-import '../../widgets/irma_app_bar.dart';
-import 'widgets/qr_scanner.dart';
+import "../../models/session.dart";
+import "../../util/handle_pointer.dart";
+import "../../util/navigation.dart";
+import "../../util/test_detection.dart";
+import "../../widgets/irma_app_bar.dart";
+import "widgets/qr_scanner.dart";
 
 class ScannerScreen extends StatefulWidget {
   final bool requireAuthBeforeSession;
@@ -27,7 +27,7 @@ class ScannerScreenState extends State<ScannerScreen> {
       context,
     );
     if (!isRunningIntegrationTest) {
-      _qrKey = GlobalKey(debugLabel: 'qr_scanner_key');
+      _qrKey = GlobalKey(debugLabel: "qr_scanner_key");
     }
   }
 
@@ -81,7 +81,7 @@ class ScannerScreenState extends State<ScannerScreen> {
     return Scaffold(
       appBar: isLandscape
           ? null
-          : IrmaAppBar(titleTranslationKey: 'qr_scanner.title'),
+          : IrmaAppBar(titleTranslationKey: "qr_scanner.title"),
       body: _buildBody(isLandscape),
     );
   }

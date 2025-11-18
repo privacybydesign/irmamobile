@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../providers/irma_repository_provider.dart';
-import '../widgets/irma_app_bar.dart';
-import 'pin/yivi_pin_screen.dart';
+import "../providers/irma_repository_provider.dart";
+import "../widgets/irma_app_bar.dart";
+import "pin/yivi_pin_screen.dart";
 
 class YiviBasicPinScaffold extends StatelessWidget {
   final StringCallback submit;
@@ -22,14 +22,15 @@ class YiviBasicPinScaffold extends StatelessWidget {
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
-        titleString: '',
+        titleString: "",
         leading: YiviBackButton(
           onTap: cancel != null
               ? () async {
                   cancel?.call();
                   if (!await Navigator.of(context).maybePop()) {
-                    if (context.mounted)
+                    if (context.mounted) {
                       Navigator.of(context, rootNavigator: true).pop();
+                    }
                   }
                 }
               : null,

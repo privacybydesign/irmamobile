@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/irma_bottom_bar.dart';
-import '../../../widgets/irma_quote.dart';
-import '../../../widgets/translated_text.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/irma_quote.dart";
+import "../../../widgets/translated_text.dart";
 
 class EmailSentScreen extends StatelessWidget {
   final String email;
@@ -23,13 +23,13 @@ class EmailSentScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
-      key: const Key('email_sent_screen'),
+      key: const Key("email_sent_screen"),
       appBar: IrmaAppBar(
-        titleTranslationKey: 'enrollment.email.confirm.title',
+        titleTranslationKey: "enrollment.email.confirm.title",
         leading: null,
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),
+        primaryButtonLabel: FlutterI18n.translate(context, "ui.next"),
         onPrimaryPressed: onContinue,
       ),
       body: SafeArea(
@@ -42,7 +42,7 @@ class EmailSentScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const IrmaQuote(
-                quote: 'enrollment.email.confirm.explanation_extra_markdown',
+                quote: "enrollment.email.confirm.explanation_extra_markdown",
               ),
               SizedBox(height: theme.defaultSpacing),
               Text.rich(
@@ -52,12 +52,12 @@ class EmailSentScreen extends StatelessWidget {
                       text:
                           '${FlutterI18n.translate(context, 'enrollment.email.confirm.header')} ',
                     ),
-                    TextSpan(text: '$email ', style: theme.textTheme.bodyLarge),
+                    TextSpan(text: "$email ", style: theme.textTheme.bodyLarge),
                   ],
                 ),
               ),
               SizedBox(height: theme.smallSpacing),
-              const TranslatedText('enrollment.email.confirm.explanation'),
+              const TranslatedText("enrollment.email.confirm.explanation"),
             ],
           ),
         ),

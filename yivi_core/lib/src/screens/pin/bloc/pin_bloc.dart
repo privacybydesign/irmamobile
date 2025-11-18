@@ -1,13 +1,13 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:quiver/async.dart';
-import 'package:rxdart/subjects.dart';
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:quiver/async.dart";
+import "package:rxdart/subjects.dart";
 
-import '../../../data/irma_repository.dart';
-import '../../../models/authentication_events.dart';
-import 'pin_event.dart';
-import 'pin_state.dart';
+import "../../../data/irma_repository.dart";
+import "../../../models/authentication_events.dart";
+import "pin_event.dart";
+import "pin_state.dart";
 
 class PinBloc extends Bloc<PinEvent, PinState> {
   final BehaviorSubject<Duration> _pinBlockedFor = BehaviorSubject<Duration>();
@@ -67,7 +67,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       } else if (authenticationEvent is AuthenticationErrorEvent) {
         yield PinState(error: authenticationEvent.error);
       } else {
-        throw Exception('Unexpected subtype of AuthenticationResult');
+        throw Exception("Unexpected subtype of AuthenticationResult");
       }
     } else if (event is Locked) {
       yield PinState();

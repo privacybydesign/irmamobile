@@ -1,13 +1,13 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
 
-import '../../../../theme/theme.dart';
-import '../../../../util/con_dis_con.dart';
-import '../../../../widgets/irma_stepper.dart';
-import '../../../../widgets/translated_text.dart';
-import '../models/disclosure_credential.dart';
-import 'disclosure_issue_wizard_credential_card.dart';
-import 'disclosure_permission_choice.dart';
+import "../../../../theme/theme.dart";
+import "../../../../util/con_dis_con.dart";
+import "../../../../widgets/irma_stepper.dart";
+import "../../../../widgets/translated_text.dart";
+import "../models/disclosure_credential.dart";
+import "disclosure_issue_wizard_credential_card.dart";
+import "disclosure_permission_choice.dart";
 
 class DisclosureDisconStepper extends StatelessWidget {
   final int? currentCandidateKey;
@@ -45,7 +45,7 @@ class DisclosureDisconStepper extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.all(theme.smallSpacing),
                         child: TranslatedText(
-                          'disclosure_permission.choose',
+                          "disclosure_permission.choose",
                           style: theme.themeData.textTheme.headlineMedium,
                         ),
                       ),

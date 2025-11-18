@@ -1,25 +1,25 @@
-import 'dart:async';
-import 'dart:io';
+import "dart:async";
+import "dart:io";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:visibility_detector/visibility_detector.dart';
+import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:go_router/go_router.dart";
+import "package:visibility_detector/visibility_detector.dart";
 
-import '../../../package_name.dart';
-import '../../data/irma_repository.dart';
-import '../../models/irma_configuration.dart';
-import '../../models/issue_wizard.dart';
-import '../../models/session.dart';
-import '../../models/session_events.dart';
-import '../../models/session_state.dart';
-import '../../models/translated_value.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../screens/issue_wizard/widgets/wizard_contents.dart';
-import '../../screens/issue_wizard/widgets/wizard_info.dart';
-import '../../util/handle_pointer.dart';
-import '../../util/language.dart';
-import '../../util/navigation.dart';
+import "../../../package_name.dart";
+import "../../data/irma_repository.dart";
+import "../../models/irma_configuration.dart";
+import "../../models/issue_wizard.dart";
+import "../../models/session.dart";
+import "../../models/session_events.dart";
+import "../../models/session_state.dart";
+import "../../models/translated_value.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../screens/issue_wizard/widgets/wizard_contents.dart";
+import "../../screens/issue_wizard/widgets/wizard_info.dart";
+import "../../util/handle_pointer.dart";
+import "../../util/language.dart";
+import "../../util/navigation.dart";
 
 class IssueWizardScreen extends ConsumerStatefulWidget {
   final IssueWizardRouteParams arguments;
@@ -161,9 +161,9 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
 
     // Handle the different wizard item types
     switch (item?.type) {
-      case 'credential':
+      case "credential":
         if (item?.credential != null) {
-          final components = item!.credential!.split('.');
+          final components = item!.credential!.split(".");
           final type = CredentialType(
             id: components[2],
             name: TranslatedValue.empty(),
@@ -175,13 +175,13 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
           _repo.openIssueURL(context, type, ref);
         }
         break;
-      case 'session':
+      case "session":
         handlePointer(
           context,
-          SessionPointer(u: item?.sessionURL ?? '', irmaqr: 'redirect'),
+          SessionPointer(u: item?.sessionURL ?? "", irmaqr: "redirect"),
         );
         break;
-      case 'website':
+      case "website":
         item?.inApp ?? true
             ? _repo.openURL(
                 getTranslation(
@@ -219,11 +219,11 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
 
         final wizard = snapshot.data;
         final wizardData = wizard?.wizardData;
-        final logoFile = File(wizardData?.logoPath ?? '');
+        final logoFile = File(wizardData?.logoPath ?? "");
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
             : Image.asset(
-                yiviAsset('non-free/logo.png'),
+                yiviAsset("non-free/logo.png"),
                 excludeFromSemantics: true,
               );
 

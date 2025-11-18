@@ -1,28 +1,29 @@
-import 'package:yivi_core/src/data/irma_client_bridge.dart';
-import 'package:yivi_core/src/data/irma_preferences.dart';
-import 'package:yivi_core/src/data/irma_repository.dart';
-import 'package:yivi_core/src/models/clear_all_data_event.dart';
-import 'package:yivi_core/src/models/client_preferences.dart';
-import 'package:yivi_core/src/models/enrollment_events.dart';
-import 'package:yivi_core/src/models/enrollment_status.dart';
-import 'package:yivi_core/src/models/error_event.dart';
-import 'package:yivi_core/src/models/event.dart';
-import 'package:yivi_core/src/models/native_events.dart';
-import 'package:yivi_core/src/models/scheme_events.dart';
-import 'package:yivi_core/src/util/security_context_binding.dart';
-import 'package:rxdart/rxdart.dart';
+import "package:rxdart/rxdart.dart";
+import "package:yivi_core/src/data/irma_client_bridge.dart";
+import "package:yivi_core/src/data/irma_preferences.dart";
+import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/clear_all_data_event.dart";
+import "package:yivi_core/src/models/client_preferences.dart";
+import "package:yivi_core/src/models/enrollment_events.dart";
+import "package:yivi_core/src/models/enrollment_status.dart";
+import "package:yivi_core/src/models/error_event.dart";
+import "package:yivi_core/src/models/event.dart";
+import "package:yivi_core/src/models/native_events.dart";
+import "package:yivi_core/src/models/scheme_events.dart";
+import "package:yivi_core/src/util/security_context_binding.dart";
 
 /// Binding to use the static IrmaClientBridge in integration tests.
 class IntegrationTestIrmaBinding {
-  static const String _testKeyshareSchemeId = 'pbdf-staging';
-  static const String _testKeyshareSchemeUrl = 'https://schemes.staging.yivi.app/pbdf-staging/';
-  static const String _testKeyshareSchemePublicKey = '''
+  static const String _testKeyshareSchemeId = "pbdf-staging";
+  static const String _testKeyshareSchemeUrl =
+      "https://schemes.staging.yivi.app/pbdf-staging/";
+  static const String _testKeyshareSchemePublicKey = """
 -----BEGIN PUBLIC KEY-----
 MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEOcIdNBdagVt4+obhRPsyS5K2ovGKENYW
 iHcQ8HxZ7lYoPRfabEpqv+3zsbxb4RlHXJ0dIgPkcp2sLFJZ9VDBAvcZlohWGYRW
 Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
 -----END PUBLIC KEY-----
-''';
+""";
 
   static IntegrationTestIrmaBinding? _instance;
 
@@ -31,7 +32,9 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   IrmaPreferences? _preferences;
 
   IrmaRepository get repository {
-    if (_repository == null) throw Exception('IntegrationTestIrmaBinding has not been set up');
+    if (_repository == null) {
+      throw Exception("IntegrationTestIrmaBinding has not been set up");
+    }
     return _repository!;
   }
 
@@ -45,44 +48,59 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     return _instance!;
   }
 
-  Future<void> setUp(
-      {EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled, bool acceptedTermsAndConditions = true}) async {
+  Future<void> setUp({
+    EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled,
+    bool acceptedTermsAndConditions = true,
+  }) async {
     assert(enrollmentStatus != EnrollmentStatus.undetermined);
     _preferences ??= await IrmaPreferences.fromInstance(
-      mostRecentTermsUrlNl: 'testurl',
-      mostRecentTermsUrlEn: 'testurl',
+      mostRecentTermsUrlNl: "testurl",
+      mostRecentTermsUrlEn: "testurl",
     );
 
     await _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
 
     _bridge.dispatch(AppReadyEvent());
-    EnrollmentStatusEvent currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
-      (event) => event is ClientPreferencesEvent,
-    );
+    EnrollmentStatusEvent currEnrollmentStatus =
+        await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
+          (event) => event is ClientPreferencesEvent,
+        );
 
     // Ensure the app is not enrolled to its keyshare server yet.
     if (currEnrollmentStatus.enrolledSchemeManagerIds.isNotEmpty) {
       await tearDown();
       _bridge.dispatch(AppReadyEvent());
-      currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
-        (event) => event is ClientPreferencesEvent,
-      );
+      currEnrollmentStatus =
+          await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
+            (event) => event is ClientPreferencesEvent,
+          );
     }
 
     // Ensure test scheme is available.
-    if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(_testKeyshareSchemeId)) {
-      _bridge.dispatch(InstallSchemeEvent(
-        url: _testKeyshareSchemeUrl,
-        publicKey: _testKeyshareSchemePublicKey,
-      ));
-      currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
-      if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(_testKeyshareSchemeId)) {
-        throw Exception('No test scheme installed');
+    if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(
+      _testKeyshareSchemeId,
+    )) {
+      _bridge.dispatch(
+        InstallSchemeEvent(
+          url: _testKeyshareSchemeUrl,
+          publicKey: _testKeyshareSchemePublicKey,
+        ),
+      );
+      currEnrollmentStatus =
+          await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
+      if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains(
+        _testKeyshareSchemeId,
+      )) {
+        throw Exception("No test scheme installed");
       }
     }
 
     // Enable developer mode before initializing repository, such that we can use a local keyshare server.
-    _bridge.dispatch(ClientPreferencesEvent(clientPreferences: ClientPreferences(developerMode: true)));
+    _bridge.dispatch(
+      ClientPreferencesEvent(
+        clientPreferences: ClientPreferences(developerMode: true),
+      ),
+    );
 
     // Enable screenshots to make sure screen recordings can be made.
     await _preferences!.setScreenshotsEnabled(true);
@@ -95,14 +113,18 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
 
     // Ensure enrollment status is set as expected.
     if (enrollmentStatus == EnrollmentStatus.enrolled) {
-      _bridge.dispatch(EnrollEvent(
-        email: '',
-        pin: '12345',
-        language: 'en',
-        schemeId: _testKeyshareSchemeId,
-      ));
+      _bridge.dispatch(
+        EnrollEvent(
+          email: "",
+          pin: "12345",
+          language: "en",
+          schemeId: _testKeyshareSchemeId,
+        ),
+      );
       await _preferences!.setLongPin(false);
-      await _expectBridgeEventGuarded((event) => event is EnrollmentSuccessEvent);
+      await _expectBridgeEventGuarded(
+        (event) => event is EnrollmentSuccessEvent,
+      );
     }
 
     await _preferences!.setAcceptedRootedRisk(true);
@@ -117,7 +139,9 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   Future<void> tearDown() async {
     // Make sure there is a listener for the bridge events.
     final dataClearedFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
-      (event) => event is EnrollmentStatusEvent && event.enrolledSchemeManagerIds.isEmpty,
+      (event) =>
+          event is EnrollmentStatusEvent &&
+          event.enrolledSchemeManagerIds.isEmpty,
     );
     _bridge.dispatch(ClearAllDataEvent());
     await _preferences?.clearAll();
@@ -130,7 +154,9 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   /// Takes bridge events until an event is received that matches the given test conditions and
   /// returns the closest event in time that matches the expected return type.
   /// The bridge event stream is guarded while waiting to detect relevant errors.
-  Future<T> _expectBridgeEventGuarded<T extends Event>([bool Function(Event)? test]) => _bridge.events
+  Future<T> _expectBridgeEventGuarded<T extends Event>([
+    bool Function(Event)? test,
+  ]) => _bridge.events
       .takeWhileInclusive((event) {
         if (event is ErrorEvent) throw Exception(event.toString());
         if (event is EnrollmentFailureEvent) throw Exception(event.error);

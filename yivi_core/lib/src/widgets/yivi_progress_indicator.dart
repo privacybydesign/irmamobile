@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
+import "../theme/theme.dart";
 
 class _YiviProgressIndicatorElement extends StatelessWidget {
   final bool isActive;

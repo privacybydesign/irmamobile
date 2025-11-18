@@ -1,22 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/translated_text.dart';
-import 'irma_nav_bar.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/translated_text.dart";
+import "irma_nav_bar.dart";
 
 final _navBarTabTranslationKeys = {
-  IrmaNavBarTab.data: 'home.nav_bar.data',
-  IrmaNavBarTab.activity: 'home.nav_bar.activity',
-  IrmaNavBarTab.notifications: 'home.nav_bar.notifications',
-  IrmaNavBarTab.more: 'home.nav_bar.more',
+  IrmaNavBarTab.data: "home.nav_bar.data",
+  IrmaNavBarTab.activity: "home.nav_bar.activity",
+  IrmaNavBarTab.notifications: "home.nav_bar.notifications",
+  IrmaNavBarTab.more: "home.nav_bar.more",
 };
 
 final _navBarTabHintKeys = {
-  IrmaNavBarTab.data: 'home.nav_bar_hints.data',
-  IrmaNavBarTab.activity: 'home.nav_bar_hints.activity',
-  IrmaNavBarTab.notifications: 'home.nav_bar_hints.notifications',
-  IrmaNavBarTab.more: 'home.nav_bar_hints.more',
+  IrmaNavBarTab.data: "home.nav_bar_hints.data",
+  IrmaNavBarTab.activity: "home.nav_bar_hints.activity",
+  IrmaNavBarTab.notifications: "home.nav_bar_hints.notifications",
+  IrmaNavBarTab.more: "home.nav_bar_hints.more",
 };
 
 class IrmaNavButton extends StatelessWidget {
@@ -36,7 +36,7 @@ class IrmaNavButton extends StatelessWidget {
   }) : assert(
          (builder == null && iconData != null) ||
              (builder != null && iconData == null),
-         'one of them should have a value, but not both',
+         "one of them should have a value, but not both",
        );
 
   @override

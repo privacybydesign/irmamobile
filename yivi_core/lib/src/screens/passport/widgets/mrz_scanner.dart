@@ -1,10 +1,10 @@
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:mrz_parser/mrz_parser.dart';
+import "package:camera/camera.dart";
+import "package:flutter/material.dart";
+import "package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart";
+import "package:mrz_parser/mrz_parser.dart";
 
-import 'camera_viewfinder.dart';
-import 'mrz_helper.dart';
+import "camera_viewfinder.dart";
+import "mrz_helper.dart";
 
 class MRZScanner extends StatefulWidget {
   const MRZScanner({
@@ -85,8 +85,8 @@ class MRZScannerState extends State<MRZScanner> {
       if (fullText.isEmpty) {
         return false;
       }
-      String trimmedText = fullText.replaceAll(' ', '');
-      List allText = trimmedText.split('\n');
+      String trimmedText = fullText.replaceAll(" ", "");
+      List allText = trimmedText.split("\n");
 
       List<String> ableToScanText = [];
       for (var e in allText) {

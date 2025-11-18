@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter/widgets.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../models/irma_configuration.dart';
-import '../../theme/theme.dart';
-import '../../util/date_formatter.dart';
-import '../credential_card/models/card_expiry_date.dart';
-import '../irma_divider.dart';
-import '../translated_text.dart';
+import "../../models/irma_configuration.dart";
+import "../../theme/theme.dart";
+import "../../util/date_formatter.dart";
+import "../credential_card/models/card_expiry_date.dart";
+import "../irma_divider.dart";
+import "../translated_text.dart";
 
 enum ExpireState { notExpired, almostExpired, expired }
 
@@ -59,7 +59,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                   spacing: theme.tinySpacing,
                   children: [
                     TranslatedText(
-                      'credential.valid_until',
+                      "credential.valid_until",
                       style: TextStyle(fontSize: 14),
                     ),
                     Text(
@@ -82,13 +82,13 @@ class YiviCredentialCardFooter extends StatelessWidget {
                   spacing: theme.tinySpacing,
                   children: [
                     TranslatedText(
-                      'credential.sharable',
+                      "credential.sharable",
                       style: TextStyle(fontSize: 14),
                     ),
                     if (instanceCount != null)
                       TranslatedText(
-                        'credential.sharable_count',
-                        translationParams: {'count': '${instanceCount!}'},
+                        "credential.sharable_count",
+                        translationParams: {"count": "${instanceCount!}"},
                         style: theme.textTheme.bodyLarge!.copyWith(
                           fontSize: 14,
                           color: _getTextColorForExpireState(
@@ -99,7 +99,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                       )
                     else
                       TranslatedText(
-                        'credential.sharable_unlimited',
+                        "credential.sharable_unlimited",
                         style: theme.textTheme.bodyLarge!.copyWith(
                           fontSize: 14,
                         ),

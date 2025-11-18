@@ -1,14 +1,14 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
+import "event.dart";
 
-part 'client_preferences.g.dart';
+part "client_preferences.g.dart";
 
 @JsonSerializable()
 class ClientPreferencesEvent extends Event {
   ClientPreferencesEvent({required this.clientPreferences});
 
-  @JsonKey(name: 'Preferences')
+  @JsonKey(name: "Preferences")
   final ClientPreferences clientPreferences;
 
   factory ClientPreferencesEvent.fromJson(Map<String, dynamic> json) =>
@@ -20,7 +20,7 @@ class ClientPreferencesEvent extends Event {
 class ClientPreferences {
   ClientPreferences({required this.developerMode});
 
-  @JsonKey(name: 'DeveloperMode')
+  @JsonKey(name: "DeveloperMode")
   final bool developerMode;
 
   factory ClientPreferences.fromJson(Map<String, dynamic> json) =>

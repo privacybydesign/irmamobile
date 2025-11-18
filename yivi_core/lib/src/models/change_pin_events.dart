@@ -1,9 +1,9 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
-import 'session.dart';
+import "event.dart";
+import "session.dart";
 
-part 'change_pin_events.g.dart';
+part "change_pin_events.g.dart";
 
 abstract class ChangePinBaseEvent extends Event {}
 
@@ -11,10 +11,10 @@ abstract class ChangePinBaseEvent extends Event {}
 class ChangePinEvent extends ChangePinBaseEvent {
   ChangePinEvent({required this.oldPin, required this.newPin});
 
-  @JsonKey(name: 'OldPin')
+  @JsonKey(name: "OldPin")
   final String oldPin;
 
-  @JsonKey(name: 'NewPin')
+  @JsonKey(name: "NewPin")
   final String newPin;
 
   factory ChangePinEvent.fromJson(Map<String, dynamic> json) =>
@@ -26,10 +26,10 @@ class ChangePinEvent extends ChangePinBaseEvent {
 class ChangePinErrorEvent extends ChangePinBaseEvent {
   ChangePinErrorEvent({required this.schemeManagerID, required this.error});
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerID;
 
-  @JsonKey(name: 'Error')
+  @JsonKey(name: "Error")
   final SessionError error;
 
   factory ChangePinErrorEvent.fromJson(Map<String, dynamic> json) =>
@@ -54,13 +54,13 @@ class ChangePinFailedEvent extends ChangePinBaseEvent {
     required this.timeout,
   });
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerID;
 
-  @JsonKey(name: 'RemainingAttempts')
+  @JsonKey(name: "RemainingAttempts")
   final int remainingAttempts;
 
-  @JsonKey(name: 'Timeout')
+  @JsonKey(name: "Timeout")
   final int timeout;
 
   factory ChangePinFailedEvent.fromJson(Map<String, dynamic> json) =>

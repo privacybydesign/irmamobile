@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../theme/theme.dart';
-import '../irma_card.dart';
-import '../translated_text.dart';
+import "../../theme/theme.dart";
+import "../irma_card.dart";
+import "../translated_text.dart";
 
 class IrmaEmptyCredentialCard extends StatelessWidget {
   @override
@@ -12,7 +12,7 @@ class IrmaEmptyCredentialCard extends StatelessWidget {
     return IrmaCard(
       child: Center(
         child: TranslatedText(
-          'credential.no_data',
+          "credential.no_data",
           style: theme.themeData.textTheme.headlineMedium!.copyWith(
             color: theme.dark,
           ),

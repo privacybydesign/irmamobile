@@ -1,4 +1,4 @@
-part of 'yivi_pin_screen.dart';
+part of "yivi_pin_screen.dart";
 
 class _PinIndicator extends StatelessWidget {
   final int maxPinSize;
@@ -67,12 +67,12 @@ class _PinIndicator extends StatelessWidget {
 
     return Semantics(
       label: joinedPin.isEmpty
-          ? FlutterI18n.translate(context, 'pin_accessibility.empty_pin_input')
+          ? FlutterI18n.translate(context, "pin_accessibility.empty_pin_input")
           : isPinVisible
           ? joinedPin
           : FlutterI18n.plural(
               context,
-              'pin_accessibility.digits_entered',
+              "pin_accessibility.digits_entered",
               pinState.pin.length,
             ),
       child: ExcludeSemantics(

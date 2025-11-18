@@ -1,25 +1,28 @@
-import 'package:flutter_test/flutter_test.dart';
+import "package:flutter_test/flutter_test.dart";
 
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> filledNoChoiceSameCredsTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Issue two different email addresses
   await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.email.email': 'first-email@example.com',
-    'irma-demo.sidn-pbdf.email.domain': 'example.com',
+    "irma-demo.sidn-pbdf.email.email": "first-email@example.com",
+    "irma-demo.sidn-pbdf.email.domain": "example.com",
   });
 
   await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.email.email': 'second-email@example.com',
-    'irma-demo.sidn-pbdf.email.domain': 'example.com',
+    "irma-demo.sidn-pbdf.email.email": "second-email@example.com",
+    "irma-demo.sidn-pbdf.email.domain": "example.com",
   });
 
   // Session requesting:
@@ -40,16 +43,13 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
   await evaluateIntroduction(tester);
 
   // Find and press change choice
-  final changeChoiceFinder = find.text('Change choice');
-  await tester.scrollUntilVisible(
-    changeChoiceFinder.hitTestable(),
-    50,
-  );
+  final changeChoiceFinder = find.text("Change choice");
+  await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
   await tester.tapAndSettle(changeChoiceFinder);
 
   final credentialCardsFinder = find.byType(YiviCredentialCard);
-  const demoEmailCredentialName = 'Demo Email address';
-  const demoEmailIssuerName = 'Demo Privacy by Design Foundation via SIDN';
+  const demoEmailCredentialName = "Demo Email address";
+  const demoEmailIssuerName = "Demo Privacy by Design Foundation via SIDN";
 
   await evaluateCredentialCard(
     tester,
@@ -57,9 +57,7 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
     isSelected: true,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {
-      'Email address': 'first-email@example.com',
-    },
+    attributes: {"Email address": "first-email@example.com"},
   );
 
   final secondCredentialCard = credentialCardsFinder.at(1);
@@ -69,29 +67,20 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
     isSelected: false,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {
-      'Email address': 'second-email@example.com',
-    },
+    attributes: {"Email address": "second-email@example.com"},
   );
 
   // Scroll to the second credential
-  await tester.scrollUntilVisible(
-    secondCredentialCard,
-    50,
-  );
+  await tester.scrollUntilVisible(secondCredentialCard, 50);
 
   // Select the second credential
   await tester.tapAndSettle(secondCredentialCard);
 
   // Second credential should be selected now
-  await evaluateCredentialCard(
-    tester,
-    secondCredentialCard,
-    isSelected: true,
-  );
+  await evaluateCredentialCard(tester, secondCredentialCard, isSelected: true);
 
   // Press done
-  final doneButterFinder = find.text('Done').hitTestable();
+  final doneButterFinder = find.text("Done").hitTestable();
   await tester.tapAndSettle(doneButterFinder);
 
   // Expect to be on the overview screen
@@ -104,13 +93,11 @@ Future<void> filledNoChoiceSameCredsTest(WidgetTester tester, IntegrationTestIrm
     credentialCardsFinder.first,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {
-      'Email address': 'second-email@example.com',
-    },
+    attributes: {"Email address": "second-email@example.com"},
   );
 
   // Finish the flow
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 }

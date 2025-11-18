@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../models/issue_wizard.dart';
-import '../models/session.dart';
-import '../models/session_events.dart';
-import '../providers/irma_repository_provider.dart';
-import 'navigation.dart';
+import "../models/issue_wizard.dart";
+import "../models/session.dart";
+import "../models/session_events.dart";
+import "../providers/irma_repository_provider.dart";
+import "navigation.dart";
 
 /// First handles the issue wizard if one is present, and subsequently the session is handled.
 /// If no wizard is specified, only the session will be performed.
@@ -21,7 +21,7 @@ Future<void> handlePointer(
     if (!context.mounted) {
       return;
     }
-    final message = 'error starting session or wizard: $e';
+    final message = "error starting session or wizard: $e";
     if (pushReplacement) {
       context.pushReplacementErrorScreen(message: message);
     } else {
@@ -98,10 +98,10 @@ Future<int> _startSessionAndNavigate(
   }
 
   if (const {
-    'issuing',
-    'disclosing',
-    'signing',
-    'redirect',
+    "issuing",
+    "disclosing",
+    "signing",
+    "redirect",
   }.contains(params.sessionType)) {
     if (pushReplacement) {
       context.pushReplacementSessionScreen(params);

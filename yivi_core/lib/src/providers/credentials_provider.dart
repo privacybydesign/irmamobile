@@ -1,13 +1,13 @@
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:collection/collection.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:string_similarity/string_similarity.dart';
+import "package:collection/collection.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:string_similarity/string_similarity.dart";
 
-import '../models/credentials.dart';
-import '../models/irma_configuration.dart';
-import '../models/log_entry.dart';
-import 'irma_repository_provider.dart';
+import "../models/credentials.dart";
+import "../models/irma_configuration.dart";
+import "../models/log_entry.dart";
+import "irma_repository_provider.dart";
 
 final credentialsProvider = StreamProvider<Credentials>((ref) async* {
   final repo = ref.watch(irmaRepositoryProvider);
@@ -48,7 +48,7 @@ String _hashAttributeValuesAndCredentialType(Credential cred) {
   for (final attr in cred.attributesWithValue.sortedBy(
     (av) => av.attributeType.fullId,
   )) {
-    toHash += '${attr.attributeType.fullId}${attr.value.raw}';
+    toHash += "${attr.attributeType.fullId}${attr.value.raw}";
   }
   return toHash;
 }
@@ -104,7 +104,7 @@ final credentialsForTypeProvider =
       return filteredCredentials;
     });
 
-final credentialsSearchQueryProvider = StateProvider((ref) => '');
+final credentialsSearchQueryProvider = StateProvider((ref) => "");
 
 // A list of credentials filtered by the query in the `credentialsSearchQueryProvider`
 final credentialsSearchResultsProvider =
@@ -146,7 +146,7 @@ class _SearchEntry {
 // Searches the list of provided search candidates for the given query and returns an ordered
 // list of search results. The best matches come first in the list.
 List<_SearchEntry> _search(List<_SearchEntry> candidates, String query) {
-  final strippedQuery = query.toLowerCase().trim().replaceAll('-', '');
+  final strippedQuery = query.toLowerCase().trim().replaceAll("-", "");
 
   final fuzzyResults = candidates
       .map(
@@ -189,14 +189,14 @@ List<_SearchEntry> _credentialsToSearchEntries(
         final credentialName = credential.credentialType.name
             .translate(locale.languageCode)
             .toLowerCase()
-            .replaceAll('-', '');
+            .replaceAll("-", "");
 
         final issuer =
             config.issuers[credential.credentialType.fullIssuerId]?.name
                 .translate(locale.languageCode)
                 .toLowerCase()
-                .replaceAll('-', '') ??
-            '';
+                .replaceAll("-", "") ??
+            "";
 
         final hash = credential.identifier;
         return _SearchEntry(

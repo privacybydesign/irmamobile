@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../models/issue_wizard.dart';
-import '../../../theme/theme.dart';
-import '../../../util/color_from_code.dart';
-import '../../../widgets/collapsible.dart';
-import '../../../widgets/irma_bottom_bar.dart';
-import '../../../widgets/irma_markdown.dart';
-import 'wizard_scaffold.dart';
+import "../../../models/issue_wizard.dart";
+import "../../../theme/theme.dart";
+import "../../../util/color_from_code.dart";
+import "../../../widgets/collapsible.dart";
+import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/irma_markdown.dart";
+import "wizard_scaffold.dart";
 
 class IssueWizardInfo extends StatelessWidget {
   final GlobalKey scrollviewKey;
@@ -83,9 +83,9 @@ class IssueWizardInfo extends StatelessWidget {
           ? null
           : colorFromCode(wizardData.textColor),
       bottomBar: IrmaBottomBar(
-        primaryButtonLabel: 'issue_wizard.add',
+        primaryButtonLabel: "issue_wizard.add",
         onPrimaryPressed: onNext,
-        secondaryButtonLabel: 'issue_wizard.back',
+        secondaryButtonLabel: "issue_wizard.back",
         onSecondaryPressed: onBack,
         alignment: IrmaBottomBarAlignment.horizontal,
       ),

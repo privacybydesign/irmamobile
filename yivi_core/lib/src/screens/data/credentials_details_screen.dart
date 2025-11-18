@@ -1,22 +1,22 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:go_router/go_router.dart";
 
-import '../../models/credential_events.dart';
-import '../../models/credentials.dart';
-import '../../providers/credentials_provider.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
-import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
-import '../../widgets/credential_card/yivi_credential_card.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_avatar.dart';
-import '../../widgets/progress.dart';
-import '../../widgets/translated_text.dart';
+import "../../models/credential_events.dart";
+import "../../models/credentials.dart";
+import "../../providers/credentials_provider.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../theme/theme.dart";
+import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
+import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
+import "../../widgets/credential_card/yivi_credential_card.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_avatar.dart";
+import "../../widgets/progress.dart";
+import "../../widgets/translated_text.dart";
 
 class CredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String categoryName;
@@ -226,7 +226,7 @@ class _CredentialsDetailsScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: TranslatedText(
-          'credential.options.delete_success',
+          "credential.options.delete_success",
           style: theme.themeData.textTheme.bodyMedium!.copyWith(
             color: theme.light,
           ),

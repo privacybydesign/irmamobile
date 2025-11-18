@@ -1,11 +1,11 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import '../data/irma_preferences.dart';
-import '../models/credentials.dart';
-import 'credentials_provider.dart';
-import 'preferences_provider.dart';
+import "../data/irma_preferences.dart";
+import "../models/credentials.dart";
+import "credentials_provider.dart";
+import "preferences_provider.dart";
 
 abstract class OrderRepo {
   // Should return a list of full credential ids

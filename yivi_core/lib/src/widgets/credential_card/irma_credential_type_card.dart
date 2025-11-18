@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../models/irma_configuration.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/language.dart';
-import '../irma_avatar.dart';
-import '../irma_card.dart';
+import "../../models/irma_configuration.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../theme/theme.dart";
+import "../../util/language.dart";
+import "../irma_avatar.dart";
+import "../irma_card.dart";
 
 class IrmaCredentialTypeCard extends StatelessWidget {
   final CredentialType credType;
@@ -51,7 +51,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
       margin: EdgeInsets.zero,
       child: Material(
         child: InkWell(
-          key: Key('${credType.fullId}_tile'),
+          key: Key("${credType.fullId}_tile"),
           onTap: onTap,
           child: Padding(
             padding: EdgeInsets.all(theme.defaultSpacing),

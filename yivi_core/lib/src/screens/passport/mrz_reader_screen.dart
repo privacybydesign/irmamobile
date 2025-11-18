@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:mrz_parser/mrz_parser.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_svg/svg.dart";
+import "package:mrz_parser/mrz_parser.dart";
 
-import '../../../package_name.dart';
-import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_bottom_bar.dart';
-import 'widgets/mrz_scanner.dart';
+import "../../../package_name.dart";
+import "../../theme/theme.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "widgets/mrz_scanner.dart";
 
 typedef MRZController = GlobalKey<MRZScannerState>;
 
@@ -39,7 +39,7 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
         if (orientation == Orientation.portrait) {
           return Scaffold(
             backgroundColor: theme.backgroundTertiary,
-            appBar: IrmaAppBar(titleTranslationKey: 'passport.scan.title'),
+            appBar: IrmaAppBar(titleTranslationKey: "passport.scan.title"),
             body: MRZScanner(
               controller: controller,
               showOverlay: true,
@@ -48,9 +48,9 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
               },
             ),
             bottomNavigationBar: IrmaBottomBar(
-              primaryButtonLabel: 'passport.scan.manual',
+              primaryButtonLabel: "passport.scan.manual",
               onPrimaryPressed: widget.onManualAdd,
-              secondaryButtonLabel: 'ui.cancel',
+              secondaryButtonLabel: "ui.cancel",
               onSecondaryPressed: widget.onCancel,
               alignment: IrmaBottomBarAlignment.vertical,
             ),
@@ -60,9 +60,9 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
         return Scaffold(
           backgroundColor: theme.backgroundTertiary,
           appBar: IrmaAppBar(
-            titleTranslationKey: 'passport.scan.title',
+            titleTranslationKey: "passport.scan.title",
             leading: YiviBackButton(
-              key: const Key('bottom_bar_secondary'),
+              key: const Key("bottom_bar_secondary"),
               onTap: widget.onCancel,
             ),
           ),
@@ -74,7 +74,7 @@ class _MzrReaderScreenState extends State<MzrReaderScreen> {
             },
           ),
           floatingActionButton: _ManualEntryButton(
-            key: const Key('bottom_bar_primary'),
+            key: const Key("bottom_bar_primary"),
             onTap: widget.onManualAdd,
           ),
         );
@@ -98,7 +98,7 @@ class _ManualEntryButton extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: SvgPicture.asset(yiviAsset('ui/round-btn-bg.svg')),
+            child: SvgPicture.asset(yiviAsset("ui/round-btn-bg.svg")),
           ),
           Positioned.fill(
             child: ClipOval(
@@ -106,7 +106,7 @@ class _ManualEntryButton extends StatelessWidget {
                 type: MaterialType.transparency,
                 child: Semantics(
                   button: true,
-                  label: FlutterI18n.translate(context, 'passport.scan.manual'),
+                  label: FlutterI18n.translate(context, "passport.scan.manual"),
                   child: InkWell(
                     onTap: onTap,
                     child: Icon(Icons.edit, color: theme.light, size: 42),

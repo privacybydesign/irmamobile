@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../models/credentials.dart';
-import '../theme/theme.dart';
-import 'credential_card/yivi_credential_card.dart';
+import "../models/credentials.dart";
+import "../theme/theme.dart";
+import "credential_card/yivi_credential_card.dart";
 
 class IssuingDetail extends StatelessWidget {
   final List<MultiFormatCredential> credentials;

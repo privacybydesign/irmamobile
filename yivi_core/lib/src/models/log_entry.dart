@@ -1,15 +1,15 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
-import 'session.dart';
+import "event.dart";
+import "session.dart";
 
-part 'log_entry.g.dart';
+part "log_entry.g.dart";
 
 @JsonSerializable(createToJson: false)
 class LogsEvent extends Event {
   LogsEvent({required this.logEntries});
 
-  @JsonKey(name: 'LogEntries')
+  @JsonKey(name: "LogEntries")
   final List<LogInfo> logEntries;
 
   factory LogsEvent.fromJson(Map<String, dynamic> json) =>
@@ -20,10 +20,10 @@ class LogsEvent extends Event {
 class LoadLogsEvent extends Event {
   LoadLogsEvent({required this.max, this.before});
 
-  @JsonKey(name: 'Before')
+  @JsonKey(name: "Before")
   final int? before;
 
-  @JsonKey(name: 'Max')
+  @JsonKey(name: "Max")
   final int max;
 
   Map<String, dynamic> toJson() => _$LoadLogsEventToJson(this);
@@ -36,29 +36,29 @@ enum Protocol { irma, openid4vp }
 enum CredentialFormat { idemix, sdjwtvc }
 
 LogType _toLogEntryType(String type) {
-  return LogType.values.firstWhere((v) => v.toString() == 'LogType.$type');
+  return LogType.values.firstWhere((v) => v.toString() == "LogType.$type");
 }
 
 Protocol _toProtocol(String protocol) {
   return switch (protocol) {
-    'irma' => Protocol.irma,
-    'openid4vp' => Protocol.openid4vp,
-    _ => throw Exception('invalid protocol: $protocol'),
+    "irma" => Protocol.irma,
+    "openid4vp" => Protocol.openid4vp,
+    _ => throw Exception("invalid protocol: $protocol"),
   };
 }
 
 String credentialFormatToString(CredentialFormat format) {
   return switch (format) {
-    CredentialFormat.sdjwtvc => 'dc+sd-jwt',
-    CredentialFormat.idemix => 'idemix',
+    CredentialFormat.sdjwtvc => "dc+sd-jwt",
+    CredentialFormat.idemix => "idemix",
   };
 }
 
 CredentialFormat stringToCredentialFormat(String format) {
   return switch (format) {
-    'dc+sd-jwt' => CredentialFormat.sdjwtvc,
-    'idemix' => CredentialFormat.idemix,
-    _ => throw Exception('invalid credential format: $format'),
+    "dc+sd-jwt" => CredentialFormat.sdjwtvc,
+    "idemix" => CredentialFormat.idemix,
+    _ => throw Exception("invalid credential format: $format"),
   };
 }
 
@@ -86,25 +86,25 @@ class LogInfo {
     required this.removalLog,
   });
 
-  @JsonKey(name: 'ID')
+  @JsonKey(name: "ID")
   final int id;
 
-  @JsonKey(name: 'Type', fromJson: _toLogEntryType)
+  @JsonKey(name: "Type", fromJson: _toLogEntryType)
   final LogType type;
 
-  @JsonKey(name: 'Time', fromJson: _epochSecondsToDateTime)
+  @JsonKey(name: "Time", fromJson: _epochSecondsToDateTime)
   final DateTime time;
 
-  @JsonKey(name: 'IssuanceLog')
+  @JsonKey(name: "IssuanceLog")
   final IssuanceLog? issuanceLog;
 
-  @JsonKey(name: 'DisclosureLog')
+  @JsonKey(name: "DisclosureLog")
   final DisclosureLog? disclosureLog;
 
-  @JsonKey(name: 'SignedMessageLog')
+  @JsonKey(name: "SignedMessageLog")
   final SignedMessageLog? signedMessageLog;
 
-  @JsonKey(name: 'RemovalLog')
+  @JsonKey(name: "RemovalLog")
   final RemovalLog? removalLog;
 
   RequestorInfo? get requestorInfo => switch (type) {
@@ -127,16 +127,16 @@ class IssuanceLog {
     required this.issuer,
   });
 
-  @JsonKey(name: 'Protocol', fromJson: _toProtocol)
+  @JsonKey(name: "Protocol", fromJson: _toProtocol)
   final Protocol protocol;
 
-  @JsonKey(name: 'Credentials')
+  @JsonKey(name: "Credentials")
   final List<CredentialLog> credentials;
 
-  @JsonKey(name: 'DisclosedCredentials')
+  @JsonKey(name: "DisclosedCredentials")
   final List<CredentialLog> disclosedCredentials;
 
-  @JsonKey(name: 'Issuer')
+  @JsonKey(name: "Issuer")
   final RequestorInfo issuer;
 
   factory IssuanceLog.fromJson(Map<String, dynamic> json) =>
@@ -151,13 +151,13 @@ class DisclosureLog {
     required this.verifier,
   });
 
-  @JsonKey(name: 'Protocol', fromJson: _toProtocol)
+  @JsonKey(name: "Protocol", fromJson: _toProtocol)
   final Protocol protocol;
 
-  @JsonKey(name: 'Credentials')
+  @JsonKey(name: "Credentials")
   final List<CredentialLog> credentials;
 
-  @JsonKey(name: 'Verifier')
+  @JsonKey(name: "Verifier")
   final RequestorInfo verifier;
 
   factory DisclosureLog.fromJson(Map<String, dynamic> json) =>
@@ -173,7 +173,7 @@ class SignedMessageLog extends DisclosureLog {
     required this.message,
   });
 
-  @JsonKey(name: 'Message')
+  @JsonKey(name: "Message")
   final String message;
 
   factory SignedMessageLog.fromJson(Map<String, dynamic> json) =>
@@ -184,7 +184,7 @@ class SignedMessageLog extends DisclosureLog {
 class RemovalLog {
   RemovalLog({required this.credentials});
 
-  @JsonKey(name: 'Credentials')
+  @JsonKey(name: "Credentials")
   final List<CredentialLog> credentials;
 
   factory RemovalLog.fromJson(Map<String, dynamic> json) =>
@@ -199,13 +199,13 @@ class CredentialLog {
     required this.attributes,
   });
 
-  @JsonKey(name: 'Formats', fromJson: _toCredentialFormatList)
+  @JsonKey(name: "Formats", fromJson: _toCredentialFormatList)
   final List<CredentialFormat> formats;
 
-  @JsonKey(name: 'CredentialType')
+  @JsonKey(name: "CredentialType")
   final String credentialType;
 
-  @JsonKey(name: 'Attributes')
+  @JsonKey(name: "Attributes")
   final Map<String, String> attributes;
 
   factory CredentialLog.fromJson(Map<String, dynamic> json) =>

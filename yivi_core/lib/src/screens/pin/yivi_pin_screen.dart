@@ -1,35 +1,35 @@
 library;
 
-import 'dart:async';
-import 'dart:math';
+import "dart:async";
+import "dart:math";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_svg/flutter_svg.dart";
 
-import '../../../package_name.dart';
-import '../../theme/theme.dart';
-import '../../util/haptics.dart';
-import '../../util/scale.dart';
-import '../../util/tablet.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/link.dart';
-import '../../widgets/yivi_bottom_sheet.dart';
-import '../../widgets/yivi_themed_button.dart';
+import "../../../package_name.dart";
+import "../../theme/theme.dart";
+import "../../util/haptics.dart";
+import "../../util/scale.dart";
+import "../../util/tablet.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/link.dart";
+import "../../widgets/yivi_bottom_sheet.dart";
+import "../../widgets/yivi_themed_button.dart";
 
-part 'bloc/enter_pin_state.dart';
-part 'number_pad.dart';
-part 'number_pad_icon.dart';
-part 'number_pad_key.dart';
-part 'pin_indicator.dart';
-part 'scalable_text.dart';
-part 'secure_pin.dart';
-part 'unsecure_pin_description_tile.dart';
-part 'unsecure_pin_full_screen.dart';
-part 'unsecure_pin_list_builder.dart';
-part 'unsecure_pin_warning_text_button.dart';
-part 'yivi_pin_scaffold.dart';
+part "bloc/enter_pin_state.dart";
+part "number_pad.dart";
+part "number_pad_icon.dart";
+part "number_pad_key.dart";
+part "pin_indicator.dart";
+part "scalable_text.dart";
+part "secure_pin.dart";
+part "unsecure_pin_description_tile.dart";
+part "unsecure_pin_full_screen.dart";
+part "unsecure_pin_list_builder.dart";
+part "unsecure_pin_warning_text_button.dart";
+part "yivi_pin_scaffold.dart";
 
 enum WidgetVisibility { invisible, visible, gone }
 
@@ -75,7 +75,7 @@ class YiviPinScreen extends StatelessWidget {
   submitButtonVisibilityListener;
 
   YiviPinScreen({
-    Key key = const Key('pin_screen'),
+    Key key = const Key("pin_screen"),
     this.scaffoldKey,
     this.instructionKey,
     this.instruction,
@@ -143,7 +143,7 @@ class YiviPinScreen extends StatelessWidget {
         Center(
           child: Link(
             onTap: onForgotPin!,
-            label: FlutterI18n.translate(context, 'pin.button_forgot'),
+            label: FlutterI18n.translate(context, "pin.button_forgot"),
           ),
         ),
       _buildNextButton(),
@@ -232,7 +232,7 @@ class YiviPinScreen extends StatelessWidget {
                                   onTap: onForgotPin!,
                                   label: FlutterI18n.translate(
                                     context,
-                                    'pin.button_forgot',
+                                    "pin.button_forgot",
                                   ),
                                 ),
                             ],
@@ -289,7 +289,7 @@ class YiviPinScreen extends StatelessWidget {
                     child: BlocBuilder<EnterPinStateBloc, EnterPinState>(
                       bloc: pinBloc,
                       builder: (context, state) => Text(
-                        '${state.pin.length}/$maxPinSize',
+                        "${state.pin.length}/$maxPinSize",
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.w300,
                           color: state.pin.isNotEmpty
@@ -369,8 +369,8 @@ class YiviPinScreen extends StatelessWidget {
     final button = SizedBox(
       height: _nextButtonHeight,
       child: YiviThemedButton(
-        key: const Key('pin_next'),
-        label: 'choose_pin.next',
+        key: const Key("pin_next"),
+        label: "choose_pin.next",
         onPressed: activate && enabled
             ? () => onSubmit(pinBloc.state.toString())
             : null,
@@ -425,10 +425,10 @@ class YiviPinScreen extends StatelessWidget {
     // screen size, due to variable nature of phone devices, hence
     // the scaling here
     return SvgPicture.asset(
-      yiviAsset('non-free/logo_no_margin.svg'),
+      yiviAsset("non-free/logo_no_margin.svg"),
       width: 127.scaleToDesignSize(context),
       height: 71.scaleToDesignSize(context),
-      semanticsLabel: FlutterI18n.translate(context, 'accessibility.irma_logo'),
+      semanticsLabel: FlutterI18n.translate(context, "accessibility.irma_logo"),
     );
   }
 

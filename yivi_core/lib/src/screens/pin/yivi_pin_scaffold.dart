@@ -1,4 +1,4 @@
-part of 'yivi_pin_screen.dart';
+part of "yivi_pin_screen.dart";
 
 class YiviPinScaffold extends StatelessWidget {
   final PreferredSizeWidget? appBar;

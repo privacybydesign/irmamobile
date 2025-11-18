@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/requestor_header.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/requestor_header.dart";
 
 class WizardScaffold extends StatelessWidget {
   final Image image;
@@ -33,7 +33,7 @@ class WizardScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
-        titleTranslationKey: 'issue_wizard.add_cards',
+        titleTranslationKey: "issue_wizard.add_cards",
         leading: YiviBackButton(onTap: onBack),
       ),
       bottomNavigationBar: bottomBar,

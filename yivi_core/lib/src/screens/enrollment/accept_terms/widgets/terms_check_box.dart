@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import '../../../../providers/preferences_provider.dart';
-import '../../../../theme/theme.dart';
-import '../../../../widgets/translated_text.dart';
+import "../../../../providers/preferences_provider.dart";
+import "../../../../theme/theme.dart";
+import "../../../../widgets/translated_text.dart";
 
 class TermsCheckBox extends ConsumerWidget {
   final bool isAccepted;
@@ -22,7 +22,7 @@ class TermsCheckBox extends ConsumerWidget {
     final preferences = ref.watch(preferencesProvider);
 
     final termsUrl =
-        (FlutterI18n.currentLocale(context)?.languageCode ?? 'en') == 'nl'
+        (FlutterI18n.currentLocale(context)?.languageCode ?? "en") == "nl"
         ? preferences.mostRecentTermsUrlNl
         : preferences.mostRecentTermsUrlEn;
 
@@ -31,7 +31,7 @@ class TermsCheckBox extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Checkbox(
-          key: const Key('accept_terms_checkbox'),
+          key: const Key("accept_terms_checkbox"),
           value: isAccepted,
           activeColor: theme.themeData.colorScheme.secondary,
           onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
@@ -39,8 +39,8 @@ class TermsCheckBox extends ConsumerWidget {
         SizedBox(width: theme.smallSpacing),
         Flexible(
           child: TranslatedText(
-            'enrollment.terms_and_conditions.accept_markdown',
-            translationParams: {'terms_url': termsUrl},
+            "enrollment.terms_and_conditions.accept_markdown",
+            translationParams: {"terms_url": termsUrl},
           ),
         ),
       ],

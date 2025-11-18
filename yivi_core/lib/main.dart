@@ -1,20 +1,20 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import 'app.dart';
-import 'src/data/irma_preferences.dart';
-import 'src/providers/irma_repository_provider.dart';
-import 'src/providers/preferences_provider.dart';
-import 'src/screens/home/home_screen.dart';
-import 'src/screens/notifications/bloc/notifications_bloc.dart';
-import 'src/sentry/sentry.dart';
-import 'src/util/navigation.dart';
-import 'src/util/security_context_binding.dart';
-import 'src/widgets/preferred_language_builder.dart';
+import "app.dart";
+import "src/data/irma_preferences.dart";
+import "src/providers/irma_repository_provider.dart";
+import "src/providers/preferences_provider.dart";
+import "src/screens/home/home_screen.dart";
+import "src/screens/notifications/bloc/notifications_bloc.dart";
+import "src/sentry/sentry.dart";
+import "src/util/navigation.dart";
+import "src/util/security_context_binding.dart";
+import "src/widgets/preferred_language_builder.dart";
 
 Future<void> main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -36,8 +36,8 @@ Future<void> main() async {
 
     final preferences = await IrmaPreferences.fromInstance(
       // when the terms have changed, these values should be updated in order to trigger a dialog in the app
-      mostRecentTermsUrlNl: 'https://yivi.app/terms_and_conditions_v3/',
-      mostRecentTermsUrlEn: 'https://yivi.app/en/terms_and_conditions_v3/',
+      mostRecentTermsUrlNl: "https://yivi.app/terms_and_conditions_v3/",
+      mostRecentTermsUrlEn: "https://yivi.app/en/terms_and_conditions_v3/",
     );
 
     await initSentry(preferences: preferences);

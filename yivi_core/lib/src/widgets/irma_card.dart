@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
+import "../theme/theme.dart";
 
 enum IrmaCardStyle { normal, outlined, highlighted, danger }
 

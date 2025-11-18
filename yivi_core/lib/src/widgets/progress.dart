@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
+import "../theme/theme.dart";
 
-import 'loading_indicator.dart';
-import 'translated_text.dart';
+import "loading_indicator.dart";
+import "translated_text.dart";
 
 class IrmaProgress extends StatelessWidget {
   @override
@@ -18,7 +18,7 @@ class IrmaProgress extends StatelessWidget {
           LoadingIndicator(),
           SizedBox(height: theme.defaultSpacing),
           TranslatedText(
-            'ui.loading',
+            "ui.loading",
             style: theme.textTheme.displaySmall,
             textAlign: TextAlign.center,
           ),

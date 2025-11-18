@@ -1,6 +1,6 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 /// Returns whether or not the device has a rounded display.
 /// Useful to make layout exceptions for newer iPhones for example.

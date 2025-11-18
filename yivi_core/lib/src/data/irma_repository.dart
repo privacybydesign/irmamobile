@@ -1,41 +1,41 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import "dart:async";
+import "dart:convert";
+import "dart:io";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:url_launcher/url_launcher.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter/widgets.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:package_info_plus/package_info_plus.dart";
+import "package:rxdart/rxdart.dart";
+import "package:url_launcher/url_launcher.dart";
 
-import '../models/applifecycle_changed_event.dart';
-import '../models/authentication_events.dart';
-import '../models/change_pin_events.dart';
-import '../models/clear_all_data_event.dart';
-import '../models/client_preferences.dart';
-import '../models/credential_events.dart';
-import '../models/credentials.dart';
-import '../models/enrollment_events.dart';
-import '../models/enrollment_status.dart';
-import '../models/error_event.dart';
-import '../models/event.dart';
-import '../models/handle_url_event.dart';
-import '../models/irma_configuration.dart';
-import '../models/issue_wizard.dart';
-import '../models/native_events.dart';
-import '../models/session.dart';
-import '../models/session_events.dart';
-import '../models/session_state.dart';
-import '../models/version_information.dart';
-import '../providers/passport_issuer_provider.dart';
-import '../sentry/sentry.dart';
-import '../util/navigation.dart';
-import 'irma_bridge.dart';
-import 'irma_preferences.dart';
-import 'session_repository.dart';
+import "../models/applifecycle_changed_event.dart";
+import "../models/authentication_events.dart";
+import "../models/change_pin_events.dart";
+import "../models/clear_all_data_event.dart";
+import "../models/client_preferences.dart";
+import "../models/credential_events.dart";
+import "../models/credentials.dart";
+import "../models/enrollment_events.dart";
+import "../models/enrollment_status.dart";
+import "../models/error_event.dart";
+import "../models/event.dart";
+import "../models/handle_url_event.dart";
+import "../models/irma_configuration.dart";
+import "../models/issue_wizard.dart";
+import "../models/native_events.dart";
+import "../models/session.dart";
+import "../models/session_events.dart";
+import "../models/session_state.dart";
+import "../models/version_information.dart";
+import "../providers/passport_issuer_provider.dart";
+import "../sentry/sentry.dart";
+import "../util/navigation.dart";
+import "irma_bridge.dart";
+import "irma_preferences.dart";
+import "session_repository.dart";
 
 class _CredentialObtainState {
   // List containing the ids of the credentials
@@ -59,7 +59,7 @@ class IrmaRepository {
   IrmaRepository({
     required IrmaBridge client,
     required this.preferences,
-    this.defaultKeyshareScheme = 'pbdf',
+    this.defaultKeyshareScheme = "pbdf",
   }) : _bridge = client {
     _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
@@ -186,8 +186,8 @@ class IrmaRepository {
         dispatch(
           ErrorEvent(
             exception:
-                'Expected default keyshare scheme $defaultKeyshareScheme could not be found in configuration',
-            stack: '',
+                "Expected default keyshare scheme $defaultKeyshareScheme could not be found in configuration",
+            stack: "",
             fatal: true,
           ),
         );
@@ -397,14 +397,14 @@ class IrmaRepository {
           for (final scheme in irmaConfiguration.schemeManagers.values) {
             int thisRequirement = 0;
             switch (Platform.operatingSystem) {
-              case 'android':
+              case "android":
                 thisRequirement = scheme.minimumAppVersion.android;
                 break;
-              case 'ios':
+              case "ios":
                 thisRequirement = scheme.minimumAppVersion.iOS;
                 break;
               default:
-                throw Exception('Unsupported Platfrom.operatingSystem');
+                throw Exception("Unsupported Platfrom.operatingSystem");
             }
             if (thisRequirement > minimumBuild) {
               minimumBuild = thisRequirement;
@@ -483,7 +483,7 @@ class IrmaRepository {
   ) async {
     final conf = await _irmaConfigurationSubject.first;
     if (!conf.issueWizards.containsKey(id)) {
-      throw UnsupportedError('Wizard id $id could not been found');
+      throw UnsupportedError("Wizard id $id could not been found");
     }
     final wizardData = conf.issueWizards[id]!;
     final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
@@ -495,7 +495,7 @@ class IrmaRepository {
         // The credential field may be non-nil for any wizard item type
         final haveCredential =
             item.credential != null && creds.contains(item.credential);
-        if (item.type != 'credential') {
+        if (item.type != "credential") {
           return item.copyWith(completed: haveCredential || item.completed);
         }
         // irmago does not allow wizard items with non-existing credentials, so we can safely ignore null values here.
@@ -510,16 +510,16 @@ class IrmaRepository {
   }
 
   final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
-    _ExternalBrowserCredtype(cred: 'pbdf.gemeente.address', os: 'ios'),
-    _ExternalBrowserCredtype(cred: 'pbdf.gemeente.personalData', os: 'ios'),
-    _ExternalBrowserCredtype(cred: 'pbdf.pbdf.idin', os: 'android'),
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
+    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", os: "android"),
   ];
 
   final List<String> externalBrowserUrls = const [
-    'https://privacybydesign.foundation/myirma/',
-    'https://privacybydesign.foundation/mijnirma/',
-    'https://privacybydesign.foundation/demo/',
-    'https://privacybydesign.foundation/demo-en/',
+    "https://privacybydesign.foundation/myirma/",
+    "https://privacybydesign.foundation/mijnirma/",
+    "https://privacybydesign.foundation/demo/",
+    "https://privacybydesign.foundation/demo-en/",
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
@@ -546,7 +546,7 @@ class IrmaRepository {
     return _fatalErrorSubject.stream;
   }
 
-  static const _iiabchannel = MethodChannel('irma.app/iiab');
+  static const _iiabchannel = MethodChannel("irma.app/iiab");
 
   Future<Set<String>> getPreviouslyLaunchedCredentials() {
     return _credentialObtainState.first.then(
@@ -583,7 +583,7 @@ class IrmaRepository {
     CredentialType type,
     WidgetRef ref,
   ) async {
-    if (type.id == 'passport') {
+    if (type.id == "passport") {
       return _startPassportIssuance(context, type, ref);
     }
 
@@ -593,13 +593,13 @@ class IrmaRepository {
     final cred = irmaConfig.credentialTypes[type.fullId];
 
     if (cred == null) {
-      throw UnsupportedError('Credential type $type not found in irma config');
+      throw UnsupportedError("Credential type $type not found in irma config");
     }
 
-    final url = cred.issueUrl.translate(lang, fallback: '');
+    final url = cred.issueUrl.translate(lang, fallback: "");
     if (url.isEmpty) {
       throw UnsupportedError(
-        'Credential type $type does not have a suitable issue url for $lang',
+        "Credential type $type does not have a suitable issue url for $lang",
       );
     }
 
@@ -641,14 +641,14 @@ class IrmaRepository {
   Future<void> openURLinAppBrowser(String url) async {
     _resumedFromBrowserSubject.add(true);
     if (Platform.isAndroid) {
-      await _iiabchannel.invokeMethod('open_browser', url);
+      await _iiabchannel.invokeMethod("open_browser", url);
     } else {
       final uri = Uri.parse(url);
       final hasOpened = await launchUrl(uri, mode: LaunchMode.inAppWebView);
 
       // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
       if (!hasOpened) {
-        throw Exception('url could not be opened: $url');
+        throw Exception("url could not be opened: $url");
       }
     }
   }
@@ -669,7 +669,7 @@ class IrmaRepository {
 
     // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
     if (!hasOpened) {
-      throw Exception('url could not be opened: $url');
+      throw Exception("url could not be opened: $url");
     }
   }
 
@@ -702,22 +702,22 @@ Future<SessionPointer> createTestSession(
   String requestBody, {
   bool continueOnSecondDevice = true,
 }) async {
-  final Uri uri = Uri.parse('https://is.demo.staging.yivi.app/session');
+  final Uri uri = Uri.parse("https://is.demo.staging.yivi.app/session");
 
   final request = await HttpClient().postUrl(uri);
-  request.headers.set('Content-Type', 'application/json');
+  request.headers.set("Content-Type", "application/json");
   request.write(requestBody);
 
   final response = await request.close();
   final responseBody = await response.transform(utf8.decoder).first;
 
   if (response.statusCode != 200) {
-    throw 'Status ${response.statusCode}: $responseBody';
+    throw "Status ${response.statusCode}: $responseBody";
   }
 
   final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
   final sessionPtr = SessionPointer.fromJson(
-    responseObject['sessionPtr'] as Map<String, dynamic>,
+    responseObject["sessionPtr"] as Map<String, dynamic>,
   );
 
   sessionPtr.continueOnSecondDevice = continueOnSecondDevice;

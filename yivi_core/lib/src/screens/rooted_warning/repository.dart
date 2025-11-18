@@ -1,8 +1,8 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
+import "package:jailbreak_root_detection/jailbreak_root_detection.dart";
 
-import '../../data/irma_preferences.dart';
+import "../../data/irma_preferences.dart";
 
 abstract class DetectRootedDeviceRepository {
   Stream<bool> hasAcceptedRootedDeviceRisk();

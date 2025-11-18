@@ -1,23 +1,23 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:intl/intl.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:intl/intl.dart";
 
-import '../../models/irma_configuration.dart';
-import '../../models/log_entry.dart';
-import '../../models/session_events.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/combine.dart';
-import '../../util/string.dart';
-import '../../widgets/end_of_list_indicator.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/loading_indicator.dart';
-import '../../widgets/translated_text.dart';
-import 'history_repository.dart';
-import 'widgets/activity_card.dart';
+import "../../models/irma_configuration.dart";
+import "../../models/log_entry.dart";
+import "../../models/session_events.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../theme/theme.dart";
+import "../../util/combine.dart";
+import "../../util/string.dart";
+import "../../widgets/end_of_list_indicator.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/loading_indicator.dart";
+import "../../widgets/translated_text.dart";
+import "history_repository.dart";
+import "widgets/activity_card.dart";
 
 class ActivityTab extends StatefulWidget {
   @override
@@ -131,7 +131,7 @@ class _ActivityTabState extends State<ActivityTab> {
             child: Semantics(
               header: true,
               child: Text(
-                DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
+                DateFormat("MMMM", local).format(logEntry.time).toCapitalized(),
                 style: theme.themeData.textTheme.displaySmall,
               ),
             ),
@@ -156,7 +156,7 @@ class _ActivityTabState extends State<ActivityTab> {
         ),
         children: [
           if (groupedItems.isEmpty)
-            const Center(child: TranslatedText('activity.empty_placeholder'))
+            const Center(child: TranslatedText("activity.empty_placeholder"))
           else ...[
             ...groupedItems,
             Padding(
@@ -178,7 +178,7 @@ class _ActivityTabState extends State<ActivityTab> {
     return Scaffold(
       backgroundColor: IrmaTheme.of(context).backgroundTertiary,
       appBar: IrmaAppBar(
-        titleTranslationKey: 'home.nav_bar.activity',
+        titleTranslationKey: "home.nav_bar.activity",
         leading: null,
       ),
       body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(

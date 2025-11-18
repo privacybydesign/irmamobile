@@ -1,30 +1,30 @@
-import 'package:flutter/material.dart';
-import 'package:yivi_core/package_name.dart';
+import "package:flutter/material.dart";
+import "../../../../package_name.dart";
 
-import '../widgets/enrollment_hero.dart';
-import '../widgets/enrollment_instruction.dart';
-import '../widgets/enrollment_layout.dart';
-import 'models/introduction_step.dart';
-import 'widgets/introduction_animation_wrapper.dart';
+import "../widgets/enrollment_hero.dart";
+import "../widgets/enrollment_instruction.dart";
+import "../widgets/enrollment_layout.dart";
+import "models/introduction_step.dart";
+import "widgets/introduction_animation_wrapper.dart";
 
 class IntroductionScreen extends StatefulWidget {
-  static const String routeName = 'introduction';
+  static const String routeName = "introduction";
 
   static List<IntroductionStep> introductionSteps = [
     IntroductionStep(
-      imagePath: yiviAsset('enrollment/introduction_1.svg'),
-      titleTranslationKey: 'enrollment.introduction.step_1.title',
-      explanationTranslationKey: 'enrollment.introduction.step_1.explanation',
+      imagePath: yiviAsset("enrollment/introduction_1.svg"),
+      titleTranslationKey: "enrollment.introduction.step_1.title",
+      explanationTranslationKey: "enrollment.introduction.step_1.explanation",
     ),
     IntroductionStep(
-      imagePath: yiviAsset('enrollment/introduction_2.json'),
-      titleTranslationKey: 'enrollment.introduction.step_2.title',
-      explanationTranslationKey: 'enrollment.introduction.step_2.explanation',
+      imagePath: yiviAsset("enrollment/introduction_2.json"),
+      titleTranslationKey: "enrollment.introduction.step_2.title",
+      explanationTranslationKey: "enrollment.introduction.step_2.explanation",
     ),
     IntroductionStep(
-      imagePath: yiviAsset('enrollment/introduction_3.svg'),
-      titleTranslationKey: 'enrollment.introduction.step_3.title',
-      explanationTranslationKey: 'enrollment.introduction.step_3.explanation',
+      imagePath: yiviAsset("enrollment/introduction_3.svg"),
+      titleTranslationKey: "enrollment.introduction.step_3.title",
+      explanationTranslationKey: "enrollment.introduction.step_3.explanation",
     ),
   ];
 

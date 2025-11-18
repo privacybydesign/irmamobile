@@ -1,20 +1,20 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import '../app.dart';
-import 'src/data/irma_mock_bridge.dart';
-import 'src/data/irma_preferences.dart';
-import 'src/data/irma_repository.dart';
-import 'src/prototypes/prototypes_screen.dart';
-import 'src/providers/irma_repository_provider.dart';
-import 'src/theme/theme.dart';
+import "../app.dart";
+import "src/data/irma_mock_bridge.dart";
+import "src/data/irma_preferences.dart";
+import "src/data/irma_repository.dart";
+import "src/prototypes/prototypes_screen.dart";
+import "src/providers/irma_repository_provider.dart";
+import "src/theme/theme.dart";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final preferences = await IrmaPreferences.fromInstance(
-    mostRecentTermsUrlNl: 'testurl',
-    mostRecentTermsUrlEn: 'testurl',
+    mostRecentTermsUrlNl: "testurl",
+    mostRecentTermsUrlEn: "testurl",
   );
   preferences.markLatestTermsAsAccepted(true);
 
@@ -41,12 +41,12 @@ class PrototypesApp extends StatelessWidget {
     child: IrmaTheme(
       builder: (context) {
         return MaterialApp(
-          key: const Key('app'),
-          title: 'Yivi',
+          key: const Key("app"),
+          title: "Yivi",
           theme: IrmaTheme.of(context).themeData,
           localizationsDelegates: AppState.defaultLocalizationsDelegates(),
           supportedLocales: AppState.defaultSupportedLocales(),
-          locale: const Locale('nl', 'NL'),
+          locale: const Locale("nl", "NL"),
           initialRoute: PrototypesScreen.routeName,
           routes: routes,
         );

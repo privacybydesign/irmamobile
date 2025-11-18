@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+import "package:flutter/material.dart";
+import "package:lottie/lottie.dart";
 
-import '../../../package_name.dart';
-import '../../theme/theme.dart';
-import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/translated_text.dart';
+import "../../../package_name.dart";
+import "../../theme/theme.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/translated_text.dart";
 
 class NameChangedScreen extends StatelessWidget {
   final VoidCallback onContinuePressed;
@@ -18,30 +18,30 @@ class NameChangedScreen extends StatelessWidget {
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     final oldLogoWidget = Image.asset(
-      yiviAsset('non-free/logo_old.png'),
+      yiviAsset("non-free/logo_old.png"),
       height: 120,
     );
 
     final newLogoWidget = Image.asset(
-      yiviAsset('non-free/logo.png'),
+      yiviAsset("non-free/logo.png"),
       height: 150,
     );
 
     final titleTextWidget = TranslatedText(
-      'name_changed.title',
+      "name_changed.title",
       style: theme.themeData.textTheme.displaySmall!.copyWith(
         color: theme.dark,
       ),
     );
 
     final headerTextWidget = TranslatedText(
-      'name_changed.header',
+      "name_changed.header",
       style: theme.themeData.textTheme.bodyMedium,
       textAlign: TextAlign.center,
     );
 
     final explanationTextWidget = TranslatedText(
-      'name_changed.explanation',
+      "name_changed.explanation",
       style: theme.themeData.textTheme.bodyMedium,
       textAlign: TextAlign.center,
     );
@@ -56,7 +56,7 @@ class NameChangedScreen extends StatelessWidget {
         SizedBox(height: theme.tinySpacing),
         headerTextWidget,
         Lottie.asset(
-          yiviAsset('non-free/yivi_name_change.json'),
+          yiviAsset("non-free/yivi_name_change.json"),
           frameRate: FrameRate(60),
           repeat: false,
         ),
@@ -79,7 +79,7 @@ class NameChangedScreen extends StatelessWidget {
               titleTextWidget,
               SizedBox(height: theme.tinySpacing),
               TranslatedText(
-                'name_changed.header',
+                "name_changed.header",
                 style: theme.themeData.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -101,7 +101,7 @@ class NameChangedScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'action_feedback.ok',
+        primaryButtonLabel: "action_feedback.ok",
         onPrimaryPressed: onContinuePressed,
       ),
     );

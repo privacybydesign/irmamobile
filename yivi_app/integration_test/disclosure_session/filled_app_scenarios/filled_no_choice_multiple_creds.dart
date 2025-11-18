@@ -1,20 +1,23 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> filledNoChoiceMultipleCredsTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueDemoCredentials(tester, irmaBinding);
 
@@ -40,7 +43,12 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
 
   // Expect obtain credential screen
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
-  expect(find.text('Obtain my data step by step and share it with the requesting party after that'), findsOneWidget);
+  expect(
+    find.text(
+      "Obtain my data step by step and share it with the requesting party after that",
+    ),
+    findsOneWidget,
+  );
 
   // One stepper should be visible
   expect(find.byType(DisclosureDisconStepper), findsOneWidget);
@@ -51,18 +59,18 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {},
     style: IrmaCardStyle.highlighted,
   );
 
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   await issueMunicipalityPersonalData(tester, irmaBinding);
 
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   await issueMobileNumber(tester, irmaBinding);
@@ -75,14 +83,16 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
   );
 
   // Continue
-  await tester.tapAndSettle(find.text('Next step'));
+  await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // With the correct header
   expect(
-    find.text('This data has already been added to your app. Verify that the data is still correct.'),
+    find.text(
+      "This data has already been added to your app. Verify that the data is still correct.",
+    ),
     findsOneWidget,
   );
 
@@ -93,20 +103,15 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     style: IrmaCardStyle.normal,
   );
 
   // Change choice should be visible
-  final changeChoiceFinder = find.text('Change choice');
-  await tester.scrollUntilVisible(
-    changeChoiceFinder.hitTestable(),
-    50,
-  );
+  final changeChoiceFinder = find.text("Change choice");
+  await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
 
   // Press the change choice
   await tester.tapAndSettle(changeChoiceFinder);
@@ -122,61 +127,58 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
   );
 
   // Second card should be a template card
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {},
   );
 
   // Press go back
-  await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // Continue to overview
-  await tester.tapAndSettle(find.text('Next step'));
+  await tester.tapAndSettle(find.text("Next step"));
 
   // The overview also uses the ChoicesScreen. Expect it one more time.
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // The title should have changed though
-  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
+  expect(
+    find.text("Share my data with is.demo.staging.yivi.app"),
+    findsOneWidget,
+  );
 
   // Now two filled cards should be visible
   expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Mobile phone number": "0612345678"},
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 }

@@ -1,13 +1,13 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../data/irma_repository.dart';
-import '../../../models/change_pin_events.dart';
-import '../../../models/session.dart';
-import 'change_pin_event.dart';
-import 'change_pin_state.dart';
-import 'validation_state.dart';
+import "../../../data/irma_repository.dart";
+import "../../../models/change_pin_events.dart";
+import "../../../models/session.dart";
+import "change_pin_event.dart";
+import "change_pin_state.dart";
+import "validation_state.dart";
 
 class ChangePinBloc extends Bloc<PinEvent, ChangePinState> {
   final IrmaRepository repo;
@@ -35,8 +35,8 @@ class ChangePinBloc extends Bloc<PinEvent, ChangePinState> {
           yield state.copyWith(
             newPinConfirmed: ValidationState.error,
             error: SessionError(
-              errorType: 'Unexpected Error',
-              info: 'Unexpected old pin rejection by server',
+              errorType: "Unexpected Error",
+              info: "Unexpected old pin rejection by server",
             ),
           );
         }

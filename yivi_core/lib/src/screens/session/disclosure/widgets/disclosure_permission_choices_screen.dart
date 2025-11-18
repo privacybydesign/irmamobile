@@ -1,25 +1,25 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../../models/return_url.dart';
-import '../../../../models/session.dart';
-import '../../../../theme/theme.dart';
-import '../../../../util/con_dis_con.dart';
-import '../../../../widgets/credential_card/yivi_credential_card.dart';
-import '../../../../widgets/irma_action_card.dart';
-import '../../../../widgets/irma_bottom_bar.dart';
-import '../../../../widgets/irma_icon_button.dart';
-import '../../../../widgets/irma_quote.dart';
-import '../../../../widgets/requestor_header.dart';
-import '../../../../widgets/session_progress_indicator.dart';
-import '../../../../widgets/translated_text.dart';
-import '../../../../widgets/yivi_themed_button.dart';
-import '../../widgets/session_scaffold.dart';
-import '../bloc/disclosure_permission_event.dart';
-import '../bloc/disclosure_permission_state.dart';
-import '../models/choosable_disclosure_credential.dart';
-import 'disclosure_permission_share_dialog.dart';
+import "../../../../models/return_url.dart";
+import "../../../../models/session.dart";
+import "../../../../theme/theme.dart";
+import "../../../../util/con_dis_con.dart";
+import "../../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../../widgets/irma_action_card.dart";
+import "../../../../widgets/irma_bottom_bar.dart";
+import "../../../../widgets/irma_icon_button.dart";
+import "../../../../widgets/irma_quote.dart";
+import "../../../../widgets/requestor_header.dart";
+import "../../../../widgets/session_progress_indicator.dart";
+import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/yivi_themed_button.dart";
+import "../../widgets/session_scaffold.dart";
+import "../bloc/disclosure_permission_event.dart";
+import "../bloc/disclosure_permission_state.dart";
+import "../models/choosable_disclosure_credential.dart";
+import "disclosure_permission_share_dialog.dart";
 
 class DisclosurePermissionChoicesScreen extends StatelessWidget {
   final RequestorInfo requestor;
@@ -81,7 +81,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 children: [
                   Flexible(
                     child: YiviThemedButton(
-                      label: 'disclosure_permission.change_choice',
+                      label: "disclosure_permission.change_choice",
                       style: YiviButtonStyle.outlined,
                       size: YiviButtonSize.small,
                       isTransparent: true,
@@ -107,7 +107,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
                 headerTrailing: optional && i == 0
                     ? IrmaIconButton(
-                        key: const Key('remove_optional_data_button'),
+                        key: const Key("remove_optional_data_button"),
                         icon: Icons.close,
                         size: 22,
                         padding: EdgeInsets.zero,
@@ -156,26 +156,26 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
 
     if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
       contentTranslationKey =
-          'disclosure_permission.previously_added.explanation';
+          "disclosure_permission.previously_added.explanation";
     } else if (returnURL != null && returnURL!.isPhoneNumber) {
       contentTranslationKey =
-          'disclosure_permission.call.disclosure_explanation';
+          "disclosure_permission.call.disclosure_explanation";
       contentTranslationsParams = {
-        'otherParty': requestor.name.translate(lang),
-        'phoneNumber': returnURL!.phoneNumber,
+        "otherParty": requestor.name.translate(lang),
+        "phoneNumber": returnURL!.phoneNumber,
       };
     } else {
-      contentTranslationKey = 'disclosure_permission.overview.explanation';
+      contentTranslationKey = "disclosure_permission.overview.explanation";
       contentTranslationsParams = {
-        'requestorName': requestor.name.translate(lang),
+        "requestorName": requestor.name.translate(lang),
       };
     }
 
     return SessionScaffold(
       appBarTitle:
           state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-          ? 'disclosure_permission.previously_added.title'
-          : 'disclosure_permission.overview.title',
+          ? "disclosure_permission.previously_added.title"
+          : "disclosure_permission.overview.title",
       onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
@@ -197,7 +197,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                   state.isSignatureSession) ...[
                 SizedBox(height: theme.defaultSpacing),
                 TranslatedText(
-                  'disclosure_permission.overview.sign',
+                  "disclosure_permission.overview.sign",
                   style: theme.themeData.textTheme.headlineMedium,
                 ),
                 Padding(
@@ -206,7 +206,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     bottom: theme.defaultSpacing,
                   ),
                   child: IrmaQuote(
-                    key: const Key('signature_message'),
+                    key: const Key("signature_message"),
                     quote: state.signedMessage,
                   ),
                 ),
@@ -226,7 +226,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               ),
               if (state.optionalChoices.isNotEmpty) ...[
                 TranslatedText(
-                  'disclosure_permission.optional_data',
+                  "disclosure_permission.optional_data",
                   style: theme.themeData.textTheme.headlineMedium,
                 ),
                 ...state.optionalChoices.entries.mapIndexed(
@@ -248,13 +248,13 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               if (state.requiredChoices.isEmpty &&
                   state.optionalChoices.isEmpty)
                 TranslatedText(
-                  'disclosure_permission.no_data_selected',
+                  "disclosure_permission.no_data_selected",
                   style: theme.textTheme.headlineMedium,
                 ),
               if (state.hasAdditionalOptionalChoices) ...[
                 SizedBox(height: theme.defaultSpacing),
                 IrmaActionCard(
-                  titleKey: 'disclosure_permission.add_optional_data',
+                  titleKey: "disclosure_permission.add_optional_data",
                   onTap: () =>
                       onEvent(DisclosurePermissionAddOptionalDataPressed()),
                   icon: Icons.add_circle,
@@ -271,11 +271,11 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         // If the choices cannot be made valid at all, then we show a close button.
         primaryButtonLabel: state.choicesCanBeValid
             ? (state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-                  ? 'disclosure_permission.next_step'
+                  ? "disclosure_permission.next_step"
                   : isSignatureSession
-                  ? 'disclosure_permission.overview.confirm_sign'
-                  : 'disclosure_permission.overview.confirm')
-            : 'disclosure_permission.close',
+                  ? "disclosure_permission.overview.confirm_sign"
+                  : "disclosure_permission.overview.confirm")
+            : "disclosure_permission.close",
         onPrimaryPressed: state.choicesCanBeValid
             ? (state.choicesValid
                   ? () => onEvent(DisclosurePermissionNextPressed())

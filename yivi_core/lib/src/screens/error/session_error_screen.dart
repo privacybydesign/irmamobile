@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../models/session.dart';
-import '../../widgets/irma_error_scaffold_body.dart';
-import '../error/blocked_screen.dart';
-import '../error/error_screen.dart';
-import '../error/no_internet_screen.dart';
+import "../../models/session.dart";
+import "../../widgets/irma_error_scaffold_body.dart";
+import "../error/blocked_screen.dart";
+import "../error/error_screen.dart";
+import "../error/no_internet_screen.dart";
 
 class SessionErrorScreen extends StatelessWidget {
   final SessionError? error;
@@ -21,9 +21,9 @@ class SessionErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Handle internet errors separately
     switch (error?.errorType) {
-      case 'transport':
+      case "transport":
         return NoInternetScreen(onTapClose: onTapClose, onTapRetry: onTapRetry);
-      case 'pairingRejected':
+      case "pairingRejected":
         return ErrorScreen(
           onTapClose: onTapClose,
           type: ErrorType.pairingRejected,
@@ -31,12 +31,12 @@ class SessionErrorScreen extends StatelessWidget {
     }
 
     switch (error?.remoteError?.errorName) {
-      case 'USER_NOT_FOUND':
-      case 'USER_NOT_REGISTERED':
+      case "USER_NOT_FOUND":
+      case "USER_NOT_REGISTERED":
         return BlockedScreen();
-      case 'SESSION_UNKNOWN':
+      case "SESSION_UNKNOWN":
         return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired);
-      case 'UNEXPECTED_REQUEST':
+      case "UNEXPECTED_REQUEST":
         return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired);
     }
 

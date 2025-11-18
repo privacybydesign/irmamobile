@@ -1,13 +1,13 @@
-import 'dart:io' show Platform;
+import "dart:io" show Platform;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_quote.dart';
-import '../../widgets/translated_text.dart';
+import "../../theme/theme.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/irma_quote.dart";
+import "../../widgets/translated_text.dart";
 
 class CallInfoScreen extends StatelessWidget {
   final String otherParty;
@@ -34,11 +34,11 @@ class CallInfoScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: IrmaAppBar(
-          titleTranslationKey: 'disclosure_permission.call.title',
+          titleTranslationKey: "disclosure_permission.call.title",
           leading: YiviBackButton(onTap: () => onCancel?.call()),
         ),
         bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),
+          primaryButtonLabel: FlutterI18n.translate(context, "ui.next"),
           onPrimaryPressed: () => onContinue?.call(),
         ),
         body: SingleChildScrollView(
@@ -49,21 +49,21 @@ class CallInfoScreen extends StatelessWidget {
               IrmaQuote(
                 quote: FlutterI18n.translate(
                   context,
-                  'disclosure_permission.call.disclosure_success',
-                  translationParams: {'otherParty': otherParty},
+                  "disclosure_permission.call.disclosure_success",
+                  translationParams: {"otherParty": otherParty},
                 ),
               ),
               SizedBox(height: theme.defaultSpacing),
               TranslatedText(
                 _appendPlatformToTranslationKey(
-                  'disclosure_permission.call.explanation_header',
+                  "disclosure_permission.call.explanation_header",
                 ),
                 style: theme.themeData.textTheme.headlineMedium,
               ),
               SizedBox(height: theme.tinySpacing),
               TranslatedText(
                 _appendPlatformToTranslationKey(
-                  'disclosure_permission.call.explanation',
+                  "disclosure_permission.call.explanation",
                 ),
                 style: theme.themeData.textTheme.bodySmall,
               ),
@@ -71,12 +71,12 @@ class CallInfoScreen extends StatelessWidget {
               if (Platform.isAndroid) ...[
                 SizedBox(height: theme.mediumSpacing),
                 TranslatedText(
-                  'disclosure_permission.call.extra_explanation_header_android',
+                  "disclosure_permission.call.extra_explanation_header_android",
                   style: theme.themeData.textTheme.headlineMedium,
                 ),
                 SizedBox(height: theme.tinySpacing),
                 TranslatedText(
-                  'disclosure_permission.call.extra_explanation_android',
+                  "disclosure_permission.call.extra_explanation_android",
                   style: theme.themeData.textTheme.bodySmall,
                 ),
               ],

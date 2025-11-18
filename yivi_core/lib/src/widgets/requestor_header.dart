@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../models/session.dart';
-import '../theme/theme.dart';
-import 'irma_avatar.dart';
-import 'irma_card.dart';
-import 'irma_icon_indicator.dart';
-import 'requestor_verification_explanation_bottom_sheet.dart';
-import 'translated_text.dart';
+import "../models/session.dart";
+import "../theme/theme.dart";
+import "irma_avatar.dart";
+import "irma_card.dart";
+import "irma_icon_indicator.dart";
+import "requestor_verification_explanation_bottom_sheet.dart";
+import "translated_text.dart";
 
 _buildRequestorAvatar({
   required String? title,
@@ -19,7 +19,7 @@ _buildRequestorAvatar({
     logoImage: image,
     logoPath: imagePath,
     logoSemanticsLabel: title,
-    initials: title != '' ? title![0] : null,
+    initials: title != "" ? title![0] : null,
   );
 }
 
@@ -49,7 +49,7 @@ class RequestorHeader extends StatelessWidget {
 
     final localizedRequestorName = requestorInfo != null
         ? requestorInfo!.name.translate(lang)
-        : FlutterI18n.translate(context, 'ui.unknown');
+        : FlutterI18n.translate(context, "ui.unknown");
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,
@@ -67,7 +67,7 @@ class RequestorHeader extends StatelessWidget {
         child: GestureDetector(
           onTap: () => _showCredentialOptionsBottomSheet(context),
           child: TranslatedText(
-            'disclosure_permission.overview.requestor_verification.explanation',
+            "disclosure_permission.overview.requestor_verification.explanation",
             style: theme.hyperlinkTextStyle.copyWith(
               fontWeight: FontWeight.normal,
             ),
@@ -78,11 +78,11 @@ class RequestorHeader extends StatelessWidget {
       if (isVerified!) {
         backgroundColorOverride = theme.success.withAlpha(opacity);
         mainTextSuffixTranslationKey =
-            'disclosure_permission.overview.requestor_verification.verified_suffix';
+            "disclosure_permission.overview.requestor_verification.verified_suffix";
       } else {
         backgroundColorOverride = theme.error.withAlpha(opacity);
         mainTextSuffixTranslationKey =
-            'disclosure_permission.overview.requestor_verification.unverified_suffix';
+            "disclosure_permission.overview.requestor_verification.unverified_suffix";
       }
 
       // Wrap the avatar in a Stack and position the verification status indicator
@@ -103,11 +103,11 @@ class RequestorHeader extends StatelessWidget {
       );
 
       mainTextWidget = RichText(
-        key: const Key('requestor_header_main_text'),
+        key: const Key("requestor_header_main_text"),
         text: TextSpan(
           children: [
             TextSpan(
-              text: '$localizedRequestorName ',
+              text: "$localizedRequestorName ",
               style: mainTextDefaultStyle!.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -155,7 +155,7 @@ class IssueWizardRequestorHeader extends StatelessWidget {
       backgroundColor: backgroundColor,
       avatar: _buildRequestorAvatar(title: title, image: image),
       mainText: Text(
-        title ?? '',
+        title ?? "",
         style: IrmaTheme.of(context).themeData.textTheme.headlineMedium,
       ),
     );

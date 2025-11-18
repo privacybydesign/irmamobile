@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import "package:flutter/material.dart";
+import "package:flutter_svg/flutter_svg.dart";
 
-import '../../../../../package_name.dart';
-import '../../../../theme/theme.dart';
-import '../../../../widgets/translated_text.dart';
-import '../../../../widgets/yivi_themed_button.dart';
-import '../../widgets/dynamic_layout.dart';
-import '../../widgets/session_scaffold.dart';
-import '../bloc/disclosure_permission_event.dart';
+import "../../../../../package_name.dart";
+import "../../../../theme/theme.dart";
+import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/yivi_themed_button.dart";
+import "../../widgets/dynamic_layout.dart";
+import "../../widgets/session_scaffold.dart";
+import "../bloc/disclosure_permission_event.dart";
 
 class DisclosurePermissionIntroductionScreen extends StatelessWidget {
   final Function(DisclosurePermissionBlocEvent) onEvent;
@@ -24,21 +24,21 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.introduction.title',
+      appBarTitle: "disclosure_permission.introduction.title",
       onDismiss: onDismiss,
       body: DynamicLayout(
-        hero: SvgPicture.asset(yiviAsset('disclosure/disclosure_intro.svg')),
+        hero: SvgPicture.asset(yiviAsset("disclosure/disclosure_intro.svg")),
         content: Column(
           children: [
             TranslatedText(
-              'disclosure_permission.introduction.header',
+              "disclosure_permission.introduction.header",
               style: theme.themeData.textTheme.displaySmall!.copyWith(
                 color: theme.dark,
               ),
             ),
             SizedBox(height: theme.tinySpacing),
             TranslatedText(
-              'disclosure_permission.introduction.explanation',
+              "disclosure_permission.introduction.explanation",
               style: theme.themeData.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -46,7 +46,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
         ),
         actions: [
           YiviThemedButton(
-            label: 'disclosure_permission.introduction.continue',
+            label: "disclosure_permission.introduction.continue",
             onPressed: () => onEvent(DisclosurePermissionNextPressed()),
           ),
         ],

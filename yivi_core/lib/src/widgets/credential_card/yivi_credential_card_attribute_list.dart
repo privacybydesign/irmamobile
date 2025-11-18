@@ -1,13 +1,13 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../models/attribute.dart';
-import '../../models/attribute_value.dart';
-import '../../theme/theme.dart';
-import '../irma_app_bar.dart';
-import '../irma_divider.dart';
-import '../translated_text.dart';
+import "../../models/attribute.dart";
+import "../../models/attribute_value.dart";
+import "../../theme/theme.dart";
+import "../irma_app_bar.dart";
+import "../irma_divider.dart";
+import "../translated_text.dart";
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;

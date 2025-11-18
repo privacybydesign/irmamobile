@@ -1,17 +1,17 @@
-import 'package:flutter/services.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/yivi_core_method_channel.dart';
+import "package:flutter/services.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/yivi_core_method_channel.dart";
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   MethodChannelYiviCore platform = MethodChannelYiviCore();
-  const MethodChannel channel = MethodChannel('yivi_core');
+  const MethodChannel channel = MethodChannel("yivi_core");
 
   setUp(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
-          return '42';
+          return "42";
         });
   });
 
@@ -20,7 +20,7 @@ void main() {
         .setMockMethodCallHandler(channel, null);
   });
 
-  test('getPlatformVersion', () async {
-    expect(await platform.getPlatformVersion(), '42');
+  test("getPlatformVersion", () async {
+    expect(await platform.getPlatformVersion(), "42");
   });
 }

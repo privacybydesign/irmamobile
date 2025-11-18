@@ -1,4 +1,4 @@
-part of 'notifications_bloc.dart';
+part of "notifications_bloc.dart";
 
 abstract class NotificationsState extends Equatable {
   const NotificationsState();

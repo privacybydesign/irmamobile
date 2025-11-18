@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../models/translated_value.dart';
-import '../../../widgets/action_feedback.dart';
+import "../../../models/translated_value.dart";
+import "../../../widgets/action_feedback.dart";
 
 class IssueWizardSuccessScreenArgs {
   final TranslatedValue? headerTranslation;
@@ -28,10 +28,10 @@ class IssueWizardSuccessScreen extends StatelessWidget {
       success: true,
       titleTranslationKey: args.headerTranslation != null
           ? args.headerTranslation!.translate(lang)
-          : 'issue_wizard.success.header',
+          : "issue_wizard.success.header",
       explanationTranslationKey: args.contentTranslation != null
           ? args.contentTranslation!.translate(lang)
-          : 'issue_wizard.success.content',
+          : "issue_wizard.success.content",
       onDismiss: onDismiss,
     );
   }

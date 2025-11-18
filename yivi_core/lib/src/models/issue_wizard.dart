@@ -1,16 +1,16 @@
-import 'package:collection/collection.dart';
-import 'package:json_annotation/json_annotation.dart';
+import "package:collection/collection.dart";
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
-import 'translated_value.dart';
+import "event.dart";
+import "translated_value.dart";
 
-part 'issue_wizard.g.dart';
+part "issue_wizard.g.dart";
 
 @JsonSerializable()
 class GetIssueWizardContentsEvent extends Event {
   GetIssueWizardContentsEvent({required this.id});
 
-  @JsonKey(name: 'ID')
+  @JsonKey(name: "ID")
   final String id;
 
   factory GetIssueWizardContentsEvent.fromJson(Map<String, dynamic> json) =>
@@ -22,10 +22,10 @@ class GetIssueWizardContentsEvent extends Event {
 class IssueWizardContentsEvent extends Event {
   IssueWizardContentsEvent({required this.id, required this.wizardContents});
 
-  @JsonKey(name: 'ID')
+  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: 'WizardContents')
+  @JsonKey(name: "WizardContents")
   final List<IssueWizardItem> wizardContents;
 
   factory IssueWizardContentsEvent.fromJson(Map<String, dynamic> json) =>
@@ -88,50 +88,50 @@ class IssueWizard {
     this.expandDependencies = false,
   });
 
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   final String id;
 
-  @JsonKey(name: 'title')
+  @JsonKey(name: "title")
   final TranslatedValue title;
 
-  @JsonKey(name: 'logo')
+  @JsonKey(name: "logo")
   final String? logo;
 
-  @JsonKey(name: 'logoPath')
+  @JsonKey(name: "logoPath")
   final String? logoPath;
 
-  @JsonKey(name: 'color')
+  @JsonKey(name: "color")
   final String? color;
 
-  @JsonKey(name: 'textColor')
+  @JsonKey(name: "textColor")
   final String? textColor;
 
-  @JsonKey(name: 'issues')
+  @JsonKey(name: "issues")
   final String? issues;
 
-  @JsonKey(name: 'allowOtherRequestors')
+  @JsonKey(name: "allowOtherRequestors")
   final bool allowOtherRequestors;
 
-  @JsonKey(name: 'info') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "info") // Default value is set by fromJson of TranslatedValue
   final TranslatedValue info;
 
-  @JsonKey(name: 'faq')
+  @JsonKey(name: "faq")
   final List<IssueWizardQA> faq;
 
-  @JsonKey(name: 'intro') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "intro") // Default value is set by fromJson of TranslatedValue
   final TranslatedValue intro;
 
   @JsonKey(
-    name: 'successHeader',
+    name: "successHeader",
   ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue successHeader;
 
   @JsonKey(
-    name: 'successText',
+    name: "successText",
   ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue successText;
 
-  @JsonKey(name: 'expandDependencies')
+  @JsonKey(name: "expandDependencies")
   final bool expandDependencies;
 
   factory IssueWizard.fromJson(Map<String, dynamic> json) =>
@@ -143,10 +143,10 @@ class IssueWizard {
 class IssueWizardQA {
   IssueWizardQA({required this.question, required this.answer});
 
-  @JsonKey(name: 'question')
+  @JsonKey(name: "question")
   final TranslatedValue question;
 
-  @JsonKey(name: 'answer')
+  @JsonKey(name: "answer")
   final TranslatedValue answer;
 
   factory IssueWizardQA.fromJson(Map<String, dynamic> json) =>
@@ -168,30 +168,30 @@ class IssueWizardItem {
     this.completed = false,
   });
 
-  @JsonKey(name: 'type')
+  @JsonKey(name: "type")
   final String type;
 
-  @JsonKey(name: 'credential')
+  @JsonKey(name: "credential")
   final String? credential;
 
   @JsonKey(
-    name: 'header',
+    name: "header",
   ) // Default value is set by fromJson of TranslatedValue
   final TranslatedValue header;
 
-  @JsonKey(name: 'text') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "text") // Default value is set by fromJson of TranslatedValue
   final TranslatedValue text;
 
-  @JsonKey(name: 'label') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "label") // Default value is set by fromJson of TranslatedValue
   final TranslatedValue label;
 
-  @JsonKey(name: 'sessionUrl')
+  @JsonKey(name: "sessionUrl")
   final String? sessionURL;
 
-  @JsonKey(name: 'url') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "url") // Default value is set by fromJson of TranslatedValue
   final TranslatedValue url;
 
-  @JsonKey(name: 'inapp')
+  @JsonKey(name: "inapp")
   final bool inApp;
 
   final bool completed;

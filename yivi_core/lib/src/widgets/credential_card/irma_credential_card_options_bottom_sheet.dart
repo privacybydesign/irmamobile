@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../theme/theme.dart';
-import '../irma_bottom_sheet.dart';
-import '../irma_divider.dart';
-import '../translated_text.dart';
+import "../../theme/theme.dart";
+import "../irma_bottom_sheet.dart";
+import "../irma_divider.dart";
+import "../translated_text.dart";
 
 class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
   final VoidCallback? onDelete;
@@ -35,7 +35,7 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
 
     return IrmaBottomSheet(
       title: TranslatedText(
-        'credential.options.title',
+        "credential.options.title",
         style: theme.textTheme.displaySmall,
       ),
       child: Padding(
@@ -48,7 +48,7 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
               _buildOptionTile(
                 theme: theme,
                 icon: Icons.cached,
-                translationKey: 'credential.options.reobtain',
+                translationKey: "credential.options.reobtain",
                 onTap: onReobtain,
               ),
             if (onReobtain != null && onDelete != null) const IrmaDivider(),
@@ -56,7 +56,7 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
               _buildOptionTile(
                 theme: theme,
                 icon: Icons.delete,
-                translationKey: 'credential.options.delete',
+                translationKey: "credential.options.delete",
                 onTap: onDelete,
               ),
           ],

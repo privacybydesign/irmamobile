@@ -1,15 +1,18 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/home/home_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_close_dialog.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
-import 'package:yivi_core/src/widgets/irma_close_button.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/home/home_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_close_dialog.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
 
-import '../../helpers/helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> declineDisclosure(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> declineDisclosure(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Scenario requesting:
@@ -31,10 +34,12 @@ Future<void> declineDisclosure(WidgetTester tester, IntegrationTestIrmaBinding i
   await evaluateIntroduction(tester);
 
   // Press share
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
 
   // Expect confirm share dialog
-  final disclosureConfirmDialogFinder = find.byType(DisclosurePermissionConfirmDialog);
+  final disclosureConfirmDialogFinder = find.byType(
+    DisclosurePermissionConfirmDialog,
+  );
   expect(disclosureConfirmDialogFinder, findsOneWidget);
 
   // Press don't share
@@ -47,11 +52,13 @@ Future<void> declineDisclosure(WidgetTester tester, IntegrationTestIrmaBinding i
   await tester.tapAndSettle(find.byType(IrmaCloseButton));
 
   // Expect the close dialog
-  final disclosureCloseDialogFinder = find.byType(DisclosurePermissionCloseDialog);
+  final disclosureCloseDialogFinder = find.byType(
+    DisclosurePermissionCloseDialog,
+  );
   expect(disclosureCloseDialogFinder, findsOneWidget);
 
   // Press close and dialog should disappear
-  await tester.tapAndSettle(find.text('Yes'));
+  await tester.tapAndSettle(find.text("Yes"));
   expect(disclosureCloseDialogFinder, findsNothing);
 
   // Finally, expect to be back on the home screen

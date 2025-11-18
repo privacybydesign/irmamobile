@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import 'package:permission_handler/permission_handler.dart';
+import "package:permission_handler/permission_handler.dart";
 
-import '../widgets/camera_permission_dialog.dart';
+import "../widgets/camera_permission_dialog.dart";
 
 Future<void> _showCameraPermissionDialog(BuildContext context) =>
     showDialog<void>(

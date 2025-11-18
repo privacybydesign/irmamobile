@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../models/native_events.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../activity/activity_tab.dart';
-import '../data/data_tab.dart';
-import '../more/more_tab.dart';
-import '../notifications/notifications_tab.dart';
-import 'widgets/irma_nav_bar.dart';
-import 'widgets/irma_qr_scan_button.dart';
-import 'widgets/pending_pointer_listener.dart';
+import "../../models/native_events.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../activity/activity_tab.dart";
+import "../data/data_tab.dart";
+import "../more/more_tab.dart";
+import "../notifications/notifications_tab.dart";
+import "widgets/irma_nav_bar.dart";
+import "widgets/irma_qr_scan_button.dart";
+import "widgets/pending_pointer_listener.dart";
 
 /// Having different transition types causes separate instances of the HomeScreen to be created.
 /// In order to keep the selected tab state across these instances, we move
@@ -67,7 +67,7 @@ class HomeScreen extends StatelessWidget {
                   floatingActionButton: Padding(
                     padding: const EdgeInsets.only(bottom: 6),
                     child: const IrmaQrScanButton(
-                      key: Key('nav_button_scanner'),
+                      key: Key("nav_button_scanner"),
                     ),
                   ),
                   bottomNavigationBar: IrmaNavBar(

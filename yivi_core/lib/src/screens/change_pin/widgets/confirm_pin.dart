@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../pin/yivi_pin_screen.dart';
-import '../../yivi_confirm_pin_scaffold.dart';
-import 'confirm_pin_reset_dialog.dart';
+import "../../pin/yivi_pin_screen.dart";
+import "../../yivi_confirm_pin_scaffold.dart";
+import "confirm_pin_reset_dialog.dart";
 
 class ConfirmPin extends StatelessWidget {
-  static const String routeName = 'change_pin/confirm_pin';
+  static const String routeName = "change_pin/confirm_pin";
 
   final StringCallback confirmNewPin;
   final VoidCallback cancel, returnToChoosePin, onPinMismatch;
@@ -39,7 +39,7 @@ class ConfirmPin extends StatelessWidget {
     return YiviConfirmPinScaffold(
       submit: _showConfirmDialog(context),
       onBack: returnToChoosePin,
-      instructionKey: 'change_pin.confirm_pin.instruction',
+      instructionKey: "change_pin.confirm_pin.instruction",
       onPinMismatch: onPinMismatch,
       newPinNotifier: newPinNotifier,
     );

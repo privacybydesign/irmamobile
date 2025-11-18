@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../../theme/theme.dart';
-import '../../../../util/con_dis_con.dart';
-import '../../../../widgets/credential_card/yivi_credential_card.dart';
-import '../../../../widgets/radio_indicator.dart';
-import '../models/choosable_disclosure_credential.dart';
-import '../models/disclosure_credential.dart';
-import '../models/template_disclosure_credential.dart';
+import "../../../../theme/theme.dart";
+import "../../../../util/con_dis_con.dart";
+import "../../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../../widgets/radio_indicator.dart";
+import "../models/choosable_disclosure_credential.dart";
+import "../models/disclosure_credential.dart";
+import "../models/template_disclosure_credential.dart";
 
 class DisclosurePermissionChoice extends StatelessWidget {
   final Map<int, Con<DisclosureCredential>> choice;

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
-import 'irma_icon_button.dart';
-import 'translated_text.dart';
+import "../theme/theme.dart";
+import "irma_icon_button.dart";
+import "translated_text.dart";
 
 class YiviAppBarQrCodeButton extends StatelessWidget {
   const YiviAppBarQrCodeButton({super.key, this.onTap});
@@ -32,9 +32,9 @@ class YiviBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaIconButton(
-      key: const Key('irma_app_bar_leading'),
+      key: const Key("irma_app_bar_leading"),
       icon: Icons.arrow_back_sharp,
-      semanticsLabelKey: 'ui.go_back',
+      semanticsLabelKey: "ui.go_back",
       onTap: () {
         if (onTap == null) {
           Navigator.of(context).pop();
@@ -63,7 +63,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.hasBorder = true,
   }) : assert(
          [title, titleTranslationKey, titleString].nonNulls.length == 1,
-         'only one of them can be non-null',
+         "only one of them can be non-null",
        );
 
   @override
@@ -71,7 +71,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     final theme = IrmaTheme.of(context);
 
     return AppBar(
-      key: const Key('irma_app_bar'),
+      key: const Key("irma_app_bar"),
       backgroundColor: theme.light,
       shape: hasBorder
           ? Border(bottom: BorderSide(color: theme.tertiary))
@@ -81,7 +81,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
       title:
           title ??
           TranslatedText(
-            titleTranslationKey ?? (titleString ?? ''),
+            titleTranslationKey ?? (titleString ?? ""),
             style: theme.textTheme.displaySmall,
           ),
       actions: actions,

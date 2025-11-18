@@ -1,23 +1,23 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
-import 'package:rxdart/rxdart.dart';
+import "package:collection/collection.dart";
+import "package:flutter/foundation.dart";
+import "package:rxdart/rxdart.dart";
 
-import '../models/attribute.dart';
-import '../models/attribute_value.dart';
-import '../models/credential_events.dart';
-import '../models/credentials.dart';
-import '../models/enrollment_events.dart';
-import '../models/event.dart';
-import '../models/irma_configuration.dart';
-import '../models/log_entry.dart';
-import '../models/native_events.dart';
-import '../models/session.dart';
-import '../models/session_events.dart';
-import '../models/translated_value.dart';
-import 'irma_bridge.dart';
-import 'mock_data.dart';
+import "../models/attribute.dart";
+import "../models/attribute_value.dart";
+import "../models/credential_events.dart";
+import "../models/credentials.dart";
+import "../models/enrollment_events.dart";
+import "../models/event.dart";
+import "../models/irma_configuration.dart";
+import "../models/log_entry.dart";
+import "../models/native_events.dart";
+import "../models/session.dart";
+import "../models/session_events.dart";
+import "../models/translated_value.dart";
+import "irma_bridge.dart";
+import "mock_data.dart";
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 
@@ -44,7 +44,7 @@ class IrmaMockBridge extends IrmaBridge {
       _sessionEventsSubject.add(event);
     } else {
       throw UnsupportedError(
-        'No mocked behaviour implemented for ${event.runtimeType}',
+        "No mocked behaviour implemented for ${event.runtimeType}",
       );
     }
   }
@@ -69,7 +69,7 @@ class IrmaMockBridge extends IrmaBridge {
 
             final groupedAttrs = groupBy<String, String>(
               con.keys,
-              (attrId) => attrId.split('.').take(3).join('.'),
+              (attrId) => attrId.split(".").take(3).join("."),
             );
             // A con should contain at most one non-singleton credential.
             final nonSingletonCredIds = groupedAttrs.keys.where(
@@ -161,7 +161,7 @@ class IrmaMockBridge extends IrmaBridge {
             // is not there yet already.
             final nonSingletonCandidate = disconCandidates.first.firstWhere(
               (candidate) =>
-                  candidate.type.startsWith('${nonSingletonCredIds.first}.'),
+                  candidate.type.startsWith("${nonSingletonCredIds.first}."),
             );
             if (nonSingletonCandidate.credentialHash.isNotEmpty) {
               final placeholderCandidate = disconCandidates.first
@@ -193,7 +193,7 @@ class IrmaMockBridge extends IrmaBridge {
 
     return RequestVerificationPermissionSessionEvent(
       sessionID: sessionId,
-      serverName: RequestorInfo(name: TranslatedValue.fromString('test')),
+      serverName: RequestorInfo(name: TranslatedValue.fromString("test")),
       // Check whether all credentials have been issued to test issuance-in-disclosure.
       satisfiable: disclosureCandidates.every(
         (discon) => discon.any(
@@ -234,13 +234,13 @@ class IrmaMockBridge extends IrmaBridge {
     );
     yield StatusUpdateSessionEvent(
       sessionID: sessionId,
-      action: 'disclosing',
-      status: 'communicating',
+      action: "disclosing",
+      status: "communicating",
     );
     yield StatusUpdateSessionEvent(
       sessionID: sessionId,
-      action: 'disclosing',
-      status: 'connected',
+      action: "disclosing",
+      status: "connected",
     );
 
     yield _constructRequestVerificationPermissionEvent(
@@ -289,17 +289,17 @@ class IrmaMockBridge extends IrmaBridge {
     );
     yield StatusUpdateSessionEvent(
       sessionID: sessionId,
-      action: 'issuing',
-      status: 'communicating',
+      action: "issuing",
+      status: "communicating",
     );
     yield PairingRequiredSessionEvent(
       sessionID: sessionId,
-      pairingCode: '1234',
+      pairingCode: "1234",
     );
     yield StatusUpdateSessionEvent(
       sessionID: sessionId,
-      action: 'issuing',
-      status: 'connected',
+      action: "issuing",
+      status: "connected",
     );
 
     // Convert given credentials to RawCredentials.
@@ -327,7 +327,7 @@ class IrmaMockBridge extends IrmaBridge {
         expires: now.add(validity).millisecondsSinceEpoch ~/ 1000,
         attributes: attrs.map((key, value) => MapEntry(key, value.toRaw())),
         hash:
-            'session-$sessionId-$i', // Use the session id as a dummy hash to make it unique and predicable.
+            "session-$sessionId-$i", // Use the session id as a dummy hash to make it unique and predicable.
         revoked: revoked,
         revocationSupported: revoked,
         format: CredentialFormat.idemix,
@@ -337,7 +337,7 @@ class IrmaMockBridge extends IrmaBridge {
 
     yield RequestIssuancePermissionSessionEvent(
       sessionID: sessionId,
-      serverName: RequestorInfo(name: TranslatedValue.fromString('test')),
+      serverName: RequestorInfo(name: TranslatedValue.fromString("test")),
       satisfiable: true,
       issuedCredentials: issuedCredentials
           .map(RawMultiFormatCredential.fromRawCredential)

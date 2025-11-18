@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_error_scaffold_body.dart';
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/irma_error_scaffold_body.dart";
 
 class EnrollmentFailedScreen extends StatelessWidget {
   final VoidCallback onPrevious;
@@ -17,11 +17,11 @@ class EnrollmentFailedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        titleTranslationKey: 'ui.error',
+        titleTranslationKey: "ui.error",
         leading: YiviBackButton(onTap: onPrevious),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'ui.retry',
+        primaryButtonLabel: "ui.retry",
         onPrimaryPressed: onRetryEnrollment,
       ),
       body: const IrmaErrorScaffoldBody(type: ErrorType.general),

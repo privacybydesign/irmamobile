@@ -1,50 +1,50 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:rxdart/rxdart.dart';
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:go_router/go_router.dart";
+import "package:rxdart/rxdart.dart";
 
-import 'src/data/irma_repository.dart';
-import 'src/models/enrollment_status.dart';
-import 'src/models/irma_configuration.dart';
-import 'src/models/log_entry.dart';
-import 'src/models/translated_value.dart';
-import 'src/models/version_information.dart';
-import 'src/providers/irma_repository_provider.dart';
-import 'src/screens/activity/activity_detail_screen.dart';
-import 'src/screens/add_data/add_data_details_screen.dart';
-import 'src/screens/add_data/add_data_screen.dart';
-import 'src/screens/change_language/change_language_screen.dart';
-import 'src/screens/change_pin/change_pin_screen.dart';
-import 'src/screens/data/credentials_details_screen.dart';
-import 'src/screens/debug/debug_screen.dart';
-import 'src/screens/enrollment/enrollment_screen.dart';
-import 'src/screens/error/error_screen.dart';
-import 'src/screens/help/help_screen.dart';
-import 'src/screens/home/home_screen.dart';
-import 'src/screens/home/widgets/irma_qr_scan_button.dart';
-import 'src/screens/issue_wizard/issue_wizard.dart';
-import 'src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
-import 'src/screens/loading/loading_screen.dart';
-import 'src/screens/name_changed/name_changed_screen.dart';
-import 'src/screens/notifications/notifications_tab.dart';
-import 'src/screens/passport/manual_entry_screen.dart';
-import 'src/screens/passport/mrz_reader_screen.dart';
-import 'src/screens/passport/nfc_reading_screen.dart';
-import 'src/screens/pin/pin_screen.dart';
-import 'src/screens/required_update/required_update_screen.dart';
-import 'src/screens/reset_pin/reset_pin_screen.dart';
-import 'src/screens/rooted_warning/repository.dart';
-import 'src/screens/rooted_warning/rooted_warning_screen.dart';
-import 'src/screens/scanner/scanner_screen.dart';
-import 'src/screens/session/session_screen.dart';
-import 'src/screens/session/unknown_session_screen.dart';
-import 'src/screens/settings/settings_screen.dart';
-import 'src/screens/terms_changed/terms_changed_dialog.dart';
-import 'src/util/navigation.dart';
-import 'src/widgets/irma_app_bar.dart';
+import "src/data/irma_repository.dart";
+import "src/models/enrollment_status.dart";
+import "src/models/irma_configuration.dart";
+import "src/models/log_entry.dart";
+import "src/models/translated_value.dart";
+import "src/models/version_information.dart";
+import "src/providers/irma_repository_provider.dart";
+import "src/screens/activity/activity_detail_screen.dart";
+import "src/screens/add_data/add_data_details_screen.dart";
+import "src/screens/add_data/add_data_screen.dart";
+import "src/screens/change_language/change_language_screen.dart";
+import "src/screens/change_pin/change_pin_screen.dart";
+import "src/screens/data/credentials_details_screen.dart";
+import "src/screens/debug/debug_screen.dart";
+import "src/screens/enrollment/enrollment_screen.dart";
+import "src/screens/error/error_screen.dart";
+import "src/screens/help/help_screen.dart";
+import "src/screens/home/home_screen.dart";
+import "src/screens/home/widgets/irma_qr_scan_button.dart";
+import "src/screens/issue_wizard/issue_wizard.dart";
+import "src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart";
+import "src/screens/loading/loading_screen.dart";
+import "src/screens/name_changed/name_changed_screen.dart";
+import "src/screens/notifications/notifications_tab.dart";
+import "src/screens/passport/manual_entry_screen.dart";
+import "src/screens/passport/mrz_reader_screen.dart";
+import "src/screens/passport/nfc_reading_screen.dart";
+import "src/screens/pin/pin_screen.dart";
+import "src/screens/required_update/required_update_screen.dart";
+import "src/screens/reset_pin/reset_pin_screen.dart";
+import "src/screens/rooted_warning/repository.dart";
+import "src/screens/rooted_warning/rooted_warning_screen.dart";
+import "src/screens/scanner/scanner_screen.dart";
+import "src/screens/session/session_screen.dart";
+import "src/screens/session/unknown_session_screen.dart";
+import "src/screens/settings/settings_screen.dart";
+import "src/screens/terms_changed/terms_changed_dialog.dart";
+import "src/util/navigation.dart";
+import "src/widgets/irma_app_bar.dart";
 
 final RouteObserver<ModalRoute<void>> routeObserver =
     RouteObserver<ModalRoute<void>>();
@@ -56,46 +56,46 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final redirectionTriggers = RedirectionListenable(repo);
 
   final whiteListedOnLocked = {
-    '/reset_pin',
-    '/loading',
-    '/enrollment',
-    '/scanner',
-    '/modal_pin',
+    "/reset_pin",
+    "/loading",
+    "/enrollment",
+    "/scanner",
+    "/modal_pin",
   };
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     observers: [routeObserver],
-    initialLocation: '/loading',
+    initialLocation: "/loading",
     refreshListenable: redirectionTriggers,
     errorBuilder: (context, state) => RouteNotFoundScreen(),
     routes: [
       GoRoute(
-        path: '/scanner',
+        path: "/scanner",
         builder: (context, state) {
           final requireAuth = bool.parse(
-            state.uri.queryParameters['require_auth_before_session']!,
+            state.uri.queryParameters["require_auth_before_session"]!,
           );
           return ScannerScreen(requireAuthBeforeSession: requireAuth);
         },
       ),
       GoRoute(
-        path: '/error',
+        path: "/error",
         builder: (context, state) => ErrorScreen(
           details: state.extra as String,
           onTapClose: context.pop,
         ),
       ),
       GoRoute(
-        path: '/loading',
+        path: "/loading",
         pageBuilder: (context, state) =>
-            NoTransitionPage(name: '/loading', child: LoadingScreen()),
+            NoTransitionPage(name: "/loading", child: LoadingScreen()),
       ),
       GoRoute(
-        path: '/pin',
+        path: "/pin",
         pageBuilder: (context, state) {
           return NoTransitionPage(
-            name: '/pin',
+            name: "/pin",
             child: Builder(
               builder: (context) {
                 return TermsChangedListener(
@@ -115,7 +115,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/modal_pin',
+        path: "/modal_pin",
         builder: (context, state) {
           return PinScreen(
             onAuthenticated: () => context.pop(true),
@@ -124,32 +124,32 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/reset_pin',
+        path: "/reset_pin",
         builder: (context, state) => ResetPinScreen(),
       ),
       // FIXME: this cannot be a sub route of /home/settings, because it uses its own navigator internally
       GoRoute(
-        path: '/change_pin',
+        path: "/change_pin",
         builder: (context, state) => ChangePinScreen(),
       ),
       GoRoute(
-        path: '/enrollment',
+        path: "/enrollment",
         builder: (context, state) => EnrollmentScreen(),
       ),
       GoRoute(
-        path: '/home',
+        path: "/home",
         pageBuilder: (context, state) {
           if (TransitionStyleProvider.shouldPerformInstantTransitionToHome(
             context,
           )) {
             TransitionStyleProvider.resetInstantTransitionToHomeMark(context);
-            return NoTransitionPage(name: '/home', child: HomeScreen());
+            return NoTransitionPage(name: "/home", child: HomeScreen());
           }
-          return MaterialPage(name: '/home', child: HomeScreen());
+          return MaterialPage(name: "/home", child: HomeScreen());
         },
         routes: [
           GoRoute(
-            path: 'credentials_details',
+            path: "credentials_details",
             builder: (context, state) {
               final args = CredentialsDetailsRouteParams.fromQueryParams(
                 state.uri.queryParameters,
@@ -161,7 +161,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             },
           ),
           GoRoute(
-            path: 'activity_details',
+            path: "activity_details",
             builder: (context, state) {
               final (logEntry, irmaConfiguration) =
                   state.extra as (LogInfo, IrmaConfiguration);
@@ -173,13 +173,13 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               );
             },
           ),
-          GoRoute(path: 'help', builder: (context, state) => HelpScreen()),
+          GoRoute(path: "help", builder: (context, state) => HelpScreen()),
           GoRoute(
-            path: 'add_data',
+            path: "add_data",
             builder: (context, state) => AddDataScreen(),
             routes: [
               GoRoute(
-                path: 'details',
+                path: "details",
                 builder: (context, state) {
                   final credentialType = state.extra as CredentialType;
                   return AddDataDetailsScreen(
@@ -196,27 +196,27 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             ],
           ),
           GoRoute(
-            path: 'debug',
+            path: "debug",
             builder: (context, state) => const DebugScreen(),
           ),
           GoRoute(
-            path: 'settings',
+            path: "settings",
             builder: (context, state) => SettingsScreen(),
             routes: [
               GoRoute(
-                path: 'change_language',
+                path: "change_language",
                 builder: (context, state) => ChangeLanguageScreen(),
               ),
             ],
           ),
           GoRoute(
-            path: 'notifications',
+            path: "notifications",
             builder: (context, state) => NotificationsTab(),
           ),
         ],
       ),
       GoRoute(
-        path: '/session',
+        path: "/session",
         builder: (context, state) {
           final args = SessionRouteParams.fromQueryParams(
             state.uri.queryParameters,
@@ -225,7 +225,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/unknown_session',
+        path: "/unknown_session",
         builder: (context, state) {
           final args = SessionRouteParams.fromQueryParams(
             state.uri.queryParameters,
@@ -234,7 +234,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/issue_wizard',
+        path: "/issue_wizard",
         builder: (context, state) {
           final args = IssueWizardRouteParams.fromQueryParams(
             state.uri.queryParameters,
@@ -243,7 +243,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/issue_wizard_success',
+        path: "/issue_wizard_success",
         builder: (context, state) {
           final (successHeader, successContent) =
               state.extra as (TranslatedValue?, TranslatedValue?);
@@ -257,7 +257,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/rooted_warning',
+        path: "/rooted_warning",
         builder: (context, state) {
           return RootedWarningScreen(
             onAcceptRiskButtonPressed: () {
@@ -269,7 +269,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/name_changed',
+        path: "/name_changed",
         builder: (context, state) {
           return NameChangedScreen(
             onContinuePressed: () =>
@@ -278,11 +278,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/update_required',
+        path: "/update_required",
         builder: (context, state) => RequiredUpdateScreen(),
       ),
       GoRoute(
-        path: '/mzr_reader',
+        path: "/mzr_reader",
         builder: (context, state) {
           return MzrReaderScreen(
             onSuccess: (mrzResult) => context.pushNfcReadingScreen(
@@ -299,7 +299,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         },
       ),
       GoRoute(
-        path: '/passport_manual_enter',
+        path: "/passport_manual_enter",
         builder: (context, state) => ManualEntryScreen(
           onCancel: () => context.pop(),
           onContinue: (data) => context.pushNfcReadingScreen(
@@ -312,7 +312,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         ),
       ),
       GoRoute(
-        path: '/nfc_reading',
+        path: "/nfc_reading",
         builder: (context, state) {
           final args = NfcReadingRouteParams.fromQueryParams(
             state.uri.queryParameters,
@@ -330,21 +330,21 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
     redirect: (context, state) {
       if (redirectionTriggers.value.enrollmentStatus ==
           EnrollmentStatus.unenrolled) {
-        return '/enrollment';
+        return "/enrollment";
       }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
-        return '/rooted_warning';
+        return "/rooted_warning";
       }
       if (redirectionTriggers.value.showNameChangedMessage) {
-        return '/name_changed';
+        return "/name_changed";
       }
       if (redirectionTriggers.value.versionInformation != null &&
           redirectionTriggers.value.versionInformation!.updateRequired()) {
-        return '/update_required';
+        return "/update_required";
       }
       if (redirectionTriggers.value.appLocked &&
           !whiteListedOnLocked.contains(state.fullPath)) {
-        return '/pin';
+        return "/pin";
       }
       return null;
     },
@@ -358,13 +358,13 @@ class RouteNotFoundScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     if (kDebugMode) {
       throw Exception(
-        'Route not found. Invalid route or invalid arguments were specified.',
+        "Route not found. Invalid route or invalid arguments were specified.",
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Page not found')),
-      body: const Center(child: Text('')),
+      appBar: AppBar(title: const Text("Page not found")),
+      body: const Center(child: Text("")),
     );
   }
 }
@@ -471,7 +471,7 @@ class RedirectionTriggers {
 
   @override
   String toString() {
-    return 'lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation';
+    return "lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation";
   }
 
   @override

@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../yivi_basic_pin_scaffold.dart';
+import "../../yivi_basic_pin_scaffold.dart";
 
 class EnterPin extends StatelessWidget {
-  static const String routeName = 'change_pin/enter_pin';
+  static const String routeName = "change_pin/enter_pin";
 
   final void Function(String) submitOldPin;
   final VoidCallback? cancel;
@@ -15,7 +15,7 @@ class EnterPin extends StatelessWidget {
     return YiviBasicPinScaffold(
       submit: submitOldPin,
       cancel: cancel,
-      instructionKey: 'change_pin.enter_pin.instruction',
+      instructionKey: "change_pin.enter_pin.instruction",
     );
   }
 }

@@ -1,18 +1,18 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
+import "event.dart";
 
-part 'error_event.g.dart';
+part "error_event.g.dart";
 
 @JsonSerializable()
 class ErrorEvent extends Event {
-  @JsonKey(name: 'Exception')
+  @JsonKey(name: "Exception")
   final String exception;
 
-  @JsonKey(name: 'Stack')
+  @JsonKey(name: "Stack")
   final String stack;
 
-  @JsonKey(name: 'Fatal')
+  @JsonKey(name: "Fatal")
   final bool fatal;
 
   ErrorEvent({
@@ -25,5 +25,5 @@ class ErrorEvent extends Event {
   Map<String, dynamic> toJson() => _$ErrorEventToJson(this);
 
   @override
-  String toString() => ['$exception\n', stack].join();
+  String toString() => ["$exception\n", stack].join();
 }

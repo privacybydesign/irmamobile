@@ -1,10 +1,10 @@
-import 'package:collection/collection.dart';
+import "package:collection/collection.dart";
 
-import '../../../../models/irma_configuration.dart';
-import '../../../../util/con_dis_con.dart';
-import '../models/choosable_disclosure_credential.dart';
-import '../models/disclosure_credential.dart';
-import '../models/template_disclosure_credential.dart';
+import "../../../../models/irma_configuration.dart";
+import "../../../../util/con_dis_con.dart";
+import "../models/choosable_disclosure_credential.dart";
+import "../models/disclosure_credential.dart";
+import "../models/template_disclosure_credential.dart";
 
 abstract class DisclosurePermissionBlocState {}
 

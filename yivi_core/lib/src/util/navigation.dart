@@ -1,54 +1,54 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
+import "package:flutter/material.dart";
+import "package:flutter/widgets.dart";
+import "package:go_router/go_router.dart";
 
-import '../models/irma_configuration.dart';
-import '../models/log_entry.dart';
-import '../models/translated_value.dart';
+import "../models/irma_configuration.dart";
+import "../models/log_entry.dart";
+import "../models/translated_value.dart";
 
 extension RoutingHelpers on BuildContext {
   void pushScannerScreen({required bool requireAuthBeforeSession}) {
     final uri = Uri(
-      path: '/scanner',
+      path: "/scanner",
       queryParameters: {
-        'require_auth_before_session': requireAuthBeforeSession.toString(),
+        "require_auth_before_session": requireAuthBeforeSession.toString(),
       },
     );
     push(uri.toString());
   }
 
   void pushErrorScreen({required String message}) {
-    push('/error', extra: message);
+    push("/error", extra: message);
   }
 
   void pushReplacementErrorScreen({required String message}) {
-    pushReplacement('/error', extra: message);
+    pushReplacement("/error", extra: message);
   }
 
   Future<bool?> pushModalPin() async {
-    return await push('/modal_pin');
+    return await push("/modal_pin");
   }
 
   bool isScannerTopRoute() {
-    return GoRouter.of(this).state.uri.path == '/scanner';
+    return GoRouter.of(this).state.uri.path == "/scanner";
   }
 
   void pushAddDataScreen() {
-    push('/home/add_data');
+    push("/home/add_data");
   }
 
   void pushResetPinScreen() {
-    push('/reset_pin');
+    push("/reset_pin");
   }
 
   void popToWizardScreen() {
-    Navigator.of(this).popUntil(ModalRoute.withName('/issue_wizard'));
+    Navigator.of(this).popUntil(ModalRoute.withName("/issue_wizard"));
   }
 
   void popToUnderlyingSession() {
     // we have to at least do one pop in case the current screen is already a session
     Navigator.of(this).pop();
-    Navigator.of(this).popUntil(ModalRoute.withName('/session'));
+    Navigator.of(this).popUntil(ModalRoute.withName("/session"));
   }
 
   void goHomeScreenWithoutTransition() {
@@ -56,80 +56,80 @@ extension RoutingHelpers on BuildContext {
   }
 
   void goHomeScreen() {
-    go('/home');
+    go("/home");
   }
 
   void goPinScreen() {
-    go('/pin');
+    go("/pin");
   }
 
   void goSettingsScreen() {
-    go('/home/settings');
+    go("/home/settings");
   }
 
   void goHelpScreen() {
-    go('/home/help');
+    go("/home/help");
   }
 
   void goDebugScreen() {
-    go('/home/debug');
+    go("/home/debug");
   }
 
   void goNotificationsScreen() {
-    go('/home/notifications');
+    go("/home/notifications");
   }
 
   void goEnrollmentScreen() {
-    go('/enrollment');
+    go("/enrollment");
   }
 
   void goIssueWizardSuccessScreen({
     TranslatedValue? headerTranslation,
     TranslatedValue? contentTranslation,
   }) {
-    go('/issue_wizard_success', extra: (headerTranslation, contentTranslation));
+    go("/issue_wizard_success", extra: (headerTranslation, contentTranslation));
   }
 
   void pushDataDetailsScreen(CredentialType credentialType) {
-    push('/home/add_data/details', extra: credentialType);
+    push("/home/add_data/details", extra: credentialType);
   }
 
   void pushLanguageSettingsScreen() {
-    push('/home/settings/change_language');
+    push("/home/settings/change_language");
   }
 
   void pushChangePinScreen() {
-    push('/change_pin');
+    push("/change_pin");
   }
 
   void pushActivityDetailsScreen({
     required LogInfo logInfo,
     required IrmaConfiguration config,
   }) {
-    push('/home/activity_details', extra: (logInfo, config));
+    push("/home/activity_details", extra: (logInfo, config));
   }
 
   void pushCredentialsDetailsScreen(CredentialsDetailsRouteParams params) {
     final uri = Uri(
-      path: '/home/credentials_details',
+      path: "/home/credentials_details",
       queryParameters: params.toQueryParams(),
     );
     push(uri.toString());
   }
 
   void pushReplacementSessionScreen(SessionRouteParams args) {
-    final uri = Uri(path: '/session', queryParameters: args.toQueryParams());
+    final uri = Uri(path: "/session", queryParameters: args.toQueryParams());
     pushReplacement(uri.toString());
   }
 
   void pushSessionScreen(SessionRouteParams args) {
-    final uri = Uri(path: '/session', queryParameters: args.toQueryParams());
+    final uri = Uri(path: "/session", queryParameters: args.toQueryParams());
     push(uri.toString());
   }
 
   void pushReplacementUnknownSessionScreen(SessionRouteParams args) {
     final uri = Uri(
-      path: '/unknown_session',
+      path: "/unknown_session",
       queryParameters: args.toQueryParams(),
     );
     pushReplacement(uri.toString());
@@ -137,7 +137,7 @@ extension RoutingHelpers on BuildContext {
 
   void pushUnknownSessionScreen(SessionRouteParams args) {
     final uri = Uri(
-      path: '/unknown_session',
+      path: "/unknown_session",
       queryParameters: args.toQueryParams(),
     );
     push(uri.toString());
@@ -145,25 +145,25 @@ extension RoutingHelpers on BuildContext {
 
   void pushReplacementIssueWizardScreen(IssueWizardRouteParams params) {
     final uri = Uri(
-      path: '/issue_wizard',
+      path: "/issue_wizard",
       queryParameters: params.toQueryParams(),
     );
     pushReplacement(uri.toString());
   }
 
   void pushPassportMrzReaderScreen() {
-    final uri = Uri(path: '/mzr_reader');
+    final uri = Uri(path: "/mzr_reader");
     push(uri.toString());
   }
 
   void pushPassportManualEnterScreen() {
-    final uri = Uri(path: '/passport_manual_enter');
+    final uri = Uri(path: "/passport_manual_enter");
     push(uri.toString());
   }
 
   void pushNfcReadingScreen(NfcReadingRouteParams params) {
     final uri = Uri(
-      path: '/nfc_reading',
+      path: "/nfc_reading",
       queryParameters: params.toQueryParams(),
     );
     push(uri.toString());
@@ -171,7 +171,7 @@ extension RoutingHelpers on BuildContext {
 
   Future<void> pushIssueWizardScreen(IssueWizardRouteParams params) async {
     final uri = Uri(
-      path: '/issue_wizard',
+      path: "/issue_wizard",
       queryParameters: params.toQueryParams(),
     );
     await push(uri.toString());
@@ -191,8 +191,8 @@ class CredentialsDetailsRouteParams {
 
   Map<String, String> toQueryParams() {
     return {
-      'category_name': categoryName,
-      'credential_type_id': credentialTypeId,
+      "category_name": categoryName,
+      "credential_type_id": credentialTypeId,
     };
   }
 
@@ -200,8 +200,8 @@ class CredentialsDetailsRouteParams {
     Map<String, String> params,
   ) {
     return CredentialsDetailsRouteParams(
-      categoryName: params['category_name']!,
-      credentialTypeId: params['credential_type_id']!,
+      categoryName: params["category_name"]!,
+      credentialTypeId: params["credential_type_id"]!,
     );
   }
 }
@@ -216,16 +216,16 @@ class IssueWizardRouteParams {
 
   Map<String, String> toQueryParams() {
     return {
-      'wizard_id': wizardID,
-      if (sessionID != null) 'session_id': '$sessionID',
+      "wizard_id": wizardID,
+      if (sessionID != null) "session_id": "$sessionID",
     };
   }
 
   static IssueWizardRouteParams fromQueryParams(Map<String, String> params) {
     return IssueWizardRouteParams(
-      wizardID: params['wizard_id']!,
-      sessionID: params.containsKey('session_id')
-          ? int.parse(params['session_id']!)
+      wizardID: params["wizard_id"]!,
+      sessionID: params.containsKey("session_id")
+          ? int.parse(params["session_id"]!)
           : null,
     );
   }
@@ -248,19 +248,19 @@ class NfcReadingRouteParams {
 
   Map<String, String> toQueryParams() {
     return {
-      'doc_number': docNumber,
-      'date_of_birth': dateOfBirth.toIso8601String(),
-      'date_of_expiry': dateOfExpiry.toIso8601String(),
-      if (countryCode != null) 'country_code': countryCode!,
+      "doc_number": docNumber,
+      "date_of_birth": dateOfBirth.toIso8601String(),
+      "date_of_expiry": dateOfExpiry.toIso8601String(),
+      if (countryCode != null) "country_code": countryCode!,
     };
   }
 
   static NfcReadingRouteParams fromQueryParams(Map<String, String> params) {
     return NfcReadingRouteParams(
-      docNumber: params['doc_number']!,
-      dateOfBirth: DateTime.parse(params['date_of_birth']!),
-      dateOfExpiry: DateTime.parse(params['date_of_expiry']!),
-      countryCode: params['country_code'],
+      docNumber: params["doc_number"]!,
+      dateOfBirth: DateTime.parse(params["date_of_birth"]!),
+      dateOfExpiry: DateTime.parse(params["date_of_expiry"]!),
+      countryCode: params["country_code"],
     );
   }
 }
@@ -284,21 +284,21 @@ class SessionRouteParams {
 
   Map<String, String> toQueryParams() {
     return {
-      'session_id': '$sessionID',
-      'session_type': sessionType,
-      'has_underlying_session': '$hasUnderlyingSession',
-      'wizard_active': '$wizardActive',
-      if (wizardCred != null) 'wizard_cred': '$wizardCred',
+      "session_id": "$sessionID",
+      "session_type": sessionType,
+      "has_underlying_session": "$hasUnderlyingSession",
+      "wizard_active": "$wizardActive",
+      if (wizardCred != null) "wizard_cred": "$wizardCred",
     };
   }
 
   static SessionRouteParams fromQueryParams(Map<String, String> params) {
     return SessionRouteParams(
-      sessionID: int.parse(params['session_id']!),
-      sessionType: params['session_type']!,
-      hasUnderlyingSession: bool.parse(params['has_underlying_session']!),
-      wizardActive: bool.parse(params['wizard_active']!),
-      wizardCred: params['wizard_cred'],
+      sessionID: int.parse(params["session_id"]!),
+      sessionType: params["session_type"]!,
+      hasUnderlyingSession: bool.parse(params["has_underlying_session"]!),
+      wizardActive: bool.parse(params["wizard_active"]!),
+      wizardCred: params["wizard_cred"],
     );
   }
 }

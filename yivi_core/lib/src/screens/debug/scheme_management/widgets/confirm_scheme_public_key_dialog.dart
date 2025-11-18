@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../../widgets/irma_confirmation_dialog.dart';
+import "../../../../widgets/irma_confirmation_dialog.dart";
 
 class ConfirmSchemePublicKeyDialog extends StatelessWidget {
   final String publicKey;
@@ -10,7 +10,7 @@ class ConfirmSchemePublicKeyDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaConfirmationDialog(
-      titleTranslationKey: 'debug.confirm_scheme_public_key_dialog_title',
+      titleTranslationKey: "debug.confirm_scheme_public_key_dialog_title",
       contentTranslationKey: publicKey,
     );
   }

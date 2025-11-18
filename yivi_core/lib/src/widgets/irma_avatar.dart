@@ -1,9 +1,9 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../theme/theme.dart';
+import "../theme/theme.dart";
 
 class IrmaAvatar extends StatelessWidget {
   final double size;
@@ -20,11 +20,11 @@ class IrmaAvatar extends StatelessWidget {
     this.logoSemanticsLabel,
   }) : assert(
          (logoImage != null || logoPath != null) || initials != null,
-         'Provide initials or a logo',
+         "Provide initials or a logo",
        ),
        assert(
          logoImage == null || logoPath == null,
-         'Provide a logoImage or a logoPath, not both',
+         "Provide a logoImage or a logoPath, not both",
        );
 
   @override
@@ -45,8 +45,8 @@ class IrmaAvatar extends StatelessWidget {
       label: image != null && logoSemanticsLabel != null
           ? FlutterI18n.translate(
               context,
-              'disclosure.logo_semantic',
-              translationParams: {'otherParty': logoSemanticsLabel!},
+              "disclosure.logo_semantic",
+              translationParams: {"otherParty": logoSemanticsLabel!},
             )
           : null,
       child: ClipRRect(

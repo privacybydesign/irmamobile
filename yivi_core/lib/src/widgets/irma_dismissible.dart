@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
-import 'translated_text.dart';
+import "../theme/theme.dart";
+import "translated_text.dart";
 
 class IrmaDismissible extends StatelessWidget {
   final Widget child;
@@ -18,7 +18,7 @@ class IrmaDismissible extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     final dismissedText = TranslatedText(
-      'ui.delete',
+      "ui.delete",
       style: theme.textTheme.bodyLarge!.copyWith(color: theme.light),
     );
 

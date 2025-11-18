@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/preferred_language_builder.dart';
-import 'widgets/change_language_radio.dart';
-import 'widgets/system_language_toggle.dart';
+import "../../theme/theme.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/preferred_language_builder.dart";
+import "widgets/change_language_radio.dart";
+import "widgets/system_language_toggle.dart";
 
 class ChangeLanguageScreen extends StatelessWidget {
   @override
@@ -13,7 +13,7 @@ class ChangeLanguageScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: 'settings.language'),
+      appBar: IrmaAppBar(titleTranslationKey: "settings.language"),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(

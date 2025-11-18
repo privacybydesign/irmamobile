@@ -1,10 +1,10 @@
-import 'package:collection/collection.dart';
+import "package:collection/collection.dart";
 
-import '../../../../models/attribute.dart';
-import '../../../../models/credentials.dart';
-import '../../../../models/log_entry.dart';
-import 'disclosure_credential.dart';
-import 'template_disclosure_credential.dart';
+import "../../../../models/attribute.dart";
+import "../../../../models/credentials.dart";
+import "../../../../models/log_entry.dart";
+import "disclosure_credential.dart";
+import "template_disclosure_credential.dart";
 
 /// DisclosureCredential that is choosable and only contains the attributes that are going to be disclosed in the session.
 class ChoosableDisclosureCredential extends DisclosureCredential {

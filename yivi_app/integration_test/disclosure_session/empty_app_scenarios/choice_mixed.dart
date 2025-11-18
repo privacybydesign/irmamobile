@@ -1,18 +1,21 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> choiceMixedTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Session requesting:
@@ -59,22 +62,22 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   await evaluateCredentialCard(
     tester,
     choiceCardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
     attributes: {},
     isSelected: true,
   );
   await evaluateCredentialCard(
     tester,
     choiceCardsFinder.at(1),
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
     attributes: {},
     isSelected: false,
   );
 
   // Select the iDIN option
-  final iDinOptionFinder = find.text('Demo iDIN').first;
+  final iDinOptionFinder = find.text("Demo iDIN").first;
   await tester.ensureVisible(iDinOptionFinder);
   await tester.pumpAndSettle();
   await tester.tapAndSettle(iDinOptionFinder);
@@ -83,22 +86,22 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   await evaluateCredentialCard(
     tester,
     choiceCardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
     attributes: {},
     isSelected: false,
   );
   await evaluateCredentialCard(
     tester,
     choiceCardsFinder.at(1),
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
     attributes: {},
     isSelected: true,
   );
 
   // Continue and expect the AddDataDetailsScreen
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
   await issueIdin(tester, irmaBinding);
 
@@ -116,36 +119,36 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   await evaluateCredentialCard(
     tester,
     disConCardsFinder.first,
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
     attributes: {},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
     tester,
     disConCardsFinder.at(1),
-    credentialName: 'Demo Vektis agb by Nuts',
-    issuerName: 'Demo Nuts',
+    credentialName: "Demo Vektis agb by Nuts",
+    issuerName: "Demo Nuts",
     attributes: {},
     style: IrmaCardStyle.highlighted,
   );
 
   // Continue and expect the AddDataDetailsScreen
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // Obtain the data from Nuts
   await issueCredentials(tester, irmaBinding, {
-    'irma-demo.nuts.agb.agbcode': '7722255556',
+    "irma-demo.nuts.agb.agbcode": "7722255556",
   });
 
   // Issue wizard should be completed
-  expect(find.text('All required data has been added'), findsOneWidget);
-  await tester.tapAndSettle(find.text('Next step'));
+  expect(find.text("All required data has been added"), findsOneWidget);
+  await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
 
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);

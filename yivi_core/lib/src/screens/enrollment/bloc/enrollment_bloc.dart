@@ -1,12 +1,12 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../data/irma_repository.dart';
-import '../../../models/enrollment_events.dart';
-import '../../../models/session.dart';
-import '../introduction/introduction_screen.dart';
+import "../../../data/irma_repository.dart";
+import "../../../models/enrollment_events.dart";
+import "../../../models/session.dart";
+import "../introduction/introduction_screen.dart";
 
-part 'enrollment_event.dart';
-part 'enrollment_state.dart';
+part "enrollment_event.dart";
+part "enrollment_state.dart";
 
 class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
   final String language;
@@ -20,7 +20,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
 
   Future<EnrollmentState> _enroll() async {
     var enrollment = await repo.enroll(
-      email: _email?.trim() ?? '',
+      email: _email?.trim() ?? "",
       pin: _pin!,
       language: language,
     );
@@ -64,7 +64,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
     else if (state is EnrollmentAcceptTerms) {
       if (event is EnrollmentNextPressed) {
         if (!state.isAccepted) {
-          throw ('Continuing without accepting the terms is not possible');
+          throw ("Continuing without accepting the terms is not possible");
         }
         yield EnrollmentChoosePin();
       } else if (event is EnrollmentPreviousPressed) {

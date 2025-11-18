@@ -1,10 +1,10 @@
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/gestures.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../../providers/irma_repository_provider.dart';
-import '../../../../theme/theme.dart';
-import 'error_reporting_info_bottom_sheet.dart';
+import "../../../../providers/irma_repository_provider.dart";
+import "../../../../theme/theme.dart";
+import "error_reporting_info_bottom_sheet.dart";
 
 class ErrorReportingCheckBox extends StatelessWidget {
   Future<void> _showErrorReportingInfoBottomSheet(BuildContext context) async =>
@@ -27,7 +27,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
             final value = snapshot.hasData && snapshot.data!;
 
             return Checkbox(
-              key: const Key('error_reporting_checkbox'),
+              key: const Key("error_reporting_checkbox"),
               value: value,
               onChanged: (isAccepted) {
                 if (isAccepted != null) {
@@ -56,7 +56,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
                     ..onTap = () => _showErrorReportingInfoBottomSheet(context),
                   text: FlutterI18n.translate(
                     context,
-                    'enrollment.error_reporting.accept.share_errors',
+                    "enrollment.error_reporting.accept.share_errors",
                   ),
                 ),
                 TextSpan(

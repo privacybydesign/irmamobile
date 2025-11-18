@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../../models/session.dart';
-import '../../../../widgets/irma_confirmation_dialog.dart';
+import "../../../../models/session.dart";
+import "../../../../widgets/irma_confirmation_dialog.dart";
 
 class DisclosurePermissionConfirmDialog extends StatelessWidget {
   final RequestorInfo requestor;
@@ -23,7 +23,7 @@ class DisclosurePermissionConfirmDialog extends StatelessWidget {
       contentTranslationKey:
           'disclosure_permission.confirm_dialog.${isSignatureSession ? 'explanation_signature' : 'explanation'}',
       contentTranslationParams: {
-        'requestorName': requestor.name.translate(lang),
+        "requestorName": requestor.name.translate(lang),
       },
       confirmTranslationKey:
           'disclosure_permission.confirm_dialog.${isSignatureSession ? 'confirm_signature' : 'confirm'}',

@@ -1,23 +1,23 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_svg/flutter_svg.dart";
 
-import '../../../package_name.dart';
-import '../../models/credentials.dart';
-import '../../providers/credentials_list_provider.dart';
-import '../../providers/credentials_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/navigation.dart';
-import '../../widgets/credential_card/irma_credential_type_card.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_icon_button.dart';
-import '../../widgets/translated_text.dart';
-import '../../widgets/yivi_search_bar.dart';
+import "../../../package_name.dart";
+import "../../models/credentials.dart";
+import "../../providers/credentials_list_provider.dart";
+import "../../providers/credentials_provider.dart";
+import "../../theme/theme.dart";
+import "../../util/navigation.dart";
+import "../../widgets/credential_card/irma_credential_type_card.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_icon_button.dart";
+import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_search_bar.dart";
 
 class DataTab extends ConsumerStatefulWidget {
   @override
@@ -32,7 +32,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   // global location of the button, so it can calculate the correct angle to point to.
   // We don't want a completely global key, as that would cause problems since GoRouter keeps multiple instances
   // of a page alive for transitions, so we have to pass it down the widget tree.
-  final _addDataButtonKey = GlobalKey(debugLabel: 'add_data_button_key');
+  final _addDataButtonKey = GlobalKey(debugLabel: "add_data_button_key");
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +55,11 @@ class _DataTabState extends ConsumerState<DataTab> {
       resizeToAvoidBottomInset: false,
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
-        titleTranslationKey: 'home.nav_bar.data',
+        titleTranslationKey: "home.nav_bar.data",
         leading: null,
         actions: [
           IrmaIconButton(
-            key: const Key('search_button'),
+            key: const Key("search_button"),
             icon: CupertinoIcons.search,
             size: 28,
             onTap: _openSearch,
@@ -82,7 +82,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   }
 
   void _openSearch() {
-    _searchQueryChanged('');
+    _searchQueryChanged("");
     setState(() {
       _searchActive = true;
       _focusNode.requestFocus();
@@ -115,7 +115,7 @@ class _ToAddDataButtonPointingImage extends StatefulWidget {
 
 class _ToAddDataButtonPointingImageState
     extends State<_ToAddDataButtonPointingImage> {
-  final _imageKey = GlobalKey(debugLabel: 'to_add_data_pointing_image_key');
+  final _imageKey = GlobalKey(debugLabel: "to_add_data_pointing_image_key");
   static const pi = 3.1415;
   double rotationAngle = 0.0;
 
@@ -158,14 +158,14 @@ class _ToAddDataButtonPointingImageState
     });
 
     return Transform(
-      key: const Key('to_add_data_button_pointing_image'),
+      key: const Key("to_add_data_button_pointing_image"),
       alignment: Alignment.center,
       transform: Matrix4.identity()
         ..rotateY(pi) // 180-degree flip (π radians)
         ..rotateZ(rotationAngle),
       child: SvgPicture.asset(
         key: _imageKey,
-        yiviAsset('arrow_back/pointing_up.svg'),
+        yiviAsset("arrow_back/pointing_up.svg"),
       ),
     );
   }
@@ -203,13 +203,13 @@ class _NoCredentialsYet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TranslatedText(
-                  'data_tab.empty.title',
+                  "data_tab.empty.title",
                   style: theme.textTheme.displayLarge,
                   textAlign: TextAlign.start,
                 ),
                 SizedBox(height: theme.defaultSpacing),
                 TranslatedText(
-                  'data_tab.empty.subtitle',
+                  "data_tab.empty.subtitle",
                   textAlign: TextAlign.start,
                 ),
               ],
@@ -237,13 +237,13 @@ class _NoCredentialsYet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TranslatedText(
-                  'data_tab.empty.title',
+                  "data_tab.empty.title",
                   style: theme.textTheme.displayLarge,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: theme.defaultSpacing),
                 TranslatedText(
-                  'data_tab.empty.subtitle',
+                  "data_tab.empty.subtitle",
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -284,7 +284,7 @@ class _CredentialsTypeList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return ListView(
-      key: const Key('credentials_type_list'),
+      key: const Key("credentials_type_list"),
       padding: EdgeInsets.only(top: theme.defaultSpacing),
       children: [
         ...credentials.map((c) {
@@ -298,7 +298,7 @@ class _CredentialsTypeList extends StatelessWidget {
               credType: c.credentialType,
               onTap: () => context.pushCredentialsDetailsScreen(
                 CredentialsDetailsRouteParams(
-                  categoryName: 'home.nav_bar.data',
+                  categoryName: "home.nav_bar.data",
                   credentialTypeId: c.credentialType.fullId,
                 ),
               ),
@@ -317,8 +317,8 @@ class _CredentialsSearchResults extends ConsumerWidget {
       child: Padding(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: TranslatedText(
-          'data.search.no_results',
-          translationParams: {'query': query},
+          "data.search.no_results",
+          translationParams: {"query": query},
           textAlign: TextAlign.center,
         ),
       ),
@@ -356,7 +356,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
 
     return credentials.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) => Center(child: Text("Error: $e")),
       data: (items) {
         return ReorderableListView.builder(
           onReorderStart: (index) {
@@ -386,7 +386,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
                   credType: cred.credentialType,
                   onTap: () => context.pushCredentialsDetailsScreen(
                     CredentialsDetailsRouteParams(
-                      categoryName: 'home.nav_bar.data',
+                      categoryName: "home.nav_bar.data",
                       credentialTypeId: cred.credentialType.fullId,
                     ),
                   ),

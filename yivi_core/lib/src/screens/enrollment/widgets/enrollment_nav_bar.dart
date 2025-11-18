@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/yivi_themed_button.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/yivi_themed_button.dart";
 
 class EnrollmentNavBar extends StatelessWidget {
   final VoidCallback? onPrevious;
@@ -32,9 +32,9 @@ class EnrollmentNavBar extends StatelessWidget {
                     : Padding(
                         padding: EdgeInsets.only(right: theme.smallSpacing),
                         child: YiviThemedButton(
-                          key: const Key('enrollment_previous_button'),
+                          key: const Key("enrollment_previous_button"),
                           style: YiviButtonStyle.outlined,
-                          label: 'ui.previous',
+                          label: "ui.previous",
                           onPressed: onPrevious,
                         ),
                       ),
@@ -42,8 +42,8 @@ class EnrollmentNavBar extends StatelessWidget {
               // Next button
               Flexible(
                 child: YiviThemedButton(
-                  key: const Key('enrollment_next_button'),
-                  label: 'ui.next',
+                  key: const Key("enrollment_next_button"),
+                  label: "ui.next",
                   onPressed: onContinue,
                 ),
               ),

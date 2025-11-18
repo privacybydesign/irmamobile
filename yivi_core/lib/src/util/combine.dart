@@ -1,4 +1,4 @@
-import 'package:rxdart/rxdart.dart';
+import "package:rxdart/rxdart.dart";
 
 class CombinedState2<A, B> {
   A a;

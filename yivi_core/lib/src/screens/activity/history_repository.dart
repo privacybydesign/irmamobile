@@ -1,11 +1,11 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:collection/collection.dart';
-import 'package:rxdart/rxdart.dart';
+import "package:collection/collection.dart";
+import "package:rxdart/rxdart.dart";
 
-import '../../data/irma_repository.dart';
-import '../../models/irma_configuration.dart';
-import '../../models/log_entry.dart';
+import "../../data/irma_repository.dart";
+import "../../models/irma_configuration.dart";
+import "../../models/log_entry.dart";
 
 class LogEntries extends UnmodifiableListView<LogInfo> {
   LogEntries(super.list);
@@ -39,7 +39,7 @@ bool _isKeyshareCredential(IrmaConfiguration config, CredentialLog log) {
   return log.attributes.keys.any(
     (attr) => config.schemeManagers.values.any(
       (scheme) =>
-          scheme.keyshareAttributes.contains('${log.credentialType}.$attr'),
+          scheme.keyshareAttributes.contains("${log.credentialType}.$attr"),
     ),
   );
 }

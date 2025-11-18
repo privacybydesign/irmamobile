@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
-import 'irma_close_button.dart';
+import "../theme/theme.dart";
+import "irma_close_button.dart";
 
 class IrmaBottomSheet extends StatefulWidget {
   final Widget child;

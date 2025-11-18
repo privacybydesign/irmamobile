@@ -1,14 +1,14 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../models/session.dart';
-import '../../../theme/theme.dart';
-import 'qr_instruction.dart';
-import 'qr_overlay.dart';
-import 'qr_view_container.dart';
+import "../../../models/session.dart";
+import "../../../theme/theme.dart";
+import "qr_instruction.dart";
+import "qr_overlay.dart";
+import "qr_view_container.dart";
 
 class QRScanner extends StatefulWidget {
   final void Function(Pointer) onFound;
@@ -90,7 +90,7 @@ class QRScannerState extends State<QRScanner>
                   child: IconButton(
                     tooltip: FlutterI18n.translate(
                       context,
-                      'accessibility.back',
+                      "accessibility.back",
                     ),
                     padding: EdgeInsets.zero,
                     onPressed: Navigator.of(context).pop,
@@ -125,7 +125,7 @@ class QRScannerState extends State<QRScanner>
       pointer = Pointer.fromString(qr);
     } catch (e) {
       SemanticsService.announce(
-        FlutterI18n.translate(context, 'qr_scanner.error.semantic'),
+        FlutterI18n.translate(context, "qr_scanner.error.semantic"),
         TextDirection.ltr,
       );
       setState(() {
@@ -141,7 +141,7 @@ class QRScannerState extends State<QRScanner>
 
     // Signal success after a small timeout
     SemanticsService.announce(
-      FlutterI18n.translate(context, 'qr_scanner.success.semantic'),
+      FlutterI18n.translate(context, "qr_scanner.success.semantic"),
       TextDirection.ltr,
     );
     setState(() {

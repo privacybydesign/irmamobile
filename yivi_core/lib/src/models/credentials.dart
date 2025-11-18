@@ -1,14 +1,14 @@
-import 'dart:collection';
+import "dart:collection";
 
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'attribute.dart';
-import 'attribute_value.dart';
-import 'irma_configuration.dart';
-import 'log_entry.dart';
-import 'translated_value.dart';
+import "attribute.dart";
+import "attribute_value.dart";
+import "irma_configuration.dart";
+import "log_entry.dart";
+import "translated_value.dart";
 
-part 'credentials.g.dart';
+part "credentials.g.dart";
 
 class Credentials extends UnmodifiableMapView<String, Credential> {
   Credentials(super.map);
@@ -92,7 +92,7 @@ class CredentialView implements CredentialInfo {
       final attrType = irmaConfiguration.attributeTypes[entry.key];
       if (attrType == null) {
         throw Exception(
-          'Attribute type $attrType not present in configuration',
+          "Attribute type $attrType not present in configuration",
         );
       }
       return Attribute(
@@ -171,7 +171,7 @@ class Credential extends CredentialView {
       final attrType = irmaConfiguration.attributeTypes[entry.key];
       if (attrType == null) {
         throw Exception(
-          'Attribute type $attrType not present in configuration',
+          "Attribute type $attrType not present in configuration",
         );
       }
 
@@ -204,7 +204,7 @@ class CredentialInfo {
   final Issuer issuer;
   final CredentialType credentialType;
 
-  String get fullId => '${issuer.fullId}.$id';
+  String get fullId => "${issuer.fullId}.$id";
 
   const CredentialInfo({
     required this.id,
@@ -217,18 +217,18 @@ class CredentialInfo {
     required IrmaConfiguration irmaConfiguration,
     required String credentialIdentifier,
   }) {
-    final parsedCredentialId = credentialIdentifier.split('.');
+    final parsedCredentialId = credentialIdentifier.split(".");
     assert(parsedCredentialId.length == 3);
     final schemeManagerId = parsedCredentialId[0];
-    final issuerId = '$schemeManagerId.${parsedCredentialId[1]}';
-    final credentialId = '$issuerId.${parsedCredentialId[2]}';
+    final issuerId = "$schemeManagerId.${parsedCredentialId[1]}";
+    final credentialId = "$issuerId.${parsedCredentialId[2]}";
 
     final schemeManager = irmaConfiguration.schemeManagers[schemeManagerId];
     final issuer = irmaConfiguration.issuers[issuerId];
     final credentialType = irmaConfiguration.credentialTypes[credentialId];
     if (schemeManager == null || issuer == null || credentialType == null) {
       throw Exception(
-        'Credential type $credentialId not present in configuration',
+        "Credential type $credentialId not present in configuration",
       );
     }
 
@@ -257,41 +257,41 @@ class RawCredential {
     required this.instanceCount,
   });
 
-  @JsonKey(name: 'ID')
+  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: 'IssuerID')
+  @JsonKey(name: "IssuerID")
   final String issuerId;
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
-  @JsonKey(name: 'SignedOn')
+  @JsonKey(name: "SignedOn")
   final int signedOn;
 
-  @JsonKey(name: 'Expires')
+  @JsonKey(name: "Expires")
   final int expires;
 
-  @JsonKey(name: 'Attributes')
+  @JsonKey(name: "Attributes")
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(name: 'Hash')
+  @JsonKey(name: "Hash")
   final String hash;
 
-  @JsonKey(name: 'Revoked')
+  @JsonKey(name: "Revoked")
   final bool revoked;
 
-  @JsonKey(name: 'RevocationSupported')
+  @JsonKey(name: "RevocationSupported")
   final bool revocationSupported;
 
   @JsonKey(
-    name: 'CredentialFormat',
+    name: "CredentialFormat",
     fromJson: stringToCredentialFormat,
     toJson: credentialFormatToString,
   )
   final CredentialFormat format;
 
-  @JsonKey(name: 'InstanceCount')
+  @JsonKey(name: "InstanceCount")
   final int? instanceCount;
 
   factory RawCredential.fromJson(Map<String, dynamic> json) =>
@@ -299,40 +299,40 @@ class RawCredential {
 
   Map<String, dynamic> toJson() => _$RawCredentialToJson(this);
 
-  String get fullIssuerId => '$schemeManagerId.$issuerId';
+  String get fullIssuerId => "$schemeManagerId.$issuerId";
 
-  String get fullId => '$fullIssuerId.$id';
+  String get fullId => "$fullIssuerId.$id";
 }
 
 // A credential referencing multiple credential instances with the same attribute values and credential type
 // in different credential formats
 @JsonSerializable()
 class RawMultiFormatCredential {
-  @JsonKey(name: 'ID')
+  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: 'IssuerID')
+  @JsonKey(name: "IssuerID")
   final String issuerId;
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
-  @JsonKey(name: 'Revoked')
+  @JsonKey(name: "Revoked")
   final bool revoked;
 
-  @JsonKey(name: 'Attributes')
+  @JsonKey(name: "Attributes")
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(name: 'HashByFormat', fromJson: parseHashByFormat)
+  @JsonKey(name: "HashByFormat", fromJson: parseHashByFormat)
   final Map<CredentialFormat, String> hashByFormat;
 
-  @JsonKey(name: 'SignedOn')
+  @JsonKey(name: "SignedOn")
   final int signedOn;
 
-  @JsonKey(name: 'Expires')
+  @JsonKey(name: "Expires")
   final int expires;
 
-  @JsonKey(name: 'InstanceCount')
+  @JsonKey(name: "InstanceCount")
   final int? instanceCount;
 
   RawMultiFormatCredential({
@@ -398,14 +398,14 @@ class MultiFormatCredential {
   ) {
     final credInfo = CredentialInfo.fromConfiguration(
       irmaConfiguration: config,
-      credentialIdentifier: '${raw.schemeManagerId}.${raw.issuerId}.${raw.id}',
+      credentialIdentifier: "${raw.schemeManagerId}.${raw.issuerId}.${raw.id}",
     );
 
     final attributes = raw.attributes.entries.map((entry) {
       final attrType = config.attributeTypes[entry.key];
       if (attrType == null) {
         throw Exception(
-          'Attribute type $attrType not present in configuration',
+          "Attribute type $attrType not present in configuration",
         );
       }
 

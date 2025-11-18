@@ -1,9 +1,9 @@
-import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/widgets.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../theme/theme.dart';
-import 'irma_dialog.dart';
-import 'yivi_themed_button.dart';
+import "../theme/theme.dart";
+import "irma_dialog.dart";
+import "yivi_themed_button.dart";
 
 class IrmaConfirmationDialog extends StatelessWidget {
   final String titleTranslationKey;
@@ -31,16 +31,16 @@ class IrmaConfirmationDialog extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     final confirmButton = YiviThemedButton(
-      key: const Key('dialog_confirm_button'),
+      key: const Key("dialog_confirm_button"),
       onPressed: onConfirmPressed ?? () => Navigator.of(context).pop(true),
-      label: confirmTranslationKey ?? 'ui.confirm',
+      label: confirmTranslationKey ?? "ui.confirm",
       style: !nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 
     final cancelButton = YiviThemedButton(
-      key: const Key('dialog_cancel_button'),
+      key: const Key("dialog_cancel_button"),
       onPressed: onCancelPressed ?? () => Navigator.of(context).pop(false),
-      label: cancelTranslationKey ?? 'ui.cancel',
+      label: cancelTranslationKey ?? "ui.cancel",
       style: nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 

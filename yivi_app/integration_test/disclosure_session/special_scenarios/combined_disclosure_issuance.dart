@@ -1,19 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
 
-import 'package:yivi_core/src/screens/session/session_screen.dart';
-import 'package:yivi_core/src/screens/session/widgets/issuance_permission.dart';
-import 'package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> combinedDisclosureIssuanceSessionTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueEmailAddress(tester, irmaBinding);
 
@@ -40,7 +43,7 @@ Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, Integrat
   await irmaBinding.repository.startTestSession(sessionRequest);
   await evaluateIntroduction(tester);
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
   await evaluateShareDialog(tester);
 
   // Expect add data screen
@@ -51,22 +54,19 @@ Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, Integrat
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Login data',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Login code': '1234',
-      'Organization': 'E-mail guild',
-    },
+    credentialName: "Demo Login data",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Login code": "1234", "Organization": "E-mail guild"},
     style: IrmaCardStyle.normal,
   );
 
   // Tap add data button
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   final successScreenFinder = find.byType(IssuanceSuccessScreen);
   expect(successScreenFinder, findsOneWidget);
 
-  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.text("OK"));
 
   expect(find.byType(SessionScreen), findsNothing);
 }

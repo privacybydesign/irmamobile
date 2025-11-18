@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_dialog.dart';
-import '../../../../widgets/yivi_themed_button.dart';
+import "../../../../theme/theme.dart";
+import "../../../../widgets/irma_dialog.dart";
+import "../../../../widgets/yivi_themed_button.dart";
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
   const ProvideSchemeUrlDialog({super.key});
@@ -22,11 +22,11 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
 
     final translatedTitle = FlutterI18n.translate(
       context,
-      'debug.scheme_management.install_scheme_dialog.title',
+      "debug.scheme_management.install_scheme_dialog.title",
     );
     final translatedContent = FlutterI18n.translate(
       context,
-      'debug.scheme_management.install_scheme_dialog.content',
+      "debug.scheme_management.install_scheme_dialog.content",
     );
 
     return IrmaDialog(
@@ -43,7 +43,7 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
             onSubmitted: (url) => navigator.pop(url),
           ),
           YiviThemedButton(
-            label: 'ui.add',
+            label: "ui.add",
             onPressed: () => navigator.pop(controller.text),
           ),
         ],

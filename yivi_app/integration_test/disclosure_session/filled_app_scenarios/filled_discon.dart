@@ -1,18 +1,21 @@
-import 'package:flutter_test/flutter_test.dart';
+import "package:flutter_test/flutter_test.dart";
 
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> filledDisconTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueDemoCredentials(tester, irmaBinding);
 
@@ -49,28 +52,22 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
+    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     style: IrmaCardStyle.normal,
   );
 
   // Tap the first change choice
-  final changeChoiceFinder = find.text('Change choice');
+  final changeChoiceFinder = find.text("Change choice");
   await tester.scrollUntilVisible(changeChoiceFinder.first.hitTestable(), 50);
   await tester.tapAndSettle(changeChoiceFinder.first);
 
@@ -79,13 +76,9 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
+    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
     isSelected: true,
   );
 
@@ -94,15 +87,12 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     secondCardFinder,
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
     attributes: {},
     isSelected: false,
   );
-  await tester.scrollUntilVisible(
-    secondCardFinder.hitTestable(),
-    50,
-  );
+  await tester.scrollUntilVisible(secondCardFinder.hitTestable(), 50);
   // Tap iDIN option
   await tester.tapAndSettle(secondCardFinder);
 
@@ -110,19 +100,19 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
     isSelected: false,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
     isSelected: true,
   );
 
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   await issueIdin(tester, irmaBinding);
@@ -131,13 +121,9 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
+    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
     isSelected: false,
   );
 
@@ -145,23 +131,17 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
-    attributes: {
-      'Address': 'Meander 501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
+    attributes: {"Address": "Meander 501", "City": "Arnhem"},
     isSelected: true,
   );
 
-  await tester.tapAndSettle(find.text('Done'));
+  await tester.tapAndSettle(find.text("Done"));
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // Check the second change choice
-  await tester.scrollUntilVisible(
-    changeChoiceFinder.at(1).hitTestable(),
-    50,
-  );
+  await tester.scrollUntilVisible(changeChoiceFinder.at(1).hitTestable(), 50);
   await tester.tapAndSettle(changeChoiceFinder.at(1));
 
   // Evaluate the choice screen
@@ -169,50 +149,46 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     isSelected: true,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {},
     isSelected: false,
   );
 
   // Leave the choices as they are
-  await tester.tapAndSettle(find.text('Done'));
+  await tester.tapAndSettle(find.text("Done"));
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
+  expect(
+    find.text("Share my data with is.demo.staging.yivi.app"),
+    findsOneWidget,
+  );
 
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
-    attributes: {
-      'Address': 'Meander 501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
+    attributes: {"Address": "Meander 501", "City": "Arnhem"},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
 
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);

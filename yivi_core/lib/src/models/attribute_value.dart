@@ -1,9 +1,9 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:flutter/widgets.dart';
+import "package:flutter/widgets.dart";
 
-import 'irma_configuration.dart';
-import 'translated_value.dart';
+import "irma_configuration.dart";
+import "translated_value.dart";
 
 abstract class AttributeValue {
   String? get raw;
@@ -18,13 +18,13 @@ abstract class AttributeValue {
     }
 
     switch (attributeType.displayHint) {
-      case 'portraitPhoto':
+      case "portraitPhoto":
         try {
           return PhotoValue.fromRaw(rawAttribute);
         } catch (_) {}
         // When rendering of the photo fails, fall back to NullValue.
         return NullValue();
-      case 'yesno':
+      case "yesno":
         return YesNoValue(textValue: TextValue.fromRaw(rawAttribute));
       default:
         return TextValue.fromRaw(rawAttribute);
@@ -48,13 +48,14 @@ class TextValue implements AttributeValue {
 
   // A raw TextValue is received as TranslatedValue.
   factory TextValue.fromRaw(TranslatedValue rawAttribute) {
-    if (!rawAttribute.hasTranslation(''))
-      throw Exception('No raw value could be found');
-    return TextValue(translated: rawAttribute, raw: rawAttribute.translate(''));
+    if (!rawAttribute.hasTranslation("")) {
+      throw Exception("No raw value could be found");
+    }
+    return TextValue(translated: rawAttribute, raw: rawAttribute.translate(""));
   }
 
   TranslatedValue toRaw() =>
-      TranslatedValue.fromJson({...translated.toJson(), '': raw});
+      TranslatedValue.fromJson({...translated.toJson(), "": raw});
 }
 
 class PhotoValue implements AttributeValue {
@@ -93,10 +94,10 @@ class YesNoValue implements TextValue {
     // but for now we do it here. We have hardcoded strings here because
     // flutter_i18n does not provide access to its strings directly, and we
     // don't have a buildcontext here, so this is the least worst option.
-    if (raw.toLowerCase() == 'yes' || raw.toLowerCase() == 'ja') {
-      return const TranslatedValue({'en': 'Yes', 'nl': 'Ja'});
-    } else if (raw.toLowerCase() == 'no' || raw.toLowerCase() == 'nee') {
-      return const TranslatedValue({'en': 'No', 'nl': 'Nee'});
+    if (raw.toLowerCase() == "yes" || raw.toLowerCase() == "ja") {
+      return const TranslatedValue({"en": "Yes", "nl": "Ja"});
+    } else if (raw.toLowerCase() == "no" || raw.toLowerCase() == "nee") {
+      return const TranslatedValue({"en": "No", "nl": "Nee"});
     } else {
       return textValue.translated;
     }
@@ -104,5 +105,5 @@ class YesNoValue implements TextValue {
 
   @override
   TranslatedValue toRaw() =>
-      TranslatedValue.fromJson({...translated.toJson(), '': raw});
+      TranslatedValue.fromJson({...translated.toJson(), "": raw});
 }

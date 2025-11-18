@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../models/irma_configuration.dart';
-import '../../../models/log_entry.dart';
-import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_empty_credential_card.dart';
-import '../../../widgets/credential_card/yivi_credential_card.dart';
-import '../../../widgets/irma_quote.dart';
-import '../../../widgets/requestor_header.dart';
-import '../../../widgets/translated_text.dart';
+import "../../../models/irma_configuration.dart";
+import "../../../models/log_entry.dart";
+import "../../../theme/theme.dart";
+import "../../../widgets/credential_card/irma_empty_credential_card.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/irma_quote.dart";
+import "../../../widgets/requestor_header.dart";
+import "../../../widgets/translated_text.dart";
 
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogInfo logEntry;
@@ -26,7 +26,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TranslatedText(
-          'activity.data_shared',
+          "activity.data_shared",
           style: theme.themeData.textTheme.headlineMedium,
           isHeader: true,
         ),
@@ -51,7 +51,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
             child: TranslatedText(
-              'activity.signed_message',
+              "activity.signed_message",
               style: theme.themeData.textTheme.headlineMedium,
               isHeader: true,
             ),
@@ -60,7 +60,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
         ],
         SizedBox(height: theme.smallSpacing),
         TranslatedText(
-          'activity.shared_with',
+          "activity.shared_with",
           style: theme.themeData.textTheme.headlineMedium,
           isHeader: true,
         ),

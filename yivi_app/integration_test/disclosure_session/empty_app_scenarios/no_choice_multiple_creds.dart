@@ -1,17 +1,20 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> noChoiceMultipleCredsTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Session requesting:
@@ -35,7 +38,7 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
   await evaluateIntroduction(tester);
 
   // First, the missing credentials should be obtainable
-  expect(find.text('Collect data'), findsOneWidget);
+  expect(find.text("Collect data"), findsOneWidget);
 
   // We should have one discon stepper
   final disConStepperFinder = find.byType(DisclosureDisconStepper);
@@ -52,20 +55,20 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     style: IrmaCardStyle.highlighted,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     style: IrmaCardStyle.normal,
   );
 
   // Continue and expect the AddDataDetailsScreen
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // Issue the email credential
@@ -75,28 +78,28 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     style: IrmaCardStyle.highlighted,
   );
 
   await issueMobileNumber(tester, irmaBinding);
 
   // Issue wizard should be completed
-  expect(find.text('All required data has been added'), findsOneWidget);
-  await tester.tapAndSettle(find.text('Next step'));
+  expect(find.text("All required data has been added"), findsOneWidget);
+  await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen with change choice buttons (email and mobile number are not singleton)
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('Change choice'), findsNWidgets(2));
-  await tester.tapAndSettle(find.text('Share data'));
+  expect(find.text("Change choice"), findsNWidgets(2));
+  await tester.tapAndSettle(find.text("Share data"));
 
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);

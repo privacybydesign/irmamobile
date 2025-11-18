@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/translated_text.dart';
-import 'widgets/date_input_field.dart';
-import 'widgets/document_nr_input_field.dart';
-import 'widgets/mrz_scanner.dart';
+import "../../theme/theme.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/translated_text.dart";
+import "widgets/date_input_field.dart";
+import "widgets/document_nr_input_field.dart";
+import "widgets/mrz_scanner.dart";
 
 typedef MRZController = GlobalKey<MRZScannerState>;
 
@@ -69,9 +69,9 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
 
   DateTime _parseDate(String input) {
     // assuming format dd-MM-yyyy
-    final parts = input.split('-');
+    final parts = input.split("-");
     if (parts.length != 3) {
-      throw FormatException('Invalid date format: $input');
+      throw FormatException("Invalid date format: $input");
     }
     final year = int.parse(parts[0]);
     final month = int.parse(parts[1]);
@@ -87,7 +87,7 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: theme.backgroundTertiary,
-        appBar: IrmaAppBar(titleTranslationKey: 'passport.manual.title'),
+        appBar: IrmaAppBar(titleTranslationKey: "passport.manual.title"),
         body: SizedBox(
           height: double.infinity,
           child: SingleChildScrollView(
@@ -103,24 +103,24 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const TranslatedText('passport.manual.explanation'),
+                      const TranslatedText("passport.manual.explanation"),
                       SizedBox(height: theme.mediumSpacing),
                       DocumentNrInputField(controller: _documentNrCtrl),
                       SizedBox(height: theme.mediumSpacing),
                       DateInputField(
                         controller: _dateOfBirthCtrl,
-                        fieldKey: const Key('passport_dob_field'),
-                        labelI18nKey: 'passport.manual.fields.date_of_birth',
+                        fieldKey: const Key("passport_dob_field"),
+                        labelI18nKey: "passport.manual.fields.date_of_birth",
                         requiredI18nKey:
-                            'passport.manual.fields.date_of_birth_required',
+                            "passport.manual.fields.date_of_birth_required",
                       ),
                       SizedBox(height: theme.mediumSpacing),
                       DateInputField(
                         controller: _expiryDateCtrl,
-                        fieldKey: const Key('passport_expiry_date_field'),
-                        labelI18nKey: 'passport.manual.fields.date_of_expiry',
+                        fieldKey: const Key("passport_expiry_date_field"),
+                        labelI18nKey: "passport.manual.fields.date_of_expiry",
                         requiredI18nKey:
-                            'passport.manual.fields.date_of_expiry_required',
+                            "passport.manual.fields.date_of_expiry_required",
                       ),
                       SizedBox(height: theme.largeSpacing),
                     ],
@@ -131,9 +131,9 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
           ),
         ),
         bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: 'ui.continue',
+          primaryButtonLabel: "ui.continue",
           onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-          secondaryButtonLabel: 'ui.cancel',
+          secondaryButtonLabel: "ui.cancel",
           onSecondaryPressed: widget.onCancel,
         ),
       ),

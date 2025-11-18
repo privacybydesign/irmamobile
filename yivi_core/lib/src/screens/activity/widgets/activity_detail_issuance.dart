@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../models/irma_configuration.dart';
-import '../../../models/log_entry.dart';
-import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/yivi_credential_card.dart';
-import '../../../widgets/requestor_header.dart';
-import '../../../widgets/translated_text.dart';
+import "../../../models/irma_configuration.dart";
+import "../../../models/log_entry.dart";
+import "../../../theme/theme.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/requestor_header.dart";
+import "../../../widgets/translated_text.dart";
 
 class ActivityDetailIssuance extends StatelessWidget {
   final LogInfo logEntry;
@@ -29,7 +29,7 @@ class ActivityDetailIssuance extends StatelessWidget {
         //If is this issuance also has disclosed attributes
         if (issuanceLog.disclosedCredentials.isNotEmpty) ...[
           TranslatedText(
-            'activity.data_shared',
+            "activity.data_shared",
             style: theme.themeData.textTheme.headlineMedium,
             isHeader: true,
           ),
@@ -45,7 +45,7 @@ class ActivityDetailIssuance extends StatelessWidget {
             ),
           SizedBox(height: theme.smallSpacing),
           TranslatedText(
-            'activity.shared_with',
+            "activity.shared_with",
             style: theme.themeData.textTheme.headlineMedium,
             isHeader: true,
           ),
@@ -57,7 +57,7 @@ class ActivityDetailIssuance extends StatelessWidget {
           SizedBox(height: theme.defaultSpacing),
         ],
         TranslatedText(
-          'activity.received_data',
+          "activity.received_data",
           style: theme.themeData.textTheme.headlineMedium,
           isHeader: true,
         ),

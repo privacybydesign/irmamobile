@@ -1,12 +1,11 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_svg/flutter_svg.dart";
 
-import '../../../../package_name.dart';
-import '../../../theme/theme.dart';
+import "../../../theme/theme.dart";
 
-import 'illustrator.dart';
+import "illustrator.dart";
 
 class HelpCarousel extends StatefulWidget {
   final List<HelpCarouselItem> items;
@@ -28,7 +27,7 @@ class _HelpCarouselState extends State<HelpCarousel> {
             for (var item in widget.items)
               Center(
                 child: SizedBox(
-                  child: item.imagePath.endsWith('svg')
+                  child: item.imagePath.endsWith("svg")
                       ? SvgPicture.asset(
                           item.imagePath,
                           excludeFromSemantics: true,

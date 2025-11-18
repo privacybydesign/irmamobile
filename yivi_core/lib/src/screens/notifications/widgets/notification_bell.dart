@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import 'notification_indicator.dart';
+import "notification_indicator.dart";
 
 class NotificationBell extends StatelessWidget {
   final Function() onTap;

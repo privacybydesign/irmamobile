@@ -1,31 +1,31 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import "dart:async";
+import "dart:convert";
+import "dart:io";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:rxdart/rxdart.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:rxdart/rxdart.dart";
 
-import '../../../models/enrollment_events.dart';
-import '../../../models/error_event.dart';
-import '../../../models/irma_configuration.dart';
-import '../../../models/scheme_events.dart';
-import '../../../models/update_schemes_event.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../theme/theme.dart';
-import '../../../util/combine.dart';
-import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/irma_bottom_bar.dart';
-import '../../../widgets/irma_icon_button.dart';
-import '../../../widgets/progress.dart';
-import '../../../widgets/translated_text.dart';
-import '../../error/error_screen.dart';
-import '../util/snackbar.dart';
-import 'requestor_scheme_detail_screen.dart';
-import 'scheme_manager_detail_screen.dart';
-import 'widgets/confirm_scheme_public_key_dialog.dart';
-import 'widgets/provide_scheme_url_dialog.dart';
-import 'widgets/scheme_manager_tile.dart';
+import "../../../models/enrollment_events.dart";
+import "../../../models/error_event.dart";
+import "../../../models/irma_configuration.dart";
+import "../../../models/scheme_events.dart";
+import "../../../models/update_schemes_event.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../theme/theme.dart";
+import "../../../util/combine.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/irma_icon_button.dart";
+import "../../../widgets/progress.dart";
+import "../../../widgets/translated_text.dart";
+import "../../error/error_screen.dart";
+import "../util/snackbar.dart";
+import "requestor_scheme_detail_screen.dart";
+import "scheme_manager_detail_screen.dart";
+import "widgets/confirm_scheme_public_key_dialog.dart";
+import "widgets/provide_scheme_url_dialog.dart";
+import "widgets/scheme_manager_tile.dart";
 
 class SchemeManagementScreen extends StatefulWidget {
   @override
@@ -79,16 +79,16 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
 
     String publicKey;
     try {
-      final Uri uri = Uri.parse('$schemeUrl/pk.pem');
+      final Uri uri = Uri.parse("$schemeUrl/pk.pem");
       final request = await HttpClient().getUrl(uri);
       final response = await request.close();
       publicKey = await response.transform(utf8.decoder).first;
       if (response.statusCode != 200) {
-        throw 'HTTP status code ${response.statusCode} received';
+        throw "HTTP status code ${response.statusCode} received";
       }
     } catch (e) {
       if (mounted) {
-        showSnackbar(context, 'Error while fetching scheme: ${e.toString()}.');
+        showSnackbar(context, "Error while fetching scheme: ${e.toString()}.");
       }
       return;
     }
@@ -126,7 +126,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     if (mounted) {
       showSnackbar(
         context,
-        FlutterI18n.translate(context, 'debug.scheme_management.success'),
+        FlutterI18n.translate(context, "debug.scheme_management.success"),
       );
     }
   }
@@ -134,7 +134,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   Future<void> _onUpdateSchemes() async {
     showSnackbar(
       context,
-      FlutterI18n.translate(context, 'debug.scheme_management.updating'),
+      FlutterI18n.translate(context, "debug.scheme_management.updating"),
     );
 
     final repo = IrmaRepositoryProvider.of(context);
@@ -155,7 +155,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
         context,
         FlutterI18n.translate(
           context,
-          'debug.scheme_management.update_success',
+          "debug.scheme_management.update_success",
         ),
       );
     }
@@ -181,7 +181,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
 
     return Scaffold(
       appBar: IrmaAppBar(
-        titleTranslationKey: 'debug.scheme_management.title',
+        titleTranslationKey: "debug.scheme_management.title",
         actions: [
           IrmaIconButton(icon: Icons.add, onTap: () => _onInstallScheme()),
         ],
@@ -206,7 +206,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                   padding: EdgeInsets.all(theme.defaultSpacing),
                   children: [
                     const TranslatedText(
-                      'debug.scheme_management.issuer_schemes',
+                      "debug.scheme_management.issuer_schemes",
                     ),
                     for (final schemeManager
                         in irmaConfiguration.schemeManagers.values)
@@ -220,7 +220,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                       ),
                     SizedBox(height: theme.defaultSpacing),
                     const TranslatedText(
-                      'debug.scheme_management.requestor_schemes',
+                      "debug.scheme_management.requestor_schemes",
                     ),
                     for (final schemeId
                         in irmaConfiguration.requestorSchemes.keys)
@@ -241,7 +241,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
             ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'debug.scheme_management.update',
+        primaryButtonLabel: "debug.scheme_management.update",
         onPrimaryPressed: () => _onUpdateSchemes(),
       ),
     );

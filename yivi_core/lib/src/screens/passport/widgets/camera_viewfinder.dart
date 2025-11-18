@@ -1,13 +1,13 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+import "package:camera/camera.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:google_mlkit_commons/google_mlkit_commons.dart";
 
-import '../../../../routing.dart';
-import '../../../util/test_detection.dart';
-import 'camera_overlay.dart';
+import "../../../../routing.dart";
+import "../../../util/test_detection.dart";
+import "camera_overlay.dart";
 
 class MRZCameraView extends StatefulWidget {
   const MRZCameraView({
@@ -110,7 +110,7 @@ class MRZCameraViewState extends State<MRZCameraView>
     try {
       await _startLiveFeed();
     } catch (e) {
-      debugPrint('error while starting live feed: $e');
+      debugPrint("error while starting live feed: $e");
     }
   }
 
@@ -226,7 +226,7 @@ class MRZCameraViewState extends State<MRZCameraView>
         await c?.stopImageStream();
       }
     } catch (e) {
-      debugPrint('failed to stop image stream: $e');
+      debugPrint("failed to stop image stream: $e");
     }
     await c?.dispose();
   }

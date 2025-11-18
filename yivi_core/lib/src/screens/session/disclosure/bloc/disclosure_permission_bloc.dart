@@ -2,24 +2,24 @@
 // This does not exactly conform to the bloc pattern, and therefore we have to ignore the linting rule.
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
-import 'dart:async';
+import "dart:async";
 
-import 'package:collection/collection.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rxdart/rxdart.dart';
+import "package:collection/collection.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:rxdart/rxdart.dart";
 
-import '../../../../data/irma_repository.dart';
-import '../../../../models/attribute.dart';
-import '../../../../models/credentials.dart';
-import '../../../../models/irma_configuration.dart';
-import '../../../../models/session_events.dart';
-import '../../../../models/session_state.dart';
-import '../../../../util/con_dis_con.dart';
-import '../bloc/disclosure_permission_event.dart';
-import '../bloc/disclosure_permission_state.dart';
-import '../models/choosable_disclosure_credential.dart';
-import '../models/disclosure_credential.dart';
-import '../models/template_disclosure_credential.dart';
+import "../../../../data/irma_repository.dart";
+import "../../../../models/attribute.dart";
+import "../../../../models/credentials.dart";
+import "../../../../models/irma_configuration.dart";
+import "../../../../models/session_events.dart";
+import "../../../../models/session_state.dart";
+import "../../../../util/con_dis_con.dart";
+import "../bloc/disclosure_permission_event.dart";
+import "../bloc/disclosure_permission_state.dart";
+import "../models/choosable_disclosure_credential.dart";
+import "../models/disclosure_credential.dart";
+import "../models/template_disclosure_credential.dart";
 
 /// Bloc that specifies the flow during DisclosurePermission.
 /// New states are triggered either by an event being added to the bloc, or by changes in the SessionState.
@@ -97,17 +97,18 @@ class DisclosurePermissionBloc
       _listenForSessionState();
     } else if (state is DisclosurePermissionIssueWizard &&
         event is DisclosurePermissionChoiceUpdated) {
-      if (state.currentDiscon == null)
-        throw Exception('No DisCon found that expects an update');
+      if (state.currentDiscon == null) {
+        throw Exception("No DisCon found that expects an update");
+      }
       if (event.conIndex < 0 ||
           event.conIndex >= state.currentDiscon!.value.length) {
-        throw Exception('Unknown conIndex ${event.conIndex} in current discon');
+        throw Exception("Unknown conIndex ${event.conIndex} in current discon");
       }
       if (state.currentDiscon!.value[event.conIndex].any(
         (cred) => !cred.obtainable,
       )) {
         throw Exception(
-          'Selected conIndex ${event.conIndex} is not fully obtainable and therefore not selectable',
+          "Selected conIndex ${event.conIndex} is not fully obtainable and therefore not selectable",
         );
       }
 
@@ -225,7 +226,7 @@ class DisclosurePermissionBloc
           yield* _obtainCredentials(state, credentialsToObtain!);
         } else {
           throw Exception(
-            'Current DisCon is not fully obtainable and therefore not selectable',
+            "Current DisCon is not fully obtainable and therefore not selectable",
           );
         }
       }
@@ -239,7 +240,7 @@ class DisclosurePermissionBloc
           credentialType: state.currentIssueWizardItem!.credentialType,
         );
       } else {
-        throw Exception('Credential cannot be obtained');
+        throw Exception("Credential cannot be obtained");
       }
     } else if (state
             is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
@@ -290,7 +291,7 @@ class DisclosurePermissionBloc
         event is DisclosurePermissionChangeChoicePressed) {
       if (!state.choices.containsKey(event.disconIndex)) {
         throw Exception(
-          'DisCon with index ${event.disconIndex} does not exist',
+          "DisCon with index ${event.disconIndex} does not exist",
         );
       }
 
@@ -332,7 +333,7 @@ class DisclosurePermissionBloc
         event is DisclosurePermissionChangeChoicePressed) {
       if (!state.choices.containsKey(event.disconIndex)) {
         throw Exception(
-          'DisCon with index ${event.disconIndex} does not exist',
+          "DisCon with index ${event.disconIndex} does not exist",
         );
       }
       final discon = _parseCandidatesDisCon(
@@ -351,7 +352,7 @@ class DisclosurePermissionBloc
         event is DisclosurePermissionChoiceUpdated) {
       if (!state.choosableCons.containsKey(event.conIndex) &&
           !state.templateCons.containsKey(event.conIndex)) {
-        throw Exception('Con with index ${event.conIndex} does not exist');
+        throw Exception("Con with index ${event.conIndex} does not exist");
       }
       yield DisclosurePermissionChangeChoice(
         parentState: state.parentState,
@@ -383,7 +384,7 @@ class DisclosurePermissionBloc
     } else if (state is DisclosurePermissionAddOptionalData &&
         event is DisclosurePermissionChoiceUpdated) {
       if (event.conIndex < 0 || event.conIndex >= state.discon.length) {
-        throw Exception('Con with index ${event.conIndex} does not exist');
+        throw Exception("Con with index ${event.conIndex} does not exist");
       }
       yield DisclosurePermissionAddOptionalData(
         parentState: state.parentState,
@@ -415,7 +416,7 @@ class DisclosurePermissionBloc
         event is DisclosurePermissionRemoveOptionalDataPressed) {
       if (!state.optionalChoices.containsKey(event.disconIndex)) {
         throw Exception(
-          'Optional choice with index ${event.disconIndex} does not exist',
+          "Optional choice with index ${event.disconIndex} does not exist",
         );
       }
       yield _refreshChoices(
@@ -428,7 +429,7 @@ class DisclosurePermissionBloc
     } else if (state is DisclosurePermissionChoicesOverview &&
         event is DisclosurePermissionNextPressed) {
       if (!state.choicesValid) {
-        throw Exception('Selected choices are not valid');
+        throw Exception("Selected choices are not valid");
       }
       if (!state.showConfirmationPopup) {
         yield DisclosurePermissionChoicesOverview(
@@ -491,7 +492,7 @@ class DisclosurePermissionBloc
       );
     } else {
       throw UnsupportedError(
-        'Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}',
+        "Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}",
       );
     }
   }
@@ -650,7 +651,7 @@ class DisclosurePermissionBloc
         );
       } else {
         throw Exception(
-          'Unknown DisclosurePermissionChoices implementation: ${state.runtimeType}',
+          "Unknown DisclosurePermissionChoices implementation: ${state.runtimeType}",
         );
       }
     } else if (state is DisclosurePermissionWrongCredentialsObtained) {
@@ -982,7 +983,7 @@ class DisclosurePermissionBloc
       );
     } else {
       throw UnsupportedError(
-        'Unknown DisclosurePermissionChoices implementation: ${prevState.runtimeType}',
+        "Unknown DisclosurePermissionChoices implementation: ${prevState.runtimeType}",
       );
     }
   }
@@ -998,7 +999,7 @@ class DisclosurePermissionBloc
           final attrType = _repo.irmaConfiguration.attributeTypes[attr.type];
           if (attrType == null) {
             throw Exception(
-              'Attribute type ${attr.type} not present in configuration',
+              "Attribute type ${attr.type} not present in configuration",
             );
           }
           return attrType.fullCredentialId;
@@ -1161,8 +1162,9 @@ class DisclosurePermissionBloc
     final List<int> addableConsDisconIndices = [];
 
     for (int i = 0; i < session.disclosuresCandidates!.length; i++) {
-      if (!session.disclosuresCandidates![i].any((con) => con.isEmpty))
+      if (!session.disclosuresCandidates![i].any((con) => con.isEmpty)) {
         continue;
+      }
       if (alreadyAddedOptionalDisconIndices.contains(i)) continue;
       final addable = _parseCandidatesDisCon(
         session.disclosuresCandidates![i],
@@ -1172,7 +1174,7 @@ class DisclosurePermissionBloc
       addableConsDisconIndices.addAll(List.filled(addable.length, i));
     }
 
-    if (addableCons.isEmpty) throw Exception('No optional data left to add');
+    if (addableCons.isEmpty) throw Exception("No optional data left to add");
 
     return DisclosurePermissionAddOptionalData(
       parentState: parentState,
@@ -1202,7 +1204,7 @@ class DisclosurePermissionBloc
           credentialType: selectedConTemplates.first.credentialType,
         );
       } else {
-        Exception('Credential cannot be obtained');
+        Exception("Credential cannot be obtained");
       }
     } else {
       yield DisclosurePermissionObtainCredentials(

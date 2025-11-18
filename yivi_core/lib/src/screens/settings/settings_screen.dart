@@ -1,17 +1,17 @@
-import 'dart:async';
-import 'dart:io';
+import "dart:async";
+import "dart:io";
 
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../models/clear_all_data_event.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/navigation.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/translated_text.dart';
-import '../more/widgets/tiles.dart';
-import '../more/widgets/tiles_card.dart';
-import 'widgets/delete_data_confirmation_dialog.dart';
+import "../../models/clear_all_data_event.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../theme/theme.dart";
+import "../../util/navigation.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/translated_text.dart";
+import "../more/widgets/tiles.dart";
+import "../more/widgets/tiles_card.dart";
+import "widgets/delete_data_confirmation_dialog.dart";
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -77,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: 'settings.title'),
+      appBar: IrmaAppBar(titleTranslationKey: "settings.title"),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
@@ -89,27 +89,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               TilesCard(
                 children: [
                   ToggleTile(
-                    key: const Key('report_toggle'),
-                    labelTranslationKey: 'settings.report_errors',
+                    key: const Key("report_toggle"),
+                    labelTranslationKey: "settings.report_errors",
                     onChanged: repo.preferences.setReportErrors,
                     stream: repo.preferences.getReportErrors(),
                   ),
                 ],
               ),
-              buildExplanationText('settings.report_errors_explanation'),
+              buildExplanationText("settings.report_errors_explanation"),
               if (Platform.isAndroid) ...[
                 spacerWidget,
                 TilesCard(
                   children: [
                     ToggleTile(
-                      key: const Key('screenshot_toggle'),
-                      labelTranslationKey: 'settings.enable_screenshots',
+                      key: const Key("screenshot_toggle"),
+                      labelTranslationKey: "settings.enable_screenshots",
                       onChanged: repo.preferences.setScreenshotsEnabled,
                       stream: repo.preferences.getScreenshotsEnabled(),
                     ),
                   ],
                 ),
-                buildExplanationText('settings.enable_screenshots_explanation'),
+                buildExplanationText("settings.enable_screenshots_explanation"),
                 spacerWidget,
               ],
               if (showDeveloperModeToggle)
@@ -118,31 +118,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: TilesCard(
                     children: [
                       ToggleTile(
-                        key: const Key('dev_mode_toggle'),
-                        labelTranslationKey: 'settings.developer_mode',
+                        key: const Key("dev_mode_toggle"),
+                        labelTranslationKey: "settings.developer_mode",
                         onChanged: repo.setDeveloperMode,
                         stream: repo.getDeveloperMode(),
                       ),
                     ],
                   ),
                 ),
-              buildHeaderText('settings.other'),
+              buildHeaderText("settings.other"),
               TilesCard(
                 children: [
                   InternalLinkTile(
-                    key: Key('change_language_link'),
-                    labelTranslationKey: 'settings.language',
+                    key: Key("change_language_link"),
+                    labelTranslationKey: "settings.language",
                     onTap: context.pushLanguageSettingsScreen,
                   ),
                   InternalLinkTile(
-                    key: Key('change_pin_link'),
-                    labelTranslationKey: 'settings.change_pin',
+                    key: Key("change_pin_link"),
+                    labelTranslationKey: "settings.change_pin",
                     onTap: context.pushChangePinScreen,
                   ),
                   Tile(
                     isLink: false,
-                    key: const Key('delete_link'),
-                    labelTranslationKey: 'settings.delete',
+                    key: const Key("delete_link"),
+                    labelTranslationKey: "settings.delete",
                     onTap: () => showConfirmDeleteDialog(context),
                   ),
                 ],

@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../models/error_event.dart';
-import '../../sentry/sentry.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_error_scaffold_body.dart';
+import "../../models/error_event.dart";
+import "../../sentry/sentry.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/irma_error_scaffold_body.dart";
 
 class ErrorScreen extends StatefulWidget {
   final VoidCallback? onTapClose;
@@ -52,7 +52,7 @@ class ErrorScreen extends StatefulWidget {
     required this.type,
     this.details,
     required this.reportable,
-  }) : super(key: const ValueKey('error_screen'));
+  }) : super(key: const ValueKey("error_screen"));
 
   @override
   State<StatefulWidget> createState() => _ErrorScreenState();
@@ -72,7 +72,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        titleTranslationKey: 'error.details_title',
+        titleTranslationKey: "error.details_title",
         leading: widget.onTapClose != null
             ? YiviBackButton(onTap: widget.onTapClose)
             : null,
@@ -84,12 +84,12 @@ class _ErrorScreenState extends State<ErrorScreen> {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: widget.onTapClose != null
-            ? FlutterI18n.translate(context, 'error.button_ok')
+            ? FlutterI18n.translate(context, "error.button_ok")
             : null,
         onPrimaryPressed: widget.onTapClose,
         // If the error has been reported, the secondary button should be disabled, but the label should remain visible.
         secondaryButtonLabel: widget.onReportError != null
-            ? FlutterI18n.translate(context, 'error.button_send_to_irma')
+            ? FlutterI18n.translate(context, "error.button_send_to_irma")
             : null,
         onSecondaryPressed: widget.onReportError != null && !_hasReported
             ? _onTapReport

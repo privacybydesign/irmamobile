@@ -1,14 +1,14 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:share_plus/share_plus.dart';
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:share_plus/share_plus.dart";
 
-import '../../../providers/irma_repository_provider.dart';
-import '../../../sentry/sentry.dart';
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_dialog.dart';
-import '../../../widgets/translated_text.dart';
-import '../../../widgets/yivi_themed_button.dart';
+import "../../../providers/irma_repository_provider.dart";
+import "../../../sentry/sentry.dart";
+import "../../../theme/theme.dart";
+import "../../../widgets/irma_dialog.dart";
+import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_themed_button.dart";
 
 class ContactLinkTile extends StatelessWidget {
   final IconData? iconData;
@@ -26,11 +26,11 @@ class ContactLinkTile extends StatelessWidget {
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () async {
-        final String address = FlutterI18n.translate(context, 'help.contact');
+        final String address = FlutterI18n.translate(context, "help.contact");
         final String subject = Uri.encodeComponent(
-          FlutterI18n.translate(context, 'help.mail_subject'),
+          FlutterI18n.translate(context, "help.mail_subject"),
         );
-        final mail = 'mailto:$address?subject=$subject';
+        final mail = "mailto:$address?subject=$subject";
         try {
           await IrmaRepositoryProvider.of(context).openURLExternally(mail);
         } catch (_) {
@@ -41,11 +41,11 @@ class ContactLinkTile extends StatelessWidget {
                 return IrmaDialog(
                   title: FlutterI18n.translate(
                     context,
-                    'help.mail_error_title',
+                    "help.mail_error_title",
                   ),
-                  content: FlutterI18n.translate(context, 'help.mail_error'),
+                  content: FlutterI18n.translate(context, "help.mail_error"),
                   child: YiviThemedButton(
-                    label: 'help.mail_error_button',
+                    label: "help.mail_error_button",
                     onPressed: () => Navigator.pop(context),
                   ),
                 );
@@ -168,11 +168,11 @@ class ToggleTile extends StatelessWidget {
         return Semantics(
           value: FlutterI18n.translate(
             context,
-            value ? 'switch.describe_state_on' : 'switch.describe_state_off',
+            value ? "switch.describe_state_on" : "switch.describe_state_off",
           ),
           hint: FlutterI18n.translate(
             context,
-            value ? 'switch.hint_state_on' : 'switch.hint_state_off',
+            value ? "switch.hint_state_on" : "switch.hint_state_off",
           ),
           child: Tile(
             isLink: false,

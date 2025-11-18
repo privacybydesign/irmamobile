@@ -1,10 +1,10 @@
-import 'dart:collection';
+import "dart:collection";
 
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../../widgets/irma_stepper.dart';
-import '../models/template_disclosure_credential.dart';
-import 'disclosure_issue_wizard_credential_card.dart';
+import "../../../../widgets/irma_stepper.dart";
+import "../models/template_disclosure_credential.dart";
+import "disclosure_issue_wizard_credential_card.dart";
 
 class DisclosureTemplateStepper extends StatelessWidget {
   final UnmodifiableListView<TemplateDisclosureCredential> templates;

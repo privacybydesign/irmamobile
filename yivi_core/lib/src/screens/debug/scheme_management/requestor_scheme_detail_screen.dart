@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../models/irma_configuration.dart';
-import '../../../models/scheme_events.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/irma_icon_button.dart';
-import '../util/snackbar.dart';
+import "../../../models/irma_configuration.dart";
+import "../../../models/scheme_events.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../theme/theme.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/irma_icon_button.dart";
+import "../util/snackbar.dart";
 
 class RequestorSchemeDetailScreen extends StatelessWidget {
   final RequestorScheme requestorScheme;
@@ -25,8 +25,8 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
       context,
       FlutterI18n.translate(
         context,
-        'debug.scheme_management.remove',
-        translationParams: {'scheme': requestorScheme.id},
+        "debug.scheme_management.remove",
+        translationParams: {"scheme": requestorScheme.id},
       ),
     );
   }
@@ -49,11 +49,11 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-              title: const Text('Type'),
+              title: const Text("Type"),
               subtitle: Text(
                 requestorScheme.demo
-                    ? 'Demo requestor scheme'
-                    : 'Production requestor scheme',
+                    ? "Demo requestor scheme"
+                    : "Production requestor scheme",
               ),
             ),
           ],

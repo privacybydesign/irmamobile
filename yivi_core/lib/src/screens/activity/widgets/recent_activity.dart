@@ -1,17 +1,17 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../models/irma_configuration.dart';
-import '../../../models/log_entry.dart';
-import '../../../models/session_events.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../theme/theme.dart';
-import '../../../util/combine.dart';
-import '../../../widgets/translated_text.dart';
-import '../../../widgets/yivi_themed_button.dart';
-import '../history_repository.dart';
-import 'activity_card.dart';
+import "../../../models/irma_configuration.dart";
+import "../../../models/log_entry.dart";
+import "../../../models/session_events.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../theme/theme.dart";
+import "../../../util/combine.dart";
+import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_themed_button.dart";
+import "../history_repository.dart";
+import "activity_card.dart";
 
 class RecentActivity extends StatefulWidget {
   final int amountOfLogs;
@@ -88,14 +88,14 @@ class _RecentActivityState extends State<RecentActivity> {
                   child: Semantics(
                     header: true,
                     child: TranslatedText(
-                      'home_tab.recent_activity',
+                      "home_tab.recent_activity",
                       style: theme.textTheme.headlineMedium,
                     ),
                   ),
                 ),
                 Flexible(
                   child: YiviThemedButton(
-                    label: 'home_tab.view_more',
+                    label: "home_tab.view_more",
                     size: YiviButtonSize.small,
                     style: YiviButtonStyle.outlined,
                     isTransparent: true,
@@ -106,7 +106,7 @@ class _RecentActivityState extends State<RecentActivity> {
             ),
             SizedBox(height: theme.defaultSpacing),
             logEntries.isEmpty
-                ? const TranslatedText('activity.empty_placeholder')
+                ? const TranslatedText("activity.empty_placeholder")
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: logEntries

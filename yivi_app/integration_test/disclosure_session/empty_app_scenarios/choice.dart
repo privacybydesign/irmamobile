@@ -1,17 +1,20 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> choiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> choiceTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Session requesting:
@@ -33,7 +36,7 @@ Future<void> choiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBind
   await evaluateIntroduction(tester);
 
   // First, the missing required disjunctions should be obtained using an issue wizard.
-  expect(find.text('Collect data'), findsOneWidget);
+  expect(find.text("Collect data"), findsOneWidget);
 
   // We should have one discon stepper
   final disConStepperFinder = find.byType(DisclosureDisconStepper);
@@ -58,12 +61,12 @@ Future<void> choiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBind
     tester,
     cardsFinder.first,
     isSelected: true,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
   );
 
   // Continue and expect the AddDataDetailsScreen
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
@@ -72,12 +75,12 @@ Future<void> choiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBind
 
   // The choice should be gone now and the phase should be completed.
   expect(disconChoiceFinder, findsNothing);
-  expect(find.text('All required data has been added'), findsOneWidget);
-  await tester.tapAndSettle(find.text('Next step'));
+  expect(find.text("All required data has been added"), findsOneWidget);
+  await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
 
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);

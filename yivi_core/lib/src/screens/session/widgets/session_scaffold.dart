@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/irma_close_button.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/irma_close_button.dart";
 
 class SessionScaffold extends StatelessWidget {
   final Widget? body, bottomNavigationBar;

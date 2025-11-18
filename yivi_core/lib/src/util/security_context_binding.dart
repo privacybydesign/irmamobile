@@ -1,5 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
+import "dart:convert";
+import "dart:io";
 
 class SecurityContextBinding {
   static bool _initialized = false;
@@ -21,7 +21,7 @@ class SecurityContextBinding {
 
   static const _pinnedCerts = [
     // ISRG Root X1 (Let's Encrypt)
-    '''-----BEGIN CERTIFICATE-----
+    """-----BEGIN CERTIFICATE-----
 MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw
 TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh
 cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMTUwNjA0MTEwNDM4
@@ -51,6 +51,6 @@ oyi3B43njTOQ5yOf+1CceWxG1bQVs5ZufpsMljq4Ui0/1lvh+wjChP4kqKOJ2qxq
 4RgqsahDYVvTH9w7jXbyLeiNdd8XM2w9U/t7y0Ff/9yi0GE44Za4rF2LN9d11TPA
 mRGunUHBcnWEvgJBQl9nJEiU0Zsnvgc/ubhPgXRR4Xq37Z0j4r7g1SgEEzwxA57d
 emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
------END CERTIFICATE-----''',
+-----END CERTIFICATE-----""",
   ];
 }

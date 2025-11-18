@@ -1,21 +1,21 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../providers/irma_repository_provider.dart';
-import '../../util/navigation.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/pin_common/format_blocked_for.dart';
-import '../../widgets/pin_common/pin_wrong_attempts.dart';
-import '../../widgets/pin_common/pin_wrong_blocked.dart';
-import '../error/session_error_screen.dart';
-import 'bloc/pin_bloc.dart';
-import 'bloc/pin_event.dart';
-import 'bloc/pin_state.dart';
-import 'yivi_pin_screen.dart';
+import "../../providers/irma_repository_provider.dart";
+import "../../util/navigation.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/pin_common/format_blocked_for.dart";
+import "../../widgets/pin_common/pin_wrong_attempts.dart";
+import "../../widgets/pin_common/pin_wrong_blocked.dart";
+import "../error/session_error_screen.dart";
+import "bloc/pin_bloc.dart";
+import "bloc/pin_event.dart";
+import "bloc/pin_state.dart";
+import "yivi_pin_screen.dart";
 
 class PinScreen extends StatefulWidget {
   final PinEvent? initialEvent;
@@ -154,8 +154,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed) {
       if (_pinBloc.state.pinInvalid ||
           _pinBloc.state.authenticateInProgress ||
-          _pinBloc.state.error != null)
+          _pinBloc.state.error != null) {
         return;
+      }
     }
   }
 
@@ -172,7 +173,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
         return YiviPinScaffold(
           appBar: IrmaAppBar(
-            titleString: '',
+            titleString: "",
             hasBorder: false,
             leading: widget.leading,
           ),
@@ -180,18 +181,18 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
             stream: _pinBloc.getPinBlockedFor(),
             builder:
                 (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
-                  var subtitle = FlutterI18n.translate(context, 'pin.subtitle');
+                  var subtitle = FlutterI18n.translate(context, "pin.subtitle");
                   if (blockedFor.hasData &&
                       (blockedFor.data?.inSeconds ?? 0) > 0) {
                     final blockedText = FlutterI18n.translate(
                       context,
-                      'pin_common.blocked_for',
+                      "pin_common.blocked_for",
                     );
                     final blockedForTime = formatBlockedFor(
                       context,
                       blockedFor.data!,
                     );
-                    subtitle = '$blockedText $blockedForTime';
+                    subtitle = "$blockedText $blockedForTime";
                   }
 
                   return StreamBuilder<bool>(

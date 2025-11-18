@@ -1,14 +1,14 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
-import 'package:yivi_core/src/screens/data/credentials_details_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/irma_credential_type_card.dart';
-import 'package:yivi_core/src/widgets/irma_app_bar.dart';
+import "package:flutter/cupertino.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:integration_test/integration_test.dart";
+import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/irma_credential_type_card.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
-import 'helpers/helpers.dart';
-import 'helpers/issuance_helpers.dart';
-import 'irma_binding.dart';
-import 'util.dart';
+import "helpers/helpers.dart";
+import "helpers/issuance_helpers.dart";
+import "irma_binding.dart";
+import "util.dart";
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -19,21 +19,21 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group('search-credentials', () {
+  group("search-credentials", () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets('empty-app-shows-image', (tester) async {
+    testWidgets("empty-app-shows-image", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-      final image = find.byKey(const Key('to_add_data_button_pointing_image'));
+      final image = find.byKey(const Key("to_add_data_button_pointing_image"));
       expect(image, findsOneWidget);
     });
 
-    testWidgets('empty-app-search-no-crash', (tester) async {
+    testWidgets("empty-app-search-no-crash", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
       await enterSearchMode(tester);
       await exitSearchMode(tester);
@@ -41,14 +41,14 @@ void main() {
       // there's always at least one credential: the keyshare app id
       expect(countCredentialTypeCards(tester), equals(0));
 
-      await searchCredentials(tester, 'hello');
+      await searchCredentials(tester, "hello");
       expect(countCredentialTypeCards(tester), equals(0));
 
       await exitSearchMode(tester);
       expect(countCredentialTypeCards(tester), equals(0));
     });
 
-    testWidgets('no-query-all-cards', (tester) async {
+    testWidgets("no-query-all-cards", (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
       await enterSearchMode(tester);
 
@@ -59,9 +59,9 @@ void main() {
       expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
     });
 
-    testWidgets('query-for-single', (tester) async {
+    testWidgets("query-for-single", (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
-      await searchCredentials(tester, 'tube');
+      await searchCredentials(tester, "tube");
 
       final expectedNumResults = 1;
       expect(countCredentialTypeCards(tester), equals(expectedNumResults));
@@ -76,9 +76,9 @@ void main() {
       expect(countCredentialTypeCards(tester), equals(expectedNumResults));
     });
 
-    testWidgets('query-for-two', (tester) async {
+    testWidgets("query-for-two", (tester) async {
       await pumpFilledAppOnDataPage(tester, irmaBinding);
-      await searchCredentials(tester, 'adres');
+      await searchCredentials(tester, "adres");
 
       final numCreds = countCredentialTypeCards(tester);
       expect(numCreds, equals(2));
@@ -95,12 +95,12 @@ Future<void> pressCredentialTypeCard(WidgetTester tester) async {
 }
 
 Future<void> enterSearchMode(WidgetTester tester) async {
-  final searchButton = find.byKey(const Key('search_button'));
+  final searchButton = find.byKey(const Key("search_button"));
   await tester.tapAndSettle(searchButton);
 }
 
 Future<void> exitSearchMode(WidgetTester tester) async {
-  final cancelButton = find.byKey(const Key('cancel_search_button'));
+  final cancelButton = find.byKey(const Key("cancel_search_button"));
   await tester.tapAndSettle(cancelButton);
   await tester.pumpAndSettle();
 }
@@ -108,24 +108,34 @@ Future<void> exitSearchMode(WidgetTester tester) async {
 Future<void> searchCredentials(WidgetTester tester, String query) async {
   await enterSearchMode(tester);
   await tester.pumpAndSettle(Duration(seconds: 1));
-  final searchBar = find.byKey(const Key('search_bar'));
+  final searchBar = find.byKey(const Key("search_bar"));
   await tester.enterText(searchBar, query);
   await tester.pumpAndSettle(Duration(seconds: 1));
 }
 
 int countCredentialTypeCards(WidgetTester tester) {
-  final list = tester.widgetList(find.byKey(const Key('credentials_type_list'))).firstOrNull as ListView?;
+  final list =
+      tester
+              .widgetList(find.byKey(const Key("credentials_type_list")))
+              .firstOrNull
+          as ListView?;
   return list?.childrenDelegate.estimatedChildCount ?? 0;
 }
 
-Future<void> pumpFilledAppOnDataPage(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
-  await pumpAndUnlockApp(tester, irmaBinding.repository, Locale('en'));
+Future<void> pumpFilledAppOnDataPage(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository, Locale("en"));
   await fillApp(tester, irmaBinding);
-  await tester.tapAndSettle(find.byKey(const Key('ok_button')));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.byKey(const Key("ok_button")));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 }
 
-Future<void> fillApp(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> fillApp(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await issueIrmaTubeMember(tester, irmaBinding);
   await issueDemoCredentials(tester, irmaBinding);
   await issueDemoIvidoLogin(tester, irmaBinding);

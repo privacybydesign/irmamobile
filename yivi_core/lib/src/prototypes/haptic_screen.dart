@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
-import '../widgets/irma_app_bar.dart';
+import "../widgets/irma_app_bar.dart";
 
 class _Haptic {
   final String description;
@@ -23,23 +23,23 @@ class HapticScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  final feedbackForTap = 'Feedback.forTap';
-  final feedbackForLongPress = 'Feedback.forLongPress';
-  final enableFeedback = 'enableFeedback: true';
+  final feedbackForTap = "Feedback.forTap";
+  final feedbackForLongPress = "Feedback.forLongPress";
+  final enableFeedback = "enableFeedback: true";
 
   @override
   Widget build(BuildContext context) {
     final haptics = [
-      _Haptic('heavy impact', HapticFeedback.heavyImpact),
-      _Haptic('light impact', HapticFeedback.lightImpact),
-      _Haptic('medium impact', HapticFeedback.mediumImpact),
-      _Haptic('selection click', HapticFeedback.selectionClick),
-      _Haptic('vibrate', HapticFeedback.vibrate),
+      _Haptic("heavy impact", HapticFeedback.heavyImpact),
+      _Haptic("light impact", HapticFeedback.lightImpact),
+      _Haptic("medium impact", HapticFeedback.mediumImpact),
+      _Haptic("selection click", HapticFeedback.selectionClick),
+      _Haptic("vibrate", HapticFeedback.vibrate),
     ];
 
     return Scaffold(
       appBar: IrmaAppBar(
-        titleString: 'Haptics',
+        titleString: "Haptics",
         leading: YiviBackButton(onTap: onBack),
       ),
       body: SingleChildScrollView(

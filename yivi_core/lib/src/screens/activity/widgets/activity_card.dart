@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:intl/intl.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:intl/intl.dart";
 
-import '../../../models/irma_configuration.dart';
-import '../../../models/log_entry.dart';
-import '../../../theme/theme.dart';
-import '../../../util/navigation.dart';
-import '../../../util/string.dart';
-import '../../../widgets/irma_avatar.dart';
-import '../../../widgets/irma_card.dart';
-import '../../../widgets/translated_text.dart';
+import "../../../models/irma_configuration.dart";
+import "../../../models/log_entry.dart";
+import "../../../theme/theme.dart";
+import "../../../util/navigation.dart";
+import "../../../util/string.dart";
+import "../../../widgets/irma_avatar.dart";
+import "../../../widgets/irma_card.dart";
+import "../../../widgets/translated_text.dart";
 
 class ActivityCard extends StatelessWidget {
   final LogInfo logEntry;
@@ -22,17 +22,17 @@ class ActivityCard extends StatelessWidget {
     final String lang = FlutterI18n.currentLocale(context)!.languageCode;
     final theme = IrmaTheme.of(context);
 
-    String title = '';
-    String subtitleTranslationKey = '';
-    String semanticLabel = '';
+    String title = "";
+    String subtitleTranslationKey = "";
+    String semanticLabel = "";
     String? logo;
 
     final localizedTimeStamp = FlutterI18n.translate(
       context,
-      'credential.date_at_time',
+      "credential.date_at_time",
       translationParams: {
-        'date': DateFormat.yMMMMd(lang).format(logEntry.time),
-        'time': DateFormat.jm(lang).format(logEntry.time),
+        "date": DateFormat.yMMMMd(lang).format(logEntry.time),
+        "time": DateFormat.jm(lang).format(logEntry.time),
       },
     );
 
@@ -46,11 +46,11 @@ class ActivityCard extends StatelessWidget {
       title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(
         lang,
       );
-      subtitleTranslationKey = 'activity.data_deleted';
+      subtitleTranslationKey = "activity.data_deleted";
       semanticLabel = FlutterI18n.translate(
         context,
-        'activity.data_deleted_semantics',
-        translationParams: {'issuerName': title, 'date': localizedTimeStamp},
+        "activity.data_deleted_semantics",
+        translationParams: {"issuerName": title, "date": localizedTimeStamp},
       );
 
       if (credType.logo != null) {
@@ -63,11 +63,11 @@ class ActivityCard extends StatelessWidget {
         if (logEntry.issuanceLog!.issuer.logoPath != null) {
           logo = logEntry.issuanceLog!.issuer.logoPath;
         }
-        subtitleTranslationKey = 'activity.data_received';
+        subtitleTranslationKey = "activity.data_received";
         semanticLabel = FlutterI18n.translate(
           context,
-          'activity.data_received_semantics',
-          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
+          "activity.data_received_semantics",
+          translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.disclosure) {
         final serverName = logEntry.disclosureLog!.verifier.name.translate(
@@ -78,11 +78,11 @@ class ActivityCard extends StatelessWidget {
           logo = logEntry.disclosureLog!.verifier.logoPath;
         }
 
-        subtitleTranslationKey = 'activity.data_shared';
+        subtitleTranslationKey = "activity.data_shared";
         semanticLabel = FlutterI18n.translate(
           context,
-          'activity.data_shared_semantics',
-          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
+          "activity.data_shared_semantics",
+          translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.signature) {
         final serverName = logEntry.signedMessageLog!.verifier.name.translate(
@@ -92,11 +92,11 @@ class ActivityCard extends StatelessWidget {
         if (logEntry.signedMessageLog!.verifier.logoPath != null) {
           logo = logEntry.signedMessageLog!.verifier.logoPath;
         }
-        subtitleTranslationKey = 'activity.message_signed';
+        subtitleTranslationKey = "activity.message_signed";
         semanticLabel = FlutterI18n.translate(
           context,
-          'activity.signed_message_semantics',
-          translationParams: {'otherParty': title, 'date': localizedTimeStamp},
+          "activity.signed_message_semantics",
+          translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       }
 
@@ -128,7 +128,7 @@ class ActivityCard extends StatelessWidget {
                           IrmaAvatar(
                             size: 52,
                             logoPath: logo,
-                            initials: title != '' ? title[0] : null,
+                            initials: title != "" ? title[0] : null,
                           ),
                           SizedBox(width: theme.smallSpacing),
                           Flexible(

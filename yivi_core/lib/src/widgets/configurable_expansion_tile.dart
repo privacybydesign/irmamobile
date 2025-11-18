@@ -30,7 +30,7 @@
 
 library;
 
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 /// A configurable Expansion Tile edited from the flutter material implementation
 /// that allows for customization of most of the behaviour. Includes providing colours,

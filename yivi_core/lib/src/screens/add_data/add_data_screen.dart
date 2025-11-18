@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../theme/theme.dart';
-import '../../util/navigation.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/translated_text.dart';
-import '../data/widgets/credential_category_list.dart';
-import 'widgets/store_credential_types_builder.dart';
+import "../../theme/theme.dart";
+import "../../util/navigation.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/translated_text.dart";
+import "../data/widgets/credential_category_list.dart";
+import "widgets/store_credential_types_builder.dart";
 
 class AddDataScreen extends StatelessWidget {
   @override
@@ -14,7 +14,7 @@ class AddDataScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: 'data.add.title'),
+      appBar: IrmaAppBar(titleTranslationKey: "data.add.title"),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: SafeArea(
@@ -22,7 +22,7 @@ class AddDataScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TranslatedText(
-                'data.add.choose',
+                "data.add.choose",
                 style: theme.textTheme.bodyMedium,
               ),
               SizedBox(height: theme.defaultSpacing),

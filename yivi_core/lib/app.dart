@@ -1,25 +1,25 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_localizations/flutter_localizations.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:go_router/go_router.dart";
 
-import '../../routing.dart';
-import '../../src/models/applifecycle_changed_event.dart';
-import '../../src/models/enrollment_status.dart';
-import '../../src/models/event.dart';
-import '../../src/models/session.dart';
-import '../../src/models/update_schemes_event.dart';
-import '../../src/screens/rooted_warning/repository.dart';
-import '../../src/theme/theme.dart';
-import 'package_name.dart';
-import 'src/providers/irma_repository_provider.dart';
-import 'src/providers/preferences_provider.dart';
-import 'src/screens/notifications/bloc/notifications_bloc.dart';
-import 'src/util/privacy_screen.dart';
+import "../../routing.dart";
+import "../../src/models/applifecycle_changed_event.dart";
+import "../../src/models/enrollment_status.dart";
+import "../../src/models/event.dart";
+import "../../src/models/session.dart";
+import "../../src/models/update_schemes_event.dart";
+import "../../src/screens/rooted_warning/repository.dart";
+import "../../src/theme/theme.dart";
+import "package_name.dart";
+import "src/providers/irma_repository_provider.dart";
+import "src/providers/preferences_provider.dart";
+import "src/screens/notifications/bloc/notifications_bloc.dart";
+import "src/util/privacy_screen.dart";
 
 const schemeUpdateIntervalHours = 3;
 
@@ -62,8 +62,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     return [
       FlutterI18nDelegate(
         translationLoader: FileTranslationLoader(
-          fallbackFile: 'en',
-          basePath: yiviAsset('locales'),
+          fallbackFile: "en",
+          basePath: yiviAsset("locales"),
           forcedLocale: forcedLocale,
         ),
       ),
@@ -74,7 +74,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   static List<Locale> defaultSupportedLocales() {
-    return const [Locale('en', 'US'), Locale('nl', 'NL')];
+    return const [Locale("en", "US"), Locale("nl", "NL")];
   }
 
   @override
@@ -217,8 +217,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     return IrmaTheme(
       builder: (BuildContext context) {
         return MaterialApp.router(
-          key: const Key('app'),
-          title: 'Yivi',
+          key: const Key("app"),
+          title: "Yivi",
           theme: IrmaTheme.of(context).themeData,
           localizationsDelegates: defaultLocalizationsDelegates(
             widget.forcedLocale,

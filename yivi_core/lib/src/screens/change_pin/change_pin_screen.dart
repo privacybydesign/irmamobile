@@ -1,25 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../data/irma_repository.dart';
-import '../../models/session.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/navigation.dart';
-import '../../widgets/pin_common/pin_wrong_attempts.dart';
-import '../../widgets/translated_text.dart';
-import '../change_pin/models/change_pin_bloc.dart';
-import '../change_pin/models/change_pin_event.dart';
-import '../change_pin/models/change_pin_state.dart';
-import '../change_pin/widgets/confirm_pin.dart';
-import '../change_pin/widgets/enter_pin.dart';
-import '../enrollment/choose_pin/choose_pin_screen.dart';
-import '../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart';
-import '../error/session_error_screen.dart';
-import 'models/old_pin_verification_state.dart';
-import 'models/validation_state.dart';
-import 'models/verify_old_pin_bloc.dart';
+import "../../data/irma_repository.dart";
+import "../../models/session.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../theme/theme.dart";
+import "../../util/navigation.dart";
+import "../../widgets/pin_common/pin_wrong_attempts.dart";
+import "../../widgets/translated_text.dart";
+import "../change_pin/models/change_pin_bloc.dart";
+import "../change_pin/models/change_pin_event.dart";
+import "../change_pin/models/change_pin_state.dart";
+import "../change_pin/widgets/confirm_pin.dart";
+import "../change_pin/widgets/enter_pin.dart";
+import "../enrollment/choose_pin/choose_pin_screen.dart";
+import "../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
+import "../error/session_error_screen.dart";
+import "models/old_pin_verification_state.dart";
+import "models/validation_state.dart";
+import "models/verify_old_pin_bloc.dart";
 
 class ChangePinScreen extends StatelessWidget {
   @override
@@ -54,7 +54,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   IrmaThemeData get theme => IrmaTheme.of(context);
-  final newPin = ValueNotifier<String>('');
+  final newPin = ValueNotifier<String>("");
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
@@ -118,7 +118,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: TranslatedText(
-          'change_pin.toast',
+          "change_pin.toast",
           style: theme.themeData.textTheme.bodySmall!.copyWith(
             color: theme.light,
           ),
@@ -223,7 +223,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
           initialRoute: EnterPin.routeName,
           onGenerateRoute: (RouteSettings settings) {
             if (!routeBuilders.containsKey(settings.name)) {
-              throw Exception('Invalid route: ${settings.name}');
+              throw Exception("Invalid route: ${settings.name}");
             }
             final child = routeBuilders[settings.name];
 

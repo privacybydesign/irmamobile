@@ -1,5 +1,5 @@
-import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/widgets.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
 // Markdown translations are not supported by this class.
 class TranslatedRichText extends StatelessWidget {
@@ -38,7 +38,7 @@ class TranslatedRichText extends StatelessWidget {
   List<InlineSpan> _replaceRichParams(String rawTranslation) {
     for (final String paramKey in translationParams.keys) {
       // Look whether the current parameter is present in the raw translation.
-      final paramIndex = rawTranslation.indexOf(RegExp('{$paramKey}'));
+      final paramIndex = rawTranslation.indexOf(RegExp("{$paramKey}"));
 
       if (paramIndex >= 0) {
         // Found an occurrence of the current parameter.
@@ -52,7 +52,7 @@ class TranslatedRichText extends StatelessWidget {
         // in the part after the current occurrence.
         final rawAfter = rawTranslation
             .substring(paramIndex)
-            .replaceFirst(RegExp('{$paramKey}'), '');
+            .replaceFirst(RegExp("{$paramKey}"), "");
         final spansAfter = rawAfter.isNotEmpty
             ? _replaceRichParams(rawAfter)
             : <InlineSpan>[];

@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../../widgets/credential_card/yivi_credential_card.dart';
-import '../../../../widgets/irma_card.dart';
-import '../models/disclosure_credential.dart';
-import '../models/template_disclosure_credential.dart';
+import "../../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../../widgets/irma_card.dart";
+import "../models/disclosure_credential.dart";
+import "../models/template_disclosure_credential.dart";
 
 class DisclosureIssueWizardCredentialCards extends StatelessWidget {
   final List<DisclosureCredential> credentials;

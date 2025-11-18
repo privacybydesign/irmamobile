@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
@@ -48,8 +48,8 @@ class IrmaThemeData {
   final Color danger = const Color(0xffEABEBE);
 
   // Fonts
-  final String primaryFontFamily = 'Alexandria';
-  final String secondaryFontFamily = 'Open Sans';
+  final String primaryFontFamily = "Alexandria";
+  final String secondaryFontFamily = "Open Sans";
 
   // Borders
   final BorderRadius borderRadius = BorderRadius.circular(8);
@@ -224,7 +224,7 @@ class IrmaThemeData {
     );
 
     mrzLabel = TextStyle(
-      fontFamily: 'monospace',
+      fontFamily: "monospace",
       fontSize: 14,
       color: light,
       letterSpacing: 2,

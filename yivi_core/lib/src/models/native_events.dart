@@ -1,8 +1,8 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
+import "event.dart";
 
-part 'native_events.g.dart';
+part "native_events.g.dart";
 
 @JsonSerializable(createFactory: false)
 class AppReadyEvent extends Event {

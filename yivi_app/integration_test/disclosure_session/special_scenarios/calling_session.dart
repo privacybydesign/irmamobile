@@ -1,21 +1,24 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/session/call_info_screen.dart';
-import 'package:yivi_core/src/widgets/irma_app_bar.dart';
-import 'package:yivi_core/src/widgets/irma_quote.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/session/call_info_screen.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_quote.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> callingSessionTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> callingSessionTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   await issueEmailAddress(tester, irmaBinding);
-  await tester.tapAndSettle(find.text('OK'));
+  await tester.tapAndSettle(find.text("OK"));
 
   // Session requesting:
   // Email or mobile number
@@ -37,10 +40,10 @@ Future<void> callingSessionTest(WidgetTester tester, IntegrationTestIrmaBinding 
   await evaluateIntroduction(tester);
 
   // Press share on the overview screen
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
 
   // Press share on the confirmation dialog
-  await tester.tapAndSettle(find.text('Share'));
+  await tester.tapAndSettle(find.text("Share"));
 
   // Expect to be on the call info screen
   final callInfoScreenFinder = find.byType(CallInfoScreen);
@@ -50,7 +53,7 @@ Future<void> callingSessionTest(WidgetTester tester, IntegrationTestIrmaBinding 
   final appBarFinder = find.byType(IrmaAppBar);
   expect(appBarFinder, findsOneWidget);
 
-  const expectedAppBarText = 'Call via Yivi';
+  const expectedAppBarText = "Call via Yivi";
   final appBarHeaderFinder = find.descendant(
     of: appBarFinder,
     matching: find.text(expectedAppBarText),
@@ -62,30 +65,32 @@ Future<void> callingSessionTest(WidgetTester tester, IntegrationTestIrmaBinding 
   expect(quoteFinder, findsOneWidget);
 
   // Check the content of the IrmaQuote
-  final actualQuoteText = (quoteFinder.evaluate().first.widget as IrmaQuote).quote;
-  const expectedQuoteText = 'Data has been shared with is.demo.staging.yivi.app';
+  final actualQuoteText =
+      (quoteFinder.evaluate().first.widget as IrmaQuote).quote;
+  const expectedQuoteText =
+      "Data has been shared with is.demo.staging.yivi.app";
   expect(actualQuoteText, expectedQuoteText);
 
   final actualScreenText = tester.getAllText(callInfoScreenFinder);
   final Iterable<String> expectedScreenText;
   if (Platform.isAndroid) {
     expectedScreenText = [
-      '1. Choose next',
-      'Your phone app now opens automatically. The number is pre-filled, followed by a link code.',
-      '2. Tap the call button in your phone app',
-      'You will hear a few beeps and you will be connected.',
-      'Call via Yivi',
-      'Next'
+      "1. Choose next",
+      "Your phone app now opens automatically. The number is pre-filled, followed by a link code.",
+      "2. Tap the call button in your phone app",
+      "You will hear a few beeps and you will be connected.",
+      "Call via Yivi",
+      "Next",
     ];
   } else if (Platform.isIOS) {
     expectedScreenText = [
-      'Choose next to call',
-      'A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link code. If you choose to call, you will hear a few beeps and you will be connected.',
-      'Call via Yivi',
-      'Next',
+      "Choose next to call",
+      "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link code. If you choose to call, you will hear a few beeps and you will be connected.",
+      "Call via Yivi",
+      "Next",
     ];
   } else {
-    throw Exception('Unsupported platform');
+    throw Exception("Unsupported platform");
   }
 
   expect(actualScreenText, expectedScreenText);

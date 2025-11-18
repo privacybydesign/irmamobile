@@ -1,4 +1,4 @@
-part of 'yivi_pin_screen.dart';
+part of "yivi_pin_screen.dart";
 
 class _UnsecurePinWarningTextButton extends StatelessWidget {
   final EnterPinStateBloc bloc;
@@ -18,7 +18,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                FlutterI18n.translate(context, 'secure_pin.title'),
+                FlutterI18n.translate(context, "secure_pin.title"),
                 style: theme.textTheme.displaySmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
@@ -42,7 +42,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
                     Icons.close_outlined,
                     semanticLabel: FlutterI18n.translate(
                       context,
-                      'accessibility.close',
+                      "accessibility.close",
                     ),
                     size: 18,
                     color: Colors.grey.shade800,
@@ -57,7 +57,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          FlutterI18n.translate(context, 'secure_pin.subtitle'),
+          FlutterI18n.translate(context, "secure_pin.subtitle"),
           style: theme.textTheme.bodyMedium,
         ),
       ),
@@ -104,7 +104,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  FlutterI18n.translate(context, 'secure_pin.info_button'),
+                  FlutterI18n.translate(context, "secure_pin.info_button"),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.warning,
                     fontWeight: FontWeight.w700,

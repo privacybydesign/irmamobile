@@ -1,4 +1,4 @@
-import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
+import "package:streaming_shared_preferences/streaming_shared_preferences.dart";
 
 class IrmaPreferences {
   final String mostRecentTermsUrlNl;
@@ -14,7 +14,7 @@ class IrmaPreferences {
        ),
        _acceptedTermsUrl = preferences.getString(
          _acceptedTermsUrlKey,
-         defaultValue: 'no-terms-accepted',
+         defaultValue: "no-terms-accepted",
        ),
        // Please don't arbitrarily change this value, this could hinder the upgrade flow
        // For users before the pin size >5 was introduced.
@@ -37,7 +37,7 @@ class IrmaPreferences {
        ),
        _preferredLanguageCode = preferences.getString(
          _preferredLanguageKey,
-         defaultValue: '',
+         defaultValue: "",
        ),
        _showNameChangedNotification = preferences.getBool(
          _showNameChangedNotificationKey,
@@ -49,7 +49,7 @@ class IrmaPreferences {
        ),
        _serializedNotifications = preferences.getString(
          _serializedNotificationsKey,
-         defaultValue: '',
+         defaultValue: "",
        ),
        _credentialOrder = preferences.getStringList(
          _credentialOrderKey,
@@ -72,57 +72,57 @@ class IrmaPreferences {
 
   // =============================================================================
 
-  static const String _screenshotsEnabledKey = 'preference.screenshots_enabled';
+  static const String _screenshotsEnabledKey = "preference.screenshots_enabled";
   final Preference<bool> _screenshotsEnabled;
 
-  static const String _longPinKey = 'preference.long_pin';
+  static const String _longPinKey = "preference.long_pin";
   final Preference<bool> _longPin;
 
-  static const String _reportErrorsKey = 'preference.report_errors';
+  static const String _reportErrorsKey = "preference.report_errors";
   final Preference<bool> _reportErrors;
 
   static const String _showDisclosureDialogKey =
-      'preference.show_disclosure_dialog';
+      "preference.show_disclosure_dialog";
   final Preference<bool> _showDisclosureDialog;
 
   static const String _acceptedRootedRiskKey =
-      'preference.accepted_rooted_risk';
+      "preference.accepted_rooted_risk";
   final Preference<bool> _acceptedRootedRisk;
 
   /// Originates from the notification that  IRMA is ABOUT TO change to Yivi, only used for cleanup-purposes
   static const String _showNameChangeNotificationKey =
-      'preference.show_name_change_notification';
+      "preference.show_name_change_notification";
 
   /// Old value that was used for displaying the dev mode toggle,
   /// now it's only used for cleanup-purposes
   static const String _developerModePrefVisibleKey =
-      'preference.devmode_visible';
+      "preference.devmode_visible";
 
   static const String _completedDisclosurePermissionIntroKey =
-      'preference.completed_disclosure_permission_intro';
+      "preference.completed_disclosure_permission_intro";
   final Preference<bool> _completedDisclosurePermissionIntro;
 
   static const String _preferredLanguageKey =
-      'preference.preferred_language_code';
+      "preference.preferred_language_code";
   final Preference<String> _preferredLanguageCode;
 
   // Value that is used to display the notification that IRMA HAS changed to Yivi
   static const String _showNameChangedNotificationKey =
-      'preference.show_name_changed_notification';
+      "preference.show_name_changed_notification";
   final Preference<bool> _showNameChangedNotification;
 
-  static const String _lastSchemeUpdateKey = 'preference.last_schemeupdate';
+  static const String _lastSchemeUpdateKey = "preference.last_schemeupdate";
   final Preference<int> _lastSchemeUpdate;
 
   // Used to store all notifications
-  static const String _serializedNotificationsKey = 'preference.notifications';
+  static const String _serializedNotificationsKey = "preference.notifications";
   final Preference<String> _serializedNotifications;
 
-  static const String _acceptedTermsUrlKey = 'preference.accepted_terms_url';
+  static const String _acceptedTermsUrlKey = "preference.accepted_terms_url";
   final Preference<String> _acceptedTermsUrl;
 
   // Used to store the prefered order of credentials in the data tab
-  static const String _credentialOrderKey = 'preference.credential_order';
+  static const String _credentialOrderKey = "preference.credential_order";
   // list of credential ids stored as json string
   final Preference<List<String>> _credentialOrder;
 
@@ -183,7 +183,7 @@ class IrmaPreferences {
       _acceptedTermsUrl.map((url) => url == mostRecentTermsUrlNl);
 
   Future<bool> markLatestTermsAsAccepted(bool accepted) => _acceptedTermsUrl
-      .setValue(accepted ? mostRecentTermsUrlNl : 'no-terms-accepted');
+      .setValue(accepted ? mostRecentTermsUrlNl : "no-terms-accepted");
 
   List<String> getCredentialOrder() => _credentialOrder.getValue();
 

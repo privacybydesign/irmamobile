@@ -1,7 +1,7 @@
-import '../../../../models/attribute.dart';
-import '../../../../models/attribute_value.dart';
-import '../../../../models/credentials.dart';
-import 'disclosure_credential.dart';
+import "../../../../models/attribute.dart";
+import "../../../../models/attribute_value.dart";
+import "../../../../models/credentials.dart";
+import "disclosure_credential.dart";
 
 /// Template of a DisclosureCredential that needs to be obtained first.
 class TemplateDisclosureCredential extends DisclosureCredential {

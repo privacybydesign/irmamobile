@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import '../../../../providers/irma_repository_provider.dart';
-import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_bottom_bar.dart';
-import '../../widgets/session_scaffold.dart';
-import '../bloc/disclosure_permission_event.dart';
-import '../bloc/disclosure_permission_state.dart';
-import 'disclosure_template_stepper.dart';
+import "../../../../providers/irma_repository_provider.dart";
+import "../../../../theme/theme.dart";
+import "../../../../widgets/irma_bottom_bar.dart";
+import "../../widgets/session_scaffold.dart";
+import "../bloc/disclosure_permission_event.dart";
+import "../bloc/disclosure_permission_state.dart";
+import "disclosure_template_stepper.dart";
 
 class DisclosurePermissionObtainCredentialsScreen extends ConsumerWidget {
   final DisclosurePermissionObtainCredentials state;
@@ -37,7 +37,7 @@ class DisclosurePermissionObtainCredentialsScreen extends ConsumerWidget {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.issue_wizard.title',
+      appBarTitle: "disclosure_permission.issue_wizard.title",
       onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
@@ -53,8 +53,8 @@ class DisclosurePermissionObtainCredentialsScreen extends ConsumerWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: state.allObtained
-            ? 'ui.done'
-            : 'disclosure_permission.obtain_data',
+            ? "ui.done"
+            : "disclosure_permission.obtain_data",
         onPrimaryPressed: () => _onButtonPressed(context, ref),
       ),
     );

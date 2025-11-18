@@ -11,10 +11,10 @@ class MRZHelper {
       }
       // to make sure that all lines are the same in length
     }
-    List<String> firstLineChars = ableToScanTextList.first.split('');
+    List<String> firstLineChars = ableToScanTextList.first.split("");
     List<String> supportedDocTypes = [
-      'P',
-      'V',
+      "P",
+      "V",
     ]; // you can add more doc types like A,C,I are also supported
     String fChar = firstLineChars[0];
     if (supportedDocTypes.contains(fChar)) {
@@ -24,26 +24,26 @@ class MRZHelper {
   }
 
   static String testTextLine(String text) {
-    String res = text.replaceAll(' ', '');
-    List<String> list = res.split('');
+    String res = text.replaceAll(" ", "");
+    List<String> list = res.split("");
 
     // to check if the text belongs to any MRZ format or not
     if (list.length != 44 && list.length != 30 && list.length != 36) {
-      return '';
+      return "";
     }
 
     for (int i = 0; i < list.length; i++) {
-      if (RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(list[i])) {
+      if (RegExp(r"^[A-Za-z0-9_.]+$").hasMatch(list[i])) {
         list[i] = list[i].toUpperCase();
         // to ensure that every letter is uppercase
       }
       if (double.tryParse(list[i]) == null &&
-          !(RegExp(r'^[A-Za-z0-9_.]+$').hasMatch(list[i]))) {
-        list[i] = '<';
+          !(RegExp(r"^[A-Za-z0-9_.]+$").hasMatch(list[i]))) {
+        list[i] = "<";
         // sometimes < sign not recognized well
       }
     }
-    String result = list.join('');
+    String result = list.join("");
     return result;
   }
 }

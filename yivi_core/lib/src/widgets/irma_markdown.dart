@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import "package:flutter/material.dart";
+import "package:flutter_markdown/flutter_markdown.dart";
 
-import '../providers/irma_repository_provider.dart';
-import '../theme/theme.dart';
+import "../providers/irma_repository_provider.dart";
+import "../theme/theme.dart";
 
 class IrmaMarkdown extends StatelessWidget {
   final String data;

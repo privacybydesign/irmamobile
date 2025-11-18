@@ -1,22 +1,22 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../data/irma_repository.dart';
-import '../../models/session_events.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/navigation.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/loading_indicator.dart';
-import '../../widgets/pin_common/pin_wrong_attempts.dart';
-import '../error/session_error_screen.dart';
-import 'bloc/pin_bloc.dart';
-import 'bloc/pin_event.dart';
-import 'bloc/pin_state.dart';
-import 'yivi_pin_screen.dart';
+import "../../data/irma_repository.dart";
+import "../../models/session_events.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../theme/theme.dart";
+import "../../util/navigation.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/loading_indicator.dart";
+import "../../widgets/pin_common/pin_wrong_attempts.dart";
+import "../error/session_error_screen.dart";
+import "bloc/pin_bloc.dart";
+import "bloc/pin_event.dart";
+import "bloc/pin_state.dart";
+import "yivi_pin_screen.dart";
 
 class SessionPinScreen extends StatefulWidget {
   final int sessionID;
@@ -192,7 +192,7 @@ class _SessionPinScreenState extends State<SessionPinScreen>
                               alignment: Alignment.center,
                               children: [
                                 YiviPinScreen(
-                                  instructionKey: 'session_pin.subtitle',
+                                  instructionKey: "session_pin.subtitle",
                                   maxPinSize: maxPinSize,
                                   onSubmit: (p) => _submit(enabled, p),
                                   pinBloc: pinBloc,

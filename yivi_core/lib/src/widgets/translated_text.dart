@@ -1,8 +1,8 @@
-import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import "package:flutter/widgets.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_markdown/flutter_markdown.dart";
 
-import 'irma_markdown.dart';
+import "irma_markdown.dart";
 
 class TranslatedText extends StatelessWidget {
   // Shared between Text and IrmaMarkdown
@@ -57,9 +57,9 @@ class TranslatedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final splitKey = _key.split('.');
+    final splitKey = _key.split(".");
 
-    if (splitKey.isNotEmpty && splitKey.last.contains('_markdown')) {
+    if (splitKey.isNotEmpty && splitKey.last.contains("_markdown")) {
       return _buildMarkdown(_translate(context, _key), context);
     }
 

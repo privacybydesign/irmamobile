@@ -1,12 +1,12 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../../theme/theme.dart';
-import '../../../../widgets/credential_card/yivi_credential_card.dart';
-import '../../../../widgets/irma_dialog.dart';
-import '../../../../widgets/yivi_themed_button.dart';
-import '../bloc/disclosure_permission_state.dart';
+import "../../../../theme/theme.dart";
+import "../../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../../widgets/irma_dialog.dart";
+import "../../../../widgets/yivi_themed_button.dart";
+import "../bloc/disclosure_permission_state.dart";
 
 class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
   final DisclosurePermissionWrongCredentialsObtained state;
@@ -19,11 +19,11 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
     return IrmaDialog(
       title: FlutterI18n.translate(
         context,
-        'disclosure_permission.wrong_credentials_added.title',
+        "disclosure_permission.wrong_credentials_added.title",
       ),
       content: FlutterI18n.translate(
         context,
-        'disclosure_permission.wrong_credentials_added.explanation',
+        "disclosure_permission.wrong_credentials_added.explanation",
       ),
       child: Column(
         children: [
@@ -59,7 +59,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
           SizedBox(height: theme.defaultSpacing),
           YiviThemedButton(
             label:
-                'disclosure_permission.wrong_credentials_added.dismiss_action',
+                "disclosure_permission.wrong_credentials_added.dismiss_action",
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],

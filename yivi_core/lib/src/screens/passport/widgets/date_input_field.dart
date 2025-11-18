@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:intl/intl.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:intl/intl.dart";
+import "package:mask_text_input_formatter/mask_text_input_formatter.dart";
 
-import '../../../theme/theme.dart';
+import "../../../theme/theme.dart";
 
 class DateInputField extends StatefulWidget {
   final TextEditingController controller;
@@ -38,16 +38,16 @@ class DateInputField extends StatefulWidget {
 
 class _DateInputFieldState extends State<DateInputField> {
   late final MaskTextInputFormatter _dateMask;
-  final _invalidI18nKey = 'passport.manual.fields.date_invalid';
-  final _dateFormat = DateFormat('yyyy-MM-dd');
+  final _invalidI18nKey = "passport.manual.fields.date_invalid";
+  final _dateFormat = DateFormat("yyyy-MM-dd");
 
   @override
   void initState() {
     super.initState();
     // Create ONCE so the formatter/caret state is stable during typing.
     _dateMask = MaskTextInputFormatter(
-      mask: '####-##-##',
-      filter: {'#': RegExp(r'\d')},
+      mask: "####-##-##",
+      filter: {"#": RegExp(r"\d")},
       type: MaskAutoCompletionType.lazy,
     );
   }
@@ -60,7 +60,7 @@ class _DateInputFieldState extends State<DateInputField> {
     final baseTextStyle = theme.textTheme.bodyMedium;
 
     return TextFormField(
-      key: widget.fieldKey ?? const Key('date_input_field'),
+      key: widget.fieldKey ?? const Key("date_input_field"),
       controller: widget.controller,
       readOnly: false,
       keyboardType: TextInputType.number,
@@ -69,7 +69,7 @@ class _DateInputFieldState extends State<DateInputField> {
       style: baseTextStyle,
       inputFormatters: <TextInputFormatter>[_dateMask],
       decoration: InputDecoration(
-        hintText: 'YYYY-MM-DD',
+        hintText: "YYYY-MM-DD",
         hintStyle: baseTextStyle?.copyWith(
           color: baseTextStyle.color?.withValues(alpha: 0.5),
         ),
@@ -108,7 +108,7 @@ class _DateInputFieldState extends State<DateInputField> {
       ),
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
-        final v = value?.trim() ?? '';
+        final v = value?.trim() ?? "";
         if (v.isEmpty) {
           return FlutterI18n.translate(context, widget.requiredI18nKey);
         }

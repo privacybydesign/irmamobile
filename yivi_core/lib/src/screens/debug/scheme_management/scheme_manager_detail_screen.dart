@@ -1,24 +1,24 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:rxdart/rxdart.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:rxdart/rxdart.dart";
 
-import '../../../models/authentication_events.dart';
-import '../../../models/enrollment_events.dart';
-import '../../../models/irma_configuration.dart';
-import '../../../models/scheme_events.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../theme/theme.dart';
-import '../../../util/combine.dart';
-import '../../../widgets/active_indicator.dart';
-import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/irma_bottom_bar.dart';
-import '../../../widgets/irma_icon_button.dart';
-import '../../../widgets/progress.dart';
-import '../../enrollment/provide_email/provide_email_screen.dart';
-import '../../error/error_screen.dart';
-import '../../pin/yivi_pin_screen.dart';
-import '../util/snackbar.dart';
+import "../../../models/authentication_events.dart";
+import "../../../models/enrollment_events.dart";
+import "../../../models/irma_configuration.dart";
+import "../../../models/scheme_events.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../theme/theme.dart";
+import "../../../util/combine.dart";
+import "../../../widgets/active_indicator.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/irma_icon_button.dart";
+import "../../../widgets/progress.dart";
+import "../../enrollment/provide_email/provide_email_screen.dart";
+import "../../error/error_screen.dart";
+import "../../pin/yivi_pin_screen.dart";
+import "../util/snackbar.dart";
 
 class SchemeManagerDetailScreen extends StatelessWidget {
   final String schemeManagerId;
@@ -64,12 +64,12 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       context,
       FlutterI18n.translate(
         context,
-        'debug.scheme_management.verify_pin.title',
+        "debug.scheme_management.verify_pin.title",
       ),
       FlutterI18n.translate(
         context,
-        'debug.scheme_management.verify_pin.content',
-        translationParams: {'scheme': schemeManagerId},
+        "debug.scheme_management.verify_pin.content",
+        translationParams: {"scheme": schemeManagerId},
       ),
     );
     if (pin == null) return;
@@ -94,33 +94,33 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         event is AuthenticationFailedEvent
             ? FlutterI18n.translate(
                 context,
-                'debug.scheme_management.verify_pin.failed',
+                "debug.scheme_management.verify_pin.failed",
                 translationParams: {
-                  'remainingAttempts': event.remainingAttempts.toString(),
-                  'blockedDuration': event.blockedDuration.toString(),
+                  "remainingAttempts": event.remainingAttempts.toString(),
+                  "blockedDuration": event.blockedDuration.toString(),
                 },
               )
             : FlutterI18n.translate(
                 context,
-                'debug.scheme_management.verify_pin.success',
+                "debug.scheme_management.verify_pin.success",
               ),
       );
     }
   }
 
   Future<void> _onActivateScheme(BuildContext context) async {
-    final language = FlutterI18n.currentLocale(context)?.languageCode ?? 'en';
+    final language = FlutterI18n.currentLocale(context)?.languageCode ?? "en";
 
     final pin = await _requestPin(
       context,
       FlutterI18n.translate(
         context,
-        'debug.scheme_management.request_pin.title',
+        "debug.scheme_management.request_pin.title",
       ),
       FlutterI18n.translate(
         context,
-        'debug.scheme_management.request_pin.content',
-        translationParams: {'scheme': schemeManagerId},
+        "debug.scheme_management.request_pin.content",
+        translationParams: {"scheme": schemeManagerId},
       ),
     );
     if (pin == null) return;
@@ -131,7 +131,7 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => ProvideEmailScreen(
           onEmailProvided: (email) => navigator.pop(email),
-          onEmailSkipped: () => navigator.pop(''),
+          onEmailSkipped: () => navigator.pop(""),
           onPrevious: () => navigator.pop(),
         ),
       ),
@@ -143,8 +143,8 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       context,
       FlutterI18n.translate(
         context,
-        'debug.scheme_management.activating',
-        translationParams: {'scheme': schemeManagerId},
+        "debug.scheme_management.activating",
+        translationParams: {"scheme": schemeManagerId},
       ),
     );
 
@@ -174,8 +174,8 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         context,
         FlutterI18n.translate(
           context,
-          'debug.scheme_management.activate_success',
-          translationParams: {'scheme': schemeManagerId},
+          "debug.scheme_management.activate_success",
+          translationParams: {"scheme": schemeManagerId},
         ),
       );
     }
@@ -192,8 +192,8 @@ class SchemeManagerDetailScreen extends StatelessWidget {
       context,
       FlutterI18n.translate(
         context,
-        'debug.scheme_management.remove',
-        translationParams: {'scheme': schemeManagerId},
+        "debug.scheme_management.remove",
+        translationParams: {"scheme": schemeManagerId},
       ),
     );
   }
@@ -220,8 +220,9 @@ class SchemeManagerDetailScreen extends StatelessWidget {
 
         // Grab the scheme manager from the configuration.
         final schemeManager = irmaConfiguration.schemeManagers[schemeManagerId];
-        if (schemeManager == null)
-          throw Exception('Scheme manager $schemeManagerId not found');
+        if (schemeManager == null) {
+          throw Exception("Scheme manager $schemeManagerId not found");
+        }
 
         final schemeIsActive = enrollmentStatus.enrolledSchemeManagerIds
             .contains(schemeManager.id);
@@ -241,12 +242,12 @@ class SchemeManagerDetailScreen extends StatelessWidget {
         if (schemeManager.keyshareServer.isNotEmpty) {
           if (schemeIsActive) {
             bottomBar = IrmaBottomBar(
-              primaryButtonLabel: 'debug.scheme_management.verify_pin.title',
+              primaryButtonLabel: "debug.scheme_management.verify_pin.title",
               onPrimaryPressed: () => _verifyPin(context, schemeManager.id),
             );
           } else {
             bottomBar = IrmaBottomBar(
-              primaryButtonLabel: 'ui.activate',
+              primaryButtonLabel: "ui.activate",
               onPrimaryPressed: () => _onActivateScheme(context),
             );
           }
@@ -269,45 +270,45 @@ class SchemeManagerDetailScreen extends StatelessWidget {
                 // These values are not translated because they are the same in English and Dutch.
                 if (!schemeManager.demo)
                   ListTile(
-                    title: const Text('Status'),
+                    title: const Text("Status"),
                     trailing: ActiveIndicator(schemeIsActive),
                   ),
 
                 ListTile(
-                  title: const Text('Type'),
+                  title: const Text("Type"),
                   subtitle: Text(
-                    schemeManager.demo ? 'Demo scheme' : 'Production scheme',
+                    schemeManager.demo ? "Demo scheme" : "Production scheme",
                   ),
                 ),
 
                 ListTile(
-                  title: const Text('Latest scheme update'),
+                  title: const Text("Latest scheme update"),
                   subtitle: Text(
-                    '${DateTime.fromMillisecondsSinceEpoch(schemeManager.timestamp * 1000)}\nTimestamp ${schemeManager.timestamp}',
+                    "${DateTime.fromMillisecondsSinceEpoch(schemeManager.timestamp * 1000)}\nTimestamp ${schemeManager.timestamp}",
                   ),
                 ),
 
                 ListTile(
-                  title: const Text('Keyshare server'),
+                  title: const Text("Keyshare server"),
                   subtitle: Text(
                     schemeManager.keyshareServer.isNotEmpty
                         ? schemeManager.keyshareServer
-                        : '(none)',
+                        : "(none)",
                   ),
                 ),
 
                 ListTile(
-                  title: const Text('Timestamp server'),
+                  title: const Text("Timestamp server"),
                   subtitle: Text(
                     schemeManager.timestampServer.isNotEmpty
                         ? schemeManager.timestampServer
-                        : '(none)',
+                        : "(none)",
                   ),
                 ),
 
                 ListTile(
-                  title: const Text('App ID'),
-                  subtitle: Text(appId ?? '(none)'),
+                  title: const Text("App ID"),
+                  subtitle: Text(appId ?? "(none)"),
                 ),
               ],
             ),

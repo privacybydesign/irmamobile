@@ -1,12 +1,12 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
+import "package:package_info_plus/package_info_plus.dart";
 
-import '../../../../sentry_dsn.dart';
-import '../../../models/credentials.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../theme/theme.dart';
-import '../../../widgets/translated_text.dart';
+import "../../../../sentry_dsn.dart";
+import "../../../models/credentials.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../theme/theme.dart";
+import "../../../widgets/translated_text.dart";
 
 class VersionButton extends StatefulWidget {
   const VersionButton({super.key});
@@ -21,12 +21,12 @@ class _VersionButtonState extends State<VersionButton> {
   String _buildVersionString(AsyncSnapshot<PackageInfo> info) {
     final String buildHash = version.substring(
       0,
-      version != 'debugbuild' && 8 < version.length ? 8 : version.length,
+      version != "debugbuild" && 8 < version.length ? 8 : version.length,
     );
     if (info.hasData) {
-      return '${info.data?.version} (${info.data?.buildNumber}, $buildHash)';
+      return "${info.data?.version} (${info.data?.buildNumber}, $buildHash)";
     } else {
-      return '($buildHash)';
+      return "($buildHash)";
     }
   }
 
@@ -56,9 +56,9 @@ class _VersionButtonState extends State<VersionButton> {
 
         final inDeveloperMode = await repo.getDeveloperMode().first;
         if (inDeveloperMode) {
-          showSnackbar('more_tab.developer_mode_already_enabled');
+          showSnackbar("more_tab.developer_mode_already_enabled");
         } else {
-          showSnackbar('more_tab.developer_mode_enabled');
+          showSnackbar("more_tab.developer_mode_enabled");
           repo.setDeveloperMode(true);
         }
       }
@@ -89,9 +89,9 @@ class _VersionButtonState extends State<VersionButton> {
                         appId = keyShareCred?.attributes.firstOrNull?.value.raw;
                       }
                       return TranslatedText(
-                        'more_tab.app_id',
+                        "more_tab.app_id",
                         style: textStyle,
-                        translationParams: {'id': appId ?? ''},
+                        translationParams: {"id": appId ?? ""},
                       );
                     },
                   ),
@@ -102,9 +102,9 @@ class _VersionButtonState extends State<VersionButton> {
                           BuildContext context,
                           AsyncSnapshot<PackageInfo> info,
                         ) => TranslatedText(
-                          'more_tab.version',
+                          "more_tab.version",
                           translationParams: {
-                            'version': _buildVersionString(info),
+                            "version": _buildVersionString(info),
                           },
                           style: textStyle,
                         ),

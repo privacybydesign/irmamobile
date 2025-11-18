@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../widgets/irma_app_bar.dart';
-import 'pin/yivi_pin_screen.dart';
+import "../widgets/irma_app_bar.dart";
+import "pin/yivi_pin_screen.dart";
 
 class YiviConfirmPinScaffold extends StatelessWidget {
   final StringCallback submit;
@@ -32,7 +32,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
-        titleString: '',
+        titleString: "",
         leading: YiviBackButton(onTap: onBack),
         hasBorder: false,
       ),

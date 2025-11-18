@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+import "package:flutter/material.dart";
+import "package:lottie/lottie.dart";
 
-import '../../../../package_name.dart';
-import '../../../util/test_detection.dart';
+import "../../../../package_name.dart";
+import "../../../util/test_detection.dart";
 
 class PassportNfcScanningAnimation extends StatelessWidget {
   const PassportNfcScanningAnimation({
@@ -90,7 +90,7 @@ class _PassportNfcScanningAnimationState
     return Transform.translate(
       offset: const Offset(0, -20),
       child: Lottie.asset(
-        yiviAsset('passport/nfc.json'),
+        yiviAsset("passport/nfc.json"),
         controller: _controller,
         alignment: Alignment(0, 0.5),
         frameBuilder: (context, child, composition) {

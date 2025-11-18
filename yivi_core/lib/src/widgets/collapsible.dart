@@ -1,12 +1,12 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../theme/theme.dart';
-import 'configurable_expansion_tile.dart';
-import 'irma_card.dart';
+import "../theme/theme.dart";
+import "configurable_expansion_tile.dart";
+import "irma_card.dart";
 
 class Collapsible extends StatefulWidget {
   final String header;
@@ -86,8 +86,8 @@ class _CollapsibleState extends State<Collapsible> {
     if (Platform.isAndroid) {
       SemanticsService.announce(
         _isExpanded
-            ? FlutterI18n.translate(context, 'accessibility.expanded')
-            : FlutterI18n.translate(context, 'accessibility.collapsed'),
+            ? FlutterI18n.translate(context, "accessibility.expanded")
+            : FlutterI18n.translate(context, "accessibility.collapsed"),
         Directionality.of(context),
       );
     }
@@ -111,11 +111,11 @@ class _CollapsibleState extends State<Collapsible> {
         header: Expanded(
           child: Semantics(
             hint: _isExpanded
-                ? FlutterI18n.translate(context, 'accessibility.collapse_hint')
-                : FlutterI18n.translate(context, 'accessibility.expand_hint'),
+                ? FlutterI18n.translate(context, "accessibility.collapse_hint")
+                : FlutterI18n.translate(context, "accessibility.expand_hint"),
             label: _isExpanded
-                ? FlutterI18n.translate(context, 'accessibility.expanded')
-                : FlutterI18n.translate(context, 'accessibility.collapsed'),
+                ? FlutterI18n.translate(context, "accessibility.expanded")
+                : FlutterI18n.translate(context, "accessibility.collapsed"),
             child: Padding(
               padding: EdgeInsets.only(
                 top: theme.tinySpacing * 3,

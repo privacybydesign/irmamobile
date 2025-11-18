@@ -1,10 +1,10 @@
-import 'package:collection/collection.dart';
+import "package:collection/collection.dart";
 
-import '../util/con_dis_con.dart';
-import 'attribute.dart';
-import 'credentials.dart';
-import 'return_url.dart';
-import 'session.dart';
+import "../util/con_dis_con.dart";
+import "attribute.dart";
+import "credentials.dart";
+import "return_url.dart";
+import "session.dart";
 
 class SessionState {
   final int sessionID;
@@ -50,7 +50,7 @@ class SessionState {
   // issuedCredentials is set. IrmaGo enforces that an error is triggered in case of a problematic
   // mismatch between both values, so we can safely do this.
   bool get isIssuanceSession =>
-      issuedCredentials?.isNotEmpty ?? sessionType == 'issuing';
+      issuedCredentials?.isNotEmpty ?? sessionType == "issuing";
 
   // Indicates that this session contains a credential that
   // the user previously tried to obtain via the credential store
@@ -120,6 +120,6 @@ enum SessionStatus {
 
 extension SessionStatusParser on String {
   SessionStatus? toSessionStatus() => SessionStatus.values.firstWhereOrNull(
-    (v) => v.toString() == 'SessionStatus.$this',
+    (v) => v.toString() == "SessionStatus.$this",
   );
 }

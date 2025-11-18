@@ -1,13 +1,13 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../models/enrollment_status.dart';
-import '../../models/error_event.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../util/navigation.dart';
-import '../error/error_screen.dart';
-import '../splash_screen/splash_screen.dart';
+import "../../models/enrollment_status.dart";
+import "../../models/error_event.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../util/navigation.dart";
+import "../error/error_screen.dart";
+import "../splash_screen/splash_screen.dart";
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -67,8 +67,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
           repo.dispatch(
             ErrorEvent(
               exception:
-                  'Timeout: enrollment status could not be determined within 15 seconds',
-              stack: '',
+                  "Timeout: enrollment status could not be determined within 15 seconds",
+              stack: "",
               fatal: true,
             ),
           );

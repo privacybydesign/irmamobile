@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../providers/irma_repository_provider.dart';
-import '../../more/widgets/tiles.dart';
-import '../../more/widgets/tiles_card.dart';
+import "../../../providers/irma_repository_provider.dart";
+import "../../more/widgets/tiles.dart";
+import "../../more/widgets/tiles_card.dart";
 
 class UseSystemLanguageToggle extends StatelessWidget {
   @override
@@ -14,13 +14,13 @@ class UseSystemLanguageToggle extends StatelessWidget {
     return TilesCard(
       children: [
         ToggleTile(
-          key: const Key('use_system_language_toggle'),
-          labelTranslationKey: 'settings.use_system_language',
+          key: const Key("use_system_language_toggle"),
+          labelTranslationKey: "settings.use_system_language",
           stream: prefs.getPreferredLanguageCode().map(
             (languageCode) => languageCode.isEmpty,
           ),
           onChanged: (bool useSystemLanguage) =>
-              prefs.setPreferredLanguageCode(useSystemLanguage ? '' : lang),
+              prefs.setPreferredLanguageCode(useSystemLanguage ? "" : lang),
         ),
       ],
     );

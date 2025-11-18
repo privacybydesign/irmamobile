@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../theme/theme.dart';
+import "../theme/theme.dart";
 
 class IrmaIconButton extends StatelessWidget {
   final IconData icon;

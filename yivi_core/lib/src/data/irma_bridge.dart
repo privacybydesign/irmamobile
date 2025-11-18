@@ -1,10 +1,10 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/cupertino.dart';
+import "package:flutter/cupertino.dart";
 
-import '../models/error_event.dart';
-import '../models/event.dart';
-import '../sentry/sentry.dart';
+import "../models/error_event.dart";
+import "../models/event.dart";
+import "../sentry/sentry.dart";
 
 abstract class IrmaBridge {
   final _eventSubject = StreamController<Event>.broadcast();
@@ -21,7 +21,7 @@ abstract class IrmaBridge {
     } else if (event is ErrorEvent) {
       reportError(event.exception, event.stack);
     } else {
-      reportError('Unhandled bridge event: ${event.runtimeType}', null);
+      reportError("Unhandled bridge event: ${event.runtimeType}", null);
     }
   }
 

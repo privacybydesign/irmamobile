@@ -1,5 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vcmrtd/vcmrtd.dart';
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:vcmrtd/vcmrtd.dart";
 
 final passportReaderProvider =
     StateNotifierProvider.autoDispose<PassportReader, PassportReaderState>((

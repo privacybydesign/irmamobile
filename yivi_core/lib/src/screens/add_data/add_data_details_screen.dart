@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../models/irma_configuration.dart';
-import '../../theme/theme.dart';
-import '../../util/language.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_close_button.dart';
-import 'widgets/add_data_questions.dart';
+import "../../models/irma_configuration.dart";
+import "../../theme/theme.dart";
+import "../../util/language.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/irma_close_button.dart";
+import "widgets/add_data_questions.dart";
 
 class AddDataDetailsScreen extends StatefulWidget {
   final CredentialType credentialType;
@@ -52,7 +52,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
       appBar: IrmaAppBar(
-        titleTranslationKey: 'data.add.details.title',
+        titleTranslationKey: "data.add.details.title",
         leading: YiviBackButton(
           onTap: widget.inDisclosure ? widget.onCancel : null,
         ),
@@ -86,16 +86,16 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
                           // Fallback generic add credential text
                           FlutterI18n.translate(
                             context,
-                            'data.add.details.obtain',
+                            "data.add.details.obtain",
                             translationParams: {
-                              'credential': widget.credentialType.name
+                              "credential": widget.credentialType.name
                                   .translate(lang),
                             },
                           )
                         : getTranslation(
                             context,
                             widget.credentialType.faqIntro,
-                          ).replaceAll('\\n', '\n'),
+                          ).replaceAll("\\n", "\n"),
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),
@@ -113,9 +113,9 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'data.add.details.get_button',
+        primaryButtonLabel: "data.add.details.get_button",
         onPrimaryPressed: widget.onAdd,
-        secondaryButtonLabel: 'data.add.details.back_button',
+        secondaryButtonLabel: "data.add.details.back_button",
         onSecondaryPressed: widget.onCancel,
         alignment: IrmaBottomBarAlignment.horizontal,
       ),

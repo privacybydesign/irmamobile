@@ -1,10 +1,10 @@
-import 'package:collection/collection.dart';
+import "package:collection/collection.dart";
 
-import '../../../data/irma_repository.dart';
-import '../../../widgets/credential_card/models/card_expiry_date.dart';
-import '../models/credential_status_notification.dart';
-import '../models/notification.dart';
-import 'notification_handler.dart';
+import "../../../data/irma_repository.dart";
+import "../../../widgets/credential_card/models/card_expiry_date.dart";
+import "../models/credential_status_notification.dart";
+import "../models/notification.dart";
+import "notification_handler.dart";
 
 class CredentialStatusNotificationsHandler extends NotificationHandler {
   @override

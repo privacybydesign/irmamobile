@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../../widgets/irma_confirmation_dialog.dart';
+import "../../../../widgets/irma_confirmation_dialog.dart";
 
 class DisclosurePermissionCloseDialog extends StatelessWidget {
   static Future<void> show(
@@ -24,13 +24,13 @@ class DisclosurePermissionCloseDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const IrmaConfirmationDialog(
-      titleTranslationKey: 'disclosure_permission.confirm_close_dialog.title',
+      titleTranslationKey: "disclosure_permission.confirm_close_dialog.title",
       contentTranslationKey:
-          'disclosure_permission.confirm_close_dialog.explanation',
+          "disclosure_permission.confirm_close_dialog.explanation",
       confirmTranslationKey:
-          'disclosure_permission.confirm_close_dialog.confirm',
+          "disclosure_permission.confirm_close_dialog.confirm",
       cancelTranslationKey:
-          'disclosure_permission.confirm_close_dialog.decline',
+          "disclosure_permission.confirm_close_dialog.decline",
     );
   }
 }

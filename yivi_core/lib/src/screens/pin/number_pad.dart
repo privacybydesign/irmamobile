@@ -1,4 +1,4 @@
-part of 'yivi_pin_screen.dart';
+part of "yivi_pin_screen.dart";
 
 class _NumberPad extends StatelessWidget {
   final NumberCallback onEnterNumber;
@@ -10,22 +10,22 @@ class _NumberPad extends StatelessWidget {
       builder: (context, constraints) {
         final keys = <Widget>[
           // The empty String keeps the number aligned with the rest
-          _NumberPadKey(onEnterNumber, 1, ''),
-          _NumberPadKey(onEnterNumber, 2, 'ABC'),
-          _NumberPadKey(onEnterNumber, 3, 'DEF'),
-          _NumberPadKey(onEnterNumber, 4, 'GHI'),
-          _NumberPadKey(onEnterNumber, 5, 'JKL'),
-          _NumberPadKey(onEnterNumber, 6, 'MNO'),
-          _NumberPadKey(onEnterNumber, 7, 'PQRS'),
-          _NumberPadKey(onEnterNumber, 8, 'TUV'),
-          _NumberPadKey(onEnterNumber, 9, 'WXYZ'),
+          _NumberPadKey(onEnterNumber, 1, ""),
+          _NumberPadKey(onEnterNumber, 2, "ABC"),
+          _NumberPadKey(onEnterNumber, 3, "DEF"),
+          _NumberPadKey(onEnterNumber, 4, "GHI"),
+          _NumberPadKey(onEnterNumber, 5, "JKL"),
+          _NumberPadKey(onEnterNumber, 6, "MNO"),
+          _NumberPadKey(onEnterNumber, 7, "PQRS"),
+          _NumberPadKey(onEnterNumber, 8, "TUV"),
+          _NumberPadKey(onEnterNumber, 9, "WXYZ"),
           SizedBox.fromSize(size: const Size.square(20)),
           _NumberPadKey(onEnterNumber, 0),
           Semantics(
             button: true,
             label: FlutterI18n.translate(
               context,
-              'pin_accessibility.backspace',
+              "pin_accessibility.backspace",
             ),
             child: _NumberPadIcon(
               icon: Icons.backspace_outlined,

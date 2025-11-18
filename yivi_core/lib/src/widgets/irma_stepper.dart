@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:timeline_tile/timeline_tile.dart';
+import "package:flutter/material.dart";
+import "package:timeline_tile/timeline_tile.dart";
 
-import '../theme/theme.dart';
-import 'irma_step_indicator.dart';
+import "../theme/theme.dart";
+import "irma_step_indicator.dart";
 
 class IrmaStepper extends StatelessWidget {
   final List<Widget> children;

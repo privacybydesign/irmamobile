@@ -1,24 +1,24 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../screens/error/blocked_screen.dart';
-import '../screens/error/error_screen.dart';
-import '../screens/error/no_internet_screen.dart';
-import '../screens/loading/loading_screen.dart';
-import '../screens/name_changed/name_changed_screen.dart';
-import '../screens/pin/yivi_pin_screen.dart';
-import '../screens/required_update/required_update_screen.dart';
-import '../screens/rooted_warning/rooted_warning_screen.dart';
-import '../screens/session/disclosure/widgets/disclosure_permission_introduction_screen.dart';
-import '../screens/session/widgets/arrow_back_screen.dart';
-import '../screens/session/widgets/disclosure_feedback_screen.dart';
-import '../screens/session/widgets/pairing_required.dart';
-import '../screens/splash_screen/splash_screen.dart';
-import '../widgets/irma_error_scaffold_body.dart';
-import 'haptic_screen.dart';
-import 'prototype_pin_screen.dart';
+import "../screens/error/blocked_screen.dart";
+import "../screens/error/error_screen.dart";
+import "../screens/error/no_internet_screen.dart";
+import "../screens/loading/loading_screen.dart";
+import "../screens/name_changed/name_changed_screen.dart";
+import "../screens/pin/yivi_pin_screen.dart";
+import "../screens/required_update/required_update_screen.dart";
+import "../screens/rooted_warning/rooted_warning_screen.dart";
+import "../screens/session/disclosure/widgets/disclosure_permission_introduction_screen.dart";
+import "../screens/session/widgets/arrow_back_screen.dart";
+import "../screens/session/widgets/disclosure_feedback_screen.dart";
+import "../screens/session/widgets/pairing_required.dart";
+import "../screens/splash_screen/splash_screen.dart";
+import "../widgets/irma_error_scaffold_body.dart";
+import "haptic_screen.dart";
+import "prototype_pin_screen.dart";
 
 class PrototypesScreen extends StatelessWidget {
-  static const routeName = '/';
+  static const routeName = "/";
   final pinBloc5 = EnterPinStateBloc(5);
   final pinBloc16 = EnterPinStateBloc(16);
 
@@ -61,94 +61,94 @@ class PrototypesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: const Text('Screens')),
+      appBar: AppBar(centerTitle: true, title: const Text("Screens")),
       body: ListView(
         children: [
           _buildTile(
             context,
-            'Haptics',
+            "Haptics",
             HapticScreen(onBack: Navigator.of(context).pop),
           ),
           _buildTile(
             context,
-            'Basic pin input, exactly 5 digits',
+            "Basic pin input, exactly 5 digits",
             PinScreenTest(maxPinSize: 5, pinBloc: pinBloc5),
           ),
           _buildTile(
             context,
-            'Basic pin input, >5 digits, at most 16',
+            "Basic pin input, >5 digits, at most 16",
             PinScreenTest(maxPinSize: 16, pinBloc: pinBloc16),
           ),
           _buildTile(
             context,
-            'Onboarding pin, pin size = 5',
+            "Onboarding pin, pin size = 5",
             _toggleSetPinSize(
               context: context,
               isShort: true,
-              instructionKey: 'enrollment.choose_pin.title',
+              instructionKey: "enrollment.choose_pin.title",
             ),
           ),
           _buildTile(
             context,
-            'Onboarding pin, pin size > 5',
+            "Onboarding pin, pin size > 5",
             _toggleSetPinSize(
               context: context,
               isShort: false,
-              instructionKey: 'enrollment.choose_pin.title',
+              instructionKey: "enrollment.choose_pin.title",
             ),
           ),
           _buildTile(
             context,
-            'Reset pin, pin size = 5',
+            "Reset pin, pin size = 5",
             _toggleSetPinSize(
               context: context,
               isShort: true,
-              instructionKey: 'change_pin.enter_pin.title',
+              instructionKey: "change_pin.enter_pin.title",
             ),
           ),
           _buildTile(
             context,
-            'Reset pin, pin size > 5',
+            "Reset pin, pin size > 5",
             _toggleSetPinSize(
               context: context,
               isShort: false,
-              instructionKey: 'change_pin.enter_pin.title',
+              instructionKey: "change_pin.enter_pin.title",
             ),
           ),
           _buildTile(
             context,
-            'Arrow back - Issuance',
+            "Arrow back - Issuance",
             const ArrowBack(type: ArrowBackType.issuance),
           ),
           _buildTile(
             context,
-            'Arrow back - Signature',
+            "Arrow back - Signature",
             const ArrowBack(type: ArrowBackType.signature),
           ),
           _buildTile(
             context,
-            'Arrow back - Disclosure',
+            "Arrow back - Disclosure",
             const ArrowBack(type: ArrowBackType.disclosure),
           ),
-          _buildTile(context, 'Update required', RequiredUpdateScreen()),
-          _buildTile(context, 'Root warning', const RootedWarningScreen()),
+          _buildTile(context, "Update required", RequiredUpdateScreen()),
+          _buildTile(context, "Root warning", const RootedWarningScreen()),
           _buildTile(
             context,
-            'No internet',
+            "No internet",
             NoInternetScreen(
               onTapClose: Navigator.of(context).pop,
               onTapRetry: () {},
             ),
           ),
-          _buildTile(context, 'Blocked', BlockedScreen()),
+          _buildTile(context, "Blocked", BlockedScreen()),
           _buildTile(
             context,
-            'General error',
+            "General error",
             ErrorScreen(onTapClose: Navigator.of(context).pop),
           ),
           _buildTile(
             context,
-            'Error: pairing rejected',
+            "Error: pairing rejected",
             ErrorScreen(
               onTapClose: Navigator.of(context).pop,
               type: ErrorType.pairingRejected,
@@ -156,15 +156,15 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            'Pairing required',
+            "Pairing required",
             PairingRequired(
-              pairingCode: '4567',
+              pairingCode: "4567",
               onDismiss: Navigator.of(context).pop,
             ),
           ),
           _buildTile(
             context,
-            'Error: session unknown / unexpected request',
+            "Error: session unknown / unexpected request",
             ErrorScreen(
               onTapClose: Navigator.of(context).pop,
               type: ErrorType.expired,
@@ -172,84 +172,84 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            'Disclosure feedback - disclosure notSatisfiable',
+            "Disclosure feedback - disclosure notSatisfiable",
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.notSatisfiable,
-              otherParty: 'other party',
+              otherParty: "other party",
               onDismiss: Navigator.pop,
             ),
           ),
           _buildTile(
             context,
-            'Disclosure feedback - signature notSatisfiable',
+            "Disclosure feedback - signature notSatisfiable",
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.notSatisfiable,
-              otherParty: 'other party',
+              otherParty: "other party",
               onDismiss: Navigator.pop,
               isSignatureSession: true,
             ),
           ),
           _buildTile(
             context,
-            'Disclosure feedback - disclosure success',
+            "Disclosure feedback - disclosure success",
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.success,
-              otherParty: 'other party',
+              otherParty: "other party",
               onDismiss: Navigator.pop,
             ),
           ),
           _buildTile(
             context,
-            'Disclosure feedback - disclosure canceled',
+            "Disclosure feedback - disclosure canceled",
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.canceled,
-              otherParty: 'other party',
+              otherParty: "other party",
               onDismiss: Navigator.pop,
             ),
           ),
           _buildTile(
             context,
-            'Disclosure feedback - signature success',
+            "Disclosure feedback - signature success",
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.success,
-              otherParty: 'other party',
+              otherParty: "other party",
               onDismiss: Navigator.pop,
               isSignatureSession: true,
             ),
           ),
           _buildTile(
             context,
-            'Disclosure feedback - signature canceled',
+            "Disclosure feedback - signature canceled",
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.canceled,
-              otherParty: 'successful party',
+              otherParty: "successful party",
               onDismiss: Navigator.pop,
               isSignatureSession: true,
             ),
           ),
           _buildTile(
             context,
-            'Disclosure feedback - canceled',
+            "Disclosure feedback - canceled",
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.canceled,
-              otherParty: 'canceled party',
+              otherParty: "canceled party",
               onDismiss: Navigator.pop,
             ),
           ),
           _buildTile(
             context,
-            'Disclosure feedback - not satisfiable',
+            "Disclosure feedback - not satisfiable",
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.notSatisfiable,
-              otherParty: 'unsatisfied party',
+              otherParty: "unsatisfied party",
               onDismiss: Navigator.pop,
             ),
           ),
-          _buildTile(context, 'Splash screen', const SplashScreen()),
-          _buildTile(context, 'Loading screen', LoadingScreen()),
+          _buildTile(context, "Splash screen", const SplashScreen()),
+          _buildTile(context, "Loading screen", LoadingScreen()),
           _buildTile(
             context,
-            'Disclosure permission introduction',
+            "Disclosure permission introduction",
             DisclosurePermissionIntroductionScreen(
               onEvent: (_) {},
               onDismiss: () {},
@@ -257,7 +257,7 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            'Name changed screen',
+            "Name changed screen",
             NameChangedScreen(
               onContinuePressed: () => Navigator.of(context).pop(),
             ),

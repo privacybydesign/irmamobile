@@ -1,8 +1,8 @@
-import 'package:collection/collection.dart';
+import "package:collection/collection.dart";
 
 /// TranslatedValue contains translated values for attributes, etc.
 class TranslatedValue {
-  static const _defaultFallbackLang = 'en';
+  static const _defaultFallbackLang = "en";
 
   final Map<String, String> _map;
 
@@ -32,7 +32,7 @@ class TranslatedValue {
   String translate(
     String lang, {
     String fallbackLang = _defaultFallbackLang,
-    String fallback = '[translation missing]',
+    String fallback = "[translation missing]",
   }) {
     if (_map.containsKey(lang)) {
       return _map[lang]!;

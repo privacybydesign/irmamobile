@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../pin/yivi_pin_screen.dart';
-import '../../yivi_choose_pin_scaffold.dart';
+import "../../pin/yivi_pin_screen.dart";
+import "../../yivi_choose_pin_scaffold.dart";
 
 class ChoosePinScreen extends StatelessWidget {
-  static const String routeName = 'choose_pin';
+  static const String routeName = "choose_pin";
   final StringCallback onChoosePin;
   final VoidCallback onPrevious;
   final ValueNotifier<String> newPinNotifier;

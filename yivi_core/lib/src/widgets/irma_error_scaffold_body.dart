@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:yivi_core/package_name.dart';
+import "package:flutter/material.dart";
+import "../../package_name.dart";
 
-import 'irma_info_scaffold_body.dart';
+import "irma_info_scaffold_body.dart";
 
 enum ErrorType { general, expired, pairingRejected }
 
 class IrmaErrorScaffoldBody extends StatelessWidget {
   static const _translationKeys = {
-    ErrorType.general: 'error.types.general',
-    ErrorType.expired: 'error.types.expired',
-    ErrorType.pairingRejected: 'error.types.pairing_rejected',
+    ErrorType.general: "error.types.general",
+    ErrorType.expired: "error.types.expired",
+    ErrorType.pairingRejected: "error.types.pairing_rejected",
   };
 
   final ErrorType type;
@@ -26,10 +26,10 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaInfoScaffoldBody(
-      imagePath: yiviAsset('error/general_error_illustration.svg'),
+      imagePath: yiviAsset("error/general_error_illustration.svg"),
       titleTranslationKey: _translationKeys[type]!,
-      bodyTranslationKey: reportable == true ? 'error.report' : null,
-      linkTranslationKey: details != null ? 'error.button_show_error' : null,
+      bodyTranslationKey: reportable == true ? "error.report" : null,
+      linkTranslationKey: details != null ? "error.button_show_error" : null,
       linkDialogText: details,
     );
   }

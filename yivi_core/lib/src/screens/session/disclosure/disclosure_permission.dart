@@ -1,24 +1,24 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import '../../../data/irma_repository.dart';
-import '../../../models/irma_configuration.dart';
-import '../../../models/return_url.dart';
-import '../../../models/session.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../widgets/loading_indicator.dart';
-import '../../add_data/add_data_details_screen.dart';
-import 'bloc/disclosure_permission_bloc.dart';
-import 'bloc/disclosure_permission_event.dart';
-import 'bloc/disclosure_permission_state.dart';
-import 'widgets/disclosure_permission_choices_screen.dart';
-import 'widgets/disclosure_permission_close_dialog.dart';
-import 'widgets/disclosure_permission_introduction_screen.dart';
-import 'widgets/disclosure_permission_issue_wizard_screen.dart';
-import 'widgets/disclosure_permission_make_choice_screen.dart';
-import 'widgets/disclosure_permission_obtain_credentials_screen.dart';
-import 'widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart';
+import "../../../data/irma_repository.dart";
+import "../../../models/irma_configuration.dart";
+import "../../../models/return_url.dart";
+import "../../../models/session.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../widgets/loading_indicator.dart";
+import "../../add_data/add_data_details_screen.dart";
+import "bloc/disclosure_permission_bloc.dart";
+import "bloc/disclosure_permission_event.dart";
+import "bloc/disclosure_permission_state.dart";
+import "widgets/disclosure_permission_choices_screen.dart";
+import "widgets/disclosure_permission_close_dialog.dart";
+import "widgets/disclosure_permission_introduction_screen.dart";
+import "widgets/disclosure_permission_issue_wizard_screen.dart";
+import "widgets/disclosure_permission_make_choice_screen.dart";
+import "widgets/disclosure_permission_obtain_credentials_screen.dart";
+import "widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
 
 class DisclosurePermission extends ConsumerWidget {
   final int sessionId;

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/yivi_progress_indicator.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/yivi_progress_indicator.dart";
 
 class Illustrator extends StatefulWidget {
   final List<Widget> imageSet;
@@ -39,11 +39,11 @@ class _IllustratorState extends State<Illustrator>
   String slideshowAccessibilityDescription(int page) {
     return FlutterI18n.translate(
       context,
-      'accessibility.slideshow',
+      "accessibility.slideshow",
       translationParams: {
-        'i': (page + 1).toString(),
-        'n': widget.imageSet.length.toString(),
-        'description': widget.textSet[page],
+        "i": (page + 1).toString(),
+        "n": widget.imageSet.length.toString(),
+        "description": widget.textSet[page],
       },
     );
   }

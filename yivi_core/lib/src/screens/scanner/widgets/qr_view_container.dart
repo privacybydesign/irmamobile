@@ -1,8 +1,8 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:qr_code_scanner_plus/qr_code_scanner_plus.dart";
 
 class QRViewContainer extends StatefulWidget {
   final Function(String) onFound;
@@ -14,7 +14,7 @@ class QRViewContainer extends StatefulWidget {
 }
 
 class _QRViewContainerState extends State<QRViewContainer> {
-  final GlobalKey _qrKey = GlobalKey(debugLabel: 'QR');
+  final GlobalKey _qrKey = GlobalKey(debugLabel: "QR");
 
   late StreamSubscription _qrViewSubscription;
 

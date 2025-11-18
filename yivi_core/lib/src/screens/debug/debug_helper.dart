@@ -1,9 +1,9 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:collection/collection.dart';
+import "package:collection/collection.dart";
 
-import '../../models/irma_configuration.dart';
-import 'session/portrait_photo_mock.dart';
+import "../../models/irma_configuration.dart";
+import "session/portrait_photo_mock.dart";
 
 class DebugHelper {
   static final _random = Random();
@@ -77,20 +77,20 @@ class DebugHelper {
   }
 
   String _randomAttributeValue() {
-    const attributeValues = ['lorem', 'ipsum'];
+    const attributeValues = ["lorem", "ipsum"];
     return attributeValues[_random.nextInt(attributeValues.length)];
   }
 
   Future<String> digidProefIssuanceRequest() async {
     const credentialTypeId =
-        'irma-demo.digidproef.personalData'; // We assume this credential is present.
+        "irma-demo.digidproef.personalData"; // We assume this credential is present.
     final credentialType = irmaConfig.credentialTypes[credentialTypeId]!;
     final attributeTypesLookup = _attributeTypesByCredentialType(
       irmaConfig,
     )[credentialTypeId]!;
 
     final attributeValues = attributeTypesLookup.map((attributeType) {
-      final value = attributeType.displayHint == 'portraitPhoto'
+      final value = attributeType.displayHint == "portraitPhoto"
           ? portraitPhotoMock
           : _randomAttributeValue();
       return '"${attributeType.id}": "$value"';
@@ -103,7 +103,7 @@ class DebugHelper {
 
   Future<String> randomIssuanceRequest(int amount) async {
     final credentialTypes = irmaConfig.credentialTypes.values
-        .where((ct) => ct.schemeManagerId == 'irma-demo')
+        .where((ct) => ct.schemeManagerId == "irma-demo")
         .toList();
     final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfig);
 

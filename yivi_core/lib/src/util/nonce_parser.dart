@@ -1,8 +1,8 @@
-import 'dart:typed_data';
+import "dart:typed_data";
 
 Uint8List stringToUint8List(String input) {
   if (input.length != 16) {
-    throw ArgumentError('Input must be exactly 16 characters long');
+    throw ArgumentError("Input must be exactly 16 characters long");
   }
 
   // input is hex representation of byte[8]

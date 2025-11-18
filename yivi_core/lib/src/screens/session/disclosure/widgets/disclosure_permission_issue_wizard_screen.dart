@@ -1,14 +1,14 @@
-import 'package:flutter/widgets.dart';
+import "package:flutter/widgets.dart";
 
-import '../../../../models/session.dart';
-import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_bottom_bar.dart';
-import '../../../../widgets/requestor_header.dart';
-import '../../../../widgets/session_progress_indicator.dart';
-import '../../widgets/session_scaffold.dart';
-import '../bloc/disclosure_permission_event.dart';
-import '../bloc/disclosure_permission_state.dart';
-import 'disclosure_discon_stepper.dart';
+import "../../../../models/session.dart";
+import "../../../../theme/theme.dart";
+import "../../../../widgets/irma_bottom_bar.dart";
+import "../../../../widgets/requestor_header.dart";
+import "../../../../widgets/session_progress_indicator.dart";
+import "../../widgets/session_scaffold.dart";
+import "../bloc/disclosure_permission_event.dart";
+import "../bloc/disclosure_permission_state.dart";
+import "disclosure_discon_stepper.dart";
 
 class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   final RequestorInfo requestor;
@@ -28,7 +28,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.issue_wizard.title',
+      appBarTitle: "disclosure_permission.issue_wizard.title",
       onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
@@ -63,10 +63,10 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
         // If the current step can be completed, then we show a obtain data button.
         // If the current step cannot be completed, then we show a close button.
         primaryButtonLabel: state.isCompleted
-            ? 'disclosure_permission.next_step'
+            ? "disclosure_permission.next_step"
             : (state.currentCanBeCompleted
-                  ? 'disclosure_permission.obtain_data'
-                  : 'disclosure_permission.close'),
+                  ? "disclosure_permission.obtain_data"
+                  : "disclosure_permission.close"),
         onPrimaryPressed: state.currentCanBeCompleted
             ? () => onEvent(DisclosurePermissionNextPressed())
             : () => onDismiss(skipConfirmation: true),

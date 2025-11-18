@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/translated_text.dart';
-import '../widgets/enrollment_nav_bar.dart';
-import 'widgets/error_reporting_check_box.dart';
-import 'widgets/terms_bullet_list.dart';
-import 'widgets/terms_check_box.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/translated_text.dart";
+import "../widgets/enrollment_nav_bar.dart";
+import "widgets/error_reporting_check_box.dart";
+import "widgets/terms_bullet_list.dart";
+import "widgets/terms_check_box.dart";
 
 // for first time terms acceptance
 class AcceptTermsScreen extends StatelessWidget {
@@ -41,7 +41,7 @@ class AcceptTermsScreen extends StatelessWidget {
                         // Title
                         SizedBox(height: theme.mediumSpacing),
                         TranslatedText(
-                          'enrollment.terms_and_conditions.title',
+                          "enrollment.terms_and_conditions.title",
                           style: theme.textTheme.displayLarge,
                           textAlign: TextAlign.start,
                         ),
@@ -49,7 +49,7 @@ class AcceptTermsScreen extends StatelessWidget {
 
                         // Explanation
                         const TranslatedText(
-                          'enrollment.terms_and_conditions.explanation',
+                          "enrollment.terms_and_conditions.explanation",
                           textAlign: TextAlign.start,
                         ),
                         SizedBox(height: theme.mediumSpacing),

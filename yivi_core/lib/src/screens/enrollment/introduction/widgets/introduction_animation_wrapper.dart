@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
+import "package:flutter/material.dart";
+import "package:lottie/lottie.dart";
 
-import '../../../../../package_name.dart';
+import "../../../../../package_name.dart";
 
 class IntroductionAnimationWrapper extends StatefulWidget {
   final Widget child;
@@ -46,7 +46,7 @@ class _IntroductionAnimationWrapperState
     const alignDuration = Duration(seconds: 1);
 
     final lottieWidget = Lottie.asset(
-      yiviAsset('non-free/onboarding.json'),
+      yiviAsset("non-free/onboarding.json"),
       frameRate: FrameRate(60),
       repeat: false,
       controller: _lottieController,

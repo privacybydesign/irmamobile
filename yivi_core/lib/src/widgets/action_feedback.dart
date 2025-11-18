@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:flutter/material.dart";
+import "package:flutter_svg/svg.dart";
 
-import '../../package_name.dart';
-import '../screens/session/widgets/dynamic_layout.dart';
-import '../screens/session/widgets/session_scaffold.dart';
-import '../screens/session/widgets/success_graphic.dart';
-import '../theme/theme.dart';
-import 'translated_text.dart';
-import 'yivi_themed_button.dart';
+import "../../package_name.dart";
+import "../screens/session/widgets/dynamic_layout.dart";
+import "../screens/session/widgets/session_scaffold.dart";
+import "../screens/session/widgets/success_graphic.dart";
+import "../theme/theme.dart";
+import "translated_text.dart";
+import "yivi_themed_button.dart";
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
@@ -35,14 +35,14 @@ class ActionFeedback extends StatelessWidget {
       canPop: false,
       child: SessionScaffold(
         appBarTitle: success
-            ? 'disclosure.feedback.header.success'
-            : 'ui.error',
+            ? "disclosure.feedback.header.success"
+            : "ui.error",
         onDismiss: onDismiss,
         body: DynamicLayout(
           hero: success
               ? SuccessGraphic()
               : SvgPicture.asset(
-                  yiviAsset('error/general_error_illustration.svg'),
+                  yiviAsset("error/general_error_illustration.svg"),
                 ),
           content: Column(
             children: [
@@ -63,8 +63,8 @@ class ActionFeedback extends StatelessWidget {
           ),
           actions: [
             YiviThemedButton(
-              key: const Key('ok_button'),
-              label: 'action_feedback.ok',
+              key: const Key("ok_button"),
+              label: "action_feedback.ok",
               onPressed: onDismiss,
             ),
           ],

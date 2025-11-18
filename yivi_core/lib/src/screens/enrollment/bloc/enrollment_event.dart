@@ -1,4 +1,4 @@
-part of 'enrollment_bloc.dart';
+part of "enrollment_bloc.dart";
 
 abstract class EnrollmentBlocEvent {}
 

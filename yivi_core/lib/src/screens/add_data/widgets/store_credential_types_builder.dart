@@ -1,12 +1,12 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../models/credentials.dart';
-import '../../../models/irma_configuration.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../util/language.dart';
-import '../../../widgets/progress.dart';
+import "../../../models/credentials.dart";
+import "../../../models/irma_configuration.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../util/language.dart";
+import "../../../widgets/progress.dart";
 
 typedef GroupedCredentialTypesBuilder =
     Widget Function(
@@ -37,7 +37,7 @@ class StoreCredentialTypesBuilder extends StatelessWidget {
         // And group them by category
         final otherTranslation = FlutterI18n.translate(
           context,
-          'data.category_other',
+          "data.category_other",
         );
         var groupedObtainedCredentialTypes = groupBy<CredentialType, String>(
           obtainedCredentialTypes,
@@ -64,7 +64,7 @@ class StoreCredentialTypesBuilder extends StatelessWidget {
         // Make sure personal credentials are always at the top
         final personalTranslation = FlutterI18n.translate(
           context,
-          'data.category_personal',
+          "data.category_personal",
         );
         final personalCredentials = groupedStoreCredentialTypes.remove(
           personalTranslation,

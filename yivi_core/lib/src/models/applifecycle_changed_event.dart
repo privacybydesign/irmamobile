@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
-import 'package:json_annotation/json_annotation.dart';
+import "package:flutter/cupertino.dart";
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
+import "event.dart";
 
-part 'applifecycle_changed_event.g.dart';
+part "applifecycle_changed_event.g.dart";
 
 @JsonSerializable()
 class AppLifecycleChangedEvent extends Event {

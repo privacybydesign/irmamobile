@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../widgets/collapsible.dart';
+import "../../../widgets/collapsible.dart";
 
 class HelpItem extends StatelessWidget {
   final ScrollController parentScrollController;

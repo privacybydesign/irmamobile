@@ -1,19 +1,22 @@
-import 'package:flutter_test/flutter_test.dart';
+import "package:flutter_test/flutter_test.dart";
 
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
-import 'package:yivi_core/src/widgets/requestor_header.dart';
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> filledChoiceTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueDemoCredentials(tester, irmaBinding);
 
@@ -47,16 +50,14 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardFinder,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     style: IrmaCardStyle.normal,
   );
 
   // Change choice should be visible
-  final changeChoiceFinder = find.text('Change choice');
+  final changeChoiceFinder = find.text("Change choice");
   await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
   expect(changeChoiceFinder, findsOneWidget);
 
@@ -73,11 +74,9 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     isSelected: true,
   );
 
@@ -85,23 +84,20 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {},
     isSelected: false,
   );
 
   // The third card should show a template credential too
   final thirdCardFinder = cardFinder.at(2);
-  await tester.scrollUntilVisible(
-    thirdCardFinder.hitTestable(),
-    50,
-  );
+  await tester.scrollUntilVisible(thirdCardFinder.hitTestable(), 50);
   await evaluateCredentialCard(
     tester,
     thirdCardFinder,
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {},
     isSelected: false,
   );
@@ -110,13 +106,9 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await tester.tapAndSettle(thirdCardFinder);
 
   // Card should be selected now
-  await evaluateCredentialCard(
-    tester,
-    thirdCardFinder,
-    isSelected: true,
-  );
+  await evaluateCredentialCard(tester, thirdCardFinder, isSelected: true);
 
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   await issueMunicipalityPersonalData(tester, irmaBinding);
@@ -129,50 +121,46 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email address": "test@example.com"},
     isSelected: false,
   );
   await evaluateCredentialCard(
     tester,
     cardFinder.at(1),
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Mobile phone number": "0612345678"},
     isSelected: true,
   );
 
   await evaluateCredentialCard(
     tester,
     cardFinder.at(2),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {},
     isSelected: false,
   );
   await evaluateCredentialCard(
     tester,
     cardFinder.at(3),
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {},
     isSelected: false,
   );
 
   // Confirm choice
-  await tester.tapAndSettle(find.text('Done'));
+  await tester.tapAndSettle(find.text("Done"));
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   final requestorHeaderFinder = find.byType(RequestorHeader);
   await evaluateRequestorHeader(
     tester,
     requestorHeaderFinder,
-    localizedRequestorName: 'is.demo.staging.yivi.app',
+    localizedRequestorName: "is.demo.staging.yivi.app",
     isVerified: false,
   );
 
@@ -180,15 +168,13 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await evaluateCredentialCard(
     tester,
     cardFinder.first,
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Mobile phone number": "0612345678"},
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 }

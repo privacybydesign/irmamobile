@@ -1,15 +1,15 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
+import "event.dart";
 
-part 'scheme_events.g.dart';
+part "scheme_events.g.dart";
 
 @JsonSerializable()
 class InstallSchemeEvent extends Event {
-  @JsonKey(name: 'URL')
+  @JsonKey(name: "URL")
   final String url;
 
-  @JsonKey(name: 'PublicKey')
+  @JsonKey(name: "PublicKey")
   final String publicKey;
 
   InstallSchemeEvent({required this.url, required this.publicKey});
@@ -21,7 +21,7 @@ class InstallSchemeEvent extends Event {
 
 @JsonSerializable()
 class RemoveSchemeEvent extends Event {
-  @JsonKey(name: 'SchemeID')
+  @JsonKey(name: "SchemeID")
   final String schemeId;
 
   RemoveSchemeEvent({required this.schemeId});
@@ -33,7 +33,7 @@ class RemoveSchemeEvent extends Event {
 
 @JsonSerializable()
 class RemoveRequestorSchemeEvent extends Event {
-  @JsonKey(name: 'SchemeID')
+  @JsonKey(name: "SchemeID")
   final String schemeId;
 
   RemoveRequestorSchemeEvent({required this.schemeId});

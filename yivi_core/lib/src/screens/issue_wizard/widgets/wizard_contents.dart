@@ -1,17 +1,17 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:visibility_detector/visibility_detector.dart';
+import "package:collection/collection.dart";
+import "package:flutter/widgets.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:visibility_detector/visibility_detector.dart";
 
-import '../../../models/issue_wizard.dart';
-import '../../../theme/theme.dart';
-import '../../../util/color_from_code.dart';
-import '../../../widgets/irma_bottom_bar.dart';
-import '../../../widgets/irma_card.dart';
-import '../../../widgets/irma_markdown.dart';
-import '../../../widgets/irma_stepper.dart';
-import '../../../widgets/session_progress_indicator.dart';
-import 'wizard_scaffold.dart';
+import "../../../models/issue_wizard.dart";
+import "../../../theme/theme.dart";
+import "../../../util/color_from_code.dart";
+import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/irma_card.dart";
+import "../../../widgets/irma_markdown.dart";
+import "../../../widgets/irma_stepper.dart";
+import "../../../widgets/session_progress_indicator.dart";
+import "wizard_scaffold.dart";
 
 class IssueWizardContents extends StatelessWidget {
   final GlobalKey scrollviewKey;
@@ -45,7 +45,7 @@ class IssueWizardContents extends StatelessWidget {
       (el) => !el.completed,
     );
     return VisibilityDetector(
-      key: const Key('wizard_key'),
+      key: const Key("wizard_key"),
       onVisibilityChanged: (v) => onVisibilityChanged(v, wizard),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,14 +92,14 @@ class IssueWizardContents extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
-        ? FlutterI18n.translate(context, 'issue_wizard.done')
+        ? FlutterI18n.translate(context, "issue_wizard.done")
         : activeItem?.label.translate(
             lang,
             fallback: FlutterI18n.translate(
               context,
-              'issue_wizard.add_credential',
+              "issue_wizard.add_credential",
               translationParams: {
-                'credential': activeItem.header.translate(lang),
+                "credential": activeItem.header.translate(lang),
               },
             ),
           );

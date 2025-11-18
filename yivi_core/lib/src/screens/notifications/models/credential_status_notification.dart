@@ -1,11 +1,11 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'actions/credential_detail_navigation_action.dart';
-import 'actions/notification_action.dart';
-import 'notification.dart';
-import 'notification_translated_content.dart';
+import "actions/credential_detail_navigation_action.dart";
+import "actions/notification_action.dart";
+import "notification.dart";
+import "notification_translated_content.dart";
 
-part 'credential_status_notification.g.dart';
+part "credential_status_notification.g.dart";
 
 enum CredentialStatusNotificationType { revoked, expired, expiringSoon }
 
@@ -31,21 +31,21 @@ class CredentialStatusNotification extends Notification {
     String typeTranslationKey;
     switch (type) {
       case CredentialStatusNotificationType.revoked:
-        typeTranslationKey = 'revoked';
+        typeTranslationKey = "revoked";
         break;
       case CredentialStatusNotificationType.expired:
-        typeTranslationKey = 'expired';
+        typeTranslationKey = "expired";
         break;
       case CredentialStatusNotificationType.expiringSoon:
-        typeTranslationKey = 'expiring_soon';
+        typeTranslationKey = "expiring_soon";
         break;
     }
 
     return InternalTranslatedContent(
       titleTranslationKey:
-          'notifications.credential_status.$typeTranslationKey.title',
+          "notifications.credential_status.$typeTranslationKey.title",
       messageTranslationKey:
-          'notifications.credential_status.$typeTranslationKey.message',
+          "notifications.credential_status.$typeTranslationKey.message",
     );
   }
 
@@ -58,7 +58,7 @@ class CredentialStatusNotification extends Notification {
     final jsonMap = _$CredentialStatusNotificationToJson(this);
 
     // Add the notificationType to the JSON, so we know which type of notification to create when loading from JSON
-    jsonMap['notificationType'] = 'credentialStatusNotification';
+    jsonMap["notificationType"] = "credentialStatusNotification";
 
     return jsonMap;
   }

@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart';
+import "package:flutter/services.dart";
 
 extension Haptic<P, R> on R Function(P) {
   R Function(P) get haptic => (P p) {

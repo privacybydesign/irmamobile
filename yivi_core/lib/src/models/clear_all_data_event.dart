@@ -1,8 +1,8 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
+import "event.dart";
 
-part 'clear_all_data_event.g.dart';
+part "clear_all_data_event.g.dart";
 
 @JsonSerializable()
 class ClearAllDataEvent extends Event {

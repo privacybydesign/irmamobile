@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../models/irma_configuration.dart';
-import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credential_type_card.dart';
+import "../../../models/irma_configuration.dart";
+import "../../../theme/theme.dart";
+import "../../../widgets/credential_card/irma_credential_type_card.dart";
 
 class CredentialCategoryList extends StatelessWidget {
   final String categoryName;

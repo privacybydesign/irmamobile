@@ -1,4 +1,4 @@
-part of 'yivi_pin_screen.dart';
+part of "yivi_pin_screen.dart";
 
 class _UnsecurePinDescriptionTile extends StatelessWidget {
   final bool followsRule;

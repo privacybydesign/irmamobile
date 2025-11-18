@@ -1,4 +1,4 @@
-part of 'yivi_pin_screen.dart';
+part of "yivi_pin_screen.dart";
 
 class _NumberPadIcon extends StatelessWidget {
   final IconData icon;

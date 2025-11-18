@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/irma_bottom_bar.dart';
-import '../../../widgets/translated_text.dart';
-import 'widgets/email_input_field.dart';
-import 'widgets/skip_email_confirmation_dialog.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/translated_text.dart";
+import "widgets/email_input_field.dart";
+import "widgets/skip_email_confirmation_dialog.dart";
 
 class ProvideEmailScreen extends StatefulWidget {
   final String? email;
@@ -32,7 +32,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
 
   @override
   void initState() {
-    _emailController.text = widget.email ?? '';
+    _emailController.text = widget.email ?? "";
     super.initState();
   }
 
@@ -70,7 +70,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
-        titleTranslationKey: 'enrollment.email.provide.title',
+        titleTranslationKey: "enrollment.email.provide.title",
         leading: YiviBackButton(onTap: widget.onPrevious),
       ),
       body: LayoutBuilder(
@@ -93,12 +93,12 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           TranslatedText(
-                            'enrollment.email.provide.header',
+                            "enrollment.email.provide.header",
                             style: theme.textTheme.displaySmall,
                           ),
                           SizedBox(height: theme.defaultSpacing),
                           const TranslatedText(
-                            'enrollment.email.provide.explanation',
+                            "enrollment.email.provide.explanation",
                           ),
                           SizedBox(height: theme.mediumSpacing),
                           EmailInputField(controller: _emailController),
@@ -111,11 +111,11 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                         alignment: isLandscape
                             ? IrmaBottomBarAlignment.horizontal
                             : IrmaBottomBarAlignment.vertical,
-                        primaryButtonLabel: 'ui.next',
+                        primaryButtonLabel: "ui.next",
                         onPrimaryPressed: _emailFormIsValid
                             ? _onContinuePressed
                             : null,
-                        secondaryButtonLabel: 'ui.skip',
+                        secondaryButtonLabel: "ui.skip",
                         onSecondaryPressed: _onSkipPressed,
                       ),
                     ],

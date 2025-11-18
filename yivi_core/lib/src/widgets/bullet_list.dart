@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
-import 'translated_text.dart';
+import "../theme/theme.dart";
+import "translated_text.dart";
 
 class BulletList extends StatelessWidget {
   final List<String> translationKeys;
@@ -23,7 +23,7 @@ class BulletList extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  leading != null ? leading! : Text('•  ', style: textStyle),
+                  leading != null ? leading! : Text("•  ", style: textStyle),
                   SizedBox(width: theme.smallSpacing),
                   Expanded(
                     child: TranslatedText(translationKey, style: textStyle),

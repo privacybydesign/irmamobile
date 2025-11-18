@@ -1,14 +1,17 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../irma_binding.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../irma_binding.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> nullablesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> nullablesTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   const sessionRequest = '''
@@ -27,7 +30,12 @@ Future<void> nullablesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
 
   // Expect obtain credential screen
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
-  expect(find.text('Obtain my data step by step and share it with the requesting party after that'), findsOneWidget);
+  expect(
+    find.text(
+      "Obtain my data step by step and share it with the requesting party after that",
+    ),
+    findsOneWidget,
+  );
 
   // One stepper should be visible
   expect(find.byType(DisclosureDisconStepper), findsOneWidget);
@@ -38,8 +46,8 @@ Future<void> nullablesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo IRMATube Member',
-    issuerName: 'Demo IRMATube',
+    credentialName: "Demo IRMATube Member",
+    issuerName: "Demo IRMATube",
     attributes: {}, // TODO Add check for the required/notNull attirbute
     style: IrmaCardStyle.highlighted,
   );

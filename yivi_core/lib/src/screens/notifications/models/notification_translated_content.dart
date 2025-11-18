@@ -1,8 +1,8 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import '../../../models/translated_value.dart';
+import "../../../models/translated_value.dart";
 
-part 'notification_translated_content.g.dart';
+part "notification_translated_content.g.dart";
 
 abstract class NotificationTranslatedContent {
   Map<String, dynamic> toJson();
@@ -11,12 +11,12 @@ abstract class NotificationTranslatedContent {
 
   // Implement a factory method to create the correct notification type based on the JSON
   factory NotificationTranslatedContent.fromJson(Map<String, dynamic> json) {
-    if (json['translationType'] == 'internalTranslatedContent') {
+    if (json["translationType"] == "internalTranslatedContent") {
       return InternalTranslatedContent.fromJson(json);
-    } else if (json['translationType'] == 'externalTranslatedContent') {
+    } else if (json["translationType"] == "externalTranslatedContent") {
       return ExternalTranslatedContent.fromJson(json);
     }
-    throw Exception('Cannot create notification from this JSON');
+    throw Exception("Cannot create notification from this JSON");
   }
 }
 
@@ -33,7 +33,7 @@ class InternalTranslatedContent extends NotificationTranslatedContent {
   @override
   Map<String, dynamic> toJson() {
     final jsonMap = _$InternalTranslatedContentToJson(this);
-    jsonMap['translationType'] = 'internalTranslatedContent';
+    jsonMap["translationType"] = "internalTranslatedContent";
 
     return jsonMap;
   }
@@ -55,7 +55,7 @@ class ExternalTranslatedContent extends NotificationTranslatedContent {
   @override
   Map<String, dynamic> toJson() {
     final jsonMap = _$ExternalTranslatedContentToJson(this);
-    jsonMap['translationType'] = 'externalTranslatedContent';
+    jsonMap["translationType"] = "externalTranslatedContent";
 
     return jsonMap;
   }

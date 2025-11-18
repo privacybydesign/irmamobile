@@ -1,7 +1,7 @@
-import 'dart:ui';
+import "dart:ui";
 
 Color? colorFromCode(String? colorCode) {
-  if (colorCode == null || colorCode.length != 7 || colorCode[0] != '#') {
+  if (colorCode == null || colorCode.length != 7 || colorCode[0] != "#") {
     return null;
   }
 

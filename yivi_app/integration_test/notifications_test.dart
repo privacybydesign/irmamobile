@@ -1,25 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
-import 'package:yivi_core/src/screens/data/credentials_details_screen.dart';
-import 'package:yivi_core/src/screens/notifications/notifications_tab.dart';
-import 'package:yivi_core/src/screens/notifications/widgets/notification_bell.dart';
-import 'package:yivi_core/src/screens/notifications/widgets/notification_card.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_app_bar.dart';
-import 'package:yivi_core/src/widgets/yivi_themed_button.dart';
+import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:integration_test/integration_test.dart";
+import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
+import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
+import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
+import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
-import 'helpers/helpers.dart';
-import 'helpers/issuance_helpers.dart';
-import 'irma_binding.dart';
-import 'util.dart';
+import "helpers/helpers.dart";
+import "helpers/issuance_helpers.dart";
+import "irma_binding.dart";
+import "util.dart";
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group('notifications', () {
+  group("notifications", () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
@@ -77,19 +77,19 @@ void main() {
       ]
     ''';
 
-    testWidgets('reach', (tester) async {
+    testWidgets("reach", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       // NotificationBell should be visible
       expect(notificationBellFinder, findsOneWidget);
 
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_activity")));
       expect(notificationBellFinder, findsOneWidget);
 
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
       expect(notificationBellFinder, findsOneWidget);
 
       // Finally, go back to the data tab
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
       // Press the NotificationBell
       await tester.tapAndSettle(notificationBellFinder);
@@ -98,7 +98,7 @@ void main() {
       expect(notificationsScreenFinder, findsOneWidget);
     });
 
-    testWidgets('empty-state', (tester) async {
+    testWidgets("empty-state", (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Press the NotificationBell
@@ -108,20 +108,22 @@ void main() {
       // Expect page title
       final screenTitleFinder = find.descendant(
         of: find.byType(IrmaAppBar),
-        matching: find.text('Notifications'),
+        matching: find.text("Notifications"),
       );
       expect(screenTitleFinder, findsOneWidget);
 
       // Expect empty state message
       final emptyStateMessageFinder = find.descendant(
         of: notificationsScreenFinder,
-        matching: find.text('No notifications'),
+        matching: find.text("No notifications"),
       );
       expect(emptyStateMessageFinder, findsOneWidget);
     });
 
-    testWidgets('filled-state', (tester) async {
-      await irmaBinding.repository.preferences.setSerializedNotifications(twoMockedCredentialsCache);
+    testWidgets("filled-state", (tester) async {
+      await irmaBinding.repository.preferences.setSerializedNotifications(
+        twoMockedCredentialsCache,
+      );
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Expect the NotificationBell to be visible
@@ -139,20 +141,24 @@ void main() {
       await evaluateNotificationCard(
         tester,
         notificationCardFinder.at(0),
-        title: 'Data revoked',
-        content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
+        title: "Data revoked",
+        content: "Demo IRMATube has revoked this data: Demo IRMATube Member",
       );
     });
 
-    testWidgets('read-all-notifications', (tester) async {
-      await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
+    testWidgets("read-all-notifications", (tester) async {
+      await irmaBinding.repository.preferences.setSerializedNotifications(
+        mockedCredentialCache,
+      );
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Expect the NotificationBell to be visible
       expect(notificationBellFinder, findsOneWidget);
 
       // Notification bell should show the indicator
-      final notificationBell = tester.widget<NotificationBell>(notificationBellFinder);
+      final notificationBell = tester.widget<NotificationBell>(
+        notificationBellFinder,
+      );
       expect(notificationBell.showIndicator, true);
 
       // Press the NotificationBell and expect the NotificationsScreen to appear
@@ -167,19 +173,21 @@ void main() {
       await evaluateNotificationCard(
         tester,
         notificationCardFinder,
-        title: 'Data revoked',
-        content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
+        title: "Data revoked",
+        content: "Demo IRMATube has revoked this data: Demo IRMATube Member",
         read: false,
       );
 
       // Leave the screen by pressing the data tab button
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
       // pumpAndSettle to make sure the event is processed
       await tester.pumpAndSettle();
 
       // NotificationBell now should not show the indicator
-      final notificationBell2 = tester.widget<NotificationBell>(notificationBellFinder);
+      final notificationBell2 = tester.widget<NotificationBell>(
+        notificationBellFinder,
+      );
       expect(notificationBell2.showIndicator, false);
 
       // Press the NotificationBell and expect the NotificationsScreen to appear
@@ -194,14 +202,16 @@ void main() {
       await evaluateNotificationCard(
         tester,
         notificationCardFinder2,
-        title: 'Data revoked',
-        content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
+        title: "Data revoked",
+        content: "Demo IRMATube has revoked this data: Demo IRMATube Member",
         read: true,
       );
     });
 
-    testWidgets('dismiss-notification', (tester) async {
-      await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
+    testWidgets("dismiss-notification", (tester) async {
+      await irmaBinding.repository.preferences.setSerializedNotifications(
+        mockedCredentialCache,
+      );
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Tap the bell, expect a notification card and dismiss it
@@ -220,7 +230,7 @@ void main() {
       expect(notificationCardFinder, findsNothing);
 
       // Go back
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
       // Go to the notifications screen again
       await tester.tapAndSettle(notificationBellFinder);
@@ -229,16 +239,20 @@ void main() {
       expect(notificationCardFinder, findsNothing);
     });
 
-    testWidgets('notification-action', (tester) async {
-      await irmaBinding.repository.preferences.setSerializedNotifications(mockedCredentialCache);
+    testWidgets("notification-action", (tester) async {
+      await irmaBinding.repository.preferences.setSerializedNotifications(
+        mockedCredentialCache,
+      );
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // To make the action action work, we need to actually have the credential in the app
       await issueIrmaTubeMember(tester, irmaBinding);
-      await tester.tapAndSettle(find.descendant(
-        of: find.byType(YiviThemedButton),
-        matching: find.text('OK'),
-      ));
+      await tester.tapAndSettle(
+        find.descendant(
+          of: find.byType(YiviThemedButton),
+          matching: find.text("OK"),
+        ),
+      );
 
       // Tap the bell, expect a notification screen
       await tester.tapAndSettle(notificationBellFinder);
@@ -250,8 +264,8 @@ void main() {
       await evaluateNotificationCard(
         tester,
         notificationCardFinder,
-        title: 'Data revoked',
-        content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
+        title: "Data revoked",
+        content: "Demo IRMATube has revoked this data: Demo IRMATube Member",
         read: false,
       );
 
@@ -259,7 +273,9 @@ void main() {
       await tester.tapAndSettle(notificationCardFinder);
 
       // Expect the credential detail screen
-      final credentialDetailScreenFinder = find.byType(CredentialsDetailsScreen);
+      final credentialDetailScreenFinder = find.byType(
+        CredentialsDetailsScreen,
+      );
       expect(credentialDetailScreenFinder, findsOneWidget);
 
       // Expect the actual credential card
@@ -268,12 +284,12 @@ void main() {
       await evaluateCredentialCard(
         tester,
         credentialCardFinder.first,
-        credentialName: 'Demo IRMATube Member',
-        issuerName: 'Demo IRMATube',
+        credentialName: "Demo IRMATube Member",
+        issuerName: "Demo IRMATube",
       );
 
       // Go back
-      final backButtonFinder = find.byKey(const Key('irma_app_bar_leading'));
+      final backButtonFinder = find.byKey(const Key("irma_app_bar_leading"));
       await tester.tapAndSettle(backButtonFinder);
 
       // Expect the notification screen
@@ -286,8 +302,8 @@ void main() {
       await evaluateNotificationCard(
         tester,
         notificationCardFinder2,
-        title: 'Data revoked',
-        content: 'Demo IRMATube has revoked this data: Demo IRMATube Member',
+        title: "Data revoked",
+        content: "Demo IRMATube has revoked this data: Demo IRMATube Member",
         read: true,
       );
     });

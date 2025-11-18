@@ -1,18 +1,18 @@
-import 'package:flutter/material.dart' hide Notification;
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart" hide Notification;
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/navigation.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_dismissible.dart';
-import '../../widgets/loading_indicator.dart';
-import '../../widgets/translated_text.dart';
-import 'bloc/notifications_bloc.dart';
-import 'models/actions/credential_detail_navigation_action.dart';
-import 'models/notification.dart';
-import 'widgets/notification_card.dart';
+import "../../providers/irma_repository_provider.dart";
+import "../../theme/theme.dart";
+import "../../util/navigation.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_dismissible.dart";
+import "../../widgets/loading_indicator.dart";
+import "../../widgets/translated_text.dart";
+import "bloc/notifications_bloc.dart";
+import "models/actions/credential_detail_navigation_action.dart";
+import "models/notification.dart";
+import "widgets/notification_card.dart";
 
 class NotificationsTab extends StatefulWidget {
   @override
@@ -70,7 +70,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
               children: [
                 Flexible(
                   child: TranslatedText(
-                    'notifications.empty',
+                    "notifications.empty",
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -93,7 +93,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
       child: Scaffold(
         backgroundColor: theme.backgroundTertiary,
         appBar: IrmaAppBar(
-          titleTranslationKey: 'notifications.title',
+          titleTranslationKey: "notifications.title",
           leading: null,
         ),
         body: SafeArea(
@@ -134,7 +134,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
               }
 
               throw Exception(
-                'NotificationsScreen does not support this state: $state',
+                "NotificationsScreen does not support this state: $state",
               );
             },
           ),

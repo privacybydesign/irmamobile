@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:flutter/material.dart";
+import "package:flutter_svg/svg.dart";
 
-import '../../package_name.dart';
-import '../theme/theme.dart';
-import 'translated_text.dart';
+import "../../package_name.dart";
+import "../theme/theme.dart";
+import "translated_text.dart";
 
 enum YiviButtonStyle { fancy, outlined, filled }
 
@@ -33,7 +33,7 @@ class YiviThemedButton extends StatelessWidget {
     this.isTransparent = false,
   }) : assert(
          !isTransparent || style != YiviButtonStyle.fancy,
-         'Fancy button cannot be transparent',
+         "Fancy button cannot be transparent",
        );
 
   Widget _buildFancyButton(Widget child) => Stack(
@@ -42,7 +42,7 @@ class YiviThemedButton extends StatelessWidget {
         bottom: 0.0,
         child: ExcludeSemantics(
           child: SvgPicture.asset(
-            yiviAsset('ui/btn-bg.svg'),
+            yiviAsset("ui/btn-bg.svg"),
             alignment: Alignment.center,
             fit: BoxFit.fill,
           ),

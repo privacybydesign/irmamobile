@@ -1,18 +1,21 @@
-import 'package:flutter_test/flutter_test.dart';
+import "package:flutter_test/flutter_test.dart";
 
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> filledChoiceMixedTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueDemoCredentials(tester, irmaBinding);
 
@@ -35,7 +38,9 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   // Should go straight to overview screen,
   // because the address has already been obtained
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  await tester.waitFor(find.text('Share my data with is.demo.staging.yivi.app'));
+  await tester.waitFor(
+    find.text("Share my data with is.demo.staging.yivi.app"),
+  );
 
   // Expect the already obtained municipality address
   final cardsFinder = find.byType(YiviCredentialCard);
@@ -43,18 +48,14 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
+    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
     style: IrmaCardStyle.normal,
   );
 
   // Change choice should be visible
-  final changeChoiceFinder = find.text('Change choice');
+  final changeChoiceFinder = find.text("Change choice");
   await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
   expect(changeChoiceFinder, findsOneWidget);
 
@@ -69,13 +70,9 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
+    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
     isSelected: true,
   );
 
@@ -83,24 +80,21 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   await evaluateCredentialCard(
     tester,
     secondCardFinder,
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
     attributes: {},
     isSelected: false,
   );
 
   // Press iDin option
-  await tester.scrollUntilVisible(
-    secondCardFinder.hitTestable(),
-    50,
-  );
+  await tester.scrollUntilVisible(secondCardFinder.hitTestable(), 50);
   await tester.tapAndSettle(secondCardFinder);
 
   // The styling of the cards should represent this choice
   await evaluateCredentialCard(tester, cardsFinder.first, isSelected: false);
   await evaluateCredentialCard(tester, cardsFinder.at(1), isSelected: true);
 
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // Issue iDin
@@ -110,45 +104,38 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
+    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
-    attributes: {
-      'Address': 'Meander 501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
+    attributes: {"Address": "Meander 501", "City": "Arnhem"},
   );
 
-  await tester.tapAndSettle(find.text('Done'));
+  await tester.tapAndSettle(find.text("Done"));
 
   // Expect choices overview
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
+  expect(
+    find.text("Share my data with is.demo.staging.yivi.app"),
+    findsOneWidget,
+  );
 
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo iDIN',
-    issuerName: 'Demo iDIN',
-    attributes: {
-      'Address': 'Meander 501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
+    attributes: {"Address": "Meander 501", "City": "Arnhem"},
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
 
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);

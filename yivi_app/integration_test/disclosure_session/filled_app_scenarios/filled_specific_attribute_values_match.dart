@@ -1,18 +1,21 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> filledSpecificAttributeValuesMatchTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueDemoCredentials(tester, irmaBinding);
 
@@ -43,28 +46,26 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'test.com',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'test.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email domain name": "test.com"},
+    attributesCompareTo: {"Email domain name": "test.com"},
     style: IrmaCardStyle.highlighted,
   );
 
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // Now obtain the email credential with wrong domain
   await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.email.email': 'test@demo.com',
-    'irma-demo.sidn-pbdf.email.domain': 'demo.com',
+    "irma-demo.sidn-pbdf.email.email": "test@demo.com",
+    "irma-demo.sidn-pbdf.email.domain": "demo.com",
   });
 
   // Wrong credentials added dialog should appear
-  final wrongCredAddedDialogFinder = find.byType(DisclosurePermissionWrongCredentialsAddedDialog);
+  final wrongCredAddedDialogFinder = find.byType(
+    DisclosurePermissionWrongCredentialsAddedDialog,
+  );
   expect(wrongCredAddedDialogFinder, findsOneWidget);
 
   // Dialog should show two credential cards
@@ -78,64 +79,58 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
   await evaluateCredentialCard(
     tester,
     dialogCardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'demo.com',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'test.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email domain name": "demo.com"},
+    attributesCompareTo: {"Email domain name": "test.com"},
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
     tester,
     dialogCardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {
-      'Email domain name': 'test.com',
-    },
-    attributesCompareTo: {
-      'Email domain name': 'test.com',
-    },
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Email domain name": "test.com"},
+    attributesCompareTo: {"Email domain name": "test.com"},
     style: IrmaCardStyle.normal,
   );
 
   // Close the dialog
-  final okButtonFinder = find.text('OK');
+  final okButtonFinder = find.text("OK");
   await tester.ensureVisible(okButtonFinder);
   await tester.pumpAndSettle();
   await tester.tapAndSettle(okButtonFinder);
 
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // Now issue the correct right credential
   await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.email.email': 'test@test.com',
-    'irma-demo.sidn-pbdf.email.domain': 'test.com',
+    "irma-demo.sidn-pbdf.email.email": "test@test.com",
+    "irma-demo.sidn-pbdf.email.domain": "test.com",
   });
 
   // Issue wizard should be completed now
-  expect(find.text('All required data has been added'), findsOneWidget);
+  expect(find.text("All required data has been added"), findsOneWidget);
 
   // Check the credential card now that is has been completed
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {},
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Next step'));
+  await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
   expect(
-    find.text('This data has already been added to your app. Verify that the data is still correct.'),
+    find.text(
+      "This data has already been added to your app. Verify that the data is still correct.",
+    ),
     findsOneWidget,
   );
 
@@ -143,48 +138,43 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
+    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
     style: IrmaCardStyle.normal,
   );
 
   // Continue to choices overview
-  await tester.tapAndSettle(find.text('Next step'));
+  await tester.tapAndSettle(find.text("Next step"));
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
+  expect(
+    find.text("Share my data with is.demo.staging.yivi.app"),
+    findsOneWidget,
+  );
 
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
-    attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-    },
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
+    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
     style: IrmaCardStyle.normal,
   );
 
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    credentialName: "Demo Email address",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
     attributes: {
-      'Email address': 'test@test.com',
-      'Email domain name': 'test.com',
+      "Email address": "test@test.com",
+      "Email domain name": "test.com",
     },
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 }

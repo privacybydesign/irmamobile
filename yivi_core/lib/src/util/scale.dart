@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import "package:flutter/widgets.dart";
 
 /// current ux-2.0 designs at set at viewport width of 375px
 const designScreenWidth = 375.0;

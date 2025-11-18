@@ -1,8 +1,8 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'notification_action.dart';
+import "notification_action.dart";
 
-part 'credential_detail_navigation_action.g.dart';
+part "credential_detail_navigation_action.g.dart";
 
 @JsonSerializable()
 class CredentialDetailNavigationAction extends NotificationAction {
@@ -17,7 +17,7 @@ class CredentialDetailNavigationAction extends NotificationAction {
   @override
   Map<String, dynamic> toJson() {
     final jsonMap = _$CredentialDetailNavigationActionToJson(this);
-    jsonMap['actionType'] = 'credentialDetailNavigationAction';
+    jsonMap["actionType"] = "credentialDetailNavigationAction";
 
     return jsonMap;
   }

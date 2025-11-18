@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter/cupertino.dart";
+import "package:flutter/foundation.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import '../data/irma_client_bridge.dart';
-import '../data/irma_repository.dart';
-import 'preferences_provider.dart';
+import "../data/irma_client_bridge.dart";
+import "../data/irma_repository.dart";
+import "preferences_provider.dart";
 
 class IrmaRepositoryProvider extends InheritedWidget {
   final IrmaRepository repository;
@@ -17,7 +17,7 @@ class IrmaRepositoryProvider extends InheritedWidget {
   static IrmaRepository of(BuildContext context) {
     final IrmaRepositoryProvider? result = context
         .dependOnInheritedWidgetOfExactType<IrmaRepositoryProvider>();
-    assert(result != null, 'No IrmaRepository found in context');
+    assert(result != null, "No IrmaRepository found in context");
     return result!.repository;
   }
 

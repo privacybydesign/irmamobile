@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_bottom_sheet.dart';
-import '../../../../widgets/translated_text.dart';
+import "../../../../theme/theme.dart";
+import "../../../../widgets/irma_bottom_sheet.dart";
+import "../../../../widgets/translated_text.dart";
 
 class ErrorReportingInfoBottomSheet extends StatelessWidget {
   @override
@@ -17,14 +17,14 @@ class ErrorReportingInfoBottomSheet extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: theme.mediumSpacing),
             child: TranslatedText(
-              'enrollment.error_reporting.dialog.title',
+              "enrollment.error_reporting.dialog.title",
               style: theme.textTheme.displaySmall,
             ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
             child: TranslatedText(
-              'enrollment.error_reporting.dialog.explanation',
+              "enrollment.error_reporting.dialog.explanation",
               style: theme.textTheme.bodyMedium,
             ),
           ),

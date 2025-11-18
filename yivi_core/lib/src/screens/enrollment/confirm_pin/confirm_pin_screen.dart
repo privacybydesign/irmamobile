@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../pin/yivi_pin_screen.dart';
-import '../../yivi_confirm_pin_scaffold.dart';
+import "../../pin/yivi_pin_screen.dart";
+import "../../yivi_confirm_pin_scaffold.dart";
 
 class ConfirmPinScreen extends StatelessWidget {
-  static const String routeName = 'confirm_pin';
+  static const String routeName = "confirm_pin";
   final StringCallback submitConfirmationPin;
   final VoidCallback onPrevious;
   final ValueNotifier<String> newPinNotifier;
@@ -22,7 +22,7 @@ class ConfirmPinScreen extends StatelessWidget {
     return YiviConfirmPinScaffold(
       submit: submitConfirmationPin,
       onBack: onPrevious,
-      instructionKey: 'enrollment.confirm_pin.instruction',
+      instructionKey: "enrollment.confirm_pin.instruction",
       newPinNotifier: newPinNotifier,
       onPinMismatch: onPinMismatch,
     );

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_bottom_bar_base.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/irma_bottom_bar_base.dart";
 
 class DynamicLayout extends StatelessWidget {
   final Widget hero;

@@ -1,12 +1,12 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:collection/collection.dart";
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../../models/credentials.dart';
-import '../../../models/irma_configuration.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../util/language.dart';
-import '../../../widgets/progress.dart';
+import "../../../models/credentials.dart";
+import "../../../models/irma_configuration.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../util/language.dart";
+import "../../../widgets/progress.dart";
 
 typedef GroupedCredentialTypesBuilder =
     Widget Function(
@@ -61,7 +61,7 @@ class CredentialTypesBuilder extends StatelessWidget {
         // Group them by category
         final otherTranslation = FlutterI18n.translate(
           context,
-          'data.category_other',
+          "data.category_other",
         );
         var groupedCredentialTypes = groupBy<CredentialType, String>(
           distinctCredentialTypes,

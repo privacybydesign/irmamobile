@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../../models/irma_configuration.dart';
-import '../../../../widgets/active_indicator.dart';
+import "../../../../models/irma_configuration.dart";
+import "../../../../widgets/active_indicator.dart";
 
 class SchemeManagerTile extends StatelessWidget {
   final SchemeManager schemeManager;

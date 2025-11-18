@@ -1,10 +1,10 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../models/session.dart';
-import '../../../providers/irma_repository_provider.dart';
-import '../../../util/handle_pointer.dart';
+import "../../../models/session.dart";
+import "../../../providers/irma_repository_provider.dart";
+import "../../../util/handle_pointer.dart";
 
 class PendingPointerListener extends StatefulWidget {
   final Widget child;

@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import "package:flutter/material.dart";
+import "package:flutter/widgets.dart";
 
-import '../../../theme/theme.dart';
-import '../../../widgets/translated_text.dart';
-import '../../../widgets/yivi_progress_indicator.dart';
-import 'enrollment_nav_bar.dart';
+import "../../../theme/theme.dart";
+import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_progress_indicator.dart";
+import "enrollment_nav_bar.dart";
 
 class EnrollmentInstruction extends StatelessWidget {
   final int? stepIndex;

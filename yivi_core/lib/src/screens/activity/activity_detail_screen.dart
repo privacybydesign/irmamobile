@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:intl/intl.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:intl/intl.dart";
 
-import '../../models/irma_configuration.dart';
-import '../../models/log_entry.dart';
-import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/translated_text.dart';
-import 'widgets/activity_detail_disclosure.dart';
-import 'widgets/activity_detail_issuance.dart';
-import 'widgets/activity_detail_removal.dart';
+import "../../models/irma_configuration.dart";
+import "../../models/log_entry.dart";
+import "../../theme/theme.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/translated_text.dart";
+import "widgets/activity_detail_disclosure.dart";
+import "widgets/activity_detail_issuance.dart";
+import "widgets/activity_detail_removal.dart";
 
 class ActivityDetailsScreenArgs {
   final LogInfo logEntry;
@@ -36,7 +36,7 @@ class ActivityDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: 'home.nav_bar.activity'),
+      appBar: IrmaAppBar(titleTranslationKey: "home.nav_bar.activity"),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
@@ -69,11 +69,11 @@ class ActivityDetailsScreen extends StatelessWidget {
                 SizedBox(height: theme.smallSpacing),
                 Center(
                   child: TranslatedText(
-                    'credential.date_at_time',
-                    key: const Key('activity_timestamp'),
+                    "credential.date_at_time",
+                    key: const Key("activity_timestamp"),
                     translationParams: {
-                      'date': DateFormat.yMMMMd(lang).format(logEntry.time),
-                      'time': DateFormat.jm(lang).format(logEntry.time),
+                      "date": DateFormat.yMMMMd(lang).format(logEntry.time),
+                      "time": DateFormat.jm(lang).format(logEntry.time),
                     },
                     style: theme.themeData.textTheme.bodyMedium,
                   ),

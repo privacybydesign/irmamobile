@@ -1,22 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:go_router/go_router.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:go_router/go_router.dart";
 
-import '../../data/irma_repository.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../util/navigation.dart';
-import '../../widgets/loading_indicator.dart';
-import 'accept_terms/accept_terms_screen.dart';
-import 'bloc/enrollment_bloc.dart';
-import 'choose_pin/choose_pin_screen.dart';
-import 'confirm_pin/confirm_pin_screen.dart';
-import 'confirm_pin/widgets/pin_confirmation_failed_dialog.dart';
-import 'enrollment_failed_screen.dart';
-import 'introduction/introduction_screen.dart';
-import 'provide_email/email_sent_screen.dart';
-import 'provide_email/provide_email_screen.dart';
+import "../../data/irma_repository.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../util/navigation.dart";
+import "../../widgets/loading_indicator.dart";
+import "accept_terms/accept_terms_screen.dart";
+import "bloc/enrollment_bloc.dart";
+import "choose_pin/choose_pin_screen.dart";
+import "confirm_pin/confirm_pin_screen.dart";
+import "confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
+import "enrollment_failed_screen.dart";
+import "introduction/introduction_screen.dart";
+import "provide_email/email_sent_screen.dart";
+import "provide_email/provide_email_screen.dart";
 
 class EnrollmentScreen extends StatelessWidget {
   @override
@@ -59,7 +59,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     void addEvent(EnrollmentBlocEvent event) => bloc.add(event);
     void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());
     void addOnNextPressed() => bloc.add(EnrollmentNextPressed());
-    final newPin = ValueNotifier('');
+    final newPin = ValueNotifier("");
 
     // The default for this value is intentionally
     // different for the fresh install and upgrade flows.

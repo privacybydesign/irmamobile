@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../theme/theme.dart';
-import '../../notifications/bloc/notifications_bloc.dart';
-import '../../notifications/widgets/notification_bell.dart';
-import 'irma_nav_button.dart';
+import "../../../theme/theme.dart";
+import "../../notifications/bloc/notifications_bloc.dart";
+import "../../notifications/widgets/notification_bell.dart";
+import "irma_nav_button.dart";
 
 enum IrmaNavBarTab { data, activity, notifications, more }
 
@@ -40,7 +40,7 @@ class IrmaNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IrmaNavButton(
-            key: const Key('nav_button_data'),
+            key: const Key("nav_button_data"),
             iconData: selectedTab == IrmaNavBarTab.data
                 ? Icons.person
                 : Icons.person_outline,
@@ -49,7 +49,7 @@ class IrmaNavBar extends StatelessWidget {
             isSelected: IrmaNavBarTab.data == selectedTab,
           ),
           IrmaNavButton(
-            key: const Key('nav_button_activity'),
+            key: const Key("nav_button_activity"),
             iconData: Icons.history,
             tab: IrmaNavBarTab.activity,
             changeTab: onChangeTab,
@@ -58,14 +58,14 @@ class IrmaNavBar extends StatelessWidget {
           // Spacing for the QR scan button
           const SizedBox(width: 90),
           IrmaNavButton(
-            key: const Key('nav_button_notifications'),
+            key: const Key("nav_button_notifications"),
             tab: IrmaNavBarTab.notifications,
             builder: _buildNotificationsIcon,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.notifications == selectedTab,
           ),
           IrmaNavButton(
-            key: const Key('nav_button_more'),
+            key: const Key("nav_button_more"),
             iconData: Icons.more_horiz,
             tab: IrmaNavBarTab.more,
             changeTab: onChangeTab,

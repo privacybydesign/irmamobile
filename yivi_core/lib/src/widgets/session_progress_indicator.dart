@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
-import 'irma_card.dart';
-import 'irma_linear_progresss_indicator.dart';
-import 'translated_text.dart';
+import "../theme/theme.dart";
+import "irma_card.dart";
+import "irma_linear_progresss_indicator.dart";
+import "translated_text.dart";
 
 class SessionProgressIndicator extends StatelessWidget {
   final int? step;
@@ -18,11 +18,11 @@ class SessionProgressIndicator extends StatelessWidget {
     this.contentTranslationParams,
   }) : assert(
          step == null || stepCount != null,
-         'A stepCount is required when providing a step',
+         "A stepCount is required when providing a step",
        ),
        assert(
          stepCount == null || step != null,
-         'A step is required when providing a stepCount',
+         "A step is required when providing a stepCount",
        );
 
   @override
@@ -40,10 +40,10 @@ class SessionProgressIndicator extends StatelessWidget {
         children: [
           if (showProgress) ...[
             TranslatedText(
-              'ui.step_of_steps',
+              "ui.step_of_steps",
               translationParams: {
-                'i': step.toString(),
-                'n': stepCount.toString(),
+                "i": step.toString(),
+                "n": stepCount.toString(),
               },
               style: theme.themeData.textTheme.bodyMedium!.copyWith(
                 fontSize: 14,

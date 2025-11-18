@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:native_device_orientation/native_device_orientation.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_svg/svg.dart";
+import "package:native_device_orientation/native_device_orientation.dart";
 
-import '../../../../package_name.dart';
-import '../../../theme/theme.dart';
-import '../../../util/navigation.dart';
-import '../../../widgets/translated_text.dart';
+import "../../../../package_name.dart";
+import "../../../theme/theme.dart";
+import "../../../util/navigation.dart";
+import "../../../widgets/translated_text.dart";
 
 enum ArrowBackType { issuance, disclosure, signature, error }
 
@@ -58,16 +58,16 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
     final String infoText;
     switch (widget.type) {
       case ArrowBackType.issuance:
-        infoText = 'arrow_back.issuance_success';
+        infoText = "arrow_back.issuance_success";
         break;
       case ArrowBackType.disclosure:
-        infoText = 'arrow_back.disclosure_success';
+        infoText = "arrow_back.disclosure_success";
         break;
       case ArrowBackType.signature:
-        infoText = 'arrow_back.signature_success';
+        infoText = "arrow_back.signature_success";
         break;
       case ArrowBackType.error:
-        infoText = 'arrow_back.no_success';
+        infoText = "arrow_back.no_success";
         break;
     }
 
@@ -110,7 +110,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SvgPicture.asset(
-                    yiviAsset('arrow_back/pointing_up.svg'),
+                    yiviAsset("arrow_back/pointing_up.svg"),
                     width: 250,
                   ),
                   SizedBox(height: theme.hugeSpacing),
@@ -132,7 +132,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                           SizedBox(height: theme.mediumSpacing),
                           Flexible(
                             child: TranslatedText(
-                              'arrow_back.safari',
+                              "arrow_back.safari",
                               style: theme.textTheme.bodyMedium,
                               textAlign: TextAlign.center,
                             ),

@@ -1,19 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../data/irma_repository.dart';
-import '../../models/credential_events.dart';
-import '../../models/session.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../util/handle_pointer.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/translated_text.dart';
-import 'debug_helper.dart';
-import 'scheme_management/scheme_management_screen.dart';
-import 'scheme_management/widgets/scheme_management_warning_dialog.dart';
-import 'session/session_helper_screen.dart';
-import 'util/snackbar.dart';
-import 'widgets/delete_all_credentials_confirmation_dialog.dart';
+import "../../data/irma_repository.dart";
+import "../../models/credential_events.dart";
+import "../../models/session.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../util/handle_pointer.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/translated_text.dart";
+import "debug_helper.dart";
+import "scheme_management/scheme_management_screen.dart";
+import "scheme_management/widgets/scheme_management_warning_dialog.dart";
+import "session/session_helper_screen.dart";
+import "util/snackbar.dart";
+import "widgets/delete_all_credentials_confirmation_dialog.dart";
 
 class DebugScreen extends StatefulWidget {
   const DebugScreen({super.key});
@@ -70,7 +70,7 @@ class _DebugScreenState extends State<DebugScreen> {
     if (!mounted) return;
     showSnackbar(
       context,
-      FlutterI18n.translate(context, 'debug.delete_credentials.success'),
+      FlutterI18n.translate(context, "debug.delete_credentials.success"),
     );
   }
 
@@ -94,17 +94,17 @@ class _DebugScreenState extends State<DebugScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
-      appBar: IrmaAppBar(titleTranslationKey: 'debug.title'),
+      appBar: IrmaAppBar(titleTranslationKey: "debug.title"),
       body: ListView(
         children: [
           _buildListTile(
             Icons.list_alt,
-            'debug.scheme_management.title',
+            "debug.scheme_management.title",
             onTap: _onOpenSchemeManagement,
           ),
           _buildListTile(
             Icons.badge,
-            'debug.issue_digid',
+            "debug.issue_digid",
             onTap: () async {
               final digidIssuanceRequest = await _debugHelper
                   .digidProefIssuanceRequest();
@@ -113,7 +113,7 @@ class _DebugScreenState extends State<DebugScreen> {
           ),
           _buildListTile(
             Icons.exposure_plus_2,
-            'debug.random_issuance',
+            "debug.random_issuance",
             onTap: () async {
               final randomIssuanceRequest = await _debugHelper
                   .randomIssuanceRequest(2);
@@ -122,15 +122,15 @@ class _DebugScreenState extends State<DebugScreen> {
           ),
           _buildListTile(
             Icons.play_arrow,
-            'debug.custom_issue_wizard',
+            "debug.custom_issue_wizard",
             onTap: () => handlePointer(
               context,
-              IssueWizardPointer('irma-demo-requestors.ivido.demo-client'),
+              IssueWizardPointer("irma-demo-requestors.ivido.demo-client"),
             ),
           ),
           _buildListTile(
             Icons.share,
-            'debug.start_session',
+            "debug.start_session",
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => SessionHelperScreen(
@@ -141,7 +141,7 @@ class _DebugScreenState extends State<DebugScreen> {
           ),
           _buildListTile(
             Icons.delete,
-            'debug.delete_credentials.delete',
+            "debug.delete_credentials.delete",
             onTap: () => _deleteAllDeletableCards(repo),
           ),
         ],

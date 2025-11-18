@@ -1,34 +1,36 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/data/credentials_details_screen.dart';
-import 'package:yivi_core/src/screens/notifications/widgets/notification_bell.dart';
-import 'package:yivi_core/src/screens/notifications/widgets/notification_card.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_close_button.dart';
-import 'package:yivi_core/src/widgets/yivi_themed_button.dart';
+import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
+import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
+import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
+import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
-import '../../helpers/helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
 Future<void> _evaluateDemoCredentialCard(
   WidgetTester tester,
   Finder revokedCardFinder, {
   required bool isRevoked,
-}) =>
-    evaluateCredentialCard(
-      tester,
-      revokedCardFinder,
-      credentialName: 'Demo Root',
-      issuerName: 'Demo MijnOverheid.nl',
-      attributes: {'BSN': '12345'},
-      isRevoked: isRevoked,
-    );
+}) => evaluateCredentialCard(
+  tester,
+  revokedCardFinder,
+  credentialName: "Demo Root",
+  issuerName: "Demo MijnOverheid.nl",
+  attributes: {"BSN": "12345"},
+  isRevoked: isRevoked,
+);
 
-Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> revocationTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Make sure a revoked credential is present
@@ -36,16 +38,14 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   await issueCredentials(
     tester,
     irmaBinding,
-    {'irma-demo.MijnOverheid.root.BSN': '12345'},
-    revocationKeys: {'irma-demo.MijnOverheid.root': revocationKey},
+    {"irma-demo.MijnOverheid.root.BSN": "12345"},
+    revocationKeys: {"irma-demo.MijnOverheid.root": revocationKey},
   );
 
   // Close the add credential success screen
-  await tester.tap(
-    find.text('OK'),
-  );
+  await tester.tap(find.text("OK"));
 
-  await revokeCredential('irma-demo.MijnOverheid.root', revocationKey);
+  await revokeCredential("irma-demo.MijnOverheid.root", revocationKey);
   await irmaBinding.repository.startTestSession('''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",
@@ -62,8 +62,11 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
 
   // The disclosure permission overview screen should be visible.
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('Share my data'), findsOneWidget);
-  expect(find.text('Share my data with is.demo.staging.yivi.app'), findsOneWidget);
+  expect(find.text("Share my data"), findsOneWidget);
+  expect(
+    find.text("Share my data with is.demo.staging.yivi.app"),
+    findsOneWidget,
+  );
 
   // Find all credential cards
   final cardsFinder = find.byType(YiviCredentialCard);
@@ -73,7 +76,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   await tester.tapAndSettle(find.byType(IrmaCloseButton));
 
   // Confirm the close dialog
-  await tester.tapAndSettle(find.text('Yes'));
+  await tester.tapAndSettle(find.text("Yes"));
 
   // The NotificationBell should be findable in the app bar
   final notificationBellFinder = find.byType(NotificationBell);
@@ -91,8 +94,8 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   await evaluateNotificationCard(
     tester,
     notificationCardFinder,
-    title: 'Data revoked',
-    content: 'Demo MijnOverheid.nl has revoked this data: Demo Root',
+    title: "Data revoked",
+    content: "Demo MijnOverheid.nl has revoked this data: Demo Root",
     read: false,
   );
 
@@ -112,9 +115,9 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   await evaluateCredentialCard(
     tester,
     credentialCardFinder,
-    credentialName: 'Demo Root',
-    issuerName: 'Demo MijnOverheid.nl',
-    attributes: {'BSN': '12345'},
+    credentialName: "Demo Root",
+    issuerName: "Demo MijnOverheid.nl",
+    attributes: {"BSN": "12345"},
     isRevoked: true,
   );
 
@@ -157,7 +160,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
 
   // Share data button should be disabled
   final shareDataButtonFinder = find.ancestor(
-    of: find.text('Share data'),
+    of: find.text("Share data"),
     matching: find.byType(YiviThemedButton),
   );
   expect(
@@ -165,16 +168,14 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
     isNull,
   );
 
-  expect(find.text('Change choice'), findsNothing);
+  expect(find.text("Change choice"), findsNothing);
 
   // Now reobtain the card.
   await issueCredentials(
     tester,
     irmaBinding,
-    {'irma-demo.MijnOverheid.root.BSN': '12345'},
-    revocationKeys: {
-      'irma-demo.MijnOverheid.root': generateRevocationKey(),
-    },
+    {"irma-demo.MijnOverheid.root.BSN": "12345"},
+    revocationKeys: {"irma-demo.MijnOverheid.root": generateRevocationKey()},
   );
 
   // Revoked card should be visible here too.
@@ -190,7 +191,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
     isNotNull,
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 }

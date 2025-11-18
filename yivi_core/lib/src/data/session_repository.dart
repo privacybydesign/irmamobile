@@ -1,15 +1,15 @@
-import 'package:collection/collection.dart';
-import 'package:rxdart/rxdart.dart';
+import "package:collection/collection.dart";
+import "package:rxdart/rxdart.dart";
 
-import '../models/attribute.dart';
-import '../models/credentials.dart';
-import '../models/return_url.dart';
-import '../models/session.dart';
-import '../models/session_events.dart';
-import '../models/session_state.dart';
-import '../models/translated_value.dart';
-import '../util/con_dis_con.dart';
-import 'irma_repository.dart';
+import "../models/attribute.dart";
+import "../models/credentials.dart";
+import "../models/return_url.dart";
+import "../models/session.dart";
+import "../models/session_events.dart";
+import "../models/session_state.dart";
+import "../models/translated_value.dart";
+import "../util/con_dis_con.dart";
+import "irma_repository.dart";
 
 typedef SessionStates = UnmodifiableMapView<int, SessionState>;
 
@@ -76,27 +76,27 @@ class SessionRepository {
       return prevState.copyWith(
         status: SessionStatus.error,
         error: SessionError(
-          errorType: 'keyshareEnrollmentMissing',
+          errorType: "keyshareEnrollmentMissing",
           info:
-              'user not activated at the keyshare server of scheme ${event.schemeManagerID}',
+              "user not activated at the keyshare server of scheme ${event.schemeManagerID}",
         ),
       );
     } else if (event is KeyshareEnrollmentIncompleteSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.error,
         error: SessionError(
-          errorType: 'keyshareEnrollmentIncomplete',
+          errorType: "keyshareEnrollmentIncomplete",
           info:
-              'user enrollment incomplete at the keyshare server of scheme ${event.schemeManagerID}',
+              "user enrollment incomplete at the keyshare server of scheme ${event.schemeManagerID}",
         ),
       );
     } else if (event is KeyshareEnrollmentDeletedSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.error,
         error: SessionError(
-          errorType: 'keyshareEnrollmentDeleted',
+          errorType: "keyshareEnrollmentDeleted",
           info:
-              'user deleted at the keyshare server of scheme ${event.schemeManagerID}',
+              "user deleted at the keyshare server of scheme ${event.schemeManagerID}",
         ),
       );
     } else if (event is StatusUpdateSessionEvent) {
@@ -201,10 +201,10 @@ class SessionRepository {
         for (final cand in con) {
           // We support cand.type consisting of four dot-separated parts; three parts is forbidden here;
           // any other amount of parts is forbidden by irmago before we end up here
-          if (cand.type.split('.').length == 3) {
+          if (cand.type.split(".").length == 3) {
             throw SessionError(
-              errorType: 'notSupported',
-              info: 'non-attribute disclosures are not supported',
+              errorType: "notSupported",
+              info: "non-attribute disclosures are not supported",
               wrappedError:
                   '"${cand.type}" consists of three parts; four expected',
             );

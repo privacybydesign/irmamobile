@@ -1,9 +1,9 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
-import 'session.dart';
+import "event.dart";
+import "session.dart";
 
-part 'enrollment_events.g.dart';
+part "enrollment_events.g.dart";
 
 @JsonSerializable()
 class EnrollmentStatusEvent extends Event {
@@ -12,10 +12,10 @@ class EnrollmentStatusEvent extends Event {
     required this.unenrolledSchemeManagerIds,
   });
 
-  @JsonKey(name: 'EnrolledSchemeManagerIds')
+  @JsonKey(name: "EnrolledSchemeManagerIds")
   final List<String> enrolledSchemeManagerIds;
 
-  @JsonKey(name: 'UnenrolledSchemeManagerIds')
+  @JsonKey(name: "UnenrolledSchemeManagerIds")
   final List<String> unenrolledSchemeManagerIds;
 
   factory EnrollmentStatusEvent.fromJson(Map<String, dynamic> json) =>
@@ -32,16 +32,16 @@ class EnrollEvent extends Event {
     required this.schemeId,
   });
 
-  @JsonKey(name: 'Email')
+  @JsonKey(name: "Email")
   final String email;
 
-  @JsonKey(name: 'Pin')
+  @JsonKey(name: "Pin")
   final String pin;
 
-  @JsonKey(name: 'Language')
+  @JsonKey(name: "Language")
   final String language;
 
-  @JsonKey(name: 'SchemeID')
+  @JsonKey(name: "SchemeID")
   final String schemeId;
 
   factory EnrollEvent.fromJson(Map<String, dynamic> json) =>
@@ -55,10 +55,10 @@ class EnrollmentEvent extends Event {}
 class EnrollmentFailureEvent extends EnrollmentEvent {
   EnrollmentFailureEvent({required this.schemeManagerID, required this.error});
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerID;
 
-  @JsonKey(name: 'Error')
+  @JsonKey(name: "Error")
   final SessionError error;
 
   factory EnrollmentFailureEvent.fromJson(Map<String, dynamic> json) =>
@@ -70,7 +70,7 @@ class EnrollmentFailureEvent extends EnrollmentEvent {
 class EnrollmentSuccessEvent extends EnrollmentEvent {
   EnrollmentSuccessEvent({required this.schemeManagerID});
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerID;
 
   factory EnrollmentSuccessEvent.fromJson(Map<String, dynamic> json) =>

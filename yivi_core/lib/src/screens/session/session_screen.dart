@@ -1,31 +1,31 @@
-import 'dart:async';
-import 'dart:io';
+import "dart:async";
+import "dart:io";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../../data/irma_repository.dart';
-import '../../models/native_events.dart';
-import '../../models/return_url.dart';
-import '../../models/session.dart';
-import '../../models/session_events.dart';
-import '../../models/session_state.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../sentry/sentry.dart';
-import '../../util/combine.dart';
-import '../../util/navigation.dart';
-import '../../widgets/loading_indicator.dart';
-import '../error/session_error_screen.dart';
-import '../pin/session_pin_screen.dart';
-import 'call_info_screen.dart';
-import 'disclosure/disclosure_permission.dart';
-import 'widgets/arrow_back_screen.dart';
-import 'widgets/disclosure_feedback_screen.dart';
-import 'widgets/issuance_permission.dart';
-import 'widgets/issuance_success_screen.dart';
-import 'widgets/pairing_required.dart';
-import 'widgets/session_scaffold.dart';
+import "../../data/irma_repository.dart";
+import "../../models/native_events.dart";
+import "../../models/return_url.dart";
+import "../../models/session.dart";
+import "../../models/session_events.dart";
+import "../../models/session_state.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../sentry/sentry.dart";
+import "../../util/combine.dart";
+import "../../util/navigation.dart";
+import "../../widgets/loading_indicator.dart";
+import "../error/session_error_screen.dart";
+import "../pin/session_pin_screen.dart";
+import "call_info_screen.dart";
+import "disclosure/disclosure_permission.dart";
+import "widgets/arrow_back_screen.dart";
+import "widgets/disclosure_feedback_screen.dart";
+import "widgets/issuance_permission.dart";
+import "widgets/issuance_success_screen.dart";
+import "widgets/pairing_required.dart";
+import "widgets/session_scaffold.dart";
 
 class SessionScreen extends StatefulWidget {
   final SessionRouteParams arguments;
@@ -70,7 +70,7 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   String _getAppBarTitle(bool isIssuance) {
-    return isIssuance ? 'issuance.title' : 'disclosure.title';
+    return isIssuance ? "issuance.title" : "disclosure.title";
   }
 
   void _dismissSession() {
@@ -122,8 +122,8 @@ class _SessionScreenState extends State<SessionScreen> {
           FailureSessionEvent(
             sessionID: widget.arguments.sessionID,
             error: SessionError(
-              errorType: 'clientReturnUrl',
-              info: 'the clientReturnUrl could not be handled',
+              errorType: "clientReturnUrl",
+              info: "the clientReturnUrl could not be handled",
               wrappedError: e.toString(),
             ),
           ),
@@ -193,9 +193,9 @@ class _SessionScreenState extends State<SessionScreen> {
               FailureSessionEvent(
                 sessionID: widget.arguments.sessionID,
                 error: SessionError(
-                  errorType: 'clientReturnUrl',
+                  errorType: "clientReturnUrl",
                   info:
-                      'the phone number in the clientReturnUrl could not be handled',
+                      "the phone number in the clientReturnUrl could not be handled",
                   wrappedError: e.toString(),
                 ),
               ),
@@ -323,7 +323,7 @@ class _SessionScreenState extends State<SessionScreen> {
           } else if (session.clientReturnURL != null &&
               !session.clientReturnURL!.isPhoneNumber) {
             // If the error was caused by the client return url itself, we should not open it again.
-            if (session.error?.errorType != 'clientReturnUrl') {
+            if (session.error?.errorType != "clientReturnUrl") {
               // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
               await _openClientReturnUrl(
                 session.clientReturnURL!,
@@ -377,7 +377,7 @@ class _SessionScreenState extends State<SessionScreen> {
         ) {
           if (!snapshot.hasData) {
             return _buildLoadingScreen(
-              widget.arguments.sessionType == 'issuing',
+              widget.arguments.sessionType == "issuing",
             );
           }
 
@@ -391,7 +391,7 @@ class _SessionScreenState extends State<SessionScreen> {
           switch (session.status) {
             case SessionStatus.pairing:
               return PairingRequired(
-                pairingCode: session.pairingCode ?? '',
+                pairingCode: session.pairingCode ?? "",
                 onDismiss: () => _dismissSession(),
               );
             case SessionStatus.requestDisclosurePermission:

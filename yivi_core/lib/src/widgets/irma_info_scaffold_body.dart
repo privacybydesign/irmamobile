@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_svg/svg.dart";
 
-import '../theme/theme.dart';
-import 'irma_dialog.dart';
-import 'translated_text.dart';
-import 'yivi_themed_button.dart';
+import "../theme/theme.dart";
+import "irma_dialog.dart";
+import "translated_text.dart";
+import "yivi_themed_button.dart";
 
 class IrmaInfoScaffoldBody extends StatelessWidget {
   final String titleTranslationKey;
@@ -31,25 +31,25 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
     this.linkTranslationKey,
   }) : assert(
          iconColor == null || icon != null,
-         'Icon color can only be used when an icon is provided',
+         "Icon color can only be used when an icon is provided",
        ),
        assert(
          linkTranslationKey != null || linkDialogText == null,
-         'If you specify a linkKey, also set a linkDialogKey',
+         "If you specify a linkKey, also set a linkDialogKey",
        ),
        assert(
          imagePath == null || icon == null,
-         'You cannot provide both an icon and an image path',
+         "You cannot provide both an icon and an image path",
        );
 
   Future _showIrmaDialog(BuildContext context) async => showDialog(
     context: context,
     builder: (context) {
       return IrmaDialog(
-        title: FlutterI18n.translate(context, 'error.details_title'),
+        title: FlutterI18n.translate(context, "error.details_title"),
         content: linkDialogText!,
         child: YiviThemedButton(
-          label: 'error.button_ok',
+          label: "error.button_ok",
           onPressed: () => Navigator.of(context).pop(),
         ),
       );
@@ -74,7 +74,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                   size: 125,
                 ),
               if (imagePath != null)
-                (imagePath!.endsWith('svg'))
+                (imagePath!.endsWith("svg"))
                     ? SvgPicture.asset(imagePath!)
                     : Image.asset(imagePath!),
               SizedBox(height: theme.mediumSpacing),

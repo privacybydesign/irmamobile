@@ -1,20 +1,20 @@
 // tests for sessions initiated from the qr scanner button on the pin screen
 
-import 'dart:ui';
+import "dart:ui";
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
-import 'package:yivi_core/src/data/irma_repository.dart';
-import 'package:yivi_core/src/screens/data/data_tab.dart';
-import 'package:yivi_core/src/screens/pin/pin_screen.dart';
-import 'package:yivi_core/src/screens/scanner/scanner_screen.dart';
-import 'package:yivi_core/src/widgets/irma_app_bar.dart';
+import "package:flutter/foundation.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:integration_test/integration_test.dart";
+import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/pin/pin_screen.dart";
+import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
-import 'helpers/helpers.dart';
-import 'helpers/issuance_helpers.dart';
-import 'irma_binding.dart';
-import 'util.dart';
+import "helpers/helpers.dart";
+import "helpers/issuance_helpers.dart";
+import "irma_binding.dart";
+import "util.dart";
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -22,34 +22,62 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group('issuance-from-pin-screen', () {
+  group("issuance-from-pin-screen", () {
     setUp(() async => await irmaBinding.setUp());
     tearDown(() async => await irmaBinding.tearDown());
 
     testWidgets(
-      'cancel-issuance-after-pin-en',
-      (tester) => testCancelIssuanceAfterPinEntered(tester, Locale('en', 'EN'), irmaBinding.repository),
+      "cancel-issuance-after-pin-en",
+      (tester) => testCancelIssuanceAfterPinEntered(
+        tester,
+        Locale("en", "EN"),
+        irmaBinding.repository,
+      ),
     );
     testWidgets(
-      'cancel-issuance-after-pin-nl',
-      (tester) => testCancelIssuanceAfterPinEntered(tester, Locale('nl', 'NL'), irmaBinding.repository),
+      "cancel-issuance-after-pin-nl",
+      (tester) => testCancelIssuanceAfterPinEntered(
+        tester,
+        Locale("nl", "NL"),
+        irmaBinding.repository,
+      ),
     );
 
-    testWidgets('issuance-en', (tester) => testIssuance(tester, Locale('en', 'EN'), irmaBinding.repository));
-    testWidgets('issuance-nl', (tester) => testIssuance(tester, Locale('nl', 'NL'), irmaBinding.repository));
-
     testWidgets(
-      'back-from-qr-en',
-      (tester) => testBackFromQrScanner(tester, Locale('en', 'EN'), irmaBinding.repository),
+      "issuance-en",
+      (tester) =>
+          testIssuance(tester, Locale("en", "EN"), irmaBinding.repository),
     );
     testWidgets(
-      'back-from-qr-nl',
-      (tester) => testBackFromQrScanner(tester, Locale('nl', 'NL'), irmaBinding.repository),
+      "issuance-nl",
+      (tester) =>
+          testIssuance(tester, Locale("nl", "NL"), irmaBinding.repository),
+    );
+
+    testWidgets(
+      "back-from-qr-en",
+      (tester) => testBackFromQrScanner(
+        tester,
+        Locale("en", "EN"),
+        irmaBinding.repository,
+      ),
+    );
+    testWidgets(
+      "back-from-qr-nl",
+      (tester) => testBackFromQrScanner(
+        tester,
+        Locale("nl", "NL"),
+        irmaBinding.repository,
+      ),
     );
   });
 }
 
-Future<void> testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale locale, IrmaRepository repo) async {
+Future<void> testCancelIssuanceAfterPinEntered(
+  WidgetTester tester,
+  Locale locale,
+  IrmaRepository repo,
+) async {
   await pumpIrmaApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
@@ -57,7 +85,7 @@ Future<void> testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale local
 
   await unlock(tester);
 
-  final buttonFinder = find.byKey(const Key('bottom_bar_secondary'));
+  final buttonFinder = find.byKey(const Key("bottom_bar_secondary"));
   await tester.waitFor(buttonFinder.hitTestable());
 
   // press the cancel button
@@ -74,7 +102,11 @@ Future<void> testCancelIssuanceAfterPinEntered(WidgetTester tester, Locale local
   await unlockAndWaitForHome(tester);
 }
 
-Future<void> testBackFromQrScanner(WidgetTester tester, Locale locale, IrmaRepository repo) async {
+Future<void> testBackFromQrScanner(
+  WidgetTester tester,
+  Locale locale,
+  IrmaRepository repo,
+) async {
   await pumpIrmaApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
@@ -91,7 +123,11 @@ Future<void> testBackFromQrScanner(WidgetTester tester, Locale locale, IrmaRepos
   await unlockAndWaitForHome(tester);
 }
 
-Future<void> testIssuance(WidgetTester tester, Locale locale, IrmaRepository repo) async {
+Future<void> testIssuance(
+  WidgetTester tester,
+  Locale locale,
+  IrmaRepository repo,
+) async {
   await pumpIrmaApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
@@ -99,14 +135,14 @@ Future<void> testIssuance(WidgetTester tester, Locale locale, IrmaRepository rep
 
   await unlock(tester);
 
-  final button = find.byKey(const Key('bottom_bar_primary'));
+  final button = find.byKey(const Key("bottom_bar_primary"));
   await tester.waitFor(button.hitTestable());
 
   // tap "add data"
   await tester.tapAndSettle(button);
 
   // tap "done"
-  await tester.tapAndSettle(find.byKey(const Key('ok_button')));
+  await tester.tapAndSettle(find.byKey(const Key("ok_button")));
 
   // ensure we're at the home screen
   await tester.waitFor(find.byType(DataTab).hitTestable());
@@ -118,13 +154,18 @@ Future<void> tapQrScannerButton(WidgetTester tester) async {
   await tester.tapAndSettle(qrButton);
 }
 
-Future<void> pretendToScanIssuanceQrCode(WidgetTester tester, Locale locale) async {
+Future<void> pretendToScanIssuanceQrCode(
+  WidgetTester tester,
+  Locale locale,
+) async {
   final attributes = createMunicipalityPersonalDataAttributes(locale);
   final session = await createIssuanceSession(attributes: attributes);
 
   // the scanner screen can't really do anything during an integration test
   // so we just pretend it scanned a QR code
-  final ScannerScreenState scannerState = tester.state(find.byType(ScannerScreen));
+  final ScannerScreenState scannerState = tester.state(
+    find.byType(ScannerScreen),
+  );
   scannerState.onQrScanned(session);
 
   // wait for the pin screen to be visible

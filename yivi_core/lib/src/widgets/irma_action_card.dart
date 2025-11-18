@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_svg/svg.dart";
 
-import '../../package_name.dart';
-import '../theme/theme.dart';
-import 'irma_card.dart';
-import 'translated_text.dart';
+import "../../package_name.dart";
+import "../theme/theme.dart";
+import "irma_card.dart";
+import "translated_text.dart";
 
 class IrmaActionCard extends StatelessWidget {
   final String titleKey;
@@ -69,7 +69,7 @@ class IrmaActionCard extends StatelessWidget {
               Positioned.fill(
                 child: isFancy
                     ? SvgPicture.asset(
-                        yiviAsset('ui/btn-bg.svg'),
+                        yiviAsset("ui/btn-bg.svg"),
                         alignment: Alignment.center,
                         fit: BoxFit.fill,
                       )

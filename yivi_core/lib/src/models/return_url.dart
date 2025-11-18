@@ -1,4 +1,4 @@
-import 'dart:core';
+import "dart:core";
 
 class ReturnURL {
   final Uri uri;
@@ -19,13 +19,13 @@ class ReturnURL {
 
   const ReturnURL._(this.uri);
 
-  bool get isPhoneNumber => uri.isScheme('tel');
+  bool get isPhoneNumber => uri.isScheme("tel");
   String get phoneNumber =>
-      isPhoneNumber ? toString().substring(4).split(',').first : '';
+      isPhoneNumber ? toString().substring(4).split(",").first : "";
 
   bool get isInApp =>
-      ['http', 'https'].contains(uri.scheme) &&
-      uri.queryParameters.containsKey('inapp');
+      ["http", "https"].contains(uri.scheme) &&
+      uri.queryParameters.containsKey("inapp");
 
   @override
   String toString() => uri.toString();

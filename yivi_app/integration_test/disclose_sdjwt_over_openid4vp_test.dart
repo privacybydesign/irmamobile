@@ -1,116 +1,123 @@
-import 'dart:convert';
-import 'dart:io';
+import "dart:convert";
+import "dart:io";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
-import 'package:vcmrtd/vcmrtd.dart';
-import 'package:yivi_core/src/providers/passport_issuer_provider.dart';
-import 'package:yivi_core/src/providers/passport_reader_provider.dart';
-import 'package:yivi_core/src/screens/activity/activity_detail_screen.dart';
-import 'package:yivi_core/src/screens/activity/widgets/activity_card.dart';
-import 'package:yivi_core/src/screens/add_data/add_data_details_screen.dart';
-import 'package:yivi_core/src/screens/passport/mrz_reader_screen.dart';
-import 'package:yivi_core/src/screens/passport/nfc_reading_screen.dart';
-import 'package:yivi_core/src/screens/passport/widgets/mrz_scanner.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:yivi_core/src/screens/session/session_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_app_bar.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
-import 'package:yivi_core/src/widgets/requestor_header.dart';
-import 'package:yivi_core/src/widgets/yivi_themed_button.dart';
+import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:integration_test/integration_test.dart";
+import "package:vcmrtd/vcmrtd.dart";
+import "package:yivi_core/src/providers/passport_issuer_provider.dart";
+import "package:yivi_core/src/providers/passport_reader_provider.dart";
+import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/passport/mrz_reader_screen.dart";
+import "package:yivi_core/src/screens/passport/nfc_reading_screen.dart";
+import "package:yivi_core/src/screens/passport/widgets/mrz_scanner.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
+import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
-import 'disclosure_session/disclosure_helpers.dart';
-import 'helpers/helpers.dart';
-import 'helpers/issuance_helpers.dart';
-import 'helpers/passport_helpers.dart';
-import 'irma_binding.dart';
-import 'util.dart';
+import "disclosure_session/disclosure_helpers.dart";
+import "helpers/helpers.dart";
+import "helpers/issuance_helpers.dart";
+import "helpers/passport_helpers.dart";
+import "irma_binding.dart";
+import "util.dart";
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group('openid4vp', () {
+  group("openid4vp", () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
     testWidgets(
-      'disclosing-passport-opens-passport-scanning-flow',
+      "disclosing-passport-opens-passport-scanning-flow",
       (tester) => testDisclosePassportOpensPassportScanner(tester, irmaBinding),
     );
 
     testWidgets(
-      'empty-sdjwt-still-option',
+      "empty-sdjwt-still-option",
       (tester) => testEmptySdJwtStillShowsInOptions(tester, irmaBinding),
     );
 
     testWidgets(
-      'claim-sets-pick-first-satisfying-option',
+      "claim-sets-pick-first-satisfying-option",
       (tester) => testClaimSetsPickFirstSatisfyingOption(tester, irmaBinding),
     );
 
     testWidgets(
-      'claim-with-multiple-value-options-two-match',
-      (tester) => testClaimWithMultipleValueOptionsTwoMatch(tester, irmaBinding),
+      "claim-with-multiple-value-options-two-match",
+      (tester) =>
+          testClaimWithMultipleValueOptionsTwoMatch(tester, irmaBinding),
     );
     testWidgets(
-      'claim-value-one-present-one-not',
+      "claim-value-one-present-one-not",
       (tester) => testClaimValueOnePresentOneNot(tester, irmaBinding),
     );
 
     testWidgets(
-      'optionally-disclose-extra-credential',
+      "optionally-disclose-extra-credential",
       (tester) => testOptionallyDiscloseExtraCredential(tester, irmaBinding),
     );
 
     testWidgets(
-      'select-one-of-two-possible-emails-and-two-possible-phones',
-      (tester) => testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(tester, irmaBinding),
+      "select-one-of-two-possible-emails-and-two-possible-phones",
+      (tester) => testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
+        tester,
+        irmaBinding,
+      ),
     );
 
     testWidgets(
-      'two-credentials-two-choices-each',
+      "two-credentials-two-choices-each",
       (tester) => testTwoCredentialsTwoChoicesEach(tester, irmaBinding),
     );
 
     testWidgets(
-      'one-credential-two-choices',
+      "one-credential-two-choices",
       (tester) => testOneCredentialTwoChoices(tester, irmaBinding),
     );
 
     testWidgets(
-      'one-missing-one-present',
+      "one-missing-one-present",
       (tester) => testOneMissingOnePresent(tester, irmaBinding),
     );
 
     testWidgets(
-      'missing',
+      "missing",
       (tester) => testDiscloseSdJwtThatsNotThere(tester, irmaBinding),
     );
 
     testWidgets(
-      'zero-credential-instance-count-shows-reobtain-button-and-red-card',
+      "zero-credential-instance-count-shows-reobtain-button-and-red-card",
       (tester) => testZeroInstanceCountShowsReobtainButton(tester, irmaBinding),
     );
 
     testWidgets(
-      'low-credential-instance-count-shows-reobtain-button',
-      (tester) => testLowCredentialInstanceCountShowsReobtainButton(tester, irmaBinding),
+      "low-credential-instance-count-shows-reobtain-button",
+      (tester) => testLowCredentialInstanceCountShowsReobtainButton(
+        tester,
+        irmaBinding,
+      ),
     );
 
     testWidgets(
-      'filled-app-disclose-with-choice',
+      "filled-app-disclose-with-choice",
       (tester) => testDiscloseSdJwtWithChoices(tester, irmaBinding),
     );
 
     testWidgets(
-      'filled-app-disclose-email-openid4vp',
+      "filled-app-disclose-email-openid4vp",
       (tester) => testDiscloseSdJwtOverOpenID4VP(tester, irmaBinding),
     );
   });
@@ -124,35 +131,30 @@ Future<void> testDisclosePassportOpensPassportScanner(
     statesDuringRead: [
       PassportReaderConnecting(),
       PassportReaderReadingCardAccess(),
-      PassportReaderReadingDataGroup(dataGroup: 'DG1', progress: 0.0),
+      PassportReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
       PassportReaderActiveAuthentication(),
       PassportReaderSuccess(),
     ],
   );
   final fakeIssuer = FakePassportIssuer();
 
-  await pumpAndUnlockApp(
-    tester,
-    irmaBinding.repository,
-    Locale('en'),
-    [
-      passportReaderProvider.overrideWith((ref) => fakeReader),
-      passportIssuerProvider.overrideWithValue(fakeIssuer),
-    ],
-  );
+  await pumpAndUnlockApp(tester, irmaBinding.repository, Locale("en"), [
+    passportReaderProvider.overrideWith((ref) => fakeReader),
+    passportIssuerProvider.overrideWithValue(fakeIssuer),
+  ]);
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'country',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['pbdf-staging.pbdf.passport']
+        "id": "country",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["pbdf-staging.pbdf.passport"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'c',
-            'path': ['country'],
+            "id": "c",
+            "path": ["country"],
           },
         ],
       },
@@ -167,29 +169,31 @@ Future<void> testDisclosePassportOpensPassportScanner(
   await tester.pumpAndSettle();
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
 
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
 
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
-  await tester.tapAndSettle(find.text('Add'));
+  await tester.tapAndSettle(find.text("Add"));
 
   await tester.waitFor(find.byType(MzrReaderScreen));
 
   final fakeMrz = FakeMrzResult(
-    documentNumber: 'XR0000001',
+    documentNumber: "XR0000001",
     birthDate: DateTime(1990, 1, 1),
     expiryDate: DateTime(2030, 12, 31),
-    countryCode: 'NLD',
+    countryCode: "NLD",
   );
 
   final scannerState = tester.state<MRZScannerState>(find.byType(MRZScanner));
-  scannerState.widget.onSuccess(
-      fakeMrz, const ['P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<', 'XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00']);
+  scannerState.widget.onSuccess(fakeMrz, const [
+    "P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<",
+    "XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00",
+  ]);
 
   await tester.pumpAndSettle();
 
   // Wait for NFC screen and press "Start scanning" button
   await tester.waitFor(find.byType(NfcReadingScreen));
-  final startScanningButton = find.byKey(const Key('bottom_bar_primary'));
+  final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
   await tester.tapAndSettle(startScanningButton);
 
   expect(fakeReader.readCallCount, greaterThanOrEqualTo(1));
@@ -202,7 +206,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   await tester.waitFor(find.byType(SessionScreen));
 
   // press the continue button
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   // should be back at the issue wizard screen
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
@@ -212,36 +216,49 @@ Future<void> navigateToLatestActivity(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  expect(find.byKey(const Key('nav_button_activity')), findsOneWidget);
+  expect(find.byKey(const Key("nav_button_activity")), findsOneWidget);
 
-  await tester.tap(find.byKey(const Key('nav_button_activity'), skipOffstage: false));
+  await tester.tap(
+    find.byKey(const Key("nav_button_activity"), skipOffstage: false),
+  );
   // for some reason pump and settle fails here in landscape mode, so we'll just do this instead...
   await tester.pump(const Duration(seconds: 1));
 
   // pick top card
-  await tester.tapAndSettle(find.byType(ActivityCard, skipOffstage: false).at(0));
+  await tester.tapAndSettle(
+    find.byType(ActivityCard, skipOffstage: false).at(0),
+  );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
 }
 
-Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> testEmptySdJwtStillShowsInOptions(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 1, email: 'one@example.com', domain: 'example.com');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 1,
+    email: "one@example.com",
+    domain: "example.com",
+  );
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'em',
-            'path': ['email'],
+            "id": "em",
+            "path": ["email"],
           },
         ],
       },
@@ -273,11 +290,19 @@ Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationT
   await evaluateCredentialCard(tester, cardsFinder, isExpired: true);
 
   // make sure the share button is disabled, so it can't be pressed...
-  final shareButton = tester.widget<YiviThemedButton>(find.widgetWithText(YiviThemedButton, 'Share data'));
+  final shareButton = tester.widget<YiviThemedButton>(
+    find.widgetWithText(YiviThemedButton, "Share data"),
+  );
   expect(shareButton.onPressed, isNull);
 
   // issue it again...
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 1, email: 'one@example.com', domain: 'example.com');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 1,
+    email: "one@example.com",
+    domain: "example.com",
+  );
 
   // make sure the session can now be finished
   await shareAndFinishDisclosureSession(tester);
@@ -288,52 +313,71 @@ Future<void> testEmptySdJwtStillShowsInOptions(WidgetTester tester, IntegrationT
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'one@example.com',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "one@example.com"},
   );
-  await evaluateRequestor(tester, find.byType(RequestorHeader), 'Yivi B.V.');
+  await evaluateRequestor(tester, find.byType(RequestorHeader), "Yivi B.V.");
 }
 
-Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> testClaimSetsPickFirstSatisfyingOption(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com', domain: 'example.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@template.com', domain: 'template.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'thee@not.com', domain: 'not.com');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "one@example.com",
+    domain: "example.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "two@template.com",
+    domain: "template.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "thee@not.com",
+    domain: "not.com",
+  );
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   // either email of exactly 'one@example.com' or any email with 'template.com' as domain
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'email-cond',
-            'path': ['email'],
-            'values': ['one@example.com']
+            "id": "email-cond",
+            "path": ["email"],
+            "values": ["one@example.com"],
           },
           {
-            'id': 'domain-cond',
-            'path': ['domain'],
-            'values': ['template.com']
+            "id": "domain-cond",
+            "path": ["domain"],
+            "values": ["template.com"],
           },
           {
-            'id': 'email-general',
-            'path': ['email'],
+            "id": "email-general",
+            "path": ["email"],
           },
         ],
-        'claim_sets': [
-          ['email-cond'],
-          ['domain-cond', 'email-general']
+        "claim_sets": [
+          ["email-cond"],
+          ["domain-cond", "email-general"],
         ],
       },
     ],
@@ -352,15 +396,33 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(WidgetTester tester, Integra
 
   // make sure there are three choices available (two existing + option to issue new one)
   expect(cardsFinder, findsNWidgets(3));
-  expect(find.descendant(of: cardsFinder.at(0), matching: find.text('one@example.com')), findsOneWidget);
-  expect(find.descendant(of: cardsFinder.at(1), matching: find.text('two@template.com')), findsOneWidget);
+  expect(
+    find.descendant(
+      of: cardsFinder.at(0),
+      matching: find.text("one@example.com"),
+    ),
+    findsOneWidget,
+  );
+  expect(
+    find.descendant(
+      of: cardsFinder.at(1),
+      matching: find.text("two@template.com"),
+    ),
+    findsOneWidget,
+  );
 
   // expect obtain new data with one card with a predefined value from the claim
-  expect(find.text('Obtain new data', skipOffstage: false), findsOneWidget);
-  expect(find.descendant(of: cardsFinder.at(2), matching: find.text('one@example.com')), findsOneWidget);
+  expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
+  expect(
+    find.descendant(
+      of: cardsFinder.at(2),
+      matching: find.text("one@example.com"),
+    ),
+    findsOneWidget,
+  );
 
   // go back
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -369,32 +431,47 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@example.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'three@example.com');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "one@example.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "two@example.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "three@example.com",
+  );
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'em',
-            'path': ['email'],
-            'values': ['one@example.com', 'three@example.com']
+            "id": "em",
+            "path": ["email"],
+            "values": ["one@example.com", "three@example.com"],
           },
           {
-            'id': 'do',
-            'path': ['domain']
+            "id": "do",
+            "path": ["domain"],
           },
-        ]
+        ],
       },
     ],
   };
@@ -412,11 +489,11 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   await evaluateCredentialCard(
     tester,
     cardsFinder,
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'one@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "one@example.com",
+      "Email domain name": "example.com",
     },
   );
 
@@ -425,44 +502,75 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
 
   // make sure there are two existing choices available + one obtain data
   expect(cardsFinder, findsNWidgets(3));
-  expect(find.descendant(of: cardsFinder.at(0), matching: find.text('one@example.com')), findsOneWidget);
-  expect(find.descendant(of: cardsFinder.at(1), matching: find.text('three@example.com')), findsOneWidget);
+  expect(
+    find.descendant(
+      of: cardsFinder.at(0),
+      matching: find.text("one@example.com"),
+    ),
+    findsOneWidget,
+  );
+  expect(
+    find.descendant(
+      of: cardsFinder.at(1),
+      matching: find.text("three@example.com"),
+    ),
+    findsOneWidget,
+  );
 
-  expect(find.text('Obtain new data', skipOffstage: false), findsOneWidget);
-  expect(find.descendant(of: cardsFinder.at(2), matching: find.text('one@example.com')), findsOneWidget);
+  expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
+  expect(
+    find.descendant(
+      of: cardsFinder.at(2),
+      matching: find.text("one@example.com"),
+    ),
+    findsOneWidget,
+  );
 
   // go back
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
 }
 
-Future<void> testClaimValueOnePresentOneNot(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> testClaimValueOnePresentOneNot(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@example.com');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "one@example.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "two@example.com",
+  );
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'em',
-            'path': ['email'],
-            'values': ['two@example.com']
+            "id": "em",
+            "path": ["email"],
+            "values": ["two@example.com"],
           },
           {
-            'id': 'do',
-            'path': ['domain']
+            "id": "do",
+            "path": ["domain"],
           },
-        ]
+        ],
       },
     ],
   };
@@ -480,77 +588,95 @@ Future<void> testClaimValueOnePresentOneNot(WidgetTester tester, IntegrationTest
   await evaluateCredentialCard(
     tester,
     cardsFinder,
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'two@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "two@example.com",
+      "Email domain name": "example.com",
     },
   );
 
   await tapChangeChoicesButton(tester);
   expect(cardsFinder, findsNWidgets(2));
 
-  expect(find.text('Obtain new data'), findsOneWidget);
+  expect(find.text("Obtain new data"), findsOneWidget);
 
   // confirm choice/go back
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await shareAndFinishDisclosureSession(tester);
 }
 
-Future<void> testOptionallyDiscloseExtraCredential(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> testOptionallyDiscloseExtraCredential(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@example.com');
-  await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10, phone: '0612345678');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "one@example.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "two@example.com",
+  );
+  await issueMobileNumber(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    phone: "0612345678",
+  );
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'phone',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.mobilenumber']
+        "id": "phone",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.mobilenumber"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'mn',
-            'path': ['mobilenumber']
+            "id": "mn",
+            "path": ["mobilenumber"],
           },
-        ]
-      },
-      {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
-        },
-        'claims': [
-          {
-            'id': 'em',
-            'path': ['email']
-          },
-          {
-            'id': 'do',
-            'path': ['domain']
-          },
-        ]
-      },
-    ],
-    'credential_sets': [
-      {
-        'required': false,
-        'options': [
-          ['mail']
         ],
       },
       {
-        'options': [
-          ['phone']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
+        },
+        "claims": [
+          {
+            "id": "em",
+            "path": ["email"],
+          },
+          {
+            "id": "do",
+            "path": ["domain"],
+          },
+        ],
+      },
+    ],
+    "credential_sets": [
+      {
+        "required": false,
+        "options": [
+          ["mail"],
+        ],
+      },
+      {
+        "options": [
+          ["phone"],
         ],
       },
     ],
@@ -569,14 +695,12 @@ Future<void> testOptionallyDiscloseExtraCredential(WidgetTester tester, Integrat
   await evaluateCredentialCard(
     tester,
     cardsFinder,
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Mobile phone number",
+    attributes: {"Mobile phone number": "0612345678"},
   );
 
-  final addOptionalDataButton = find.text('Add optional data');
+  final addOptionalDataButton = find.text("Add optional data");
   await tester.scrollUntilVisible(addOptionalDataButton, 100);
   expect(addOptionalDataButton, findsOneWidget);
 
@@ -588,36 +712,36 @@ Future<void> testOptionallyDiscloseExtraCredential(WidgetTester tester, Integrat
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(0),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'one@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "one@example.com",
+      "Email domain name": "example.com",
     },
   );
   await tester.scrollUntilVisible(cardsFinder.at(1), 100);
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'two@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "two@example.com",
+      "Email domain name": "example.com",
     },
   );
 
   await tester.scrollUntilVisible(cardsFinder.at(2), 100);
-  expect(find.text('Obtain new data', skipOffstage: false), findsOneWidget);
+  expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(2),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
   );
 
   // confirm choice/go back
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   expect(cardsFinder, findsNWidgets(2));
 
@@ -626,16 +750,18 @@ Future<void> testOptionallyDiscloseExtraCredential(WidgetTester tester, Integrat
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'one@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "one@example.com",
+      "Email domain name": "example.com",
     },
   );
 
   // remove the optional credential card
-  await tester.tapAndSettle(find.byKey(const Key('remove_optional_data_button')));
+  await tester.tapAndSettle(
+    find.byKey(const Key("remove_optional_data_button")),
+  );
   expect(addOptionalDataButton, findsOneWidget);
 
   await shareAndFinishDisclosureSession(tester);
@@ -646,52 +772,74 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com', domain: 'example.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@template.com', domain: 'template.com');
-  await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10, phone: '0612345678');
-  await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10, phone: '0687654321');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "one@example.com",
+    domain: "example.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "two@template.com",
+    domain: "template.com",
+  );
+  await issueMobileNumber(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    phone: "0612345678",
+  );
+  await issueMobileNumber(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    phone: "0687654321",
+  );
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'em',
-            'path': ['email']
+            "id": "em",
+            "path": ["email"],
           },
           {
-            'id': 'do',
-            'path': ['domain']
+            "id": "do",
+            "path": ["domain"],
           },
-        ]
+        ],
       },
       {
-        'id': 'phone',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.mobilenumber']
+        "id": "phone",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.mobilenumber"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'mn',
-            'path': ['mobilenumber']
+            "id": "mn",
+            "path": ["mobilenumber"],
           },
-        ]
+        ],
       },
     ],
-    'credential_sets': [
+    "credential_sets": [
       {
-        'options': [
-          ['mail'],
-          ['phone']
+        "options": [
+          ["mail"],
+          ["phone"],
         ],
       },
     ],
@@ -711,65 +859,102 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
   // expect 4 existing credentials + 2 buttons to obtain new ones
   expect(cardsFinder, findsNWidgets(6));
 
-  expect(find.descendant(of: cardsFinder, matching: find.text('one@example.com')), findsOneWidget);
-  expect(find.descendant(of: cardsFinder, matching: find.text('two@template.com')), findsOneWidget);
-  expect(find.descendant(of: cardsFinder, matching: find.text('0612345678')), findsOneWidget);
+  expect(
+    find.descendant(of: cardsFinder, matching: find.text("one@example.com")),
+    findsOneWidget,
+  );
+  expect(
+    find.descendant(of: cardsFinder, matching: find.text("two@template.com")),
+    findsOneWidget,
+  );
+  expect(
+    find.descendant(of: cardsFinder, matching: find.text("0612345678")),
+    findsOneWidget,
+  );
 
-  final lastExistingMobileFinder = find.descendant(of: cardsFinder, matching: find.text('0687654321'));
+  final lastExistingMobileFinder = find.descendant(
+    of: cardsFinder,
+    matching: find.text("0687654321"),
+  );
   expect(lastExistingMobileFinder, findsOneWidget);
 
   await tester.scrollUntilVisible(lastExistingMobileFinder, 100);
   await tester.tapAndSettle(lastExistingMobileFinder);
 
-  expect(find.text('Obtain new data'), findsOneWidget);
+  expect(find.text("Obtain new data"), findsOneWidget);
 
   // confirm choice/go back
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
 }
 
 /// Issues phone and email both twice, then asks for one of each, should present two choice buttons
-Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> testTwoCredentialsTwoChoicesEach(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com', domain: 'example.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@template.com', domain: 'template.com');
-  await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10, phone: '0612345678');
-  await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10, phone: '0687654321');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "one@example.com",
+    domain: "example.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "two@template.com",
+    domain: "template.com",
+  );
+  await issueMobileNumber(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    phone: "0612345678",
+  );
+  await issueMobileNumber(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    phone: "0687654321",
+  );
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'em',
-            'path': ['email']
+            "id": "em",
+            "path": ["email"],
           },
           {
-            'id': 'do',
-            'path': ['domain']
+            "id": "do",
+            "path": ["domain"],
           },
-        ]
+        ],
       },
       {
-        'id': 'phone',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.mobilenumber']
+        "id": "phone",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.mobilenumber"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'mn',
-            'path': ['mobilenumber']
+            "id": "mn",
+            "path": ["mobilenumber"],
           },
-        ]
+        ],
       },
     ],
   };
@@ -781,7 +966,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   await tester.pumpAndSettle();
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  final choiceButtonFinder = find.text('Change choice', skipOffstage: false);
+  final choiceButtonFinder = find.text("Change choice", skipOffstage: false);
   expect(choiceButtonFinder, findsNWidgets(2));
 
   // change the email
@@ -792,14 +977,20 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   // expect two existing + an obtain data card
   expect(cardsFinder, findsNWidgets(3));
   expect(
-    find.descendant(of: cardsFinder, matching: find.text('one@example.com', skipOffstage: false)),
+    find.descendant(
+      of: cardsFinder,
+      matching: find.text("one@example.com", skipOffstage: false),
+    ),
     findsOneWidget,
   );
   expect(
-    find.descendant(of: cardsFinder, matching: find.text('two@template.com', skipOffstage: false)),
+    find.descendant(
+      of: cardsFinder,
+      matching: find.text("two@template.com", skipOffstage: false),
+    ),
     findsOneWidget,
   );
-  expect(find.text('Obtain new data'), findsOneWidget);
+  expect(find.text("Obtain new data"), findsOneWidget);
 
   await tester.tapAndSettle(find.byType(YiviBackButton));
 
@@ -810,14 +1001,20 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   // expect two existing + an obtain data card
   expect(cardsFinder, findsExactly(3));
   expect(
-    find.descendant(of: cardsFinder, matching: find.text('0612345678', skipOffstage: false)),
+    find.descendant(
+      of: cardsFinder,
+      matching: find.text("0612345678", skipOffstage: false),
+    ),
     findsOneWidget,
   );
   expect(
-    find.descendant(of: cardsFinder, matching: find.text('0687654321', skipOffstage: false)),
+    find.descendant(
+      of: cardsFinder,
+      matching: find.text("0687654321", skipOffstage: false),
+    ),
     findsOneWidget,
   );
-  expect(find.text('Obtain new data'), findsOneWidget);
+  expect(find.text("Obtain new data"), findsOneWidget);
 
   await tester.tapAndSettle(find.byType(YiviBackButton));
   await shareAndFinishDisclosureSession(tester);
@@ -836,15 +1033,18 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
   for (int i = 0; i < expectedNumCards; ++i) {
     final f = cardsFinder.at(i);
 
-    if (find.descendant(of: f, matching: find.textContaining('Email')).evaluate().isNotEmpty) {
+    if (find
+        .descendant(of: f, matching: find.textContaining("Email"))
+        .evaluate()
+        .isNotEmpty) {
       await evaluateCredentialCard(
         tester,
         f,
-        issuerName: 'Demo Privacy by Design Foundation via SIDN',
-        credentialName: 'Demo Email address',
+        issuerName: "Demo Privacy by Design Foundation via SIDN",
+        credentialName: "Demo Email address",
         attributes: {
-          'Email address': 'one@example.com',
-          'Email domain name': 'example.com',
+          "Email address": "one@example.com",
+          "Email domain name": "example.com",
         },
       );
       emailFound = true;
@@ -852,11 +1052,9 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
       await evaluateCredentialCard(
         tester,
         cardsFinder.at(1),
-        issuerName: 'Demo Privacy by Design Foundation via SIDN',
-        credentialName: 'Demo Mobile phone number',
-        attributes: {
-          'Mobile phone number': '0687654321',
-        },
+        issuerName: "Demo Privacy by Design Foundation via SIDN",
+        credentialName: "Demo Mobile phone number",
+        attributes: {"Mobile phone number": "0687654321"},
       );
       mobilenumberFound = true;
     }
@@ -864,31 +1062,46 @@ Future<void> testTwoCredentialsTwoChoicesEach(WidgetTester tester, IntegrationTe
 
   expect(emailFound && mobilenumberFound, isTrue);
 
-  await evaluateRequestor(tester, find.byType(RequestorHeader), 'Yivi B.V.');
+  await evaluateRequestor(tester, find.byType(RequestorHeader), "Yivi B.V.");
 }
 
 /// Issue two email addresses and allow the user to pick between them
-Future<void> testOneCredentialTwoChoices(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> testOneCredentialTwoChoices(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'one@example.com', domain: 'example.com');
-  await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10, email: 'two@template.com', domain: 'template.com');
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "one@example.com",
+    domain: "example.com",
+  );
+  await issueEmailAddress(
+    tester,
+    irmaBinding,
+    sdJwtBatchSize: 10,
+    email: "two@template.com",
+    domain: "template.com",
+  );
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'path': ['email']
+            "path": ["email"],
           },
-        ]
+        ],
       },
     ],
   };
@@ -913,30 +1126,26 @@ Future<void> testOneCredentialTwoChoices(WidgetTester tester, IntegrationTestIrm
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(0),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'one@example.com',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "one@example.com"},
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'two@template.com',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "two@template.com"},
   );
 
-  expect(find.text('Obtain new data'), findsOneWidget);
+  expect(find.text("Obtain new data"), findsOneWidget);
 
   // select the last credential card to start obtaining it
   await tester.scrollUntilVisible(cardsFinder.at(2), 100);
   await tester.tapAndSettle(cardsFinder.at(2));
 
   // Continue and expect the AddDataDetailsScreen
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
 
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
@@ -951,7 +1160,7 @@ Future<void> testOneCredentialTwoChoices(WidgetTester tester, IntegrationTestIrm
   await tester.tapAndSettle(cardsFinder.at(1));
 
   // go back
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -963,34 +1172,34 @@ Future<void> testOneMissingOnePresent(
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'mail',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "mail",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'path': ['email']
+            "path": ["email"],
           },
-        ]
+        ],
       },
       {
-        'id': 'phone',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.mobilenumber']
+        "id": "phone",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.mobilenumber"],
         },
-        'claims': [
+        "claims": [
           {
-            'path': ['mobilenumber']
+            "path": ["mobilenumber"],
           },
-        ]
+        ],
       },
     ],
   };
@@ -1008,23 +1217,27 @@ Future<void> testOneMissingOnePresent(
   await evaluateCredentialCard(
     tester,
     cardFinder,
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Mobile phone number",
   );
 
   // Continue and expect the AddDataDetailsScreen
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
 
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  expect(find.text('All required data has been added'), findsOneWidget);
-  await tester.tapAndSettle(find.text('Next step'));
-  expect(find.text('This data has already been added to your app. Verify that the data is still correct.'),
-      findsOneWidget);
-  await tester.tapAndSettle(find.text('Next step'));
+  expect(find.text("All required data has been added"), findsOneWidget);
+  await tester.tapAndSettle(find.text("Next step"));
+  expect(
+    find.text(
+      "This data has already been added to your app. Verify that the data is still correct.",
+    ),
+    findsOneWidget,
+  );
+  await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
@@ -1032,20 +1245,16 @@ Future<void> testOneMissingOnePresent(
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard, skipOffstage: false).at(0),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "test@example.com"},
   );
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard, skipOffstage: false).at(1),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Mobile phone number",
+    attributes: {"Mobile phone number": "0612345678"},
   );
 
   await shareAndFinishDisclosureSession(tester);
@@ -1058,18 +1267,18 @@ Future<void> testDiscloseSdJwtThatsNotThere(
 ) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': '32f54163-7166-48f1-93d8-ff217bdb0653',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "32f54163-7166-48f1-93d8-ff217bdb0653",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'path': ['email']
+            "path": ["email"],
           },
-        ]
+        ],
       },
     ],
   };
@@ -1086,20 +1295,20 @@ Future<void> testDiscloseSdJwtThatsNotThere(
   await evaluateCredentialCard(
     tester,
     cardFinder,
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
   );
 
   // Continue and expect the AddDataDetailsScreen
-  await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.tapAndSettle(find.text("Obtain data"));
 
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  expect(find.text('All required data has been added'), findsOneWidget);
-  await tester.tapAndSettle(find.text('Next step'));
+  expect(find.text("All required data has been added"), findsOneWidget);
+  await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
@@ -1116,22 +1325,22 @@ Future<void> testZeroInstanceCountShowsReobtainButton(
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: credentialCount);
   await tester.pumpAndSettle();
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': '32f54163-7166-48f1-93d8-ff217bdb0653',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "32f54163-7166-48f1-93d8-ff217bdb0653",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'path': ['email']
+            "path": ["email"],
           },
-        ]
+        ],
       },
     ],
   };
@@ -1142,18 +1351,18 @@ Future<void> testZeroInstanceCountShowsReobtainButton(
 
   await shareAndFinishDisclosureSession(tester);
 
-  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
+  await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard),
     instancesRemaining: 0,
     style: IrmaCardStyle.danger,
     isExpired: true,
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'test@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "test@example.com",
+      "Email domain name": "example.com",
     },
   );
 }
@@ -1170,22 +1379,22 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: credentialCount);
   await tester.pumpAndSettle();
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': '32f54163-7166-48f1-93d8-ff217bdb0653',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "32f54163-7166-48f1-93d8-ff217bdb0653",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'path': ['email']
+            "path": ["email"],
           },
-        ]
+        ],
       },
     ],
   };
@@ -1197,27 +1406,25 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard, skipOffstage: false),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "test@example.com"},
   );
 
   await shareAndFinishDisclosureSession(tester);
 
   // evaluate email is about to expire
-  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
+  await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard),
     instancesRemaining: credentialCount - 1,
     isExpiringSoon: true,
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'test@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "test@example.com",
+      "Email domain name": "example.com",
     },
   );
 }
@@ -1234,41 +1441,41 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
   await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: credentialCount);
   await tester.pumpAndSettle();
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': '32f54163-7166-48f1-93d8-ff217bdb0653',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "32f54163-7166-48f1-93d8-ff217bdb0653",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'em',
-            'path': ['email']
+            "id": "em",
+            "path": ["email"],
           },
           {
-            'id': 'do',
-            'path': ['domain']
-          }
-        ]
+            "id": "do",
+            "path": ["domain"],
+          },
+        ],
       },
       {
-        'id': '32f54163-7166-48f1-93d8-ff217bdb0654',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.mobilenumber']
+        "id": "32f54163-7166-48f1-93d8-ff217bdb0654",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.mobilenumber"],
         },
-        'claims': [
+        "claims": [
           {
-            'id': 'mn',
-            'path': ['mobilenumber']
-          }
-        ]
-      }
+            "id": "mn",
+            "path": ["mobilenumber"],
+          },
+        ],
+      },
     ],
   };
 
@@ -1279,49 +1486,48 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard, skipOffstage: false).at(0),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'test@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "test@example.com",
+      "Email domain name": "example.com",
     },
   );
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard, skipOffstage: false).at(1),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Mobile phone number",
+    attributes: {"Mobile phone number": "0612345678"},
   );
 
   await shareAndFinishDisclosureSession(tester);
 
   // evaluate phone and email instance counts have both decreased
-  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
+  await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'test@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "test@example.com",
+      "Email domain name": "example.com",
     },
     instancesRemaining: credentialCount - 1,
   );
 
   await navigateBack(tester);
-  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.mobilenumber');
+  await navigateToCredentialDetailsPage(
+    tester,
+    "irma-demo.sidn-pbdf.mobilenumber",
+  );
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Mobile phone number",
+    attributes: {"Mobile phone number": "0612345678"},
     instancesRemaining: credentialCount - 1,
   );
 }
@@ -1338,43 +1544,43 @@ Future<void> testDiscloseSdJwtWithChoices(
   await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: credentialCount);
   await tester.pumpAndSettle();
 
-  await tester.tapAndSettle(find.text('OK'));
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
   final dcql = {
-    'credentials': [
+    "credentials": [
       {
-        'id': 'email-query',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.email']
+        "id": "email-query",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.email"],
         },
-        'claims': [
+        "claims": [
           {
-            'path': ['email']
-          }
-        ]
+            "path": ["email"],
+          },
+        ],
       },
       {
-        'id': 'phone-query',
-        'format': 'dc+sd-jwt',
-        'meta': {
-          'vct_values': ['irma-demo.sidn-pbdf.mobilenumber']
+        "id": "phone-query",
+        "format": "dc+sd-jwt",
+        "meta": {
+          "vct_values": ["irma-demo.sidn-pbdf.mobilenumber"],
         },
-        'claims': [
+        "claims": [
           {
-            'path': ['mobilenumber']
-          }
-        ]
-      }
-    ],
-    'credential_sets': [
-      {
-        'options': [
-          ['email-query'],
-          ['phone-query']
+            "path": ["mobilenumber"],
+          },
         ],
-      }
+      },
+    ],
+    "credential_sets": [
+      {
+        "options": [
+          ["email-query"],
+          ["phone-query"],
+        ],
+      },
     ],
   };
 
@@ -1391,11 +1597,9 @@ Future<void> testDiscloseSdJwtWithChoices(
   await evaluateCredentialCard(
     tester,
     cardFinder,
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "test@example.com"},
   );
 
   await tapChangeChoicesButton(tester);
@@ -1409,88 +1613,91 @@ Future<void> testDiscloseSdJwtWithChoices(
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(0),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
-    attributes: {
-      'Email address': 'test@example.com',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "test@example.com"},
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Mobile phone number",
+    attributes: {"Mobile phone number": "0612345678"},
   );
 
   await tester.scrollUntilVisible(cardsFinder.at(1), 100);
   // pick the phone
   await tester.tapAndSettle(cardsFinder.at(1));
   // go back
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
 
   // evaluate phone cred count has decreased and email not
-  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.email');
+  await navigateToCredentialDetailsPage(tester, "irma-demo.sidn-pbdf.email");
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Email address',
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
     attributes: {
-      'Email address': 'test@example.com',
-      'Email domain name': 'example.com',
+      "Email address": "test@example.com",
+      "Email domain name": "example.com",
     },
     instancesRemaining: credentialCount,
   );
 
   await navigateBack(tester);
-  await navigateToCredentialDetailsPage(tester, 'irma-demo.sidn-pbdf.mobilenumber');
+  await navigateToCredentialDetailsPage(
+    tester,
+    "irma-demo.sidn-pbdf.mobilenumber",
+  );
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard),
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    credentialName: 'Demo Mobile phone number',
-    attributes: {
-      'Mobile phone number': '0612345678',
-    },
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Mobile phone number",
+    attributes: {"Mobile phone number": "0612345678"},
     instancesRemaining: credentialCount - 1,
   );
 }
 
 Future<String> startOpenID4VPSession(Map<String, dynamic> dcqlQuery) async {
   final authReqReq = {
-    'type': 'vp_token',
-    'dcql_query': dcqlQuery,
-    'nonce': 'nonce',
-    'jar_mode': 'by_reference',
-    'request_uri_method': 'post',
-    'issuer_chain': yiviStagingAttestationProvidersCA,
+    "type": "vp_token",
+    "dcql_query": dcqlQuery,
+    "nonce": "nonce",
+    "jar_mode": "by_reference",
+    "request_uri_method": "post",
+    "issuer_chain": yiviStagingAttestationProvidersCA,
   };
 
   final authReqReqJson = jsonEncode(authReqReq);
 
-  final uri = Uri.parse('https://verifierapi.openid4vc.staging.yivi.app/ui/presentations');
+  final uri = Uri.parse(
+    "https://verifierapi.openid4vc.staging.yivi.app/ui/presentations",
+  );
 
   final request = await HttpClient().postUrl(uri);
-  request.headers.set('Content-Type', 'application/json');
+  request.headers.set("Content-Type", "application/json");
   request.write(authReqReqJson);
 
   final response = await request.close();
   final responseBody = await response.transform(utf8.decoder).first;
 
   if (response.statusCode != 200) {
-    throw 'Status ${response.statusCode}: $responseBody';
+    throw "Status ${response.statusCode}: $responseBody";
   }
 
   final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
-  final sessionUrl = Uri(scheme: 'openid4vp', queryParameters: responseObject, host: '');
+  final sessionUrl = Uri(
+    scheme: "openid4vp",
+    queryParameters: responseObject,
+    host: "",
+  );
   return sessionUrl.toString();
 }
 
-const yiviStagingAttestationProvidersCA = '''
+const yiviStagingAttestationProvidersCA = """
 -----BEGIN CERTIFICATE-----
 MIICbTCCAhSgAwIBAgIUX8STjkv3TRF5UBstXlp4ILHy2h0wCgYIKoZIzj0EAwQw
 RjELMAkGA1UEBhMCTkwxDTALBgNVBAoMBFlpdmkxKDAmBgNVBAMMH1lpdmkgU3Rh
@@ -1507,18 +1714,18 @@ VR0PAQH/BAQDAgGGMAoGCCqGSM49BAMEA0cAMEQCIDEaWIs4uSm8KVQe+fy0EndE
 Taj1ayt6dUgKQY/xZBO3AiAPYGwRlZMzbeCTFQ2ORLJiSowRtXzbmXpNDSyvtn7e
 Dw==
 -----END CERTIFICATE-----
-''';
+""";
 
 Future<void> shareAndFinishDisclosureSession(WidgetTester tester) async {
   // share
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   // confirm
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 }
 
 Future<void> tapChangeChoicesButton(WidgetTester tester) async {
-  final changeChoiceFinder = find.text('Change choice', skipOffstage: false);
+  final changeChoiceFinder = find.text("Change choice", skipOffstage: false);
   await tester.scrollUntilVisible(changeChoiceFinder, 100);
   await tester.tapAndSettle(changeChoiceFinder);
 }

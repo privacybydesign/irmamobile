@@ -1,18 +1,18 @@
-import 'package:flutter/cupertino.dart';
-import 'package:json_annotation/json_annotation.dart';
+import "package:flutter/cupertino.dart";
+import "package:json_annotation/json_annotation.dart";
 
-import 'attribute.dart';
-import 'credentials.dart';
-import 'event.dart';
-import 'session.dart';
-import 'translated_value.dart';
+import "attribute.dart";
+import "credentials.dart";
+import "event.dart";
+import "session.dart";
+import "translated_value.dart";
 
-part 'session_events.g.dart';
+part "session_events.g.dart";
 
 abstract class SessionEvent extends Event {
   SessionEvent(this.sessionID);
 
-  @JsonKey(name: 'SessionID')
+  @JsonKey(name: "SessionID")
   final int sessionID;
 }
 
@@ -28,7 +28,7 @@ class NewSessionEvent extends SessionEvent {
     this.previouslyLaunchedCredentials = const <String>{},
   }) : super(sessionID ?? sessionIDCounter++);
 
-  @JsonKey(name: 'Request')
+  @JsonKey(name: "Request")
   final SessionPointer request;
 
   // Id's of the credentials that the user tried to obtain from the credential store
@@ -46,10 +46,10 @@ class RespondPermissionEvent extends SessionEvent {
     required this.disclosureChoices,
   }) : super(sessionID);
 
-  @JsonKey(name: 'Proceed')
+  @JsonKey(name: "Proceed")
   final bool proceed;
 
-  @JsonKey(name: 'DisclosureChoices')
+  @JsonKey(name: "DisclosureChoices")
   final List<List<AttributeIdentifier>> disclosureChoices;
 
   factory RespondPermissionEvent.fromJson(Map<String, dynamic> json) =>
@@ -71,10 +71,10 @@ class RespondPinEvent extends SessionEvent {
   RespondPinEvent({required int sessionID, required this.proceed, this.pin})
     : super(sessionID);
 
-  @JsonKey(name: 'Proceed')
+  @JsonKey(name: "Proceed")
   final bool proceed;
 
-  @JsonKey(name: 'Pin')
+  @JsonKey(name: "Pin")
   final String? pin;
 
   factory RespondPinEvent.fromJson(Map<String, dynamic> json) =>
@@ -99,10 +99,10 @@ class StatusUpdateSessionEvent extends SessionEvent {
     required this.status,
   }) : super(sessionID);
 
-  @JsonKey(name: 'Action')
+  @JsonKey(name: "Action")
   final String action;
 
-  @JsonKey(name: 'Status')
+  @JsonKey(name: "Status")
   final String status;
 
   factory StatusUpdateSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -117,7 +117,7 @@ class ClientReturnURLSetSessionEvent extends SessionEvent {
     required this.clientReturnURL,
   }) : super(sessionID);
 
-  @JsonKey(name: 'ClientReturnURL')
+  @JsonKey(name: "ClientReturnURL")
   final String clientReturnURL;
 
   factory ClientReturnURLSetSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -139,7 +139,7 @@ class FailureSessionEvent extends SessionEvent {
   FailureSessionEvent({required int sessionID, required this.error})
     : super(sessionID);
 
-  @JsonKey(name: 'Error')
+  @JsonKey(name: "Error")
   final SessionError error;
 
   factory FailureSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -167,19 +167,19 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
     this.disclosuresCandidates = const [],
   }) : super(sessionID);
 
-  @JsonKey(name: 'ServerName')
+  @JsonKey(name: "ServerName")
   final RequestorInfo serverName;
 
-  @JsonKey(name: 'Satisfiable')
+  @JsonKey(name: "Satisfiable")
   final bool satisfiable;
 
-  @JsonKey(name: 'IssuedCredentials')
+  @JsonKey(name: "IssuedCredentials")
   final List<RawMultiFormatCredential> issuedCredentials;
 
-  @JsonKey(name: 'DisclosuresLabels')
+  @JsonKey(name: "DisclosuresLabels")
   final Map<int, TranslatedValue>? disclosuresLabels;
 
-  @JsonKey(name: 'DisclosuresCandidates')
+  @JsonKey(name: "DisclosuresCandidates")
   final List<List<List<DisclosureCandidate>>> disclosuresCandidates;
 
   factory RequestIssuancePermissionSessionEvent.fromJson(
@@ -201,22 +201,22 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
     this.signedMessage,
   }) : super(sessionID);
 
-  @JsonKey(name: 'ServerName')
+  @JsonKey(name: "ServerName")
   final RequestorInfo serverName;
 
-  @JsonKey(name: 'Satisfiable')
+  @JsonKey(name: "Satisfiable")
   final bool satisfiable;
 
-  @JsonKey(name: 'DisclosuresLabels')
+  @JsonKey(name: "DisclosuresLabels")
   final Map<int, TranslatedValue>? disclosuresLabels;
 
-  @JsonKey(name: 'DisclosuresCandidates')
+  @JsonKey(name: "DisclosuresCandidates")
   final List<List<List<DisclosureCandidate>>> disclosuresCandidates;
 
-  @JsonKey(name: 'IsSignatureSession')
+  @JsonKey(name: "IsSignatureSession")
   final bool isSignatureSession;
 
-  @JsonKey(name: 'SignedMessage')
+  @JsonKey(name: "SignedMessage")
   final String? signedMessage;
 
   factory RequestVerificationPermissionSessionEvent.fromJson(
@@ -233,7 +233,7 @@ class RequestPinSessionEvent extends SessionEvent {
     required this.remainingAttempts,
   }) : super(sessionID);
 
-  @JsonKey(name: 'RemainingAttempts')
+  @JsonKey(name: "RemainingAttempts")
   final int remainingAttempts;
 
   factory RequestPinSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -248,7 +248,7 @@ class PairingRequiredSessionEvent extends SessionEvent {
     required this.pairingCode,
   }) : super(sessionID);
 
-  @JsonKey(name: 'PairingCode')
+  @JsonKey(name: "PairingCode")
   final String pairingCode;
 
   factory PairingRequiredSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -263,7 +263,7 @@ class KeyshareEnrollmentMissingSessionEvent extends SessionEvent {
     required this.schemeManagerID,
   }) : super(sessionID);
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerID;
 
   factory KeyshareEnrollmentMissingSessionEvent.fromJson(
@@ -280,7 +280,7 @@ class KeyshareEnrollmentDeletedSessionEvent extends SessionEvent {
     required this.schemeManagerID,
   }) : super(sessionID);
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerID;
 
   factory KeyshareEnrollmentDeletedSessionEvent.fromJson(
@@ -298,10 +298,10 @@ class KeyshareBlockedSessionEvent extends SessionEvent {
     required this.duration,
   }) : super(sessionID);
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerID;
 
-  @JsonKey(name: 'Duration')
+  @JsonKey(name: "Duration")
   final int duration;
 
   factory KeyshareBlockedSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -316,7 +316,7 @@ class KeyshareEnrollmentIncompleteSessionEvent extends SessionEvent {
     required this.schemeManagerID,
   }) : super(sessionID);
 
-  @JsonKey(name: 'SchemeManagerID')
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerID;
 
   factory KeyshareEnrollmentIncompleteSessionEvent.fromJson(

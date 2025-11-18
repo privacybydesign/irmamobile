@@ -1,15 +1,18 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
 
-import '../../helpers/helpers.dart';
-import '../../helpers/issuance_helpers.dart';
-import '../../irma_binding.dart';
-import '../../util.dart';
-import '../disclosure_helpers.dart';
+import "../../helpers/helpers.dart";
+import "../../helpers/issuance_helpers.dart";
+import "../../irma_binding.dart";
+import "../../util.dart";
+import "../disclosure_helpers.dart";
 
-Future<void> attributeOrderTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> attributeOrderTest(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueDemoCredentials(tester, irmaBinding);
 
@@ -43,18 +46,18 @@ Future<void> attributeOrderTest(WidgetTester tester, IntegrationTestIrmaBinding 
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard),
-    credentialName: 'Demo Address',
-    issuerName: 'Demo Municipality',
+    credentialName: "Demo Address",
+    issuerName: "Demo Municipality",
     attributes: {
-      'Street': 'Meander',
-      'House number': '501',
-      'City': 'Arnhem',
-      'Municipality': 'Arnhem',
+      "Street": "Meander",
+      "House number": "501",
+      "City": "Arnhem",
+      "Municipality": "Arnhem",
     },
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text("Share data"));
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 }

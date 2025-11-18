@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:yivi_core/package_name.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "../../../package_name.dart";
 
-import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_markdown.dart';
-import '../../widgets/link.dart';
-import '../../widgets/translated_text.dart';
-import 'widgets/help_item.dart';
-import 'widgets/help_item_carousel.dart';
+import "../../theme/theme.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_markdown.dart";
+import "../../widgets/link.dart";
+import "../../widgets/translated_text.dart";
+import "widgets/help_item.dart";
+import "widgets/help_item_carousel.dart";
 
 class HelpScreen extends StatefulWidget {
   @override
@@ -33,7 +33,7 @@ class _HelpScreenState extends State<HelpScreen> {
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: 'help.faq'),
+      appBar: IrmaAppBar(titleTranslationKey: "help.faq"),
       body: SingleChildScrollView(
         controller: _controller,
         padding: EdgeInsets.all(theme.defaultSpacing),
@@ -41,49 +41,49 @@ class _HelpScreenState extends State<HelpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(theme, 'help.about_irma'),
+              _buildHeader(theme, "help.about_irma"),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_1',
-                body: const TranslatedText('help.answer_1_markdown'),
+                headerTranslationKey: "help.question_1",
+                body: const TranslatedText("help.answer_1_markdown"),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_2',
+                headerTranslationKey: "help.question_2",
                 body: IrmaMarkdown(
-                  FlutterI18n.translate(context, 'help.answer_2'),
+                  FlutterI18n.translate(context, "help.answer_2"),
                 ),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_3',
-                body: const TranslatedText('help.answer_3_markdown'),
+                headerTranslationKey: "help.question_3",
+                body: const TranslatedText("help.answer_3_markdown"),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, 'help.login'),
+              _buildHeader(theme, "help.login"),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_4',
+                headerTranslationKey: "help.question_4",
                 body: HelpCarousel(
                   items: [
                     HelpCarouselItem(
-                      yiviAsset('help/mobile_login/app.svg'),
-                      'help.answer_4.step_1',
+                      yiviAsset("help/mobile_login/app.svg"),
+                      "help.answer_4.step_1",
                     ),
                     HelpCarouselItem(
-                      yiviAsset('help/mobile_login/pin.svg'),
-                      'help.answer_4.step_2',
+                      yiviAsset("help/mobile_login/pin.svg"),
+                      "help.answer_4.step_2",
                     ),
                     HelpCarouselItem(
-                      yiviAsset('help/mobile_login/disclosure.svg'),
-                      'help.answer_4.step_3',
+                      yiviAsset("help/mobile_login/disclosure.svg"),
+                      "help.answer_4.step_3",
                     ),
                     HelpCarouselItem(
-                      yiviAsset('help/mobile_login/success.svg'),
-                      'help.answer_4.step_4',
+                      yiviAsset("help/mobile_login/success.svg"),
+                      "help.answer_4.step_4",
                     ),
                   ],
                 ),
@@ -91,82 +91,82 @@ class _HelpScreenState extends State<HelpScreen> {
               ),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_5',
+                headerTranslationKey: "help.question_5",
                 body: HelpCarousel(
                   items: [
                     HelpCarouselItem(
-                      yiviAsset('help/computer_login/app.svg'),
-                      'help.answer_5.step_1',
+                      yiviAsset("help/computer_login/app.svg"),
+                      "help.answer_5.step_1",
                     ),
                     HelpCarouselItem(
-                      yiviAsset('help/computer_login/pin.svg'),
-                      'help.answer_5.step_2',
+                      yiviAsset("help/computer_login/pin.svg"),
+                      "help.answer_5.step_2",
                     ),
                     HelpCarouselItem(
-                      yiviAsset('help/computer_login/scan.svg'),
-                      'help.answer_5.step_3',
+                      yiviAsset("help/computer_login/scan.svg"),
+                      "help.answer_5.step_3",
                     ),
                     HelpCarouselItem(
-                      yiviAsset('help/computer_login/disclosure.svg'),
-                      'help.answer_5.step_4',
+                      yiviAsset("help/computer_login/disclosure.svg"),
+                      "help.answer_5.step_4",
                     ),
                     HelpCarouselItem(
-                      yiviAsset('help/computer_login/success.svg'),
-                      'help.answer_5.step_5',
+                      yiviAsset("help/computer_login/success.svg"),
+                      "help.answer_5.step_5",
                     ),
                   ],
                 ),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, 'help.device'),
+              _buildHeader(theme, "help.device"),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_6',
-                body: const TranslatedText('help.answer_6_markdown'),
+                headerTranslationKey: "help.question_6",
+                body: const TranslatedText("help.answer_6_markdown"),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_7',
-                body: const TranslatedText('help.answer_7'),
+                headerTranslationKey: "help.question_7",
+                body: const TranslatedText("help.answer_7"),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, 'help.security_and_privacy'),
+              _buildHeader(theme, "help.security_and_privacy"),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_8',
-                body: const TranslatedText('help.answer_8'),
+                headerTranslationKey: "help.question_8",
+                body: const TranslatedText("help.answer_8"),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_9',
-                body: const TranslatedText('help.answer_9'),
+                headerTranslationKey: "help.question_9",
+                body: const TranslatedText("help.answer_9"),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_10',
-                body: const TranslatedText('help.answer_10'),
+                headerTranslationKey: "help.question_10",
+                body: const TranslatedText("help.answer_10"),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.smallSpacing),
               HelpItem(
-                headerTranslationKey: 'help.question_11',
+                headerTranslationKey: "help.question_11",
                 body: IrmaMarkdown(
-                  FlutterI18n.translate(context, 'help.answer_11'),
+                  FlutterI18n.translate(context, "help.answer_11"),
                 ),
                 parentScrollController: _controller,
               ),
               SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, 'help.ask'),
+              _buildHeader(theme, "help.ask"),
               SizedBox(height: theme.defaultSpacing),
-              TranslatedText('help.send', style: theme.textTheme.bodyMedium),
+              TranslatedText("help.send", style: theme.textTheme.bodyMedium),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-                child: const ContactLink(translationKey: 'help.email'),
+                child: const ContactLink(translationKey: "help.email"),
               ),
             ],
           ),

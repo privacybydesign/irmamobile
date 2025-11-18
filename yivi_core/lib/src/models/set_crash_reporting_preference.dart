@@ -1,14 +1,14 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'event.dart';
+import "event.dart";
 
-part 'set_crash_reporting_preference.g.dart';
+part "set_crash_reporting_preference.g.dart";
 
 @JsonSerializable()
 class SetCrashReportingPreferenceEvent extends Event {
   SetCrashReportingPreferenceEvent({required this.enableCrashReporting});
 
-  @JsonKey(name: 'EnableCrashReporting')
+  @JsonKey(name: "EnableCrashReporting")
   final bool enableCrashReporting;
 
   factory SetCrashReportingPreferenceEvent.fromJson(

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../theme/theme.dart';
+import "../../../theme/theme.dart";
 
 class MRZCameraOverlay extends StatelessWidget {
   const MRZCameraOverlay({
@@ -27,7 +27,7 @@ class MRZCameraOverlay extends StatelessWidget {
           overlayRect.width - theme.tinySpacing,
           theme.mrzLabel,
         );
-        final guidelines = '<' * numChars;
+        final guidelines = "<" * numChars;
         return Stack(
           children: [
             child,
@@ -154,7 +154,7 @@ double textWidth(String s, TextStyle style) {
 
 int maxLtApprox(double maxWidth, TextStyle style, {double padding = 0}) {
   final available = (maxWidth - padding).clamp(0, double.infinity);
-  final one = textWidth('<', style);
+  final one = textWidth("<", style);
   if (one == 0) return 0;
   return (available / one).floor();
 }

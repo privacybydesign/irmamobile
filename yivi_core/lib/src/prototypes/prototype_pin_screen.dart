@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../screens/pin/yivi_pin_screen.dart';
-import '../widgets/irma_app_bar.dart';
+import "../screens/pin/yivi_pin_screen.dart";
+import "../widgets/irma_app_bar.dart";
 
 class SecurePinScreenTest extends StatelessWidget {
   final int maxPinSize;
@@ -12,7 +12,7 @@ class SecurePinScreenTest extends StatelessWidget {
   final VoidCallback? onTogglePinSize;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>(
-    debugLabel: 'SecurePinScreenTest',
+    debugLabel: "SecurePinScreenTest",
   );
 
   SecurePinScreenTest({
@@ -27,7 +27,7 @@ class SecurePinScreenTest extends StatelessWidget {
   Widget build(BuildContext context) {
     return YiviPinScaffold(
       key: _scaffoldKey,
-      appBar: IrmaAppBar(titleString: 'Secure Pin: Reset / Onboarding'),
+      appBar: IrmaAppBar(titleString: "Secure Pin: Reset / Onboarding"),
       body: YiviPinScreen(
         scaffoldKey: _scaffoldKey,
         instructionKey: instructionKey,
@@ -69,9 +69,9 @@ class _PinScreen extends State<PinScreenTest> {
   Widget build(BuildContext context) {
     return YiviPinScaffold(
       key: _scaffoldKey,
-      appBar: IrmaAppBar(titleString: 'Basic Pin'),
+      appBar: IrmaAppBar(titleString: "Basic Pin"),
       body: YiviPinScreen(
-        instructionKey: 'pin.title',
+        instructionKey: "pin.title",
         maxPinSize: widget.maxPinSize,
         onSubmit: (_) => Navigator.pop(context),
         pinBloc: widget.pinBloc,

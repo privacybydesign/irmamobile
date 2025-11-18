@@ -1,11 +1,11 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../data/irma_repository.dart';
-import '../../../models/authentication_events.dart';
-import 'old_pin_verification_state.dart';
-import 'validation_state.dart';
+import "../../../data/irma_repository.dart";
+import "../../../models/authentication_events.dart";
+import "old_pin_verification_state.dart";
+import "validation_state.dart";
 
 class VerifyOldPinBloc extends Bloc<String, OldPinVerificationState> {
   final IrmaRepository repo;
@@ -33,7 +33,7 @@ class VerifyOldPinBloc extends Bloc<String, OldPinVerificationState> {
         error: authenticationEvent.error,
       );
     } else {
-      throw Exception('Unexpected subtype of AuthenticationResult');
+      throw Exception("Unexpected subtype of AuthenticationResult");
     }
   }
 }

@@ -1,16 +1,16 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:equatable/equatable.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../data/irma_repository.dart';
-import '../../../sentry/sentry.dart';
-import '../handlers/credential_status_notifications_handler.dart';
-import '../handlers/notification_handler.dart';
-import '../models/notification.dart';
+import "../../../data/irma_repository.dart";
+import "../../../sentry/sentry.dart";
+import "../handlers/credential_status_notifications_handler.dart";
+import "../handlers/notification_handler.dart";
+import "../models/notification.dart";
 
-part 'notifications_event.dart';
-part 'notifications_state.dart';
+part "notifications_event.dart";
+part "notifications_state.dart";
 
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   final IrmaRepository _repo;
@@ -190,7 +190,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     List<Notification> notifications = [];
 
     try {
-      if (serializedNotifications != '') {
+      if (serializedNotifications != "") {
         final jsonDecodedNotifications = jsonDecode(serializedNotifications);
         notifications = jsonDecodedNotifications
             .map<Notification>(
@@ -204,7 +204,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       reportError(e, stackTrace);
 
       // If the cache is corrupted, we clear it and return an empty list
-      _repo.preferences.setSerializedNotifications('');
+      _repo.preferences.setSerializedNotifications("");
     }
 
     return notifications;

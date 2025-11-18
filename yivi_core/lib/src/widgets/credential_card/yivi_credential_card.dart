@@ -1,25 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import '../../models/attribute.dart';
-import '../../models/attribute_value.dart';
-import '../../models/credentials.dart';
-import '../../models/irma_configuration.dart';
-import '../../models/log_entry.dart';
-import '../../models/translated_value.dart';
-import '../../providers/irma_repository_provider.dart';
-import '../../theme/theme.dart';
-import '../../util/language.dart';
-import '../credential_card/models/card_expiry_date.dart';
-import '../greyed_out.dart';
-import '../information_box.dart';
-import '../irma_card.dart';
-import '../irma_divider.dart';
-import '../yivi_themed_button.dart';
-import 'yivi_credential_card_attribute_list.dart';
-import 'yivi_credential_card_footer.dart';
-import 'yivi_credential_card_header.dart';
+import "../../models/attribute.dart";
+import "../../models/attribute_value.dart";
+import "../../models/credentials.dart";
+import "../../models/irma_configuration.dart";
+import "../../models/log_entry.dart";
+import "../../models/translated_value.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../theme/theme.dart";
+import "../../util/language.dart";
+import "../credential_card/models/card_expiry_date.dart";
+import "../greyed_out.dart";
+import "../information_box.dart";
+import "../irma_card.dart";
+import "../irma_divider.dart";
+import "../yivi_themed_button.dart";
+import "yivi_credential_card_attribute_list.dart";
+import "yivi_credential_card_footer.dart";
+import "yivi_credential_card_header.dart";
 
 class YiviCredentialCard extends ConsumerWidget {
   final bool compact;
@@ -78,14 +78,14 @@ class YiviCredentialCard extends ConsumerWidget {
     required bool compact,
   }) {
     final attributes = credential.attributes.entries.map((entry) {
-      final attributeId = '${credential.credentialType}.${entry.key}';
+      final attributeId = "${credential.credentialType}.${entry.key}";
       final attributeType = irmaConfiguration.attributeTypes[attributeId];
       final attributeValue = AttributeValue.fromRaw(
         attributeType!,
         TranslatedValue({
-          '': entry.value,
-          'en': entry.value,
-          'nl': entry.value,
+          "": entry.value,
+          "en": entry.value,
+          "nl": entry.value,
         }),
       );
       return Attribute(attributeType: attributeType, value: attributeValue);
@@ -104,7 +104,7 @@ class YiviCredentialCard extends ConsumerWidget {
       expired: credentialView.expired,
       revoked: credentialView.revoked,
       hashByFormat: Map.fromEntries(
-        credential.formats.map((f) => MapEntry(f, '')),
+        credential.formats.map((f) => MapEntry(f, "")),
       ),
       attributes: credentialView.attributes,
       hideFooter: true,
@@ -268,7 +268,7 @@ class YiviCredentialCard extends ConsumerWidget {
         return Padding(
           padding: EdgeInsets.only(top: theme.defaultSpacing),
           child: YiviThemedButton(
-            label: 'credential.options.reobtain',
+            label: "credential.options.reobtain",
             style: YiviButtonStyle.filled,
             onPressed: () => IrmaRepositoryProvider.of(
               context,
@@ -280,9 +280,9 @@ class YiviCredentialCard extends ConsumerWidget {
       return InformationBox(
         message: FlutterI18n.translate(
           context,
-          'credential.not_obtainable',
+          "credential.not_obtainable",
           translationParams: {
-            'issuerName': issuer.name.translate(
+            "issuerName": issuer.name.translate(
               FlutterI18n.currentLocale(context)!.languageCode,
             ),
           },

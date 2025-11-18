@@ -1,35 +1,35 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
+import "dart:convert";
+import "dart:io";
+import "dart:math";
 
-import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:yivi_core/app.dart';
-import 'package:yivi_core/main.dart';
-import 'package:yivi_core/src/data/irma_repository.dart';
-import 'package:yivi_core/src/models/session.dart';
-import 'package:yivi_core/src/providers/irma_repository_provider.dart';
-import 'package:yivi_core/src/providers/preferences_provider.dart';
-import 'package:yivi_core/src/screens/data/credentials_details_screen.dart';
-import 'package:yivi_core/src/screens/data/data_tab.dart';
-import 'package:yivi_core/src/screens/notifications/widgets/notification_card.dart';
-import 'package:yivi_core/src/screens/session/widgets/issuance_permission.dart';
-import 'package:yivi_core/src/util/test_detection.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart';
-import 'package:yivi_core/src/widgets/credential_card/yivi_credential_card_header.dart';
-import 'package:yivi_core/src/widgets/irma_app_bar.dart';
-import 'package:yivi_core/src/widgets/irma_card.dart';
-import 'package:yivi_core/src/widgets/radio_indicator.dart';
-import 'package:yivi_core/src/widgets/requestor_header.dart';
-import 'package:yivi_core/src/widgets/yivi_themed_button.dart';
+import "package:collection/collection.dart";
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/app.dart";
+import "package:yivi_core/main.dart";
+import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/session.dart";
+import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
+import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/util/test_detection.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_header.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/radio_indicator.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
+import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
-import '../irma_binding.dart';
-import '../util.dart';
+import "../irma_binding.dart";
+import "../util.dart";
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlockAndWaitForHome(WidgetTester tester) async {
@@ -38,14 +38,14 @@ Future<void> unlockAndWaitForHome(WidgetTester tester) async {
 }
 
 Future<void> unlock(WidgetTester tester) async {
-  await enterPin(tester, '12345');
+  await enterPin(tester, "12345");
 }
 
 Future<void> enterPin(WidgetTester tester, String pin) async {
-  final splitPin = pin.split('');
+  final splitPin = pin.split("");
   for (final digit in splitPin) {
     await tester.tapAndSettle(
-      find.byKey(Key('number_pad_key_${digit.toString()}')),
+      find.byKey(Key("number_pad_key_${digit.toString()}")),
     );
   }
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
@@ -66,7 +66,7 @@ Future<void> pumpIrmaApp(
       ],
       child: TestContext(
         child: IrmaApp(
-          defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
+          defaultLanguage: defaultLanguage ?? const Locale("en", "EN"),
         ),
       ),
     ),
@@ -74,10 +74,9 @@ Future<void> pumpIrmaApp(
 
   // Wait for the App widget to be build inside of the IrmaApp widget
   // (There is a builder wrapping the app widget that is used to check the preferred locale)
-  await tester.waitFor(find.descendant(
-    of: find.byType(IrmaApp),
-    matching: find.byType(App),
-  ));
+  await tester.waitFor(
+    find.descendant(of: find.byType(IrmaApp), matching: find.byType(App)),
+  );
 }
 
 // Pump a new app and unlock it
@@ -98,33 +97,38 @@ Future<SessionPointer> createIssuanceSession({
 }) async {
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
     attributes.entries,
-    (attr) => attr.key.split('.').take(3).join('.'),
+    (attr) => attr.key.split(".").take(3).join("."),
   );
-  final credentialsJson = jsonEncode(groupedAttributes.entries
-      .map((credEntry) => {
-            'credential': credEntry.key,
-            'attributes': {
-              for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value,
+  final credentialsJson = jsonEncode(
+    groupedAttributes.entries
+        .map(
+          (credEntry) => {
+            "credential": credEntry.key,
+            "attributes": {
+              for (final attrEntry in credEntry.value)
+                attrEntry.key.split(".")[3]: attrEntry.value,
             },
-            if (revocationKeys.containsKey(credEntry.key)) 'revocationKey': revocationKeys[credEntry.key],
-          })
-      .toList());
+            if (revocationKeys.containsKey(credEntry.key))
+              "revocationKey": revocationKeys[credEntry.key],
+          },
+        )
+        .toList(),
+  );
 
-  return await createTestSession(
-    '''
+  return await createTestSession('''
     {
       "@context": "https://irma.app/ld/request/issuance/v2",
       "credentials": $credentialsJson
     }
-  ''',
-    continueOnSecondDevice: continueOnSecondDevice,
-  );
+  ''', continueOnSecondDevice: continueOnSecondDevice);
 }
 
-Map<String, List<MapEntry<String, String>>> groupAttributes(Map<String, String> attributes) {
+Map<String, List<MapEntry<String, String>>> groupAttributes(
+  Map<String, String> attributes,
+) {
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
     attributes.entries,
-    (attr) => attr.key.split('.').take(3).join('.'),
+    (attr) => attr.key.split(".").take(3).join("."),
   );
   return groupedAttributes;
 }
@@ -136,27 +140,30 @@ Future<void> startIssuanceSession(
   bool continueOnSecondDevice = true,
   int? sdJwtBatchSize,
 }) async {
-  final credentialsJson = jsonEncode(groupedAttributes.entries
-      .map((credEntry) => {
-            'credential': credEntry.key,
-            'attributes': {
-              for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value,
+  final credentialsJson = jsonEncode(
+    groupedAttributes.entries
+        .map(
+          (credEntry) => {
+            "credential": credEntry.key,
+            "attributes": {
+              for (final attrEntry in credEntry.value)
+                attrEntry.key.split(".")[3]: attrEntry.value,
             },
-            if (revocationKeys.containsKey(credEntry.key)) 'revocationKey': revocationKeys[credEntry.key],
-            if (sdJwtBatchSize != null) 'sdJwtBatchSize': sdJwtBatchSize,
-          })
-      .toList());
+            if (revocationKeys.containsKey(credEntry.key))
+              "revocationKey": revocationKeys[credEntry.key],
+            if (sdJwtBatchSize != null) "sdJwtBatchSize": sdJwtBatchSize,
+          },
+        )
+        .toList(),
+  );
 
   // Start session
-  await irmaBinding.repository.startTestSession(
-    '''
+  await irmaBinding.repository.startTestSession('''
     {
       "@context": "https://irma.app/ld/request/issuance/v2",
       "credentials": $credentialsJson
     }
-  ''',
-    continueOnSecondDevice: continueOnSecondDevice,
-  );
+  ''', continueOnSecondDevice: continueOnSecondDevice);
 }
 
 /// Starts an issuing session that adds the given credentials to the IRMA app.
@@ -171,7 +178,7 @@ Future<void> issueCredentials(
   bool declineOffer = false,
   int? sdJwtBatchSize,
 }) async {
-  locale ??= Locale('en', 'EN');
+  locale ??= Locale("en", "EN");
   final groupedAttributes = groupAttributes(attributes);
   await startIssuanceSession(
     irmaBinding,
@@ -185,35 +192,56 @@ Future<void> issueCredentials(
   await tester.waitFor(issuancePageFinder);
 
   // Check whether all credentials are displayed.
-  expect(find.byType(YiviCredentialCard), findsNWidgets(groupedAttributes.length));
+  expect(
+    find.byType(YiviCredentialCard),
+    findsNWidgets(groupedAttributes.length),
+  );
 
   if (sdJwtBatchSize != null) {
-    if (locale == Locale('nl', 'NL')) {
-      expect(find.text('Nog $sdJwtBatchSize keer', skipOffstage: false), findsNWidgets(groupedAttributes.length));
+    if (locale == Locale("nl", "NL")) {
+      expect(
+        find.text("Nog $sdJwtBatchSize keer", skipOffstage: false),
+        findsNWidgets(groupedAttributes.length),
+      );
     } else {
-      expect(find.text('$sdJwtBatchSize times left', skipOffstage: false), findsNWidgets(groupedAttributes.length));
+      expect(
+        find.text("$sdJwtBatchSize times left", skipOffstage: false),
+        findsNWidgets(groupedAttributes.length),
+      );
     }
   }
 
   // Check whether all attributes are displayed in the right order.
   for (final credTypeId in groupedAttributes.keys) {
-    final credType = irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
-    expect(find.text(credType.name.translate(locale.languageCode)).last, findsOneWidget);
+    final credType =
+        irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
+    expect(
+      find.text(credType.name.translate(locale.languageCode)).last,
+      findsOneWidget,
+    );
   }
-  final attributeTexts = tester.getAllText(find.byType(YiviCredentialCardAttributeList)).toList();
+  final attributeTexts = tester
+      .getAllText(find.byType(YiviCredentialCardAttributeList))
+      .toList();
   final attributeEntries = attributes.entries.toList();
 
   for (int i = 0; i < attributes.length; i++) {
     expect(
       attributeTexts[i * 2],
-      irmaBinding.repository.irmaConfiguration.attributeTypes[attributeEntries[i].key]?.name
+      irmaBinding
+          .repository
+          .irmaConfiguration
+          .attributeTypes[attributeEntries[i].key]
+          ?.name
           .translate(locale.languageCode),
     );
     expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
   }
 
   final buttonFinder = find.byKey(
-    declineOffer ? const Key('bottom_bar_secondary') : const Key('bottom_bar_primary'),
+    declineOffer
+        ? const Key("bottom_bar_secondary")
+        : const Key("bottom_bar_primary"),
   );
   expect(buttonFinder, findsOneWidget);
 
@@ -230,10 +258,10 @@ String generateRevocationKey() {
 
 /// Revokes a previously issued credential.
 Future<void> revokeCredential(String credId, String revocationKey) async {
-  final Uri uri = Uri.parse('https://is.demo.staging.yivi.app/revocation');
+  final Uri uri = Uri.parse("https://is.demo.staging.yivi.app/revocation");
 
   final request = await HttpClient().postUrl(uri);
-  request.headers.set('Content-Type', 'application/json');
+  request.headers.set("Content-Type", "application/json");
   request.write('''
     {
       "@context": "https://irma.app/ld/request/revocation/v1",
@@ -244,18 +272,27 @@ Future<void> revokeCredential(String credId, String revocationKey) async {
 
   final response = await request.close();
   if (response.statusCode != 200) {
-    throw Exception('Credential $credId could not be revoked: status code ${response.statusCode}');
+    throw Exception(
+      "Credential $credId could not be revoked: status code ${response.statusCode}",
+    );
   }
 }
 
-Future<void> evaluateRequestor(WidgetTester tester, Finder reqeustorInfoFinder, String expectedName) async {
+Future<void> evaluateRequestor(
+  WidgetTester tester,
+  Finder reqeustorInfoFinder,
+  String expectedName,
+) async {
   final finder = find.descendant(
     of: reqeustorInfoFinder,
     matching: find.byType(RequestorHeader),
     matchRoot: true,
   );
   expect(finder, findsAtLeast(1));
-  final nameFinder = find.descendant(of: finder, matching: find.text(expectedName));
+  final nameFinder = find.descendant(
+    of: finder,
+    matching: find.text(expectedName),
+  );
   expect(nameFinder, findsOneWidget);
 }
 
@@ -284,8 +321,14 @@ Future<void> evaluateCredentialCard(
   );
 
   if (instancesRemaining != null) {
-    final footer = find.descendant(of: credentialCardFinder, matching: find.byType(YiviCredentialCardFooter));
-    final instanceCountFinder = find.descendant(of: footer, matching: find.text('$instancesRemaining times left'));
+    final footer = find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(YiviCredentialCardFooter),
+    );
+    final instanceCountFinder = find.descendant(
+      of: footer,
+      matching: find.text("$instancesRemaining times left"),
+    );
     expect(instanceCountFinder, findsOneWidget);
   }
 
@@ -296,13 +339,11 @@ Future<void> evaluateCredentialCard(
       of: credentialCardFinder,
       matching: find.byType(IrmaCard),
     );
-    expect(
-      (irmaCardFinder.evaluate().first.widget as IrmaCard).style,
-      style,
-    );
+    expect((irmaCardFinder.evaluate().first.widget as IrmaCard).style, style);
   }
 
-  final shouldCheckCardStatus = isRevoked != null || isExpired != null || isExpiringSoon != null;
+  final shouldCheckCardStatus =
+      isRevoked != null || isExpired != null || isExpiringSoon != null;
   final shouldCheckHeaderInfo = credentialName != null || issuerName != null;
 
   if (shouldCheckHeaderInfo || shouldCheckCardStatus) {
@@ -316,31 +357,26 @@ Future<void> evaluateCredentialCard(
     // Get the text from the header
     var cardHeaderText = tester.getAllText(cardHeaderFinder);
     final credentialStatusTexts = {
-      'revoked': 'Revoked',
-      'expired': 'Expired',
-      'expiring': 'About to expire',
+      "revoked": "Revoked",
+      "expired": "Expired",
+      "expiring": "About to expire",
     };
 
-    if (shouldCheckCardStatus && credentialStatusTexts.values.contains(cardHeaderText.first)) {
+    if (shouldCheckCardStatus &&
+        credentialStatusTexts.values.contains(cardHeaderText.first)) {
       final credentialStatus = cardHeaderText.first;
 
       if (isRevoked != null) {
-        expect(
-          credentialStatus == credentialStatusTexts['revoked'],
-          isRevoked,
-        );
+        expect(credentialStatus == credentialStatusTexts["revoked"], isRevoked);
       }
 
       if (isExpired != null) {
-        expect(
-          credentialStatus == credentialStatusTexts['expired'],
-          isExpired,
-        );
+        expect(credentialStatus == credentialStatusTexts["expired"], isExpired);
       }
 
       if (isExpiringSoon != null) {
         expect(
-          credentialStatus == credentialStatusTexts['expiring'],
+          credentialStatus == credentialStatusTexts["expiring"],
           isExpiringSoon,
         );
       }
@@ -348,7 +384,9 @@ Future<void> evaluateCredentialCard(
 
     if (shouldCheckHeaderInfo) {
       // Filter the status texts from the list, so we can test the rest.
-      cardHeaderText = cardHeaderText.whereNot((text) => credentialStatusTexts.values.contains(text));
+      cardHeaderText = cardHeaderText.whereNot(
+        (text) => credentialStatusTexts.values.contains(text),
+      );
 
       // Compare the expected credential name
       if (credentialName != null) {
@@ -357,7 +395,7 @@ Future<void> evaluateCredentialCard(
 
       // Compare the issuer credential name
       if (issuerName != null) {
-        expect(cardHeaderText.elementAt(1), 'by $issuerName');
+        expect(cardHeaderText.elementAt(1), "by $issuerName");
       }
     }
   }
@@ -420,12 +458,10 @@ Future<void> evaluateCredentialCard(
     );
 
     expect(radioIndicatorFinder, findsOneWidget);
-    final radioIndicatorWidget = radioIndicatorFinder.evaluate().single.widget as RadioIndicator;
+    final radioIndicatorWidget =
+        radioIndicatorFinder.evaluate().single.widget as RadioIndicator;
 
-    expect(
-      radioIndicatorWidget.isSelected,
-      isSelected,
-    );
+    expect(radioIndicatorWidget.isSelected, isSelected);
   }
 
   // Check the footer
@@ -433,12 +469,15 @@ Future<void> evaluateCredentialCard(
     final footerFinder = find.byType(YiviCredentialCardFooter);
 
     if (shouldCheckCardStatus) {
-      final isReobtainable = (isExpired ?? false) || (isRevoked ?? false) || (isExpiringSoon ?? false);
+      final isReobtainable =
+          (isExpired ?? false) ||
+          (isRevoked ?? false) ||
+          (isExpiringSoon ?? false);
 
       // Find reobtainable button
       final reobtainButtonFinder = find.descendant(
         of: find.byType(YiviThemedButton),
-        matching: find.text('Reobtain'),
+        matching: find.text("Reobtain"),
       );
 
       expect(
@@ -449,10 +488,7 @@ Future<void> evaluateCredentialCard(
 
     if (footerText != null) {
       expect(
-        find.descendant(
-          of: footerFinder,
-          matching: find.text(footerText),
-        ),
+        find.descendant(of: footerFinder, matching: find.text(footerText)),
         findsOneWidget,
       );
     }
@@ -470,30 +506,22 @@ Future<void> evaluateNotificationCard(
 
   if (title != null) {
     expect(
-      find.descendant(
-        of: notificationCardFinder,
-        matching: find.text(title),
-      ),
+      find.descendant(of: notificationCardFinder, matching: find.text(title)),
       findsOneWidget,
     );
   }
 
   if (content != null) {
     expect(
-      find.descendant(
-        of: notificationCardFinder,
-        matching: find.text(content),
-      ),
+      find.descendant(of: notificationCardFinder, matching: find.text(content)),
       findsOneWidget,
     );
   }
 
   if (read != null) {
-    final notificationCardWidget = notificationCardFinder.evaluate().single.widget as NotificationCard;
-    expect(
-      notificationCardWidget.notification.read,
-      read,
-    );
+    final notificationCardWidget =
+        notificationCardFinder.evaluate().single.widget as NotificationCard;
+    expect(notificationCardWidget.notification.read, read);
   }
 }
 
@@ -501,8 +529,11 @@ Future<void> navigateBack(WidgetTester tester) async {
   await tester.tapAndSettle(find.byType(YiviBackButton));
 }
 
-Future<void> navigateToCredentialDetailsPage(WidgetTester tester, String credId) async {
-  var categoryTileFinder = find.byKey(Key('${credId}_tile')).hitTestable();
+Future<void> navigateToCredentialDetailsPage(
+  WidgetTester tester,
+  String credId,
+) async {
+  var categoryTileFinder = find.byKey(Key("${credId}_tile")).hitTestable();
   await tester.scrollUntilVisible(categoryTileFinder, 75);
   await tester.tapAndSettle(categoryTileFinder);
 

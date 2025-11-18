@@ -1,9 +1,9 @@
-import 'dart:math';
+import "dart:math";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:flutter/material.dart";
+import "package:flutter_svg/svg.dart";
 
-import '../../../../package_name.dart';
+import "../../../../package_name.dart";
 
 class SuccessGraphic extends StatefulWidget {
   const SuccessGraphic({super.key});
@@ -17,5 +17,5 @@ class _SuccessGraphicState extends State<SuccessGraphic> {
 
   @override
   Widget build(BuildContext context) =>
-      SvgPicture.asset(yiviAsset('success/success_$randomImageIndex.svg'));
+      SvgPicture.asset(yiviAsset("success/success_$randomImageIndex.svg"));
 }

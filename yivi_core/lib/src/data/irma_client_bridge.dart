@@ -1,22 +1,22 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import "package:flutter/foundation.dart";
+import "package:flutter/services.dart";
 
-import '../models/authentication_events.dart';
-import '../models/change_pin_events.dart';
-import '../models/client_preferences.dart';
-import '../models/credential_events.dart';
-import '../models/enrollment_events.dart';
-import '../models/error_event.dart';
-import '../models/event.dart';
-import '../models/handle_url_event.dart';
-import '../models/irma_configuration.dart';
-import '../models/issue_wizard.dart';
-import '../models/log_entry.dart';
-import '../models/session_events.dart';
-import '../sentry/sentry.dart';
-import 'irma_bridge.dart';
+import "../models/authentication_events.dart";
+import "../models/change_pin_events.dart";
+import "../models/client_preferences.dart";
+import "../models/credential_events.dart";
+import "../models/enrollment_events.dart";
+import "../models/error_event.dart";
+import "../models/event.dart";
+import "../models/handle_url_event.dart";
+import "../models/irma_configuration.dart";
+import "../models/issue_wizard.dart";
+import "../models/log_entry.dart";
+import "../models/session_events.dart";
+import "../sentry/sentry.dart";
+import "irma_bridge.dart";
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 
@@ -82,15 +82,15 @@ class IrmaClientBridge extends IrmaBridge {
       );
 
   IrmaClientBridge({this.debugLogging = false})
-    : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
+    : _methodChannel = const MethodChannel("irma.app/irma_mobile_bridge") {
     // Start listening to method calls from the native side
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
 
   Future<void> _handleMethodCall(MethodCall call) async {
-    if (call.method == 'GoLog') {
+    if (call.method == "GoLog") {
       if (kDebugMode) {
-        debugPrint('[GO]: ${call.arguments}');
+        debugPrint("[GO]: ${call.arguments}");
       }
       return;
     }
@@ -100,23 +100,23 @@ class IrmaClientBridge extends IrmaBridge {
 
       if (unmarshaller == null) {
         // Don't send 'call.arguments' to Sentry; it might contain personal data.
-        reportError('Unrecognized bridge event received: ${call.method}', null);
+        reportError("Unrecognized bridge event received: ${call.method}", null);
         return;
       }
 
       if (debugLogging) {
         // the irma config event has so much data in its payload it bloats all logs,
         // therefore we explicitly don't print the payload
-        if (call.method == 'IrmaConfigurationEvent') {
+        if (call.method == "IrmaConfigurationEvent") {
           if (kDebugMode) {
             debugPrint(
-              'Received bridge event: ${call.method} -- payload omitted',
+              "Received bridge event: ${call.method} -- payload omitted",
             );
           }
         } else {
           if (kDebugMode) {
             debugPrint(
-              'Received bridge event: ${call.method} with payload ${call.arguments}',
+              "Received bridge event: ${call.method} with payload ${call.arguments}",
             );
           }
         }
@@ -136,7 +136,7 @@ class IrmaClientBridge extends IrmaBridge {
     final encodedEvent = jsonEncode(event);
     if (debugLogging && kDebugMode) {
       debugPrint(
-        'Sending ${event.runtimeType.toString()} to bridge: $encodedEvent',
+        "Sending ${event.runtimeType.toString()} to bridge: $encodedEvent",
       );
     }
 

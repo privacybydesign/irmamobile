@@ -1,10 +1,10 @@
-import 'package:json_annotation/json_annotation.dart';
+import "package:json_annotation/json_annotation.dart";
 
-import 'attribute_value.dart';
-import 'irma_configuration.dart';
-import 'translated_value.dart';
+import "attribute_value.dart";
+import "irma_configuration.dart";
+import "translated_value.dart";
 
-part 'attribute.g.dart';
+part "attribute.g.dart";
 
 class Attribute {
   final AttributeType attributeType;
@@ -21,7 +21,7 @@ class Attribute {
     final attributeType = irmaConfiguration.attributeTypes[candidate.type];
     if (attributeType == null) {
       throw Exception(
-        'Attribute type $attributeType not present in configuration',
+        "Attribute type $attributeType not present in configuration",
       );
     }
 
@@ -42,7 +42,7 @@ class Attribute {
         irmaConfiguration.attributeTypes[disclosedAttribute.identifier];
     if (attributeType == null) {
       throw Exception(
-        'Attribute type $attributeType not present in configuration',
+        "Attribute type $attributeType not present in configuration",
       );
     }
 
@@ -57,10 +57,10 @@ class Attribute {
 class AttributeIdentifier {
   const AttributeIdentifier({required this.type, required this.credentialHash});
 
-  @JsonKey(name: 'Type')
+  @JsonKey(name: "Type")
   final String type;
 
-  @JsonKey(name: 'CredentialHash')
+  @JsonKey(name: "CredentialHash")
   final String credentialHash;
 
   factory AttributeIdentifier.fromJson(Map<String, dynamic> json) =>
@@ -78,19 +78,19 @@ class DisclosedAttribute {
     this.rawValue,
   });
 
-  @JsonKey(name: 'rawValue')
+  @JsonKey(name: "rawValue")
   final String? rawValue;
 
-  @JsonKey(name: 'value') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "value") // Default value is set by fromJson of TranslatedValue
   final TranslatedValue value;
 
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   final String identifier;
 
-  @JsonKey(name: 'status')
+  @JsonKey(name: "status")
   final String status;
 
-  @JsonKey(name: 'issuancetime')
+  @JsonKey(name: "issuancetime")
   final int issuanceTime;
 
   factory DisclosedAttribute.fromJson(Map<String, dynamic> json) =>
@@ -104,19 +104,19 @@ class DisclosureCandidate {
     required this.type,
     this.notRevokable = false,
     this.value = const TranslatedValue.empty(),
-    this.credentialHash = '',
+    this.credentialHash = "",
   });
 
-  @JsonKey(name: 'Type')
+  @JsonKey(name: "Type")
   final String type;
 
-  @JsonKey(name: 'CredentialHash')
+  @JsonKey(name: "CredentialHash")
   final String credentialHash;
 
-  @JsonKey(name: 'Value') // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "Value") // Default value is set by fromJson of TranslatedValue
   final TranslatedValue value;
 
-  @JsonKey(name: 'NotRevokable')
+  @JsonKey(name: "NotRevokable")
   final bool notRevokable;
 
   factory DisclosureCandidate.fromJson(Map<String, dynamic> json) =>

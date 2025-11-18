@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_markdown/flutter_markdown.dart";
 
-import '../theme/theme.dart';
-import 'irma_card.dart';
+import "../theme/theme.dart";
+import "irma_card.dart";
 
 class IrmaQuote extends StatelessWidget {
   final String? quote;
@@ -13,11 +13,11 @@ class IrmaQuote extends StatelessWidget {
   const IrmaQuote({super.key, this.quote, this.richQuote, this.color})
     : assert(
         quote != null || richQuote != null,
-        'No quote given. Set quote or richQuote.',
+        "No quote given. Set quote or richQuote.",
       ),
       assert(
         quote == null || richQuote == null,
-        'Either set quote or richQuote, not both.',
+        "Either set quote or richQuote, not both.",
       );
 
   @override

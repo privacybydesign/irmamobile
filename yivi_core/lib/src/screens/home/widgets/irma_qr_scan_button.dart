@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:yivi_core/package_name.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_svg/svg.dart";
+import "../../../../package_name.dart";
 
-import '../../../theme/theme.dart';
-import '../../../util/navigation.dart';
-import '../../../util/test_detection.dart';
-import '../../../widgets/translated_text.dart';
-import '../../scanner/util/handle_camera_permission.dart';
+import "../../../theme/theme.dart";
+import "../../../util/navigation.dart";
+import "../../../util/test_detection.dart";
+import "../../../widgets/translated_text.dart";
+import "../../scanner/util/handle_camera_permission.dart";
 
 Future<void> openQrCodeScanner(
   BuildContext context, {
@@ -46,7 +46,7 @@ class IrmaQrScanButton extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: SvgPicture.asset(yiviAsset('ui/round-btn-bg.svg')),
+                  child: SvgPicture.asset(yiviAsset("ui/round-btn-bg.svg")),
                 ),
                 Positioned.fill(
                   child: ClipOval(
@@ -56,7 +56,7 @@ class IrmaQrScanButton extends StatelessWidget {
                         button: true,
                         label: FlutterI18n.translate(
                           context,
-                          'home.nav_bar.scan_qr',
+                          "home.nav_bar.scan_qr",
                         ),
                         child: InkWell(
                           onTap: () => openQrCodeScanner(context),
@@ -76,7 +76,7 @@ class IrmaQrScanButton extends StatelessWidget {
           SizedBox(height: theme.tinySpacing),
           ExcludeSemantics(
             child: TranslatedText(
-              'home.nav_bar.scan_qr',
+              "home.nav_bar.scan_qr",
               textAlign: TextAlign.center,
               style: theme.themeData.textTheme.titleLarge,
             ),

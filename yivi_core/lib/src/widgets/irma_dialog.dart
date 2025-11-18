@@ -1,9 +1,9 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
-import '../theme/theme.dart';
+import "../theme/theme.dart";
 
 class YiviDialog extends StatelessWidget {
   const YiviDialog({super.key, required this.child});
@@ -105,7 +105,7 @@ class IrmaDialog extends StatelessWidget {
                   children: [
                     Container(
                       margin: EdgeInsets.all(theme.defaultSpacing),
-                      key: const Key('irma_dialog'),
+                      key: const Key("irma_dialog"),
                       child: ListView(
                         shrinkWrap: true,
                         addSemanticIndexes: false,
@@ -121,11 +121,11 @@ class IrmaDialog extends StatelessWidget {
                                       .isIOS, // Set to false on iOS to prevent double read
                                   label: FlutterI18n.translate(
                                     context,
-                                    'accessibility.alert',
+                                    "accessibility.alert",
                                   ),
                                   child: Text(
                                     title,
-                                    key: const Key('irma_dialog_title'),
+                                    key: const Key("irma_dialog_title"),
                                     style: theme.textTheme.displaySmall,
                                     textAlign: TextAlign.center,
                                   ),
@@ -133,7 +133,7 @@ class IrmaDialog extends StatelessWidget {
                                 SizedBox(height: theme.mediumSpacing),
                                 Text(
                                   content,
-                                  key: const Key('irma_dialog_content'),
+                                  key: const Key("irma_dialog_content"),
                                   style: theme.textTheme.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),

@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../theme/theme.dart';
-import 'irma_linear_progresss_indicator.dart';
-import 'translated_text.dart';
+import "../theme/theme.dart";
+import "irma_linear_progresss_indicator.dart";
+import "translated_text.dart";
 
 class IrmaLinearStepIndicator extends StatelessWidget {
   final int stepCount;
@@ -24,10 +24,10 @@ class IrmaLinearStepIndicator extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           TranslatedText(
-            'ui.step_of_steps',
+            "ui.step_of_steps",
             translationParams: {
-              'i': step.toString(),
-              'n': stepCount.toString(),
+              "i": step.toString(),
+              "n": stepCount.toString(),
             },
             style: TextStyle(
               fontSize: 12,

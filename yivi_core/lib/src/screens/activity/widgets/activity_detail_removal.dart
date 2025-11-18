@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../models/irma_configuration.dart';
-import '../../../models/log_entry.dart';
-import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/yivi_credential_card.dart';
-import '../../../widgets/translated_text.dart';
+import "../../../models/irma_configuration.dart";
+import "../../../models/log_entry.dart";
+import "../../../theme/theme.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/translated_text.dart";
 
 class ActivityDetailRemoval extends StatelessWidget {
   final LogInfo logEntry;
@@ -25,7 +25,7 @@ class ActivityDetailRemoval extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TranslatedText(
-          'activity.deleted_data',
+          "activity.deleted_data",
           style: theme.themeData.textTheme.headlineMedium,
           isHeader: true,
         ),

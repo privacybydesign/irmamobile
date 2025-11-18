@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../providers/irma_repository_provider.dart';
-import '../../../widgets/irma_app_bar.dart';
+import "../../../providers/irma_repository_provider.dart";
+import "../../../widgets/irma_app_bar.dart";
 
 class SessionHelperScreen extends StatefulWidget {
   final String initialRequest;
@@ -24,7 +24,7 @@ class _SessionHelperScreenState extends State<SessionHelperScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: IrmaAppBar(
-      titleTranslationKey: 'debug.session_helper',
+      titleTranslationKey: "debug.session_helper",
       actions: [
         IconButton(
           icon: const Icon(Icons.send),

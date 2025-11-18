@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
-import '../../../widgets/action_feedback.dart';
+import "../../../widgets/action_feedback.dart";
 
 enum DisclosureFeedbackType { success, canceled, notSatisfiable }
 
 class DisclosureFeedbackScreen extends StatefulWidget {
   static const _translationKeys = {
-    DisclosureFeedbackType.success: 'success',
-    DisclosureFeedbackType.canceled: 'canceled',
-    DisclosureFeedbackType.notSatisfiable: 'not_satisfiable',
+    DisclosureFeedbackType.success: "success",
+    DisclosureFeedbackType.canceled: "canceled",
+    DisclosureFeedbackType.notSatisfiable: "not_satisfiable",
   };
 
   final DisclosureFeedbackType feedbackType;
@@ -48,12 +48,12 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
 
   @override
   Widget build(BuildContext context) {
-    final otherPartyTranslationParam = {'otherParty': widget.otherParty};
+    final otherPartyTranslationParam = {"otherParty": widget.otherParty};
 
     return ActionFeedback(
       success: widget.feedbackType == DisclosureFeedbackType.success,
       titleTranslationKey:
-          'disclosure.feedback.header.${widget._translationKey}',
+          "disclosure.feedback.header.${widget._translationKey}",
       titleTranslationParams: otherPartyTranslationParam,
       explanationTranslationKey:
           'disclosure.feedback.text.${widget._translationKey}${widget.isSignatureSession ? '_signature' : ''}',
