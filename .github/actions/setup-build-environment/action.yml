@@ -76,11 +76,6 @@ runs:
       working-directory: yivi_app
       run: |
         flutter pub get
-
-        # Fix broken / conflicting trunk repo
-        rm -rf ~/.cocoapods/repos/trunk || true
-        pod repo add trunk https://cdn.cocoapods.org/
-
         cd ios
         pod install --verbose
       shell: bash
