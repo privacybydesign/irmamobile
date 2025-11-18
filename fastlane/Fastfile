@@ -46,7 +46,7 @@ lane :android_build_irmagobridge do
     sh(
       "gomobile", "bind",
       "-target", "android",
-      "-androidapi", "24",
+      "-androidapi", "26",
       "-o", "android/irmagobridge/irmagobridge.aar",
       "github.com/privacybydesign/irmamobile/irmagobridge"
     )
@@ -145,7 +145,7 @@ lane :ios_build_irmagobridge do
     sh(
       "gomobile", "bind",
       "-target", "ios",
-      "-iosversion", "12.0",
+      "-iosversion", "15.6",
       "-o", "ios/Irmagobridge.xcframework",
       "github.com/privacybydesign/irmamobile/irmagobridge"
     )
@@ -201,14 +201,14 @@ lane :ios_build_app do |options|
 
   # Set export method in plist file.
   set_info_plist_value(
-    path: "ios/Runner/Flutter-Build-IPA.plist",
+    path: "yivi_app/ios/Runner/Flutter-Build-IPA.plist",
     key: "method",
     value: export_method
   )
 
-  Dir.chdir("..") do
+  Dir.chdir("../yivi_app") do
     sh("flutter", "build", "ipa", "--release", "--export-options-plist", "./ios/Runner/Flutter-Build-IPA.plist")
-    sh("cp ./build/ios/ipa/*.ipa ./fastlane/build/app-#{options[:flavor]}-ios-#{export_method}.ipa")
+    sh("cp ./build/ios/ipa/*.ipa ../fastlane/build/app-#{options[:flavor]}-ios-#{export_method}.ipa")
   end
 end
 
@@ -222,7 +222,7 @@ lane :ios_build_integration_test do |options|
   )
 
   # Navigate to the Flutter project root directory
-  Dir.chdir("..") do
+  Dir.chdir("../yivi_app") do
     # Get a list of all Dart test files in the integration_test directory
     test_files = Dir["integration_test/**/*_test.dart"]
 
@@ -259,10 +259,10 @@ lane :ios_build_integration_test do |options|
         test_run_name = sh("ls -r1 *.xctestrun | head -n 1").strip
 
         # Remove any existing zip file with the same name
-        sh("rm -f ../../../../fastlane/build/#{test_name}_ios_tests.zip")
+        sh("rm -f ../../../../../fastlane/build/#{test_name}_ios_tests.zip")
 
         # Zip the build artifacts for the current test file
-        sh("zip -r ../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
+        sh("zip -r ../../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
       end
     end
   end
