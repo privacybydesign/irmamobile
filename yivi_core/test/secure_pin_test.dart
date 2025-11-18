@@ -21,40 +21,55 @@ void main() {
     for (final pin in pins5) {
       bloc5.add(pin);
       final state = await bloc5.stream.first;
-      expect(state.attributes.contains(SecurePinAttribute.containsThreeUnique), false);
+      expect(
+        state.attributes.contains(SecurePinAttribute.containsThreeUnique),
+        false,
+      );
       expect(state.goodEnough, false);
     }
     for (final pin in pins16) {
       bloc16.add(pin);
       final state = await bloc16.stream.first;
-      expect(state.attributes.contains(SecurePinAttribute.containsThreeUnique), false);
+      expect(
+        state.attributes.contains(SecurePinAttribute.containsThreeUnique),
+        false,
+      );
       expect(state.goodEnough, false);
     }
     for (final pin in validPins5) {
       bloc5.add(pin);
       final state = await bloc5.stream.first;
-      expect(state.attributes.contains(SecurePinAttribute.containsThreeUnique), true);
+      expect(
+        state.attributes.contains(SecurePinAttribute.containsThreeUnique),
+        true,
+      );
       expect(state.goodEnough, false);
     }
   });
 
-  test("PIN, n=5 that have short, translation symmetric and/or mirror symmetric patterns", () async {
-    final pins5 = <Pin>{
-      [0, 1, 3, 1, 0],
-      [1, 3, 5, 3, 1],
-      [0, 1, 3, 0, 1],
-      [1, 3, 5, 1, 3],
-      [3, 2, 1, 2, 3],
-      [1, 2, 3, 2, 1],
-    };
+  test(
+    "PIN, n=5 that have short, translation symmetric and/or mirror symmetric patterns",
+    () async {
+      final pins5 = <Pin>{
+        [0, 1, 3, 1, 0],
+        [1, 3, 5, 3, 1],
+        [0, 1, 3, 0, 1],
+        [1, 3, 5, 1, 3],
+        [3, 2, 1, 2, 3],
+        [1, 2, 3, 2, 1],
+      };
 
-    for (final pin in pins5) {
-      bloc5.add(pin);
-      final state = await bloc5.stream.first;
-      expect(state.attributes.contains(SecurePinAttribute.notAbcabNorAbcba), false);
-      expect(state.goodEnough, false);
-    }
-  });
+      for (final pin in pins5) {
+        bloc5.add(pin);
+        final state = await bloc5.stream.first;
+        expect(
+          state.attributes.contains(SecurePinAttribute.notAbcabNorAbcba),
+          false,
+        );
+        expect(state.goodEnough, false);
+      }
+    },
+  );
 
   test("PIN must not be ascending nor descending", () async {
     final invalidPins5 = <Pin>[
@@ -74,7 +89,10 @@ void main() {
     for (final pin in invalidPins5) {
       bloc5.add(pin);
       final state = await bloc5.stream.first;
-      expect(state.attributes.contains(SecurePinAttribute.mustNotAscNorDesc), false);
+      expect(
+        state.attributes.contains(SecurePinAttribute.mustNotAscNorDesc),
+        false,
+      );
       expect(state.goodEnough, false);
     }
 
@@ -117,7 +135,10 @@ void main() {
     for (final pin in disallowed) {
       bloc16.add(pin);
       final state = await bloc16.stream.first;
-      expect(state.attributes.contains(SecurePinAttribute.mustContainValidSubset), false);
+      expect(
+        state.attributes.contains(SecurePinAttribute.mustContainValidSubset),
+        false,
+      );
       expect(state.goodEnough, false);
     }
   });
