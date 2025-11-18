@@ -6,7 +6,7 @@ end
 
 lane :lint do
   Dir.chdir("../yivi_core") do
-    sh("dart", "format", "--set-exit-if-changed", "lib/", "test/", "integration_test/")
+    sh("dart", "format", "--set-exit-if-changed", "lib/", "test/")
     sh("flutter", "analyze", "--no-fatal-infos")
 
     # gofmt does not return non-zero exit codes on failure, so we have to check the output.
@@ -15,6 +15,11 @@ lane :lint do
       raise "gofmt issues found"
     end
     sh("go", "vet", "./...")
+  end
+
+  Dir.chdir("../yivi_app") do
+    sh("dart", "format", "--set-exit-if-changed", "lib/", "integration_test/")
+    sh("flutter", "analyze", "--no-fatal-infos")
   end
 end
 
