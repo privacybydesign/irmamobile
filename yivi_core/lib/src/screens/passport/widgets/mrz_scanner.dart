@@ -122,7 +122,7 @@ class MRZScannerState extends State<MRZScanner>
   bool _canProcess = true;
   bool _isBusy = false;
   List result = [];
-  bool success = false;
+  bool _showSuccessCheck = false;
   CameraController? _controller;
   int _cameraIndex = 1;
   List<CameraDescription> cameras = [];
@@ -221,7 +221,7 @@ class MRZScannerState extends State<MRZScanner>
   Widget build(BuildContext context) {
     return Scaffold(
       body: widget.showOverlay
-          ? MRZCameraOverlay(success: success, child: _liveFeedBody())
+          ? MRZCameraOverlay(success: _showSuccessCheck, child: _liveFeedBody())
           : _liveFeedBody(),
     );
   }
@@ -272,7 +272,7 @@ class MRZScannerState extends State<MRZScanner>
 
     if (_controller != null && _controller!.value.isInitialized) {
       if (!_controller!.value.isStreamingImages) {
-        await _controller!.startImageStream(_processCameraImage);
+        await _controller!.startImageStream(_processImage);
       }
       return;
     }
@@ -296,7 +296,7 @@ class MRZScannerState extends State<MRZScanner>
       return;
     }
 
-    await _controller?.startImageStream(_processCameraImage);
+    await _controller?.startImageStream(_processImage);
 
     setState(() {});
   }
@@ -323,14 +323,6 @@ class MRZScannerState extends State<MRZScanner>
       debugPrint("failed to stop image stream: $e");
     }
     await c?.dispose();
-  }
-
-  Future _processCameraImage(CameraImage image) async {
-    _processImage(image).then((success) {
-      if (success) {
-        Future.delayed(const Duration(seconds: 1), _stopLiveFeed);
-      }
-    });
   }
 
   static const _orientations = {
@@ -362,7 +354,7 @@ class MRZScannerState extends State<MRZScanner>
     return null;
   }
 
-  Future<bool> _processImage(CameraImage inputImage) async {
+  Future _processImage(CameraImage inputImage) async {
     if (!_canProcess) return false;
     if (_isBusy) return false;
     _isBusy = true;
@@ -377,12 +369,16 @@ class MRZScannerState extends State<MRZScanner>
         imageRotation: rotation,
       );
       if (result != null) {
+        // show success checkmark for a second and then call the onSuccess callback
+        setState(() {
+          _showSuccessCheck = true;
+        });
+        await Future.delayed(Duration(seconds: 1));
+        setState(() {
+          _showSuccessCheck = false;
+        });
         widget.onSuccess(result);
-        return true;
       }
-      return false;
-    } catch (e) {
-      return false;
     } finally {
       _isBusy = false;
     }
