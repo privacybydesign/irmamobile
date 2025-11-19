@@ -19,7 +19,7 @@ import "src/widgets/preferred_language_builder.dart";
 
 export "src/providers/mrz_processor_provider.dart";
 
-// The mrzReaderBuilder is optional, when it's set to null the app won't include an mrz reader
+// The MrzProcessor is optional, when it's set to null the app won't include an mrz reader
 // and the mrz will have to be entered manually by the user.
 Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
   FlutterError.onError = (FlutterErrorDetails details) {
