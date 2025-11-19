@@ -21,6 +21,11 @@ lane :lint do
     sh("dart", "format", "--set-exit-if-changed", "lib/", "integration_test/")
     sh("flutter", "analyze", "--no-fatal-infos")
   end
+
+  Dir.chdir("../yivi_fdroid") do
+    sh("dart", "format", "--set-exit-if-changed", "lib/")
+    sh("flutter", "analyze", "--no-fatal-infos")
+  end
 end
 
 lane :unit_test do

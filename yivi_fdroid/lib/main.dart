@@ -1,5 +1,5 @@
-import 'package:irmamobile/main.dart' as yivi_core;
+import "package:yivi_core/yivi_core.dart";
 
 void main() {
-  yivi_core.main();
+  runYiviApp();
 }

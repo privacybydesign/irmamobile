@@ -8,6 +8,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "app.dart";
 import "src/data/irma_preferences.dart";
 import "src/providers/irma_repository_provider.dart";
+import "src/providers/mrz_processor_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
@@ -16,7 +17,11 @@ import "src/util/navigation.dart";
 import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
-Future<void> main() async {
+export "src/providers/mrz_processor_provider.dart";
+
+// The MrzProcessor is optional, when it's set to null the app won't include an mrz reader
+// and the mrz will have to be entered manually by the user.
+Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
       details.exception,
@@ -50,6 +55,7 @@ Future<void> main() async {
           // this is the recommended approach according to
           // https://riverpod.dev/docs/concepts/scopes#initialization-of-synchronous-provider-for-async-apis
           preferencesProvider.overrideWithValue(preferences),
+          mrzProcessorProvider.overrideWithValue(mrzProcessor),
         ],
         child: IrmaApp(),
       ),

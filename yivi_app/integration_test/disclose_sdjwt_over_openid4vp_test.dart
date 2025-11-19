@@ -174,7 +174,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
   await tester.tapAndSettle(find.text("Add"));
 
-  await tester.waitFor(find.byType(MzrReaderScreen));
+  await tester.waitFor(find.byType(MrzReaderScreen));
 
   final fakeMrz = FakeMrzResult(
     documentNumber: "XR0000001",
@@ -184,10 +184,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   );
 
   final scannerState = tester.state<MRZScannerState>(find.byType(MRZScanner));
-  scannerState.widget.onSuccess(fakeMrz, const [
-    "P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<",
-    "XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00",
-  ]);
+  scannerState.widget.onSuccess(fakeMrz);
 
   await tester.pumpAndSettle();
 

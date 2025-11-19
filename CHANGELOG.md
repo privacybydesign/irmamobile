@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Add special FDroid target that doesn't rely on any libraries that aren't considered open
+
 ### Internal
 - Split Yivi up into multiple app project and a (shared) library project
 - Use double quotes instead of single quotes everywhere in Flutter projects

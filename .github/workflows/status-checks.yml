@@ -21,6 +21,23 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Compare pubspec versions
+        run: |
+          # Extract version lines from both pubspecs and make sure they're identical
+          APP_VERSION=$(grep -E '^version:' yivi_app/pubspec.yaml | head -n1 | sed 's/version: *//')
+          FDROID_VERSION=$(grep -E '^version:' yivi_fdroid/pubspec.yaml | head -n1 | sed 's/version: *//')
+
+          echo "yivi_app    version: $APP_VERSION"
+          echo "yivi_fdroid version: $FDROID_VERSION"
+
+          if [ "$APP_VERSION" != "$FDROID_VERSION" ]; then
+            echo "::error ::pubspec versions are out of sync!"
+            echo "::error ::yivi_app/pubspec.yaml    -> $APP_VERSION"
+            echo "::error ::yivi_fdroid/pubspec.yaml -> $FDROID_VERSION"
+            exit 1
+          fi
+
+          echo "Versions are in sync."
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane lint
@@ -114,6 +131,32 @@ jobs:
         with:
           name: app-alpha-ios
           path: ./fastlane/build/*.ipa
+  build-app-android-fdroid:
+    runs-on: ubuntu-latest
+    needs: build-irmagobridge-android
+    strategy:
+      matrix:
+        flavor: [alpha, beta]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Download irmagobridge artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: irmagobridge-android
+          path: yivi_core/android/irmagobridge/
+      - name: Build
+        run: |
+          cd yivi_fdroid
+          flutter build apk --flavor ${{ matrix.flavor }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.flavor }}-android-fdroid
+          path: ./yivi_fdroid/build/app/outputs/apk/${{ matrix.flavor }}/release/*.apk
   build-app-android:
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android

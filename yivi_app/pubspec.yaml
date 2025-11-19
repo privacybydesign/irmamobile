@@ -17,6 +17,13 @@ dependencies:
   sentry_flutter: ^9.4.0
   yivi_core: 
     path: ../yivi_core
+  google_mlkit_text_recognition: ^0.15.0
+  google_mlkit_commons: ^0.11.0
+  camera: ^0.10.0+4
+  mrz_parser:
+    git:
+      url: https://github.com/privacybydesign/mrz_parser
+      ref: master
 
 dev_dependencies:
   integration_test:
@@ -26,10 +33,6 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
   # the following packages are required by the integrationt tests
-  mrz_parser:
-    git:
-      url: https://github.com/privacybydesign/mrz_parser
-      ref: master
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
