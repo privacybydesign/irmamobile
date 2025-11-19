@@ -7,6 +7,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi/mrz_processor.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/session.dart";
@@ -62,6 +63,7 @@ Future<void> pumpIrmaApp(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
+        mrzProcessorProvider.overrideWithValue(GoogleMLKitMrzProcessor()),
         if (providerOverrides != null) ...providerOverrides,
       ],
       child: TestContext(

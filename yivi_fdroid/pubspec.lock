@@ -303,22 +303,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "16.3.0"
-  google_mlkit_commons:
-    dependency: transitive
-    description:
-      name: google_mlkit_commons
-      sha256: "8f40fbac10685cad4715d11e6a0d86837d9ad7168684dfcad29610282a88e67a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.11.0"
-  google_mlkit_text_recognition:
-    dependency: transitive
-    description:
-      name: google_mlkit_text_recognition
-      sha256: "96173ad4dd7fd06c660e22ac3f9e9f1798a517fe7e48bee68eeec83853224224"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.15.0"
   http:
     dependency: transitive
     description:
