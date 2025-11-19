@@ -37,7 +37,7 @@ void main() {
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
-      await tester.waitFor(find.byType(MzrReaderScreen));
+      await tester.waitFor(find.byType(MrzReaderScreen));
       // move back to close the camera feed...
       await tester.tapAndSettle(find.byType(YiviBackButton));
     });
@@ -66,7 +66,7 @@ void main() {
       );
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MzrReaderScreen));
+      await tester.waitFor(find.byType(MrzReaderScreen));
       await tester.waitFor(find.byType(MRZScanner));
 
       final fakeMrz = FakeMrzResult(
@@ -79,10 +79,7 @@ void main() {
       final scannerState = tester.state<MRZScannerState>(
         find.byType(MRZScanner),
       );
-      scannerState.widget.onSuccess(fakeMrz, const [
-        "P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<",
-        "XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00",
-      ]);
+      scannerState.widget.onSuccess(fakeMrz);
 
       await tester.pumpAndSettle();
 
@@ -104,7 +101,7 @@ void main() {
       await openPassportDetailsScreen(tester, irmaBinding);
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MzrReaderScreen));
+      await tester.waitFor(find.byType(MrzReaderScreen));
 
       final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
       await tester.tapAndSettle(cancelButton);
@@ -136,7 +133,7 @@ void main() {
       );
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MzrReaderScreen));
+      await tester.waitFor(find.byType(MrzReaderScreen));
       await tester.waitFor(find.byType(MRZScanner));
 
       final fakeMrz = FakeMrzResult(
@@ -149,10 +146,7 @@ void main() {
       final scannerState = tester.state<MRZScannerState>(
         find.byType(MRZScanner),
       );
-      scannerState.widget.onSuccess(fakeMrz, const [
-        "P<NLDTEST<<EXAMPLE<<<<<<<<<<<<<<<<<<<<",
-        "XR0000001NLD9001011M3012317<<<<<<<<<<<<<<00",
-      ]);
+      scannerState.widget.onSuccess(fakeMrz);
 
       await tester.pumpAndSettle();
 

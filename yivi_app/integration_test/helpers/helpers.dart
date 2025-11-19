@@ -8,7 +8,6 @@ import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/app.dart";
-import "package:yivi_core/main.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
@@ -27,6 +26,7 @@ import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
+import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
 import "../util.dart";
