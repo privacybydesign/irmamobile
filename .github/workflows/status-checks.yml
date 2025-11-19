@@ -133,7 +133,7 @@ jobs:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
       - name: Build
-        run: >
+        run: |
           cd yivi_fdroid
           flutter build apk --flavor ${{ matrix.flavor }}
       - uses: actions/upload-artifact@v4
