@@ -11,6 +11,7 @@ import "package:package_info_plus/package_info_plus.dart";
 import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
 
+import "../../yivi_core.dart";
 import "../models/applifecycle_changed_event.dart";
 import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
@@ -573,7 +574,11 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(passportUrlProvider.notifier).state = baseUri.toString();
 
-      context.pushPassportMrzReaderScreen();
+      if (ref.read(mrzProcessorProvider) != null) {
+        context.pushPassportMrzReaderScreen();
+      } else {
+        context.pushPassportManualEnterScreen();
+      }
     }
   }
 
