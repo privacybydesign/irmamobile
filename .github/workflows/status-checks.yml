@@ -21,6 +21,23 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Compare pubspec versions
+        run: |
+          # Extract version lines from both pubspecs and make sure they're identical
+          APP_VERSION=$(grep -E '^version:' yivi_app/pubspec.yaml | head -n1 | sed 's/version: *//')
+          FDROID_VERSION=$(grep -E '^version:' yivi_fdroid/pubspec.yaml | head -n1 | sed 's/version: *//')
+
+          echo "yivi_app    version: $APP_VERSION"
+          echo "yivi_fdroid version: $FDROID_VERSION"
+
+          if [ "$APP_VERSION" != "$FDROID_VERSION" ]; then
+            echo "::error ::pubspec versions are out of sync!"
+            echo "::error ::yivi_app/pubspec.yaml    -> $APP_VERSION"
+            echo "::error ::yivi_fdroid/pubspec.yaml -> $FDROID_VERSION"
+            exit 1
+          fi
+
+          echo "Versions are in sync."
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane lint
