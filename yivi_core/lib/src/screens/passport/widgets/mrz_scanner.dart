@@ -12,7 +12,92 @@ import "camera_overlay.dart";
 import "mrz_helper.dart";
 
 abstract class MrzProcessor {
-  Future<MRZResult?> processImage(CameraImage image);
+  Future<MRZResult?> processImage({
+    required CameraImage inputImage,
+    required int imageRotation,
+  });
+}
+
+class GoogleMLKitMrzProcessor implements MrzProcessor {
+  final _textRecognizer = TextRecognizer();
+  @override
+  Future<MRZResult?> processImage({
+    required CameraImage inputImage,
+    required int imageRotation,
+  }) async {
+    final image = _inputImageFromCameraImage(
+      image: inputImage,
+      imageRotation: imageRotation,
+    );
+    final recognizedText = await _textRecognizer.processImage(image!);
+    String fullText = recognizedText.text;
+    // Terminate as quickly as possible.
+    if (fullText.isEmpty) {
+      return null;
+    }
+    String trimmedText = fullText.replaceAll(" ", "");
+    List allText = trimmedText.split("\n");
+
+    List<String> ableToScanText = [];
+    for (var e in allText) {
+      if (MRZHelper.testTextLine(e).isNotEmpty) {
+        ableToScanText.add(MRZHelper.testTextLine(e));
+      }
+    }
+    List<String>? result = MRZHelper.getFinalListToParse([...ableToScanText]);
+    if (result == null) {
+      return null;
+    }
+    try {
+      return MRZParser.parse(result);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  InputImage? _inputImageFromCameraImage({
+    required CameraImage image,
+    required int imageRotation,
+  }) {
+    // get image rotation
+    // it is used in android to convert the InputImage from Dart to Java: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/android/src/main/java/com/google_mlkit_commons/InputImageConverter.java
+    // `rotation` is not used in iOS to convert the InputImage from Dart to Obj-C: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/ios/Classes/MLKVisionImage%2BFlutterPlugin.m
+    // in both platforms `rotation` and `camera.lensDirection` can be used to compensate `x` and `y` coordinates on a canvas: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/example/lib/vision_detector_views/painters/coordinates_translator.dart
+    InputImageRotation? rotation = InputImageRotationValue.fromRawValue(
+      imageRotation,
+    );
+    if (rotation == null) {
+      return null;
+    }
+
+    // get image format
+    final format = InputImageFormatValue.fromRawValue(image.format.raw);
+
+    // validate format depending on platform
+    // only supported formats:
+    // * nv21 for Android
+    // * bgra8888 for iOS
+    if (format == null ||
+        (Platform.isAndroid && format != InputImageFormat.nv21) ||
+        (Platform.isIOS && format != InputImageFormat.bgra8888)) {
+      return null;
+    }
+
+    // since format is constraint to nv21 or bgra8888, both only have one plane
+    if (image.planes.length != 1) return null;
+    final plane = image.planes.first;
+
+    // compose InputImage using bytes
+    return InputImage.fromBytes(
+      bytes: plane.bytes,
+      metadata: InputImageMetadata(
+        size: Size(image.width.toDouble(), image.height.toDouble()),
+        rotation: rotation, // used only in Android
+        format: format, // used only in iOS
+        bytesPerRow: plane.bytesPerRow, // used only in iOS
+      ),
+    );
+  }
 }
 
 class MRZScanner extends StatefulWidget {
@@ -22,7 +107,7 @@ class MRZScanner extends StatefulWidget {
     this.initialDirection = CameraLensDirection.back,
     this.showOverlay = true,
   }) : super(key: controller);
-  final Function(MRZResult mrzResult, List<String> lines) onSuccess;
+  final Function(MRZResult mrzResult) onSuccess;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
 
@@ -41,6 +126,7 @@ class MRZScannerState extends State<MRZScanner>
   CameraController? _controller;
   int _cameraIndex = 1;
   List<CameraDescription> cameras = [];
+  final MrzProcessor _mrzProcessor = GoogleMLKitMrzProcessor();
 
   @override
   void dispose() async {
@@ -240,8 +326,6 @@ class MRZScannerState extends State<MRZScanner>
   }
 
   Future _processCameraImage(CameraImage image) async {
-    final inputImage = _inputImageFromCameraImage(image);
-    if (inputImage == null) return;
     _processImage(image).then((success) {
       if (success) {
         Future.delayed(const Duration(seconds: 1), _stopLiveFeed);
@@ -249,25 +333,18 @@ class MRZScannerState extends State<MRZScanner>
     });
   }
 
-  final _orientations = {
+  static const _orientations = {
     DeviceOrientation.portraitUp: 0,
     DeviceOrientation.landscapeLeft: 90,
     DeviceOrientation.portraitDown: 180,
     DeviceOrientation.landscapeRight: 270,
   };
 
-  InputImage? _inputImageFromCameraImage(CameraImage image) {
-    if (_controller == null) return null;
-
-    // get image rotation
-    // it is used in android to convert the InputImage from Dart to Java: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/android/src/main/java/com/google_mlkit_commons/InputImageConverter.java
-    // `rotation` is not used in iOS to convert the InputImage from Dart to Obj-C: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/ios/Classes/MLKVisionImage%2BFlutterPlugin.m
-    // in both platforms `rotation` and `camera.lensDirection` can be used to compensate `x` and `y` coordinates on a canvas: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/example/lib/vision_detector_views/painters/coordinates_translator.dart
+  int? _getImageRotation() {
     final camera = cameras[_cameraIndex];
     final sensorOrientation = camera.sensorOrientation;
-    InputImageRotation? rotation;
     if (Platform.isIOS) {
-      rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
+      return sensorOrientation;
     } else if (Platform.isAndroid) {
       var rotationCompensation =
           _orientations[_controller!.value.deviceOrientation];
@@ -280,64 +357,9 @@ class MRZScannerState extends State<MRZScanner>
         rotationCompensation =
             (sensorOrientation - rotationCompensation + 360) % 360;
       }
-      rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
+      return rotationCompensation;
     }
-    if (rotation == null) return null;
-
-    // get image format
-    final format = InputImageFormatValue.fromRawValue(image.format.raw);
-
-    // validate format depending on platform
-    // only supported formats:
-    // * nv21 for Android
-    // * bgra8888 for iOS
-    if (format == null ||
-        (Platform.isAndroid && format != InputImageFormat.nv21) ||
-        (Platform.isIOS && format != InputImageFormat.bgra8888)) {
-      return null;
-    }
-
-    // since format is constraint to nv21 or bgra8888, both only have one plane
-    if (image.planes.length != 1) return null;
-    final plane = image.planes.first;
-
-    // compose InputImage using bytes
-    return InputImage.fromBytes(
-      bytes: plane.bytes,
-      metadata: InputImageMetadata(
-        size: Size(image.width.toDouble(), image.height.toDouble()),
-        rotation: rotation, // used only in Android
-        format: format, // used only in iOS
-        bytesPerRow: plane.bytesPerRow, // used only in iOS
-      ),
-    );
-  }
-
-  bool _parseScannedText(List<String> lines) {
-    try {
-      final data = MRZParser.parse(lines);
-      _isBusy = true;
-
-      if (!success) {
-        setState(() {
-          success = true;
-        });
-
-        // call onSuccess after a second of showing the success state...
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            setState(() {
-              success = false;
-            });
-          }
-          widget.onSuccess(data, lines);
-        });
-      }
-      return true;
-    } catch (e) {
-      _isBusy = false;
-    }
-    return false;
+    return null;
   }
 
   Future<bool> _processImage(CameraImage inputImage) async {
@@ -346,30 +368,23 @@ class MRZScannerState extends State<MRZScanner>
     _isBusy = true;
 
     try {
-      final image = _inputImageFromCameraImage(inputImage);
-      final recognizedText = await _textRecognizer.processImage(image!);
-      String fullText = recognizedText.text;
-      // Terminate as quickly as possible.
-      if (fullText.isEmpty) {
+      final rotation = _getImageRotation();
+      if (rotation == null) {
         return false;
       }
-      String trimmedText = fullText.replaceAll(" ", "");
-      List allText = trimmedText.split("\n");
-
-      List<String> ableToScanText = [];
-      for (var e in allText) {
-        if (MRZHelper.testTextLine(e).isNotEmpty) {
-          ableToScanText.add(MRZHelper.testTextLine(e));
-        }
-      }
-      List<String>? result = MRZHelper.getFinalListToParse([...ableToScanText]);
-
+      final result = await _mrzProcessor.processImage(
+        inputImage: inputImage,
+        imageRotation: rotation,
+      );
       if (result != null) {
-        return _parseScannedText([...result]);
+        widget.onSuccess(result);
+        return true;
       }
+      return false;
+    } catch (e) {
+      return false;
     } finally {
       _isBusy = false;
     }
-    return false;
   }
 }

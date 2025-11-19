@@ -43,9 +43,7 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
             body: MRZScanner(
               controller: controller,
               showOverlay: true,
-              onSuccess: (mrzResult, lines) async {
-                widget.onSuccess(mrzResult);
-              },
+              onSuccess: widget.onSuccess,
             ),
             bottomNavigationBar: IrmaBottomBar(
               primaryButtonLabel: "passport.scan.manual",
@@ -69,9 +67,7 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
           body: MRZScanner(
             controller: controller,
             showOverlay: true,
-            onSuccess: (mrzResult, lines) async {
-              widget.onSuccess(mrzResult);
-            },
+            onSuccess: widget.onSuccess,
           ),
           floatingActionButton: _ManualEntryButton(
             key: const Key("bottom_bar_primary"),
