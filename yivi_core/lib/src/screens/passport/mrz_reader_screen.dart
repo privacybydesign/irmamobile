@@ -12,22 +12,22 @@ import "widgets/mrz_scanner.dart";
 typedef MRZController = GlobalKey<MRZScannerState>;
 
 /// Mzr reading is the process of obtaining mrz data via the camera
-class MzrReaderScreen extends StatefulWidget {
+class MrzReaderScreen extends StatefulWidget {
   final Function(MRZResult mrzResult) onSuccess;
   final VoidCallback onManualAdd;
   final VoidCallback onCancel;
 
-  const MzrReaderScreen({
+  const MrzReaderScreen({
     required this.onSuccess,
     required this.onManualAdd,
     required this.onCancel,
   });
 
   @override
-  State<MzrReaderScreen> createState() => _MzrReaderScreenState();
+  State<MrzReaderScreen> createState() => _MrzReaderScreenState();
 }
 
-class _MzrReaderScreenState extends State<MzrReaderScreen> {
+class _MrzReaderScreenState extends State<MrzReaderScreen> {
   final MRZController controller = MRZController();
 
   @override

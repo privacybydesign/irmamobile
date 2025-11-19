@@ -16,7 +16,9 @@ import "src/util/navigation.dart";
 import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
-Future<void> main() async {
+// The mrzReaderBuilder is optional, when it's set to null the app won't include an mrz reader
+// and the mrz will have to be entered manually by the user.
+Future<void> runYiviApp() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
       details.exception,

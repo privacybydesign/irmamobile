@@ -284,7 +284,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: "/mzr_reader",
         builder: (context, state) {
-          return MzrReaderScreen(
+          return MrzReaderScreen(
             onSuccess: (mrzResult) => context.pushNfcReadingScreen(
               NfcReadingRouteParams(
                 docNumber: mrzResult.documentNumber,

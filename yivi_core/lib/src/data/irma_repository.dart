@@ -573,7 +573,6 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(passportUrlProvider.notifier).state = baseUri.toString();
 
-      // Open the MzrReaderScreen
       context.pushPassportMrzReaderScreen();
     }
   }
