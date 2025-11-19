@@ -1,4 +1,4 @@
-# yivi_fdroid
+# yivi
 
 A new Flutter project.
 
