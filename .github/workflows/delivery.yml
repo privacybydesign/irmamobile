@@ -49,7 +49,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: irmagobridge-ios
-          path: yivi_app/ios/Irmagobridge.xcframework/
+          path: yivi_core/ios/Irmagobridge.xcframework/
       - name: Decode binary environment secrets
         env:
           APPLE_DISTRIBUTION_CERTIFICATE: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE }}
