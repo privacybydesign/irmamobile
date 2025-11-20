@@ -50,6 +50,8 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
 
 class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     with RouteAware {
+  String? issuanceError;
+
   void cancel() async {
     final userWantsCancel = await _showCancelDialog(context);
 
@@ -82,6 +84,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   void _startScanning() async {
+    setState(() {
+      issuanceError = null;
+    });
     final passportIssuer = ref.read(passportIssuerProvider);
 
     final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer
@@ -126,6 +131,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ),
       );
     } catch (e) {
+      setState(() {
+        issuanceError = e.toString();
+      });
       if (kDebugMode) {
         debugPrint("issuance error: $e");
       }
@@ -139,6 +147,19 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   @override
   Widget build(BuildContext context) {
+    // an issuance error is different from a passport nfc scanning error
+    if (issuanceError != null) {
+      return _buildError(
+        context,
+        _UiState(
+          stateKey: "passport.nfc.error",
+          tipKey: "passport.nfc.error_generic",
+          progress: 0,
+        ),
+        issuanceError!,
+      );
+    }
+
     final passportState = ref.watch(passportReaderProvider);
 
     if (passportState is PassportReaderNfcUnavailable) {

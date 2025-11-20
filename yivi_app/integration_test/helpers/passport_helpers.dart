@@ -86,6 +86,9 @@ Future<void> openPassportDetailsScreen(
 
 class FakePassportIssuer implements PassportIssuer {
   int startSessionCount = 0;
+  final String? errorToThrowOnIssuance;
+
+  FakePassportIssuer({this.errorToThrowOnIssuance});
 
   @override
   Future<NonceAndSessionId> startSessionAtPassportIssuer() async {
@@ -100,6 +103,9 @@ class FakePassportIssuer implements PassportIssuer {
   Future<IrmaSessionPointer> startIrmaIssuanceSession(
     PassportDataResult passportDataResult,
   ) async {
+    if (errorToThrowOnIssuance != null) {
+      throw Exception(errorToThrowOnIssuance);
+    }
     final attributes = createMunicipalityPersonalDataAttributes(
       const Locale("en"),
     );

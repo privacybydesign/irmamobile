@@ -9,6 +9,7 @@ import "app.dart";
 import "src/data/irma_preferences.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/mrz_processor_provider.dart";
+import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
@@ -48,6 +49,14 @@ Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
     await initSentry(preferences: preferences);
     SecurityContextBinding.ensureInitialized();
 
+    const passportIssuanceError = String.fromEnvironment(
+      "YIVI_ERROR_ON_PASSPORT_ISSUANCE",
+    );
+    if (passportIssuanceError.isNotEmpty) {
+      debugPrint(
+        "Configured to throw error on passport issuance: $passportIssuanceError",
+      );
+    }
     runApp(
       ProviderScope(
         overrides: [
@@ -55,7 +64,17 @@ Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
           // this is the recommended approach according to
           // https://riverpod.dev/docs/concepts/scopes#initialization-of-synchronous-provider-for-async-apis
           preferencesProvider.overrideWithValue(preferences),
+
+          // passed in from the outside so apps are not required to depend on non-FOSS implementations
           mrzProcessorProvider.overrideWithValue(mrzProcessor),
+
+          // can pass an environment variable to test with errors on passport issuance
+          if (passportIssuanceError.isNotEmpty)
+            passportIssuerProvider.overrideWithValue(
+              ErrorThrowingPassportIssuer(
+                errorToThrowOnIssuance: passportIssuanceError,
+              ),
+            ),
         ],
         child: IrmaApp(),
       ),
