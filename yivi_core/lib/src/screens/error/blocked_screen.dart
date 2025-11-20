@@ -1,0 +1,44 @@
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "../../../package_name.dart";
+
+import "../../models/clear_all_data_event.dart";
+import "../../providers/irma_repository_provider.dart";
+import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/irma_info_scaffold_body.dart";
+
+class BlockedScreen extends StatelessWidget {
+  const BlockedScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Disable popping of this screen, as popping this is unwanted
+    // (only way forward is and should be a reset, giving accidental access
+    // to the wallet of a blocked account is unreasonable, even though credentials
+    // can no longer be used)
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: IrmaAppBar(
+          titleTranslationKey: "error.details_title",
+          leading: null,
+        ),
+        body: IrmaInfoScaffoldBody(
+          imagePath: yiviAsset("error/general_error_illustration.svg"),
+          titleTranslationKey: "error.title",
+          bodyTranslationKey: "error.types.blocked",
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: FlutterI18n.translate(
+            context,
+            "error.button_reset",
+          ),
+          onPrimaryPressed: () => IrmaRepositoryProvider.of(
+            context,
+          ).bridgedDispatch(ClearAllDataEvent()),
+        ),
+      ),
+    );
+  }
+}

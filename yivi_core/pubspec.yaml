@@ -1,0 +1,142 @@
+name: yivi_core
+description: "Yivi core components"
+version: 0.0.1
+
+publish_to: none
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.3.0"
+
+dependencies:
+  plugin_platform_interface: ^2.0.2
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  sentry_flutter: ^9.4.0
+  go_router: ^16.0.0
+  string_similarity: ^2.1.1
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.3
+  flutter_svg: ^2.0.7
+  flutter_i18n: ^0.36.2
+  flutter_bloc: ^7.2.0
+  equatable: ^2.0.3
+  email_validator: ^3.0.0
+  url_launcher: ^6.0.10
+  json_annotation: ^4.8.0
+  rxdart: ^0.28.0
+  package_info_plus: ^9.0.0
+  collection: ^1.18.0
+  qr_code_scanner_plus: ^2.0.10+1
+  share_plus: 11.0.0
+  intl: ^0.20.2
+  flutter_markdown: ^0.7.4+1
+  shared_preferences: ^2.0.7
+  async: ^2.11.0
+  streaming_shared_preferences: ^2.0.0
+  visibility_detector: ^0.4.0+2
+  quiver: ^3.0.1
+  timeline_tile: ^2.0.0
+  lottie: ^3.1.3
+  permission_handler: ^12.0.1
+  flutter_riverpod: ^2.6.1
+  http: ^1.5.0
+  mrz_parser:
+    git:
+      url: https://github.com/privacybydesign/mrz_parser
+      ref: master
+  camera: ^0.10.0+4
+  camera_platform_interface: ^2.2.2
+  vcmrtd:
+    git:
+      url: https://github.com/privacybydesign/vcmrtd.git
+      ref: v0.2.4
+  mask_text_input_formatter: ^2.9.0
+  jailbreak_root_detection: ^1.2.0+1
+  # Temporary forks because their original repos are not compatible with new android api's.
+  # Should be reverted back to their published version when they're made compatible.
+  native_device_orientation:
+    git:
+      url: https://github.com/privacybydesign/flutter_native_device_orientation
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  json_serializable: ^6.6.1
+  flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.4.6
+  build_runner: ^2.5.4
+  flutter_launcher_icons: ^0.14.1
+  riverpod_lint: ^2.6.5
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/passport/
+    - assets/locales/
+    - assets/arrow_back/
+    - assets/enrollment/
+    - assets/error/
+    - assets/help/
+    - assets/help/mobile_login/
+    - assets/help/computer_login/
+    - assets/reset/
+    - assets/non-free/
+    - assets/disclosure/
+    - assets/ui/
+    - assets/success/
+
+  fonts:
+    - family: Alexandria
+      fonts:
+        - asset: fonts/alexandria/Alexandria-Thin.ttf
+          weight: 100
+        - asset: fonts/alexandria/Alexandria-ExtraLight.ttf
+          weight: 200
+        - asset: fonts/alexandria/Alexandria-Light.ttf
+          weight: 300
+        - asset: fonts/alexandria/Alexandria-Regular.ttf
+          weight: 400
+        - asset: fonts/alexandria/Alexandria-Medium.ttf
+          weight: 500
+        - asset: fonts/alexandria/Alexandria-SemiBold.ttf
+          weight: 600
+        - asset: fonts/alexandria/Alexandria-Bold.ttf
+          weight: 700
+        - asset: fonts/alexandria/Alexandria-ExtraBold.ttf
+          weight: 800
+        - asset: fonts/alexandria/Alexandria-Black.ttf
+          weight: 900
+    - family: Open Sans
+      fonts:
+        - asset: fonts/open-sans/OpenSans-Light.ttf
+          weight: 300
+        - asset: fonts/open-sans/OpenSans-Regular.ttf
+          weight: 400
+        - asset: fonts/open-sans/OpenSans-Medium.ttf
+          weight: 500
+        - asset: fonts/open-sans/OpenSans-SemiBold.ttf
+          weight: 600
+        - asset: fonts/open-sans/OpenSans-Bold.ttf
+          weight: 700
+        - asset: fonts/open-sans/OpenSans-ExtraBold.ttf
+          weight: 800
+    - family: IrmaIcons
+      fonts:
+        - asset: fonts/irma-icons/IrmaIcons.ttf
+  plugin:
+    platforms:
+      android:
+        package: foundation.privacybydesign.yivi_core
+        pluginClass: YiviCorePlugin
+      ios:
+        pluginClass: YiviCorePlugin

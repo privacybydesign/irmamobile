@@ -9,7 +9,7 @@ runs:
         java-version: 17
     - uses: actions/setup-go@v5
       with:
-        go-version: '1.24'
+        go-version: "1.24"
         cache: true
     - uses: ruby/setup-ruby@v1
       with:
@@ -34,7 +34,7 @@ runs:
         echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
       shell: bash
     - name: Setup symlink for Android irma_configuration
-      run: ln -s "../../../../../irma_configuration" "./android/app/src/main/assets/irma_configuration"
+      run: ln -s "../../../../../irma_configuration" "./yivi_core/android/src/main/assets/irma_configuration"
       shell: bash
     - name: Check ci_scripts cache
       uses: actions/cache@v4
@@ -68,12 +68,14 @@ runs:
       env:
         SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
       with:
-        path: ios/Pods
+        path: yivi_app/ios/Pods
         # Cocoapods depends on Ruby and our Podfile needs the Flutter dependencies to be present.
         key: cocoapods-${{ runner.os }}-${{ hashFiles('Gemfile.lock', 'pubspec.lock', 'ios/Podfile.lock') }}
-    - name: Pre-install Cocoapods to fill cache
+    - name: Pre-install CocoaPods to fill cache
       if: runner.os == 'macOS' && steps.cocoapods-cache.outputs.cache-hit != 'true'
+      working-directory: yivi_app
       run: |
         flutter pub get
-        cd ios && pod install
+        cd ios
+        pod install --verbose
       shell: bash

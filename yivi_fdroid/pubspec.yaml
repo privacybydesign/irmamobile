@@ -1,0 +1,43 @@
+name: yivi
+description: "Yivi App"
+
+# A build number cannot be reused once a build is in use on Android.
+version: 7.11.1+4194490
+
+publish_to: none
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  sentry_flutter: ^9.4.0
+  yivi_core: 
+    path: ../yivi_core
+
+dev_dependencies:
+  integration_test:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+  # the following packages are required by the integrationt tests
+  mrz_parser:
+    git:
+      url: https://github.com/privacybydesign/mrz_parser
+      ref: master
+  vcmrtd:
+    git:
+      url: https://github.com/privacybydesign/vcmrtd.git
+      ref: v0.2.4
+  package_info_plus: ^9.0.0
+  collection: ^1.18.0
+  flutter_riverpod: ^2.6.1
+  rxdart: ^0.28.0
+
+flutter:
+  uses-material-design: true
