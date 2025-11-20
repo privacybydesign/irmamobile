@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Add special FDroid target that doesn't rely on any libraries that aren't considered open
+- Show error screen when passport issuer returns an error
 
 ### Internal
 - Split Yivi up into multiple app project and a (shared) library project
