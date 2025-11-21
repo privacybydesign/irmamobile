@@ -8,6 +8,69 @@ import "session.dart";
 
 class SessionState {
   final int sessionID;
+
+  bool get isIssuanceSession => false;
+  bool get isFinished => false;
+
+  SessionState({required this.sessionID});
+}
+
+class AuthorizationRequestParametersState {
+  AuthorizationRequestParametersState({
+    required this.issuerDiscoveryUrl,
+    required this.clientId,
+    required this.resource,
+    required this.scopes,
+    this.issuerState,
+  });
+  final String issuerDiscoveryUrl;
+  final String clientId;
+  final String? issuerState;
+  final String resource;
+  final List<String> scopes;
+}
+
+class OpenID4VciSessionState extends SessionState {
+  OpenID4VciSessionState({
+    required super.sessionID,
+    required this.continueOnSecondDevice,
+    this.error,
+    this.serverName,
+    this.credentialInfoList,
+    this.authorizationRequestParameters,
+  });
+
+  final bool continueOnSecondDevice;
+  final SessionError? error;
+  final RequestorInfo? serverName;
+  //final String? authorizationServer;
+  final List<CredentialTypeInfo>? credentialInfoList;
+  final AuthorizationRequestParametersState? authorizationRequestParameters;
+
+  OpenID4VciSessionState copyWith({
+    SessionError? error,
+    RequestorInfo? serverName,
+    List<CredentialTypeInfo>? credentialInfoList,
+    bool? continueOnSecondDevice,
+    AuthorizationRequestParametersState? authorizationRequestParameters,
+  }) {
+    return OpenID4VciSessionState(
+      sessionID: sessionID,
+      continueOnSecondDevice:
+          continueOnSecondDevice ?? this.continueOnSecondDevice,
+      error: error ?? this.error,
+      serverName: serverName ?? this.serverName,
+      credentialInfoList: credentialInfoList ?? this.credentialInfoList,
+      authorizationRequestParameters:
+          authorizationRequestParameters ?? this.authorizationRequestParameters,
+    );
+  }
+
+  @override
+  bool get isIssuanceSession => true;
+}
+
+class IrmaSessionState extends SessionState {
   final bool continueOnSecondDevice;
   final SessionStatus status;
   final RequestorInfo serverName;
@@ -25,8 +88,8 @@ class SessionState {
   final String? pairingCode;
   final bool dismissed;
 
-  SessionState({
-    required this.sessionID,
+  IrmaSessionState({
+    required super.sessionID,
     required this.continueOnSecondDevice,
     required this.status,
     required this.serverName,
@@ -49,6 +112,7 @@ class SessionState {
   // 'redirect' session can also be issuance. Therefore we overrule the sessionType when
   // issuedCredentials is set. IrmaGo enforces that an error is triggered in case of a problematic
   // mismatch between both values, so we can safely do this.
+  @override
   bool get isIssuanceSession =>
       issuedCredentials?.isNotEmpty ?? sessionType == "issuing";
 
@@ -62,13 +126,14 @@ class SessionState {
       ) ??
       false;
 
+  @override
   bool get isFinished => [
     SessionStatus.success,
     SessionStatus.canceled,
     SessionStatus.error,
   ].contains(status);
 
-  SessionState copyWith({
+  IrmaSessionState copyWith({
     SessionStatus? status,
     RequestorInfo? serverName,
     ConDisCon<DisclosureCandidate>? disclosuresCandidates,
@@ -83,7 +148,7 @@ class SessionState {
     String? pairingCode,
     bool? dismissed,
   }) {
-    return SessionState(
+    return IrmaSessionState(
       sessionID: sessionID,
       continueOnSecondDevice: continueOnSecondDevice,
       status: status ?? this.status,

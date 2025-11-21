@@ -112,6 +112,23 @@ func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
 	return nil
 }
 
+func (ah *eventHandler) respondAuthorizationCodeAndExchangeForToken(event *respondAuthorizationCodeAndExchangeForTokenEvent) error {
+	sh, err := ah.findSessionHandler(event.SessionID)
+	if err != nil {
+		return err
+	}
+	if sh.accessTokenHandler == nil {
+		return errors.Errorf("Unset authorizationCodeHandler in RespondAuthorizationCode")
+	}
+
+	go func() {
+		defer recoverFromPanic("Handling ResponseAuthorizationCode event panicked")
+		sh.accessTokenHandler(event.Proceed, event.AccessToken, event.RefreshToken)
+	}()
+
+	return nil
+}
+
 // Responding to a permission prompt when disclosing, issuing or signing
 func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err error) {
 	sh, err := ah.findSessionHandler(event.SessionID)

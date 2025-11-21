@@ -4,6 +4,7 @@ import "package:go_router/go_router.dart";
 
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
+import "../models/protocol.dart";
 import "../models/translated_value.dart";
 
 extension RoutingHelpers on BuildContext {
@@ -269,6 +270,7 @@ class NfcReadingRouteParams {
 
 class SessionRouteParams {
   final int sessionID;
+  final Protocol protocol;
   final String sessionType;
   final bool hasUnderlyingSession;
   final bool wizardActive;
@@ -276,6 +278,7 @@ class SessionRouteParams {
 
   SessionRouteParams({
     required this.sessionID,
+    required this.protocol,
     required this.sessionType,
     required this.hasUnderlyingSession,
     required this.wizardActive,
@@ -285,6 +288,7 @@ class SessionRouteParams {
   Map<String, String> toQueryParams() {
     return {
       "session_id": "$sessionID",
+      "protocol": protocolToString(protocol),
       "session_type": sessionType,
       "has_underlying_session": "$hasUnderlyingSession",
       "wizard_active": "$wizardActive",
@@ -295,6 +299,7 @@ class SessionRouteParams {
   static SessionRouteParams fromQueryParams(Map<String, String> params) {
     return SessionRouteParams(
       sessionID: int.parse(params["session_id"]!),
+      protocol: stringToProtocol(params["protocol"]!),
       sessionType: params["session_type"]!,
       hasUnderlyingSession: bool.parse(params["has_underlying_session"]!),
       wizardActive: bool.parse(params["wizard_active"]!),

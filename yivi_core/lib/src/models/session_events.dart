@@ -39,6 +39,31 @@ class NewSessionEvent extends SessionEvent {
 }
 
 @JsonSerializable()
+class RespondAuthorizationCodeAndExchangeForTokenEvent extends SessionEvent {
+  RespondAuthorizationCodeAndExchangeForTokenEvent({
+    required int sessionID,
+    required this.proceed,
+    required this.accessToken,
+    this.refreshToken,
+  }) : super(sessionID);
+
+  @JsonKey(name: "Proceed")
+  final bool proceed;
+
+  @JsonKey(name: "AccessToken")
+  final String accessToken;
+
+  @JsonKey(name: "RefreshToken")
+  final String? refreshToken;
+
+  factory RespondAuthorizationCodeAndExchangeForTokenEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$RespondAuthorizationCodeAndExchangeForTokenEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$RespondAuthorizationCodeAndExchangeForTokenEventToJson(this);
+}
+
+@JsonSerializable()
 class RespondPermissionEvent extends SessionEvent {
   RespondPermissionEvent({
     required int sessionID,
@@ -187,6 +212,58 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
   ) => _$RequestIssuancePermissionSessionEventFromJson(json);
   Map<String, dynamic> toJson() =>
       _$RequestIssuancePermissionSessionEventToJson(this);
+}
+
+@JsonSerializable(createToJson: false)
+class RequestOpenId4VciIssuancePermissionSessionEvent extends SessionEvent {
+  RequestOpenId4VciIssuancePermissionSessionEvent({
+    required int sessionID,
+    required this.serverName,
+    required this.authorizationRequestParameters,
+    this.credentialInfoList,
+  }) : super(sessionID);
+
+  @JsonKey(name: "ServerName")
+  final RequestorInfo serverName;
+
+  @JsonKey(name: "CredentialInfoList")
+  final List<CredentialTypeInfo>? credentialInfoList;
+
+  @JsonKey(name: "AuthorizationRequestParameters")
+  final AuthorizationRequestParameters authorizationRequestParameters;
+
+  factory RequestOpenId4VciIssuancePermissionSessionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$RequestOpenId4VciIssuancePermissionSessionEventFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class AuthorizationRequestParameters {
+  AuthorizationRequestParameters({
+    required this.issuerDiscoveryUrl,
+    required this.clientId,
+    required this.resource,
+    required this.scopes,
+    this.issuerState,
+  });
+
+  @JsonKey(name: "IssuerDiscoveryUrl")
+  final String issuerDiscoveryUrl;
+
+  @JsonKey(name: "ClientID")
+  final String clientId;
+
+  @JsonKey(name: "IssuerState", required: false)
+  final String? issuerState;
+
+  @JsonKey(name: "Resource")
+  final String resource;
+
+  @JsonKey(name: "Scopes")
+  final List<String> scopes;
+
+  factory AuthorizationRequestParameters.fromJson(Map<String, dynamic> json) =>
+      _$AuthorizationRequestParametersFromJson(json);
 }
 
 @JsonSerializable()

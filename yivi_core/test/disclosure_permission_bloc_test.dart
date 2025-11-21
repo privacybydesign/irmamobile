@@ -6,6 +6,7 @@ import "package:yivi_core/src/data/irma_mock_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/attribute_value.dart";
+import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/models/session_state.dart";
@@ -59,7 +60,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -287,6 +292,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -332,7 +338,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -750,6 +760,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -777,7 +788,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -840,6 +855,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -867,7 +883,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -1087,6 +1107,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -1111,7 +1132,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -1269,6 +1294,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -1291,7 +1317,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -1377,6 +1407,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -1411,7 +1442,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -1513,6 +1548,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -1546,7 +1582,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -1688,6 +1728,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -1720,7 +1761,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -1828,6 +1873,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -1867,7 +1913,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 44,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2044,6 +2094,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -2069,7 +2120,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2137,6 +2192,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -2164,7 +2220,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2180,6 +2240,7 @@ void main() {
 
     await repo
         .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
 
     mockBridge.mockDisclosureSession(44, [
@@ -2198,7 +2259,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 44,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2217,6 +2282,7 @@ void main() {
 
     await repo
         .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -2245,7 +2311,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2292,6 +2362,7 @@ void main() {
 
     await repo
         .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -2325,7 +2396,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2424,6 +2499,7 @@ void main() {
 
     await repo
         .getSessionState(43)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -2450,7 +2526,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2495,6 +2575,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.canceled);
   });
 
@@ -2536,7 +2617,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 44,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2559,6 +2644,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.canceled);
 
     mockBridge.mockDisclosureSession(45, [
@@ -2578,7 +2664,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 45,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2639,6 +2729,7 @@ void main() {
 
     await repo
         .getSessionState(45)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -2688,7 +2779,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 45,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2752,6 +2847,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(45)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -2795,7 +2891,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 44,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2841,6 +2941,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -2874,7 +2975,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -2993,6 +3098,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(42)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
 
     // Test session again to test for copy state inconsistencies.
@@ -3012,7 +3118,11 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 44,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
@@ -3051,6 +3161,7 @@ void main() {
     expect(await bloc2.stream.first, isA<DisclosurePermissionFinished>());
     await repo
         .getSessionState(44)
+        .map((state) => state as IrmaSessionState)
         .firstWhere((session) => session.status == SessionStatus.success);
   });
 }
@@ -3073,11 +3184,16 @@ Future<void> _issueCredential(
   repo.bridgedDispatch(
     NewSessionEvent(
       sessionID: sessionID,
-      request: SessionPointer(irmaqr: "issuing", u: ""),
+      request: SessionPointer(
+        irmaqr: "issuing",
+        u: "",
+        protocol: Protocol.irma,
+      ),
     ),
   );
   await repo
       .getSessionState(sessionID)
+      .map((state) => state as IrmaSessionState)
       .firstWhere(
         (session) => session.status == SessionStatus.requestIssuancePermission,
       );
@@ -3091,5 +3207,6 @@ Future<void> _issueCredential(
   );
   await repo
       .getSessionState(sessionID)
+      .map((state) => state as IrmaSessionState)
       .firstWhere((session) => session.status == SessionStatus.success);
 }
