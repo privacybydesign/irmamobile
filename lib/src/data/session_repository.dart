@@ -82,7 +82,6 @@ class SessionRepository {
         grantType: 'authorization_code',
         authorizationCodeRequestParameters: AuthorizationCodeRequestParametersState(
           issuerDiscoveryUrl: event.authorizationRequestParameters.issuerDiscoveryUrl,
-          clientId: event.authorizationRequestParameters.clientId,
           issuerState: event.authorizationRequestParameters.issuerState,
           resource: event.authorizationRequestParameters.resource,
           scopes: event.authorizationRequestParameters.scopes,

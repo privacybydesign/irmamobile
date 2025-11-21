@@ -235,7 +235,6 @@ class RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent extends S
 class AuthorizationRequestParameters {
   AuthorizationRequestParameters({
     required this.issuerDiscoveryUrl,
-    required this.clientId,
     required this.resource,
     required this.scopes,
     this.issuerState,
@@ -243,9 +242,6 @@ class AuthorizationRequestParameters {
 
   @JsonKey(name: 'IssuerDiscoveryUrl')
   final String issuerDiscoveryUrl;
-
-  @JsonKey(name: 'ClientID')
-  final String clientId;
 
   @JsonKey(name: 'IssuerState', required: false)
   final String? issuerState;
