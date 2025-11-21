@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [7.11.2] - 2025-11-21
 ### Changed
 - Add special FDroid target that doesn't rely on any libraries that aren't considered open
 - Show error screen when passport issuer returns an error
@@ -542,6 +544,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.11.2]: https://github.com/privacybydesign/irmamobile/compare/v7.11.1...v7.11.2
 [7.11.1]: https://github.com/privacybydesign/irmamobile/compare/v7.11.0...v7.11.1
 [7.11.0]: https://github.com/privacybydesign/irmamobile/compare/v7.10.0...v7.11.0
 [7.10.0]: https://github.com/privacybydesign/irmamobile/compare/v7.9.0...v7.10.0
