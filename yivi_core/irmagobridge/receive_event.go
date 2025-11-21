@@ -63,6 +63,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.respondAuthorizationCodeAndExchangeForToken(event)
 		}
+	case "RespondPreAuthorizedCodeFlowPermissionEvent":
+		event := &respondPreAuthorizedCodeFlowPermissionEvent{}
+		if err = json.Unmarshal(payloadBytes, event); err == nil {
+			err = bridgeEventHandler.respondPreAuthorizedCodeFlowPermission(event)
+		}
 	case "RespondPinEvent":
 		event := &respondPinEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err == nil {

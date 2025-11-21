@@ -6,11 +6,12 @@ import (
 )
 
 type sessionHandler struct {
-	sessionID          int
-	dismisser          irmaclient.SessionDismisser
-	permissionHandler  irmaclient.PermissionHandler
-	accessTokenHandler irmaclient.TokenHandler
-	pinHandler         irmaclient.PinHandler
+	sessionID                    int
+	dismisser                    irmaclient.SessionDismisser
+	permissionHandler            irmaclient.PermissionHandler
+	accessTokenHandler           irmaclient.TokenHandler
+	preAuthCodePermissionHandler irmaclient.TokenPermissionHandler
+	pinHandler                   irmaclient.PinHandler
 }
 
 // SessionHandler implements irmaclient.Handler
@@ -103,18 +104,32 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	})
 }
 
-func (sh *sessionHandler) RequestOpenId4VciIssuancePermission(
-	request *irma.OpenId4VciIssuanceRequest,
+func (sh *sessionHandler) RequestPermissionAndPerformAuthCodeWithTokenExchange(
+	request *irma.AuthorizationCodeFlowAndTokenExchangeRequest,
 	requestorInfo *irma.RequestorInfo,
 	callback irmaclient.TokenHandler,
 ) {
-	action := &requestOpenId4VciIssuancePermissionSessionEvent{
+	action := &requestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent{
 		SessionID:                      sh.sessionID,
 		ServerName:                     requestorInfo,
 		CredentialInfoList:             request.CredentialInfoList,
 		AuthorizationRequestParameters: request.AuthorizationRequestParameters,
 	}
 	sh.accessTokenHandler = callback
+	dispatchEvent(action)
+}
+
+func (sh *sessionHandler) RequestPreAuthorizedCodeFlowPermission(
+	request *irma.PreAuthorizedCodeFlowPermissionRequest,
+	requestorInfo *irma.RequestorInfo,
+	callback irmaclient.TokenPermissionHandler,
+) {
+	action := &requestPreAuthorizedCodeFlowPermissionSessionEvent{
+		SessionID:          sh.sessionID,
+		ServerName:         requestorInfo,
+		CredentialInfoList: request.CredentialInfoList,
+	}
+	sh.preAuthCodePermissionHandler = callback
 	dispatchEvent(action)
 }
 

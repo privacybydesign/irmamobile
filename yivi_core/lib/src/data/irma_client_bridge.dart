@@ -71,8 +71,13 @@ class IrmaClientBridge extends IrmaBridge {
 
     ErrorEvent: (j) => ErrorEvent.fromJson(j),
 
-    RequestOpenId4VciIssuancePermissionSessionEvent: (j) =>
-        RequestOpenId4VciIssuancePermissionSessionEvent.fromJson(j),
+    RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent: (j) =>
+        RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent.fromJson(
+          j,
+        ),
+
+    RequestPreAuthorizedCodeFlowPermissionSessionEvent: (j) =>
+        RequestPreAuthorizedCodeFlowPermissionSessionEvent.fromJson(j),
 
     // FooBar: (j) => FooBar.fromJson(j),
   };
@@ -90,10 +95,17 @@ class IrmaClientBridge extends IrmaBridge {
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
 
+  void printLongString(String text) {
+    final RegExp pattern = RegExp(".{1,800}"); // 800 is the size of each chunk
+    pattern
+        .allMatches(text)
+        .forEach((RegExpMatch match) => debugPrint(match.group(0)));
+  }
+
   Future<void> _handleMethodCall(MethodCall call) async {
     if (call.method == "GoLog") {
       if (kDebugMode) {
-        debugPrint("[GO]: ${call.arguments}");
+        printLongString("[GO]: ${call.arguments}");
       }
       return;
     }
@@ -112,13 +124,13 @@ class IrmaClientBridge extends IrmaBridge {
         // therefore we explicitly don't print the payload
         if (call.method == "IrmaConfigurationEvent") {
           if (kDebugMode) {
-            debugPrint(
+            printLongString(
               "Received bridge event: ${call.method} -- payload omitted",
             );
           }
         } else {
           if (kDebugMode) {
-            debugPrint(
+            printLongString(
               "Received bridge event: ${call.method} with payload ${call.arguments}",
             );
           }
@@ -138,7 +150,7 @@ class IrmaClientBridge extends IrmaBridge {
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
     if (debugLogging && kDebugMode) {
-      debugPrint(
+      printLongString(
         "Sending ${event.runtimeType.toString()} to bridge: $encodedEvent",
       );
     }

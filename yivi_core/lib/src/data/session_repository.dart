@@ -83,18 +83,29 @@ class SessionRepository {
     OpenID4VciSessionState prevState,
     SessionEvent event,
   ) {
-    if (event is RequestOpenId4VciIssuancePermissionSessionEvent) {
+    if (event
+        is RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent) {
       return prevState.copyWith(
         serverName: event.serverName,
         credentialInfoList: event.credentialInfoList,
-        authorizationRequestParameters: AuthorizationRequestParametersState(
-          issuerDiscoveryUrl:
-              event.authorizationRequestParameters.issuerDiscoveryUrl,
-          clientId: event.authorizationRequestParameters.clientId,
-          issuerState: event.authorizationRequestParameters.issuerState,
-          resource: event.authorizationRequestParameters.resource,
-          scopes: event.authorizationRequestParameters.scopes,
-        ),
+        grantType: "authorization_code",
+        authorizationCodeRequestParameters:
+            AuthorizationCodeRequestParametersState(
+              issuerDiscoveryUrl:
+                  event.authorizationRequestParameters.issuerDiscoveryUrl,
+              clientId: event.authorizationRequestParameters.clientId,
+              issuerState: event.authorizationRequestParameters.issuerState,
+              resource: event.authorizationRequestParameters.resource,
+              scopes: event.authorizationRequestParameters.scopes,
+            ),
+      );
+    }
+
+    if (event is RequestPreAuthorizedCodeFlowPermissionSessionEvent) {
+      return prevState.copyWith(
+        serverName: event.serverName,
+        credentialInfoList: event.credentialInfoList,
+        grantType: "pre-authorized_code",
       );
     }
 

@@ -17,16 +17,10 @@ CredentialTypeInfo _$CredentialTypeInfoFromJson(Map<String, dynamic> json) =>
         (k, e) =>
             MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
       ),
-      credentialFormat: $enumDecode(
-        _$CredentialFormatEnumMap,
-        json['CredentialFormat'],
+      credentialFormat: stringToCredentialFormat(
+        json['CredentialFormat'] as String,
       ),
     );
-
-const _$CredentialFormatEnumMap = {
-  CredentialFormat.idemix: 'idemix',
-  CredentialFormat.sdjwtvc: 'sdjwtvc',
-};
 
 RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) =>
     RawCredential(
@@ -91,4 +85,9 @@ Map<String, dynamic> _$RawMultiFormatCredentialToJson(
   'SignedOn': instance.signedOn,
   'Expires': instance.expires,
   'InstanceCount': instance.instanceCount,
+};
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'sdjwtvc',
 };
