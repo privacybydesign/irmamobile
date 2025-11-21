@@ -24,7 +24,7 @@ class CredentialTypeInfo {
   @JsonKey(name: 'Attributes')
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(name: 'CredentialFormat')
+  @JsonKey(name: 'CredentialFormat', fromJson: stringToCredentialFormat, toJson: credentialFormatToString)
   final CredentialFormat credentialFormat;
 
   CredentialTypeInfo({

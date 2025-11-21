@@ -15,8 +15,8 @@ class SessionState {
   SessionState({required this.sessionID});
 }
 
-class AuthorizationRequestParametersState {
-  AuthorizationRequestParametersState({
+class AuthorizationCodeRequestParametersState {
+  AuthorizationCodeRequestParametersState({
     required this.issuerDiscoveryUrl,
     required this.clientId,
     required this.resource,
@@ -37,22 +37,24 @@ class OpenID4VciSessionState extends SessionState {
     this.error,
     this.serverName,
     this.credentialInfoList,
-    this.authorizationRequestParameters,
+    this.grantType,
+    this.authorizationCodeRequestParameters,
   });
 
   final bool continueOnSecondDevice;
   final SessionError? error;
   final RequestorInfo? serverName;
-  //final String? authorizationServer;
   final List<CredentialTypeInfo>? credentialInfoList;
-  final AuthorizationRequestParametersState? authorizationRequestParameters;
+  final String? grantType;
+  final AuthorizationCodeRequestParametersState? authorizationCodeRequestParameters;
 
   OpenID4VciSessionState copyWith({
     SessionError? error,
     RequestorInfo? serverName,
     List<CredentialTypeInfo>? credentialInfoList,
     bool? continueOnSecondDevice,
-    AuthorizationRequestParametersState? authorizationRequestParameters,
+    String? grantType,
+    AuthorizationCodeRequestParametersState? authorizationCodeRequestParameters,
   }) {
     return OpenID4VciSessionState(
       sessionID: sessionID,
@@ -60,7 +62,8 @@ class OpenID4VciSessionState extends SessionState {
       error: error ?? this.error,
       serverName: serverName ?? this.serverName,
       credentialInfoList: credentialInfoList ?? this.credentialInfoList,
-      authorizationRequestParameters: authorizationRequestParameters ?? this.authorizationRequestParameters,
+      grantType: grantType ?? this.grantType,
+      authorizationCodeRequestParameters: authorizationCodeRequestParameters ?? this.authorizationCodeRequestParameters,
     );
   }
 

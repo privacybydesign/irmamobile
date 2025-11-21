@@ -12,6 +12,20 @@ Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <Strin
       'previouslyLaunchedCredentials': instance.previouslyLaunchedCredentials.toList(),
     };
 
+RespondPreAuthorizedCodeFlowPermissionEvent _$RespondPreAuthorizedCodeFlowPermissionEventFromJson(
+        Map<String, dynamic> json) =>
+    RespondPreAuthorizedCodeFlowPermissionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      proceed: json['Proceed'] as bool,
+    );
+
+Map<String, dynamic> _$RespondPreAuthorizedCodeFlowPermissionEventToJson(
+        RespondPreAuthorizedCodeFlowPermissionEvent instance) =>
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'Proceed': instance.proceed,
+    };
+
 RespondAuthorizationCodeAndExchangeForTokenEvent _$RespondAuthorizationCodeAndExchangeForTokenEventFromJson(
         Map<String, dynamic> json) =>
     RespondAuthorizationCodeAndExchangeForTokenEvent(
@@ -144,17 +158,17 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
       'DisclosuresCandidates': instance.disclosuresCandidates,
     };
 
-RequestOpenId4VciIssuancePermissionSessionEvent _$RequestOpenId4VciIssuancePermissionSessionEventFromJson(
-        Map<String, dynamic> json) =>
-    RequestOpenId4VciIssuancePermissionSessionEvent(
-      sessionID: (json['SessionID'] as num).toInt(),
-      serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
-      authorizationRequestParameters:
-          AuthorizationRequestParameters.fromJson(json['AuthorizationRequestParameters'] as Map<String, dynamic>),
-      credentialInfoList: (json['CredentialInfoList'] as List<dynamic>?)
-          ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent
+    _$RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEventFromJson(Map<String, dynamic> json) =>
+        RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent(
+          sessionID: (json['SessionID'] as num).toInt(),
+          serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+          authorizationRequestParameters:
+              AuthorizationRequestParameters.fromJson(json['AuthorizationRequestParameters'] as Map<String, dynamic>),
+          credentialInfoList: (json['CredentialInfoList'] as List<dynamic>?)
+              ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        );
 
 AuthorizationRequestParameters _$AuthorizationRequestParametersFromJson(Map<String, dynamic> json) =>
     AuthorizationRequestParameters(
@@ -163,6 +177,26 @@ AuthorizationRequestParameters _$AuthorizationRequestParametersFromJson(Map<Stri
       resource: json['Resource'] as String,
       scopes: (json['Scopes'] as List<dynamic>).map((e) => e as String).toList(),
       issuerState: json['IssuerState'] as String?,
+    );
+
+RequestPreAuthorizedCodeFlowPermissionSessionEvent _$RequestPreAuthorizedCodeFlowPermissionSessionEventFromJson(
+        Map<String, dynamic> json) =>
+    RequestPreAuthorizedCodeFlowPermissionSessionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+      credentialInfoList: (json['CredentialInfoList'] as List<dynamic>?)
+          ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+TokenRequestForPreAuthorizedCodeParameters _$TokenRequestForPreAuthorizedCodeParametersFromJson(
+        Map<String, dynamic> json) =>
+    TokenRequestForPreAuthorizedCodeParameters(
+      issuerDiscoveryUrl: json['IssuerDiscoveryUrl'] as String,
+      preAuthorizedCode: json['PreAuthorizedCode'] as String,
+      resource: json['Resource'] as String,
+      scopes: (json['Scopes'] as List<dynamic>).map((e) => e as String).toList(),
+      transactionCode: json['TransactionCode'] as String?,
     );
 
 RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSessionEventFromJson(

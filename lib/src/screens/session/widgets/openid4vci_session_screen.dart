@@ -17,7 +17,6 @@ import '../../../util/navigation.dart';
 import '../../../widgets/credential_card/yivi_credential_type_info_card.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_quote.dart';
-import '../../../widgets/requestor_header.dart';
 import '../../error/session_error_screen.dart';
 import 'arrow_back_screen.dart';
 import 'session_scaffold.dart';
@@ -105,13 +104,13 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-                child: RequestorHeader(
-                  requestorInfo: state.serverName,
-                  isVerified: !(state.serverName?.unverified ?? true),
-                ),
-              ),
+              // Padding(
+              //   padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+              //   child: RequestorHeader(
+              //     requestorInfo: state.serverName,
+              //     isVerified: !(state.serverName?.unverified ?? true),
+              //   ),
+              // ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
                 child: IrmaQuote(
@@ -129,28 +128,49 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
       onDismiss: _dismissSession,
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'issuance.add'),
-        onPrimaryPressed: () => _signInWithAutoCodeExchange(state),
+        onPrimaryPressed: () => _handlePermissionGranted(state),
         secondaryButtonLabel: FlutterI18n.translate(context, 'issuance.cancel'),
         onSecondaryPressed: _dismissSession,
       ),
     );
   }
 
+  Future<void> _handlePermissionGranted(OpenID4VciSessionState state) async {
+    if (state.grantType! == 'authorization_code') {
+      await _signInWithAutoCodeExchange(state);
+    } else if (state.grantType! == 'pre-authorized_code') {
+      await _signInWithPreAuthorizedCode(state);
+    } else {
+      reportError(
+        'Unknown grant type: ${state.grantType}',
+        StackTrace.current,
+      );
+    }
+  }
+
   Future<void> _signInWithAutoCodeExchange(OpenID4VciSessionState state) async {
+    final additionalParameters = <String, String>{
+      'resource': state.authorizationCodeRequestParameters!.resource,
+    };
+
+    if (state.authorizationCodeRequestParameters!.issuerState != null) {
+      additionalParameters['issuer_state'] = state.authorizationCodeRequestParameters!.issuerState!;
+    }
+
     final request = AuthorizationTokenRequest(
       // TODO: the client_id should be provided by the Wallet Attestation using Attestation Based Client Auth: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#I-D.ietf-oauth-attestation-based-client-auth
       // For now, we hard-code a clientId we can use
       //state.authorizationRequestParameters!.clientId,
       // Entra: '65d1d280-0f23-4763-bf41-ea4c17cde792'
-      'FiEH7ZmdnrDphzAjvdk9scynlm0A1XV9',
+      // Auth0: 'FiEH7ZmdnrDphzAjvdk9scynlm0A1XV9',
+
+      // Keycloak
+      'eudiw',
 
       'yivi-app://callback',
-      discoveryUrl: state.authorizationRequestParameters!.issuerDiscoveryUrl,
-      scopes: state.authorizationRequestParameters!.scopes,
-      additionalParameters: {
-        'issuer_state': state.authorizationRequestParameters!.issuerState!,
-        'resource': state.authorizationRequestParameters!.resource,
-      },
+      discoveryUrl: state.authorizationCodeRequestParameters!.issuerDiscoveryUrl,
+      scopes: state.authorizationCodeRequestParameters!.scopes,
+      additionalParameters: additionalParameters,
     );
 
     try {
@@ -183,6 +203,16 @@ class _OpenID4VciSessionScreenState extends ConsumerState<OpenID4VciSessionScree
     // );
 
     // ref.read(irmaRepositoryProvider).openURLExternally(request.toString());
+  }
+
+  Future<void> _signInWithPreAuthorizedCode(OpenID4VciSessionState state) async {
+    // Handle the permission
+    ref.read(irmaRepositoryProvider).bridgedDispatch(
+          RespondPreAuthorizedCodeFlowPermissionEvent(
+            sessionID: state.sessionID,
+            proceed: true,
+          ),
+        );
   }
 
   void _dismissSession() {

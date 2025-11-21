@@ -129,6 +129,23 @@ func (ah *eventHandler) respondAuthorizationCodeAndExchangeForToken(event *respo
 	return nil
 }
 
+func (ah *eventHandler) respondPreAuthorizedCodeFlowPermission(event *respondPreAuthorizedCodeFlowPermissionEvent) error {
+	sh, err := ah.findSessionHandler(event.SessionID)
+	if err != nil {
+		return err
+	}
+	if sh.preAuthCodePermissionHandler == nil {
+		return errors.Errorf("Unset preAuthCodePermissionHandler in RespondPreAuthorizedCodeFlowPermission")
+	}
+
+	go func() {
+		defer recoverFromPanic("Handling ResponsePreAuthorizedCodePermission event panicked")
+		sh.preAuthCodePermissionHandler(event.Proceed)
+	}()
+
+	return nil
+}
+
 // Responding to a permission prompt when disclosing, issuing or signing
 func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err error) {
 	sh, err := ah.findSessionHandler(event.SessionID)
