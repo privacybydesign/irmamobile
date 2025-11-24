@@ -38,7 +38,7 @@ fmt:
 
 # Checks the formatting for all the Flutter code
 check-fmt:
-    dart format --set-exit-if-changed ./yivi_app ./yivi_core ./yivi_fdroid
+    dart format --set-exit-if-changed --output none ./yivi_app ./yivi_core ./yivi_fdroid
 
 # Analyzes all the Flutter code
 lint: check-fmt
