@@ -93,6 +93,17 @@ attaching data to signed statements. These data can be relevant properties, such
 
 * You can use `flutter run -t` to run different app configurations, for example run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.
 
+## Using `just`
+Most important things inside of this project can be controlled using [`just`](https://github.com/casey/just).
+To see an overview of all available commands and what they do, run:
+
+      just --list
+
+You can then use them from anywhere in the project.
+For example to run the Flutter app you can type:
+
+      just run
+
 ## JSON serialization code
 
 This project uses json_serializer. To re-generate serialization code, run `./codegen.sh`
