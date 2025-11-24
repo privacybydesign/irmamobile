@@ -36,8 +36,12 @@ fmt:
     dart format .
     cd yivi_core && go fmt ./...
 
+# Checks the formatting for all the Flutter code
+check-fmt:
+    dart format --set-exit-if-changed ./yivi_app ./yivi_core ./yivi_fdroid
+
 # Analyzes all the Flutter code
-lint:
+lint: check-fmt
     cd yivi_core && flutter analyze --no-fatal-infos
     cd yivi_app && flutter analyze --no-fatal-infos
     cd yivi_fdroid && flutter analyze --no-fatal-infos
