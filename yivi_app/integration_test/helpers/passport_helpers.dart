@@ -1,15 +1,18 @@
 import "dart:async";
+import "dart:typed_data";
 
 import "package:flutter/cupertino.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mrz_parser/mrz_parser.dart";
+import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/passport_reader_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/util/navigation.dart";
+import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
 import "../util.dart";
@@ -23,7 +26,7 @@ Future<void> navigateToNfcScreen(
   FakePassportIssuer issuer,
 ) async {
   await pumpAndUnlockApp(tester, binding.repository, null, [
-    passportReaderProvider.overrideWith((ref) => reader),
+    passportReaderProvider.overrideWith((ref, mrz) => reader),
     passportIssuerProvider.overrideWithValue(issuer),
   ]);
 
@@ -101,7 +104,7 @@ class FakePassportIssuer implements PassportIssuer {
 
   @override
   Future<IrmaSessionPointer> startIrmaIssuanceSession(
-    PassportDataResult passportDataResult,
+    RawDocumentData passportDataResult,
   ) async {
     if (errorToThrowOnIssuance != null) {
       throw Exception(errorToThrowOnIssuance);
@@ -115,21 +118,32 @@ class FakePassportIssuer implements PassportIssuer {
 
   @override
   Future<VerificationResponse> verifyPassport(
-    PassportDataResult passportDataResult,
+    RawDocumentData passportDataResult,
   ) {
     throw UnimplementedError();
   }
 }
 
-class FakePassportReader extends PassportReader {
+class FakePassportReader extends DocumentReader<PassportData> {
   FakePassportReader({
-    PassportReaderState? initialState,
-    List<PassportReaderState> statesDuringRead = const [],
+    DocumentReaderState? initialState,
+    List<DocumentReaderState> statesDuringRead = const [],
     this.readDelayCompleter,
     this.onCancelCompleter,
   }) : _initialState = initialState,
        _statesDuringRead = statesDuringRead,
-       super(_FakeNfcProvider()) {
+       super(
+         nfc: _FakeNfcProvider(),
+         documentParser: PassportParser(),
+         config: DocumentReaderConfig(
+           readIfAvailable: {DataGroups.dg1, DataGroups.dg2, DataGroups.dg15},
+         ),
+         dataGroupReader: DataGroupReader(
+           _FakeNfcProvider(),
+           "".parseHex(),
+           DBAKey("", DateTime.now(), DateTime.now()),
+         ),
+       ) {
     if (_initialState != null) {
       state = _initialState;
     }
@@ -140,8 +154,8 @@ class FakePassportReader extends PassportReader {
     await Future.delayed(Duration.zero);
   }
 
-  final PassportReaderState? _initialState;
-  final List<PassportReaderState> _statesDuringRead;
+  final DocumentReaderState? _initialState;
+  final List<DocumentReaderState> _statesDuringRead;
   final Completer<void>? readDelayCompleter;
   final Completer<void>? onCancelCompleter;
 
@@ -153,23 +167,22 @@ class FakePassportReader extends PassportReader {
   DateTime? lastExpiryDate;
   String? lastCountryCode;
 
+  void setMrz(ScannedPassportMRZ mrz) {
+    lastCountryCode = mrz.countryCode;
+    lastExpiryDate = mrz.dateOfExpiry;
+    lastBirthDate = mrz.dateOfBirth;
+    lastDocumentNumber = mrz.documentNumber;
+  }
+
   @override
-  Future<(PassportDataResult, MrtdData)?> readWithMRZ({
-    required String documentNumber,
-    required DateTime birthDate,
-    required DateTime expiryDate,
-    required String? countryCode,
+  Future<(PassportData, RawDocumentData)?> readDocument({
     required IosNfcMessageMapper iosNfcMessages,
     NonceAndSessionId? activeAuthenticationParams,
   }) async {
     readCalled = true;
     readCallCount += 1;
-    lastDocumentNumber = documentNumber;
-    lastBirthDate = birthDate;
-    lastExpiryDate = expiryDate;
-    lastCountryCode = countryCode;
 
-    if (state is PassportReaderNfcUnavailable) {
+    if (state is DocumentReaderNfcUnavailable) {
       return null;
     }
 
@@ -182,8 +195,8 @@ class FakePassportReader extends PassportReader {
       await readDelayCompleter!.future;
     }
 
-    if (state case PassportReaderSuccess()) {
-      return (PassportDataResult(dataGroups: {}, efSod: ""), MrtdData());
+    if (state case DocumentReaderSuccess()) {
+      return (_fakePassportData(), RawDocumentData(dataGroups: {}, efSod: ""));
     }
 
     return null;
@@ -192,9 +205,9 @@ class FakePassportReader extends PassportReader {
   @override
   Future<void> cancel() async {
     cancelCount += 1;
-    state = PassportReaderCancelling();
+    state = DocumentReaderCancelling();
     await Future<void>.delayed(Duration.zero);
-    state = PassportReaderCancelled();
+    state = DocumentReaderCancelled();
     if (onCancelCompleter != null && !onCancelCompleter!.isCompleted) {
       onCancelCompleter!.complete();
     }
@@ -248,4 +261,20 @@ class _FakeNfcProvider extends NfcProvider {
   Future<void> setIosAlertMessage(String message) async {
     // Do nothing.
   }
+}
+
+PassportData _fakePassportData() {
+  final p = PassportParser();
+
+  final fakeDg1 =
+      "615D5F1F5A493C4E4C44584938353933354638363939393939393939303C3C3C3C3C3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345"
+          .parseHex();
+  final mrz = p.parseDG1(fakeDg1)!.mrz;
+  return PassportData(
+    mrz: mrz,
+    photoImageData: Uint8List(0),
+    photoImageType: ImageType.jpeg2000,
+    photoImageWidth: 0,
+    photoImageHeight: 0,
+  );
 }

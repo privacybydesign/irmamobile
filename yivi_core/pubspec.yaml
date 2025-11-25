@@ -55,7 +55,7 @@ dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v0.2.4
+      ref: v0.3.0
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1
   # Temporary forks because their original repos are not compatible with new android api's.
