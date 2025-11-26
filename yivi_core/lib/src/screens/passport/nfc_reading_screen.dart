@@ -179,16 +179,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   Widget _buildError(BuildContext context, _UiState uiState, String logs) {
     final theme = IrmaTheme.of(context);
-    final isPortrait =
-        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
 
     return _NfcScaffold(
       instruction: Column(
-        crossAxisAlignment: isPortrait
-            ? CrossAxisAlignment.center
-            : CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: isPortrait ? .center : .start,
+        mainAxisAlignment: .center,
+        mainAxisSize: .min,
         children: [
           _OrientationAwareTranslatedText(
             uiState.stateKey,
@@ -204,7 +201,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             child: _OrientationAwareTranslatedText(
               "error.button_show_error",
               style: theme.textTheme.bodyMedium?.copyWith(
-                decoration: TextDecoration.underline,
+                decoration: .underline,
                 color: theme.link,
               ),
             ),
@@ -212,7 +209,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ],
       ),
       illustration: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: SvgPicture.asset(
           yiviAsset("error/general_error_illustration.svg"),
         ),
@@ -258,13 +255,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return Container(
       decoration: BoxDecoration(
         color: theme.backgroundTertiary,
-        borderRadius: BorderRadius.circular(20),
-        border: BoxBorder.all(color: theme.tertiary),
+        borderRadius: .circular(20),
+        border: .all(color: theme.tertiary),
       ),
       child: Padding(
         padding: padding,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: .center,
           children: [
             Flexible(
               child: Icon(
@@ -275,9 +272,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             ),
             SizedBox(height: theme.mediumSpacing),
             Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: .min,
+              crossAxisAlignment: .center,
+              mainAxisAlignment: .center,
               children: [
                 Container(
                   decoration: BoxDecoration(
@@ -286,7 +283,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
                   ),
                   width: 40,
                   height: 40,
-                  alignment: Alignment.center,
+                  alignment: .center,
                   child: Icon(
                     disabled ? Icons.close : Icons.check,
                     color: Colors.white,
@@ -362,70 +359,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   _UiState passportReadingStateToUiState(DocumentReaderState state) {
     final progress = progressForState(state);
     final stateKey = _getTranslationKeyForState(state);
+    final tipKey = _getTipKeyForState(state);
 
-    return switch (state) {
-      DocumentReaderPending() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.hold_near_photo_page",
-      ),
-      DocumentReaderConnecting() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_2",
-      ),
-      DocumentReaderAuthenticating() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_2",
-      ),
-      DocumentReaderReadingCOM() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_3",
-      ),
-      DocumentReaderReadingCardAccess() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_3",
-      ),
-      DocumentReaderReadingDataGroup() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_1",
-      ),
-      DocumentReaderReadingSOD() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_2",
-      ),
-      DocumentReaderActiveAuthentication() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_1",
-      ),
-      DocumentReaderSuccess() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.success_explanation",
-      ),
-      DocumentReaderFailed(:final error) => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: _readingErrorToHintKey(error),
-      ),
-      DocumentReaderCancelling() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.cancelled_by_user",
-      ),
-      DocumentReaderCancelled() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.cancelled_by_user",
-      ),
-      _ => throw Exception("unexpected state: $state"),
-    };
+    return _UiState(tipKey: tipKey, progress: progress, stateKey: stateKey);
   }
 
   DocumentReaderState _readDocumentReaderState() {
@@ -438,6 +374,24 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   DocumentReader<PassportData> _getDocumentReader() {
     return ref.read(passportReaderProvider(widget.mrz).notifier);
+  }
+
+  String _getTipKeyForState(DocumentReaderState state) {
+    return switch (state) {
+      DocumentReaderPending() => "passport.nfc.hold_near_photo_page",
+      DocumentReaderConnecting() => "passport.nfc.tip_2",
+      DocumentReaderAuthenticating() => "passport.nfc.tip_2",
+      DocumentReaderReadingCOM() => "passport.nfc.tip_3",
+      DocumentReaderReadingCardAccess() => "passport.nfc.tip_3",
+      DocumentReaderReadingDataGroup() => "passport.nfc.tip_1",
+      DocumentReaderReadingSOD() => "passport.nfc.tip_2",
+      DocumentReaderActiveAuthentication() => "passport.nfc.tip_1",
+      DocumentReaderSuccess() => "passport.nfc.success_explanation",
+      DocumentReaderFailed(:final error) => _readingErrorToHintKey(error),
+      DocumentReaderCancelling() => "passport.nfc.cancelled_by_user",
+      DocumentReaderCancelled() => "passport.nfc.cancelled_by_user",
+      _ => throw Exception("unexpected state: $state"),
+    };
   }
 
   String _getTranslationKeyForState(DocumentReaderState state) {
