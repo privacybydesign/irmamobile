@@ -129,17 +129,20 @@ Future<void> testDisclosePassportOpensPassportScanner(
 ) async {
   final fakeReader = FakePassportReader(
     statesDuringRead: [
-      PassportReaderConnecting(),
-      PassportReaderReadingCardAccess(),
-      PassportReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
-      PassportReaderActiveAuthentication(),
-      PassportReaderSuccess(),
+      DocumentReaderConnecting(),
+      DocumentReaderReadingCardAccess(),
+      DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+      DocumentReaderActiveAuthentication(),
+      DocumentReaderSuccess(),
     ],
   );
   final fakeIssuer = FakePassportIssuer();
 
   await pumpAndUnlockApp(tester, irmaBinding.repository, Locale("en"), [
-    passportReaderProvider.overrideWith((ref) => fakeReader),
+    passportReaderProvider.overrideWith((ref, mrz) {
+      fakeReader.setMrz(mrz);
+      return fakeReader;
+    }),
     passportIssuerProvider.overrideWithValue(fakeIssuer),
   ]);
 

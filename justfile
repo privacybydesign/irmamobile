@@ -27,6 +27,13 @@ run-fdroid *args:
 unit-test:
     cd yivi_core && flutter test
 
+test:
+    #!/usr/bin/env bash
+    cd yivi_app
+    file=$(find ./integration_test -name "**_test.dart" | fzf)
+    echo "Running test: $file"
+    flutter test "$file"
+
 # Runs all the integration tests (and stores the logs in test.log)
 test-all *args:
     cd yivi_app && flutter test integration_test/test_all.dart {{args}} | tee test.log

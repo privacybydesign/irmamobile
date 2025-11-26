@@ -47,11 +47,11 @@ void main() {
     ) async {
       final fakeReader = FakePassportReader(
         statesDuringRead: [
-          PassportReaderConnecting(),
-          PassportReaderReadingCardAccess(),
-          PassportReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
-          PassportReaderActiveAuthentication(),
-          PassportReaderSuccess(),
+          DocumentReaderConnecting(),
+          DocumentReaderReadingCardAccess(),
+          DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+          DocumentReaderActiveAuthentication(),
+          DocumentReaderSuccess(),
         ],
       );
       final fakeIssuer = FakePassportIssuer();
@@ -60,7 +60,10 @@ void main() {
         tester,
         irmaBinding,
         overrides: [
-          passportReaderProvider.overrideWith((ref) => fakeReader),
+          passportReaderProvider.overrideWith((ref, mrz) {
+            fakeReader.setMrz(mrz);
+            return fakeReader;
+          }),
           passportIssuerProvider.overrideWithValue(fakeIssuer),
         ],
       );
@@ -114,9 +117,9 @@ void main() {
     ) async {
       final fakeReader = FakePassportReader(
         statesDuringRead: [
-          PassportReaderConnecting(),
-          PassportReaderFailed(
-            error: PassportReadingError.timeoutWaitingForTag,
+          DocumentReaderConnecting(),
+          DocumentReaderFailed(
+            error: DocumentReadingError.timeoutWaitingForTag,
             logs: "",
           ),
         ],
@@ -127,7 +130,7 @@ void main() {
         tester,
         irmaBinding,
         overrides: [
-          passportReaderProvider.overrideWith((ref) => fakeReader),
+          passportReaderProvider.overrideWith((ref, mrz) => fakeReader),
           passportIssuerProvider.overrideWithValue(fakeIssuer),
         ],
       );
@@ -177,11 +180,11 @@ void main() {
       final fakeReader = FakePassportReader(
         readDelayCompleter: readCompleter,
         statesDuringRead: [
-          PassportReaderConnecting(),
-          PassportReaderReadingCardAccess(),
-          PassportReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
-          PassportReaderActiveAuthentication(),
-          PassportReaderSuccess(),
+          DocumentReaderConnecting(),
+          DocumentReaderReadingCardAccess(),
+          DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+          DocumentReaderActiveAuthentication(),
+          DocumentReaderSuccess(),
         ],
       );
       final fakeIssuer = FakePassportIssuer();
@@ -210,7 +213,7 @@ void main() {
       "nfc disabled shows disabled UI and retry cancels current attempt",
       (tester) async {
         final fakeReader = FakePassportReader(
-          initialState: PassportReaderNfcUnavailable(),
+          initialState: DocumentReaderNfcUnavailable(),
         );
         final fakeIssuer = FakePassportIssuer();
 
@@ -234,7 +237,7 @@ void main() {
     testWidgets("user can cancel NFC reading flow", (tester) async {
       final cancelCompleter = Completer<void>();
       final fakeReader = FakePassportReader(
-        statesDuringRead: [PassportReaderConnecting()],
+        statesDuringRead: [DocumentReaderConnecting()],
         readDelayCompleter: cancelCompleter,
         onCancelCompleter: cancelCompleter,
       );
@@ -266,11 +269,11 @@ void main() {
     ) async {
       final fakeReader = FakePassportReader(
         statesDuringRead: [
-          PassportReaderConnecting(),
-          PassportReaderReadingCardAccess(),
-          PassportReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
-          PassportReaderActiveAuthentication(),
-          PassportReaderSuccess(),
+          DocumentReaderConnecting(),
+          DocumentReaderReadingCardAccess(),
+          DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+          DocumentReaderActiveAuthentication(),
+          DocumentReaderSuccess(),
         ],
       );
       final fakeIssuer = FakePassportIssuer(
