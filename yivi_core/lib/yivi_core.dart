@@ -18,6 +18,7 @@ import "src/util/navigation.dart";
 import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
+export "src/models/mrz.dart";
 export "src/providers/mrz_processor_provider.dart";
 
 // The MrzProcessor is optional, when it's set to null the app won't include an mrz reader

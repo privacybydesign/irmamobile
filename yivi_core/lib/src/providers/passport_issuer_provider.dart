@@ -26,14 +26,14 @@ class ErrorThrowingPassportIssuer implements PassportIssuer {
 
   @override
   Future<IrmaSessionPointer> startIrmaIssuanceSession(
-    PassportDataResult passportDataResult,
+    RawDocumentData passportDataResult,
   ) async {
     throw Exception(errorToThrowOnIssuance);
   }
 
   @override
   Future<VerificationResponse> verifyPassport(
-    PassportDataResult passportDataResult,
+    RawDocumentData passportDataResult,
   ) {
     throw UnimplementedError();
   }
