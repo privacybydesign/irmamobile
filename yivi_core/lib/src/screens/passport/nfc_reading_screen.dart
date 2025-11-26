@@ -101,7 +101,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     final passportIssuer = ref.read(passportIssuerProvider);
     try {
       // start the issuance session at the irma server
-      final sessionPtr = await passportIssuer.startIrmaIssuanceSession(result);
+      final sessionPtr = await passportIssuer.startIrmaIssuanceSession(
+        result,
+        .passport,
+      );
       if (!mounted) {
         return;
       }

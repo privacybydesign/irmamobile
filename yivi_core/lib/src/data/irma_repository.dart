@@ -574,7 +574,7 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(passportUrlProvider.notifier).state = baseUri.toString();
 
-      if (ref.read(mrzProcessorProvider) != null) {
+      if (ref.read(ocrProcessorProvider) != null) {
         context.pushPassportMrzReaderScreen();
       } else {
         context.pushPassportManualEnterScreen();

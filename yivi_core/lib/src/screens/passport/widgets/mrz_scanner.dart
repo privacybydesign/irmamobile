@@ -272,9 +272,10 @@ class MRZScannerState extends ConsumerState<MRZScanner>
       if (rotation == null) {
         return false;
       }
-      final result = await ref
-          .read(mrzProcessorProvider)!
-          .processImage(inputImage: inputImage, imageRotation: rotation);
+      final result = await readMrzFromImage(
+        inputImage: inputImage,
+        imageRotation: rotation,
+      );
       if (result != null) {
         // show success checkmark for a second and then call the onSuccess callback
         setState(() {
@@ -289,5 +290,16 @@ class MRZScannerState extends ConsumerState<MRZScanner>
     } finally {
       _isBusy = false;
     }
+  }
+
+  Future<MRZResult?> readMrzFromImage({
+    required CameraImage inputImage,
+    required int imageRotation,
+  }) async {
+    final result = await ref
+        .read(ocrProcessorProvider)!
+        .processImage(inputImage: inputImage, imageRotation: imageRotation);
+
+    return MRZParser.tryParse(result);
   }
 }

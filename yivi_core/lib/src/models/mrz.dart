@@ -50,15 +50,25 @@ class ScannedPassportMRZ extends ScannedMRZ {
 }
 
 class ScannedDriverLicenseMRZ extends ScannedMRZ {
+  final String version;
+  final String randomData;
+  final String configuration;
+
   ScannedDriverLicenseMRZ({
     required super.documentNumber,
     required super.countryCode,
+    required this.version,
+    required this.randomData,
+    required this.configuration,
   }) : super(documentType: DocumentType.driverLicense);
 
   factory ScannedDriverLicenseMRZ.fromMRZResult(MRZDriverLicenseResult mrz) {
     return ScannedDriverLicenseMRZ(
       documentNumber: mrz.documentNumber,
       countryCode: mrz.countryCode,
+      version: mrz.version,
+      randomData: mrz.randomData,
+      configuration: mrz.configuration,
     );
   }
 

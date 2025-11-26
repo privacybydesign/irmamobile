@@ -21,9 +21,9 @@ import "src/widgets/preferred_language_builder.dart";
 export "src/models/mrz.dart";
 export "src/providers/mrz_processor_provider.dart";
 
-// The MrzProcessor is optional, when it's set to null the app won't include an mrz reader
+// The OcrProcessor is optional, when it's set to null the app won't include an mrz reader
 // and the mrz will have to be entered manually by the user.
-Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
+Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
       details.exception,
@@ -67,7 +67,7 @@ Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
           preferencesProvider.overrideWithValue(preferences),
 
           // passed in from the outside so apps are not required to depend on non-FOSS implementations
-          mrzProcessorProvider.overrideWithValue(mrzProcessor),
+          ocrProcessorProvider.overrideWithValue(ocrProcessor),
 
           // can pass an environment variable to test with errors on passport issuance
           if (passportIssuanceError.isNotEmpty)

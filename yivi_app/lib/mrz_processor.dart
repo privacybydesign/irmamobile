@@ -3,13 +3,12 @@ import "dart:ui";
 
 import "package:camera/camera.dart";
 import "package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart";
-import "package:mrz_parser/mrz_parser.dart";
 import "package:yivi_core/yivi_core.dart";
 
-class GoogleMLKitMrzProcessor implements MrzProcessor {
+class GoogleMLKitMrzProcessor implements OcrProcessor {
   final _textRecognizer = TextRecognizer();
   @override
-  Future<MRZResult?> processImage({
+  Future<List<String>?> processImage({
     required CameraImage inputImage,
     required int imageRotation,
   }) async {
@@ -33,15 +32,7 @@ class GoogleMLKitMrzProcessor implements MrzProcessor {
         ableToScanText.add(l);
       }
     }
-    List<String>? result = _getFinalListToParse([...ableToScanText]);
-    if (result == null) {
-      return null;
-    }
-    try {
-      return MRZParser.parse(result);
-    } catch (e) {
-      return null;
-    }
+    return _getFinalListToParse([...ableToScanText]);
   }
 
   InputImage? _inputImageFromCameraImage({

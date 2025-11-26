@@ -105,6 +105,7 @@ class FakePassportIssuer implements PassportIssuer {
   @override
   Future<IrmaSessionPointer> startIrmaIssuanceSession(
     RawDocumentData passportDataResult,
+    DocumentType documentType,
   ) async {
     if (errorToThrowOnIssuance != null) {
       throw Exception(errorToThrowOnIssuance);
@@ -119,6 +120,13 @@ class FakePassportIssuer implements PassportIssuer {
   @override
   Future<VerificationResponse> verifyPassport(
     RawDocumentData passportDataResult,
+  ) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<VerificationResponse> verifyDrivingLicence(
+    RawDocumentData drivingLicenceDataResult,
   ) {
     throw UnimplementedError();
   }
