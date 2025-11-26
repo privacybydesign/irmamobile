@@ -39,6 +39,48 @@ class NewSessionEvent extends SessionEvent {
 }
 
 @JsonSerializable()
+class RespondPreAuthorizedCodeFlowPermissionEvent extends SessionEvent {
+  RespondPreAuthorizedCodeFlowPermissionEvent({
+    required int sessionID,
+    required this.proceed,
+  }) : super(sessionID);
+
+  @JsonKey(name: "Proceed")
+  final bool proceed;
+
+  factory RespondPreAuthorizedCodeFlowPermissionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$RespondPreAuthorizedCodeFlowPermissionEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$RespondPreAuthorizedCodeFlowPermissionEventToJson(this);
+}
+
+@JsonSerializable()
+class RespondAuthorizationCodeAndExchangeForTokenEvent extends SessionEvent {
+  RespondAuthorizationCodeAndExchangeForTokenEvent({
+    required int sessionID,
+    required this.proceed,
+    required this.accessToken,
+    this.refreshToken,
+  }) : super(sessionID);
+
+  @JsonKey(name: "Proceed")
+  final bool proceed;
+
+  @JsonKey(name: "AccessToken")
+  final String accessToken;
+
+  @JsonKey(name: "RefreshToken")
+  final String? refreshToken;
+
+  factory RespondAuthorizationCodeAndExchangeForTokenEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$RespondAuthorizationCodeAndExchangeForTokenEventFromJson(json);
+  Map<String, dynamic> toJson() =>
+      _$RespondAuthorizationCodeAndExchangeForTokenEventToJson(this);
+}
+
+@JsonSerializable()
 class RespondPermissionEvent extends SessionEvent {
   RespondPermissionEvent({
     required int sessionID,
@@ -187,6 +229,111 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
   ) => _$RequestIssuancePermissionSessionEventFromJson(json);
   Map<String, dynamic> toJson() =>
       _$RequestIssuancePermissionSessionEventToJson(this);
+}
+
+@JsonSerializable(createToJson: false)
+class RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent
+    extends SessionEvent {
+  RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent({
+    required int sessionID,
+    required this.serverName,
+    required this.authorizationRequestParameters,
+    this.credentialInfoList,
+  }) : super(sessionID);
+
+  @JsonKey(name: "ServerName")
+  final RequestorInfo serverName;
+
+  @JsonKey(name: "CredentialInfoList")
+  final List<CredentialTypeInfo>? credentialInfoList;
+
+  @JsonKey(name: "AuthorizationRequestParameters")
+  final AuthorizationRequestParameters authorizationRequestParameters;
+
+  factory RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) =>
+      _$RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEventFromJson(
+        json,
+      );
+}
+
+@JsonSerializable(createToJson: false)
+class AuthorizationRequestParameters {
+  AuthorizationRequestParameters({
+    required this.issuerDiscoveryUrl,
+    required this.clientId,
+    required this.resource,
+    required this.scopes,
+    this.issuerState,
+  });
+
+  @JsonKey(name: "IssuerDiscoveryUrl")
+  final String issuerDiscoveryUrl;
+
+  @JsonKey(name: "ClientID")
+  final String clientId;
+
+  @JsonKey(name: "IssuerState", required: false)
+  final String? issuerState;
+
+  @JsonKey(name: "Resource")
+  final String resource;
+
+  @JsonKey(name: "Scopes")
+  final List<String> scopes;
+
+  factory AuthorizationRequestParameters.fromJson(Map<String, dynamic> json) =>
+      _$AuthorizationRequestParametersFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class RequestPreAuthorizedCodeFlowPermissionSessionEvent extends SessionEvent {
+  RequestPreAuthorizedCodeFlowPermissionSessionEvent({
+    required int sessionID,
+    required this.serverName,
+    this.credentialInfoList,
+  }) : super(sessionID);
+
+  @JsonKey(name: "ServerName")
+  final RequestorInfo serverName;
+
+  @JsonKey(name: "CredentialInfoList")
+  final List<CredentialTypeInfo>? credentialInfoList;
+
+  factory RequestPreAuthorizedCodeFlowPermissionSessionEvent.fromJson(
+    Map<String, dynamic> json,
+  ) => _$RequestPreAuthorizedCodeFlowPermissionSessionEventFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class TokenRequestForPreAuthorizedCodeParameters {
+  TokenRequestForPreAuthorizedCodeParameters({
+    required this.issuerDiscoveryUrl,
+    required this.preAuthorizedCode,
+    required this.resource,
+    required this.scopes,
+    this.transactionCode,
+  });
+
+  @JsonKey(name: "IssuerDiscoveryUrl")
+  final String issuerDiscoveryUrl;
+
+  @JsonKey(name: "PreAuthorizedCode")
+  final String preAuthorizedCode;
+
+  @JsonKey(name: "TransactionCode", required: false)
+  final String? transactionCode;
+
+  @JsonKey(name: "Resource")
+  final String resource;
+
+  @JsonKey(name: "Scopes")
+  final List<String> scopes;
+
+  factory TokenRequestForPreAuthorizedCodeParameters.fromJson(
+    Map<String, dynamic> json,
+  ) => _$TokenRequestForPreAuthorizedCodeParametersFromJson(json);
 }
 
 @JsonSerializable()

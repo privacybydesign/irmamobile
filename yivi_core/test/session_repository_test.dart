@@ -5,6 +5,7 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/attribute.dart";
 import "package:yivi_core/src/models/attribute_value.dart";
+import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/models/session_state.dart";
@@ -37,16 +38,23 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
     final disclosureSessionStream = repo
         .getSessionState(42)
-        .asBroadcastStream();
-    SessionState disclosureSession = await disclosureSessionStream.firstWhere(
-      (session) => session.status == SessionStatus.requestDisclosurePermission,
-    );
+        .asBroadcastStream()
+        .map((state) => state as IrmaSessionState);
+    IrmaSessionState disclosureSession = await disclosureSessionStream
+        .firstWhere(
+          (session) =>
+              session.status == SessionStatus.requestDisclosurePermission,
+        );
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
     expect(disclosureSession.isSignatureSession, false);
@@ -74,11 +82,18 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "issuing", u: ""),
+        request: SessionPointer(
+          irmaqr: "issuing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
-    final issuanceSessionStream = repo.getSessionState(43).asBroadcastStream();
+    final issuanceSessionStream = repo
+        .getSessionState(43)
+        .asBroadcastStream()
+        .map((state) => state as IrmaSessionState);
 
     // Check whether the pairing status is being triggered.
     await issuanceSessionStream.firstWhere(
@@ -174,17 +189,24 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 42,
-        request: SessionPointer(irmaqr: "disclosing", u: ""),
+        request: SessionPointer(
+          irmaqr: "disclosing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
     // The disclosure session should not be satisfiable yet.
     final disclosureSessionStream = repo
         .getSessionState(42)
-        .asBroadcastStream();
-    SessionState disclosureSession = await disclosureSessionStream.firstWhere(
-      (session) => session.status == SessionStatus.requestDisclosurePermission,
-    );
+        .asBroadcastStream()
+        .map((state) => state as IrmaSessionState);
+    IrmaSessionState disclosureSession = await disclosureSessionStream
+        .firstWhere(
+          (session) =>
+              session.status == SessionStatus.requestDisclosurePermission,
+        );
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
     expect(disclosureSession.disclosuresCandidates!.length, 1);
@@ -209,14 +231,19 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 43,
-        request: SessionPointer(irmaqr: "issuing", u: ""),
+        request: SessionPointer(
+          irmaqr: "issuing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
 
     // Give permission to accept the non-matching credential.
     final firstIssuanceSessionStream = repo
         .getSessionState(43)
-        .asBroadcastStream();
+        .asBroadcastStream()
+        .map((state) => state as IrmaSessionState);
     await firstIssuanceSessionStream.firstWhere(
       (session) => session.status == SessionStatus.requestIssuancePermission,
     );
@@ -260,12 +287,17 @@ void main() {
     repo.bridgedDispatch(
       NewSessionEvent(
         sessionID: 44,
-        request: SessionPointer(irmaqr: "issuing", u: ""),
+        request: SessionPointer(
+          irmaqr: "issuing",
+          u: "",
+          protocol: Protocol.irma,
+        ),
       ),
     );
     final secondIssuanceSessionStream = repo
         .getSessionState(44)
-        .asBroadcastStream();
+        .asBroadcastStream()
+        .map((state) => state as IrmaSessionState);
 
     // Give permission to accept second credential.
     await secondIssuanceSessionStream.firstWhere(

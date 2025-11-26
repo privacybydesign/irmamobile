@@ -12,6 +12,7 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../package_name.dart";
 import "../../../routing.dart";
+import "../../models/protocol.dart";
 import "../../models/mrz.dart";
 import "../../models/session.dart";
 import "../../providers/passport_issuer_provider.dart";
@@ -113,6 +114,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           u: sessionPtr.u,
           irmaqr: sessionPtr.irmaqr,
           continueOnSecondDevice: true,
+          protocol: Protocol.irma,
         ),
       );
     } catch (e) {

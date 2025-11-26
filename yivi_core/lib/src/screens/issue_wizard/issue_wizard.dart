@@ -6,10 +6,10 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:visibility_detector/visibility_detector.dart";
 
-import "../../../package_name.dart";
 import "../../data/irma_repository.dart";
 import "../../models/irma_configuration.dart";
 import "../../models/issue_wizard.dart";
+import "../../models/protocol.dart";
 import "../../models/session.dart";
 import "../../models/session_events.dart";
 import "../../models/session_state.dart";
@@ -34,7 +34,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
     with WidgetsBindingObserver {
   bool _showIntro = true;
   int? _sessionID;
-  StreamSubscription<SessionState>? _sessionSubscription;
+  StreamSubscription<IrmaSessionState>? _sessionSubscription;
 
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
@@ -46,6 +46,9 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
         AppLifecycleState.resumed == state) {
       _sessionSubscription = _repo
           .getSessionState(widget.arguments.sessionID!)
+          .map(
+            (state) => state as IrmaSessionState,
+          ) // issue wizard is always for irma sessions
           .firstWhere((event) => event.isFinished)
           .asStream()
           .listen((event) {
@@ -123,7 +126,8 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
 
     // If we became visible and the session that was started by the currently active wizard item
     // is done and has succeeded, we need to progress to the next item or close the wizard.
-    final state = await _repo.getSessionState(_sessionID!).first;
+    final state =
+        await _repo.getSessionState(_sessionID!).first as IrmaSessionState;
     if (!(visibility.visibleFraction > 0.9 &&
         state.status == SessionStatus.success)) {
       return;
@@ -178,7 +182,11 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
       case "session":
         handlePointer(
           context,
-          SessionPointer(u: item?.sessionURL ?? "", irmaqr: "redirect"),
+          SessionPointer(
+            u: item?.sessionURL ?? "",
+            irmaqr: "redirect",
+            protocol: Protocol.irma,
+          ),
         );
         break;
       case "website":
@@ -223,7 +231,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
             : Image.asset(
-                yiviAsset("non-free/logo.png"),
+                "assets/non-free/logo.png",
                 excludeFromSemantics: true,
               );
 

@@ -32,6 +32,18 @@ type newSessionEvent struct {
 	Request   json.RawMessage
 }
 
+type respondAuthorizationCodeAndExchangeForTokenEvent struct {
+	SessionID    int
+	Proceed      bool
+	AccessToken  string
+	RefreshToken *string
+}
+
+type respondPreAuthorizedCodeFlowPermissionEvent struct {
+	SessionID int
+	Proceed   bool
+}
+
 type respondPermissionEvent struct {
 	SessionID         int
 	Proceed           bool
@@ -187,6 +199,19 @@ type requestIssuancePermissionSessionEvent struct {
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
 	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
+}
+
+type requestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent struct {
+	SessionID                      int
+	ServerName                     *irma.RequestorInfo
+	CredentialInfoList             irma.CredentialTypeInfoList
+	AuthorizationRequestParameters irma.AuthorizationRequestParameters
+}
+
+type requestPreAuthorizedCodeFlowPermissionSessionEvent struct {
+	SessionID          int
+	ServerName         *irma.RequestorInfo
+	CredentialInfoList irma.CredentialTypeInfoList
 }
 
 type requestVerificationPermissionSessionEvent struct {
