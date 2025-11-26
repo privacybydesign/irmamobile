@@ -16,7 +16,7 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     testWidgets("new terms dialog dismiss", (tester) async {
-      await pumpIrmaApp(tester, irmaBinding.repository);
+      await pumpYiviApp(tester, irmaBinding.repository);
 
       // the first time with new terms the dialog should show
       expect(find.byKey(const Key("terms_changed_dialog")), findsOneWidget);
@@ -39,7 +39,7 @@ void main() {
     });
 
     testWidgets("new terms dialog accept", (tester) async {
-      await pumpIrmaApp(tester, irmaBinding.repository);
+      await pumpYiviApp(tester, irmaBinding.repository);
 
       // the first time with new terms the dialog should show
       expect(find.byKey(const Key("terms_changed_dialog")), findsOneWidget);

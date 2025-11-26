@@ -7,7 +7,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi/mrz_processor.dart";
+import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/session.dart";
@@ -52,7 +52,7 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
 
-Future<void> pumpIrmaApp(
+Future<void> pumpYiviApp(
   WidgetTester tester,
   IrmaRepository repo, [
   Locale? defaultLanguage,
@@ -63,21 +63,21 @@ Future<void> pumpIrmaApp(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
-        mrzProcessorProvider.overrideWithValue(GoogleMLKitMrzProcessor()),
+        ocrProcessorProvider.overrideWithValue(GoogleMLKitMrzProcessor()),
         if (providerOverrides != null) ...providerOverrides,
       ],
       child: TestContext(
-        child: IrmaApp(
+        child: YiviApp(
           defaultLanguage: defaultLanguage ?? const Locale("en", "EN"),
         ),
       ),
     ),
   );
 
-  // Wait for the App widget to be build inside of the IrmaApp widget
+  // Wait for the App widget to be build inside of the YiviApp widget
   // (There is a builder wrapping the app widget that is used to check the preferred locale)
   await tester.waitFor(
-    find.descendant(of: find.byType(IrmaApp), matching: find.byType(App)),
+    find.descendant(of: find.byType(YiviApp), matching: find.byType(App)),
   );
 }
 
@@ -88,7 +88,7 @@ Future<void> pumpAndUnlockApp(
   Locale? locale,
   List<Override>? providerOverrides,
 ]) async {
-  await pumpIrmaApp(tester, repo, locale, providerOverrides);
+  await pumpYiviApp(tester, repo, locale, providerOverrides);
   await unlockAndWaitForHome(tester);
 }
 

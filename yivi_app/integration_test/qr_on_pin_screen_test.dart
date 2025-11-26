@@ -78,7 +78,7 @@ Future<void> testCancelIssuanceAfterPinEntered(
   Locale locale,
   IrmaRepository repo,
 ) async {
-  await pumpIrmaApp(tester, repo, locale);
+  await pumpYiviApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
   await pretendToScanIssuanceQrCode(tester, locale);
@@ -107,7 +107,7 @@ Future<void> testBackFromQrScanner(
   Locale locale,
   IrmaRepository repo,
 ) async {
-  await pumpIrmaApp(tester, repo, locale);
+  await pumpYiviApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
   final qrScreen = find.byType(ScannerScreen);
@@ -128,7 +128,7 @@ Future<void> testIssuance(
   Locale locale,
   IrmaRepository repo,
 ) async {
-  await pumpIrmaApp(tester, repo, locale);
+  await pumpYiviApp(tester, repo, locale);
   await tapQrScannerButton(tester);
 
   await pretendToScanIssuanceQrCode(tester, locale);

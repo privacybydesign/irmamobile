@@ -77,16 +77,16 @@ Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
               ),
             ),
         ],
-        child: IrmaApp(),
+        child: YiviApp(),
       ),
     );
   }, (error, stackTrace) => reportError(error, stackTrace));
 }
 
-class IrmaApp extends ConsumerWidget {
+class YiviApp extends ConsumerWidget {
   final Locale? defaultLanguage;
 
-  const IrmaApp({super.key, this.defaultLanguage});
+  const YiviApp({super.key, this.defaultLanguage});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

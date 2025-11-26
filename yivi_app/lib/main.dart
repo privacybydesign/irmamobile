@@ -1,7 +1,7 @@
 import "package:yivi_core/yivi_core.dart";
 
-import "mrz_processor.dart";
+import "ocr_processor.dart";
 
 void main() {
-  runYiviApp(mrzProcessor: GoogleMLKitMrzProcessor());
+  runYiviApp(ocrProcessor: GoogleMLKitMrzProcessor());
 }
