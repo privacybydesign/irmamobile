@@ -63,7 +63,7 @@ Future<void> pumpYiviApp(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
-        ocrProcessorProvider.overrideWithValue(GoogleMLKitMrzProcessor()),
+        ocrProcessorProvider.overrideWithValue(GoogleMLKitOcrProcessor()),
         if (providerOverrides != null) ...providerOverrides,
       ],
       child: TestContext(

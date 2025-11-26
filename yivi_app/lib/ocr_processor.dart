@@ -5,7 +5,7 @@ import "package:camera/camera.dart";
 import "package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart";
 import "package:yivi_core/yivi_core.dart";
 
-class GoogleMLKitMrzProcessor implements OcrProcessor {
+class GoogleMLKitOcrProcessor implements OcrProcessor {
   final _textRecognizer = TextRecognizer();
   @override
   Future<List<String>?> processImage({
