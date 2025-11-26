@@ -44,7 +44,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   void cancel() async {
     final userWantsCancel = await _showCancelDialog(context);
 
-    if (userWantsCancel) {
+    if (userWantsCancel && mounted) {
       _getDocumentReader().cancel();
       widget.onCancel?.call();
     }
@@ -53,7 +53,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   @override
   void didPopNext() {
     if (_readDocumentReaderState() is! DocumentReaderFailed) {
-      _getDocumentReader().reset();
+      if (mounted) {
+        _getDocumentReader().reset();
+      }
     }
   }
 

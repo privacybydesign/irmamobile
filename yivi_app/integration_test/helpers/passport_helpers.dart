@@ -204,6 +204,9 @@ class FakePassportReader extends DocumentReader<PassportData> {
 
   @override
   Future<void> cancel() async {
+    if (!mounted) {
+      return;
+    }
     cancelCount += 1;
     state = DocumentReaderCancelling();
     await Future<void>.delayed(Duration.zero);
@@ -211,6 +214,14 @@ class FakePassportReader extends DocumentReader<PassportData> {
     if (onCancelCompleter != null && !onCancelCompleter!.isCompleted) {
       onCancelCompleter!.complete();
     }
+  }
+
+  @override
+  void reset() {
+    if (!mounted) {
+      return;
+    }
+    super.reset();
   }
 }
 

@@ -139,7 +139,10 @@ Future<void> testDisclosePassportOpensPassportScanner(
   final fakeIssuer = FakePassportIssuer();
 
   await pumpAndUnlockApp(tester, irmaBinding.repository, Locale("en"), [
-    passportReaderProvider.overrideWith((ref, mrz) => fakeReader),
+    passportReaderProvider.overrideWith((ref, mrz) {
+      fakeReader.setMrz(mrz);
+      return fakeReader;
+    }),
     passportIssuerProvider.overrideWithValue(fakeIssuer),
   ]);
 
