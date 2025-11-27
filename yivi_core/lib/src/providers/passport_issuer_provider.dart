@@ -1,12 +1,13 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
-final passportUrlProvider = StateProvider(
+final passportIssuerUrlProvider = StateProvider(
   (ref) => "https://passport-issuer.staging.yivi.app",
 );
 
 final passportIssuerProvider = Provider<PassportIssuer>(
-  (ref) => DefaultPassportIssuer(hostName: ref.watch(passportUrlProvider)),
+  (ref) =>
+      DefaultPassportIssuer(hostName: ref.watch(passportIssuerUrlProvider)),
 );
 
 class ErrorThrowingPassportIssuer implements PassportIssuer {

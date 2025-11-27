@@ -186,7 +186,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
     countryCode: "NLD",
   );
 
-  final scannerState = tester.state<MRZScannerState>(find.byType(MRZScanner));
+  final scannerState = tester.state<MrzScannerState>(find.byType(MrzScanner));
   scannerState.widget.onSuccess(fakeMrz);
 
   await tester.pumpAndSettle();

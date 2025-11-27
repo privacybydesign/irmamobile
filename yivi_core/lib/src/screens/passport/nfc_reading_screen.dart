@@ -27,8 +27,9 @@ import "../../widgets/irma_linear_progresss_indicator.dart";
 import "../../widgets/translated_text.dart";
 import "widgets/passport_animation.dart";
 
-class NfcReadingScreen extends ConsumerStatefulWidget {
-  final ScannedPassportMRZ mrz;
+class NfcReadingScreen<DocReader extends DocumentReader>
+    extends ConsumerStatefulWidget {
+  final ScannedMrz mrz;
   final VoidCallback? onCancel;
 
   const NfcReadingScreen({required this.mrz, this.onCancel, super.key});
@@ -365,15 +366,38 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   DocumentReaderState _readDocumentReaderState() {
-    return ref.read(passportReaderProvider(widget.mrz));
+    return ref.read(switch (widget.mrz) {
+      ScannedPassportMrz() => passportReaderProvider(
+        widget.mrz as ScannedPassportMrz,
+      ),
+      ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
+        widget.mrz as ScannedDrivingLicenceMrz,
+      ),
+    });
   }
 
   DocumentReaderState _watchDocumentReaderState() {
-    return ref.watch(passportReaderProvider(widget.mrz));
+    return ref.watch(switch (widget.mrz) {
+      ScannedPassportMrz() => passportReaderProvider(
+        widget.mrz as ScannedPassportMrz,
+      ),
+      ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
+        widget.mrz as ScannedDrivingLicenceMrz,
+      ),
+    });
   }
 
-  DocumentReader<PassportData> _getDocumentReader() {
-    return ref.read(passportReaderProvider(widget.mrz).notifier);
+  DocumentReader _getDocumentReader() {
+    return ref.read(
+      switch (widget.mrz) {
+        ScannedPassportMrz() => passportReaderProvider(
+          widget.mrz as ScannedPassportMrz,
+        ),
+        ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
+          widget.mrz as ScannedDrivingLicenceMrz,
+        ),
+      }.notifier,
+    );
   }
 
   String _getTipKeyForState(DocumentReaderState state) {

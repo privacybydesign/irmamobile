@@ -1,31 +1,31 @@
 import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
-sealed class ScannedMRZ {
+sealed class ScannedMrz {
   final String documentNumber;
   final String countryCode;
   final DocumentType documentType;
 
-  ScannedMRZ({
+  ScannedMrz({
     required this.documentNumber,
     required this.countryCode,
     required this.documentType,
   });
 }
 
-class ScannedPassportMRZ extends ScannedMRZ {
+class ScannedPassportMrz extends ScannedMrz {
   final DateTime dateOfBirth;
   final DateTime dateOfExpiry;
 
-  ScannedPassportMRZ({
+  ScannedPassportMrz({
     required super.documentNumber,
     required super.countryCode,
     required this.dateOfBirth,
     required this.dateOfExpiry,
   }) : super(documentType: DocumentType.passport);
 
-  factory ScannedPassportMRZ.fromMRZResult(MRZResult mrz) {
-    return ScannedPassportMRZ(
+  factory ScannedPassportMrz.fromMRZResult(PassportMrzResult mrz) {
+    return ScannedPassportMrz(
       documentNumber: mrz.documentNumber,
       countryCode: mrz.countryCode,
       dateOfBirth: mrz.birthDate,
@@ -33,14 +33,14 @@ class ScannedPassportMRZ extends ScannedMRZ {
     );
   }
 
-  factory ScannedPassportMRZ.fromManualEntry({
+  factory ScannedPassportMrz.fromManualEntry({
     required String documentNumber,
     required DateTime dateOfBirth,
     required DateTime dateOfExpiry,
     String countryCode =
         "", // TODO: Get country code from manual entry screen as well
   }) {
-    return ScannedPassportMRZ(
+    return ScannedPassportMrz(
       documentNumber: documentNumber,
       countryCode: countryCode,
       dateOfBirth: dateOfBirth,
@@ -49,12 +49,12 @@ class ScannedPassportMRZ extends ScannedMRZ {
   }
 }
 
-class ScannedDriverLicenseMRZ extends ScannedMRZ {
+class ScannedDrivingLicenceMrz extends ScannedMrz {
   final String version;
   final String randomData;
   final String configuration;
 
-  ScannedDriverLicenseMRZ({
+  ScannedDrivingLicenceMrz({
     required super.documentNumber,
     required super.countryCode,
     required this.version,
@@ -62,8 +62,8 @@ class ScannedDriverLicenseMRZ extends ScannedMRZ {
     required this.configuration,
   }) : super(documentType: DocumentType.driverLicense);
 
-  factory ScannedDriverLicenseMRZ.fromMRZResult(MRZDriverLicenseResult mrz) {
-    return ScannedDriverLicenseMRZ(
+  factory ScannedDrivingLicenceMrz.fromMRZResult(DrivingLicenceMrzResult mrz) {
+    return ScannedDrivingLicenceMrz(
       documentNumber: mrz.documentNumber,
       countryCode: mrz.countryCode,
       version: mrz.version,
@@ -72,8 +72,10 @@ class ScannedDriverLicenseMRZ extends ScannedMRZ {
     );
   }
 
-  factory ScannedDriverLicenseMRZ.fromManualEntry({required String mrzString}) {
-    final parsed = DriverLicenseParser.parse([mrzString]);
-    return ScannedDriverLicenseMRZ.fromMRZResult(parsed);
+  factory ScannedDrivingLicenceMrz.fromManualEntry({
+    required String mrzString,
+  }) {
+    final parsed = DrivingLicenceMrzParser().parse([mrzString]);
+    return ScannedDrivingLicenceMrz.fromMRZResult(parsed);
   }
 }

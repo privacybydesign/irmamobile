@@ -4,6 +4,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
+import "package:mrz_parser/mrz_parser.dart";
 import "package:rxdart/rxdart.dart";
 
 import "src/data/irma_repository.dart";
@@ -283,56 +284,144 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         builder: (context, state) => RequiredUpdateScreen(),
       ),
       GoRoute(
-        path: "/mzr_reader",
-        builder: (context, state) {
-          return MrzReaderScreen(
-            onSuccess: (mrzResult) => context.pushNfcReadingScreen(
-              NfcReadingRouteParams(
-                docNumber: mrzResult.documentNumber,
-                dateOfBirth: mrzResult.birthDate,
-                dateOfExpiry: mrzResult.expiryDate,
-                countryCode: mrzResult.countryCode,
+        path: "/mrz",
+        builder: (context, state) => Container(),
+        routes: [
+          GoRoute(
+            path: "/manual_entry",
+            builder: (context, state) => Container(),
+            routes: [
+              GoRoute(
+                path: "/driving_licence",
+                builder: (context, state) {
+                  return ManualEntryScreen(
+                    onCancel: context.pop,
+                    onContinue: (data) {
+                      context.pushDrivingLicenceNfcReadingScreen(
+                        DrivingLicenceNfcReadingRouteParams(
+                          documentNumber: data.documentNr,
+                          version: "",
+                          randomData: "",
+                          configuration: "",
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
-            ),
-            onManualAdd: () => context.pushPassportManualEnterScreen(),
-            onCancel: () => context.pop(),
-          );
-        },
-      ),
-      GoRoute(
-        path: "/passport_manual_enter",
-        builder: (context, state) => ManualEntryScreen(
-          onCancel: () => context.pop(),
-          onContinue: (data) => context.pushNfcReadingScreen(
-            NfcReadingRouteParams(
-              docNumber: data.documentNr,
-              dateOfBirth: data.dateOfBirth,
-              dateOfExpiry: data.expiryDate,
-            ),
+              GoRoute(
+                path: "/passport",
+                builder: (context, state) {
+                  return ManualEntryScreen(
+                    onCancel: context.pop,
+                    onContinue: (data) {
+                      context.pushPassportNfcReadingScreen(
+                        PassportNfcReadingRouteParams(
+                          documentNumber: data.documentNr,
+                          dateOfBirth: data.dateOfBirth,
+                          dateOfExpiry: data.expiryDate,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
           ),
-        ),
+          GoRoute(
+            path: "/reader",
+            builder: (context, state) => Container(),
+            routes: [
+              GoRoute(
+                path: "/driving_licence",
+                builder: (context, state) {
+                  return MrzReaderScreen(
+                    onSuccess: (mrzResult) {
+                      final edlResult = mrzResult as DrivingLicenceMrzResult;
+                      context.pushDrivingLicenceNfcReadingScreen(
+                        DrivingLicenceNfcReadingRouteParams(
+                          documentNumber: edlResult.documentNumber,
+                          version: edlResult.version,
+                          randomData: edlResult.randomData,
+                          configuration: edlResult.configuration,
+                        ),
+                      );
+                    },
+                    onManualAdd: context.pushDrivingLicenceManualEntryScreen,
+                    onCancel: context.pop,
+                    mrzParser: DrivingLicenceMrzParser(),
+                  );
+                },
+              ),
+              GoRoute(
+                path: "/passport",
+                builder: (context, state) {
+                  return MrzReaderScreen(
+                    onSuccess: (mrzResult) {
+                      final passportMrz = mrzResult as PassportMrzResult;
+                      context.pushPassportNfcReadingScreen(
+                        PassportNfcReadingRouteParams(
+                          documentNumber: passportMrz.documentNumber,
+                          dateOfBirth: passportMrz.birthDate,
+                          dateOfExpiry: passportMrz.expiryDate,
+                          countryCode: passportMrz.countryCode,
+                        ),
+                      );
+                    },
+                    onManualAdd: context.pushPassportManualEntryScreen,
+                    onCancel: context.pop,
+                    mrzParser: PassportMrzParser(),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
-        path: "/nfc_reading",
-        builder: (context, state) {
-          final args = NfcReadingRouteParams.fromQueryParams(
-            state.uri.queryParameters,
-          );
-          return NfcReadingScreen(
-            mrz: ScannedPassportMRZ(
-              documentNumber: args.docNumber,
-              countryCode: args.countryCode ?? "",
-              dateOfBirth: args.dateOfBirth,
-              dateOfExpiry: args.dateOfExpiry,
-            ),
-            onCancel: () => context.goHomeScreen(),
-          );
-        },
+        path: "/nfc",
+        builder: (context, state) => Container(),
+        routes: [
+          GoRoute(
+            path: "/driving_licence",
+            builder: (context, state) {
+              final args = DrivingLicenceNfcReadingRouteParams.fromQueryParams(
+                state.uri.queryParameters,
+              );
+              return NfcReadingScreen(
+                mrz: ScannedDrivingLicenceMrz(
+                  documentNumber: args.documentNumber,
+                  countryCode: args.countryCode ?? "",
+                  version: args.version,
+                  randomData: args.randomData,
+                  configuration: args.configuration,
+                ),
+                onCancel: context.goHomeScreen,
+              );
+            },
+          ),
+          GoRoute(
+            path: "/passport",
+            builder: (context, state) {
+              final args = PassportNfcReadingRouteParams.fromQueryParams(
+                state.uri.queryParameters,
+              );
+              return NfcReadingScreen(
+                mrz: ScannedPassportMrz(
+                  documentNumber: args.documentNumber,
+                  countryCode: args.countryCode ?? "",
+                  dateOfBirth: args.dateOfBirth,
+                  dateOfExpiry: args.dateOfExpiry,
+                ),
+                onCancel: context.goHomeScreen,
+              );
+            },
+          ),
+        ],
       ),
     ],
     redirect: (context, state) {
-      if (redirectionTriggers.value.enrollmentStatus ==
-          EnrollmentStatus.unenrolled) {
+      if (redirectionTriggers.value.enrollmentStatus == .unenrolled) {
         return "/enrollment";
       }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
@@ -435,7 +524,7 @@ class RedirectionTriggers {
   });
 
   RedirectionTriggers.withDefaults()
-    : enrollmentStatus = EnrollmentStatus.undetermined,
+    : enrollmentStatus = .undetermined,
       appLocked = true,
       showDeviceRootedWarning = false,
       showNameChangedMessage = false,

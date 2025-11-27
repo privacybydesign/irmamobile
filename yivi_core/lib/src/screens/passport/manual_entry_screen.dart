@@ -8,7 +8,7 @@ import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
 import "widgets/mrz_scanner.dart";
 
-typedef MRZController = GlobalKey<MRZScannerState>;
+typedef MRZController = GlobalKey<MrzScannerState>;
 
 /// Data returned on continue.
 typedef ManualEntryData = ({
@@ -18,7 +18,6 @@ typedef ManualEntryData = ({
 });
 
 /// This screen is for when the camera doesn't work(?)
-/// TODO: can this be some kind of sheet or other option on the scanner normal screen?
 class ManualEntryScreen extends StatefulWidget {
   /// Now receives the collected data from the 3 fields.
   final void Function(ManualEntryData data) onContinue;

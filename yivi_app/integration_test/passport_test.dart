@@ -70,7 +70,7 @@ void main() {
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
       await tester.waitFor(find.byType(MrzReaderScreen));
-      await tester.waitFor(find.byType(MRZScanner));
+      await tester.waitFor(find.byType(MrzScanner));
 
       final fakeMrz = FakeMrzResult(
         documentNumber: "XR0000001",
@@ -79,8 +79,8 @@ void main() {
         countryCode: "NLD",
       );
 
-      final scannerState = tester.state<MRZScannerState>(
-        find.byType(MRZScanner),
+      final scannerState = tester.state<MrzScannerState>(
+        find.byType(MrzScanner),
       );
       scannerState.widget.onSuccess(fakeMrz);
 
@@ -137,7 +137,7 @@ void main() {
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
       await tester.waitFor(find.byType(MrzReaderScreen));
-      await tester.waitFor(find.byType(MRZScanner));
+      await tester.waitFor(find.byType(MrzScanner));
 
       final fakeMrz = FakeMrzResult(
         documentNumber: "XR0000001",
@@ -146,8 +146,8 @@ void main() {
         countryCode: "NLD",
       );
 
-      final scannerState = tester.state<MRZScannerState>(
-        find.byType(MRZScanner),
+      final scannerState = tester.state<MrzScannerState>(
+        find.byType(MrzScanner),
       );
       scannerState.widget.onSuccess(fakeMrz);
 

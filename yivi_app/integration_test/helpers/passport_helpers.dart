@@ -31,7 +31,7 @@ Future<void> navigateToNfcScreen(
   ]);
 
   final homeContext = tester.element(find.byType(HomeScreen));
-  homeContext.pushPassportManualEnterScreen();
+  homeContext.pushPassportManualEntryScreen();
   await tester.pumpAndSettle();
 
   await tester.enterText(
@@ -175,7 +175,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
   DateTime? lastExpiryDate;
   String? lastCountryCode;
 
-  void setMrz(ScannedPassportMRZ mrz) {
+  void setMrz(ScannedPassportMrz mrz) {
     lastCountryCode = mrz.countryCode;
     lastExpiryDate = mrz.dateOfExpiry;
     lastBirthDate = mrz.dateOfBirth;
@@ -233,7 +233,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
   }
 }
 
-class FakeMrzResult implements MRZResult {
+class FakeMrzResult implements MrzResult {
   FakeMrzResult({
     required this.documentNumber,
     required this.birthDate,
@@ -241,16 +241,12 @@ class FakeMrzResult implements MRZResult {
     required this.countryCode,
   });
 
-  @override
   final String documentNumber;
 
-  @override
   final DateTime birthDate;
 
-  @override
   final DateTime expiryDate;
 
-  @override
   final String countryCode;
 
   @override

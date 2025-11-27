@@ -11,23 +11,25 @@ import "../../../providers/mrz_processor_provider.dart";
 import "../../../util/test_detection.dart";
 import "camera_overlay.dart";
 
-class MRZScanner extends ConsumerStatefulWidget {
-  const MRZScanner({
+class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
+  const MrzScanner({
     Key? controller,
     required this.onSuccess,
     this.initialDirection = CameraLensDirection.back,
     this.showOverlay = true,
+    required this.mrzParser,
   }) : super(key: controller);
-  final Function(MRZResult mrzResult) onSuccess;
+  final void Function(MrzResult mrzResult) onSuccess;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
+  final Parser mrzParser;
 
   @override
   // ignore: library_private_types_in_public_api
-  MRZScannerState createState() => MRZScannerState();
+  MrzScannerState createState() => MrzScannerState();
 }
 
-class MRZScannerState extends ConsumerState<MRZScanner>
+class MrzScannerState extends ConsumerState<MrzScanner>
     with RouteAware, WidgetsBindingObserver {
   bool _canProcess = true;
   bool _isBusy = false;
@@ -233,11 +235,11 @@ class MRZScannerState extends ConsumerState<MRZScanner>
     await c?.dispose();
   }
 
-  static const _orientations = {
-    DeviceOrientation.portraitUp: 0,
-    DeviceOrientation.landscapeLeft: 90,
-    DeviceOrientation.portraitDown: 180,
-    DeviceOrientation.landscapeRight: 270,
+  static const Map<DeviceOrientation, int> _orientations = {
+    .portraitUp: 0,
+    .landscapeLeft: 90,
+    .portraitDown: 180,
+    .landscapeRight: 270,
   };
 
   int? _getImageRotation() {
@@ -249,7 +251,7 @@ class MRZScannerState extends ConsumerState<MRZScanner>
       var rotationCompensation =
           _orientations[_controller!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
-      if (camera.lensDirection == CameraLensDirection.front) {
+      if (camera.lensDirection == .front) {
         // front-facing
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
@@ -272,10 +274,14 @@ class MRZScannerState extends ConsumerState<MRZScanner>
       if (rotation == null) {
         return false;
       }
-      final result = await readMrzFromImage(
-        inputImage: inputImage,
-        imageRotation: rotation,
-      );
+
+      final lines = await ref
+          .read(ocrProcessorProvider)!
+          .processImage(inputImage: inputImage, imageRotation: rotation);
+
+      debugPrint("lines: $lines");
+      final result = widget.mrzParser.tryParse(lines);
+
       if (result != null) {
         // show success checkmark for a second and then call the onSuccess callback
         setState(() {
@@ -290,16 +296,5 @@ class MRZScannerState extends ConsumerState<MRZScanner>
     } finally {
       _isBusy = false;
     }
-  }
-
-  Future<MRZResult?> readMrzFromImage({
-    required CameraImage inputImage,
-    required int imageRotation,
-  }) async {
-    final result = await ref
-        .read(ocrProcessorProvider)!
-        .processImage(inputImage: inputImage, imageRotation: imageRotation);
-
-    return MRZParser.tryParse(result);
   }
 }

@@ -9,18 +9,20 @@ import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "widgets/mrz_scanner.dart";
 
-typedef MRZController = GlobalKey<MRZScannerState>;
+typedef MrzController = GlobalKey<MrzScannerState>;
 
 /// Mzr reading is the process of obtaining mrz data via the camera
-class MrzReaderScreen extends StatefulWidget {
-  final Function(MRZResult mrzResult) onSuccess;
+class MrzReaderScreen<Parser extends MrzParser> extends StatefulWidget {
+  final void Function(MrzResult mrzResult) onSuccess;
   final VoidCallback onManualAdd;
   final VoidCallback onCancel;
+  final Parser mrzParser;
 
   const MrzReaderScreen({
     required this.onSuccess,
     required this.onManualAdd,
     required this.onCancel,
+    required this.mrzParser,
   });
 
   @override
@@ -28,7 +30,7 @@ class MrzReaderScreen extends StatefulWidget {
 }
 
 class _MrzReaderScreenState extends State<MrzReaderScreen> {
-  final MRZController controller = MRZController();
+  final MrzController controller = MrzController();
 
   @override
   Widget build(BuildContext context) {
@@ -36,14 +38,15 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
 
     return OrientationBuilder(
       builder: (context, orientation) {
-        if (orientation == Orientation.portrait) {
+        if (orientation == .portrait) {
           return Scaffold(
             backgroundColor: theme.backgroundTertiary,
             appBar: IrmaAppBar(titleTranslationKey: "passport.scan.title"),
-            body: MRZScanner(
+            body: MrzScanner(
               controller: controller,
               showOverlay: true,
               onSuccess: widget.onSuccess,
+              mrzParser: widget.mrzParser,
             ),
             bottomNavigationBar: IrmaBottomBar(
               primaryButtonLabel: "passport.scan.manual",
@@ -64,10 +67,11 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
               onTap: widget.onCancel,
             ),
           ),
-          body: MRZScanner(
+          body: MrzScanner(
             controller: controller,
             showOverlay: true,
             onSuccess: widget.onSuccess,
+            mrzParser: widget.mrzParser,
           ),
           floatingActionButton: _ManualEntryButton(
             key: const Key("bottom_bar_primary"),
@@ -99,7 +103,7 @@ class _ManualEntryButton extends StatelessWidget {
           Positioned.fill(
             child: ClipOval(
               child: Material(
-                type: MaterialType.transparency,
+                type: .transparency,
                 child: Semantics(
                   button: true,
                   label: FlutterI18n.translate(context, "passport.scan.manual"),

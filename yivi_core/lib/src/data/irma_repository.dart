@@ -572,12 +572,38 @@ class IrmaRepository {
       );
 
       // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportUrlProvider.notifier).state = baseUri.toString();
+      ref.read(passportIssuerUrlProvider.notifier).state = baseUri.toString();
 
       if (ref.read(ocrProcessorProvider) != null) {
         context.pushPassportMrzReaderScreen();
       } else {
-        context.pushPassportManualEnterScreen();
+        context.pushPassportManualEntryScreen();
+      }
+    }
+  }
+
+  void _startDrivingLicenceIssuance(
+    BuildContext context,
+    CredentialType type,
+    WidgetRef ref,
+  ) {
+    var url = type.issueUrl.values.first;
+    if (url.isNotEmpty) {
+      var uri = Uri.parse(url);
+
+      var baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(passportIssuerUrlProvider.notifier).state = baseUri.toString();
+
+      if (ref.read(ocrProcessorProvider) != null) {
+        context.pushDrivingLicenceMrzReaderScreen();
+      } else {
+        context.pushDrivingLicenceManualEntryScreen();
       }
     }
   }
@@ -589,6 +615,9 @@ class IrmaRepository {
   ) async {
     if (type.id == "passport") {
       return _startPassportIssuance(context, type, ref);
+    }
+    if (type.id == "drivinglicence") {
+      return _startDrivingLicenceIssuance(context, type, ref);
     }
 
     final lang = FlutterI18n.currentLocale(context)!.languageCode;

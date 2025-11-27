@@ -8,7 +8,7 @@ final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
     .family<
       DocumentReader<DrivingLicenceData>,
       DocumentReaderState,
-      ScannedDriverLicenseMRZ
+      ScannedDrivingLicenceMrz
     >((ref, scannedDriverLicenceMRZ) {
       final nfc = NfcProvider();
       final AccessKey accessKey;
