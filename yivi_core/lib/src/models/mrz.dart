@@ -47,6 +47,19 @@ class ScannedPassportMrz extends ScannedMrz {
       dateOfExpiry: dateOfExpiry,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScannedPassportMrz &&
+          dateOfBirth == other.dateOfBirth &&
+          dateOfExpiry == other.dateOfExpiry &&
+          documentNumber == other.documentNumber &&
+          documentType == other.documentType;
+
+  @override
+  int get hashCode =>
+      Object.hash(dateOfBirth, dateOfExpiry, documentNumber, documentType);
 }
 
 class ScannedDrivingLicenceMrz extends ScannedMrz {
@@ -78,4 +91,23 @@ class ScannedDrivingLicenceMrz extends ScannedMrz {
     final parsed = DrivingLicenceMrzParser().parse([mrzString]);
     return ScannedDrivingLicenceMrz.fromMRZResult(parsed);
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScannedDrivingLicenceMrz &&
+          version == other.version &&
+          randomData == other.randomData &&
+          configuration == other.configuration &&
+          documentNumber == other.documentNumber &&
+          documentType == other.documentType;
+
+  @override
+  int get hashCode => Object.hash(
+    version,
+    randomData,
+    configuration,
+    documentNumber,
+    documentType,
+  );
 }

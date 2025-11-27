@@ -27,8 +27,7 @@ import "../../widgets/irma_linear_progresss_indicator.dart";
 import "../../widgets/translated_text.dart";
 import "widgets/passport_animation.dart";
 
-class NfcReadingScreen<DocReader extends DocumentReader>
-    extends ConsumerStatefulWidget {
+class NfcReadingScreen extends ConsumerStatefulWidget {
   final ScannedMrz mrz;
   final VoidCallback? onCancel;
 
@@ -232,7 +231,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         bodyKey: uiState.tipKey,
       ),
       illustration: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: SvgPicture.asset(
           yiviAsset("error/general_error_illustration.svg"),
         ),
@@ -280,7 +279,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
                 Container(
                   decoration: BoxDecoration(
                     color: disabled ? theme.error : theme.success,
-                    shape: BoxShape.circle,
+                    shape: .circle,
                   ),
                   width: 40,
                   height: 40,
@@ -310,7 +309,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
       child: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: _ScanningContent(
           tipKey: uiState.tipKey,
           progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
@@ -341,10 +340,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         "passport.nfc.nfc_disabled_explanation",
       ),
       illustration: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: _buildNfcSection(
           context,
-          EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+          .symmetric(horizontal: theme.largeSpacing),
           disabled: true,
         ),
       ),
@@ -487,17 +486,17 @@ Future _showLogsDialog(BuildContext context, String logs) async {
             maxHeight: MediaQuery.of(context).size.height * 0.8,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: .min,
+            mainAxisAlignment: .spaceBetween,
+            crossAxisAlignment: .start,
             children: [
               IrmaAppBar(
                 titleTranslationKey: "error.details_title",
                 leading: null,
               ),
               Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: .max,
+                mainAxisAlignment: .end,
                 children: [
                   IconButton(
                     onPressed: () {
@@ -511,9 +510,9 @@ Future _showLogsDialog(BuildContext context, String logs) async {
                 ],
               ),
               Flexible(
-                fit: FlexFit.loose,
+                fit: .loose,
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  padding: .all(theme.defaultSpacing),
                   child: Text(logs),
                 ),
               ),
@@ -551,14 +550,11 @@ class _TitleAndBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final isPortrait =
-        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
     return Column(
-      crossAxisAlignment: isPortrait
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: isPortrait ? .center : .start,
+      mainAxisAlignment: .center,
+      mainAxisSize: .min,
       children: [
         _OrientationAwareTranslatedText(
           titleKey,
@@ -592,10 +588,10 @@ class _NfcScaffold extends StatelessWidget {
         child: Center(
           child: OrientationBuilder(
             builder: (context, orientation) {
-              if (orientation == Orientation.landscape) {
+              if (orientation == .landscape) {
                 return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: .spaceEvenly,
+                  crossAxisAlignment: .center,
                   children: [
                     Flexible(child: instruction),
                     Flexible(child: illustration),
@@ -603,9 +599,9 @@ class _NfcScaffold extends StatelessWidget {
                 );
               }
               return Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: .center,
+                mainAxisAlignment: .center,
+                mainAxisSize: .max,
                 children: [
                   Flexible(child: illustration),
                   SizedBox(height: theme.largeSpacing),
@@ -629,30 +625,29 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isPortrait =
-        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
     final theme = IrmaTheme.of(context);
-    final alignment = isPortrait ? TextAlign.center : TextAlign.start;
-    final insets = isPortrait
-        ? EdgeInsets.symmetric(horizontal: theme.defaultSpacing)
-        : EdgeInsets.zero;
 
     return Padding(
-      padding: insets,
-      child: TranslatedText(translationKey, textAlign: alignment, style: style),
+      padding: isPortrait
+          ? .symmetric(horizontal: theme.defaultSpacing)
+          : .zero,
+      child: TranslatedText(
+        translationKey,
+        textAlign: isPortrait ? .center : .start,
+        style: style,
+      ),
     );
   }
 }
 
 String _readingErrorToHintKey(DocumentReadingError error) {
   return switch (error) {
-    DocumentReadingError.unknown => "passport.nfc.error_generic",
-    DocumentReadingError.timeoutWaitingForTag =>
-      "passport.nfc.timeout_waiting_for_tag",
-    DocumentReadingError.tagLost => "passport.nfc.tag_lost_try_again",
-    DocumentReadingError.failedToInitiateSession =>
-      "passport.nfc.failed_initiate_session",
-    DocumentReadingError.invalidatedByUser => "",
+    .unknown => "passport.nfc.error_generic",
+    .timeoutWaitingForTag => "passport.nfc.timeout_waiting_for_tag",
+    .tagLost => "passport.nfc.tag_lost_try_again",
+    .failedToInitiateSession => "passport.nfc.failed_initiate_session",
+    .invalidatedByUser => "",
   };
 }
 
@@ -688,17 +683,14 @@ class _ScanningContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final isLandscape =
-        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final isLandscape = MediaQuery.orientationOf(context) == .landscape;
 
     final textAlign = isLandscape ? TextAlign.start : TextAlign.center;
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: isLandscape
-          ? CrossAxisAlignment.start
-          : CrossAxisAlignment.center,
+      mainAxisAlignment: .start,
+      mainAxisSize: .min,
+      crossAxisAlignment: isLandscape ? .start : .center,
       children: [
         TranslatedText(
           statusKey,
@@ -719,15 +711,15 @@ class _ScanningContent extends StatelessWidget {
               color: theme.secondary,
               fontSize: 16,
               height: 1.4,
-              overflow: TextOverflow.visible,
+              overflow: .visible,
             ),
           ),
         ),
         SizedBox(height: theme.largeSpacing),
         Padding(
           padding: isLandscape
-              ? EdgeInsets.zero
-              : EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+              ? .zero
+              : .symmetric(horizontal: theme.defaultSpacing),
           child: IrmaLinearProgressIndicator(filledPercentage: progressPercent),
         ),
       ],

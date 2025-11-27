@@ -303,6 +303,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                           version: "",
                           randomData: "",
                           configuration: "",
+                          countryCode: "",
                         ),
                       );
                     },
@@ -344,6 +345,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                           version: edlResult.version,
                           randomData: edlResult.randomData,
                           configuration: edlResult.configuration,
+                          countryCode: edlResult.countryCode,
                         ),
                       );
                     },
@@ -388,10 +390,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               final args = DrivingLicenceNfcReadingRouteParams.fromQueryParams(
                 state.uri.queryParameters,
               );
+              debugPrint("args: ${state.uri.queryParameters}");
               return NfcReadingScreen(
                 mrz: ScannedDrivingLicenceMrz(
                   documentNumber: args.documentNumber,
-                  countryCode: args.countryCode ?? "",
+                  countryCode: args.countryCode,
                   version: args.version,
                   randomData: args.randomData,
                   configuration: args.configuration,

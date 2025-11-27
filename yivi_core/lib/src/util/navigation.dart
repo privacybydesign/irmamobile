@@ -255,7 +255,7 @@ class IssueWizardRouteParams {
 
 class DrivingLicenceNfcReadingRouteParams {
   final String documentNumber;
-  final String? countryCode;
+  final String countryCode;
 
   final String version;
   final String randomData;
@@ -266,7 +266,7 @@ class DrivingLicenceNfcReadingRouteParams {
     required this.version,
     required this.randomData,
     required this.configuration,
-    this.countryCode,
+    required this.countryCode,
   });
 
   Map<String, String> toQueryParams() {
@@ -275,7 +275,7 @@ class DrivingLicenceNfcReadingRouteParams {
       "version": version,
       "random_data": randomData,
       "configuration": configuration,
-      if (countryCode != null) "country_code": countryCode!,
+      "country_code": countryCode,
     };
   }
 
@@ -284,7 +284,7 @@ class DrivingLicenceNfcReadingRouteParams {
   ) {
     return DrivingLicenceNfcReadingRouteParams(
       documentNumber: params["document_number"]!,
-      countryCode: params["country_code"],
+      countryCode: params["country_code"]!,
       version: params["version"]!,
       randomData: params["random_data"]!,
       configuration: params["configuration"]!,
