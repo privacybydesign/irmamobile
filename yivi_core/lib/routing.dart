@@ -57,7 +57,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final redirectionTriggers = RedirectionListenable(repo);
 
-  final whiteListedOnLocked = {
+  const whiteListedOnLocked = {
     "/reset_pin",
     "/loading",
     "/enrollment",
@@ -338,14 +338,14 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 builder: (context, state) {
                   return MrzReaderScreen(
                     onSuccess: (mrzResult) {
-                      final edlResult = mrzResult as DrivingLicenceMrzResult;
+                      final r = mrzResult as DrivingLicenceMrzResult;
                       context.pushDrivingLicenceNfcReadingScreen(
                         DrivingLicenceNfcReadingRouteParams(
-                          documentNumber: edlResult.documentNumber,
-                          version: edlResult.version,
-                          randomData: edlResult.randomData,
-                          configuration: edlResult.configuration,
-                          countryCode: edlResult.countryCode,
+                          documentNumber: r.documentNumber,
+                          version: r.version,
+                          randomData: r.randomData,
+                          configuration: r.configuration,
+                          countryCode: r.countryCode,
                         ),
                       );
                     },
@@ -360,13 +360,13 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 builder: (context, state) {
                   return MrzReaderScreen(
                     onSuccess: (mrzResult) {
-                      final passportMrz = mrzResult as PassportMrzResult;
+                      final r = mrzResult as PassportMrzResult;
                       context.pushPassportNfcReadingScreen(
                         PassportNfcReadingRouteParams(
-                          documentNumber: passportMrz.documentNumber,
-                          dateOfBirth: passportMrz.birthDate,
-                          dateOfExpiry: passportMrz.expiryDate,
-                          countryCode: passportMrz.countryCode,
+                          documentNumber: r.documentNumber,
+                          dateOfBirth: r.birthDate,
+                          dateOfExpiry: r.expiryDate,
+                          countryCode: r.countryCode,
                         ),
                       );
                     },

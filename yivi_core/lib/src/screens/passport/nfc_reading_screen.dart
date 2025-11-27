@@ -103,7 +103,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       // start the issuance session at the irma server
       final sessionPtr = await passportIssuer.startIrmaIssuanceSession(
         result,
-        .passport,
+        switch (widget.mrz) {
+          ScannedPassportMrz() => .passport,
+          ScannedDrivingLicenceMrz() => .driverLicense,
+        },
       );
       if (!mounted) {
         return;
