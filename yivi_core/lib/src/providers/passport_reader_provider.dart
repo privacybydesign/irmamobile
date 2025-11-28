@@ -9,12 +9,12 @@ final passportReaderProvider = StateNotifierProvider.autoDispose
       DocumentReader<PassportData>,
       DocumentReaderState,
       ScannedPassportMrz
-    >((ref, scannedPassportMRZ) {
+    >((ref, mrz) {
       final nfc = NfcProvider();
       final accessKey = DBAKey(
-        scannedPassportMRZ.documentNumber,
-        scannedPassportMRZ.dateOfBirth,
-        scannedPassportMRZ.dateOfExpiry,
+        mrz.documentNumber,
+        mrz.dateOfBirth,
+        mrz.dateOfExpiry,
       );
       final dgReader = DataGroupReader(nfc, DF1.PassportAID, accessKey);
       final parser = PassportParser();
@@ -22,9 +22,7 @@ final passportReaderProvider = StateNotifierProvider.autoDispose
         documentParser: parser,
         dataGroupReader: dgReader,
         nfc: nfc,
-        config: DocumentReaderConfig(
-          readIfAvailable: {DataGroups.dg1, DataGroups.dg2, DataGroups.dg15},
-        ),
+        config: DocumentReaderConfig(readIfAvailable: {.dg1, .dg2, .dg15}),
       );
 
       ref.onDispose(docReader.cancel);
@@ -36,20 +34,17 @@ final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
       DocumentReader<DrivingLicenceData>,
       DocumentReaderState,
       ScannedDrivingLicenceMrz
-    >((ref, scannedDrivingLicenceMrz) {
+    >((ref, mrz) {
       final nfc = NfcProvider();
       final AccessKey accessKey;
       final bool enableBac;
-      if (scannedDrivingLicenceMrz.version == "1") {
+      if (mrz.version == "1") {
         accessKey = BapKey(
-          "${scannedDrivingLicenceMrz.configuration}${scannedDrivingLicenceMrz.countryCode}${scannedDrivingLicenceMrz.version}${scannedDrivingLicenceMrz.documentNumber}${scannedDrivingLicenceMrz.randomData}",
+          "${mrz.configuration}${mrz.countryCode}${mrz.version}${mrz.documentNumber}${mrz.randomData}",
         );
         enableBac = true;
       } else {
-        accessKey = CanKey(
-          scannedDrivingLicenceMrz.documentNumber,
-          scannedDrivingLicenceMrz.documentType,
-        );
+        accessKey = CanKey(mrz.documentNumber, mrz.documentType);
         enableBac = false;
       }
 
@@ -66,13 +61,7 @@ final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
         nfc: nfc,
         config: DocumentReaderConfig(
           // Skipping DG5 due to bad signature image quality
-          readIfAvailable: {
-            DataGroups.dg1,
-            DataGroups.dg6,
-            DataGroups.dg11,
-            DataGroups.dg12,
-            DataGroups.dg13,
-          },
+          readIfAvailable: {.dg1, .dg6, .dg11, .dg12, .dg13},
         ),
       );
 

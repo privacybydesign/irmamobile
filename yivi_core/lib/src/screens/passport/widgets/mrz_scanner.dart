@@ -7,7 +7,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../routing.dart";
-import "../../../providers/mrz_processor_provider.dart";
+import "../../../providers/ocr_processor_provider.dart";
 import "../../../util/test_detection.dart";
 import "camera_overlay.dart";
 
