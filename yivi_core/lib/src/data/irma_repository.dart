@@ -11,7 +11,6 @@ import "package:package_info_plus/package_info_plus.dart";
 import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
 
-import "../../yivi_core.dart";
 import "../models/applifecycle_changed_event.dart";
 import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
@@ -31,6 +30,7 @@ import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_state.dart";
 import "../models/version_information.dart";
+import "../providers/ocr_processor_provider.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";

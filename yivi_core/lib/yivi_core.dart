@@ -8,7 +8,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "app.dart";
 import "src/data/irma_preferences.dart";
 import "src/providers/irma_repository_provider.dart";
-import "src/providers/mrz_processor_provider.dart";
+import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/home/home_screen.dart";
@@ -19,7 +19,7 @@ import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
 export "src/models/mrz.dart";
-export "src/providers/mrz_processor_provider.dart";
+export "src/providers/ocr_processor_provider.dart";
 
 // The OcrProcessor is optional, when it's set to null the app won't include an mrz reader
 // and the mrz will have to be entered manually by the user.
