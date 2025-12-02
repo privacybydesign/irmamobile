@@ -338,6 +338,14 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/driving_licence",
                 builder: (context, state) {
                   return MrzReaderScreen(
+                    translationKeys: MrzReaderTranslationKeys(
+                      title: "driving_licence.scan.title",
+                      manualEntryButton: "driving_licence.scan.manual",
+                      error: "driving_licence.scan.error",
+                      success: "driving_licence.scan.success",
+                      successExplanation:
+                          "driving_licence.scan.success_explanation",
+                    ),
                     onSuccess: (mrzResult) {
                       final r = mrzResult as DrivingLicenceMrzResult;
                       context.pushDrivingLicenceNfcReadingScreen(
@@ -360,6 +368,13 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/passport",
                 builder: (context, state) {
                   return MrzReaderScreen(
+                    translationKeys: MrzReaderTranslationKeys(
+                      title: "passport.scan.title",
+                      manualEntryButton: "passport.scan.manual",
+                      error: "passport.scan.error",
+                      success: "passport.scan.success",
+                      successExplanation: "passport.scan.success_explanation",
+                    ),
                     onSuccess: (mrzResult) {
                       final r = mrzResult as PassportMrzResult;
                       context.pushPassportNfcReadingScreen(
@@ -392,6 +407,46 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 state.uri.queryParameters,
               );
               return NfcReadingScreen(
+                translationKeys: NfcReadingTranslationKeys(
+                  cancelDialogTitle: "driving_licence.nfc.cancel_dialog.title",
+                  cancelDialogExplanation:
+                      "driving_licence.nfc.cancel_dialog.explanation",
+                  cancelDialogDecline:
+                      "driving_licence.nfc.cancel_dialog.decline",
+                  cancelDialogConfirm:
+                      "driving_licence.nfc.cancel_dialog.confirm",
+                  error: "driving_licence.nfc.error",
+                  errorGeneric: "driving_licence.nfc.error_generic",
+                  title: "driving_licence.nfc.title",
+                  nfcDisabled: "driving_licence.nfc.nfc_disabled",
+                  nfcEnabled: "driving_licence.nfc.nfc_enabled",
+                  introduction: "driving_licence.nfc.introduction",
+                  startScanning: "driving_licence.nfc.start_scanning",
+                  nfcDisabledExplanation:
+                      "driving_licence.nfc.nfc_disabled_explanation",
+                  holdNearPhotoPage: "driving_licence.nfc.hold_near_photo_page",
+                  tip1: "driving_licence.nfc.tip1",
+                  tip2: "driving_licence.nfc.tip2",
+                  tip3: "driving_licence.nfc.tip3",
+                  successExplanation: "driving_licence.nfc.success_explanation",
+                  cancelledByUser: "driving_licence.nfc.cancelled_by_user",
+                  cancelled: "driving_licence.nfc.cancelled",
+                  cancelling: "driving_licence.nfc.cancelling",
+                  connecting: "driving_licence.nfc.connecting",
+                  readingCardSecurity:
+                      "driving_licence.nfc.reading_card_security",
+                  readingDocumentData:
+                      "driving_licence.nfc.reading_passport_data",
+                  authenticating: "driving_licence.nfc.authenticating",
+                  performingSecurityVerification:
+                      "driving_licence.nfc.performing_security_verification",
+                  timeoutWaitingForTag:
+                      "driving_licence.nfc.timeout_waiting_for_tag",
+                  tagLostTryAgain: "driving_licence.nfc.tag_lost_try_again",
+                  failedToInitiateSession:
+                      "driving_licence.nfc.failed_to_initiate_session",
+                  success: "driving_licence.nfc.success",
+                ),
                 mrz: ScannedDrivingLicenceMrz(
                   documentNumber: args.documentNumber,
                   countryCode: args.countryCode,
@@ -410,6 +465,41 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 state.uri.queryParameters,
               );
               return NfcReadingScreen(
+                translationKeys: NfcReadingTranslationKeys(
+                  cancelDialogTitle: "passport.nfc.cancel_dialog.title",
+                  cancelDialogExplanation:
+                      "passport.nfc.cancel_dialog.explanation",
+                  cancelDialogDecline: "passport.nfc.cancel_dialog.decline",
+                  cancelDialogConfirm: "passport.nfc.cancel_dialog.confirm",
+                  error: "passport.nfc.error",
+                  errorGeneric: "passport.nfc.error_generic",
+                  title: "passport.nfc.title",
+                  nfcDisabled: "passport.nfc.nfc_disabled",
+                  nfcEnabled: "passport.nfc.nfc_enabled",
+                  introduction: "passport.nfc.introduction",
+                  startScanning: "passport.nfc.start_scanning",
+                  nfcDisabledExplanation:
+                      "passport.nfc.nfc_disabled_explanation",
+                  holdNearPhotoPage: "passport.nfc.hold_near_photo_page",
+                  tip1: "passport.nfc.tip1",
+                  tip2: "passport.nfc.tip2",
+                  tip3: "passport.nfc.tip3",
+                  successExplanation: "passport.nfc.success_explanation",
+                  cancelledByUser: "passport.nfc.cancelled_by_user",
+                  cancelled: "passport.nfc.cancelled",
+                  cancelling: "passport.nfc.cancelling",
+                  connecting: "passport.nfc.connecting",
+                  readingCardSecurity: "passport.nfc.reading_card_security",
+                  readingDocumentData: "passport.nfc.reading_passport_data",
+                  authenticating: "passport.nfc.authenticating",
+                  performingSecurityVerification:
+                      "passport.nfc.performing_security_verification",
+                  timeoutWaitingForTag: "passport.nfc.timeout_waiting_for_tag",
+                  tagLostTryAgain: "passport.nfc.tag_lost_try_again",
+                  failedToInitiateSession:
+                      "passport.nfc.failed_to_initiate_session",
+                  success: "passport.nfc.success",
+                ),
                 mrz: ScannedPassportMrz(
                   documentNumber: args.documentNumber,
                   countryCode: args.countryCode ?? "",

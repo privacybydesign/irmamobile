@@ -15,7 +15,7 @@ class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
   const MrzScanner({
     Key? controller,
     required this.onSuccess,
-    this.initialDirection = CameraLensDirection.back,
+    this.initialDirection = .back,
     this.showOverlay = true,
     required this.mrzParser,
   }) : super(key: controller);
