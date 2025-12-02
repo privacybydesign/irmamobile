@@ -648,6 +648,63 @@
     "hint_state_on": "Double tap to turn off",
     "hint_state_off": "Double tap to turn on"
   },
+  "driving_licence": {
+    "scan": {
+      "title": "Scan driving licence",
+      "success": "Success",
+      "success_explanation": "The driving licence has been successfully scanned.",
+      "manual": "Enter manually",
+      "error": "Could not read driving licence. Please try again."
+    },
+    "manual": {
+      "title": "Enter driving licence details",
+      "explanation": "We need the Machine readable zone (MRZ) of your driving licence to access the NFC chip of the document.",
+      "fields": {
+        "mrz": "Machine readable zone (MRZ)",
+        "mrz_required": "Machine readable zone (MRZ) is required",
+        "mrz_invalid": "Machine readable zone (MRZ) is invalid"
+      }
+    },
+    "nfc": {
+      "introduction": "You'll now scan the data inside your driving licence.\n\nHold the back of your phone against your driving licence. Press start to start the scanning process.",
+      "start_scanning": "Start scanning",
+      "title": "Read driving licence",
+      "nfc_enabled": "NFC enabled",
+      "nfc_disabled": "NFC disabled",
+      "reading": "Reading...",
+      "error": "Could not read driving licence. Please try again.",
+      "nfc_not_supported": "NFC is not supported on this device.",
+      "nfc_disabled_explanation": "NFC is disabled. Please enable NFC in the system settings and try again.",
+      "nfc_interrupted": "Reading interrupted. Try again, holding your phone steady on your driving licence.",
+      "tip_1": "Don't move your phone. The reading usually only takes 10-20 seconds.",
+      "tip_2": "Hold the back of your phone against your driving licence.",
+      "tip_3": "Having trouble reading? Try removing your phone's case. This often helps strengthen the NFC signal.",
+      "success": "Success",
+      "success_explanation": "Driving licence reading completed successfully",
+      "idle": "Ready to start reading driving licence",
+      "cancelling": "Cancelling...",
+      "hold_near_photo_page": "Hold your phone near your driving licence.",
+      "cancelled": "Cancelled",
+      "connecting": "Connecting to driving licence...",
+      "finished": "Finished",
+      "reading_card_security": "Determining NFC chip access...",
+      "authenticating": "Authenticating with driving licence...",
+      "reading_passport_data": "Reading driving licence data...",
+      "performing_security_verification": "Performing security verification...",
+      "completed_successfully": "Reading driving licence completed successfully.",
+      "error_generic": "An error has occurred while reading driving licence.",
+      "failed_initiate_session": "Failed to initiate session with driving licence.",
+      "timeout_waiting_for_tag": "Timeout while waiting for driving licence tag",
+      "tag_lost_try_again": "Tag was lost. Please try again.",
+      "cancelled_by_user": "You cancelled the scanning process.",
+      "cancel_dialog": {
+        "title": "Cancel reading driving licence?",
+        "explanation": "Are you sure you want to cancel the driving licence readout?",
+        "confirm": "Yes",
+        "decline": "No"
+      }
+    }
+  },
   "passport": {
     "scan": {
       "title": "Scan passport",
@@ -697,9 +754,9 @@
       "reading_passport_data": "Reading passport data...",
       "performing_security_verification": "Performing security verification...",
       "completed_successfully": "Passport reading completed successfully.",
-      "error_generic": "An error has occurred while reading Passport.",
+      "error_generic": "An error has occurred while reading passport.",
       "failed_initiate_session": "Failed to initiate session with passport.",
-      "timeout_waiting_for_tag": "Timeout while waiting for Passport tag",
+      "timeout_waiting_for_tag": "Timeout while waiting for passport tag",
       "tag_lost_try_again": "Tag was lost. Please try again.",
       "cancelled_by_user": "You cancelled the scanning process.",
       "cancel_dialog": {

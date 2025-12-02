@@ -32,9 +32,10 @@ import "src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart";
 import "src/screens/loading/loading_screen.dart";
 import "src/screens/name_changed/name_changed_screen.dart";
 import "src/screens/notifications/notifications_tab.dart";
-import "src/screens/passport/manual_entry_screen.dart";
+import "src/screens/passport/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/passport/mrz_reader_screen.dart";
 import "src/screens/passport/nfc_reading_screen.dart";
+import "src/screens/passport/passport_mrz_manual_entry_screen.dart";
 import "src/screens/pin/pin_screen.dart";
 import "src/screens/required_update/required_update_screen.dart";
 import "src/screens/reset_pin/reset_pin_screen.dart";
@@ -294,16 +295,16 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               GoRoute(
                 path: "/driving_licence",
                 builder: (context, state) {
-                  return ManualEntryScreen(
+                  return DrivingLicenceMrzManualEntryScreen(
                     onCancel: context.pop,
                     onContinue: (data) {
                       context.pushDrivingLicenceNfcReadingScreen(
                         DrivingLicenceNfcReadingRouteParams(
-                          documentNumber: data.documentNr,
-                          version: "",
-                          randomData: "",
-                          configuration: "",
-                          countryCode: "",
+                          documentNumber: data.documentNumber,
+                          version: data.version,
+                          randomData: data.randomData,
+                          configuration: data.configuration,
+                          countryCode: data.countryCode,
                         ),
                       );
                     },
@@ -313,7 +314,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               GoRoute(
                 path: "/passport",
                 builder: (context, state) {
-                  return ManualEntryScreen(
+                  return PassportMrzManualEntryScreen(
                     onCancel: context.pop,
                     onContinue: (data) {
                       context.pushPassportNfcReadingScreen(
@@ -390,7 +391,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               final args = DrivingLicenceNfcReadingRouteParams.fromQueryParams(
                 state.uri.queryParameters,
               );
-              debugPrint("args: ${state.uri.queryParameters}");
               return NfcReadingScreen(
                 mrz: ScannedDrivingLicenceMrz(
                   documentNumber: args.documentNumber,

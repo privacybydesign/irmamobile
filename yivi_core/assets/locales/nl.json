@@ -648,6 +648,63 @@
     "hint_state_on": "Tik dubbel om uit te zetten",
     "hint_state_off": "Tik dubbel om aan te zetten"
   },
+  "driving_licence": {
+    "scan": {
+      "title": "Rijbewijs scannen",
+      "success": "Succes",
+      "success_explanation": "Het rijbewijs is succesvol gescand.",
+      "manual": "Voer handmatig in",
+      "error": "Kon rijbewijs niet lezen.\nProbeer het opnieuw."
+    },
+    "manual": {
+      "title": "Voer rijbewijs code in",
+      "explanation": "We hebben de code die voorop je rijbewijs staat (MRZ) nodig om een connectie met het document tot stand te brengen.",
+      "fields": {
+        "mrz": "Machineleebare zone (MRZ)",
+        "mrz_required": "Machineleebare zone (MRZ) is verplicht",
+        "mrz_invalid": "Machineleebare zone (MRZ) is ongeldig"
+      }
+    },
+    "nfc": {
+      "introduction": "Je gaat nu de gegevens uit je rijbewijs lezen.\n\nHoudt de achterkant van je telefoon tegen je rijbewijs aan. Druk vervolgens op start om het uitlezen te starten.",
+      "start_scanning": "Start uitlezen",
+      "title": "Lees rijbewijs",
+      "nfc_enabled": "NFC ingeschakeld",
+      "nfc_disabled": "NFC uitgeschakeld",
+      "reading": "Lezen...",
+      "error": "Kon rijbewijs niet lezen.\nProbeer het opnieuw.",
+      "nfc_not_supported": "NFC wordt niet ondersteund op dit apparaat.",
+      "nfc_disabled_explanation": "NFC is uitgeschakeld. Schakel NFC in via de systeeminstellingen en probeer het opnieuw.",
+      "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd uw telefoon stil op uw paspoort.",
+      "tip_1": "Beweeg uw telefoon niet. Het lezen duurt meestal slechts 10-20 seconden.",
+      "tip_2": "Houd de achterkant van uw telefoon tegen uw rijbewijs.",
+      "tip_3": "Problemen met lezen? Probeer de hoes van uw telefoon te verwijderen. Dit helpt vaak het NFC-signaal te versterken.",
+      "success": "Succes",
+      "success_explanation": "rijbewijs succesvol uitgelezen.",
+      "idle": "Klaar om rijbewijs te lezen",
+      "cancelling": "Bezig met annuleren...",
+      "hold_near_photo_page": "Houd uw telefoon bij het rijbewijs",
+      "cancelled": "Geannuleerd",
+      "connecting": "Verbinden met rijbewijs...",
+      "finished": "Voltooid",
+      "reading_card_security": "De toegang van de NFC-chip wordt bepaald...",
+      "authenticating": "Authenticatie met rijbewijs...",
+      "reading_passport_data": "Rijbewijsgegevens lezen...",
+      "performing_security_verification": "Bezig met veiligheidsverificatie...",
+      "completed_successfully": "Rijbewijs succesvol uitgelezen.",
+      "error_generic": "Er is een fout opgetreden bij het lezen van het rijbewijs.",
+      "failed_initiate_session": "Kan sessie met rijbewijs niet starten. Controleer de ingevoerde gegevens.",
+      "timeout_waiting_for_tag": "Time-out tijdens het wachten op rijbewijstag",
+      "tag_lost_try_again": "Tag is verloren. Probeer het opnieuw.",
+      "cancelled_by_user": "U heeft het scannen geannuleerd.",
+      "cancel_dialog": {
+        "title": "Rijbewijs uitlezen annuleren?",
+        "explanation": "Weet u zeker dat u het uitlezen van uw rijbewijs wilt annuleren?",
+        "confirm": "Ja",
+        "decline": "Nee"
+      }
+    }
+  },
   "passport": {
     "scan": {
       "title": "Paspoort scannen",
