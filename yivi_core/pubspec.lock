@@ -735,9 +735,11 @@ packages:
   mrz_parser:
     dependency: "direct main"
     description:
-      path: "../../mrz_parser"
-      relative: true
-    source: path
+      path: "."
+      ref: interfaces
+      resolved-ref: "1dd403936ac1b1b3f02daaeed7bda7de80cabc7d"
+      url: "https://github.com/privacybydesign/mrz_parser"
+    source: git
     version: "2.0.1"
   native_device_orientation:
     dependency: "direct main"

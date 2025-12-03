@@ -449,8 +449,8 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: master
-      resolved-ref: b6b9736a55433eb75883a4e8597a8e5b0662d4fe
+      ref: interfaces
+      resolved-ref: "1dd403936ac1b1b3f02daaeed7bda7de80cabc7d"
       url: "https://github.com/privacybydesign/mrz_parser"
     source: git
     version: "2.0.1"
@@ -993,8 +993,8 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: "v0.3.0"
-      resolved-ref: "87a3bb51bcd9e19b0e1e1790c36b7054191920ba"
+      ref: d42a977dbbc143537c843745e72112f9ab7694ff
+      resolved-ref: d42a977dbbc143537c843745e72112f9ab7694ff
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"
@@ -1102,5 +1102,5 @@ packages:
     source: path
     version: "0.0.1"
 sdks:
-  dart: ">=3.9.2 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.35.0"
