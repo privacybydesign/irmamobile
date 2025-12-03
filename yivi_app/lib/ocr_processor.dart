@@ -8,6 +8,7 @@ import "package:yivi_core/yivi_core.dart";
 
 class GoogleMLKitOcrProcessor implements OcrProcessor {
   final _textRecognizer = TextRecognizer();
+
   @override
   Future<List<String>?> processImage({
     required CameraImage inputImage,
