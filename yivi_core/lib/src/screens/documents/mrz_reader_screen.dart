@@ -34,8 +34,10 @@ class MrzReaderScreen<Parser extends MrzParser> extends StatefulWidget {
   final VoidCallback onCancel;
   final Parser mrzParser;
   final MrzReaderTranslationKeys translationKeys;
+  final CameraOverlayBuilder overlayBuilder;
 
   const MrzReaderScreen({
+    required this.overlayBuilder,
     required this.translationKeys,
     required this.onSuccess,
     required this.onManualAdd,
@@ -64,7 +66,7 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
             ),
             body: MrzScanner(
               controller: controller,
-              showOverlay: true,
+              overlayBuilder: widget.overlayBuilder,
               onSuccess: widget.onSuccess,
               mrzParser: widget.mrzParser,
             ),
@@ -89,7 +91,7 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
           ),
           body: MrzScanner(
             controller: controller,
-            showOverlay: true,
+            overlayBuilder: widget.overlayBuilder,
             onSuccess: widget.onSuccess,
             mrzParser: widget.mrzParser,
           ),

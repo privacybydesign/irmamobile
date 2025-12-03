@@ -2,8 +2,8 @@ import "package:flutter/material.dart";
 
 import "../../../theme/theme.dart";
 
-class MRZCameraOverlay extends StatelessWidget {
-  const MRZCameraOverlay({
+class PassportMrzCameraOverlay extends StatelessWidget {
+  const PassportMrzCameraOverlay({
     required this.child,
     required this.success,
     super.key,

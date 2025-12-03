@@ -179,7 +179,8 @@ class _DrivingLicenceAnimationState extends State<DrivingLicenceAnimation>
         return Transform.scale(
           scale: scale,
           child: SizedBox(
-            height: requestedHeight, // or use MediaQuery if dynamic height needed
+            height:
+                requestedHeight, // or use MediaQuery if dynamic height needed
             child: AnimatedBuilder(
               animation: _animationController,
               builder: (context, child) {

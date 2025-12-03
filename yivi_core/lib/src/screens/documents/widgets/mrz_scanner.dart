@@ -9,19 +9,21 @@ import "package:mrz_parser/mrz_parser.dart";
 import "../../../../routing.dart";
 import "../../../providers/ocr_processor_provider.dart";
 import "../../../util/test_detection.dart";
-import "camera_overlay.dart";
+
+typedef CameraOverlayBuilder =
+    Widget Function({required bool success, required Widget child});
 
 class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
   const MrzScanner({
     Key? controller,
     required this.onSuccess,
     this.initialDirection = .back,
-    this.showOverlay = true,
+    required this.overlayBuilder,
     required this.mrzParser,
   }) : super(key: controller);
   final void Function(MrzResult mrzResult) onSuccess;
   final CameraLensDirection initialDirection;
-  final bool showOverlay;
+  final CameraOverlayBuilder overlayBuilder;
   final Parser mrzParser;
 
   @override
@@ -130,9 +132,10 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.showOverlay
-          ? MRZCameraOverlay(success: _showSuccessCheck, child: _liveFeedBody())
-          : _liveFeedBody(),
+      body: widget.overlayBuilder(
+        success: _showSuccessCheck,
+        child: _liveFeedBody(),
+      ),
     );
   }
 

@@ -26,6 +26,8 @@ import "src/screens/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/documents/mrz_reader_screen.dart";
 import "src/screens/documents/nfc_reading_screen.dart";
 import "src/screens/documents/passport_mrz_manual_entry_screen.dart";
+import "src/screens/documents/widgets/driving_licence_mrz_camera_overlay.dart";
+import "src/screens/documents/widgets/passport_mrz_camera_overlay.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
 import "src/screens/help/help_screen.dart";
@@ -338,6 +340,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/driving_licence",
                 builder: (context, state) {
                   return MrzReaderScreen(
+                    overlayBuilder: ({required success, required child}) =>
+                        DrivingLicenceMrzCameraOverlay(
+                          success: success,
+                          child: child,
+                        ),
                     translationKeys: MrzReaderTranslationKeys(
                       title: "driving_licence.scan.title",
                       manualEntryButton: "driving_licence.scan.manual",
@@ -368,6 +375,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/passport",
                 builder: (context, state) {
                   return MrzReaderScreen(
+                    overlayBuilder: ({required success, required child}) =>
+                        PassportMrzCameraOverlay(
+                          success: success,
+                          child: child,
+                        ),
                     translationKeys: MrzReaderTranslationKeys(
                       title: "passport.scan.title",
                       manualEntryButton: "passport.scan.manual",
