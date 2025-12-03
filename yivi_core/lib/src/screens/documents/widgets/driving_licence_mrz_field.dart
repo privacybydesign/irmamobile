@@ -14,7 +14,7 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
     if (value == null || value.isEmpty) {
       return FlutterI18n.translate(
         context,
-        "driving_licence.manual.fields.mrdocument_mrz_required",
+        "driving_licence.manual.fields.mrz_required",
       );
     }
 
