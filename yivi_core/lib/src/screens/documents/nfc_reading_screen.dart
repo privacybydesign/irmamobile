@@ -666,6 +666,103 @@ class _TitleAndBody extends StatelessWidget {
   }
 }
 
+class DrivingLicenceAnimation extends StatelessWidget {
+  const DrivingLicenceAnimation({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 155,
+      height: 90,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFE0E6), Color(0xFFFFC1CC)],
+          begin: .topLeft,
+          end: .bottomRight,
+        ),
+        border: .all(color: Color(0xFFB48DA3), width: 1.2),
+        borderRadius: .circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            blurRadius: 3,
+            offset: const Offset(2, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const .all(6),
+        child: Column(
+          crossAxisAlignment: .start,
+          children: [
+            Row(
+              children: [
+                const SizedBox(width: 5),
+                const Text(
+                  "DRIVING LICENCE",
+                  style: TextStyle(
+                    color: Color(0xFF0046AD),
+                    fontWeight: .bold,
+                    fontSize: 9,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: .circular(3),
+                    border: .all(color: Colors.grey[400]!),
+                  ),
+                  child: Icon(Icons.person, size: 10, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 4),
+
+            // Middle section – main photo placeholder
+            Expanded(
+              child: Align(
+                alignment: .centerLeft,
+                child: Container(
+                  width: 38,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: .circular(3),
+                    border: .all(color: Colors.grey[400]!),
+                  ),
+                  child: Icon(Icons.person, size: 20, color: Colors.grey[600]),
+                ),
+              ),
+            ),
+
+            // MRZ line at the bottom (only text, no bar)
+            const Center(
+              child: Padding(
+                padding: .only(top: 4),
+                child: Text(
+                  "D1NLD2X150949621115MZ26KC47X2W",
+                  style: TextStyle(
+                    fontFamily: "monospace",
+                    fontWeight: .bold,
+                    fontSize: 6,
+                    color: Colors.black,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _NfcScaffold extends StatelessWidget {
   const _NfcScaffold({
     required this.titleTranslationKey,
