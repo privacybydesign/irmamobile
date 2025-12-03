@@ -282,7 +282,6 @@ class MrzScannerState extends ConsumerState<MrzScanner>
           .read(ocrProcessorProvider)!
           .processImage(inputImage: inputImage, imageRotation: rotation);
 
-      debugPrint("lines: $lines");
       final result = widget.mrzParser.tryParse(lines);
 
       if (result != null) {

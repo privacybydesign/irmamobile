@@ -10,7 +10,7 @@ class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
   });
 
   static const _documentFrameRatio =
-      1.59; // Passport's size (ISO/IEC 7810 ID-3) is 125mm × 88mm
+      1.59; // Dutch driving licence is 8.56cm by 5.398cm, resulting in this aspect ratio
   final Widget child;
   final bool success;
 
