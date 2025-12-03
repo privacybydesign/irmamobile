@@ -22,7 +22,7 @@ class ScannedPassportMrz extends ScannedMrz {
     required super.countryCode,
     required this.dateOfBirth,
     required this.dateOfExpiry,
-  }) : super(documentType: DocumentType.passport);
+  }) : super(documentType: .passport);
 
   factory ScannedPassportMrz.fromMRZResult(PassportMrzResult mrz) {
     return ScannedPassportMrz(

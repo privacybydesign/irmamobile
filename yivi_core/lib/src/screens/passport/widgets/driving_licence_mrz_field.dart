@@ -18,8 +18,8 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
       );
     }
 
-    // ICAO-style: 6–9 alphanumeric characters (A–Z, 0–9)
-    final pattern = RegExp(r"^[A-Z0-9]{6,9}$");
+    // Exactly 30 alpha numeric characters (only capital letters allowed)
+    final pattern = RegExp(r"^[A-Z0-9]{30}$");
     if (!pattern.hasMatch(value)) {
       return FlutterI18n.translate(
         context,
