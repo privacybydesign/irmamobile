@@ -754,7 +754,7 @@ Future<bool> _showCancelDialog(
         builder: (context) {
           return IrmaConfirmationDialog(
             titleTranslationKey: titleTranslationKey,
-            contentTranslationKey: confirmTranslationKey,
+            contentTranslationKey: contentTranslationKey,
             cancelTranslationKey: cancelTranslationKey,
             confirmTranslationKey: confirmTranslationKey,
             onCancelPressed: () => Navigator.of(context).pop(false),
