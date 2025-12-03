@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/cupertino.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/passport_reader_provider.dart";
@@ -37,7 +38,7 @@ void main() {
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
-      await tester.waitFor(find.byType(MrzReaderScreen));
+      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
       // move back to close the camera feed...
       await tester.tapAndSettle(find.byType(YiviBackButton));
     });
@@ -69,14 +70,19 @@ void main() {
       );
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen));
-      await tester.waitFor(find.byType(MrzScanner));
+      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
-      final fakeMrz = FakeMrzResult(
+      final fakeMrz = PassportMrzResult(
         documentNumber: "XR0000001",
         birthDate: DateTime(1990, 1, 1),
         expiryDate: DateTime(2030, 12, 31),
         countryCode: "NLD",
+        documentType: "",
+        surnames: "",
+        givenNames: "",
+        nationalityCountryCode: "",
+        sex: .male,
+        personalNumber: "",
       );
 
       final scannerState = tester.state<MrzScannerState>(
@@ -104,7 +110,7 @@ void main() {
       await openPassportDetailsScreen(tester, irmaBinding);
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen));
+      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
       final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
       await tester.tapAndSettle(cancelButton);
@@ -136,14 +142,19 @@ void main() {
       );
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen));
-      await tester.waitFor(find.byType(MrzScanner));
+      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
-      final fakeMrz = FakeMrzResult(
+      final fakeMrz = PassportMrzResult(
         documentNumber: "XR0000001",
         birthDate: DateTime(1990, 1, 1),
         expiryDate: DateTime(2030, 12, 31),
         countryCode: "NLD",
+        documentType: "",
+        surnames: "",
+        givenNames: "",
+        nationalityCountryCode: "",
+        sex: .male,
+        personalNumber: "",
       );
 
       final scannerState = tester.state<MrzScannerState>(
@@ -160,7 +171,7 @@ void main() {
       await tester.waitFor(
         find.text("Could not read passport. Please try again."),
       );
-      await tester.waitFor(find.text("Timeout while waiting for Passport tag"));
+      await tester.waitFor(find.text("Timeout while waiting for passport tag"));
 
       expect(fakeReader.readCallCount, 1);
 

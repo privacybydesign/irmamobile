@@ -4,6 +4,7 @@ import "dart:io";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/passport_reader_provider.dart";
@@ -179,11 +180,17 @@ Future<void> testDisclosePassportOpensPassportScanner(
 
   await tester.waitFor(find.byType(MrzReaderScreen));
 
-  final fakeMrz = FakeMrzResult(
+  final fakeMrz = PassportMrzResult(
     documentNumber: "XR0000001",
     birthDate: DateTime(1990, 1, 1),
     expiryDate: DateTime(2030, 12, 31),
     countryCode: "NLD",
+    documentType: "",
+    surnames: "",
+    givenNames: "",
+    nationalityCountryCode: "",
+    sex: .male,
+    personalNumber: "",
   );
 
   final scannerState = tester.state<MrzScannerState>(find.byType(MrzScanner));

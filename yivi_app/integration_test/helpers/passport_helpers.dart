@@ -233,26 +233,6 @@ class FakePassportReader extends DocumentReader<PassportData> {
   }
 }
 
-class FakeMrzResult implements MrzResult {
-  FakeMrzResult({
-    required this.documentNumber,
-    required this.birthDate,
-    required this.expiryDate,
-    required this.countryCode,
-  });
-
-  final String documentNumber;
-
-  final DateTime birthDate;
-
-  final DateTime expiryDate;
-
-  final String countryCode;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
 class _FakeNfcProvider extends NfcProvider {
   bool _connected = false;
 
