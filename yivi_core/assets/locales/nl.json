@@ -750,7 +750,7 @@
       "connecting": "Verbinden met identiteitskaart...",
       "finished": "Voltooid",
       "reading_card_security": "De toegang van de RFID-chip wordt bepaald...",
-      "authenticating": "Authenticatie met paspoort...",
+      "authenticating": "Authenticatie met identiteitskaart...",
       "reading_passport_data": "Persoonsgegevens lezen...",
       "performing_security_verification": "Bezig met veiligheidsverificatie...",
       "completed_successfully": "Identiteitskaart succesvol uitgelezen.",
