@@ -49,13 +49,13 @@ dependencies:
   mrz_parser:
     git:
       url: https://github.com/privacybydesign/mrz_parser
-      ref: interfaces
+      ref: v2.0.0
   camera: ^0.10.0+4
   camera_platform_interface: ^2.2.2
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: d42a977dbbc143537c843745e72112f9ab7694ff
+      ref: v3.1.0
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1
   # Temporary forks because their original repos are not compatible with new android api's.

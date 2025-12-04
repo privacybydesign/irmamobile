@@ -736,8 +736,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: interfaces
-      resolved-ref: "1dd403936ac1b1b3f02daaeed7bda7de80cabc7d"
+      ref: "v2.0.0"
+      resolved-ref: b6d27943d6d3eb4ca1dc584bb00f1e1c347572a1
       url: "https://github.com/privacybydesign/mrz_parser"
     source: git
     version: "2.0.1"
@@ -1376,7 +1376,7 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: d42a977dbbc143537c843745e72112f9ab7694ff
+      ref: "v3.1.0"
       resolved-ref: d42a977dbbc143537c843745e72112f9ab7694ff
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git

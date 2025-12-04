@@ -23,7 +23,7 @@ dependencies:
   mrz_parser:
     git:
       url: https://github.com/privacybydesign/mrz_parser
-      ref: interfaces
+      ref: v2.0.0
 
 dev_dependencies:
   integration_test:
@@ -36,7 +36,7 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: d42a977dbbc143537c843745e72112f9ab7694ff
+      ref: v3.1.0
   package_info_plus: ^9.0.0
   collection: ^1.18.0
   flutter_riverpod: ^2.6.1
