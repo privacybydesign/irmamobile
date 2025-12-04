@@ -27,6 +27,7 @@ import "src/screens/documents/mrz_reader_screen.dart";
 import "src/screens/documents/nfc_reading_screen.dart";
 import "src/screens/documents/passport_mrz_manual_entry_screen.dart";
 import "src/screens/documents/widgets/driving_licence_mrz_camera_overlay.dart";
+import "src/screens/documents/widgets/id_card_mrz_camera_overlay.dart";
 import "src/screens/documents/widgets/passport_mrz_camera_overlay.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
@@ -426,7 +427,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 builder: (context, state) {
                   return MrzReaderScreen(
                     overlayBuilder: ({required success, required child}) =>
-                        PassportMrzCameraOverlay(
+                        IdCardMrzCameraOverlay(
                           success: success,
                           child: child,
                         ),
