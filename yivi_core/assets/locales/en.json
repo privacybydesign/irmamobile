@@ -658,7 +658,7 @@
     },
     "manual": {
       "title": "Enter driving licence details",
-      "explanation": "We need the Machine readable zone (MRZ) of your driving licence to access the NFC chip of the document.",
+      "explanation": "We need the machine readable zone (MRZ) of your driving licence to access the RFID-chip of the document.",
       "fields": {
         "mrz": "Machine readable zone (MRZ)",
         "mrz_required": "Machine readable zone (MRZ) is required",
@@ -715,7 +715,7 @@
     },
     "manual": {
       "title": "Enter passport details",
-      "explanation": "We need the document number, date of birth and date of expiry of your passport to access the NFC chip of the passport.",
+      "explanation": "We need the document number, date of birth and date of expiry of your passport to access the RFID-chip of the passport.",
       "fields": {
         "document_nr": "Document number",
         "document_nr_required": "Document number is required",
