@@ -427,10 +427,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 builder: (context, state) {
                   return MrzReaderScreen(
                     overlayBuilder: ({required success, required child}) =>
-                        IdCardMrzCameraOverlay(
-                          success: success,
-                          child: child,
-                        ),
+                        IdCardMrzCameraOverlay(success: success, child: child),
                     translationKeys: MrzReaderTranslationKeys(
                       title: "id_card.scan.title",
                       manualEntryButton: "id_card.scan.manual",
