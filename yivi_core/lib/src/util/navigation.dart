@@ -152,18 +152,38 @@ extension RoutingHelpers on BuildContext {
   }
 
   void pushPassportMrzReaderScreen() {
-    final uri = Uri(path: "/mzr_reader");
+    final uri = Uri(path: "/mrz/reader/passport");
     push(uri.toString());
   }
 
-  void pushPassportManualEnterScreen() {
-    final uri = Uri(path: "/passport_manual_enter");
+  void pushDrivingLicenceMrzReaderScreen() {
+    final uri = Uri(path: "/mrz/reader/driving_licence");
     push(uri.toString());
   }
 
-  void pushNfcReadingScreen(NfcReadingRouteParams params) {
+  void pushPassportManualEntryScreen() {
+    final uri = Uri(path: "/mrz/manual_entry/passport");
+    push(uri.toString());
+  }
+
+  void pushDrivingLicenceManualEntryScreen() {
+    final uri = Uri(path: "/mrz/manual_entry/driving_licence");
+    push(uri.toString());
+  }
+
+  void pushPassportNfcReadingScreen(PassportNfcReadingRouteParams params) {
     final uri = Uri(
-      path: "/nfc_reading",
+      path: "/nfc/passport",
+      queryParameters: params.toQueryParams(),
+    );
+    push(uri.toString());
+  }
+
+  void pushDrivingLicenceNfcReadingScreen(
+    DrivingLicenceNfcReadingRouteParams params,
+  ) {
+    final uri = Uri(
+      path: "/nfc/driving_licence",
       queryParameters: params.toQueryParams(),
     );
     push(uri.toString());
@@ -233,14 +253,55 @@ class IssueWizardRouteParams {
 
 // =============================================================================================
 
-class NfcReadingRouteParams {
-  final String docNumber;
+class DrivingLicenceNfcReadingRouteParams {
+  final String documentNumber;
+  final String countryCode;
+
+  final String version;
+  final String randomData;
+  final String configuration;
+
+  DrivingLicenceNfcReadingRouteParams({
+    required this.documentNumber,
+    required this.version,
+    required this.randomData,
+    required this.configuration,
+    required this.countryCode,
+  });
+
+  Map<String, String> toQueryParams() {
+    return {
+      "document_number": documentNumber,
+      "version": version,
+      "random_data": randomData,
+      "configuration": configuration,
+      "country_code": countryCode,
+    };
+  }
+
+  static DrivingLicenceNfcReadingRouteParams fromQueryParams(
+    Map<String, String> params,
+  ) {
+    return DrivingLicenceNfcReadingRouteParams(
+      documentNumber: params["document_number"]!,
+      countryCode: params["country_code"]!,
+      version: params["version"]!,
+      randomData: params["random_data"]!,
+      configuration: params["configuration"]!,
+    );
+  }
+}
+
+// =============================================================================================
+
+class PassportNfcReadingRouteParams {
+  final String documentNumber;
   final DateTime dateOfBirth;
   final DateTime dateOfExpiry;
   final String? countryCode;
 
-  NfcReadingRouteParams({
-    required this.docNumber,
+  PassportNfcReadingRouteParams({
+    required this.documentNumber,
     required this.dateOfBirth,
     required this.dateOfExpiry,
     this.countryCode,
@@ -248,16 +309,18 @@ class NfcReadingRouteParams {
 
   Map<String, String> toQueryParams() {
     return {
-      "doc_number": docNumber,
+      "document_number": documentNumber,
       "date_of_birth": dateOfBirth.toIso8601String(),
       "date_of_expiry": dateOfExpiry.toIso8601String(),
       if (countryCode != null) "country_code": countryCode!,
     };
   }
 
-  static NfcReadingRouteParams fromQueryParams(Map<String, String> params) {
-    return NfcReadingRouteParams(
-      docNumber: params["doc_number"]!,
+  static PassportNfcReadingRouteParams fromQueryParams(
+    Map<String, String> params,
+  ) {
+    return PassportNfcReadingRouteParams(
+      documentNumber: params["document_number"]!,
       dateOfBirth: DateTime.parse(params["date_of_birth"]!),
       dateOfExpiry: DateTime.parse(params["date_of_expiry"]!),
       countryCode: params["country_code"],

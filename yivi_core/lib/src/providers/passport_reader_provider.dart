@@ -8,13 +8,13 @@ final passportReaderProvider = StateNotifierProvider.autoDispose
     .family<
       DocumentReader<PassportData>,
       DocumentReaderState,
-      ScannedPassportMRZ
-    >((ref, scannedPassportMRZ) {
+      ScannedPassportMrz
+    >((ref, mrz) {
       final nfc = NfcProvider();
       final accessKey = DBAKey(
-        scannedPassportMRZ.documentNumber,
-        scannedPassportMRZ.dateOfBirth,
-        scannedPassportMRZ.dateOfExpiry,
+        mrz.documentNumber,
+        mrz.dateOfBirth,
+        mrz.dateOfExpiry,
       );
       final dgReader = DataGroupReader(nfc, DF1.PassportAID, accessKey);
       final parser = PassportParser();
@@ -22,8 +22,46 @@ final passportReaderProvider = StateNotifierProvider.autoDispose
         documentParser: parser,
         dataGroupReader: dgReader,
         nfc: nfc,
+        config: DocumentReaderConfig(readIfAvailable: {.dg1, .dg2, .dg15}),
+      );
+
+      ref.onDispose(docReader.cancel);
+      return docReader;
+    });
+
+final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
+    .family<
+      DocumentReader<DrivingLicenceData>,
+      DocumentReaderState,
+      ScannedDrivingLicenceMrz
+    >((ref, mrz) {
+      final nfc = NfcProvider();
+      final AccessKey accessKey;
+      final bool enableBac;
+      if (mrz.version == "1") {
+        accessKey = BapKey(
+          "${mrz.configuration}${mrz.countryCode}${mrz.version}${mrz.documentNumber}${mrz.randomData}",
+        );
+        enableBac = true;
+      } else {
+        accessKey = CanKey(mrz.documentNumber, mrz.documentType);
+        enableBac = false;
+      }
+
+      final dgReader = DataGroupReader(
+        nfc,
+        DF1.DriverAID,
+        accessKey,
+        enableBac: enableBac,
+      );
+      final parser = DrivingLicenceParser();
+      final docReader = DocumentReader(
+        documentParser: parser,
+        dataGroupReader: dgReader,
+        nfc: nfc,
         config: DocumentReaderConfig(
-          readIfAvailable: {DataGroups.dg1, DataGroups.dg2, DataGroups.dg15},
+          // Skipping DG5 due to bad signature image quality
+          readIfAvailable: {.dg1, .dg6, .dg11, .dg12, .dg13},
         ),
       );
 

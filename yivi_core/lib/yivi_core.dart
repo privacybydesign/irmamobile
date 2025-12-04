@@ -8,7 +8,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "app.dart";
 import "src/data/irma_preferences.dart";
 import "src/providers/irma_repository_provider.dart";
-import "src/providers/mrz_processor_provider.dart";
+import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/home/home_screen.dart";
@@ -19,11 +19,11 @@ import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
 export "src/models/mrz.dart";
-export "src/providers/mrz_processor_provider.dart";
+export "src/providers/ocr_processor_provider.dart";
 
-// The MrzProcessor is optional, when it's set to null the app won't include an mrz reader
+// The OcrProcessor is optional, when it's set to null the app won't include an mrz reader
 // and the mrz will have to be entered manually by the user.
-Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
+Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
       details.exception,
@@ -67,7 +67,7 @@ Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
           preferencesProvider.overrideWithValue(preferences),
 
           // passed in from the outside so apps are not required to depend on non-FOSS implementations
-          mrzProcessorProvider.overrideWithValue(mrzProcessor),
+          ocrProcessorProvider.overrideWithValue(ocrProcessor),
 
           // can pass an environment variable to test with errors on passport issuance
           if (passportIssuanceError.isNotEmpty)
@@ -77,16 +77,16 @@ Future<void> runYiviApp({MrzProcessor? mrzProcessor}) async {
               ),
             ),
         ],
-        child: IrmaApp(),
+        child: YiviApp(),
       ),
     );
   }, (error, stackTrace) => reportError(error, stackTrace));
 }
 
-class IrmaApp extends ConsumerWidget {
+class YiviApp extends ConsumerWidget {
   final Locale? defaultLanguage;
 
-  const IrmaApp({super.key, this.defaultLanguage});
+  const YiviApp({super.key, this.defaultLanguage});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

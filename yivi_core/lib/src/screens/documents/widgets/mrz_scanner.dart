@@ -7,27 +7,31 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../routing.dart";
-import "../../../providers/mrz_processor_provider.dart";
+import "../../../providers/ocr_processor_provider.dart";
 import "../../../util/test_detection.dart";
-import "camera_overlay.dart";
 
-class MRZScanner extends ConsumerStatefulWidget {
-  const MRZScanner({
+typedef CameraOverlayBuilder =
+    Widget Function({required bool success, required Widget child});
+
+class MrzScanner<Parser extends MrzParser> extends ConsumerStatefulWidget {
+  const MrzScanner({
     Key? controller,
     required this.onSuccess,
-    this.initialDirection = CameraLensDirection.back,
-    this.showOverlay = true,
+    this.initialDirection = .back,
+    required this.overlayBuilder,
+    required this.mrzParser,
   }) : super(key: controller);
-  final Function(MRZResult mrzResult) onSuccess;
+  final void Function(MrzResult mrzResult) onSuccess;
   final CameraLensDirection initialDirection;
-  final bool showOverlay;
+  final CameraOverlayBuilder overlayBuilder;
+  final Parser mrzParser;
 
   @override
   // ignore: library_private_types_in_public_api
-  MRZScannerState createState() => MRZScannerState();
+  MrzScannerState createState() => MrzScannerState();
 }
 
-class MRZScannerState extends ConsumerState<MRZScanner>
+class MrzScannerState extends ConsumerState<MrzScanner>
     with RouteAware, WidgetsBindingObserver {
   bool _canProcess = true;
   bool _isBusy = false;
@@ -128,9 +132,10 @@ class MRZScannerState extends ConsumerState<MRZScanner>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.showOverlay
-          ? MRZCameraOverlay(success: _showSuccessCheck, child: _liveFeedBody())
-          : _liveFeedBody(),
+      body: widget.overlayBuilder(
+        success: _showSuccessCheck,
+        child: _liveFeedBody(),
+      ),
     );
   }
 
@@ -233,11 +238,11 @@ class MRZScannerState extends ConsumerState<MRZScanner>
     await c?.dispose();
   }
 
-  static const _orientations = {
-    DeviceOrientation.portraitUp: 0,
-    DeviceOrientation.landscapeLeft: 90,
-    DeviceOrientation.portraitDown: 180,
-    DeviceOrientation.landscapeRight: 270,
+  static const Map<DeviceOrientation, int> _orientations = {
+    .portraitUp: 0,
+    .landscapeLeft: 90,
+    .portraitDown: 180,
+    .landscapeRight: 270,
   };
 
   int? _getImageRotation() {
@@ -249,7 +254,7 @@ class MRZScannerState extends ConsumerState<MRZScanner>
       var rotationCompensation =
           _orientations[_controller!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
-      if (camera.lensDirection == CameraLensDirection.front) {
+      if (camera.lensDirection == .front) {
         // front-facing
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
@@ -272,9 +277,13 @@ class MRZScannerState extends ConsumerState<MRZScanner>
       if (rotation == null) {
         return false;
       }
-      final result = await ref
-          .read(mrzProcessorProvider)!
+
+      final lines = await ref
+          .read(ocrProcessorProvider)!
           .processImage(inputImage: inputImage, imageRotation: rotation);
+
+      final result = widget.mrzParser.tryParse(lines);
+
       if (result != null) {
         // show success checkmark for a second and then call the onSuccess callback
         setState(() {

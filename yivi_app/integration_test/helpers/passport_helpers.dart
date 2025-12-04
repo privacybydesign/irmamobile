@@ -4,7 +4,6 @@ import "dart:typed_data";
 import "package:flutter/cupertino.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
@@ -19,19 +18,53 @@ import "../util.dart";
 import "helpers.dart";
 import "issuance_helpers.dart";
 
-Future<void> navigateToNfcScreen(
+Future<void> navigateToDrivingLicenceNfcReadingScreen(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding,
+  FakeDrivingLicenceReader reader,
+  FakePassportIssuer issuer,
+) async {
+  await pumpAndUnlockApp(tester, binding.repository, null, [
+    drivingLicenceReaderProvider.overrideWith((ref, mrz) {
+      reader.setMrz(mrz);
+      return reader;
+    }),
+    passportIssuerProvider.overrideWithValue(issuer),
+  ]);
+
+  final homeContext = tester.element(find.byType(HomeScreen));
+  homeContext.pushDrivingLicenceManualEntryScreen();
+  await tester.pumpAndSettle();
+
+  await tester.enterText(
+    find.byKey(const Key("driving_licence_mrz_input_field")),
+    // Fake MRZ found in Dutch EDL spec
+    "D1NLD11234567890AG5R98GT5IN2L4",
+  );
+
+  final continueButton = find.byKey(const Key("bottom_bar_primary"));
+  await tester.waitFor(continueButton.hitTestable());
+  await tester.tapAndSettle(continueButton);
+
+  await tester.pump(const Duration(seconds: 1));
+}
+
+Future<void> navigateToPassportNfcReadingScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding,
   FakePassportReader reader,
   FakePassportIssuer issuer,
 ) async {
   await pumpAndUnlockApp(tester, binding.repository, null, [
-    passportReaderProvider.overrideWith((ref, mrz) => reader),
+    passportReaderProvider.overrideWith((ref, mrz) {
+      reader.setMrz(mrz);
+      return reader;
+    }),
     passportIssuerProvider.overrideWithValue(issuer),
   ]);
 
   final homeContext = tester.element(find.byType(HomeScreen));
-  homeContext.pushPassportManualEnterScreen();
+  homeContext.pushPassportManualEntryScreen();
   await tester.pumpAndSettle();
 
   await tester.enterText(
@@ -52,6 +85,39 @@ Future<void> navigateToNfcScreen(
   await tester.tapAndSettle(continueButton);
 
   await tester.pump(const Duration(seconds: 1));
+}
+
+Future<void> openDrivingLicenceDetailsScreen(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding, {
+  List<Override> overrides = const [],
+}) async {
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    null,
+    overrides.isEmpty ? null : overrides,
+  );
+
+  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
+  await tester.tapAndSettle(addDataButton);
+
+  final drivingLicenceCredential = binding
+      .repository
+      .irmaConfiguration
+      .credentialTypes
+      .values
+      .firstWhere((type) => type.id == "drivinglicence");
+
+  final edlTile = find.byKey(Key("${drivingLicenceCredential.fullId}_tile"));
+  await tester.scrollUntilVisible(
+    edlTile,
+    300,
+    scrollable: find.byType(Scrollable).last,
+  );
+  await tester.tapAndSettle(edlTile);
+
+  await tester.waitFor(find.byType(AddDataDetailsScreen));
 }
 
 Future<void> openPassportDetailsScreen(
@@ -105,6 +171,7 @@ class FakePassportIssuer implements PassportIssuer {
   @override
   Future<IrmaSessionPointer> startIrmaIssuanceSession(
     RawDocumentData passportDataResult,
+    DocumentType documentType,
   ) async {
     if (errorToThrowOnIssuance != null) {
       throw Exception(errorToThrowOnIssuance);
@@ -122,7 +189,124 @@ class FakePassportIssuer implements PassportIssuer {
   ) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<VerificationResponse> verifyDrivingLicence(
+    RawDocumentData drivingLicenceDataResult,
+  ) {
+    throw UnimplementedError();
+  }
 }
+
+// ====================================================================================
+
+class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
+  FakeDrivingLicenceReader({
+    DocumentReaderState? initialState,
+    List<DocumentReaderState> statesDuringRead = const [],
+    this.readDelayCompleter,
+    this.onCancelCompleter,
+  }) : _initialState = initialState,
+       _statesDuringRead = statesDuringRead,
+       super(
+         nfc: _FakeNfcProvider(),
+         documentParser: DrivingLicenceParser(),
+         config: DocumentReaderConfig(
+           readIfAvailable: {DataGroups.dg1, DataGroups.dg2, DataGroups.dg15},
+         ),
+         dataGroupReader: DataGroupReader(
+           _FakeNfcProvider(),
+           "".parseHex(),
+           DBAKey("", DateTime.now(), DateTime.now()),
+         ),
+       ) {
+    if (_initialState != null) {
+      state = _initialState;
+    }
+  }
+
+  @override
+  Future<void> checkNfcAvailability() async {
+    await Future.delayed(Duration.zero);
+  }
+
+  final DocumentReaderState? _initialState;
+  final List<DocumentReaderState> _statesDuringRead;
+  final Completer<void>? readDelayCompleter;
+  final Completer<void>? onCancelCompleter;
+
+  bool readCalled = false;
+  int readCallCount = 0;
+  int cancelCount = 0;
+  String? lastDocumentNumber;
+  String? lastCountryCode;
+  String? lastVersion;
+  String? lastRandomData;
+  String? lastConfiguration;
+
+  void setMrz(ScannedDrivingLicenceMrz mrz) {
+    lastCountryCode = mrz.countryCode;
+    lastDocumentNumber = mrz.documentNumber;
+    lastVersion = mrz.version;
+    lastRandomData = mrz.randomData;
+    lastConfiguration = mrz.configuration;
+  }
+
+  @override
+  Future<(DrivingLicenceData, RawDocumentData)?> readDocument({
+    required IosNfcMessageMapper iosNfcMessages,
+    NonceAndSessionId? activeAuthenticationParams,
+  }) async {
+    readCalled = true;
+    readCallCount += 1;
+
+    if (state is DocumentReaderNfcUnavailable) {
+      return null;
+    }
+
+    for (final next in _statesDuringRead) {
+      state = next;
+      await Future<void>.delayed(Duration(milliseconds: 10));
+    }
+
+    if (readDelayCompleter != null) {
+      await readDelayCompleter!.future;
+    }
+
+    if (state case DocumentReaderSuccess()) {
+      return (
+        _fakeDrivingLicenceData(),
+        RawDocumentData(dataGroups: {}, efSod: ""),
+      );
+    }
+
+    return null;
+  }
+
+  @override
+  Future<void> cancel() async {
+    if (!mounted) {
+      return;
+    }
+    cancelCount += 1;
+    state = DocumentReaderCancelling();
+    await Future<void>.delayed(Duration.zero);
+    state = DocumentReaderCancelled();
+    if (onCancelCompleter != null && !onCancelCompleter!.isCompleted) {
+      onCancelCompleter!.complete();
+    }
+  }
+
+  @override
+  void reset() {
+    if (!mounted) {
+      return;
+    }
+    super.reset();
+  }
+}
+
+// ====================================================================================
 
 class FakePassportReader extends DocumentReader<PassportData> {
   FakePassportReader({
@@ -167,7 +351,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
   DateTime? lastExpiryDate;
   String? lastCountryCode;
 
-  void setMrz(ScannedPassportMRZ mrz) {
+  void setMrz(ScannedPassportMrz mrz) {
     lastCountryCode = mrz.countryCode;
     lastExpiryDate = mrz.dateOfExpiry;
     lastBirthDate = mrz.dateOfBirth;
@@ -225,30 +409,6 @@ class FakePassportReader extends DocumentReader<PassportData> {
   }
 }
 
-class FakeMrzResult implements MRZResult {
-  FakeMrzResult({
-    required this.documentNumber,
-    required this.birthDate,
-    required this.expiryDate,
-    required this.countryCode,
-  });
-
-  @override
-  final String documentNumber;
-
-  @override
-  final DateTime birthDate;
-
-  @override
-  final DateTime expiryDate;
-
-  @override
-  final String countryCode;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
 class _FakeNfcProvider extends NfcProvider {
   bool _connected = false;
 
@@ -274,6 +434,25 @@ class _FakeNfcProvider extends NfcProvider {
   }
 }
 
+DrivingLicenceData _fakeDrivingLicenceData() {
+  return DrivingLicenceData(
+    issuingMemberState: "NLD",
+    holderSurname: "Clooney",
+    holderOtherName: "George",
+    dateOfBirth: "1980-01-10",
+    placeOfBirth: "Utrecht",
+    dateOfIssue: "2018-10-10",
+    dateOfExpiry: "2028-10-10",
+    issuingAuthority: "Gemeente Meppel",
+    documentNumber: "1234567890",
+    photoImageData: Uint8List(0),
+    bapInputString: "1234",
+    saiType: "1234",
+    aaPublicKey: null,
+    categories: [],
+  );
+}
+
 PassportData _fakePassportData() {
   final p = PassportParser();
 
@@ -284,7 +463,7 @@ PassportData _fakePassportData() {
   return PassportData(
     mrz: mrz,
     photoImageData: Uint8List(0),
-    photoImageType: ImageType.jpeg2000,
+    photoImageType: .jpeg2000,
     photoImageWidth: 0,
     photoImageHeight: 0,
   );

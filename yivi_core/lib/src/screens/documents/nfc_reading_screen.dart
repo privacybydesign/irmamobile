@@ -25,13 +25,84 @@ import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/irma_dialog.dart";
 import "../../widgets/irma_linear_progresss_indicator.dart";
 import "../../widgets/translated_text.dart";
+import "widgets/driving_licene_animation.dart";
 import "widgets/passport_animation.dart";
 
+class NfcReadingTranslationKeys {
+  final String cancelDialogTitle;
+  final String cancelDialogExplanation;
+  final String cancelDialogDecline;
+  final String cancelDialogConfirm;
+  final String error;
+  final String errorGeneric;
+  final String title;
+  final String nfcDisabled;
+  final String nfcEnabled;
+  final String introduction;
+  final String startScanning;
+  final String nfcDisabledExplanation;
+  final String holdNearPhotoPage;
+  final String tip1;
+  final String tip2;
+  final String tip3;
+  final String successExplanation;
+  final String cancelledByUser;
+  final String cancelled;
+  final String cancelling;
+  final String connecting;
+  final String readingCardSecurity;
+  final String readingDocumentData;
+  final String authenticating;
+  final String performingSecurityVerification;
+  final String timeoutWaitingForTag;
+  final String tagLostTryAgain;
+  final String failedToInitiateSession;
+  final String success;
+
+  NfcReadingTranslationKeys({
+    required this.cancelDialogTitle,
+    required this.cancelDialogExplanation,
+    required this.cancelDialogDecline,
+    required this.cancelDialogConfirm,
+    required this.error,
+    required this.errorGeneric,
+    required this.title,
+    required this.nfcDisabled,
+    required this.nfcEnabled,
+    required this.introduction,
+    required this.startScanning,
+    required this.nfcDisabledExplanation,
+    required this.holdNearPhotoPage,
+    required this.tip1,
+    required this.tip2,
+    required this.tip3,
+    required this.successExplanation,
+    required this.cancelledByUser,
+    required this.cancelled,
+    required this.cancelling,
+    required this.connecting,
+    required this.readingCardSecurity,
+    required this.readingDocumentData,
+    required this.authenticating,
+    required this.performingSecurityVerification,
+    required this.timeoutWaitingForTag,
+    required this.tagLostTryAgain,
+    required this.failedToInitiateSession,
+    required this.success,
+  });
+}
+
 class NfcReadingScreen extends ConsumerStatefulWidget {
-  final ScannedPassportMRZ mrz;
+  final ScannedMrz mrz;
+  final NfcReadingTranslationKeys translationKeys;
   final VoidCallback? onCancel;
 
-  const NfcReadingScreen({required this.mrz, this.onCancel, super.key});
+  const NfcReadingScreen({
+    required this.mrz,
+    required this.translationKeys,
+    this.onCancel,
+    super.key,
+  });
 
   @override
   ConsumerState<NfcReadingScreen> createState() => _NfcReadingScreenState();
@@ -41,8 +112,21 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     with RouteAware {
   String? issuanceError;
 
+  Widget _getAnimation() {
+    return switch (widget.mrz) {
+      ScannedPassportMrz() => PassportNfcScanningAnimation(),
+      ScannedDrivingLicenceMrz() => DrivingLicenceAnimation(),
+    };
+  }
+
   void cancel() async {
-    final userWantsCancel = await _showCancelDialog(context);
+    final userWantsCancel = await _showCancelDialog(
+      context,
+      titleTranslationKey: widget.translationKeys.cancelDialogTitle,
+      contentTranslationKey: widget.translationKeys.cancelDialogExplanation,
+      cancelTranslationKey: widget.translationKeys.cancelDialogDecline,
+      confirmTranslationKey: widget.translationKeys.cancelDialogConfirm,
+    );
 
     if (userWantsCancel && mounted) {
       _getDocumentReader().cancel();
@@ -101,7 +185,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     final passportIssuer = ref.read(passportIssuerProvider);
     try {
       // start the issuance session at the irma server
-      final sessionPtr = await passportIssuer.startIrmaIssuanceSession(result);
+      final sessionPtr = await passportIssuer.startIrmaIssuanceSession(
+        result,
+        switch (widget.mrz) {
+          ScannedPassportMrz() => .passport,
+          ScannedDrivingLicenceMrz() => .driverLicense,
+        },
+      );
       if (!mounted) {
         return;
       }
@@ -137,8 +227,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       return _buildError(
         context,
         _UiState(
-          stateKey: "passport.nfc.error",
-          tipKey: "passport.nfc.error_generic",
+          stateKey: widget.translationKeys.error,
+          tipKey: widget.translationKeys.errorGeneric,
           progress: 0,
         ),
         issuanceError!,
@@ -165,8 +255,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     }
 
     return _NfcScaffold(
+      titleTranslationKey: widget.translationKeys.title,
       instruction: _buildStatus(context, uiState),
-      illustration: PassportNfcScanningAnimation(),
+      illustration: _getAnimation(),
       bottomNavigationBar: IrmaBottomBar(
         secondaryButtonLabel: "ui.cancel",
         onSecondaryPressed: cancel,
@@ -176,16 +267,14 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   Widget _buildError(BuildContext context, _UiState uiState, String logs) {
     final theme = IrmaTheme.of(context);
-    final isPortrait =
-        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
 
     return _NfcScaffold(
+      titleTranslationKey: widget.translationKeys.title,
       instruction: Column(
-        crossAxisAlignment: isPortrait
-            ? CrossAxisAlignment.center
-            : CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: isPortrait ? .center : .start,
+        mainAxisAlignment: .center,
+        mainAxisSize: .min,
         children: [
           _OrientationAwareTranslatedText(
             uiState.stateKey,
@@ -201,7 +290,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             child: _OrientationAwareTranslatedText(
               "error.button_show_error",
               style: theme.textTheme.bodyMedium?.copyWith(
-                decoration: TextDecoration.underline,
+                decoration: .underline,
                 color: theme.link,
               ),
             ),
@@ -209,7 +298,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ],
       ),
       illustration: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: SvgPicture.asset(
           yiviAsset("error/general_error_illustration.svg"),
         ),
@@ -226,12 +315,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   Widget _buildCancelled(BuildContext context, _UiState uiState) {
     final theme = IrmaTheme.of(context);
     return _NfcScaffold(
+      titleTranslationKey: widget.translationKeys.title,
       instruction: _TitleAndBody(
         titleKey: uiState.stateKey,
         bodyKey: uiState.tipKey,
       ),
       illustration: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: SvgPicture.asset(
           yiviAsset("error/general_error_illustration.svg"),
         ),
@@ -255,13 +345,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return Container(
       decoration: BoxDecoration(
         color: theme.backgroundTertiary,
-        borderRadius: BorderRadius.circular(20),
-        border: BoxBorder.all(color: theme.tertiary),
+        borderRadius: .circular(20),
+        border: .all(color: theme.tertiary),
       ),
       child: Padding(
         padding: padding,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: .center,
           children: [
             Flexible(
               child: Icon(
@@ -272,18 +362,18 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             ),
             SizedBox(height: theme.mediumSpacing),
             Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: .min,
+              crossAxisAlignment: .center,
+              mainAxisAlignment: .center,
               children: [
                 Container(
                   decoration: BoxDecoration(
                     color: disabled ? theme.error : theme.success,
-                    shape: BoxShape.circle,
+                    shape: .circle,
                   ),
                   width: 40,
                   height: 40,
-                  alignment: Alignment.center,
+                  alignment: .center,
                   child: Icon(
                     disabled ? Icons.close : Icons.check,
                     color: Colors.white,
@@ -293,8 +383,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
                 const SizedBox(width: 12),
                 TranslatedText(
                   disabled
-                      ? "passport.nfc.nfc_disabled"
-                      : "passport.nfc.nfc_enabled",
+                      ? widget.translationKeys.nfcDisabled
+                      : widget.translationKeys.nfcEnabled,
                 ),
               ],
             ),
@@ -309,7 +399,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
       child: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: _ScanningContent(
           tipKey: uiState.tipKey,
           progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
@@ -322,10 +412,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   Widget _buildIntroductionScreen(BuildContext context) {
     return _NfcScaffold(
-      instruction: _OrientationAwareTranslatedText("passport.nfc.introduction"),
-      illustration: PassportNfcScanningAnimation(),
+      titleTranslationKey: widget.translationKeys.title,
+      instruction: _OrientationAwareTranslatedText(
+        widget.translationKeys.introduction,
+      ),
+      illustration: _getAnimation(),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: "passport.nfc.start_scanning",
+        primaryButtonLabel: widget.translationKeys.startScanning,
         onPrimaryPressed: _startScanning,
         secondaryButtonLabel: "ui.cancel",
         onSecondaryPressed: cancel,
@@ -336,14 +429,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   Widget _buildNfcUnavailableScreen(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return _NfcScaffold(
+      titleTranslationKey: widget.translationKeys.title,
       instruction: _OrientationAwareTranslatedText(
-        "passport.nfc.nfc_disabled_explanation",
+        widget.translationKeys.nfcDisabledExplanation,
       ),
       illustration: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: _buildNfcSection(
           context,
-          EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+          .symmetric(horizontal: theme.largeSpacing),
           disabled: true,
         ),
       ),
@@ -359,99 +453,81 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   _UiState passportReadingStateToUiState(DocumentReaderState state) {
     final progress = progressForState(state);
     final stateKey = _getTranslationKeyForState(state);
+    final tipKey = _getTipKeyForState(state);
 
+    return _UiState(tipKey: tipKey, progress: progress, stateKey: stateKey);
+  }
+
+  DocumentReaderState _readDocumentReaderState() {
+    return ref.read(switch (widget.mrz) {
+      ScannedPassportMrz() => passportReaderProvider(
+        widget.mrz as ScannedPassportMrz,
+      ),
+      ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
+        widget.mrz as ScannedDrivingLicenceMrz,
+      ),
+    });
+  }
+
+  DocumentReaderState _watchDocumentReaderState() {
+    return ref.watch(switch (widget.mrz) {
+      ScannedPassportMrz() => passportReaderProvider(
+        widget.mrz as ScannedPassportMrz,
+      ),
+      ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
+        widget.mrz as ScannedDrivingLicenceMrz,
+      ),
+    });
+  }
+
+  DocumentReader _getDocumentReader() {
+    return ref.read(
+      switch (widget.mrz) {
+        ScannedPassportMrz() => passportReaderProvider(
+          widget.mrz as ScannedPassportMrz,
+        ),
+        ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
+          widget.mrz as ScannedDrivingLicenceMrz,
+        ),
+      }.notifier,
+    );
+  }
+
+  String _getTipKeyForState(DocumentReaderState state) {
     return switch (state) {
-      DocumentReaderPending() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.hold_near_photo_page",
-      ),
-      DocumentReaderConnecting() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_2",
-      ),
-      DocumentReaderAuthenticating() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_2",
-      ),
-      DocumentReaderReadingCOM() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_3",
-      ),
-      DocumentReaderReadingCardAccess() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_3",
-      ),
-      DocumentReaderReadingDataGroup() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_1",
-      ),
-      DocumentReaderReadingSOD() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_2",
-      ),
-      DocumentReaderActiveAuthentication() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.tip_1",
-      ),
-      DocumentReaderSuccess() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.success_explanation",
-      ),
-      DocumentReaderFailed(:final error) => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: _readingErrorToHintKey(error),
-      ),
-      DocumentReaderCancelling() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.cancelled_by_user",
-      ),
-      DocumentReaderCancelled() => _UiState(
-        progress: progress,
-        stateKey: stateKey,
-        tipKey: "passport.nfc.cancelled_by_user",
-      ),
+      DocumentReaderPending() => widget.translationKeys.holdNearPhotoPage,
+      DocumentReaderConnecting() => widget.translationKeys.tip2,
+      DocumentReaderAuthenticating() => widget.translationKeys.tip2,
+      DocumentReaderReadingCOM() => widget.translationKeys.tip3,
+      DocumentReaderReadingCardAccess() => widget.translationKeys.tip3,
+      DocumentReaderReadingDataGroup() => widget.translationKeys.tip1,
+      DocumentReaderReadingSOD() => widget.translationKeys.tip2,
+      DocumentReaderActiveAuthentication() => widget.translationKeys.tip1,
+      DocumentReaderSuccess() => widget.translationKeys.successExplanation,
+      DocumentReaderFailed(:final error) => _readingErrorToHintKey(error),
+      DocumentReaderCancelling() => widget.translationKeys.cancelledByUser,
+      DocumentReaderCancelled() => widget.translationKeys.cancelledByUser,
       _ => throw Exception("unexpected state: $state"),
     };
   }
 
-  DocumentReaderState _readDocumentReaderState() {
-    return ref.read(passportReaderProvider(widget.mrz));
-  }
-
-  DocumentReaderState _watchDocumentReaderState() {
-    return ref.watch(passportReaderProvider(widget.mrz));
-  }
-
-  DocumentReader<PassportData> _getDocumentReader() {
-    return ref.read(passportReaderProvider(widget.mrz).notifier);
-  }
-
   String _getTranslationKeyForState(DocumentReaderState state) {
     return switch (state) {
-      DocumentReaderPending() => "passport.nfc.hold_near_photo_page",
-      DocumentReaderCancelled() => "passport.nfc.cancelled",
-      DocumentReaderCancelling() => "passport.nfc.cancelling",
-      DocumentReaderFailed() => "passport.nfc.error",
-      DocumentReaderConnecting() => "passport.nfc.connecting",
-      DocumentReaderReadingCardAccess() => "passport.nfc.reading_card_security",
-      DocumentReaderReadingCOM() => "passport.nfc.reading_passport_data",
-      DocumentReaderAuthenticating() => "passport.nfc.authenticating",
-      DocumentReaderReadingDataGroup() => "passport.nfc.reading_passport_data",
-      DocumentReaderReadingSOD() => "passport.nfc.reading_passport_data",
+      DocumentReaderPending() => widget.translationKeys.holdNearPhotoPage,
+      DocumentReaderCancelled() => widget.translationKeys.cancelled,
+      DocumentReaderCancelling() => widget.translationKeys.cancelledByUser,
+      DocumentReaderFailed() => widget.translationKeys.error,
+      DocumentReaderConnecting() => widget.translationKeys.connecting,
+      DocumentReaderReadingCardAccess() =>
+        widget.translationKeys.readingCardSecurity,
+      DocumentReaderReadingCOM() => widget.translationKeys.readingDocumentData,
+      DocumentReaderAuthenticating() => widget.translationKeys.authenticating,
+      DocumentReaderReadingDataGroup() =>
+        widget.translationKeys.readingDocumentData,
+      DocumentReaderReadingSOD() => widget.translationKeys.readingDocumentData,
       DocumentReaderActiveAuthentication() =>
-        "passport.nfc.performing_security_verification",
-      DocumentReaderSuccess() => "passport.nfc.success",
+        widget.translationKeys.performingSecurityVerification,
+      DocumentReaderSuccess() => widget.translationKeys.success,
       _ => "",
     };
   }
@@ -481,6 +557,17 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       return "$progress\n$message";
     };
   }
+
+  String _readingErrorToHintKey(DocumentReadingError error) {
+    return switch (error) {
+      .unknown => widget.translationKeys.errorGeneric,
+      .timeoutWaitingForTag => widget.translationKeys.timeoutWaitingForTag,
+      .tagLost => widget.translationKeys.tagLostTryAgain,
+      .failedToInitiateSession =>
+        widget.translationKeys.failedToInitiateSession,
+      .invalidatedByUser => "",
+    };
+  }
 }
 
 bool _isiOS26OrHigher() {
@@ -506,17 +593,17 @@ Future _showLogsDialog(BuildContext context, String logs) async {
             maxHeight: MediaQuery.of(context).size.height * 0.8,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: .min,
+            mainAxisAlignment: .spaceBetween,
+            crossAxisAlignment: .start,
             children: [
               IrmaAppBar(
                 titleTranslationKey: "error.details_title",
                 leading: null,
               ),
               Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: .max,
+                mainAxisAlignment: .end,
                 children: [
                   IconButton(
                     onPressed: () {
@@ -530,9 +617,9 @@ Future _showLogsDialog(BuildContext context, String logs) async {
                 ],
               ),
               Flexible(
-                fit: FlexFit.loose,
+                fit: .loose,
                 child: SingleChildScrollView(
-                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  padding: .all(theme.defaultSpacing),
                   child: Text(logs),
                 ),
               ),
@@ -570,14 +657,11 @@ class _TitleAndBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final isPortrait =
-        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
     return Column(
-      crossAxisAlignment: isPortrait
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: isPortrait ? .center : .start,
+      mainAxisAlignment: .center,
+      mainAxisSize: .min,
       children: [
         _OrientationAwareTranslatedText(
           titleKey,
@@ -592,11 +676,13 @@ class _TitleAndBody extends StatelessWidget {
 
 class _NfcScaffold extends StatelessWidget {
   const _NfcScaffold({
+    required this.titleTranslationKey,
     required this.instruction,
     required this.illustration,
     required this.bottomNavigationBar,
   });
 
+  final String titleTranslationKey;
   final Widget instruction;
   final Widget illustration;
   final Widget bottomNavigationBar;
@@ -606,15 +692,15 @@ class _NfcScaffold extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
-      appBar: IrmaAppBar(titleTranslationKey: "passport.nfc.title"),
+      appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
       body: SafeArea(
         child: Center(
           child: OrientationBuilder(
             builder: (context, orientation) {
-              if (orientation == Orientation.landscape) {
+              if (orientation == .landscape) {
                 return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: .spaceEvenly,
+                  crossAxisAlignment: .center,
                   children: [
                     Flexible(child: instruction),
                     Flexible(child: illustration),
@@ -622,9 +708,9 @@ class _NfcScaffold extends StatelessWidget {
                 );
               }
               return Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: .center,
+                mainAxisAlignment: .center,
+                mainAxisSize: .max,
                 children: [
                   Flexible(child: illustration),
                   SizedBox(height: theme.largeSpacing),
@@ -648,42 +734,37 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isPortrait =
-        MediaQuery.orientationOf(context) == Orientation.portrait;
+    final isPortrait = MediaQuery.orientationOf(context) == .portrait;
     final theme = IrmaTheme.of(context);
-    final alignment = isPortrait ? TextAlign.center : TextAlign.start;
-    final insets = isPortrait
-        ? EdgeInsets.symmetric(horizontal: theme.defaultSpacing)
-        : EdgeInsets.zero;
 
     return Padding(
-      padding: insets,
-      child: TranslatedText(translationKey, textAlign: alignment, style: style),
+      padding: isPortrait
+          ? .symmetric(horizontal: theme.defaultSpacing)
+          : .zero,
+      child: TranslatedText(
+        translationKey,
+        textAlign: isPortrait ? .center : .start,
+        style: style,
+      ),
     );
   }
 }
 
-String _readingErrorToHintKey(DocumentReadingError error) {
-  return switch (error) {
-    DocumentReadingError.unknown => "passport.nfc.error_generic",
-    DocumentReadingError.timeoutWaitingForTag =>
-      "passport.nfc.timeout_waiting_for_tag",
-    DocumentReadingError.tagLost => "passport.nfc.tag_lost_try_again",
-    DocumentReadingError.failedToInitiateSession =>
-      "passport.nfc.failed_initiate_session",
-    DocumentReadingError.invalidatedByUser => "",
-  };
-}
-
-Future<bool> _showCancelDialog(BuildContext context) async {
+Future<bool> _showCancelDialog(
+  BuildContext context, {
+  required String titleTranslationKey,
+  required String contentTranslationKey,
+  required String cancelTranslationKey,
+  required String confirmTranslationKey,
+}) async {
   return await showDialog(
         context: context,
         builder: (context) {
           return IrmaConfirmationDialog(
-            titleTranslationKey: "passport.nfc.cancel_dialog.title",
-            contentTranslationKey: "passport.nfc.cancel_dialog.explanation",
-            cancelTranslationKey: "passport.nfc.cancel_dialog.decline",
-            confirmTranslationKey: "passport.nfc.cancel_dialog.confirm",
+            titleTranslationKey: titleTranslationKey,
+            contentTranslationKey: contentTranslationKey,
+            cancelTranslationKey: cancelTranslationKey,
+            confirmTranslationKey: confirmTranslationKey,
             onCancelPressed: () => Navigator.of(context).pop(false),
             onConfirmPressed: () => Navigator.of(context).pop(true),
           );
@@ -707,17 +788,14 @@ class _ScanningContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final isLandscape =
-        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final isLandscape = MediaQuery.orientationOf(context) == .landscape;
 
     final textAlign = isLandscape ? TextAlign.start : TextAlign.center;
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: isLandscape
-          ? CrossAxisAlignment.start
-          : CrossAxisAlignment.center,
+      mainAxisAlignment: .start,
+      mainAxisSize: .min,
+      crossAxisAlignment: isLandscape ? .start : .center,
       children: [
         TranslatedText(
           statusKey,
@@ -738,15 +816,15 @@ class _ScanningContent extends StatelessWidget {
               color: theme.secondary,
               fontSize: 16,
               height: 1.4,
-              overflow: TextOverflow.visible,
+              overflow: .visible,
             ),
           ),
         ),
         SizedBox(height: theme.largeSpacing),
         Padding(
           padding: isLandscape
-              ? EdgeInsets.zero
-              : EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+              ? .zero
+              : .symmetric(horizontal: theme.defaultSpacing),
           child: IrmaLinearProgressIndicator(filledPercentage: progressPercent),
         ),
       ],

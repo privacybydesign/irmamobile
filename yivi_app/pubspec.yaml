@@ -7,7 +7,7 @@ version: 7.11.2+4194491
 publish_to: none
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.10.0
 
 dependencies:
   flutter:
@@ -15,7 +15,7 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   sentry_flutter: ^9.4.0
-  yivi_core: 
+  yivi_core:
     path: ../yivi_core
   google_mlkit_text_recognition: ^0.15.0
   google_mlkit_commons: ^0.11.0
@@ -23,7 +23,7 @@ dependencies:
   mrz_parser:
     git:
       url: https://github.com/privacybydesign/mrz_parser
-      ref: master
+      ref: v2.0.0
 
 dev_dependencies:
   integration_test:
@@ -36,7 +36,7 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v0.3.0
+      ref: v3.1.0
   package_info_plus: ^9.0.0
   collection: ^1.18.0
   flutter_riverpod: ^2.6.1

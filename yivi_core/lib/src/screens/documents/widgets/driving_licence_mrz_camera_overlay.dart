@@ -2,15 +2,15 @@ import "package:flutter/material.dart";
 
 import "../../../theme/theme.dart";
 
-class MRZCameraOverlay extends StatelessWidget {
-  const MRZCameraOverlay({
+class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
+  const DrivingLicenceMrzCameraOverlay({
     required this.child,
     required this.success,
     super.key,
   });
 
   static const _documentFrameRatio =
-      1.42; // Passport's size (ISO/IEC 7810 ID-3) is 125mm × 88mm
+      1.59; // Dutch driving licence is 8.56cm by 5.398cm, resulting in this aspect ratio
   final Widget child;
   final bool success;
 
@@ -24,7 +24,7 @@ class MRZCameraOverlay extends StatelessWidget {
           Size(c.maxWidth, c.maxHeight),
         );
         final numChars = maxLtApprox(
-          overlayRect.width - theme.tinySpacing,
+          overlayRect.width - theme.defaultSpacing,
           theme.mrzLabel,
         );
         final guidelines = "<" * numChars;
@@ -36,6 +36,17 @@ class MRZCameraOverlay extends StatelessWidget {
               child: Container(
                 foregroundDecoration: const BoxDecoration(
                   color: Color.fromRGBO(0, 0, 0, 0.45),
+                ),
+              ),
+            ),
+            Align(
+              alignment: .centerLeft,
+              child: Padding(
+                padding: .only(left: overlayRect.left + 10),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white.withAlpha(150),
+                  size: 125,
                 ),
               ),
             ),
@@ -53,20 +64,12 @@ class MRZCameraOverlay extends StatelessWidget {
                 color: Colors.transparent,
               ),
               Align(
-                alignment: Alignment.bottomCenter,
+                alignment: .bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: c.maxHeight - overlayRect.bottom + 20,
+                  padding: .only(
+                    bottom: c.maxHeight - overlayRect.bottom + 30,
                   ), // 20px above the bottom
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(guidelines, style: theme.mrzLabel),
-                      SizedBox(height: theme.tinySpacing),
-                      Text(guidelines, style: theme.mrzLabel),
-                    ],
-                  ),
+                  child: Text(guidelines, style: theme.mrzLabel),
                 ),
               ),
             ],

@@ -6,35 +6,39 @@ import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/translated_text.dart";
 import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
-import "widgets/mrz_scanner.dart";
-
-typedef MRZController = GlobalKey<MRZScannerState>;
 
 /// Data returned on continue.
-typedef ManualEntryData = ({
-  String documentNr,
-  DateTime dateOfBirth,
-  DateTime expiryDate,
-});
+class PassportMrzManualEntryData {
+  final String documentNr;
+  final DateTime dateOfBirth;
+  final DateTime expiryDate;
+
+  PassportMrzManualEntryData({
+    required this.documentNr,
+    required this.dateOfBirth,
+    required this.expiryDate,
+  });
+}
 
 /// This screen is for when the camera doesn't work(?)
-/// TODO: can this be some kind of sheet or other option on the scanner normal screen?
-class ManualEntryScreen extends StatefulWidget {
+class PassportMrzManualEntryScreen extends StatefulWidget {
   /// Now receives the collected data from the 3 fields.
-  final void Function(ManualEntryData data) onContinue;
+  final void Function(PassportMrzManualEntryData data) onContinue;
   final VoidCallback onCancel;
 
-  const ManualEntryScreen({
+  const PassportMrzManualEntryScreen({
     required this.onContinue,
     required this.onCancel,
     super.key,
   });
 
   @override
-  State<ManualEntryScreen> createState() => _ManualEntryScreenState();
+  State<PassportMrzManualEntryScreen> createState() =>
+      _PassportMrzManualEntryScreenState();
 }
 
-class _ManualEntryScreenState extends State<ManualEntryScreen> {
+class _PassportMrzManualEntryScreenState
+    extends State<PassportMrzManualEntryScreen> {
   final _manualEntryFormKey = GlobalKey<FormState>();
 
   final _documentNrCtrl = TextEditingController();
@@ -58,7 +62,7 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
   void _onContinuePressed() {
     final form = _manualEntryFormKey.currentState;
     if (form != null && form.validate()) {
-      final data = (
+      final data = PassportMrzManualEntryData(
         documentNr: _documentNrCtrl.text.trim(),
         dateOfBirth: _parseDate(_dateOfBirthCtrl.text.trim()),
         expiryDate: _parseDate(_expiryDateCtrl.text.trim()),
