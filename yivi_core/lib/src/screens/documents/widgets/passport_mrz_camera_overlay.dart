@@ -24,7 +24,7 @@ class PassportMrzCameraOverlay extends StatelessWidget {
           Size(c.maxWidth, c.maxHeight),
         );
         final numChars = maxLtApprox(
-          overlayRect.width - theme.tinySpacing,
+          overlayRect.width - theme.defaultSpacing,
           theme.mrzLabel,
         );
         final guidelines = "<" * numChars;
@@ -36,6 +36,17 @@ class PassportMrzCameraOverlay extends StatelessWidget {
               child: Container(
                 foregroundDecoration: const BoxDecoration(
                   color: Color.fromRGBO(0, 0, 0, 0.45),
+                ),
+              ),
+            ),
+            Align(
+              alignment: .centerLeft,
+              child: Padding(
+                padding: .only(left: overlayRect.left + 2, bottom: 30),
+                child: Icon(
+                  Icons.person,
+                  color: Colors.white.withAlpha(150),
+                  size: 150,
                 ),
               ),
             ),
