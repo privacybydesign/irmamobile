@@ -1,14 +1,29 @@
 import "package:flutter/material.dart";
 
-class DrivingLicenceAnimation extends StatefulWidget {
+import "../../../util/test_detection.dart";
+
+class DrivingLicenceAnimation extends StatelessWidget {
   const DrivingLicenceAnimation({super.key});
 
   @override
-  State<DrivingLicenceAnimation> createState() =>
+  Widget build(BuildContext context) {
+    final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
+    return TickerMode(
+      enabled: !isIntegrationTest,
+      child: _DrivingLicenceAnimation(),
+    );
+  }
+}
+
+class _DrivingLicenceAnimation extends StatefulWidget {
+  const _DrivingLicenceAnimation();
+
+  @override
+  State<_DrivingLicenceAnimation> createState() =>
       _DrivingLicenceAnimationState();
 }
 
-class _DrivingLicenceAnimationState extends State<DrivingLicenceAnimation>
+class _DrivingLicenceAnimationState extends State<_DrivingLicenceAnimation>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _positionAnimation;
@@ -92,7 +107,7 @@ class _DrivingLicenceAnimationState extends State<DrivingLicenceAnimation>
         borderRadius: .circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
+            color: Colors.grey.withAlpha(40),
             blurRadius: 3,
             offset: const Offset(2, 2),
           ),
@@ -157,7 +172,7 @@ class _DrivingLicenceAnimationState extends State<DrivingLicenceAnimation>
                   style: TextStyle(
                     fontFamily: "monospace",
                     fontWeight: .bold,
-                    fontSize: 6,
+                    fontSize: 5.8,
                     color: Colors.black,
                     letterSpacing: 1,
                   ),

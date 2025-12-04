@@ -45,8 +45,8 @@ class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
                 padding: .only(left: overlayRect.left + 10),
                 child: Icon(
                   Icons.person,
-                  color: Colors.white.withAlpha(100),
-                  size: 150,
+                  color: Colors.white.withAlpha(150),
+                  size: 125,
                 ),
               ),
             ),
