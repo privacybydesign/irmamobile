@@ -178,7 +178,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
   await tester.tapAndSettle(find.text("Add"));
 
-  await tester.waitFor(find.byType(MrzReaderScreen));
+  await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
   final fakeMrz = PassportMrzResult(
     documentNumber: "XR0000001",
