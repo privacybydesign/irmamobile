@@ -116,6 +116,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return switch (widget.mrz) {
       ScannedPassportMrz() => PassportNfcScanningAnimation(),
       ScannedDrivingLicenceMrz() => DrivingLicenceAnimation(),
+      ScannedIdCardMrz() => DrivingLicenceAnimation(),
     };
   }
 
@@ -189,7 +190,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         result,
         switch (widget.mrz) {
           ScannedPassportMrz() => .passport,
-          ScannedDrivingLicenceMrz() => .driverLicense,
+          ScannedDrivingLicenceMrz() => .drivingLicence,
+          ScannedIdCardMrz() => .idCard,
         },
       );
       if (!mounted) {
@@ -466,6 +468,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
         widget.mrz as ScannedDrivingLicenceMrz,
       ),
+      ScannedIdCardMrz() => idCardReaderProvider(
+        widget.mrz as ScannedIdCardMrz,
+      ),
     });
   }
 
@@ -476,6 +481,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       ),
       ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
         widget.mrz as ScannedDrivingLicenceMrz,
+      ),
+      ScannedIdCardMrz() => idCardReaderProvider(
+        widget.mrz as ScannedIdCardMrz,
       ),
     });
   }
@@ -488,6 +496,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ),
         ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
           widget.mrz as ScannedDrivingLicenceMrz,
+        ),
+        ScannedIdCardMrz() => idCardReaderProvider(
+          widget.mrz as ScannedIdCardMrz,
         ),
       }.notifier,
     );
