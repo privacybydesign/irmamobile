@@ -25,9 +25,9 @@ import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
+import "helpers/document_reading_helpers.dart";
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
-import "helpers/passport_helpers.dart";
 import "irma_binding.dart";
 import "util.dart";
 

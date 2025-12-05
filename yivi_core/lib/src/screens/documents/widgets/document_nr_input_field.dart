@@ -41,7 +41,6 @@ class DocumentNrInputField extends StatelessWidget {
       controller: controller,
       keyboardType: .text,
       textCapitalization: .characters,
-      autofillHints: const [AutofillHints.creditCardNumber],
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,
       inputFormatters: [

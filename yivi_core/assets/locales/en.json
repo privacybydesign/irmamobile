@@ -751,7 +751,7 @@
       "finished": "Finished",
       "reading_card_security": "Determining RFID-chip access...",
       "authenticating": "Authenticating with ID-card...",
-      "reading_passport_data": "Reading identity card data...",
+      "reading_passport_data": "Reading ID-card data...",
       "performing_security_verification": "Performing security verification...",
       "completed_successfully": "Reading ID-card completed successfully.",
       "error_generic": "An error has occurred while reading ID-card.",
