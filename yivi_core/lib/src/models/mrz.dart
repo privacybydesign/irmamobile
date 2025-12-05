@@ -22,7 +22,7 @@ class ScannedIdCardMrz extends ScannedMrz {
     required super.countryCode,
     required this.dateOfBirth,
     required this.dateOfExpiry,
-  }) : super(documentType: .idCard);
+  }) : super(documentType: .identityCard);
 
   factory ScannedIdCardMrz.fromMRZResult(PassportMrzResult mrz) {
     return ScannedIdCardMrz(

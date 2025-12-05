@@ -192,7 +192,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         switch (widget.mrz) {
           ScannedPassportMrz() => .passport,
           ScannedDrivingLicenceMrz() => .drivingLicence,
-          ScannedIdCardMrz() => .idCard,
+          ScannedIdCardMrz() => .identityCard,
         },
       );
       if (!mounted) {

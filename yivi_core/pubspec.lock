@@ -736,8 +736,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: c6e3cbaba1e3dcab13edb15e3fc71c811736032d
-      resolved-ref: c6e3cbaba1e3dcab13edb15e3fc71c811736032d
+      ref: "v3.0.0"
+      resolved-ref: "60707b97560fef5015a4e53c0a07354971a01b18"
       url: "https://github.com/privacybydesign/mrz_parser"
     source: git
     version: "2.0.1"
@@ -1376,8 +1376,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "3ceb6251abedb817730e04a9f73fc6d2c5168264"
-      resolved-ref: "3ceb6251abedb817730e04a9f73fc6d2c5168264"
+      ref: "v3.2.0"
+      resolved-ref: "6d0068916e9e7436947ade326b33bcbfc2744c37"
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"

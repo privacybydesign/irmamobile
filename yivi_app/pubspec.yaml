@@ -32,7 +32,7 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: 3ceb6251abedb817730e04a9f73fc6d2c5168264
+      ref: v3.2.0
   package_info_plus: ^9.0.0
   collection: ^1.18.0
   flutter_riverpod: ^2.6.1
@@ -40,7 +40,7 @@ dev_dependencies:
   mrz_parser:
     git:
       url: https://github.com/privacybydesign/mrz_parser
-      ref: c6e3cbaba1e3dcab13edb15e3fc71c811736032d
+      ref: v3.0.0
 
 flutter:
   uses-material-design: true
