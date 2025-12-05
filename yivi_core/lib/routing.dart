@@ -446,9 +446,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                         ),
                       );
                     },
-                    onManualAdd: context.pushPassportManualEntryScreen,
+                    onManualAdd: context.pushIdCardManualEntryScreen,
                     onCancel: context.pop,
-                    mrzParser: PassportMrzParser(),
+                    mrzParser: IdCardMrzParser(),
                   );
                 },
               ),

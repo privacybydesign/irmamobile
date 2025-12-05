@@ -39,17 +39,6 @@ class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
                 ),
               ),
             ),
-            Align(
-              alignment: .centerLeft,
-              child: Padding(
-                padding: .only(left: overlayRect.left + 10),
-                child: Icon(
-                  Icons.person,
-                  color: Colors.white.withAlpha(150),
-                  size: 125,
-                ),
-              ),
-            ),
             if (success) ...[
               _ColoredBoxOverlay(
                 rect: overlayRect,
@@ -58,6 +47,17 @@ class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
               ),
               Center(child: Icon(Icons.check, color: Colors.white, size: 200)),
             ] else ...[
+              Align(
+                alignment: .centerLeft,
+                child: Padding(
+                  padding: .only(left: overlayRect.left + 10),
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.white.withAlpha(150),
+                    size: 125,
+                  ),
+                ),
+              ),
               _ColoredBoxOverlay(
                 rect: overlayRect,
                 borderColor: Colors.white,

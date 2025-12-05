@@ -20,10 +20,6 @@ dependencies:
   google_mlkit_text_recognition: ^0.15.0
   google_mlkit_commons: ^0.11.0
   camera: ^0.10.0+4
-  mrz_parser:
-    git:
-      url: https://github.com/privacybydesign/mrz_parser
-      ref: v2.0.0
 
 dev_dependencies:
   integration_test:
@@ -41,6 +37,10 @@ dev_dependencies:
   collection: ^1.18.0
   flutter_riverpod: ^2.6.1
   rxdart: ^0.28.0
+  mrz_parser:
+    git:
+      url: https://github.com/privacybydesign/mrz_parser
+      ref: c6e3cbaba1e3dcab13edb15e3fc71c811736032d
 
 flutter:
   uses-material-design: true

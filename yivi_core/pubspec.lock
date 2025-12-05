@@ -736,8 +736,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v2.0.0"
-      resolved-ref: b6d27943d6d3eb4ca1dc584bb00f1e1c347572a1
+      ref: c6e3cbaba1e3dcab13edb15e3fc71c811736032d
+      resolved-ref: c6e3cbaba1e3dcab13edb15e3fc71c811736032d
       url: "https://github.com/privacybydesign/mrz_parser"
     source: git
     version: "2.0.1"
