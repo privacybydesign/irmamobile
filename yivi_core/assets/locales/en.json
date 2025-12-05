@@ -707,11 +707,11 @@
   },
   "id_card": {
     "scan": {
-      "title": "Scan identity card",
+      "title": "Scan ID-card",
       "success": "Success",
-      "success_explanation": "The identity card has been successfully scanned.",
+      "success_explanation": "The ID-card has been successfully scanned.",
       "manual": "Enter manually",
-      "error": "Could not read identity card. Please try again."
+      "error": "Could not read ID-card. Please try again."
     },
     "manual": {
       "title": "Enter ID-card details",
@@ -730,7 +730,7 @@
     "nfc": {
       "introduction": "You'll now scan the data inside your ID-card.\n\nHold the back of your phone against your ID-card. Press start to start the scanning process.",
       "start_scanning": "Start scanning",
-      "title": "Read identity card",
+      "title": "Read ID-card",
       "nfc_enabled": "NFC enabled",
       "nfc_disabled": "NFC disabled",
       "reading": "Reading...",
