@@ -25,7 +25,8 @@ import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/irma_dialog.dart";
 import "../../widgets/irma_linear_progresss_indicator.dart";
 import "../../widgets/translated_text.dart";
-import "widgets/driving_licene_animation.dart";
+import "widgets/driving_licence_animation.dart";
+import "widgets/id_card_animation.dart";
 import "widgets/passport_animation.dart";
 
 class NfcReadingTranslationKeys {
@@ -116,6 +117,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return switch (widget.mrz) {
       ScannedPassportMrz() => PassportNfcScanningAnimation(),
       ScannedDrivingLicenceMrz() => DrivingLicenceAnimation(),
+      ScannedIdCardMrz() => IdCardAnimation(),
     };
   }
 
@@ -189,7 +191,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         result,
         switch (widget.mrz) {
           ScannedPassportMrz() => .passport,
-          ScannedDrivingLicenceMrz() => .driverLicense,
+          ScannedDrivingLicenceMrz() => .drivingLicence,
+          ScannedIdCardMrz() => .identityCard,
         },
       );
       if (!mounted) {
@@ -466,6 +469,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
         widget.mrz as ScannedDrivingLicenceMrz,
       ),
+      ScannedIdCardMrz() => idCardReaderProvider(
+        widget.mrz as ScannedIdCardMrz,
+      ),
     });
   }
 
@@ -476,6 +482,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       ),
       ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
         widget.mrz as ScannedDrivingLicenceMrz,
+      ),
+      ScannedIdCardMrz() => idCardReaderProvider(
+        widget.mrz as ScannedIdCardMrz,
       ),
     });
   }
@@ -488,6 +497,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ),
         ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
           widget.mrz as ScannedDrivingLicenceMrz,
+        ),
+        ScannedIdCardMrz() => idCardReaderProvider(
+          widget.mrz as ScannedIdCardMrz,
         ),
       }.notifier,
     );

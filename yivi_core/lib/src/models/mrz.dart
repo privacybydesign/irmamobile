@@ -13,6 +13,54 @@ sealed class ScannedMrz {
   });
 }
 
+class ScannedIdCardMrz extends ScannedMrz {
+  final DateTime dateOfBirth;
+  final DateTime dateOfExpiry;
+
+  ScannedIdCardMrz({
+    required super.documentNumber,
+    required super.countryCode,
+    required this.dateOfBirth,
+    required this.dateOfExpiry,
+  }) : super(documentType: .identityCard);
+
+  factory ScannedIdCardMrz.fromMRZResult(PassportMrzResult mrz) {
+    return ScannedIdCardMrz(
+      documentNumber: mrz.documentNumber,
+      countryCode: mrz.countryCode,
+      dateOfBirth: mrz.birthDate,
+      dateOfExpiry: mrz.expiryDate,
+    );
+  }
+
+  factory ScannedIdCardMrz.fromManualEntry({
+    required String documentNumber,
+    required DateTime dateOfBirth,
+    required DateTime dateOfExpiry,
+    String countryCode = "",
+  }) {
+    return ScannedIdCardMrz(
+      documentNumber: documentNumber,
+      countryCode: countryCode,
+      dateOfBirth: dateOfBirth,
+      dateOfExpiry: dateOfExpiry,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScannedPassportMrz &&
+          dateOfBirth == other.dateOfBirth &&
+          dateOfExpiry == other.dateOfExpiry &&
+          documentNumber == other.documentNumber &&
+          documentType == other.documentType;
+
+  @override
+  int get hashCode =>
+      Object.hash(dateOfBirth, dateOfExpiry, documentNumber, documentType);
+}
+
 class ScannedPassportMrz extends ScannedMrz {
   final DateTime dateOfBirth;
   final DateTime dateOfExpiry;
@@ -73,7 +121,7 @@ class ScannedDrivingLicenceMrz extends ScannedMrz {
     required this.version,
     required this.randomData,
     required this.configuration,
-  }) : super(documentType: DocumentType.driverLicense);
+  }) : super(documentType: .drivingLicence);
 
   factory ScannedDrivingLicenceMrz.fromMRZResult(DrivingLicenceMrzResult mrz) {
     return ScannedDrivingLicenceMrz(

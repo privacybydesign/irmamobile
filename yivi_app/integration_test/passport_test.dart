@@ -14,7 +14,7 @@ import "package:yivi_core/src/screens/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/documents/widgets/mrz_scanner.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
-import "helpers/passport_helpers.dart";
+import "helpers/document_reading_helpers.dart";
 import "irma_binding.dart";
 import "util.dart";
 
@@ -124,10 +124,7 @@ void main() {
       final fakeReader = FakePassportReader(
         statesDuringRead: [
           DocumentReaderConnecting(),
-          DocumentReaderFailed(
-            error: DocumentReadingError.timeoutWaitingForTag,
-            logs: "",
-          ),
+          DocumentReaderFailed(error: .timeoutWaitingForTag, logs: ""),
         ],
       );
       final fakeIssuer = FakePassportIssuer();

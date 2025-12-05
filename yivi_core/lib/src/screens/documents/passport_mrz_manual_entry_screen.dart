@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../theme/theme.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -6,6 +7,32 @@ import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/translated_text.dart";
 import "widgets/date_input_field.dart";
 import "widgets/document_nr_input_field.dart";
+
+class PassportMrzManualEntryTranslationKeys {
+  final String title;
+  final String explanation;
+  final String dateOfBirth;
+  final String dateOfBirthRequired;
+  final String dateOfExpiry;
+  final String dateOfExpiryRequired;
+  final String documentNumber;
+  final String documentNumberRequired;
+  final String documentNumberInvalid;
+  final String dateInvalid;
+
+  PassportMrzManualEntryTranslationKeys({
+    required this.title,
+    required this.explanation,
+    required this.dateOfBirth,
+    required this.dateOfBirthRequired,
+    required this.dateOfExpiry,
+    required this.dateOfExpiryRequired,
+    required this.documentNumber,
+    required this.documentNumberRequired,
+    required this.documentNumberInvalid,
+    required this.dateInvalid,
+  });
+}
 
 /// Data returned on continue.
 class PassportMrzManualEntryData {
@@ -25,10 +52,12 @@ class PassportMrzManualEntryScreen extends StatefulWidget {
   /// Now receives the collected data from the 3 fields.
   final void Function(PassportMrzManualEntryData data) onContinue;
   final VoidCallback onCancel;
+  final PassportMrzManualEntryTranslationKeys translationKeys;
 
   const PassportMrzManualEntryScreen({
     required this.onContinue,
     required this.onCancel,
+    required this.translationKeys,
     super.key,
   });
 
@@ -91,9 +120,9 @@ class _PassportMrzManualEntryScreenState
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: theme.backgroundTertiary,
-        appBar: IrmaAppBar(titleTranslationKey: "passport.manual.title"),
+        appBar: IrmaAppBar(titleTranslationKey: widget.translationKeys.title),
         body: SizedBox(
-          height: double.infinity,
+          height: .infinity,
           child: SingleChildScrollView(
             physics: AlwaysScrollableScrollPhysics(),
             child: Form(
@@ -103,28 +132,60 @@ class _PassportMrzManualEntryScreenState
               },
               child: SafeArea(
                 child: Padding(
-                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  padding: .all(theme.defaultSpacing),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: .start,
                     children: [
-                      const TranslatedText("passport.manual.explanation"),
+                      TranslatedText(widget.translationKeys.explanation),
                       SizedBox(height: theme.mediumSpacing),
-                      DocumentNrInputField(controller: _documentNrCtrl),
+                      DocumentNrInputField(
+                        controller: _documentNrCtrl,
+                        labelText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.documentNumber,
+                        ),
+                        requiredText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.documentNumberRequired,
+                        ),
+                        invalidText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.documentNumberInvalid,
+                        ),
+                      ),
                       SizedBox(height: theme.mediumSpacing),
                       DateInputField(
                         controller: _dateOfBirthCtrl,
                         fieldKey: const Key("passport_dob_field"),
-                        labelI18nKey: "passport.manual.fields.date_of_birth",
-                        requiredI18nKey:
-                            "passport.manual.fields.date_of_birth_required",
+                        labelText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.dateOfBirth,
+                        ),
+                        requiredText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.dateOfBirthRequired,
+                        ),
+                        dateInvalidText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.dateInvalid,
+                        ),
                       ),
                       SizedBox(height: theme.mediumSpacing),
                       DateInputField(
                         controller: _expiryDateCtrl,
                         fieldKey: const Key("passport_expiry_date_field"),
-                        labelI18nKey: "passport.manual.fields.date_of_expiry",
-                        requiredI18nKey:
-                            "passport.manual.fields.date_of_expiry_required",
+                        dateInvalidText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.dateInvalid,
+                        ),
+                        labelText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.dateOfExpiry,
+                        ),
+                        requiredText: FlutterI18n.translate(
+                          context,
+                          widget.translationKeys.dateOfExpiryRequired,
+                        ),
                       ),
                       SizedBox(height: theme.largeSpacing),
                     ],

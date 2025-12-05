@@ -4,6 +4,42 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../models/mrz.dart";
 
+final idCardReaderProvider = StateNotifierProvider.autoDispose
+    .family<
+      DocumentReader<PassportData>,
+      DocumentReaderState,
+      ScannedIdCardMrz
+    >((ref, mrz) {
+      final nfc = NfcProvider();
+
+      // ID-cards are always PACE
+      final accessKey = DBAKey(
+        mrz.documentNumber,
+        mrz.dateOfBirth,
+        mrz.dateOfExpiry,
+        paceMode: true,
+      );
+
+      final dgReader = DataGroupReader(
+        nfc,
+        DF1.PassportAID,
+        accessKey,
+        enableBac: false,
+      );
+
+      // ID-cards have the exact same data groups as passports, so we'll just use the same parser
+      final parser = PassportParser();
+      final docReader = DocumentReader(
+        documentParser: parser,
+        dataGroupReader: dgReader,
+        nfc: nfc,
+        config: DocumentReaderConfig(readIfAvailable: {.dg1, .dg2, .dg15}),
+      );
+
+      ref.onDispose(docReader.cancel);
+      return docReader;
+    });
+
 final passportReaderProvider = StateNotifierProvider.autoDispose
     .family<
       DocumentReader<PassportData>,
@@ -16,6 +52,7 @@ final passportReaderProvider = StateNotifierProvider.autoDispose
         mrz.dateOfBirth,
         mrz.dateOfExpiry,
       );
+
       final dgReader = DataGroupReader(nfc, DF1.PassportAID, accessKey);
       final parser = PassportParser();
       final docReader = DocumentReader(
@@ -44,7 +81,7 @@ final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
         );
         enableBac = true;
       } else {
-        accessKey = CanKey(mrz.documentNumber, mrz.documentType);
+        accessKey = CanKey(mrz.documentNumber, .drivingLicence);
         enableBac = false;
       }
 

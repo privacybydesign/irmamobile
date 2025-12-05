@@ -153,7 +153,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	irmaConfigurationPath := filepath.Join(assetsPath, "irma_configuration")
 
 	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
-	irma.Logger.SetLevel(logrus.TraceLevel)
+	irma.Logger.SetLevel(logrus.InfoLevel)
 	client, err = irmaclient.New(appVersionDataPath, irmaConfigurationPath, bridgeClientHandler, signer, aesKeyCopy)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
