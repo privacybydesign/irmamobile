@@ -687,7 +687,7 @@
       "cancelled": "Geannuleerd",
       "connecting": "Verbinden met rijbewijs...",
       "finished": "Voltooid",
-      "reading_card_security": "De toegang van de NFC-chip wordt bepaald...",
+      "reading_card_security": "De toegang van de RFID-chip wordt bepaald...",
       "authenticating": "Authenticatie met rijbewijs...",
       "reading_passport_data": "Rijbewijsgegevens lezen...",
       "performing_security_verification": "Bezig met veiligheidsverificatie...",
@@ -715,7 +715,7 @@
     },
     "manual": {
       "title": "Voer ID-kaartgegevens in",
-      "explanation": "We hebben het documentnummer, de geboortedatum en de vervaldatum van uw identiteitskaart nodig om toegang te krijgen tot de RFID-chip.",
+      "explanation": "We hebben het documentnummer, de geboortedatum en de vervaldatum van uw identiteitskaart nodig om toegang te krijgen tot de RFID-chip van het document.",
       "fields": {
         "document_nr": "Documentnummer",
         "document_nr_required": "Documentnummer is verplicht",
@@ -777,7 +777,7 @@
     },
     "manual": {
       "title": "Voer paspoortgegevens in",
-      "explanation": "We hebben het documentnummer, de geboortedatum en de vervaldatum van uw paspoort nodig om toegang te krijgen tot de NFC-chip van het paspoort.",
+      "explanation": "We hebben het documentnummer, de geboortedatum en de vervaldatum van uw paspoort nodig om toegang te krijgen tot de RFID-chip van het paspoort.",
       "fields": {
         "document_nr": "Documentnummer",
         "document_nr_required": "Documentnummer is verplicht",
@@ -811,7 +811,7 @@
       "cancelled": "Geannuleerd",
       "connecting": "Verbinden met paspoort...",
       "finished": "Voltooid",
-      "reading_card_security": "De toegang van de NFC-chip wordt bepaald...",
+      "reading_card_security": "De toegang van de RFID-chip wordt bepaald...",
       "authenticating": "Authenticatie met paspoort...",
       "reading_passport_data": "Paspoortgegevens lezen...",
       "performing_security_verification": "Bezig met veiligheidsverificatie...",

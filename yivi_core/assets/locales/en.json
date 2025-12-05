@@ -811,7 +811,7 @@
       "cancelled": "Cancelled",
       "connecting": "Connecting to passport...",
       "finished": "Finished",
-      "reading_card_security": "Determining NFC chip access...",
+      "reading_card_security": "Determining RFID-chip access...",
       "authenticating": "Authenticating with passport...",
       "reading_passport_data": "Reading passport data...",
       "performing_security_verification": "Performing security verification...",

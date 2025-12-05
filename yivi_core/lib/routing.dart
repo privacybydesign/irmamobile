@@ -318,6 +318,22 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/passport",
                 builder: (context, state) {
                   return PassportMrzManualEntryScreen(
+                    translationKeys: PassportMrzManualEntryTranslationKeys(
+                      title: "passport.manual.title",
+                      explanation: "passport.manual.explanation",
+                      dateOfBirth: "passport.manual.fields.date_of_birth",
+                      dateOfBirthRequired:
+                          "passport.manual.fields.date_of_birth_required",
+                      dateOfExpiry: "passport.manual.fields.date_of_expiry",
+                      dateOfExpiryRequired:
+                          "passport.manual.fields.date_of_expiry_required",
+                      documentNumber: "passport.manual.fields.document_nr",
+                      documentNumberRequired:
+                          "passport.manual.fields.document_nr_required",
+                      documentNumberInvalid:
+                          "passport.manual.fields.document_nr_invalid",
+                      dateInvalid: "passport.manual.fields.date_invalid",
+                    ),
                     onCancel: context.pop,
                     onContinue: (data) {
                       context.pushPassportNfcReadingScreen(
@@ -335,6 +351,22 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/id_card",
                 builder: (context, state) {
                   return PassportMrzManualEntryScreen(
+                    translationKeys: PassportMrzManualEntryTranslationKeys(
+                      title: "id_card.manual.title",
+                      explanation: "id_card.manual.explanation",
+                      dateOfBirth: "id_card.manual.fields.date_of_birth",
+                      dateOfBirthRequired:
+                          "id_card.manual.fields.date_of_birth_required",
+                      dateOfExpiry: "id_card.manual.fields.date_of_expiry",
+                      dateOfExpiryRequired:
+                          "id_card.manual.fields.date_of_expiry_required",
+                      documentNumber: "id_card.manual.fields.document_nr",
+                      documentNumberRequired:
+                          "id_card.manual.fields.document_nr_required",
+                      documentNumberInvalid:
+                          "id_card.manual.fields.document_nr_invalid",
+                      dateInvalid: "id_card.manual.fields.date_invalid",
+                    ),
                     onCancel: context.pop,
                     onContinue: (data) {
                       context.pushIdCardNfcReadingScreen(

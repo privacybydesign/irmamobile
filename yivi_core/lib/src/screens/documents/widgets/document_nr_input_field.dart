@@ -1,30 +1,31 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../theme/theme.dart";
-import "../../../widgets/translated_text.dart";
 
 class DocumentNrInputField extends StatelessWidget {
   final TextEditingController controller;
+  final String labelText;
+  final String requiredText;
+  final String invalidText;
 
-  const DocumentNrInputField({required this.controller, super.key});
+  const DocumentNrInputField({
+    required this.controller,
+    super.key,
+    required this.labelText,
+    required this.requiredText,
+    required this.invalidText,
+  });
 
   String? _validateDocumentNr(String? value, BuildContext context) {
     if (value == null || value.isEmpty) {
-      return FlutterI18n.translate(
-        context,
-        "passport.manual.fields.document_nr_required",
-      );
+      return requiredText;
     }
 
     // ICAO-style: 6–9 alphanumeric characters (A–Z, 0–9)
     final pattern = RegExp(r"^[A-Z0-9]{6,9}$");
     if (!pattern.hasMatch(value)) {
-      return FlutterI18n.translate(
-        context,
-        "passport.manual.fields.document_nr_invalid",
-      );
+      return invalidText;
     }
 
     return null; // valid
@@ -38,8 +39,8 @@ class DocumentNrInputField extends StatelessWidget {
     return TextFormField(
       key: const Key("document_nr_input_field"),
       controller: controller,
-      keyboardType: TextInputType.text,
-      textCapitalization: TextCapitalization.characters,
+      keyboardType: .text,
+      textCapitalization: .characters,
       autofillHints: const [AutofillHints.creditCardNumber],
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,
@@ -47,21 +48,18 @@ class DocumentNrInputField extends StatelessWidget {
         FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),
       ],
       decoration: InputDecoration(
-        hint: TranslatedText(
-          "passport.manual.fields.document_nr",
+        hint: Text(
+          labelText,
           style: baseTextStyle?.copyWith(
             color: baseTextStyle.color?.withValues(alpha: 0.5),
           ),
         ),
         contentPadding: const EdgeInsets.only(top: -10.0),
-        label: TranslatedText(
-          "passport.manual.fields.document_nr",
-          style: baseTextStyle,
-        ),
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        floatingLabelBehavior: FloatingLabelBehavior.always,
+        label: Text(labelText, style: baseTextStyle),
+        floatingLabelAlignment: .start,
+        floatingLabelBehavior: .always,
       ),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: .onUserInteraction,
       validator: (documentNr) => _validateDocumentNr(documentNr, context),
     );
   }
