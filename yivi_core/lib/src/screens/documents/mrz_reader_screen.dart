@@ -6,6 +6,7 @@ import "package:permission_handler/permission_handler.dart";
 
 import "../../../package_name.dart";
 import "../../theme/theme.dart";
+import "../../util/test_detection.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/translated_text.dart";
@@ -48,10 +49,10 @@ class MrzReaderScreen<Parser extends MrzParser> extends StatefulWidget {
   });
 
   @override
-  State<MrzReaderScreen> createState() => _MrzReaderScreenState();
+  State<MrzReaderScreen> createState() => MrzReaderScreenState();
 }
 
-class _MrzReaderScreenState extends State<MrzReaderScreen> {
+class MrzReaderScreenState extends State<MrzReaderScreen> {
   final MrzController controller = MrzController();
   late PermissionStatus _cameraPermissionStatus = .denied;
 
@@ -63,6 +64,9 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
 
   void initCameraPermission() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (TestContext.isRunningIntegrationTest(context)) {
+        return;
+      }
       final status = await Permission.camera.request();
       setState(() {
         _cameraPermissionStatus = status;
@@ -77,35 +81,40 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
     if (_cameraPermissionStatus != .granted) {
       return Scaffold(
         appBar: IrmaAppBar(titleTranslationKey: widget.translationKeys.title),
-        body: Column(
-          mainAxisAlignment: .center,
-          crossAxisAlignment: .center,
-          children: [
-            TranslatedText(
-              "qr_scanner.permission_dialog.title",
-              style: theme.textTheme.displaySmall,
-              textAlign: .center,
-            ),
-            SizedBox(height: theme.smallSpacing),
-            TranslatedText(
-              "qr_scanner.permission_dialog.content",
-              textAlign: .center,
-            ),
-            SizedBox(height: theme.largeSpacing),
-            TextButton(
-              child: TranslatedText(
-                "qr_scanner.permission_dialog.settings",
-                style: theme.textButtonTextStyle.copyWith(
-                  fontWeight: .normal,
-                  color: theme.link,
-                ),
+        body: Padding(
+          padding: .all(theme.defaultSpacing),
+          child: Column(
+            mainAxisAlignment: .center,
+            crossAxisAlignment: .center,
+            children: [
+              TranslatedText(
+                "qr_scanner.permission_dialog.title",
+                style: theme.textTheme.displaySmall,
+                textAlign: .center,
               ),
-              onPressed: () async {
-                await openAppSettings();
-                if (context.mounted) Navigator.of(context).pop();
-              },
-            ),
-          ],
+              SizedBox(height: theme.smallSpacing),
+              TranslatedText(
+                "qr_scanner.permission_dialog.content",
+                textAlign: .center,
+              ),
+              SizedBox(height: theme.largeSpacing),
+              TextButton(
+                child: TranslatedText(
+                  "qr_scanner.permission_dialog.settings",
+                  style: theme.textButtonTextStyle.copyWith(
+                    fontWeight: .normal,
+                    color: theme.link,
+                  ),
+                ),
+                onPressed: () async {
+                  await openAppSettings();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+            ],
+          ),
         ),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: widget.translationKeys.manualEntryButton,

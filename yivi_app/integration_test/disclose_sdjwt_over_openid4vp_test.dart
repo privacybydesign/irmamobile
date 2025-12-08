@@ -13,7 +13,6 @@ import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/screens/documents/widgets/mrz_scanner.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
@@ -129,6 +128,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
   final fakeReader = FakePassportReader(
+    mrzResult: fakePassportMrz,
     statesDuringRead: [
       DocumentReaderConnecting(),
       DocumentReaderReadingCardAccess(),
@@ -185,7 +185,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
     birthDate: DateTime(1990, 1, 1),
     expiryDate: DateTime(2030, 12, 31),
     countryCode: "NLD",
-    documentType: "",
+    documentType: "P",
     surnames: "",
     givenNames: "",
     nationalityCountryCode: "",
@@ -193,7 +193,9 @@ Future<void> testDisclosePassportOpensPassportScanner(
     personalNumber: "",
   );
 
-  final scannerState = tester.state<MrzScannerState>(find.byType(MrzScanner));
+  final scannerState = tester.state<MrzReaderScreenState>(
+    find.byType(MrzReaderScreen<PassportMrzParser>),
+  );
   scannerState.widget.onSuccess(fakeMrz);
 
   await tester.pumpAndSettle();

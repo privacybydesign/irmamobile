@@ -11,7 +11,6 @@ import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/screens/documents/widgets/mrz_scanner.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/document_reading_helpers.dart";
@@ -47,6 +46,7 @@ void main() {
       tester,
     ) async {
       final fakeReader = FakePassportReader(
+        mrzResult: fakeIdCardMrz,
         statesDuringRead: [
           DocumentReaderConnecting(),
           DocumentReaderReadingCardAccess(),
@@ -77,7 +77,7 @@ void main() {
         birthDate: DateTime(1990, 1, 1),
         expiryDate: DateTime(2030, 12, 31),
         countryCode: "NLD",
-        documentType: "",
+        documentType: "I",
         surnames: "",
         givenNames: "",
         nationalityCountryCode: "",
@@ -85,8 +85,8 @@ void main() {
         personalNumber: "",
       );
 
-      final scannerState = tester.state<MrzScannerState>(
-        find.byType(MrzScanner),
+      final scannerState = tester.state<MrzReaderScreenState>(
+        find.byType(MrzReaderScreen<PassportMrzParser>),
       );
       scannerState.widget.onSuccess(fakeMrz);
 
@@ -122,6 +122,7 @@ void main() {
       tester,
     ) async {
       final fakeReader = FakePassportReader(
+        mrzResult: fakeIdCardMrz,
         statesDuringRead: [
           DocumentReaderConnecting(),
           DocumentReaderFailed(error: .timeoutWaitingForTag, logs: ""),
@@ -149,7 +150,7 @@ void main() {
         birthDate: DateTime(1990, 1, 1),
         expiryDate: DateTime(2030, 12, 31),
         countryCode: "NLD",
-        documentType: "",
+        documentType: "I",
         surnames: "",
         givenNames: "",
         nationalityCountryCode: "",
@@ -157,8 +158,8 @@ void main() {
         personalNumber: "",
       );
 
-      final scannerState = tester.state<MrzScannerState>(
-        find.byType(MrzScanner),
+      final scannerState = tester.state<MrzReaderScreenState>(
+        find.byType(MrzReaderScreen<IdCardMrzParser>),
       );
       scannerState.widget.onSuccess(fakeMrz);
 
@@ -189,6 +190,7 @@ void main() {
     ) async {
       final readCompleter = Completer();
       final fakeReader = FakePassportReader(
+        mrzResult: fakeIdCardMrz,
         readDelayCompleter: readCompleter,
         statesDuringRead: [
           DocumentReaderConnecting(),
@@ -229,6 +231,7 @@ void main() {
       "nfc disabled shows disabled UI and retry cancels current attempt",
       (tester) async {
         final fakeReader = FakePassportReader(
+          mrzResult: fakeIdCardMrz,
           initialState: DocumentReaderNfcUnavailable(),
         );
         final fakeIssuer = FakePassportIssuer();
@@ -258,6 +261,7 @@ void main() {
     testWidgets("user can cancel NFC reading flow", (tester) async {
       final cancelCompleter = Completer<void>();
       final fakeReader = FakePassportReader(
+        mrzResult: fakeIdCardMrz,
         statesDuringRead: [DocumentReaderConnecting()],
         readDelayCompleter: cancelCompleter,
         onCancelCompleter: cancelCompleter,
@@ -294,6 +298,7 @@ void main() {
       tester,
     ) async {
       final fakeReader = FakePassportReader(
+        mrzResult: fakeIdCardMrz,
         statesDuringRead: [
           DocumentReaderConnecting(),
           DocumentReaderReadingCardAccess(),

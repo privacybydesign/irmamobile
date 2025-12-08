@@ -381,6 +381,7 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
 
 class FakePassportReader extends DocumentReader<PassportData> {
   FakePassportReader({
+    required this.mrzResult,
     DocumentReaderState? initialState,
     List<DocumentReaderState> statesDuringRead = const [],
     this.readDelayCompleter,
@@ -413,6 +414,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
   final List<DocumentReaderState> _statesDuringRead;
   final Completer<void>? readDelayCompleter;
   final Completer<void>? onCancelCompleter;
+  final String mrzResult;
 
   bool readCalled = false;
   int readCallCount = 0;
@@ -461,7 +463,10 @@ class FakePassportReader extends DocumentReader<PassportData> {
     }
 
     if (state case DocumentReaderSuccess()) {
-      return (_fakePassportData(), RawDocumentData(dataGroups: {}, efSod: ""));
+      return (
+        _fakePassportData(mrzResult),
+        RawDocumentData(dataGroups: {}, efSod: ""),
+      );
     }
 
     return null;
@@ -534,12 +539,16 @@ DrivingLicenceData _fakeDrivingLicenceData() {
   );
 }
 
-PassportData _fakePassportData() {
+const fakeIdCardMrz =
+    "615D5F1F5A493C4E4C44584938353933354638363939393939393939303C3C3C3C3C3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345";
+
+const fakePassportMrz =
+    "615D5F1F5A503C4E4C44584938353933354638363939393939393939303C3C3C3C3C3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345";
+
+PassportData _fakePassportData(String mrzHex) {
   final p = PassportParser();
 
-  final fakeDg1 =
-      "615D5F1F5A493C4E4C44584938353933354638363939393939393939303C3C3C3C3C3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345"
-          .parseHex();
+  final fakeDg1 = mrzHex.parseHex();
   final mrz = p.parseDG1(fakeDg1)!.mrz;
   return PassportData(
     mrz: mrz,

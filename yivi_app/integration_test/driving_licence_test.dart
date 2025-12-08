@@ -11,7 +11,6 @@ import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/screens/documents/widgets/mrz_scanner.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/document_reading_helpers.dart";
@@ -85,8 +84,8 @@ void main() {
           randomData: "rand",
         );
 
-        final scannerState = tester.state<MrzScannerState>(
-          find.byType(MrzScanner),
+        final scannerState = tester.state<MrzReaderScreenState>(
+          find.byType(MrzReaderScreen<DrivingLicenceMrzParser>),
         );
         scannerState.widget.onSuccess(fakeMrz);
 
@@ -156,8 +155,8 @@ void main() {
         randomData: "rand",
       );
 
-      final scannerState = tester.state<MrzScannerState>(
-        find.byType(MrzScanner),
+      final scannerState = tester.state<MrzReaderScreenState>(
+        find.byType(MrzReaderScreen<DrivingLicenceMrzParser>),
       );
 
       scannerState.widget.onSuccess(fakeMrz);
