@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fix
 - Padding issues in disclosure screens
+- Handle missing camera permissions in mrz scanner
+- Missing assets in root detection screen
+
+### Internal
+- Add more details to missing pointer exception
 
 ## [7.11.2] - 2025-11-21
 ### Changed
