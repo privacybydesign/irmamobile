@@ -2,11 +2,13 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 import "package:mrz_parser/mrz_parser.dart";
+import "package:permission_handler/permission_handler.dart";
 
 import "../../../package_name.dart";
 import "../../theme/theme.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/translated_text.dart";
 import "widgets/mrz_scanner.dart";
 
 typedef MrzController = GlobalKey<MrzScannerState>;
@@ -51,10 +53,69 @@ class MrzReaderScreen<Parser extends MrzParser> extends StatefulWidget {
 
 class _MrzReaderScreenState extends State<MrzReaderScreen> {
   final MrzController controller = MrzController();
+  late PermissionStatus _cameraPermissionStatus = .denied;
+
+  @override
+  void initState() {
+    super.initState();
+    initCameraPermission();
+  }
+
+  void initCameraPermission() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final status = await Permission.camera.request();
+      setState(() {
+        _cameraPermissionStatus = status;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    if (_cameraPermissionStatus != .granted) {
+      return Scaffold(
+        appBar: IrmaAppBar(titleTranslationKey: widget.translationKeys.title),
+        body: Column(
+          mainAxisAlignment: .center,
+          crossAxisAlignment: .center,
+          children: [
+            TranslatedText(
+              "qr_scanner.permission_dialog.title",
+              style: theme.textTheme.displaySmall,
+              textAlign: .center,
+            ),
+            SizedBox(height: theme.smallSpacing),
+            TranslatedText(
+              "qr_scanner.permission_dialog.content",
+              textAlign: .center,
+            ),
+            SizedBox(height: theme.largeSpacing),
+            TextButton(
+              child: TranslatedText(
+                "qr_scanner.permission_dialog.settings",
+                style: theme.textButtonTextStyle.copyWith(
+                  fontWeight: .normal,
+                  color: theme.link,
+                ),
+              ),
+              onPressed: () async {
+                await openAppSettings();
+                if (context.mounted) Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: widget.translationKeys.manualEntryButton,
+          onPrimaryPressed: widget.onManualAdd,
+          secondaryButtonLabel: "ui.cancel",
+          onSecondaryPressed: widget.onCancel,
+          alignment: .vertical,
+        ),
+      );
+    }
 
     return OrientationBuilder(
       builder: (context, orientation) {

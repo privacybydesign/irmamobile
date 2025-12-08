@@ -521,7 +521,7 @@
     "permission_dialog": {
       "title": "Schakel camera in",
       "content": "Geef Yivi toegang tot je camera. Ga naar instellingen om toestemming te geven.",
-      "settings": "Instellingen"
+      "settings": "Open instellingen"
     }
   },
   "reset_pin": {

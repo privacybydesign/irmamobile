@@ -521,7 +521,7 @@
     "permission_dialog": {
       "title": "Turn camera on",
       "content": "Give Yivi permission to use your camera. Go to settings to give permission.",
-      "settings": "Settings"
+      "settings": "Open settings"
     }
   },
   "reset_pin": {
