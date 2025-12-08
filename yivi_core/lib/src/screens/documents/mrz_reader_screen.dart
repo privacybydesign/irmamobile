@@ -88,19 +88,19 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
             crossAxisAlignment: .center,
             children: [
               TranslatedText(
-                "qr_scanner.permission_dialog.title",
+                "mrz_camera_permissions.title",
                 style: theme.textTheme.displaySmall,
                 textAlign: .center,
               ),
               SizedBox(height: theme.smallSpacing),
               TranslatedText(
-                "qr_scanner.permission_dialog.content",
+                "mrz_camera_permissions.content",
                 textAlign: .center,
               ),
               SizedBox(height: theme.largeSpacing),
               TextButton(
                 child: TranslatedText(
-                  "qr_scanner.permission_dialog.settings",
+                  "mrz_camera_permissions.open_settings",
                   style: theme.textButtonTextStyle.copyWith(
                     fontWeight: .normal,
                     color: theme.link,

@@ -648,6 +648,11 @@
     "hint_state_on": "Double tap to turn off",
     "hint_state_off": "Double tap to turn on"
   },
+  "mrz_camera_permissions": {
+    "title": "No camera permissions",
+    "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
+    "open_settings": "Open settings"
+  },
   "driving_licence": {
     "scan": {
       "title": "Scan driving licence",

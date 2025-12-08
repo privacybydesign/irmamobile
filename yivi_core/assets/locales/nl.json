@@ -648,6 +648,11 @@
     "hint_state_on": "Tik dubbel om uit te zetten",
     "hint_state_off": "Tik dubbel om aan te zetten"
   },
+  "mrz_camera_permissions": {
+    "title": "Geen cameratoegang",
+    "content": "Yivi heeft toegang tot de camera nodig om je document automatisch te scannen. Geef Yivi toestemming om de camera te gebruiken via de systeeminstellingen of voer de benodigde gegevens handmatig in.",
+    "open_settings": "Open instellingen"
+  },
   "driving_licence": {
     "scan": {
       "title": "Rijbewijs scannen",
