@@ -86,7 +86,7 @@ void main() {
       );
 
       final scannerState = tester.state<MrzReaderScreenState>(
-        find.byType(MrzReaderScreen<PassportMrzParser>),
+        find.byType(MrzReaderScreen<IdCardMrzParser>),
       );
       scannerState.widget.onSuccess(fakeMrz);
 
