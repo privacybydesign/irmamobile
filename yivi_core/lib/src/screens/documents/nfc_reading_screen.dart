@@ -1,5 +1,4 @@
 import "dart:async";
-import "dart:io";
 
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
@@ -25,8 +24,9 @@ import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/irma_dialog.dart";
 import "../../widgets/irma_linear_progresss_indicator.dart";
 import "../../widgets/translated_text.dart";
-import "widgets/driving_licene_animation.dart";
-import "widgets/passport_animation.dart";
+import "widgets/driving_licence_nfc_scanning_animation.dart";
+import "widgets/id_card_nfc_scanning_animation.dart";
+import "widgets/passport_nfc_scanning_animation.dart";
 
 class NfcReadingTranslationKeys {
   final String cancelDialogTitle;
@@ -115,7 +115,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   Widget _getAnimation() {
     return switch (widget.mrz) {
       ScannedPassportMrz() => PassportNfcScanningAnimation(),
-      ScannedDrivingLicenceMrz() => DrivingLicenceAnimation(),
+      ScannedDrivingLicenceMrz() => DrivingLicenceNfcScanningAnimation(),
+      ScannedIdCardMrz() => IdCardNfcScanningAnimation(),
     };
   }
 
@@ -177,7 +178,34 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     if (result != null) {
       final (pdr, rawDocData) = result;
+
+      // make sure it's not a passport scanned as an id-card and vice versa...
+      final error = _validateDocType(pdr);
+      if (error != null) {
+        setState(() {
+          issuanceError = error;
+        });
+        return;
+      }
+
       await _startIssuance(rawDocData);
+    }
+  }
+
+  String? _validateDocType(DocumentData data) {
+    switch (widget.mrz) {
+      case ScannedIdCardMrz():
+        final docType = (data as PassportData).mrz.documentCode;
+        return docType == "I"
+            ? null
+            : "Cannot scan document with MRZ that starts with $docType as an ID-card";
+      case ScannedPassportMrz():
+        final docType = (data as PassportData).mrz.documentCode;
+        return docType == "P"
+            ? null
+            : "Cannot scan document with MRZ that starts with $docType as passport";
+      case ScannedDrivingLicenceMrz():
+        return null;
     }
   }
 
@@ -189,7 +217,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         result,
         switch (widget.mrz) {
           ScannedPassportMrz() => .passport,
-          ScannedDrivingLicenceMrz() => .driverLicense,
+          ScannedDrivingLicenceMrz() => .drivingLicence,
+          ScannedIdCardMrz() => .identityCard,
         },
       );
       if (!mounted) {
@@ -466,6 +495,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
         widget.mrz as ScannedDrivingLicenceMrz,
       ),
+      ScannedIdCardMrz() => idCardReaderProvider(
+        widget.mrz as ScannedIdCardMrz,
+      ),
     });
   }
 
@@ -476,6 +508,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       ),
       ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
         widget.mrz as ScannedDrivingLicenceMrz,
+      ),
+      ScannedIdCardMrz() => idCardReaderProvider(
+        widget.mrz as ScannedIdCardMrz,
       ),
     });
   }
@@ -488,6 +523,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ),
         ScannedDrivingLicenceMrz() => drivingLicenceReaderProvider(
           widget.mrz as ScannedDrivingLicenceMrz,
+        ),
+        ScannedIdCardMrz() => idCardReaderProvider(
+          widget.mrz as ScannedIdCardMrz,
         ),
       }.notifier,
     );
@@ -539,17 +577,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       return "🟢" * prog + "⚪️" * (numStages - prog);
     }
 
-    final ios16OrHigher = _isiOS26OrHigher();
-
     return (state) {
       final progress = progressFormatter(progressForState(state));
 
-      // on iOS 26 only one line is shown, so we'll use that for progress
-      if (ios16OrHigher) {
-        return progress;
-      }
-
-      // on lower iOS versions a second line can be shown, so we'll use that for showing a message
       final message = FlutterI18n.translate(
         context,
         _getTranslationKeyForState(state),
@@ -568,18 +598,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       .invalidatedByUser => "",
     };
   }
-}
-
-bool _isiOS26OrHigher() {
-  if (!Platform.isIOS) return false;
-
-  final match = RegExp(
-    r"iOS (\d+)(?:\.(\d+))?",
-  ).firstMatch(Platform.operatingSystemVersion);
-  if (match == null) return false;
-
-  final major = int.tryParse(match.group(1) ?? "0") ?? 0;
-  return major >= 26; // replace with 26 or whichever major version you want
 }
 
 Future _showLogsDialog(BuildContext context, String logs) async {

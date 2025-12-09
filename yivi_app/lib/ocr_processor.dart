@@ -113,6 +113,7 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
     List<String> supportedDocTypes = [
       "P",
       "V",
+      "I",
     ]; // you can add more doc types like A,C,I are also supported
     String fChar = firstLineChars[0];
     if (supportedDocTypes.contains(fChar)) {

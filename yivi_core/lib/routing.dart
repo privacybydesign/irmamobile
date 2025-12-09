@@ -27,6 +27,7 @@ import "src/screens/documents/mrz_reader_screen.dart";
 import "src/screens/documents/nfc_reading_screen.dart";
 import "src/screens/documents/passport_mrz_manual_entry_screen.dart";
 import "src/screens/documents/widgets/driving_licence_mrz_camera_overlay.dart";
+import "src/screens/documents/widgets/id_card_mrz_camera_overlay.dart";
 import "src/screens/documents/widgets/passport_mrz_camera_overlay.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
@@ -317,9 +318,58 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 path: "/passport",
                 builder: (context, state) {
                   return PassportMrzManualEntryScreen(
+                    translationKeys: PassportMrzManualEntryTranslationKeys(
+                      title: "passport.manual.title",
+                      explanation: "passport.manual.explanation",
+                      dateOfBirth: "passport.manual.fields.date_of_birth",
+                      dateOfBirthRequired:
+                          "passport.manual.fields.date_of_birth_required",
+                      dateOfExpiry: "passport.manual.fields.date_of_expiry",
+                      dateOfExpiryRequired:
+                          "passport.manual.fields.date_of_expiry_required",
+                      documentNumber: "passport.manual.fields.document_nr",
+                      documentNumberRequired:
+                          "passport.manual.fields.document_nr_required",
+                      documentNumberInvalid:
+                          "passport.manual.fields.document_nr_invalid",
+                      dateInvalid: "passport.manual.fields.date_invalid",
+                    ),
                     onCancel: context.pop,
                     onContinue: (data) {
                       context.pushPassportNfcReadingScreen(
+                        PassportNfcReadingRouteParams(
+                          documentNumber: data.documentNr,
+                          dateOfBirth: data.dateOfBirth,
+                          dateOfExpiry: data.expiryDate,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              GoRoute(
+                path: "/id_card",
+                builder: (context, state) {
+                  return PassportMrzManualEntryScreen(
+                    translationKeys: PassportMrzManualEntryTranslationKeys(
+                      title: "id_card.manual.title",
+                      explanation: "id_card.manual.explanation",
+                      dateOfBirth: "id_card.manual.fields.date_of_birth",
+                      dateOfBirthRequired:
+                          "id_card.manual.fields.date_of_birth_required",
+                      dateOfExpiry: "id_card.manual.fields.date_of_expiry",
+                      dateOfExpiryRequired:
+                          "id_card.manual.fields.date_of_expiry_required",
+                      documentNumber: "id_card.manual.fields.document_nr",
+                      documentNumberRequired:
+                          "id_card.manual.fields.document_nr_required",
+                      documentNumberInvalid:
+                          "id_card.manual.fields.document_nr_invalid",
+                      dateInvalid: "id_card.manual.fields.date_invalid",
+                    ),
+                    onCancel: context.pop,
+                    onContinue: (data) {
+                      context.pushIdCardNfcReadingScreen(
                         PassportNfcReadingRouteParams(
                           documentNumber: data.documentNr,
                           dateOfBirth: data.dateOfBirth,
@@ -401,6 +451,36 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     onManualAdd: context.pushPassportManualEntryScreen,
                     onCancel: context.pop,
                     mrzParser: PassportMrzParser(),
+                  );
+                },
+              ),
+              GoRoute(
+                path: "/id_card",
+                builder: (context, state) {
+                  return MrzReaderScreen(
+                    overlayBuilder: ({required success, required child}) =>
+                        IdCardMrzCameraOverlay(success: success, child: child),
+                    translationKeys: MrzReaderTranslationKeys(
+                      title: "id_card.scan.title",
+                      manualEntryButton: "id_card.scan.manual",
+                      error: "id_card.scan.error",
+                      success: "id_card.scan.success",
+                      successExplanation: "id_card.scan.success_explanation",
+                    ),
+                    onSuccess: (mrzResult) {
+                      final r = mrzResult as PassportMrzResult;
+                      context.pushIdCardNfcReadingScreen(
+                        PassportNfcReadingRouteParams(
+                          documentNumber: r.documentNumber,
+                          dateOfBirth: r.birthDate,
+                          dateOfExpiry: r.expiryDate,
+                          countryCode: r.countryCode,
+                        ),
+                      );
+                    },
+                    onManualAdd: context.pushIdCardManualEntryScreen,
+                    onCancel: context.pop,
+                    mrzParser: IdCardMrzParser(),
                   );
                 },
               ),
@@ -513,6 +593,58 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                   success: "passport.nfc.success",
                 ),
                 mrz: ScannedPassportMrz(
+                  documentNumber: args.documentNumber,
+                  countryCode: args.countryCode ?? "",
+                  dateOfBirth: args.dateOfBirth,
+                  dateOfExpiry: args.dateOfExpiry,
+                ),
+                onCancel: context.goHomeScreen,
+              );
+            },
+          ),
+          GoRoute(
+            path: "/id_card",
+            builder: (context, state) {
+              final args = PassportNfcReadingRouteParams.fromQueryParams(
+                state.uri.queryParameters,
+              );
+              return NfcReadingScreen(
+                translationKeys: NfcReadingTranslationKeys(
+                  cancelDialogTitle: "id_card.nfc.cancel_dialog.title",
+                  cancelDialogExplanation:
+                      "id_card.nfc.cancel_dialog.explanation",
+                  cancelDialogDecline: "id_card.nfc.cancel_dialog.decline",
+                  cancelDialogConfirm: "id_card.nfc.cancel_dialog.confirm",
+                  error: "id_card.nfc.error",
+                  errorGeneric: "id_card.nfc.error_generic",
+                  title: "id_card.nfc.title",
+                  nfcDisabled: "id_card.nfc.nfc_disabled",
+                  nfcEnabled: "id_card.nfc.nfc_enabled",
+                  introduction: "id_card.nfc.introduction",
+                  startScanning: "id_card.nfc.start_scanning",
+                  nfcDisabledExplanation:
+                      "id_card.nfc.nfc_disabled_explanation",
+                  holdNearPhotoPage: "id_card.nfc.hold_near_photo_page",
+                  tip1: "id_card.nfc.tip_1",
+                  tip2: "id_card.nfc.tip_2",
+                  tip3: "id_card.nfc.tip_3",
+                  successExplanation: "id_card.nfc.success_explanation",
+                  cancelledByUser: "id_card.nfc.cancelled_by_user",
+                  cancelled: "id_card.nfc.cancelled",
+                  cancelling: "id_card.nfc.cancelling",
+                  connecting: "id_card.nfc.connecting",
+                  readingCardSecurity: "id_card.nfc.reading_card_security",
+                  readingDocumentData: "id_card.nfc.reading_passport_data",
+                  authenticating: "id_card.nfc.authenticating",
+                  performingSecurityVerification:
+                      "id_card.nfc.performing_security_verification",
+                  timeoutWaitingForTag: "id_card.nfc.timeout_waiting_for_tag",
+                  tagLostTryAgain: "id_card.nfc.tag_lost_try_again",
+                  failedToInitiateSession:
+                      "id_card.nfc.failed_to_initiate_session",
+                  success: "id_card.nfc.success",
+                ),
+                mrz: ScannedIdCardMrz(
                   documentNumber: args.documentNumber,
                   countryCode: args.countryCode ?? "",
                   dateOfBirth: args.dateOfBirth,

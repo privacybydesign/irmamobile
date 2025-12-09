@@ -68,22 +68,22 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     return Padding(
       padding: padding,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: .min,
         children: [
           if (changeable)
             Padding(
-              padding: EdgeInsets.only(
+              padding: .only(
                 bottom: theme.smallSpacing,
                 top: theme.smallSpacing,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: .end,
                 children: [
                   Flexible(
                     child: YiviThemedButton(
                       label: "disclosure_permission.change_choice",
-                      style: YiviButtonStyle.outlined,
-                      size: YiviButtonSize.small,
+                      style: .outlined,
+                      size: .small,
                       isTransparent: true,
                       onPressed: () => onEvent(
                         DisclosurePermissionChangeChoicePressed(
@@ -96,34 +96,37 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               ),
             ),
           for (int i = 0; i < choiceEntry.value.length; i++)
-            Center(
-              child: YiviCredentialCard(
-                compact: true,
-                hideFooter: true,
-                hashByFormat: {
-                  choiceEntry.value[i].format:
-                      choiceEntry.value[i].credentialHash,
-                },
-                padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
-                headerTrailing: optional && i == 0
-                    ? IrmaIconButton(
-                        key: const Key("remove_optional_data_button"),
-                        icon: Icons.close,
-                        size: 22,
-                        padding: EdgeInsets.zero,
-                        onTap: () => onEvent(
-                          DisclosurePermissionRemoveOptionalDataPressed(
-                            disconIndex: choiceEntry.key,
+            Padding(
+              padding: .only(bottom: theme.smallSpacing),
+              child: Center(
+                child: YiviCredentialCard(
+                  compact: true,
+                  hideFooter: true,
+                  hashByFormat: {
+                    choiceEntry.value[i].format:
+                        choiceEntry.value[i].credentialHash,
+                  },
+                  padding: .symmetric(horizontal: theme.tinySpacing),
+                  headerTrailing: optional && i == 0
+                      ? IrmaIconButton(
+                          key: const Key("remove_optional_data_button"),
+                          icon: Icons.close,
+                          size: 22,
+                          padding: .zero,
+                          onTap: () => onEvent(
+                            DisclosurePermissionRemoveOptionalDataPressed(
+                              disconIndex: choiceEntry.key,
+                            ),
                           ),
-                        ),
-                      )
-                    : null,
-                type: choiceEntry.value[i].credentialType,
-                issuer: choiceEntry.value[i].issuer,
-                attributes: choiceEntry.value[i].attributes,
-                valid: choiceEntry.value[i].valid,
-                expired: choiceEntry.value[i].expired,
-                revoked: choiceEntry.value[i].revoked,
+                        )
+                      : null,
+                  type: choiceEntry.value[i].credentialType,
+                  issuer: choiceEntry.value[i].issuer,
+                  attributes: choiceEntry.value[i].attributes,
+                  valid: choiceEntry.value[i].valid,
+                  expired: choiceEntry.value[i].expired,
+                  revoked: choiceEntry.value[i].revoked,
+                ),
               ),
             ),
         ],

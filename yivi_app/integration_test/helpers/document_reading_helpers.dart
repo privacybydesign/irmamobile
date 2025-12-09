@@ -49,6 +49,44 @@ Future<void> navigateToDrivingLicenceNfcReadingScreen(
   await tester.pump(const Duration(seconds: 1));
 }
 
+Future<void> navigateToIdCardNfcReadingScreen(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding,
+  FakePassportReader reader,
+  FakePassportIssuer issuer,
+) async {
+  await pumpAndUnlockApp(tester, binding.repository, null, [
+    idCardReaderProvider.overrideWith((ref, mrz) {
+      reader.setMrz(mrz);
+      return reader;
+    }),
+    passportIssuerProvider.overrideWithValue(issuer),
+  ]);
+
+  final homeContext = tester.element(find.byType(HomeScreen));
+  homeContext.pushIdCardManualEntryScreen();
+  await tester.pumpAndSettle();
+
+  await tester.enterText(
+    find.byKey(const Key("document_nr_input_field")),
+    "AB1234567",
+  );
+  await tester.enterText(
+    find.byKey(const Key("passport_dob_field")),
+    "1990-01-01",
+  );
+  await tester.enterText(
+    find.byKey(const Key("passport_expiry_date_field")),
+    "2030-12-31",
+  );
+
+  final continueButton = find.byKey(const Key("bottom_bar_primary"));
+  await tester.waitFor(continueButton.hitTestable());
+  await tester.tapAndSettle(continueButton);
+
+  await tester.pump(const Duration(seconds: 1));
+}
+
 Future<void> navigateToPassportNfcReadingScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding,
@@ -116,6 +154,39 @@ Future<void> openDrivingLicenceDetailsScreen(
     scrollable: find.byType(Scrollable).last,
   );
   await tester.tapAndSettle(edlTile);
+
+  await tester.waitFor(find.byType(AddDataDetailsScreen));
+}
+
+Future<void> openIdCardDetailsScreen(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding, {
+  List<Override> overrides = const [],
+}) async {
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    null,
+    overrides.isEmpty ? null : overrides,
+  );
+
+  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
+  await tester.tapAndSettle(addDataButton);
+
+  final idCardCredential = binding
+      .repository
+      .irmaConfiguration
+      .credentialTypes
+      .values
+      .firstWhere((type) => type.id == "idcard");
+
+  final idCardTile = find.byKey(Key("${idCardCredential.fullId}_tile"));
+  await tester.scrollUntilVisible(
+    idCardTile,
+    300,
+    scrollable: find.byType(Scrollable).last,
+  );
+  await tester.tapAndSettle(idCardTile);
 
   await tester.waitFor(find.byType(AddDataDetailsScreen));
 }
@@ -310,6 +381,7 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
 
 class FakePassportReader extends DocumentReader<PassportData> {
   FakePassportReader({
+    required this.mrzResult,
     DocumentReaderState? initialState,
     List<DocumentReaderState> statesDuringRead = const [],
     this.readDelayCompleter,
@@ -342,6 +414,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
   final List<DocumentReaderState> _statesDuringRead;
   final Completer<void>? readDelayCompleter;
   final Completer<void>? onCancelCompleter;
+  final String mrzResult;
 
   bool readCalled = false;
   int readCallCount = 0;
@@ -351,11 +424,21 @@ class FakePassportReader extends DocumentReader<PassportData> {
   DateTime? lastExpiryDate;
   String? lastCountryCode;
 
-  void setMrz(ScannedPassportMrz mrz) {
-    lastCountryCode = mrz.countryCode;
-    lastExpiryDate = mrz.dateOfExpiry;
-    lastBirthDate = mrz.dateOfBirth;
-    lastDocumentNumber = mrz.documentNumber;
+  void setMrz(ScannedMrz mrz) {
+    switch (mrz) {
+      case ScannedIdCardMrz():
+        lastCountryCode = mrz.countryCode;
+        lastExpiryDate = mrz.dateOfExpiry;
+        lastBirthDate = mrz.dateOfBirth;
+        lastDocumentNumber = mrz.documentNumber;
+      case ScannedPassportMrz():
+        lastCountryCode = mrz.countryCode;
+        lastExpiryDate = mrz.dateOfExpiry;
+        lastBirthDate = mrz.dateOfBirth;
+        lastDocumentNumber = mrz.documentNumber;
+      case ScannedDrivingLicenceMrz():
+        throw UnimplementedError();
+    }
   }
 
   @override
@@ -380,7 +463,10 @@ class FakePassportReader extends DocumentReader<PassportData> {
     }
 
     if (state case DocumentReaderSuccess()) {
-      return (_fakePassportData(), RawDocumentData(dataGroups: {}, efSod: ""));
+      return (
+        _fakePassportData(mrzResult),
+        RawDocumentData(dataGroups: {}, efSod: ""),
+      );
     }
 
     return null;
@@ -453,12 +539,16 @@ DrivingLicenceData _fakeDrivingLicenceData() {
   );
 }
 
-PassportData _fakePassportData() {
+const fakeIdCardMrz =
+    "615D5F1F5A493C4E4C44584938353933354638363939393939393939303C3C3C3C3C3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345";
+
+const fakePassportMrz =
+    "615D5F1F5A503C4E4C44584938353933354638363939393939393939303C3C3C3C3C3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345";
+
+PassportData _fakePassportData(String mrzHex) {
   final p = PassportParser();
 
-  final fakeDg1 =
-      "615D5F1F5A493C4E4C44584938353933354638363939393939393939303C3C3C3C3C3C3732303831343846313130383236384E4C443C3C3C3C3C3C3C3C3C3C3C3856414E3C4445523C535445454E3C3C4D415249414E4E453C4C4F55495345"
-          .parseHex();
+  final fakeDg1 = mrzHex.parseHex();
   final mrz = p.parseDG1(fakeDg1)!.mrz;
   return PassportData(
     mrz: mrz,

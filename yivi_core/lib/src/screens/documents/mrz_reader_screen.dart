@@ -2,11 +2,14 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 import "package:mrz_parser/mrz_parser.dart";
+import "package:permission_handler/permission_handler.dart";
 
 import "../../../package_name.dart";
 import "../../theme/theme.dart";
+import "../../util/test_detection.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/translated_text.dart";
 import "widgets/mrz_scanner.dart";
 
 typedef MrzController = GlobalKey<MrzScannerState>;
@@ -46,15 +49,80 @@ class MrzReaderScreen<Parser extends MrzParser> extends StatefulWidget {
   });
 
   @override
-  State<MrzReaderScreen> createState() => _MrzReaderScreenState();
+  State<MrzReaderScreen> createState() => MrzReaderScreenState();
 }
 
-class _MrzReaderScreenState extends State<MrzReaderScreen> {
+class MrzReaderScreenState extends State<MrzReaderScreen> {
   final MrzController controller = MrzController();
+  late PermissionStatus _cameraPermissionStatus = .denied;
+
+  @override
+  void initState() {
+    super.initState();
+    initCameraPermission();
+  }
+
+  void initCameraPermission() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (TestContext.isRunningIntegrationTest(context)) {
+        return;
+      }
+      final status = await Permission.camera.request();
+      setState(() {
+        _cameraPermissionStatus = status;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    final body = switch (_cameraPermissionStatus) {
+      .granted => MrzScanner(
+        controller: controller,
+        overlayBuilder: widget.overlayBuilder,
+        onSuccess: widget.onSuccess,
+        mrzParser: widget.mrzParser,
+      ),
+      _ => SingleChildScrollView(
+        child: Padding(
+          padding: .all(theme.defaultSpacing),
+          child: Column(
+            mainAxisAlignment: .center,
+            crossAxisAlignment: .center,
+            children: [
+              TranslatedText(
+                "mrz_camera_permissions.title",
+                style: theme.textTheme.displaySmall,
+                textAlign: .center,
+              ),
+              SizedBox(height: theme.smallSpacing),
+              TranslatedText(
+                "mrz_camera_permissions.content",
+                textAlign: .center,
+              ),
+              SizedBox(height: theme.largeSpacing),
+              TextButton(
+                child: TranslatedText(
+                  "mrz_camera_permissions.open_settings",
+                  style: theme.textButtonTextStyle.copyWith(
+                    fontWeight: .normal,
+                    color: theme.link,
+                  ),
+                ),
+                onPressed: () async {
+                  await openAppSettings();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    };
 
     return OrientationBuilder(
       builder: (context, orientation) {
@@ -64,12 +132,7 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
             appBar: IrmaAppBar(
               titleTranslationKey: widget.translationKeys.title,
             ),
-            body: MrzScanner(
-              controller: controller,
-              overlayBuilder: widget.overlayBuilder,
-              onSuccess: widget.onSuccess,
-              mrzParser: widget.mrzParser,
-            ),
+            body: body,
             bottomNavigationBar: IrmaBottomBar(
               primaryButtonLabel: widget.translationKeys.manualEntryButton,
               onPrimaryPressed: widget.onManualAdd,
@@ -89,12 +152,7 @@ class _MrzReaderScreenState extends State<MrzReaderScreen> {
               onTap: widget.onCancel,
             ),
           ),
-          body: MrzScanner(
-            controller: controller,
-            overlayBuilder: widget.overlayBuilder,
-            onSuccess: widget.onSuccess,
-            mrzParser: widget.mrzParser,
-          ),
+          body: body,
           floatingActionButton: _ManualEntryButton(
             label: FlutterI18n.translate(
               context,

@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
+import "../../../package_name.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_info_scaffold_body.dart";
 
@@ -12,8 +13,8 @@ class RootedWarningScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const IrmaInfoScaffoldBody(
-        imagePath: "assets/error/insecure_device_illustration.svg",
+      body: IrmaInfoScaffoldBody(
+        imagePath: yiviAsset("error/insecure_device_illustration.svg"),
         titleTranslationKey: "rooted_warning.title",
         bodyTranslationKey: "rooted_warning.explanation",
       ),

@@ -521,7 +521,7 @@
     "permission_dialog": {
       "title": "Turn camera on",
       "content": "Give Yivi permission to use your camera. Go to settings to give permission.",
-      "settings": "Settings"
+      "settings": "Open settings"
     }
   },
   "reset_pin": {
@@ -648,6 +648,11 @@
     "hint_state_on": "Double tap to turn off",
     "hint_state_off": "Double tap to turn on"
   },
+  "mrz_camera_permissions": {
+    "title": "No camera permissions",
+    "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
+    "open_settings": "Open settings"
+  },
   "driving_licence": {
     "scan": {
       "title": "Scan driving licence",
@@ -658,7 +663,7 @@
     },
     "manual": {
       "title": "Enter driving licence details",
-      "explanation": "We need the machine readable zone (MRZ) of your driving licence to access the RFID-chip of the document.",
+      "explanation": "We need the machine readable zone (MRZ) of your driving licence to access the NFC-chip of the document.",
       "fields": {
         "mrz": "Machine readable zone (MRZ)",
         "mrz_required": "Machine readable zone (MRZ) is required",
@@ -705,6 +710,68 @@
       }
     }
   },
+  "id_card": {
+    "scan": {
+      "title": "Scan ID-card",
+      "success": "Success",
+      "success_explanation": "The ID-card has been successfully scanned.",
+      "manual": "Enter manually",
+      "error": "Could not read ID-card. Please try again."
+    },
+    "manual": {
+      "title": "Enter ID-card details",
+      "explanation": "We need the document number, date of birth and date of expiry of your ID-card to access the NFC-chip.",
+      "fields": {
+        "document_nr": "Document number",
+        "document_nr_required": "Document number is required",
+        "document_nr_invalid": "Document number is invalid",
+        "date_of_birth": "Date of birth",
+        "date_of_birth_required": "Date of birth is required",
+        "date_of_expiry": "Date of expiry",
+        "date_of_expiry_required": "Date of expiry is required",
+        "date_invalid": "Date is invalid"
+      }
+    },
+    "nfc": {
+      "introduction": "You'll now scan the data inside your ID-card.\n\nHold the back of your phone against your ID-card. Press start to start the scanning process.",
+      "start_scanning": "Start scanning",
+      "title": "Read ID-card",
+      "nfc_enabled": "NFC enabled",
+      "nfc_disabled": "NFC disabled",
+      "reading": "Reading...",
+      "error": "Could not read ID-card. Please try again.",
+      "nfc_not_supported": "NFC is not supported on this device.",
+      "nfc_disabled_explanation": "NFC is disabled. Please enable NFC in the system settings and try again.",
+      "nfc_interrupted": "Reading interrupted. Try again, holding your phone steady on your ID-card.",
+      "tip_1": "Don't move your phone. The reading usually only takes 10-20 seconds.",
+      "tip_2": "Hold the back of your phone against your ID-card.",
+      "tip_3": "Having trouble reading? Try removing your phone's case. This often helps strengthen the NFC signal.",
+      "success": "Success",
+      "success_explanation": "Reading ID-card completed successfully",
+      "idle": "Ready to start reading ID-card",
+      "cancelling": "Cancelling...",
+      "hold_near_photo_page": "Hold your phone near your ID-card.",
+      "cancelled": "Cancelled",
+      "connecting": "Connecting to ID-card...",
+      "finished": "Finished",
+      "reading_card_security": "Determining NFC-chip access...",
+      "authenticating": "Authenticating with ID-card...",
+      "reading_passport_data": "Reading ID-card data...",
+      "performing_security_verification": "Performing security verification...",
+      "completed_successfully": "Reading ID-card completed successfully.",
+      "error_generic": "An error has occurred while reading ID-card.",
+      "failed_initiate_session": "Failed to initiate session with ID-card.",
+      "timeout_waiting_for_tag": "Timeout while waiting for ID-card tag",
+      "tag_lost_try_again": "Tag was lost. Please try again.",
+      "cancelled_by_user": "You cancelled the scanning process.",
+      "cancel_dialog": {
+        "title": "Cancel reading ID-card?",
+        "explanation": "Are you sure you want to cancel reading your ID-card?",
+        "confirm": "Yes",
+        "decline": "No"
+      }
+    }
+  },
   "passport": {
     "scan": {
       "title": "Scan passport",
@@ -715,7 +782,7 @@
     },
     "manual": {
       "title": "Enter passport details",
-      "explanation": "We need the document number, date of birth and date of expiry of your passport to access the RFID-chip of the passport.",
+      "explanation": "We need the document number, date of birth and date of expiry of your passport to access the NFC-chip of the passport.",
       "fields": {
         "document_nr": "Document number",
         "document_nr_required": "Document number is required",
@@ -749,7 +816,7 @@
       "cancelled": "Cancelled",
       "connecting": "Connecting to passport...",
       "finished": "Finished",
-      "reading_card_security": "Determining NFC chip access...",
+      "reading_card_security": "Determining NFC-chip access...",
       "authenticating": "Authenticating with passport...",
       "reading_passport_data": "Reading passport data...",
       "performing_security_verification": "Performing security verification...",

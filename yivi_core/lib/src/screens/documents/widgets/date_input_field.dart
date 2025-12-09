@@ -1,6 +1,4 @@
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 import "package:mask_text_input_formatter/mask_text_input_formatter.dart";
 
@@ -9,8 +7,9 @@ import "../../../theme/theme.dart";
 class DateInputField extends StatefulWidget {
   final TextEditingController controller;
   final Key? fieldKey;
-  final String labelI18nKey;
-  final String requiredI18nKey;
+  final String labelText;
+  final String requiredText;
+  final String dateInvalidText;
 
   /// Optional: date picker bounds & default.
   final DateTime? firstDate;
@@ -22,8 +21,9 @@ class DateInputField extends StatefulWidget {
 
   const DateInputField({
     required this.controller,
-    required this.labelI18nKey,
-    required this.requiredI18nKey,
+    required this.labelText,
+    required this.requiredText,
+    required this.dateInvalidText,
     this.fieldKey,
     this.firstDate,
     this.lastDate,
@@ -38,7 +38,6 @@ class DateInputField extends StatefulWidget {
 
 class _DateInputFieldState extends State<DateInputField> {
   late final MaskTextInputFormatter _dateMask;
-  final _invalidI18nKey = "passport.manual.fields.date_invalid";
   final _dateFormat = DateFormat("yyyy-MM-dd");
 
   @override
@@ -48,7 +47,7 @@ class _DateInputFieldState extends State<DateInputField> {
     _dateMask = MaskTextInputFormatter(
       mask: "####-##-##",
       filter: {"#": RegExp(r"\d")},
-      type: MaskAutoCompletionType.lazy,
+      type: .lazy,
     );
   }
 
@@ -63,29 +62,29 @@ class _DateInputFieldState extends State<DateInputField> {
       key: widget.fieldKey ?? const Key("date_input_field"),
       controller: widget.controller,
       readOnly: false,
-      keyboardType: TextInputType.number,
-      textInputAction: TextInputAction.next,
+      keyboardType: .number,
+      textInputAction: .next,
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,
-      inputFormatters: <TextInputFormatter>[_dateMask],
+      inputFormatters: [_dateMask],
       decoration: InputDecoration(
         hintText: "YYYY-MM-DD",
         hintStyle: baseTextStyle?.copyWith(
           color: baseTextStyle.color?.withValues(alpha: 0.5),
         ),
-        contentPadding: const EdgeInsets.only(bottom: 8.0),
-        labelText: FlutterI18n.translate(context, widget.labelI18nKey),
+        contentPadding: const .only(bottom: 8.0),
+        labelText: widget.labelText,
         labelStyle: baseTextStyle,
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        floatingLabelBehavior: FloatingLabelBehavior.always,
+        floatingLabelAlignment: .start,
+        floatingLabelBehavior: .always,
         suffixIcon: IconButton(
           icon: const Icon(Icons.calendar_today),
           onPressed: () async {
             final now = DateTime.now();
             final pickedDate = await showDatePicker(
               context: context,
-              initialDatePickerMode: DatePickerMode.day,
-              initialEntryMode: DatePickerEntryMode.calendarOnly,
+              initialDatePickerMode: .day,
+              initialEntryMode: .calendarOnly,
               initialDate: widget.initialDate ?? DateTime(now.year - 25),
               firstDate: widget.firstDate ?? DateTime(1900),
               lastDate: widget.lastDate ?? DateTime(2100),
@@ -99,26 +98,26 @@ class _DateInputFieldState extends State<DateInputField> {
               // Set both text and caret to end to avoid selection glitches.
               widget.controller.value = widget.controller.value.copyWith(
                 text: text,
-                selection: TextSelection.collapsed(offset: text.length),
-                composing: TextRange.empty,
+                selection: .collapsed(offset: text.length),
+                composing: .empty,
               );
             }
           },
         ),
       ),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: .onUserInteraction,
       validator: (value) {
         final v = value?.trim() ?? "";
         if (v.isEmpty) {
-          return FlutterI18n.translate(context, widget.requiredI18nKey);
+          return widget.requiredText;
         }
         final parsed = _dateFormat.tryParseStrict(v);
         if (parsed == null) {
-          return FlutterI18n.translate(context, _invalidI18nKey);
+          return widget.dateInvalidText;
         }
         // Round-trip to ensure canonical yyyy-MM-dd (no partials like 2025-13-40)
         if (_dateFormat.format(parsed) != v) {
-          return FlutterI18n.translate(context, _invalidI18nKey);
+          return widget.dateInvalidText;
         }
         return null;
       },

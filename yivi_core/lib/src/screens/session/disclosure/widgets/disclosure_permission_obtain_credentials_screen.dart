@@ -40,9 +40,9 @@ class DisclosurePermissionObtainCredentialsScreen extends ConsumerWidget {
       appBarTitle: "disclosure_permission.issue_wizard.title",
       onDismiss: onDismiss,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           children: [
             DisclosureTemplateStepper(
               templates: state.templates,
