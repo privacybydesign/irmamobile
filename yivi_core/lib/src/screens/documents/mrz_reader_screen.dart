@@ -78,10 +78,15 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    if (_cameraPermissionStatus != .granted) {
-      return Scaffold(
-        appBar: IrmaAppBar(titleTranslationKey: widget.translationKeys.title),
-        body: Padding(
+    final body = switch (_cameraPermissionStatus) {
+      .granted => MrzScanner(
+        controller: controller,
+        overlayBuilder: widget.overlayBuilder,
+        onSuccess: widget.onSuccess,
+        mrzParser: widget.mrzParser,
+      ),
+      _ => SingleChildScrollView(
+        child: Padding(
           padding: .all(theme.defaultSpacing),
           child: Column(
             mainAxisAlignment: .center,
@@ -116,15 +121,8 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: widget.translationKeys.manualEntryButton,
-          onPrimaryPressed: widget.onManualAdd,
-          secondaryButtonLabel: "ui.cancel",
-          onSecondaryPressed: widget.onCancel,
-          alignment: .vertical,
-        ),
-      );
-    }
+      ),
+    };
 
     return OrientationBuilder(
       builder: (context, orientation) {
@@ -134,12 +132,7 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
             appBar: IrmaAppBar(
               titleTranslationKey: widget.translationKeys.title,
             ),
-            body: MrzScanner(
-              controller: controller,
-              overlayBuilder: widget.overlayBuilder,
-              onSuccess: widget.onSuccess,
-              mrzParser: widget.mrzParser,
-            ),
+            body: body,
             bottomNavigationBar: IrmaBottomBar(
               primaryButtonLabel: widget.translationKeys.manualEntryButton,
               onPrimaryPressed: widget.onManualAdd,
@@ -159,12 +152,7 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
               onTap: widget.onCancel,
             ),
           ),
-          body: MrzScanner(
-            controller: controller,
-            overlayBuilder: widget.overlayBuilder,
-            onSuccess: widget.onSuccess,
-            mrzParser: widget.mrzParser,
-          ),
+          body: body,
           floatingActionButton: _ManualEntryButton(
             label: FlutterI18n.translate(
               context,
