@@ -671,7 +671,7 @@
       }
     },
     "nfc": {
-      "introduction": "Je gaat nu de gegevens uit je rijbewijs lezen.\n\nHoudt de achterkant van je telefoon tegen je rijbewijs aan. Druk vervolgens op start om het uitlezen te starten.",
+      "introduction": "Je gaat nu de gegevens uit je rijbewijs lezen.\n\nHoud de achterkant van je telefoon tegen je rijbewijs aan. Druk vervolgens op start om het uitlezen te starten.",
       "start_scanning": "Start uitlezen",
       "title": "Lees rijbewijs",
       "nfc_enabled": "NFC ingeschakeld",
@@ -733,7 +733,7 @@
       }
     },
     "nfc": {
-      "introduction": "Je gaat nu de gegevens uit je identiteitskaart lezen.\n\nHoudt de achterkant van je telefoon tegen je identiteitskaart aan. Druk vervolgens op start om het uitlezen te starten.",
+      "introduction": "Je gaat nu de gegevens uit je identiteitskaart lezen.\n\nHoud de achterkant van je telefoon tegen je identiteitskaart aan. Druk vervolgens op start om het uitlezen te starten.",
       "start_scanning": "Start uitlezen",
       "title": "Identiteitskaart lezen",
       "nfc_enabled": "NFC ingeschakeld",
@@ -742,7 +742,7 @@
       "error": "Kon identiteitskaart niet lezen.\nProbeer het opnieuw.",
       "nfc_not_supported": "NFC wordt niet ondersteund op dit apparaat.",
       "nfc_disabled_explanation": "NFC is uitgeschakeld. Schakel NFC in via de systeeminstellingen en probeer het opnieuw.",
-      "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd uw telefoon stil op uw paspoort.",
+      "nfc_interrupted": "Lezen onderbroken. Probeer opnieuw, houd uw telefoon stil op uw identiteitskaart.",
       "tip_1": "Beweeg uw telefoon niet. Het lezen duurt meestal slechts 10-20 seconden.",
       "tip_2": "Houd de achterkant van uw telefoon tegen uw identiteitskaart.",
       "tip_3": "Problemen met lezen? Probeer de hoes van uw telefoon te verwijderen. Dit helpt vaak het NFC-signaal te versterken.",
@@ -795,7 +795,7 @@
       }
     },
     "nfc": {
-      "introduction": "Je gaat nu de gegevens uit je paspoort lezen.\n\nHoudt de achterkant van je telefoon tegen je passpoort aan. Druk vervolgens op start om het uitlezen te starten.",
+      "introduction": "Je gaat nu de gegevens uit je paspoort lezen.\n\nHoud de achterkant van je telefoon tegen je passpoort aan. Druk vervolgens op start om het uitlezen te starten.",
       "start_scanning": "Start uitlezen",
       "title": "Lees paspoort",
       "nfc_enabled": "NFC ingeschakeld",
