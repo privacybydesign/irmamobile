@@ -2,28 +2,27 @@ import "package:flutter/material.dart";
 
 import "../../../util/test_detection.dart";
 
-class DrivingLicenceAnimation extends StatelessWidget {
-  const DrivingLicenceAnimation({super.key});
+class IdCardNfcScanningAnimation extends StatelessWidget {
+  const IdCardNfcScanningAnimation({super.key});
 
   @override
   Widget build(BuildContext context) {
     final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
     return TickerMode(
       enabled: !isIntegrationTest,
-      child: _DrivingLicenceAnimation(),
+      child: _DutchIdCardAnimation(),
     );
   }
 }
 
-class _DrivingLicenceAnimation extends StatefulWidget {
-  const _DrivingLicenceAnimation();
+class _DutchIdCardAnimation extends StatefulWidget {
+  const _DutchIdCardAnimation();
 
   @override
-  State<_DrivingLicenceAnimation> createState() =>
-      _DrivingLicenceAnimationState();
+  State<_DutchIdCardAnimation> createState() => _DutchIdCardAnimationState();
 }
 
-class _DrivingLicenceAnimationState extends State<_DrivingLicenceAnimation>
+class _DutchIdCardAnimationState extends State<_DutchIdCardAnimation>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _positionAnimation;
@@ -32,7 +31,6 @@ class _DrivingLicenceAnimationState extends State<_DrivingLicenceAnimation>
   void initState() {
     super.initState();
 
-    // Setup positioning animation
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -41,7 +39,7 @@ class _DrivingLicenceAnimationState extends State<_DrivingLicenceAnimation>
     _positionAnimation = Tween<double>(begin: 0.0, end: 2.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
-    // Start animation loop
+
     _animationController.repeat(reverse: true);
   }
 
@@ -55,7 +53,7 @@ class _DrivingLicenceAnimationState extends State<_DrivingLicenceAnimation>
     return Stack(
       alignment: .topCenter,
       children: [
-        Positioned(bottom: 120, child: _buildDrivingLicenceIllustration()),
+        Positioned(bottom: 120, child: _buildDutchIdCardIllustration()),
         Positioned(
           top: 40 + (_positionAnimation.value * 20),
           child: _buildPhoneIllustration(),
@@ -66,44 +64,45 @@ class _DrivingLicenceAnimationState extends State<_DrivingLicenceAnimation>
 
   Widget _buildPhoneIllustration() {
     return Container(
-      width: 80, // Portrait shape (narrower than height)
+      width: 80,
       height: 160,
       decoration: BoxDecoration(
-        border: .all(color: const Color.fromARGB(255, 0, 0, 0), width: 3),
+        border: .all(color: Colors.black, width: 3),
         borderRadius: .circular(20),
         color: Colors.white,
       ),
       child: Column(
         children: [
-          // Notch (optional, to suggest speaker/camera area)
           Container(
             width: 40,
             height: 6,
             margin: const .only(top: 8),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 0, 0, 0),
+              color: Colors.black,
               borderRadius: .circular(3),
             ),
           ),
           const Spacer(),
-          // You can add a blank screen or content here if desired
           const SizedBox(height: 8),
         ],
       ),
     );
   }
 
-  Widget _buildDrivingLicenceIllustration() {
+  Widget _buildDutchIdCardIllustration() {
     return Container(
       width: 155,
       height: 90,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFFFE0E6), Color(0xFFFFC1CC)],
+          colors: [
+            Color(0xFFDCEAFE), // very light ice blue
+            Color(0xFFE6D9F7), // faint lavender / purple tint
+          ],
           begin: .topLeft,
           end: .bottomRight,
         ),
-        border: .all(color: Color(0xFFB48DA3), width: 1.2),
+        border: .all(color: Color(0xFF9CA9C9), width: 1.2),
         borderRadius: .circular(8),
         boxShadow: [
           BoxShadow(
@@ -118,63 +117,74 @@ class _DrivingLicenceAnimationState extends State<_DrivingLicenceAnimation>
         child: Column(
           crossAxisAlignment: .start,
           children: [
-            Row(
-              children: [
-                const SizedBox(width: 5),
-                const Text(
-                  "DRIVING LICENCE",
-                  style: TextStyle(
-                    color: Color(0xFF0046AD),
-                    fontWeight: .bold,
-                    fontSize: 9,
-                    letterSpacing: 0.4,
+            const SizedBox(height: 2),
+
+            const Text(
+              "IDENTITEITSKAART / IDENTITY CARD",
+              style: TextStyle(
+                color: Color(0xFF553C99),
+                fontWeight: .bold,
+                fontSize: 6.3,
+                letterSpacing: 0.4,
+              ),
+            ),
+
+            const SizedBox(height: 5),
+
+            Expanded(
+              child: Row(
+                crossAxisAlignment: .center,
+                children: [
+                  // Photo placeholder
+                  Container(
+                    width: 38,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: Colors.white70,
+                      borderRadius: .circular(3),
+                      border: .all(color: Colors.grey[400]!),
+                    ),
+                    child: Icon(
+                      Icons.person,
+                      size: 20,
+                      color: Colors.grey[700],
+                    ),
                   ),
-                ),
-                const Spacer(),
-                Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: .circular(3),
-                    border: .all(color: Colors.grey[400]!),
+                  const SizedBox(width: 6),
+
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: .spaceEvenly,
+                      crossAxisAlignment: .start,
+                      children: [
+                        _placeholderBar(60),
+                        _placeholderBar(45),
+                        _placeholderBar(40),
+                      ],
+                    ),
                   ),
-                  child: Icon(Icons.person, size: 10, color: Colors.grey[600]),
-                ),
-              ],
+                ],
+              ),
             ),
 
             const SizedBox(height: 4),
 
-            // Middle section – main photo placeholder
-            Expanded(
-              child: Align(
-                alignment: .centerLeft,
-                child: Container(
-                  width: 38,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: .circular(3),
-                    border: .all(color: Colors.grey[400]!),
-                  ),
-                  child: Icon(Icons.person, size: 20, color: Colors.grey[600]),
-                ),
+            // Bottom instruction bar
+            Container(
+              width: .infinity,
+              height: 10,
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(100),
+                borderRadius: .circular(3),
               ),
-            ),
-
-            // MRZ line at the bottom (only text, no bar)
-            const Center(
-              child: Padding(
-                padding: .only(top: 4),
+              child: const Center(
                 child: Text(
-                  "D1NLD2X150949621115MZ26KC47X2W",
+                  "PLACE ID CARD AGAINST PHONE",
                   style: TextStyle(
-                    fontFamily: "monospace",
-                    fontWeight: .bold,
-                    fontSize: 5.8,
-                    color: Colors.black,
-                    letterSpacing: 1,
+                    fontSize: 5.5,
+                    fontWeight: .w600,
+                    letterSpacing: 0.8,
+                    color: Colors.black87,
                   ),
                 ),
               ),
@@ -185,22 +195,33 @@ class _DrivingLicenceAnimationState extends State<_DrivingLicenceAnimation>
     );
   }
 
+  Widget _placeholderBar(double width) {
+    return Container(
+      height: 4,
+      width: width,
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(150),
+        borderRadius: .circular(2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         const requestedHeight = 250.0;
         final scale = constraints.maxHeight / requestedHeight;
+
         return Transform.scale(
           scale: scale,
           child: SizedBox(
-            height:
-                requestedHeight, // or use MediaQuery if dynamic height needed
+            height: requestedHeight,
             child: AnimatedBuilder(
               animation: _animationController,
               builder: (context, child) {
                 return Transform.translate(
-                  offset: Offset(0, -25),
+                  offset: const Offset(0, -25),
                   child: _buildPositioningDiagram(),
                 );
               },

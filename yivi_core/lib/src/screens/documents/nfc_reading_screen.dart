@@ -24,9 +24,9 @@ import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/irma_dialog.dart";
 import "../../widgets/irma_linear_progresss_indicator.dart";
 import "../../widgets/translated_text.dart";
-import "widgets/driving_licence_animation.dart";
-import "widgets/id_card_animation.dart";
-import "widgets/passport_animation.dart";
+import "widgets/driving_licence_nfc_scanning_animation.dart";
+import "widgets/id_card_nfc_scanning_animation.dart";
+import "widgets/passport_nfc_scanning_animation.dart";
 
 class NfcReadingTranslationKeys {
   final String cancelDialogTitle;
@@ -115,8 +115,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   Widget _getAnimation() {
     return switch (widget.mrz) {
       ScannedPassportMrz() => PassportNfcScanningAnimation(),
-      ScannedDrivingLicenceMrz() => DrivingLicenceAnimation(),
-      ScannedIdCardMrz() => IdCardAnimation(),
+      ScannedDrivingLicenceMrz() => DrivingLicenceNfcScanningAnimation(),
+      ScannedIdCardMrz() => IdCardNfcScanningAnimation(),
     };
   }
 
