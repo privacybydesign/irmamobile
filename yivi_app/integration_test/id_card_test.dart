@@ -294,6 +294,38 @@ void main() {
       expect(fakeReader.cancelCount, 1);
     });
 
+    testWidgets("reading document with passport mrz should show error", (
+      tester,
+    ) async {
+      final fakeReader = FakePassportReader(
+        mrzResult: fakePassportMrz,
+        statesDuringRead: [
+          DocumentReaderConnecting(),
+          DocumentReaderReadingCardAccess(),
+          DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+          DocumentReaderActiveAuthentication(),
+          DocumentReaderSuccess(),
+        ],
+      );
+      final fakeIssuer = FakePassportIssuer();
+
+      await navigateToIdCardNfcReadingScreen(
+        tester,
+        irmaBinding,
+        fakeReader,
+        fakeIssuer,
+      );
+
+      // Wait for NFC screen and press "Start scanning" button
+      await tester.waitFor(find.byType(NfcReadingScreen));
+      final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
+      await tester.tapAndSettle(startScanningButton);
+
+      await tester.waitFor(
+        find.text("Could not read ID-card. Please try again."),
+      );
+    });
+
     testWidgets("creating issuance session fails should show error", (
       tester,
     ) async {
