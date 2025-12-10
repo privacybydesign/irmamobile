@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Enrollment introduction screen have been removed to shorten the enrollment process
+- Enrollment introduction screens have been removed to shorten the enrollment process
 
 ## [7.12.0] - 2025-12-09
 ### Changed
