@@ -91,7 +91,7 @@ final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
         accessKey,
         enableBac: enableBac,
       );
-      final parser = DrivingLicenceParser();
+      final parser = DrivingLicenceParser(failDg1CategoriesGracefully: true);
       final docReader = DocumentReader(
         documentParser: parser,
         dataGroupReader: dgReader,

@@ -331,6 +331,7 @@
     "button_reset": "Begin opnieuw",
     "details_title": "Foutmelding",
     "report": "Als het fout blijft gaan, laat het dan aan ons weten.",
+    "show_sensitive_data": "Toon gevoeldige data",
     "types": {
       "general": "Er is iets misgegaan.",
       "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook zijn dat je Yivi meer dan één jaar niet hebt gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
