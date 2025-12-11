@@ -281,7 +281,9 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
        _statesDuringRead = statesDuringRead,
        super(
          nfc: _FakeNfcProvider(),
-         documentParser: DrivingLicenceParser(),
+         documentParser: DrivingLicenceParser(
+           failDg1CategoriesGracefully: true,
+         ),
          config: DocumentReaderConfig(
            readIfAvailable: {DataGroups.dg1, DataGroups.dg2, DataGroups.dg15},
          ),

@@ -127,7 +127,11 @@ void main() {
       final fakeReader = FakeDrivingLicenceReader(
         statesDuringRead: [
           DocumentReaderConnecting(),
-          DocumentReaderFailed(error: .timeoutWaitingForTag, logs: ""),
+          DocumentReaderFailed(
+            error: .timeoutWaitingForTag,
+            logs: "",
+            sensitiveLogs: "",
+          ),
         ],
       );
       final fakeIssuer = FakePassportIssuer();

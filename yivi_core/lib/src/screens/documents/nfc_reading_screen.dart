@@ -2,11 +2,9 @@ import "dart:async";
 
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/svg.dart";
-import "package:go_router/go_router.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
 import "../../../package_name.dart";
@@ -15,17 +13,16 @@ import "../../models/mrz.dart";
 import "../../models/session.dart";
 import "../../providers/passport_issuer_provider.dart";
 import "../../providers/passport_reader_provider.dart";
-import "../../sentry/sentry.dart";
 import "../../theme/theme.dart";
 import "../../util/handle_pointer.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_confirmation_dialog.dart";
-import "../../widgets/irma_dialog.dart";
 import "../../widgets/irma_linear_progresss_indicator.dart";
 import "../../widgets/translated_text.dart";
 import "widgets/driving_licence_nfc_scanning_animation.dart";
 import "widgets/id_card_nfc_scanning_animation.dart";
+import "widgets/nfc_error_dialog.dart";
 import "widgets/passport_nfc_scanning_animation.dart";
 
 class NfcReadingTranslationKeys {
@@ -275,8 +272,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     final uiState = passportReadingStateToUiState(passportState);
 
-    if (passportState case DocumentReaderFailed(:final logs)) {
-      return _buildError(context, uiState, logs);
+    if (passportState case DocumentReaderFailed(
+      :final logs,
+      :final sensitiveLogs,
+    )) {
+      return _buildError(context, uiState, logs, sensitiveLogs: sensitiveLogs);
     }
 
     if (passportState is DocumentReaderCancelled) {
@@ -294,7 +294,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     );
   }
 
-  Widget _buildError(BuildContext context, _UiState uiState, String logs) {
+  Widget _buildError(
+    BuildContext context,
+    _UiState uiState,
+    String logs, {
+    String? sensitiveLogs,
+  }) {
     final theme = IrmaTheme.of(context);
     final isPortrait = MediaQuery.orientationOf(context) == .portrait;
 
@@ -314,7 +319,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           SizedBox(height: theme.defaultSpacing),
           GestureDetector(
             onTap: () {
-              _showLogsDialog(context, logs);
+              _showLogsDialog(
+                context,
+                logs: logs,
+                sensitiveLogs: sensitiveLogs,
+              );
             },
             child: _OrientationAwareTranslatedText(
               "error.button_show_error",
@@ -600,68 +609,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 }
 
-Future _showLogsDialog(BuildContext context, String logs) async {
+Future _showLogsDialog(
+  BuildContext context, {
+  required String logs,
+  String? sensitiveLogs,
+}) async {
   return showDialog(
     context: context,
     builder: (context) {
-      final theme = IrmaTheme.of(context);
-      return YiviDialog(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
-          ),
-          child: Column(
-            mainAxisSize: .min,
-            mainAxisAlignment: .spaceBetween,
-            crossAxisAlignment: .start,
-            children: [
-              IrmaAppBar(
-                titleTranslationKey: "error.details_title",
-                leading: null,
-              ),
-              Row(
-                mainAxisSize: .max,
-                mainAxisAlignment: .end,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: logs));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Copied to clipboard!")),
-                      );
-                    },
-                    icon: Icon(Icons.copy),
-                  ),
-                ],
-              ),
-              Flexible(
-                fit: .loose,
-                child: SingleChildScrollView(
-                  padding: .all(theme.defaultSpacing),
-                  child: Text(logs),
-                ),
-              ),
-              IrmaBottomBar(
-                primaryButtonLabel: "error.button_send_to_irma",
-                secondaryButtonLabel: "error.button_ok",
-                onPrimaryPressed: () async {
-                  reportError(
-                    Exception(logs),
-                    StackTrace.current,
-                    userInitiated: true,
-                  );
-                  if (context.mounted) {
-                    context.pop();
-                  }
-                },
-                onSecondaryPressed: () {
-                  context.pop();
-                },
-              ),
-            ],
-          ),
-        ),
-      );
+      return NfcErrorDialog(logs: logs, sensitiveLogs: sensitiveLogs);
     },
   );
 }
