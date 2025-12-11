@@ -331,7 +331,7 @@
     "button_reset": "Start all over",
     "details_title": "Error message",
     "report": "If this happens again, please inform the Yivi team.",
-    "show_sensitive_data": "Toon gevoeldige informatie",
+    "show_sensitive_data": "Show sensitive data",
     "types": {
       "general": "Something went wrong.",
       "blocked": "Your Yivi app has been remotely blocked. This has either been done via MyYivi or because you did not use Yivi on this device for more than one year. If you want to continue using Yivi on this device, you will need to start over.",
