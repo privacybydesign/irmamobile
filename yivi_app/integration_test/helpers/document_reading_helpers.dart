@@ -290,7 +290,8 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
          dataGroupReader: DataGroupReader(
            _FakeNfcProvider(),
            "".parseHex(),
-           DBAKey("", DateTime.now(), DateTime.now()),
+           paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
+           bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
        ) {
     if (_initialState != null) {
@@ -399,7 +400,8 @@ class FakePassportReader extends DocumentReader<PassportData> {
          dataGroupReader: DataGroupReader(
            _FakeNfcProvider(),
            "".parseHex(),
-           DBAKey("", DateTime.now(), DateTime.now()),
+           paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
+           bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
        ) {
     if (_initialState != null) {
