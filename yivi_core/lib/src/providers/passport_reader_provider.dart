@@ -23,8 +23,7 @@ final idCardReaderProvider = StateNotifierProvider.autoDispose
       final dgReader = DataGroupReader(
         nfc,
         DF1.PassportAID,
-        accessKey,
-        enableBac: false,
+        paceAccessKey: accessKey,
       );
 
       // ID-cards have the exact same data groups as passports, so we'll just use the same parser
@@ -47,13 +46,25 @@ final passportReaderProvider = StateNotifierProvider.autoDispose
       ScannedPassportMrz
     >((ref, mrz) {
       final nfc = NfcProvider();
-      final accessKey = DBAKey(
+      final bacAccessKey = DBAKey(
         mrz.documentNumber,
         mrz.dateOfBirth,
         mrz.dateOfExpiry,
       );
 
-      final dgReader = DataGroupReader(nfc, DF1.PassportAID, accessKey);
+      final paceAccessKey = DBAKey(
+        mrz.documentNumber,
+        mrz.dateOfBirth,
+        mrz.dateOfExpiry,
+        paceMode: true,
+      );
+
+      final dgReader = DataGroupReader(
+        nfc,
+        DF1.PassportAID,
+        bacAccessKey: bacAccessKey,
+        paceAccessKey: paceAccessKey,
+      );
       final parser = PassportParser();
       final docReader = DocumentReader(
         documentParser: parser,
@@ -88,8 +99,8 @@ final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
       final dgReader = DataGroupReader(
         nfc,
         DF1.DriverAID,
-        accessKey,
-        enableBac: enableBac,
+        bacAccessKey: enableBac ? accessKey : null,
+        paceAccessKey: accessKey,
       );
       final parser = DrivingLicenceParser(failDg1CategoriesGracefully: true);
       final docReader = DocumentReader(
