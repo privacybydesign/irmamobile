@@ -5,8 +5,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
+import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
-import "package:yivi_core/src/providers/passport_reader_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/documents/mrz_reader_screen.dart";
@@ -296,38 +296,6 @@ void main() {
       await tester.waitFor(find.byType(DataTab).hitTestable());
 
       expect(fakeReader.cancelCount, 1);
-    });
-
-    testWidgets("reading document with id-card mrz should show error", (
-      tester,
-    ) async {
-      final fakeReader = FakePassportReader(
-        mrzResult: fakeIdCardMrz,
-        statesDuringRead: [
-          DocumentReaderConnecting(),
-          DocumentReaderReadingCardAccess(),
-          DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
-          DocumentReaderActiveAuthentication(),
-          DocumentReaderSuccess(),
-        ],
-      );
-      final fakeIssuer = FakePassportIssuer();
-
-      await navigateToPassportNfcReadingScreen(
-        tester,
-        irmaBinding,
-        fakeReader,
-        fakeIssuer,
-      );
-
-      // Wait for NFC screen and press "Start scanning" button
-      await tester.waitFor(find.byType(NfcReadingScreen));
-      final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
-      await tester.tapAndSettle(startScanningButton);
-
-      await tester.waitFor(
-        find.text("Could not read passport. Please try again."),
-      );
     });
 
     testWidgets("creating issuance session fails should show error", (

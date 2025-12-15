@@ -11,8 +11,8 @@ import "../../../package_name.dart";
 import "../../../routing.dart";
 import "../../models/mrz.dart";
 import "../../models/session.dart";
+import "../../providers/document_reader_providers.dart";
 import "../../providers/passport_issuer_provider.dart";
-import "../../providers/passport_reader_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/handle_pointer.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -175,34 +175,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
     if (result != null) {
       final (pdr, rawDocData) = result;
-
-      // make sure it's not a passport scanned as an id-card and vice versa...
-      final error = _validateDocType(pdr);
-      if (error != null) {
-        setState(() {
-          issuanceError = error;
-        });
-        return;
-      }
-
       await _startIssuance(rawDocData);
-    }
-  }
-
-  String? _validateDocType(DocumentData data) {
-    switch (widget.mrz) {
-      case ScannedIdCardMrz():
-        final docType = (data as PassportData).mrz.documentCode;
-        return docType == "I"
-            ? null
-            : "Cannot scan document with MRZ that starts with $docType as an ID-card";
-      case ScannedPassportMrz():
-        final docType = (data as PassportData).mrz.documentCode;
-        return docType == "P"
-            ? null
-            : "Cannot scan document with MRZ that starts with $docType as passport";
-      case ScannedDrivingLicenceMrz():
-        return null;
     }
   }
 

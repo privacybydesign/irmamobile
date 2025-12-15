@@ -6,8 +6,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
+import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
-import "package:yivi_core/src/providers/passport_reader_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/util/navigation.dart";
@@ -290,7 +290,8 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
          dataGroupReader: DataGroupReader(
            _FakeNfcProvider(),
            "".parseHex(),
-           DBAKey("", DateTime.now(), DateTime.now()),
+           paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
+           bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
        ) {
     if (_initialState != null) {
@@ -399,7 +400,8 @@ class FakePassportReader extends DocumentReader<PassportData> {
          dataGroupReader: DataGroupReader(
            _FakeNfcProvider(),
            "".parseHex(),
-           DBAKey("", DateTime.now(), DateTime.now()),
+           paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
+           bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
        ) {
     if (_initialState != null) {
