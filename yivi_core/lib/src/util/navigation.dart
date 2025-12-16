@@ -41,6 +41,10 @@ extension RoutingHelpers on BuildContext {
     push("/reset_pin");
   }
 
+  void pushSmsIssuanceScreen() {
+    push("/issue_mobilenumber");
+  }
+
   void popToWizardScreen() {
     Navigator.of(this).popUntil(ModalRoute.withName("/issue_wizard"));
   }
