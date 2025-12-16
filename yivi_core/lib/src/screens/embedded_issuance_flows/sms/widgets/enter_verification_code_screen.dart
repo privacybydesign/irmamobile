@@ -74,6 +74,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyCodeScreen> {
               TranslatedText("sms_issuance.verify_code.body"),
               SizedBox(height: theme.largeSpacing),
               Pinput(
+                keyboardType: .text,
+                textCapitalization: .characters,
                 focusNode: _focusNode,
                 autofocus: true,
                 mainAxisAlignment: .start,

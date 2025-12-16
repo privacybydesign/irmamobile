@@ -35,7 +35,10 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final phone = _phoneController.text;
+      final phone = _currentPhone.phoneNumber;
+      if (phone == null) {
+        return;
+      }
 
       ref.read(smsIssuanceProvider.notifier).sendSms(phoneNumber: phone);
     }
@@ -44,6 +47,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final state = ref.watch(smsIssuanceProvider);
 
     return GestureDetector(
       onTap: () {
@@ -90,7 +94,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                           "sms_issuance.enter_phone.search_hint",
                         ),
                       ),
-                      initialValue: _currentPhone,
+                      initialValue: PhoneNumber(isoCode: _currentPhone.isoCode),
                       locale:
                           FlutterI18n.currentLocale(context)?.languageCode ??
                           "en",
@@ -105,11 +109,15 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                       onInputValidated: (valid) {
                         setState(() => _validPhoneNumber = valid);
                       },
-                      onInputChanged: (phone) {},
+                      onInputChanged: (phone) {
+                        _currentPhone = phone;
+                      },
                     ),
                   ],
                 ),
               ),
+              if (state.error != null)
+                Text(state.error!, style: TextStyle(color: theme.error)),
             ],
           ),
         ),

@@ -1,4 +1,8 @@
+import "dart:convert";
+
+import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:http/http.dart" as http;
 
 import "../models/session.dart";
 
@@ -13,13 +17,12 @@ final smsIssuanceProvider = StateNotifierProvider.autoDispose(
 );
 
 abstract class SmsIssuerApi {
-  /// Starts session at sms issuer and returns the corresponding session ID
-  Future<String> startSession({required String phoneNumber});
+  /// Starts session at sms issuer
+  Future<void> sendSms({required String phoneNumber});
 
   /// Verifies the verification code and receives back a session pointer that
   /// can be used to start the issuance session
   Future<SessionPointer> verifyCode({
-    required String sessionId,
     required String phoneNumber,
     required String verificationCode,
   });
@@ -31,17 +34,62 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
   DefaultSmsIssuerApi({required this.host});
 
   @override
-  Future<String> startSession({required String phoneNumber}) async {
-    return "123456";
+  Future<void> sendSms({required String phoneNumber}) async {
+    debugPrint("Sending sms for: $phoneNumber");
+    final payload = jsonEncode({"phone": phoneNumber, "language": "nl"});
+    final url = "$host/api/embedded/send";
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+      body: payload,
+    );
+    if (response.statusCode != 200) {
+      throw Exception("Call to $url failed: ${response.body}");
+    }
   }
 
   @override
   Future<SessionPointer> verifyCode({
-    required String sessionId,
     required String phoneNumber,
     required String verificationCode,
   }) async {
-    throw UnimplementedError();
+    final payload = jsonEncode({
+      "phone": phoneNumber,
+      "token": verificationCode,
+    });
+    final url = "$host/api/embedded/verify";
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+      body: payload,
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("Call to $url failed: ${response.body}");
+    }
+
+    final responseBody = jsonDecode(response.body);
+
+    final irmaServerUrlParam = responseBody["irma_server_url"];
+    final jwtUrlParam = responseBody["jwt"];
+
+    final ptr = SessionPointer.fromJson(
+      await _startIrmaSession(jwtUrlParam, irmaServerUrlParam),
+    );
+    ptr.continueOnSecondDevice = true;
+    return ptr;
+  }
+
+  Future<dynamic> _startIrmaSession(String jwt, String irmaServerUrl) async {
+    final response = await http.post(
+      Uri.parse("$irmaServerUrl/session"),
+      body: jwt,
+    );
+    if (response.statusCode != 200) {
+      throw Exception("Store failed: ${response.statusCode} ${response.body}");
+    }
+
+    return json.decode(response.body)["sessionPtr"];
   }
 }
 
@@ -51,14 +99,12 @@ class SmsIssuanceState {
   final SmsIssuanceStage stage;
   final String enteredCode;
   final String phoneNumber;
-  final String sessionId;
   final String? error;
 
   SmsIssuanceState({
     required this.stage,
     required this.enteredCode,
     required this.phoneNumber,
-    required this.sessionId,
     this.error,
   });
 
@@ -66,14 +112,12 @@ class SmsIssuanceState {
     SmsIssuanceStage? stage,
     String? enteredCode,
     String? phoneNumber,
-    String? sessionId,
     String? error,
   }) {
     return SmsIssuanceState(
       stage: stage ?? this.stage,
       enteredCode: enteredCode ?? this.enteredCode,
-      phoneNumber: phoneNumber ?? this.enteredCode,
-      sessionId: sessionId ?? this.sessionId,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       error: error ?? this.error,
     );
   }
@@ -87,7 +131,6 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
         SmsIssuanceState(
           stage: .enteringPhoneNumber,
           enteredCode: "",
-          sessionId: "",
           phoneNumber: "",
         ),
       );
@@ -95,11 +138,8 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
   Future<void> sendSms({required String phoneNumber}) async {
     try {
       state = state.copyWith(phoneNumber: phoneNumber, stage: .waiting);
-      final sessionId = await api.startSession(phoneNumber: phoneNumber);
-      state = state.copyWith(
-        stage: .enteringVerificationCode,
-        sessionId: sessionId,
-      );
+      await api.sendSms(phoneNumber: phoneNumber);
+      state = state.copyWith(stage: .enteringVerificationCode);
     } catch (e) {
       state = state.copyWith(stage: .enteringPhoneNumber, error: e.toString());
     }
@@ -107,9 +147,8 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
 
   Future<SessionPointer?> verifyCode({required String code}) async {
     try {
-      state = state.copyWith(stage: .waiting, enteredCode: code);
+      state = state.copyWith(enteredCode: code);
       return api.verifyCode(
-        sessionId: state.sessionId,
         phoneNumber: state.phoneNumber,
         verificationCode: code,
       );
