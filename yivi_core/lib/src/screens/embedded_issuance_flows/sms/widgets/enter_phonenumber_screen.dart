@@ -93,6 +93,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                           FlutterI18n.currentLocale(context)?.languageCode ??
                           "en",
                       selectorConfig: SelectorConfig(
+                        trailingSpace: false,
+                        setSelectorButtonAsPrefixIcon: true,
                         countryComparator: countryComparator,
                         selectorType: .BOTTOM_SHEET,
                         useBottomSheetSafeArea: true,
