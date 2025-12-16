@@ -25,6 +25,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   bool _validPhoneNumber = false;
   final _focusNode = FocusNode();
 
+  PhoneNumber _currentPhone = .new(isoCode: "NL");
+
   @override
   void dispose() {
     _phoneController.dispose();
@@ -56,7 +58,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              SizedBox(height: theme.largeSpacing),
+              SizedBox(height: theme.defaultSpacing),
               TranslatedText(
                 "sms_issuance.enter_phone.header",
                 style: theme.textTheme.bodyLarge!.copyWith(
@@ -88,7 +90,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                           "sms_issuance.enter_phone.search_hint",
                         ),
                       ),
-                      initialValue: PhoneNumber(isoCode: "NL"),
+                      initialValue: _currentPhone,
                       locale:
                           FlutterI18n.currentLocale(context)?.languageCode ??
                           "en",
