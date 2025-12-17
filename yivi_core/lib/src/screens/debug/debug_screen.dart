@@ -8,6 +8,8 @@ import "../../providers/irma_repository_provider.dart";
 import "../../util/handle_pointer.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/translated_text.dart";
+import "cert_management/cert_management_screen.dart";
+import "cert_management/widgets/cert_management_warning_dialog.dart";
 import "debug_helper.dart";
 import "scheme_management/scheme_management_screen.dart";
 import "scheme_management/widgets/scheme_management_warning_dialog.dart";
@@ -89,6 +91,21 @@ class _DebugScreenState extends State<DebugScreen> {
     }
   }
 
+  void _onOpenCertManagement() async {
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (context) => CertManagementWarningDialog(),
+        ) ??
+        false;
+
+    if (confirmed && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => CertificateManagementScreen()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
@@ -101,6 +118,11 @@ class _DebugScreenState extends State<DebugScreen> {
             Icons.list_alt,
             "debug.scheme_management.title",
             onTap: _onOpenSchemeManagement,
+          ),
+          _buildListTile(
+            Icons.verified_outlined,
+            "debug.cert_management.title",
+            onTap: _onOpenCertManagement,
           ),
           _buildListTile(
             Icons.badge,

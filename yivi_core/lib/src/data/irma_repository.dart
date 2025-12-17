@@ -22,6 +22,7 @@ import "../models/credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
+import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
@@ -100,6 +101,7 @@ class IrmaRepository {
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
+  final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _enrollmentStatusEventSubject =
       BehaviorSubject<EnrollmentStatusEvent>();
@@ -131,6 +133,7 @@ class IrmaRepository {
     await Future.wait([
       _eventSubject.close(),
       _irmaConfigurationSubject.close(),
+      _eudiConfigurationSubject.close(),
       _credentialsSubject.close(),
       _enrollmentStatusEventSubject.close(),
       _enrollmentStatusSubject.close(),
@@ -162,6 +165,8 @@ class IrmaRepository {
       }
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
+    } else if (event is EudiConfigurationEvent) {
+      _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is CredentialsEvent) {
       _credentialsSubject.add(
         Credentials.fromRaw(
@@ -256,11 +261,16 @@ class IrmaRepository {
     );
   }
 
-  // -- Scheme manager, issuer, credential and attribute definitions
+  // -- Scheme manager, cert manager, issuer, credential and attribute definitions
   IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
+  EudiConfiguration get eudiConfiguration => _eudiConfigurationSubject.value;
 
   Stream<IrmaConfiguration> getIrmaConfiguration() {
     return _irmaConfigurationSubject.stream;
+  }
+
+  Stream<EudiConfiguration> getEudiConfiguration() {
+    return _eudiConfigurationSubject.stream;
   }
 
   Stream<Map<String, Issuer>> getIssuers() {

@@ -18,13 +18,11 @@ class SessionState {
 class AuthorizationCodeRequestParametersState {
   AuthorizationCodeRequestParametersState({
     required this.issuerDiscoveryUrl,
-    required this.clientId,
     required this.resource,
     required this.scopes,
     this.issuerState,
   });
   final String issuerDiscoveryUrl;
-  final String clientId;
   final String? issuerState;
   final String resource;
   final List<String> scopes;

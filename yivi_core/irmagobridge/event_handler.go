@@ -304,3 +304,24 @@ func (ah *eventHandler) removeRequestorScheme(event *removeRequestorSchemeEvent)
 	dispatchConfigurationEvent()
 	return nil
 }
+
+func (ah *eventHandler) installCertificate(event *installCertificateEvent) error {
+	conf := client.GetEudiConfiguration()
+
+	if event.Type == "issuer" {
+		if err := conf.Issuers.InstallCertificate([]byte(event.PemContent)); err != nil {
+			return err
+		}
+	} else if event.Type == "verifier" {
+		if err := conf.Verifiers.InstallCertificate([]byte(event.PemContent)); err != nil {
+			return err
+		}
+	}
+
+	// Reload configuration to pick up the new certificate
+	conf.Reload()
+
+	dispatchConfigurationEvent()
+	dispatchEnrollmentStatusEvent()
+	return nil
+}

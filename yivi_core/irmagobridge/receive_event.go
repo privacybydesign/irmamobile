@@ -127,6 +127,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.removeRequestorScheme(event)
 		}
+	case "InstallCertificateEvent":
+		event := &installCertificateEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.installCertificate(event)
+		}
 	}
 
 	if err != nil {

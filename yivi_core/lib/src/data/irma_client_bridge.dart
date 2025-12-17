@@ -9,6 +9,7 @@ import "../models/client_preferences.dart";
 import "../models/credential_events.dart";
 import "../models/enrollment_events.dart";
 import "../models/error_event.dart";
+import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
@@ -26,6 +27,7 @@ class IrmaClientBridge extends IrmaBridge {
 
   static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
     IrmaConfigurationEvent: (j) => IrmaConfigurationEvent.fromJson(j),
+    EudiConfigurationEvent: (j) => EudiConfigurationEvent.fromJson(j),
     CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
     LogsEvent: (j) => LogsEvent.fromJson(j),

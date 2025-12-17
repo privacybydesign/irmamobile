@@ -90,6 +90,11 @@ type removeRequestorSchemeEvent struct {
 	SchemeID irma.RequestorSchemeIdentifier
 }
 
+type installCertificateEvent struct {
+	Type       string
+	PemContent string
+}
+
 // //
 // Outgoing events
 // //
@@ -101,6 +106,10 @@ type errorEvent struct {
 
 type irmaConfigurationEvent struct {
 	IrmaConfiguration *WrappedConfiguration
+}
+
+type eudiConfigurationEvent struct {
+	EudiConfiguration *WrappedEudiConfiguration
 }
 
 type credentialsEvent struct {

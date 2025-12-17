@@ -219,7 +219,6 @@ AuthorizationRequestParameters _$AuthorizationRequestParametersFromJson(
   Map<String, dynamic> json,
 ) => AuthorizationRequestParameters(
   issuerDiscoveryUrl: json['IssuerDiscoveryUrl'] as String,
-  clientId: json['ClientID'] as String,
   resource: json['Resource'] as String,
   scopes: (json['Scopes'] as List<dynamic>).map((e) => e as String).toList(),
   issuerState: json['IssuerState'] as String?,
