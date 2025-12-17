@@ -419,6 +419,32 @@
       "text": "The data has been successfully added to Yivi"
     }
   },
+  "sms_issuance": {
+    "enter_phone": {
+      "title": "Add phone number",
+      "header": "Enter your phone number",
+      "body": "We'll send you an sms with a verification code. You'll need to enter this code in the next step.",
+      "phone_hint": "Enter your phone number...",
+      "next_button": "Send sms",
+      "back_button": "Cancel",
+      "search_label": "Search country or country code",
+      "search_hint": "Enter the name of your country..."
+    },
+    "verify_code": {
+      "title": "Verify phone number",
+      "header": "We've sent you an sms",
+      "body": "We've sent an sms with a verification code to {phone}.\n\nEnter the verification code from the sms to continue.",
+      "next_button": "Verifiy code",
+      "back_button": "Cancel",
+      "no_sms_received": "No sms received?",
+      "resend_dialog": {
+        "title": "Send new code",
+        "body": "We'll send you a new sms with a new verification code.",
+        "confirm": "Send sms",
+        "cancel": "Cancel"
+      }
+    }
+  },
   "issue_wizard": {
     "back": "Cancel",
     "done": "OK",

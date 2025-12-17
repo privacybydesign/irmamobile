@@ -57,68 +57,72 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         appBar: IrmaAppBar(
           titleTranslationKey: "sms_issuance.enter_phone.title",
         ),
-        body: Padding(
-          padding: .all(theme.defaultSpacing),
-          child: Column(
-            crossAxisAlignment: .start,
-            children: [
-              SizedBox(height: theme.defaultSpacing),
-              TranslatedText(
-                "sms_issuance.enter_phone.header",
-                style: theme.textTheme.bodyLarge!.copyWith(
-                  color: theme.neutralExtraDark,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: .all(theme.defaultSpacing),
+            child: Column(
+              crossAxisAlignment: .start,
+              children: [
+                SizedBox(height: theme.defaultSpacing),
+                TranslatedText(
+                  "sms_issuance.enter_phone.header",
+                  style: theme.textTheme.bodyLarge!.copyWith(
+                    color: theme.neutralExtraDark,
+                  ),
                 ),
-              ),
-              SizedBox(height: theme.defaultSpacing),
-              TranslatedText("sms_issuance.enter_phone.body"),
-              SizedBox(height: theme.largeSpacing),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: .stretch,
-                  children: [
-                    InternationalPhoneNumberInput(
-                      spaceBetweenSelectorAndTextField: theme.smallSpacing,
-                      focusNode: _focusNode,
-                      inputDecoration: InputDecoration(
-                        hint: TranslatedText(
-                          "sms_issuance.enter_phone.phone_hint",
-                          style: TextStyle(color: Colors.grey),
+                SizedBox(height: theme.defaultSpacing),
+                TranslatedText("sms_issuance.enter_phone.body"),
+                SizedBox(height: theme.largeSpacing),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: .stretch,
+                    children: [
+                      InternationalPhoneNumberInput(
+                        spaceBetweenSelectorAndTextField: theme.smallSpacing,
+                        focusNode: _focusNode,
+                        inputDecoration: InputDecoration(
+                          hint: TranslatedText(
+                            "sms_issuance.enter_phone.phone_hint",
+                            style: TextStyle(color: Colors.grey),
+                          ),
                         ),
-                      ),
-                      searchBoxDecoration: InputDecoration(
-                        label: TranslatedText(
-                          "sms_issuance.enter_phone.search_label",
+                        searchBoxDecoration: InputDecoration(
+                          label: TranslatedText(
+                            "sms_issuance.enter_phone.search_label",
+                          ),
+                          hint: TranslatedText(
+                            "sms_issuance.enter_phone.search_hint",
+                          ),
                         ),
-                        hint: TranslatedText(
-                          "sms_issuance.enter_phone.search_hint",
+                        initialValue: PhoneNumber(
+                          isoCode: _currentPhone.isoCode,
                         ),
+                        locale:
+                            FlutterI18n.currentLocale(context)?.languageCode ??
+                            "en",
+                        selectorConfig: SelectorConfig(
+                          trailingSpace: false,
+                          setSelectorButtonAsPrefixIcon: true,
+                          countryComparator: countryComparator,
+                          selectorType: .BOTTOM_SHEET,
+                          useBottomSheetSafeArea: true,
+                        ),
+                        textFieldController: _phoneController,
+                        onInputValidated: (valid) {
+                          setState(() => _validPhoneNumber = valid);
+                        },
+                        onInputChanged: (phone) {
+                          _currentPhone = phone;
+                        },
                       ),
-                      initialValue: PhoneNumber(isoCode: _currentPhone.isoCode),
-                      locale:
-                          FlutterI18n.currentLocale(context)?.languageCode ??
-                          "en",
-                      selectorConfig: SelectorConfig(
-                        trailingSpace: false,
-                        setSelectorButtonAsPrefixIcon: true,
-                        countryComparator: countryComparator,
-                        selectorType: .BOTTOM_SHEET,
-                        useBottomSheetSafeArea: true,
-                      ),
-                      textFieldController: _phoneController,
-                      onInputValidated: (valid) {
-                        setState(() => _validPhoneNumber = valid);
-                      },
-                      onInputChanged: (phone) {
-                        _currentPhone = phone;
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              if (state.error != null)
-                Text(state.error!, style: TextStyle(color: theme.error)),
-            ],
+                if (state.error != null)
+                  Text(state.error!, style: TextStyle(color: theme.error)),
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: IrmaBottomBar(

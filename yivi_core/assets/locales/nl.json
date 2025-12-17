@@ -432,10 +432,17 @@
     },
     "verify_code": {
       "title": "Telefoonnummer verifiëren",
-      "header": "Je hebt een sms ontvangen",
-      "body": "Vul hieronder de verificatiecode uit de sms in om verder te gaan.",
+      "header": "We hebben je een sms gestuurd",
+      "body": "We hebben een sms met een verificatiecode verstuurd naar {phone}.\n\nVul hieronder de verificatiecode uit de sms in om verder te gaan.",
+      "no_sms_received": "Code niet ontvangen?",
       "next_button": "Code verifiëren",
-      "back_button": "Annuleer"
+      "back_button": "Annuleer",
+      "resend_dialog": {
+        "title": "Sms opnieuw sturen",
+        "body": "We sturen je opnieuw een sms met een nieuwe code.",
+        "confirm": "Stuur opnieuw",
+        "cancel": "Annuleer"
+      }
     }
   },
   "issue_wizard": {
