@@ -424,6 +424,7 @@
       "title": "Telefoonnummer toevoegen",
       "header": "Voer je telefoonnummer in",
       "body": "Wij sturen je een sms met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
+      "error": "Er ging iets fout bij het versturen van de verificatiecode.",
       "phone_hint": "Voer je telefoonnummer in...",
       "next_button": "Sms versturen",
       "back_button": "Annuleer",
