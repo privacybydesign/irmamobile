@@ -7,6 +7,7 @@ import "embedded_issuance_flows/driving_licence_test.dart"
     as driving_licence_test;
 import "embedded_issuance_flows/id_card_test.dart" as id_card_test;
 import "embedded_issuance_flows/passport_test.dart" as passport_test;
+import "embedded_issuance_flows/sms_issuance_test.dart" as sms_issuance_test;
 import "enroll_test.dart" as enroll_test;
 import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
@@ -39,4 +40,5 @@ void main() {
   passport_test.main();
   driving_licence_test.main();
   id_card_test.main();
+  sms_issuance_test.main();
 }
