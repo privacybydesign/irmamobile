@@ -326,7 +326,7 @@
     "button_ok": "OK",
     "button_send_to_irma": "Send this message to Yivi",
     "button_show_error": "Show technical details",
-    "button_retry": "Please try again",
+    "button_retry": "Try again",
     "button_back": "Back",
     "button_reset": "Start all over",
     "details_title": "Error message",
@@ -437,6 +437,7 @@
       "next_button": "Verifiy code",
       "back_button": "Cancel",
       "no_sms_received": "No sms received?",
+      "error": "Something went wrong while verifying the verification code.",
       "resend_dialog": {
         "title": "Send new code",
         "body": "We'll send you a new sms with a new verification code.",

@@ -3,9 +3,11 @@ import "data_search_test.dart" as search_test;
 import "disclose_sdjwt_over_openid4vp_test.dart" as openid4vp_test;
 import "disclosure_session/disclosure_session_test_all.dart"
     as disclosure_session;
-import "driving_licence_test.dart" as driving_licence_test;
+import "embedded_issuance_flows/driving_licence_test.dart"
+    as driving_licence_test;
+import "embedded_issuance_flows/id_card_test.dart" as id_card_test;
+import "embedded_issuance_flows/passport_test.dart" as passport_test;
 import "enroll_test.dart" as enroll_test;
-import "id_card_test.dart" as id_card_test;
 import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
 import "issue_wizard_test.dart" as issue_wizard_test;
@@ -13,7 +15,6 @@ import "login_test.dart" as login_test;
 import "more_tab_test.dart" as more_tab_test;
 import "new_terms_test.dart" as new_terms;
 import "notifications_test.dart" as notifications_test;
-import "passport_test.dart" as passport_test;
 import "qr_on_pin_screen_test.dart" as qr_on_pin_screen_test;
 import "reorder_cards_test.dart" as reorder_cards_test;
 import "settings_test.dart" as settings_test;

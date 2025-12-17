@@ -1,8 +1,10 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
 import "package:pinput/pinput.dart";
 
+import "../../../../../package_name.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
@@ -11,6 +13,7 @@ import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
+import "../../../error/error_screen.dart";
 
 class VerifyCodeScreen extends ConsumerStatefulWidget {
   const VerifyCodeScreen();
@@ -53,6 +56,59 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyCodeScreen> {
       ),
     );
 
+    if (state.error.isNotEmpty) {
+      return Scaffold(
+        appBar: IrmaAppBar(
+          titleTranslationKey: "sms_issuance.verify_code.title",
+        ),
+        body: Padding(
+          padding: .all(theme.defaultSpacing),
+          child: Column(
+            mainAxisSize: .max,
+            mainAxisAlignment: .center,
+            crossAxisAlignment: .center,
+            children: [
+              SizedBox(height: theme.largeSpacing),
+              SvgPicture.asset(
+                yiviAsset("error/general_error_illustration.svg"),
+              ),
+              SizedBox(height: theme.largeSpacing),
+              TranslatedText(
+                "sms_issuance.verify_code.error",
+                textAlign: .center,
+              ),
+              SizedBox(height: theme.largeSpacing),
+              YiviLinkButton(
+                textAlign: .center,
+                labelTranslationKey: "error.button_show_error",
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return ErrorScreen(
+                        onTapClose: context.pop,
+                        type: .general,
+                        details: state.error,
+                        reportable: false,
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: "error.button_retry",
+          secondaryButtonLabel: "sms_issuance.verify_code.back_button",
+          onPrimaryPressed: () {
+            ref.read(smsIssuanceProvider.notifier).resetError();
+          },
+          onSecondaryPressed: context.pop,
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: () {
         _focusNode.unfocus();
@@ -81,6 +137,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyCodeScreen> {
                 ),
                 SizedBox(height: theme.largeSpacing),
                 Pinput(
+                  key: const Key("sms_verification_code_input_field"),
                   keyboardType: .text,
                   textCapitalization: .characters,
                   focusNode: _focusNode,
@@ -93,9 +150,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyCodeScreen> {
                   pinAnimationType: .scale,
                   hapticFeedbackType: .lightImpact,
                 ),
-                if (state.error != null)
-                  Text(state.error!, style: TextStyle(color: theme.error)),
-
                 SizedBox(height: theme.largeSpacing),
                 Row(
                   mainAxisAlignment: .start,

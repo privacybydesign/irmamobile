@@ -99,13 +99,13 @@ class SmsIssuanceState {
   final SmsIssuanceStage stage;
   final String enteredCode;
   final String phoneNumber;
-  final String? error;
+  final String error;
 
   SmsIssuanceState({
     required this.stage,
     required this.enteredCode,
     required this.phoneNumber,
-    this.error,
+    this.error = "",
   });
 
   SmsIssuanceState copyWith({
@@ -148,7 +148,7 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
   Future<SessionPointer?> verifyCode({required String code}) async {
     try {
       state = state.copyWith(enteredCode: code);
-      return api.verifyCode(
+      return await api.verifyCode(
         phoneNumber: state.phoneNumber,
         verificationCode: code,
       );
@@ -160,5 +160,9 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
       );
     }
     return null;
+  }
+
+  void resetError() {
+    state = state.copyWith(error: "");
   }
 }

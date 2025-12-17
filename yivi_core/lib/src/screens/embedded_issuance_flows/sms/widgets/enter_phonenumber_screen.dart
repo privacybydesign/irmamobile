@@ -47,7 +47,6 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final state = ref.watch(smsIssuanceProvider);
 
     return GestureDetector(
       onTap: () {
@@ -79,6 +78,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                     crossAxisAlignment: .stretch,
                     children: [
                       InternationalPhoneNumberInput(
+                        key: const Key("phone_number_input_field"),
                         spaceBetweenSelectorAndTextField: theme.smallSpacing,
                         focusNode: _focusNode,
                         inputDecoration: InputDecoration(
@@ -119,8 +119,6 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                     ],
                   ),
                 ),
-                if (state.error != null)
-                  Text(state.error!, style: TextStyle(color: theme.error)),
               ],
             ),
           ),
@@ -154,5 +152,6 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     return a.alpha2Code.compareTo(b.alpha2Code);
   }
 
+  // Some countries that should appear on the top of the list
   static const preferredOrder = ["NL", "DE", "BE", "GB", "US", "FR"];
 }
