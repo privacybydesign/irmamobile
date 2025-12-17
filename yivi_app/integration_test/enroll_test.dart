@@ -5,13 +5,11 @@ import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
-import "package:yivi_core/src/models/enrollment_status.dart";
 import "package:yivi_core/src/screens/enrollment/accept_terms/accept_terms_screen.dart";
 import "package:yivi_core/src/screens/enrollment/accept_terms/widgets/error_reporting_check_box.dart";
 import "package:yivi_core/src/screens/enrollment/choose_pin/choose_pin_screen.dart";
 import "package:yivi_core/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
-import "package:yivi_core/src/screens/enrollment/widgets/enrollment_instruction.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/irma_bottom_sheet.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
@@ -28,46 +26,18 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  // The expected instruction text of the enrollment introduction
-  const expectedInstructions = [
-    [
-      "Yivi is an app for your digital identity",
-      "Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app",
-    ],
-    [
-      "With Yivi you're in control over your data",
-      "Easy, secure and swift. You're in control of what you're sharing and with whom.",
-    ],
-    [
-      "Securely on your phone",
-      "Only you can access the data on your phone. Nobody has access to your transactions, not even Yivi.",
-    ],
-  ];
-
   group("enrollment", () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
-    setUp(
-      () => irmaBinding.setUp(enrollmentStatus: EnrollmentStatus.unenrolled),
-    );
+    setUp(() => irmaBinding.setUp(enrollmentStatus: .unenrolled));
     tearDown(() => irmaBinding.tearDown());
 
-    // Reusable finders
+    // Reusable finder
     final nextButtonFinder = find.byKey(const Key("enrollment_next_button"));
-    final previousButtonFinder = find.byKey(
-      const Key("enrollment_previous_button"),
-    );
 
     // Pumps an unenrolled app with english locale
     Future<void> initEnrollment(WidgetTester tester) async {
       await pumpYiviApp(tester, irmaBinding.repository);
       expect(find.byType(EnrollmentScreen), findsOneWidget);
-    }
-
-    Future<void> goThroughIntroduction(WidgetTester tester) async {
-      for (var i = 0; i < expectedInstructions.length; i++) {
-        await tester.tap(nextButtonFinder);
-        await tester.pump(const Duration(milliseconds: 500));
-      }
     }
 
     Future<void> goThroughChoosePin(
@@ -90,53 +60,12 @@ void main() {
 
     Future<void> goToEmailScreen(WidgetTester tester) async {
       await initEnrollment(tester);
-      await goThroughIntroduction(tester);
       await goThroughTerms(tester);
       await goThroughChoosePin(tester);
     }
 
-    testWidgets("introduction", (tester) async {
-      await initEnrollment(tester);
-      const pumpTime = Duration(milliseconds: 500);
-
-      for (var i = 0; i < expectedInstructions.length; i++) {
-        // Try going back, if this is not the first instruction;
-        if (i == 0) {
-          expect(previousButtonFinder, findsNothing);
-        } else {
-          await tester.tap(previousButtonFinder);
-          await tester.pump(pumpTime);
-
-          await tester.tap(nextButtonFinder);
-          await tester.pump(pumpTime);
-        }
-
-        // Evaluate the content
-        final instructionFinder = find.byType(EnrollmentInstruction);
-        final actualCurrentInstructionTexts = tester.getAllText(
-          instructionFinder,
-        );
-        final expectedCurrentInstructionTexts = [
-          ...expectedInstructions[i],
-          if (i != 0) "Previous",
-          "Next",
-        ];
-        expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
-
-        // Go Next step
-        await tester.tap(nextButtonFinder);
-        await tester.pump(pumpTime);
-
-        // If we go next on the last step, expect that we left the enrollment introduction.
-        if (i == expectedInstructions.length) {
-          expect(instructionFinder, findsNothing);
-        }
-      }
-    });
-
     testWidgets("choose-pin", (tester) async {
       await initEnrollment(tester);
-      await goThroughIntroduction(tester);
       await goThroughTerms(tester);
 
       // Choose the pin
@@ -178,7 +107,6 @@ void main() {
 
     testWidgets("terms", (tester) async {
       await initEnrollment(tester);
-      await goThroughIntroduction(tester);
       expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
       // Scroll to the error reporting opt in
