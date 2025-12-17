@@ -3,16 +3,16 @@ import "dart:io";
 import "dart:math";
 
 import "package:collection/collection.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/foundation.dart";
-import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
-import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
@@ -135,13 +135,24 @@ Map<String, List<MapEntry<String, String>>> groupAttributes(
   return groupedAttributes;
 }
 
-Future<void> startIssuanceSession(
-  IntegrationTestIrmaBinding irmaBinding,
+String createIssuanceRequest(
+  Map<String, String> attributes, {
+  Map<String, String> revocationKeys = const {},
+  int? sdJwtBatchSize,
+}) {
+  final grouped = groupAttributes(attributes);
+  return createIssuanceRequestWithGroupedAttributes(
+    grouped,
+    revocationKeys: revocationKeys,
+    sdJwtBatchSize: sdJwtBatchSize,
+  );
+}
+
+String createIssuanceRequestWithGroupedAttributes(
   Map<String, List<MapEntry<String, String>>> groupedAttributes, {
   Map<String, String> revocationKeys = const {},
-  bool continueOnSecondDevice = true,
   int? sdJwtBatchSize,
-}) async {
+}) {
   final credentialsJson = jsonEncode(
     groupedAttributes.entries
         .map(
@@ -159,13 +170,32 @@ Future<void> startIssuanceSession(
         .toList(),
   );
 
-  // Start session
-  await irmaBinding.repository.startTestSession('''
+  return '''
     {
       "@context": "https://irma.app/ld/request/issuance/v2",
       "credentials": $credentialsJson
     }
-  ''', continueOnSecondDevice: continueOnSecondDevice);
+  ''';
+}
+
+Future<void> startIssuanceSession(
+  IntegrationTestIrmaBinding irmaBinding,
+  Map<String, List<MapEntry<String, String>>> groupedAttributes, {
+  Map<String, String> revocationKeys = const {},
+  bool continueOnSecondDevice = true,
+  int? sdJwtBatchSize,
+}) async {
+  final request = createIssuanceRequestWithGroupedAttributes(
+    groupedAttributes,
+    revocationKeys: revocationKeys,
+    sdJwtBatchSize: sdJwtBatchSize,
+  );
+
+  // Start session
+  await irmaBinding.repository.startTestSession(
+    request,
+    continueOnSecondDevice: continueOnSecondDevice,
+  );
 }
 
 /// Starts an issuing session that adds the given credentials to the IRMA app.
@@ -541,4 +571,31 @@ Future<void> navigateToCredentialDetailsPage(
 
   // Expect detail page
   expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+}
+
+Future<void> openAddCredentialDetailsScreen(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding binding, {
+  required String fullCredentialId,
+  List<Override> overrides = const [],
+}) async {
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    null,
+    overrides.isEmpty ? null : overrides,
+  );
+
+  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
+  await tester.tapAndSettle(addDataButton);
+
+  final addCredentialTile = find.byKey(Key("${fullCredentialId}_tile"));
+  await tester.scrollUntilVisible(
+    addCredentialTile,
+    300,
+    scrollable: find.byType(Scrollable).last,
+  );
+  await tester.tapAndSettle(addCredentialTile);
+
+  await tester.waitFor(find.byType(AddDataDetailsScreen));
 }

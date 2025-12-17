@@ -9,6 +9,8 @@ environment:
   flutter: ">=3.3.0"
 
 dependencies:
+  pinput: ^6.0.1
+  intl_phone_number_input: ^0.7.5
   plugin_platform_interface: ^2.0.2
   flutter:
     sdk: flutter

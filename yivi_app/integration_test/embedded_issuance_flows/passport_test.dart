@@ -13,9 +13,9 @@ import "package:yivi_core/src/screens/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
-import "helpers/document_reading_helpers.dart";
-import "irma_binding.dart";
-import "util.dart";
+import "../helpers/document_reading_helpers.dart";
+import "../irma_binding.dart";
+import "../util.dart";
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -26,27 +26,27 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group("id_card", () {
+  group("passport", () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets("adding id_card credential opens MRZ scanner screen", (
+    testWidgets("adding passport credential opens MRZ scanner screen", (
       tester,
     ) async {
-      await openIdCardDetailsScreen(tester, irmaBinding);
+      await openPassportDetailsScreen(tester, irmaBinding);
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
-      await tester.waitFor(find.byType(MrzReaderScreen<IdCardMrzParser>));
+      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
       // move back to close the camera feed...
       await tester.tapAndSettle(find.byType(YiviBackButton));
     });
 
-    testWidgets("scanning MRZ for Dutch id card starts NFC reading flow", (
+    testWidgets("scanning MRZ for Dutch passport starts NFC reading flow", (
       tester,
     ) async {
       final fakeReader = FakePassportReader(
-        mrzResult: fakeIdCardMrz,
+        mrzResult: fakePassportMrz,
         statesDuringRead: [
           DocumentReaderConnecting(),
           DocumentReaderReadingCardAccess(),
@@ -57,11 +57,11 @@ void main() {
       );
       final fakeIssuer = FakePassportIssuer();
 
-      await openIdCardDetailsScreen(
+      await openPassportDetailsScreen(
         tester,
         irmaBinding,
         overrides: [
-          idCardReaderProvider.overrideWith((ref, mrz) {
+          passportReaderProvider.overrideWith((ref, mrz) {
             fakeReader.setMrz(mrz);
             return fakeReader;
           }),
@@ -70,14 +70,14 @@ void main() {
       );
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen<IdCardMrzParser>));
+      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
       final fakeMrz = PassportMrzResult(
         documentNumber: "XR0000001",
         birthDate: DateTime(1990, 1, 1),
         expiryDate: DateTime(2030, 12, 31),
         countryCode: "NLD",
-        documentType: "I",
+        documentType: "P",
         surnames: "",
         givenNames: "",
         nationalityCountryCode: "",
@@ -86,7 +86,7 @@ void main() {
       );
 
       final scannerState = tester.state<MrzReaderScreenState>(
-        find.byType(MrzReaderScreen<IdCardMrzParser>),
+        find.byType(MrzReaderScreen<PassportMrzParser>),
       );
       scannerState.widget.onSuccess(fakeMrz);
 
@@ -107,10 +107,10 @@ void main() {
     testWidgets("user can cancel MRZ scanning and return to add data details", (
       tester,
     ) async {
-      await openIdCardDetailsScreen(tester, irmaBinding);
+      await openPassportDetailsScreen(tester, irmaBinding);
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen<IdCardMrzParser>));
+      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
       final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
       await tester.tapAndSettle(cancelButton);
@@ -122,7 +122,7 @@ void main() {
       tester,
     ) async {
       final fakeReader = FakePassportReader(
-        mrzResult: fakeIdCardMrz,
+        mrzResult: fakePassportMrz,
         statesDuringRead: [
           DocumentReaderConnecting(),
           DocumentReaderFailed(
@@ -134,11 +134,11 @@ void main() {
       );
       final fakeIssuer = FakePassportIssuer();
 
-      await openIdCardDetailsScreen(
+      await openPassportDetailsScreen(
         tester,
         irmaBinding,
         overrides: [
-          idCardReaderProvider.overrideWith((ref, mrz) {
+          passportReaderProvider.overrideWith((ref, mrz) {
             fakeReader.setMrz(mrz);
             return fakeReader;
           }),
@@ -147,14 +147,14 @@ void main() {
       );
 
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-      await tester.waitFor(find.byType(MrzReaderScreen<IdCardMrzParser>));
+      await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
 
       final fakeMrz = PassportMrzResult(
         documentNumber: "XR0000001",
         birthDate: DateTime(1990, 1, 1),
         expiryDate: DateTime(2030, 12, 31),
         countryCode: "NLD",
-        documentType: "I",
+        documentType: "P",
         surnames: "",
         givenNames: "",
         nationalityCountryCode: "",
@@ -163,7 +163,7 @@ void main() {
       );
 
       final scannerState = tester.state<MrzReaderScreenState>(
-        find.byType(MrzReaderScreen<IdCardMrzParser>),
+        find.byType(MrzReaderScreen<PassportMrzParser>),
       );
       scannerState.widget.onSuccess(fakeMrz);
 
@@ -174,9 +174,9 @@ void main() {
       await tester.tapAndSettle(find.text("Start scanning"));
 
       await tester.waitFor(
-        find.text("Could not read ID-card. Please try again."),
+        find.text("Could not read passport. Please try again."),
       );
-      await tester.waitFor(find.text("Timeout while waiting for ID-card tag"));
+      await tester.waitFor(find.text("Timeout while waiting for passport tag"));
 
       expect(fakeReader.readCallCount, 1);
 
@@ -194,7 +194,7 @@ void main() {
     ) async {
       final readCompleter = Completer();
       final fakeReader = FakePassportReader(
-        mrzResult: fakeIdCardMrz,
+        mrzResult: fakePassportMrz,
         readDelayCompleter: readCompleter,
         statesDuringRead: [
           DocumentReaderConnecting(),
@@ -206,7 +206,7 @@ void main() {
       );
       final fakeIssuer = FakePassportIssuer();
 
-      await navigateToIdCardNfcReadingScreen(
+      await navigateToPassportNfcReadingScreen(
         tester,
         irmaBinding,
         fakeReader,
@@ -224,7 +224,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       expect(find.text("Success"), findsOneWidget);
       expect(
-        find.text("Reading ID-card completed successfully"),
+        find.text("Passport reading completed successfully"),
         findsOneWidget,
       );
 
@@ -235,12 +235,12 @@ void main() {
       "nfc disabled shows disabled UI and retry cancels current attempt",
       (tester) async {
         final fakeReader = FakePassportReader(
-          mrzResult: fakeIdCardMrz,
+          mrzResult: fakePassportMrz,
           initialState: DocumentReaderNfcUnavailable(),
         );
         final fakeIssuer = FakePassportIssuer();
 
-        await navigateToIdCardNfcReadingScreen(
+        await navigateToPassportNfcReadingScreen(
           tester,
           irmaBinding,
           fakeReader,
@@ -265,14 +265,14 @@ void main() {
     testWidgets("user can cancel NFC reading flow", (tester) async {
       final cancelCompleter = Completer<void>();
       final fakeReader = FakePassportReader(
-        mrzResult: fakeIdCardMrz,
+        mrzResult: fakePassportMrz,
         statesDuringRead: [DocumentReaderConnecting()],
         readDelayCompleter: cancelCompleter,
         onCancelCompleter: cancelCompleter,
       );
       final fakeIssuer = FakePassportIssuer();
 
-      await navigateToIdCardNfcReadingScreen(
+      await navigateToPassportNfcReadingScreen(
         tester,
         irmaBinding,
         fakeReader,
@@ -284,12 +284,12 @@ void main() {
       final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
       await tester.tapAndSettle(startScanningButton);
 
-      await tester.waitFor(find.text("Connecting to ID-card..."));
+      await tester.waitFor(find.text("Connecting to passport..."));
 
       final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
       await tester.tapAndSettle(cancelButton);
 
-      await tester.waitFor(find.text("Cancel reading ID-card?"));
+      await tester.waitFor(find.text("Cancel passport reading?"));
       await tester.tapAndSettle(find.text("Yes"));
 
       // cancelling the flow should return to the home page
@@ -302,7 +302,7 @@ void main() {
       tester,
     ) async {
       final fakeReader = FakePassportReader(
-        mrzResult: fakeIdCardMrz,
+        mrzResult: fakePassportMrz,
         statesDuringRead: [
           DocumentReaderConnecting(),
           DocumentReaderReadingCardAccess(),
@@ -315,7 +315,7 @@ void main() {
         errorToThrowOnIssuance: "Failed to create issuance session",
       );
 
-      await navigateToIdCardNfcReadingScreen(
+      await navigateToPassportNfcReadingScreen(
         tester,
         irmaBinding,
         fakeReader,
@@ -328,7 +328,7 @@ void main() {
       await tester.tapAndSettle(startScanningButton);
 
       await tester.waitFor(
-        find.text("Could not read ID-card. Please try again."),
+        find.text("Could not read passport. Please try again."),
       );
     });
   });
