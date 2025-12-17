@@ -137,7 +137,11 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
 
   Future<void> sendSms({required String phoneNumber}) async {
     try {
-      state = state.copyWith(phoneNumber: phoneNumber, stage: .waiting);
+      state = SmsIssuanceState(
+        stage: .waiting,
+        enteredCode: "",
+        phoneNumber: phoneNumber,
+      );
       await api.sendSms(phoneNumber: phoneNumber);
       state = state.copyWith(stage: .enteringVerificationCode);
     } catch (e) {

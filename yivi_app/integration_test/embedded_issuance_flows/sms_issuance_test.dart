@@ -24,10 +24,51 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    // testWidgets(
-    //   "error during sending sms gives try again button",
-    //   (tester) async {},
-    // );
+    testWidgets("error during sending sms gives try again button", (
+      tester,
+    ) async {
+      final api = FakeSmsIssuerApi(errorOnSendSms: "Not working");
+      await _goToEnterPhoneScreen(tester, irmaBinding, api: api);
+
+      await tester.enterText(
+        find.byKey(const Key("phone_number_input_field")),
+        "0612345678",
+      );
+
+      // tap somewhere else to remove focus from input field
+      await tester.tapAndSettle(find.text("Add phone number"));
+      await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+      expect(api.numSmsSent, 1);
+
+      await tester.waitFor(
+        find.text("Something went wrong while sending the verification code."),
+      );
+
+      // Expect a technical details button to be present
+      expect(find.text("Show technical details"), findsOneWidget);
+
+      // Expect there to be a cancel button as the secondary button
+      expect(
+        find.ancestor(
+          of: find.text("Cancel"),
+          matching: find.byKey(const Key("bottom_bar_secondary")),
+        ),
+        findsOneWidget,
+      );
+
+      // Expect the try again button to be present and to be the primary button
+      await tester.tap(
+        find.ancestor(
+          of: find.text("Try again"),
+          matching: find.byKey(const Key("bottom_bar_primary")),
+        ),
+      );
+      expect(api.numSmsSent, 2);
+
+      // This time the code should be succesfull and thus we can proceed
+      await tester.pumpUntilFound(find.text("Verify phone number"));
+    });
 
     testWidgets("incomplete phone number cannot proceed", (tester) async {
       await _goToEnterPhoneScreen(tester, irmaBinding);
@@ -241,12 +282,17 @@ class FakeSmsIssuerApi implements SmsIssuerApi {
   String enteredPhone = "";
   String enteredCode = "";
   int numSmsSent = 0;
+  final String? errorOnSendSms;
+
+  FakeSmsIssuerApi({this.errorOnSendSms});
 
   @override
   Future<void> sendSms({required String phoneNumber}) async {
     numSmsSent += 1;
-    debugPrint("SEND SMS: $numSmsSent");
     enteredPhone = phoneNumber;
+    if (errorOnSendSms != null && numSmsSent == 1) {
+      throw Exception(errorOnSendSms);
+    }
   }
 
   @override

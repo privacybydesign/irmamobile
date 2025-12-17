@@ -1,14 +1,18 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
 import "package:intl_phone_number_input/intl_phone_number_input.dart";
 
+import "../../../../../package_name.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/yivi_themed_button.dart";
+import "../../../error/error_screen.dart";
 
 class EnterPhoneScreen extends ConsumerStatefulWidget {
   const EnterPhoneScreen();
@@ -47,6 +51,62 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final state = ref.watch(smsIssuanceProvider);
+
+    if (state.error.isNotEmpty) {
+      return Scaffold(
+        appBar: IrmaAppBar(
+          titleTranslationKey: "sms_issuance.verify_code.title",
+        ),
+        body: Padding(
+          padding: .all(theme.defaultSpacing),
+          child: Column(
+            mainAxisSize: .max,
+            mainAxisAlignment: .center,
+            crossAxisAlignment: .center,
+            children: [
+              SizedBox(height: theme.largeSpacing),
+              SvgPicture.asset(
+                yiviAsset("error/general_error_illustration.svg"),
+              ),
+              SizedBox(height: theme.largeSpacing),
+              TranslatedText(
+                "sms_issuance.enter_phone.error",
+                textAlign: .center,
+              ),
+              SizedBox(height: theme.largeSpacing),
+              YiviLinkButton(
+                textAlign: .center,
+                labelTranslationKey: "error.button_show_error",
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return ErrorScreen(
+                        onTapClose: context.pop,
+                        type: .general,
+                        details: state.error,
+                        reportable: false,
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: "error.button_retry",
+          secondaryButtonLabel: "sms_issuance.enter_phone.back_button",
+          onPrimaryPressed: () {
+            ref
+                .read(smsIssuanceProvider.notifier)
+                .sendSms(phoneNumber: state.phoneNumber);
+          },
+          onSecondaryPressed: context.pop,
+        ),
+      );
+    }
 
     return GestureDetector(
       onTap: () {

@@ -424,6 +424,7 @@
       "title": "Add phone number",
       "header": "Enter your phone number",
       "body": "We'll send you an sms with a verification code. You'll need to enter this code in the next step.",
+      "error": "Something went wrong while sending the verification code.",
       "phone_hint": "Enter your phone number...",
       "next_button": "Send sms",
       "back_button": "Cancel",
