@@ -111,7 +111,7 @@ func (sh *sessionHandler) RequestPermissionAndPerformAuthCodeWithTokenExchange(
 ) {
 	action := &requestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent{
 		SessionID:                      sh.sessionID,
-		ServerName:                     requestorInfo,
+		RequestorInfo:                  requestorInfo,
 		CredentialInfoList:             request.CredentialInfoList,
 		AuthorizationRequestParameters: request.AuthorizationRequestParameters,
 	}
@@ -125,9 +125,10 @@ func (sh *sessionHandler) RequestPreAuthorizedCodeFlowPermission(
 	callback irmaclient.TokenPermissionHandler,
 ) {
 	action := &requestPreAuthorizedCodeFlowPermissionSessionEvent{
-		SessionID:          sh.sessionID,
-		ServerName:         requestorInfo,
-		CredentialInfoList: request.CredentialInfoList,
+		SessionID:                 sh.sessionID,
+		RequestorInfo:             requestorInfo,
+		CredentialInfoList:        request.CredentialInfoList,
+		TransactionCodeParameters: request.TransactionCodeParameters,
 	}
 	sh.preAuthCodePermissionHandler = callback
 	dispatchEvent(action)

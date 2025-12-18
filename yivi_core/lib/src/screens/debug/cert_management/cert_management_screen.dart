@@ -19,10 +19,12 @@ import "../cert_management/widgets/provide_cert_dialog.dart";
 
 class CertificateManagementScreen extends StatefulWidget {
   @override
-  State<CertificateManagementScreen> createState() => _CertificateManagementScreenState();
+  State<CertificateManagementScreen> createState() =>
+      _CertificateManagementScreenState();
 }
 
-class _CertificateManagementScreenState extends State<CertificateManagementScreen> {
+class _CertificateManagementScreenState
+    extends State<CertificateManagementScreen> {
   StreamSubscription? _errorSubscription;
 
   @override
@@ -31,21 +33,28 @@ class _CertificateManagementScreenState extends State<CertificateManagementScree
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final repo = IrmaRepositoryProvider.of(context);
-      _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(_onErrorEvent);
+      _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
+        _onErrorEvent,
+      );
     });
   }
 
   Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
-    final errorReported = await IrmaRepositoryProvider.of(context).preferences.getReportErrors().first;
+    final errorReported = await IrmaRepositoryProvider.of(
+      context,
+    ).preferences.getReportErrors().first;
 
     if (!mounted) return;
 
     navigator.push(
       MaterialPageRoute(
-        builder: (context) =>
-            ErrorScreen.fromEvent(error: event, onTapClose: () => navigator.pop(), reportable: !errorReported),
+        builder: (context) => ErrorScreen.fromEvent(
+          error: event,
+          onTapClose: () => navigator.pop(),
+          reportable: !errorReported,
+        ),
       ),
     );
   }
@@ -53,31 +62,25 @@ class _CertificateManagementScreenState extends State<CertificateManagementScree
   Future<void> _onInstallCertificate() async {
     final repo = IrmaRepositoryProvider.of(context);
 
-    final newCert = await showDialog<NewCertificate>(context: context, builder: (context) => const ProvideCertDialog());
+    final newCert = await showDialog<NewCertificate>(
+      context: context,
+      builder: (context) => const ProvideCertDialog(),
+    );
 
-    if (newCert == null || newCert.pemContent.isEmpty || newCert.type.isEmpty) return;
+    if (newCert == null || newCert.pemContent.isEmpty || newCert.type.isEmpty) {
+      return;
+    }
 
-    repo.bridgedDispatch(InstallCertificateEvent(type: newCert.type, pemContent: newCert.pemContent));
-
-    // try {
-    //   await repo.getEvents().whereType<EnrollmentStatusEvent>().first.timeout(
-    //     const Duration(seconds: 5),
-    //   );
-    // } on TimeoutException {
-    //   // Installing the scheme took too long. We therefore assume that it failed.
-    //   // Error is sent as ErrorEvent and will be handled by a listener in initState.
-    //   return;
-    // }
-
-    // if (mounted) {
-    //   showSnackbar(
-    //     context,
-    //     FlutterI18n.translate(context, "debug.scheme_management.success"),
-    //   );
-    // }
+    repo.bridgedDispatch(
+      InstallCertificateEvent(
+        type: newCert.type,
+        pemContent: newCert.pemContent,
+      ),
+    );
   }
 
-  void _onCertificateTileTap(String thumbprint) => log("Tapped certificate with thumbprint $thumbprint");
+  void _onCertificateTileTap(String thumbprint) =>
+      log("Tapped certificate with thumbprint $thumbprint");
   //Navigator.of(context).push(MaterialPageRoute(builder: (context) => CertManagerDetailScreen(trustAnchorId)));
 
   @override
@@ -94,7 +97,9 @@ class _CertificateManagementScreenState extends State<CertificateManagementScree
     return Scaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: "debug.cert_management.title",
-        actions: [IrmaIconButton(icon: Icons.add, onTap: () => _onInstallCertificate())],
+        actions: [
+          IrmaIconButton(icon: Icons.add, onTap: () => _onInstallCertificate()),
+        ],
       ),
       body: SafeArea(
         child: StreamBuilder<EudiConfiguration>(
@@ -111,12 +116,18 @@ class _CertificateManagementScreenState extends State<CertificateManagementScree
                 const TranslatedText("debug.cert_management.issuer_certs"),
                 if (configuration.issuerCertificates != null)
                   for (final cert in configuration.issuerCertificates!)
-                    CertManagerTile(cert: cert, onTap: () => _onCertificateTileTap(cert.thumbprint)),
+                    CertManagerTile(
+                      cert: cert,
+                      onTap: () => _onCertificateTileTap(cert.thumbprint),
+                    ),
                 SizedBox(height: theme.defaultSpacing),
                 const TranslatedText("debug.cert_management.verifier_certs"),
                 if (configuration.verifierCertificates != null)
                   for (final cert in configuration.verifierCertificates!)
-                    CertManagerTile(cert: cert, onTap: () => _onCertificateTileTap(cert.thumbprint)),
+                    CertManagerTile(
+                      cert: cert,
+                      onTap: () => _onCertificateTileTap(cert.thumbprint),
+                    ),
               ],
             );
           },

@@ -416,6 +416,11 @@
     "success_feedback": {
       "header": "Success",
       "text": "The data has been successfully added to Yivi"
+    },
+    "pre-authorized_code": {
+      "transactioncode_dialog": {
+        "title": "Enter transaction code"
+      }
     }
   },
   "issue_wizard": {

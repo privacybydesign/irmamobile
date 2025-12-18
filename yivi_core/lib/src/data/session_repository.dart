@@ -86,7 +86,7 @@ class SessionRepository {
     if (event
         is RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent) {
       return prevState.copyWith(
-        serverName: event.serverName,
+        requestorInfo: event.serverName,
         credentialInfoList: event.credentialInfoList,
         grantType: "authorization_code",
         authorizationCodeRequestParameters:
@@ -101,10 +101,21 @@ class SessionRepository {
     }
 
     if (event is RequestPreAuthorizedCodeFlowPermissionSessionEvent) {
+      PreAuthorizationCodeTransactionCodeParametersState? transactionCodeState;
+      if (event.transactionCodeParameters != null) {
+        transactionCodeState =
+            PreAuthorizationCodeTransactionCodeParametersState(
+              inputMode: event.transactionCodeParameters!.inputMode,
+              length: event.transactionCodeParameters!.length,
+              description: event.transactionCodeParameters!.description,
+            );
+      }
+
       return prevState.copyWith(
-        serverName: event.serverName,
+        requestorInfo: event.requestorInfo,
         credentialInfoList: event.credentialInfoList,
         grantType: "pre-authorized_code",
+        transactionCodeParameters: transactionCodeState,
       );
     }
 

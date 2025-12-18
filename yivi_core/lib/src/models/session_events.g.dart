@@ -20,6 +20,7 @@ _$RespondPreAuthorizedCodeFlowPermissionEventFromJson(
 ) => RespondPreAuthorizedCodeFlowPermissionEvent(
   sessionID: (json['SessionID'] as num).toInt(),
   proceed: json['Proceed'] as bool,
+  transactionCode: json['TransactionCode'] as String?,
 );
 
 Map<String, dynamic> _$RespondPreAuthorizedCodeFlowPermissionEventToJson(
@@ -27,6 +28,7 @@ Map<String, dynamic> _$RespondPreAuthorizedCodeFlowPermissionEventToJson(
 ) => <String, dynamic>{
   'SessionID': instance.sessionID,
   'Proceed': instance.proceed,
+  'TransactionCode': instance.transactionCode,
 };
 
 RespondAuthorizationCodeAndExchangeForTokenEvent
@@ -229,23 +231,26 @@ _$RequestPreAuthorizedCodeFlowPermissionSessionEventFromJson(
   Map<String, dynamic> json,
 ) => RequestPreAuthorizedCodeFlowPermissionSessionEvent(
   sessionID: (json['SessionID'] as num).toInt(),
-  serverName: RequestorInfo.fromJson(
-    json['ServerName'] as Map<String, dynamic>,
+  requestorInfo: RequestorInfo.fromJson(
+    json['RequestorInfo'] as Map<String, dynamic>,
   ),
   credentialInfoList: (json['CredentialInfoList'] as List<dynamic>?)
       ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
       .toList(),
+  transactionCodeParameters: json['TransactionCodeParameters'] == null
+      ? null
+      : PreAuthorizedCodeTransactionCodeParameters.fromJson(
+          json['TransactionCodeParameters'] as Map<String, dynamic>,
+        ),
 );
 
-TokenRequestForPreAuthorizedCodeParameters
-_$TokenRequestForPreAuthorizedCodeParametersFromJson(
+PreAuthorizedCodeTransactionCodeParameters
+_$PreAuthorizedCodeTransactionCodeParametersFromJson(
   Map<String, dynamic> json,
-) => TokenRequestForPreAuthorizedCodeParameters(
-  issuerDiscoveryUrl: json['IssuerDiscoveryUrl'] as String,
-  preAuthorizedCode: json['PreAuthorizedCode'] as String,
-  resource: json['Resource'] as String,
-  scopes: (json['Scopes'] as List<dynamic>).map((e) => e as String).toList(),
-  transactionCode: json['TransactionCode'] as String?,
+) => PreAuthorizedCodeTransactionCodeParameters(
+  inputMode: json['InputMode'] as String,
+  length: (json['Length'] as num?)?.toInt(),
+  description: json['Description'] as String?,
 );
 
 RequestVerificationPermissionSessionEvent

@@ -40,8 +40,9 @@ type respondAuthorizationCodeAndExchangeForTokenEvent struct {
 }
 
 type respondPreAuthorizedCodeFlowPermissionEvent struct {
-	SessionID int
-	Proceed   bool
+	SessionID       int
+	Proceed         bool
+	TransactionCode *string
 }
 
 type respondPermissionEvent struct {
@@ -212,15 +213,16 @@ type requestIssuancePermissionSessionEvent struct {
 
 type requestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent struct {
 	SessionID                      int
-	ServerName                     *irma.RequestorInfo
+	RequestorInfo                  *irma.RequestorInfo
 	CredentialInfoList             irma.CredentialTypeInfoList
 	AuthorizationRequestParameters irma.AuthorizationRequestParameters
 }
 
 type requestPreAuthorizedCodeFlowPermissionSessionEvent struct {
-	SessionID          int
-	ServerName         *irma.RequestorInfo
-	CredentialInfoList irma.CredentialTypeInfoList
+	SessionID                 int
+	RequestorInfo             *irma.RequestorInfo
+	CredentialInfoList        irma.CredentialTypeInfoList
+	TransactionCodeParameters *irma.PreAuthorizedCodeTransactionCodeParameters
 }
 
 type requestVerificationPermissionSessionEvent struct {

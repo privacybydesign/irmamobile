@@ -416,6 +416,11 @@
     "success_feedback": {
       "header": "Gelukt",
       "text": "De gegevens zijn successvol aan Yivi toegevoegd."
+    },
+    "pre-authorized_code": {
+      "transactioncode_dialog": {
+        "title": "Voer transactiecode in"
+      }
     }
   },
   "issue_wizard": {

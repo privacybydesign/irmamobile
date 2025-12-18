@@ -28,45 +28,62 @@ class AuthorizationCodeRequestParametersState {
   final List<String> scopes;
 }
 
+class PreAuthorizationCodeTransactionCodeParametersState {
+  PreAuthorizationCodeTransactionCodeParametersState({
+    required this.inputMode,
+    this.length,
+    this.description,
+  });
+  final String inputMode;
+  final int? length;
+  final String? description;
+}
+
 class OpenID4VciSessionState extends SessionState {
   OpenID4VciSessionState({
     required super.sessionID,
     required this.continueOnSecondDevice,
     this.error,
-    this.serverName,
+    this.requestorInfo,
     this.credentialInfoList,
     this.grantType,
     this.authorizationCodeRequestParameters,
+    this.transactionCodeParameters,
   });
 
   final bool continueOnSecondDevice;
   final SessionError? error;
-  final RequestorInfo? serverName;
-  //final String? authorizationServer;
+  final RequestorInfo? requestorInfo;
   final List<CredentialTypeInfo>? credentialInfoList;
   final String? grantType;
   final AuthorizationCodeRequestParametersState?
   authorizationCodeRequestParameters;
+  final PreAuthorizationCodeTransactionCodeParametersState?
+  transactionCodeParameters;
 
   OpenID4VciSessionState copyWith({
     SessionError? error,
-    RequestorInfo? serverName,
+    RequestorInfo? requestorInfo,
     List<CredentialTypeInfo>? credentialInfoList,
     bool? continueOnSecondDevice,
     String? grantType,
     AuthorizationCodeRequestParametersState? authorizationCodeRequestParameters,
+    PreAuthorizationCodeTransactionCodeParametersState?
+    transactionCodeParameters,
   }) {
     return OpenID4VciSessionState(
       sessionID: sessionID,
       continueOnSecondDevice:
           continueOnSecondDevice ?? this.continueOnSecondDevice,
       error: error ?? this.error,
-      serverName: serverName ?? this.serverName,
+      requestorInfo: requestorInfo ?? this.requestorInfo,
       credentialInfoList: credentialInfoList ?? this.credentialInfoList,
       grantType: grantType ?? this.grantType,
       authorizationCodeRequestParameters:
           authorizationCodeRequestParameters ??
           this.authorizationCodeRequestParameters,
+      transactionCodeParameters:
+          transactionCodeParameters ?? this.transactionCodeParameters,
     );
   }
 

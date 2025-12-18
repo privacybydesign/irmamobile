@@ -140,7 +140,7 @@ func (ah *eventHandler) respondPreAuthorizedCodeFlowPermission(event *respondPre
 
 	go func() {
 		defer recoverFromPanic("Handling ResponsePreAuthorizedCodePermission event panicked")
-		sh.preAuthCodePermissionHandler(event.Proceed)
+		sh.preAuthCodePermissionHandler(event.Proceed, event.TransactionCode)
 	}()
 
 	return nil
@@ -322,6 +322,5 @@ func (ah *eventHandler) installCertificate(event *installCertificateEvent) error
 	conf.Reload()
 
 	dispatchConfigurationEvent()
-	dispatchEnrollmentStatusEvent()
 	return nil
 }

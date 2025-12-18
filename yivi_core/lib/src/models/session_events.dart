@@ -43,10 +43,14 @@ class RespondPreAuthorizedCodeFlowPermissionEvent extends SessionEvent {
   RespondPreAuthorizedCodeFlowPermissionEvent({
     required int sessionID,
     required this.proceed,
+    this.transactionCode,
   }) : super(sessionID);
 
   @JsonKey(name: "Proceed")
   final bool proceed;
+
+  @JsonKey(name: "TransactionCode", required: false)
+  final String? transactionCode;
 
   factory RespondPreAuthorizedCodeFlowPermissionEvent.fromJson(
     Map<String, dynamic> json,
@@ -287,15 +291,19 @@ class AuthorizationRequestParameters {
 class RequestPreAuthorizedCodeFlowPermissionSessionEvent extends SessionEvent {
   RequestPreAuthorizedCodeFlowPermissionSessionEvent({
     required int sessionID,
-    required this.serverName,
+    required this.requestorInfo,
     this.credentialInfoList,
+    this.transactionCodeParameters,
   }) : super(sessionID);
 
-  @JsonKey(name: "ServerName")
-  final RequestorInfo serverName;
+  @JsonKey(name: "RequestorInfo")
+  final RequestorInfo requestorInfo;
 
   @JsonKey(name: "CredentialInfoList")
   final List<CredentialTypeInfo>? credentialInfoList;
+
+  @JsonKey(name: "TransactionCodeParameters", required: false)
+  final PreAuthorizedCodeTransactionCodeParameters? transactionCodeParameters;
 
   factory RequestPreAuthorizedCodeFlowPermissionSessionEvent.fromJson(
     Map<String, dynamic> json,
@@ -303,33 +311,25 @@ class RequestPreAuthorizedCodeFlowPermissionSessionEvent extends SessionEvent {
 }
 
 @JsonSerializable(createToJson: false)
-class TokenRequestForPreAuthorizedCodeParameters {
-  TokenRequestForPreAuthorizedCodeParameters({
-    required this.issuerDiscoveryUrl,
-    required this.preAuthorizedCode,
-    required this.resource,
-    required this.scopes,
-    this.transactionCode,
+class PreAuthorizedCodeTransactionCodeParameters {
+  PreAuthorizedCodeTransactionCodeParameters({
+    required this.inputMode,
+    this.length,
+    this.description,
   });
 
-  @JsonKey(name: "IssuerDiscoveryUrl")
-  final String issuerDiscoveryUrl;
+  @JsonKey(name: "InputMode")
+  final String inputMode;
 
-  @JsonKey(name: "PreAuthorizedCode")
-  final String preAuthorizedCode;
+  @JsonKey(name: "Length", required: false)
+  final int? length;
 
-  @JsonKey(name: "TransactionCode", required: false)
-  final String? transactionCode;
+  @JsonKey(name: "Description", required: false)
+  final String? description;
 
-  @JsonKey(name: "Resource")
-  final String resource;
-
-  @JsonKey(name: "Scopes")
-  final List<String> scopes;
-
-  factory TokenRequestForPreAuthorizedCodeParameters.fromJson(
+  factory PreAuthorizedCodeTransactionCodeParameters.fromJson(
     Map<String, dynamic> json,
-  ) => _$TokenRequestForPreAuthorizedCodeParametersFromJson(json);
+  ) => _$PreAuthorizedCodeTransactionCodeParametersFromJson(json);
 }
 
 @JsonSerializable()

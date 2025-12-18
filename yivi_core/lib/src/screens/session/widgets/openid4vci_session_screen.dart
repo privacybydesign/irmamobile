@@ -19,6 +19,7 @@ import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
 import "../../error/session_error_screen.dart";
 import "arrow_back_screen.dart";
+import "provide_transactioncode_dialog.dart";
 import "session_scaffold.dart";
 
 class OpenID4VciSessionScreen extends ConsumerStatefulWidget {
@@ -224,6 +225,22 @@ class _OpenID4VciSessionScreenState
   Future<void> _signInWithPreAuthorizedCode(
     OpenID4VciSessionState state,
   ) async {
+    // If a transaction code is required, request it from the user
+    String? transactionCode;
+    if (state.transactionCodeParameters != null) {
+      transactionCode = await showDialog<String>(
+        context: context,
+        builder: (context) => ProvideTransactionCodeDialog(
+          transactionCodeParameters: state.transactionCodeParameters!,
+        ),
+      );
+
+      // User cancelled the dialog, so we stop here and show the session screen again
+      if (transactionCode == null) {
+        return;
+      }
+    }
+
     // Handle the permission
     ref
         .read(irmaRepositoryProvider)
@@ -231,6 +248,7 @@ class _OpenID4VciSessionScreenState
           RespondPreAuthorizedCodeFlowPermissionEvent(
             sessionID: state.sessionID,
             proceed: true,
+            transactionCode: transactionCode,
           ),
         );
   }
