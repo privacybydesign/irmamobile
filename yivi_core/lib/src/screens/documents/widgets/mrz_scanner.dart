@@ -251,6 +251,9 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     if (Platform.isIOS) {
       return sensorOrientation;
     } else if (Platform.isAndroid) {
+      if (_controller == null) {
+        return null;
+      }
       var rotationCompensation =
           _orientations[_controller!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
