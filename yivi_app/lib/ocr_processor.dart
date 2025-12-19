@@ -2,14 +2,15 @@ import "dart:io";
 import "dart:ui";
 
 import "package:camera/camera.dart";
+import "package:flutter/foundation.dart";
 import "package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart";
-import "package:mrz_parser/mrz_parser.dart";
 import "package:yivi_core/yivi_core.dart";
 
-class GoogleMLKitMrzProcessor implements MrzProcessor {
+class GoogleMLKitOcrProcessor implements OcrProcessor {
   final _textRecognizer = TextRecognizer();
+
   @override
-  Future<MRZResult?> processImage({
+  Future<List<String>?> processImage({
     required CameraImage inputImage,
     required int imageRotation,
   }) async {
@@ -33,15 +34,7 @@ class GoogleMLKitMrzProcessor implements MrzProcessor {
         ableToScanText.add(l);
       }
     }
-    List<String>? result = _getFinalListToParse([...ableToScanText]);
-    if (result == null) {
-      return null;
-    }
-    try {
-      return MRZParser.parse(result);
-    } catch (e) {
-      return null;
-    }
+    return _getFinalListToParse([...ableToScanText]);
   }
 
   InputImage? _inputImageFromCameraImage({
@@ -89,8 +82,24 @@ class GoogleMLKitMrzProcessor implements MrzProcessor {
   }
 
   List<String>? _getFinalListToParse(List<String> ableToScanTextList) {
+    if (ableToScanTextList.isEmpty) {
+      return null;
+    }
+
+    // Check for driver's license (starts with D1, D2, or DL)
+    String firstLine = ableToScanTextList.first;
+    if (firstLine.length >= 2) {
+      String firstTwoChars = firstLine.substring(0, 2);
+      List<String> driverLicenseTypes = ["D1", "D2", "DL"];
+      if (driverLicenseTypes.contains(firstTwoChars)) {
+        debugPrint("Driver's License MRZ detected");
+        return [...ableToScanTextList];
+      }
+    }
+
+    // Check for passport/visa (requires at least 2 lines)
     if (ableToScanTextList.length < 2) {
-      // minimum length of any MRZ format is 2 lines
+      // minimum length of passport MRZ format is 2 lines
       return null;
     }
     int lineLength = ableToScanTextList.first.length;
@@ -104,15 +113,17 @@ class GoogleMLKitMrzProcessor implements MrzProcessor {
     List<String> supportedDocTypes = [
       "P",
       "V",
+      "I",
     ]; // you can add more doc types like A,C,I are also supported
     String fChar = firstLineChars[0];
     if (supportedDocTypes.contains(fChar)) {
+      debugPrint("Passport or Visa MRZ detected");
       return [...ableToScanTextList];
     }
     return null;
   }
 
-  String _testTextLine(String text) {
+  static String _testTextLine(String text) {
     String res = text.replaceAll(" ", "");
     List<String> list = res.split("");
 

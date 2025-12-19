@@ -2,15 +2,15 @@ import "package:flutter/material.dart";
 
 import "../../../theme/theme.dart";
 
-class MRZCameraOverlay extends StatelessWidget {
-  const MRZCameraOverlay({
+class IdCardMrzCameraOverlay extends StatelessWidget {
+  const IdCardMrzCameraOverlay({
     required this.child,
     required this.success,
     super.key,
   });
 
   static const _documentFrameRatio =
-      1.42; // Passport's size (ISO/IEC 7810 ID-3) is 125mm × 88mm
+      1.59; // Dutch ID-card is 8.56cm by 5.398cm, resulting in this aspect ratio
   final Widget child;
   final bool success;
 
@@ -24,7 +24,7 @@ class MRZCameraOverlay extends StatelessWidget {
           Size(c.maxWidth, c.maxHeight),
         );
         final numChars = maxLtApprox(
-          overlayRect.width - theme.tinySpacing,
+          overlayRect.width - theme.defaultSpacing,
           theme.mrzLabel,
         );
         final guidelines = "<" * numChars;
@@ -62,6 +62,8 @@ class MRZCameraOverlay extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      Text(guidelines, style: theme.mrzLabel),
+                      SizedBox(height: theme.tinySpacing),
                       Text(guidelines, style: theme.mrzLabel),
                       SizedBox(height: theme.tinySpacing),
                       Text(guidelines, style: theme.mrzLabel),

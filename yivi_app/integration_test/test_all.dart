@@ -3,7 +3,9 @@ import "data_search_test.dart" as search_test;
 import "disclose_sdjwt_over_openid4vp_test.dart" as openid4vp_test;
 import "disclosure_session/disclosure_session_test_all.dart"
     as disclosure_session;
+import "driving_licence_test.dart" as driving_licence_test;
 import "enroll_test.dart" as enroll_test;
+import "id_card_test.dart" as id_card_test;
 import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
 import "issue_wizard_test.dart" as issue_wizard_test;
@@ -34,4 +36,6 @@ void main() {
   issue_wizard_test.main();
   notifications_test.main();
   passport_test.main();
+  driving_licence_test.main();
+  id_card_test.main();
 }

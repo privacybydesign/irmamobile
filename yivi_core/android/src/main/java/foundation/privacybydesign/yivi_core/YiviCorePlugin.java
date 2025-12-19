@@ -18,7 +18,6 @@ import io.flutter.plugin.common.PluginRegistry;
 import irmagobridge.Irmagobridge;
 
 public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegistry.NewIntentListener {
-    private Uri initialURL;
     private IrmaMobileBridge bridge;
     private MethodChannel channel;
     private static final String CHANNEL_NAME = "irma.app/irma_mobile_bridge";
@@ -52,8 +51,6 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     public boolean onNewIntent(@NonNull Intent intent) {
         if (bridge != null) {
             bridge.onNewIntent(intent);
-        } else {
-            initialURL = intent.getData();
         }
         return true;
     }
@@ -111,11 +108,8 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
     private void maybeCreateBridge() {
         if (bridge == null && channel != null && activity != null && applicationContext != null) {
-            bridge = new IrmaMobileBridge(applicationContext, activity, channel, initialURL);
+            bridge = new IrmaMobileBridge(applicationContext, activity, channel, activity.getIntent().getData());
             channel.setMethodCallHandler(bridge);
-            // Only use initialURL once
-            initialURL = null;
         }
     }
 }
-

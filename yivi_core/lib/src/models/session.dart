@@ -16,6 +16,11 @@ class MissingPointer implements Exception {
   String errorMessage() {
     return "URI does not contain a session or wizard pointer: $details";
   }
+
+  @override
+  String toString() {
+    return "MissingPointer(details: ${errorMessage()})";
+  }
 }
 
 /// Interface for all pointers referring to new sessions and issue wizards.

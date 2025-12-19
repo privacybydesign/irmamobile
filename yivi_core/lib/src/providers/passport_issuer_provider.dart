@@ -1,12 +1,13 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
-final passportUrlProvider = StateProvider(
+final passportIssuerUrlProvider = StateProvider(
   (ref) => "https://passport-issuer.staging.yivi.app",
 );
 
 final passportIssuerProvider = Provider<PassportIssuer>(
-  (ref) => DefaultPassportIssuer(hostName: ref.watch(passportUrlProvider)),
+  (ref) =>
+      DefaultPassportIssuer(hostName: ref.watch(passportIssuerUrlProvider)),
 );
 
 class ErrorThrowingPassportIssuer implements PassportIssuer {
@@ -27,6 +28,7 @@ class ErrorThrowingPassportIssuer implements PassportIssuer {
   @override
   Future<IrmaSessionPointer> startIrmaIssuanceSession(
     RawDocumentData passportDataResult,
+    DocumentType documentType,
   ) async {
     throw Exception(errorToThrowOnIssuance);
   }
@@ -34,6 +36,13 @@ class ErrorThrowingPassportIssuer implements PassportIssuer {
   @override
   Future<VerificationResponse> verifyPassport(
     RawDocumentData passportDataResult,
+  ) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<VerificationResponse> verifyDrivingLicence(
+    RawDocumentData drivingLicenceDataResult,
   ) {
     throw UnimplementedError();
   }

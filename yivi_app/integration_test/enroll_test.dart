@@ -59,7 +59,7 @@ void main() {
 
     // Pumps an unenrolled app with english locale
     Future<void> initEnrollment(WidgetTester tester) async {
-      await pumpIrmaApp(tester, irmaBinding.repository);
+      await pumpYiviApp(tester, irmaBinding.repository);
       expect(find.byType(EnrollmentScreen), findsOneWidget);
     }
 
