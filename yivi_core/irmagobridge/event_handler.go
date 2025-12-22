@@ -112,6 +112,40 @@ func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
 	return nil
 }
 
+func (ah *eventHandler) respondAuthorizationCodeAndExchangeForToken(event *respondAuthorizationCodeAndExchangeForTokenEvent) error {
+	sh, err := ah.findSessionHandler(event.SessionID)
+	if err != nil {
+		return err
+	}
+	if sh.accessTokenHandler == nil {
+		return errors.Errorf("Unset authorizationCodeHandler in RespondAuthorizationCode")
+	}
+
+	go func() {
+		defer recoverFromPanic("Handling ResponseAuthorizationCode event panicked")
+		sh.accessTokenHandler(event.Proceed, event.AccessToken, event.RefreshToken)
+	}()
+
+	return nil
+}
+
+func (ah *eventHandler) respondPreAuthorizedCodeFlowPermission(event *respondPreAuthorizedCodeFlowPermissionEvent) error {
+	sh, err := ah.findSessionHandler(event.SessionID)
+	if err != nil {
+		return err
+	}
+	if sh.preAuthCodePermissionHandler == nil {
+		return errors.Errorf("Unset preAuthCodePermissionHandler in RespondPreAuthorizedCodeFlowPermission")
+	}
+
+	go func() {
+		defer recoverFromPanic("Handling ResponsePreAuthorizedCodePermission event panicked")
+		sh.preAuthCodePermissionHandler(event.Proceed, event.TransactionCode)
+	}()
+
+	return nil
+}
+
 // Responding to a permission prompt when disclosing, issuing or signing
 func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err error) {
 	sh, err := ah.findSessionHandler(event.SessionID)
@@ -267,6 +301,26 @@ func (ah *eventHandler) removeRequestorScheme(event *removeRequestorSchemeEvent)
 	if err != nil {
 		return err
 	}
+	dispatchConfigurationEvent()
+	return nil
+}
+
+func (ah *eventHandler) installCertificate(event *installCertificateEvent) error {
+	conf := client.GetEudiConfiguration()
+
+	if event.Type == "issuer" {
+		if err := conf.Issuers.InstallCertificate([]byte(event.PemContent)); err != nil {
+			return err
+		}
+	} else if event.Type == "verifier" {
+		if err := conf.Verifiers.InstallCertificate([]byte(event.PemContent)); err != nil {
+			return err
+		}
+	}
+
+	// Reload configuration to pick up the new certificate
+	conf.Reload()
+
 	dispatchConfigurationEvent()
 	return nil
 }

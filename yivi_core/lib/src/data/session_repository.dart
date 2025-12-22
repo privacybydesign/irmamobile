@@ -1,8 +1,10 @@
 import "package:collection/collection.dart";
+import "package:flutter/widgets.dart";
 import "package:rxdart/rxdart.dart";
 
 import "../models/attribute.dart";
 import "../models/credentials.dart";
+import "../models/protocol.dart";
 import "../models/return_url.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
@@ -32,7 +34,11 @@ class SessionRepository {
       SessionState? nextState;
       if (prevStates.containsKey(event.sessionID)) {
         final prevState = prevStates[event.sessionID]!;
-        nextState = _eventHandler(prevState, event);
+        if (prevState is IrmaSessionState) {
+          nextState = _irmaSessionEventHandler(prevState, event);
+        } else if (prevState is OpenID4VciSessionState) {
+          nextState = _openid4vciEventHandler(prevState, event);
+        }
       } else if (event is NewSessionEvent) {
         nextState = _newSessionState(event);
       }
@@ -55,18 +61,78 @@ class SessionRepository {
       // Error with url will be resolved by bridge, so we don't have to act on that.
       serverName = RequestorInfo(name: const TranslatedValue.empty());
     }
-    return SessionState(
-      sessionID: event.sessionID,
-      clientReturnURL: null,
-      continueOnSecondDevice: event.request.continueOnSecondDevice,
-      previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
-      status: SessionStatus.initialized,
-      serverName: serverName,
-      sessionType: event.request.irmaqr,
-    );
+    if (event.request.protocol == Protocol.openid4vci) {
+      return OpenID4VciSessionState(
+        sessionID: event.sessionID,
+        continueOnSecondDevice: event.request.continueOnSecondDevice,
+      );
+    } else {
+      return IrmaSessionState(
+        sessionID: event.sessionID,
+        clientReturnURL: null,
+        continueOnSecondDevice: event.request.continueOnSecondDevice,
+        previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
+        status: SessionStatus.initialized,
+        serverName: serverName,
+        sessionType: event.request.irmaqr,
+      );
+    }
   }
 
-  SessionState _eventHandler(SessionState prevState, SessionEvent event) {
+  OpenID4VciSessionState _openid4vciEventHandler(
+    OpenID4VciSessionState prevState,
+    SessionEvent event,
+  ) {
+    if (event
+        is RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent) {
+      return prevState.copyWith(
+        requestorInfo: event.serverName,
+        credentialInfoList: event.credentialInfoList,
+        grantType: "authorization_code",
+        authorizationCodeRequestParameters:
+            AuthorizationCodeRequestParametersState(
+              issuerDiscoveryUrl:
+                  event.authorizationRequestParameters.issuerDiscoveryUrl,
+              issuerState: event.authorizationRequestParameters.issuerState,
+              resource: event.authorizationRequestParameters.resource,
+              scopes: event.authorizationRequestParameters.scopes,
+            ),
+      );
+    }
+
+    if (event is RequestPreAuthorizedCodeFlowPermissionSessionEvent) {
+      PreAuthorizationCodeTransactionCodeParametersState? transactionCodeState;
+      if (event.transactionCodeParameters != null) {
+        transactionCodeState =
+            PreAuthorizationCodeTransactionCodeParametersState(
+              inputMode: event.transactionCodeParameters!.inputMode,
+              length: event.transactionCodeParameters!.length,
+              description: event.transactionCodeParameters!.description,
+            );
+      }
+
+      return prevState.copyWith(
+        requestorInfo: event.requestorInfo,
+        credentialInfoList: event.credentialInfoList,
+        grantType: "pre-authorized_code",
+        transactionCodeParameters: transactionCodeState,
+      );
+    }
+
+    if (event is RespondAuthorizationCodeAndExchangeForTokenEvent) {
+      return prevState;
+    }
+    if (event is FailureSessionEvent) {
+      return prevState.copyWith(error: event.error);
+    }
+    debugPrint("Unknown event: $event for state $prevState");
+    return prevState;
+  }
+
+  IrmaSessionState _irmaSessionEventHandler(
+    IrmaSessionState prevState,
+    SessionEvent event,
+  ) {
     if (event is FailureSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.error,
@@ -223,8 +289,11 @@ class SessionRepository {
 
   Future<bool> hasActiveSessions() async {
     final sessions = await _sessionStatesSubject.first;
-    return sessions.values.any(
-      (session) => session.status == SessionStatus.requestDisclosurePermission,
-    );
+    return sessions.values.any((session) {
+      if (session is IrmaSessionState) {
+        return session.status == SessionStatus.requestDisclosurePermission;
+      }
+      return false;
+    });
   }
 }
