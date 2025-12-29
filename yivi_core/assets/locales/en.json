@@ -419,6 +419,32 @@
       "text": "The data has been successfully added to Yivi"
     }
   },
+  "email_issuance": {
+    "enter_email": {
+      "title": "Add email address",
+      "header": "Enter your email address",
+      "body": "We'll send you an email with a verification code. You'll need to enter this code in the next step.",
+      "error": "Something went wrong while sending the verification code.",
+      "phone_hint": "Enter your email address...",
+      "next_button": "Send email",
+      "back_button": "Cancel"
+    },
+    "verify_code": {
+      "title": "Verify email address",
+      "header": "We've sent you an email",
+      "body": "We've sent an email with a verification code to {email}.\n\nEnter the verification code from the email to continue.",
+      "next_button": "Verifiy code",
+      "back_button": "Cancel",
+      "no_sms_received": "No email received?",
+      "error": "Something went wrong while verifying the verification code.",
+      "resend_dialog": {
+        "title": "Send new code",
+        "body": "We'll send you a new email with a new verification code.",
+        "confirm": "Send email",
+        "cancel": "Cancel"
+      }
+    }
+  },
   "sms_issuance": {
     "enter_phone": {
       "title": "Add phone number",

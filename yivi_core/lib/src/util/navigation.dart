@@ -45,6 +45,10 @@ extension RoutingHelpers on BuildContext {
     push("/issue_mobilenumber");
   }
 
+  void pushEmailIssuanceScreen() {
+    push("/issue_email");
+  }
+
   void popToWizardScreen() {
     Navigator.of(this).popUntil(ModalRoute.withName("/issue_wizard"));
   }

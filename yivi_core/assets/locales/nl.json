@@ -419,6 +419,32 @@
       "text": "De gegevens zijn successvol aan Yivi toegevoegd."
     }
   },
+  "email_issuance": {
+    "enter_email": {
+      "title": "E-mailadres toevoegen",
+      "header": "Voer je e-mailadres in",
+      "body": "Wij sturen je een e-mail met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
+      "error": "Er ging iets fout bij het versturen van de verificatiecode.",
+      "phone_hint": "Voer je e-mailadres in...",
+      "next_button": "E-mail versturen",
+      "back_button": "Annuleer"
+    },
+    "verify_code": {
+      "title": "E-mailadres verifiëren",
+      "header": "We hebben je een e-mail gestuurd",
+      "body": "We hebben een e-mail met een verificatiecode verstuurd naar {email}.\n\nVul hieronder de verificatiecode uit de e-mail in om verder te gaan.",
+      "error": "Er is iets misgegaan.",
+      "no_sms_received": "Code niet ontvangen?",
+      "next_button": "Code verifiëren",
+      "back_button": "Annuleer",
+      "resend_dialog": {
+        "title": "E-mail opnieuw sturen",
+        "body": "We sturen je opnieuw een e-mail met een nieuwe code.",
+        "confirm": "Stuur opnieuw",
+        "cancel": "Annuleer"
+      }
+    }
+  },
   "sms_issuance": {
     "enter_phone": {
       "title": "Telefoonnummer toevoegen",

@@ -15,8 +15,8 @@ import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../../error/error_screen.dart";
 
-class VerifyCodeScreen extends ConsumerStatefulWidget {
-  const VerifyCodeScreen();
+class VerifyPhoneScreen extends ConsumerStatefulWidget {
+  const VerifyPhoneScreen();
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -24,7 +24,7 @@ class VerifyCodeScreen extends ConsumerStatefulWidget {
   }
 }
 
-class _VerifyCodeScreenState extends ConsumerState<VerifyCodeScreen> {
+class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
   final _focusNode = FocusNode();
 
   @override

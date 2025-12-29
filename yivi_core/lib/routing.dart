@@ -29,6 +29,7 @@ import "src/screens/documents/passport_mrz_manual_entry_screen.dart";
 import "src/screens/documents/widgets/driving_licence_mrz_camera_overlay.dart";
 import "src/screens/documents/widgets/id_card_mrz_camera_overlay.dart";
 import "src/screens/documents/widgets/passport_mrz_camera_overlay.dart";
+import "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 import "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
@@ -291,6 +292,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: "/issue_mobilenumber",
         builder: (context, state) => SmsIssuanceScreen(),
+      ),
+      GoRoute(
+        path: "/issue_email",
+        builder: (context, state) => EmailIssuanceScreen(),
       ),
       GoRoute(
         path: "/mrz",
