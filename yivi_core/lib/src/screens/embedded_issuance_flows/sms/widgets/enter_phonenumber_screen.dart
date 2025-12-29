@@ -26,10 +26,10 @@ class EnterPhoneScreen extends ConsumerStatefulWidget {
 class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
-  bool _validPhoneNumber = false;
   final _focusNode = FocusNode();
 
-  PhoneNumber _currentPhone = .new(isoCode: "NL");
+  var _currentPhone = PhoneNumber(isoCode: "NL");
+  var _validPhoneNumber = false;
 
   @override
   void dispose() {
@@ -52,6 +52,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final state = ref.watch(smsIssuanceProvider);
+    final onScreenKeyboardShown = MediaQuery.of(context).viewInsets.bottom > 0;
 
     if (state.error.isNotEmpty) {
       return Scaffold(
@@ -113,6 +114,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         _focusNode.unfocus();
       },
       child: Scaffold(
+        key: Key("$onScreenKeyboardShown"),
         appBar: IrmaAppBar(
           titleTranslationKey: "sms_issuance.enter_phone.title",
         ),
@@ -183,12 +185,30 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
             ),
           ),
         ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: "sms_issuance.enter_phone.next_button",
-          secondaryButtonLabel: "sms_issuance.enter_phone.back_button",
-          onPrimaryPressed: _validPhoneNumber ? _submit : null,
-          onSecondaryPressed: context.pop,
-        ),
+
+        // When the on-screen keyboard is shown we want to show the "send sms" button above it
+        // without the cancel button. When the keyboard is not showing we want to show both the send
+        // and cancel button.
+        floatingActionButtonAnimator: .noAnimation,
+        floatingActionButton: onScreenKeyboardShown
+            ? Padding(
+                padding: .symmetric(horizontal: theme.defaultSpacing),
+                child: YiviThemedButton(
+                  label: "sms_issuance.enter_phone.next_button",
+                  onPressed: _validPhoneNumber ? _submit : null,
+                ),
+              )
+            : null,
+        floatingActionButtonLocation: .centerFloat,
+        resizeToAvoidBottomInset: true,
+        bottomNavigationBar: onScreenKeyboardShown
+            ? null
+            : IrmaBottomBar(
+                primaryButtonLabel: "sms_issuance.enter_phone.next_button",
+                secondaryButtonLabel: "sms_issuance.enter_phone.back_button",
+                onPrimaryPressed: _validPhoneNumber ? _submit : null,
+                onSecondaryPressed: context.pop,
+              ),
       ),
     );
   }
