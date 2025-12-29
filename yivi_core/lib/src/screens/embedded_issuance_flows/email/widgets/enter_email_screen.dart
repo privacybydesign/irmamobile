@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
-import "package:intl_phone_number_input/intl_phone_number_input.dart";
 
 import "../../../../../package_name.dart";
 import "../../../../providers/email_issuance_provider.dart";
@@ -24,26 +23,21 @@ class EnterEmailScreen extends ConsumerStatefulWidget {
 
 class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
+  final _textController = TextEditingController();
   final _focusNode = FocusNode();
 
-  final _currentPhone = PhoneNumber(isoCode: "NL");
-  final _validPhoneNumber = false;
+  var _validEmail = false;
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final phone = _currentPhone.phoneNumber;
-      if (phone == null) {
-        return;
-      }
-
-      ref.read(emailIssuanceProvider.notifier).sendEmail(email: phone);
+      final email = _textController.text;
+      ref.read(emailIssuanceProvider.notifier).sendEmail(email: email);
     }
   }
 
@@ -134,11 +128,22 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                 TranslatedText("email_issuance.enter_email.body"),
                 SizedBox(height: theme.largeSpacing),
                 Form(
+                  onChanged: () {
+                    final valid = _formKey.currentState?.validate() ?? false;
+                    if (valid != _validEmail) {
+                      setState(() {
+                        _validEmail = valid;
+                      });
+                    }
+                  },
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: .stretch,
                     children: [
                       TextFormField(
+                        controller: _textController,
+                        focusNode: _focusNode,
+                        key: const Key("email_input_field"),
                         keyboardType: .emailAddress,
                         autofillHints: const [AutofillHints.email],
                         autocorrect: false,
@@ -173,7 +178,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                 padding: .symmetric(horizontal: theme.defaultSpacing),
                 child: YiviThemedButton(
                   label: "email_issuance.enter_email.next_button",
-                  onPressed: _validPhoneNumber ? _submit : null,
+                  onPressed: _validEmail ? _submit : null,
                 ),
               )
             : null,
@@ -184,7 +189,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
             : IrmaBottomBar(
                 primaryButtonLabel: "email_issuance.enter_email.next_button",
                 secondaryButtonLabel: "email_issuance.enter_email.back_button",
-                onPrimaryPressed: _validPhoneNumber ? _submit : null,
+                onPrimaryPressed: _validEmail ? _submit : null,
                 onSecondaryPressed: context.pop,
               ),
       ),

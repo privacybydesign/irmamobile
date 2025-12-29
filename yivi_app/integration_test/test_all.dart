@@ -5,6 +5,8 @@ import "disclosure_session/disclosure_session_test_all.dart"
     as disclosure_session;
 import "embedded_issuance_flows/driving_licence_test.dart"
     as driving_licence_test;
+import "embedded_issuance_flows/email_issuance_test.dart"
+    as email_issuance_test;
 import "embedded_issuance_flows/id_card_test.dart" as id_card_test;
 import "embedded_issuance_flows/passport_test.dart" as passport_test;
 import "embedded_issuance_flows/sms_issuance_test.dart" as sms_issuance_test;
@@ -41,4 +43,5 @@ void main() {
   driving_licence_test.main();
   id_card_test.main();
   sms_issuance_test.main();
+  email_issuance_test.main();
 }
