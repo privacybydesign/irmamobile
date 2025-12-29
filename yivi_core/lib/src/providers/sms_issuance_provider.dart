@@ -18,7 +18,7 @@ final smsIssuanceProvider = StateNotifierProvider.autoDispose(
 
 abstract class SmsIssuerApi {
   /// Starts session at sms issuer
-  Future<void> sendSms({required String phoneNumber});
+  Future<void> sendSms({required String phoneNumber, required String language});
 
   /// Verifies the verification code and receives back a session pointer that
   /// can be used to start the issuance session
@@ -34,9 +34,12 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
   DefaultSmsIssuerApi({required this.host});
 
   @override
-  Future<void> sendSms({required String phoneNumber}) async {
+  Future<void> sendSms({
+    required String phoneNumber,
+    required String language,
+  }) async {
     debugPrint("Sending sms for: $phoneNumber");
-    final payload = jsonEncode({"phone": phoneNumber, "language": "nl"});
+    final payload = jsonEncode({"phone": phoneNumber, "language": language});
     final url = "$host/api/embedded/send";
     final response = await http.post(
       Uri.parse(url),
@@ -135,14 +138,17 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
         ),
       );
 
-  Future<void> sendSms({required String phoneNumber}) async {
+  Future<void> sendSms({
+    required String phoneNumber,
+    required String language,
+  }) async {
     try {
       state = SmsIssuanceState(
         stage: .waiting,
         enteredCode: "",
         phoneNumber: phoneNumber,
       );
-      await api.sendSms(phoneNumber: phoneNumber);
+      await api.sendSms(phoneNumber: phoneNumber, language: language);
       state = state.copyWith(stage: .enteringVerificationCode);
     } catch (e) {
       state = state.copyWith(stage: .enteringPhoneNumber, error: e.toString());

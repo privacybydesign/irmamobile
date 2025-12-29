@@ -44,7 +44,12 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         return;
       }
 
-      ref.read(smsIssuanceProvider.notifier).sendSms(phoneNumber: phone);
+      ref
+          .read(smsIssuanceProvider.notifier)
+          .sendSms(
+            phoneNumber: phone,
+            language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
+          );
     }
   }
 
@@ -102,7 +107,11 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
           onPrimaryPressed: () {
             ref
                 .read(smsIssuanceProvider.notifier)
-                .sendSms(phoneNumber: state.phoneNumber);
+                .sendSms(
+                  phoneNumber: state.phoneNumber,
+                  language:
+                      FlutterI18n.currentLocale(context)?.languageCode ?? "en",
+                );
           },
           onSecondaryPressed: context.pop,
         ),

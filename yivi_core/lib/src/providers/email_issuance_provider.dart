@@ -18,7 +18,10 @@ final emailIssuanceProvider = StateNotifierProvider.autoDispose(
 
 abstract class EmailIssuerApi {
   /// Starts session at sms issuer
-  Future<void> sendEmail({required String emailAddress});
+  Future<void> sendEmail({
+    required String emailAddress,
+    required String language,
+  });
 
   /// Verifies the verification code and receives back a session pointer that
   /// can be used to start the issuance session
@@ -34,9 +37,12 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
   DefaultEmailIssuerApi({required this.host});
 
   @override
-  Future<void> sendEmail({required String emailAddress}) async {
+  Future<void> sendEmail({
+    required String emailAddress,
+    required String language,
+  }) async {
     debugPrint("Sending email for: $emailAddress");
-    final payload = jsonEncode({"email": emailAddress, "language": "nl"});
+    final payload = jsonEncode({"email": emailAddress, "language": language});
     final url = "$host/api/embedded/send";
     final response = await http.post(
       Uri.parse(url),
@@ -128,14 +134,17 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
         EmailIssuanceState(stage: .enteringEmail, enteredCode: "", email: ""),
       );
 
-  Future<void> sendEmail({required String email}) async {
+  Future<void> sendEmail({
+    required String email,
+    required String language,
+  }) async {
     try {
       state = EmailIssuanceState(
         stage: .waiting,
         enteredCode: "",
         email: email,
       );
-      await api.sendEmail(emailAddress: email);
+      await api.sendEmail(emailAddress: email, language: language);
       state = state.copyWith(stage: .enteringVerificationCode);
     } catch (e) {
       state = state.copyWith(stage: .enteringEmail, error: e.toString());

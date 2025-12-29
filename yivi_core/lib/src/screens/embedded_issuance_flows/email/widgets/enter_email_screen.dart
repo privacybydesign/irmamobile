@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
@@ -37,7 +38,12 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       final email = _textController.text;
-      ref.read(emailIssuanceProvider.notifier).sendEmail(email: email);
+      ref
+          .read(emailIssuanceProvider.notifier)
+          .sendEmail(
+            email: email,
+            language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
+          );
     }
   }
 
@@ -95,7 +101,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
           onPrimaryPressed: () {
             ref
                 .read(emailIssuanceProvider.notifier)
-                .sendEmail(email: state.email);
+                .sendEmail(
+                  email: state.email,
+                  language:
+                      FlutterI18n.currentLocale(context)?.languageCode ?? "en",
+                );
           },
           onSecondaryPressed: context.pop,
         ),
