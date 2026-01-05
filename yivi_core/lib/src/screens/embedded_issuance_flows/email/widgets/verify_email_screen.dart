@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
@@ -208,10 +209,15 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
         ) ??
         false;
 
-    if (!resend) {
+    if (!resend || !mounted) {
       return;
     }
 
-    ref.read(emailIssuanceProvider.notifier).sendEmail(email: email);
+    ref
+        .read(emailIssuanceProvider.notifier)
+        .sendEmail(
+          email: email,
+          language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
+        );
   }
 }
