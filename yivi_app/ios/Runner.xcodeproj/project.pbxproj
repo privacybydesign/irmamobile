@@ -16,6 +16,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A8DCE10928F36478002BFD88 /* RunnerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DCE10828F36478002BFD88 /* RunnerTests.m */; };
 		A8F36F792AA7835F00F235B8 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A8F36F782AA7835F00F235B8 /* libresolv.tbd */; };
+		B38A6EEF2F0BC6BF000B7DCA /* Yivi.icon in Resources */ = {isa = PBXBuildFile; fileRef = B38A6EEE2F0BC6BF000B7DCA /* Yivi.icon */; };
 		B398B3C22EC622870002FAA7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B398B3C12EC622870002FAA7 /* AppDelegate.swift */; };
 		E2097A7FA54E2A1FE2B4244D /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C230D6118D56895BA265A94 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
@@ -67,6 +68,7 @@
 		A8DCE10828F36478002BFD88 /* RunnerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RunnerTests.m; sourceTree = "<group>"; };
 		A8F36F782AA7835F00F235B8 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		B36B72FF529DDFF6E4EC1FDE /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		B38A6EEE2F0BC6BF000B7DCA /* Yivi.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Yivi.icon; sourceTree = "<group>"; };
 		B398B3C12EC622870002FAA7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B398B3C32EC6232F0002FAA7 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		D1E2A5DA9EE8C8C046D83FBC /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				63B1173B23ED96C400485683 /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
+				B38A6EEE2F0BC6BF000B7DCA /* Yivi.icon */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				97C146F11CF9000F007C117D /* Supporting Files */,
@@ -275,6 +278,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
+				B38A6EEF2F0BC6BF000B7DCA /* Yivi.icon in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				9740EEB41CF90195004384FC /* Debug.xcconfig in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
@@ -554,7 +558,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Yivi;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
@@ -742,7 +747,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Yivi;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
