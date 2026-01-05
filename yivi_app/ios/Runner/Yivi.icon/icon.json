@@ -82,7 +82,7 @@
       }
     },
     {
-      "hidden" : false,
+      "hidden" : true,
       "layers" : [
         {
           "glass" : true,
@@ -165,7 +165,59 @@
       "opacity-specializations" : [
         {
           "appearance" : "dark",
-          "value" : 1
+          "value" : 0
+        },
+        {
+          "appearance" : "tinted",
+          "value" : 0
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "blend-mode" : "normal",
+      "hidden" : false,
+      "layers" : [
+        {
+          "glass-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : false
+            }
+          ],
+          "hidden" : false,
+          "image-name-specializations" : [
+            {
+              "value" : "new-logo-dart.svg"
+            },
+            {
+              "idiom" : "square",
+              "value" : "new-logo-dart.svg"
+            }
+          ],
+          "name" : "new-logo-dart2",
+          "opacity-specializations" : [
+            {
+              "appearance" : "tinted",
+              "value" : 1
+            }
+          ]
+        }
+      ],
+      "opacity-specializations" : [
+        {
+          "value" : 0
+        },
+        {
+          "appearance" : "dark",
+          "value" : 0.43
         },
         {
           "appearance" : "tinted",
@@ -184,16 +236,43 @@
     {
       "hidden" : false,
       "layers" : [
-
+        {
+          "glass-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : false
+            }
+          ],
+          "hidden" : false,
+          "image-name-specializations" : [
+            {
+              "value" : "new-logo-dart.svg"
+            },
+            {
+              "idiom" : "square",
+              "value" : "new-logo-dart7.svg"
+            }
+          ],
+          "name" : "new-logo-dart2",
+          "opacity-specializations" : [
+            {
+              "appearance" : "tinted",
+              "value" : 1
+            }
+          ]
+        }
       ],
       "opacity-specializations" : [
+        {
+          "value" : 0
+        },
         {
           "appearance" : "dark",
           "value" : 1
         },
         {
           "appearance" : "tinted",
-          "value" : 1
+          "value" : 0
         }
       ],
       "shadow" : {
