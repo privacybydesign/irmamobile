@@ -95,7 +95,13 @@ void main() {
 
       expect(api.numEmailsSent, 1);
 
-      await tester.tapAndSettle(find.text("No email received?"));
+      final finder = find.text("No email received?");
+      final scrollable = find.ancestor(
+        of: finder,
+        matching: find.byType(Scrollable),
+      );
+      await tester.scrollUntilVisible(finder, 100, scrollable: scrollable);
+      await tester.tapAndSettle(finder);
 
       // expect dialog
       expect(find.text("Send new code"), findsOneWidget);
@@ -254,7 +260,10 @@ class FakeEmailIssuerApi implements EmailIssuerApi {
   FakeEmailIssuerApi({this.errorOnSendEmail});
 
   @override
-  Future<void> sendEmail({required String emailAddress}) async {
+  Future<void> sendEmail({
+    required String emailAddress,
+    required String language,
+  }) async {
     numEmailsSent += 1;
     enteredEmail = emailAddress;
     if (errorOnSendEmail != null && numEmailsSent == 1) {

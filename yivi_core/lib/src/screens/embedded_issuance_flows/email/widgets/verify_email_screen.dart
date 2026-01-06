@@ -148,7 +148,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
                     Container(
                       key: _codeFieldPositionKey,
                       child: Pinput(
-                        key: const Key("sms_verification_code_input_field"),
+                        key: const Key("email_verification_code_input_field"),
                         keyboardType: .text,
                         textCapitalization: .characters,
                         focusNode: _focusNode,
@@ -170,7 +170,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
                         YiviLinkButton(
                           textAlign: .center,
                           labelTranslationKey:
-                              "email_issuance.verify_code.no_sms_received",
+                              "email_issuance.verify_code.no_email_received",
                           onTap: () {
                             showResendSmsDialog(state.email);
                           },

@@ -50,7 +50,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                             crossAxisAlignment: .start,
                             children: [
                               TranslatedText(
-                                "email_issuance.enter_email.error",
+                                contentTranslationKey,
                                 textAlign: .start,
                               ),
                               SizedBox(height: theme.largeSpacing),
@@ -85,10 +85,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                         yiviAsset("error/general_error_illustration.svg"),
                       ),
                       SizedBox(height: theme.largeSpacing),
-                      TranslatedText(
-                        "email_issuance.enter_email.error",
-                        textAlign: .center,
-                      ),
+                      TranslatedText(contentTranslationKey, textAlign: .center),
                       SizedBox(height: theme.largeSpacing),
                       YiviLinkButton(
                         textAlign: .center,

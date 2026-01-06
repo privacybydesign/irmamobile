@@ -434,7 +434,7 @@
       "header": "We hebben je een e-mail gestuurd",
       "body": "We hebben een e-mail met een verificatiecode verstuurd naar {email}.\n\nVul hieronder de verificatiecode uit de e-mail in om verder te gaan.",
       "error": "Er is iets misgegaan.",
-      "no_sms_received": "Code niet ontvangen?",
+      "no_email_received": "Code niet ontvangen?",
       "next_button": "Code verifiëren",
       "back_button": "Annuleer",
       "resend_dialog": {

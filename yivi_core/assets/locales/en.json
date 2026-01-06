@@ -435,7 +435,7 @@
       "body": "We've sent an email with a verification code to {email}.\n\nEnter the verification code from the email to continue.",
       "next_button": "Verify code",
       "back_button": "Cancel",
-      "no_sms_received": "No email received?",
+      "no_email_received": "No email received?",
       "error": "Something went wrong while verifying the verification code.",
       "resend_dialog": {
         "title": "Send new code",

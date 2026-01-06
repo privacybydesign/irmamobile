@@ -95,7 +95,13 @@ void main() {
 
       expect(api.numSmsSent, 1);
 
-      await tester.tapAndSettle(find.text("No sms received?"));
+      final finder = find.text("No sms received?");
+      final scrollable = find.ancestor(
+        of: finder,
+        matching: find.byType(Scrollable),
+      );
+      await tester.scrollUntilVisible(finder, 100, scrollable: scrollable);
+      await tester.tapAndSettle(finder);
 
       // expect dialog
       expect(find.text("Send new code"), findsOneWidget);
@@ -113,13 +119,21 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key("intl_dropdown_key")));
 
       // Search for Germany
-      await tester.enterText(
-        find.byKey(const Key("intl_search_input_key")),
-        "Germany",
-      );
+      final searchField = find.byKey(const Key("intl_search_input_key"));
+      await tester.ensureVisible(searchField);
+      await tester.pumpAndSettle();
+      await tester.tapAndSettle(searchField);
+      await tester.enterText(searchField, "Germany");
+      await tester.pumpAndSettle();
 
       // Select the German code
-      await tester.tapAndSettle(find.text("+49"));
+      final finder = find.text("+49");
+      final scrollable = find.ancestor(
+        of: finder,
+        matching: find.byType(Scrollable),
+      );
+      await tester.scrollUntilVisible(finder, 100, scrollable: scrollable);
+      await tester.tapAndSettle(finder);
 
       // Enter rest of phone number
       await tester.enterText(
@@ -287,7 +301,10 @@ class FakeSmsIssuerApi implements SmsIssuerApi {
   FakeSmsIssuerApi({this.errorOnSendSms});
 
   @override
-  Future<void> sendSms({required String phoneNumber}) async {
+  Future<void> sendSms({
+    required String phoneNumber,
+    required String language,
+  }) async {
     numSmsSent += 1;
     enteredPhone = phoneNumber;
     if (errorOnSendSms != null && numSmsSent == 1) {
