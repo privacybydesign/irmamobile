@@ -40,6 +40,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   void dispose() {
     _phoneController.dispose();
+    _focusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 

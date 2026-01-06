@@ -12,6 +12,7 @@ import "../../../../util/handle_pointer.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
+import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../../error/error_screen.dart";
@@ -27,6 +28,49 @@ class VerifyPhoneScreen extends ConsumerStatefulWidget {
 
 class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
   final _focusNode = FocusNode();
+  final _scrollController = ScrollController();
+  final _codeFieldPositionKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.addListener(_handleFocusChange);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (_focusNode.hasFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final codeFieldContext = _codeFieldPositionKey.currentContext;
+        if (codeFieldContext == null || !codeFieldContext.mounted) return;
+
+        Scrollable.ensureVisible(
+          codeFieldContext,
+          alignment: 0.2,
+          duration: Duration(milliseconds: 300),
+        );
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!_scrollController.hasClients) {
+          return;
+        }
+        _scrollController.animateTo(
+          0,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,55 +162,67 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
         appBar: IrmaAppBar(
           titleTranslationKey: "sms_issuance.verify_code.title",
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: .all(theme.defaultSpacing),
-            child: Column(
-              crossAxisAlignment: .start,
-              children: [
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "sms_issuance.verify_code.header",
-                  style: theme.textTheme.bodyLarge!.copyWith(
-                    color: theme.neutralExtraDark,
-                  ),
-                ),
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "sms_issuance.verify_code.body",
-                  translationParams: {"phone": state.phoneNumber},
-                ),
-                SizedBox(height: theme.largeSpacing),
-                Pinput(
-                  key: const Key("sms_verification_code_input_field"),
-                  keyboardType: .text,
-                  textCapitalization: .characters,
-                  focusNode: _focusNode,
-                  autofocus: true,
-                  mainAxisAlignment: .start,
-                  defaultPinTheme: defaultPinTheme,
-                  focusedPinTheme: focussedPinTheme,
-                  length: 6,
-                  onCompleted: _handleCode,
-                  pinAnimationType: .scale,
-                  hapticFeedbackType: .lightImpact,
-                ),
-                SizedBox(height: theme.largeSpacing),
-                Row(
-                  mainAxisAlignment: .start,
-                  mainAxisSize: .max,
+        body: SafeArea(
+          child: KeyboardAnimationListener(
+            onKeyboardSettled: (context, inset, visible) {
+              _handleFocusChange();
+            },
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Padding(
+                padding: .all(theme.defaultSpacing),
+                child: Column(
+                  crossAxisAlignment: .start,
                   children: [
-                    YiviLinkButton(
-                      textAlign: .center,
-                      labelTranslationKey:
-                          "sms_issuance.verify_code.no_sms_received",
-                      onTap: () {
-                        showResendSmsDialog(state.phoneNumber);
-                      },
+                    SizedBox(height: theme.defaultSpacing),
+                    TranslatedText(
+                      "sms_issuance.verify_code.header",
+                      style: theme.textTheme.bodyLarge!.copyWith(
+                        color: theme.neutralExtraDark,
+                      ),
                     ),
+                    SizedBox(height: theme.defaultSpacing),
+                    TranslatedText(
+                      "sms_issuance.verify_code.body",
+                      translationParams: {"phone": state.phoneNumber},
+                    ),
+                    SizedBox(height: theme.largeSpacing),
+                    Container(
+                      key: _codeFieldPositionKey,
+                      child: Pinput(
+                        key: const Key("sms_verification_code_input_field"),
+                        keyboardType: .text,
+                        textCapitalization: .characters,
+                        focusNode: _focusNode,
+                        autofocus: true,
+                        mainAxisAlignment: .start,
+                        defaultPinTheme: defaultPinTheme,
+                        focusedPinTheme: focussedPinTheme,
+                        length: 6,
+                        onCompleted: _handleCode,
+                        pinAnimationType: .scale,
+                        hapticFeedbackType: .lightImpact,
+                      ),
+                    ),
+                    SizedBox(height: theme.largeSpacing),
+                    Row(
+                      mainAxisAlignment: .start,
+                      mainAxisSize: .max,
+                      children: [
+                        YiviLinkButton(
+                          textAlign: .center,
+                          labelTranslationKey:
+                              "sms_issuance.verify_code.no_sms_received",
+                          onTap: () {
+                            showResendSmsDialog(state.phoneNumber);
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 100),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
