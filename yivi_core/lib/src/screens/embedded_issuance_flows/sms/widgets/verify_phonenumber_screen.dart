@@ -48,9 +48,11 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
 
   void _handleFocusChange() {
     if (_focusNode.hasFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         final codeFieldContext = _codeFieldPositionKey.currentContext;
-        if (codeFieldContext == null || !codeFieldContext.mounted) return;
+        if (codeFieldContext == null) {
+          return;
+        }
 
         Scrollable.ensureVisible(
           codeFieldContext,
@@ -59,7 +61,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
         );
       });
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!_scrollController.hasClients) {
           return;
         }

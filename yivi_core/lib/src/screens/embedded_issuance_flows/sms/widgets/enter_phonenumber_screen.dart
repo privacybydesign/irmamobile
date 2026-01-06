@@ -10,6 +10,7 @@ import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
+import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../../error/error_screen.dart";
@@ -70,22 +71,31 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   }
 
   void _handleFocusChange() {
-    if (!_focusNode.hasFocus) return;
+    if (_focusNode.hasFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final phoneFieldContext = _phoneFieldPositionKey.currentContext;
+        if (phoneFieldContext == null) {
+          return;
+        }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // wait for a little bit to be sure the keyboard is fully shown so
-      // that the scrollable calculates using the correct view height
-      await Future.delayed(const Duration(milliseconds: 200));
-
-      final phoneFieldContext = _phoneFieldPositionKey.currentContext;
-      if (phoneFieldContext == null || !phoneFieldContext.mounted) return;
-
-      Scrollable.ensureVisible(
-        phoneFieldContext,
-        alignment: 0.1,
-        duration: Duration(milliseconds: 300),
-      );
-    });
+        Scrollable.ensureVisible(
+          phoneFieldContext,
+          alignment: 0.1,
+          duration: Duration(milliseconds: 300),
+        );
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_scrollController.hasClients) {
+          return;
+        }
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
   }
 
   @override
@@ -164,79 +174,84 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
           titleTranslationKey: "sms_issuance.enter_phone.title",
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
+          child: KeyboardAnimationListener(
             key: _scrollableKey,
-            controller: _scrollController,
-            child: Padding(
-              padding: .all(theme.defaultSpacing),
-              child: Column(
-                crossAxisAlignment: .start,
-                children: [
-                  SizedBox(height: theme.defaultSpacing),
-                  TranslatedText(
-                    "sms_issuance.enter_phone.header",
-                    style: theme.textTheme.bodyLarge!.copyWith(
-                      color: theme.neutralExtraDark,
+            onKeyboardSettled: (context, inset, visible) {
+              _handleFocusChange();
+            },
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Padding(
+                padding: .all(theme.defaultSpacing),
+                child: Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    SizedBox(height: theme.defaultSpacing),
+                    TranslatedText(
+                      "sms_issuance.enter_phone.header",
+                      style: theme.textTheme.bodyLarge!.copyWith(
+                        color: theme.neutralExtraDark,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: theme.defaultSpacing),
-                  TranslatedText("sms_issuance.enter_phone.body"),
-                  SizedBox(height: theme.largeSpacing),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: .stretch,
-                      children: [
-                        Container(
-                          key: _phoneFieldPositionKey,
-                          child: InternationalPhoneNumberInput(
-                            key: const Key("phone_number_input_field"),
-                            spaceBetweenSelectorAndTextField:
-                                theme.smallSpacing,
-                            focusNode: _focusNode,
-                            inputDecoration: InputDecoration(
-                              hint: TranslatedText(
-                                "sms_issuance.enter_phone.phone_hint",
-                                style: TextStyle(color: Colors.grey),
+                    SizedBox(height: theme.defaultSpacing),
+                    TranslatedText("sms_issuance.enter_phone.body"),
+                    SizedBox(height: theme.largeSpacing),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: .stretch,
+                        children: [
+                          Container(
+                            key: _phoneFieldPositionKey,
+                            child: InternationalPhoneNumberInput(
+                              key: const Key("phone_number_input_field"),
+                              spaceBetweenSelectorAndTextField:
+                                  theme.smallSpacing,
+                              focusNode: _focusNode,
+                              inputDecoration: InputDecoration(
+                                hint: TranslatedText(
+                                  "sms_issuance.enter_phone.phone_hint",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
                               ),
-                            ),
-                            searchBoxDecoration: InputDecoration(
-                              label: TranslatedText(
-                                "sms_issuance.enter_phone.search_label",
+                              searchBoxDecoration: InputDecoration(
+                                label: TranslatedText(
+                                  "sms_issuance.enter_phone.search_label",
+                                ),
+                                hint: TranslatedText(
+                                  "sms_issuance.enter_phone.search_hint",
+                                ),
                               ),
-                              hint: TranslatedText(
-                                "sms_issuance.enter_phone.search_hint",
+                              initialValue: PhoneNumber(
+                                isoCode: _currentPhone.isoCode,
                               ),
+                              locale:
+                                  FlutterI18n.currentLocale(
+                                    context,
+                                  )?.languageCode ??
+                                  "en",
+                              selectorConfig: SelectorConfig(
+                                trailingSpace: false,
+                                setSelectorButtonAsPrefixIcon: true,
+                                countryComparator: countryComparator,
+                                selectorType: .BOTTOM_SHEET,
+                                useBottomSheetSafeArea: true,
+                              ),
+                              textFieldController: _phoneController,
+                              onInputValidated: (valid) {
+                                setState(() => _validPhoneNumber = valid);
+                              },
+                              onInputChanged: (phone) {
+                                _currentPhone = phone;
+                              },
                             ),
-                            initialValue: PhoneNumber(
-                              isoCode: _currentPhone.isoCode,
-                            ),
-                            locale:
-                                FlutterI18n.currentLocale(
-                                  context,
-                                )?.languageCode ??
-                                "en",
-                            selectorConfig: SelectorConfig(
-                              trailingSpace: false,
-                              setSelectorButtonAsPrefixIcon: true,
-                              countryComparator: countryComparator,
-                              selectorType: .BOTTOM_SHEET,
-                              useBottomSheetSafeArea: true,
-                            ),
-                            textFieldController: _phoneController,
-                            onInputValidated: (valid) {
-                              setState(() => _validPhoneNumber = valid);
-                            },
-                            onInputChanged: (phone) {
-                              _currentPhone = phone;
-                            },
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 100),
-                ],
+                    SizedBox(height: 100),
+                  ],
+                ),
               ),
             ),
           ),
