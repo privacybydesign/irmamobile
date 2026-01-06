@@ -1,10 +1,11 @@
 import "package:flutter/material.dart";
 
-typedef KeyboardSettledCallback = void Function(
-  BuildContext context,
-  double bottomInset,
-  bool isKeyboardVisible,
-);
+typedef KeyboardSettledCallback =
+    void Function(
+      BuildContext context,
+      double bottomInset,
+      bool isKeyboardVisible,
+    );
 
 class KeyboardAnimationListener extends StatefulWidget {
   const KeyboardAnimationListener({

@@ -1,11 +1,9 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
 import "package:pinput/pinput.dart";
 
-import "../../../../../package_name.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
@@ -15,7 +13,7 @@ import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
-import "../../../error/error_screen.dart";
+import "../../widgets/embedded_issuance_error_screen.dart";
 
 class VerifyPhoneScreen extends ConsumerStatefulWidget {
   const VerifyPhoneScreen();
@@ -76,8 +74,20 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final state = ref.watch(smsIssuanceProvider);
+
+    if (state.error.isNotEmpty) {
+      return EmbeddedIssuanceErrorScreen(
+        titleTranslationKey: "sms_issuance.verify_code.title",
+        contentTranslationKey: "sms_issuance.verify_code.error",
+        errorMessage: state.error,
+        onTryAgain: () {
+          ref.read(smsIssuanceProvider.notifier).resetError();
+        },
+      );
+    }
+
+    final theme = IrmaTheme.of(context);
 
     final defaultPinTheme = PinTheme(
       width: 50,
@@ -102,59 +112,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
         borderRadius: .circular(10),
       ),
     );
-
-    if (state.error.isNotEmpty) {
-      return Scaffold(
-        appBar: IrmaAppBar(
-          titleTranslationKey: "sms_issuance.verify_code.title",
-        ),
-        body: Padding(
-          padding: .all(theme.defaultSpacing),
-          child: Column(
-            mainAxisSize: .max,
-            mainAxisAlignment: .center,
-            crossAxisAlignment: .center,
-            children: [
-              SizedBox(height: theme.largeSpacing),
-              SvgPicture.asset(
-                yiviAsset("error/general_error_illustration.svg"),
-              ),
-              SizedBox(height: theme.largeSpacing),
-              TranslatedText(
-                "sms_issuance.verify_code.error",
-                textAlign: .center,
-              ),
-              SizedBox(height: theme.largeSpacing),
-              YiviLinkButton(
-                textAlign: .center,
-                labelTranslationKey: "error.button_show_error",
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return ErrorScreen(
-                        onTapClose: context.pop,
-                        type: .general,
-                        details: state.error,
-                        reportable: false,
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: "error.button_retry",
-          secondaryButtonLabel: "sms_issuance.verify_code.back_button",
-          onPrimaryPressed: () {
-            ref.read(smsIssuanceProvider.notifier).resetError();
-          },
-          onSecondaryPressed: context.pop,
-        ),
-      );
-    }
 
     return GestureDetector(
       onTap: () {

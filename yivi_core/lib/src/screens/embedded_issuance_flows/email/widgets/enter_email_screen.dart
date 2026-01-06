@@ -1,17 +1,16 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
 
-import "../../../../../package_name.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
+import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
-import "../../../error/error_screen.dart";
+import "../../widgets/embedded_issuance_error_screen.dart";
 
 class EnterEmailScreen extends ConsumerStatefulWidget {
   const EnterEmailScreen();
@@ -26,13 +25,54 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
+  final _scrollableKey = GlobalKey();
+  final _scrollController = ScrollController();
+  final _emailFieldPositionKey = GlobalKey();
 
   var _validEmail = false;
 
   @override
   void dispose() {
     _textController.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.addListener(_handleFocusChange);
+    });
+  }
+
+  void _handleFocusChange() {
+    if (_focusNode.hasFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final emailFieldContext = _emailFieldPositionKey.currentContext;
+        if (emailFieldContext == null) {
+          return;
+        }
+
+        Scrollable.ensureVisible(
+          emailFieldContext,
+          alignment: 0.0,
+          duration: Duration(milliseconds: 300),
+        );
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_scrollController.hasClients) {
+          return;
+        }
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
   }
 
   void _submit() {
@@ -49,68 +89,28 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final state = ref.watch(emailIssuanceProvider);
-    final onScreenKeyboardShown = MediaQuery.of(context).viewInsets.bottom > 0;
 
     if (state.error.isNotEmpty) {
-      return Scaffold(
-        appBar: IrmaAppBar(
-          titleTranslationKey: "sms_issuance.verify_code.title",
-        ),
-        body: Padding(
-          padding: .all(theme.defaultSpacing),
-          child: Column(
-            mainAxisSize: .max,
-            mainAxisAlignment: .center,
-            crossAxisAlignment: .center,
-            children: [
-              SizedBox(height: theme.largeSpacing),
-              SvgPicture.asset(
-                yiviAsset("error/general_error_illustration.svg"),
-              ),
-              SizedBox(height: theme.largeSpacing),
-              TranslatedText(
-                "email_issuance.enter_email.error",
-                textAlign: .center,
-              ),
-              SizedBox(height: theme.largeSpacing),
-              YiviLinkButton(
-                textAlign: .center,
-                labelTranslationKey: "error.button_show_error",
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return ErrorScreen(
-                        onTapClose: context.pop,
-                        type: .general,
-                        details: state.error,
-                        reportable: false,
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: "error.button_retry",
-          secondaryButtonLabel: "email_issuance.enter_email.back_button",
-          onPrimaryPressed: () {
-            ref
-                .read(emailIssuanceProvider.notifier)
-                .sendEmail(
-                  email: state.email,
-                  language:
-                      FlutterI18n.currentLocale(context)?.languageCode ?? "en",
-                );
-          },
-          onSecondaryPressed: context.pop,
-        ),
+      return EmbeddedIssuanceErrorScreen(
+        titleTranslationKey: "email_issuance.verify_code.title",
+        contentTranslationKey: "email_issuance.enter_email.error",
+        errorMessage: state.error,
+        onTryAgain: () {
+          ref
+              .read(emailIssuanceProvider.notifier)
+              .sendEmail(
+                email: state.email,
+                language:
+                    FlutterI18n.currentLocale(context)?.languageCode ?? "en",
+              );
+        },
       );
     }
+
+    final theme = IrmaTheme.of(context);
+    final media = MediaQuery.of(context);
+    final onScreenKeyboardShown = media.viewInsets.bottom > 0;
 
     return GestureDetector(
       onTap: () {
@@ -121,60 +121,74 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         appBar: IrmaAppBar(
           titleTranslationKey: "email_issuance.enter_email.title",
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: .all(theme.defaultSpacing),
-            child: Column(
-              crossAxisAlignment: .start,
-              children: [
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "email_issuance.enter_email.header",
-                  style: theme.textTheme.bodyLarge!.copyWith(
-                    color: theme.neutralExtraDark,
-                  ),
-                ),
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText("email_issuance.enter_email.body"),
-                SizedBox(height: theme.largeSpacing),
-                Form(
-                  onChanged: () {
-                    final valid = _formKey.currentState?.validate() ?? false;
-                    if (valid != _validEmail) {
-                      setState(() {
-                        _validEmail = valid;
-                      });
-                    }
-                  },
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: .stretch,
-                    children: [
-                      TextFormField(
-                        controller: _textController,
-                        focusNode: _focusNode,
-                        key: const Key("email_input_field"),
-                        keyboardType: .emailAddress,
-                        autofillHints: const [AutofillHints.email],
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        textCapitalization: .none,
-                        autovalidateMode: .onUserInteraction,
-                        validator: (v) {
-                          final value = (v ?? "").trim();
-                          if (value.isEmpty) return "Enter your email";
-                          if (!RegExp(
-                            r"^[^\s@]+@[^\s@]+\.[^\s@]+$",
-                          ).hasMatch(value)) {
-                            return "Enter a valid email";
-                          }
-                          return null;
-                        },
+        body: SafeArea(
+          child: KeyboardAnimationListener(
+            onKeyboardSettled: (context, inset, visible) {
+              _handleFocusChange();
+            },
+            key: _scrollableKey,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Padding(
+                padding: .all(theme.defaultSpacing),
+                child: Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    SizedBox(height: theme.defaultSpacing),
+                    TranslatedText(
+                      "email_issuance.enter_email.header",
+                      style: theme.textTheme.bodyLarge!.copyWith(
+                        color: theme.neutralExtraDark,
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: theme.defaultSpacing),
+                    TranslatedText("email_issuance.enter_email.body"),
+                    SizedBox(height: theme.largeSpacing),
+                    Form(
+                      onChanged: () {
+                        final valid =
+                            _formKey.currentState?.validate() ?? false;
+                        if (valid != _validEmail) {
+                          setState(() {
+                            _validEmail = valid;
+                          });
+                        }
+                      },
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: .stretch,
+                        children: [
+                          Container(
+                            key: _emailFieldPositionKey,
+                            child: TextFormField(
+                              controller: _textController,
+                              focusNode: _focusNode,
+                              key: const Key("email_input_field"),
+                              keyboardType: .emailAddress,
+                              autofillHints: const [AutofillHints.email],
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              textCapitalization: .none,
+                              autovalidateMode: .onUserInteraction,
+                              validator: (v) {
+                                final value = (v ?? "").trim();
+                                if (value.isEmpty) return "Enter your email";
+                                if (!RegExp(
+                                  r"^[^\s@]+@[^\s@]+\.[^\s@]+$",
+                                ).hasMatch(value)) {
+                                  return "Enter a valid email";
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 100),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -185,7 +199,10 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         floatingActionButtonAnimator: .noAnimation,
         floatingActionButton: onScreenKeyboardShown
             ? Padding(
-                padding: .symmetric(horizontal: theme.defaultSpacing),
+                padding: .only(
+                  left: theme.defaultSpacing + media.padding.left,
+                  right: theme.defaultSpacing + media.padding.right,
+                ),
                 child: YiviThemedButton(
                   label: "email_issuance.enter_email.next_button",
                   onPressed: _validEmail ? _submit : null,

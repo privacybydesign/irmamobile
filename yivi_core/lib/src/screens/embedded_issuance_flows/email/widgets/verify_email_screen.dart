@@ -1,20 +1,19 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:flutter_svg/svg.dart";
 import "package:go_router/go_router.dart";
 import "package:pinput/pinput.dart";
 
-import "../../../../../package_name.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/irma_confirmation_dialog.dart";
+import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
-import "../../../error/error_screen.dart";
+import "../../widgets/embedded_issuance_error_screen.dart";
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   const VerifyEmailScreen();
@@ -27,12 +26,68 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
 
 class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
   final _focusNode = FocusNode();
+  final _scrollController = ScrollController();
+  final _codeFieldPositionKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.addListener(_handleFocusChange);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (_focusNode.hasFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final codeFieldContext = _codeFieldPositionKey.currentContext;
+        if (codeFieldContext == null) {
+          return;
+        }
+
+        Scrollable.ensureVisible(
+          codeFieldContext,
+          alignment: 0.2,
+          duration: Duration(milliseconds: 300),
+        );
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_scrollController.hasClients) {
+          return;
+        }
+        _scrollController.animateTo(
+          0,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final state = ref.watch(emailIssuanceProvider);
 
+    if (state.error.isNotEmpty) {
+      return EmbeddedIssuanceErrorScreen(
+        titleTranslationKey: "email_issuance.verify_code.title",
+        contentTranslationKey: "email_issuance.verify_code.error",
+        errorMessage: state.error,
+        onTryAgain: () {
+          ref.read(emailIssuanceProvider.notifier).resetError();
+        },
+      );
+    }
+
+    final theme = IrmaTheme.of(context);
     final defaultPinTheme = PinTheme(
       width: 50,
       height: 50,
@@ -57,59 +112,6 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
       ),
     );
 
-    if (state.error.isNotEmpty) {
-      return Scaffold(
-        appBar: IrmaAppBar(
-          titleTranslationKey: "email_issuance.verify_code.title",
-        ),
-        body: Padding(
-          padding: .all(theme.defaultSpacing),
-          child: Column(
-            mainAxisSize: .max,
-            mainAxisAlignment: .center,
-            crossAxisAlignment: .center,
-            children: [
-              SizedBox(height: theme.largeSpacing),
-              SvgPicture.asset(
-                yiviAsset("error/general_error_illustration.svg"),
-              ),
-              SizedBox(height: theme.largeSpacing),
-              TranslatedText(
-                "email_issuance.verify_code.error",
-                textAlign: .center,
-              ),
-              SizedBox(height: theme.largeSpacing),
-              YiviLinkButton(
-                textAlign: .center,
-                labelTranslationKey: "error.button_show_error",
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return ErrorScreen(
-                        onTapClose: context.pop,
-                        type: .general,
-                        details: state.error,
-                        reportable: false,
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: "error.button_retry",
-          secondaryButtonLabel: "email_issuance.verify_code.back_button",
-          onPrimaryPressed: () {
-            ref.read(emailIssuanceProvider.notifier).resetError();
-          },
-          onSecondaryPressed: context.pop,
-        ),
-      );
-    }
-
     return GestureDetector(
       onTap: () {
         _focusNode.unfocus();
@@ -118,55 +120,67 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
         appBar: IrmaAppBar(
           titleTranslationKey: "email_issuance.verify_code.title",
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: .all(theme.defaultSpacing),
-            child: Column(
-              crossAxisAlignment: .start,
-              children: [
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "email_issuance.verify_code.header",
-                  style: theme.textTheme.bodyLarge!.copyWith(
-                    color: theme.neutralExtraDark,
-                  ),
-                ),
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "email_issuance.verify_code.body",
-                  translationParams: {"email": state.email},
-                ),
-                SizedBox(height: theme.largeSpacing),
-                Pinput(
-                  key: const Key("email_verification_code_input_field"),
-                  keyboardType: .text,
-                  textCapitalization: .characters,
-                  focusNode: _focusNode,
-                  autofocus: true,
-                  mainAxisAlignment: .start,
-                  defaultPinTheme: defaultPinTheme,
-                  focusedPinTheme: focussedPinTheme,
-                  length: 6,
-                  onCompleted: _handleCode,
-                  pinAnimationType: .scale,
-                  hapticFeedbackType: .lightImpact,
-                ),
-                SizedBox(height: theme.largeSpacing),
-                Row(
-                  mainAxisAlignment: .start,
-                  mainAxisSize: .max,
+        body: SafeArea(
+          child: KeyboardAnimationListener(
+            onKeyboardSettled: (context, inset, visible) {
+              _handleFocusChange();
+            },
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Padding(
+                padding: .all(theme.defaultSpacing),
+                child: Column(
+                  crossAxisAlignment: .start,
                   children: [
-                    YiviLinkButton(
-                      textAlign: .center,
-                      labelTranslationKey:
-                          "email_issuance.verify_code.no_sms_received",
-                      onTap: () {
-                        showResendEmailDialog(state.email);
-                      },
+                    SizedBox(height: theme.defaultSpacing),
+                    TranslatedText(
+                      "email_issuance.verify_code.header",
+                      style: theme.textTheme.bodyLarge!.copyWith(
+                        color: theme.neutralExtraDark,
+                      ),
                     ),
+                    SizedBox(height: theme.defaultSpacing),
+                    TranslatedText(
+                      "email_issuance.verify_code.body",
+                      translationParams: {"email": state.email},
+                    ),
+                    SizedBox(height: theme.largeSpacing),
+                    Container(
+                      key: _codeFieldPositionKey,
+                      child: Pinput(
+                        key: const Key("sms_verification_code_input_field"),
+                        keyboardType: .text,
+                        textCapitalization: .characters,
+                        focusNode: _focusNode,
+                        autofocus: true,
+                        mainAxisAlignment: .start,
+                        defaultPinTheme: defaultPinTheme,
+                        focusedPinTheme: focussedPinTheme,
+                        length: 6,
+                        onCompleted: _handleCode,
+                        pinAnimationType: .scale,
+                        hapticFeedbackType: .lightImpact,
+                      ),
+                    ),
+                    SizedBox(height: theme.largeSpacing),
+                    Row(
+                      mainAxisAlignment: .start,
+                      mainAxisSize: .max,
+                      children: [
+                        YiviLinkButton(
+                          textAlign: .center,
+                          labelTranslationKey:
+                              "email_issuance.verify_code.no_sms_received",
+                          onTap: () {
+                            showResendSmsDialog(state.email);
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 100),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -188,7 +202,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
     }
   }
 
-  Future<void> showResendEmailDialog(String email) async {
+  Future<void> showResendSmsDialog(String email) async {
     final bool resend =
         await showDialog(
           context: context,
