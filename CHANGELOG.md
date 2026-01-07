@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add embedded issuance flows for email and mobilenumber
 - Update icon on iOS to be compatible with the new iOS 26 icon theming system
 
+### Internal
+- Upgrade to Xcode 26.1 on CI
+
 ## [7.12.1] - 2025-12-17
 ### Fix
 - Bug where universal link was not handled properly on Android on cold start of the app
