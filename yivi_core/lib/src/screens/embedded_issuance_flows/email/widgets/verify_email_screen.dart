@@ -195,7 +195,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
   Future<void> _handleCode(String code) async {
     final session = await ref
         .read(emailIssuanceProvider.notifier)
-        .verifyCode(code: code);
+        .verifyCode(code: code.toUpperCase());
 
     if (session != null && mounted) {
       handlePointer(context, session);
