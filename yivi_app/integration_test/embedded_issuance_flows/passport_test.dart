@@ -9,8 +9,8 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
-import "package:yivi_core/src/screens/documents/mrz_reader_screen.dart";
-import "package:yivi_core/src/screens/documents/nfc_reading_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "../helpers/document_reading_helpers.dart";
