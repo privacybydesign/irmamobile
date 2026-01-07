@@ -199,6 +199,7 @@ void main() {
 
       // expect issuance screen to pop up
       await tester.pumpUntilFound(find.text("Add data"));
+      await tester.pumpAndSettle();
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
       await tester.tapAndSettle(find.text("OK"));
