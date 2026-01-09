@@ -32,7 +32,7 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v3.4.0
+      ref: v3.4.1
   package_info_plus: ^9.0.0
   collection: ^1.18.0
   flutter_riverpod: ^2.6.1
