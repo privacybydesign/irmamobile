@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Internal
 - Upgrade to Xcode 26.1 on CI
 
+### Fix
+- Bug that caused PACE to malfunction on some Android devices
+
 ## [7.12.1] - 2025-12-17
 ### Fix
 - Bug where universal link was not handled properly on Android on cold start of the app

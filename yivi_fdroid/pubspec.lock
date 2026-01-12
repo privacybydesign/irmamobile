@@ -254,11 +254,12 @@ packages:
   flutter_nfc_kit:
     dependency: transitive
     description:
-      name: flutter_nfc_kit
-      sha256: "3cc4059626fa672031261512299458dd274de4ccb57a7f0ee0951ddd70a048e5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.6.0"
+      path: "."
+      ref: "v3.7.0"
+      resolved-ref: "6af23fe83a65f9c8dc0ec7995ea0f5cb180e2794"
+      url: "https://github.com/privacybydesign/flutter_nfc_kit.git"
+    source: git
+    version: "3.6.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -483,10 +484,10 @@ packages:
     dependency: transitive
     description:
       name: ndef
-      sha256: bdf82a56da97983c75375ec914b7068fba4e6e0defb616c66457c28360b9c38f
+      sha256: "198ba3798e80cea381648569d84059dbba64cd140079fb7b0d9c3f1e0f5973f3"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.5"
+    version: "0.4.0"
   nested:
     dependency: transitive
     description:
@@ -949,6 +950,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  universal_platform:
+    dependency: transitive
+    description:
+      name: universal_platform
+      sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   url_launcher:
     dependency: transitive
     description:
@@ -1025,8 +1034,8 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: "v3.4.0"
-      resolved-ref: "155970bf1c50ee8698bc1ed4d7637cdf6fdc69b9"
+      ref: "v3.4.1"
+      resolved-ref: "455578b1b0b7370297bd860dae6caff29018e1dd"
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"
