@@ -28,8 +28,9 @@ type changePinEvent struct {
 }
 
 type newSessionEvent struct {
-	SessionID int
-	Request   json.RawMessage
+	SessionID  int
+	Request    json.RawMessage
+	ReturnMode bool // For Digital Credentials API - return vp_token instead of POSTing
 }
 
 type respondPermissionEvent struct {
@@ -156,6 +157,7 @@ type clientReturnURLSetSessionEvent struct {
 
 type successSessionEvent struct {
 	SessionID int
+	Result    string
 }
 
 type failureSessionEvent struct {

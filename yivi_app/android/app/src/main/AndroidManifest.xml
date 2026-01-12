@@ -65,6 +65,24 @@
               <data android:scheme="openid4vp" />
             </intent-filter>
         </activity>
+
+        <!-- Digital Credentials API Activity -->
+        <activity
+            android:name=".GetCredentialActivity"
+            android:exported="true"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="androidx.credentials.registry.provider.action.GET_CREDENTIAL" />
+            </intent-filter>
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/LaunchTheme"
+                />
+        </activity>
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

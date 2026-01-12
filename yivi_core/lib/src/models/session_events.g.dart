@@ -12,6 +12,7 @@ Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) =>
       "Request": instance.request,
       "previouslyLaunchedCredentials": instance.previouslyLaunchedCredentials
           .toList(),
+      "ReturnMode": instance.returnMode,
     };
 
 RespondPermissionEvent _$RespondPermissionEventFromJson(
@@ -88,11 +89,17 @@ Map<String, dynamic> _$ClientReturnURLSetSessionEventToJson(
 };
 
 SuccessSessionEvent _$SuccessSessionEventFromJson(Map<String, dynamic> json) =>
-    SuccessSessionEvent(sessionID: (json["SessionID"] as num).toInt());
+    SuccessSessionEvent(
+      sessionID: (json["SessionID"] as num).toInt(),
+      result: json["Result"] as String?,
+    );
 
 Map<String, dynamic> _$SuccessSessionEventToJson(
   SuccessSessionEvent instance,
-) => <String, dynamic>{"SessionID": instance.sessionID};
+) => <String, dynamic>{
+      "SessionID": instance.sessionID,
+      "Result": instance.result,
+    };
 
 FailureSessionEvent _$FailureSessionEventFromJson(Map<String, dynamic> json) =>
     FailureSessionEvent(

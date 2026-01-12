@@ -24,6 +24,7 @@ class SessionState {
   final String sessionType;
   final String? pairingCode;
   final bool dismissed;
+  final String? vpTokenResponse; // For Digital Credentials API - vp_token response from irmago
 
   SessionState({
     required this.sessionID,
@@ -43,6 +44,7 @@ class SessionState {
     this.canBeFinished,
     this.error,
     this.pairingCode,
+    this.vpTokenResponse,
   });
 
   // We cannot fully rely on the sessionType value to determine whether it is issuance, because a
@@ -82,6 +84,7 @@ class SessionState {
     SessionError? error,
     String? pairingCode,
     bool? dismissed,
+    String? vpTokenResponse,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -102,6 +105,7 @@ class SessionState {
       sessionType: sessionType,
       pairingCode: pairingCode ?? this.pairingCode,
       dismissed: dismissed ?? this.dismissed,
+      vpTokenResponse: vpTokenResponse ?? this.vpTokenResponse,
     );
   }
 }

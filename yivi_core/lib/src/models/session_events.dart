@@ -26,6 +26,7 @@ class NewSessionEvent extends SessionEvent {
     @visibleForTesting int? sessionID,
     required this.request,
     this.previouslyLaunchedCredentials = const <String>{},
+    this.returnMode = false,
   }) : super(sessionID ?? sessionIDCounter++);
 
   @JsonKey(name: "Request")
@@ -34,6 +35,10 @@ class NewSessionEvent extends SessionEvent {
   // Id's of the credentials that the user tried to obtain from the credential store
   // or by reobtaining credentials from the data tab
   final Set<String> previouslyLaunchedCredentials;
+
+  // ReturnMode for Digital Credentials API - tells irmago to return vp_token instead of POSTing
+  @JsonKey(name: "ReturnMode")
+  final bool returnMode;
 
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
 }
@@ -127,7 +132,13 @@ class ClientReturnURLSetSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class SuccessSessionEvent extends SessionEvent {
-  SuccessSessionEvent({required int sessionID}) : super(sessionID);
+  SuccessSessionEvent({
+    required int sessionID,
+    this.result,
+  }) : super(sessionID);
+
+  @JsonKey(name: "Result")
+  final String? result; // vp_token response for Digital Credentials API
 
   factory SuccessSessionEvent.fromJson(Map<String, dynamic> json) =>
       _$SuccessSessionEventFromJson(json);
