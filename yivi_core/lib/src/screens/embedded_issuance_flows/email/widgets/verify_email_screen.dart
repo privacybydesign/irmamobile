@@ -241,7 +241,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
         .verifyCode(code: code.toUpperCase());
 
     if (session != null && mounted) {
-      handlePointer(context, session, pushReplacement: true);
+      handlePointer(context, session);
     }
   }
 

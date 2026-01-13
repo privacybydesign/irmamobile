@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:pinput/pinput.dart";
 
+import "../../../../../routing.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
@@ -24,7 +25,8 @@ class VerifyPhoneScreen extends ConsumerStatefulWidget {
   }
 }
 
-class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
+class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
+    with RouteAware {
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _codeFieldPositionKey = GlobalKey();
@@ -34,6 +36,14 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.addListener(_handleFocusChange);
+      _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void didPopNext() {
+    Future.microtask(() {
+      ref.read(smsIssuanceProvider.notifier).reset();
     });
   }
 
@@ -41,7 +51,17 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
   void dispose() {
     super.dispose();
     _scrollController.dispose();
+    routeObserver.unsubscribe(this);
     _focusNode.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
   }
 
   void _handleFocusChange() {
@@ -120,6 +140,28 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
       child: Scaffold(
         appBar: IrmaAppBar(
           titleTranslationKey: "sms_issuance.verify_code.title",
+          leading: YiviBackButton(
+            onTap: () async {
+              final result = await showDialog(
+                context: context,
+                builder: (context) => IrmaConfirmationDialog(
+                  titleTranslationKey:
+                      "sms_issuance.verify_code.back_dialog.title",
+                  contentTranslationKey:
+                      "sms_issuance.verify_code.back_dialog.body",
+                  confirmTranslationKey:
+                      "sms_issuance.verify_code.back_dialog.confirm",
+                  cancelTranslationKey:
+                      "sms_issuance.verify_code.back_dialog.cancel",
+                  onCancelPressed: () => context.pop(false),
+                  onConfirmPressed: () => context.pop(true),
+                ),
+              );
+              if (result ?? false) {
+                ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
+              }
+            },
+          ),
         ),
         body: SafeArea(
           child: KeyboardAnimationListener(

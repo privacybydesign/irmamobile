@@ -439,7 +439,7 @@
       "back_button": "Annuleer",
       "back_dialog": {
         "title": "Weet je het zeker?",
-        "body": "Als je teruggaat krijg je een nieuwe e-mail en een nieuwe code.",
+        "body": "Weet je zeker dat je terug wil gaan?",
         "confirm": "Ga terug",
         "cancel": "Annuleer"
       },
@@ -471,6 +471,12 @@
       "no_sms_received": "Code niet ontvangen?",
       "next_button": "Code verifiëren",
       "back_button": "Annuleer",
+      "back_dialog": {
+        "title": "Weet je het zeker?",
+        "body": "Weet je zeker dat je terug wil gaan?",
+        "confirm": "Ga terug",
+        "cancel": "Annuleer"
+      },
       "resend_dialog": {
         "title": "Sms opnieuw sturen",
         "body": "We sturen je opnieuw een sms met een nieuwe code.",

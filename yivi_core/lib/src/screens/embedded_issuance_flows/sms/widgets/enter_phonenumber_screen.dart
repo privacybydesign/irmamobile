@@ -47,8 +47,30 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _focusNode.addListener(_handleFocusChange);
+      _focusNode.requestFocus();
+
+      final phone = ref.read(smsIssuanceProvider).phoneNumber;
+
+      if (phone.isNotEmpty) {
+        _currentPhone = await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
+
+        // There's a bug in PhoneNumber that doesn't add the + to the dialCode while it should.
+        // This is a workaround for that that will also keep working if the bug gets fixed.
+        if (!_currentPhone.dialCode!.startsWith("+")) {
+          _currentPhone = PhoneNumber(
+            phoneNumber: _currentPhone.phoneNumber,
+            isoCode: _currentPhone.isoCode,
+            dialCode: "+${_currentPhone.dialCode}",
+          );
+        }
+
+        _phoneController.text = _currentPhone.parseNumber();
+        setState(() {
+          _validPhoneNumber = _formKey.currentState!.validate();
+        });
+      }
     });
   }
 
