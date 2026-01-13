@@ -225,6 +225,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                               onInputChanged: (phone) {
                                 _currentPhone = phone;
                               },
+                              validator: (value) => null,
                             ),
                           ),
                         ],
