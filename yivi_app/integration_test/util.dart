@@ -14,9 +14,10 @@ extension WidgetTesterUtil on WidgetTester {
   Future<void> tapAndSettle(
     Finder f, {
     Duration duration = const Duration(milliseconds: 100),
+    Duration timeout = const Duration(minutes: 1),
   }) async {
     await tap(f);
-    await pumpAndSettle(duration);
+    await pumpAndSettle(duration, .sendSemanticsUpdate, timeout);
   }
 
   /// Waits for the given widget to appear. When the timeout passes, an exception is given.
@@ -42,4 +43,36 @@ extension WidgetTesterUtil on WidgetTester {
   Iterable<String> getAllText(Finder f) => widgetList(
     find.descendant(of: f, matching: find.byType(Text), matchRoot: true),
   ).cast<Text>().where((w) => w.data != null).map((w) => w.data!);
+
+  Future<void> pumpUntilFound(
+    Finder finder, {
+    Duration timeout = const Duration(seconds: 10),
+    Duration step = const Duration(milliseconds: 50),
+  }) async {
+    final end = DateTime.now().add(timeout);
+
+    while (DateTime.now().isBefore(end)) {
+      await pump(step);
+      if (any(finder)) return;
+    }
+
+    throw TestFailure("Timed out after $timeout waiting for $finder");
+  }
+
+  Future<void> pumpUntilGone(
+    Finder finder, {
+    Duration timeout = const Duration(seconds: 10),
+    Duration step = const Duration(milliseconds: 50),
+  }) async {
+    final end = DateTime.now().add(timeout);
+
+    while (DateTime.now().isBefore(end)) {
+      await pump(step);
+      if (!any(finder)) return;
+    }
+
+    throw TestFailure(
+      "Timed out after $timeout waiting for $finder to disappear",
+    );
+  }
 }

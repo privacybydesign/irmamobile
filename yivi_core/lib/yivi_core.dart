@@ -18,8 +18,13 @@ import "src/util/navigation.dart";
 import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
+export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
+export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
+export "src/providers/sms_issuance_provider.dart";
+export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
+export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 
 // The OcrProcessor is optional, when it's set to null the app won't include an mrz reader
 // and the mrz will have to be entered manually by the user.

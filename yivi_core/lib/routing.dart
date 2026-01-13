@@ -22,13 +22,15 @@ import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/credentials_details_screen.dart";
 import "src/screens/debug/debug_screen.dart";
-import "src/screens/documents/driving_licence_mrz_manual_entry_screen.dart";
-import "src/screens/documents/mrz_reader_screen.dart";
-import "src/screens/documents/nfc_reading_screen.dart";
-import "src/screens/documents/passport_mrz_manual_entry_screen.dart";
-import "src/screens/documents/widgets/driving_licence_mrz_camera_overlay.dart";
-import "src/screens/documents/widgets/id_card_mrz_camera_overlay.dart";
-import "src/screens/documents/widgets/passport_mrz_camera_overlay.dart";
+import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
+import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
+import "src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
+import "src/screens/embedded_issuance_flows/documents/passport_mrz_manual_entry_screen.dart";
+import "src/screens/embedded_issuance_flows/documents/widgets/driving_licence_mrz_camera_overlay.dart";
+import "src/screens/embedded_issuance_flows/documents/widgets/id_card_mrz_camera_overlay.dart";
+import "src/screens/embedded_issuance_flows/documents/widgets/passport_mrz_camera_overlay.dart";
+import "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
+import "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
 import "src/screens/help/help_screen.dart";
@@ -286,6 +288,14 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       GoRoute(
         path: "/update_required",
         builder: (context, state) => RequiredUpdateScreen(),
+      ),
+      GoRoute(
+        path: "/issue_mobilenumber",
+        builder: (context, state) => SmsIssuanceScreen(),
+      ),
+      GoRoute(
+        path: "/issue_email",
+        builder: (context, state) => EmailIssuanceScreen(),
       ),
       GoRoute(
         path: "/mrz",

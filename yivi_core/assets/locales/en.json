@@ -326,7 +326,7 @@
     "button_ok": "OK",
     "button_send_to_irma": "Send this message to Yivi",
     "button_show_error": "Show technical details",
-    "button_retry": "Please try again",
+    "button_retry": "Try again",
     "button_back": "Back",
     "button_reset": "Start all over",
     "details_title": "Error message",
@@ -417,6 +417,60 @@
     "success_feedback": {
       "header": "Success",
       "text": "The data has been successfully added to Yivi"
+    }
+  },
+  "email_issuance": {
+    "enter_email": {
+      "title": "Add email address",
+      "header": "Enter your email address",
+      "body": "We'll send you an email with a verification code. You'll need to enter this code in the next step.",
+      "error": "Something went wrong while sending the verification code.",
+      "phone_hint": "Enter your email address...",
+      "next_button": "Send email",
+      "back_button": "Cancel"
+    },
+    "verify_code": {
+      "title": "Verify email address",
+      "header": "We've sent you an email",
+      "body": "We've sent an email with a verification code to {email}.\n\nEnter the verification code from the email to continue.",
+      "next_button": "Verify code",
+      "back_button": "Cancel",
+      "no_email_received": "No email received?",
+      "error": "Something went wrong while verifying the verification code.",
+      "resend_dialog": {
+        "title": "Send new code",
+        "body": "We'll send you a new email with a new verification code.",
+        "confirm": "Send email",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "sms_issuance": {
+    "enter_phone": {
+      "title": "Add phone number",
+      "header": "Enter your phone number",
+      "body": "We'll send you an sms with a verification code. You'll need to enter this code in the next step.",
+      "error": "Something went wrong while sending the verification code.",
+      "phone_hint": "Enter your phone number...",
+      "next_button": "Send sms",
+      "back_button": "Cancel",
+      "search_label": "Search country or country code",
+      "search_hint": "Enter the name of your country..."
+    },
+    "verify_code": {
+      "title": "Verify phone number",
+      "header": "We've sent you an sms",
+      "body": "We've sent an sms with a verification code to {phone}.\n\nEnter the verification code from the sms to continue.",
+      "next_button": "Verify code",
+      "back_button": "Cancel",
+      "no_sms_received": "No sms received?",
+      "error": "Something went wrong while verifying the verification code.",
+      "resend_dialog": {
+        "title": "Send new code",
+        "body": "We'll send you a new sms with a new verification code.",
+        "confirm": "Send sms",
+        "cancel": "Cancel"
+      }
     }
   },
   "issue_wizard": {

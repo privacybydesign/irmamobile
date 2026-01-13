@@ -27,7 +27,11 @@ class ScannerScreenState extends State<ScannerScreen> {
       context,
     );
     if (!isRunningIntegrationTest) {
-      _qrKey = GlobalKey(debugLabel: "qr_scanner_key");
+      try {
+        _qrKey = GlobalKey(debugLabel: "qr_scanner_key");
+      } catch (e) {
+        // Do nothing, because _qrKey was already initialzed
+      }
     }
   }
 
@@ -75,8 +79,7 @@ class ScannerScreenState extends State<ScannerScreen> {
       _asyncResetQrScanner();
     }
 
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape = MediaQuery.of(context).orientation == .landscape;
 
     return Scaffold(
       appBar: isLandscape

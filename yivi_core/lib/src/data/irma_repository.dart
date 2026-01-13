@@ -30,8 +30,10 @@ import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_state.dart";
 import "../models/version_information.dart";
+import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
 import "../providers/passport_issuer_provider.dart";
+import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
 import "irma_bridge.dart";
@@ -561,11 +563,11 @@ class IrmaRepository {
     CredentialType type,
     WidgetRef ref,
   ) {
-    var url = type.issueUrl.values.first;
+    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
-      var uri = Uri.parse(url);
+      final uri = Uri.parse(url);
 
-      var baseUri = Uri(
+      final baseUri = Uri(
         scheme: uri.scheme,
         host: uri.host,
         port: uri.hasPort ? uri.port : null,
@@ -587,11 +589,11 @@ class IrmaRepository {
     CredentialType type,
     WidgetRef ref,
   ) {
-    var url = type.issueUrl.values.first;
+    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
-      var uri = Uri.parse(url);
+      final uri = Uri.parse(url);
 
-      var baseUri = Uri(
+      final baseUri = Uri(
         scheme: uri.scheme,
         host: uri.host,
         port: uri.hasPort ? uri.port : null,
@@ -613,11 +615,11 @@ class IrmaRepository {
     CredentialType type,
     WidgetRef ref,
   ) {
-    var url = type.issueUrl.values.first;
+    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
-      var uri = Uri.parse(url);
+      final uri = Uri.parse(url);
 
-      var baseUri = Uri(
+      final baseUri = Uri(
         scheme: uri.scheme,
         host: uri.host,
         port: uri.hasPort ? uri.port : null,
@@ -634,19 +636,69 @@ class IrmaRepository {
     }
   }
 
+  void _startMobileNumberIssuance(
+    BuildContext context,
+    CredentialType type,
+    WidgetRef ref,
+  ) {
+    final url = type.issueUrl.values.first;
+    if (url.isNotEmpty) {
+      final uri = Uri.parse(url);
+
+      final baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(smsIssuerUrlProvider.notifier).state = baseUri.toString();
+
+      context.pushSmsIssuanceScreen();
+    }
+  }
+
+  void _startEmailIssuance(
+    BuildContext context,
+    CredentialType type,
+    WidgetRef ref,
+  ) {
+    final url = type.issueUrl.values.first;
+    if (url.isNotEmpty) {
+      final uri = Uri.parse(url);
+
+      final baseUri = Uri(
+        scheme: uri.scheme,
+        host: uri.host,
+        port: uri.hasPort ? uri.port : null,
+      );
+
+      // Set the url to use for the issuance session to the issuer url in the scheme
+      ref.read(emailIssuerUrlProvider.notifier).state = baseUri.toString();
+
+      context.pushEmailIssuanceScreen();
+    }
+  }
+
   Future<void> openIssueURL(
     BuildContext context,
     CredentialType type,
     WidgetRef ref,
   ) async {
-    if (type.id == "passport") {
-      return _startPassportIssuance(context, type, ref);
-    }
-    if (type.id == "drivinglicence") {
-      return _startDrivingLicenceIssuance(context, type, ref);
-    }
-    if (type.id == "idcard") {
-      return _startIdCardIssuance(context, type, ref);
+    // handle some embedded issuance flows
+    if (const {"pbdf", "pbdf-staging"}.contains(type.schemeManagerId)) {
+      final embeddedFlows = {
+        "passport": _startPassportIssuance,
+        "drivinglicence": _startDrivingLicenceIssuance,
+        "idcard": _startIdCardIssuance,
+        "mobilenumber": _startMobileNumberIssuance,
+        "email": _startEmailIssuance,
+      };
+
+      final flow = embeddedFlows[type.id];
+      if (flow != null) {
+        return flow(context, type, ref);
+      }
     }
 
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
