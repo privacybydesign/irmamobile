@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:pinput/pinput.dart";
 
+import "../../../../../routing.dart";
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
@@ -24,7 +25,8 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
   }
 }
 
-class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
+class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
+    with RouteAware {
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _codeFieldPositionKey = GlobalKey();
@@ -38,10 +40,27 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
   }
 
   @override
+  void didPopNext() {
+    Future.microtask(() {
+      ref.read(emailIssuanceProvider.notifier).reset();
+    });
+  }
+
+  @override
   void dispose() {
     super.dispose();
+    routeObserver.unsubscribe(this);
     _scrollController.dispose();
     _focusNode.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
   }
 
   void _handleFocusChange() {
@@ -119,6 +138,30 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
       child: Scaffold(
         appBar: IrmaAppBar(
           titleTranslationKey: "email_issuance.verify_code.title",
+          leading: YiviBackButton(
+            onTap: () async {
+              final result = await showDialog(
+                context: context,
+                builder: (context) => IrmaConfirmationDialog(
+                  titleTranslationKey:
+                      "email_issuance.verify_code.back_dialog.title",
+                  contentTranslationKey:
+                      "email_issuance.verify_code.back_dialog.body",
+                  confirmTranslationKey:
+                      "email_issuance.verify_code.back_dialog.confirm",
+                  cancelTranslationKey:
+                      "email_issuance.verify_code.back_dialog.cancel",
+                  onCancelPressed: () => context.pop(false),
+                  onConfirmPressed: () => context.pop(true),
+                ),
+              );
+              if (result ?? false) {
+                ref
+                    .read(emailIssuanceProvider.notifier)
+                    .goBackToEnteringEmail();
+              }
+            },
+          ),
         ),
         body: SafeArea(
           child: KeyboardAnimationListener(
@@ -198,7 +241,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen> {
         .verifyCode(code: code.toUpperCase());
 
     if (session != null && mounted) {
-      handlePointer(context, session);
+      handlePointer(context, session, pushReplacement: true);
     }
   }
 

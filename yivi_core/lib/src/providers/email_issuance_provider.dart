@@ -168,4 +168,22 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
   void resetError() {
     state = state.copyWith(error: "");
   }
+
+  void reset() {
+    state = EmailIssuanceState(
+      email: "",
+      enteredCode: "",
+      stage: .enteringEmail,
+      error: "",
+    );
+  }
+
+  void goBackToEnteringEmail() {
+    state = EmailIssuanceState(
+      email: state.email,
+      enteredCode: "",
+      stage: .enteringEmail,
+      error: "",
+    );
+  }
 }

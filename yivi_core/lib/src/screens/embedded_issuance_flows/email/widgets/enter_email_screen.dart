@@ -44,6 +44,12 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.addListener(_handleFocusChange);
+      _focusNode.requestFocus();
+
+      // set text to previously entered email (for when coming back from verification screen)
+      final email = ref.read(emailIssuanceProvider).email;
+      print("state email: $email");
+      _textController.text = email;
     });
   }
 
@@ -161,6 +167,12 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                           Container(
                             key: _emailFieldPositionKey,
                             child: TextFormField(
+                              decoration: InputDecoration(
+                                hint: TranslatedText(
+                                  "email_issuance.enter_email.email_hint",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ),
                               controller: _textController,
                               focusNode: _focusNode,
                               key: const Key("email_input_field"),

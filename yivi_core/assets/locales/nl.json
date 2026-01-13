@@ -425,7 +425,7 @@
       "header": "Voer je e-mailadres in",
       "body": "Wij sturen je een e-mail met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
       "error": "Er ging iets fout bij het versturen van de verificatiecode.",
-      "phone_hint": "Voer je e-mailadres in...",
+      "email_hint": "Voer je e-mailadres in...",
       "next_button": "E-mail versturen",
       "back_button": "Annuleer"
     },
@@ -437,6 +437,12 @@
       "no_email_received": "Code niet ontvangen?",
       "next_button": "Code verifiëren",
       "back_button": "Annuleer",
+      "back_dialog": {
+        "title": "Weet je het zeker?",
+        "body": "Als je teruggaat krijg je een nieuwe e-mail en een nieuwe code.",
+        "confirm": "Ga terug",
+        "cancel": "Annuleer"
+      },
       "resend_dialog": {
         "title": "E-mail opnieuw sturen",
         "body": "We sturen je opnieuw een e-mail met een nieuwe code.",
