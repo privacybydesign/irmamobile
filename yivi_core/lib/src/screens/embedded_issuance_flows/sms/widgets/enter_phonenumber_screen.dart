@@ -124,11 +124,11 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(smsIssuanceProvider);
 
-    if (state.error.isNotEmpty) {
+    if (state.error is! SmsIssuanceNoError) {
       return EmbeddedIssuanceErrorScreen(
         titleTranslationKey: "sms_issuance.verify_code.title",
         contentTranslationKey: "sms_issuance.enter_phone.error",
-        errorMessage: state.error,
+        errorMessage: state.error.toString(),
         onTryAgain: () {
           ref
               .read(smsIssuanceProvider.notifier)

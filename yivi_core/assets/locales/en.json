@@ -437,6 +437,7 @@
       "back_button": "Cancel",
       "no_email_received": "No email received?",
       "error": "Something went wrong while verifying the verification code.",
+      "invalid_code_error": "Invalid code, try again...",
       "back_dialog": {
         "title": "Are you sure?",
         "body": "Are you sure you want to go back?",
@@ -471,6 +472,7 @@
       "back_button": "Cancel",
       "no_sms_received": "No sms received?",
       "error": "Something went wrong while verifying the verification code.",
+      "invalid_code_error": "Invalid code, try again...",
       "back_dialog": {
         "title": "Are you sure?",
         "body": "Are you sure you want to go back?",

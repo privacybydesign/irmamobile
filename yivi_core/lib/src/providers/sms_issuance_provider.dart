@@ -47,7 +47,10 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
       body: payload,
     );
     if (response.statusCode != 200) {
-      throw Exception("Call to $url failed: ${response.body}");
+      throw switch (response.body) {
+        "error:ratelimit" => SmsIssuanceRateLimitError(),
+        _ => SmsIssuanceInternalServerError(message: response.body),
+      };
     }
   }
 
@@ -68,7 +71,11 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
     );
 
     if (response.statusCode != 200) {
-      throw Exception("Call to $url failed: ${response.body}");
+      throw switch (response.body) {
+        "error:ratelimit" => SmsIssuanceRateLimitError(),
+        "error:cannot-validate-token" => SmsIssuanceInvalidCodeError(),
+        _ => SmsIssuanceInternalServerError(message: response.body),
+      };
     }
 
     final responseBody = jsonDecode(response.body);
@@ -102,20 +109,20 @@ class SmsIssuanceState {
   final SmsIssuanceStage stage;
   final String enteredCode;
   final String phoneNumber;
-  final String error;
+  final SmsIssuanceError error;
 
   SmsIssuanceState({
     required this.stage,
     required this.enteredCode,
     required this.phoneNumber,
-    this.error = "",
+    required this.error,
   });
 
   SmsIssuanceState copyWith({
     SmsIssuanceStage? stage,
     String? enteredCode,
     String? phoneNumber,
-    String? error,
+    SmsIssuanceError? error,
   }) {
     return SmsIssuanceState(
       stage: stage ?? this.stage,
@@ -135,6 +142,7 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
           stage: .enteringPhoneNumber,
           enteredCode: "",
           phoneNumber: "",
+          error: SmsIssuanceNoError(),
         ),
       );
 
@@ -147,11 +155,13 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
         stage: .waiting,
         enteredCode: "",
         phoneNumber: phoneNumber,
+        error: SmsIssuanceNoError(),
       );
       await api.sendSms(phoneNumber: phoneNumber, language: language);
       state = state.copyWith(stage: .enteringVerificationCode);
-    } catch (e) {
-      state = state.copyWith(stage: .enteringPhoneNumber, error: e.toString());
+    } on SmsIssuanceError catch (e) {
+      print("caught error... $e");
+      state = state.copyWith(stage: .enteringPhoneNumber, error: e);
     }
   }
 
@@ -162,18 +172,19 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
         phoneNumber: state.phoneNumber,
         verificationCode: code,
       );
-    } catch (e) {
+    } on SmsIssuanceError catch (e) {
+      print("caught error... $e");
       state = state.copyWith(
         enteredCode: "",
         stage: .enteringVerificationCode,
-        error: e.toString(),
+        error: e,
       );
     }
     return null;
   }
 
   void resetError() {
-    state = state.copyWith(error: "");
+    state = state.copyWith(error: SmsIssuanceNoError());
   }
 
   void reset() {
@@ -181,7 +192,7 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
       stage: .enteringPhoneNumber,
       enteredCode: "",
       phoneNumber: state.phoneNumber,
-      error: "",
+      error: SmsIssuanceNoError(),
     );
   }
 
@@ -190,7 +201,38 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
       stage: .enteringPhoneNumber,
       enteredCode: "",
       phoneNumber: state.phoneNumber,
-      error: "",
+      error: SmsIssuanceNoError(),
     );
+  }
+}
+
+// --------------------------------------------------
+
+abstract class SmsIssuanceError implements Exception {}
+
+class SmsIssuanceNoError extends SmsIssuanceError {}
+
+class SmsIssuanceRateLimitError extends SmsIssuanceError {
+  @override
+  String toString() {
+    return "Too many requests";
+  }
+}
+
+class SmsIssuanceInvalidCodeError extends SmsIssuanceError {
+  @override
+  String toString() {
+    return "Invalid code";
+  }
+}
+
+class SmsIssuanceInternalServerError extends SmsIssuanceError {
+  final String message;
+
+  SmsIssuanceInternalServerError({required this.message});
+
+  @override
+  String toString() {
+    return "Internal server error: $message";
   }
 }

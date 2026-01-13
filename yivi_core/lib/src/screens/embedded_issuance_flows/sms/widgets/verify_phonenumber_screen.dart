@@ -30,6 +30,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _codeFieldPositionKey = GlobalKey();
+  final _textController = TextEditingController();
 
   @override
   void initState() {
@@ -94,13 +95,23 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
 
   @override
   Widget build(BuildContext context) {
+    // When the state changes to an invalid code error we clear the textfield and regain focus
+    ref.listen(smsIssuanceProvider, (prev, next) {
+      if (next.error is SmsIssuanceInvalidCodeError &&
+          (prev?.error != next.error)) {
+        _textController.text = "";
+        _focusNode.requestFocus();
+      }
+    });
+
     final state = ref.watch(smsIssuanceProvider);
 
-    if (state.error.isNotEmpty) {
+    if (state.error is! SmsIssuanceNoError &&
+        state.error is! SmsIssuanceInvalidCodeError) {
       return EmbeddedIssuanceErrorScreen(
         titleTranslationKey: "sms_issuance.verify_code.title",
         contentTranslationKey: "sms_issuance.verify_code.error",
-        errorMessage: state.error,
+        errorMessage: state.error.toString(),
         onTryAgain: () {
           ref.read(smsIssuanceProvider.notifier).resetError();
         },
@@ -108,6 +119,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
     }
 
     final theme = IrmaTheme.of(context);
+    final codeInvalid = state.error is SmsIssuanceInvalidCodeError;
 
     final defaultPinTheme = PinTheme(
       width: 50,
@@ -118,7 +130,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
-        color: theme.surfaceSecondary,
+        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
         borderRadius: .circular(10),
       ),
     );
@@ -127,8 +139,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
       width: 54,
       height: 54,
       decoration: BoxDecoration(
-        color: theme.surfaceSecondary,
-        border: .all(color: theme.link),
+        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
+        border: .all(color: codeInvalid ? theme.error : theme.link),
         borderRadius: .circular(10),
       ),
     );
@@ -191,6 +203,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
                     Container(
                       key: _codeFieldPositionKey,
                       child: Pinput(
+                        controller: _textController,
                         key: const Key("sms_verification_code_input_field"),
                         keyboardType: .text,
                         textCapitalization: .characters,
@@ -205,6 +218,11 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
                         hapticFeedbackType: .lightImpact,
                       ),
                     ),
+                    if (state.error is SmsIssuanceInvalidCodeError)
+                      TranslatedText(
+                        "sms_issuance.verify_code.invalid_code_error",
+                        style: TextStyle(color: theme.error),
+                      ),
                     SizedBox(height: theme.largeSpacing),
                     Row(
                       mainAxisAlignment: .start,
