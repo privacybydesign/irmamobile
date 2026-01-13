@@ -50,7 +50,12 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
       body: payload,
     );
     if (response.statusCode != 200) {
-      throw Exception("Call to $url failed: ${response.body}");
+      final json = jsonDecode(response.body);
+      throw switch (json["error"]) {
+        "error_invalid_token" => EmailIssuanceInvalidCodeError(),
+        "error_ratelimit" => EmailIssuanceRateLimitError(),
+        _ => EmailIssuanceInternalServerError(message: response.body),
+      };
     }
   }
 
@@ -68,7 +73,12 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
     );
 
     if (response.statusCode != 200) {
-      throw Exception("Call to $url failed: ${response.body}");
+      final json = jsonDecode(response.body);
+      throw switch (json["error"]) {
+        "error_invalid_token" => EmailIssuanceInvalidCodeError(),
+        "error_ratelimit" => EmailIssuanceRateLimitError(),
+        _ => EmailIssuanceInternalServerError(message: response.body),
+      };
     }
 
     final responseBody = jsonDecode(response.body);
@@ -102,20 +112,20 @@ class EmailIssuanceState {
   final EmailIssuanceStage stage;
   final String enteredCode;
   final String email;
-  final String error;
+  final EmailIssuanceError error;
 
   EmailIssuanceState({
     required this.stage,
     required this.enteredCode,
     required this.email,
-    this.error = "",
+    required this.error,
   });
 
   EmailIssuanceState copyWith({
     EmailIssuanceStage? stage,
     String? enteredCode,
     String? email,
-    String? error,
+    EmailIssuanceError? error,
   }) {
     return EmailIssuanceState(
       stage: stage ?? this.stage,
@@ -131,7 +141,12 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
 
   EmailIssuer({required this.api})
     : super(
-        EmailIssuanceState(stage: .enteringEmail, enteredCode: "", email: ""),
+        EmailIssuanceState(
+          stage: .enteringEmail,
+          enteredCode: "",
+          email: "",
+          error: EmailIssuanceNoError(),
+        ),
       );
 
   Future<void> sendEmail({
@@ -143,11 +158,16 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
         stage: .waiting,
         enteredCode: "",
         email: email,
+        error: EmailIssuanceNoError(),
       );
       await api.sendEmail(emailAddress: email, language: language);
       state = state.copyWith(stage: .enteringVerificationCode);
     } catch (e) {
-      state = state.copyWith(stage: .enteringEmail, error: e.toString());
+      final err = switch (e) {
+        EmailIssuanceError() => e,
+        _ => EmailIssuanceGeneralError(message: e.toString()),
+      };
+      state = state.copyWith(stage: .enteringEmail, error: err);
     }
   }
 
@@ -156,17 +176,21 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
       state = state.copyWith(enteredCode: code);
       return await api.verifyCode(email: state.email, verificationCode: code);
     } catch (e) {
+      final err = switch (e) {
+        EmailIssuanceError() => e,
+        _ => EmailIssuanceGeneralError(message: e.toString()),
+      };
       state = state.copyWith(
         enteredCode: "",
         stage: .enteringVerificationCode,
-        error: e.toString(),
+        error: err,
       );
     }
     return null;
   }
 
   void resetError() {
-    state = state.copyWith(error: "");
+    state = state.copyWith(error: EmailIssuanceNoError());
   }
 
   void reset() {
@@ -174,7 +198,7 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
       email: "",
       enteredCode: "",
       stage: .enteringEmail,
-      error: "",
+      error: EmailIssuanceNoError(),
     );
   }
 
@@ -183,7 +207,49 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
       email: state.email,
       enteredCode: "",
       stage: .enteringEmail,
-      error: "",
+      error: EmailIssuanceNoError(),
     );
+  }
+}
+
+// --------------------------------------------------------
+
+abstract class EmailIssuanceError implements Exception {}
+
+class EmailIssuanceNoError extends EmailIssuanceError {}
+
+class EmailIssuanceRateLimitError extends EmailIssuanceError {
+  @override
+  String toString() {
+    return "Too many requests";
+  }
+}
+
+class EmailIssuanceInvalidCodeError extends EmailIssuanceError {
+  @override
+  String toString() {
+    return "Invalid code";
+  }
+}
+
+class EmailIssuanceGeneralError extends EmailIssuanceError {
+  final String message;
+
+  EmailIssuanceGeneralError({required this.message});
+
+  @override
+  String toString() {
+    return "General error: $message";
+  }
+}
+
+class EmailIssuanceInternalServerError extends EmailIssuanceError {
+  final String message;
+
+  EmailIssuanceInternalServerError({required this.message});
+
+  @override
+  String toString() {
+    return "Internal server error: $message";
   }
 }

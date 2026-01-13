@@ -30,6 +30,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _codeFieldPositionKey = GlobalKey();
+  final _textController = TextEditingController();
 
   @override
   void initState() {
@@ -93,13 +94,24 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
 
   @override
   Widget build(BuildContext context) {
+    // When the state changes to an invalid code error we clear the textfield and regain focus
+    ref.listen(emailIssuanceProvider, (prev, next) {
+      if (next.error is EmailIssuanceInvalidCodeError &&
+          (prev?.error != next.error)) {
+        _textController.text = "";
+        _focusNode.requestFocus();
+      }
+    });
+
     final state = ref.watch(emailIssuanceProvider);
 
-    if (state.error.isNotEmpty) {
+    // Handle the more generic errors
+    if (state.error is! EmailIssuanceNoError &&
+        state.error is! EmailIssuanceInvalidCodeError) {
       return EmbeddedIssuanceErrorScreen(
         titleTranslationKey: "email_issuance.verify_code.title",
         contentTranslationKey: "email_issuance.verify_code.error",
-        errorMessage: state.error,
+        errorMessage: state.error.toString(),
         onTryAgain: () {
           ref.read(emailIssuanceProvider.notifier).resetError();
         },
@@ -107,6 +119,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
     }
 
     final theme = IrmaTheme.of(context);
+    final codeInvalid = state.error is EmailIssuanceInvalidCodeError;
+
     final defaultPinTheme = PinTheme(
       width: 50,
       height: 50,
@@ -116,7 +130,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
-        color: theme.surfaceSecondary,
+        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
         borderRadius: .circular(10),
       ),
     );
@@ -125,8 +139,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
       width: 54,
       height: 54,
       decoration: BoxDecoration(
-        color: theme.surfaceSecondary,
-        border: .all(color: theme.link),
+        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
+        border: .all(color: codeInvalid ? theme.error : theme.link),
         borderRadius: .circular(10),
       ),
     );
@@ -192,6 +206,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                       key: _codeFieldPositionKey,
                       child: Pinput(
                         key: const Key("email_verification_code_input_field"),
+                        controller: _textController,
                         keyboardType: .text,
                         textCapitalization: .characters,
                         focusNode: _focusNode,
@@ -205,6 +220,11 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
                         hapticFeedbackType: .lightImpact,
                       ),
                     ),
+                    if (state.error is EmailIssuanceInvalidCodeError)
+                      TranslatedText(
+                        "email_issuance.verify_code.invalid_code_error",
+                        style: TextStyle(color: theme.error),
+                      ),
                     SizedBox(height: theme.largeSpacing),
                     Row(
                       mainAxisAlignment: .start,

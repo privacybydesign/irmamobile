@@ -48,7 +48,6 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
 
       // set text to previously entered email (for when coming back from verification screen)
       final email = ref.read(emailIssuanceProvider).email;
-      print("state email: $email");
       _textController.text = email;
     });
   }
@@ -97,11 +96,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(emailIssuanceProvider);
 
-    if (state.error.isNotEmpty) {
+    if (state.error is! EmailIssuanceNoError) {
       return EmbeddedIssuanceErrorScreen(
-        titleTranslationKey: "email_issuance.verify_code.title",
+        titleTranslationKey: "email_issuance.enter_email.title",
         contentTranslationKey: "email_issuance.enter_email.error",
-        errorMessage: state.error,
+        errorMessage: state.error.toString(),
         onTryAgain: () {
           ref
               .read(emailIssuanceProvider.notifier)

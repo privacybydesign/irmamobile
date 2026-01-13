@@ -159,9 +159,12 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
       );
       await api.sendSms(phoneNumber: phoneNumber, language: language);
       state = state.copyWith(stage: .enteringVerificationCode);
-    } on SmsIssuanceError catch (e) {
-      print("caught error... $e");
-      state = state.copyWith(stage: .enteringPhoneNumber, error: e);
+    } catch (e) {
+      final err = switch (e) {
+        SmsIssuanceError() => e,
+        _ => SmsIssuanceGeneralError(message: e.toString()),
+      };
+      state = state.copyWith(stage: .enteringPhoneNumber, error: err);
     }
   }
 
@@ -172,12 +175,15 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
         phoneNumber: state.phoneNumber,
         verificationCode: code,
       );
-    } on SmsIssuanceError catch (e) {
-      print("caught error... $e");
+    } catch (e) {
+      final err = switch (e) {
+        SmsIssuanceError() => e,
+        _ => SmsIssuanceGeneralError(message: e.toString()),
+      };
       state = state.copyWith(
         enteredCode: "",
         stage: .enteringVerificationCode,
-        error: e,
+        error: err,
       );
     }
     return null;
@@ -223,6 +229,17 @@ class SmsIssuanceInvalidCodeError extends SmsIssuanceError {
   @override
   String toString() {
     return "Invalid code";
+  }
+}
+
+class SmsIssuanceGeneralError extends SmsIssuanceError {
+  final String message;
+
+  SmsIssuanceGeneralError({required this.message});
+
+  @override
+  String toString() {
+    return "General error: $message";
   }
 }
 
