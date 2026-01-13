@@ -53,6 +53,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
 
       final phone = ref.read(smsIssuanceProvider).phoneNumber;
 
+      // Prefill the phone number box with the phone number for when we're coming back from
+      // the code verification page
       if (phone.isNotEmpty) {
         _currentPhone = await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
 
