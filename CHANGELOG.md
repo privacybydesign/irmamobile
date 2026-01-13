@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [7.13.0] - 2026-01-13
 ### Changed
 - Add embedded issuance flows for email and mobilenumber
 - Update icon on iOS to be compatible with the new iOS 26 icon theming system
@@ -571,6 +573,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.13.0]: https://github.com/privacybydesign/irmamobile/compare/v7.12.1...v7.13.0
 [7.12.1]: https://github.com/privacybydesign/irmamobile/compare/v7.12.0...v7.12.1
 [7.12.0]: https://github.com/privacybydesign/irmamobile/compare/v7.11.2...v7.12.0
 [7.11.2]: https://github.com/privacybydesign/irmamobile/compare/v7.11.1...v7.11.2
