@@ -17,6 +17,7 @@ class EmailIssuanceScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(emailIssuanceProvider);
+    print("STATE: ${state.stage}");
 
     return switch (state.stage) {
       .enteringEmail => EnterEmailScreen(),

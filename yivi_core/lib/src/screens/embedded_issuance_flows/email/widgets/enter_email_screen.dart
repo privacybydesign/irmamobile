@@ -30,6 +30,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   final _emailFieldPositionKey = GlobalKey();
 
   var _validEmail = false;
+  var _showErrors = false;
 
   @override
   void dispose() {
@@ -44,6 +45,16 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.addListener(_handleFocusChange);
+      _focusNode.requestFocus();
+
+      // set text to previously entered email (for when coming back from verification screen)
+      final email = ref.read(emailIssuanceProvider).email;
+      _textController.text = email;
+      if (_isValidEmail(email)) {
+        setState(() {
+          _validEmail = true;
+        });
+      }
     });
   }
 
@@ -76,6 +87,9 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   }
 
   void _submit() {
+    setState(() {
+      _showErrors = true;
+    });
     if (_formKey.currentState!.validate()) {
       final email = _textController.text;
       ref
@@ -87,15 +101,21 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     }
   }
 
+  bool _isValidEmail(String v) {
+    final value = v.trim();
+    if (value.isEmpty) return false;
+    return RegExp(r"^[^\s@]+@[^\s@]+\.[^\s@]+$").hasMatch(value);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(emailIssuanceProvider);
 
-    if (state.error.isNotEmpty) {
+    if (state.error is! EmailIssuanceNoError) {
       return EmbeddedIssuanceErrorScreen(
-        titleTranslationKey: "email_issuance.verify_code.title",
+        titleTranslationKey: "email_issuance.enter_email.title",
         contentTranslationKey: "email_issuance.enter_email.error",
-        errorMessage: state.error,
+        errorMessage: state.error.toString(),
         onTryAgain: () {
           ref
               .read(emailIssuanceProvider.notifier)
@@ -145,15 +165,6 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                     TranslatedText("email_issuance.enter_email.body"),
                     SizedBox(height: theme.largeSpacing),
                     Form(
-                      onChanged: () {
-                        final valid =
-                            _formKey.currentState?.validate() ?? false;
-                        if (valid != _validEmail) {
-                          setState(() {
-                            _validEmail = valid;
-                          });
-                        }
-                      },
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: .stretch,
@@ -161,6 +172,12 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                           Container(
                             key: _emailFieldPositionKey,
                             child: TextFormField(
+                              decoration: InputDecoration(
+                                hint: TranslatedText(
+                                  "email_issuance.enter_email.email_hint",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ),
                               controller: _textController,
                               focusNode: _focusNode,
                               key: const Key("email_input_field"),
@@ -169,7 +186,15 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                               autocorrect: false,
                               enableSuggestions: false,
                               textCapitalization: .none,
-                              autovalidateMode: .onUserInteraction,
+                              autovalidateMode: _showErrors
+                                  ? .onUserInteraction
+                                  : .disabled,
+                              onChanged: (v) {
+                                final ok = _isValidEmail(v);
+                                if (ok != _validEmail) {
+                                  setState(() => _validEmail = ok);
+                                }
+                              },
                               validator: (v) {
                                 final value = (v ?? "").trim();
                                 if (value.isEmpty) return "Enter your email";

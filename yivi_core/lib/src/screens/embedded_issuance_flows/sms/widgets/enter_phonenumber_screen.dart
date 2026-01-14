@@ -47,8 +47,32 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _focusNode.addListener(_handleFocusChange);
+      _focusNode.requestFocus();
+
+      final phone = ref.read(smsIssuanceProvider).phoneNumber;
+
+      // Prefill the phone number box with the phone number for when we're coming back from
+      // the code verification page
+      if (phone.isNotEmpty) {
+        _currentPhone = await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
+
+        // There's a bug in PhoneNumber that doesn't add the + to the dialCode while it should.
+        // This is a workaround for that that will also keep working if the bug gets fixed.
+        if (!_currentPhone.dialCode!.startsWith("+")) {
+          _currentPhone = PhoneNumber(
+            phoneNumber: _currentPhone.phoneNumber,
+            isoCode: _currentPhone.isoCode,
+            dialCode: "+${_currentPhone.dialCode}",
+          );
+        }
+
+        _phoneController.text = _currentPhone.parseNumber();
+        setState(() {
+          _validPhoneNumber = _formKey.currentState!.validate();
+        });
+      }
     });
   }
 
@@ -100,11 +124,11 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(smsIssuanceProvider);
 
-    if (state.error.isNotEmpty) {
+    if (state.error is! SmsIssuanceNoError) {
       return EmbeddedIssuanceErrorScreen(
         titleTranslationKey: "sms_issuance.verify_code.title",
         contentTranslationKey: "sms_issuance.enter_phone.error",
-        errorMessage: state.error,
+        errorMessage: state.error.toString(),
         onTryAgain: () {
           ref
               .read(smsIssuanceProvider.notifier)
@@ -201,6 +225,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                               onInputChanged: (phone) {
                                 _currentPhone = phone;
                               },
+                              validator: (value) => null,
                             ),
                           ),
                         ],

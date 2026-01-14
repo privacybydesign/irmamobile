@@ -425,7 +425,7 @@
       "header": "Enter your email address",
       "body": "We'll send you an email with a verification code. You'll need to enter this code in the next step.",
       "error": "Something went wrong while sending the verification code.",
-      "phone_hint": "Enter your email address...",
+      "email_hint": "Enter your email address...",
       "next_button": "Send email",
       "back_button": "Cancel"
     },
@@ -437,6 +437,13 @@
       "back_button": "Cancel",
       "no_email_received": "No email received?",
       "error": "Something went wrong while verifying the verification code.",
+      "invalid_code_error": "Invalid code, try again...",
+      "back_dialog": {
+        "title": "Are you sure?",
+        "body": "Are you sure you want to go back?",
+        "confirm": "Go back",
+        "cancel": "Cancel"
+      },
       "resend_dialog": {
         "title": "Send new code",
         "body": "We'll send you a new email with a new verification code.",
@@ -465,6 +472,13 @@
       "back_button": "Cancel",
       "no_sms_received": "No sms received?",
       "error": "Something went wrong while verifying the verification code.",
+      "invalid_code_error": "Invalid code, try again...",
+      "back_dialog": {
+        "title": "Are you sure?",
+        "body": "Are you sure you want to go back?",
+        "confirm": "Go back",
+        "cancel": "Cancel"
+      },
       "resend_dialog": {
         "title": "Send new code",
         "body": "We'll send you a new sms with a new verification code.",

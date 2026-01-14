@@ -3,7 +3,9 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:pinput/pinput.dart";
+import "package:smart_auth/smart_auth.dart";
 
+import "../../../../../routing.dart";
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
@@ -24,16 +26,28 @@ class VerifyPhoneScreen extends ConsumerStatefulWidget {
   }
 }
 
-class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
+class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
+    with RouteAware {
   final _focusNode = FocusNode();
   final _scrollController = ScrollController();
   final _codeFieldPositionKey = GlobalKey();
+  final _textController = TextEditingController();
+  late final _SmsRetrieverImpl _smsRetriever;
 
   @override
   void initState() {
     super.initState();
+    _smsRetriever = _SmsRetrieverImpl(SmartAuth.instance);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.addListener(_handleFocusChange);
+      _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void didPopNext() {
+    Future.microtask(() {
+      ref.read(smsIssuanceProvider.notifier).reset();
     });
   }
 
@@ -41,7 +55,17 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
   void dispose() {
     super.dispose();
     _scrollController.dispose();
+    routeObserver.unsubscribe(this);
     _focusNode.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      routeObserver.subscribe(this, route);
+    }
   }
 
   void _handleFocusChange() {
@@ -74,13 +98,23 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // When the state changes to an invalid code error we clear the textfield and regain focus
+    ref.listen(smsIssuanceProvider, (prev, next) {
+      if (next.error is SmsIssuanceInvalidCodeError &&
+          (prev?.error != next.error)) {
+        _textController.text = "";
+        _focusNode.requestFocus();
+      }
+    });
+
     final state = ref.watch(smsIssuanceProvider);
 
-    if (state.error.isNotEmpty) {
+    if (state.error is! SmsIssuanceNoError &&
+        state.error is! SmsIssuanceInvalidCodeError) {
       return EmbeddedIssuanceErrorScreen(
         titleTranslationKey: "sms_issuance.verify_code.title",
         contentTranslationKey: "sms_issuance.verify_code.error",
-        errorMessage: state.error,
+        errorMessage: state.error.toString(),
         onTryAgain: () {
           ref.read(smsIssuanceProvider.notifier).resetError();
         },
@@ -88,6 +122,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
     }
 
     final theme = IrmaTheme.of(context);
+    final codeInvalid = state.error is SmsIssuanceInvalidCodeError;
 
     final defaultPinTheme = PinTheme(
       width: 50,
@@ -98,7 +133,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
-        color: theme.surfaceSecondary,
+        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
         borderRadius: .circular(10),
       ),
     );
@@ -107,8 +142,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
       width: 54,
       height: 54,
       decoration: BoxDecoration(
-        color: theme.surfaceSecondary,
-        border: .all(color: theme.link),
+        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
+        border: .all(color: codeInvalid ? theme.error : theme.link),
         borderRadius: .circular(10),
       ),
     );
@@ -120,6 +155,28 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
       child: Scaffold(
         appBar: IrmaAppBar(
           titleTranslationKey: "sms_issuance.verify_code.title",
+          leading: YiviBackButton(
+            onTap: () async {
+              final result = await showDialog(
+                context: context,
+                builder: (context) => IrmaConfirmationDialog(
+                  titleTranslationKey:
+                      "sms_issuance.verify_code.back_dialog.title",
+                  contentTranslationKey:
+                      "sms_issuance.verify_code.back_dialog.body",
+                  confirmTranslationKey:
+                      "sms_issuance.verify_code.back_dialog.confirm",
+                  cancelTranslationKey:
+                      "sms_issuance.verify_code.back_dialog.cancel",
+                  onCancelPressed: () => context.pop(false),
+                  onConfirmPressed: () => context.pop(true),
+                ),
+              );
+              if (result ?? false) {
+                ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
+              }
+            },
+          ),
         ),
         body: SafeArea(
           child: KeyboardAnimationListener(
@@ -149,6 +206,8 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
                     Container(
                       key: _codeFieldPositionKey,
                       child: Pinput(
+                        controller: _textController,
+                        smsRetriever: _smsRetriever,
                         key: const Key("sms_verification_code_input_field"),
                         keyboardType: .text,
                         textCapitalization: .characters,
@@ -163,6 +222,11 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
                         hapticFeedbackType: .lightImpact,
                       ),
                     ),
+                    if (state.error is SmsIssuanceInvalidCodeError)
+                      TranslatedText(
+                        "sms_issuance.verify_code.invalid_code_error",
+                        style: TextStyle(color: theme.error),
+                      ),
                     SizedBox(height: theme.largeSpacing),
                     Row(
                       mainAxisAlignment: .start,
@@ -235,4 +299,31 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen> {
           language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
         );
   }
+}
+
+// Sms retriever on Android using the User Consent API.
+// Can later be upgraded to use the SMS Retriever API to make the UX even better.
+// See https://pub.dev/packages/pinput#sms-autofill for more info.
+class _SmsRetrieverImpl implements SmsRetriever {
+  const _SmsRetrieverImpl(this.smartAuth);
+
+  final SmartAuth smartAuth;
+
+  @override
+  Future<void> dispose() {
+    return smartAuth.removeUserConsentApiListener();
+  }
+
+  @override
+  Future<String?> getSmsCode() async {
+    // A code of 6 characters with only capital letters and and numbers
+    const smsCodeMatcher = "^[A-Z0-9]{6}\$";
+    final res = await smartAuth.getSmsWithUserConsentApi(
+      matcher: smsCodeMatcher,
+    );
+    return res.data?.code;
+  }
+
+  @override
+  bool get listenForMultipleSms => false;
 }

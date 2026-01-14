@@ -54,8 +54,7 @@ import "src/screens/terms_changed/terms_changed_dialog.dart";
 import "src/util/navigation.dart";
 import "src/widgets/irma_app_bar.dart";
 
-final RouteObserver<ModalRoute<void>> routeObserver =
-    RouteObserver<ModalRoute<void>>();
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
