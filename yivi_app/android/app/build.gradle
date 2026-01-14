@@ -113,8 +113,12 @@ dependencies {
     implementation "com.google.mlkit:text-recognition-japanese:16.0.0"
     implementation "com.google.mlkit:text-recognition-korean:16.0.0"
 
-    // Digital Credentials API support
+    // Digital Credentials API support - using latest RC with DigitalCredential support
+    implementation "androidx.credentials:credentials:1.6.0-rc01"
     implementation "androidx.credentials:credentials-play-services-auth:1.6.0-rc01"
+    implementation "com.google.android.gms:play-services-identity-credentials:16.0.0-alpha06"
+
+    // Digital Credentials Registry APIs for provider support
     implementation "androidx.credentials.registry:registry-provider:1.0.0-alpha02"
     implementation "androidx.credentials.registry:registry-provider-play-services:1.0.0-alpha02"
 }

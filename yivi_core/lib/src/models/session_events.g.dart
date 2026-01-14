@@ -6,14 +6,25 @@ part of "session_events.dart";
 // JsonSerializableGenerator
 // **************************************************************************
 
-Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) =>
-    <String, dynamic>{
-      "SessionID": instance.sessionID,
-      "Request": instance.request,
-      "previouslyLaunchedCredentials": instance.previouslyLaunchedCredentials
-          .toList(),
-      "ReturnMode": instance.returnMode,
-    };
+Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) {
+  final val = <String, dynamic>{
+    "SessionID": instance.sessionID,
+    "Request": instance.request,
+    "previouslyLaunchedCredentials": instance.previouslyLaunchedCredentials
+        .toList(),
+    "ReturnMode": instance.returnMode,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull("DcApiOrigin", instance.dcApiOrigin);
+  writeNotNull("DcApiProtocol", instance.dcApiProtocol);
+  return val;
+}
 
 RespondPermissionEvent _$RespondPermissionEventFromJson(
   Map<String, dynamic> json,

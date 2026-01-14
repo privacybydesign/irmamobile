@@ -6,18 +6,24 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.credentials.Credential;
-import androidx.credentials.CustomCredential;
-import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.CredentialOption;
+import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.exceptions.GetCredentialUnknownException;
+import androidx.credentials.exceptions.GetCredentialUnsupportedException;
 import androidx.credentials.provider.CallingAppInfo;
 import androidx.credentials.provider.PendingIntentHandler;
 import androidx.credentials.provider.ProviderGetCredentialRequest;
+import androidx.credentials.DigitalCredential;
+import androidx.credentials.GetDigitalCredentialOption;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -26,15 +32,30 @@ import io.flutter.plugin.common.MethodChannel;
 /**
  * Activity that handles Digital Credentials API requests from Chrome and other credential consumers.
  * This activity is invoked when a website calls navigator.identity.get() with OpenID4VP protocol.
+ *
+ * This implementation follows the registry-based provider pattern for Digital Credentials API.
+ * Implements OpenID4VP over Digital Credentials API as per Appendix A of the spec.
+ *
+ * Supported protocol values:
+ * - openid4vp-v1-unsigned: Unsigned requests (client_id must be omitted)
+ * - openid4vp-v1-signed: Signed requests using JWS Compact Serialization
+ * - openid4vp-v1-multisigned: Signed requests using JWS JSON Serialization
  */
 public class GetCredentialActivity extends FlutterActivity {
     private static final String TAG = "GetCredentialActivity";
     private static final String CHANNEL_NAME = "irma.app/digital_credentials";
-    private static final String CREDENTIAL_TYPE_OPENID4VP = "androidx.credentials.TYPE_DIGITAL_CREDENTIAL";
+
+    // Supported OpenID4VP protocol values for DC API (Appendix A)
+    private static final Set<String> SUPPORTED_PROTOCOLS = new HashSet<>(Arrays.asList(
+        "openid4vp-v1-unsigned",
+        "openid4vp-v1-signed",
+        "openid4vp-v1-multisigned"
+    ));
 
     private MethodChannel methodChannel;
     private ProviderGetCredentialRequest credentialRequest;
     private Intent resultIntent;
+    private String callingOrigin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +64,9 @@ public class GetCredentialActivity extends FlutterActivity {
         resultIntent = new Intent();
 
         try {
-            // Extract the credential request from the intent
+            Log.i(TAG, "GetCredentialActivity onCreate - retrieving credential request");
+
+            // Extract the credential request from the intent using the registry provider API
             credentialRequest = PendingIntentHandler.retrieveProviderGetCredentialRequest(getIntent());
 
             if (credentialRequest == null) {
@@ -52,7 +75,12 @@ public class GetCredentialActivity extends FlutterActivity {
                 return;
             }
 
-            Log.i(TAG, "GetCredentialActivity started successfully");
+            Log.i(TAG, "Credential request retrieved successfully");
+            Log.i(TAG, "Number of credential options: " + credentialRequest.getCredentialOptions().size());
+
+            // Log calling app info
+            CallingAppInfo callingApp = credentialRequest.getCallingAppInfo();
+            Log.i(TAG, "Calling package: " + callingApp.getPackageName());
 
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate", e);
@@ -96,69 +124,98 @@ public class GetCredentialActivity extends FlutterActivity {
     }
 
     /**
-     * Process the credential request and send it to Flutter for handling
+     * Process the credential request and send it to Flutter for handling.
+     * This method extracts the Digital Credential request and forwards it to Flutter.
+     *
+     * Implements OpenID4VP over DC API (Appendix A) request validation:
+     * - Validates protocol is one of: openid4vp-v1-unsigned, openid4vp-v1-signed, openid4vp-v1-multisigned
+     * - For signed requests, validates expected_origins against the authenticated origin
+     * - Extracts origin from CallingAppInfo for audience binding
      */
     private void processCredentialRequest() {
         try {
             CallingAppInfo callingApp = credentialRequest.getCallingAppInfo();
+            Log.i(TAG, "Processing credential request from: " + callingApp.getPackageName());
 
-            // Find the credential option - look for digital credential type
-            CredentialOption credOption = null;
+            // Extract origin from calling app - this is the authenticated origin from the platform
+            try {
+                callingOrigin = callingApp.getOrigin(null);
+                Log.i(TAG, "Authenticated origin: " + callingOrigin);
+            } catch (Exception e) {
+                Log.w(TAG, "Could not get origin from CallingAppInfo", e);
+                callingOrigin = null;
+            }
+
+            // Find the digital credential option
+            GetDigitalCredentialOption digitalCredOption = null;
             for (CredentialOption option : credentialRequest.getCredentialOptions()) {
-                // Check if this is a digital credential request
                 String type = option.getType();
-                Log.i(TAG, "Found credential option type: " + type);
+                Log.i(TAG, "Examining credential option type: " + type);
 
-                // Accept digital credential type or openid4vp custom type
-                if (type.contains("digital") || type.contains("openid4vp") ||
-                    type.equals(CREDENTIAL_TYPE_OPENID4VP)) {
-                    credOption = option;
+                // Check if this is a GetDigitalCredentialOption
+                if (option instanceof GetDigitalCredentialOption) {
+                    digitalCredOption = (GetDigitalCredentialOption) option;
+                    Log.i(TAG, "Found GetDigitalCredentialOption");
                     break;
                 }
             }
 
-            if (credOption == null) {
-                Log.e(TAG, "No compatible credential option found in request");
-                returnError(new GetCredentialUnknownException("No compatible credential option found"));
+            if (digitalCredOption == null) {
+                Log.e(TAG, "No GetDigitalCredentialOption found in request");
+                Log.e(TAG, "Available options: ");
+                for (CredentialOption option : credentialRequest.getCredentialOptions()) {
+                    Log.e(TAG, "  - " + option.getType() + " (" + option.getClass().getName() + ")");
+                }
+                returnError(new GetCredentialUnknownException("No digital credential option found"));
                 return;
             }
 
-            // Extract the request data from the credential option
-            Bundle requestData = credOption.getRequestData();
-            String requestJson = requestData.getString("requestJson", "{}");
-            Log.i(TAG, "Digital credential request: " + requestJson);
+            // Extract the request JSON from the digital credential option
+            String requestJson = digitalCredOption.getRequestJson();
+            Log.i(TAG, "Digital credential requestJson: " + requestJson);
 
-            // Parse the request JSON to extract the openid4vp:// URL
+            // Parse the request JSON according to OpenID4VP DC API format (Appendix A)
+            // Expected structure:
+            // {
+            //   "protocol": "openid4vp-v1-unsigned|openid4vp-v1-signed|openid4vp-v1-multisigned",
+            //   "request": {
+            //     "nonce": "...",
+            //     "dcql_query": {...},
+            //     "response_mode": "dc_api|dc_api.jwt",
+            //     "client_metadata": {...},
+            //     "expected_origins": [...],  // Required for signed requests
+            //     "request": "..."  // For signed requests (JWS)
+            //   }
+            // }
             JSONObject requestObject = new JSONObject(requestJson);
+
             String protocol = requestObject.optString("protocol", "");
+            Log.i(TAG, "Protocol: " + protocol);
 
-            if (protocol.isEmpty() || !protocol.equals("openid4vp")) {
-                // Try alternative structure
-                String request = requestObject.optString("request", "");
-                if (request.isEmpty()) {
-                    Log.e(TAG, "Could not find openid4vp request in JSON");
-                    returnError(new GetCredentialUnknownException("Invalid request format"));
-                    return;
-                }
-
-                // The request might be a URL directly
-                if (request.startsWith("openid4vp://")) {
-                    sendUrlToFlutter(request, requestJson, callingApp);
-                    return;
-                }
-            }
-
-            // Standard format with nested request object
-            JSONObject nestedRequest = requestObject.optJSONObject("request");
-            if (nestedRequest == null) {
-                String requestStr = requestObject.optString("request", "");
-                sendUrlToFlutter(requestStr, requestJson, callingApp);
+            // Validate protocol is supported
+            if (!SUPPORTED_PROTOCOLS.contains(protocol)) {
+                Log.e(TAG, "Unsupported protocol: " + protocol);
+                returnError(new GetCredentialUnsupportedException(
+                    "Unsupported protocol: " + protocol + ". Expected one of: " + SUPPORTED_PROTOCOLS));
                 return;
             }
 
-            // Build URL from request parameters
-            String openid4vpUrl = buildOpenId4VpUrl(nestedRequest);
-            sendUrlToFlutter(openid4vpUrl, requestJson, callingApp);
+            // Get the request object (contains the actual OpenID4VP parameters)
+            JSONObject request = requestObject.optJSONObject("request");
+            if (request == null) {
+                // Try 'data' field for backwards compatibility
+                request = requestObject.optJSONObject("data");
+            }
+
+            // For signed requests, validate expected_origins
+            if (protocol.equals("openid4vp-v1-signed") || protocol.equals("openid4vp-v1-multisigned")) {
+                if (!validateExpectedOrigins(request)) {
+                    return; // Error already returned in validateExpectedOrigins
+                }
+            }
+
+            // Forward the complete request to Flutter for processing
+            sendRequestToFlutter(requestJson, protocol, callingApp);
 
         } catch (JSONException e) {
             Log.e(TAG, "Error parsing credential request JSON", e);
@@ -169,64 +226,113 @@ public class GetCredentialActivity extends FlutterActivity {
         }
     }
 
-    private String buildOpenId4VpUrl(JSONObject requestData) throws JSONException {
-        String requestUri = requestData.optString("request_uri", "");
-        String nonce = requestData.optString("nonce", "");
-        String clientId = requestData.optString("client_id", "");
-
-        StringBuilder urlBuilder = new StringBuilder("openid4vp://?");
-        boolean hasParam = false;
-
-        if (!requestUri.isEmpty()) {
-            urlBuilder.append("request_uri=").append(requestUri);
-            hasParam = true;
-        }
-        if (!nonce.isEmpty()) {
-            if (hasParam) urlBuilder.append("&");
-            urlBuilder.append("nonce=").append(nonce);
-            hasParam = true;
-        }
-        if (!clientId.isEmpty()) {
-            if (hasParam) urlBuilder.append("&");
-            urlBuilder.append("client_id=").append(clientId);
+    /**
+     * Validate expected_origins for signed requests.
+     * Per Appendix A, the wallet must compare expected_origins against the authenticated origin
+     * to detect replay attacks.
+     *
+     * @param request The OpenID4VP request object
+     * @return true if validation passes, false if it fails (error is returned)
+     */
+    private boolean validateExpectedOrigins(JSONObject request) {
+        if (request == null) {
+            returnError(new GetCredentialUnknownException("Missing request object in signed request"));
+            return false;
         }
 
-        return urlBuilder.toString();
+        JSONArray expectedOrigins = request.optJSONArray("expected_origins");
+        if (expectedOrigins == null || expectedOrigins.length() == 0) {
+            // Per spec: expected_origins is required for signed requests
+            returnError(new GetCredentialUnknownException(
+                "expected_origins is required for signed requests"));
+            return false;
+        }
+
+        if (callingOrigin == null || callingOrigin.isEmpty()) {
+            Log.w(TAG, "Could not verify expected_origins: authenticated origin not available");
+            // We continue anyway as the platform should have authenticated the caller
+            return true;
+        }
+
+        // Check if the authenticated origin matches any of the expected origins
+        boolean originMatched = false;
+        for (int i = 0; i < expectedOrigins.length(); i++) {
+            String expectedOrigin = expectedOrigins.optString(i);
+            if (callingOrigin.equals(expectedOrigin)) {
+                originMatched = true;
+                Log.i(TAG, "Origin matched: " + callingOrigin);
+                break;
+            }
+        }
+
+        if (!originMatched) {
+            Log.e(TAG, "Origin mismatch: " + callingOrigin + " not in expected_origins");
+            returnError(new GetCredentialUnknownException(
+                "Origin validation failed: " + callingOrigin + " not in expected_origins"));
+            return false;
+        }
+
+        return true;
     }
 
-    private void sendUrlToFlutter(String url, String requestJson, CallingAppInfo callingApp) throws JSONException {
-        Log.i(TAG, "Sending openid4vp URL to Flutter: " + url);
+    /**
+     * Send the credential request to Flutter for processing.
+     *
+     * The message includes:
+     * - requestJson: The original DC API request JSON
+     * - protocol: The validated protocol (openid4vp-v1-unsigned/signed/multisigned)
+     * - callingPackage: The package name of the calling app
+     * - origin: The authenticated origin (for audience binding in responses)
+     */
+    private void sendRequestToFlutter(String requestJson, String protocol, CallingAppInfo callingApp) {
+        try {
+            Log.i(TAG, "Sending Digital Credential request to Flutter");
 
-        // Send the request to Flutter
-        JSONObject messageToFlutter = new JSONObject();
-        messageToFlutter.put("url", url);
-        messageToFlutter.put("requestJson", requestJson);
-        messageToFlutter.put("callingPackage", callingApp.getPackageName());
+            // Build message for Flutter with all necessary information
+            JSONObject messageToFlutter = new JSONObject();
+            messageToFlutter.put("requestJson", requestJson);
+            messageToFlutter.put("protocol", protocol);
+            messageToFlutter.put("callingPackage", callingApp.getPackageName());
 
-        if (methodChannel != null) {
-            methodChannel.invokeMethod("handleDigitalCredentialRequest", messageToFlutter.toString());
-        } else {
-            Log.e(TAG, "MethodChannel not initialized yet");
-            returnError(new GetCredentialUnknownException("Internal error: channel not ready"));
+            // Include the authenticated origin for audience binding
+            // Per Appendix A: "The audience for the response must be the Origin, prefixed with origin:"
+            if (callingOrigin != null && !callingOrigin.isEmpty()) {
+                messageToFlutter.put("origin", callingOrigin);
+                Log.i(TAG, "Origin for audience binding: " + callingOrigin);
+            }
+
+            if (methodChannel != null) {
+                Log.i(TAG, "Invoking handleDigitalCredentialRequest on Flutter channel");
+                methodChannel.invokeMethod("handleDigitalCredentialRequest", messageToFlutter.toString());
+            } else {
+                Log.e(TAG, "MethodChannel not initialized yet");
+                returnError(new GetCredentialUnknownException("Internal error: channel not ready"));
+            }
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Error building Flutter message", e);
+            returnError(new GetCredentialUnknownException("Error building request: " + e.getMessage()));
         }
     }
 
     /**
-     * Return the credential response to the calling app
+     * Return the credential response to the calling app.
+     * The responseJson should contain the protocol-specific response (e.g., OpenID4VP vp_token).
      */
     private void returnCredential(String responseJson) {
         try {
-            Log.i(TAG, "Returning credential response");
+            Log.i(TAG, "Returning credential response to caller");
+            Log.i(TAG, "Response JSON length: " + responseJson.length());
 
-            // Create a custom credential with the response JSON
-            Bundle credentialData = new Bundle();
-            credentialData.putString("data", responseJson);
-
-            CustomCredential credential = new CustomCredential(CREDENTIAL_TYPE_OPENID4VP, credentialData);
+            // Create a DigitalCredential with the response JSON
+            // The responseJson should be in the format expected by the Digital Credentials API
+            DigitalCredential credential = new DigitalCredential(responseJson);
             GetCredentialResponse response = new GetCredentialResponse(credential);
 
             PendingIntentHandler.setGetCredentialResponse(resultIntent, response);
             setResult(Activity.RESULT_OK, resultIntent);
+
+            Log.i(TAG, "Credential response set successfully, finishing activity");
             finish();
 
         } catch (Exception e) {
@@ -236,10 +342,10 @@ public class GetCredentialActivity extends FlutterActivity {
     }
 
     /**
-     * Return an error to the calling app
+     * Return an error to the calling app.
      */
     private void returnError(GetCredentialException exception) {
-        Log.e(TAG, "Returning error: " + exception.getMessage());
+        Log.e(TAG, "Returning error to caller: " + exception.getMessage());
         PendingIntentHandler.setGetCredentialException(resultIntent, exception);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();

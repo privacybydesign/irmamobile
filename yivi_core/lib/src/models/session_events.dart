@@ -40,6 +40,16 @@ class NewSessionEvent extends SessionEvent {
   @JsonKey(name: "ReturnMode")
   final bool returnMode;
 
+  // DcApiOrigin is the authenticated origin from the Digital Credentials API.
+  // Per Appendix A of OpenID4VP spec, the audience for responses must be
+  // prefixed with "origin:" (e.g., "origin:https://example.com").
+  @JsonKey(name: "DcApiOrigin", includeIfNull: false)
+  String? get dcApiOrigin => request.origin;
+
+  // DcApiProtocol is the DC API protocol variant (openid4vp-v1-unsigned/signed/multisigned).
+  @JsonKey(name: "DcApiProtocol", includeIfNull: false)
+  String? get dcApiProtocol => request.dcApiProtocol;
+
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
 }
 
