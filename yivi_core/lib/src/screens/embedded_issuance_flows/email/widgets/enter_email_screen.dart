@@ -30,6 +30,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   final _emailFieldPositionKey = GlobalKey();
 
   var _validEmail = false;
+  var _showErrors = false;
 
   @override
   void dispose() {
@@ -49,6 +50,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       // set text to previously entered email (for when coming back from verification screen)
       final email = ref.read(emailIssuanceProvider).email;
       _textController.text = email;
+      if (_isValidEmail(email)) {
+        setState(() {
+          _validEmail = true;
+        });
+      }
     });
   }
 
@@ -81,6 +87,9 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
   }
 
   void _submit() {
+    setState(() {
+      _showErrors = true;
+    });
     if (_formKey.currentState!.validate()) {
       final email = _textController.text;
       ref
@@ -90,6 +99,12 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
             language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
           );
     }
+  }
+
+  bool _isValidEmail(String v) {
+    final value = v.trim();
+    if (value.isEmpty) return false;
+    return RegExp(r"^[^\s@]+@[^\s@]+\.[^\s@]+$").hasMatch(value);
   }
 
   @override
@@ -150,15 +165,6 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                     TranslatedText("email_issuance.enter_email.body"),
                     SizedBox(height: theme.largeSpacing),
                     Form(
-                      onChanged: () {
-                        final valid =
-                            _formKey.currentState?.validate() ?? false;
-                        if (valid != _validEmail) {
-                          setState(() {
-                            _validEmail = valid;
-                          });
-                        }
-                      },
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: .stretch,
@@ -180,7 +186,15 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                               autocorrect: false,
                               enableSuggestions: false,
                               textCapitalization: .none,
-                              autovalidateMode: .onUserInteraction,
+                              autovalidateMode: _showErrors
+                                  ? .onUserInteraction
+                                  : .disabled,
+                              onChanged: (v) {
+                                final ok = _isValidEmail(v);
+                                if (ok != _validEmail) {
+                                  setState(() => _validEmail = ok);
+                                }
+                              },
                               validator: (v) {
                                 final value = (v ?? "").trim();
                                 if (value.isEmpty) return "Enter your email";
