@@ -148,110 +148,95 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
       ),
     );
 
-    return GestureDetector(
-      onTap: () {
-        _focusNode.unfocus();
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (_, _) {
+        _goBack();
       },
-      child: Scaffold(
-        appBar: IrmaAppBar(
-          titleTranslationKey: "sms_issuance.verify_code.title",
-          leading: YiviBackButton(
-            onTap: () async {
-              final result = await showDialog(
-                context: context,
-                builder: (context) => IrmaConfirmationDialog(
-                  titleTranslationKey:
-                      "sms_issuance.verify_code.back_dialog.title",
-                  contentTranslationKey:
-                      "sms_issuance.verify_code.back_dialog.body",
-                  confirmTranslationKey:
-                      "sms_issuance.verify_code.back_dialog.confirm",
-                  cancelTranslationKey:
-                      "sms_issuance.verify_code.back_dialog.cancel",
-                  onCancelPressed: () => context.pop(false),
-                  onConfirmPressed: () => context.pop(true),
-                ),
-              );
-              if (result ?? false) {
-                ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
-              }
-            },
+      child: GestureDetector(
+        onTap: () {
+          _focusNode.unfocus();
+        },
+        child: Scaffold(
+          appBar: IrmaAppBar(
+            titleTranslationKey: "sms_issuance.verify_code.title",
+            leading: YiviBackButton(onTap: _goBack),
           ),
-        ),
-        body: SafeArea(
-          child: KeyboardAnimationListener(
-            onKeyboardSettled: (context, inset, visible) {
-              _handleFocusChange();
-            },
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Padding(
-                padding: .all(theme.defaultSpacing),
-                child: Column(
-                  crossAxisAlignment: .start,
-                  children: [
-                    SizedBox(height: theme.defaultSpacing),
-                    TranslatedText(
-                      "sms_issuance.verify_code.header",
-                      style: theme.textTheme.bodyLarge!.copyWith(
-                        color: theme.neutralExtraDark,
-                      ),
-                    ),
-                    SizedBox(height: theme.defaultSpacing),
-                    TranslatedText(
-                      "sms_issuance.verify_code.body",
-                      translationParams: {"phone": state.phoneNumber},
-                    ),
-                    SizedBox(height: theme.largeSpacing),
-                    Container(
-                      key: _codeFieldPositionKey,
-                      child: Pinput(
-                        controller: _textController,
-                        smsRetriever: _smsRetriever,
-                        key: const Key("sms_verification_code_input_field"),
-                        keyboardType: .text,
-                        textCapitalization: .characters,
-                        focusNode: _focusNode,
-                        autofocus: true,
-                        mainAxisAlignment: .start,
-                        defaultPinTheme: defaultPinTheme,
-                        focusedPinTheme: focussedPinTheme,
-                        length: 6,
-                        onCompleted: _handleCode,
-                        pinAnimationType: .scale,
-                        hapticFeedbackType: .lightImpact,
-                      ),
-                    ),
-                    if (state.error is SmsIssuanceInvalidCodeError)
+          body: SafeArea(
+            child: KeyboardAnimationListener(
+              onKeyboardSettled: (context, inset, visible) {
+                _handleFocusChange();
+              },
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Padding(
+                  padding: .all(theme.defaultSpacing),
+                  child: Column(
+                    crossAxisAlignment: .start,
+                    children: [
+                      SizedBox(height: theme.defaultSpacing),
                       TranslatedText(
-                        "sms_issuance.verify_code.invalid_code_error",
-                        style: TextStyle(color: theme.error),
-                      ),
-                    SizedBox(height: theme.largeSpacing),
-                    Row(
-                      mainAxisAlignment: .start,
-                      mainAxisSize: .max,
-                      children: [
-                        YiviLinkButton(
-                          textAlign: .center,
-                          labelTranslationKey:
-                              "sms_issuance.verify_code.no_sms_received",
-                          onTap: () {
-                            showResendSmsDialog(state.phoneNumber);
-                          },
+                        "sms_issuance.verify_code.header",
+                        style: theme.textTheme.bodyLarge!.copyWith(
+                          color: theme.neutralExtraDark,
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 100),
-                  ],
+                      ),
+                      SizedBox(height: theme.defaultSpacing),
+                      TranslatedText(
+                        "sms_issuance.verify_code.body",
+                        translationParams: {"phone": state.phoneNumber},
+                      ),
+                      SizedBox(height: theme.largeSpacing),
+                      Container(
+                        key: _codeFieldPositionKey,
+                        child: Pinput(
+                          controller: _textController,
+                          smsRetriever: _smsRetriever,
+                          key: const Key("sms_verification_code_input_field"),
+                          keyboardType: .text,
+                          textCapitalization: .characters,
+                          focusNode: _focusNode,
+                          autofocus: true,
+                          mainAxisAlignment: .start,
+                          defaultPinTheme: defaultPinTheme,
+                          focusedPinTheme: focussedPinTheme,
+                          length: 6,
+                          onCompleted: _handleCode,
+                          pinAnimationType: .scale,
+                          hapticFeedbackType: .lightImpact,
+                        ),
+                      ),
+                      if (state.error is SmsIssuanceInvalidCodeError)
+                        TranslatedText(
+                          "sms_issuance.verify_code.invalid_code_error",
+                          style: TextStyle(color: theme.error),
+                        ),
+                      SizedBox(height: theme.largeSpacing),
+                      Row(
+                        mainAxisAlignment: .start,
+                        mainAxisSize: .max,
+                        children: [
+                          YiviLinkButton(
+                            textAlign: .center,
+                            labelTranslationKey:
+                                "sms_issuance.verify_code.no_sms_received",
+                            onTap: () {
+                              showResendSmsDialog(state.phoneNumber);
+                            },
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 100),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        bottomNavigationBar: IrmaBottomBar(
-          secondaryButtonLabel: "sms_issuance.verify_code.back_button",
-          onSecondaryPressed: context.pop,
+          bottomNavigationBar: IrmaBottomBar(
+            secondaryButtonLabel: "sms_issuance.verify_code.back_button",
+            onSecondaryPressed: context.pop,
+          ),
         ),
       ),
     );
@@ -264,6 +249,23 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
 
     if (session != null && mounted) {
       handlePointer(context, session);
+    }
+  }
+
+  Future<void> _goBack() async {
+    final result = await showDialog(
+      context: context,
+      builder: (context) => IrmaConfirmationDialog(
+        titleTranslationKey: "sms_issuance.verify_code.back_dialog.title",
+        contentTranslationKey: "sms_issuance.verify_code.back_dialog.body",
+        confirmTranslationKey: "sms_issuance.verify_code.back_dialog.confirm",
+        cancelTranslationKey: "sms_issuance.verify_code.back_dialog.cancel",
+        onCancelPressed: () => context.pop(false),
+        onConfirmPressed: () => context.pop(true),
+      ),
+    );
+    if (result ?? false) {
+      ref.read(smsIssuanceProvider.notifier).goBackToEnterPhone();
     }
   }
 
