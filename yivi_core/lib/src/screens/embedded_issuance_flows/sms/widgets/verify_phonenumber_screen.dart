@@ -150,8 +150,10 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (_, _) {
-        _goBack();
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _goBack();
+        }
       },
       child: GestureDetector(
         onTap: () {
