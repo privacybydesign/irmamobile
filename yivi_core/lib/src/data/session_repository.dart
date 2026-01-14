@@ -174,7 +174,10 @@ class SessionRepository {
         ),
       );
     } else if (event is SuccessSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.success);
+      return prevState.copyWith(
+        status: SessionStatus.success,
+        vpTokenResponse: event.result,
+      );
     } else if (event is CanceledSessionEvent) {
       return prevState.copyWith(status: SessionStatus.canceled);
     } else if (event is RequestPinSessionEvent) {

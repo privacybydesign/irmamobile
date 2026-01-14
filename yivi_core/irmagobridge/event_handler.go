@@ -105,7 +105,10 @@ func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
 		return errors.Errorf("Session id should be provided and larger than zero")
 	}
 
-	sessionHandler := &sessionHandler{sessionID: event.SessionID}
+	sessionHandler := &sessionHandler{
+		sessionID:  event.SessionID,
+		returnMode: event.ReturnMode,
+	}
 	ah.sessionLookup[sessionHandler.sessionID] = sessionHandler
 
 	sessionHandler.dismisser = client.NewSession(string(event.Request), sessionHandler)

@@ -28,8 +28,19 @@ type changePinEvent struct {
 }
 
 type newSessionEvent struct {
-	SessionID int
-	Request   json.RawMessage
+	SessionID  int
+	Request    json.RawMessage
+	ReturnMode bool // For Digital Credentials API - return vp_token instead of POSTing
+
+	// DcApiOrigin is the authenticated origin from the Digital Credentials API.
+	// Per Appendix A of OpenID4VP spec, the audience for responses must be
+	// prefixed with "origin:" (e.g., "origin:https://example.com").
+	// This is only set for DC API requests.
+	DcApiOrigin string
+
+	// DcApiProtocol is the DC API protocol variant (openid4vp-v1-unsigned/signed/multisigned).
+	// This is only set for DC API requests.
+	DcApiProtocol string
 }
 
 type respondPermissionEvent struct {
@@ -156,6 +167,7 @@ type clientReturnURLSetSessionEvent struct {
 
 type successSessionEvent struct {
 	SessionID int
+	Result    string
 }
 
 type failureSessionEvent struct {
