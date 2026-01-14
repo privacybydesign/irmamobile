@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:pinput/pinput.dart";
+import "package:smart_auth/smart_auth.dart";
 
 import "../../../../../routing.dart";
 import "../../../../providers/sms_issuance_provider.dart";
@@ -31,10 +32,12 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
   final _scrollController = ScrollController();
   final _codeFieldPositionKey = GlobalKey();
   final _textController = TextEditingController();
+  late final _SmsRetrieverImpl _smsRetriever;
 
   @override
   void initState() {
     super.initState();
+    _smsRetriever = _SmsRetrieverImpl(SmartAuth.instance);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
@@ -204,6 +207,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
                       key: _codeFieldPositionKey,
                       child: Pinput(
                         controller: _textController,
+                        smsRetriever: _smsRetriever,
                         key: const Key("sms_verification_code_input_field"),
                         keyboardType: .text,
                         textCapitalization: .characters,
@@ -295,4 +299,31 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
           language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
         );
   }
+}
+
+// Sms retriever on Android using the User Consent API.
+// Can later be upgraded to use the SMS Retriever API to make the UX even better.
+// See https://pub.dev/packages/pinput#sms-autofill for more info.
+class _SmsRetrieverImpl implements SmsRetriever {
+  const _SmsRetrieverImpl(this.smartAuth);
+
+  final SmartAuth smartAuth;
+
+  @override
+  Future<void> dispose() {
+    return smartAuth.removeUserConsentApiListener();
+  }
+
+  @override
+  Future<String?> getSmsCode() async {
+    // A code of 6 characters with only capital letters and and numbers
+    const smsCodeMatcher = "^[A-Z0-9]{6}\$";
+    final res = await smartAuth.getSmsWithUserConsentApi(
+      matcher: smsCodeMatcher,
+    );
+    return res.data?.code;
+  }
+
+  @override
+  bool get listenForMultipleSms => false;
 }
