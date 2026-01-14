@@ -317,7 +317,7 @@ class _SmsRetrieverImpl implements SmsRetriever {
   @override
   Future<String?> getSmsCode() async {
     // A code of 6 characters with only capital letters and and numbers
-    const smsCodeMatcher = "^[A-Z0-9]{6}\$";
+    const smsCodeMatcher = "([A-Z0-9]{6})";
     final res = await smartAuth.getSmsWithUserConsentApi(
       matcher: smsCodeMatcher,
     );
