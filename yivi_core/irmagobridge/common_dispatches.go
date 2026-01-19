@@ -119,11 +119,11 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 }
 
 func dispatchConfigurationEvent() {
-	t := WrappedConfiguration(*client.GetIrmaConfiguration())
+	t := WrappedConfiguration(*yiviClient.GetIrmaConfiguration())
 	dispatchEvent(&irmaConfigurationEvent{
 		IrmaConfiguration: &t,
 	})
-	e := WrappedEudiConfiguration(*client.GetEudiConfiguration())
+	e := WrappedEudiConfiguration(*yiviClient.GetEudiConfiguration())
 	dispatchEvent(&eudiConfigurationEvent{
 		EudiConfiguration: &e,
 	})
@@ -132,19 +132,19 @@ func dispatchConfigurationEvent() {
 
 func dispatchCredentialsEvent() {
 	dispatchEvent(&credentialsEvent{
-		Credentials: client.CredentialInfoList(),
+		Credentials: yiviClient.CredentialInfoList(),
 	})
 }
 
 func dispatchEnrollmentStatusEvent() {
 	dispatchEvent(&enrollmentStatusEvent{
-		EnrolledSchemeManagerIds:   client.EnrolledSchemeManagers(),
-		UnenrolledSchemeManagerIds: client.UnenrolledSchemeManagers(),
+		EnrolledSchemeManagerIds:   yiviClient.EnrolledSchemeManagers(),
+		UnenrolledSchemeManagerIds: yiviClient.UnenrolledSchemeManagers(),
 	})
 }
 
 func dispatchPreferencesEvent() {
 	dispatchEvent(&clientPreferencesEvent{
-		Preferences: client.GetPreferences(),
+		Preferences: yiviClient.GetPreferences(),
 	})
 }

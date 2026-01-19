@@ -5,6 +5,7 @@ import (
 
 	"github.com/privacybydesign/irmago/irma"
 	"github.com/privacybydesign/irmago/irma/irmaclient"
+	"github.com/privacybydesign/irmago/client/clientsettings"
 )
 
 // //
@@ -71,7 +72,7 @@ type loadLogsEvent struct {
 }
 
 type clientPreferencesEvent struct {
-	Preferences irmaclient.Preferences
+	Preferences clientsettings.Preferences
 }
 
 type getIssueWizardContentsEvent struct {

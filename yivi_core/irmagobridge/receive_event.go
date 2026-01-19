@@ -19,7 +19,7 @@ func DispatchFromNative(eventName, payloadString string) {
 	if clientErr != nil {
 		// Error occurred during client initialization. If the app is ready, we can report it.
 		// If the client couldn't be started at all, we can't do anything sensible here, so then just return.
-		fatal := client == nil
+		fatal := yiviClient == nil
 		if eventName == "AppReadyEvent" {
 			reportError(clientErr, fatal)
 		}

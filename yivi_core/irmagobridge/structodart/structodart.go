@@ -7,8 +7,9 @@ import (
 	"strings"
 
 	"github.com/privacybydesign/gabi/big"
-	irma "github.com/privacybydesign/irmago"
-	irmaclient "github.com/privacybydesign/irmago/irmaclient"
+	"github.com/privacybydesign/irmago/client/clientsettings"
+	"github.com/privacybydesign/irmago/irma"
+	"github.com/privacybydesign/irmago/irma/irmaclient"
 )
 
 func main() {
@@ -201,7 +202,7 @@ type credentialsEvent struct {
 }
 
 type preferencesEvent struct {
-	Preferences irmaclient.Preferences
+	Preferences clientsettings.Preferences
 }
 
 type enrollmentStatusEvent struct {
@@ -333,7 +334,7 @@ type sessionError struct {
 }
 
 func (err *sessionError) marshalSessionError() ([]byte, error) {
-	return json.Marshal(&map[string]interface{}{
+	return json.Marshal(&map[string]any{
 		"ErrorType":    err.ErrorType,
 		"WrappedError": err.WrappedError(),
 		"Info":         err.Info,
