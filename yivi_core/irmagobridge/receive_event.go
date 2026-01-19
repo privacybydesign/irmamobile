@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-errors/errors"
-	irma "github.com/privacybydesign/irmago"
+	"github.com/privacybydesign/irmago/irma"
 )
 
 // DispatchFromNative receives events from the Android / iOS native side

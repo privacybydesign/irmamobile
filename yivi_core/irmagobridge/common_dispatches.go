@@ -3,9 +3,9 @@ package irmagobridge
 import (
 	"encoding/json"
 
-	irma "github.com/privacybydesign/irmago"
 	"github.com/privacybydesign/irmago/eudi"
 	"github.com/privacybydesign/irmago/eudi/utils"
+	"github.com/privacybydesign/irmago/irma"
 )
 
 // needed to inject logo into issuers
