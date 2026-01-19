@@ -1,11 +1,35 @@
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 
 import "../../package_name.dart";
 import "../theme/theme.dart";
+import "../widgets/link.dart";
 import "translated_text.dart";
 
 enum YiviButtonStyle { fancy, outlined, filled }
+
+class YiviLinkButton extends StatelessWidget {
+  const YiviLinkButton({
+    super.key,
+    required this.labelTranslationKey,
+    required this.onTap,
+    this.textAlign,
+  });
+
+  final TextAlign? textAlign;
+  final String labelTranslationKey;
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Link(
+      textAlign: textAlign,
+      onTap: onTap,
+      label: FlutterI18n.translate(context, labelTranslationKey),
+    );
+  }
+}
 
 class YiviButtonSize {
   final double _value;

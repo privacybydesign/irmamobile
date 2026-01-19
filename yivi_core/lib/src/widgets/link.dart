@@ -52,8 +52,9 @@ class ContactLink extends StatelessWidget {
 class Link extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+  final TextAlign? textAlign;
 
-  const Link({required this.label, required this.onTap});
+  const Link({required this.label, required this.onTap, this.textAlign});
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +64,7 @@ class Link extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: TranslatedText(
+          textAlign: textAlign,
           label,
           style: IrmaTheme.of(
             context,
