@@ -14,7 +14,6 @@ import "choose_pin/choose_pin_screen.dart";
 import "confirm_pin/confirm_pin_screen.dart";
 import "confirm_pin/widgets/pin_confirmation_failed_dialog.dart";
 import "enrollment_failed_screen.dart";
-import "introduction/introduction_screen.dart";
 import "provide_email/email_sent_screen.dart";
 import "provide_email/provide_email_screen.dart";
 
@@ -68,7 +67,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarIconBrightness: .dark,
       ),
       child: BlocConsumer<EnrollmentBloc, EnrollmentState>(
         listener: (BuildContext context, EnrollmentState state) {
@@ -77,23 +76,21 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
           }
         },
         builder: (context, blocState) {
-          var state = blocState;
-          if (state is EnrollmentIntroduction) {
-            return IntroductionScreen(
-              currentStepIndex: state.currentStepIndex,
+          return switch (blocState) {
+            EnrollmentAcceptTerms() => AcceptTermsScreen(
+              isAccepted: blocState.isAccepted,
               onContinue: addOnNextPressed,
-              onPrevious: addOnPreviousPressed,
-            );
-          }
-          if (state is EnrollmentChoosePin) {
-            return ChoosePinScreen(
+              onToggleAccepted: (isAccepted) {
+                repo.preferences.markLatestTermsAsAccepted(isAccepted);
+                addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted));
+              },
+            ),
+            EnrollmentChoosePin() => ChoosePinScreen(
               onPrevious: addOnPreviousPressed,
               onChoosePin: (pin) => addEvent(EnrollmentPinChosen(pin)),
               newPinNotifier: newPin,
-            );
-          }
-          if (state is EnrollmentConfirmPin) {
-            return ConfirmPinScreen(
+            ),
+            EnrollmentConfirmPin() => ConfirmPinScreen(
               newPinNotifier: newPin,
               onPrevious: addOnPreviousPressed,
               submitConfirmationPin: (pin) =>
@@ -110,42 +107,25 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
                   ),
                 );
               },
-            );
-          }
-          if (state is EnrollmentProvideEmail) {
-            return ProvideEmailScreen(
-              email: state.email,
+            ),
+            EnrollmentProvideEmail() => ProvideEmailScreen(
+              email: blocState.email,
               onPrevious: addOnPreviousPressed,
               onEmailSkipped: () => addEvent(EnrollmentEmailSkipped()),
-              onEmailProvided: (email) =>
-                  addEvent(EnrollmentEmailProvided(email)),
-            );
-          }
-          if (state is EnrollmentEmailSent) {
-            return EmailSentScreen(
-              email: state.email,
-              onContinue: addOnNextPressed,
-            );
-          }
-          if (state is EnrollmentAcceptTerms) {
-            return AcceptTermsScreen(
-              isAccepted: state.isAccepted,
-              onPrevious: addOnPreviousPressed,
-              onContinue: addOnNextPressed,
-              onToggleAccepted: (isAccepted) {
-                repo.preferences.markLatestTermsAsAccepted(isAccepted);
-                addEvent(EnrollmentTermsUpdated(isAccepted: isAccepted));
+              onEmailProvided: (email) {
+                addEvent(EnrollmentEmailProvided(email));
               },
-            );
-          }
-          if (state is EnrollmentFailed) {
-            return EnrollmentFailedScreen(
+            ),
+            EnrollmentEmailSent() => EmailSentScreen(
+              email: blocState.email,
+              onContinue: addOnNextPressed,
+            ),
+            EnrollmentFailed() => EnrollmentFailedScreen(
               onPrevious: addOnPreviousPressed,
               onRetryEnrollment: () => addEvent(EnrollmentRetried()),
-            );
-          }
-          // If state is loading/initial/submitting show centered loading indicator
-          return Scaffold(body: Center(child: LoadingIndicator()));
+            ),
+            _ => Scaffold(body: Center(child: LoadingIndicator())),
+          };
         },
       ),
     );
