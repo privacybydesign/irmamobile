@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1191 842" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="Laag_1">
+        <g id="g8">
+            <path id="polygon1" d="M552.844,309.725L637.883,538.174L722.922,538.174L637.883,309.725L552.844,309.725Z" style="fill:rgb(62,166,222);fill-rule:nonzero;"/>
+            <path id="path1" d="M802.842,245.254C802.842,220.742 822.268,199.928 850.481,199.928C878.694,199.928 898.12,220.742 898.12,245.254C898.12,269.766 878.694,291.043 850.481,291.043C822.268,291.043 802.842,269.766 802.842,245.254Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+            <g id="g4">
+                <path id="polygon2" d="M893,309.725L893,538.174L893.002,538.174L978.041,309.725L893,309.725Z" style="fill:rgb(151,198,221);fill-rule:nonzero;"/>
+                <path id="polygon3" d="M893,309.725L807.961,309.725L807.961,538.174L893,309.727L893,309.725Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+                <path id="polygon4" d="M893,309.727L807.961,538.174L893,538.174L893,309.727Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+            </g>
+            <g id="g7">
+                <path id="polygon5" d="M552.844,309.725L552.842,309.727L552.842,538.174L552.844,538.174L637.885,309.725L552.844,309.725Z" style="fill:rgb(151,198,221);fill-rule:nonzero;"/>
+                <path id="polygon6" d="M552.842,309.727L552.842,309.725L467.803,309.725L467.803,538.174L467.805,538.174L552.842,309.727Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+                <path id="polygon7" d="M552.842,538.174L552.842,309.727L467.805,538.174L552.842,538.174Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+            </g>
+            <path id="path7" d="M297.725,538.174C290.09,558.69 279.254,564.074 261.215,564.074C249.653,564.074 240.445,562.224 231.725,559.449L230.284,620.5C242.231,623.738 257.462,625.125 270.874,625.125C330.075,625.125 358.042,604.604 375.895,556.637L382.766,538.174L297.725,538.174Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+            <path id="polygon8" d="M722.922,538.174L637.883,309.725L552.844,309.725L637.883,538.174L722.922,538.174Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+            <path id="path8" d="M462.686,245.254C462.686,220.742 482.11,199.928 510.323,199.928C538.536,199.928 557.962,220.742 557.962,245.254C557.962,269.766 538.536,291.043 510.323,291.043C482.11,291.043 462.686,269.766 462.686,245.254Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+        </g>
+        <g id="g9">
+            <path id="polygon9" d="M680.402,423.963L722.922,538.174L722.924,538.174L807.963,309.725L722.922,309.725L680.402,423.963Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+        </g>
+        <g id="g10">
+            <path id="polygon10" d="M382.766,538.174L467.805,309.725L382.764,309.725L340.246,423.963L382.766,538.174Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+        </g>
+        <path id="polygon11" d="M297.725,538.174L382.766,538.174L297.727,309.725L212.686,309.725L297.725,538.174Z" style="fill:rgb(224,33,70);fill-rule:nonzero;"/>
+    </g>
+</svg>

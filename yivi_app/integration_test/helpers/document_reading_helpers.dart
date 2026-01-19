@@ -8,7 +8,6 @@ import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/yivi_core.dart";
@@ -130,32 +129,12 @@ Future<void> openDrivingLicenceDetailsScreen(
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await pumpAndUnlockApp(
+  await openAddCredentialDetailsScreen(
     tester,
-    binding.repository,
-    null,
-    overrides.isEmpty ? null : overrides,
+    binding,
+    fullCredentialId: "pbdf-staging.pbdf.drivinglicence",
+    overrides: overrides,
   );
-
-  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
-  await tester.tapAndSettle(addDataButton);
-
-  final drivingLicenceCredential = binding
-      .repository
-      .irmaConfiguration
-      .credentialTypes
-      .values
-      .firstWhere((type) => type.id == "drivinglicence");
-
-  final edlTile = find.byKey(Key("${drivingLicenceCredential.fullId}_tile"));
-  await tester.scrollUntilVisible(
-    edlTile,
-    300,
-    scrollable: find.byType(Scrollable).last,
-  );
-  await tester.tapAndSettle(edlTile);
-
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
 }
 
 Future<void> openIdCardDetailsScreen(
@@ -163,32 +142,12 @@ Future<void> openIdCardDetailsScreen(
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await pumpAndUnlockApp(
+  await openAddCredentialDetailsScreen(
     tester,
-    binding.repository,
-    null,
-    overrides.isEmpty ? null : overrides,
+    binding,
+    fullCredentialId: "pbdf-staging.pbdf.idcard",
+    overrides: overrides,
   );
-
-  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
-  await tester.tapAndSettle(addDataButton);
-
-  final idCardCredential = binding
-      .repository
-      .irmaConfiguration
-      .credentialTypes
-      .values
-      .firstWhere((type) => type.id == "idcard");
-
-  final idCardTile = find.byKey(Key("${idCardCredential.fullId}_tile"));
-  await tester.scrollUntilVisible(
-    idCardTile,
-    300,
-    scrollable: find.byType(Scrollable).last,
-  );
-  await tester.tapAndSettle(idCardTile);
-
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
 }
 
 Future<void> openPassportDetailsScreen(
@@ -196,32 +155,12 @@ Future<void> openPassportDetailsScreen(
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await pumpAndUnlockApp(
+  await openAddCredentialDetailsScreen(
     tester,
-    binding.repository,
-    null,
-    overrides.isEmpty ? null : overrides,
+    binding,
+    fullCredentialId: "pbdf-staging.pbdf.passport",
+    overrides: overrides,
   );
-
-  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
-  await tester.tapAndSettle(addDataButton);
-
-  final passportCredential = binding
-      .repository
-      .irmaConfiguration
-      .credentialTypes
-      .values
-      .firstWhere((type) => type.id == "passport");
-
-  final passportTile = find.byKey(Key("${passportCredential.fullId}_tile"));
-  await tester.scrollUntilVisible(
-    passportTile,
-    300,
-    scrollable: find.byType(Scrollable).last,
-  );
-  await tester.tapAndSettle(passportTile);
-
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
 }
 
 class FakePassportIssuer implements PassportIssuer {

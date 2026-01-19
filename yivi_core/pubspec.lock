@@ -321,6 +321,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.2"
+  dlibphonenumber:
+    dependency: transitive
+    description:
+      name: dlibphonenumber
+      sha256: "9a909c335ba7d88d3477a6c59a295faab399db7e8403a4ddfa04566a9a9370ab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.53"
   email_validator:
     dependency: "direct main"
     description:
@@ -459,10 +467,11 @@ packages:
   flutter_nfc_kit:
     dependency: transitive
     description:
-      name: flutter_nfc_kit
-      sha256: "3cf589592373f1d0b0bd9583532368bb85e7cd76ae014a2b67a5ab2d68ae9450"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "v3.7.0"
+      resolved-ref: "6af23fe83a65f9c8dc0ec7995ea0f5cb180e2794"
+      url: "https://github.com/privacybydesign/flutter_nfc_kit.git"
+    source: git
     version: "3.6.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
@@ -604,6 +613,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.2"
+  intl_phone_number_input:
+    dependency: "direct main"
+    description:
+      name: intl_phone_number_input
+      sha256: "9d4d7f174cfc3a85b238e0b465ec0e7232fc0815a779e5a58fbf118dee26dfa0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.5"
   io:
     dependency: transitive
     description:
@@ -934,6 +951,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.0"
+  pinput:
+    dependency: "direct main"
+    description:
+      name: pinput
+      sha256: "692e1c29703abefad6c502e97b4d946d506384397438ea242afadbfe48354819"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.1"
   platform:
     dependency: transitive
     description:
@@ -983,6 +1008,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.5"
+  protobuf:
+    dependency: transitive
+    description:
+      name: protobuf
+      sha256: "75ec242d22e950bdcc79ee38dd520ce4ee0bc491d7fadc4ea47694604d22bf06"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.0"
   provider:
     dependency: transitive
     description:
@@ -1164,6 +1197,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  smart_auth:
+    dependency: "direct main"
+    description:
+      name: smart_auth
+      sha256: a536423c50d71e9a311d16027346634d0deadd07dafc5b5606b46719cf6fb2b6
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
   source_gen:
     dependency: transitive
     description:
@@ -1400,8 +1441,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v3.4.0"
-      resolved-ref: "155970bf1c50ee8698bc1ed4d7637cdf6fdc69b9"
+      ref: "v3.4.1"
+      resolved-ref: "455578b1b0b7370297bd860dae6caff29018e1dd"
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"
