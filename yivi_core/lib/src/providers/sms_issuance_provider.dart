@@ -5,16 +5,17 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
 import "../models/session.dart";
+import "./provider_helpers.dart" as helpers;
 
-final smsIssuerUrlProvider = StateProvider(
-  (ref) => "https://sms-issuer.staging.yivi.app",
+final smsIssuerUrlProvider = NotifierProvider(
+  () => helpers.ValueNotifier("https://sms-issuer.staging.yivi.app"),
 );
 
-final smsIssuanceProvider = StateNotifierProvider.autoDispose(
-  (ref) => SmsIssuer(
-    api: DefaultSmsIssuerApi(host: ref.watch(smsIssuerUrlProvider)),
-  ),
+final smsIssuerApiProvider = Provider<SmsIssuerApi>(
+  (ref) => DefaultSmsIssuerApi(host: ref.watch(smsIssuerUrlProvider)),
 );
+
+final smsIssuanceProvider = NotifierProvider.autoDispose(SmsIssuer.new);
 
 abstract class SmsIssuerApi {
   /// Starts session at sms issuer
@@ -133,18 +134,18 @@ class SmsIssuanceState {
   }
 }
 
-class SmsIssuer extends StateNotifier<SmsIssuanceState> {
-  final SmsIssuerApi api;
+class SmsIssuer extends Notifier<SmsIssuanceState> {
+  SmsIssuer();
 
-  SmsIssuer({required this.api})
-    : super(
-        SmsIssuanceState(
-          stage: .enteringPhoneNumber,
-          enteredCode: "",
-          phoneNumber: "",
-          error: SmsIssuanceNoError(),
-        ),
-      );
+  @override
+  SmsIssuanceState build() {
+    return SmsIssuanceState(
+      stage: .enteringPhoneNumber,
+      enteredCode: "",
+      phoneNumber: "",
+      error: SmsIssuanceNoError(),
+    );
+  }
 
   Future<void> sendSms({
     required String phoneNumber,
@@ -157,7 +158,9 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
         phoneNumber: phoneNumber,
         error: SmsIssuanceNoError(),
       );
-      await api.sendSms(phoneNumber: phoneNumber, language: language);
+      await ref
+          .read(smsIssuerApiProvider)
+          .sendSms(phoneNumber: phoneNumber, language: language);
       state = state.copyWith(stage: .enteringVerificationCode);
     } catch (e) {
       final err = switch (e) {
@@ -171,10 +174,9 @@ class SmsIssuer extends StateNotifier<SmsIssuanceState> {
   Future<SessionPointer?> verifyCode({required String code}) async {
     try {
       state = state.copyWith(enteredCode: code);
-      return await api.verifyCode(
-        phoneNumber: state.phoneNumber,
-        verificationCode: code,
-      );
+      return await ref
+          .read(smsIssuerApiProvider)
+          .verifyCode(phoneNumber: state.phoneNumber, verificationCode: code);
     } catch (e) {
       final err = switch (e) {
         SmsIssuanceError() => e,

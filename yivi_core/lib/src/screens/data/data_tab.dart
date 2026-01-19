@@ -96,7 +96,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   }
 
   void _searchQueryChanged(String query) {
-    ref.read(credentialsSearchQueryProvider.notifier).state = query;
+    ref.read(credentialsSearchQueryProvider.notifier).set(query);
   }
 }
 

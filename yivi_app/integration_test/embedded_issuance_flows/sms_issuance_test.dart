@@ -159,11 +159,7 @@ void main() {
         tester,
         irmaBinding,
         fullCredentialId: "pbdf-staging.sidn-pbdf.mobilenumber",
-        overrides: [
-          smsIssuanceProvider.overrideWith(
-            (ref) => SmsIssuer(api: FakeSmsIssuerApi()),
-          ),
-        ],
+        overrides: [smsIssuerApiProvider.overrideWithValue(FakeSmsIssuerApi())],
       );
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
       await tester.waitFor(find.byType(SmsIssuanceScreen));
@@ -260,11 +256,7 @@ Future<void> _goToEnterPhoneScreen(
     tester,
     binding,
     fullCredentialId: "pbdf-staging.sidn-pbdf.mobilenumber",
-    overrides: [
-      smsIssuanceProvider.overrideWith(
-        (ref) => SmsIssuer(api: api ?? FakeSmsIssuerApi()),
-      ),
-    ],
+    overrides: [smsIssuerApiProvider.overrideWithValue(FakeSmsIssuerApi())],
   );
 
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));

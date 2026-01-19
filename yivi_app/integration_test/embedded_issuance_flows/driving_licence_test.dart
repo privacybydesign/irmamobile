@@ -62,7 +62,7 @@ void main() {
           tester,
           irmaBinding,
           overrides: [
-            drivingLicenceReaderProvider.overrideWith((ref, mrz) {
+            drivingLicenceReaderProvider.overrideWith2((mrz) {
               fakeReader.setMrz(mrz);
               return fakeReader;
             }),
@@ -140,7 +140,7 @@ void main() {
         tester,
         irmaBinding,
         overrides: [
-          drivingLicenceReaderProvider.overrideWith((ref, mrz) => fakeReader),
+          drivingLicenceReaderProvider.overrideWith2((mrz) => fakeReader),
           passportIssuerProvider.overrideWithValue(fakeIssuer),
         ],
       );
