@@ -232,10 +232,16 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
            paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
            bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
-       ) {
+       );
+
+  @override
+  DocumentReaderState build() {
+    ref.onDispose(cancel);
     if (_initialState != null) {
-      state = _initialState;
+      return _initialState;
     }
+    checkNfcAvailability();
+    return DocumentReaderPending();
   }
 
   @override
@@ -342,10 +348,16 @@ class FakePassportReader extends DocumentReader<PassportData> {
            paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
            bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
-       ) {
+       );
+
+  @override
+  DocumentReaderState build() {
+    ref.onDispose(cancel);
     if (_initialState != null) {
-      state = _initialState;
+      return _initialState;
     }
+    checkNfcAvailability();
+    return DocumentReaderPending();
   }
 
   @override
