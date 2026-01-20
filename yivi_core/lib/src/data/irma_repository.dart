@@ -27,6 +27,7 @@ import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
 import "../models/native_events.dart";
+import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_state.dart";
@@ -105,6 +106,9 @@ class IrmaRepository {
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
+  final _schemalessCredentialsSubject =
+      BehaviorSubject<List<schemaless.Credential>>();
+
   final _enrollmentStatusEventSubject =
       BehaviorSubject<EnrollmentStatusEvent>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(
@@ -137,6 +141,7 @@ class IrmaRepository {
       _irmaConfigurationSubject.close(),
       _eudiConfigurationSubject.close(),
       _credentialsSubject.close(),
+      _schemalessCredentialsSubject.close(),
       _enrollmentStatusEventSubject.close(),
       _enrollmentStatusSubject.close(),
       _enrollmentEventSubject.close(),
@@ -176,6 +181,8 @@ class IrmaRepository {
           rawCredentials: event.credentials,
         ),
       );
+    } else if (event is schemaless.SchemalessCredentialsEvent) {
+      _schemalessCredentialsSubject.add(event.credentials);
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
       if (event is AuthenticationSuccessEvent) {
@@ -286,6 +293,10 @@ class IrmaRepository {
 
   Stream<Credentials> getCredentials() {
     return _credentialsSubject.stream;
+  }
+
+  Stream<List<schemaless.Credential>> getSchemalessCredentials() {
+    return _schemalessCredentialsSubject.stream;
   }
 
   // -- Enrollment

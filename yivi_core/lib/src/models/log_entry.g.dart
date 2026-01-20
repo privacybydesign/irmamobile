@@ -17,7 +17,7 @@ Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) =>
 
 LogInfo _$LogInfoFromJson(Map<String, dynamic> json) => LogInfo(
   id: (json['ID'] as num).toInt(),
-  type: _toLogEntryType(json['Type'] as String),
+  type: $enumDecode(_$LogTypeEnumMap, json['Type']),
   time: _epochSecondsToDateTime((json['Time'] as num).toInt()),
   issuanceLog: json['IssuanceLog'] == null
       ? null
@@ -34,6 +34,13 @@ LogInfo _$LogInfoFromJson(Map<String, dynamic> json) => LogInfo(
       ? null
       : RemovalLog.fromJson(json['RemovalLog'] as Map<String, dynamic>),
 );
+
+const _$LogTypeEnumMap = {
+  LogType.disclosure: 'LogType.disclosure',
+  LogType.signature: 'LogType.signature',
+  LogType.issuance: 'LogType.issuance',
+  LogType.removal: 'LogType.removal',
+};
 
 IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
   protocol: stringToProtocol(json['Protocol'] as String),
@@ -77,7 +84,14 @@ RemovalLog _$RemovalLogFromJson(Map<String, dynamic> json) => RemovalLog(
 
 CredentialLog _$CredentialLogFromJson(Map<String, dynamic> json) =>
     CredentialLog(
-      formats: _toCredentialFormatList(json['Formats']),
+      formats: (json['Formats'] as List<dynamic>)
+          .map((e) => $enumDecode(_$CredentialFormatEnumMap, e))
+          .toList(),
       credentialType: json['CredentialType'] as String,
       attributes: Map<String, String>.from(json['Attributes'] as Map),
     );
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+};

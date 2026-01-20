@@ -3,9 +3,10 @@ package irmagobridge
 import (
 	"encoding/json"
 
+	"github.com/privacybydesign/irmago/client"
+	"github.com/privacybydesign/irmago/client/clientsettings"
 	"github.com/privacybydesign/irmago/irma"
 	"github.com/privacybydesign/irmago/irma/irmaclient"
-	"github.com/privacybydesign/irmago/client/clientsettings"
 )
 
 // //
@@ -116,6 +117,10 @@ type eudiConfigurationEvent struct {
 
 type credentialsEvent struct {
 	Credentials irma.CredentialInfoList
+}
+
+type schemalessCredentialsEvent struct {
+	Credentials []client.Credential
 }
 
 type enrollmentStatusEvent struct {

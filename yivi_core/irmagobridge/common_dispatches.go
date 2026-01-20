@@ -3,6 +3,7 @@ package irmagobridge
 import (
 	"encoding/json"
 
+	"github.com/go-errors/errors"
 	"github.com/privacybydesign/irmago/eudi"
 	"github.com/privacybydesign/irmago/eudi/utils"
 	"github.com/privacybydesign/irmago/irma"
@@ -130,7 +131,18 @@ func dispatchConfigurationEvent() {
 	dispatchCredentialsEvent()
 }
 
+func dispatchSchemalessCredentialsEvent() {
+	creds, err := yiviClient.GetCredentials()
+	if err != nil {
+		reportError(errors.Errorf("Failed to get credentials: %w", err), false)
+	}
+	dispatchEvent(&schemalessCredentialsEvent{
+		Credentials: creds,
+	})
+}
+
 func dispatchCredentialsEvent() {
+	dispatchSchemalessCredentialsEvent()
 	dispatchEvent(&credentialsEvent{
 		Credentials: yiviClient.CredentialInfoList(),
 	})

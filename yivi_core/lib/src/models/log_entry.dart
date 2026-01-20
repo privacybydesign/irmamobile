@@ -30,36 +30,28 @@ class LoadLogsEvent extends Event {
   Map<String, dynamic> toJson() => _$LoadLogsEventToJson(this);
 }
 
-enum LogType { disclosure, signature, issuance, removal }
+@JsonEnum(alwaysCreate: true)
+enum LogType {
+  @JsonValue("LogType.disclosure")
+  disclosure,
 
-enum CredentialFormat { idemix, sdjwtvc }
+  @JsonValue("LogType.signature")
+  signature,
 
-LogType _toLogEntryType(String type) {
-  return LogType.values.firstWhere((v) => v.toString() == "LogType.$type");
+  @JsonValue("LogType.issuance")
+  issuance,
+
+  @JsonValue("LogType.removal")
+  removal,
 }
 
-String credentialFormatToString(CredentialFormat format) {
-  return switch (format) {
-    CredentialFormat.sdjwtvc => "dc+sd-jwt",
-    CredentialFormat.idemix => "idemix",
-  };
-}
+@JsonEnum(alwaysCreate: true)
+enum CredentialFormat {
+  @JsonValue("idemix")
+  idemix,
 
-CredentialFormat stringToCredentialFormat(String format) {
-  return switch (format) {
-    "dc+sd-jwt" => CredentialFormat.sdjwtvc,
-    "idemix" => CredentialFormat.idemix,
-    _ => throw Exception("invalid credential format: $format"),
-  };
-}
-
-List<CredentialFormat> _toCredentialFormatList(dynamic value) {
-  if (value == null) {
-    return [];
-  }
-  return (value as List<dynamic>)
-      .map((v) => stringToCredentialFormat(v as String))
-      .toList();
+  @JsonValue("dc+sd-jwt")
+  sdjwtvc,
 }
 
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
@@ -80,7 +72,7 @@ class LogInfo {
   @JsonKey(name: "ID")
   final int id;
 
-  @JsonKey(name: "Type", fromJson: _toLogEntryType)
+  @JsonKey(name: "Type")
   final LogType type;
 
   @JsonKey(name: "Time", fromJson: _epochSecondsToDateTime)
@@ -190,7 +182,7 @@ class CredentialLog {
     required this.attributes,
   });
 
-  @JsonKey(name: "Formats", fromJson: _toCredentialFormatList)
+  @JsonKey(name: "Formats")
   final List<CredentialFormat> formats;
 
   @JsonKey(name: "CredentialType")
