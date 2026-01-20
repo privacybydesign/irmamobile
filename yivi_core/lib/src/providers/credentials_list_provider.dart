@@ -57,7 +57,7 @@ class CredentialOrderController
 
     // Listen to external source and reconcile on each update
     ref.listen(credentialInfoListProvider, (prev, next) async {
-      final items = next.valueOrNull;
+      final items = next.value;
       if (items == null) {
         return;
       }
