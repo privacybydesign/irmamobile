@@ -217,7 +217,9 @@ Future<void> _goToEnterEmailScreen(
     tester,
     binding,
     fullCredentialId: "pbdf-staging.sidn-pbdf.email",
-    overrides: [emailIssuerApiProvider.overrideWithValue(FakeEmailIssuerApi())],
+    overrides: [
+      emailIssuerApiProvider.overrideWithValue(api ?? FakeEmailIssuerApi()),
+    ],
   );
 
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
