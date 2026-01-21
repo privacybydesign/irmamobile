@@ -4,7 +4,7 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "../../models/native_events.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../activity/activity_tab.dart";
-import "../data/schemaless_data_tab.dart";
+import "../data/data_tab.dart";
 import "../more/more_tab.dart";
 import "../notifications/notifications_tab.dart";
 import "widgets/irma_nav_bar.dart";
@@ -57,7 +57,7 @@ class HomeScreen extends StatelessWidget {
                 child: Scaffold(
                   body: switch (tabState) {
                     .notifications => NotificationsTab(),
-                    .data => SchemalessDataTab(),
+                    .data => DataTab(),
                     .activity => ActivityTab(),
                     .more => MoreTab(onChangeTab: changeTab),
                   },

@@ -20,12 +20,12 @@ import "../../widgets/irma_icon_button.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
 
-class SchemalessDataTab extends ConsumerStatefulWidget {
+class DataTab extends ConsumerStatefulWidget {
   @override
-  ConsumerState<SchemalessDataTab> createState() => _DataTabState();
+  ConsumerState<DataTab> createState() => _DataTabState();
 }
 
-class _DataTabState extends ConsumerState<SchemalessDataTab> {
+class _DataTabState extends ConsumerState<DataTab> {
   bool _searchActive = false;
   final _focusNode = FocusNode();
 
