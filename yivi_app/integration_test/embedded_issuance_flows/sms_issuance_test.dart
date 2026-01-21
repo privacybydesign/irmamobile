@@ -256,7 +256,9 @@ Future<void> _goToEnterPhoneScreen(
     tester,
     binding,
     fullCredentialId: "pbdf-staging.sidn-pbdf.mobilenumber",
-    overrides: [smsIssuerApiProvider.overrideWithValue(api ?? FakeSmsIssuerApi())],
+    overrides: [
+      smsIssuerApiProvider.overrideWithValue(api ?? FakeSmsIssuerApi()),
+    ],
   );
 
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
