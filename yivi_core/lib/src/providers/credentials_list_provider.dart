@@ -55,20 +55,29 @@ class CredentialOrderController
     // Load persisted order once
     _order = await ref.read(credentialOrderRepoProvider).loadOrder();
 
-    // Listen to external source and reconcile on each update
-    ref.listen(credentialInfoListProvider, (prev, next) async {
-      final items = next.value;
-      if (items == null) {
-        return;
-      }
-      final merged = _reconcile(items, _order, _policy);
-      state = AsyncData(merged);
-      // Optionally clean up persisted order (remove non-existent IDs)
-      _debouncedSave(merged);
-      _order = merged.map((c) => c.credentialType.fullId).toList();
-    });
+    // Set up a listener for subsequent updates (sync listener!)
+    ref.listen<AsyncValue<List<MultiFormatCredential>>>(
+      credentialInfoListProvider,
+      (prev, next) {
+        final items = next.value;
+        if (items == null) return;
 
-    // Seed with current external value (if available)
+        final merged = _reconcile(items, _order, _policy);
+
+        // Defer the state write so it can't happen during widget build.
+        Future.microtask(() {
+          // Provider might have been disposed in the meantime
+          if (!ref.mounted) return;
+
+          state = AsyncData(merged);
+        });
+
+        _debouncedSave(merged);
+        _order = merged.map((c) => c.credentialType.fullId).toList();
+      },
+    );
+
+    // Seed initial value
     final ext = await ref.read(credentialInfoListProvider.future);
     final merged = _reconcile(ext, _order, _policy);
     _order = merged.map((e) => e.credentialType.fullId).toList();

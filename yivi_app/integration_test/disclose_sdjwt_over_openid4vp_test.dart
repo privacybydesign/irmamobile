@@ -1060,7 +1060,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
     } else {
       await evaluateCredentialCard(
         tester,
-        cardsFinder.at(1),
+        f,
         issuerName: "Demo Privacy by Design Foundation via SIDN",
         credentialName: "Demo Mobile phone number",
         attributes: {"Mobile phone number": "0687654321"},

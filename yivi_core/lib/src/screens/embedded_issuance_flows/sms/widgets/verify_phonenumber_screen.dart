@@ -1,3 +1,5 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -32,12 +34,19 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
   final _scrollController = ScrollController();
   final _codeFieldPositionKey = GlobalKey();
   final _textController = TextEditingController();
-  late final _SmsRetrieverImpl _smsRetriever;
+  late final _SmsRetrieverImpl? _smsRetriever;
 
   @override
   void initState() {
     super.initState();
-    _smsRetriever = _SmsRetrieverImpl(SmartAuth.instance);
+
+    // only android needs the custom sms retriever
+    if (Platform.isAndroid) {
+      _smsRetriever = _SmsRetrieverImpl(SmartAuth.instance);
+    } else {
+      _smsRetriever = null;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
