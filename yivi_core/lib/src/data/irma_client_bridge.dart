@@ -127,7 +127,7 @@ class IrmaClientBridge extends IrmaBridge {
       if (debugLogging) {
         // the irma config event has so much data in its payload it bloats all logs,
         // therefore we explicitly don't print the payload
-        if (call.method == "IrmaConfigurationEvent") {
+        if (call.method == "IrmaConfigurationEvent" || call.method == "SchemalessCredentialsEvent") {
           if (kDebugMode) {
             printLongString(
               "Received bridge event: ${call.method} -- payload omitted",

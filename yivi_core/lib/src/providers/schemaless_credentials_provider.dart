@@ -9,9 +9,12 @@ import "credentials_provider.dart";
 import "irma_repository_provider.dart";
 
 final schemalessCredentialsProvider =
-    StreamProvider<List<schemaless.Credential>>((ref) {
+    StreamProvider<List<schemaless.Credential>>((ref) async* {
       final repo = ref.watch(irmaRepositoryProvider);
-      return repo.getSchemalessCredentials();
+
+      await for (final credentials in repo.getSchemalessCredentials()) {
+        yield credentials;
+      }
     });
 
 final schemalessCredentialTypesProvider =
