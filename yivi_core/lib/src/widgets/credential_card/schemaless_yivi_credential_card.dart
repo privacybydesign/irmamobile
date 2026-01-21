@@ -1,26 +1,14 @@
 import "package:collection/collection.dart";
 import "package:flutter/material.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../../models/attribute.dart";
-import "../../models/attribute_value.dart";
-import "../../models/credentials.dart";
-import "../../models/irma_configuration.dart";
-import "../../models/log_entry.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../models/translated_value.dart";
-import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
 import "../credential_card/models/card_expiry_date.dart";
-import "../greyed_out.dart";
-import "../information_box.dart";
 import "../irma_card.dart";
 import "../irma_divider.dart";
-import "../yivi_themed_button.dart";
 import "schemaless_yivi_credential_card_attribute_list.dart";
-import "yivi_credential_card_attribute_list.dart";
 import "yivi_credential_card_footer.dart";
 import "yivi_credential_card_header.dart";
 

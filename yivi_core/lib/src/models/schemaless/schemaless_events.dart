@@ -26,6 +26,7 @@ enum AttributeType {
   boolean,
   integer,
   image,
+  base64Image,
 }
 
 @JsonSerializable(createToJson: false)

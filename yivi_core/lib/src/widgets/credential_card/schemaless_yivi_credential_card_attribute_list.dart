@@ -5,10 +5,9 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
-import "../irma_divider.dart";
-import "../translated_text.dart";
 
 class SchemalessYiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
@@ -65,9 +64,12 @@ class _AttributeView extends StatelessWidget {
       );
     }
 
-    TranslatedText buildTranslatedTextContent(schemaless.Attribute attribute) {
-      return TranslatedText(
-        attribute.value.translatedValue().translate(lang),
+    Text buildTranslatedTextContent(schemaless.Attribute attribute) {
+      final txt = TranslatedValue.fromJson(
+        attribute.value.data as Map<String, dynamic>,
+      );
+      return Text(
+        txt.translate(lang),
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
           color: compareTo == null
               ? theme.dark
@@ -79,7 +81,10 @@ class _AttributeView extends StatelessWidget {
     }
 
     GestureDetector buildTappableImage(schemaless.Attribute attribute) {
-      final image = _imageFromRaw(attribute.value.data as String);
+      final imageContent = TranslatedValue.fromJson(
+        attribute.value.data as Map<String, dynamic>,
+      ).translate(lang);
+      final image = _imageFromRaw(imageContent);
       return GestureDetector(
         onTap: () {
           Navigator.push(
@@ -112,6 +117,7 @@ class _AttributeView extends StatelessWidget {
             .string => buildTextContent(attribute),
             .translatedString => buildTranslatedTextContent(attribute),
             .image => buildTappableImage(attribute),
+            .base64Image => buildTappableImage(attribute),
             .boolean => throw UnimplementedError(),
             .integer => throw UnimplementedError(),
             .object => throw UnimplementedError(),

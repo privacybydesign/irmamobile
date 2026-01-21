@@ -28,6 +28,7 @@ const _$AttributeTypeEnumMap = {
   AttributeType.boolean: 'boolean',
   AttributeType.integer: 'integer',
   AttributeType.image: 'image',
+  AttributeType.base64Image: 'base64_image',
 };
 
 Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
