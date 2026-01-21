@@ -120,7 +120,7 @@ type credentialsEvent struct {
 }
 
 type schemalessCredentialsEvent struct {
-	Credentials []client.Credential
+	Credentials []*client.Credential
 }
 
 type enrollmentStatusEvent struct {
