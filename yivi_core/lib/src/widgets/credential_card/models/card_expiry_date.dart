@@ -8,4 +8,10 @@ class CardExpiryDate {
   int get validDays => dateTime?.difference(DateTime.now()).inDays ?? 8;
 
   bool get expiresSoon => validDays <= 7;
+
+  static CardExpiryDate fromUnix(int secondsSinceEpoch) {
+    return CardExpiryDate(
+      DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000),
+    );
+  }
 }

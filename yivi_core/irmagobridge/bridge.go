@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/go-errors/errors"
+	"github.com/privacybydesign/irmago/client"
 	"github.com/privacybydesign/irmago/irma"
 	"github.com/privacybydesign/irmago/irma/irmaclient"
-	"github.com/privacybydesign/irmago/client"
 	"github.com/sirupsen/logrus"
 )
 

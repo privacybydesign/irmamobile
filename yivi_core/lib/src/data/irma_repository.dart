@@ -112,7 +112,7 @@ class IrmaRepository {
   final _enrollmentStatusEventSubject =
       BehaviorSubject<EnrollmentStatusEvent>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(
-    EnrollmentStatus.undetermined,
+    .undetermined,
   );
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
@@ -779,7 +779,7 @@ class IrmaRepository {
       await _iiabchannel.invokeMethod("open_browser", url);
     } else {
       final uri = Uri.parse(url);
-      final hasOpened = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      final hasOpened = await launchUrl(uri, mode: .inAppWebView);
 
       // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
       if (!hasOpened) {
@@ -797,10 +797,7 @@ class IrmaRepository {
     }
     // On iOS, open Safari rather than Safari view controller
     final uri = Uri.parse(url);
-    final hasOpened = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+    final hasOpened = await launchUrl(uri, mode: .externalApplication);
 
     // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
     if (!hasOpened) {

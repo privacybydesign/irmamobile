@@ -34,6 +34,21 @@ final schemalessCredentialTypesProvider =
       yield result;
     });
 
+// A list of all credentials of the given credential type id
+final schemalessCredentialsWithIdProvider =
+    FutureProvider.family<List<schemaless.Credential>, String>((
+      ref,
+      credentialTypeId,
+    ) async {
+      final credentials = await ref.watch(schemalessCredentialsProvider.future);
+
+      final filteredCredentials = credentials
+          .where((cred) => cred.credentialId == credentialTypeId)
+          .toList();
+
+      return filteredCredentials;
+    });
+
 // A list of credentials filtered by the query in the `credentialsSearchQueryProvider`
 final schemalessCredentialsSearchResultsProvider =
     FutureProvider.family<List<schemaless.Credential>, Locale>((

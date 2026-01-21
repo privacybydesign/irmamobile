@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../models/irma_configuration.dart";
 import "../../theme/theme.dart";
 import "../../util/date_formatter.dart";
 import "../credential_card/models/card_expiry_date.dart";
@@ -12,34 +11,28 @@ import "../translated_text.dart";
 enum ExpireState { notExpired, almostExpired, expired }
 
 class YiviCredentialCardFooter extends StatelessWidget {
-  final CredentialType credentialType;
   final bool revoked;
-  final Issuer issuer;
   final CardExpiryDate? expiryDate;
   final int? instanceCount;
-  final bool isTemplate;
   final ExpireState timeBasedExpireState;
   final ExpireState instanceBasedExpireState;
 
   final EdgeInsetsGeometry padding;
 
   const YiviCredentialCardFooter({
-    required this.issuer,
-    required this.credentialType,
     required this.revoked,
     required this.timeBasedExpireState,
     required this.instanceBasedExpireState,
     this.expiryDate,
-    this.padding = EdgeInsets.zero,
-    this.isTemplate = false,
+    this.padding = .zero,
     this.instanceCount,
   });
 
   Color? _getTextColorForExpireState(ExpireState state, IrmaThemeData theme) {
     return switch (state) {
-      ExpireState.notExpired => null,
-      ExpireState.almostExpired => theme.warning,
-      ExpireState.expired => theme.error,
+      .notExpired => null,
+      .almostExpired => theme.warning,
+      .expired => theme.error,
     };
   }
 

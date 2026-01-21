@@ -40,6 +40,9 @@ class AttributeValue {
 
   factory AttributeValue.fromJson(Map<String, dynamic> json) =>
       _$AttributeValueFromJson(json);
+
+  TranslatedValue translatedValue() =>
+      TranslatedValue.fromJson(data as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
