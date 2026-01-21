@@ -18,17 +18,11 @@ class CredentialsEvent extends Event {
   Map<String, dynamic> toJson() => _$CredentialsEventToJson(this);
 }
 
-Map<String, dynamic> hashByFormatToString(Map<CredentialFormat, String> value) {
-  return value.map(
-    (key, value) => MapEntry(credentialFormatToString(key), value),
-  );
-}
-
 @JsonSerializable()
 class DeleteCredentialEvent extends Event {
   DeleteCredentialEvent({required this.hashByFormat});
 
-  @JsonKey(name: "HashByFormat", toJson: hashByFormatToString)
+  @JsonKey(name: "HashByFormat")
   final Map<CredentialFormat, String> hashByFormat;
 
   factory DeleteCredentialEvent.fromJson(Map<String, dynamic> json) =>

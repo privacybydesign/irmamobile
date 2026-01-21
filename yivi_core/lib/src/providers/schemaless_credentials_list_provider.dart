@@ -4,35 +4,28 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "credentials_list_provider.dart";
-import "preferences_provider.dart";
 import "schemaless_credentials_provider.dart";
-
-final credentialOrderRepoProvider = Provider(
-  (ref) => IrmaPreferencesOrderRepo(ref.watch(preferencesProvider)),
-);
-
-enum NewItemPolicy { append, prepend }
 
 /// ----- Controller: reconciles external items with stored order
 final schemalessCredentialOrderControllerProvider =
     AsyncNotifierProvider<
       SchemalessCredentialOrderController,
-      List<schemaless.CredentialType>
+      List<schemaless.Credential>
     >(SchemalessCredentialOrderController.new);
 
 class SchemalessCredentialOrderController
-    extends AsyncNotifier<List<schemaless.CredentialType>> {
+    extends AsyncNotifier<List<schemaless.Credential>> {
   Timer? _debounce;
   List<String> _order = const []; // persisted order of IDs
   final NewItemPolicy _policy = .prepend;
 
   @override
-  Future<List<schemaless.CredentialType>> build() async {
+  Future<List<schemaless.Credential>> build() async {
     // Load persisted order once
     _order = await ref.read(credentialOrderRepoProvider).loadOrder();
 
     // Set up a listener for subsequent updates (sync listener!)
-    ref.listen<AsyncValue<List<schemaless.CredentialType>>>(
+    ref.listen<AsyncValue<List<schemaless.Credential>>>(
       schemalessCredentialTypesProvider,
       (prev, next) {
         final items = next.value;
@@ -74,13 +67,13 @@ class SchemalessCredentialOrderController
   /// Merge logic:
   /// - keep IDs in stored order if they still exist
   /// - add any new external IDs at end/start (policy)
-  List<schemaless.CredentialType> _reconcile(
-    List<schemaless.CredentialType> external,
+  List<schemaless.Credential> _reconcile(
+    List<schemaless.Credential> external,
     List<String> storedOrder,
     NewItemPolicy newItemPolicy,
   ) {
     final byId = {for (final it in external) it.credentialId: it};
-    final visible = <schemaless.CredentialType>[];
+    final visible = <schemaless.Credential>[];
 
     // 1) Keep items that still exist in the stored order
     for (final id in storedOrder) {
@@ -100,7 +93,7 @@ class SchemalessCredentialOrderController
     return visible;
   }
 
-  void _debouncedSave(List<schemaless.CredentialType> items) {
+  void _debouncedSave(List<schemaless.Credential> items) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () async {
       await ref

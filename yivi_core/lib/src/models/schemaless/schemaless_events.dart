@@ -14,7 +14,7 @@ class SchemalessCredentialsEvent extends Event {
   SchemalessCredentialsEvent({required this.credentials});
 
   factory SchemalessCredentialsEvent.fromJson(Map<String, dynamic> json) =>
-      _$CredentialsEventFromJson(json);
+      _$SchemalessCredentialsEventFromJson(json);
 }
 
 @JsonEnum(alwaysCreate: true, fieldRename: .snake)
@@ -151,18 +151,4 @@ class Credential {
 
   factory Credential.fromJson(Map<String, dynamic> json) =>
       _$CredentialFromJson(json);
-}
-
-class CredentialType {
-  final String credentialId;
-  final TranslatedValue name;
-  final TranslatedValue issuerName;
-  final String imagePath;
-
-  CredentialType({
-    required this.credentialId,
-    required this.name,
-    required this.issuerName,
-    required this.imagePath,
-  });
 }

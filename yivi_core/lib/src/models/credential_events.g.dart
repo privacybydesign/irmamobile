@@ -27,7 +27,9 @@ DeleteCredentialEvent _$DeleteCredentialEventFromJson(
 Map<String, dynamic> _$DeleteCredentialEventToJson(
   DeleteCredentialEvent instance,
 ) => <String, dynamic>{
-  'HashByFormat': hashByFormatToString(instance.hashByFormat),
+  'HashByFormat': instance.hashByFormat.map(
+    (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
+  ),
 };
 
 const _$CredentialFormatEnumMap = {

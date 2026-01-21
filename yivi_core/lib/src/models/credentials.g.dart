@@ -70,7 +70,9 @@ RawMultiFormatCredential _$RawMultiFormatCredentialFromJson(
   attributes: (json['Attributes'] as Map<String, dynamic>).map(
     (k, e) => MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
   ),
-  hashByFormat: parseHashByFormat(json['HashByFormat'] as Map<String, dynamic>),
+  hashByFormat: (json['HashByFormat'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry($enumDecode(_$CredentialFormatEnumMap, k), e as String),
+  ),
   signedOn: (json['SignedOn'] as num).toInt(),
   expires: (json['Expires'] as num).toInt(),
   revoked: json['Revoked'] as bool,

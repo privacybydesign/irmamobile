@@ -24,11 +24,7 @@ class CredentialTypeInfo {
   @JsonKey(name: "Attributes")
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(
-    name: "CredentialFormat",
-    fromJson: stringToCredentialFormat,
-    toJson: credentialFormatToString,
-  )
+  @JsonKey(name: "CredentialFormat")
   final CredentialFormat credentialFormat;
 
   CredentialTypeInfo({
@@ -317,11 +313,7 @@ class RawCredential {
   @JsonKey(name: "RevocationSupported")
   final bool revocationSupported;
 
-  @JsonKey(
-    name: "CredentialFormat",
-    fromJson: stringToCredentialFormat,
-    toJson: credentialFormatToString,
-  )
+  @JsonKey(name: "CredentialFormat")
   final CredentialFormat format;
 
   @JsonKey(name: "InstanceCount")
@@ -356,7 +348,7 @@ class RawMultiFormatCredential {
   @JsonKey(name: "Attributes")
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(name: "HashByFormat", fromJson: parseHashByFormat)
+  @JsonKey(name: "HashByFormat")
   final Map<CredentialFormat, String> hashByFormat;
 
   @JsonKey(name: "SignedOn")
@@ -488,12 +480,4 @@ class MultiFormatCredential {
       !expired &&
       !revoked &&
       (instanceCount == null ? true : instanceCount != 0);
-}
-
-Map<CredentialFormat, String> parseHashByFormat(Map<String, dynamic> json) {
-  return Map.fromEntries(
-    json.entries.map(
-      (e) => MapEntry(stringToCredentialFormat(e.key), e.value as String),
-    ),
-  );
 }
