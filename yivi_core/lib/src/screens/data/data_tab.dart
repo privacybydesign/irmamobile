@@ -262,7 +262,7 @@ class _AllCredentialsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(credentialInfoListProvider);
+    final credentials = ref.watch(credentialOrderControllerProvider);
 
     return switch (credentials) {
       AsyncData(:final value) =>
