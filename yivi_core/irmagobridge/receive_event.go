@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-errors/errors"
-	irma "github.com/privacybydesign/irmago"
+	"github.com/privacybydesign/irmago/irma"
 )
 
 // DispatchFromNative receives events from the Android / iOS native side
@@ -19,7 +19,7 @@ func DispatchFromNative(eventName, payloadString string) {
 	if clientErr != nil {
 		// Error occurred during client initialization. If the app is ready, we can report it.
 		// If the client couldn't be started at all, we can't do anything sensible here, so then just return.
-		fatal := client == nil
+		fatal := yiviClient == nil
 		if eventName == "AppReadyEvent" {
 			reportError(clientErr, fatal)
 		}
@@ -57,6 +57,16 @@ func DispatchFromNative(eventName, payloadString string) {
 		event := &respondPermissionEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.respondPermission(event)
+		}
+	case "RespondAuthorizationCodeAndExchangeForTokenEvent":
+		event := &respondAuthorizationCodeAndExchangeForTokenEvent{}
+		if err = json.Unmarshal(payloadBytes, event); err == nil {
+			err = bridgeEventHandler.respondAuthorizationCodeAndExchangeForToken(event)
+		}
+	case "RespondPreAuthorizedCodeFlowPermissionEvent":
+		event := &respondPreAuthorizedCodeFlowPermissionEvent{}
+		if err = json.Unmarshal(payloadBytes, event); err == nil {
+			err = bridgeEventHandler.respondPreAuthorizedCodeFlowPermission(event)
 		}
 	case "RespondPinEvent":
 		event := &respondPinEvent{}
@@ -116,6 +126,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		event := &removeRequestorSchemeEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.removeRequestorScheme(event)
+		}
+	case "InstallCertificateEvent":
+		event := &installCertificateEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.installCertificate(event)
 		}
 	}
 

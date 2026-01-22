@@ -6,6 +6,7 @@ import "package:collection/collection.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";

@@ -9,11 +9,13 @@ import "../models/client_preferences.dart";
 import "../models/credential_events.dart";
 import "../models/enrollment_events.dart";
 import "../models/error_event.dart";
+import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
 import "../models/log_entry.dart";
+import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../models/session_events.dart";
 import "../sentry/sentry.dart";
 import "irma_bridge.dart";
@@ -26,7 +28,10 @@ class IrmaClientBridge extends IrmaBridge {
 
   static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
     IrmaConfigurationEvent: (j) => IrmaConfigurationEvent.fromJson(j),
+    EudiConfigurationEvent: (j) => EudiConfigurationEvent.fromJson(j),
     CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
+    schemaless.SchemalessCredentialsEvent: (j) =>
+        schemaless.SchemalessCredentialsEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
     LogsEvent: (j) => LogsEvent.fromJson(j),
 
@@ -71,6 +76,14 @@ class IrmaClientBridge extends IrmaBridge {
 
     ErrorEvent: (j) => ErrorEvent.fromJson(j),
 
+    RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent: (j) =>
+        RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent.fromJson(
+          j,
+        ),
+
+    RequestPreAuthorizedCodeFlowPermissionSessionEvent: (j) =>
+        RequestPreAuthorizedCodeFlowPermissionSessionEvent.fromJson(j),
+
     // FooBar: (j) => FooBar.fromJson(j),
   };
 
@@ -87,10 +100,17 @@ class IrmaClientBridge extends IrmaBridge {
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
 
+  void printLongString(String text) {
+    final RegExp pattern = RegExp(".{1,800}"); // 800 is the size of each chunk
+    pattern
+        .allMatches(text)
+        .forEach((RegExpMatch match) => debugPrint(match.group(0)));
+  }
+
   Future<void> _handleMethodCall(MethodCall call) async {
     if (call.method == "GoLog") {
       if (kDebugMode) {
-        debugPrint("[GO]: ${call.arguments}");
+        printLongString("[GO]: ${call.arguments}");
       }
       return;
     }
@@ -107,15 +127,20 @@ class IrmaClientBridge extends IrmaBridge {
       if (debugLogging) {
         // the irma config event has so much data in its payload it bloats all logs,
         // therefore we explicitly don't print the payload
-        if (call.method == "IrmaConfigurationEvent") {
+        const nonPrinting = {
+          "IrmaConfigurationEvent",
+          "SchemalessCredentialsEvent",
+          "CredentialsEvent",
+        };
+        if (nonPrinting.contains(call.method)) {
           if (kDebugMode) {
-            debugPrint(
+            printLongString(
               "Received bridge event: ${call.method} -- payload omitted",
             );
           }
         } else {
           if (kDebugMode) {
-            debugPrint(
+            printLongString(
               "Received bridge event: ${call.method} with payload ${call.arguments}",
             );
           }
@@ -135,7 +160,7 @@ class IrmaClientBridge extends IrmaBridge {
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
     if (debugLogging && kDebugMode) {
-      debugPrint(
+      printLongString(
         "Sending ${event.runtimeType.toString()} to bridge: $encodedEvent",
       );
     }

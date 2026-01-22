@@ -38,6 +38,9 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders += [
+            'appAuthRedirectScheme': 'yivi-app' // Makes the app open on redirects to yivi-app://callback
+        ]
     }
 
     flavorDimensions "track"

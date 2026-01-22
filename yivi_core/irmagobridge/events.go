@@ -3,8 +3,10 @@ package irmagobridge
 import (
 	"encoding/json"
 
-	irma "github.com/privacybydesign/irmago"
-	"github.com/privacybydesign/irmago/irmaclient"
+	"github.com/privacybydesign/irmago/client"
+	"github.com/privacybydesign/irmago/client/clientsettings"
+	"github.com/privacybydesign/irmago/irma"
+	"github.com/privacybydesign/irmago/irma/irmaclient"
 )
 
 // //
@@ -30,6 +32,19 @@ type changePinEvent struct {
 type newSessionEvent struct {
 	SessionID int
 	Request   json.RawMessage
+}
+
+type respondAuthorizationCodeAndExchangeForTokenEvent struct {
+	SessionID    int
+	Proceed      bool
+	AccessToken  string
+	RefreshToken *string
+}
+
+type respondPreAuthorizedCodeFlowPermissionEvent struct {
+	SessionID       int
+	Proceed         bool
+	TransactionCode *string
 }
 
 type respondPermissionEvent struct {
@@ -58,7 +73,7 @@ type loadLogsEvent struct {
 }
 
 type clientPreferencesEvent struct {
-	Preferences irmaclient.Preferences
+	Preferences clientsettings.Preferences
 }
 
 type getIssueWizardContentsEvent struct {
@@ -78,6 +93,11 @@ type removeRequestorSchemeEvent struct {
 	SchemeID irma.RequestorSchemeIdentifier
 }
 
+type installCertificateEvent struct {
+	Type       string
+	PemContent string
+}
+
 // //
 // Outgoing events
 // //
@@ -91,8 +111,16 @@ type irmaConfigurationEvent struct {
 	IrmaConfiguration *WrappedConfiguration
 }
 
+type eudiConfigurationEvent struct {
+	EudiConfiguration *WrappedEudiConfiguration
+}
+
 type credentialsEvent struct {
 	Credentials irma.CredentialInfoList
+}
+
+type schemalessCredentialsEvent struct {
+	Credentials []*client.Credential
 }
 
 type enrollmentStatusEvent struct {
@@ -187,6 +215,20 @@ type requestIssuancePermissionSessionEvent struct {
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
 	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
+}
+
+type requestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent struct {
+	SessionID                      int
+	RequestorInfo                  *irma.RequestorInfo
+	CredentialInfoList             irma.CredentialTypeInfoList
+	AuthorizationRequestParameters irma.AuthorizationRequestParameters
+}
+
+type requestPreAuthorizedCodeFlowPermissionSessionEvent struct {
+	SessionID                 int
+	RequestorInfo             *irma.RequestorInfo
+	CredentialInfoList        irma.CredentialTypeInfoList
+	TransactionCodeParameters *irma.PreAuthorizedCodeTransactionCodeParameters
 }
 
 type requestVerificationPermissionSessionEvent struct {

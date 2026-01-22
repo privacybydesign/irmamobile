@@ -10,6 +10,35 @@ import "translated_value.dart";
 
 part "credentials.g.dart";
 
+@JsonSerializable(createToJson: false)
+class CredentialTypeInfo {
+  @JsonKey(name: "IssuerName")
+  final TranslatedValue issuerName;
+
+  @JsonKey(name: "Name")
+  final TranslatedValue name;
+
+  @JsonKey(name: "VerifiableCredentialType")
+  final String verifiableCredentialType;
+
+  @JsonKey(name: "Attributes")
+  final Map<String, TranslatedValue> attributes;
+
+  @JsonKey(name: "CredentialFormat")
+  final CredentialFormat credentialFormat;
+
+  CredentialTypeInfo({
+    required this.issuerName,
+    required this.name,
+    required this.verifiableCredentialType,
+    required this.attributes,
+    required this.credentialFormat,
+  });
+
+  factory CredentialTypeInfo.fromJson(Map<String, dynamic> json) =>
+      _$CredentialTypeInfoFromJson(json);
+}
+
 class Credentials extends UnmodifiableMapView<String, Credential> {
   Credentials(super.map);
 
@@ -284,11 +313,7 @@ class RawCredential {
   @JsonKey(name: "RevocationSupported")
   final bool revocationSupported;
 
-  @JsonKey(
-    name: "CredentialFormat",
-    fromJson: stringToCredentialFormat,
-    toJson: credentialFormatToString,
-  )
+  @JsonKey(name: "CredentialFormat")
   final CredentialFormat format;
 
   @JsonKey(name: "InstanceCount")
@@ -323,7 +348,7 @@ class RawMultiFormatCredential {
   @JsonKey(name: "Attributes")
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(name: "HashByFormat", fromJson: parseHashByFormat)
+  @JsonKey(name: "HashByFormat")
   final Map<CredentialFormat, String> hashByFormat;
 
   @JsonKey(name: "SignedOn")
@@ -455,12 +480,4 @@ class MultiFormatCredential {
       !expired &&
       !revoked &&
       (instanceCount == null ? true : instanceCount != 0);
-}
-
-Map<CredentialFormat, String> parseHashByFormat(Map<String, dynamic> json) {
-  return Map.fromEntries(
-    json.entries.map(
-      (e) => MapEntry(stringToCredentialFormat(e.key), e.value as String),
-    ),
-  );
 }

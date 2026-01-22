@@ -3,6 +3,7 @@ import "dart:convert";
 import "package:json_annotation/json_annotation.dart";
 
 import "../data/irma_repository.dart";
+import "protocol.dart";
 import "translated_value.dart";
 
 part "session.g.dart";
@@ -50,7 +51,24 @@ abstract class Pointer {
       return SessionPointer(
         u: content,
         irmaqr: "disclosing",
-        protocol: "openid4vp",
+        protocol: Protocol.openid4vp,
+      );
+    }
+
+    if (content.startsWith("openid-credential-offer://")) {
+      final uri = Uri.parse(content);
+      final credentialOfferUri = uri.queryParameters["credential_offer_uri"];
+      final credentialOffer = uri.queryParameters["credential_offer"];
+      if (credentialOfferUri == null && credentialOffer == null) {
+        throw MissingPointer(
+          details:
+              'expected "credential_offer" or "credential_offer_uri" to be present in query parameters, but it wasn\'t',
+        );
+      }
+      return SessionPointer(
+        u: content,
+        irmaqr: "issuing",
+        protocol: Protocol.openid4vci,
       );
     }
 
@@ -153,6 +171,11 @@ class IssueWizardPointer implements Pointer {
   }
 }
 
+// parsing session pointer directly from json only happens for irma sessions
+Protocol _protocolFromJsonAlwaysIrma(String? protocol) {
+  return Protocol.irma;
+}
+
 /// A pointer that refers to a new IRMA session.
 @JsonSerializable()
 class SessionPointer implements Pointer {
@@ -162,8 +185,13 @@ class SessionPointer implements Pointer {
   @JsonKey(name: "irmaqr", required: true)
   final String irmaqr;
 
-  @JsonKey(name: "protocol", required: false)
-  String? protocol;
+  @JsonKey(
+    name: "protocol",
+    required: false,
+    toJson: protocolToString,
+    fromJson: _protocolFromJsonAlwaysIrma,
+  )
+  Protocol protocol;
 
   /// Whether the session should be continued on the mobile device,
   /// or on the device which has displayed a QR code.
@@ -175,7 +203,7 @@ class SessionPointer implements Pointer {
   SessionPointer({
     required this.u,
     required this.irmaqr,
-    this.protocol,
+    required this.protocol,
     this.continueOnSecondDevice = false,
   });
 
@@ -220,12 +248,7 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
   String get u => _sessionPointer.u;
 
   @override
-  String? get protocol => _sessionPointer.protocol;
-
-  @override
-  set protocol(String? protocol) {
-    _sessionPointer.protocol = protocol;
-  }
+  Protocol get protocol => _sessionPointer.protocol;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -246,6 +269,11 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
       irmaRepository: irmaRepository,
       requestor: requestor,
     );
+  }
+
+  @override
+  set protocol(Protocol protocol) {
+    _sessionPointer.protocol = protocol;
   }
 }
 

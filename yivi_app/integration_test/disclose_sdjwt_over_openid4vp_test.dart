@@ -140,7 +140,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   final fakeIssuer = FakePassportIssuer();
 
   await pumpAndUnlockApp(tester, irmaBinding.repository, Locale("en"), [
-    passportReaderProvider.overrideWith((ref, mrz) {
+    passportReaderProvider.overrideWith2((mrz) {
       fakeReader.setMrz(mrz);
       return fakeReader;
     }),
@@ -1060,7 +1060,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
     } else {
       await evaluateCredentialCard(
         tester,
-        cardsFinder.at(1),
+        f,
         issuerName: "Demo Privacy by Design Foundation via SIDN",
         credentialName: "Demo Mobile phone number",
         attributes: {"Mobile phone number": "0687654321"},

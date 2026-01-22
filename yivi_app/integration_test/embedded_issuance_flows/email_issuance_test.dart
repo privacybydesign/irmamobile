@@ -119,9 +119,7 @@ void main() {
         irmaBinding,
         fullCredentialId: "pbdf-staging.sidn-pbdf.email",
         overrides: [
-          emailIssuanceProvider.overrideWith(
-            (ref) => EmailIssuer(api: FakeEmailIssuerApi()),
-          ),
+          emailIssuerApiProvider.overrideWithValue(FakeEmailIssuerApi()),
         ],
       );
       await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
@@ -220,9 +218,7 @@ Future<void> _goToEnterEmailScreen(
     binding,
     fullCredentialId: "pbdf-staging.sidn-pbdf.email",
     overrides: [
-      emailIssuanceProvider.overrideWith(
-        (ref) => EmailIssuer(api: api ?? FakeEmailIssuerApi()),
-      ),
+      emailIssuerApiProvider.overrideWithValue(api ?? FakeEmailIssuerApi()),
     ],
   );
 

@@ -20,7 +20,7 @@ import "src/screens/add_data/add_data_details_screen.dart";
 import "src/screens/add_data/add_data_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
-import "src/screens/data/credentials_details_screen.dart";
+import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/debug/debug_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
@@ -161,7 +161,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               final args = CredentialsDetailsRouteParams.fromQueryParams(
                 state.uri.queryParameters,
               );
-              return CredentialsDetailsScreen(
+              return SchemalessCredentialsDetailsScreen(
                 categoryName: args.categoryName,
                 credentialTypeId: args.credentialTypeId,
               );
@@ -228,7 +228,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           final args = SessionRouteParams.fromQueryParams(
             state.uri.queryParameters,
           );
-          return SessionScreen(arguments: args);
+          return SessionScreen(params: args);
         },
       ),
       GoRoute(

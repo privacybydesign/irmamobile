@@ -201,13 +201,10 @@ class YiviCredentialCard extends ConsumerWidget {
                   padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
                 ),
                 YiviCredentialCardFooter(
-                  credentialType: type,
-                  issuer: issuer,
                   revoked: revoked,
                   instanceBasedExpireState: _getInstanceCountBasedExpireState(),
                   timeBasedExpireState: _getTimeBasedExpireState(),
                   expiryDate: expiryDate,
-                  isTemplate: isTemplate,
                   instanceCount: instanceCount,
                 ),
               ],

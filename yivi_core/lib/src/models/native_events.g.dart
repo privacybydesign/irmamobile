@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of "native_events.dart";
+part of 'native_events.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

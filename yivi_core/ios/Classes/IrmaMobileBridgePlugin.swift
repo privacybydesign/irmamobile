@@ -114,9 +114,6 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
     ///   - payload: payload that contains the arguments for the requested method
     public func dispatch(fromGo name: String?, payload: String?) {
         let eventName = name ?? "UnknownEvent"
-        if eventName != "IrmaConfigurationEvent" {
-          debugLog("dispatching \(eventName)(\(payload ?? ""))")
-        }
         channel.invokeMethod(eventName, arguments: payload)
     }
 }

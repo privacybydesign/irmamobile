@@ -37,6 +37,7 @@ class IrmaMockBridge extends IrmaBridge {
   void dispatch(Event event) {
     if (event is AppReadyEvent) {
       addEvent(IrmaConfigurationEvent(irmaConfiguration: _irmaConfiguration));
+      //addEvent(EudiConfigurationEvent(eudiConfiguration: _eudiConfiguration));
       addEvent(CredentialsEvent(credentials: _storedCredentials));
     } else if (event is EnrollEvent) {
       // For example respond with IrmaRepository.get().dispatch(EnrollmentSuccessEvent(...))

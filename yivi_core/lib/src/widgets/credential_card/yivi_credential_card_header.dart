@@ -77,7 +77,11 @@ class YiviCredentialCardHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ExcludeSemantics(
-                      child: IrmaAvatar(logoPath: logo, size: _compactLogoSize),
+                      child: IrmaAvatar(
+                        logoPath: logo,
+                        initials: logo == null ? credentialName[0] : null,
+                        size: _compactLogoSize,
+                      ),
                     ),
                     SizedBox(width: theme.defaultSpacing),
                     Expanded(
@@ -123,7 +127,11 @@ class YiviCredentialCardHeader extends StatelessWidget {
               else
                 SizedBox(height: theme.smallSpacing),
               ExcludeSemantics(
-                child: IrmaAvatar(logoPath: logo, size: _expandedLogoSize),
+                child: IrmaAvatar(
+                  logoPath: logo,
+                  initials: logo == null ? credentialName[0] : null,
+                  size: _expandedLogoSize,
+                ),
               ),
               SizedBox(height: theme.mediumSpacing),
               Column(

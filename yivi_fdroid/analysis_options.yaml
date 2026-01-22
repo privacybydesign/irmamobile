@@ -10,6 +10,10 @@ linter:
 
 # Enforce that some rules cause the linter to fail.
 analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gen.dart"
   plugins:
   errors:
     unused_element: warning

@@ -205,6 +205,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       await handlePointer(
         context,
         SessionPointer(
+          protocol: .irma,
           u: sessionPtr.u,
           irmaqr: sessionPtr.irmaqr,
           continueOnSecondDevice: true,
