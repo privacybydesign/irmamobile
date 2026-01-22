@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.13.1] - 2026-01-22
+### Fix
+- Bug in passport reading that prevented passport with an MRZ that starts with PP from being read
+
 ## [7.13.0] - 2026-01-13
 ### Changed
 - Add embedded issuance flows for email and mobilenumber
@@ -573,6 +577,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.13.1]: https://github.com/privacybydesign/irmamobile/compare/v7.13.0...v7.13.1
 [7.13.0]: https://github.com/privacybydesign/irmamobile/compare/v7.12.1...v7.13.0
 [7.12.1]: https://github.com/privacybydesign/irmamobile/compare/v7.12.0...v7.12.1
 [7.12.0]: https://github.com/privacybydesign/irmamobile/compare/v7.11.2...v7.12.0
