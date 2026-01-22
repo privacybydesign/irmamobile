@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.13.1] - 2026-01-22
+### Fix
+- Bug in passport reading that prevented passport with an MRZ that starts with PP from being read
+
 ## [7.13.0] - 2026-01-13
 ### Changed
 - Add embedded issuance flows for email and mobilenumber
