@@ -160,22 +160,28 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     setState(() {
       issuanceError = null;
     });
-    final passportIssuer = ref.read(passportIssuerProvider);
+    try {
+      final passportIssuer = ref.read(passportIssuerProvider);
 
-    final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer
-        .startSessionAtPassportIssuer();
+      final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer
+          .startSessionAtPassportIssuer();
 
-    final result = await _getDocumentReader().readDocument(
-      iosNfcMessages: _createIosNfcMessageMapper(),
-      activeAuthenticationParams: NonceAndSessionId(
-        nonce: nonce,
-        sessionId: sessionId,
-      ),
-    );
+      final result = await _getDocumentReader().readDocument(
+        iosNfcMessages: _createIosNfcMessageMapper(),
+        activeAuthenticationParams: NonceAndSessionId(
+          nonce: nonce,
+          sessionId: sessionId,
+        ),
+      );
 
-    if (result != null) {
-      final (pdr, rawDocData) = result;
-      await _startIssuance(rawDocData);
+      if (result != null) {
+        final (pdr, rawDocData) = result;
+        await _startIssuance(rawDocData);
+      }
+    } catch (e) {
+      setState(() {
+        issuanceError = e.toString();
+      });
     }
   }
 
