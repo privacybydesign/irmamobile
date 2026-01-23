@@ -123,6 +123,10 @@ type schemalessCredentialsEvent struct {
 	Credentials []*client.Credential
 }
 
+type schemalessCredentialStoreEvent struct {
+	Credentials []*client.CredentialStoreItem
+}
+
 type enrollmentStatusEvent struct {
 	EnrolledSchemeManagerIds   []irma.SchemeManagerIdentifier
 	UnenrolledSchemeManagerIds []irma.SchemeManagerIdentifier

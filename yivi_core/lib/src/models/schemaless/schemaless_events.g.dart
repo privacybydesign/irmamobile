@@ -45,8 +45,10 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   id: json['Id'] as String,
   name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
-  url: TranslatedValue.fromJson(json['Url'] as Map<String, dynamic>?),
-  imagePath: json['ImagePath'] as String,
+  url: json['Url'] == null
+      ? null
+      : TranslatedValue.fromJson(json['Url'] as Map<String, dynamic>?),
+  imagePath: json['ImagePath'] as String?,
   parent: json['Parent'] == null
       ? null
       : TrustedParty.fromJson(json['Parent'] as Map<String, dynamic>),
@@ -77,6 +79,7 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   expiryDate: (json['ExpiryDate'] as num).toInt(),
   revoked: json['Revoked'] as bool,
   revocationSupported: json['RevocationSupported'] as bool,
+  issueUrl: TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>?),
 );
 
 const _$CredentialFormatEnumMap = {

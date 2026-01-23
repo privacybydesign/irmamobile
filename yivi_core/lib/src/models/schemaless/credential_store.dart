@@ -1,10 +1,21 @@
-// AttributeDescriptor is a description of an attribute without a value
 import "package:json_annotation/json_annotation.dart";
 
+import "../event.dart";
 import "../translated_value.dart";
 import "schemaless_events.dart";
 
 part "credential_store.g.dart";
+
+@JsonSerializable(createToJson: false)
+class SchemalessCredentialStoreEvent extends Event {
+  @JsonKey(name: "Credentials")
+  final List<CredentialStoreItem> credentials;
+
+  SchemalessCredentialStoreEvent({required this.credentials});
+
+  factory SchemalessCredentialStoreEvent.fromJson(Map<String, dynamic> json) =>
+      _$SchemalessCredentialStoreEventFromJson(json);
+}
 
 @JsonSerializable(createToJson: false)
 class AttributeDescriptor {
@@ -27,7 +38,7 @@ class AttributeDescriptor {
     required this.nested,
   });
 
-  AttributeDescriptor fromJson(Map<String, dynamic> json) =>
+  factory AttributeDescriptor.fromJson(Map<String, dynamic> json) =>
       _$AttributeDescriptorFromJson(json);
 }
 
@@ -64,7 +75,7 @@ class CredentialDescriptor {
     required this.issueURL,
   });
 
-  CredentialDescriptor fromJson(Map<String, dynamic> json) =>
+  factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
       _$CredentialDescriptorFromJson(json);
 }
 
@@ -77,7 +88,7 @@ class CredentialStoreItem {
 
   CredentialStoreItem({required this.credential, required this.faq});
 
-  CredentialStoreItem fromJson(Map<String, dynamic> json) =>
+  factory CredentialStoreItem.fromJson(Map<String, dynamic> json) =>
       _$CredentialStoreItemFromJson(json);
 }
 
@@ -102,5 +113,5 @@ class Faq {
     required this.howTo,
   });
 
-  Faq fromJson(Map<String, dynamic> json) => _$FaqFromJson(json);
+  factory Faq.fromJson(Map<String, dynamic> json) => _$FaqFromJson(json);
 }

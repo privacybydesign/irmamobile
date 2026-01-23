@@ -77,10 +77,10 @@ class TrustedParty {
   final TranslatedValue name;
 
   @JsonKey(name: "Url")
-  final TranslatedValue url;
+  final TranslatedValue? url;
 
   @JsonKey(name: "ImagePath")
-  final String imagePath;
+  final String? imagePath;
 
   @JsonKey(name: "Parent")
   final TrustedParty? parent;
@@ -135,6 +135,9 @@ class Credential {
   @JsonKey(name: "RevocationSupported")
   final bool revocationSupported;
 
+  @JsonKey(name: "IssueURL")
+  final TranslatedValue issueUrl;
+
   Credential({
     required this.credentialId,
     required this.hash,
@@ -148,6 +151,7 @@ class Credential {
     required this.expiryDate,
     required this.revoked,
     required this.revocationSupported,
+    required this.issueUrl,
   });
 
   factory Credential.fromJson(Map<String, dynamic> json) =>

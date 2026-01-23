@@ -132,6 +132,14 @@ func dispatchConfigurationEvent() {
 }
 
 func dispatchSchemalessCredentialsEvent() {
+	storeItems, err := yiviClient.GetCredentialStore()
+	if err != nil {
+		reportError(errors.Errorf("Failed to get credential store: %w", err), false)
+	}
+	dispatchEvent(&schemalessCredentialStoreEvent{
+		Credentials: storeItems,
+	})
+
 	creds, err := yiviClient.GetCredentials()
 	if err != nil {
 		reportError(errors.Errorf("Failed to get credentials: %w", err), false)
