@@ -2,7 +2,7 @@ import "dart:async";
 import "dart:typed_data";
 
 import "package:flutter/cupertino.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
@@ -24,7 +24,7 @@ Future<void> navigateToDrivingLicenceNfcReadingScreen(
   FakePassportIssuer issuer,
 ) async {
   await pumpAndUnlockApp(tester, binding.repository, null, [
-    drivingLicenceReaderProvider.overrideWith((ref, mrz) {
+    drivingLicenceReaderProvider.overrideWith2((mrz) {
       reader.setMrz(mrz);
       return reader;
     }),
@@ -55,7 +55,7 @@ Future<void> navigateToIdCardNfcReadingScreen(
   FakePassportIssuer issuer,
 ) async {
   await pumpAndUnlockApp(tester, binding.repository, null, [
-    idCardReaderProvider.overrideWith((ref, mrz) {
+    idCardReaderProvider.overrideWith2((mrz) {
       reader.setMrz(mrz);
       return reader;
     }),
@@ -93,7 +93,7 @@ Future<void> navigateToPassportNfcReadingScreen(
   FakePassportIssuer issuer,
 ) async {
   await pumpAndUnlockApp(tester, binding.repository, null, [
-    passportReaderProvider.overrideWith((ref, mrz) {
+    passportReaderProvider.overrideWith2((mrz) {
       reader.setMrz(mrz);
       return reader;
     }),
@@ -232,10 +232,16 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
            paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
            bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
-       ) {
+       );
+
+  @override
+  DocumentReaderState build() {
+    ref.onDispose(cancel);
     if (_initialState != null) {
-      state = _initialState;
+      return _initialState;
     }
+    checkNfcAvailability();
+    return DocumentReaderPending();
   }
 
   @override
@@ -298,7 +304,7 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
 
   @override
   Future<void> cancel() async {
-    if (!mounted) {
+    if (!ref.mounted) {
       return;
     }
     cancelCount += 1;
@@ -312,7 +318,7 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
 
   @override
   void reset() {
-    if (!mounted) {
+    if (!ref.mounted) {
       return;
     }
     super.reset();
@@ -342,10 +348,16 @@ class FakePassportReader extends DocumentReader<PassportData> {
            paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
            bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
-       ) {
+       );
+
+  @override
+  DocumentReaderState build() {
+    ref.onDispose(cancel);
     if (_initialState != null) {
-      state = _initialState;
+      return _initialState;
     }
+    checkNfcAvailability();
+    return DocumentReaderPending();
   }
 
   @override
@@ -417,7 +429,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
 
   @override
   Future<void> cancel() async {
-    if (!mounted) {
+    if (!ref.mounted) {
       return;
     }
     cancelCount += 1;
@@ -431,7 +443,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
 
   @override
   void reset() {
-    if (!mounted) {
+    if (!ref.mounted) {
       return;
     }
     super.reset();

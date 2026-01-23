@@ -7,6 +7,7 @@ import "package:string_similarity/string_similarity.dart";
 import "../models/credentials.dart";
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
+import "./provider_helpers.dart" as helpers;
 import "irma_repository_provider.dart";
 
 final credentialsProvider = StreamProvider<Credentials>((ref) async* {
@@ -89,7 +90,7 @@ final multiFormatCredentialsProvider =
 
 // A list of all credentials of the given credential type id
 final credentialsForTypeProvider =
-    FutureProviderFamily<List<MultiFormatCredential>, String>((
+    FutureProvider.family<List<MultiFormatCredential>, String>((
       ref,
       credentialTypeId,
     ) async {
@@ -104,7 +105,9 @@ final credentialsForTypeProvider =
       return filteredCredentials;
     });
 
-final credentialsSearchQueryProvider = StateProvider((ref) => "");
+final credentialsSearchQueryProvider = NotifierProvider(
+  () => helpers.ValueNotifier(""),
+);
 
 // A list of credentials filtered by the query in the `credentialsSearchQueryProvider`
 final credentialsSearchResultsProvider =

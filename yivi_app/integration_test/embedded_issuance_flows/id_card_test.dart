@@ -61,7 +61,7 @@ void main() {
         tester,
         irmaBinding,
         overrides: [
-          idCardReaderProvider.overrideWith((ref, mrz) {
+          idCardReaderProvider.overrideWith2((mrz) {
             fakeReader.setMrz(mrz);
             return fakeReader;
           }),
@@ -138,7 +138,7 @@ void main() {
         tester,
         irmaBinding,
         overrides: [
-          idCardReaderProvider.overrideWith((ref, mrz) {
+          idCardReaderProvider.overrideWith2((mrz) {
             fakeReader.setMrz(mrz);
             return fakeReader;
           }),
