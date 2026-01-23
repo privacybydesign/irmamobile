@@ -680,7 +680,7 @@ packages:
     source: hosted
     version: "6.1.0"
   pinput:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: pinput
       sha256: "692e1c29703abefad6c502e97b4d946d506384397438ea242afadbfe48354819"
@@ -878,7 +878,7 @@ packages:
     source: sdk
     version: "0.0.0"
   smart_auth:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: smart_auth
       sha256: a536423c50d71e9a311d16027346634d0deadd07dafc5b5606b46719cf6fb2b6

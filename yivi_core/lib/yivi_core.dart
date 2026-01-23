@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
@@ -11,6 +12,7 @@ import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
+import "src/providers/sms_issuance_provider.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/sentry/sentry.dart";
@@ -26,9 +28,10 @@ export "src/providers/sms_issuance_provider.dart";
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 
-// The OcrProcessor is optional, when it's set to null the app won't include an mrz reader
-// and the mrz will have to be entered manually by the user.
-Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
+Future<void> runYiviApp({
+  OcrProcessor? ocrProcessor,
+  SmsRetriever? smsRetriever,
+}) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
       details.exception,
@@ -73,6 +76,9 @@ Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
 
           // passed in from the outside so apps are not required to depend on non-FOSS implementations
           ocrProcessorProvider.overrideWithValue(ocrProcessor),
+
+          // passed in from the outside so apps are not required to depend on non-FOSS implementations
+          smsRetrieverProvider.overrideWithValue(smsRetriever),
 
           // can pass an environment variable to test with errors on passport issuance
           if (passportIssuanceError.isNotEmpty)

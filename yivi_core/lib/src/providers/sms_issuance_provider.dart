@@ -3,8 +3,11 @@ import "dart:convert";
 import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
+import "package:pinput/pinput.dart";
 
 import "../models/session.dart";
+
+final smsRetrieverProvider = Provider<SmsRetriever?>((ref) => null);
 
 final smsIssuerUrlProvider = StateProvider(
   (ref) => "https://sms-issuer.staging.yivi.app",
