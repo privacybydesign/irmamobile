@@ -1,3 +1,5 @@
+import "dart:convert";
+
 import "package:flutter/material.dart";
 import "package:flutter/widgets.dart";
 import "package:go_router/go_router.dart";
@@ -5,6 +7,7 @@ import "package:go_router/go_router.dart";
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/protocol.dart";
+import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
 
 extension RoutingHelpers on BuildContext {
@@ -101,6 +104,14 @@ extension RoutingHelpers on BuildContext {
 
   void pushDataDetailsScreen(CredentialType credentialType) {
     push("/home/add_data/details", extra: credentialType);
+  }
+
+  void pushSchemalessDataDetailsScreen(AddDataDetailsRouteParams params) {
+    final url = Uri(
+      path: "/home/add_data/details",
+      queryParameters: params.toQueryParams(),
+    );
+    push(url.toString());
   }
 
   void pushLanguageSettingsScreen() {
@@ -264,6 +275,37 @@ class CredentialsDetailsRouteParams {
     return CredentialsDetailsRouteParams(
       categoryName: params["category_name"]!,
       credentialTypeId: params["credential_type_id"]!,
+    );
+  }
+}
+
+// =============================================================================================
+
+class AddDataDetailsRouteParams {
+  final CredentialDescriptor credential;
+  final Faq? faq;
+
+  AddDataDetailsRouteParams({required this.credential, this.faq});
+
+  Map<String, String> toQueryParams() {
+    final credJson = jsonEncode(credential.toJson());
+    String? faqJson;
+    if (faq != null) {
+      faqJson = jsonEncode(faq!.toJson());
+    }
+    return {"credential": credJson, if (faqJson != null) "faq": faqJson};
+  }
+
+  static AddDataDetailsRouteParams fromQueryParams(Map<String, String> params) {
+    final credJson = params["credential"]!;
+    final faqJson = params["faq"];
+    Faq? faq;
+    if (faqJson != null) {
+      faq = Faq.fromJson(jsonDecode(faqJson));
+    }
+    return AddDataDetailsRouteParams(
+      credential: CredentialDescriptor.fromJson(jsonDecode(credJson)),
+      faq: faq,
     );
   }
 }

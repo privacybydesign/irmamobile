@@ -20,6 +20,12 @@ AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
       data: json['Data'],
     );
 
+Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
+    <String, dynamic>{
+      'Type': _$AttributeTypeEnumMap[instance.type]!,
+      'Data': instance.data,
+    };
+
 const _$AttributeTypeEnumMap = {
   AttributeType.object: 'object',
   AttributeType.array: 'array',
@@ -42,6 +48,13 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
   value: AttributeValue.fromJson(json['Value'] as Map<String, dynamic>),
 );
 
+Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
+  'Id': instance.id,
+  'DisplayName': instance.displayName,
+  'Description': instance.description,
+  'Value': instance.value,
+};
+
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   id: json['Id'] as String,
   name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
@@ -53,6 +66,15 @@ TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
       ? null
       : TrustedParty.fromJson(json['Parent'] as Map<String, dynamic>),
 );
+
+Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
+    <String, dynamic>{
+      'Id': instance.id,
+      'Name': instance.name,
+      'Url': instance.url,
+      'ImagePath': instance.imagePath,
+      'Parent': instance.parent,
+    };
 
 Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   credentialId: json['CredentialId'] as String,
@@ -81,6 +103,27 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   revocationSupported: json['RevocationSupported'] as bool,
   issueUrl: TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>?),
 );
+
+Map<String, dynamic> _$CredentialToJson(Credential instance) =>
+    <String, dynamic>{
+      'CredentialId': instance.credentialId,
+      'Hash': instance.hash,
+      'ImagePath': instance.imagePath,
+      'Name': instance.name,
+      'Issuer': instance.issuer,
+      'CredentialInstanceIds': instance.credentialInstanceIds.map(
+        (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
+      ),
+      'BatchInstanceCountsRemaining': instance.batchInstanceCountsRemaining.map(
+        (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
+      ),
+      'Attributes': instance.attributes,
+      'IssuanceDate': instance.issuanceDate,
+      'ExpiryDate': instance.expiryDate,
+      'Revoked': instance.revoked,
+      'RevocationSupported': instance.revocationSupported,
+      'IssueURL': instance.issueUrl,
+    };
 
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',

@@ -588,12 +588,7 @@ class IrmaRepository {
   }
 
   // Passport issuance is a special case where we use the scanner built into the app as the issuer
-  void _startPassportIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startPassportIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -614,12 +609,7 @@ class IrmaRepository {
     }
   }
 
-  void _startIdCardIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startIdCardIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -642,10 +632,9 @@ class IrmaRepository {
 
   void _startDrivingLicenceIssuance(
     BuildContext context,
-    CredentialType type,
+    String url,
     WidgetRef ref,
   ) {
-    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -668,10 +657,9 @@ class IrmaRepository {
 
   void _startMobileNumberIssuance(
     BuildContext context,
-    CredentialType type,
+    String url,
     WidgetRef ref,
   ) {
-    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -688,12 +676,7 @@ class IrmaRepository {
     }
   }
 
-  void _startEmailIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startEmailIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -710,12 +693,51 @@ class IrmaRepository {
     }
   }
 
+  Future<void> schemalessOpenIssueURL(
+    BuildContext context,
+    CredentialDescriptor credential,
+    WidgetRef ref,
+  ) async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final url = credential.issueURL?.translate(lang);
+    if (url == null || url.isEmpty) {
+      throw UnsupportedError(
+        "Credential type ${credential.credentialId} does not have a suitable issue url for $lang",
+      );
+    }
+
+    // handle some embedded issuance flows
+    if (const {
+      "pbdf",
+      "pbdf-staging",
+    }.any((id) => credential.credentialId.startsWith(id))) {
+      final embeddedFlows = {
+        "passport": _startPassportIssuance,
+        "drivinglicence": _startDrivingLicenceIssuance,
+        "idcard": _startIdCardIssuance,
+        "mobilenumber": _startMobileNumberIssuance,
+        "email": _startEmailIssuance,
+      };
+
+      final splitId = credential.credentialId.split(".");
+
+      final flow = embeddedFlows[splitId.last];
+
+      if (flow != null) {
+        return flow(context, url, ref);
+      }
+    }
+
+    return openURL(url);
+  }
+
   Future<void> openIssueURL(
     BuildContext context,
     CredentialType type,
     WidgetRef ref,
   ) async {
     // handle some embedded issuance flows
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     if (const {"pbdf", "pbdf-staging"}.contains(type.schemeManagerId)) {
       final embeddedFlows = {
         "passport": _startPassportIssuance,
@@ -727,11 +749,9 @@ class IrmaRepository {
 
       final flow = embeddedFlows[type.id];
       if (flow != null) {
-        return flow(context, type, ref);
+        return flow(context, type.issueUrl.translate(lang), ref);
       }
     }
-
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final irmaConfig = await _irmaConfigurationSubject.first;
     final cred = irmaConfig.credentialTypes[type.fullId];

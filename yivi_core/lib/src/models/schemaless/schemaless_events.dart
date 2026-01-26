@@ -29,7 +29,7 @@ enum AttributeType {
   base64Image,
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class AttributeValue {
   @JsonKey(name: "Type")
   final AttributeType type;
@@ -41,9 +41,11 @@ class AttributeValue {
 
   factory AttributeValue.fromJson(Map<String, dynamic> json) =>
       _$AttributeValueFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttributeValueToJson(this);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class Attribute {
   @JsonKey(name: "Id")
   final String id;
@@ -66,9 +68,11 @@ class Attribute {
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>
       _$AttributeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class TrustedParty {
   @JsonKey(name: "Id")
   final String id;
@@ -95,9 +99,11 @@ class TrustedParty {
 
   factory TrustedParty.fromJson(Map<String, dynamic> json) =>
       _$TrustedPartyFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TrustedPartyToJson(this);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class Credential {
   @JsonKey(name: "CredentialId")
   final String credentialId;
@@ -156,4 +162,6 @@ class Credential {
 
   factory Credential.fromJson(Map<String, dynamic> json) =>
       _$CredentialFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialToJson(this);
 }

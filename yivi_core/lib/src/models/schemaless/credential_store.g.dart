@@ -19,10 +19,23 @@ AttributeDescriptor _$AttributeDescriptorFromJson(Map<String, dynamic> json) =>
       id: json['Id'] as String,
       name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
       type: $enumDecode(_$AttributeTypeEnumMap, json['Type']),
-      nested: (json['Nested'] as List<dynamic>)
-          .map((e) => AttributeDescriptor.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      nested:
+          (json['Nested'] as List<dynamic>?)
+              ?.map(
+                (e) => AttributeDescriptor.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
     );
+
+Map<String, dynamic> _$AttributeDescriptorToJson(
+  AttributeDescriptor instance,
+) => <String, dynamic>{
+  'Id': instance.id,
+  'Name': instance.name,
+  'Type': _$AttributeTypeEnumMap[instance.type]!,
+  'Nested': instance.nested,
+};
 
 const _$AttributeTypeEnumMap = {
   AttributeType.object: 'object',
@@ -53,6 +66,18 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
       : TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>?),
 );
 
+Map<String, dynamic> _$CredentialDescriptorToJson(
+  CredentialDescriptor instance,
+) => <String, dynamic>{
+  'CredentialId': instance.credentialId,
+  'Name': instance.name,
+  'Issuer': instance.issuer,
+  'Category': instance.category,
+  'ImagePath': instance.imagePath,
+  'Attributes': instance.attributes,
+  'IssueURL': instance.issueURL,
+};
+
 CredentialStoreItem _$CredentialStoreItemFromJson(Map<String, dynamic> json) =>
     CredentialStoreItem(
       credential: CredentialDescriptor.fromJson(
@@ -61,9 +86,20 @@ CredentialStoreItem _$CredentialStoreItemFromJson(Map<String, dynamic> json) =>
       faq: Faq.fromJson(json['Faq'] as Map<String, dynamic>),
     );
 
+Map<String, dynamic> _$CredentialStoreItemToJson(
+  CredentialStoreItem instance,
+) => <String, dynamic>{'Credential': instance.credential, 'Faq': instance.faq};
+
 Faq _$FaqFromJson(Map<String, dynamic> json) => Faq(
   intro: TranslatedValue.fromJson(json['Into'] as Map<String, dynamic>?),
   purpose: TranslatedValue.fromJson(json['Purpose'] as Map<String, dynamic>?),
   content: TranslatedValue.fromJson(json['Content'] as Map<String, dynamic>?),
   howTo: TranslatedValue.fromJson(json['HowTo'] as Map<String, dynamic>?),
 );
+
+Map<String, dynamic> _$FaqToJson(Faq instance) => <String, dynamic>{
+  'Into': instance.intro,
+  'Purpose': instance.purpose,
+  'Content': instance.content,
+  'HowTo': instance.howTo,
+};

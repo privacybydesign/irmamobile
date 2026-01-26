@@ -17,7 +17,7 @@ class SchemalessCredentialStoreEvent extends Event {
       _$SchemalessCredentialStoreEventFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class AttributeDescriptor {
   @JsonKey(name: "Id")
   final String id;
@@ -28,7 +28,7 @@ class AttributeDescriptor {
   @JsonKey(name: "Type")
   final AttributeType type;
 
-  @JsonKey(name: "Nested")
+  @JsonKey(name: "Nested", defaultValue: [], disallowNullValue: false)
   final List<AttributeDescriptor> nested;
 
   AttributeDescriptor({
@@ -40,9 +40,11 @@ class AttributeDescriptor {
 
   factory AttributeDescriptor.fromJson(Map<String, dynamic> json) =>
       _$AttributeDescriptorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttributeDescriptorToJson(this);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class CredentialDescriptor {
   @JsonKey(name: "CredentialId")
   final String credentialId;
@@ -77,9 +79,11 @@ class CredentialDescriptor {
 
   factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
       _$CredentialDescriptorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialDescriptorToJson(this);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class CredentialStoreItem {
   @JsonKey(name: "Credential")
   final CredentialDescriptor credential;
@@ -90,9 +94,11 @@ class CredentialStoreItem {
 
   factory CredentialStoreItem.fromJson(Map<String, dynamic> json) =>
       _$CredentialStoreItemFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialStoreItemToJson(this);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable()
 class Faq {
   @JsonKey(name: "Into")
   final TranslatedValue intro;
@@ -114,4 +120,6 @@ class Faq {
   });
 
   factory Faq.fromJson(Map<String, dynamic> json) => _$FaqFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FaqToJson(this);
 }

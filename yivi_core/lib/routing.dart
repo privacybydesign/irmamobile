@@ -16,8 +16,8 @@ import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
-import "src/screens/add_data/add_data_details_screen.dart";
-import "src/screens/add_data/add_data_screen.dart";
+import "src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "src/screens/add_data/schemaless_add_data_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
 import "src/screens/data/schemaless_credentials_details_screen.dart";
@@ -183,19 +183,23 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           GoRoute(path: "help", builder: (context, state) => HelpScreen()),
           GoRoute(
             path: "add_data",
-            builder: (context, state) => AddDataScreen(),
+            builder: (context, state) => SchemalessAddDataScreen(),
             routes: [
               GoRoute(
                 path: "details",
                 builder: (context, state) {
-                  final credentialType = state.extra as CredentialType;
-                  return AddDataDetailsScreen(
-                    credentialType: credentialType,
+                  final params = AddDataDetailsRouteParams.fromQueryParams(
+                    state.uri.queryParameters,
+                  );
+
+                  return SchemalessAddDataDetailsScreen(
+                    credential: params.credential,
+                    faq: params.faq,
                     onCancel: context.pop,
                     onAdd: () {
                       IrmaRepositoryProvider.of(
                         context,
-                      ).openIssueURL(context, credentialType, ref);
+                      ).schemalessOpenIssueURL(context, params.credential, ref);
                     },
                   );
                 },
