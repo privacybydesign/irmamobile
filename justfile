@@ -60,6 +60,12 @@ get:
     cd yivi_app && flutter pub get
     cd yivi_fdroid && flutter pub get
 
+# Applies all Flutter fixes that can be applied automatically
+fix:
+    cd yivi_core && dart fix --apply
+    cd yivi_app && dart fix --apply
+    cd yivi_fdroid && dart fix --apply
+
 # Fetches or updates all Go and Flutter dependencies and generates go bindings
 setup: get bind
 
