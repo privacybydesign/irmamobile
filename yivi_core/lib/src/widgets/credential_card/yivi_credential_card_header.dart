@@ -78,7 +78,8 @@ class YiviCredentialCardHeader extends StatelessWidget {
                   children: [
                     ExcludeSemantics(
                       child: IrmaAvatar(
-                        logoPath: logo,
+                        // logoPath: logo,
+                        logoImage: logo != null ? Image.network(logo!) : null,
                         initials: logo == null ? credentialName[0] : null,
                         size: _compactLogoSize,
                       ),
@@ -128,8 +129,11 @@ class YiviCredentialCardHeader extends StatelessWidget {
                 SizedBox(height: theme.smallSpacing),
               ExcludeSemantics(
                 child: IrmaAvatar(
-                  logoPath: logo,
+                  // logoImage: Image.network(logo!),
+                  logoImage: logo != null ? Image.network(logo!) : null,
                   initials: logo == null ? credentialName[0] : null,
+                  // logoPath: logo,
+                  // initials: logo == null ? credentialName[0] : null,
                   size: _expandedLogoSize,
                 ),
               ),

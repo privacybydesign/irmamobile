@@ -188,7 +188,10 @@ class _OpenID4VciSessionScreenState
             padding: .only(bottom: theme.smallSpacing),
             child: SizedBox(
               width: .infinity,
-              child: CredentialTypeInfoCard(info: cred),
+              child: CredentialTypeInfoCard(
+                info: cred,
+                logo: state.requestorInfo?.logoPath,
+              ),
             ),
           ),
         ) ??

@@ -131,7 +131,7 @@ class _AttributeView extends StatelessWidget {
         .translatedString => buildTranslatedTextContent(attribute),
         .image => buildTappableImage(attribute),
         .base64Image => buildTappableImage(attribute),
-        .object => _buildObject(attribute),
+        .object => _buildObject(theme, attribute),
         .boolean => throw UnimplementedError(),
         .integer => throw UnimplementedError(),
         .array => throw UnimplementedError(),
@@ -139,7 +139,7 @@ class _AttributeView extends StatelessWidget {
     );
   }
 
-  Widget _buildObject(schemaless.Attribute attribute) {
+  Widget _buildObject(IrmaThemeData theme, schemaless.Attribute attribute) {
     final obj = attribute.value.data as Map<String, dynamic>;
     final nested = obj.values.map(
       (a) => _AttributeView(
@@ -150,7 +150,11 @@ class _AttributeView extends StatelessWidget {
     // if there's no human readable name for this attribute section,
     // just make the nested values a flat list
     if (attribute.displayName.isEmpty) {
-      return Column(children: [...nested]);
+      return Column(
+        spacing: theme.smallSpacing,
+        crossAxisAlignment: .start,
+        children: [...nested],
+      );
     }
     return Text("${attribute.id} (object)");
   }

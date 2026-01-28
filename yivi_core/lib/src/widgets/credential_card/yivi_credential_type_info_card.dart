@@ -8,9 +8,14 @@ import "../irma_divider.dart";
 import "yivi_credential_card_header.dart";
 
 class CredentialTypeInfoCard extends StatelessWidget {
-  const CredentialTypeInfoCard({super.key, required this.info});
+  const CredentialTypeInfoCard({
+    super.key,
+    required this.info,
+    required this.logo,
+  });
 
   final CredentialTypeInfo info;
+  final String? logo;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +32,7 @@ class CredentialTypeInfoCard extends StatelessWidget {
             credentialName: name,
             issuerName: issuerName,
             compact: true,
+            logo: logo,
           ),
           IrmaDivider(
             padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),

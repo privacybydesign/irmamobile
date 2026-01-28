@@ -81,7 +81,7 @@ class _CredentialsDetailsScreenState
         children: [
           Transform.translate(
             offset: Offset(0, 4),
-            child: IrmaAvatar(logoPath: c.imagePath, size: 20),
+            child: IrmaAvatar(logoImage: Image.network(c.imagePath), size: 20),
           ),
           Text(name, style: theme.textTheme.displaySmall),
         ],
@@ -143,28 +143,42 @@ class _CredentialsDetailsScreenState
                   child: SchemalessYiviCredentialCard(
                     credential: cred,
                     compact: false,
+                    headerTrailing:
+                        // Credential must either be reobtainable or deletable
+                        // for the options bottom sheet to be accessible
+                        Transform.translate(
+                            offset: Offset(theme.smallSpacing, -10),
+                            child: IconButton(
+                              onPressed: () =>
+                                  _showCredentialOptionsBottomSheet(
+                                    context,
+                                    cred,
+                                  ),
+                              icon: const Icon(Icons.more_horiz_sharp),
+                            ),
+                          ),
+                    // child: YiviCredentialCard.fromMultiFormatCredential(
+                    //   cred,
+                    //   compact: false,
+                    //   headerTrailing:
+                    //       // Credential must either be reobtainable or deletable
+                    //       // for the options bottom sheet to be accessible
+                    //       cred.credentialType.disallowDelete &&
+                    //           cred.credentialType.issueUrl.isEmpty
+                    //       ? null
+                    //       : Transform.translate(
+                    //           offset: Offset(theme.smallSpacing, -10),
+                    //           child: IconButton(
+                    //             onPressed: () =>
+                    //                 _showCredentialOptionsBottomSheet(
+                    //                   context,
+                    //                   cred,
+                    //                 ),
+                    //             icon: const Icon(Icons.more_horiz_sharp),
+                    //           ),
+                    //         ),
+                    // ),
                   ),
-                  // child: YiviCredentialCard.fromMultiFormatCredential(
-                  //   cred,
-                  //   compact: false,
-                  //   headerTrailing:
-                  //       // Credential must either be reobtainable or deletable
-                  //       // for the options bottom sheet to be accessible
-                  //       cred.credentialType.disallowDelete &&
-                  //           cred.credentialType.issueUrl.isEmpty
-                  //       ? null
-                  //       : Transform.translate(
-                  //           offset: Offset(theme.smallSpacing, -10),
-                  //           child: IconButton(
-                  //             onPressed: () =>
-                  //                 _showCredentialOptionsBottomSheet(
-                  //                   context,
-                  //                   cred,
-                  //                 ),
-                  //             icon: const Icon(Icons.more_horiz_sharp),
-                  //           ),
-                  //         ),
-                  // ),
                 ),
               ),
               SizedBox(height: theme.largeSpacing),
@@ -177,33 +191,29 @@ class _CredentialsDetailsScreenState
 
   Future<void> _showCredentialOptionsBottomSheet(
     BuildContext context,
-    MultiFormatCredential cred,
+    schemaless.Credential cred,
   ) async {
     showModalBottomSheet(
       context: context,
       builder: (context) => IrmaCredentialCardOptionsBottomSheet(
-        onDelete: cred.credentialType.disallowDelete
-            ? null
-            : () async {
-                Navigator.of(context).pop();
-                await _showConfirmDeleteDialog(
-                  _scaffoldKey.currentContext!,
-                  cred,
-                );
-              },
-        onReobtain: cred.credentialType.issueUrl.isEmpty
-            ? null
-            : () {
-                Navigator.of(context).pop();
-                _reobtainCredential(context, cred);
-              },
+        onReobtain: null,
+        onDelete: () async {
+          Navigator.of(context).pop();
+          await _showConfirmDeleteDialog(_scaffoldKey.currentContext!, cred);
+        },
+        // onReobtain: cred.credentialType.issueUrl.isEmpty
+        //     ? null
+        //     : () {
+        //         Navigator.of(context).pop();
+        //         _reobtainCredential(context, cred);
+        //       },
       ),
     );
   }
 
   Future<void> _showConfirmDeleteDialog(
     BuildContext context,
-    MultiFormatCredential credential,
+    schemaless.Credential credential,
   ) async {
     final confirmed =
         await showDialog<bool>(
@@ -219,13 +229,11 @@ class _CredentialsDetailsScreenState
 
   void _deleteCredential(
     BuildContext context,
-    MultiFormatCredential credential,
+    schemaless.Credential credential,
   ) {
-    if (!credential.credentialType.disallowDelete) {
-      IrmaRepositoryProvider.of(context).bridgedDispatch(
-        DeleteCredentialEvent(hashByFormat: credential.hashByFormat),
-      );
-    }
+    IrmaRepositoryProvider.of(context).bridgedDispatch(
+      DeleteCredentialEvent(hashByFormat: credential.credentialInstanceIds),
+    );
   }
 
   void _showDeletedSnackbar() {
