@@ -147,16 +147,15 @@ class _CredentialsDetailsScreenState
                         // Credential must either be reobtainable or deletable
                         // for the options bottom sheet to be accessible
                         Transform.translate(
-                            offset: Offset(theme.smallSpacing, -10),
-                            child: IconButton(
-                              onPressed: () =>
-                                  _showCredentialOptionsBottomSheet(
-                                    context,
-                                    cred,
-                                  ),
-                              icon: const Icon(Icons.more_horiz_sharp),
+                          offset: Offset(theme.smallSpacing, -10),
+                          child: IconButton(
+                            onPressed: () => _showCredentialOptionsBottomSheet(
+                              context,
+                              cred,
                             ),
+                            icon: const Icon(Icons.more_horiz_sharp),
                           ),
+                        ),
                     // child: YiviCredentialCard.fromMultiFormatCredential(
                     //   cred,
                     //   compact: false,

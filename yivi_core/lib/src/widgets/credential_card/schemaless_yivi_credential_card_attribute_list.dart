@@ -92,6 +92,19 @@ class _AttributeView extends StatelessWidget {
       );
     }
 
+    Widget _buildArray(schemaless.Attribute attribute) {
+      final obj = attribute.value.data as List<dynamic>;
+      final items = obj.map(
+        (v) => schemaless.AttributeValue.fromJson(v).data as String,
+      );
+      return Column(
+        children: [
+          buildLabel(attribute),
+          Row(children: [...items.map((i) => Text(i))]),
+        ],
+      );
+    }
+
     Widget buildTappableImage(schemaless.Attribute attribute) {
       final imageContent = TranslatedValue.fromJson(
         attribute.value.data as Map<String, dynamic>,
@@ -124,6 +137,25 @@ class _AttributeView extends StatelessWidget {
       );
     }
 
+    Widget buildIntegerContent(schemaless.Attribute attribute) {
+      return Column(
+        crossAxisAlignment: .start,
+        children: [
+          buildLabel(attribute),
+          Text(
+            attribute.value.data.toString(),
+            style: theme.themeData.textTheme.bodyLarge!.copyWith(
+              color: compareTo == null
+                  ? theme.dark
+                  : attribute.value.data == compareTo!.data
+                  ? theme.success
+                  : theme.error,
+            ),
+          ),
+        ],
+      );
+    }
+
     return Padding(
       padding: .symmetric(vertical: theme.tinySpacing),
       child: switch (attribute.value.type) {
@@ -133,15 +165,15 @@ class _AttributeView extends StatelessWidget {
         .base64Image => buildTappableImage(attribute),
         .object => _buildObject(theme, attribute),
         .boolean => throw UnimplementedError(),
-        .integer => throw UnimplementedError(),
-        .array => throw UnimplementedError(),
+        .integer => buildIntegerContent(attribute),
+        .array => _buildArray(attribute),
       },
     );
   }
 
   Widget _buildObject(IrmaThemeData theme, schemaless.Attribute attribute) {
-    final obj = attribute.value.data as Map<String, dynamic>;
-    final nested = obj.values.map(
+    final obj = attribute.value.data as List<dynamic>;
+    final nested = obj.map(
       (a) => _AttributeView(
         attribute: schemaless.Attribute.fromJson(a as Map<String, dynamic>),
       ),
