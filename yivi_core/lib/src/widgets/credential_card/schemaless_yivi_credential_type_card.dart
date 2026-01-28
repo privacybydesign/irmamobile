@@ -35,6 +35,7 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
     Widget avatar = IrmaAvatar(
       size: logoContainerSize,
       logoPath: credentialImagePath,
+      initials: "DM",
     );
 
     // If the credential is checked, add a check mark to the avatar

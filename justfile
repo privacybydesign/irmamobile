@@ -69,3 +69,5 @@ fix:
 # Fetches or updates all Go and Flutter dependencies and generates go bindings
 setup: get bind
 
+# Run go bind and then run the Flutter app
+bind-run: bind run

@@ -132,8 +132,9 @@ class IrmaClientBridge extends IrmaBridge {
         // therefore we explicitly don't print the payload
         const nonPrinting = {
           "IrmaConfigurationEvent",
-          "SchemalessCredentialsEvent",
+          // "SchemalessCredentialsEvent",
           "CredentialsEvent",
+          "SchemalessCredentialStoreEvent"
         };
         if (nonPrinting.contains(call.method)) {
           if (kDebugMode) {

@@ -61,7 +61,7 @@ class _OpenID4VciSessionScreenState
       valueListenable: _displayArrowBack,
       builder: (BuildContext context, bool displayArrowBack, Widget? child) {
         if (displayArrowBack) {
-          return const ArrowBack(type: ArrowBackType.error);
+          return const ArrowBack(type: .error);
         }
         return child ?? Container();
       },
@@ -89,6 +89,86 @@ class _OpenID4VciSessionScreenState
     return CircularProgressIndicator();
   }
 
+  Widget _buildDismissed() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => Navigator.of(context).pop(),
+    );
+    return _buildLoading();
+  }
+
+  Widget _buildFinished(OpenID4VciSessionState session) {
+    // In case of issuance during disclosure, another session is open in a screen lower in the stack.
+    // Ignore clientReturnUrl in this case (issuance) and pop immediately.
+    if (session.isIssuanceSession && widget.params.hasUnderlyingSession) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => context.popToUnderlyingSession(),
+      );
+      return _buildLoading();
+    }
+
+    // if (session.continueOnSecondDevice ||
+    //     session.didIssuePreviouslyLaunchedCredential &&
+    //         // Check to rule out the combined issuance and disclosure sessions
+    //         (session.disclosuresCandidates == null ||
+    //             session.disclosuresCandidates!.isEmpty)) {
+    //   return _buildFinishedContinueSecondDevice(session);
+    // }
+
+    // final issuedWizardCred =
+    //     widget.params.wizardActive &&
+    //     widget.params.wizardCred != null &&
+    //     (session.issuedCredentials
+    //             ?.map((c) => c.credentialType.fullId)
+    //             .contains(widget.params.wizardCred) ??
+    //         false);
+
+    // It concerns a mobile session.
+    // if (session.clientReturnURL != null && !issuedWizardCred) {
+    //   // If there is a return URL, navigate to it when we're done.
+    //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //     // When being in a disclosure, we can continue to underlying sessions in this case;
+    //     // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
+    //     // we don't have to explicitly exclude issuance here.
+    //     if (session.clientReturnURL!.isInApp) {
+    //       _popToUnderlyingOrHome();
+    //       await _openClientReturnUrl(session.clientReturnURL!);
+    //     } else {
+    //       final hasOpened = await _openClientReturnUrl(
+    //         session.clientReturnURL!,
+    //       );
+    //       if (!hasOpened || !mounted) return;
+    //       _popToUnderlyingOrHome();
+    //     }
+    //   });
+    // } else if (widget.params.wizardActive ||
+    //     session.didIssuePreviouslyLaunchedCredential) {
+    //   // If the wizard is active or this concerns a combined session, pop accordingly.
+    //   WidgetsBinding.instance.addPostFrameCallback(
+    //     (_) => widget.params.wizardActive
+    //         ? context.popToWizardScreen()
+    //         : Navigator.of(context).pop(),
+    //   );
+    // } else if (widget.params.hasUnderlyingSession) {
+    //   // In case of a disclosure having an underlying session we only continue to underlying session
+    //   // if it is a mobile session and there was no clientReturnUrl.
+    //   WidgetsBinding.instance.addPostFrameCallback(
+    //     (_) => Navigator.of(context).pop(),
+    //   );
+    if (Platform.isIOS) {
+      // On iOS, show a screen to press the return arrow in the top-left corner.
+      return ArrowBack(type: session.status != .success ? .error : .issuance);
+    } else {
+      // On Android just background the app to let the user return to the previous activity
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(irmaRepositoryProvider)
+            .bridgedDispatch(AndroidSendToBackgroundEvent());
+        context.goHomeScreen();
+      });
+    }
+    return _buildLoading();
+  }
+
   Widget _buildSessionScreen(
     BuildContext context,
     OpenID4VciSessionState state,
@@ -96,14 +176,18 @@ class _OpenID4VciSessionScreenState
     if (state.error != null) {
       return _buildErrorScreen(state.error!, state.continueOnSecondDevice);
     }
+
+    if (state.dismissed) return _buildDismissed();
+    if (state.status == .success) return _buildFinished(state);
+
     final theme = IrmaTheme.of(context);
 
     final credentialDetails =
         state.credentialInfoList?.map(
           (cred) => Padding(
-            padding: EdgeInsets.only(bottom: theme.smallSpacing),
+            padding: .only(bottom: theme.smallSpacing),
             child: SizedBox(
-              width: double.infinity,
+              width: .infinity,
               child: CredentialTypeInfoCard(info: cred),
             ),
           ),
@@ -115,12 +199,12 @@ class _OpenID4VciSessionScreenState
       body: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
         child: Padding(
-          padding: EdgeInsets.symmetric(
+          padding: .symmetric(
             horizontal: theme.defaultSpacing,
             vertical: theme.smallSpacing,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
               // Padding(
               //   padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
@@ -130,7 +214,7 @@ class _OpenID4VciSessionScreenState
               //   ),
               // ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+                padding: .symmetric(vertical: theme.smallSpacing),
                 child: IrmaQuote(
                   quote: FlutterI18n.translate(context, "issuance.description"),
                 ),

@@ -51,81 +51,108 @@ class _AttributeView extends StatelessWidget {
       style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
     );
 
-    Text buildTextContent(schemaless.Attribute attribute) {
-      return Text(
-        attribute.value.data as String,
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: compareTo == null
-              ? theme.dark
-              : attribute.value.data == compareTo!.data
-              ? theme.success
-              : theme.error,
-        ),
+    Widget buildTextContent(schemaless.Attribute attribute) {
+      return Column(
+        crossAxisAlignment: .start,
+        children: [
+          buildLabel(attribute),
+          Text(
+            attribute.value.data as String,
+            style: theme.themeData.textTheme.bodyLarge!.copyWith(
+              color: compareTo == null
+                  ? theme.dark
+                  : attribute.value.data == compareTo!.data
+                  ? theme.success
+                  : theme.error,
+            ),
+          ),
+        ],
       );
     }
 
-    Text buildTranslatedTextContent(schemaless.Attribute attribute) {
+    Widget buildTranslatedTextContent(schemaless.Attribute attribute) {
       final txt = TranslatedValue.fromJson(
         attribute.value.data as Map<String, dynamic>,
       );
-      return Text(
-        txt.translate(lang),
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: compareTo == null
-              ? theme.dark
-              : attribute.value.data == compareTo!.data
-              ? theme.success
-              : theme.error,
-        ),
+      return Column(
+        crossAxisAlignment: .start,
+        children: [
+          buildLabel(attribute),
+          Text(
+            txt.translate(lang),
+            style: theme.themeData.textTheme.bodyLarge!.copyWith(
+              color: compareTo == null
+                  ? theme.dark
+                  : attribute.value.data == compareTo!.data
+                  ? theme.success
+                  : theme.error,
+            ),
+          ),
+        ],
       );
     }
 
-    GestureDetector buildTappableImage(schemaless.Attribute attribute) {
+    Widget buildTappableImage(schemaless.Attribute attribute) {
       final imageContent = TranslatedValue.fromJson(
         attribute.value.data as Map<String, dynamic>,
       ).translate(lang);
       final image = _imageFromRaw(imageContent);
-      return GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Scaffold(
-                appBar: IrmaAppBar(
-                  titleString: attribute.displayName.translate(lang),
+      return Column(
+        crossAxisAlignment: .start,
+        children: [
+          buildLabel(attribute),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Scaffold(
+                    appBar: IrmaAppBar(
+                      titleString: attribute.displayName.translate(lang),
+                    ),
+                    body: SingleChildScrollView(child: Center(child: image)),
+                  ),
                 ),
-                body: SingleChildScrollView(child: Center(child: image)),
-              ),
+              );
+            },
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
+              child: image,
             ),
-          );
-        },
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
-          child: image,
-        ),
+          ),
+        ],
       );
     }
 
     return Padding(
       padding: .symmetric(vertical: theme.tinySpacing),
-      child: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .start,
-        children: [
-          buildLabel(attribute),
-          switch (attribute.value.type) {
-            .string => buildTextContent(attribute),
-            .translatedString => buildTranslatedTextContent(attribute),
-            .image => buildTappableImage(attribute),
-            .base64Image => buildTappableImage(attribute),
-            .boolean => throw UnimplementedError(),
-            .integer => throw UnimplementedError(),
-            .object => throw UnimplementedError(),
-            .array => throw UnimplementedError(),
-          },
-        ],
+      child: switch (attribute.value.type) {
+        .string => buildTextContent(attribute),
+        .translatedString => buildTranslatedTextContent(attribute),
+        .image => buildTappableImage(attribute),
+        .base64Image => buildTappableImage(attribute),
+        .object => _buildObject(attribute),
+        .boolean => throw UnimplementedError(),
+        .integer => throw UnimplementedError(),
+        .array => throw UnimplementedError(),
+      },
+    );
+  }
+
+  Widget _buildObject(schemaless.Attribute attribute) {
+    final obj = attribute.value.data as Map<String, dynamic>;
+    final nested = obj.values.map(
+      (a) => _AttributeView(
+        attribute: schemaless.Attribute.fromJson(a as Map<String, dynamic>),
       ),
     );
+
+    // if there's no human readable name for this attribute section,
+    // just make the nested values a flat list
+    if (attribute.displayName.isEmpty) {
+      return Column(children: [...nested]);
+    }
+    return Text("${attribute.id} (object)");
   }
 
   Image _imageFromRaw(String raw) {

@@ -4,12 +4,10 @@ import "package:rxdart/rxdart.dart";
 
 import "../models/attribute.dart";
 import "../models/credentials.dart";
-import "../models/protocol.dart";
 import "../models/return_url.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_state.dart";
-import "../models/translated_value.dart";
 import "../util/con_dis_con.dart";
 import "irma_repository.dart";
 
@@ -56,12 +54,12 @@ class SessionRepository {
     RequestorInfo serverName;
     try {
       final url = Uri.parse(event.request.u).host;
-      serverName = RequestorInfo(name: TranslatedValue.fromString(url));
+      serverName = RequestorInfo(name: .fromString(url));
     } catch (_) {
       // Error with url will be resolved by bridge, so we don't have to act on that.
-      serverName = RequestorInfo(name: const TranslatedValue.empty());
+      serverName = RequestorInfo(name: const .empty());
     }
-    if (event.request.protocol == Protocol.openid4vci) {
+    if (event.request.protocol == .openid4vci) {
       return OpenID4VciSessionState(
         sessionID: event.sessionID,
         continueOnSecondDevice: event.request.continueOnSecondDevice,
@@ -72,7 +70,7 @@ class SessionRepository {
         clientReturnURL: null,
         continueOnSecondDevice: event.request.continueOnSecondDevice,
         previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
-        status: SessionStatus.initialized,
+        status: .initialized,
         serverName: serverName,
         sessionType: event.request.irmaqr,
       );
@@ -123,8 +121,15 @@ class SessionRepository {
       return prevState;
     }
     if (event is FailureSessionEvent) {
-      return prevState.copyWith(error: event.error);
+      return prevState.copyWith(error: event.error, status: .error);
     }
+    if (event is DismissSessionEvent) {
+      return prevState.copyWith(dismissed: true);
+    }
+    if (event is SuccessSessionEvent) {
+      return prevState.copyWith(status: .success);
+    }
+    if (event is RespondPreAuthorizedCodeFlowPermissionEvent) {}
     debugPrint("Unknown event: $event for state $prevState");
     return prevState;
   }
@@ -134,13 +139,10 @@ class SessionRepository {
     SessionEvent event,
   ) {
     if (event is FailureSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: event.error,
-      );
+      return prevState.copyWith(status: .error, error: event.error);
     } else if (event is KeyshareEnrollmentMissingSessionEvent) {
       return prevState.copyWith(
-        status: SessionStatus.error,
+        status: .error,
         error: SessionError(
           errorType: "keyshareEnrollmentMissing",
           info:
@@ -149,7 +151,7 @@ class SessionRepository {
       );
     } else if (event is KeyshareEnrollmentIncompleteSessionEvent) {
       return prevState.copyWith(
-        status: SessionStatus.error,
+        status: .error,
         error: SessionError(
           errorType: "keyshareEnrollmentIncomplete",
           info:
@@ -158,7 +160,7 @@ class SessionRepository {
       );
     } else if (event is KeyshareEnrollmentDeletedSessionEvent) {
       return prevState.copyWith(
-        status: SessionStatus.error,
+        status: .error,
         error: SessionError(
           errorType: "keyshareEnrollmentDeleted",
           info:
@@ -173,14 +175,14 @@ class SessionRepository {
       );
     } else if (event is PairingRequiredSessionEvent) {
       return prevState.copyWith(
-        status: SessionStatus.pairing,
+        status: .pairing,
         pairingCode: event.pairingCode,
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
       try {
         _validateCandidates(event.disclosuresCandidates);
       } on SessionError catch (e) {
-        return prevState.copyWith(status: SessionStatus.error, error: e);
+        return prevState.copyWith(status: .error, error: e);
       }
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = event.disclosuresCandidates.every(
@@ -196,13 +198,13 @@ class SessionRepository {
 
       return prevState.copyWith(
         status: event.disclosuresCandidates.isEmpty
-            ? SessionStatus.requestIssuancePermission
-            : SessionStatus.requestDisclosurePermission,
+            ? .requestIssuancePermission
+            : .requestDisclosurePermission,
         serverName: event.serverName,
         satisfiable: event.satisfiable,
         canBeFinished: canBeFinished,
         isSignatureSession: false,
-        disclosuresCandidates: ConDisCon.fromRaw(
+        disclosuresCandidates: .fromRaw(
           event.disclosuresCandidates,
           (DisclosureCandidate dc) => dc,
         ),
@@ -212,7 +214,7 @@ class SessionRepository {
       try {
         _validateCandidates(event.disclosuresCandidates);
       } on SessionError catch (e) {
-        return prevState.copyWith(status: SessionStatus.error, error: e);
+        return prevState.copyWith(status: .error, error: e);
       }
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = event.disclosuresCandidates.every(
@@ -220,7 +222,7 @@ class SessionRepository {
       );
 
       return prevState.copyWith(
-        status: SessionStatus.requestDisclosurePermission,
+        status: .requestDisclosurePermission,
         serverName: event.serverName,
         satisfiable: event.satisfiable,
         canBeFinished: canBeFinished,
@@ -233,21 +235,21 @@ class SessionRepository {
       );
     } else if (event is ContinueToIssuanceEvent) {
       return prevState.copyWith(
-        status: SessionStatus.requestIssuancePermission,
+        status: .requestIssuancePermission,
         disclosureChoices: ConCon.fromRaw(
           event.disclosureChoices,
           (AttributeIdentifier attrId) => attrId,
         ),
       );
     } else if (event is SuccessSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.success);
+      return prevState.copyWith(status: .success);
     } else if (event is CanceledSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.canceled);
+      return prevState.copyWith(status: .canceled);
     } else if (event is RequestPinSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.requestPin);
+      return prevState.copyWith(status: .requestPin);
     } else if (event is RespondPermissionEvent) {
       return prevState.copyWith(
-        status: SessionStatus.communicating,
+        status: .communicating,
         disclosureChoices: event.proceed
             ? ConCon.fromRaw(
                 event.disclosureChoices,
@@ -291,7 +293,7 @@ class SessionRepository {
     final sessions = await _sessionStatesSubject.first;
     return sessions.values.any((session) {
       if (session is IrmaSessionState) {
-        return session.status == SessionStatus.requestDisclosurePermission;
+        return session.status == .requestDisclosurePermission;
       }
       return false;
     });

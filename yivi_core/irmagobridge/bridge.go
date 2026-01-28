@@ -166,9 +166,10 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	}
 
 	yiviClient.InitJobs(60 * time.Minute)
+
 }
 
-func dispatchEvent(event interface{}) {
+func dispatchEvent(event any) {
 	jsonBytes, err := json.Marshal(event)
 	if err != nil {
 		reportError(errors.Errorf("Cannot marshal event payload: %s", err), false)

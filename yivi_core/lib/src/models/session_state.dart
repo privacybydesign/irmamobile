@@ -49,6 +49,8 @@ class OpenID4VciSessionState extends SessionState {
     this.grantType,
     this.authorizationCodeRequestParameters,
     this.transactionCodeParameters,
+    this.dismissed = false,
+    this.status = .initialized,
   });
 
   final bool continueOnSecondDevice;
@@ -60,6 +62,8 @@ class OpenID4VciSessionState extends SessionState {
   authorizationCodeRequestParameters;
   final PreAuthorizationCodeTransactionCodeParametersState?
   transactionCodeParameters;
+  final bool dismissed;
+  final SessionStatus status;
 
   OpenID4VciSessionState copyWith({
     SessionError? error,
@@ -70,6 +74,8 @@ class OpenID4VciSessionState extends SessionState {
     AuthorizationCodeRequestParametersState? authorizationCodeRequestParameters,
     PreAuthorizationCodeTransactionCodeParametersState?
     transactionCodeParameters,
+    bool? dismissed,
+    SessionStatus? status,
   }) {
     return OpenID4VciSessionState(
       sessionID: sessionID,
@@ -84,6 +90,8 @@ class OpenID4VciSessionState extends SessionState {
           this.authorizationCodeRequestParameters,
       transactionCodeParameters:
           transactionCodeParameters ?? this.transactionCodeParameters,
+      dismissed: dismissed ?? this.dismissed,
+      status: status ?? this.status,
     );
   }
 

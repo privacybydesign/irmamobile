@@ -82,7 +82,7 @@ final multiFormatCredentialsProvider =
           revoked: first.revoked,
           issuer: first.issuer,
           instanceCount: creds.value
-              .firstWhereOrNull((c) => c.format == CredentialFormat.sdjwtvc)
+              .firstWhereOrNull((c) => c.format == .sdjwtvc)
               ?.instanceCount,
         );
       }).toList();
