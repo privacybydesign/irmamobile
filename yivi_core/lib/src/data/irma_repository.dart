@@ -53,9 +53,9 @@ class _CredentialObtainState {
 
 class _ExternalBrowserCredtype {
   final String cred;
-  final String os;
+  final List<String> oses;
 
-  const _ExternalBrowserCredtype({required this.cred, required this.os});
+  const _ExternalBrowserCredtype({required this.cred, required this.oses});
 }
 
 class IrmaRepository {
@@ -407,7 +407,7 @@ class IrmaRepository {
                 thisRequirement = scheme.minimumAppVersion.iOS;
                 break;
               default:
-                throw Exception("Unsupported Platfrom.operatingSystem");
+                throw Exception("Unsupported Platform.operatingSystem");
             }
             if (thisRequirement > minimumBuild) {
               minimumBuild = thisRequirement;
@@ -512,10 +512,15 @@ class IrmaRepository {
     );
   }
 
+  // https://api.flutter.dev/flutter/dart-io/Platform/operatingSystem.html
+  static const List<String> allOperatingSystems = <String>["android", "fuchsia", "ios", "linux", "macos", "windows"];
+
   final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
-    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", os: "android"),
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", oses: <String>["ios"]),
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", oses: <String>["ios"]),
+    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", oses: <String>["android"]),
+    _ExternalBrowserCredtype(cred: "pbdf.PubHubs.account", oses: allOperatingSystems),
+    _ExternalBrowserCredtype(cred: "irma-demo.PubHubs.account", oses: allOperatingSystems),
   ];
 
   final List<String> externalBrowserUrls = const [
@@ -530,7 +535,7 @@ class IrmaRepository {
     return _irmaConfigurationSubject.map(
       (irmaConfiguration) =>
           _externalBrowserCredtypes
-              .where((type) => type.os == Platform.operatingSystem)
+              .where((type) => type.oses.contains(Platform.operatingSystem))
               .map(
                 (type) =>
                     irmaConfiguration
