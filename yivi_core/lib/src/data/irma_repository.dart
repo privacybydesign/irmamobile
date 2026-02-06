@@ -523,13 +523,6 @@ class IrmaRepository {
     _ExternalBrowserCredtype(cred: "irma-demo.PubHubs.account", oses: allOperatingSystems),
   ];
 
-  final List<String> externalBrowserUrls = const [
-    "https://privacybydesign.foundation/myirma/",
-    "https://privacybydesign.foundation/mijnirma/",
-    "https://privacybydesign.foundation/demo/",
-    "https://privacybydesign.foundation/demo-en/",
-  ];
-
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
@@ -545,8 +538,7 @@ class IrmaRepository {
                     [],
               )
               .expand((v) => v)
-              .toList()
-            ..addAll(externalBrowserUrls),
+              .toList(),
     );
   }
 
