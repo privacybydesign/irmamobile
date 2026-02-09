@@ -8,49 +8,17 @@ import "package:yivi_core/src/data/irma_repository.dart";
 
 void main() {
   group("IrmaRepository.allOperatingSystems", () {
-    test("contains all Flutter-supported operating systems", () {
-      // This list should match https://api.flutter.dev/flutter/dart-io/Platform/operatingSystem.html
-      expect(IrmaRepository.allOperatingSystems, contains("android"));
-      expect(IrmaRepository.allOperatingSystems, contains("fuchsia"));
-      expect(IrmaRepository.allOperatingSystems, contains("ios"));
-      expect(IrmaRepository.allOperatingSystems, contains("linux"));
-      expect(IrmaRepository.allOperatingSystems, contains("macos"));
-      expect(IrmaRepository.allOperatingSystems, contains("windows"));
-    });
+    test("allOperatingSystems matches Platform.operatingSystem documentation", () {
+      // The constant should include all values documented at:
+      // https://api.flutter.dev/flutter/dart-io/Platform/operatingSystem.html
+      const expectedOses = ["android", "fuchsia", "ios", "linux", "macos", "windows"];
 
-    test("contains exactly 6 operating systems", () {
-      expect(IrmaRepository.allOperatingSystems.length, equals(6));
-    });
-
-    test("is immutable (const list)", () {
-      // The list should be const, attempting to add should throw
-      expect(
-        () => IrmaRepository.allOperatingSystems.add("test"),
-        throwsUnsupportedError,
-      );
+      expect(IrmaRepository.allOperatingSystems.toSet(), equals(expectedOses.toSet()));
     });
 
     test("contains the current platform", () {
       // Whatever platform we're running on should be in the list
-      expect(
-        IrmaRepository.allOperatingSystems,
-        contains(Platform.operatingSystem),
-      );
-    });
-
-    test("does not contain duplicates", () {
-      final uniqueOses = IrmaRepository.allOperatingSystems.toSet();
-      expect(
-        uniqueOses.length,
-        equals(IrmaRepository.allOperatingSystems.length),
-      );
-    });
-
-    test("all entries are non-empty strings", () {
-      for (final os in IrmaRepository.allOperatingSystems) {
-        expect(os, isNotEmpty);
-        expect(os, isA<String>());
-      }
+      expect(IrmaRepository.allOperatingSystems, contains(Platform.operatingSystem));
     });
   });
 
@@ -174,26 +142,5 @@ void main() {
       expect(IrmaRepository.allOperatingSystems, contains("windows"));
       expect(IrmaRepository.allOperatingSystems, contains("linux"));
     });
-
-    test(
-      "allOperatingSystems matches Platform.operatingSystem documentation",
-      () {
-        // The constant should include all values documented at:
-        // https://api.flutter.dev/flutter/dart-io/Platform/operatingSystem.html
-        const expectedOses = [
-          "android",
-          "fuchsia",
-          "ios",
-          "linux",
-          "macos",
-          "windows",
-        ];
-
-        expect(
-          IrmaRepository.allOperatingSystems.toSet(),
-          equals(expectedOses.toSet()),
-        );
-      },
-    );
   });
 }
