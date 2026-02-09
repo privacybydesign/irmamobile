@@ -513,32 +513,41 @@ class IrmaRepository {
   }
 
   // https://api.flutter.dev/flutter/dart-io/Platform/operatingSystem.html
-  static const List<String> allOperatingSystems = <String>["android", "fuchsia", "ios", "linux", "macos", "windows"];
+  static const List<String> allOperatingSystems = [
+    "android",
+    "fuchsia",
+    "ios",
+    "linux",
+    "macos",
+    "windows",
+  ];
 
   final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", oses: <String>["ios"]),
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", oses: <String>["ios"]),
-    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", oses: <String>["android"]),
-    _ExternalBrowserCredtype(cred: "pbdf.PubHubs.account", oses: allOperatingSystems),
-    _ExternalBrowserCredtype(cred: "irma-demo.PubHubs.account", oses: allOperatingSystems),
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", oses: ["ios"]),
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", oses: ["ios"]),
+    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", oses: ["android"]),
+    _ExternalBrowserCredtype(
+      cred: "pbdf.PubHubs.account",
+      oses: allOperatingSystems,
+    ),
+    _ExternalBrowserCredtype(
+      cred: "irma-demo.PubHubs.account",
+      oses: allOperatingSystems,
+    ),
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
-      (irmaConfiguration) =>
-          _externalBrowserCredtypes
-              .where((type) => type.oses.contains(Platform.operatingSystem))
-              .map(
-                (type) =>
-                    irmaConfiguration
-                        .credentialTypes[type.cred]
-                        ?.issueUrl
-                        .values ??
-                    [],
-              )
-              .expand((v) => v)
-              .toList(),
+      (irmaConfiguration) => _externalBrowserCredtypes
+          .where((type) => type.oses.contains(Platform.operatingSystem))
+          .map(
+            (type) =>
+                irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ??
+                [],
+          )
+          .expand((v) => v)
+          .toList(),
     );
   }
 
