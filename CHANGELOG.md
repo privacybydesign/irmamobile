@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - `smart_auth` is no longer a dependency of `yivi_core` and is not included in FDroid builds anymore
+- Add support for German language
 
 ## [7.13.1] - 2026-01-22
 ### Fix
