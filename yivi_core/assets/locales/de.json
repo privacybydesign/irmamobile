@@ -7,8 +7,8 @@
     "close": "Schließen",
     "next": "Weiter",
     "alert": "Hinweis",
-    "previous": "Zurück",
-    "expanded": "Erweitert",
+    "previous": "Vorherige",
+    "expanded": "Ausgeklappt",
     "collapsed": "Eingeklappt",
     "unfold": "Aufklappen",
     "update": "Aktualisieren",
@@ -34,30 +34,30 @@
     "data_received_semantics": "Daten von {otherParty} am {date} empfangen",
     "data_shared": "Daten geteilt",
     "data_shared_semantics": "Daten mit {otherParty} am {date} geteilt",
-    "signed_message": "Nachricht signiert",
+    "signed_message": "Signierte Nachricht",
     "message_signed": "Nachricht signiert",
     "signed_message_semantics": "Nachricht von {otherParty} am {date} signiert",
     "shared_with": "Geteilt mit",
     "shared_data": "Geteilte Daten",
     "received_data": "Empfangene Daten",
     "deleted_data": "Gelöschte Daten",
-    "empty_placeholder": "Es gibt noch keine protokollierten Aktivitäten"
+    "empty_placeholder": "Es gibt noch keine gespeicherten Aktivitäten"
   },
   "arrow_back": {
     "no_success": "Abgebrochen",
-    "disclosure_success": "Erfolg, Ihre Daten wurden geteilt",
-    "issuance_success": "Erfolg, die Daten wurden hinzugefügt",
-    "signature_success": "Erfolg, die Nachricht wurde signiert",
-    "safari": "Tippen Sie auf den Namen der Anwendung (z.B. Safari, Chrome, Firefox) oben links, um zur vorherigen Anwendung zurückzukehren."
+    "disclosure_success": "Erfolgreich! Ihre Daten wurden geteilt",
+    "issuance_success": "Erfolgreich! Die Daten wurden hinzugefügt",
+    "signature_success": "Erfolgreich! Die Nachricht wurde signiert",
+    "safari": "Tippen Sie oben links auf den Namen der Anwendung (z. B. Safari, Chrome, Firefox), um zur vorherigen App zurückzukehren."
   },
   "change_pin": {
     "dialog": {
       "title": "Sind Sie sicher?",
-      "body": "Sind Sie sicher, dass Sie die aktuelle PIN zurücksetzen möchten?",
+      "body": "Sind Sie sicher, dass Sie Ihre aktuelle PIN ändern möchten?",
       "ok": "Ändern",
       "cancel": "Abbrechen"
     },
-    "toast": "Erfolg! Ihre neue PIN wurde gespeichert",
+    "toast": "Erfolgreich! Ihre neue PIN wurde gespeichert",
     "enter_pin": {
       "instruction": "Geben Sie Ihre aktuelle PIN ein",
       "error_title": "PIN falsch",
@@ -65,7 +65,7 @@
       "error_action": "OK"
     },
     "confirm_pin": {
-      "instruction": "Geben Sie Ihre neue PIN erneut ein"
+      "instruction": "Geben Sie Ihre neue PIN zur Bestätigung erneut ein"
     }
   },
   "choose_pin": {
@@ -87,7 +87,7 @@
     }
   },
   "credential": {
-    "no_data": "Keine Daten",
+    "no_data": "Keine Daten vorhanden",
     "valid_until": "Gültig bis",
     "expires_on": "Läuft ab am {date}",
     "expired_on": "Abgelaufen am {date}",
@@ -101,7 +101,7 @@
       "reobtain": "Erneut abrufen",
       "delete": "Daten löschen",
       "confirm_delete": "Sind Sie sicher, dass Sie diese Daten löschen möchten?",
-      "delete_success": "Erfolg! Die Daten wurden gelöscht."
+      "delete_success": "Erfolgreich! Die Daten wurden gelöscht."
     },
     "about_to_expire": "Läuft bald ab",
     "expired": "Abgelaufen",
@@ -127,7 +127,7 @@
         "howto_question": "Wie funktioniert es?",
         "back_button": "Abbrechen",
         "get_button": "Hinzufügen",
-        "disclosure_info_markdown": "**Hinweis:** Sie rufen alle verfügbaren Daten ab, aber Sie teilen nur die Daten, die in der Anfrage benötigt werden.",
+        "disclosure_info_markdown": "**Hinweis:** Sie rufen zwar alle verfügbaren Daten ab, teilen jedoch nur die Informationen, die für die jeweilige Anfrage erforderlich sind.",
         "obtain": "{credential} zu meiner Yivi-App hinzufügen"
       }
     },
@@ -147,8 +147,8 @@
     "issuer": "Aussteller",
     "logo_semantic": "Logo von {otherParty}",
     "choices": "{choices} Auswahlmöglichkeiten",
-    "next": "nächste Auswahl",
-    "previous": "vorherige Auswahl",
+    "next": "nächste Möglichkeit",
+    "previous": "vorherige Möglichkeit",
     "not_present": "Diese Daten wurden noch nicht zu Yivi hinzugefügt.",
     "not_present_have_other": "Die angeforderten Daten stimmen nicht mit den Daten überein, die Sie in Yivi verfügbar haben.",
     "you_have": "Sie haben:",
@@ -175,7 +175,7 @@
         "canceled": "Ihre Daten wurden nicht an {otherParty} weitergegeben",
         "canceled_signature": "Sie haben die Anfrage von {otherParty} nicht signiert",
         "not_satisfiable": "Ihre Daten wurden nicht weitergegeben, weil {otherParty} veraltete Daten anfordert. Sie können nichts tun, um dies zu beheben. Bitte kontaktieren Sie die anfragende Partei.",
-        "not_satisfiable_signature": "{otherParty} fordert Sie auf, mit veralteten Daten zu signieren. Sie können nichts tun, um dies zu beheben. Bitte kontaktieren Sie die anfragende Partei."
+        "not_satisfiable_signature": "{otherParty} fordert Sie auf, mit veralteten Daten zu signieren. Sie können dieses Problem selbst nicht beheben. Bitte kontaktieren Sie die anfragende Partei."
       }
     }
   },
@@ -218,7 +218,7 @@
         "explanation": "Was bedeutet das?",
         "bottom_sheet": {
           "title": "Bekannte und unbekannte Organisationen",
-          "content_markdown": "Jede Organisation kann Daten aus Ihrer Yivi-App anfordern.\nSie entscheiden, ob Sie dem Teilen dieser Daten zustimmen oder nicht.\nYivi hilft Ihnen dabei.\n\nOrganisationen können sich bei Yivi registrieren. Es wird dann überprüft, wer sie sind.\nIhre Informationen (einschließlich Name und Logo) werden erfasst und verifiziert.\nNeben ihrem Namen erscheint ein grünes Häkchen, damit\nSie Ihre Daten mit mehr Vertrauen teilen können.\nDie Liste der registrierten Organisationen finden Sie im [Yivi-Portal](https://portal.yivi.app/organizations).\n\nMit Organisationen, die sich nicht bei Yivi registriert haben,\nkönnen Sie trotzdem Ihre Daten teilen.\nDies geschieht jedoch auf Ihre eigene Verantwortung.\nEs gibt keine Gewissheit darüber, mit wem Sie Ihre Daten teilen.\n\nSind Sie unsicher? Kontaktieren Sie die Organisation direkt.\nSie können ihnen empfehlen, sich bei Yivi zu registrieren unter:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
+          "content_markdown": "Jede Organisation kann Daten aus Ihrer Yivi-App anfordern.\nSie entscheiden, ob Sie dem Teilen dieser Daten zustimmen oder nicht.\nYivi hilft Ihnen dabei.\n\nOrganisationen können sich bei Yivi registrieren. Es wird dann überprüft, wer sie sind.\nIhre Informationen (einschließlich Name und Logo) werden erfasst und verifiziert.\nNeben ihrem Namen erscheint dann ein grünes Häkchen, damit\nSie Ihre Daten mit mehr Vertrauen teilen können.\nDie Liste der registrierten Organisationen finden Sie im [Yivi-Portal](https://portal.yivi.app/organizations).\n\nMit Organisationen, die sich nicht bei Yivi registriert haben,\nkönnen Sie trotzdem Ihre Daten teilen.\nDies geschieht jedoch auf eigene Verantwortung.\nEs gibt keine Gewissheit darüber, mit wem Sie Ihre Daten teilen.\n\nSind Sie sich nicht sicher? Wenden Sie sich dann direkt an die Organisation.\nSie können ihnen empfehlen, sich bei Yivi zu registrieren unter:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
         }
       }
     },
@@ -267,7 +267,7 @@
       },
       "step_3": {
         "title": "Sicher auf Ihrem Telefon",
-        "explanation": "Nur Sie können auf die Daten auf Ihrem Telefon zugreifen. Niemand hat Zugriff auf Ihre Transaktionen, nicht einmal Yivi."
+        "explanation": "Nur Sie können auf die Daten auf Ihrem Telefon zugreifen. Niemand kann zuschauen, nicht einmal Yivi."
       }
     },
     "confirm_pin": {
@@ -277,7 +277,7 @@
       "provide": {
         "title": "E-Mail-Adresse hinzufügen",
         "header": "Verknüpfen Sie Ihre E-Mail-Adresse mit Ihrer Yivi-App",
-        "explanation": "Mit einer E-Mail-Adresse können Sie Ihre Yivi-App ferngesteuert deaktivieren, falls Ihr Telefon verloren geht oder gestohlen wird",
+        "explanation": "Mit deiner E-Mail-Adresse kannst du die Yivi-App aus der Ferne sperren. Zum Beispiel bei Verlust oder Diebstahl deines Mobiltelefons.",
         "input": {
           "label": "E-Mail-Adresse",
           "hint": "Ausfüllen",
@@ -301,7 +301,7 @@
       "explanation": "Mit Yivi übernehmen Sie die Kontrolle über Ihre Online-Daten und schützen Ihre Online-Privatsphäre.",
       "point_1": "Sie entscheiden, welche Daten Sie speichern und was Sie teilen.",
       "point_2": "Ihre Daten befinden sich nur auf Ihrem Telefon, sicher und geschützt. Nirgendwo sonst.",
-      "point_3": "Niemand kann Ihre Daten oder Ihre Transaktionen sehen, nicht einmal Yivi!",
+      "point_3": "Niemand schaut zu, auch Yivi nicht!",
       "accept_markdown": "Ja, ich akzeptiere die [Nutzungsbedingungen]({terms_url})"
     },
     "error_reporting": {
@@ -334,7 +334,7 @@
     "show_sensitive_data": "Sensible Daten anzeigen",
     "types": {
       "general": "Etwas ist schiefgelaufen.",
-      "blocked": "Ihre Yivi-App wurde ferngesteuert gesperrt. Dies wurde entweder über MeinYivi durchgeführt oder weil Sie Yivi auf diesem Gerät mehr als ein Jahr lang nicht verwendet haben. Wenn Sie Yivi auf diesem Gerät weiter nutzen möchten, müssen Sie von vorne beginnen.",
+      "blocked": "Ihre Yivi-App wurde gesperrt. Dies wurde entweder über 'Mijn Yivi' durchgeführt oder weil Sie Yivi auf diesem Gerät mehr als ein Jahr lang nicht verwendet haben. Wenn Sie Yivi auf diesem Gerät weiter nutzen möchten, müssen Sie die Yivi erneut einrichten.",
       "expired": "Die Sitzung ist abgelaufen. Bitte beginnen Sie von vorne.",
       "pairing_rejected": "Die Sitzung wurde abgelehnt. Bitte beginnen Sie von vorne.",
       "no_internet": "Bitte stellen Sie sicher, dass Ihr Gerät eine funktionierende Internetverbindung hat."
@@ -353,9 +353,9 @@
     "mail_error_title": "Entschuldigung",
     "mail_subject": "Hilfe mit der Yivi-App",
     "question_1": "Was kann ich mit Yivi machen?",
-    "answer_1_markdown": "Yivi ist eine sichere, datenschutzfreundliche und kostenlose mobile Anwendung. Yivi funktioniert als digitale Brieftasche, die mit persönlichen Daten gefüllt wird. Sie können sie verwenden, um sich bei Online-Diensten anzumelden oder Ihre Identität nachzuweisen. Aber immer unter Weitergabe der minimalen Menge an persönlichen Daten. Denn Yivi ermöglicht Ihnen, diese Wahl zu treffen. Was Sie speichern, was Sie teilen und mit wem. Sie haben die Kontrolle, immer.\n\nSie müssen sich keine Kontodaten und langen Passwörter merken. Nur Ihre Yivi-PIN. Und beim Teilen von Daten teilen Sie nur die Daten, die benötigt werden, nicht mehr. Sei es, um ein Paket online zu bestellen oder einen Termin bei Ihrem Arzt zu vereinbaren.\n\nMöchten Sie ein Ticket online bestellen? Mit Yivi können Sie einfach nachweisen, dass Sie älter als 18 sind. Und keine weiteren Details teilen. So schützen Sie Ihre Privatsphäre. Sie können auch Dokumente digital mit Yivi signieren, indem Sie Ihre persönlichen Attribute als Signatur verwenden. Sie können als Bürger, Arzt oder mit einer anderen Rolle signieren. Überprüfen Sie die aktuelle Übersicht, um die Liste der Organisationen zu sehen, die Yivi bereits nutzen.",
+    "answer_1_markdown": "Yivi ist eine sichere, datenschutzfreundliche und kostenlose mobile Anwendung. Yivi funktioniert als digitale Brieftasche, die mit persönlichen Daten gefüllt wird. Sie können sie verwenden, um sich bei Online-Diensten anzumelden oder Ihre Identität nachzuweisen, ohne unnötige Daten preiszugeben. Denn bei Yivi haben Sie immer die Wahl: Sie entscheiden, was Sie speichern, was Sie teilen und mit wem. Sie haben immer die Kontrolle. Sie haben die Kontrolle, immer.\n\nSie müssen sich keine Kontodaten und langen Passwörter merken. Nur Ihre Yivi-PIN. Und beim Teilen von Daten teilen Sie nur die Daten, die benötigt werden, nicht mehr. Sei es, um ein Paket online zu bestellen oder einen Termin bei Ihrem Arzt zu vereinbaren.\n\nMöchten Sie ein Ticket online bestellen? Mit Yivi können Sie einfach nachweisen, dass Sie älter als 18 sind. Mehr nicht. So schützen Sie Ihre Privatsphäre. Sie können auch Dokumente digital mit Yivi signieren, indem Sie Ihre persönlichen Attribute als Signatur verwenden. Sie können als Bürger, Arzt oder mit einer anderen Rolle signieren. Sehen Sie sich die aktuelle Übersicht der Organisationen an, die bereits mit Yivi arbeiten.",
     "question_2": "Warum gibt es Yivi?",
-    "answer_2": "Menschen die Kontrolle über ihre Online-Daten zurückzugeben, ist die Mission von Yivi. Was speichern Sie? Was teilen Sie? Und mit wem? Yivi ermöglicht Ihnen, diese Wahl zu treffen. Mit unserer App können Sie entscheiden, was andere über Sie erfahren. Diese Daten werden von Ihrem Telefon direkt an die anfragende Partei geteilt, niemand sonst ist Teil dieser Transaktion. Nicht einmal Yivi.\n\nAlles wird sicher auf Ihrem Telefon gespeichert, verschlüsselt und hinter einer PIN. Es gibt keinen zentralen Datenspeicher oder Cloud-Speicher, der Ihre persönlichen Daten enthält. Telefon verloren? Keine Panik. Sperren Sie einfach Ihre Yivi-App aus der Ferne. Das verhindert, dass jemand Ihre Daten ohne Ihr Wissen verwendet.\n\nDer Verkauf Ihrer Daten ist und wird niemals unser Geschäftsmodell sein. Und trotzdem ist Yivi kostenlos nutzbar. Gibt es einen Haken? Nein, gibt es nicht! Nur die Organisationen, die Yivi nutzen, zahlen für die Dienste, damit Yivi für Sie kostenlos bleibt.\n",
+    "answer_2": "Menschen die Kontrolle über ihre Online-Daten zurückzugeben. Das ist die Mission von Yivi. Was speichern Sie? Was teilen Sie? Und mit wem? Yivi ermöglicht Ihnen, diese Wahl zu treffen. Mit unserer App können Sie entscheiden, was andere über Sie erfahren. Niemand schaut mit. Auch Yivi nicht. \n\nAlles wird sicher auf Ihrem Telefon gespeichert, verschlüsselt und hinter einer PIN. Es gibt keinen zentralen Datenspeicher oder Cloud-Speicher, der Ihre persönlichen Daten enthält. Telefon verloren? Keine Panik. Sperren Sie einfach Ihre Yivi-App aus der Ferne. Das verhindert, dass jemand Ihre Daten ohne Ihr Wissen verwendet.\n\nDer Verkauf Ihrer Daten ist und wird niemals unser Geschäftsmodell sein. Und trotzdem ist Yivi kostenlos nutzbar. Gibt es einen Haken? Nein, gibt es nicht! Nur die Organisationen, die Yivi nutzen, zahlen für die Dienste, damit Yivi für Sie kostenlos bleibt.\n",
     "question_3": "Wer steht hinter der Yivi-App?",
     "answer_3_markdown": "Die Privacy by Design Foundation ist die gemeinnützige Organisation hinter Yivi. Sie kennen diesen Namen vielleicht nicht, aber Sie haben wahrscheinlich von ihrer Vision profitiert, wenn Ihnen datenschutzorientierte digitale Identität wichtig ist. Die Stiftung widmet sich der Entwicklung sicherer, datenschutzschützender Technologien, die den Nutzern die Kontrolle über ihre Daten geben. Sie haben Yivi geschaffen, um jedem eine Möglichkeit zu geben, sich digital zu identifizieren – sicher und selektiv.\n\nCaesar Groep, mit jahrzehntelanger Erfahrung in IT-Innovation und Infrastruktur, sorgt dafür, dass Yivi reibungslos und sicher funktioniert. Vom Backend bis zur Benutzeroberfläche stellt Caesar Groep sicher, dass jede Interaktion mit Yivi nahtlos und vertrauenswürdig ist – jederzeit und überall.",
     "question_4": "Wie verwende ich Yivi zum Anmelden auf einer mobilen Webseite?",
@@ -374,13 +374,13 @@
       "step_5": "Nach der Weitergabe sind Sie angemeldet.\nSie können jetzt die Webseite nutzen."
     },
     "question_6": "Was tun, wenn ich mein Mobilgerät verliere?",
-    "answer_6_markdown": "Wenn Sie Ihr Telefon verlieren, kann niemand auf Ihre Yivi-App zugreifen, da sie mit Ihrer PIN gesichert ist. Möchten Sie die Sicherheit erhöhen? Fügen Sie während der Installation eine Wiederherstellungs-E-Mail-Adresse hinzu. Damit können Sie die Anwendung aus der Ferne sperren. So passiert nichts, wenn Sie Ihr Telefon verlieren.\n\nHaben Sie noch keine Wiederherstellungsadresse hinzugefügt? Gehen Sie einfach zu MeinYivi, um sie hinzuzufügen.",
+    "answer_6_markdown": "Wenn Sie Ihr Telefon verlieren, kann niemand auf Ihre Yivi-App zugreifen, da sie mit Ihrer PIN gesichert ist. Möchten Sie die Sicherheit erhöhen? Fügen Sie während der Installation eine E-Mail-Adresse hinzu. Damit können Sie die Anwendung aus der Ferne sperren. So passiert nichts, wenn Sie Ihr Telefon verlieren.\n\nHaben Sie Ihre E-Mail-Adresse nicht hinzugefügt? Gehen Sie einfach zu MijnYivi, um sie hinzuzufügen.",
     "question_7": "Kann ich Yivi auf mehreren Mobilgeräten installieren?",
     "answer_7": "Ja, wir empfehlen es sogar! Laden Sie einfach die App auf mehreren Geräten herunter und laden Sie sie mit Ihren persönlichen Daten. Wenn Sie ein Gerät verlieren, haben Sie immer ein Backup.",
     "question_8": "Wo werden meine Yivi-Daten gespeichert?",
-    "answer_8": "Alle in der Yivi-App gespeicherten Daten werden nur lokal gespeichert. Es gibt keinen zentralen Datenspeicher (oder Cloud-Speicher). Das bedeutet, dass Sie der Einzige sind, der auf Ihre Daten zugreifen kann. Sie haben die Kontrolle und erteilen die Erlaubnis, Ihre Daten mit Online-Organisationen zu teilen. Daten aus der App gelöscht? Das bedeutet, sie sind alle weg, dauerhaft. Sie haben die volle Kontrolle über Ihre Daten. Nur Sie entscheiden, was Sie teilen und mit wem.",
+    "answer_8": "Alle in der Yivi-App gespeicherten Daten werden nur lokal gespeichert. Es gibt keinen zentralen Datenspeicher (oder Cloud-Speicher). Das bedeutet, dass Sie der Einzige sind, der auf Ihre Daten zugreifen kann. Sie haben die Kontrolle und erteilen die Erlaubnis, Ihre Daten mit Online-Organisationen zu teilen. Löschen Sie Ihre Daten aus der App? Dann sind sie auch wirklich weg. Sie haben die volle Kontrolle über Ihre Daten. Nur Sie entscheiden, was Sie teilen und mit wem.",
     "question_9": "Was macht Yivi datenschutzfreundlich und sicher?",
-    "answer_9": "Menschen die Kontrolle über ihre digitalen Daten zurückzugeben, ist die Mission von Yivi. Was speichern Sie? Was teilen Sie? Und mit wem? Yivi ermöglicht Ihnen, diese Wahl zu treffen. Mit unserer App können Sie entscheiden, was andere über Sie erfahren. Diese Daten werden von Ihrem Telefon direkt an die anfragende Partei geteilt, niemand sonst ist Teil dieser Transaktion. Nicht einmal Yivi.\n\nAlles wird sicher auf Ihrem Telefon gespeichert, verschlüsselt und hinter einer PIN. Es gibt keinen zentralen Datenspeicher oder Cloud-Speicher, der Ihre persönlichen Daten enthält. Telefon verloren? Keine Panik. Sperren Sie einfach Ihre Yivi-App aus der Ferne. Das verhindert, dass jemand Ihre Daten ohne Ihr Wissen verwendet.\n\nDie Daten, die in Yivi geladen werden, sind digital vom Anbieter der Daten signiert. Das beweist ihre Gültigkeit. Das bedeutet, dass die anfragende Partei immer sicher sein kann, dass die von Ihnen bereitgestellten Daten echt sind.",
+    "answer_9": "Menschen die Kontrolle über ihre digitalen Daten zurückzugeben. Dies ist die Mission von Yivi. Was speichern Sie? Was teilen Sie? Und mit wem? Yivi ermöglicht Ihnen, diese Wahl zu treffen. Mit unserer App können Sie entscheiden, was andere über Sie erfahren. Diese Daten werden von Ihrem Telefon direkt an die anfragende Partei geteilt. Niemand schaut mit. Nicht einmal Yivi.\n\nAlles wird sicher auf Ihrem Telefon gespeichert, verschlüsselt und hinter einer PIN. Es gibt keinen zentralen Datenspeicher oder Cloud-Speicher, der Ihre persönlichen Daten enthält. Telefon verloren? Keine Panik. Sperren Sie einfach Ihre Yivi-App aus der Ferne. Das verhindert, dass jemand Ihre Daten ohne Ihr Wissen verwendet.\n\nDie Daten, die in Yivi geladen werden, sind digital vom Anbieter der Daten signiert. Das beweist ihre Gültigkeit. Das bedeutet, dass die anfragende Partei immer sicher sein kann, dass die von Ihnen bereitgestellten Daten echt sind.",
     "question_10": "Warum haben die Daten in der Yivi-App eine begrenzte Gültigkeit?",
     "answer_10": "Der Anbieter der Daten kann bestimmen, wie lange die Gültigkeitsdauer der Daten ist. Ihre Daten können also ablaufen. Sie erhalten eine Warnung in der Yivi-App, wenn dies geschieht. Wie lange Ihre Daten gültig bleiben, hängt von der Art der Daten ab. Ihr Name und Ihr Geburtsdatum sind 5 Jahre gültig. Ihre Adresse nur ein Jahr. Sie können Ihre Daten jederzeit aktualisieren, wann immer Sie möchten. Zum Beispiel durch Aktualisierung Ihres Alters nach Ihrem 18. Geburtstag. So können Sie direkt zeigen, dass Sie älter als 18 sind.",
     "question_11": "Yivi, Datenschutz und Sicherheit",
@@ -441,7 +441,7 @@
       "back_dialog": {
         "title": "Sind Sie sicher?",
         "body": "Sind Sie sicher, dass Sie zurückgehen möchten?",
-        "confirm": "Zurückgehen",
+        "confirm": "Zurück",
         "cancel": "Abbrechen"
       },
       "resend_dialog": {
@@ -476,7 +476,7 @@
       "back_dialog": {
         "title": "Sind Sie sicher?",
         "body": "Sind Sie sicher, dass Sie zurückgehen möchten?",
-        "confirm": "Zurückgehen",
+        "confirm": "Zurück",
         "cancel": "Abbrechen"
       },
       "resend_dialog": {
@@ -510,7 +510,7 @@
     "need_help": "Brauchen Sie Hilfe?",
     "know_more": "Weitere Informationen",
     "stay_informed": "Bleiben Sie informiert und nehmen Sie an der Diskussion teil",
-    "slogan": "Jeder verdient Privatsphäre",
+    "slogan": "Jeder hat das Recht auf Privatsphäre",
     "version": "Version {version}",
     "developer_mode_enabled": "Entwicklermodus aktiviert",
     "developer_mode_already_enabled": "Entwicklermodus bereits aktiviert",
@@ -596,7 +596,7 @@
   "reset_pin": {
     "title": "PIN vergessen",
     "header": "PIN vergessen?",
-    "explanation": "Es tut uns leid, aber die Yivi-Organisation hat keine Kopie Ihrer PIN. Wenn Sie Yivi weiter nutzen möchten, müssen Sie eine neue PIN eingeben und alle Daten neu laden.",
+    "explanation": "Es tut uns leid, aber die Yivi-Organisation hat keine Kopie Ihrer PIN. Wenn Sie Yivi weiter nutzen möchten, müssen Sie eine neue PIN eingeben und Ihre Daten neu laden.",
     "reset": "Von vorne beginnen"
   },
   "rooted_warning": {
@@ -610,9 +610,9 @@
     "subtitle": "Eine sichere PIN hat die folgenden Eigenschaften:",
     "rules": {
       "contains_3_unique": "Enthält mindestens 3 verschiedene Zahlen",
-      "must_not_asc_or_desc": "Darf keine aufsteigenden oder absteigenden Tastaturmuster enthalten, wie 12345",
+      "must_not_asc_or_desc": "Darf keine aufsteigenden oder absteigenden Zahlenreihen enthalten, wie 12345",
       "not_abcab_nor_abcba": "Darf nicht die folgenden Tastaturmuster enthalten: abcba, abcab, wie 12312, 12321, 13331",
-      "must_contain_valid_subset": "Muss 5 aufeinanderfolgende Zahlen enthalten, die den oben genannten Regeln entsprechen"
+      "must_contain_valid_subset": "Muss 5 Zahlen enthalten, die den oben genannten Regeln entsprechen"
     }
   },
   "session": {
@@ -672,7 +672,7 @@
     "error": "Etwas ist schiefgelaufen",
     "end_of_list": "Sie haben das Ende der Liste erreicht",
     "unknown": "Unbekannt",
-    "go_back": "Zurückgehen",
+    "go_back": "Zurück",
     "add": "Hinzufügen",
     "activate": "Aktivieren"
   },
@@ -719,7 +719,7 @@
   },
   "mrz_camera_permissions": {
     "title": "Keine Kameraberechtigungen",
-    "content": "Yivi benötigt Kameraberechtigungen, um Ihr Dokument automatisch zu scannen. Erteilen Sie Yivi die Berechtigung, die Kamera über die Systemeinstellungen zu verwenden, oder geben Sie die erforderlichen Daten manuell ein.",
+    "content": "Yivi benötigt Zugriff auf die Kamera, um Ihr Dokument automatisch zu scannen. Erteilen Sie Yivi über die Systemeinstellungen die Berechtigung, die Kamera zu verwenden, oder geben Sie die erforderlichen Daten manuell ein.",
     "open_settings": "Einstellungen öffnen"
   },
   "driving_licence": {
@@ -732,7 +732,7 @@
     },
     "manual": {
       "title": "Führerscheindaten eingeben",
-      "explanation": "Wir benötigen die maschinenlesbare Zone (MRZ) Ihres Führerscheins, um auf den NFC-Chip des Dokuments zuzugreifen.",
+      "explanation": "Wir benötigen den Code auf der Rückseite Ihres Führerscheins (MRZ), um eine Verbindung mit dem Dokument herzustellen.",
       "fields": {
         "mrz": "Maschinenlesbare Zone (MRZ)",
         "mrz_required": "Maschinenlesbare Zone (MRZ) ist erforderlich",
@@ -767,7 +767,7 @@
       "performing_security_verification": "Sicherheitsüberprüfung wird durchgeführt...",
       "completed_successfully": "Führerschein erfolgreich gelesen.",
       "error_generic": "Beim Lesen des Führerscheins ist ein Fehler aufgetreten.",
-      "failed_initiate_session": "Sitzung mit Führerschein konnte nicht gestartet werden.",
+      "failed_initiate_session": "Verbindung mit Führerschein konnte nicht gestartet werden.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Führerschein-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
       "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
@@ -829,7 +829,7 @@
       "performing_security_verification": "Sicherheitsüberprüfung wird durchgeführt...",
       "completed_successfully": "Personalausweis erfolgreich gelesen.",
       "error_generic": "Beim Lesen des Personalausweises ist ein Fehler aufgetreten.",
-      "failed_initiate_session": "Sitzung mit Personalausweis konnte nicht gestartet werden.",
+      "failed_initiate_session": "Verbindung mit Personalausweis konnte nicht gestartet werden.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Personalausweis-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
       "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
@@ -891,7 +891,7 @@
       "performing_security_verification": "Sicherheitsüberprüfung wird durchgeführt...",
       "completed_successfully": "Reisepass erfolgreich gelesen.",
       "error_generic": "Beim Lesen des Reisepasses ist ein Fehler aufgetreten.",
-      "failed_initiate_session": "Sitzung mit Reisepass konnte nicht gestartet werden.",
+      "failed_initiate_session": "Verbindung mit Reisepass konnte nicht gestartet werden.",
       "timeout_waiting_for_tag": "Zeitüberschreitung beim Warten auf Reisepass-Tag",
       "tag_lost_try_again": "Tag wurde verloren. Bitte versuchen Sie es erneut.",
       "cancelled_by_user": "Sie haben den Scanvorgang abgebrochen.",
@@ -942,11 +942,11 @@
       }
     },
     "delete_credentials": {
-      "delete": "Alle Anmeldeinformationen löschen",
-      "success": "Alle löschbaren Anmeldeinformationen erfolgreich gelöscht",
+      "delete": "Alle Daten löschen",
+      "success": "Alle löschbaren Daten erfolgreich gelöscht",
       "dialog": {
-        "title": "Anmeldeinformationen löschen",
-        "content": "Sind Sie sicher, dass Sie alle Anmeldeinformationen löschen möchten?"
+        "title": "Daten löschen",
+        "content": "Sind Sie sicher, dass Sie alle Daten löschen möchten?"
       }
     }
   }
