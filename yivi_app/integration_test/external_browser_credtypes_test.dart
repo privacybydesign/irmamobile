@@ -1,12 +1,20 @@
 import "dart:io";
 
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/data/irma_mock_bridge.dart";
-import "package:yivi_core/src/data/irma_preferences.dart";
+import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 
+import "irma_binding.dart";
+
 void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
+  WidgetController.hitTestWarningShouldBeFatal = true;
+
   group("IrmaRepository.allOperatingSystems", () {
+    setUp(() => irmaBinding.setUp());
+    tearDown(() => irmaBinding.tearDown());
+
     test(
       "allOperatingSystems matches Platform.operatingSystem documentation",
       () {
@@ -38,30 +46,11 @@ void main() {
   });
 
   group("getExternalBrowserURLs", () {
-    late IrmaRepository repo;
-    late IrmaMockBridge mockBridge;
-
-    setUp(() async {
-      mockBridge = IrmaMockBridge();
-      final preferences = await IrmaPreferences.fromInstance(
-        mostRecentTermsUrlEn: "testurl",
-        mostRecentTermsUrlNl: "testurl",
-      );
-      preferences.markLatestTermsAsAccepted(true);
-      repo = IrmaRepository(client: mockBridge, preferences: preferences);
-
-      // Wait for the repository to initialize by getting the IrmaConfiguration
-      // This ensures all async initialization is complete before tests run
-      await repo.getIrmaConfiguration().first;
-    });
-
-    tearDown(() async {
-      await mockBridge.close();
-      await repo.close();
-    });
+    setUp(() => irmaBinding.setUp());
+    tearDown(() => irmaBinding.tearDown());
 
     test("returns a stream that emits lists of URLs", () async {
-      final urls = await repo.getExternalBrowserURLs().first;
+      final urls = await irmaBinding.repository.getExternalBrowserURLs().first;
 
       expect(urls, isA<List<String>>());
     });
@@ -72,7 +61,7 @@ void main() {
         return;
       }
 
-      final urls = await repo.getExternalBrowserURLs().first;
+      final urls = await irmaBinding.repository.getExternalBrowserURLs().first;
 
       // pbdf.gemeente.address and pbdf.gemeente.personalData are iOS-only
       // Their IssueURL is "https://yivi.nijmegen.nl"
@@ -95,7 +84,9 @@ void main() {
           return;
         }
 
-        final urls = await repo.getExternalBrowserURLs().first;
+        final urls = await irmaBinding.repository
+            .getExternalBrowserURLs()
+            .first;
 
         // pbdf.pbdf.idin is Android-only
         // Its IssueURL is "https://idin-issuer.yivi.app/"
