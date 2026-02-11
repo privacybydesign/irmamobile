@@ -96,7 +96,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   }
 
   void _searchQueryChanged(String query) {
-    ref.read(credentialsSearchQueryProvider.notifier).state = query;
+    ref.read(credentialsSearchQueryProvider.notifier).set(query);
   }
 }
 
@@ -262,7 +262,7 @@ class _AllCredentialsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(credentialInfoListProvider);
+    final credentials = ref.watch(credentialOrderControllerProvider);
 
     return switch (credentials) {
       AsyncData(:final value) =>
