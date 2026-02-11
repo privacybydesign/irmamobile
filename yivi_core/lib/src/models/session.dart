@@ -172,12 +172,61 @@ class SessionPointer implements Pointer {
   @JsonKey(name: "continueOnSecondDevice")
   bool continueOnSecondDevice;
 
+  /// The authenticated origin from the Digital Credentials API.
+  /// Used for audience binding in responses (prefixed with "origin:").
+  /// Only set for DC API requests.
+  @JsonKey(name: "origin", includeIfNull: false)
+  final String? origin;
+
+  /// The DC API protocol variant (openid4vp-v1-unsigned/signed/multisigned).
+  /// Only set for DC API requests.
+  @JsonKey(name: "dcApiProtocol", includeIfNull: false)
+  final String? dcApiProtocol;
+
   SessionPointer({
     required this.u,
     required this.irmaqr,
     this.protocol,
     this.continueOnSecondDevice = false,
+    this.origin,
+    this.dcApiProtocol,
   });
+
+  /// Create a SessionPointer from a Digital Credentials API request.
+  ///
+  /// The DC API sends requests in JSON format (not as URLs):
+  /// ```json
+  /// {
+  ///   "protocol": "openid4vp-v1-unsigned",
+  ///   "request": {
+  ///     "nonce": "...",
+  ///     "dcql_query": {...},
+  ///     "response_mode": "dc_api"
+  ///   }
+  /// }
+  /// ```
+  ///
+  /// For unsigned requests, client_id must be omitted.
+  /// For signed requests, the request object contains a JWS.
+  factory SessionPointer.fromDcApiRequest({
+    required Map<String, dynamic> requestData,
+    String? origin,
+  }) {
+    final dcProtocol = requestData["protocol"] as String?;
+
+    // Encode the full request as the URL - irmago will parse this
+    // The 'u' field contains the JSON-encoded DC API request
+    final requestJson = jsonEncode(requestData);
+
+    return SessionPointer(
+      u: requestJson,
+      irmaqr: "disclosing",
+      protocol: "openid4vp",
+      continueOnSecondDevice: false,
+      origin: origin,
+      dcApiProtocol: dcProtocol,
+    );
+  }
 
   factory SessionPointer.fromJson(Map<String, dynamic> json) =>
       _$SessionPointerFromJson(json);
@@ -226,6 +275,12 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
   set protocol(String? protocol) {
     _sessionPointer.protocol = protocol;
   }
+
+  @override
+  String? get origin => _sessionPointer.origin;
+
+  @override
+  String? get dcApiProtocol => _sessionPointer.dcApiProtocol;
 
   @override
   Map<String, dynamic> toJson() => {

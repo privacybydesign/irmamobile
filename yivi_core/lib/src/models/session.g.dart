@@ -7,41 +7,64 @@ part of "session.dart";
 // **************************************************************************
 
 IssueWizardPointer _$IssueWizardPointerFromJson(Map<String, dynamic> json) {
-  $checkKeys(json, requiredKeys: const ["wizard"]);
-  return IssueWizardPointer(json["wizard"] as String);
+  $checkKeys(
+    json,
+    requiredKeys: const ["wizard"],
+  );
+  return IssueWizardPointer(
+    json["wizard"] as String,
+  );
 }
 
 Map<String, dynamic> _$IssueWizardPointerToJson(IssueWizardPointer instance) =>
-    <String, dynamic>{"wizard": instance.wizard};
+    <String, dynamic>{
+      "wizard": instance.wizard,
+    };
 
 SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
-  $checkKeys(json, requiredKeys: const ["u", "irmaqr"]);
+  $checkKeys(
+    json,
+    requiredKeys: const ["u", "irmaqr"],
+  );
   return SessionPointer(
     u: json["u"] as String,
     irmaqr: json["irmaqr"] as String,
     protocol: json["protocol"] as String?,
     continueOnSecondDevice: json["continueOnSecondDevice"] as bool? ?? false,
+    origin: json["origin"] as String?,
+    dcApiProtocol: json["dcApiProtocol"] as String?,
   );
 }
 
-Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) =>
-    <String, dynamic>{
-      "u": instance.u,
-      "irmaqr": instance.irmaqr,
-      "protocol": instance.protocol,
-      "continueOnSecondDevice": instance.continueOnSecondDevice,
-    };
+Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) {
+  final val = <String, dynamic>{
+    "u": instance.u,
+    "irmaqr": instance.irmaqr,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull("protocol", instance.protocol);
+  val["continueOnSecondDevice"] = instance.continueOnSecondDevice;
+  writeNotNull("origin", instance.origin);
+  writeNotNull("dcApiProtocol", instance.dcApiProtocol);
+  return val;
+}
 
 SessionError _$SessionErrorFromJson(Map<String, dynamic> json) => SessionError(
-  errorType: json["ErrorType"] as String,
-  info: json["Info"] as String,
-  wrappedError: json["WrappedError"] as String? ?? "",
-  stack: json["Stack"] as String? ?? "",
-  remoteStatus: (json["RemoteStatus"] as num?)?.toInt(),
-  remoteError: json["RemoteError"] == null
-      ? null
-      : RemoteError.fromJson(json["RemoteError"] as Map<String, dynamic>),
-);
+      errorType: json["ErrorType"] as String,
+      info: json["Info"] as String,
+      wrappedError: json["WrappedError"] as String? ?? "",
+      stack: json["Stack"] as String? ?? "",
+      remoteStatus: (json["RemoteStatus"] as num?)?.toInt(),
+      remoteError: json["RemoteError"] == null
+          ? null
+          : RemoteError.fromJson(json["RemoteError"] as Map<String, dynamic>),
+    );
 
 Map<String, dynamic> _$SessionErrorToJson(SessionError instance) =>
     <String, dynamic>{
@@ -54,12 +77,12 @@ Map<String, dynamic> _$SessionErrorToJson(SessionError instance) =>
     };
 
 RemoteError _$RemoteErrorFromJson(Map<String, dynamic> json) => RemoteError(
-  status: (json["status"] as num?)?.toInt(),
-  errorName: json["error"] as String?,
-  description: json["description"] as String?,
-  message: json["message"] as String?,
-  stacktrace: json["stacktrace"] as String?,
-);
+      status: (json["status"] as num?)?.toInt(),
+      errorName: json["error"] as String?,
+      description: json["description"] as String?,
+      message: json["message"] as String?,
+      stacktrace: json["stacktrace"] as String?,
+    );
 
 Map<String, dynamic> _$RemoteErrorToJson(RemoteError instance) =>
     <String, dynamic>{
@@ -74,8 +97,7 @@ RequestorInfo _$RequestorInfoFromJson(Map<String, dynamic> json) =>
     RequestorInfo(
       name: TranslatedValue.fromJson(json["name"] as Map<String, dynamic>?),
       unverified: json["unverified"] as bool? ?? true,
-      hostnames:
-          (json["hostnames"] as List<dynamic>?)
+      hostnames: (json["hostnames"] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],

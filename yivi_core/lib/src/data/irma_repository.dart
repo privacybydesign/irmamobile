@@ -36,6 +36,7 @@ import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
+import "digital_credentials_handler.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -88,6 +89,21 @@ class IrmaRepository {
     _bridgeEventSubscription = _bridge.events.listen(
       (event) => _eventSubject.add(event),
     );
+
+    // Initialize Digital Credentials API handler (Android only)
+    try {
+      if (Platform.isAndroid) {
+        _digitalCredentialsHandler = DigitalCredentialsHandler(this);
+      } else {
+        _digitalCredentialsHandler = null;
+      }
+    } catch (e, stackTrace) {
+      // If initialization fails, just log it and continue
+      // This allows the app to work even if Digital Credentials API is not available
+      reportError(e, stackTrace);
+      _digitalCredentialsHandler = null;
+    }
+
     bridgedDispatch(AppReadyEvent());
   }
 
@@ -99,6 +115,10 @@ class IrmaRepository {
 
   // SessionRepository depends on a IrmaRepository instance, so therefore it must be late final.
   late final SessionRepository _sessionRepository;
+  SessionRepository get sessionRepository => _sessionRepository;
+
+  // DigitalCredentialsHandler for handling Digital Credentials API requests (Android only)
+  late final DigitalCredentialsHandler? _digitalCredentialsHandler;
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
@@ -128,6 +148,9 @@ class IrmaRepository {
   Future<void> close() async {
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
+
+    // Dispose digital credentials handler
+    _digitalCredentialsHandler?.dispose();
 
     // Then we can close all internal subjects
     await Future.wait([

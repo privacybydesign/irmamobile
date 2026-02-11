@@ -7,6 +7,7 @@ import (
 
 type sessionHandler struct {
 	sessionID         int
+	returnMode        bool
 	dismisser         irmaclient.SessionDismisser
 	permissionHandler irmaclient.PermissionHandler
 	pinHandler        irmaclient.PinHandler
@@ -33,6 +34,7 @@ func (sh *sessionHandler) ClientReturnURLSet(clientReturnURL string) {
 func (sh *sessionHandler) Success(result string) {
 	dispatchEvent(&successSessionEvent{
 		SessionID: sh.sessionID,
+		Result:    result,
 	})
 	dispatchCredentialsEvent()
 }

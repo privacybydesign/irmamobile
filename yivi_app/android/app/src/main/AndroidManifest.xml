@@ -65,6 +65,45 @@
               <data android:scheme="openid4vp" />
             </intent-filter>
         </activity>
+
+        <!-- Digital Credentials API Activity -->
+        <activity
+            android:name=".GetCredentialActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="androidx.credentials.registry.provider.action.GET_CREDENTIAL" />
+                <action android:name="androidx.identitycredentials.action.GET_CREDENTIALS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/LaunchTheme"
+                />
+        </activity>
+
+        <!--
+        NOTE: The CredentialProviderService approach is NOT used for Digital Credentials API.
+        The Digital Credentials API uses the registry-based provider pattern with GetCredentialActivity.
+        This service is commented out but kept for reference.
+
+        <service
+            android:name=".YiviCredentialProviderService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_CREDENTIAL_PROVIDER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.credentials.CredentialProviderService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.credentials.provider"
+                android:resource="@xml/credential_provider_capabilities" />
+        </service>
+        -->
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
