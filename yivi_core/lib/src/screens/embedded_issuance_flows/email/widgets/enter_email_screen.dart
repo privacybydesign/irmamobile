@@ -101,10 +101,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
     }
   }
 
-  bool _isValidEmail(String v) {
-    final value = v.trim();
+  bool _isValidEmail(String value) {
     if (value.isEmpty) return false;
-    return RegExp(r"^[^\s@]+@[^\s@]+\.[^\s@]+$").hasMatch(value);
+    return RegExp(
+      r"^(?:[a-zA-Z0-9_+-])+(?:[\.+](?:[a-zA-Z0-9_-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$",
+    ).hasMatch(value);
   }
 
   @override
@@ -198,9 +199,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                               validator: (v) {
                                 final value = (v ?? "").trim();
                                 if (value.isEmpty) return "Enter your email";
-                                if (!RegExp(
-                                  r"^[^\s@]+@[^\s@]+\.[^\s@]+$",
-                                ).hasMatch(value)) {
+                                if (!_isValidEmail(value)) {
                                   return "Enter a valid email";
                                 }
                                 return null;
