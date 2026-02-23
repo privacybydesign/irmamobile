@@ -9,6 +9,8 @@ void main() {
     expect(isValidEmail("john-doe@example.com"), true);
     expect(isValidEmail("john_doe@example.com"), true);
     expect(isValidEmail("john_doe@test-example.com"), true);
+    expect(isValidEmail("john2doe@test-example.com"), true);
+    expect(isValidEmail("5john2doe@test-example.com"), true);
   });
 
   test("invalid email addresses", () {
