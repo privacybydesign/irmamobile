@@ -3,26 +3,37 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/email/widgets/ente
 
 void main() {
   test("valid email addresses", () {
-    expect(isValidEmail("john.doe@example.com"), true);
-    expect(isValidEmail("john.doe+tag@example.com"), true);
-    expect(isValidEmail("john.doe.test@sub.domain.example.com"), true);
-    expect(isValidEmail("john-doe@example.com"), true);
-    expect(isValidEmail("john_doe@example.com"), true);
-    expect(isValidEmail("john_doe@test-example.com"), true);
-    expect(isValidEmail("john2doe@test-example.com"), true);
-    expect(isValidEmail("5john2doe@test-example.com"), true);
+    const validEmails = [
+      "john.doe@example.com",
+      "john.doe+tag@example.com",
+      "john.doe.test@sub.domain.example.com",
+      "john-doe@example.com",
+      "john_doe@example.com",
+      "john_doe@test-example.com",
+      "john2doe@test-example.com",
+      "5john2doe@test-example.com",
+    ];
+
+    for (final email in validEmails) {
+      expect(isValidEmail(email), true);
+    }
   });
 
   test("invalid email addresses", () {
-    expect(isValidEmail("John Doe <john.doe@example.com>"), false);
-    expect(isValidEmail('"john.doe"@example.com'), false);
-    expect(isValidEmail("john.doe@[127.0.0.1]"), false);
+    const invalidEmails = [
+      "John Doe <john.doe@example.com>",
+      '"john.doe"@example.com',
+      "john.doe@[127.0.0.1]",
+      "  john.doe@example.com",
+      " john.doe+tag@example.com",
+      "john.doe.test@sub.domain.example.com  ",
+      "john-doe@example.com ",
+      "   john_doe@example.com   ",
+      "john doe@test-example.com",
+    ];
 
-    expect(isValidEmail("  john.doe@example.com"), false);
-    expect(isValidEmail(" john.doe+tag@example.com"), false);
-    expect(isValidEmail("john.doe.test@sub.domain.example.com  "), false);
-    expect(isValidEmail("john-doe@example.com "), false);
-    expect(isValidEmail("   john_doe@example.com   "), false);
-    expect(isValidEmail("john doe@test-example.com"), false);
+    for (final email in invalidEmails) {
+      expect(isValidEmail(email), false);
+    }
   });
 }
