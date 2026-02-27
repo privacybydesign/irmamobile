@@ -1,4 +1,8 @@
+import "dart:convert";
+
 import "package:collection/collection.dart";
+import "package:crypto/crypto.dart";
+import "package:flutter/foundation.dart";
 
 import "../util/con_dis_con.dart";
 import "attribute.dart";
@@ -17,15 +21,11 @@ class SessionState {
 
 class AuthorizationCodeRequestParametersState {
   AuthorizationCodeRequestParametersState({
-    required this.issuerDiscoveryUrl,
-    required this.resource,
-    required this.scopes,
-    this.issuerState,
+    required this.authorizationRequestUrl,
+    required this.authorizationCodeStateSalt,
   });
-  final String issuerDiscoveryUrl;
-  final String? issuerState;
-  final String resource;
-  final List<String> scopes;
+  final String authorizationRequestUrl;
+  final Uint8List authorizationCodeStateSalt;
 }
 
 class PreAuthorizationCodeTransactionCodeParametersState {
@@ -89,6 +89,15 @@ class OpenID4VciSessionState extends SessionState {
 
   @override
   bool get isIssuanceSession => true;
+
+  
+  String generateSessionState() {
+    if (authorizationCodeRequestParameters == null || authorizationCodeRequestParameters!.authorizationCodeStateSalt.isEmpty) {
+      throw Exception("Salt is required to be set before generating session state");
+    }
+    final d = sha256.convert(utf8.encode("$sessionID.${base64UrlEncode(authorizationCodeRequestParameters!.authorizationCodeStateSalt)}"));
+    return base64UrlEncode(d.bytes);
+  }
 }
 
 class IrmaSessionState extends SessionState {

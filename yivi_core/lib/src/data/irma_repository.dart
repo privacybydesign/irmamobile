@@ -211,6 +211,49 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
+// --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
+        if (event.url.startsWith("yivi-app://callback")) {
+          final uri = Uri.parse(event.url);
+          final state = uri.queryParameters["state"];
+          if (state == null) {
+            throw MissingPointer(
+              details:
+                  'expected "state" to be present in query parameters, but it wasn\'t',
+            );
+          }
+          // find session with matching state
+          final session = await _sessionRepository.getSessionStateByState(state);
+          if (session == null) {
+            throw MissingPointer(
+              details: "no session found matching state $state",
+            );
+          }
+
+          // Update the session with the code from the url and send the response to irmago
+
+          if (session is OpenID4VciSessionState) {
+            final code = uri.queryParameters["code"];
+            if (code == null) {
+              throw MissingPointer(
+                details:
+                    'expected "code" to be present in query parameters, but it wasn\'t',
+              );
+            }
+            bridgedDispatch(
+              RespondAuthorizationCodeEvent(
+                sessionID: session.sessionID,
+                proceed: true,
+                code: code,
+              ),
+            );
+          } else {
+            throw MissingPointer(
+              details: "session with state $state is not an OpenID4VciSessionState",
+            );
+          }
+        }
+// --- END TODO
+
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
