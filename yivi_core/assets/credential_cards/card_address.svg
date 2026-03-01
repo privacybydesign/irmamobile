@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 215" width="340" height="215">
+  <defs>
+    <!-- Address Gradient from scheme: #014483 to #2574A6 -->
+    <linearGradient id="addressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#014483;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2574A6;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="addressPattern" patternUnits="userSpaceOnUse" width="40" height="40">
+      <path d="M20 8 L32 18 L32 32 L8 32 L8 18 Z" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    </pattern>
+    <filter id="cardShadowAddress" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Card base -->
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#addressGradient)" filter="url(#cardShadowAddress)"/>
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#addressPattern)"/>
+
+  <!-- House icon -->
+  <g transform="translate(24, 15)">
+    <path d="M20 4 L36 18 L36 40 L4 40 L4 18 Z" fill="rgba(255,255,255,0.9)"/>
+    <rect x="14" y="26" width="12" height="14" fill="#2574A6"/>
+    <rect x="8" y="22" width="6" height="8" fill="rgba(173,216,230,0.8)"/>
+    <rect x="26" y="22" width="6" height="8" fill="rgba(173,216,230,0.8)"/>
+  </g>
+
+  <!-- Title - using scheme Name -->
+  <text x="70" y="32" font-family="Alexandria, sans-serif" font-size="14" font-weight="600" fill="#ffffff">WOONADRES</text>
+  <text x="70" y="49" font-family="Open Sans, sans-serif" font-size="10" fill="rgba(255,255,255,0.7)">Home Address</text>
+
+  <!-- Decorative line -->
+  <line x1="24" y1="65" x2="316" y2="65" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+
+  <!-- Street + House number with Mustache binding -->
+  <text x="24" y="85" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">STRAAT / STREET</text>
+  <rect x="24" y="90" width="200" height="24" rx="4" fill="rgba(255,255,255,0.1)"/>
+  <text x="34" y="107" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/street}} {{/credentialSubject/houseNumber}}</text>
+
+  <!-- Postal code -->
+  <text x="24" y="130" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">POSTCODE / ZIP</text>
+  <rect x="24" y="135" width="80" height="24" rx="4" fill="rgba(255,255,255,0.1)"/>
+  <text x="34" y="152" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/zipcode}}</text>
+
+  <!-- City -->
+  <text x="116" y="130" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">WOONPLAATS / CITY</text>
+  <rect x="116" y="135" width="130" height="24" rx="4" fill="rgba(255,255,255,0.1)"/>
+  <text x="126" y="152" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/city}}</text>
+
+  <!-- Municipality -->
+  <text x="24" y="175" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">GEMEENTE / MUNICIPALITY</text>
+  <text x="24" y="195" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/municipality}}</text>
+
+  <!-- Map pin decorative -->
+  <g transform="translate(280, 80)">
+    <path d="M20 0 C31 0 40 9 40 20 C40 35 20 50 20 50 C20 50 0 35 0 20 C0 9 9 0 20 0 Z" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <circle cx="20" cy="20" r="8" fill="rgba(255,255,255,0.2)"/>
+  </g>
+
+  <!-- Valid indicator -->
+  <circle cx="310" cy="188" r="8" fill="rgba(0,151,58,0.9)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+  <path d="M306 188 L309 191 L314 185" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

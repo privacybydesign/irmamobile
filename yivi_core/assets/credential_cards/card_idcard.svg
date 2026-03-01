@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 215" width="340" height="215">
+  <defs>
+    <!-- ID Card Gradient from scheme: #053F58 to #165B78 -->
+    <linearGradient id="idcardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#053F58;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#165B78;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="idcardPattern" patternUnits="userSpaceOnUse" width="60" height="60">
+      <path d="M0 30 Q15 20, 30 30 T60 30" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+    </pattern>
+    <filter id="cardShadowIdcard" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+    <linearGradient id="chipGradientId" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4AF37;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Card base -->
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#idcardGradient)" filter="url(#cardShadowIdcard)"/>
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#idcardPattern)"/>
+
+  <!-- Title - using scheme Name -->
+  <text x="24" y="28" font-family="Alexandria, sans-serif" font-size="14" font-weight="700" fill="#ffffff">ID-KAART</text>
+  <text x="24" y="44" font-family="Open Sans, sans-serif" font-size="10" fill="rgba(255,255,255,0.7)">Identity Card</text>
+
+  <!-- Photo placeholder -->
+  <rect x="24" y="55" width="66" height="84" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <text x="57" y="102" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.4)" text-anchor="middle">{{/credentialSubject/photo}}</text>
+
+  <!-- Data fields with Mustache bindings -->
+  <g transform="translate(100, 55)">
+    <text x="0" y="0" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">ACHTERNAAM / SURNAME</text>
+    <rect x="0" y="4" width="140" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="16" font-family="Open Sans, sans-serif" font-size="11" fill="#ffffff">{{/credentialSubject/lastName}}</text>
+
+    <text x="0" y="32" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">VOORNAMEN / GIVEN NAMES</text>
+    <rect x="0" y="36" width="140" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="48" font-family="Open Sans, sans-serif" font-size="11" fill="#ffffff">{{/credentialSubject/firstName}}</text>
+
+    <text x="0" y="64" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">GEBOORTEDATUM / DOB</text>
+    <rect x="0" y="68" width="80" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="80" font-family="Open Sans, sans-serif" font-size="11" fill="#ffffff">{{/credentialSubject/dateOfBirth}}</text>
+  </g>
+
+  <!-- Document number and expiry -->
+  <g transform="translate(250, 55)">
+    <text x="0" y="0" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">DOC NR</text>
+    <rect x="0" y="4" width="66" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="16" font-family="monospace" font-size="9" fill="#ffffff">{{/credentialSubject/documentNumber}}</text>
+
+    <text x="0" y="32" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">GELDIG TOT</text>
+    <rect x="0" y="36" width="66" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="48" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/dateOfExpiry}}</text>
+
+    <text x="0" y="64" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">LAND</text>
+    <rect x="0" y="68" width="66" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="80" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/country}}</text>
+  </g>
+
+  <!-- Chip -->
+  <g transform="translate(24, 145)">
+    <rect width="35" height="26" rx="3" fill="url(#chipGradientId)"/>
+    <line x1="0" y1="8.66" x2="35" y2="8.66" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+    <line x1="0" y1="17.33" x2="35" y2="17.33" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+    <line x1="11.66" y1="0" x2="11.66" y2="26" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+    <line x1="23.33" y1="0" x2="23.33" y2="26" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+  </g>
+
+  <!-- MRZ Zone -->
+  <rect x="0" y="175" width="340" height="40" fill="rgba(0,0,0,0.15)"/>
+  <text x="12" y="192" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.5)" letter-spacing="1">I&lt;{{/credentialSubject/country}}{{/credentialSubject/lastName}}&lt;&lt;{{/credentialSubject/firstName}}</text>
+  <text x="12" y="206" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.5)" letter-spacing="1">{{/credentialSubject/documentNumber}}</text>
+
+  <!-- NFC symbol -->
+  <g transform="translate(290, 145)">
+    <path d="M0 13 Q5 8, 10 13" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+    <path d="M3 13 Q8 6, 13 13" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+    <path d="M6 13 Q11 4, 16 13" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" fill="none"/>
+  </g>
+
+  <!-- Valid indicator -->
+  <circle cx="310" cy="100" r="8" fill="rgba(0,151,58,0.9)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+  <path d="M306 100 L309 103 L314 97" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

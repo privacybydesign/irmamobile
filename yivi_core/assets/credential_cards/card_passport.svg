@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 215" width="340" height="215">
+  <defs>
+    <!-- Passport Gradient from scheme: #053F58 to #165B78 -->
+    <linearGradient id="passportGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#053F58;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#165B78;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="passportPattern" patternUnits="userSpaceOnUse" width="50" height="50">
+      <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/>
+      <circle cx="25" cy="25" r="10" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="0.5"/>
+    </pattern>
+    <filter id="cardShadowPassport" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.2"/>
+    </filter>
+    <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#B8860B;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Card base -->
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#passportGradient)" filter="url(#cardShadowPassport)"/>
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#passportPattern)"/>
+
+  <!-- Title - using scheme Name -->
+  <text x="24" y="30" font-family="Alexandria, sans-serif" font-size="16" font-weight="700" fill="url(#goldAccent)">PASPOORT</text>
+  <text x="24" y="46" font-family="Open Sans, sans-serif" font-size="10" fill="rgba(255,255,255,0.6)">Passport</text>
+
+  <!-- Photo placeholder with Mustache binding -->
+  <rect x="250" y="55" width="66" height="84" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,215,0,0.3)" stroke-width="1"/>
+  <text x="283" y="102" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.4)" text-anchor="middle">{{/credentialSubject/photo}}</text>
+
+  <!-- Data fields with Mustache bindings -->
+  <g transform="translate(24, 60)">
+    <text x="0" y="0" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">ACHTERNAAM / SURNAME</text>
+    <rect x="0" y="4" width="200" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="16" font-family="Open Sans, sans-serif" font-size="11" fill="#ffffff">{{/credentialSubject/lastName}}</text>
+
+    <text x="0" y="32" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">VOORNAMEN / GIVEN NAMES</text>
+    <rect x="0" y="36" width="200" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="48" font-family="Open Sans, sans-serif" font-size="11" fill="#ffffff">{{/credentialSubject/firstName}}</text>
+
+    <text x="0" y="64" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">GEBOORTEDATUM / DATE OF BIRTH</text>
+    <rect x="0" y="68" width="90" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="8" y="80" font-family="Open Sans, sans-serif" font-size="11" fill="#ffffff">{{/credentialSubject/dateOfBirth}}</text>
+
+    <text x="100" y="64" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">NATIONALITEIT</text>
+    <rect x="100" y="68" width="70" height="18" rx="3" fill="rgba(255,255,255,0.08)"/>
+    <text x="108" y="80" font-family="Open Sans, sans-serif" font-size="11" fill="#ffffff">{{/credentialSubject/nationality}}</text>
+  </g>
+
+  <!-- Document number -->
+  <text x="250" y="150" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">DOC NR</text>
+  <text x="250" y="163" font-family="monospace" font-size="10" fill="#ffffff">{{/credentialSubject/documentNumber}}</text>
+
+  <!-- MRZ Zone -->
+  <rect x="0" y="175" width="340" height="40" fill="rgba(0,0,0,0.2)"/>
+  <text x="12" y="192" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.5)" letter-spacing="1">P&lt;{{/credentialSubject/country}}{{/credentialSubject/lastName}}&lt;&lt;{{/credentialSubject/firstName}}</text>
+  <text x="12" y="206" font-family="monospace" font-size="8" fill="rgba(255,255,255,0.5)" letter-spacing="1">{{/credentialSubject/documentNumber}}</text>
+
+  <!-- Valid indicator -->
+  <circle cx="310" cy="160" r="6" fill="rgba(0,151,58,0.9)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+  <path d="M307 160 L309 162 L313 158" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 215" width="340" height="215">
+  <defs>
+    <!-- Email Gradient from scheme: #3BB992 to #6CE6C1 -->
+    <linearGradient id="emailGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3BB992;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6CE6C1;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="emailPattern" patternUnits="userSpaceOnUse" width="24" height="24">
+      <circle cx="12" cy="12" r="1.5" fill="rgba(21,34,46,0.06)"/>
+    </pattern>
+    <filter id="cardShadowEmail" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Card base -->
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#emailGradient)" filter="url(#cardShadowEmail)"/>
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#emailPattern)"/>
+
+  <!-- Email icon -->
+  <g transform="translate(24, 16)">
+    <rect width="40" height="40" rx="8" fill="rgba(21,34,46,0.1)"/>
+    <g transform="translate(8, 12)">
+      <rect width="24" height="16" rx="2" fill="none" stroke="#15222E" stroke-width="1.5"/>
+      <path d="M0 2 L12 10 L24 2" fill="none" stroke="#15222E" stroke-width="1.5"/>
+    </g>
+  </g>
+
+  <!-- Title - using scheme Name -->
+  <text x="75" y="32" font-family="Alexandria, sans-serif" font-size="14" font-weight="600" fill="#15222E">E-MAILADRES</text>
+  <text x="75" y="49" font-family="Open Sans, sans-serif" font-size="10" fill="rgba(21,34,46,0.7)">Email Address</text>
+
+  <!-- Decorative line -->
+  <line x1="24" y1="68" x2="316" y2="68" stroke="rgba(21,34,46,0.2)" stroke-width="1"/>
+
+  <!-- Email field with Mustache binding -->
+  <g transform="translate(24, 85)">
+    <circle cx="16" cy="16" r="16" fill="rgba(21,34,46,0.08)"/>
+    <rect x="6" y="10" width="20" height="14" rx="2" fill="none" stroke="#15222E" stroke-width="1"/>
+    <path d="M6 11 L16 18 L26 11" fill="none" stroke="#15222E" stroke-width="1"/>
+  </g>
+  <text x="60" y="95" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(21,34,46,0.6)">E-MAILADRES / EMAIL</text>
+  <rect x="60" y="102" width="256" height="28" rx="4" fill="rgba(21,34,46,0.08)"/>
+  <text x="72" y="121" font-family="Open Sans, sans-serif" font-size="14" fill="#15222E">{{/credentialSubject/email}}</text>
+
+  <!-- Domain field with Mustache binding -->
+  <g transform="translate(24, 145)">
+    <circle cx="16" cy="16" r="16" fill="rgba(21,34,46,0.08)"/>
+    <text x="16" y="21" font-family="Open Sans, sans-serif" font-size="14" fill="#15222E" text-anchor="middle">@</text>
+  </g>
+  <text x="60" y="155" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(21,34,46,0.6)">DOMEIN / DOMAIN</text>
+  <rect x="60" y="162" width="180" height="24" rx="4" fill="rgba(21,34,46,0.08)"/>
+  <text x="72" y="179" font-family="Open Sans, sans-serif" font-size="12" fill="#15222E">{{/credentialSubject/domain}}</text>
+
+  <!-- Valid indicator -->
+  <circle cx="310" cy="188" r="8" fill="rgba(0,151,58,0.9)" stroke="rgba(21,34,46,0.3)" stroke-width="1"/>
+  <path d="M306 188 L309 191 L314 185" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

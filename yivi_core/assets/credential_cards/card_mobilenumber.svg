@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 215" width="340" height="215">
+  <defs>
+    <!-- Mobile Gradient from scheme: #3BB992 to #6CE6C1 -->
+    <linearGradient id="mobileGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3BB992;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6CE6C1;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="mobilePattern" patternUnits="userSpaceOnUse" width="24" height="24">
+      <circle cx="12" cy="12" r="1.5" fill="rgba(21,34,46,0.06)"/>
+    </pattern>
+    <filter id="cardShadowMobile" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Card base -->
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#mobileGradient)" filter="url(#cardShadowMobile)"/>
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#mobilePattern)"/>
+
+  <!-- Phone icon -->
+  <g transform="translate(24, 16)">
+    <rect width="40" height="40" rx="8" fill="rgba(21,34,46,0.1)"/>
+    <g transform="translate(12, 8)">
+      <rect width="16" height="24" rx="3" fill="none" stroke="#15222E" stroke-width="1.5"/>
+      <circle cx="8" cy="20" r="2" fill="#15222E"/>
+      <line x1="5" y1="4" x2="11" y2="4" stroke="#15222E" stroke-width="1" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- Title - using scheme Name -->
+  <text x="75" y="32" font-family="Alexandria, sans-serif" font-size="14" font-weight="600" fill="#15222E">MOBIEL NUMMER</text>
+  <text x="75" y="49" font-family="Open Sans, sans-serif" font-size="10" fill="rgba(21,34,46,0.7)">Mobile Phone Number</text>
+
+  <!-- Decorative line -->
+  <line x1="24" y1="68" x2="316" y2="68" stroke="rgba(21,34,46,0.2)" stroke-width="1"/>
+
+  <!-- Phone number field with Mustache binding -->
+  <g transform="translate(24, 95)">
+    <circle cx="20" cy="20" r="20" fill="rgba(21,34,46,0.08)"/>
+    <rect x="10" y="8" width="20" height="28" rx="4" fill="none" stroke="#15222E" stroke-width="1.2"/>
+    <circle cx="20" cy="30" r="2.5" fill="#15222E"/>
+  </g>
+  <text x="75" y="105" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(21,34,46,0.6)">TELEFOONNUMMER / PHONE NUMBER</text>
+  <rect x="75" y="115" width="220" height="36" rx="4" fill="rgba(21,34,46,0.08)"/>
+  <text x="90" y="140" font-family="Open Sans, sans-serif" font-size="18" fill="#15222E">{{/credentialSubject/mobilenumber}}</text>
+
+  <!-- Valid indicator -->
+  <circle cx="310" cy="188" r="8" fill="rgba(0,151,58,0.9)" stroke="rgba(21,34,46,0.3)" stroke-width="1"/>
+  <path d="M306 188 L309 191 L314 185" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

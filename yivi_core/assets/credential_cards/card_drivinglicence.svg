@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 215" width="340" height="215">
+  <defs>
+    <!-- Driving Licence Gradient from scheme: #053F58 to #165B78 -->
+    <linearGradient id="dlGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#053F58;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#165B78;stop-opacity:1" />
+    </linearGradient>
+    <pattern id="dlPattern" patternUnits="userSpaceOnUse" width="40" height="40">
+      <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+    </pattern>
+    <filter id="cardShadowDl" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+    <linearGradient id="chipGradientDl" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4AF37;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Card base -->
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#dlGradient)" filter="url(#cardShadowDl)"/>
+  <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#dlPattern)"/>
+
+  <!-- Title - using scheme Name -->
+  <text x="24" y="26" font-family="Alexandria, sans-serif" font-size="12" font-weight="700" fill="#ffffff">RIJBEWIJS</text>
+  <text x="110" y="26" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">Driving Licence</text>
+
+  <!-- Photo placeholder -->
+  <rect x="24" y="38" width="60" height="76" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <text x="54" y="80" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.4)" text-anchor="middle">{{/credentialSubject/photo}}</text>
+
+  <!-- Data fields with Mustache bindings - numbered as per EU standard -->
+  <g transform="translate(95, 35)">
+    <!-- 1. Surname -->
+    <text x="0" y="0" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">1. ACHTERNAAM</text>
+    <rect x="0" y="3" width="120" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
+    <text x="6" y="13" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/lastName}}</text>
+
+    <!-- 2. Given names -->
+    <text x="0" y="24" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">2. VOORNAMEN</text>
+    <rect x="0" y="27" width="120" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
+    <text x="6" y="37" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/firstName}}</text>
+
+    <!-- 3. Date of birth -->
+    <text x="0" y="48" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">3. GEBOORTEDATUM</text>
+    <rect x="0" y="51" width="70" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
+    <text x="6" y="61" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/dateOfBirth}}</text>
+
+    <!-- 3b. Place of birth -->
+    <text x="80" y="48" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">3b. GEBOORTEPLAATS</text>
+    <rect x="80" y="51" width="80" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
+    <text x="86" y="61" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/placeOfBirth}}</text>
+
+    <!-- 5. Document number -->
+    <text x="0" y="72" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">5. RIJBEWIJSNUMMER</text>
+    <rect x="0" y="75" width="90" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
+    <text x="6" y="85" font-family="monospace" font-size="9" fill="#ffffff">{{/credentialSubject/documentNumber}}</text>
+  </g>
+
+  <!-- 4b. Expiry / 4c. Issuing authority -->
+  <g transform="translate(250, 35)">
+    <text x="0" y="0" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">4b. GELDIG TOT</text>
+    <rect x="0" y="3" width="66" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
+    <text x="6" y="13" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/dateOfExpiry}}</text>
+
+    <text x="0" y="24" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">4c. AFGEGEVEN DOOR</text>
+    <rect x="0" y="27" width="66" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
+    <text x="6" y="37" font-family="Open Sans, sans-serif" font-size="8" fill="#ffffff">{{/credentialSubject/issuingAuthority}}</text>
+  </g>
+
+  <!-- Category section -->
+  <rect x="24" y="125" width="292" height="50" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="34" y="140" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">9. CATEGORIEEN / CATEGORIES</text>
+
+  <!-- Category boxes -->
+  <g transform="translate(34, 145)">
+    <rect width="24" height="20" rx="2" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+    <text x="12" y="14" font-family="Alexandria, sans-serif" font-size="10" fill="#ffffff" text-anchor="middle">B</text>
+
+    <rect x="30" width="24" height="20" rx="2" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+    <text x="42" y="14" font-family="Alexandria, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">A</text>
+
+    <rect x="60" width="24" height="20" rx="2" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+    <text x="72" y="14" font-family="Alexandria, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">C</text>
+
+    <rect x="90" width="24" height="20" rx="2" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+    <text x="102" y="14" font-family="Alexandria, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">D</text>
+  </g>
+
+  <!-- Chip -->
+  <g transform="translate(280, 125)">
+    <rect width="28" height="20" rx="3" fill="url(#chipGradientDl)"/>
+    <line x1="0" y1="6.66" x2="28" y2="6.66" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+    <line x1="0" y1="13.33" x2="28" y2="13.33" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+    <line x1="9.33" y1="0" x2="9.33" y2="20" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+    <line x1="18.66" y1="0" x2="18.66" y2="20" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+  </g>
+
+  <!-- Issuing member state -->
+  <text x="24" y="190" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">UITGEVENDE LIDSTAAT</text>
+  <text x="24" y="205" font-family="Open Sans, sans-serif" font-size="10" fill="#ffffff">{{/credentialSubject/issuingMemberState}}</text>
+
+  <!-- Valid indicator -->
+  <circle cx="310" cy="195" r="8" fill="rgba(0,151,58,0.9)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+  <path d="M306 195 L309 198 L314 192" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
