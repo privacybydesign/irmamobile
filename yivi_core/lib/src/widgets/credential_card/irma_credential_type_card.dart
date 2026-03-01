@@ -1,20 +1,23 @@
 import "package:flutter/material.dart";
 
+import "../../models/attribute.dart";
 import "../../models/irma_configuration.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
-import "../irma_avatar.dart";
 import "../irma_card.dart";
+import "credential_card_image.dart";
 
 class IrmaCredentialTypeCard extends StatelessWidget {
   final CredentialType credType;
+  final List<Attribute>? attributes;
   final VoidCallback? onTap;
   final bool checked;
   final IconData? trailingIcon;
 
   const IrmaCredentialTypeCard({
     required this.credType,
+    this.attributes,
     this.onTap,
     this.checked = false,
     this.trailingIcon,
@@ -25,23 +28,24 @@ class IrmaCredentialTypeCard extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final repo = IrmaRepositoryProvider.of(context);
 
-    const logoContainerSize = 52.0;
+    const cardHeight = 72.0;
 
-    Widget avatar = IrmaAvatar(
-      size: logoContainerSize,
-      logoPath: credType.logo,
+    Widget cardImage = CredentialCardImageCompact(
+      credentialType: credType,
+      attributes: attributes,
+      height: cardHeight,
     );
 
-    // If the credential is checked, add a check mark to the avatar
+    // If the credential is checked, add a check mark to the card
     if (checked) {
-      avatar = Stack(
+      cardImage = Stack(
         alignment: Alignment.topRight,
         children: [
-          avatar,
+          cardImage,
           Icon(
             Icons.check_circle,
             color: theme.success,
-            size: logoContainerSize * 0.3,
+            size: cardHeight * 0.3,
           ),
         ],
       );
@@ -57,7 +61,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: Row(
               children: [
-                ExcludeSemantics(child: avatar),
+                ExcludeSemantics(child: cardImage),
                 SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
                 Expanded(
                   child: Column(

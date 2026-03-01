@@ -26,30 +26,30 @@
   </g>
 
   <!-- Title - using scheme Name -->
-  <text x="70" y="32" font-family="Alexandria, sans-serif" font-size="14" font-weight="600" fill="#ffffff">WOONADRES</text>
-  <text x="70" y="49" font-family="Open Sans, sans-serif" font-size="10" fill="rgba(255,255,255,0.7)">Home Address</text>
+  <text x="70" y="32" font-family="sans-serif" font-size="14" font-weight="600" fill="#ffffff">WOONADRES</text>
+  <text x="70" y="49" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,0.7)">Home Address</text>
 
   <!-- Decorative line -->
   <line x1="24" y1="65" x2="316" y2="65" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
 
   <!-- Street + House number with Mustache binding -->
-  <text x="24" y="85" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">STRAAT / STREET</text>
+  <text x="24" y="85" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">STRAAT / STREET</text>
   <rect x="24" y="90" width="200" height="24" rx="4" fill="rgba(255,255,255,0.1)"/>
-  <text x="34" y="107" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/street}} {{/credentialSubject/houseNumber}}</text>
+  <text x="34" y="107" font-family="sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/street}} {{/credentialSubject/houseNumber}}</text>
 
   <!-- Postal code -->
-  <text x="24" y="130" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">POSTCODE / ZIP</text>
+  <text x="24" y="130" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">POSTCODE / ZIP</text>
   <rect x="24" y="135" width="80" height="24" rx="4" fill="rgba(255,255,255,0.1)"/>
-  <text x="34" y="152" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/zipcode}}</text>
+  <text x="34" y="152" font-family="sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/zipcode}}</text>
 
   <!-- City -->
-  <text x="116" y="130" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">WOONPLAATS / CITY</text>
+  <text x="116" y="130" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">WOONPLAATS / CITY</text>
   <rect x="116" y="135" width="130" height="24" rx="4" fill="rgba(255,255,255,0.1)"/>
-  <text x="126" y="152" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/city}}</text>
+  <text x="126" y="152" font-family="sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/city}}</text>
 
   <!-- Municipality -->
-  <text x="24" y="175" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">GEMEENTE / MUNICIPALITY</text>
-  <text x="24" y="195" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/municipality}}</text>
+  <text x="24" y="175" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">GEMEENTE / MUNICIPALITY</text>
+  <text x="24" y="195" font-family="sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/municipality}}</text>
 
   <!-- Map pin decorative -->
   <g transform="translate(280, 80)">

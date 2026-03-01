@@ -296,6 +296,7 @@ class _CredentialsTypeList extends StatelessWidget {
             ),
             child: IrmaCredentialTypeCard(
               credType: c.credentialType,
+              attributes: c.attributes,
               onTap: () => context.pushCredentialsDetailsScreen(
                 CredentialsDetailsRouteParams(
                   categoryName: "home.nav_bar.data",
@@ -384,6 +385,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
                 index: i,
                 child: IrmaCredentialTypeCard(
                   credType: cred.credentialType,
+                  attributes: cred.attributes,
                   onTap: () => context.pushCredentialsDetailsScreen(
                     CredentialsDetailsRouteParams(
                       categoryName: "home.nav_bar.data",

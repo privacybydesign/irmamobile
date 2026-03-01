@@ -23,69 +23,69 @@
   <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#dlPattern)"/>
 
   <!-- Title - using scheme Name -->
-  <text x="24" y="26" font-family="Alexandria, sans-serif" font-size="12" font-weight="700" fill="#ffffff">RIJBEWIJS</text>
-  <text x="110" y="26" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">Driving Licence</text>
+  <text x="24" y="26" font-family="sans-serif" font-size="12" font-weight="700" fill="#ffffff">RIJBEWIJS</text>
+  <text x="110" y="26" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">Driving Licence</text>
 
   <!-- Photo placeholder -->
   <rect x="24" y="38" width="60" height="76" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-  <text x="54" y="80" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.4)" text-anchor="middle">{{/credentialSubject/photo}}</text>
+  <text x="54" y="80" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.4)" text-anchor="middle">{{/credentialSubject/photo}}</text>
 
   <!-- Data fields with Mustache bindings - numbered as per EU standard -->
   <g transform="translate(95, 35)">
     <!-- 1. Surname -->
-    <text x="0" y="0" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">1. ACHTERNAAM</text>
+    <text x="0" y="0" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">1. ACHTERNAAM</text>
     <rect x="0" y="3" width="120" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
-    <text x="6" y="13" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/lastName}}</text>
+    <text x="6" y="13" font-family="sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/lastName}}</text>
 
     <!-- 2. Given names -->
-    <text x="0" y="24" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">2. VOORNAMEN</text>
+    <text x="0" y="24" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">2. VOORNAMEN</text>
     <rect x="0" y="27" width="120" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
-    <text x="6" y="37" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/firstName}}</text>
+    <text x="6" y="37" font-family="sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/firstName}}</text>
 
     <!-- 3. Date of birth -->
-    <text x="0" y="48" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">3. GEBOORTEDATUM</text>
+    <text x="0" y="48" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">3. GEBOORTEDATUM</text>
     <rect x="0" y="51" width="70" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
-    <text x="6" y="61" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/dateOfBirth}}</text>
+    <text x="6" y="61" font-family="sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/dateOfBirth}}</text>
 
     <!-- 3b. Place of birth -->
-    <text x="80" y="48" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">3b. GEBOORTEPLAATS</text>
+    <text x="80" y="48" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">3b. GEBOORTEPLAATS</text>
     <rect x="80" y="51" width="80" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
-    <text x="86" y="61" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/placeOfBirth}}</text>
+    <text x="86" y="61" font-family="sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/placeOfBirth}}</text>
 
     <!-- 5. Document number -->
-    <text x="0" y="72" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">5. RIJBEWIJSNUMMER</text>
+    <text x="0" y="72" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">5. RIJBEWIJSNUMMER</text>
     <rect x="0" y="75" width="90" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
     <text x="6" y="85" font-family="monospace" font-size="9" fill="#ffffff">{{/credentialSubject/documentNumber}}</text>
   </g>
 
   <!-- 4b. Expiry / 4c. Issuing authority -->
   <g transform="translate(250, 35)">
-    <text x="0" y="0" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">4b. GELDIG TOT</text>
+    <text x="0" y="0" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">4b. GELDIG TOT</text>
     <rect x="0" y="3" width="66" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
-    <text x="6" y="13" font-family="Open Sans, sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/dateOfExpiry}}</text>
+    <text x="6" y="13" font-family="sans-serif" font-size="9" fill="#ffffff">{{/credentialSubject/dateOfExpiry}}</text>
 
-    <text x="0" y="24" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">4c. AFGEGEVEN DOOR</text>
+    <text x="0" y="24" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">4c. AFGEGEVEN DOOR</text>
     <rect x="0" y="27" width="66" height="14" rx="2" fill="rgba(255,255,255,0.08)"/>
-    <text x="6" y="37" font-family="Open Sans, sans-serif" font-size="8" fill="#ffffff">{{/credentialSubject/issuingAuthority}}</text>
+    <text x="6" y="37" font-family="sans-serif" font-size="8" fill="#ffffff">{{/credentialSubject/issuingAuthority}}</text>
   </g>
 
   <!-- Category section -->
   <rect x="24" y="125" width="292" height="50" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-  <text x="34" y="140" font-family="Open Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">9. CATEGORIEEN / CATEGORIES</text>
+  <text x="34" y="140" font-family="sans-serif" font-size="7" fill="rgba(255,255,255,0.6)">9. CATEGORIEEN / CATEGORIES</text>
 
   <!-- Category boxes -->
   <g transform="translate(34, 145)">
     <rect width="24" height="20" rx="2" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
-    <text x="12" y="14" font-family="Alexandria, sans-serif" font-size="10" fill="#ffffff" text-anchor="middle">B</text>
+    <text x="12" y="14" font-family="sans-serif" font-size="10" fill="#ffffff" text-anchor="middle">B</text>
 
     <rect x="30" width="24" height="20" rx="2" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
-    <text x="42" y="14" font-family="Alexandria, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">A</text>
+    <text x="42" y="14" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">A</text>
 
     <rect x="60" width="24" height="20" rx="2" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
-    <text x="72" y="14" font-family="Alexandria, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">C</text>
+    <text x="72" y="14" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">C</text>
 
     <rect x="90" width="24" height="20" rx="2" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
-    <text x="102" y="14" font-family="Alexandria, sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">D</text>
+    <text x="102" y="14" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,0.4)" text-anchor="middle">D</text>
   </g>
 
   <!-- Chip -->
@@ -98,8 +98,8 @@
   </g>
 
   <!-- Issuing member state -->
-  <text x="24" y="190" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">UITGEVENDE LIDSTAAT</text>
-  <text x="24" y="205" font-family="Open Sans, sans-serif" font-size="10" fill="#ffffff">{{/credentialSubject/issuingMemberState}}</text>
+  <text x="24" y="190" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.5)">UITGEVENDE LIDSTAAT</text>
+  <text x="24" y="205" font-family="sans-serif" font-size="10" fill="#ffffff">{{/credentialSubject/issuingMemberState}}</text>
 
   <!-- Valid indicator -->
   <circle cx="310" cy="195" r="8" fill="rgba(0,151,58,0.9)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>

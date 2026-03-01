@@ -24,8 +24,8 @@
   <rect x="0" y="0" width="340" height="215" rx="12" ry="12" fill="url(#ibanPattern)"/>
 
   <!-- Title - using scheme Name -->
-  <text x="24" y="32" font-family="Alexandria, sans-serif" font-size="14" font-weight="600" fill="#ffffff">BANKREKENING</text>
-  <text x="24" y="49" font-family="Open Sans, sans-serif" font-size="10" fill="rgba(255,255,255,0.7)">Bank Account</text>
+  <text x="24" y="32" font-family="sans-serif" font-size="14" font-weight="600" fill="#ffffff">BANKREKENING</text>
+  <text x="24" y="49" font-family="sans-serif" font-size="10" fill="rgba(255,255,255,0.7)">Bank Account</text>
 
   <!-- Gold accent line -->
   <rect x="0" y="62" width="340" height="2" fill="url(#chipGradient)" opacity="0.6"/>
@@ -47,17 +47,17 @@
   </g>
 
   <!-- IBAN field with Mustache binding -->
-  <text x="24" y="135" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">IBAN</text>
+  <text x="24" y="135" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">IBAN</text>
   <rect x="24" y="140" width="260" height="28" rx="4" fill="rgba(255,255,255,0.1)"/>
   <text x="34" y="160" font-family="monospace" font-size="15" fill="#ffffff" letter-spacing="1">{{/credentialSubject/iban}}</text>
 
   <!-- BIC field -->
-  <text x="295" y="135" font-family="Open Sans, sans-serif" font-size="8" fill="rgba(255,255,255,0.6)">BIC</text>
+  <text x="295" y="135" font-family="sans-serif" font-size="8" fill="rgba(255,255,255,0.6)">BIC</text>
   <text x="295" y="150" font-family="monospace" font-size="10" fill="rgba(255,255,255,0.8)">{{/credentialSubject/bic}}</text>
 
   <!-- Account holder with Mustache binding -->
-  <text x="24" y="183" font-family="Open Sans, sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">REKENINGHOUDER / ACCOUNT HOLDER</text>
-  <text x="24" y="200" font-family="Open Sans, sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/fullname}}</text>
+  <text x="24" y="183" font-family="sans-serif" font-size="9" fill="rgba(255,255,255,0.6)">REKENINGHOUDER / ACCOUNT HOLDER</text>
+  <text x="24" y="200" font-family="sans-serif" font-size="12" fill="#ffffff">{{/credentialSubject/fullname}}</text>
 
   <!-- Valid indicator -->
   <circle cx="310" cy="193" r="8" fill="rgba(0,151,58,0.9)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>

@@ -10,11 +10,11 @@ import "../../models/credentials.dart";
 import "../../providers/credentials_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
+import "../../widgets/credential_card/credential_card_image.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
 import "../../widgets/credential_card/yivi_credential_card.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/irma_avatar.dart";
 import "../../widgets/progress.dart";
 import "../../widgets/translated_text.dart";
 
@@ -79,8 +79,12 @@ class _CredentialsDetailsScreenState
         spacing: theme.smallSpacing,
         children: [
           Transform.translate(
-            offset: Offset(0, 4),
-            child: IrmaAvatar(logoPath: c.credentialType.logo, size: 20),
+            offset: Offset(0, 2),
+            child: CredentialCardImageCompact(
+              credentialType: c.credentialType,
+              attributes: c.attributes,
+              height: 32,
+            ),
           ),
           Text(name, style: theme.textTheme.displaySmall),
         ],

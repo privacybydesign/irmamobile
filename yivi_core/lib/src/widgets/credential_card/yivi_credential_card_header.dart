@@ -1,13 +1,16 @@
 import "package:flutter/material.dart";
 
+import "../../models/attribute.dart";
+import "../../models/irma_configuration.dart";
 import "../../theme/theme.dart";
-import "../irma_avatar.dart";
 import "../translated_text.dart";
+import "credential_card_image.dart";
 
 class YiviCredentialCardHeader extends StatelessWidget {
   final bool compact;
   final String credentialName;
-  final String? logo;
+  final CredentialType? credentialType;
+  final List<Attribute>? attributes;
   final String? issuerName;
   final Widget? trailing;
   final bool isExpired;
@@ -17,7 +20,8 @@ class YiviCredentialCardHeader extends StatelessWidget {
   const YiviCredentialCardHeader({
     required this.credentialName,
     required this.compact,
-    this.logo,
+    this.credentialType,
+    this.attributes,
     this.issuerName,
     this.trailing,
     this.isExpiringSoon = false,
@@ -53,8 +57,36 @@ class YiviCredentialCardHeader extends StatelessWidget {
     return null;
   }
 
-  static const _compactLogoSize = 52.0;
-  static const _expandedLogoSize = 80.0;
+  static const _compactCardHeight = 72.0;
+  static const _expandedCardHeight = 150.0;
+
+  Widget _buildCredentialCard(double height, {VoidCallback? onTap}) {
+    if (credentialType != null) {
+      return CredentialCardImageCompact(
+        credentialType: credentialType!,
+        attributes: attributes,
+        height: height,
+        onTap: onTap,
+      );
+    }
+    // Fallback to empty container if no credential type provided
+    return SizedBox(
+      width: height * (340 / 215),
+      height: height,
+    );
+  }
+
+  void _showFullScreenCard(BuildContext context) {
+    if (credentialType == null) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => _FullScreenCardDialog(
+        credentialType: credentialType!,
+        attributes: attributes,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +109,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ExcludeSemantics(
-                      child: IrmaAvatar(logoPath: logo, size: _compactLogoSize),
+                      child: _buildCredentialCard(_compactCardHeight),
                     ),
                     SizedBox(width: theme.defaultSpacing),
                     Expanded(
@@ -123,7 +155,10 @@ class YiviCredentialCardHeader extends StatelessWidget {
               else
                 SizedBox(height: theme.smallSpacing),
               ExcludeSemantics(
-                child: IrmaAvatar(logoPath: logo, size: _expandedLogoSize),
+                child: _buildCredentialCard(
+                  _expandedCardHeight,
+                  onTap: () => _showFullScreenCard(context),
+                ),
               ),
               SizedBox(height: theme.mediumSpacing),
               Column(
@@ -155,6 +190,51 @@ class YiviCredentialCardHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _FullScreenCardDialog extends StatelessWidget {
+  final CredentialType credentialType;
+  final List<Attribute>? attributes;
+
+  const _FullScreenCardDialog({
+    required this.credentialType,
+    this.attributes,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final padding = 24.0;
+    final cardWidth = screenWidth - (padding * 2);
+    // Maintain credit card aspect ratio (340:215)
+    final cardHeight = cardWidth * (215 / 340);
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.all(padding),
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Container(
+          color: Colors.transparent,
+          child: Center(
+            child: GestureDetector(
+              onTap: () {}, // Prevent tap from closing when tapping on card
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CredentialCardImage(
+                  credentialType: credentialType,
+                  attributes: attributes,
+                  width: cardWidth,
+                  height: cardHeight,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

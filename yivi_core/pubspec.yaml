@@ -83,6 +83,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/credential_cards/
     - assets/passport/
     - assets/locales/
     - assets/arrow_back/
