@@ -9,6 +9,7 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../widgets/loading_indicator.dart";
 import "../../error/session_error_screen.dart";
 import "../../pin/session_pin_screen.dart";
+import "issuance_permission.dart";
 import "pairing_required.dart";
 import "schemaless_disclosure_overview.dart";
 import "schemaless_issue_during_disclosure.dart";
@@ -77,6 +78,22 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
   }
 
   Widget _buildRequestPermission(SessionState session) {
+    // Pure issuance session
+    if (session.type == SessionType.issuance &&
+        session.offeredCredentials != null) {
+      return IssuancePermission(
+        issuedCredentials: session.offeredCredentials!,
+        onDismiss: _dismissSession,
+        onGivePermission: () => _repo.bridgedDispatch(
+          RespondPermissionEvent(
+            sessionId: widget.sessionId,
+            proceed: true,
+            disclosureChoices: [],
+          ),
+        ),
+      );
+    }
+
     final plan = session.disclosurePlan;
 
     // Show issuance-during-disclosure if there are incomplete steps

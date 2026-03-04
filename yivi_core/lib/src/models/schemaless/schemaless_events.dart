@@ -31,7 +31,6 @@ enum AttributeType {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class AttributeValue {
   final AttributeType type;
-
   final dynamic data;
 
   AttributeValue({required this.type, required this.data});
@@ -45,13 +44,9 @@ class AttributeValue {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class Attribute {
   final String id;
-
   final TranslatedValue displayName;
-
   final TranslatedValue description;
-
   final AttributeValue? value;
-
   final AttributeValue? requestedValue;
 
   Attribute({
@@ -71,13 +66,9 @@ class Attribute {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class TrustedParty {
   final String id;
-
   final TranslatedValue name;
-
   final TranslatedValue? url;
-
   final String? imagePath;
-
   final TrustedParty? parent;
 
   TrustedParty({
@@ -97,29 +88,17 @@ class TrustedParty {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class Credential {
   final String credentialId;
-
   final String hash;
-
   final String imagePath;
-
   final TranslatedValue name;
-
   final TrustedParty issuer;
-
   final Map<CredentialFormat, String> credentialInstanceIds;
-
   final Map<CredentialFormat, int?> batchInstanceCountsRemaining;
-
   List<Attribute> attributes;
-
   final int issuanceDate;
-
   final int expiryDate;
-
   final bool revoked;
-
   final bool revocationSupported;
-
   final TranslatedValue issueUrl;
 
   Credential({
