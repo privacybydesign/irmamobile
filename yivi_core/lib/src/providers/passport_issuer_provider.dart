@@ -1,8 +1,10 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:vcmrtd/vcmrtd.dart";
 
-final passportIssuerUrlProvider = StateProvider(
-  (ref) => "https://passport-issuer.staging.yivi.app",
+import "./provider_helpers.dart" as helpers;
+
+final passportIssuerUrlProvider = NotifierProvider(
+  () => helpers.ValueNotifier("https://passport-issuer.staging.yivi.app"),
 );
 
 final passportIssuerProvider = Provider<PassportIssuer>(

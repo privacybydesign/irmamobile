@@ -580,7 +580,7 @@ class IrmaRepository {
       );
 
       // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportIssuerUrlProvider.notifier).state = baseUri.toString();
+      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
 
       if (ref.read(ocrProcessorProvider) != null) {
         context.pushPassportMrzReaderScreen();
@@ -606,7 +606,7 @@ class IrmaRepository {
       );
 
       // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportIssuerUrlProvider.notifier).state = baseUri.toString();
+      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
 
       if (ref.read(ocrProcessorProvider) != null) {
         context.pushIdCardMrzReaderScreen();
@@ -632,7 +632,7 @@ class IrmaRepository {
       );
 
       // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(passportIssuerUrlProvider.notifier).state = baseUri.toString();
+      ref.read(passportIssuerUrlProvider.notifier).set(baseUri.toString());
 
       if (ref.read(ocrProcessorProvider) != null) {
         context.pushDrivingLicenceMrzReaderScreen();
@@ -658,7 +658,7 @@ class IrmaRepository {
       );
 
       // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(smsIssuerUrlProvider.notifier).state = baseUri.toString();
+      ref.read(smsIssuerUrlProvider.notifier).set(baseUri.toString());
 
       context.pushSmsIssuanceScreen();
     }
@@ -680,7 +680,7 @@ class IrmaRepository {
       );
 
       // Set the url to use for the issuance session to the issuer url in the scheme
-      ref.read(emailIssuerUrlProvider.notifier).state = baseUri.toString();
+      ref.read(emailIssuerUrlProvider.notifier).set(baseUri.toString());
 
       context.pushEmailIssuanceScreen();
     }

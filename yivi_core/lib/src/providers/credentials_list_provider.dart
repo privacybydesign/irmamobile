@@ -48,27 +48,36 @@ class CredentialOrderController
     extends AsyncNotifier<List<MultiFormatCredential>> {
   Timer? _debounce;
   List<String> _order = const []; // persisted order of IDs
-  final NewItemPolicy _policy = NewItemPolicy.prepend;
+  final NewItemPolicy _policy = .prepend;
 
   @override
   Future<List<MultiFormatCredential>> build() async {
     // Load persisted order once
     _order = await ref.read(credentialOrderRepoProvider).loadOrder();
 
-    // Listen to external source and reconcile on each update
-    ref.listen(credentialInfoListProvider, (prev, next) async {
-      final items = next.valueOrNull;
-      if (items == null) {
-        return;
-      }
-      final merged = _reconcile(items, _order, _policy);
-      state = AsyncData(merged);
-      // Optionally clean up persisted order (remove non-existent IDs)
-      _debouncedSave(merged);
-      _order = merged.map((c) => c.credentialType.fullId).toList();
-    });
+    // Set up a listener for subsequent updates
+    ref.listen<AsyncValue<List<MultiFormatCredential>>>(
+      credentialInfoListProvider,
+      (prev, next) {
+        final items = next.value;
+        if (items == null) return;
 
-    // Seed with current external value (if available)
+        final merged = _reconcile(items, _order, _policy);
+
+        // Defer the state write so it can't happen during widget build.
+        Future.microtask(() {
+          // Provider might have been disposed in the meantime
+          if (!ref.mounted) return;
+
+          state = AsyncData(merged);
+        });
+
+        _debouncedSave(merged);
+        _order = merged.map((c) => c.credentialType.fullId).toList();
+      },
+    );
+
+    // Seed initial value
     final ext = await ref.read(credentialInfoListProvider.future);
     final merged = _reconcile(ext, _order, _policy);
     _order = merged.map((e) => e.credentialType.fullId).toList();
@@ -92,7 +101,7 @@ class CredentialOrderController
   List<MultiFormatCredential> _reconcile(
     List<MultiFormatCredential> external,
     List<String> storedOrder,
-    NewItemPolicy p,
+    NewItemPolicy newItemPolicy,
   ) {
     final byId = {for (final it in external) it.credentialType.fullId: it};
     final visible = <MultiFormatCredential>[];
@@ -107,7 +116,7 @@ class CredentialOrderController
     final newOnes = byId.values.toList();
     if (newOnes.isEmpty) return visible;
 
-    if (p == NewItemPolicy.append) {
+    if (newItemPolicy == .append) {
       visible.addAll(newOnes);
     } else {
       visible.insertAll(0, newOnes);

@@ -5,16 +5,17 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
 
 import "../models/session.dart";
+import "./provider_helpers.dart" as helpers;
 
-final emailIssuerUrlProvider = StateProvider(
-  (ref) => "https://email-issuer.staging.yivi.app",
+final emailIssuerUrlProvider = NotifierProvider(
+  () => helpers.ValueNotifier("https://email-issuer.staging.yivi.app"),
 );
 
-final emailIssuanceProvider = StateNotifierProvider.autoDispose(
-  (ref) => EmailIssuer(
-    api: DefaultEmailIssuerApi(host: ref.watch(emailIssuerUrlProvider)),
-  ),
+final emailIssuerApiProvider = Provider<EmailIssuerApi>(
+  (ref) => DefaultEmailIssuerApi(host: ref.watch(emailIssuerUrlProvider)),
 );
+
+final emailIssuanceProvider = NotifierProvider.autoDispose(EmailIssuer.new);
 
 abstract class EmailIssuerApi {
   /// Starts session at sms issuer
@@ -136,18 +137,16 @@ class EmailIssuanceState {
   }
 }
 
-class EmailIssuer extends StateNotifier<EmailIssuanceState> {
-  final EmailIssuerApi api;
-
-  EmailIssuer({required this.api})
-    : super(
-        EmailIssuanceState(
-          stage: .enteringEmail,
-          enteredCode: "",
-          email: "",
-          error: EmailIssuanceNoError(),
-        ),
-      );
+class EmailIssuer extends Notifier<EmailIssuanceState> {
+  @override
+  EmailIssuanceState build() {
+    return EmailIssuanceState(
+      stage: .enteringEmail,
+      enteredCode: "",
+      email: "",
+      error: EmailIssuanceNoError(),
+    );
+  }
 
   Future<void> sendEmail({
     required String email,
@@ -160,7 +159,9 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
         email: email,
         error: EmailIssuanceNoError(),
       );
-      await api.sendEmail(emailAddress: email, language: language);
+      await ref
+          .read(emailIssuerApiProvider)
+          .sendEmail(emailAddress: email, language: language);
       state = state.copyWith(stage: .enteringVerificationCode);
     } catch (e) {
       final err = switch (e) {
@@ -174,7 +175,9 @@ class EmailIssuer extends StateNotifier<EmailIssuanceState> {
   Future<SessionPointer?> verifyCode({required String code}) async {
     try {
       state = state.copyWith(enteredCode: code);
-      return await api.verifyCode(email: state.email, verificationCode: code);
+      return await ref
+          .read(emailIssuerApiProvider)
+          .verifyCode(email: state.email, verificationCode: code);
     } catch (e) {
       final err = switch (e) {
         EmailIssuanceError() => e,

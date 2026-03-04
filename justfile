@@ -52,3 +52,9 @@ lint: check-fmt
     cd yivi_core && flutter analyze --no-fatal-infos
     cd yivi_app && flutter analyze --no-fatal-infos
     cd yivi_fdroid && flutter analyze --no-fatal-infos
+
+# Fixes all Flutter issues it can automatically fix
+fix: fmt
+    cd yivi_core && dart fix --apply
+    cd yivi_app && dart fix --apply
+    cd yivi_fdroid && dart fix --apply

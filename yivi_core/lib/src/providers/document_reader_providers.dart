@@ -4,12 +4,12 @@ import "package:vcmrtd/vcmrtd.dart";
 
 import "../models/mrz.dart";
 
-final idCardReaderProvider = StateNotifierProvider.autoDispose
+final idCardReaderProvider = NotifierProvider.autoDispose
     .family<
       DocumentReader<PassportData>,
       DocumentReaderState,
       ScannedIdCardMrz
-    >((ref, mrz) {
+    >((mrz) {
       final nfc = NfcProvider();
 
       // ID-cards are always PACE
@@ -35,16 +35,15 @@ final idCardReaderProvider = StateNotifierProvider.autoDispose
         config: DocumentReaderConfig(readIfAvailable: {.dg1, .dg2, .dg15}),
       );
 
-      ref.onDispose(docReader.cancel);
       return docReader;
     });
 
-final passportReaderProvider = StateNotifierProvider.autoDispose
+final passportReaderProvider = NotifierProvider.autoDispose
     .family<
       DocumentReader<PassportData>,
       DocumentReaderState,
       ScannedPassportMrz
-    >((ref, mrz) {
+    >((mrz) {
       final nfc = NfcProvider();
       final bacAccessKey = DBAKey(
         mrz.documentNumber,
@@ -73,16 +72,15 @@ final passportReaderProvider = StateNotifierProvider.autoDispose
         config: DocumentReaderConfig(readIfAvailable: {.dg1, .dg2, .dg15}),
       );
 
-      ref.onDispose(docReader.cancel);
       return docReader;
     });
 
-final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
+final drivingLicenceReaderProvider = NotifierProvider.autoDispose
     .family<
       DocumentReader<DrivingLicenceData>,
       DocumentReaderState,
       ScannedDrivingLicenceMrz
-    >((ref, mrz) {
+    >((mrz) {
       final nfc = NfcProvider();
       final AccessKey accessKey;
       final bool enableBac;
@@ -113,6 +111,5 @@ final drivingLicenceReaderProvider = StateNotifierProvider.autoDispose
         ),
       );
 
-      ref.onDispose(docReader.cancel);
       return docReader;
     });
