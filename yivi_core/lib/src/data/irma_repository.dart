@@ -441,8 +441,8 @@ class IrmaRepository {
   }
 
   // -- Sessions
-  Stream<SessionState> getSessionState(int sessionID) {
-    return _sessionRepository.getSessionState(sessionID);
+  Stream<SessionState> getSessionState(int sessionId) {
+    return _sessionRepository.getSessionState(sessionId);
   }
 
   /// Stream that emits session IDs when a new session is first seen.

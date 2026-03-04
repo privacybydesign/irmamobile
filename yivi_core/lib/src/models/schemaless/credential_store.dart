@@ -17,30 +17,6 @@ class SchemalessCredentialStoreEvent extends Event {
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class AttributeDescriptor {
-  final String id;
-
-  final TranslatedValue name;
-
-  final AttributeType type;
-
-  @JsonKey(defaultValue: [], disallowNullValue: false)
-  final List<AttributeDescriptor> nested;
-
-  AttributeDescriptor({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.nested,
-  });
-
-  factory AttributeDescriptor.fromJson(Map<String, dynamic> json) =>
-      _$AttributeDescriptorFromJson(json);
-
-  Map<String, dynamic> toJson() => _$AttributeDescriptorToJson(this);
-}
-
-@JsonSerializable(fieldRename: FieldRename.snake)
 class CredentialDescriptor {
   final String credentialId;
 
@@ -52,7 +28,7 @@ class CredentialDescriptor {
 
   final String imagePath;
 
-  final List<AttributeDescriptor> attributes;
+  final List<Attribute> attributes;
 
   @JsonKey(name: "issue_url")
   final TranslatedValue? issueURL;

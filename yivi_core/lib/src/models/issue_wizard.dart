@@ -44,7 +44,8 @@ class IssueWizardEvent extends Event {
   );
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+// Go's IssueWizard has camelCase json tags.
+@JsonSerializable(fieldRename: FieldRename.none)
 class IssueWizard {
   IssueWizard({
     required this.id,
@@ -100,7 +101,7 @@ class IssueWizard {
   Map<String, dynamic> toJson() => _$IssueWizardToJson(this);
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable(fieldRename: FieldRename.none)
 class IssueWizardQA {
   IssueWizardQA({required this.question, required this.answer});
 
@@ -113,7 +114,8 @@ class IssueWizardQA {
   Map<String, dynamic> toJson() => _$IssueWizardQAToJson(this);
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+// Go's IssueWizardItem has camelCase json tags.
+@JsonSerializable(fieldRename: FieldRename.none)
 class IssueWizardItem {
   IssueWizardItem({
     required this.type,
@@ -140,12 +142,13 @@ class IssueWizardItem {
   // Default value is set by fromJson of TranslatedValue
   final TranslatedValue label;
 
-  @JsonKey(name: "session_url")
+  @JsonKey(name: "sessionUrl")
   final String? sessionURL;
 
   // Default value is set by fromJson of TranslatedValue
   final TranslatedValue url;
 
+  @JsonKey(name: "inapp")
   final bool inApp;
 
   final bool completed;

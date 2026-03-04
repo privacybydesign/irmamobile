@@ -17,7 +17,8 @@ class IrmaConfigurationEvent extends Event {
       _$IrmaConfigurationEventFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+// Go's irma.Configuration has no json tags, so fields are CamelCase.
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.pascal)
 class IrmaConfiguration {
   IrmaConfiguration({
     required this.schemeManagers,
@@ -50,7 +51,8 @@ class IrmaConfiguration {
       _$IrmaConfigurationFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+// Go's SchemeManager has no json tags → CamelCase, with ID and URL in all-caps.
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.pascal)
 class SchemeManager {
   SchemeManager({
     required this.id,
@@ -67,10 +69,12 @@ class SchemeManager {
     required this.demo,
   });
 
+  @JsonKey(name: "ID")
   final String id;
 
   final TranslatedValue name;
 
+  @JsonKey(name: "URL")
   final String url;
 
   final TranslatedValue description;
@@ -104,6 +108,7 @@ class SchemeManager {
   };
 }
 
+// Go's RequestorScheme has explicit json tags (lowercase).
 @JsonSerializable(fieldRename: FieldRename.snake)
 class RequestorScheme {
   RequestorScheme({required this.id, required this.demo});
@@ -117,20 +122,22 @@ class RequestorScheme {
   Map<String, dynamic> toJson() => _$RequestorSchemeToJson(this);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+// Go's SchemeAppVersion has no json tags → CamelCase.
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.pascal)
 class AppVersion {
   AppVersion({required this.android, required this.iOS});
 
   final int android;
 
-  @JsonKey(name: "ios")
+  @JsonKey(name: "IOS")
   final int iOS;
 
   factory AppVersion.fromJson(Map<String, dynamic> json) =>
       _$AppVersionFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+// Go's Issuer has no json tags → CamelCase, with ID and SchemeManagerID in all-caps.
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.pascal)
 class Issuer {
   Issuer({
     required this.id,
@@ -140,14 +147,17 @@ class Issuer {
     required this.contactEmail,
   });
 
+  @JsonKey(name: "ID")
   final String id;
 
   final TranslatedValue name;
 
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
   final String contactAddress;
 
+  @JsonKey(name: "ContactEMail")
   final String contactEmail;
 
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);
@@ -155,7 +165,9 @@ class Issuer {
   String get fullId => "$schemeManagerId.$id";
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+// Go's CredentialType has no json tags → CamelCase, with ID, IssuerID, SchemeManagerID,
+// IssueURL, IsULIssueURL, and FAQ* in non-standard casing.
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.pascal)
 class CredentialType {
   CredentialType({
     required this.id,
@@ -177,12 +189,15 @@ class CredentialType {
     this.logo,
   });
 
+  @JsonKey(name: "ID")
   final String id;
 
   final TranslatedValue name;
 
+  @JsonKey(name: "IssuerID")
   final String issuerId;
 
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
   final bool isSingleton;
@@ -190,9 +205,10 @@ class CredentialType {
   final TranslatedValue description;
 
   // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "IssueURL")
   final TranslatedValue issueUrl;
 
-  @JsonKey(name: "is_ul_issue_url")
+  @JsonKey(name: "IsULIssueURL")
   final bool isULIssueUrl;
 
   final bool disallowDelete;
@@ -203,18 +219,23 @@ class CredentialType {
   final TranslatedValue category;
 
   // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "FAQIntro")
   final TranslatedValue faqIntro;
 
   // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "FAQPurpose")
   final TranslatedValue faqPurpose;
 
   // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "FAQContent")
   final TranslatedValue faqContent;
 
   // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "FAQHowto")
   final TranslatedValue faqHowto;
 
   // Default value is set by fromJson of TranslatedValue
+  @JsonKey(name: "FAQSummary")
   final TranslatedValue faqSummary;
 
   final String? logo;
@@ -227,7 +248,9 @@ class CredentialType {
   bool get obtainable => issueUrl.isNotEmpty;
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+// Go's AttributeType has no json tags → CamelCase, with ID, CredentialTypeID,
+// IssuerID, SchemeManagerID in all-caps.
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.pascal)
 class AttributeType {
   AttributeType({
     required this.id,
@@ -242,6 +265,7 @@ class AttributeType {
     this.displayHint,
   });
 
+  @JsonKey(name: "ID")
   final String id;
 
   @JsonKey(fromJson: _parseOptional)
@@ -260,10 +284,13 @@ class AttributeType {
 
   final String? displayHint;
 
+  @JsonKey(name: "CredentialTypeID")
   final String credentialTypeId;
 
+  @JsonKey(name: "IssuerID")
   final String issuerId;
 
+  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
   factory AttributeType.fromJson(Map<String, dynamic> json) =>

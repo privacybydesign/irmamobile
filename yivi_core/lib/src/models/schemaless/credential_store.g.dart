@@ -14,40 +14,6 @@ SchemalessCredentialStoreEvent _$SchemalessCredentialStoreEventFromJson(
       .toList(),
 );
 
-AttributeDescriptor _$AttributeDescriptorFromJson(Map<String, dynamic> json) =>
-    AttributeDescriptor(
-      id: json['id'] as String,
-      name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
-      type: $enumDecode(_$AttributeTypeEnumMap, json['type']),
-      nested:
-          (json['nested'] as List<dynamic>?)
-              ?.map(
-                (e) => AttributeDescriptor.fromJson(e as Map<String, dynamic>),
-              )
-              .toList() ??
-          [],
-    );
-
-Map<String, dynamic> _$AttributeDescriptorToJson(
-  AttributeDescriptor instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'name': instance.name,
-  'type': _$AttributeTypeEnumMap[instance.type]!,
-  'nested': instance.nested,
-};
-
-const _$AttributeTypeEnumMap = {
-  AttributeType.object: 'object',
-  AttributeType.array: 'array',
-  AttributeType.string: 'string',
-  AttributeType.translatedString: 'translated_string',
-  AttributeType.boolean: 'boolean',
-  AttributeType.integer: 'integer',
-  AttributeType.image: 'image',
-  AttributeType.base64Image: 'base64_image',
-};
-
 CredentialDescriptor _$CredentialDescriptorFromJson(
   Map<String, dynamic> json,
 ) => CredentialDescriptor(
@@ -59,7 +25,7 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
       : TranslatedValue.fromJson(json['category'] as Map<String, dynamic>?),
   imagePath: json['image_path'] as String,
   attributes: (json['attributes'] as List<dynamic>)
-      .map((e) => AttributeDescriptor.fromJson(e as Map<String, dynamic>))
+      .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
       .toList(),
   issueURL: json['issue_url'] == null
       ? null

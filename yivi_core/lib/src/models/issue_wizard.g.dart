@@ -9,11 +9,11 @@ part of 'issue_wizard.dart';
 IssueWizard _$IssueWizardFromJson(Map<String, dynamic> json) => IssueWizard(
   id: json['id'] as String,
   title: TranslatedValue.fromJson(json['title'] as Map<String, dynamic>?),
-  allowOtherRequestors: json['allow_other_requestors'] as bool,
+  allowOtherRequestors: json['allowOtherRequestors'] as bool,
   logo: json['logo'] as String?,
-  logoPath: json['logo_path'] as String?,
+  logoPath: json['logoPath'] as String?,
   color: json['color'] as String?,
-  textColor: json['text_color'] as String?,
+  textColor: json['textColor'] as String?,
   issues: json['issues'] as String?,
   info: json['info'] == null
       ? const TranslatedValue.empty()
@@ -26,15 +26,15 @@ IssueWizard _$IssueWizardFromJson(Map<String, dynamic> json) => IssueWizard(
   intro: json['intro'] == null
       ? const TranslatedValue.empty()
       : TranslatedValue.fromJson(json['intro'] as Map<String, dynamic>?),
-  successHeader: json['success_header'] == null
+  successHeader: json['successHeader'] == null
       ? const TranslatedValue.empty()
       : TranslatedValue.fromJson(
-          json['success_header'] as Map<String, dynamic>?,
+          json['successHeader'] as Map<String, dynamic>?,
         ),
-  successText: json['success_text'] == null
+  successText: json['successText'] == null
       ? const TranslatedValue.empty()
-      : TranslatedValue.fromJson(json['success_text'] as Map<String, dynamic>?),
-  expandDependencies: json['expand_dependencies'] as bool? ?? false,
+      : TranslatedValue.fromJson(json['successText'] as Map<String, dynamic>?),
+  expandDependencies: json['expandDependencies'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$IssueWizardToJson(IssueWizard instance) =>
@@ -42,17 +42,17 @@ Map<String, dynamic> _$IssueWizardToJson(IssueWizard instance) =>
       'id': instance.id,
       'title': instance.title,
       'logo': instance.logo,
-      'logo_path': instance.logoPath,
+      'logoPath': instance.logoPath,
       'color': instance.color,
-      'text_color': instance.textColor,
+      'textColor': instance.textColor,
       'issues': instance.issues,
-      'allow_other_requestors': instance.allowOtherRequestors,
+      'allowOtherRequestors': instance.allowOtherRequestors,
       'info': instance.info,
       'faq': instance.faq,
       'intro': instance.intro,
-      'success_header': instance.successHeader,
-      'success_text': instance.successText,
-      'expand_dependencies': instance.expandDependencies,
+      'successHeader': instance.successHeader,
+      'successText': instance.successText,
+      'expandDependencies': instance.expandDependencies,
     };
 
 IssueWizardQA _$IssueWizardQAFromJson(Map<String, dynamic> json) =>
@@ -79,11 +79,11 @@ IssueWizardItem _$IssueWizardItemFromJson(Map<String, dynamic> json) =>
       label: json['label'] == null
           ? const TranslatedValue.empty()
           : TranslatedValue.fromJson(json['label'] as Map<String, dynamic>?),
-      sessionURL: json['session_url'] as String?,
+      sessionURL: json['sessionUrl'] as String?,
       url: json['url'] == null
           ? const TranslatedValue.empty()
           : TranslatedValue.fromJson(json['url'] as Map<String, dynamic>?),
-      inApp: json['in_app'] as bool? ?? false,
+      inApp: json['inapp'] as bool? ?? false,
       completed: json['completed'] as bool? ?? false,
     );
 
@@ -94,8 +94,8 @@ Map<String, dynamic> _$IssueWizardItemToJson(IssueWizardItem instance) =>
       'header': instance.header,
       'text': instance.text,
       'label': instance.label,
-      'session_url': instance.sessionURL,
+      'sessionUrl': instance.sessionURL,
       'url': instance.url,
-      'in_app': instance.inApp,
+      'inapp': instance.inApp,
       'completed': instance.completed,
     };
