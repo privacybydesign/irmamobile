@@ -8,4 +8,7 @@ type YiviSessionHandler struct {
 }
 
 func (handler *YiviSessionHandler) UpdateSession(session client.SessionState) {
+	dispatchEvent(&sessionStateEvent{
+		SessionState: session,
+	})
 }

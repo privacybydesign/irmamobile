@@ -10,9 +10,7 @@ import (
 	"github.com/privacybydesign/irmago/irma/irmaclient"
 )
 
-type eventHandler struct {
-	client *client.Client
-}
+type eventHandler struct{}
 
 // Enrollment to a keyshare server
 func (ah *eventHandler) enroll(event *enrollEvent) (err error) {
@@ -97,7 +95,7 @@ func (ah *eventHandler) changePin(event *changePinEvent) (err error) {
 
 // Start a new IRMA session
 func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
-	ah.client.NewSession(string(event.Request))
+	yiviClient.NewSession(string(event.Request))
 	return nil
 }
 
@@ -139,7 +137,7 @@ func (ah *eventHandler) respondPreAuthorizedCodeFlowPermission(event *respondPre
 
 // Responding to a permission prompt when disclosing, issuing or signing
 func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err error) {
-	ah.client.HandleUserInteraction(client.SessionUserInteraction{
+	yiviClient.HandleUserInteraction(client.SessionUserInteraction{
 		SessionId: event.SessionID,
 		Type:      client.UI_Permission,
 		Payload:   event.SessionPermissionInteractionPayload,
@@ -149,7 +147,7 @@ func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err er
 
 // Responding to a request for a pin code
 func (ah *eventHandler) respondPin(event *respondPinEvent) (err error) {
-	ah.client.HandleUserInteraction(client.SessionUserInteraction{
+	yiviClient.HandleUserInteraction(client.SessionUserInteraction{
 		SessionId: event.SessionID,
 		Type:      client.UI_EnteredPin,
 		Payload: client.PinInteractionPayload{
@@ -182,7 +180,7 @@ func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
 
 // Dismiss the current session
 func (ah *eventHandler) dismissSession(event *dismissSessionEvent) error {
-	ah.client.HandleUserInteraction(client.SessionUserInteraction{
+	yiviClient.HandleUserInteraction(client.SessionUserInteraction{
 		SessionId: event.SessionID,
 		Type:      client.UI_DismissSession,
 	})

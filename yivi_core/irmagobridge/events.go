@@ -158,6 +158,10 @@ type changePinFailedEvent struct {
 // Session events
 // //
 
+type sessionStateEvent struct {
+	SessionState client.SessionState `json:"session_state"`
+}
+
 type logsEvent struct {
 	LogEntries []irmaclient.LogInfo `json:"log_entries"`
 }
