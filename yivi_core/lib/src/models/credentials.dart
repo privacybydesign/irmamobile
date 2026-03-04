@@ -10,21 +10,16 @@ import "translated_value.dart";
 
 part "credentials.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class CredentialTypeInfo {
-  @JsonKey(name: "IssuerName")
   final TranslatedValue issuerName;
 
-  @JsonKey(name: "Name")
   final TranslatedValue name;
 
-  @JsonKey(name: "VerifiableCredentialType")
   final String verifiableCredentialType;
 
-  @JsonKey(name: "Attributes")
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(name: "CredentialFormat")
   final CredentialFormat credentialFormat;
 
   CredentialTypeInfo({
@@ -270,7 +265,7 @@ class CredentialInfo {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RawCredential {
   const RawCredential({
     required this.id,
@@ -286,37 +281,26 @@ class RawCredential {
     required this.instanceCount,
   });
 
-  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: "IssuerID")
   final String issuerId;
 
-  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
-  @JsonKey(name: "SignedOn")
   final int signedOn;
 
-  @JsonKey(name: "Expires")
   final int expires;
 
-  @JsonKey(name: "Attributes")
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(name: "Hash")
   final String hash;
 
-  @JsonKey(name: "Revoked")
   final bool revoked;
 
-  @JsonKey(name: "RevocationSupported")
   final bool revocationSupported;
 
-  @JsonKey(name: "CredentialFormat")
   final CredentialFormat format;
 
-  @JsonKey(name: "InstanceCount")
   final int? instanceCount;
 
   factory RawCredential.fromJson(Map<String, dynamic> json) =>
@@ -331,33 +315,24 @@ class RawCredential {
 
 // A credential referencing multiple credential instances with the same attribute values and credential type
 // in different credential formats
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RawMultiFormatCredential {
-  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: "IssuerID")
   final String issuerId;
 
-  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
-  @JsonKey(name: "Revoked")
   final bool revoked;
 
-  @JsonKey(name: "Attributes")
   final Map<String, TranslatedValue> attributes;
 
-  @JsonKey(name: "HashByFormat")
   final Map<CredentialFormat, String> hashByFormat;
 
-  @JsonKey(name: "SignedOn")
   final int signedOn;
 
-  @JsonKey(name: "Expires")
   final int expires;
 
-  @JsonKey(name: "InstanceCount")
   final int? instanceCount;
 
   RawMultiFormatCredential({

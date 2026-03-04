@@ -7,12 +7,12 @@ import (
 )
 
 // compile-time type-check ClientHandler to implement irmaclient.ClientHandler
-var _ irmaclient.ClientHandler = (*clientHandler)(nil)
+var _ irmaclient.ClientHandler = (*YiviClientHandler)(nil)
 
-type clientHandler struct {
+type YiviClientHandler struct {
 }
 
-func (i *clientHandler) ReportError(err error) {
+func (i *YiviClientHandler) ReportError(err error) {
 	wrappedErr, ok := err.(*errors.Error)
 	if !ok {
 		wrappedErr = errors.Wrap(err, 0)
@@ -20,19 +20,19 @@ func (i *clientHandler) ReportError(err error) {
 	reportError(wrappedErr, false)
 }
 
-func (ch *clientHandler) Revoked(cred *irma.CredentialIdentifier) {
+func (ch *YiviClientHandler) Revoked(cred *irma.CredentialIdentifier) {
 	dispatchCredentialsEvent()
 }
 
-func (ch *clientHandler) UpdateConfiguration(new *irma.IrmaIdentifierSet) {
+func (ch *YiviClientHandler) UpdateConfiguration(new *irma.IrmaIdentifierSet) {
 	dispatchConfigurationEvent()
 }
 
-func (ch *clientHandler) UpdateAttributes() {
+func (ch *YiviClientHandler) UpdateAttributes() {
 	dispatchCredentialsEvent()
 }
 
-func (ch *clientHandler) EnrollmentFailure(managerIdentifier irma.SchemeManagerIdentifier, plainErr error) {
+func (ch *YiviClientHandler) EnrollmentFailure(managerIdentifier irma.SchemeManagerIdentifier, plainErr error) {
 	// Make sure the error is wrapped in a SessionError, so we only have one type to handle in irma_mobile
 	err, ok := plainErr.(*irma.SessionError)
 	if !ok {
@@ -45,14 +45,14 @@ func (ch *clientHandler) EnrollmentFailure(managerIdentifier irma.SchemeManagerI
 	})
 }
 
-func (ch *clientHandler) EnrollmentSuccess(managerIdentifier irma.SchemeManagerIdentifier) {
+func (ch *YiviClientHandler) EnrollmentSuccess(managerIdentifier irma.SchemeManagerIdentifier) {
 	dispatchEnrollmentStatusEvent()
 	dispatchEvent(&enrollmentSuccessEvent{
 		SchemeManagerID: managerIdentifier,
 	})
 }
 
-func (ch *clientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerIdentifier, plainErr error) {
+func (ch *YiviClientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerIdentifier, plainErr error) {
 	// Make sure the error is wrapped in a SessionError, so we only have one type to handle in irma_mobile
 	err, ok := plainErr.(*irma.SessionError)
 	if !ok {
@@ -65,11 +65,11 @@ func (ch *clientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerId
 	})
 }
 
-func (ch *clientHandler) ChangePinSuccess() {
+func (ch *YiviClientHandler) ChangePinSuccess() {
 	dispatchEvent(&changePinSuccessEvent{})
 }
 
-func (ch *clientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManagerIdentifier, remainingAttempts int) {
+func (ch *YiviClientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManagerIdentifier, remainingAttempts int) {
 	dispatchEvent(&changePinFailedEvent{
 		SchemeManagerID:   managerIdentifier,
 		RemainingAttempts: remainingAttempts,
@@ -77,7 +77,7 @@ func (ch *clientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManager
 	})
 }
 
-func (ch *clientHandler) ChangePinBlocked(managerIdentifier irma.SchemeManagerIdentifier, timeout int) {
+func (ch *YiviClientHandler) ChangePinBlocked(managerIdentifier irma.SchemeManagerIdentifier, timeout int) {
 	dispatchEvent(&changePinFailedEvent{
 		SchemeManagerID:   managerIdentifier,
 		RemainingAttempts: 0,

@@ -12,11 +12,11 @@ part "session_events.g.dart";
 abstract class SessionEvent extends Event {
   SessionEvent(this.sessionID);
 
-  @JsonKey(name: "SessionID")
+  @JsonKey(name: "session_id")
   final int sessionID;
 }
 
-@JsonSerializable(createFactory: false)
+@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
 class NewSessionEvent extends SessionEvent {
   // This counter is used to give each session a unique number to correlate events
   // We start at some arbitrary point above zero
@@ -28,7 +28,6 @@ class NewSessionEvent extends SessionEvent {
     this.previouslyLaunchedCredentials = const <String>{},
   }) : super(sessionID ?? sessionIDCounter++);
 
-  @JsonKey(name: "Request")
   final SessionPointer request;
 
   // Id's of the credentials that the user tried to obtain from the credential store
@@ -38,7 +37,7 @@ class NewSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RespondPreAuthorizedCodeFlowPermissionEvent extends SessionEvent {
   RespondPreAuthorizedCodeFlowPermissionEvent({
     required int sessionID,
@@ -46,10 +45,9 @@ class RespondPreAuthorizedCodeFlowPermissionEvent extends SessionEvent {
     this.transactionCode,
   }) : super(sessionID);
 
-  @JsonKey(name: "Proceed")
   final bool proceed;
 
-  @JsonKey(name: "TransactionCode", required: false)
+  @JsonKey(required: false)
   final String? transactionCode;
 
   factory RespondPreAuthorizedCodeFlowPermissionEvent.fromJson(
@@ -60,7 +58,7 @@ class RespondPreAuthorizedCodeFlowPermissionEvent extends SessionEvent {
 }
 
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RespondAuthorizationCodeEvent extends SessionEvent {
   RespondAuthorizationCodeEvent({
     required int sessionID,
@@ -68,10 +66,8 @@ class RespondAuthorizationCodeEvent extends SessionEvent {
     required this.code,
   }) : super(sessionID);
 
-  @JsonKey(name: "Proceed")
   final bool proceed;
 
-  @JsonKey(name: "Code")
   final String code;
 
   factory RespondAuthorizationCodeEvent.fromJson(
@@ -82,7 +78,7 @@ class RespondAuthorizationCodeEvent extends SessionEvent {
 }
 
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RespondTokenEvent extends SessionEvent {
   RespondTokenEvent({
     required int sessionID,
@@ -91,13 +87,10 @@ class RespondTokenEvent extends SessionEvent {
     this.refreshToken,
   }) : super(sessionID);
 
-  @JsonKey(name: "Proceed")
   final bool proceed;
 
-  @JsonKey(name: "AccessToken")
   final String accessToken;
 
-  @JsonKey(name: "RefreshToken")
   final String? refreshToken;
 
   factory RespondTokenEvent.fromJson(
@@ -107,7 +100,7 @@ class RespondTokenEvent extends SessionEvent {
       _$RespondTokenEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RespondPermissionEvent extends SessionEvent {
   RespondPermissionEvent({
     required int sessionID,
@@ -115,10 +108,8 @@ class RespondPermissionEvent extends SessionEvent {
     required this.disclosureChoices,
   }) : super(sessionID);
 
-  @JsonKey(name: "Proceed")
   final bool proceed;
 
-  @JsonKey(name: "DisclosureChoices")
   final List<List<AttributeIdentifier>> disclosureChoices;
 
   factory RespondPermissionEvent.fromJson(Map<String, dynamic> json) =>
@@ -135,15 +126,13 @@ class ContinueToIssuanceEvent extends SessionEvent {
   }) : super(sessionID);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RespondPinEvent extends SessionEvent {
   RespondPinEvent({required int sessionID, required this.proceed, this.pin})
     : super(sessionID);
 
-  @JsonKey(name: "Proceed")
   final bool proceed;
 
-  @JsonKey(name: "Pin")
   final String? pin;
 
   factory RespondPinEvent.fromJson(Map<String, dynamic> json) =>
@@ -151,7 +140,7 @@ class RespondPinEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$RespondPinEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class DismissSessionEvent extends SessionEvent {
   DismissSessionEvent({required int sessionID}) : super(sessionID);
 
@@ -160,7 +149,7 @@ class DismissSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$DismissSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class StatusUpdateSessionEvent extends SessionEvent {
   StatusUpdateSessionEvent({
     required int sessionID,
@@ -168,10 +157,8 @@ class StatusUpdateSessionEvent extends SessionEvent {
     required this.status,
   }) : super(sessionID);
 
-  @JsonKey(name: "Action")
   final String action;
 
-  @JsonKey(name: "Status")
   final String status;
 
   factory StatusUpdateSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -179,14 +166,14 @@ class StatusUpdateSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$StatusUpdateSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class ClientReturnURLSetSessionEvent extends SessionEvent {
   ClientReturnURLSetSessionEvent({
     required int sessionID,
     required this.clientReturnURL,
   }) : super(sessionID);
 
-  @JsonKey(name: "ClientReturnURL")
+  @JsonKey(name: "client_return_url")
   final String clientReturnURL;
 
   factory ClientReturnURLSetSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -194,7 +181,7 @@ class ClientReturnURLSetSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$ClientReturnURLSetSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class SuccessSessionEvent extends SessionEvent {
   SuccessSessionEvent({required int sessionID}) : super(sessionID);
 
@@ -203,12 +190,11 @@ class SuccessSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$SuccessSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class FailureSessionEvent extends SessionEvent {
   FailureSessionEvent({required int sessionID, required this.error})
     : super(sessionID);
 
-  @JsonKey(name: "Error")
   final SessionError error;
 
   factory FailureSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -216,7 +202,7 @@ class FailureSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$FailureSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class CanceledSessionEvent extends SessionEvent {
   CanceledSessionEvent({required int sessionID}) : super(sessionID);
 
@@ -225,7 +211,7 @@ class CanceledSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$CanceledSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RequestIssuancePermissionSessionEvent extends SessionEvent {
   RequestIssuancePermissionSessionEvent({
     required int sessionID,
@@ -236,19 +222,14 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
     this.disclosuresCandidates = const [],
   }) : super(sessionID);
 
-  @JsonKey(name: "ServerName")
   final RequestorInfo serverName;
 
-  @JsonKey(name: "Satisfiable")
   final bool satisfiable;
 
-  @JsonKey(name: "IssuedCredentials")
   final List<RawMultiFormatCredential> issuedCredentials;
 
-  @JsonKey(name: "DisclosuresLabels")
   final Map<int, TranslatedValue>? disclosuresLabels;
 
-  @JsonKey(name: "DisclosuresCandidates")
   final List<List<List<DisclosureCandidate>>> disclosuresCandidates;
 
   factory RequestIssuancePermissionSessionEvent.fromJson(
@@ -258,7 +239,7 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
       _$RequestIssuancePermissionSessionEventToJson(this);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class RequestAuthorizationCodeFlowSessionEvent
     extends SessionEvent {
   RequestAuthorizationCodeFlowSessionEvent({
@@ -268,13 +249,10 @@ class RequestAuthorizationCodeFlowSessionEvent
     this.credentialInfoList,
   }) : super(sessionID);
 
-  @JsonKey(name: "RequestorInfo")
   final RequestorInfo requestorInfo;
-  
-  @JsonKey(name: "CredentialInfoList")
+
   final List<CredentialTypeInfo>? credentialInfoList;
 
-  @JsonKey(name: "AuthorizationRequestUrl")
   final String authorizationRequestUrl;
 
   factory RequestAuthorizationCodeFlowSessionEvent.fromJson(
@@ -285,20 +263,19 @@ class RequestAuthorizationCodeFlowSessionEvent
       );
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class AuthorizationRequestParameters {
   AuthorizationRequestParameters({
     required this.authorizationRequestUrl,
   });
 
-  @JsonKey(name: "AuthorizationRequestUrl")
   final String authorizationRequestUrl;
 
   factory AuthorizationRequestParameters.fromJson(Map<String, dynamic> json) =>
       _$AuthorizationRequestParametersFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class RequestPreAuthorizedCodeFlowPermissionSessionEvent extends SessionEvent {
   RequestPreAuthorizedCodeFlowPermissionSessionEvent({
     required int sessionID,
@@ -307,13 +284,11 @@ class RequestPreAuthorizedCodeFlowPermissionSessionEvent extends SessionEvent {
     this.transactionCodeParameters,
   }) : super(sessionID);
 
-  @JsonKey(name: "RequestorInfo")
   final RequestorInfo requestorInfo;
 
-  @JsonKey(name: "CredentialInfoList")
   final List<CredentialTypeInfo>? credentialInfoList;
 
-  @JsonKey(name: "TransactionCodeParameters", required: false)
+  @JsonKey(required: false)
   final PreAuthorizedCodeTransactionCodeParameters? transactionCodeParameters;
 
   factory RequestPreAuthorizedCodeFlowPermissionSessionEvent.fromJson(
@@ -321,7 +296,7 @@ class RequestPreAuthorizedCodeFlowPermissionSessionEvent extends SessionEvent {
   ) => _$RequestPreAuthorizedCodeFlowPermissionSessionEventFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class PreAuthorizedCodeTransactionCodeParameters {
   PreAuthorizedCodeTransactionCodeParameters({
     required this.inputMode,
@@ -329,13 +304,12 @@ class PreAuthorizedCodeTransactionCodeParameters {
     this.description,
   });
 
-  @JsonKey(name: "InputMode")
   final String inputMode;
 
-  @JsonKey(name: "Length", required: false)
+  @JsonKey(required: false)
   final int? length;
 
-  @JsonKey(name: "Description", required: false)
+  @JsonKey(required: false)
   final String? description;
 
   factory PreAuthorizedCodeTransactionCodeParameters.fromJson(
@@ -343,7 +317,7 @@ class PreAuthorizedCodeTransactionCodeParameters {
   ) => _$PreAuthorizedCodeTransactionCodeParametersFromJson(json);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RequestVerificationPermissionSessionEvent extends SessionEvent {
   RequestVerificationPermissionSessionEvent({
     required int sessionID,
@@ -355,22 +329,16 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
     this.signedMessage,
   }) : super(sessionID);
 
-  @JsonKey(name: "ServerName")
   final RequestorInfo serverName;
 
-  @JsonKey(name: "Satisfiable")
   final bool satisfiable;
 
-  @JsonKey(name: "DisclosuresLabels")
   final Map<int, TranslatedValue>? disclosuresLabels;
 
-  @JsonKey(name: "DisclosuresCandidates")
   final List<List<List<DisclosureCandidate>>> disclosuresCandidates;
 
-  @JsonKey(name: "IsSignatureSession")
   final bool isSignatureSession;
 
-  @JsonKey(name: "SignedMessage")
   final String? signedMessage;
 
   factory RequestVerificationPermissionSessionEvent.fromJson(
@@ -380,14 +348,13 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
       _$RequestVerificationPermissionSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RequestPinSessionEvent extends SessionEvent {
   RequestPinSessionEvent({
     required int sessionID,
     required this.remainingAttempts,
   }) : super(sessionID);
 
-  @JsonKey(name: "RemainingAttempts")
   final int remainingAttempts;
 
   factory RequestPinSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -395,14 +362,13 @@ class RequestPinSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$RequestPinSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class PairingRequiredSessionEvent extends SessionEvent {
   PairingRequiredSessionEvent({
     required int sessionID,
     required this.pairingCode,
   }) : super(sessionID);
 
-  @JsonKey(name: "PairingCode")
   final String pairingCode;
 
   factory PairingRequiredSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -410,14 +376,14 @@ class PairingRequiredSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$PairingRequiredSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class KeyshareEnrollmentMissingSessionEvent extends SessionEvent {
   KeyshareEnrollmentMissingSessionEvent({
     required int sessionID,
     required this.schemeManagerID,
   }) : super(sessionID);
 
-  @JsonKey(name: "SchemeManagerID")
+  @JsonKey(name: "scheme_manager_id")
   final String schemeManagerID;
 
   factory KeyshareEnrollmentMissingSessionEvent.fromJson(
@@ -427,14 +393,14 @@ class KeyshareEnrollmentMissingSessionEvent extends SessionEvent {
       _$KeyshareEnrollmentMissingSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class KeyshareEnrollmentDeletedSessionEvent extends SessionEvent {
   KeyshareEnrollmentDeletedSessionEvent({
     required int sessionID,
     required this.schemeManagerID,
   }) : super(sessionID);
 
-  @JsonKey(name: "SchemeManagerID")
+  @JsonKey(name: "scheme_manager_id")
   final String schemeManagerID;
 
   factory KeyshareEnrollmentDeletedSessionEvent.fromJson(
@@ -444,7 +410,7 @@ class KeyshareEnrollmentDeletedSessionEvent extends SessionEvent {
       _$KeyshareEnrollmentDeletedSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class KeyshareBlockedSessionEvent extends SessionEvent {
   KeyshareBlockedSessionEvent({
     required int sessionID,
@@ -452,10 +418,9 @@ class KeyshareBlockedSessionEvent extends SessionEvent {
     required this.duration,
   }) : super(sessionID);
 
-  @JsonKey(name: "SchemeManagerID")
+  @JsonKey(name: "scheme_manager_id")
   final String schemeManagerID;
 
-  @JsonKey(name: "Duration")
   final int duration;
 
   factory KeyshareBlockedSessionEvent.fromJson(Map<String, dynamic> json) =>
@@ -463,14 +428,14 @@ class KeyshareBlockedSessionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$KeyshareBlockedSessionEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class KeyshareEnrollmentIncompleteSessionEvent extends SessionEvent {
   KeyshareEnrollmentIncompleteSessionEvent({
     required int sessionID,
     required this.schemeManagerID,
   }) : super(sessionID);
 
-  @JsonKey(name: "SchemeManagerID")
+  @JsonKey(name: "scheme_manager_id")
   final String schemeManagerID;
 
   factory KeyshareEnrollmentIncompleteSessionEvent.fromJson(

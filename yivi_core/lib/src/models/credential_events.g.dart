@@ -8,18 +8,18 @@ part of 'credential_events.dart';
 
 CredentialsEvent _$CredentialsEventFromJson(Map<String, dynamic> json) =>
     CredentialsEvent(
-      credentials: (json['Credentials'] as List<dynamic>)
+      credentials: (json['credentials'] as List<dynamic>)
           .map((e) => RawCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
 Map<String, dynamic> _$CredentialsEventToJson(CredentialsEvent instance) =>
-    <String, dynamic>{'Credentials': instance.credentials};
+    <String, dynamic>{'credentials': instance.credentials};
 
 DeleteCredentialEvent _$DeleteCredentialEventFromJson(
   Map<String, dynamic> json,
 ) => DeleteCredentialEvent(
-  hashByFormat: (json['HashByFormat'] as Map<String, dynamic>).map(
+  hashByFormat: (json['hash_by_format'] as Map<String, dynamic>).map(
     (k, e) => MapEntry($enumDecode(_$CredentialFormatEnumMap, k), e as String),
   ),
 );
@@ -27,7 +27,7 @@ DeleteCredentialEvent _$DeleteCredentialEventFromJson(
 Map<String, dynamic> _$DeleteCredentialEventToJson(
   DeleteCredentialEvent instance,
 ) => <String, dynamic>{
-  'HashByFormat': instance.hashByFormat.map(
+  'hash_by_format': instance.hashByFormat.map(
     (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
   ),
 };

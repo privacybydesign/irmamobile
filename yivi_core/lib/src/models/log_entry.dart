@@ -6,25 +6,22 @@ import "session.dart";
 
 part "log_entry.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class LogsEvent extends Event {
   LogsEvent({required this.logEntries});
 
-  @JsonKey(name: "LogEntries")
   final List<LogInfo> logEntries;
 
   factory LogsEvent.fromJson(Map<String, dynamic> json) =>
       _$LogsEventFromJson(json);
 }
 
-@JsonSerializable(createFactory: false)
+@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
 class LoadLogsEvent extends Event {
   LoadLogsEvent({required this.max, this.before});
 
-  @JsonKey(name: "Before")
   final int? before;
 
-  @JsonKey(name: "Max")
   final int max;
 
   Map<String, dynamic> toJson() => _$LoadLogsEventToJson(this);
@@ -57,7 +54,7 @@ enum CredentialFormat {
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
     DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class LogInfo {
   const LogInfo({
     required this.id,
@@ -69,25 +66,19 @@ class LogInfo {
     required this.removalLog,
   });
 
-  @JsonKey(name: "ID")
   final int id;
 
-  @JsonKey(name: "Type")
   final LogType type;
 
-  @JsonKey(name: "Time", fromJson: _epochSecondsToDateTime)
+  @JsonKey(fromJson: _epochSecondsToDateTime)
   final DateTime time;
 
-  @JsonKey(name: "IssuanceLog")
   final IssuanceLog? issuanceLog;
 
-  @JsonKey(name: "DisclosureLog")
   final DisclosureLog? disclosureLog;
 
-  @JsonKey(name: "SignedMessageLog")
   final SignedMessageLog? signedMessageLog;
 
-  @JsonKey(name: "RemovalLog")
   final RemovalLog? removalLog;
 
   RequestorInfo? get requestorInfo => switch (type) {
@@ -101,7 +92,7 @@ class LogInfo {
       _$LogInfoFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class IssuanceLog {
   IssuanceLog({
     required this.protocol,
@@ -110,23 +101,20 @@ class IssuanceLog {
     required this.issuer,
   });
 
-  @JsonKey(name: "Protocol", fromJson: stringToProtocol)
+  @JsonKey(fromJson: stringToProtocol)
   final Protocol protocol;
 
-  @JsonKey(name: "Credentials")
   final List<CredentialLog> credentials;
 
-  @JsonKey(name: "DisclosedCredentials")
   final List<CredentialLog> disclosedCredentials;
 
-  @JsonKey(name: "Issuer")
   final RequestorInfo issuer;
 
   factory IssuanceLog.fromJson(Map<String, dynamic> json) =>
       _$IssuanceLogFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class DisclosureLog {
   DisclosureLog({
     required this.protocol,
@@ -134,20 +122,18 @@ class DisclosureLog {
     required this.verifier,
   });
 
-  @JsonKey(name: "Protocol", fromJson: stringToProtocol)
+  @JsonKey(fromJson: stringToProtocol)
   final Protocol protocol;
 
-  @JsonKey(name: "Credentials")
   final List<CredentialLog> credentials;
 
-  @JsonKey(name: "Verifier")
   final RequestorInfo verifier;
 
   factory DisclosureLog.fromJson(Map<String, dynamic> json) =>
       _$DisclosureLogFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class SignedMessageLog extends DisclosureLog {
   SignedMessageLog({
     required super.protocol,
@@ -156,25 +142,23 @@ class SignedMessageLog extends DisclosureLog {
     required this.message,
   });
 
-  @JsonKey(name: "Message")
   final String message;
 
   factory SignedMessageLog.fromJson(Map<String, dynamic> json) =>
       _$SignedMessageLogFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class RemovalLog {
   RemovalLog({required this.credentials});
 
-  @JsonKey(name: "Credentials")
   final List<CredentialLog> credentials;
 
   factory RemovalLog.fromJson(Map<String, dynamic> json) =>
       _$RemovalLogFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class CredentialLog {
   CredentialLog({
     required this.formats,
@@ -182,13 +166,10 @@ class CredentialLog {
     required this.attributes,
   });
 
-  @JsonKey(name: "Formats")
   final List<CredentialFormat> formats;
 
-  @JsonKey(name: "CredentialType")
   final String credentialType;
 
-  @JsonKey(name: "Attributes")
   final Map<String, String> attributes;
 
   factory CredentialLog.fromJson(Map<String, dynamic> json) =>

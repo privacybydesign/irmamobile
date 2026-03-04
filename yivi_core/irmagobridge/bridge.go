@@ -39,12 +39,11 @@ var embeddedAssets embed.FS
 
 // eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
-var bridgeEventHandler = &eventHandler{
-	sessionLookup: map[int]*sessionHandler{},
-}
+var bridgeEventHandler = &eventHandler{}
 
 // clientHandler is used for messages coming in from irmago (see client_handler.go)
-var bridgeClientHandler = &clientHandler{}
+var bridgeClientHandler = &YiviClientHandler{}
+var sessionHandler = &YiviSessionHandler{}
 
 // Prestart is invoked only on Android in MainActivity's onCreate, to initialize
 // the Go binding at the earliest moment, instead of inside the Flutter plugin
@@ -155,7 +154,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
 	irma.Logger.SetLevel(logrus.InfoLevel)
-	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, bridgeClientHandler, signer, aesKeyCopy)
+	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
@@ -168,7 +167,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	yiviClient.InitJobs(60 * time.Minute)
 }
 
-func dispatchEvent(event interface{}) {
+func dispatchEvent(event any) {
 	jsonBytes, err := json.Marshal(event)
 	if err != nil {
 		reportError(errors.Errorf("Cannot marshal event payload: %s", err), false)

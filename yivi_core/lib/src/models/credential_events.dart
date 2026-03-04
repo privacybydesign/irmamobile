@@ -6,11 +6,10 @@ import "log_entry.dart";
 
 part "credential_events.g.dart";
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class CredentialsEvent extends Event {
   CredentialsEvent({required this.credentials});
 
-  @JsonKey(name: "Credentials")
   final List<RawCredential> credentials;
 
   factory CredentialsEvent.fromJson(Map<String, dynamic> json) =>
@@ -18,11 +17,10 @@ class CredentialsEvent extends Event {
   Map<String, dynamic> toJson() => _$CredentialsEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class DeleteCredentialEvent extends Event {
   DeleteCredentialEvent({required this.hashByFormat});
 
-  @JsonKey(name: "HashByFormat")
   final Map<CredentialFormat, String> hashByFormat;
 
   factory DeleteCredentialEvent.fromJson(Map<String, dynamic> json) =>

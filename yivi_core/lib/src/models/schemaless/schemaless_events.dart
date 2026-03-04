@@ -6,9 +6,8 @@ import "../translated_value.dart";
 
 part "schemaless_events.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class SchemalessCredentialsEvent extends Event {
-  @JsonKey(name: "Credentials")
   final List<Credential> credentials;
 
   SchemalessCredentialsEvent({required this.credentials});
@@ -29,12 +28,10 @@ enum AttributeType {
   base64Image,
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class AttributeValue {
-  @JsonKey(name: "Type")
   final AttributeType type;
 
-  @JsonKey(name: "Data")
   final dynamic data;
 
   AttributeValue({required this.type, required this.data});
@@ -45,18 +42,14 @@ class AttributeValue {
   Map<String, dynamic> toJson() => _$AttributeValueToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class Attribute {
-  @JsonKey(name: "Id")
   final String id;
 
-  @JsonKey(name: "DisplayName")
   final TranslatedValue displayName;
 
-  @JsonKey(name: "Description")
   final TranslatedValue description;
 
-  @JsonKey(name: "Value")
   final AttributeValue value;
 
   Attribute({
@@ -72,21 +65,16 @@ class Attribute {
   Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class TrustedParty {
-  @JsonKey(name: "Id")
   final String id;
 
-  @JsonKey(name: "Name")
   final TranslatedValue name;
 
-  @JsonKey(name: "Url")
   final TranslatedValue? url;
 
-  @JsonKey(name: "ImagePath")
   final String? imagePath;
 
-  @JsonKey(name: "Parent")
   final TrustedParty? parent;
 
   TrustedParty({
@@ -103,45 +91,32 @@ class TrustedParty {
   Map<String, dynamic> toJson() => _$TrustedPartyToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class Credential {
-  @JsonKey(name: "CredentialId")
   final String credentialId;
 
-  @JsonKey(name: "Hash")
   final String hash;
 
-  @JsonKey(name: "ImagePath")
   final String imagePath;
 
-  @JsonKey(name: "Name")
   final TranslatedValue name;
 
-  @JsonKey(name: "Issuer")
   final TrustedParty issuer;
 
-  @JsonKey(name: "CredentialInstanceIds")
   final Map<CredentialFormat, String> credentialInstanceIds;
 
-  @JsonKey(name: "BatchInstanceCountsRemaining")
   final Map<CredentialFormat, int?> batchInstanceCountsRemaining;
 
-  @JsonKey(name: "Attributes")
   List<Attribute> attributes;
 
-  @JsonKey(name: "IssuanceDate")
   final int issuanceDate;
 
-  @JsonKey(name: "ExpiryDate")
   final int expiryDate;
 
-  @JsonKey(name: "Revoked")
   final bool revoked;
 
-  @JsonKey(name: "RevocationSupported")
   final bool revocationSupported;
 
-  @JsonKey(name: "IssueURL")
   final TranslatedValue issueUrl;
 
   Credential({

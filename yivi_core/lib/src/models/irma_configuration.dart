@@ -7,18 +7,17 @@ import "translated_value.dart";
 
 part "irma_configuration.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class IrmaConfigurationEvent extends Event {
   IrmaConfigurationEvent({required this.irmaConfiguration});
 
-  @JsonKey(name: "IrmaConfiguration")
   final IrmaConfiguration irmaConfiguration;
 
   factory IrmaConfigurationEvent.fromJson(Map<String, dynamic> json) =>
       _$IrmaConfigurationEventFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class IrmaConfiguration {
   IrmaConfiguration({
     required this.schemeManagers,
@@ -31,35 +30,27 @@ class IrmaConfiguration {
     required this.path,
   });
 
-  @JsonKey(name: "SchemeManagers")
   final Map<String, SchemeManager> schemeManagers;
 
-  @JsonKey(name: "RequestorSchemes")
   final Map<String, RequestorScheme> requestorSchemes;
 
-  @JsonKey(name: "Requestors")
   final Map<String, RequestorInfo> requestors;
 
-  @JsonKey(name: "Issuers")
   final Map<String, Issuer> issuers;
 
-  @JsonKey(name: "CredentialTypes")
   final Map<String, CredentialType> credentialTypes;
 
-  @JsonKey(name: "AttributeTypes")
   final Map<String, AttributeType> attributeTypes;
 
-  @JsonKey(name: "IssueWizards")
   final Map<String, IssueWizard> issueWizards;
 
-  @JsonKey(name: "Path")
   final String path;
 
   factory IrmaConfiguration.fromJson(Map<String, dynamic> json) =>
       _$IrmaConfigurationFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class SchemeManager {
   SchemeManager({
     required this.id,
@@ -76,38 +67,27 @@ class SchemeManager {
     required this.demo,
   });
 
-  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: "Name")
   final TranslatedValue name;
 
-  @JsonKey(name: "URL")
   final String url;
 
-  @JsonKey(name: "Description")
   final TranslatedValue description;
 
-  @JsonKey(name: "MinimumAppVersion")
   final AppVersion minimumAppVersion;
 
-  @JsonKey(name: "KeyshareServer")
   final String keyshareServer;
 
-  @JsonKey(name: "KeyshareWebsite")
   final String keyshareWebsite;
 
-  @JsonKey(name: "KeyshareAttribute")
   @Deprecated("Use keyshareAttributes instead")
   final String keyshareAttribute;
 
-  @JsonKey(name: "TimestampServer")
   final String timestampServer;
 
-  @JsonKey(name: "Timestamp")
   final int timestamp;
 
-  @JsonKey(name: "Demo")
   final bool demo;
 
   factory SchemeManager.fromJson(Map<String, dynamic> json) =>
@@ -124,14 +104,12 @@ class SchemeManager {
   };
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RequestorScheme {
   RequestorScheme({required this.id, required this.demo});
 
-  @JsonKey(name: "id")
   final String id;
 
-  @JsonKey(name: "demo")
   final bool demo;
 
   factory RequestorScheme.fromJson(Map<String, dynamic> json) =>
@@ -139,21 +117,20 @@ class RequestorScheme {
   Map<String, dynamic> toJson() => _$RequestorSchemeToJson(this);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class AppVersion {
   AppVersion({required this.android, required this.iOS});
 
-  @JsonKey(name: "Android")
   final int android;
 
-  @JsonKey(name: "IOS")
+  @JsonKey(name: "ios")
   final int iOS;
 
   factory AppVersion.fromJson(Map<String, dynamic> json) =>
       _$AppVersionFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class Issuer {
   Issuer({
     required this.id,
@@ -163,19 +140,14 @@ class Issuer {
     required this.contactEmail,
   });
 
-  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: "Name")
   final TranslatedValue name;
 
-  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
-  @JsonKey(name: "ContactAddress")
   final String contactAddress;
 
-  @JsonKey(name: "ContactEMail")
   final String contactEmail;
 
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);
@@ -183,7 +155,7 @@ class Issuer {
   String get fullId => "$schemeManagerId.$id";
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class CredentialType {
   CredentialType({
     required this.id,
@@ -205,69 +177,46 @@ class CredentialType {
     this.logo,
   });
 
-  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: "Name")
   final TranslatedValue name;
 
-  @JsonKey(name: "IssuerID")
   final String issuerId;
 
-  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
-  @JsonKey(name: "IsSingleton")
   final bool isSingleton;
 
-  @JsonKey(name: "Description")
   final TranslatedValue description;
 
-  @JsonKey(
-    name: "IssueURL",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue issueUrl;
 
-  @JsonKey(name: "IsULIssueURL")
+  @JsonKey(name: "is_ul_issue_url")
   final bool isULIssueUrl;
 
-  @JsonKey(name: "DisallowDelete")
   final bool disallowDelete;
 
-  @JsonKey(name: "IsInCredentialStore")
   final bool isInCredentialStore;
 
-  @JsonKey(
-    name: "Category",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue category;
 
-  @JsonKey(
-    name: "FAQIntro",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqIntro;
 
-  @JsonKey(
-    name: "FAQPurpose",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqPurpose;
 
-  @JsonKey(
-    name: "FAQContent",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqContent;
 
-  @JsonKey(
-    name: "FAQHowto",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqHowto;
 
-  @JsonKey(
-    name: "FAQSummary",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqSummary;
 
-  @JsonKey(name: "Logo")
   final String? logo;
 
   factory CredentialType.fromJson(Map<String, dynamic> json) =>
@@ -278,7 +227,7 @@ class CredentialType {
   bool get obtainable => issueUrl.isNotEmpty;
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class AttributeType {
   AttributeType({
     required this.id,
@@ -293,37 +242,28 @@ class AttributeType {
     this.displayHint,
   });
 
-  @JsonKey(name: "ID")
   final String id;
 
-  @JsonKey(name: "Optional", fromJson: _parseOptional)
+  @JsonKey(fromJson: _parseOptional)
   final bool optional;
 
   // In case of revocation attributes, Name and Description are not present
-  @JsonKey(name: "Name") // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue name;
 
-  @JsonKey(
-    name: "Description",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue description;
 
-  @JsonKey(name: "Index")
   final int index;
 
-  @JsonKey(name: "DisplayIndex")
   final int? displayIndex;
 
-  @JsonKey(name: "DisplayHint")
   final String? displayHint;
 
-  @JsonKey(name: "CredentialTypeID")
   final String credentialTypeId;
 
-  @JsonKey(name: "IssuerID")
   final String issuerId;
 
-  @JsonKey(name: "SchemeManagerID")
   final String schemeManagerId;
 
   factory AttributeType.fromJson(Map<String, dynamic> json) =>

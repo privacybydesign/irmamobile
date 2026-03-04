@@ -119,7 +119,7 @@ abstract class Pointer {
 }
 
 /// A pointer that refers to an issue wizard only.
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class IssueWizardPointer implements Pointer {
   @JsonKey(name: "wizard", required: true)
   final String wizard;
@@ -177,7 +177,7 @@ Protocol _protocolFromJsonAlwaysIrma(String? protocol) {
 }
 
 /// A pointer that refers to a new IRMA session.
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class SessionPointer implements Pointer {
   @JsonKey(name: "u", required: true)
   final String u;
@@ -197,7 +197,6 @@ class SessionPointer implements Pointer {
   /// or on the device which has displayed a QR code.
   /// Field is not always specified in QRs now.
   /// To make sure we can override its value if necessary, the field is not final fow now.
-  @JsonKey(name: "continueOnSecondDevice")
   bool continueOnSecondDevice;
 
   SessionPointer({
@@ -277,7 +276,7 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class SessionError {
   SessionError({
     required this.errorType,
@@ -288,22 +287,16 @@ class SessionError {
     this.remoteError,
   });
 
-  @JsonKey(name: "ErrorType")
   final String errorType;
 
-  @JsonKey(name: "WrappedError")
   final String wrappedError;
 
-  @JsonKey(name: "Info")
   final String info;
 
-  @JsonKey(name: "Stack")
   final String stack;
 
-  @JsonKey(name: "RemoteStatus")
   final int? remoteStatus;
 
-  @JsonKey(name: "RemoteError")
   final RemoteError? remoteError;
 
   bool get reportable => !["https", "notSupported"].contains(errorType);
@@ -322,7 +315,7 @@ class SessionError {
   ].join();
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RemoteError {
   RemoteError({
     this.status,
@@ -332,19 +325,15 @@ class RemoteError {
     this.stacktrace,
   });
 
-  @JsonKey(name: "status")
   final int? status;
 
   @JsonKey(name: "error")
   final String? errorName;
 
-  @JsonKey(name: "description")
   final String? description;
 
-  @JsonKey(name: "message")
   final String? message;
 
-  @JsonKey(name: "stacktrace")
   final String? stacktrace;
 
   RemoteError copyWithoutStacktrace() => RemoteError(
@@ -362,29 +351,21 @@ class RemoteError {
   String toString() => jsonEncode(copyWithoutStacktrace());
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RequestorInfo {
-  @JsonKey(name: "id")
   final String? id;
 
-  @JsonKey(name: "name")
   final TranslatedValue name;
 
-  @JsonKey(
-    name: "industry",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue industry;
 
-  @JsonKey(name: "logo")
   final String? logo;
 
-  @JsonKey(name: "logoPath")
   final String? logoPath;
 
-  @JsonKey(name: "unverified")
   final bool unverified;
 
-  @JsonKey(name: "hostnames")
   final List<String> hostnames;
 
   RequestorInfo({

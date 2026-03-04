@@ -8,17 +8,17 @@ part of 'issue_wizard.dart';
 
 GetIssueWizardContentsEvent _$GetIssueWizardContentsEventFromJson(
   Map<String, dynamic> json,
-) => GetIssueWizardContentsEvent(id: json['ID'] as String);
+) => GetIssueWizardContentsEvent(id: json['id'] as String);
 
 Map<String, dynamic> _$GetIssueWizardContentsEventToJson(
   GetIssueWizardContentsEvent instance,
-) => <String, dynamic>{'ID': instance.id};
+) => <String, dynamic>{'id': instance.id};
 
 IssueWizardContentsEvent _$IssueWizardContentsEventFromJson(
   Map<String, dynamic> json,
 ) => IssueWizardContentsEvent(
-  id: json['ID'] as String,
-  wizardContents: (json['WizardContents'] as List<dynamic>)
+  id: json['id'] as String,
+  wizardContents: (json['wizard_contents'] as List<dynamic>)
       .map((e) => IssueWizardItem.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
@@ -26,18 +26,18 @@ IssueWizardContentsEvent _$IssueWizardContentsEventFromJson(
 Map<String, dynamic> _$IssueWizardContentsEventToJson(
   IssueWizardContentsEvent instance,
 ) => <String, dynamic>{
-  'ID': instance.id,
-  'WizardContents': instance.wizardContents,
+  'id': instance.id,
+  'wizard_contents': instance.wizardContents,
 };
 
 IssueWizard _$IssueWizardFromJson(Map<String, dynamic> json) => IssueWizard(
   id: json['id'] as String,
   title: TranslatedValue.fromJson(json['title'] as Map<String, dynamic>?),
-  allowOtherRequestors: json['allowOtherRequestors'] as bool,
+  allowOtherRequestors: json['allow_other_requestors'] as bool,
   logo: json['logo'] as String?,
-  logoPath: json['logoPath'] as String?,
+  logoPath: json['logo_path'] as String?,
   color: json['color'] as String?,
-  textColor: json['textColor'] as String?,
+  textColor: json['text_color'] as String?,
   issues: json['issues'] as String?,
   info: json['info'] == null
       ? const TranslatedValue.empty()
@@ -50,15 +50,15 @@ IssueWizard _$IssueWizardFromJson(Map<String, dynamic> json) => IssueWizard(
   intro: json['intro'] == null
       ? const TranslatedValue.empty()
       : TranslatedValue.fromJson(json['intro'] as Map<String, dynamic>?),
-  successHeader: json['successHeader'] == null
+  successHeader: json['success_header'] == null
       ? const TranslatedValue.empty()
       : TranslatedValue.fromJson(
-          json['successHeader'] as Map<String, dynamic>?,
+          json['success_header'] as Map<String, dynamic>?,
         ),
-  successText: json['successText'] == null
+  successText: json['success_text'] == null
       ? const TranslatedValue.empty()
-      : TranslatedValue.fromJson(json['successText'] as Map<String, dynamic>?),
-  expandDependencies: json['expandDependencies'] as bool? ?? false,
+      : TranslatedValue.fromJson(json['success_text'] as Map<String, dynamic>?),
+  expandDependencies: json['expand_dependencies'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$IssueWizardToJson(IssueWizard instance) =>
@@ -66,17 +66,17 @@ Map<String, dynamic> _$IssueWizardToJson(IssueWizard instance) =>
       'id': instance.id,
       'title': instance.title,
       'logo': instance.logo,
-      'logoPath': instance.logoPath,
+      'logo_path': instance.logoPath,
       'color': instance.color,
-      'textColor': instance.textColor,
+      'text_color': instance.textColor,
       'issues': instance.issues,
-      'allowOtherRequestors': instance.allowOtherRequestors,
+      'allow_other_requestors': instance.allowOtherRequestors,
       'info': instance.info,
       'faq': instance.faq,
       'intro': instance.intro,
-      'successHeader': instance.successHeader,
-      'successText': instance.successText,
-      'expandDependencies': instance.expandDependencies,
+      'success_header': instance.successHeader,
+      'success_text': instance.successText,
+      'expand_dependencies': instance.expandDependencies,
     };
 
 IssueWizardQA _$IssueWizardQAFromJson(Map<String, dynamic> json) =>
@@ -103,11 +103,11 @@ IssueWizardItem _$IssueWizardItemFromJson(Map<String, dynamic> json) =>
       label: json['label'] == null
           ? const TranslatedValue.empty()
           : TranslatedValue.fromJson(json['label'] as Map<String, dynamic>?),
-      sessionURL: json['sessionUrl'] as String?,
+      sessionURL: json['session_url'] as String?,
       url: json['url'] == null
           ? const TranslatedValue.empty()
           : TranslatedValue.fromJson(json['url'] as Map<String, dynamic>?),
-      inApp: json['inapp'] as bool? ?? false,
+      inApp: json['in_app'] as bool? ?? false,
       completed: json['completed'] as bool? ?? false,
     );
 
@@ -118,8 +118,8 @@ Map<String, dynamic> _$IssueWizardItemToJson(IssueWizardItem instance) =>
       'header': instance.header,
       'text': instance.text,
       'label': instance.label,
-      'sessionUrl': instance.sessionURL,
+      'session_url': instance.sessionURL,
       'url': instance.url,
-      'inapp': instance.inApp,
+      'in_app': instance.inApp,
       'completed': instance.completed,
     };
