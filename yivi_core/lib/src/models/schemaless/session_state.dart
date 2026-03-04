@@ -10,7 +10,7 @@ part "session_state.g.dart";
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class SessionStateEvent extends Event {
-  final SchemalessSessionState sessionState;
+  final SessionState sessionState;
 
   SessionStateEvent({required this.sessionState});
 
@@ -31,7 +31,7 @@ enum SessionType {
 }
 
 @JsonEnum(alwaysCreate: true)
-enum SchemalessSessionStatus {
+enum SessionStatus {
   @JsonValue("request_permission")
   requestPermission,
 
@@ -52,14 +52,14 @@ enum SchemalessSessionStatus {
 }
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
-class SchemalessSessionState {
+class SessionState {
   final int id;
 
   final String protocol;
 
   final SessionType type;
 
-  final SchemalessSessionStatus status;
+  final SessionStatus status;
 
   final TrustedParty requestor;
 
@@ -81,7 +81,7 @@ class SchemalessSessionState {
 
   final int pinBlockedTimeSeconds;
 
-  SchemalessSessionState({
+  SessionState({
     required this.id,
     required this.protocol,
     required this.type,
@@ -98,8 +98,8 @@ class SchemalessSessionState {
     this.pinBlockedTimeSeconds = 0,
   });
 
-  factory SchemalessSessionState.fromJson(Map<String, dynamic> json) =>
-      _$SchemalessSessionStateFromJson(json);
+  factory SessionState.fromJson(Map<String, dynamic> json) =>
+      _$SessionStateFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)

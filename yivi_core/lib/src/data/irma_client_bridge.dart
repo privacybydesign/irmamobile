@@ -15,6 +15,7 @@ import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
+import "../models/schemaless/session_state.dart";
 import "../sentry/sentry.dart";
 import "irma_bridge.dart";
 
@@ -31,6 +32,7 @@ class IrmaClientBridge extends IrmaBridge {
         schemaless.SchemalessCredentialsEvent.fromJson(j),
     SchemalessCredentialStoreEvent: (j) =>
         SchemalessCredentialStoreEvent.fromJson(j),
+    SessionStateEvent: (j) => SessionStateEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
     LogsEvent: (j) => LogsEvent.fromJson(j),
 

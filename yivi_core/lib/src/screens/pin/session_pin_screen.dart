@@ -19,12 +19,12 @@ import "bloc/pin_state.dart";
 import "yivi_pin_screen.dart";
 
 class SessionPinScreen extends StatefulWidget {
-  final int sessionID;
+  final int sessionId;
   final String title;
 
   const SessionPinScreen({
     super.key,
-    required this.sessionID,
+    required this.sessionId,
     required this.title,
   });
 
@@ -83,7 +83,7 @@ class _SessionPinScreenState extends State<SessionPinScreen>
 
   void _cancel() {
     _repo.bridgedDispatch(
-      RespondPinEvent(sessionID: widget.sessionID, proceed: false),
+      RespondPinEvent(sessionId: widget.sessionId, proceed: false),
     );
   }
 
@@ -131,7 +131,7 @@ class _SessionPinScreenState extends State<SessionPinScreen>
   void _submit(bool enabled, String pin) {
     if (!enabled) return;
     _pinBloc.add(
-      SessionPin(sessionID: widget.sessionID, pin: pin, repo: _repo),
+      SessionPin(sessionId: widget.sessionId, pin: pin, repo: _repo),
     );
   }
 

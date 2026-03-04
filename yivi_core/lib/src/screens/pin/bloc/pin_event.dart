@@ -30,15 +30,15 @@ class Unlock extends Authenticate {
 // SessionPin event is sent by UI to initiate a pin entry from a session
 class SessionPin extends Authenticate {
   IrmaRepository repo;
-  int sessionID;
+  int sessionId;
   String pin;
 
-  SessionPin({required this.repo, required this.sessionID, required this.pin});
+  SessionPin({required this.repo, required this.sessionId, required this.pin});
 
   @override
   Future<AuthenticationEvent> dispatch() {
     repo.bridgedDispatch(
-      RespondPinEvent(sessionID: sessionID, pin: pin, proceed: true),
+      RespondPinEvent(sessionId: sessionId, pin: pin, proceed: true),
     );
 
     // TODO: handle session pin response events from new session state model

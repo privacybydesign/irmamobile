@@ -10,9 +10,8 @@ import "../../data/irma_repository.dart";
 import "../../models/irma_configuration.dart";
 import "../../models/issue_wizard.dart";
 import "../../models/protocol.dart";
+import "../../models/schemaless/session_state.dart";
 import "../../models/session.dart";
-import "../../models/session_events.dart";
-import "../../models/session_state.dart";
 import "../../models/translated_value.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../screens/issue_wizard/widgets/wizard_contents.dart";
@@ -34,7 +33,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
     with WidgetsBindingObserver {
   bool _showIntro = true;
   int? _sessionID;
-  StreamSubscription<IrmaSessionState>? _sessionSubscription;
+  StreamSubscription<SessionState>? _sessionSubscription;
 
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
@@ -46,10 +45,12 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
         AppLifecycleState.resumed == state) {
       _sessionSubscription = _repo
           .getSessionState(widget.arguments.sessionID!)
-          .map(
-            (state) => state as IrmaSessionState,
-          ) // issue wizard is always for irma sessions
-          .firstWhere((event) => event.isFinished)
+          .firstWhere(
+            (s) =>
+                s.status == SessionStatus.success ||
+                s.status == SessionStatus.error ||
+                s.status == SessionStatus.dismissed,
+          )
           .asStream()
           .listen((event) {
             if (mounted) {
@@ -126,8 +127,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
 
     // If we became visible and the session that was started by the currently active wizard item
     // is done and has succeeded, we need to progress to the next item or close the wizard.
-    final state =
-        await _repo.getSessionState(_sessionID!).first as IrmaSessionState;
+    final state = await _repo.getSessionState(_sessionID!).first;
     if (!(visibility.visibleFraction > 0.9 &&
         state.status == SessionStatus.success)) {
       return;
@@ -156,11 +156,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
       // then the only reasonable condition that we can use to consider the item to be completed is whenever the
       // session that it starts has finished successfully. So when the session starts, we save the session ID,
       // so that when the user returns to this screen, we can check if it completed.
-      _repo
-          .getEvents()
-          .where((event) => event is NewSessionEvent)
-          .first
-          .then((event) => _sessionID = (event as SessionEvent).sessionID);
+      _repo.getNewSessionIds().first.then((id) => _sessionID = id);
     }
 
     // Handle the different wizard item types

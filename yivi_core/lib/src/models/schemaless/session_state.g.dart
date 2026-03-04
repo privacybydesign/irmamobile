@@ -8,18 +8,16 @@ part of 'session_state.dart';
 
 SessionStateEvent _$SessionStateEventFromJson(Map<String, dynamic> json) =>
     SessionStateEvent(
-      sessionState: SchemalessSessionState.fromJson(
+      sessionState: SessionState.fromJson(
         json['session_state'] as Map<String, dynamic>,
       ),
     );
 
-SchemalessSessionState _$SchemalessSessionStateFromJson(
-  Map<String, dynamic> json,
-) => SchemalessSessionState(
+SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
   id: (json['id'] as num).toInt(),
   protocol: json['protocol'] as String,
   type: $enumDecode(_$SessionTypeEnumMap, json['type']),
-  status: $enumDecode(_$SchemalessSessionStatusEnumMap, json['status']),
+  status: $enumDecode(_$SessionStatusEnumMap, json['status']),
   requestor: TrustedParty.fromJson(json['requestor'] as Map<String, dynamic>),
   pairingCode: json['pairing_code'] as String?,
   offeredCredentials: (json['offered_credentials'] as List<dynamic>?)
@@ -45,13 +43,13 @@ const _$SessionTypeEnumMap = {
   SessionType.signature: 'signature',
 };
 
-const _$SchemalessSessionStatusEnumMap = {
-  SchemalessSessionStatus.requestPermission: 'request_permission',
-  SchemalessSessionStatus.showPairingCode: 'show_pairing_code',
-  SchemalessSessionStatus.success: 'success',
-  SchemalessSessionStatus.error: 'error',
-  SchemalessSessionStatus.dismissed: 'dismissed',
-  SchemalessSessionStatus.requestPin: 'request_pin',
+const _$SessionStatusEnumMap = {
+  SessionStatus.requestPermission: 'request_permission',
+  SessionStatus.showPairingCode: 'show_pairing_code',
+  SessionStatus.success: 'success',
+  SessionStatus.error: 'error',
+  SessionStatus.dismissed: 'dismissed',
+  SessionStatus.requestPin: 'request_pin',
 };
 
 DisclosurePlan _$DisclosurePlanFromJson(Map<String, dynamic> json) =>
