@@ -5,8 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fix
+- Bug in text input in email issuance screen allowed for leading and trailing whitespaces
+
+## [7.13.2] - 2026-02-11
 ### Changed
 - `smart_auth` is no longer a dependency of `yivi_core` and is not included in FDroid builds anymore
+- Add support for German language
+- Add pubhubs to list of issuers to open in external broswser
 
 ## [7.13.1] - 2026-01-22
 ### Fix
@@ -579,6 +585,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.13.2]: https://github.com/privacybydesign/irmamobile/compare/v7.13.1...v7.13.2
 [7.13.1]: https://github.com/privacybydesign/irmamobile/compare/v7.13.0...v7.13.1
 [7.13.0]: https://github.com/privacybydesign/irmamobile/compare/v7.12.1...v7.13.0
 [7.12.1]: https://github.com/privacybydesign/irmamobile/compare/v7.12.0...v7.12.1

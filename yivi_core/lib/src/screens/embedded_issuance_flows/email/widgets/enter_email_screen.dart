@@ -12,6 +12,13 @@ import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
+bool isValidEmail(String value) {
+  if (value.isEmpty) return false;
+  return RegExp(
+    r"^(?:[a-zA-Z0-9_+-])+(?:[\.+](?:[a-zA-Z0-9_-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$",
+  ).hasMatch(value);
+}
+
 class EnterEmailScreen extends ConsumerStatefulWidget {
   const EnterEmailScreen();
 
@@ -50,7 +57,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       // set text to previously entered email (for when coming back from verification screen)
       final email = ref.read(emailIssuanceProvider).email;
       _textController.text = email;
-      if (_isValidEmail(email)) {
+      if (isValidEmail(email)) {
         setState(() {
           _validEmail = true;
         });
@@ -99,12 +106,6 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
             language: FlutterI18n.currentLocale(context)?.languageCode ?? "en",
           );
     }
-  }
-
-  bool _isValidEmail(String v) {
-    final value = v.trim();
-    if (value.isEmpty) return false;
-    return RegExp(r"^[^\s@]+@[^\s@]+\.[^\s@]+$").hasMatch(value);
   }
 
   @override
@@ -190,7 +191,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                                   ? .onUserInteraction
                                   : .disabled,
                               onChanged: (v) {
-                                final ok = _isValidEmail(v);
+                                final ok = isValidEmail(v);
                                 if (ok != _validEmail) {
                                   setState(() => _validEmail = ok);
                                 }
@@ -198,9 +199,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                               validator: (v) {
                                 final value = (v ?? "").trim();
                                 if (value.isEmpty) return "Enter your email";
-                                if (!RegExp(
-                                  r"^[^\s@]+@[^\s@]+\.[^\s@]+$",
-                                ).hasMatch(value)) {
+                                if (!isValidEmail(value)) {
                                   return "Enter a valid email";
                                 }
                                 return null;

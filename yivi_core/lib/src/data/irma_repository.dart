@@ -53,9 +53,9 @@ class _CredentialObtainState {
 
 class _ExternalBrowserCredtype {
   final String cred;
-  final String os;
+  final List<String> oses;
 
-  const _ExternalBrowserCredtype({required this.cred, required this.os});
+  const _ExternalBrowserCredtype({required this.cred, required this.oses});
 }
 
 class IrmaRepository {
@@ -407,7 +407,7 @@ class IrmaRepository {
                 thisRequirement = scheme.minimumAppVersion.iOS;
                 break;
               default:
-                throw Exception("Unsupported Platfrom.operatingSystem");
+                throw Exception("Unsupported Platform.operatingSystem");
             }
             if (thisRequirement > minimumBuild) {
               minimumBuild = thisRequirement;
@@ -512,36 +512,42 @@ class IrmaRepository {
     );
   }
 
-  final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
-    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", os: "android"),
+  // https://api.flutter.dev/flutter/dart-io/Platform/operatingSystem.html
+  static const List<String> allOperatingSystems = [
+    "android",
+    "fuchsia",
+    "ios",
+    "linux",
+    "macos",
+    "windows",
   ];
 
-  final List<String> externalBrowserUrls = const [
-    "https://privacybydesign.foundation/myirma/",
-    "https://privacybydesign.foundation/mijnirma/",
-    "https://privacybydesign.foundation/demo/",
-    "https://privacybydesign.foundation/demo-en/",
+  final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", oses: ["ios"]),
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", oses: ["ios"]),
+    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", oses: ["android"]),
+    _ExternalBrowserCredtype(
+      cred: "pbdf.PubHubs.account",
+      oses: allOperatingSystems,
+    ),
+    _ExternalBrowserCredtype(
+      cred: "irma-demo.PubHubs.account",
+      oses: allOperatingSystems,
+    ),
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
-      (irmaConfiguration) =>
-          _externalBrowserCredtypes
-              .where((type) => type.os == Platform.operatingSystem)
-              .map(
-                (type) =>
-                    irmaConfiguration
-                        .credentialTypes[type.cred]
-                        ?.issueUrl
-                        .values ??
-                    [],
-              )
-              .expand((v) => v)
-              .toList()
-            ..addAll(externalBrowserUrls),
+      (irmaConfiguration) => _externalBrowserCredtypes
+          .where((type) => type.oses.contains(Platform.operatingSystem))
+          .map(
+            (type) =>
+                irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ??
+                [],
+          )
+          .expand((v) => v)
+          .toList(),
     );
   }
 
