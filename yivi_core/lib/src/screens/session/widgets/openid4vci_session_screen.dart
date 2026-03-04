@@ -1,7 +1,6 @@
 import "dart:io";
 
 import "package:flutter/material.dart";
-import "package:flutter_appauth/flutter_appauth.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
@@ -35,7 +34,6 @@ class OpenID4VciSessionScreen extends ConsumerStatefulWidget {
 class _OpenID4VciSessionScreenState
     extends ConsumerState<OpenID4VciSessionScreen> {
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier(false);
-  final FlutterAppAuth _appAuth = const FlutterAppAuth();
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +150,7 @@ class _OpenID4VciSessionScreenState
 
   Future<void> _handlePermissionGranted(OpenID4VciSessionState state) async {
     if (state.grantType! == "authorization_code") {
-      await _signInWithAutoCodeExchange(state);
+      await _signInWithAutoCodeFlow(state);
     } else if (state.grantType! == "pre-authorized_code") {
       await _signInWithPreAuthorizedCode(state);
     } else {
@@ -160,66 +158,17 @@ class _OpenID4VciSessionScreenState
     }
   }
 
-  Future<void> _signInWithAutoCodeExchange(OpenID4VciSessionState state) async {
-    final additionalParameters = <String, String>{
-      "resource": state.authorizationCodeRequestParameters!.resource,
-    };
+  Future<void> _signInWithAutoCodeFlow(OpenID4VciSessionState state) async {
+    final s = state.generateSessionState();
+    final url = Uri.parse(state.authorizationCodeRequestParameters!.authorizationRequestUrl);
+    final urlWithState = url.replace(queryParameters: {
+      ...url.queryParameters,
+      "state": s,
+    }).toString();
 
-    if (state.authorizationCodeRequestParameters!.issuerState != null) {
-      additionalParameters["issuer_state"] =
-          state.authorizationCodeRequestParameters!.issuerState!;
-    }
+    ref.read(irmaRepositoryProvider).openURLinAppBrowser(urlWithState);
 
-    final request = AuthorizationTokenRequest(
-      // TODO: the client_id should be provided by the Wallet Attestation using Attestation Based Client Auth: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#I-D.ietf-oauth-attestation-based-client-auth
-      // For now, we hard-code a clientId we can use
-      //state.authorizationRequestParameters!.clientId,
-      // Entra: '65d1d280-0f23-4763-bf41-ea4c17cde792'
-      // Auth0: 'FiEH7ZmdnrDphzAjvdk9scynlm0A1XV9',
-
-      // Keycloak
-      "eudiw",
-
-      "yivi-app://callback",
-      discoveryUrl:
-          state.authorizationCodeRequestParameters!.issuerDiscoveryUrl,
-      scopes: state.authorizationCodeRequestParameters!.scopes,
-      additionalParameters: additionalParameters,
-    );
-
-    try {
-      final AuthorizationTokenResponse result = await _appAuth
-          .authorizeAndExchangeCode(request);
-      // Handle the result (e.g., store tokens, proceed with issuance, etc.)
-      ref
-          .read(irmaRepositoryProvider)
-          .bridgedDispatch(
-            RespondAuthorizationCodeAndExchangeForTokenEvent(
-              sessionID: state.sessionID,
-              proceed: true,
-              accessToken: result.accessToken!,
-              refreshToken: result.refreshToken,
-            ),
-          );
-    } on FlutterAppAuthUserCancelledException catch (e) {
-      // The user can try again after closing the in-app browser, so we don't dismiss the session here
-      debugPrint("User cancelled by closing in-app browser: $e");
-    } catch (e) {
-      reportError(e, StackTrace.current);
-    }
-
-    // final uri = Uri.parse(state.authorizationServer!);
-    // final request = Uri(
-    //   host: uri.host,
-    //   scheme: uri.scheme,
-    //   queryParameters: {
-    //     'state': state.sessionID.toString(),
-    //     'response_type': 'code',
-    //     'redirect_uri': 'https://open.yivi.app/-/callback'
-    //   },
-    // );
-
-    // ref.read(irmaRepositoryProvider).openURLExternally(request.toString());
+//    ref.read(irmaRepositoryProvider).openURLExternally(urlWithState);
   }
 
   Future<void> _signInWithPreAuthorizedCode(

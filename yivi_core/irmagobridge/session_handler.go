@@ -9,7 +9,7 @@ type sessionHandler struct {
 	sessionID                    int
 	dismisser                    irmaclient.SessionDismisser
 	permissionHandler            irmaclient.PermissionHandler
-	accessTokenHandler           irmaclient.TokenHandler
+	codeHandler                  irmaclient.CodeHandler
 	preAuthCodePermissionHandler irmaclient.TokenPermissionHandler
 	pinHandler                   irmaclient.PinHandler
 }
@@ -104,18 +104,18 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	})
 }
 
-func (sh *sessionHandler) RequestPermissionAndPerformAuthCodeWithTokenExchange(
-	request *irma.AuthorizationCodeFlowAndTokenExchangeRequest,
+func (sh *sessionHandler) RequestAuthorizationCodeFlowPermission(
+	request *irma.AuthorizationCodeFlowRequest,
 	requestorInfo *irma.RequestorInfo,
-	callback irmaclient.TokenHandler,
+	callback irmaclient.CodeHandler,
 ) {
-	action := &requestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent{
-		SessionID:                      sh.sessionID,
-		RequestorInfo:                  requestorInfo,
-		CredentialInfoList:             request.CredentialInfoList,
-		AuthorizationRequestParameters: request.AuthorizationRequestParameters,
+	action := &requestAuthorizationCodeFlowSessionEvent{
+		SessionID:               sh.sessionID,
+		RequestorInfo:           requestorInfo,
+		CredentialInfoList:      request.CredentialInfoList,
+		AuthorizationRequestUrl: request.AuthorizationRequestUrl,
 	}
-	sh.accessTokenHandler = callback
+	sh.codeHandler = callback
 	dispatchEvent(action)
 }
 

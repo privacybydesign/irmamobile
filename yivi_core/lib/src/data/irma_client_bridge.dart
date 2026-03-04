@@ -79,8 +79,8 @@ class IrmaClientBridge extends IrmaBridge {
 
     ErrorEvent: (j) => ErrorEvent.fromJson(j),
 
-    RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent: (j) =>
-        RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent.fromJson(
+    RequestAuthorizationCodeFlowSessionEvent: (j) =>
+        RequestAuthorizationCodeFlowSessionEvent.fromJson(
           j,
         ),
 

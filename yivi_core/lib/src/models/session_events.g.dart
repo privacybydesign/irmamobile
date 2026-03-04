@@ -31,24 +31,37 @@ Map<String, dynamic> _$RespondPreAuthorizedCodeFlowPermissionEventToJson(
   'TransactionCode': instance.transactionCode,
 };
 
-RespondAuthorizationCodeAndExchangeForTokenEvent
-_$RespondAuthorizationCodeAndExchangeForTokenEventFromJson(
+RespondAuthorizationCodeEvent _$RespondAuthorizationCodeEventFromJson(
   Map<String, dynamic> json,
-) => RespondAuthorizationCodeAndExchangeForTokenEvent(
+) => RespondAuthorizationCodeEvent(
   sessionID: (json['SessionID'] as num).toInt(),
   proceed: json['Proceed'] as bool,
-  accessToken: json['AccessToken'] as String,
-  refreshToken: json['RefreshToken'] as String?,
+  code: json['Code'] as String,
 );
 
-Map<String, dynamic> _$RespondAuthorizationCodeAndExchangeForTokenEventToJson(
-  RespondAuthorizationCodeAndExchangeForTokenEvent instance,
+Map<String, dynamic> _$RespondAuthorizationCodeEventToJson(
+  RespondAuthorizationCodeEvent instance,
 ) => <String, dynamic>{
   'SessionID': instance.sessionID,
   'Proceed': instance.proceed,
-  'AccessToken': instance.accessToken,
-  'RefreshToken': instance.refreshToken,
+  'Code': instance.code,
 };
+
+RespondTokenEvent _$RespondTokenEventFromJson(Map<String, dynamic> json) =>
+    RespondTokenEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      proceed: json['Proceed'] as bool,
+      accessToken: json['AccessToken'] as String,
+      refreshToken: json['RefreshToken'] as String?,
+    );
+
+Map<String, dynamic> _$RespondTokenEventToJson(RespondTokenEvent instance) =>
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'Proceed': instance.proceed,
+      'AccessToken': instance.accessToken,
+      'RefreshToken': instance.refreshToken,
+    };
 
 RespondPermissionEvent _$RespondPermissionEventFromJson(
   Map<String, dynamic> json,
@@ -201,29 +214,23 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(
   'DisclosuresCandidates': instance.disclosuresCandidates,
 };
 
-RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent
-_$RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEventFromJson(
-  Map<String, dynamic> json,
-) => RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent(
-  sessionID: (json['SessionID'] as num).toInt(),
-  serverName: RequestorInfo.fromJson(
-    json['ServerName'] as Map<String, dynamic>,
-  ),
-  authorizationRequestParameters: AuthorizationRequestParameters.fromJson(
-    json['AuthorizationRequestParameters'] as Map<String, dynamic>,
-  ),
-  credentialInfoList: (json['CredentialInfoList'] as List<dynamic>?)
-      ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
-      .toList(),
-);
+RequestAuthorizationCodeFlowSessionEvent
+_$RequestAuthorizationCodeFlowSessionEventFromJson(Map<String, dynamic> json) =>
+    RequestAuthorizationCodeFlowSessionEvent(
+      sessionID: (json['SessionID'] as num).toInt(),
+      requestorInfo: RequestorInfo.fromJson(
+        json['RequestorInfo'] as Map<String, dynamic>,
+      ),
+      authorizationRequestUrl: json['AuthorizationRequestUrl'] as String,
+      credentialInfoList: (json['CredentialInfoList'] as List<dynamic>?)
+          ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
 
 AuthorizationRequestParameters _$AuthorizationRequestParametersFromJson(
   Map<String, dynamic> json,
 ) => AuthorizationRequestParameters(
-  issuerDiscoveryUrl: json['IssuerDiscoveryUrl'] as String,
-  resource: json['Resource'] as String,
-  scopes: (json['Scopes'] as List<dynamic>).map((e) => e as String).toList(),
-  issuerState: json['IssuerState'] as String?,
+  authorizationRequestUrl: json['AuthorizationRequestUrl'] as String,
 );
 
 RequestPreAuthorizedCodeFlowPermissionSessionEvent

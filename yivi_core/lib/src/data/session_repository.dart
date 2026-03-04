@@ -1,5 +1,7 @@
+import "dart:math";
+
 import "package:collection/collection.dart";
-import "package:flutter/widgets.dart";
+import "package:flutter/foundation.dart";
 import "package:rxdart/rxdart.dart";
 
 import "../models/attribute.dart";
@@ -84,18 +86,15 @@ class SessionRepository {
     SessionEvent event,
   ) {
     if (event
-        is RequestPermissionAndPerformAuthCodeWithTokenExchangeSessionEvent) {
+        is RequestAuthorizationCodeFlowSessionEvent) {
       return prevState.copyWith(
-        requestorInfo: event.serverName,
+        requestorInfo: event.requestorInfo,
         credentialInfoList: event.credentialInfoList,
         grantType: "authorization_code",
         authorizationCodeRequestParameters:
             AuthorizationCodeRequestParametersState(
-              issuerDiscoveryUrl:
-                  event.authorizationRequestParameters.issuerDiscoveryUrl,
-              issuerState: event.authorizationRequestParameters.issuerState,
-              resource: event.authorizationRequestParameters.resource,
-              scopes: event.authorizationRequestParameters.scopes,
+              authorizationCodeStateSalt: generateSalt(),
+              authorizationRequestUrl: event.authorizationRequestUrl,
             ),
       );
     }
@@ -119,7 +118,7 @@ class SessionRepository {
       );
     }
 
-    if (event is RespondAuthorizationCodeAndExchangeForTokenEvent) {
+    if (event is RespondAuthorizationCodeEvent) {
       return prevState;
     }
     if (event is FailureSessionEvent) {
@@ -287,6 +286,16 @@ class SessionRepository {
       .where((sessionStates) => sessionStates.containsKey(sessionID))
       .map((sessionStates) => sessionStates[sessionID]!);
 
+  Future<SessionState?> getSessionStateByState(String state) async {
+    final sessions = await _sessionStatesSubject.first;
+    return sessions.values.firstWhere((sessionState) {
+      if (sessionState is OpenID4VciSessionState) {
+        return sessionState.generateSessionState() == state;
+      }
+      return false;
+    });
+  }
+
   Future<bool> hasActiveSessions() async {
     final sessions = await _sessionStatesSubject.first;
     return sessions.values.any((session) {
@@ -296,4 +305,14 @@ class SessionRepository {
       return false;
     });
   }
+
+  Uint8List generateSalt() {
+    final random = Random.secure();
+    final randomBytes = Uint8List(32);
+    for (var i = 0; i < randomBytes.length; i++) {
+      randomBytes[i] = random.nextInt(256);
+    }
+    return randomBytes;
+  }
+
 }

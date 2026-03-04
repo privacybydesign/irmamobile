@@ -58,10 +58,10 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.respondPermission(event)
 		}
-	case "RespondAuthorizationCodeAndExchangeForTokenEvent":
-		event := &respondAuthorizationCodeAndExchangeForTokenEvent{}
+	case "RespondAuthorizationCodeEvent":
+		event := &respondAuthorizationCodeEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.respondAuthorizationCodeAndExchangeForToken(event)
+			err = bridgeEventHandler.respondAuthorizationCode(event)
 		}
 	case "RespondPreAuthorizedCodeFlowPermissionEvent":
 		event := &respondPreAuthorizedCodeFlowPermissionEvent{}
