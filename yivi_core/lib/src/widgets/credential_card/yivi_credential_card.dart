@@ -111,30 +111,6 @@ class YiviCredentialCard extends ConsumerWidget {
     );
   }
 
-  YiviCredentialCard.fromMultiFormatCredential(
-    MultiFormatCredential credential, {
-    super.key,
-    required this.compact,
-    this.compareTo,
-    this.onTap,
-    this.style = IrmaCardStyle.normal,
-    this.headerTrailing,
-    this.padding,
-    this.hideFooter = false,
-    this.hideAttributes = false,
-    this.disabled = false,
-    this.isTemplate = false,
-    this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
-  }) : attributes = credential.attributes,
-       valid = credential.valid,
-       type = credential.credentialType,
-       expired = credential.expired,
-       revoked = credential.revoked,
-       issuer = credential.issuer,
-       hashByFormat = credential.hashByFormat,
-       instanceCount = credential.instanceCount,
-       expiryDate = CardExpiryDate(credential.expires);
-
   YiviCredentialCard.fromCredential(
     Credential credential, {
     super.key,

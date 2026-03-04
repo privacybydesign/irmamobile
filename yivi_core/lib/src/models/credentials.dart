@@ -37,21 +37,6 @@ class CredentialTypeInfo {
 class Credentials extends UnmodifiableMapView<String, Credential> {
   Credentials(super.map);
 
-  factory Credentials.fromRaw({
-    required IrmaConfiguration irmaConfiguration,
-    required List<RawCredential> rawCredentials,
-  }) {
-    return Credentials(
-      rawCredentials.asMap().map<String, Credential>((_, rawCredential) {
-        final credential = Credential.fromRaw(
-          irmaConfiguration: irmaConfiguration,
-          rawCredential: rawCredential,
-        );
-        return MapEntry(credential.hash, credential);
-      }),
-    );
-  }
-
   Credentials rebuiltRemoveWhere(bool Function(String, Credential) test) {
     return Credentials(
       Map.fromEntries(
@@ -181,45 +166,6 @@ class Credential extends CredentialView {
     required this.format,
     required super.instanceCount,
   }) : super(expired: expires.isBefore(DateTime.now()));
-
-  factory Credential.fromRaw({
-    required IrmaConfiguration irmaConfiguration,
-    required RawCredential rawCredential,
-  }) {
-    final credInfo = CredentialInfo.fromConfiguration(
-      irmaConfiguration: irmaConfiguration,
-      credentialIdentifier: rawCredential.fullId,
-    );
-
-    final attributes = rawCredential.attributes.entries.map((entry) {
-      final attrType = irmaConfiguration.attributeTypes[entry.key];
-      if (attrType == null) {
-        throw Exception(
-          "Attribute type $attrType not present in configuration",
-        );
-      }
-
-      return Attribute(
-        attributeType: attrType,
-        value: AttributeValue.fromRaw(attrType, entry.value),
-      );
-    });
-
-    return Credential(
-      info: credInfo,
-      signedOn: DateTime.fromMillisecondsSinceEpoch(
-        rawCredential.signedOn * 1000,
-      ),
-      expires: DateTime.fromMillisecondsSinceEpoch(
-        rawCredential.expires * 1000,
-      ),
-      attributes: attributes,
-      revoked: rawCredential.revoked,
-      hash: rawCredential.hash,
-      format: rawCredential.format,
-      instanceCount: rawCredential.instanceCount,
-    );
-  }
 }
 
 class CredentialInfo {
@@ -263,85 +209,4 @@ class CredentialInfo {
       credentialType: credentialType,
     );
   }
-}
-
-@JsonSerializable(fieldRename: FieldRename.snake)
-class RawCredential {
-  const RawCredential({
-    required this.id,
-    required this.issuerId,
-    required this.schemeManagerId,
-    required this.signedOn,
-    required this.expires,
-    required this.attributes,
-    required this.hash,
-    required this.revoked,
-    required this.revocationSupported,
-    required this.format,
-    required this.instanceCount,
-  });
-
-  final String id;
-
-  final String issuerId;
-
-  final String schemeManagerId;
-
-  final int signedOn;
-
-  final int expires;
-
-  final Map<String, TranslatedValue> attributes;
-
-  final String hash;
-
-  final bool revoked;
-
-  final bool revocationSupported;
-
-  final CredentialFormat format;
-
-  final int? instanceCount;
-
-  factory RawCredential.fromJson(Map<String, dynamic> json) =>
-      _$RawCredentialFromJson(json);
-
-  Map<String, dynamic> toJson() => _$RawCredentialToJson(this);
-
-  String get fullIssuerId => "$schemeManagerId.$issuerId";
-
-  String get fullId => "$fullIssuerId.$id";
-}
-
-// A credential referencing multiple credential instances with the same attribute values and credential type
-// in different credential formats
-class MultiFormatCredential {
-  final String identifier;
-  final bool revoked;
-  final Issuer issuer;
-  final CredentialType credentialType;
-  final List<Attribute> attributes;
-  final Map<CredentialFormat, String> hashByFormat;
-  final DateTime signedOn;
-  final DateTime expires;
-  final int? instanceCount;
-
-  MultiFormatCredential({
-    required this.identifier,
-    required this.credentialType,
-    required this.attributes,
-    required this.hashByFormat,
-    required this.signedOn,
-    required this.expires,
-    required this.revoked,
-    required this.issuer,
-    required this.instanceCount,
-  });
-
-  bool get expired => expires.isBefore(DateTime.now());
-
-  bool get valid =>
-      !expired &&
-      !revoked &&
-      (instanceCount == null ? true : instanceCount != 0);
 }
