@@ -29,16 +29,16 @@ class LoadLogsEvent extends Event {
 
 @JsonEnum(alwaysCreate: true)
 enum LogType {
-  @JsonValue("LogType.disclosure")
+  @JsonValue("disclosure")
   disclosure,
 
-  @JsonValue("LogType.signature")
+  @JsonValue("signature")
   signature,
 
-  @JsonValue("LogType.issuance")
+  @JsonValue("issuance")
   issuance,
 
-  @JsonValue("LogType.removal")
+  @JsonValue("removal")
   removal,
 }
 
@@ -106,6 +106,7 @@ class IssuanceLog {
 
   final List<CredentialLog> credentials;
 
+  @JsonKey(defaultValue: [])
   final List<CredentialLog> disclosedCredentials;
 
   final RequestorInfo issuer;

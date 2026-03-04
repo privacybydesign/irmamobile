@@ -36,10 +36,10 @@ LogInfo _$LogInfoFromJson(Map<String, dynamic> json) => LogInfo(
 );
 
 const _$LogTypeEnumMap = {
-  LogType.disclosure: 'LogType.disclosure',
-  LogType.signature: 'LogType.signature',
-  LogType.issuance: 'LogType.issuance',
-  LogType.removal: 'LogType.removal',
+  LogType.disclosure: 'disclosure',
+  LogType.signature: 'signature',
+  LogType.issuance: 'issuance',
+  LogType.removal: 'removal',
 };
 
 IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
@@ -47,9 +47,11 @@ IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
   credentials: (json['credentials'] as List<dynamic>)
       .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
       .toList(),
-  disclosedCredentials: (json['disclosed_credentials'] as List<dynamic>)
-      .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
-      .toList(),
+  disclosedCredentials:
+      (json['disclosed_credentials'] as List<dynamic>?)
+          ?.map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      [],
   issuer: RequestorInfo.fromJson(json['issuer'] as Map<String, dynamic>),
 );
 
