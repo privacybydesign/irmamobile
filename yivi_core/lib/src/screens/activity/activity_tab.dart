@@ -7,7 +7,6 @@ import "package:intl/intl.dart";
 
 import "../../models/irma_configuration.dart";
 import "../../models/log_entry.dart";
-import "../../models/session_events.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/combine.dart";
@@ -38,13 +37,10 @@ class _ActivityTabState extends State<ActivityTab> {
       if (!mounted) {
         return;
       }
-      _repoStateSubscription = IrmaRepositoryProvider.of(context)
-          .getEvents()
-          .listen((event) {
-            if (event is SuccessSessionEvent) {
-              _loadInitialLogs();
-            }
-          });
+      // TODO: listen for session success to refresh logs
+      _repoStateSubscription = IrmaRepositoryProvider.of(
+        context,
+      ).getEvents().listen((event) {});
     });
   }
 

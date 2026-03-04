@@ -1,13 +1,11 @@
+import "dart:collection";
 import "dart:math";
 
-import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 import "package:rxdart/rxdart.dart";
 
 import "../models/attribute.dart";
-import "../models/credentials.dart";
 import "../models/protocol.dart";
-import "../models/return_url.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_state.dart";
@@ -85,44 +83,8 @@ class SessionRepository {
     OpenID4VciSessionState prevState,
     SessionEvent event,
   ) {
-    if (event
-        is RequestAuthorizationCodeFlowSessionEvent) {
-      return prevState.copyWith(
-        requestorInfo: event.requestorInfo,
-        credentialInfoList: event.credentialInfoList,
-        grantType: "authorization_code",
-        authorizationCodeRequestParameters:
-            AuthorizationCodeRequestParametersState(
-              authorizationCodeStateSalt: generateSalt(),
-              authorizationRequestUrl: event.authorizationRequestUrl,
-            ),
-      );
-    }
-
-    if (event is RequestPreAuthorizedCodeFlowPermissionSessionEvent) {
-      PreAuthorizationCodeTransactionCodeParametersState? transactionCodeState;
-      if (event.transactionCodeParameters != null) {
-        transactionCodeState =
-            PreAuthorizationCodeTransactionCodeParametersState(
-              inputMode: event.transactionCodeParameters!.inputMode,
-              length: event.transactionCodeParameters!.length,
-              description: event.transactionCodeParameters!.description,
-            );
-      }
-
-      return prevState.copyWith(
-        requestorInfo: event.requestorInfo,
-        credentialInfoList: event.credentialInfoList,
-        grantType: "pre-authorized_code",
-        transactionCodeParameters: transactionCodeState,
-      );
-    }
-
     if (event is RespondAuthorizationCodeEvent) {
       return prevState;
-    }
-    if (event is FailureSessionEvent) {
-      return prevState.copyWith(error: event.error);
     }
     debugPrint("Unknown event: $event for state $prevState");
     return prevState;
@@ -132,105 +94,7 @@ class SessionRepository {
     IrmaSessionState prevState,
     SessionEvent event,
   ) {
-    if (event is FailureSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: event.error,
-      );
-    } else if (event is KeyshareEnrollmentMissingSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: SessionError(
-          errorType: "keyshareEnrollmentMissing",
-          info:
-              "user not activated at the keyshare server of scheme ${event.schemeManagerID}",
-        ),
-      );
-    } else if (event is KeyshareEnrollmentIncompleteSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: SessionError(
-          errorType: "keyshareEnrollmentIncomplete",
-          info:
-              "user enrollment incomplete at the keyshare server of scheme ${event.schemeManagerID}",
-        ),
-      );
-    } else if (event is KeyshareEnrollmentDeletedSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: SessionError(
-          errorType: "keyshareEnrollmentDeleted",
-          info:
-              "user deleted at the keyshare server of scheme ${event.schemeManagerID}",
-        ),
-      );
-    } else if (event is StatusUpdateSessionEvent) {
-      return prevState.copyWith(status: event.status.toSessionStatus());
-    } else if (event is ClientReturnURLSetSessionEvent) {
-      return prevState.copyWith(
-        clientReturnURL: ReturnURL.parse(event.clientReturnURL),
-      );
-    } else if (event is PairingRequiredSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.pairing,
-        pairingCode: event.pairingCode,
-      );
-    } else if (event is RequestIssuancePermissionSessionEvent) {
-      try {
-        _validateCandidates(event.disclosuresCandidates);
-      } on SessionError catch (e) {
-        return prevState.copyWith(status: SessionStatus.error, error: e);
-      }
-      // All discons must have an option to choose from. Otherwise the session can never be finished.
-      final canBeFinished = event.disclosuresCandidates.every(
-        (discon) => discon.isNotEmpty,
-      );
-
-      final issuedCredentials = event.issuedCredentials.map((raw) {
-        return MultiFormatCredential.fromRawMultiFormatCredential(
-          raw,
-          repo.irmaConfiguration,
-        );
-      }).toList();
-
-      return prevState.copyWith(
-        status: event.disclosuresCandidates.isEmpty
-            ? SessionStatus.requestIssuancePermission
-            : SessionStatus.requestDisclosurePermission,
-        serverName: event.serverName,
-        satisfiable: event.satisfiable,
-        canBeFinished: canBeFinished,
-        isSignatureSession: false,
-        disclosuresCandidates: ConDisCon.fromRaw(
-          event.disclosuresCandidates,
-          (DisclosureCandidate dc) => dc,
-        ),
-        issuedCredentials: issuedCredentials,
-      );
-    } else if (event is RequestVerificationPermissionSessionEvent) {
-      try {
-        _validateCandidates(event.disclosuresCandidates);
-      } on SessionError catch (e) {
-        return prevState.copyWith(status: SessionStatus.error, error: e);
-      }
-      // All discons must have an option to choose from. Otherwise the session can never be finished.
-      final canBeFinished = event.disclosuresCandidates.every(
-        (discon) => discon.isNotEmpty,
-      );
-
-      return prevState.copyWith(
-        status: SessionStatus.requestDisclosurePermission,
-        serverName: event.serverName,
-        satisfiable: event.satisfiable,
-        canBeFinished: canBeFinished,
-        isSignatureSession: event.isSignatureSession,
-        signedMessage: event.signedMessage,
-        disclosuresCandidates: ConDisCon.fromRaw(
-          event.disclosuresCandidates,
-          (DisclosureCandidate dc) => dc,
-        ),
-      );
-    } else if (event is ContinueToIssuanceEvent) {
+    if (event is ContinueToIssuanceEvent) {
       return prevState.copyWith(
         status: SessionStatus.requestIssuancePermission,
         disclosureChoices: ConCon.fromRaw(
@@ -238,12 +102,6 @@ class SessionRepository {
           (AttributeIdentifier attrId) => attrId,
         ),
       );
-    } else if (event is SuccessSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.success);
-    } else if (event is CanceledSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.canceled);
-    } else if (event is RequestPinSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.requestPin);
     } else if (event is RespondPermissionEvent) {
       return prevState.copyWith(
         status: SessionStatus.communicating,
@@ -258,25 +116,6 @@ class SessionRepository {
     }
 
     return prevState;
-  }
-
-  void _validateCandidates(List<List<List<DisclosureCandidate>>> candidates) {
-    for (final discon in candidates) {
-      for (final con in discon) {
-        for (final cand in con) {
-          // We support cand.type consisting of four dot-separated parts; three parts is forbidden here;
-          // any other amount of parts is forbidden by irmago before we end up here
-          if (cand.type.split(".").length == 3) {
-            throw SessionError(
-              errorType: "notSupported",
-              info: "non-attribute disclosures are not supported",
-              wrappedError:
-                  '"${cand.type}" consists of three parts; four expected',
-            );
-          }
-        }
-      }
-    }
   }
 
   SessionState? getCurrentSessionState(int sessionID) =>
@@ -314,5 +153,4 @@ class SessionRepository {
     }
     return randomBytes;
   }
-
 }

@@ -50,13 +50,16 @@ class Attribute {
 
   final TranslatedValue description;
 
-  final AttributeValue value;
+  final AttributeValue? value;
+
+  final AttributeValue? requestedValue;
 
   Attribute({
     required this.id,
     required this.displayName,
     required this.description,
-    required this.value,
+    this.value,
+    this.requestedValue,
   });
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>

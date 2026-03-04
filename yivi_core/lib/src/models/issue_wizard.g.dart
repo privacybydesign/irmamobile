@@ -6,30 +6,6 @@ part of 'issue_wizard.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-GetIssueWizardContentsEvent _$GetIssueWizardContentsEventFromJson(
-  Map<String, dynamic> json,
-) => GetIssueWizardContentsEvent(id: json['id'] as String);
-
-Map<String, dynamic> _$GetIssueWizardContentsEventToJson(
-  GetIssueWizardContentsEvent instance,
-) => <String, dynamic>{'id': instance.id};
-
-IssueWizardContentsEvent _$IssueWizardContentsEventFromJson(
-  Map<String, dynamic> json,
-) => IssueWizardContentsEvent(
-  id: json['id'] as String,
-  wizardContents: (json['wizard_contents'] as List<dynamic>)
-      .map((e) => IssueWizardItem.fromJson(e as Map<String, dynamic>))
-      .toList(),
-);
-
-Map<String, dynamic> _$IssueWizardContentsEventToJson(
-  IssueWizardContentsEvent instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'wizard_contents': instance.wizardContents,
-};
-
 IssueWizard _$IssueWizardFromJson(Map<String, dynamic> json) => IssueWizard(
   id: json['id'] as String,
   title: TranslatedValue.fromJson(json['title'] as Map<String, dynamic>?),

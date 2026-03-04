@@ -16,7 +16,6 @@ import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
-import "../models/credential_events.dart";
 import "../models/credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
@@ -177,13 +176,6 @@ class IrmaRepository {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
-    } else if (event is CredentialsEvent) {
-      _credentialsSubject.add(
-        Credentials.fromRaw(
-          irmaConfiguration: await _irmaConfigurationSubject.first,
-          rawCredentials: event.credentials,
-        ),
-      );
     } else if (event is schemaless.SchemalessCredentialsEvent) {
       _schemalessCredentialsSubject.add(event.credentials);
     } else if (event is SchemalessCredentialStoreEvent) {
@@ -216,7 +208,7 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
-// --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
+        // --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
         if (event.url.startsWith("yivi-app://callback")) {
           final uri = Uri.parse(event.url);
           final state = uri.queryParameters["state"];
@@ -227,7 +219,9 @@ class IrmaRepository {
             );
           }
           // find session with matching state
-          final session = await _sessionRepository.getSessionStateByState(state);
+          final session = await _sessionRepository.getSessionStateByState(
+            state,
+          );
           if (session == null) {
             throw MissingPointer(
               details: "no session found matching state $state",
@@ -253,11 +247,12 @@ class IrmaRepository {
             );
           } else {
             throw MissingPointer(
-              details: "session with state $state is not an OpenID4VciSessionState",
+              details:
+                  "session with state $state is not an OpenID4VciSessionState",
             );
           }
         }
-// --- END TODO
+        // --- END TODO
 
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
@@ -281,14 +276,6 @@ class IrmaRepository {
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
-    } else if (event is IssueWizardContentsEvent) {
-      _issueWizardSubject.add(
-        await processIssueWizard(
-          event.id,
-          event.wizardContents,
-          await _credentialsSubject.first,
-        ),
-      );
     }
   }
 

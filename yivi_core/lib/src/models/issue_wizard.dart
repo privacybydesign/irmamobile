@@ -8,30 +8,6 @@ part "issue_wizard.g.dart";
 
 // TODO: remove issue wizard support
 
-@JsonSerializable(fieldRename: FieldRename.snake)
-class GetIssueWizardContentsEvent extends Event {
-  GetIssueWizardContentsEvent({required this.id});
-
-  final String id;
-
-  factory GetIssueWizardContentsEvent.fromJson(Map<String, dynamic> json) =>
-      _$GetIssueWizardContentsEventFromJson(json);
-  Map<String, dynamic> toJson() => _$GetIssueWizardContentsEventToJson(this);
-}
-
-@JsonSerializable(fieldRename: FieldRename.snake)
-class IssueWizardContentsEvent extends Event {
-  IssueWizardContentsEvent({required this.id, required this.wizardContents});
-
-  final String id;
-
-  final List<IssueWizardItem> wizardContents;
-
-  factory IssueWizardContentsEvent.fromJson(Map<String, dynamic> json) =>
-      _$IssueWizardContentsEventFromJson(json);
-  Map<String, dynamic> toJson() => _$IssueWizardContentsEventToJson(this);
-}
-
 class IssueWizardEvent extends Event {
   IssueWizardEvent({
     required this.wizardData,

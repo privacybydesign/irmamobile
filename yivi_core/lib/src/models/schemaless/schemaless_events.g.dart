@@ -45,7 +45,14 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
   description: TranslatedValue.fromJson(
     json['description'] as Map<String, dynamic>?,
   ),
-  value: AttributeValue.fromJson(json['value'] as Map<String, dynamic>),
+  value: json['value'] == null
+      ? null
+      : AttributeValue.fromJson(json['value'] as Map<String, dynamic>),
+  requestedValue: json['requested_value'] == null
+      ? null
+      : AttributeValue.fromJson(
+          json['requested_value'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
@@ -53,6 +60,7 @@ Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
   'display_name': instance.displayName,
   'description': instance.description,
   'value': instance.value,
+  'requested_value': instance.requestedValue,
 };
 
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(

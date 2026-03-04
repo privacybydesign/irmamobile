@@ -4,7 +4,6 @@ import "package:flutter/material.dart";
 
 import "../../../models/irma_configuration.dart";
 import "../../../models/log_entry.dart";
-import "../../../models/session_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/combine.dart";
@@ -37,13 +36,10 @@ class _RecentActivityState extends State<RecentActivity> {
     } catch (_) {
       _loadLogs();
       _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
-      _repoStateSubscription = IrmaRepositoryProvider.of(context)
-          .getEvents()
-          .listen((event) {
-            if (event is SuccessSessionEvent) {
-              _loadLogs();
-            }
-          });
+      // TODO: listen for session success to refresh logs
+      _repoStateSubscription = IrmaRepositoryProvider.of(
+        context,
+      ).getEvents().listen((event) {});
     }
   }
 

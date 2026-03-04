@@ -53,11 +53,11 @@ class _AttributeView extends StatelessWidget {
 
     Text buildTextContent(schemaless.Attribute attribute) {
       return Text(
-        attribute.value.data as String,
+        attribute.value?.data as String? ?? "",
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
           color: compareTo == null
               ? theme.dark
-              : attribute.value.data == compareTo!.data
+              : attribute.value?.data == compareTo!.data
               ? theme.success
               : theme.error,
         ),
@@ -66,14 +66,14 @@ class _AttributeView extends StatelessWidget {
 
     Text buildTranslatedTextContent(schemaless.Attribute attribute) {
       final txt = TranslatedValue.fromJson(
-        attribute.value.data as Map<String, dynamic>,
+        attribute.value?.data as Map<String, dynamic>? ?? {},
       );
       return Text(
         txt.translate(lang),
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
           color: compareTo == null
               ? theme.dark
-              : attribute.value.data == compareTo!.data
+              : attribute.value?.data == compareTo!.data
               ? theme.success
               : theme.error,
         ),
@@ -82,7 +82,7 @@ class _AttributeView extends StatelessWidget {
 
     GestureDetector buildTappableImage(schemaless.Attribute attribute) {
       final imageContent = TranslatedValue.fromJson(
-        attribute.value.data as Map<String, dynamic>,
+        attribute.value?.data as Map<String, dynamic>? ?? {},
       ).translate(lang);
       final image = _imageFromRaw(imageContent);
       return GestureDetector(
@@ -113,16 +113,19 @@ class _AttributeView extends StatelessWidget {
         crossAxisAlignment: .start,
         children: [
           buildLabel(attribute),
-          switch (attribute.value.type) {
-            .string => buildTextContent(attribute),
-            .translatedString => buildTranslatedTextContent(attribute),
-            .image => buildTappableImage(attribute),
-            .base64Image => buildTappableImage(attribute),
-            .boolean => throw UnimplementedError(),
-            .integer => throw UnimplementedError(),
-            .object => throw UnimplementedError(),
-            .array => throw UnimplementedError(),
-          },
+          if (attribute.value == null)
+            Text("", style: theme.themeData.textTheme.bodyLarge)
+          else
+            switch (attribute.value!.type) {
+              .string => buildTextContent(attribute),
+              .translatedString => buildTranslatedTextContent(attribute),
+              .image => buildTappableImage(attribute),
+              .base64Image => buildTappableImage(attribute),
+              .boolean => throw UnimplementedError(),
+              .integer => throw UnimplementedError(),
+              .object => throw UnimplementedError(),
+              .array => throw UnimplementedError(),
+            },
         ],
       ),
     );

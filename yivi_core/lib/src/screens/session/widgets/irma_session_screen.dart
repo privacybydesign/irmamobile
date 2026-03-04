@@ -8,7 +8,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "../../../data/irma_repository.dart";
 import "../../../models/native_events.dart";
 import "../../../models/return_url.dart";
-import "../../../models/session.dart";
 import "../../../models/session_events.dart";
 import "../../../models/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
@@ -102,12 +101,10 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
   }
 
   /// Opens the given clientReturnUrl in the in-app browser, if the url is suitable for the in-app browser, otherwise
-  /// the URL is opened externally. In case the URL cannot be opened, a FailureSessionEvent is dispatched. In case
-  /// of a silentFailure, only an error report is made for Sentry.
+  /// the URL is opened externally. In case the URL cannot be opened, an error report is made for Sentry.
   Future<bool> _openClientReturnUrl(
     ReturnURL clientReturnUrl, {
     bool alwaysOpenExternally = false,
-    bool silentFailure = false,
   }) async {
     try {
       if (clientReturnUrl.isInApp && !alwaysOpenExternally) {
@@ -117,20 +114,7 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
       }
       return true;
     } catch (e, stackTrace) {
-      if (silentFailure) {
-        reportError(e, stackTrace);
-      } else {
-        _repo.dispatch(
-          FailureSessionEvent(
-            sessionID: widget.params.sessionID,
-            error: SessionError(
-              errorType: "clientReturnUrl",
-              info: "the clientReturnUrl could not be handled",
-              wrappedError: e.toString(),
-            ),
-          ),
-        );
-      }
+      reportError(e, stackTrace);
       return false;
     }
   }
@@ -190,18 +174,8 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
             if (mounted) {
               context.goHomeScreen();
             }
-          } catch (e) {
-            _repo.dispatch(
-              FailureSessionEvent(
-                sessionID: widget.params.sessionID,
-                error: SessionError(
-                  errorType: "clientReturnUrl",
-                  info:
-                      "the phone number in the clientReturnUrl could not be handled",
-                  wrappedError: e.toString(),
-                ),
-              ),
-            );
+          } catch (e, stackTrace) {
+            reportError(e, stackTrace);
           }
         },
         onCancel: context.goHomeScreen,
@@ -326,11 +300,9 @@ class _IrmaSessionScreenState extends State<IrmaSessionScreen> {
               !session.clientReturnURL!.isPhoneNumber) {
             // If the error was caused by the client return url itself, we should not open it again.
             if (session.error?.errorType != "clientReturnUrl") {
-              // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
               await _openClientReturnUrl(
                 session.clientReturnURL!,
                 alwaysOpenExternally: true,
-                silentFailure: true,
               );
             }
             if (mounted) {

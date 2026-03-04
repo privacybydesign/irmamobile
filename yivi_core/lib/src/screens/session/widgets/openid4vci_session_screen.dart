@@ -160,15 +160,16 @@ class _OpenID4VciSessionScreenState
 
   Future<void> _signInWithAutoCodeFlow(OpenID4VciSessionState state) async {
     final s = state.generateSessionState();
-    final url = Uri.parse(state.authorizationCodeRequestParameters!.authorizationRequestUrl);
-    final urlWithState = url.replace(queryParameters: {
-      ...url.queryParameters,
-      "state": s,
-    }).toString();
+    final url = Uri.parse(
+      state.authorizationCodeRequestParameters!.authorizationRequestUrl,
+    );
+    final urlWithState = url
+        .replace(queryParameters: {...url.queryParameters, "state": s})
+        .toString();
 
     ref.read(irmaRepositoryProvider).openURLinAppBrowser(urlWithState);
 
-//    ref.read(irmaRepositoryProvider).openURLExternally(urlWithState);
+    //    ref.read(irmaRepositoryProvider).openURLExternally(urlWithState);
   }
 
   Future<void> _signInWithPreAuthorizedCode(

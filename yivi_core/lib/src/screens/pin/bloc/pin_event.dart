@@ -41,25 +41,8 @@ class SessionPin extends Authenticate {
       RespondPinEvent(sessionID: sessionID, pin: pin, proceed: true),
     );
 
-    final resultEvent = repo.getEvents().firstWhere((event) {
-      return event is SessionEvent && event.sessionID == sessionID;
-    });
-    return resultEvent.then((event) {
-      if (event is KeyshareBlockedSessionEvent) {
-        return AuthenticationFailedEvent(
-          remainingAttempts: 0,
-          blockedDuration: event.duration,
-        );
-      } else if (event is RequestPinSessionEvent) {
-        return AuthenticationFailedEvent(
-          remainingAttempts: event.remainingAttempts,
-          blockedDuration: 0,
-        );
-      } else {
-        // Other errors are not authentication related, so the calling widget has to solve those.
-        return AuthenticationSuccessEvent();
-      }
-    });
+    // TODO: handle session pin response events from new session state model
+    return Future.value(AuthenticationSuccessEvent());
   }
 }
 

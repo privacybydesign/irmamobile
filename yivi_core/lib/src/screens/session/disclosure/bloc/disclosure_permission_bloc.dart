@@ -45,17 +45,8 @@ class DisclosurePermissionBloc
   }) : _repo = repo,
        _newlyAddedCredentialHashes = [],
        super(DisclosurePermissionInitial()) {
-    _sessionEventSubscription = repo
-        .getEvents()
-        .whereType<RequestIssuancePermissionSessionEvent>()
-        .expand(
-          (event) => event.issuedCredentials.map((cred) {
-            return cred.hashByFormat.values;
-          }),
-        )
-        .listen((values) {
-          _newlyAddedCredentialHashes.addAll(values);
-        });
+    // TODO: track newly added credential hashes from new session state model
+    _sessionEventSubscription = repo.getEvents().listen((_) {});
     repo.preferences.getCompletedDisclosurePermissionIntro().first.then((
       introCompleted,
     ) {

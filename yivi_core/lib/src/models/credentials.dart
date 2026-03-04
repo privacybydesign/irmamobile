@@ -315,60 +315,6 @@ class RawCredential {
 
 // A credential referencing multiple credential instances with the same attribute values and credential type
 // in different credential formats
-@JsonSerializable(fieldRename: FieldRename.snake)
-class RawMultiFormatCredential {
-  final String id;
-
-  final String issuerId;
-
-  final String schemeManagerId;
-
-  final bool revoked;
-
-  final Map<String, TranslatedValue> attributes;
-
-  final Map<CredentialFormat, String> hashByFormat;
-
-  final int signedOn;
-
-  final int expires;
-
-  final int? instanceCount;
-
-  RawMultiFormatCredential({
-    required this.id,
-    required this.issuerId,
-    required this.schemeManagerId,
-    required this.attributes,
-    required this.hashByFormat,
-    required this.signedOn,
-    required this.expires,
-    required this.revoked,
-    required this.instanceCount,
-  });
-
-  static RawMultiFormatCredential fromRawCredential(RawCredential cred) {
-    return RawMultiFormatCredential(
-      id: cred.id,
-      issuerId: cred.issuerId,
-      schemeManagerId: cred.schemeManagerId,
-      attributes: cred.attributes,
-      hashByFormat: {cred.format: cred.hash},
-      signedOn: cred.signedOn,
-      expires: cred.expires,
-      revoked: cred.revoked,
-      instanceCount: cred.instanceCount,
-    );
-  }
-
-  factory RawMultiFormatCredential.fromJson(Map<String, dynamic> json) =>
-      _$RawMultiFormatCredentialFromJson(json);
-
-  Map<String, dynamic> toJson() => _$RawMultiFormatCredentialToJson(this);
-}
-
-// A credential referencing multiple credential instances with the same attribute values and credential type
-// in different credential formats
 class MultiFormatCredential {
   final String identifier;
   final bool revoked;
@@ -391,63 +337,6 @@ class MultiFormatCredential {
     required this.issuer,
     required this.instanceCount,
   });
-
-  static MultiFormatCredential fromRawMultiFormatCredential(
-    RawMultiFormatCredential raw,
-    IrmaConfiguration config,
-  ) {
-    final credInfo = CredentialInfo.fromConfiguration(
-      irmaConfiguration: config,
-      credentialIdentifier: "${raw.schemeManagerId}.${raw.issuerId}.${raw.id}",
-    );
-
-    final attributes = raw.attributes.entries.map((entry) {
-      final attrType = config.attributeTypes[entry.key];
-      if (attrType == null) {
-        throw Exception(
-          "Attribute type $attrType not present in configuration",
-        );
-      }
-
-      return Attribute(
-        attributeType: attrType,
-        value: AttributeValue.fromRaw(attrType, entry.value),
-      );
-    }).toList();
-
-    assert(
-      attributes.every(
-        (attr) => attr.attributeType.fullCredentialId == credInfo.fullId,
-      ),
-    );
-    // Sort by display index if every attribute has one. Otherwise, we sort on regular index.
-    if (attributes.every((attr) => attr.attributeType.displayIndex != null)) {
-      attributes.sort(
-        (a1, a2) => a1.attributeType.displayIndex!.compareTo(
-          a2.attributeType.displayIndex!,
-        ),
-      );
-    } else {
-      attributes.sort(
-        (a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index),
-      );
-    }
-
-    final signedOn = DateTime.fromMillisecondsSinceEpoch(raw.signedOn * 1000);
-    final expires = DateTime.fromMillisecondsSinceEpoch(raw.expires * 1000);
-
-    return MultiFormatCredential(
-      identifier: credInfo.fullId,
-      credentialType: credInfo.credentialType,
-      attributes: attributes,
-      hashByFormat: raw.hashByFormat,
-      signedOn: signedOn,
-      expires: expires,
-      revoked: raw.revoked,
-      issuer: credInfo.issuer,
-      instanceCount: raw.instanceCount,
-    );
-  }
 
   bool get expired => expires.isBefore(DateTime.now());
 

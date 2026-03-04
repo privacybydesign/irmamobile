@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 
-import "../models/issue_wizard.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../providers/irma_repository_provider.dart";
@@ -50,9 +49,6 @@ Future<void> _startIssueWizard(
   int? sessionID,
   bool pushReplacement,
 ) async {
-  final repo = IrmaRepositoryProvider.of(context);
-  repo.bridgedDispatch(GetIssueWizardContentsEvent(id: wizardPointer.wizard));
-
   // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
   // to the wallet, then the session screen is automatically dismissed, which cancels the session.
   final params = IssueWizardRouteParams(

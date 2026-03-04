@@ -6,16 +6,6 @@ part of 'credential_events.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CredentialsEvent _$CredentialsEventFromJson(Map<String, dynamic> json) =>
-    CredentialsEvent(
-      credentials: (json['credentials'] as List<dynamic>)
-          .map((e) => RawCredential.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-
-Map<String, dynamic> _$CredentialsEventToJson(CredentialsEvent instance) =>
-    <String, dynamic>{'credentials': instance.credentials};
-
 DeleteCredentialEvent _$DeleteCredentialEventFromJson(
   Map<String, dynamic> json,
 ) => DeleteCredentialEvent(

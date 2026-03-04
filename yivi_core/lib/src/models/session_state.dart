@@ -90,12 +90,20 @@ class OpenID4VciSessionState extends SessionState {
   @override
   bool get isIssuanceSession => true;
 
-  
   String generateSessionState() {
-    if (authorizationCodeRequestParameters == null || authorizationCodeRequestParameters!.authorizationCodeStateSalt.isEmpty) {
-      throw Exception("Salt is required to be set before generating session state");
+    if (authorizationCodeRequestParameters == null ||
+        authorizationCodeRequestParameters!
+            .authorizationCodeStateSalt
+            .isEmpty) {
+      throw Exception(
+        "Salt is required to be set before generating session state",
+      );
     }
-    final d = sha256.convert(utf8.encode("$sessionID.${base64UrlEncode(authorizationCodeRequestParameters!.authorizationCodeStateSalt)}"));
+    final d = sha256.convert(
+      utf8.encode(
+        "$sessionID.${base64UrlEncode(authorizationCodeRequestParameters!.authorizationCodeStateSalt)}",
+      ),
+    );
     return base64UrlEncode(d.bytes);
   }
 }
