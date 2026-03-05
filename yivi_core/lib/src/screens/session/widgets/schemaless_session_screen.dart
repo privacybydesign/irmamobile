@@ -87,7 +87,7 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
         onGivePermission: () => _repo.bridgedDispatch(
           RespondPermissionEvent(
             sessionId: widget.sessionId,
-            proceed: true,
+            granted: true,
             disclosureChoices: [],
           ),
         ),

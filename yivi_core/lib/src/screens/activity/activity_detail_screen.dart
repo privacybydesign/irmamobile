@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 
-import "../../models/irma_configuration.dart";
 import "../../models/log_entry.dart";
 import "../../theme/theme.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -13,21 +12,15 @@ import "widgets/activity_detail_removal.dart";
 
 class ActivityDetailsScreenArgs {
   final LogInfo logEntry;
-  final IrmaConfiguration irmaConfiguration;
 
-  ActivityDetailsScreenArgs({
-    required this.logEntry,
-    required this.irmaConfiguration,
-  });
+  ActivityDetailsScreenArgs({required this.logEntry});
 }
 
 class ActivityDetailsScreen extends StatelessWidget {
   final LogInfo logEntry;
-  final IrmaConfiguration irmaConfiguration;
 
   ActivityDetailsScreen({required ActivityDetailsScreenArgs args})
-    : logEntry = args.logEntry,
-      irmaConfiguration = args.irmaConfiguration;
+    : logEntry = args.logEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -49,18 +42,13 @@ class ActivityDetailsScreen extends StatelessWidget {
                 Builder(
                   builder: (context) {
                     return switch (logEntry.type) {
-                      LogType.disclosure ||
-                      LogType.signature => ActivityDetailDisclosure(
-                        logEntry: logEntry,
-                        irmaConfiguration: irmaConfiguration,
-                      ),
+                      LogType.disclosure || LogType.signature =>
+                        ActivityDetailDisclosure(logEntry: logEntry),
                       LogType.issuance => ActivityDetailIssuance(
                         logEntry: logEntry,
-                        irmaConfiguration: irmaConfiguration,
                       ),
                       LogType.removal => ActivityDetailRemoval(
                         logEntry: logEntry,
-                        irmaConfiguration: irmaConfiguration,
                       ),
                     };
                   },

@@ -7,7 +7,6 @@ import "../../models/attribute_value.dart";
 import "../../models/credentials.dart";
 import "../../models/irma_configuration.dart";
 import "../../models/log_entry.dart";
-import "../../models/translated_value.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
@@ -71,45 +70,6 @@ class YiviCredentialCard extends ConsumerWidget {
     this.isTemplate = false,
     this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   });
-
-  static YiviCredentialCard fromCredentialLog(
-    IrmaConfiguration irmaConfiguration,
-    CredentialLog credential, {
-    required bool compact,
-  }) {
-    final attributes = credential.attributes.entries.map((entry) {
-      final attributeId = "${credential.credentialType}.${entry.key}";
-      final attributeType = irmaConfiguration.attributeTypes[attributeId];
-      final attributeValue = AttributeValue.fromRaw(
-        attributeType!,
-        TranslatedValue({
-          "": entry.value,
-          "en": entry.value,
-          "nl": entry.value,
-        }),
-      );
-      return Attribute(attributeType: attributeType, value: attributeValue);
-    }).toList();
-
-    final credentialView = CredentialView.fromAttributes(
-      irmaConfiguration: irmaConfiguration,
-      attributes: attributes,
-    );
-
-    return YiviCredentialCard(
-      compact: compact,
-      valid: credentialView.valid,
-      type: credentialView.credentialType,
-      issuer: credentialView.issuer,
-      expired: credentialView.expired,
-      revoked: credentialView.revoked,
-      hashByFormat: Map.fromEntries(
-        credential.formats.map((f) => MapEntry(f, "")),
-      ),
-      attributes: credentialView.attributes,
-      hideFooter: true,
-    );
-  }
 
   YiviCredentialCard.fromCredential(
     Credential credential, {

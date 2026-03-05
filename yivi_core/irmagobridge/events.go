@@ -163,7 +163,7 @@ type sessionStateEvent struct {
 }
 
 type logsEvent struct {
-	LogEntries []irmaclient.LogInfo `json:"log_entries"`
+	LogEntries []client.LogInfo `json:"log_entries"`
 }
 
 // //

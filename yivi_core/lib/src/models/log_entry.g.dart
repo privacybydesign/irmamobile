@@ -45,11 +45,11 @@ const _$LogTypeEnumMap = {
 IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
   protocol: stringToProtocol(json['protocol'] as String),
   credentials: (json['credentials'] as List<dynamic>)
-      .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+      .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
       .toList(),
   disclosedCredentials:
       (json['disclosed_credentials'] as List<dynamic>?)
-          ?.map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
           .toList() ??
       [],
   issuer: RequestorInfo.fromJson(json['issuer'] as Map<String, dynamic>),
@@ -59,7 +59,7 @@ DisclosureLog _$DisclosureLogFromJson(Map<String, dynamic> json) =>
     DisclosureLog(
       protocol: stringToProtocol(json['protocol'] as String),
       credentials: (json['credentials'] as List<dynamic>)
-          .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+          .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
       verifier: RequestorInfo.fromJson(
         json['verifier'] as Map<String, dynamic>,
@@ -70,7 +70,7 @@ SignedMessageLog _$SignedMessageLogFromJson(Map<String, dynamic> json) =>
     SignedMessageLog(
       protocol: stringToProtocol(json['protocol'] as String),
       credentials: (json['credentials'] as List<dynamic>)
-          .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+          .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
       verifier: RequestorInfo.fromJson(
         json['verifier'] as Map<String, dynamic>,
@@ -80,17 +80,31 @@ SignedMessageLog _$SignedMessageLogFromJson(Map<String, dynamic> json) =>
 
 RemovalLog _$RemovalLogFromJson(Map<String, dynamic> json) => RemovalLog(
   credentials: (json['credentials'] as List<dynamic>)
-      .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+      .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
 
-CredentialLog _$CredentialLogFromJson(Map<String, dynamic> json) =>
-    CredentialLog(
+LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
+    LogCredential(
+      credentialId: json['credential_id'] as String,
       formats: (json['formats'] as List<dynamic>)
           .map((e) => $enumDecode(_$CredentialFormatEnumMap, e))
           .toList(),
-      credentialType: json['credential_type'] as String,
-      attributes: Map<String, String>.from(json['attributes'] as Map),
+      imagePath: json['image_path'] as String,
+      name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+      issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
+      attributes: (json['attributes'] as List<dynamic>)
+          .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      issuanceDate: (json['issuance_date'] as num).toInt(),
+      expiryDate: (json['expiry_date'] as num).toInt(),
+      revoked: json['revoked'] as bool,
+      revocationSupported: json['revocation_supported'] as bool,
+      issueUrl: json['issue_url'] == null
+          ? null
+          : TranslatedValue.fromJson(
+              json['issue_url'] as Map<String, dynamic>?,
+            ),
     );
 
 const _$CredentialFormatEnumMap = {

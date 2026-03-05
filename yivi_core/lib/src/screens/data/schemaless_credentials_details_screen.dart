@@ -135,34 +135,33 @@ class _CredentialsDetailsScreenState
             crossAxisAlignment: .start,
             children: [
               SizedBox(height: theme.defaultSpacing),
-              ...credentials.map(
-                (cred) {
-                  final isDeletable = cred.credentialInstanceIds.isNotEmpty;
-                  final isReobtainable =
-                      cred.issueUrl.translate(lang, fallback: "").isNotEmpty;
+              ...credentials.map((cred) {
+                final isDeletable = cred.credentialInstanceIds.isNotEmpty;
+                final isReobtainable = cred.issueUrl
+                    .translate(lang, fallback: "")
+                    .isNotEmpty;
 
-                  return Padding(
-                    padding: .only(bottom: theme.defaultSpacing),
-                    child: SchemalessYiviCredentialCard(
-                      credential: cred,
-                      compact: false,
-                      headerTrailing: isDeletable || isReobtainable
-                          ? Transform.translate(
-                              offset: Offset(theme.smallSpacing, -10),
-                              child: IconButton(
-                                onPressed: () =>
-                                    _showCredentialOptionsBottomSheet(
-                                      context,
-                                      cred,
-                                    ),
-                                icon: const Icon(Icons.more_horiz_sharp),
-                              ),
-                            )
-                          : null,
-                    ),
-                  );
-                },
-              ),
+                return Padding(
+                  padding: .only(bottom: theme.defaultSpacing),
+                  child: SchemalessYiviCredentialCard(
+                    credential: cred,
+                    compact: false,
+                    headerTrailing: isDeletable || isReobtainable
+                        ? Transform.translate(
+                            offset: Offset(theme.smallSpacing, -10),
+                            child: IconButton(
+                              onPressed: () =>
+                                  _showCredentialOptionsBottomSheet(
+                                    context,
+                                    cred,
+                                  ),
+                              icon: const Icon(Icons.more_horiz_sharp),
+                            ),
+                          )
+                        : null,
+                  ),
+                );
+              }),
               SizedBox(height: theme.largeSpacing),
             ],
           ),
@@ -176,8 +175,9 @@ class _CredentialsDetailsScreenState
     schemaless.Credential cred,
   ) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final isReobtainable =
-        cred.issueUrl.translate(lang, fallback: "").isNotEmpty;
+    final isReobtainable = cred.issueUrl
+        .translate(lang, fallback: "")
+        .isNotEmpty;
 
     showModalBottomSheet(
       context: context,

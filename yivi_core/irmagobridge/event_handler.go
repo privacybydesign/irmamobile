@@ -7,7 +7,6 @@ import (
 	"github.com/go-errors/errors"
 	"github.com/privacybydesign/irmago/client"
 	"github.com/privacybydesign/irmago/irma"
-	"github.com/privacybydesign/irmago/irma/irmaclient"
 )
 
 type eventHandler struct{}
@@ -198,7 +197,7 @@ func (ah *eventHandler) updateSchemes() error {
 }
 
 func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
-	var logEntries []irmaclient.LogInfo
+	var logEntries []client.LogInfo
 	var err error
 
 	// When before is not sent, it gets Go's default value 0 and 0 is never a valid id

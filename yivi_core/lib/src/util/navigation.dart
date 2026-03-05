@@ -121,11 +121,8 @@ extension RoutingHelpers on BuildContext {
     push("/change_pin");
   }
 
-  void pushActivityDetailsScreen({
-    required LogInfo logInfo,
-    required IrmaConfiguration config,
-  }) {
-    push("/home/activity_details", extra: (logInfo, config));
+  void pushActivityDetailsScreen({required LogInfo logInfo}) {
+    push("/home/activity_details", extra: logInfo);
   }
 
   void pushCredentialsDetailsScreen(CredentialsDetailsRouteParams params) {

@@ -1,22 +1,17 @@
 import "package:flutter/material.dart";
 
-import "../../../models/irma_configuration.dart";
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
-import "../../../widgets/credential_card/yivi_credential_card.dart";
+import "../../../widgets/credential_card/schemaless_yivi_credential_card.dart";
 import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/translated_text.dart";
 
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogInfo logEntry;
-  final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailDisclosure({
-    required this.logEntry,
-    required this.irmaConfiguration,
-  });
+  const ActivityDetailDisclosure({required this.logEntry});
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +36,8 @@ class ActivityDetailDisclosure extends StatelessWidget {
                   : logEntry.signedMessageLog!.credentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCredentialCard.fromCredentialLog(
-                irmaConfiguration,
-                credential,
+              child: SchemalessYiviCredentialCard(
+                credential: credential.toCredential(),
                 compact: true,
               ),
             ),

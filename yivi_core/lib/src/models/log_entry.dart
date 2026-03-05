@@ -2,7 +2,9 @@ import "package:json_annotation/json_annotation.dart";
 
 import "event.dart";
 import "protocol.dart";
+import "schemaless/schemaless_events.dart";
 import "session.dart";
+import "translated_value.dart";
 
 part "log_entry.g.dart";
 
@@ -104,10 +106,10 @@ class IssuanceLog {
   @JsonKey(fromJson: stringToProtocol)
   final Protocol protocol;
 
-  final List<CredentialLog> credentials;
+  final List<LogCredential> credentials;
 
   @JsonKey(defaultValue: [])
-  final List<CredentialLog> disclosedCredentials;
+  final List<LogCredential> disclosedCredentials;
 
   final RequestorInfo issuer;
 
@@ -126,7 +128,7 @@ class DisclosureLog {
   @JsonKey(fromJson: stringToProtocol)
   final Protocol protocol;
 
-  final List<CredentialLog> credentials;
+  final List<LogCredential> credentials;
 
   final RequestorInfo verifier;
 
@@ -153,26 +155,66 @@ class SignedMessageLog extends DisclosureLog {
 class RemovalLog {
   RemovalLog({required this.credentials});
 
-  final List<CredentialLog> credentials;
+  final List<LogCredential> credentials;
 
   factory RemovalLog.fromJson(Map<String, dynamic> json) =>
       _$RemovalLogFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
-class CredentialLog {
-  CredentialLog({
+class LogCredential {
+  LogCredential({
+    required this.credentialId,
     required this.formats,
-    required this.credentialType,
+    required this.imagePath,
+    required this.name,
+    required this.issuer,
     required this.attributes,
+    required this.issuanceDate,
+    required this.expiryDate,
+    required this.revoked,
+    required this.revocationSupported,
+    this.issueUrl,
   });
+
+  final String credentialId;
 
   final List<CredentialFormat> formats;
 
-  final String credentialType;
+  final String imagePath;
 
-  final Map<String, String> attributes;
+  final TranslatedValue name;
 
-  factory CredentialLog.fromJson(Map<String, dynamic> json) =>
-      _$CredentialLogFromJson(json);
+  final TrustedParty issuer;
+
+  final List<Attribute> attributes;
+
+  final int issuanceDate;
+
+  final int expiryDate;
+
+  final bool revoked;
+
+  final bool revocationSupported;
+
+  final TranslatedValue? issueUrl;
+
+  Credential toCredential() => Credential(
+    credentialId: credentialId,
+    hash: "",
+    imagePath: imagePath,
+    name: name,
+    issuer: issuer,
+    credentialInstanceIds: {},
+    batchInstanceCountsRemaining: {},
+    attributes: attributes,
+    issuanceDate: issuanceDate,
+    expiryDate: expiryDate,
+    revoked: revoked,
+    revocationSupported: revocationSupported,
+    issueUrl: issueUrl ?? const TranslatedValue.empty(),
+  );
+
+  factory LogCredential.fromJson(Map<String, dynamic> json) =>
+      _$LogCredentialFromJson(json);
 }

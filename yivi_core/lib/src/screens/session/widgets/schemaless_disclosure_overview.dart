@@ -81,7 +81,7 @@ class _SchemalessDisclosureOverviewState
     repo.bridgedDispatch(
       RespondPermissionEvent(
         sessionId: widget.sessionState.id,
-        proceed: true,
+        granted: true,
         disclosureChoices: disclosureChoices,
       ),
     );
