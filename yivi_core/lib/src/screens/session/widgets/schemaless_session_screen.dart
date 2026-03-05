@@ -6,14 +6,18 @@ import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../util/language.dart";
 import "../../../widgets/loading_indicator.dart";
 import "../../error/session_error_screen.dart";
 import "../../pin/session_pin_screen.dart";
+import "disclosure_feedback_screen.dart";
 import "issuance_permission.dart";
+import "issuance_success_screen.dart";
 import "pairing_required.dart";
 import "schemaless_disclosure_overview.dart";
 import "schemaless_issue_during_disclosure.dart";
 import "session_scaffold.dart";
+import "success_graphic.dart";
 
 /// Displays the current [SessionState] for a given session ID.
 ///
@@ -133,13 +137,10 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
         return _buildLoadingScreen(session);
       }
 
-      // Auto-navigate home on success
+      // Show success screen
       if (session.status == SessionStatus.success) {
         HapticFeedback.mediumImpact();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) Navigator.of(context).pop();
-        });
-        return _buildLoadingScreen(session);
+        return _buildSuccess(session);
       }
 
       return switch (session.status) {
@@ -160,6 +161,29 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
     },
   );
 
+  Widget _buildSuccess(SessionState session) {
+    void pop() {
+      if (mounted) Navigator.of(context).pop();
+    }
+
+    // Second-device flow: show a success screen with a dismiss button.
+    if (session.continueOnSecondDevice) {
+      if (session.type == SessionType.issuance) {
+        return IssuanceSuccessScreen(onDismiss: (_) => pop());
+      }
+
+      return DisclosureFeedbackScreen(
+        feedbackType: DisclosureFeedbackType.success,
+        isSignatureSession: session.type == SessionType.signature,
+        otherParty: getTranslation(context, session.requestor.name),
+        onDismiss: (_) => pop(),
+      );
+    }
+
+    // Same-device flow: show the pointing man graphic, then auto-pop.
+    return _SameDeviceSuccessScreen(onComplete: pop);
+  }
+
   Widget _buildError(SessionState session) {
     HapticFeedback.heavyImpact();
     return SessionErrorScreen(
@@ -167,6 +191,35 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
       onTapClose: () {
         if (mounted) Navigator.of(context).pop();
       },
+    );
+  }
+}
+
+/// Brief success screen for same-device flows.
+/// Shows the success graphic and auto-pops after a short delay.
+class _SameDeviceSuccessScreen extends StatefulWidget {
+  final VoidCallback onComplete;
+
+  const _SameDeviceSuccessScreen({required this.onComplete});
+
+  @override
+  State<_SameDeviceSuccessScreen> createState() =>
+      _SameDeviceSuccessScreenState();
+}
+
+class _SameDeviceSuccessScreenState extends State<_SameDeviceSuccessScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) widget.onComplete();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(child: SuccessGraphic()),
     );
   }
 }
