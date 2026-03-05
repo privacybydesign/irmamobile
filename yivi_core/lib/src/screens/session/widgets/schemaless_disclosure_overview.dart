@@ -1,9 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../../models/attribute.dart";
 import "../../../models/schemaless/session_state.dart";
-import "../../../models/session_events.dart";
+import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
@@ -57,29 +56,32 @@ class _SchemalessDisclosureOverviewState
     final choices =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
 
-    final disclosureChoices = <List<AttributeIdentifier>>[];
+    final disclosureChoices = <DisclosureDisconSelection>[];
     for (var i = 0; i < choices.length; i++) {
       final pickOne = choices[i];
       final owned = pickOne.ownedOptions;
       if (owned != null && owned.isNotEmpty) {
         final selected = owned[_selectedIndices[i]];
         disclosureChoices.add(
-          selected.attributes
-              .map(
-                (attr) => AttributeIdentifier(
-                  type: attr.id,
-                  credentialHash: selected.hash,
-                ),
-              )
-              .toList(),
+          DisclosureDisconSelection(
+            credentials: [
+              SelectedCredential(
+                credentialId: selected.credentialId,
+                credentialHash: selected.hash,
+                attributePaths: selected.attributes
+                    .map((attr) => <dynamic>[attr.id])
+                    .toList(),
+              ),
+            ],
+          ),
         );
       } else {
-        disclosureChoices.add([]);
+        disclosureChoices.add(DisclosureDisconSelection(credentials: []));
       }
     }
 
     repo.bridgedDispatch(
-      RespondPermissionEvent(
+      SessionUserInteractionEvent.permission(
         sessionId: widget.sessionState.id,
         granted: true,
         disclosureChoices: disclosureChoices,

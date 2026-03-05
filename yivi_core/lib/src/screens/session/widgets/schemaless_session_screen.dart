@@ -4,7 +4,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/session_state.dart";
-import "../../../models/session_events.dart";
+import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../widgets/loading_indicator.dart";
 import "../../error/session_error_screen.dart";
@@ -49,14 +49,18 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
       if (session.status != SessionStatus.success &&
           session.status != SessionStatus.error &&
           session.status != SessionStatus.dismissed) {
-        _repo.bridgedDispatch(DismissSessionEvent(sessionId: widget.sessionId));
+        _repo.bridgedDispatch(
+          SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
+        );
       }
     });
     super.dispose();
   }
 
   void _dismissSession() {
-    _repo.bridgedDispatch(DismissSessionEvent(sessionId: widget.sessionId));
+    _repo.bridgedDispatch(
+      SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
+    );
   }
 
   String _getAppBarTitle(SessionState session) {
@@ -85,7 +89,7 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
         issuedCredentials: session.offeredCredentials!,
         onDismiss: _dismissSession,
         onGivePermission: () => _repo.bridgedDispatch(
-          RespondPermissionEvent(
+          SessionUserInteractionEvent.permission(
             sessionId: widget.sessionId,
             granted: true,
             disclosureChoices: [],

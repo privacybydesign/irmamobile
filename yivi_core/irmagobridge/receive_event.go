@@ -53,25 +53,10 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.newSession(event)
 		}
-	case "RespondPermissionEvent":
-		event := &respondPermissionEvent{}
+	case "SessionUserInteractionEvent":
+		event := &sessionUserInteractionEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.respondPermission(event)
-		}
-	case "RespondAuthorizationCodeEvent":
-		event := &respondAuthorizationCodeEvent{}
-		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.respondAuthorizationCode(event)
-		}
-	case "RespondPreAuthorizedCodeFlowPermissionEvent":
-		event := &respondPreAuthorizedCodeFlowPermissionEvent{}
-		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.respondPreAuthorizedCodeFlowPermission(event)
-		}
-	case "RespondPinEvent":
-		event := &respondPinEvent{}
-		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.respondPin(event)
+			err = bridgeEventHandler.handleUserInteraction(event)
 		}
 	case "ClearAllDataEvent":
 		err = bridgeEventHandler.clearAllData()
@@ -79,11 +64,6 @@ func DispatchFromNative(eventName, payloadString string) {
 		event := &deleteCredentialEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.deleteCredential(event)
-		}
-	case "DismissSessionEvent":
-		event := &dismissSessionEvent{}
-		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.dismissSession(event)
 		}
 	case "UpdateSchemesEvent":
 		go func() {

@@ -33,35 +33,14 @@ type newSessionEvent struct {
 	Request json.RawMessage `json:"request"`
 }
 
-type respondAuthorizationCodeEvent struct {
-	SessionID int     `json:"session_id"`
-	Proceed   bool    `json:"proceed"`
-	Code      *string `json:"code"`
-}
-
-type respondPreAuthorizedCodeFlowPermissionEvent struct {
-	SessionID       int     `json:"session_id"`
-	Proceed         bool    `json:"proceed"`
-	TransactionCode *string `json:"transaction_code"`
-}
-
-type respondPermissionEvent struct {
-	client.SessionPermissionInteractionPayload
-	SessionID int `json:"session_id"`
-}
-
-type respondPinEvent struct {
-	SessionID int    `json:"session_id"`
-	Proceed   bool   `json:"proceed"`
-	Pin       string `json:"pin"`
+type sessionUserInteractionEvent struct {
+	SessionId int                        `json:"session_id"`
+	Type      client.UserInteractionType `json:"type"`
+	Payload   json.RawMessage            `json:"payload"`
 }
 
 type deleteCredentialEvent struct {
 	HashByFormat map[irmaclient.CredentialFormat]string `json:"hash_by_format"`
-}
-
-type dismissSessionEvent struct {
-	SessionID int `json:"session_id"`
 }
 
 type loadLogsEvent struct {

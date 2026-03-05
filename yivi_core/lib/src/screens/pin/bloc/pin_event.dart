@@ -1,6 +1,6 @@
 import "../../../data/irma_repository.dart";
 import "../../../models/authentication_events.dart";
-import "../../../models/session_events.dart";
+import "../../../models/schemaless/session_user_interaction.dart";
 
 class PinEvent {}
 
@@ -38,7 +38,11 @@ class SessionPin extends Authenticate {
   @override
   Future<AuthenticationEvent> dispatch() {
     repo.bridgedDispatch(
-      RespondPinEvent(sessionId: sessionId, pin: pin, proceed: true),
+      SessionUserInteractionEvent.pin(
+        sessionId: sessionId,
+        pin: pin,
+        proceed: true,
+      ),
     );
 
     // TODO: handle session pin response events from new session state model

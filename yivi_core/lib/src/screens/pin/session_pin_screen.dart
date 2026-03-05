@@ -5,7 +5,7 @@ import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../data/irma_repository.dart";
-import "../../models/session_events.dart";
+import "../../models/schemaless/session_user_interaction.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
@@ -83,7 +83,10 @@ class _SessionPinScreenState extends State<SessionPinScreen>
 
   void _cancel() {
     _repo.bridgedDispatch(
-      RespondPinEvent(sessionId: widget.sessionId, proceed: false),
+      SessionUserInteractionEvent.pin(
+        sessionId: widget.sessionId,
+        proceed: false,
+      ),
     );
   }
 

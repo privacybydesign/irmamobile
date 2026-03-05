@@ -79,24 +79,6 @@ class RespondTokenEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$RespondTokenEventToJson(this);
 }
 
-@JsonSerializable(fieldRename: .snake)
-class RespondPermissionEvent extends SessionEvent {
-  RespondPermissionEvent({
-    required this.sessionId,
-    required this.proceed,
-    required this.disclosureChoices,
-  });
-
-  final bool proceed;
-  final int sessionId;
-
-  final List<List<AttributeIdentifier>> disclosureChoices;
-
-  factory RespondPermissionEvent.fromJson(Map<String, dynamic> json) =>
-      _$RespondPermissionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$RespondPermissionEventToJson(this);
-}
-
 class ContinueToIssuanceEvent extends SessionEvent {
   final int sessionId;
   final List<List<AttributeIdentifier>> disclosureChoices;
@@ -105,29 +87,4 @@ class ContinueToIssuanceEvent extends SessionEvent {
     required this.sessionId,
     required this.disclosureChoices,
   });
-}
-
-@JsonSerializable(fieldRename: .snake)
-class RespondPinEvent extends SessionEvent {
-  RespondPinEvent({required this.sessionId, required this.proceed, this.pin});
-
-  final bool proceed;
-  final int sessionId;
-
-  final String? pin;
-
-  factory RespondPinEvent.fromJson(Map<String, dynamic> json) =>
-      _$RespondPinEventFromJson(json);
-  Map<String, dynamic> toJson() => _$RespondPinEventToJson(this);
-}
-
-@JsonSerializable(fieldRename: .snake)
-class DismissSessionEvent extends SessionEvent {
-  final int sessionId;
-
-  DismissSessionEvent({required this.sessionId});
-
-  factory DismissSessionEvent.fromJson(Map<String, dynamic> json) =>
-      _$DismissSessionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$DismissSessionEventToJson(this);
 }

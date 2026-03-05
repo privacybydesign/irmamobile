@@ -1,6 +1,7 @@
 package irmagobridge
 
 import (
+	"encoding/json"
 	"fmt"
 	"slices"
 
@@ -98,62 +99,30 @@ func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
 	return nil
 }
 
-func (ah *eventHandler) respondAuthorizationCode(event *respondAuthorizationCodeEvent) error {
-	// sh, err := ah.findSessionHandler(event.SessionID)
-	// if err != nil {
-	// 	return err
-	// }
-	// if sh.codeHandler == nil {
-	// 	return errors.Errorf("Unset authorizationCodeHandler in RespondAuthorizationCode")
-	// }
-	//
-	// go func() {
-	// 	defer recoverFromPanic("Handling ResponseAuthorizationCode event panicked")
-	// 	sh.codeHandler(event.Proceed, event.Code)
-	// }()
+func (ah *eventHandler) handleUserInteraction(event *sessionUserInteractionEvent) error {
+	interaction := client.SessionUserInteraction{
+		SessionId: event.SessionId,
+		Type:      event.Type,
+	}
 
-	// TODO: Create new user interaction type in client.Client to handle this case
-	return nil
-}
+	switch event.Type {
+	case client.UI_Permission:
+		var payload client.SessionPermissionInteractionPayload
+		if err := json.Unmarshal(event.Payload, &payload); err != nil {
+			return err
+		}
+		interaction.Payload = payload
+	case client.UI_EnteredPin:
+		var payload client.PinInteractionPayload
+		if err := json.Unmarshal(event.Payload, &payload); err != nil {
+			return err
+		}
+		interaction.Payload = payload
+	case client.UI_DismissSession:
+		// No payload needed
+	}
 
-func (ah *eventHandler) respondPreAuthorizedCodeFlowPermission(event *respondPreAuthorizedCodeFlowPermissionEvent) error {
-	// sh, err := ah.findSessionHandler(event.SessionID)
-	// if err != nil {
-	// 	return err
-	// }
-	// if sh.preAuthCodePermissionHandler == nil {
-	// 	return errors.Errorf("Unset preAuthCodePermissionHandler in RespondPreAuthorizedCodeFlowPermission")
-	// }
-	//
-	// go func() {
-	// 	defer recoverFromPanic("Handling ResponsePreAuthorizedCodePermission event panicked")
-	// 	sh.preAuthCodePermissionHandler(event.Proceed, event.TransactionCode)
-	// }()
-
-	// TODO: Create new user interaction type in client.Client to handle this case
-	return nil
-}
-
-// Responding to a permission prompt when disclosing, issuing or signing
-func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err error) {
-	yiviClient.HandleUserInteraction(client.SessionUserInteraction{
-		SessionId: event.SessionID,
-		Type:      client.UI_Permission,
-		Payload:   event.SessionPermissionInteractionPayload,
-	})
-	return nil
-}
-
-// Responding to a request for a pin code
-func (ah *eventHandler) respondPin(event *respondPinEvent) (err error) {
-	yiviClient.HandleUserInteraction(client.SessionUserInteraction{
-		SessionId: event.SessionID,
-		Type:      client.UI_EnteredPin,
-		Payload: client.PinInteractionPayload{
-			Proceed: event.Proceed,
-			Pin:     event.Pin,
-		},
-	})
+	yiviClient.HandleUserInteraction(interaction)
 	return nil
 }
 
@@ -174,15 +143,6 @@ func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
 	}
 
 	dispatchCredentialsEvent()
-	return nil
-}
-
-// Dismiss the current session
-func (ah *eventHandler) dismissSession(event *dismissSessionEvent) error {
-	yiviClient.HandleUserInteraction(client.SessionUserInteraction{
-		SessionId: event.SessionID,
-		Type:      client.UI_DismissSession,
-	})
 	return nil
 }
 
