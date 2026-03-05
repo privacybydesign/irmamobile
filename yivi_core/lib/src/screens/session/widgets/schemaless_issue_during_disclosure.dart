@@ -83,8 +83,7 @@ class _SchemalessIssueDuringDisclosureState
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final steps =
         widget.sessionState.disclosurePlan!.issueDuringDislosure!.steps;
-    final requestorName =
-        widget.sessionState.requestor.name.translate(lang);
+    final requestorName = widget.sessionState.requestor.name.translate(lang);
 
     return SessionScaffold(
       appBarTitle: "disclosure.title",

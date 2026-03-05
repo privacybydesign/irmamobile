@@ -31,7 +31,7 @@ class _SchemalessSessionListenerState extends State<SchemalessSessionListener> {
       final repo = IrmaRepositoryProvider.of(context);
       _subscription = repo.getNewSessionIds().listen((sessionID) {
         if (mounted) {
-          context.pushSessionScreen(SessionRouteParams(sessionID: sessionID));
+          context.pushSessionScreen(SessionRouteParams(sessionId: sessionID));
         }
       });
     });

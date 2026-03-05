@@ -1,11 +1,12 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../providers/session_state_provider.dart";
 import "../../../util/language.dart";
 import "../../../widgets/loading_indicator.dart";
 import "../../error/session_error_screen.dart";
@@ -25,44 +26,38 @@ import "success_graphic.dart";
 /// Navigation is driven externally: the [SchemalessSessionListener] pushes this
 /// screen when a new session appears, and this screen pops itself when the
 /// session status becomes [SessionStatus.dismissed].
-class SchemalessSessionScreen extends StatefulWidget {
+class SchemalessSessionScreen extends ConsumerStatefulWidget {
   final int sessionId;
 
   const SchemalessSessionScreen({super.key, required this.sessionId});
 
   @override
-  State<SchemalessSessionScreen> createState() =>
+  ConsumerState<SchemalessSessionScreen> createState() =>
       _SchemalessSessionScreenState();
 }
 
-class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
-  late IrmaRepository _repo;
-  late Stream<SessionState> _sessionStateStream;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _repo = IrmaRepositoryProvider.of(context);
-    _sessionStateStream = _repo.getSessionState(widget.sessionId);
-  }
-
+class _SchemalessSessionScreenState
+    extends ConsumerState<SchemalessSessionScreen> {
   @override
   void dispose() {
     // If the screen is being disposed while the session is still active, dismiss it.
-    _sessionStateStream.first.then((session) {
-      if (session.status != SessionStatus.success &&
-          session.status != SessionStatus.error &&
-          session.status != SessionStatus.dismissed) {
-        _repo.bridgedDispatch(
-          SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
-        );
-      }
-    });
+    final repo = ref.read(irmaRepositoryProvider);
+    final asyncSession = ref.read(sessionStateProvider(widget.sessionId));
+    final session = asyncSession.value;
+    if (session != null &&
+        session.status != SessionStatus.success &&
+        session.status != SessionStatus.error &&
+        session.status != SessionStatus.dismissed) {
+      repo.bridgedDispatch(
+        SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
+      );
+    }
     super.dispose();
   }
 
   void _dismissSession() {
-    _repo.bridgedDispatch(
+    final repo = ref.read(irmaRepositoryProvider);
+    repo.bridgedDispatch(
       SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
     );
   }
@@ -86,13 +81,15 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
   }
 
   Widget _buildRequestPermission(SessionState session) {
+    final repo = ref.read(irmaRepositoryProvider);
+
     // Pure issuance session
     if (session.type == SessionType.issuance &&
         session.offeredCredentials != null) {
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
         onDismiss: _dismissSession,
-        onGivePermission: () => _repo.bridgedDispatch(
+        onGivePermission: () => repo.bridgedDispatch(
           SessionUserInteractionEvent.permission(
             sessionId: widget.sessionId,
             granted: true,
@@ -118,48 +115,6 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
       onDismiss: _dismissSession,
     );
   }
-
-  @override
-  Widget build(BuildContext context) => StreamBuilder<SessionState>(
-    stream: _sessionStateStream,
-    builder: (context, snapshot) {
-      if (!snapshot.hasData) {
-        return _buildLoadingScreen(null);
-      }
-
-      final session = snapshot.data!;
-
-      // Auto-pop when dismissed
-      if (session.status == SessionStatus.dismissed) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) Navigator.of(context).pop();
-        });
-        return _buildLoadingScreen(session);
-      }
-
-      // Show success screen
-      if (session.status == SessionStatus.success) {
-        HapticFeedback.mediumImpact();
-        return _buildSuccess(session);
-      }
-
-      return switch (session.status) {
-        SessionStatus.showPairingCode => PairingRequired(
-          pairingCode: session.pairingCode ?? "",
-          onDismiss: _dismissSession,
-        ),
-        SessionStatus.requestPermission => _buildRequestPermission(session),
-        SessionStatus.requestPin => SessionPinScreen(
-          sessionId: widget.sessionId,
-          title: FlutterI18n.translate(context, _getAppBarTitle(session)),
-        ),
-        SessionStatus.error => _buildError(session),
-        // dismissed and success are handled above
-        SessionStatus.dismissed ||
-        SessionStatus.success => _buildLoadingScreen(session),
-      };
-    },
-  );
 
   Widget _buildSuccess(SessionState session) {
     void pop() {
@@ -193,6 +148,47 @@ class _SchemalessSessionScreenState extends State<SchemalessSessionScreen> {
       },
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final asyncSession = ref.watch(sessionStateProvider(widget.sessionId));
+
+    return asyncSession.when(
+      loading: () => _buildLoadingScreen(null),
+      error: (_, __) => _buildLoadingScreen(null),
+      data: (session) {
+        // Auto-pop when dismissed
+        if (session.status == SessionStatus.dismissed) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) Navigator.of(context).pop();
+          });
+          return _buildLoadingScreen(session);
+        }
+
+        // Show success screen
+        if (session.status == SessionStatus.success) {
+          HapticFeedback.mediumImpact();
+          return _buildSuccess(session);
+        }
+
+        return switch (session.status) {
+          SessionStatus.showPairingCode => PairingRequired(
+            pairingCode: session.pairingCode ?? "",
+            onDismiss: _dismissSession,
+          ),
+          SessionStatus.requestPermission => _buildRequestPermission(session),
+          SessionStatus.requestPin => SessionPinScreen(
+            sessionId: widget.sessionId,
+            title: FlutterI18n.translate(context, _getAppBarTitle(session)),
+          ),
+          SessionStatus.error => _buildError(session),
+          // dismissed and success are handled above
+          SessionStatus.dismissed ||
+          SessionStatus.success => _buildLoadingScreen(session),
+        };
+      },
+    );
+  }
 }
 
 /// Brief success screen for same-device flows.
@@ -218,8 +214,6 @@ class _SameDeviceSuccessScreenState extends State<_SameDeviceSuccessScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: SuccessGraphic()),
-    );
+    return Scaffold(body: Center(child: SuccessGraphic()));
   }
 }

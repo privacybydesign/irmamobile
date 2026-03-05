@@ -9,6 +9,6 @@ class SessionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SchemalessSessionScreen(sessionId: params.sessionID);
+    return SchemalessSessionScreen(sessionId: params.sessionId);
   }
 }

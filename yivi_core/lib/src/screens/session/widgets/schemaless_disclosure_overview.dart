@@ -103,7 +103,8 @@ class _SchemalessDisclosureOverviewState
     final isSignature = widget.sessionState.type == SessionType.signature;
     final requestorName = widget.sessionState.requestor.name.translate(lang);
 
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (context) => IrmaConfirmationDialog(
             titleTranslationKey: isSignature
@@ -129,7 +130,8 @@ class _SchemalessDisclosureOverviewState
   }
 
   Future<void> _showCloseDialog() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed =
+        await showDialog<bool>(
           context: context,
           builder: (context) => const IrmaConfirmationDialog(
             titleTranslationKey:
@@ -183,10 +185,12 @@ class _SchemalessDisclosureOverviewState
     final isSignature = session.type == SessionType.signature;
     final requestorName = session.requestor.name.translate(lang);
 
-    final requiredChoices =
-        choices.indexed.where((e) => !e.$2.optional).toList();
-    final optionalChoices =
-        choices.indexed.where((e) => e.$2.optional).toList();
+    final requiredChoices = choices.indexed
+        .where((e) => !e.$2.optional)
+        .toList();
+    final optionalChoices = choices.indexed
+        .where((e) => e.$2.optional)
+        .toList();
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.overview.title",
@@ -202,9 +206,7 @@ class _SchemalessDisclosureOverviewState
               SessionProgressIndicator(
                 contentTranslationKey:
                     "disclosure_permission.overview.explanation",
-                contentTranslationParams: {
-                  "requestorName": requestorName,
-                },
+                contentTranslationParams: {"requestorName": requestorName},
               ),
 
               if (isSignature && session.messageToSign != null) ...[
@@ -298,10 +300,7 @@ class _RequestorSection extends StatelessWidget {
           ),
           SizedBox(width: theme.smallSpacing),
           Flexible(
-            child: Text(
-              name,
-              style: theme.themeData.textTheme.headlineMedium,
-            ),
+            child: Text(name, style: theme.themeData.textTheme.headlineMedium),
           ),
         ],
       ),
@@ -374,8 +373,7 @@ class _DisclosureChoiceEntry extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                FlutterI18n.translate(
-                    context, "disclosure.missing_credential"),
+                FlutterI18n.translate(context, "disclosure.missing_credential"),
                 style: theme.themeData.textTheme.titleMedium?.copyWith(
                   color: theme.error,
                 ),

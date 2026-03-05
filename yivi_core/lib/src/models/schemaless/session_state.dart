@@ -108,10 +108,7 @@ class DisclosurePlan {
 
   final List<DisclosurePickOne>? disclosureChoicesOverview;
 
-  DisclosurePlan({
-    this.issueDuringDislosure,
-    this.disclosureChoicesOverview,
-  });
+  DisclosurePlan({this.issueDuringDislosure, this.disclosureChoicesOverview});
 
   factory DisclosurePlan.fromJson(Map<String, dynamic> json) =>
       _$DisclosurePlanFromJson(json);

@@ -411,16 +411,16 @@ class PassportNfcReadingRouteParams {
 // =============================================================================================
 
 class SessionRouteParams {
-  final int sessionID;
+  final int sessionId;
 
-  SessionRouteParams({required this.sessionID});
+  SessionRouteParams({required this.sessionId});
 
   Map<String, String> toQueryParams() {
-    return {"session_id": "$sessionID"};
+    return {"session_id": "$sessionId"};
   }
 
   static SessionRouteParams fromQueryParams(Map<String, String> params) {
-    return SessionRouteParams(sessionID: int.parse(params["session_id"]!));
+    return SessionRouteParams(sessionId: int.parse(params["session_id"]!));
   }
 }
 
