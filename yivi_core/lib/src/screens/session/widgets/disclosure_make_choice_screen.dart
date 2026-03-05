@@ -2,6 +2,7 @@ import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:url_launcher/url_launcher.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
@@ -14,11 +15,27 @@ import "../../../widgets/radio_indicator.dart";
 import "../../../widgets/translated_text.dart";
 import "session_scaffold.dart";
 
+/// Selection type: either an owned credential (by index) or an obtainable one.
+sealed class _Selection {
+  const _Selection();
+}
+
+class _OwnedSelection extends _Selection {
+  final int index;
+  const _OwnedSelection(this.index);
+}
+
+class _ObtainableSelection extends _Selection {
+  final int index;
+  const _ObtainableSelection(this.index);
+}
+
 /// Submenu screen for choosing between the available options in a [DisclosurePickOne].
 ///
 /// Shows owned credentials first (selectable with radio buttons), then
-/// obtainable credentials below. Confirming pops the screen and returns
-/// the selected index within the owned options via [onChoiceMade].
+/// obtainable credentials below. When an owned option is selected, the bottom
+/// bar shows a "Done" button. When an obtainable option is selected, it shows
+/// an "Obtain data" button that opens the issue URL.
 class DisclosureMakeChoiceScreen extends StatefulWidget {
   final DisclosurePickOne pickOne;
   final int initialSelectedIndex;
@@ -38,12 +55,27 @@ class DisclosureMakeChoiceScreen extends StatefulWidget {
 
 class _DisclosureMakeChoiceScreenState
     extends State<DisclosureMakeChoiceScreen> {
-  late int _selectedIndex;
+  late _Selection _selection;
 
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.initialSelectedIndex;
+    _selection = _OwnedSelection(widget.initialSelectedIndex);
+  }
+
+  bool get _isOwnedSelected => _selection is _OwnedSelection;
+
+  Future<void> _onObtainData() async {
+    if (_selection is! _ObtainableSelection) return;
+    final obtainable = widget.pickOne.obtainableOptions ?? [];
+    final index = (_selection as _ObtainableSelection).index;
+    if (index >= obtainable.length) return;
+
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final url = obtainable[index].issueURL?.translate(lang);
+    if (url != null && url.isNotEmpty) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    }
   }
 
   @override
@@ -65,8 +97,11 @@ class _DisclosureMakeChoiceScreenState
               for (var i = 0; i < owned.length; i++)
                 _OwnedChoiceOption(
                   credential: owned[i],
-                  isSelected: i == _selectedIndex,
-                  onTap: () => setState(() => _selectedIndex = i),
+                  isSelected:
+                      _selection is _OwnedSelection &&
+                      (_selection as _OwnedSelection).index == i,
+                  onTap: () =>
+                      setState(() => _selection = _OwnedSelection(i)),
                 ),
 
               // Obtainable options section
@@ -78,27 +113,36 @@ class _DisclosureMakeChoiceScreenState
                   isHeader: true,
                 ),
                 SizedBox(height: theme.smallSpacing),
-                for (final cred in obtainable)
-                  _ObtainableCredentialCard(credential: cred),
+                for (var i = 0; i < obtainable.length; i++)
+                  _ObtainableChoiceOption(
+                    credential: obtainable[i],
+                    isSelected:
+                        _selection is _ObtainableSelection &&
+                        (_selection as _ObtainableSelection).index == i,
+                    onTap: () =>
+                        setState(() => _selection = _ObtainableSelection(i)),
+                  ),
               ],
             ],
           ),
         ),
       ),
-      bottomNavigationBar: owned.isNotEmpty
-          ? IrmaBottomBar(
-              primaryButtonLabel: "ui.done",
-              onPrimaryPressed: () {
-                widget.onChoiceMade(_selectedIndex);
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: _isOwnedSelected
+            ? "ui.done"
+            : "disclosure_permission.obtain_data",
+        onPrimaryPressed: _isOwnedSelected
+            ? () {
+                widget.onChoiceMade((_selection as _OwnedSelection).index);
                 Navigator.of(context).pop();
-              },
-            )
-          : null,
+              }
+            : _onObtainData,
+      ),
     );
   }
 }
 
-/// A selectable owned credential option with radio indicator.
+/// A selectable owned credential option with radio indicator on the top right.
 class _OwnedChoiceOption extends StatelessWidget {
   final SelectableCredentialInstance credential;
   final bool isSelected;
@@ -124,11 +168,8 @@ class _OwnedChoiceOption extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(right: theme.smallSpacing),
-                    child: RadioIndicator(isSelected: isSelected),
-                  ),
                   if (credential.imagePath.isNotEmpty)
                     Padding(
                       padding: EdgeInsets.only(right: theme.smallSpacing),
@@ -155,6 +196,7 @@ class _OwnedChoiceOption extends StatelessWidget {
                       ],
                     ),
                   ),
+                  RadioIndicator(isSelected: isSelected),
                 ],
               ),
               if (credential.attributes.isNotEmpty) ...[
@@ -169,11 +211,17 @@ class _OwnedChoiceOption extends StatelessWidget {
   }
 }
 
-/// A non-selectable card showing a credential that can be obtained.
-class _ObtainableCredentialCard extends StatelessWidget {
+/// A selectable obtainable credential option with radio indicator on the top right.
+class _ObtainableChoiceOption extends StatelessWidget {
   final CredentialDescriptor credential;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  const _ObtainableCredentialCard({required this.credential});
+  const _ObtainableChoiceOption({
+    required this.credential,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -182,39 +230,42 @@ class _ObtainableCredentialCard extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: IrmaCard(
-        style: IrmaCardStyle.outlined,
-        child: Row(
-          children: [
-            if (credential.imagePath.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.only(right: theme.smallSpacing),
-                child: Image.file(
-                  File(credential.imagePath),
-                  width: 40,
-                  height: 40,
-                  errorBuilder: (_, __, ___) =>
-                      const SizedBox(width: 40, height: 40),
+      child: GestureDetector(
+        onTap: onTap,
+        child: IrmaCard(
+          style: isSelected ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (credential.imagePath.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(right: theme.smallSpacing),
+                  child: Image.file(
+                    File(credential.imagePath),
+                    width: 40,
+                    height: 40,
+                    errorBuilder: (_, __, ___) =>
+                        const SizedBox(width: 40, height: 40),
+                  ),
+                ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      credential.name.translate(lang),
+                      style: theme.themeData.textTheme.titleSmall,
+                    ),
+                    Text(
+                      credential.issuer.name.translate(lang),
+                      style: theme.themeData.textTheme.bodySmall,
+                    ),
+                  ],
                 ),
               ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    credential.name.translate(lang),
-                    style: theme.themeData.textTheme.titleSmall,
-                  ),
-                  Text(
-                    credential.issuer.name.translate(lang),
-                    style: theme.themeData.textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            if (credential.issueURL != null)
-              Icon(Icons.open_in_new, size: 20, color: theme.neutralExtraDark),
-          ],
+              RadioIndicator(isSelected: isSelected),
+            ],
+          ),
         ),
       ),
     );
