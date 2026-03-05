@@ -3,6 +3,7 @@ import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
@@ -38,17 +39,25 @@ class SchemalessSessionScreen extends ConsumerStatefulWidget {
 
 class _SchemalessSessionScreenState
     extends ConsumerState<SchemalessSessionScreen> {
+  late final IrmaRepository _repo;
+  AsyncValue<SessionState>? _lastSession;
+
+  @override
+  void initState() {
+    super.initState();
+    _repo = ref.read(irmaRepositoryProvider);
+  }
+
   @override
   void dispose() {
     // If the screen is being disposed while the session is still active, dismiss it.
-    final repo = ref.read(irmaRepositoryProvider);
-    final asyncSession = ref.read(sessionStateProvider(widget.sessionId));
-    final session = asyncSession.value;
+    // We use cached values because ref is unsafe to use during dispose.
+    final session = _lastSession?.value;
     if (session != null &&
         session.status != SessionStatus.success &&
         session.status != SessionStatus.error &&
         session.status != SessionStatus.dismissed) {
-      repo.bridgedDispatch(
+      _repo.bridgedDispatch(
         SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
       );
     }
@@ -156,6 +165,7 @@ class _SchemalessSessionScreenState
   @override
   Widget build(BuildContext context) {
     final asyncSession = ref.watch(sessionStateProvider(widget.sessionId));
+    _lastSession = asyncSession;
 
     return asyncSession.when(
       loading: () => _buildLoadingScreen(null),
