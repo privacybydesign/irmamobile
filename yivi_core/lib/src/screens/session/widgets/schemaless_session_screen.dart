@@ -102,7 +102,11 @@ class _SchemalessSessionScreenState
     final plan = session.disclosurePlan;
 
     // Show issuance-during-disclosure if there are incomplete steps
-    if (plan?.issueDuringDislosure != null &&
+    // and the user can't make disclosure choices yet
+    final hasDisclosureChoices =
+        plan?.disclosureChoicesOverview?.isNotEmpty ?? false;
+    if (!hasDisclosureChoices &&
+        plan?.issueDuringDislosure != null &&
         plan!.issueDuringDislosure!.steps.isNotEmpty) {
       return SchemalessIssueDuringDisclosure(
         sessionState: session,

@@ -97,6 +97,11 @@ class _SchemalessIssueDuringDisclosureState
       appBarTitle: "disclosure_permission.issue_wizard.title",
       onDismiss: widget.onDismiss,
       bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: "disclosure_permission.obtain_data",
+        onPrimaryPressed: () {
+          final firstStep = steps[0];
+          _onObtainData(firstStep.options[_selectedOptionPerStep[0]]);
+        },
         secondaryButtonLabel: "session.navigation_bar.cancel",
         onSecondaryPressed: widget.onDismiss,
       ),
@@ -116,8 +121,6 @@ class _SchemalessIssueDuringDisclosureState
               selectedOptionIndex: _selectedOptionPerStep[index],
               hasMultipleOptions: step.options.length > 1,
               onChangeOption: () => _onChangeOption(index),
-              onObtainData: () =>
-                  _onObtainData(step.options[_selectedOptionPerStep[index]]),
             ),
         ],
       ),
@@ -132,7 +135,6 @@ class _IssuanceStepCard extends StatelessWidget {
   final int selectedOptionIndex;
   final bool hasMultipleOptions;
   final VoidCallback onChangeOption;
-  final VoidCallback onObtainData;
 
   const _IssuanceStepCard({
     required this.step,
@@ -141,7 +143,6 @@ class _IssuanceStepCard extends StatelessWidget {
     required this.selectedOptionIndex,
     required this.hasMultipleOptions,
     required this.onChangeOption,
-    required this.onObtainData,
   });
 
   @override
@@ -179,10 +180,7 @@ class _IssuanceStepCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: theme.smallSpacing),
-          _CredentialTypeCard(
-            credential: selectedOption,
-            onObtainData: onObtainData,
-          ),
+          _CredentialTypeCard(credential: selectedOption),
         ],
       ),
     );
@@ -191,12 +189,8 @@ class _IssuanceStepCard extends StatelessWidget {
 
 class _CredentialTypeCard extends StatelessWidget {
   final CredentialDescriptor credential;
-  final VoidCallback onObtainData;
 
-  const _CredentialTypeCard({
-    required this.credential,
-    required this.onObtainData,
-  });
+  const _CredentialTypeCard({required this.credential});
 
   @override
   Widget build(BuildContext context) {
@@ -235,14 +229,6 @@ class _CredentialTypeCard extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          SizedBox(height: theme.smallSpacing),
-          SizedBox(
-            width: double.infinity,
-            child: YiviThemedButton(
-              label: "disclosure_permission.obtain_data",
-              onPressed: onObtainData,
-            ),
           ),
         ],
       ),
