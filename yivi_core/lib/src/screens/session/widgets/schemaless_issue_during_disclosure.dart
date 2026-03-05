@@ -2,6 +2,7 @@ import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:url_launcher/url_launcher.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
@@ -9,7 +10,7 @@ import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
-import "../../../widgets/irma_quote.dart";
+import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/yivi_themed_button.dart";
 import "issuance_step_choice_screen.dart";
 import "session_scaffold.dart";
@@ -77,16 +78,23 @@ class _SchemalessIssueDuringDisclosureState
     );
   }
 
+  Future<void> _onObtainData(CredentialDescriptor credential) async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final url = credential.issueURL?.translate(lang);
+    if (url != null && url.isNotEmpty) {
+      final uri = Uri.parse(url);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final steps =
         widget.sessionState.disclosurePlan!.issueDuringDislosure!.steps;
-    final requestorName = widget.sessionState.requestor.name.translate(lang);
 
     return SessionScaffold(
-      appBarTitle: "disclosure.title",
+      appBarTitle: "disclosure_permission.issue_wizard.title",
       onDismiss: widget.onDismiss,
       bottomNavigationBar: IrmaBottomBar(
         secondaryButtonLabel: "session.navigation_bar.cancel",
@@ -95,21 +103,21 @@ class _SchemalessIssueDuringDisclosureState
       body: ListView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         children: [
-          IrmaQuote(
-            quote: FlutterI18n.translate(
-              context,
-              "disclosure.issue_during_disclosure.instruction",
-              translationParams: {"requestor": requestorName},
-            ),
+          SessionProgressIndicator(
+            contentTranslationKey:
+                "disclosure_permission.issue_wizard.explanation_incomplete",
           ),
           SizedBox(height: theme.defaultSpacing),
           for (final (index, step) in steps.indexed)
             _IssuanceStepCard(
               step: step,
               stepNumber: index + 1,
+              totalSteps: steps.length,
               selectedOptionIndex: _selectedOptionPerStep[index],
               hasMultipleOptions: step.options.length > 1,
               onChangeOption: () => _onChangeOption(index),
+              onObtainData: () =>
+                  _onObtainData(step.options[_selectedOptionPerStep[index]]),
             ),
         ],
       ),
@@ -120,16 +128,20 @@ class _SchemalessIssueDuringDisclosureState
 class _IssuanceStepCard extends StatelessWidget {
   final IssuanceStep step;
   final int stepNumber;
+  final int totalSteps;
   final int selectedOptionIndex;
   final bool hasMultipleOptions;
   final VoidCallback onChangeOption;
+  final VoidCallback onObtainData;
 
   const _IssuanceStepCard({
     required this.step,
     required this.stepNumber,
+    required this.totalSteps,
     required this.selectedOptionIndex,
     required this.hasMultipleOptions,
     required this.onChangeOption,
+    required this.onObtainData,
   });
 
   @override
@@ -138,7 +150,7 @@ class _IssuanceStepCard extends StatelessWidget {
     final selectedOption = step.options[selectedOptionIndex];
 
     return Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
+      padding: EdgeInsets.only(bottom: theme.defaultSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -148,8 +160,11 @@ class _IssuanceStepCard extends StatelessWidget {
               Text(
                 FlutterI18n.translate(
                   context,
-                  "disclosure.issue_during_disclosure.step",
-                  translationParams: {"step": "$stepNumber"},
+                  "disclosure.card_count",
+                  translationParams: {
+                    "i": "$stepNumber",
+                    "total": "$totalSteps",
+                  },
                 ),
                 style: theme.themeData.textTheme.titleMedium,
               ),
@@ -164,7 +179,10 @@ class _IssuanceStepCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: theme.smallSpacing),
-          _CredentialTypeCard(credential: selectedOption),
+          _CredentialTypeCard(
+            credential: selectedOption,
+            onObtainData: onObtainData,
+          ),
         ],
       ),
     );
@@ -173,40 +191,57 @@ class _IssuanceStepCard extends StatelessWidget {
 
 class _CredentialTypeCard extends StatelessWidget {
   final CredentialDescriptor credential;
+  final VoidCallback onObtainData;
 
-  const _CredentialTypeCard({required this.credential});
+  const _CredentialTypeCard({
+    required this.credential,
+    required this.onObtainData,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     return IrmaCard(
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (credential.imagePath.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.only(right: theme.smallSpacing),
-              child: Image.file(
-                File(credential.imagePath),
-                width: 40,
-                height: 40,
-                errorBuilder: (_, __, ___) =>
-                    const SizedBox(width: 40, height: 40),
+          Row(
+            children: [
+              if (credential.imagePath.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(right: theme.smallSpacing),
+                  child: Image.file(
+                    File(credential.imagePath),
+                    width: 40,
+                    height: 40,
+                    errorBuilder: (_, __, ___) =>
+                        const SizedBox(width: 40, height: 40),
+                  ),
+                ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      getTranslation(context, credential.name),
+                      style: theme.themeData.textTheme.titleSmall,
+                    ),
+                    Text(
+                      getTranslation(context, credential.issuer.name),
+                      style: theme.themeData.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  getTranslation(context, credential.name),
-                  style: theme.themeData.textTheme.titleSmall,
-                ),
-                Text(
-                  getTranslation(context, credential.issuer.name),
-                  style: theme.themeData.textTheme.bodySmall,
-                ),
-              ],
+            ],
+          ),
+          SizedBox(height: theme.smallSpacing),
+          SizedBox(
+            width: double.infinity,
+            child: YiviThemedButton(
+              label: "disclosure_permission.obtain_data",
+              onPressed: onObtainData,
             ),
           ),
         ],

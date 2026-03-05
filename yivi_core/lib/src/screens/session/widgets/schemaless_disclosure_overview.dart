@@ -2,11 +2,13 @@ import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -21,7 +23,7 @@ import "../../../widgets/yivi_themed_button.dart";
 import "disclosure_make_choice_screen.dart";
 import "session_scaffold.dart";
 
-class SchemalessDisclosureOverview extends StatefulWidget {
+class SchemalessDisclosureOverview extends ConsumerStatefulWidget {
   final SessionState sessionState;
   final VoidCallback onDismiss;
 
@@ -32,66 +34,76 @@ class SchemalessDisclosureOverview extends StatefulWidget {
   });
 
   @override
-  State<SchemalessDisclosureOverview> createState() =>
+  ConsumerState<SchemalessDisclosureOverview> createState() =>
       _SchemalessDisclosureOverviewState();
 }
 
 class _SchemalessDisclosureOverviewState
-    extends State<SchemalessDisclosureOverview> {
-  late List<int> _selectedIndices;
+    extends ConsumerState<SchemalessDisclosureOverview> {
+  int get _sessionId => widget.sessionState.id;
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeSelections();
-  }
+  /// Returns the selected index for a discon, defaulting to 0.
+  int _selectedIndexFor(int disconIndex) {
+    final userChoices = ref
+        .read(sessionUserChoicesProvider(_sessionId))
+        .disclosureChoices;
+    if (!userChoices.containsKey(disconIndex)) return 0;
 
-  @override
-  void didUpdateWidget(SchemalessDisclosureOverview oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.sessionState != widget.sessionState) {
-      _initializeSelections();
+    // Find which owned option matches the stored credential
+    final stored = userChoices[disconIndex]!;
+    final owned =
+        widget
+            .sessionState
+            .disclosurePlan
+            ?.disclosureChoicesOverview?[disconIndex]
+            .ownedOptions ??
+        [];
+    for (var i = 0; i < owned.length; i++) {
+      if (owned[i].hash == stored.credentialHash) return i;
     }
-  }
-
-  void _initializeSelections() {
-    final choices =
-        widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
-    _selectedIndices = List.generate(choices.length, (_) => 0);
+    return 0;
   }
 
   void _onApprove() {
-    final repo = IrmaRepositoryProvider.of(context);
+    final repo = ref.read(irmaRepositoryProvider);
     final choices =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
+    final userChoices = ref
+        .read(sessionUserChoicesProvider(_sessionId))
+        .disclosureChoices;
 
     final disclosureChoices = <DisclosureDisconSelection>[];
     for (var i = 0; i < choices.length; i++) {
-      final pickOne = choices[i];
-      final owned = pickOne.ownedOptions;
-      if (owned != null && owned.isNotEmpty) {
-        final selected = owned[_selectedIndices[i]];
-        disclosureChoices.add(
-          DisclosureDisconSelection(
-            credentials: [
-              SelectedCredential(
-                credentialId: selected.credentialId,
-                credentialHash: selected.hash,
-                attributePaths: selected.attributes
-                    .map((attr) => <dynamic>[attr.id])
-                    .toList(),
-              ),
-            ],
-          ),
-        );
+      final stored = userChoices[i];
+      if (stored != null) {
+        disclosureChoices.add(DisclosureDisconSelection(credentials: [stored]));
       } else {
-        disclosureChoices.add(DisclosureDisconSelection(credentials: []));
+        // Default to first owned option
+        final owned = choices[i].ownedOptions;
+        if (owned != null && owned.isNotEmpty) {
+          final selected = owned[0];
+          disclosureChoices.add(
+            DisclosureDisconSelection(
+              credentials: [
+                SelectedCredential(
+                  credentialId: selected.credentialId,
+                  credentialHash: selected.hash,
+                  attributePaths: selected.attributes
+                      .map((attr) => <dynamic>[attr.id])
+                      .toList(),
+                ),
+              ],
+            ),
+          );
+        } else {
+          disclosureChoices.add(DisclosureDisconSelection(credentials: []));
+        }
       }
     }
 
     repo.bridgedDispatch(
       SessionUserInteractionEvent.permission(
-        sessionId: widget.sessionState.id,
+        sessionId: _sessionId,
         granted: true,
         disclosureChoices: disclosureChoices,
       ),
@@ -160,9 +172,24 @@ class _SchemalessDisclosureOverviewState
       MaterialPageRoute(
         builder: (_) => DisclosureMakeChoiceScreen(
           pickOne: choices[disconIndex],
-          initialSelectedIndex: _selectedIndices[disconIndex],
+          initialSelectedIndex: _selectedIndexFor(disconIndex),
           onChoiceMade: (newIndex) {
-            setState(() => _selectedIndices[disconIndex] = newIndex);
+            final owned = choices[disconIndex].ownedOptions;
+            if (owned != null && newIndex < owned.length) {
+              final selected = owned[newIndex];
+              ref
+                  .read(sessionUserChoicesProvider(_sessionId).notifier)
+                  .setChoice(
+                    disconIndex,
+                    SelectedCredential(
+                      credentialId: selected.credentialId,
+                      credentialHash: selected.hash,
+                      attributePaths: selected.attributes
+                          .map((attr) => <dynamic>[attr.id])
+                          .toList(),
+                    ),
+                  );
+            }
           },
         ),
       ),
@@ -184,6 +211,9 @@ class _SchemalessDisclosureOverviewState
     final choices = session.disclosurePlan?.disclosureChoicesOverview ?? [];
     final isSignature = session.type == SessionType.signature;
     final requestorName = session.requestor.name.translate(lang);
+
+    // Watch the provider so we rebuild when choices change
+    ref.watch(sessionUserChoicesProvider(_sessionId));
 
     final requiredChoices = choices.indexed
         .where((e) => !e.$2.optional)
@@ -231,7 +261,7 @@ class _SchemalessDisclosureOverviewState
               for (final (index, pickOne) in requiredChoices)
                 _DisclosureChoiceEntry(
                   pickOne: pickOne,
-                  selectedIndex: _selectedIndices[index],
+                  selectedIndex: _selectedIndexFor(index),
                   changeable: _hasMultipleOptions(pickOne),
                   onChangeChoice: () => _onChangeChoice(index),
                 ),
@@ -247,7 +277,7 @@ class _SchemalessDisclosureOverviewState
                 for (final (index, pickOne) in optionalChoices)
                   _DisclosureChoiceEntry(
                     pickOne: pickOne,
-                    selectedIndex: _selectedIndices[index],
+                    selectedIndex: _selectedIndexFor(index),
                     changeable: _hasMultipleOptions(pickOne),
                     onChangeChoice: () => _onChangeChoice(index),
                   ),
