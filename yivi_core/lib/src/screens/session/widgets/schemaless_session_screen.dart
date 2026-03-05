@@ -12,6 +12,7 @@ import "../../../util/language.dart";
 import "../../../widgets/loading_indicator.dart";
 import "../../error/session_error_screen.dart";
 import "../../pin/session_pin_screen.dart";
+import "arrow_back_screen.dart";
 import "disclosure_feedback_screen.dart";
 import "issuance_permission.dart";
 import "issuance_success_screen.dart";
@@ -148,8 +149,13 @@ class _SchemalessSessionScreenState
       );
     }
 
-    // Same-device flow: show the pointing man graphic, then auto-pop.
-    return _SameDeviceSuccessScreen(onComplete: pop);
+    final ArrowBackType t = switch (session.type) {
+      .disclosure => .disclosure,
+      .issuance => .issuance,
+      .signature => .signature,
+    };
+
+    return ArrowBack(type: t);
   }
 
   Widget _buildError(SessionState session) {
@@ -202,32 +208,5 @@ class _SchemalessSessionScreenState
         };
       },
     );
-  }
-}
-
-/// Brief success screen for same-device flows.
-/// Shows the success graphic and auto-pops after a short delay.
-class _SameDeviceSuccessScreen extends StatefulWidget {
-  final VoidCallback onComplete;
-
-  const _SameDeviceSuccessScreen({required this.onComplete});
-
-  @override
-  State<_SameDeviceSuccessScreen> createState() =>
-      _SameDeviceSuccessScreenState();
-}
-
-class _SameDeviceSuccessScreenState extends State<_SameDeviceSuccessScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) widget.onComplete();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: SuccessGraphic()));
   }
 }
