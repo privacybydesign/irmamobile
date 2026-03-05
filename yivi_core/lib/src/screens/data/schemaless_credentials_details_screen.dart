@@ -10,7 +10,7 @@ import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
-import "../../widgets/credential_card/schemaless_yivi_credential_card.dart";
+import "../../widgets/credential_card/yivi_credential_card.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/progress.dart";
@@ -143,7 +143,7 @@ class _CredentialsDetailsScreenState
 
                 return Padding(
                   padding: .only(bottom: theme.defaultSpacing),
-                  child: SchemalessYiviCredentialCard(
+                  child: YiviCredentialCard(
                     credential: cred,
                     compact: false,
                     headerTrailing: isDeletable || isReobtainable

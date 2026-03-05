@@ -6,7 +6,7 @@ import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
-import "../../../widgets/credential_card/schemaless_yivi_credential_card_attribute_list.dart";
+import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_quote.dart";
@@ -299,9 +299,7 @@ class _SelectableCredentialCard extends StatelessWidget {
               ),
               if (credential.attributes.isNotEmpty) ...[
                 SizedBox(height: theme.smallSpacing),
-                SchemalessYiviCredentialCardAttributeList(
-                  credential.attributes,
-                ),
+                YiviCredentialCardAttributeList(credential.attributes),
               ],
             ],
           ),

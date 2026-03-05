@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
-import "../../../widgets/credential_card/schemaless_yivi_credential_card.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/translated_text.dart";
 
@@ -32,7 +32,7 @@ class ActivityDetailIssuance extends StatelessWidget {
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: SchemalessYiviCredentialCard(
+              child: YiviCredentialCard(
                 credential: cred.toCredential(),
                 compact: true,
               ),
@@ -59,7 +59,7 @@ class ActivityDetailIssuance extends StatelessWidget {
         for (var rawCredential in issuanceLog.credentials)
           Padding(
             padding: EdgeInsets.only(bottom: theme.smallSpacing),
-            child: SchemalessYiviCredentialCard(
+            child: YiviCredentialCard(
               credential: rawCredential.toCredential(),
               compact: true,
             ),

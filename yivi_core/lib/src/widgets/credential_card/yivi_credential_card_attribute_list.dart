@@ -1,64 +1,87 @@
+import "dart:convert";
+
 import "package:collection/collection.dart";
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../models/attribute.dart";
-import "../../models/attribute_value.dart";
+import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
-import "../irma_divider.dart";
-import "../translated_text.dart";
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
-  final List<Attribute> attributes;
-  final List<Attribute>? compareTo;
+  final List<schemaless.Attribute> attributes;
+  final List<schemaless.Attribute>? compareTo;
 
   const YiviCredentialCardAttributeList(this.attributes, {this.compareTo});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    return Column(
+      spacing: theme.smallSpacing,
+      mainAxisSize: .min,
+      crossAxisAlignment: .start,
+      children: [
+        for (final a in attributes)
+          _AttributeView(
+            attribute: a,
+            compareTo: compareTo?.firstWhereOrNull((c) => c.id == a.id)?.value,
+          ),
+      ],
+    );
+  }
+}
+
+class _AttributeView extends StatelessWidget {
+  const _AttributeView({required this.attribute, this.compareTo});
+  final schemaless.Attribute attribute;
+  final schemaless.AttributeValue? compareTo;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final attributesWithValue = attributes.where(
-      (attr) =>
-          attr.value is! NullValue &&
-          (compareTo?.any(
-                (attrComp) =>
-                    attrComp.value is! NullValue &&
-                    attr.attributeType.fullId == attrComp.attributeType.fullId,
-              ) ??
-              true),
-    );
-
-    final textValueAttrs = attributesWithValue.where(
-      (a) => a.value is TextValue,
-    );
-    final photoValueAttrs = attributesWithValue.where(
-      (a) => a.value is PhotoValue,
-    );
-
-    Text buildLabel(Attribute a) => Text(
-      a.attributeType.name.translate(lang),
+    Text buildLabel(schemaless.Attribute a) => Text(
+      a.displayName.translate(lang),
       style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
     );
 
-    TranslatedText buildTextContent(Attribute attribute, TextValue attrValue) {
-      final Attribute? compareValue = compareTo?.firstWhereOrNull(
-        (e) => e.attributeType.fullId == attribute.attributeType.fullId,
-      );
-      return TranslatedText(
-        attrValue.translated.translate(lang),
+    Text buildTextContent(schemaless.Attribute attribute) {
+      return Text(
+        attribute.value?.data as String? ?? "",
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: compareValue == null || compareValue.value is NullValue
+          color: compareTo == null
               ? theme.dark
-              : attribute.value.raw == compareValue.value.raw
+              : attribute.value?.data == compareTo!.data
               ? theme.success
               : theme.error,
         ),
       );
     }
 
-    GestureDetector buildTappableImage(Attribute attribute, Image image) {
+    Text buildTranslatedTextContent(schemaless.Attribute attribute) {
+      final txt = TranslatedValue.fromJson(
+        attribute.value?.data as Map<String, dynamic>? ?? {},
+      );
+      return Text(
+        txt.translate(lang),
+        style: theme.themeData.textTheme.bodyLarge!.copyWith(
+          color: compareTo == null
+              ? theme.dark
+              : attribute.value?.data == compareTo!.data
+              ? theme.success
+              : theme.error,
+        ),
+      );
+    }
+
+    GestureDetector buildTappableImage(schemaless.Attribute attribute) {
+      final imageContent = TranslatedValue.fromJson(
+        attribute.value?.data as Map<String, dynamic>? ?? {},
+      ).translate(lang);
+      final image = _imageFromRaw(imageContent);
       return GestureDetector(
         onTap: () {
           Navigator.push(
@@ -66,7 +89,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => Scaffold(
                 appBar: IrmaAppBar(
-                  titleString: attribute.attributeType.name.translate(lang),
+                  titleString: attribute.displayName.translate(lang),
                 ),
                 body: SingleChildScrollView(child: Center(child: image)),
               ),
@@ -80,38 +103,32 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       );
     }
 
-    return Column(
-      spacing: theme.smallSpacing,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (Attribute a in textValueAttrs)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildLabel(a),
-                buildTextContent(a, a.value as TextValue),
-              ],
-            ),
-          ),
-        for (Attribute a in photoValueAttrs)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (a == photoValueAttrs.first) const IrmaDivider(),
-                buildLabel(a),
-                SizedBox(height: theme.tinySpacing),
-                buildTappableImage(a, (a.value as PhotoValue).image),
-              ],
-            ),
-          ),
-      ],
+    return Padding(
+      padding: .symmetric(vertical: theme.tinySpacing),
+      child: Column(
+        mainAxisSize: .min,
+        crossAxisAlignment: .start,
+        children: [
+          buildLabel(attribute),
+          if (attribute.value == null)
+            Text("", style: theme.themeData.textTheme.bodyLarge)
+          else
+            switch (attribute.value!.type) {
+              .string => buildTextContent(attribute),
+              .translatedString => buildTranslatedTextContent(attribute),
+              .image => buildTappableImage(attribute),
+              .base64Image => buildTappableImage(attribute),
+              .boolean => throw UnimplementedError(),
+              .integer => throw UnimplementedError(),
+              .object => throw UnimplementedError(),
+              .array => throw UnimplementedError(),
+            },
+        ],
+      ),
     );
+  }
+
+  Image _imageFromRaw(String raw) {
+    return .memory(const Base64Decoder().convert(raw), fit: .fitWidth);
   }
 }

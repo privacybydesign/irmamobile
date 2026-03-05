@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 
 import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../theme/theme.dart";
-import "credential_card/schemaless_yivi_credential_card.dart";
+import "credential_card/yivi_credential_card.dart";
 
 class IssuingDetail extends StatelessWidget {
   final List<schemaless.Credential> credentials;
@@ -16,7 +16,7 @@ class IssuingDetail extends StatelessWidget {
       children: credentials.map((credential) {
         return Padding(
           padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-          child: SchemalessYiviCredentialCard(
+          child: YiviCredentialCard(
             credential: credential,
             compact: false,
             lowInstanceCountThreshold: 0,

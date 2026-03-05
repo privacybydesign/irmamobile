@@ -3,7 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/theme.dart";
-import "../../../widgets/credential_card/schemaless_yivi_credential_card.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
 import "session_scaffold.dart";
@@ -63,7 +63,7 @@ class IssuancePermission extends StatelessWidget {
         ...issuedCredentials.map(
           (credential) => Padding(
             padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-            child: SchemalessYiviCredentialCard(
+            child: YiviCredentialCard(
               credential: credential,
               compact: false,
               lowInstanceCountThreshold: 0,
