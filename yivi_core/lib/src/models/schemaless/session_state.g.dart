@@ -60,8 +60,8 @@ DisclosurePlan _$DisclosurePlanFromJson(Map<String, dynamic> json) =>
               json['issue_during_dislosure'] as Map<String, dynamic>,
             ),
       disclosureChoicesOverview:
-          (json['disclosure_choices_overview'] as List<dynamic>)
-              .map((e) => DisclosurePickOne.fromJson(e as Map<String, dynamic>))
+          (json['disclosure_choices_overview'] as List<dynamic>?)
+              ?.map((e) => DisclosurePickOne.fromJson(e as Map<String, dynamic>))
               .toList(),
     );
 

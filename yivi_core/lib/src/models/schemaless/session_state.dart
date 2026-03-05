@@ -106,11 +106,11 @@ class SessionState {
 class DisclosurePlan {
   final IssueDuringDislosure? issueDuringDislosure;
 
-  final List<DisclosurePickOne> disclosureChoicesOverview;
+  final List<DisclosurePickOne>? disclosureChoicesOverview;
 
   DisclosurePlan({
     this.issueDuringDislosure,
-    required this.disclosureChoicesOverview,
+    this.disclosureChoicesOverview,
   });
 
   factory DisclosurePlan.fromJson(Map<String, dynamic> json) =>
