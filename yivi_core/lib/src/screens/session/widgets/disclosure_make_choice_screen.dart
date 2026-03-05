@@ -100,8 +100,7 @@ class _DisclosureMakeChoiceScreenState
                   isSelected:
                       _selection is _OwnedSelection &&
                       (_selection as _OwnedSelection).index == i,
-                  onTap: () =>
-                      setState(() => _selection = _OwnedSelection(i)),
+                  onTap: () => setState(() => _selection = _OwnedSelection(i)),
                 ),
 
               // Obtainable options section

@@ -20,7 +20,6 @@ class SchemalessCredentialsEvent extends Event {
 enum AttributeType {
   object,
   array,
-  string,
   translatedString,
   boolean,
   integer,
@@ -31,9 +30,26 @@ enum AttributeType {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class AttributeValue {
   final AttributeType type;
-  final dynamic data;
+  @JsonKey(name: "int")
+  final int? intValue;
+  @JsonKey(name: "bool")
+  final bool? boolValue;
+  final TranslatedValue? translatedString;
+  final List<AttributeValue>? array;
+  final List<Attribute>? object;
+  final String? imagePath;
+  final String? base64Image;
 
-  AttributeValue({required this.type, required this.data});
+  AttributeValue({
+    required this.type,
+    this.intValue,
+    this.boolValue,
+    this.translatedString,
+    this.array,
+    this.object,
+    this.imagePath,
+    this.base64Image,
+  });
 
   factory AttributeValue.fromJson(Map<String, dynamic> json) =>
       _$AttributeValueFromJson(json);

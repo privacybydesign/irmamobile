@@ -5,7 +5,6 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
 
@@ -48,40 +47,27 @@ class _AttributeView extends StatelessWidget {
       style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
     );
 
-    Text buildTextContent(schemaless.Attribute attribute) {
-      return Text(
-        attribute.value?.data as String? ?? "",
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: compareTo == null
-              ? theme.dark
-              : attribute.value?.data == compareTo!.data
-              ? theme.success
-              : theme.error,
-        ),
-      );
+    Color valueColor(schemaless.AttributeValue? val) {
+      if (compareTo == null) return theme.dark;
+      return val?.translatedString == compareTo?.translatedString
+          ? theme.success
+          : theme.error;
     }
 
     Text buildTranslatedTextContent(schemaless.Attribute attribute) {
-      final txt = TranslatedValue.fromJson(
-        attribute.value?.data as Map<String, dynamic>? ?? {},
-      );
+      final txt = attribute.value?.translatedString;
       return Text(
-        txt.translate(lang),
+        txt?.translate(lang) ?? "",
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: compareTo == null
-              ? theme.dark
-              : attribute.value?.data == compareTo!.data
-              ? theme.success
-              : theme.error,
+          color: valueColor(attribute.value),
         ),
       );
     }
 
     GestureDetector buildTappableImage(schemaless.Attribute attribute) {
-      final imageContent = TranslatedValue.fromJson(
-        attribute.value?.data as Map<String, dynamic>? ?? {},
-      ).translate(lang);
-      final image = _imageFromRaw(imageContent);
+      final val = attribute.value;
+      final raw = val?.imagePath ?? val?.base64Image ?? "";
+      final image = _imageFromRaw(raw);
       return GestureDetector(
         onTap: () {
           Navigator.push(
@@ -114,7 +100,6 @@ class _AttributeView extends StatelessWidget {
             Text("", style: theme.themeData.textTheme.bodyLarge)
           else
             switch (attribute.value!.type) {
-              .string => buildTextContent(attribute),
               .translatedString => buildTranslatedTextContent(attribute),
               .image => buildTappableImage(attribute),
               .base64Image => buildTappableImage(attribute),

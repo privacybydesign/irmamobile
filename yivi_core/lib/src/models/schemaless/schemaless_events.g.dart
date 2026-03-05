@@ -17,19 +17,39 @@ SchemalessCredentialsEvent _$SchemalessCredentialsEventFromJson(
 AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
     AttributeValue(
       type: $enumDecode(_$AttributeTypeEnumMap, json['type']),
-      data: json['data'],
+      intValue: (json['int'] as num?)?.toInt(),
+      boolValue: json['bool'] as bool?,
+      translatedString: json['translated_string'] == null
+          ? null
+          : TranslatedValue.fromJson(
+              json['translated_string'] as Map<String, dynamic>?,
+            ),
+      array: (json['array'] as List<dynamic>?)
+          ?.map((e) => AttributeValue.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      object: (json['object'] as List<dynamic>?)
+          ?.map((e) => Attribute.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      imagePath: json['image_path'] as String?,
+      base64Image: json['base64_image'] as String?,
     );
 
 Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
     <String, dynamic>{
       'type': _$AttributeTypeEnumMap[instance.type]!,
-      'data': instance.data,
+      if (instance.intValue != null) 'int': instance.intValue,
+      if (instance.boolValue != null) 'bool': instance.boolValue,
+      if (instance.translatedString != null)
+        'translated_string': instance.translatedString,
+      if (instance.array != null) 'array': instance.array,
+      if (instance.object != null) 'object': instance.object,
+      if (instance.imagePath != null) 'image_path': instance.imagePath,
+      if (instance.base64Image != null) 'base64_image': instance.base64Image,
     };
 
 const _$AttributeTypeEnumMap = {
   AttributeType.object: 'object',
   AttributeType.array: 'array',
-  AttributeType.string: 'string',
   AttributeType.translatedString: 'translated_string',
   AttributeType.boolean: 'boolean',
   AttributeType.integer: 'integer',

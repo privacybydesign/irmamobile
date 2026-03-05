@@ -4,19 +4,19 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../models/session.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
-import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/irma_quote.dart";
+import "../../../widgets/requestor_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
@@ -231,7 +231,14 @@ class _SchemalessDisclosureOverviewState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _RequestorSection(requestor: session.requestor),
+              RequestorHeader(
+                requestorInfo: RequestorInfo(
+                  name: session.requestor.name,
+                  logoPath: session.requestor.imagePath,
+                ),
+                // TODO: add verified to the trusted party class
+                isVerified: false,
+              ),
 
               SessionProgressIndicator(
                 contentTranslationKey:
@@ -297,42 +304,6 @@ class _SchemalessDisclosureOverviewState
             ? "disclosure_permission.overview.confirm_sign"
             : "disclosure_permission.overview.confirm",
         onPrimaryPressed: _showConfirmDialog,
-      ),
-    );
-  }
-}
-
-class _RequestorSection extends StatelessWidget {
-  final TrustedParty requestor;
-
-  const _RequestorSection({required this.requestor});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final name = getTranslation(context, requestor.name);
-
-    return IrmaCard(
-      hasShadow: false,
-      padding: EdgeInsets.zero,
-      margin: EdgeInsets.only(bottom: theme.defaultSpacing),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.only(right: theme.tinySpacing),
-            child: IrmaAvatar(
-              size: 48,
-              logoPath: requestor.imagePath,
-              logoSemanticsLabel: name,
-              initials: name.isNotEmpty ? name[0] : null,
-            ),
-          ),
-          SizedBox(width: theme.smallSpacing),
-          Flexible(
-            child: Text(name, style: theme.themeData.textTheme.headlineMedium),
-          ),
-        ],
       ),
     );
   }
