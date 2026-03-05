@@ -1,15 +1,24 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
+import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
+import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/irma_quote.dart";
+import "../../../widgets/session_progress_indicator.dart";
+import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_themed_button.dart";
+import "disclosure_make_choice_screen.dart";
 import "session_scaffold.dart";
 
 class SchemalessDisclosureOverview extends StatefulWidget {
@@ -89,6 +98,82 @@ class _SchemalessDisclosureOverviewState
     );
   }
 
+  Future<void> _showConfirmDialog() async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final isSignature = widget.sessionState.type == SessionType.signature;
+    final requestorName = widget.sessionState.requestor.name.translate(lang);
+
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => IrmaConfirmationDialog(
+            titleTranslationKey: isSignature
+                ? "disclosure_permission.confirm_dialog.title_signature"
+                : "disclosure_permission.confirm_dialog.title",
+            contentTranslationKey: isSignature
+                ? "disclosure_permission.confirm_dialog.explanation_signature"
+                : "disclosure_permission.confirm_dialog.explanation",
+            contentTranslationParams: {"requestorName": requestorName},
+            confirmTranslationKey: isSignature
+                ? "disclosure_permission.confirm_dialog.confirm_signature"
+                : "disclosure_permission.confirm_dialog.confirm",
+            cancelTranslationKey: isSignature
+                ? "disclosure_permission.confirm_dialog.decline_signature"
+                : "disclosure_permission.confirm_dialog.decline",
+          ),
+        ) ??
+        false;
+
+    if (confirmed && mounted) {
+      _onApprove();
+    }
+  }
+
+  Future<void> _showCloseDialog() async {
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => const IrmaConfirmationDialog(
+            titleTranslationKey:
+                "disclosure_permission.confirm_close_dialog.title",
+            contentTranslationKey:
+                "disclosure_permission.confirm_close_dialog.explanation",
+            confirmTranslationKey:
+                "disclosure_permission.confirm_close_dialog.confirm",
+            cancelTranslationKey:
+                "disclosure_permission.confirm_close_dialog.decline",
+          ),
+        ) ??
+        false;
+
+    if (confirmed && mounted) {
+      widget.onDismiss();
+    }
+  }
+
+  void _onChangeChoice(int disconIndex) {
+    final choices =
+        widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
+    if (disconIndex >= choices.length) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DisclosureMakeChoiceScreen(
+          pickOne: choices[disconIndex],
+          initialSelectedIndex: _selectedIndices[disconIndex],
+          onChoiceMade: (newIndex) {
+            setState(() => _selectedIndices[disconIndex] = newIndex);
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Whether a discon has multiple total options (owned + obtainable).
+  bool _hasMultipleOptions(DisclosurePickOne pickOne) {
+    final ownedCount = pickOne.ownedOptions?.length ?? 0;
+    final obtainableCount = pickOne.obtainableOptions?.length ?? 0;
+    return ownedCount + obtainableCount > 1;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -96,83 +181,147 @@ class _SchemalessDisclosureOverviewState
     final session = widget.sessionState;
     final choices = session.disclosurePlan?.disclosureChoicesOverview ?? [];
     final isSignature = session.type == SessionType.signature;
+    final requestorName = session.requestor.name.translate(lang);
+
+    final requiredChoices =
+        choices.indexed.where((e) => !e.$2.optional).toList();
+    final optionalChoices =
+        choices.indexed.where((e) => e.$2.optional).toList();
 
     return SessionScaffold(
-      appBarTitle: isSignature ? "disclosure.title" : "disclosure.title",
-      onDismiss: widget.onDismiss,
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(
-          context,
-          isSignature
-              ? "disclosure.navigation_bar.sign"
-              : "disclosure.navigation_bar.yes",
-        ),
-        onPrimaryPressed: _onApprove,
-        secondaryButtonLabel: FlutterI18n.translate(
-          context,
-          "session.navigation_bar.cancel",
-        ),
-        onSecondaryPressed: widget.onDismiss,
-      ),
-      body: ListView(
+      appBarTitle: "disclosure_permission.overview.title",
+      onDismiss: _showCloseDialog,
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _RequestorSection(requestor: session.requestor),
+
+              SessionProgressIndicator(
+                contentTranslationKey:
+                    "disclosure_permission.overview.explanation",
+                contentTranslationParams: {
+                  "requestorName": requestorName,
+                },
+              ),
+
+              if (isSignature && session.messageToSign != null) ...[
+                SizedBox(height: theme.defaultSpacing),
+                TranslatedText(
+                  "disclosure_permission.overview.sign",
+                  style: theme.themeData.textTheme.headlineMedium,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: theme.smallSpacing,
+                    bottom: theme.defaultSpacing,
+                  ),
+                  child: IrmaQuote(
+                    key: const Key("signature_message"),
+                    quote: session.messageToSign!,
+                  ),
+                ),
+              ],
+
+              // Required choices
+              for (final (index, pickOne) in requiredChoices)
+                _DisclosureChoiceEntry(
+                  pickOne: pickOne,
+                  selectedIndex: _selectedIndices[index],
+                  changeable: _hasMultipleOptions(pickOne),
+                  onChangeChoice: () => _onChangeChoice(index),
+                ),
+
+              // Optional choices
+              if (optionalChoices.isNotEmpty) ...[
+                SizedBox(height: theme.defaultSpacing),
+                TranslatedText(
+                  "disclosure_permission.optional_data",
+                  style: theme.themeData.textTheme.headlineMedium,
+                ),
+                SizedBox(height: theme.smallSpacing),
+                for (final (index, pickOne) in optionalChoices)
+                  _DisclosureChoiceEntry(
+                    pickOne: pickOne,
+                    selectedIndex: _selectedIndices[index],
+                    changeable: _hasMultipleOptions(pickOne),
+                    onChangeChoice: () => _onChangeChoice(index),
+                  ),
+              ],
+
+              if (choices.isEmpty)
+                TranslatedText(
+                  "disclosure_permission.no_data_selected",
+                  style: theme.themeData.textTheme.headlineMedium,
+                ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: isSignature
+            ? "disclosure_permission.overview.confirm_sign"
+            : "disclosure_permission.overview.confirm",
+        onPrimaryPressed: _showConfirmDialog,
+      ),
+    );
+  }
+}
+
+class _RequestorSection extends StatelessWidget {
+  final TrustedParty requestor;
+
+  const _RequestorSection({required this.requestor});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final name = getTranslation(context, requestor.name);
+
+    return IrmaCard(
+      hasShadow: false,
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.only(bottom: theme.defaultSpacing),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          IrmaQuote(
-            quote: FlutterI18n.translate(
-              context,
-              isSignature
-                  ? "disclosure.signing_instruction"
-                  : "disclosure.instruction",
-              translationParams: {
-                "requestor": session.requestor.name.translate(lang),
-              },
+          Padding(
+            padding: EdgeInsets.only(right: theme.tinySpacing),
+            child: IrmaAvatar(
+              size: 48,
+              logoPath: requestor.imagePath,
+              logoSemanticsLabel: name,
+              initials: name.isNotEmpty ? name[0] : null,
             ),
           ),
-          if (isSignature && session.messageToSign != null) ...[
-            SizedBox(height: theme.defaultSpacing),
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(theme.defaultSpacing),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      FlutterI18n.translate(
-                        context,
-                        "disclosure.message_to_sign",
-                      ),
-                      style: theme.themeData.textTheme.titleMedium,
-                    ),
-                    SizedBox(height: theme.smallSpacing),
-                    Text(session.messageToSign!),
-                  ],
-                ),
-              ),
+          SizedBox(width: theme.smallSpacing),
+          Flexible(
+            child: Text(
+              name,
+              style: theme.themeData.textTheme.headlineMedium,
             ),
-          ],
-          SizedBox(height: theme.defaultSpacing),
-          for (var i = 0; i < choices.length; i++)
-            _DisclosurePickOneWidget(
-              pickOne: choices[i],
-              selectedIndex: _selectedIndices[i],
-              onSelected: (index) =>
-                  setState(() => _selectedIndices[i] = index),
-            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _DisclosurePickOneWidget extends StatelessWidget {
+/// Shows the currently selected credential for a disclosure choice, with an
+/// optional "change choice" button that opens the [DisclosureMakeChoiceScreen].
+class _DisclosureChoiceEntry extends StatelessWidget {
   final DisclosurePickOne pickOne;
   final int selectedIndex;
-  final ValueChanged<int> onSelected;
+  final bool changeable;
+  final VoidCallback onChangeChoice;
 
-  const _DisclosurePickOneWidget({
+  const _DisclosureChoiceEntry({
     required this.pickOne,
     required this.selectedIndex,
-    required this.onSelected,
+    required this.changeable,
+    required this.onChangeChoice,
   });
 
   @override
@@ -181,22 +330,40 @@ class _DisclosurePickOneWidget extends StatelessWidget {
     final owned = pickOne.ownedOptions;
 
     if (owned != null && owned.isNotEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var i = 0; i < owned.length; i++)
-            _SelectableCredentialCard(
-              credential: owned[i],
-              isSelected: i == selectedIndex,
-              showRadio: owned.length > 1,
-              onTap: () => onSelected(i),
-            ),
-          SizedBox(height: theme.smallSpacing),
-        ],
+      final selected = owned[selectedIndex];
+
+      return Padding(
+        padding: EdgeInsets.only(bottom: theme.smallSpacing),
+        child: Column(
+          children: [
+            if (changeable)
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: theme.smallSpacing,
+                  top: theme.smallSpacing,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Flexible(
+                      child: YiviThemedButton(
+                        label: "disclosure_permission.change_choice",
+                        style: YiviButtonStyle.outlined,
+                        size: YiviButtonSize.small,
+                        isTransparent: true,
+                        onPressed: onChangeChoice,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            _SelectedCredentialCard(credential: selected),
+          ],
+        ),
       );
     }
 
-    // No owned options - show obtainable/missing state
+    // No owned options — show obtainable/missing state
     final obtainable = pickOne.obtainableOptions;
     if (obtainable != null && obtainable.isNotEmpty) {
       return Card(
@@ -207,7 +374,8 @@ class _DisclosurePickOneWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                FlutterI18n.translate(context, "disclosure.missing_credential"),
+                FlutterI18n.translate(
+                    context, "disclosure.missing_credential"),
                 style: theme.themeData.textTheme.titleMedium?.copyWith(
                   color: theme.error,
                 ),
@@ -231,79 +399,54 @@ class _DisclosurePickOneWidget extends StatelessWidget {
   }
 }
 
-class _SelectableCredentialCard extends StatelessWidget {
+class _SelectedCredentialCard extends StatelessWidget {
   final SelectableCredentialInstance credential;
-  final bool isSelected;
-  final bool showRadio;
-  final VoidCallback onTap;
 
-  const _SelectableCredentialCard({
-    required this.credential,
-    required this.isSelected,
-    required this.showRadio,
-    required this.onTap,
-  });
+  const _SelectedCredentialCard({required this.credential});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: GestureDetector(
-        onTap: onTap,
-        child: IrmaCard(
-          style: isSelected ? .highlighted : .normal,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return IrmaCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  if (showRadio)
-                    Padding(
-                      padding: EdgeInsets.only(right: theme.smallSpacing),
-                      child: Icon(
-                        isSelected
-                            ? Icons.radio_button_checked
-                            : Icons.radio_button_unchecked,
-                        color: isSelected ? theme.themeData.primaryColor : null,
-                      ),
-                    ),
-                  if (credential.imagePath.isNotEmpty)
-                    Padding(
-                      padding: EdgeInsets.only(right: theme.smallSpacing),
-                      child: Image.asset(
-                        credential.imagePath,
-                        width: 40,
-                        height: 40,
-                        errorBuilder: (_, __, ___) =>
-                            const SizedBox(width: 40, height: 40),
-                      ),
-                    ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          getTranslation(context, credential.name),
-                          style: theme.themeData.textTheme.titleSmall,
-                        ),
-                        Text(
-                          getTranslation(context, credential.issuer.name),
-                          style: theme.themeData.textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
+              if (credential.imagePath.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(right: theme.smallSpacing),
+                  child: Image.file(
+                    File(credential.imagePath),
+                    width: 40,
+                    height: 40,
+                    errorBuilder: (_, __, ___) =>
+                        const SizedBox(width: 40, height: 40),
                   ),
-                ],
+                ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      getTranslation(context, credential.name),
+                      style: theme.themeData.textTheme.titleSmall,
+                    ),
+                    Text(
+                      getTranslation(context, credential.issuer.name),
+                      style: theme.themeData.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
-              if (credential.attributes.isNotEmpty) ...[
-                SizedBox(height: theme.smallSpacing),
-                YiviCredentialCardAttributeList(credential.attributes),
-              ],
             ],
           ),
-        ),
+          if (credential.attributes.isNotEmpty) ...[
+            SizedBox(height: theme.smallSpacing),
+            YiviCredentialCardAttributeList(credential.attributes),
+          ],
+        ],
       ),
     );
   }
