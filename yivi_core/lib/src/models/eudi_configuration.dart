@@ -4,18 +4,17 @@ import "event.dart";
 
 part "eudi_configuration.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class EudiConfigurationEvent extends Event {
   EudiConfigurationEvent({required this.eudiConfiguration});
 
-  @JsonKey(name: "EudiConfiguration")
   final EudiConfiguration eudiConfiguration;
 
   factory EudiConfigurationEvent.fromJson(Map<String, dynamic> json) =>
       _$EudiConfigurationEventFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class EudiConfiguration {
   EudiConfiguration({
     this.issuerCertificates,
@@ -23,30 +22,26 @@ class EudiConfiguration {
     this.path,
   });
 
-  @JsonKey(name: "Issuers")
+  @JsonKey(name: "issuers")
   final List<Cert>? issuerCertificates;
 
-  @JsonKey(name: "Verifiers")
+  @JsonKey(name: "verifiers")
   final List<Cert>? verifierCertificates;
 
-  @JsonKey(name: "Path")
   final String? path;
 
   factory EudiConfiguration.fromJson(Map<String, dynamic> json) =>
       _$EudiConfigurationFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class Cert {
   Cert({required this.thumbprint, required this.subject, this.childCert});
 
-  @JsonKey(name: "Thumbprint")
   final String thumbprint;
 
-  @JsonKey(name: "Subject")
   final String subject;
 
-  @JsonKey(name: "ChildCert")
   final Cert? childCert;
 
   factory Cert.fromJson(Map<String, dynamic> json) => _$CertFromJson(json);

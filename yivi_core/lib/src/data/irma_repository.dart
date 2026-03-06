@@ -16,7 +16,6 @@ import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
-import "../models/credential_events.dart";
 import "../models/credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
@@ -29,9 +28,9 @@ import "../models/issue_wizard.dart";
 import "../models/native_events.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
+import "../models/schemaless/session_state.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
-import "../models/session_state.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
@@ -71,9 +70,7 @@ class IrmaRepository {
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
-      sessionEventStream: _eventSubject
-          .where((event) => event is SessionEvent)
-          .cast<SessionEvent>(),
+      eventStream: _eventSubject.stream,
     );
     _credentialsSubject.forEach((creds) async {
       final event = await _issueWizardSubject.first;
@@ -160,6 +157,7 @@ class IrmaRepository {
       _resumedFromBrowserSubject.close(),
       _issueWizardSubject.close(),
       _issueWizardActiveSubject.close(),
+      _sessionRepository.close(),
       _fatalErrorSubject.close(),
     ]);
   }
@@ -177,13 +175,6 @@ class IrmaRepository {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
-    } else if (event is CredentialsEvent) {
-      _credentialsSubject.add(
-        Credentials.fromRaw(
-          irmaConfiguration: await _irmaConfigurationSubject.first,
-          rawCredentials: event.credentials,
-        ),
-      );
     } else if (event is schemaless.SchemalessCredentialsEvent) {
       _schemalessCredentialsSubject.add(event.credentials);
     } else if (event is SchemalessCredentialStoreEvent) {
@@ -216,49 +207,6 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
-// --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
-        if (event.url.startsWith("yivi-app://callback")) {
-          final uri = Uri.parse(event.url);
-          final state = uri.queryParameters["state"];
-          if (state == null) {
-            throw MissingPointer(
-              details:
-                  'expected "state" to be present in query parameters, but it wasn\'t',
-            );
-          }
-          // find session with matching state
-          final session = await _sessionRepository.getSessionStateByState(state);
-          if (session == null) {
-            throw MissingPointer(
-              details: "no session found matching state $state",
-            );
-          }
-
-          // Update the session with the code from the url and send the response to irmago
-
-          if (session is OpenID4VciSessionState) {
-            final code = uri.queryParameters["code"];
-            if (code == null) {
-              throw MissingPointer(
-                details:
-                    'expected "code" to be present in query parameters, but it wasn\'t',
-              );
-            }
-            bridgedDispatch(
-              RespondAuthorizationCodeEvent(
-                sessionID: session.sessionID,
-                proceed: true,
-                code: code,
-              ),
-            );
-          } else {
-            throw MissingPointer(
-              details: "session with state $state is not an OpenID4VciSessionState",
-            );
-          }
-        }
-// --- END TODO
-
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
@@ -281,14 +229,6 @@ class IrmaRepository {
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
-    } else if (event is IssueWizardContentsEvent) {
-      _issueWizardSubject.add(
-        await processIssueWizard(
-          event.id,
-          event.wizardContents,
-          await _credentialsSubject.first,
-        ),
-      );
     }
   }
 
@@ -500,13 +440,14 @@ class IrmaRepository {
         .takeUntil(_fatalErrorSubject);
   }
 
-  // -- Session
-  SessionState? getCurrentSessionState(int sessionID) =>
-      _sessionRepository.getCurrentSessionState(sessionID);
+  // -- Sessions
+  Stream<SessionState> getSessionState(int sessionId) {
+    return _sessionRepository.getSessionState(sessionId);
+  }
 
-  Stream<SessionState> getSessionState(int sessionID) {
-    // Prevent states to be emitted twice when multiple sessions run in parallel.
-    return _sessionRepository.getSessionState(sessionID).distinct();
+  /// Stream that emits session IDs when a new session is first seen.
+  Stream<int> getNewSessionIds() {
+    return _sessionRepository.newSessionIds;
   }
 
   Future<bool> hasActiveSessions() {

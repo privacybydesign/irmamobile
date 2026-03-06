@@ -5,7 +5,7 @@ import "event.dart";
 
 part "applifecycle_changed_event.g.dart";
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class AppLifecycleChangedEvent extends Event {
   final AppLifecycleState state;
 

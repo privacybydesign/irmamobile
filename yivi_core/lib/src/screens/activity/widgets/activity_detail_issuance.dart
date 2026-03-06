@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 
-import "../../../models/irma_configuration.dart";
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
@@ -9,12 +8,8 @@ import "../../../widgets/translated_text.dart";
 
 class ActivityDetailIssuance extends StatelessWidget {
   final LogInfo logEntry;
-  final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailIssuance({
-    required this.logEntry,
-    required this.irmaConfiguration,
-  });
+  const ActivityDetailIssuance({required this.logEntry});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +32,8 @@ class ActivityDetailIssuance extends StatelessWidget {
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCredentialCard.fromCredentialLog(
-                irmaConfiguration,
-                cred,
+              child: YiviCredentialCard(
+                credential: cred.toCredential(),
                 compact: true,
               ),
             ),
@@ -65,9 +59,8 @@ class ActivityDetailIssuance extends StatelessWidget {
         for (var rawCredential in issuanceLog.credentials)
           Padding(
             padding: EdgeInsets.only(bottom: theme.smallSpacing),
-            child: YiviCredentialCard.fromCredentialLog(
-              irmaConfiguration,
-              rawCredential,
+            child: YiviCredentialCard(
+              credential: rawCredential.toCredential(),
               compact: true,
             ),
           ),

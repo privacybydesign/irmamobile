@@ -1,8 +1,8 @@
+/*
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../../models/session_state.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_dialog.dart";
 import "../../../widgets/yivi_themed_button.dart";
@@ -82,3 +82,4 @@ class _ProvideTransactionCodeDialogState
     );
   }
 }
+*/
