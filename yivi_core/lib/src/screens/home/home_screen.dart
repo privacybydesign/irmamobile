@@ -7,7 +7,7 @@ import "../activity/activity_tab.dart";
 import "../data/data_tab.dart";
 import "../more/more_tab.dart";
 import "../notifications/notifications_tab.dart";
-import "../session/widgets/schemaless_session_listener.dart";
+import "../session/widgets/new_session_listener.dart";
 import "widgets/irma_nav_bar.dart";
 import "widgets/irma_qr_scan_button.dart";
 import "widgets/pending_pointer_listener.dart";
@@ -48,7 +48,7 @@ class HomeScreen extends StatelessWidget {
               changeTab(.data);
             }
           },
-          child: SchemalessSessionListener(
+          child: NewSessionListener(
             child: PendingPointerListener(
               child: Container(
                 color: Colors.white,

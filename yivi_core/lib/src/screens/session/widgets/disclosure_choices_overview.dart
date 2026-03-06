@@ -11,8 +11,10 @@ import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
+import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
@@ -35,10 +37,10 @@ class DisclosureChoicesOverview extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<DisclosureChoicesOverview> createState() =>
-      _SchemalessDisclosureOverviewState();
+      _DisclosureChoicesOverviewState();
 }
 
-class _SchemalessDisclosureOverviewState
+class _DisclosureChoicesOverviewState
     extends ConsumerState<DisclosureChoicesOverview> {
   int get _sessionId => widget.sessionState.id;
 
@@ -67,12 +69,18 @@ class _SchemalessDisclosureOverviewState
   List<DisclosureDisconSelection> _buildDisclosureChoices() {
     final choices =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
-    final userChoices = ref
-        .read(sessionUserChoicesProvider(_sessionId))
-        .disclosureChoices;
+    final userState = ref.read(sessionUserChoicesProvider(_sessionId));
+    final userChoices = userState.disclosureChoices;
+    final addedOptional = userState.addedOptionalIndices;
 
     final disclosureChoices = <DisclosureDisconSelection>[];
     for (var i = 0; i < choices.length; i++) {
+      // Skip optional choices that haven't been added
+      if (choices[i].optional && !addedOptional.contains(i)) {
+        disclosureChoices.add(DisclosureDisconSelection(credentials: []));
+        continue;
+      }
+
       final stored = userChoices[i];
       if (stored != null) {
         disclosureChoices.add(DisclosureDisconSelection(credentials: [stored]));
@@ -107,7 +115,7 @@ class _SchemalessDisclosureOverviewState
     widget.onChoicesConfirmed(disclosureChoices);
   }
 
-  void _onChangeChoice(int disconIndex) {
+  void _onChangeChoice(int disconIndex, {bool addOptional = false}) {
     final choices =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
     if (disconIndex >= choices.length) return;
@@ -118,26 +126,36 @@ class _SchemalessDisclosureOverviewState
           pickOne: choices[disconIndex],
           initialSelectedIndex: _selectedIndexFor(disconIndex),
           onChoiceMade: (newIndex) {
+            final notifier = ref.read(
+              sessionUserChoicesProvider(_sessionId).notifier,
+            );
+            if (addOptional) {
+              notifier.addOptional(disconIndex);
+            }
             final owned = choices[disconIndex].ownedOptions;
             if (owned != null && newIndex < owned.length) {
               final selected = owned[newIndex];
-              ref
-                  .read(sessionUserChoicesProvider(_sessionId).notifier)
-                  .setChoice(
-                    disconIndex,
-                    SelectedCredential(
-                      credentialId: selected.credentialId,
-                      credentialHash: selected.hash,
-                      attributePaths: selected.attributes
-                          .map((attr) => <dynamic>[attr.id])
-                          .toList(),
-                    ),
-                  );
+              notifier.setChoice(
+                disconIndex,
+                SelectedCredential(
+                  credentialId: selected.credentialId,
+                  credentialHash: selected.hash,
+                  attributePaths: selected.attributes
+                      .map((attr) => <dynamic>[attr.id])
+                      .toList(),
+                ),
+              );
             }
           },
         ),
       ),
     );
+  }
+
+  void _onRemoveOptional(int disconIndex) {
+    ref
+        .read(sessionUserChoicesProvider(_sessionId).notifier)
+        .removeOptional(disconIndex);
   }
 
   /// Whether a discon has multiple total options (owned + obtainable).
@@ -163,14 +181,20 @@ class _SchemalessDisclosureOverviewState
     };
 
     // Watch the provider so we rebuild when choices change
-    ref.watch(sessionUserChoicesProvider(_sessionId));
+    final userState = ref.watch(sessionUserChoicesProvider(_sessionId));
+    final addedOptional = userState.addedOptionalIndices;
 
     final requiredChoices = choices.indexed
         .where((e) => !e.$2.optional)
         .toList();
-    final optionalChoices = choices.indexed
+    final allOptionalChoices = choices.indexed
         .where((e) => e.$2.optional)
         .toList();
+    final addedOptionalChoices = allOptionalChoices
+        .where((e) => addedOptional.contains(e.$1))
+        .toList();
+    final hasUnaddedOptional =
+        addedOptionalChoices.length < allOptionalChoices.length;
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.overview.title",
@@ -223,21 +247,40 @@ class _SchemalessDisclosureOverviewState
                   onChangeChoice: () => _onChangeChoice(index),
                 ),
 
-              // Optional choices
-              if (optionalChoices.isNotEmpty) ...[
+              // Added optional choices
+              if (addedOptionalChoices.isNotEmpty) ...[
                 SizedBox(height: theme.defaultSpacing),
                 TranslatedText(
                   "disclosure_permission.optional_data",
                   style: theme.themeData.textTheme.headlineMedium,
                 ),
                 SizedBox(height: theme.smallSpacing),
-                for (final (index, pickOne) in optionalChoices)
+                for (final (index, pickOne) in addedOptionalChoices)
                   _DisclosureChoiceEntry(
                     pickOne: pickOne,
                     selectedIndex: _selectedIndexFor(index),
                     changeable: _hasMultipleOptions(pickOne),
+                    optional: true,
                     onChangeChoice: () => _onChangeChoice(index),
+                    onRemove: () => _onRemoveOptional(index),
                   ),
+              ],
+
+              // Add optional data button
+              if (hasUnaddedOptional) ...[
+                SizedBox(height: theme.defaultSpacing),
+                IrmaActionCard(
+                  titleKey: "disclosure_permission.add_optional_data",
+                  icon: Icons.add_circle,
+                  isFancy: false,
+                  onTap: () {
+                    // Find the first unadded optional choice
+                    final firstUnadded = allOptionalChoices.firstWhere(
+                      (e) => !addedOptional.contains(e.$1),
+                    );
+                    _onChangeChoice(firstUnadded.$1, addOptional: true);
+                  },
+                ),
               ],
 
               if (choices.isEmpty)
@@ -263,13 +306,17 @@ class _DisclosureChoiceEntry extends StatelessWidget {
   final DisclosurePickOne pickOne;
   final int selectedIndex;
   final bool changeable;
+  final bool optional;
   final VoidCallback onChangeChoice;
+  final VoidCallback? onRemove;
 
   const _DisclosureChoiceEntry({
     required this.pickOne,
     required this.selectedIndex,
     required this.changeable,
+    this.optional = false,
     required this.onChangeChoice,
+    this.onRemove,
   });
 
   @override
@@ -279,12 +326,13 @@ class _DisclosureChoiceEntry extends StatelessWidget {
 
     if (owned != null && owned.isNotEmpty) {
       final selected = owned[selectedIndex];
+      final showActionRow = changeable || optional;
 
       return Padding(
         padding: EdgeInsets.only(bottom: theme.smallSpacing),
         child: Column(
           children: [
-            if (changeable)
+            if (showActionRow)
               Padding(
                 padding: EdgeInsets.only(
                   bottom: theme.smallSpacing,
@@ -293,15 +341,25 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Flexible(
-                      child: YiviThemedButton(
-                        label: "disclosure_permission.change_choice",
-                        style: YiviButtonStyle.outlined,
-                        size: YiviButtonSize.small,
-                        isTransparent: true,
-                        onPressed: onChangeChoice,
+                    if (optional && onRemove != null)
+                      IrmaIconButton(
+                        key: const Key("remove_optional_data_button"),
+                        icon: Icons.close,
+                        size: 22,
+                        padding: EdgeInsets.zero,
+                        onTap: onRemove!,
                       ),
-                    ),
+                    if (optional) const Spacer(),
+                    if (changeable)
+                      Flexible(
+                        child: YiviThemedButton(
+                          label: "disclosure_permission.change_choice",
+                          style: YiviButtonStyle.outlined,
+                          size: YiviButtonSize.small,
+                          isTransparent: true,
+                          onPressed: onChangeChoice,
+                        ),
+                      ),
                   ],
                 ),
               ),

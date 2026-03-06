@@ -14,11 +14,11 @@ import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
 import "../pin/session_pin_screen.dart";
 import "widgets/arrow_back_screen.dart";
+import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/pairing_required.dart";
-import "widgets/schemaless_disclosure_overview.dart";
 import "widgets/schemaless_issue_during_disclosure.dart";
 import "widgets/session_scaffold.dart";
 

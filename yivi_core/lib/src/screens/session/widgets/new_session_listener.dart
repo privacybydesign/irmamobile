@@ -10,17 +10,16 @@ import "../../../util/navigation.dart";
 ///
 /// Place this widget high in the widget tree (e.g. wrapping the home screen)
 /// so it has access to a navigator that can push session screens.
-class SchemalessSessionListener extends StatefulWidget {
+class NewSessionListener extends StatefulWidget {
   final Widget child;
 
-  const SchemalessSessionListener({super.key, required this.child});
+  const NewSessionListener({super.key, required this.child});
 
   @override
-  State<SchemalessSessionListener> createState() =>
-      _SchemalessSessionListenerState();
+  State<NewSessionListener> createState() => _NewSessionListenerState();
 }
 
-class _SchemalessSessionListenerState extends State<SchemalessSessionListener> {
+class _NewSessionListenerState extends State<NewSessionListener> {
   StreamSubscription<int>? _subscription;
 
   @override
