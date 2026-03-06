@@ -7,7 +7,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../models/session.dart";
-import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
@@ -26,11 +25,13 @@ import "session_scaffold.dart";
 class SchemalessDisclosureOverview extends ConsumerStatefulWidget {
   final SessionState sessionState;
   final VoidCallback onDismiss;
+  final ValueChanged<List<DisclosureDisconSelection>> onChoicesConfirmed;
 
   const SchemalessDisclosureOverview({
     super.key,
     required this.sessionState,
     required this.onDismiss,
+    required this.onChoicesConfirmed,
   });
 
   @override
@@ -64,8 +65,7 @@ class _SchemalessDisclosureOverviewState
     return 0;
   }
 
-  void _onApprove() {
-    final repo = ref.read(irmaRepositoryProvider);
+  List<DisclosureDisconSelection> _buildDisclosureChoices() {
     final choices =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
     final userChoices = ref
@@ -100,14 +100,12 @@ class _SchemalessDisclosureOverviewState
         }
       }
     }
+    return disclosureChoices;
+  }
 
-    repo.bridgedDispatch(
-      SessionUserInteractionEvent.permission(
-        sessionId: _sessionId,
-        granted: true,
-        disclosureChoices: disclosureChoices,
-      ),
-    );
+  void _onApprove() {
+    final disclosureChoices = _buildDisclosureChoices();
+    widget.onChoicesConfirmed(disclosureChoices);
   }
 
   Future<void> _showConfirmDialog() async {
@@ -212,6 +210,12 @@ class _SchemalessDisclosureOverviewState
     final isSignature = session.type == SessionType.signature;
     final requestorName = session.requestor.name.translate(lang);
 
+    final confirmButtonKey = switch (session.type) {
+      .issuance => "ui.next",
+      .disclosure => "disclosure_permission.overview.confirm",
+      .signature => "disclosure_permission.overview.confirm_sign",
+    };
+
     // Watch the provider so we rebuild when choices change
     ref.watch(sessionUserChoicesProvider(_sessionId));
 
@@ -300,10 +304,8 @@ class _SchemalessDisclosureOverviewState
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: isSignature
-            ? "disclosure_permission.overview.confirm_sign"
-            : "disclosure_permission.overview.confirm",
-        onPrimaryPressed: _showConfirmDialog,
+        primaryButtonLabel: confirmButtonKey,
+        onPrimaryPressed: _onApprove,
       ),
     );
   }
