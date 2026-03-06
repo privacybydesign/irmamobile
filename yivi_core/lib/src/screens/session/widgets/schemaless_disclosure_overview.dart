@@ -13,7 +13,6 @@ import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
-import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
@@ -22,12 +21,12 @@ import "../../../widgets/yivi_themed_button.dart";
 import "disclosure_make_choice_screen.dart";
 import "session_scaffold.dart";
 
-class SchemalessDisclosureOverview extends ConsumerStatefulWidget {
+class DisclosureChoicesOverview extends ConsumerStatefulWidget {
   final SessionState sessionState;
   final VoidCallback onDismiss;
   final ValueChanged<List<DisclosureDisconSelection>> onChoicesConfirmed;
 
-  const SchemalessDisclosureOverview({
+  const DisclosureChoicesOverview({
     super.key,
     required this.sessionState,
     required this.onDismiss,
@@ -35,12 +34,12 @@ class SchemalessDisclosureOverview extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SchemalessDisclosureOverview> createState() =>
+  ConsumerState<DisclosureChoicesOverview> createState() =>
       _SchemalessDisclosureOverviewState();
 }
 
 class _SchemalessDisclosureOverviewState
-    extends ConsumerState<SchemalessDisclosureOverview> {
+    extends ConsumerState<DisclosureChoicesOverview> {
   int get _sessionId => widget.sessionState.id;
 
   /// Returns the selected index for a discon, defaulting to 0.
@@ -106,59 +105,6 @@ class _SchemalessDisclosureOverviewState
   void _onApprove() {
     final disclosureChoices = _buildDisclosureChoices();
     widget.onChoicesConfirmed(disclosureChoices);
-  }
-
-  Future<void> _showConfirmDialog() async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final isSignature = widget.sessionState.type == SessionType.signature;
-    final requestorName = widget.sessionState.requestor.name.translate(lang);
-
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => IrmaConfirmationDialog(
-            titleTranslationKey: isSignature
-                ? "disclosure_permission.confirm_dialog.title_signature"
-                : "disclosure_permission.confirm_dialog.title",
-            contentTranslationKey: isSignature
-                ? "disclosure_permission.confirm_dialog.explanation_signature"
-                : "disclosure_permission.confirm_dialog.explanation",
-            contentTranslationParams: {"requestorName": requestorName},
-            confirmTranslationKey: isSignature
-                ? "disclosure_permission.confirm_dialog.confirm_signature"
-                : "disclosure_permission.confirm_dialog.confirm",
-            cancelTranslationKey: isSignature
-                ? "disclosure_permission.confirm_dialog.decline_signature"
-                : "disclosure_permission.confirm_dialog.decline",
-          ),
-        ) ??
-        false;
-
-    if (confirmed && mounted) {
-      _onApprove();
-    }
-  }
-
-  Future<void> _showCloseDialog() async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => const IrmaConfirmationDialog(
-            titleTranslationKey:
-                "disclosure_permission.confirm_close_dialog.title",
-            contentTranslationKey:
-                "disclosure_permission.confirm_close_dialog.explanation",
-            confirmTranslationKey:
-                "disclosure_permission.confirm_close_dialog.confirm",
-            cancelTranslationKey:
-                "disclosure_permission.confirm_close_dialog.decline",
-          ),
-        ) ??
-        false;
-
-    if (confirmed && mounted) {
-      widget.onDismiss();
-    }
   }
 
   void _onChangeChoice(int disconIndex) {
@@ -228,7 +174,7 @@ class _SchemalessDisclosureOverviewState
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.overview.title",
-      onDismiss: _showCloseDialog,
+      onDismiss: widget.onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: SafeArea(

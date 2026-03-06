@@ -9,6 +9,7 @@ import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../util/language.dart";
+import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/loading_indicator.dart";
 import "../../error/session_error_screen.dart";
 import "../../pin/session_pin_screen.dart";
@@ -128,7 +129,7 @@ class _SchemalessSessionScreenState
     if (needsIssueBeforeDisclosure) {
       return SchemalessIssueDuringDisclosure(
         sessionState: session,
-        onDismiss: _dismissSession,
+        onDismiss: _showDismissDialog,
       );
     }
 
@@ -137,7 +138,7 @@ class _SchemalessSessionScreenState
       if (hasDisclosureChoices && _pendingDisclosureChoices == null) {
         return DisclosureChoicesOverview(
           sessionState: session,
-          onDismiss: _dismissSession,
+          onDismiss: _showDismissDialog,
           onChoicesConfirmed: (choices) {
             setState(() => _pendingDisclosureChoices = choices);
           },
@@ -146,7 +147,7 @@ class _SchemalessSessionScreenState
 
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
-        onDismiss: _dismissSession,
+        onDismiss: _showDismissDialog,
         onGivePermission: () {
           _grantPermission(_pendingDisclosureChoices ?? []);
         },
@@ -156,8 +157,10 @@ class _SchemalessSessionScreenState
     // Pure disclosure or signature session where issuance is no longer required
     return DisclosureChoicesOverview(
       sessionState: session,
-      onDismiss: _dismissSession,
-      onChoicesConfirmed: _grantPermission,
+      onDismiss: _showDismissDialog,
+      onChoicesConfirmed: (choices) {
+        _showShareConfirmDialog(session, choices);
+      },
     );
   }
 
@@ -166,6 +169,62 @@ class _SchemalessSessionScreenState
     repo.bridgedDispatch(
       SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
     );
+  }
+
+  Future<void> _showDismissDialog() async {
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (context) => const IrmaConfirmationDialog(
+            titleTranslationKey:
+                "disclosure_permission.confirm_close_dialog.title",
+            contentTranslationKey:
+                "disclosure_permission.confirm_close_dialog.explanation",
+            confirmTranslationKey:
+                "disclosure_permission.confirm_close_dialog.confirm",
+            cancelTranslationKey:
+                "disclosure_permission.confirm_close_dialog.decline",
+          ),
+        ) ??
+        false;
+
+    if (confirmed && mounted) {
+      _dismissSession();
+    }
+  }
+
+  Future<void> _showShareConfirmDialog(
+    SessionState session,
+    List<DisclosureDisconSelection> choices,
+  ) async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final isSignature = session.type == SessionType.signature;
+    final requestorName = session.requestor.name.translate(lang);
+
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (context) => IrmaConfirmationDialog(
+            titleTranslationKey: isSignature
+                ? "disclosure_permission.confirm_dialog.title_signature"
+                : "disclosure_permission.confirm_dialog.title",
+            contentTranslationKey: isSignature
+                ? "disclosure_permission.confirm_dialog.explanation_signature"
+                : "disclosure_permission.confirm_dialog.explanation",
+            contentTranslationParams: {"requestorName": requestorName},
+            confirmTranslationKey: isSignature
+                ? "disclosure_permission.confirm_dialog.confirm_signature"
+                : "disclosure_permission.confirm_dialog.confirm",
+            cancelTranslationKey: isSignature
+                ? "disclosure_permission.confirm_dialog.decline_signature"
+                : "disclosure_permission.confirm_dialog.decline",
+          ),
+        ) ??
+        false;
+
+    if (confirmed && mounted) {
+      _grantPermission(choices);
+    }
   }
 
   String _getAppBarTitle(SessionState session) {
@@ -234,35 +293,4 @@ class _SchemalessSessionScreenState
       },
     );
   }
-
-  // Future<void> _showConfirmDialog() async {
-  //   final lang = FlutterI18n.currentLocale(context)!.languageCode;
-  //   final isSignature = widget.sessionState.type == SessionType.signature;
-  //   final requestorName = widget.sessionState.requestor.name.translate(lang);
-  //
-  //   final confirmed =
-  //       await showDialog<bool>(
-  //         context: context,
-  //         builder: (context) => IrmaConfirmationDialog(
-  //           titleTranslationKey: isSignature
-  //               ? "disclosure_permission.confirm_dialog.title_signature"
-  //               : "disclosure_permission.confirm_dialog.title",
-  //           contentTranslationKey: isSignature
-  //               ? "disclosure_permission.confirm_dialog.explanation_signature"
-  //               : "disclosure_permission.confirm_dialog.explanation",
-  //           contentTranslationParams: {"requestorName": requestorName},
-  //           confirmTranslationKey: isSignature
-  //               ? "disclosure_permission.confirm_dialog.confirm_signature"
-  //               : "disclosure_permission.confirm_dialog.confirm",
-  //           cancelTranslationKey: isSignature
-  //               ? "disclosure_permission.confirm_dialog.decline_signature"
-  //               : "disclosure_permission.confirm_dialog.decline",
-  //         ),
-  //       ) ??
-  //       false;
-  //
-  //   if (confirmed && mounted) {
-  //     _onApprove();
-  //   }
-  // }
 }
