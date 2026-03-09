@@ -452,7 +452,9 @@ class IrmaRepository {
   }
 
   Future<bool> hasActiveSessions({int? excludeSessionId}) {
-    return _sessionRepository.hasActiveSessions(excludeSessionId: excludeSessionId);
+    return _sessionRepository.hasActiveSessions(
+      excludeSessionId: excludeSessionId,
+    );
   }
 
   // Returns a future whether the app was resumed by either
