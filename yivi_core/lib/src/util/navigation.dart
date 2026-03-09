@@ -412,15 +412,25 @@ class PassportNfcReadingRouteParams {
 
 class SessionRouteParams {
   final int sessionId;
+  final bool hasUnderlyingSession;
 
-  SessionRouteParams({required this.sessionId});
+  SessionRouteParams({
+    required this.sessionId,
+    this.hasUnderlyingSession = false,
+  });
 
   Map<String, String> toQueryParams() {
-    return {"session_id": "$sessionId"};
+    return {
+      "session_id": "$sessionId",
+      if (hasUnderlyingSession) "has_underlying_session": "true",
+    };
   }
 
   static SessionRouteParams fromQueryParams(Map<String, String> params) {
-    return SessionRouteParams(sessionId: int.parse(params["session_id"]!));
+    return SessionRouteParams(
+      sessionId: int.parse(params["session_id"]!),
+      hasUnderlyingSession: params["has_underlying_session"] == "true",
+    );
   }
 }
 

@@ -2,10 +2,12 @@ import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:url_launcher/url_launcher.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
+import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -36,7 +38,7 @@ class _ObtainableSelection extends _Selection {
 /// obtainable credentials below. When an owned option is selected, the bottom
 /// bar shows a "Done" button. When an obtainable option is selected, it shows
 /// an "Obtain data" button that opens the issue URL.
-class DisclosureMakeChoiceScreen extends StatefulWidget {
+class DisclosureMakeChoiceScreen extends ConsumerStatefulWidget {
   final DisclosurePickOne pickOne;
   final int initialSelectedIndex;
   final ValueChanged<int> onChoiceMade;
@@ -49,12 +51,12 @@ class DisclosureMakeChoiceScreen extends StatefulWidget {
   });
 
   @override
-  State<DisclosureMakeChoiceScreen> createState() =>
+  ConsumerState<DisclosureMakeChoiceScreen> createState() =>
       _DisclosureMakeChoiceScreenState();
 }
 
 class _DisclosureMakeChoiceScreenState
-    extends State<DisclosureMakeChoiceScreen> {
+    extends ConsumerState<DisclosureMakeChoiceScreen> {
   late _Selection _selection;
 
   @override
@@ -71,10 +73,13 @@ class _DisclosureMakeChoiceScreenState
     final index = (_selection as _ObtainableSelection).index;
     if (index >= obtainable.length) return;
 
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = obtainable[index].issueURL?.translate(lang);
-    if (url != null && url.isNotEmpty) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    final cred = obtainable[index];
+    try {
+      await ref
+          .read(irmaRepositoryProvider)
+          .openIssueURL(context, cred.credentialId, cred.issueURL, ref);
+    } catch (e) {
+      debugPrint("failed to open: $e");
     }
   }
 

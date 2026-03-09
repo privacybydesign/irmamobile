@@ -2,10 +2,12 @@ import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:url_launcher/url_launcher.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
+import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -21,7 +23,7 @@ import "session_scaffold.dart";
 ///
 /// Uses [IrmaStepper] to display steps as a timeline, matching the visual
 /// style from the old disclosure permission issue wizard.
-class IssueDuringDisclosureScreen extends StatefulWidget {
+class IssueDuringDisclosureScreen extends ConsumerStatefulWidget {
   final SessionState sessionState;
   final VoidCallback onDismiss;
 
@@ -32,12 +34,12 @@ class IssueDuringDisclosureScreen extends StatefulWidget {
   });
 
   @override
-  State<IssueDuringDisclosureScreen> createState() =>
+  ConsumerState<IssueDuringDisclosureScreen> createState() =>
       _IssueDuringDisclosureScreenState();
 }
 
 class _IssueDuringDisclosureScreenState
-    extends State<IssueDuringDisclosureScreen> {
+    extends ConsumerState<IssueDuringDisclosureScreen> {
   late List<int> _selectedOptionPerStep;
 
   @override
@@ -62,7 +64,10 @@ class _IssueDuringDisclosureScreenState
 
   /// Returns true if any of the step's credential options have been issued.
   bool _isStepCompleted(IssuanceStep step) {
-    final issued = widget.sessionState.disclosurePlan?.issueDuringDislosure
+    final issued = widget
+        .sessionState
+        .disclosurePlan
+        ?.issueDuringDislosure
         ?.issuedCredentialIds;
     if (issued == null || issued.isEmpty) return false;
     return step.options.any((opt) => issued.containsKey(opt.credentialId));
@@ -81,8 +86,14 @@ class _IssueDuringDisclosureScreenState
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final url = credential.issueURL?.translate(lang);
     if (url != null && url.isNotEmpty) {
-      final uri = Uri.parse(url);
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      ref
+          .read(irmaRepositoryProvider)
+          .openIssueURL(
+            context,
+            credential.credentialId,
+            credential.issueURL,
+            ref,
+          );
     }
   }
 
@@ -120,9 +131,7 @@ class _IssueDuringDisclosureScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SessionProgressIndicator(
-                step: isCompleted
-                    ? steps.length
-                    : currentStepIndex + 1,
+                step: isCompleted ? steps.length : currentStepIndex + 1,
                 stepCount: steps.length,
                 contentTranslationKey: isCompleted
                     ? "disclosure_permission.issue_wizard.explanation_complete"
@@ -169,8 +178,7 @@ class _IssueDuringDisclosureScreenState
               isHighlighted: true,
               showRadio: true,
               isSelected: i == _selectedOptionPerStep[index],
-              onTap: () =>
-                  setState(() => _selectedOptionPerStep[index] = i),
+              onTap: () => setState(() => _selectedOptionPerStep[index] = i),
             ),
         ],
       );
@@ -208,7 +216,7 @@ class _CredentialTypeCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: IrmaCard(
-          style: isHighlighted ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+          style: isHighlighted ? .highlighted : .normal,
           child: Row(
             children: [
               if (showRadio)

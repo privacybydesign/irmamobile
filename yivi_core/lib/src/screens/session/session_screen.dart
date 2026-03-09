@@ -6,9 +6,11 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../../data/irma_repository.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
+import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../util/language.dart";
+import "../../util/navigation.dart";
 import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -18,8 +20,8 @@ import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
-import "widgets/pairing_required.dart";
 import "widgets/issue_during_disclosure_screen.dart";
+import "widgets/pairing_required.dart";
 import "widgets/session_scaffold.dart";
 
 /// Displays the current [SessionState] for a given session ID.
@@ -30,8 +32,13 @@ import "widgets/session_scaffold.dart";
 /// session status becomes [SessionStatus.dismissed].
 class SessionScreen extends ConsumerStatefulWidget {
   final int sessionId;
+  final bool hasUnderlyingSession;
 
-  const SessionScreen({super.key, required this.sessionId});
+  const SessionScreen({
+    super.key,
+    required this.sessionId,
+    this.hasUnderlyingSession = false,
+  });
 
   @override
   ConsumerState<SessionScreen> createState() => _SessionScreenState();
@@ -259,6 +266,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       if (mounted) Navigator.of(context).pop();
     }
 
+    // If this is an issuance session spawned during a disclosure flow,
+    // skip the success screen and pop back to the underlying disclosure session.
+    if (widget.hasUnderlyingSession && session.type == .issuance) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.popToUnderlyingSession();
+      });
+      return _buildLoadingScreen(session);
+    }
+
     // Second-device flow: show a success screen with a dismiss button.
     if (session.continueOnSecondDevice) {
       if (session.type == .issuance) {
@@ -285,7 +301,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Widget _buildError(SessionState session) {
     HapticFeedback.heavyImpact();
     return SessionErrorScreen(
-      error: null,
+      error: SessionError(errorType: "", info: session.error!),
       onTapClose: () {
         if (mounted) Navigator.of(context).pop();
       },

@@ -28,10 +28,16 @@ class _NewSessionListenerState extends State<NewSessionListener> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final repo = IrmaRepositoryProvider.of(context);
-      _subscription = repo.getNewSessionIds().listen((sessionID) {
-        if (mounted) {
-          context.pushSessionScreen(SessionRouteParams(sessionId: sessionID));
-        }
+      _subscription = repo.getNewSessionIds().listen((sessionID) async {
+        if (!mounted) return;
+        final hasUnderlying = await repo.hasActiveSessions();
+        if (!mounted) return;
+        context.pushSessionScreen(
+          SessionRouteParams(
+            sessionId: sessionID,
+            hasUnderlyingSession: hasUnderlying,
+          ),
+        );
       });
     });
   }

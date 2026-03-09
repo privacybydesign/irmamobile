@@ -172,7 +172,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
             isSingleton: false,
             description: TranslatedValue.empty(),
           );
-          _repo.openIssueURL(context, type, ref);
+          _repo.openIssueURL(context, type.fullId, type.issueUrl, ref);
         }
         break;
       case "session":

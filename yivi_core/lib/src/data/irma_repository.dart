@@ -31,6 +31,7 @@ import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../models/schemaless/session_state.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
+import "../models/translated_value.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
@@ -717,56 +718,45 @@ class IrmaRepository {
 
   Future<void> openIssueURL(
     BuildContext context,
-    CredentialType type,
+    String credentialId,
+    TranslatedValue? issueUrl,
     WidgetRef ref,
   ) async {
     // handle some embedded issuance flows
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    if (const {"pbdf", "pbdf-staging"}.contains(type.schemeManagerId)) {
-      final embeddedFlows = {
-        "passport": _startPassportIssuance,
-        "drivinglicence": _startDrivingLicenceIssuance,
-        "idcard": _startIdCardIssuance,
-        "mobilenumber": _startMobileNumberIssuance,
-        "email": _startEmailIssuance,
-      };
 
-      final flow = embeddedFlows[type.id];
-      if (flow != null) {
-        return flow(context, type.issueUrl.translate(lang), ref);
-      }
+    final embeddedFlows = {
+      //----------- production
+      "pbdf.pbdf.passport": _startPassportIssuance,
+      "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
+      "pbdf.pbdf.idcard": _startIdCardIssuance,
+      "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
+      "pbdf.sidn-pbdf.email": _startEmailIssuance,
+      //----------- staging
+      "pbdf-staging.pbdf.passport": _startPassportIssuance,
+      "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
+      "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
+      "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
+      "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
+    };
+    final flow = embeddedFlows[credentialId];
+    if (flow != null) {
+      return flow(context, issueUrl!.translate(lang), ref);
     }
 
     final irmaConfig = await _irmaConfigurationSubject.first;
-    final cred = irmaConfig.credentialTypes[type.fullId];
+    final cred = irmaConfig.credentialTypes[credentialId];
 
     if (cred == null) {
-      throw UnsupportedError("Credential type $type not found in irma config");
+      throw UnsupportedError(
+        "Credential type $credentialId not found in irma config",
+      );
     }
 
     final url = cred.issueUrl.translate(lang, fallback: "");
     if (url.isEmpty) {
       throw UnsupportedError(
-        "Credential type $type does not have a suitable issue url for $lang",
-      );
-    }
-
-    final alreadyObtainedCredentials = await _credentialsSubject.first;
-    final alreadyObtainedCredentialsTypes = alreadyObtainedCredentials.values
-        .map((cred) => cred.credentialType.fullId);
-
-    if (cred.isInCredentialStore ||
-        alreadyObtainedCredentialsTypes.contains(type.fullId)) {
-      final state = await _credentialObtainState.first;
-      final updatedLaunchedCredentials = {
-        ...state.previouslyLaunchedCredentials,
-        type.fullId,
-      };
-
-      _credentialObtainState.add(
-        _CredentialObtainState(
-          previouslyLaunchedCredentials: updatedLaunchedCredentials,
-        ),
+        "Credential type $credentialId does not have a suitable issue url for $lang",
       );
     }
 

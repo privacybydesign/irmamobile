@@ -19,15 +19,10 @@ class SchemalessCredentialStoreEvent extends Event {
 @JsonSerializable(fieldRename: FieldRename.snake)
 class CredentialDescriptor {
   final String credentialId;
-
   final TranslatedValue name;
-
   final TrustedParty issuer;
-
   final TranslatedValue? category;
-
   final String imagePath;
-
   final List<Attribute> attributes;
 
   @JsonKey(name: "issue_url")
