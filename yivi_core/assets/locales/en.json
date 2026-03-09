@@ -199,8 +199,9 @@
     },
     "issue_wizard": {
       "title": "Collect data",
-      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that",
-      "explanation_complete": "All required data has been added"
+      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that.",
+      "explanation_incomplete_single": "Obtain the required data and share it with the requesting party after that.",
+      "explanation_complete": "All required data has been added."
     },
     "previously_added": {
       "title": "Validate data",

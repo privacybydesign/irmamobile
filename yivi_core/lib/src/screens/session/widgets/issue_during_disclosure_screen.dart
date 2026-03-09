@@ -96,6 +96,15 @@ class _IssueDuringDisclosureScreenState
     }
   }
 
+  String _explanationKey(bool isCompleted, bool isSingleStep) {
+    if (isCompleted) {
+      return "disclosure_permission.issue_wizard.explanation_complete";
+    }
+    return isSingleStep
+        ? "disclosure_permission.issue_wizard.explanation_incomplete_single"
+        : "disclosure_permission.issue_wizard.explanation_incomplete";
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -104,6 +113,7 @@ class _IssueDuringDisclosureScreenState
 
     final currentStepIndex = _findCurrentStepIndex(steps);
     final isCompleted = currentStepIndex == null;
+    final isSingleStep = steps.length == 1;
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.issue_wizard.title",
@@ -132,18 +142,22 @@ class _IssueDuringDisclosureScreenState
               SessionProgressIndicator(
                 step: isCompleted ? steps.length : currentStepIndex + 1,
                 stepCount: steps.length,
-                contentTranslationKey: isCompleted
-                    ? "disclosure_permission.issue_wizard.explanation_complete"
-                    : "disclosure_permission.issue_wizard.explanation_incomplete",
+                contentTranslationKey: _explanationKey(
+                  isCompleted,
+                  isSingleStep,
+                ),
               ),
               SizedBox(height: theme.defaultSpacing),
-              IrmaStepper(
-                currentIndex: currentStepIndex,
-                children: [
-                  for (final (index, step) in steps.indexed)
-                    _buildStepContent(theme, step, index, currentStepIndex),
-                ],
-              ),
+              if (isSingleStep)
+                _buildStepContent(theme, steps[0], 0, currentStepIndex)
+              else
+                IrmaStepper(
+                  currentIndex: currentStepIndex,
+                  children: [
+                    for (final (index, step) in steps.indexed)
+                      _buildStepContent(theme, step, index, currentStepIndex),
+                  ],
+                ),
             ],
           ),
         ),

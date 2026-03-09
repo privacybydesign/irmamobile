@@ -32,6 +32,18 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
       : TranslatedValue.fromJson(json['issue_url'] as Map<String, dynamic>?),
 );
 
+Map<String, dynamic> _$CredentialDescriptorToJson(
+  CredentialDescriptor instance,
+) => <String, dynamic>{
+  'credential_id': instance.credentialId,
+  'name': instance.name,
+  'issuer': instance.issuer,
+  'category': instance.category,
+  'image_path': instance.imagePath,
+  'attributes': instance.attributes,
+  'issue_url': instance.issueURL,
+};
+
 CredentialStoreItem _$CredentialStoreItemFromJson(Map<String, dynamic> json) =>
     CredentialStoreItem(
       credential: CredentialDescriptor.fromJson(
@@ -40,9 +52,20 @@ CredentialStoreItem _$CredentialStoreItemFromJson(Map<String, dynamic> json) =>
       faq: Faq.fromJson(json['faq'] as Map<String, dynamic>),
     );
 
+Map<String, dynamic> _$CredentialStoreItemToJson(
+  CredentialStoreItem instance,
+) => <String, dynamic>{'credential': instance.credential, 'faq': instance.faq};
+
 Faq _$FaqFromJson(Map<String, dynamic> json) => Faq(
   intro: TranslatedValue.fromJson(json['intro'] as Map<String, dynamic>?),
   purpose: TranslatedValue.fromJson(json['purpose'] as Map<String, dynamic>?),
   content: TranslatedValue.fromJson(json['content'] as Map<String, dynamic>?),
   howTo: TranslatedValue.fromJson(json['how_to'] as Map<String, dynamic>?),
 );
+
+Map<String, dynamic> _$FaqToJson(Faq instance) => <String, dynamic>{
+  'intro': instance.intro,
+  'purpose': instance.purpose,
+  'content': instance.content,
+  'how_to': instance.howTo,
+};

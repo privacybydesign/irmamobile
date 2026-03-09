@@ -34,6 +34,18 @@ AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
       base64Image: json['base64_image'] as String?,
     );
 
+Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
+    <String, dynamic>{
+      'type': _$AttributeTypeEnumMap[instance.type]!,
+      'int': instance.intValue,
+      'bool': instance.boolValue,
+      'translated_string': instance.translatedString,
+      'array': instance.array,
+      'object': instance.object,
+      'image_path': instance.imagePath,
+      'base64_image': instance.base64Image,
+    };
+
 const _$AttributeTypeEnumMap = {
   AttributeType.object: 'object',
   AttributeType.array: 'array',
@@ -61,6 +73,14 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
           json['requested_value'] as Map<String, dynamic>,
         ),
 );
+
+Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
+  'id': instance.id,
+  'display_name': instance.displayName,
+  'description': instance.description,
+  'value': instance.value,
+  'requested_value': instance.requestedValue,
+};
 
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   id: json['id'] as String,
@@ -112,6 +132,26 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
     json['issue_url'] as Map<String, dynamic>?,
   ),
 );
+
+Map<String, dynamic> _$CredentialToJson(Credential instance) =>
+    <String, dynamic>{
+      'credential_id': instance.credentialId,
+      'hash': instance.hash,
+      'image_path': instance.imagePath,
+      'name': instance.name,
+      'issuer': instance.issuer,
+      'credential_instance_ids': instance.credentialInstanceIds.map(
+        (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
+      ),
+      'batch_instance_counts_remaining': instance.batchInstanceCountsRemaining
+          .map((k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e)),
+      'attributes': instance.attributes,
+      'issuance_date': instance.issuanceDate,
+      'expiry_date': instance.expiryDate,
+      'revoked': instance.revoked,
+      'revocation_supported': instance.revocationSupported,
+      'issue_url': instance.issueUrl,
+    };
 
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',

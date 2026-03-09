@@ -27,7 +27,7 @@ enum AttributeType {
   base64Image,
 }
 
-@JsonSerializable(createToJson: false, fieldRename: .snake)
+@JsonSerializable(fieldRename: .snake)
 class AttributeValue {
   final AttributeType type;
   @JsonKey(name: "int")
@@ -53,9 +53,11 @@ class AttributeValue {
 
   factory AttributeValue.fromJson(Map<String, dynamic> json) =>
       _$AttributeValueFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttributeValueToJson(this);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: .snake)
+@JsonSerializable(fieldRename: .snake)
 class Attribute {
   final String id;
   final TranslatedValue displayName;
@@ -73,6 +75,8 @@ class Attribute {
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>
       _$AttributeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
@@ -97,7 +101,7 @@ class TrustedParty {
   Map<String, dynamic> toJson() => _$TrustedPartyToJson(this);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: .snake)
+@JsonSerializable(fieldRename: .snake)
 class Credential {
   final String credentialId;
   final String hash;

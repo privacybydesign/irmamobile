@@ -6,7 +6,7 @@ import "schemaless_events.dart";
 
 part "credential_store.g.dart";
 
-@JsonSerializable(createToJson: false, fieldRename: .snake)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class SchemalessCredentialStoreEvent extends Event {
   final List<CredentialStoreItem> credentials;
 
@@ -16,7 +16,7 @@ class SchemalessCredentialStoreEvent extends Event {
       _$SchemalessCredentialStoreEventFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: .snake)
+@JsonSerializable(fieldRename: FieldRename.snake)
 class CredentialDescriptor {
   final String credentialId;
   final TranslatedValue name;
@@ -40,9 +40,11 @@ class CredentialDescriptor {
 
   factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
       _$CredentialDescriptorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialDescriptorToJson(this);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: .snake)
+@JsonSerializable(fieldRename: FieldRename.snake)
 class CredentialStoreItem {
   final CredentialDescriptor credential;
   final Faq faq;
@@ -51,13 +53,18 @@ class CredentialStoreItem {
 
   factory CredentialStoreItem.fromJson(Map<String, dynamic> json) =>
       _$CredentialStoreItemFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialStoreItemToJson(this);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: .snake)
+@JsonSerializable(fieldRename: FieldRename.snake)
 class Faq {
   final TranslatedValue intro;
+
   final TranslatedValue purpose;
+
   final TranslatedValue content;
+
   final TranslatedValue howTo;
 
   Faq({
@@ -68,4 +75,6 @@ class Faq {
   });
 
   factory Faq.fromJson(Map<String, dynamic> json) => _$FaqFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FaqToJson(this);
 }
