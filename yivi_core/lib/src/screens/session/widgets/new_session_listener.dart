@@ -30,7 +30,7 @@ class _NewSessionListenerState extends State<NewSessionListener> {
       final repo = IrmaRepositoryProvider.of(context);
       _subscription = repo.getNewSessionIds().listen((sessionID) async {
         if (!mounted) return;
-        final hasUnderlying = await repo.hasActiveSessions();
+        final hasUnderlying = await repo.hasActiveSessions(excludeSessionId: sessionID);
         if (!mounted) return;
         context.pushSessionScreen(
           SessionRouteParams(

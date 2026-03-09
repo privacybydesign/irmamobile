@@ -63,9 +63,12 @@ class SessionRepository {
   }
 
   /// Returns whether any session is currently in the requestPermission state.
-  Future<bool> hasActiveSessions() async {
+  /// Optionally excludes a specific session ID from the check.
+  Future<bool> hasActiveSessions({int? excludeSessionId}) async {
     final states = _states.value;
-    return states.values.any((s) => s.status == .requestPermission);
+    return states.entries.any(
+      (e) => e.key != excludeSessionId && e.value.status == .requestPermission,
+    );
   }
 
   Future<void> close() async {
