@@ -4,19 +4,10 @@ import "../session_events.dart";
 
 part "session_user_interaction.g.dart";
 
-@JsonEnum(alwaysCreate: true, fieldRename: FieldRename.snake)
-enum UserInteractionType {
-  @JsonValue("entered_pin")
-  enteredPin,
+@JsonEnum(alwaysCreate: true, fieldRename: .snake)
+enum UserInteractionType { enteredPin, permission, dismiss }
 
-  @JsonValue("permission")
-  permission,
-
-  @JsonValue("dismiss")
-  dismiss,
-}
-
-@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createFactory: false, fieldRename: .snake)
 class SelectedCredential {
   final String credentialId;
   final String credentialHash;
@@ -31,7 +22,7 @@ class SelectedCredential {
   Map<String, dynamic> toJson() => _$SelectedCredentialToJson(this);
 }
 
-@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createFactory: false, fieldRename: .snake)
 class DisclosureDisconSelection {
   final List<SelectedCredential> credentials;
 
@@ -40,7 +31,7 @@ class DisclosureDisconSelection {
   Map<String, dynamic> toJson() => _$DisclosureDisconSelectionToJson(this);
 }
 
-@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createFactory: false, fieldRename: .snake)
 class SessionUserInteractionEvent extends SessionEvent {
   final int sessionId;
   final UserInteractionType type;
@@ -58,7 +49,7 @@ class SessionUserInteractionEvent extends SessionEvent {
     required List<DisclosureDisconSelection> disclosureChoices,
   }) => SessionUserInteractionEvent._(
     sessionId: sessionId,
-    type: UserInteractionType.permission,
+    type: .permission,
     payload: {
       "granted": granted,
       "disclosure_choices": disclosureChoices.map((d) => d.toJson()).toList(),
@@ -71,7 +62,7 @@ class SessionUserInteractionEvent extends SessionEvent {
     String? pin,
   }) => SessionUserInteractionEvent._(
     sessionId: sessionId,
-    type: UserInteractionType.enteredPin,
+    type: .enteredPin,
     payload: {"proceed": proceed, if (pin != null) "pin": pin},
   );
 

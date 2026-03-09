@@ -106,8 +106,6 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
   name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
   issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
   format: $enumDecode(_$CredentialFormatEnumMap, json['format']),
-  batchInstanceCountRemaining: (json['batch_instance_count_remaining'] as num?)
-      ?.toInt(),
   attributes: (json['attributes'] as List<dynamic>)
       .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -115,6 +113,8 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
   expiryDate: (json['expiry_date'] as num).toInt(),
   revoked: json['revoked'] as bool,
   revocationSupported: json['revocation_supported'] as bool,
+  batchInstanceCountRemaining: (json['batch_instance_count_remaining'] as num?)
+      ?.toInt(),
   issueUrl: json['issue_url'] == null
       ? null
       : TranslatedValue.fromJson(json['issue_url'] as Map<String, dynamic>?),

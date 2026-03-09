@@ -6,12 +6,6 @@ part of 'session_user_interaction.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-const _$UserInteractionTypeEnumMap = {
-  UserInteractionType.enteredPin: 'entered_pin',
-  UserInteractionType.permission: 'permission',
-  UserInteractionType.dismiss: 'dismiss',
-};
-
 Map<String, dynamic> _$SelectedCredentialToJson(SelectedCredential instance) =>
     <String, dynamic>{
       'credential_id': instance.credentialId,
@@ -21,14 +15,18 @@ Map<String, dynamic> _$SelectedCredentialToJson(SelectedCredential instance) =>
 
 Map<String, dynamic> _$DisclosureDisconSelectionToJson(
   DisclosureDisconSelection instance,
-) => <String, dynamic>{
-  'credentials': instance.credentials.map((c) => c.toJson()).toList(),
-};
+) => <String, dynamic>{'credentials': instance.credentials};
 
 Map<String, dynamic> _$SessionUserInteractionEventToJson(
   SessionUserInteractionEvent instance,
 ) => <String, dynamic>{
   'session_id': instance.sessionId,
   'type': _$UserInteractionTypeEnumMap[instance.type]!,
-  if (instance.payload != null) 'payload': instance.payload,
+  'payload': instance.payload,
+};
+
+const _$UserInteractionTypeEnumMap = {
+  UserInteractionType.enteredPin: 'entered_pin',
+  UserInteractionType.permission: 'permission',
+  UserInteractionType.dismiss: 'dismiss',
 };

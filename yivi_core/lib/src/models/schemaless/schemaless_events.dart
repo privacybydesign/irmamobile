@@ -6,7 +6,7 @@ import "../translated_value.dart";
 
 part "schemaless_events.g.dart";
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class SchemalessCredentialsEvent extends Event {
   final List<Credential> credentials;
 
@@ -27,7 +27,7 @@ enum AttributeType {
   base64Image,
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class AttributeValue {
   final AttributeType type;
   @JsonKey(name: "int")
@@ -53,11 +53,9 @@ class AttributeValue {
 
   factory AttributeValue.fromJson(Map<String, dynamic> json) =>
       _$AttributeValueFromJson(json);
-
-  Map<String, dynamic> toJson() => _$AttributeValueToJson(this);
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class Attribute {
   final String id;
   final TranslatedValue displayName;
@@ -75,8 +73,6 @@ class Attribute {
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>
       _$AttributeFromJson(json);
-
-  Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
@@ -101,7 +97,7 @@ class TrustedParty {
   Map<String, dynamic> toJson() => _$TrustedPartyToJson(this);
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class Credential {
   final String credentialId;
   final String hash;

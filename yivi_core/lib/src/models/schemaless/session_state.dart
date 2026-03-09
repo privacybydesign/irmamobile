@@ -8,7 +8,7 @@ import "schemaless_events.dart";
 
 part "session_state.g.dart";
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class SessionStateEvent extends Event {
   final SessionState sessionState;
 
@@ -18,67 +18,34 @@ class SessionStateEvent extends Event {
       _$SessionStateEventFromJson(json);
 }
 
-@JsonEnum(alwaysCreate: true)
-enum SessionType {
-  @JsonValue("disclosure")
-  disclosure,
+@JsonEnum(alwaysCreate: true, fieldRename: .snake)
+enum SessionType { disclosure, issuance, signature }
 
-  @JsonValue("issuance")
-  issuance,
-
-  @JsonValue("signature")
-  signature,
-}
-
-@JsonEnum(alwaysCreate: true)
+@JsonEnum(alwaysCreate: true, fieldRename: .snake)
 enum SessionStatus {
-  @JsonValue("request_permission")
   requestPermission,
-
-  @JsonValue("show_pairing_code")
   showPairingCode,
-
-  @JsonValue("success")
   success,
-
-  @JsonValue("error")
   error,
-
-  @JsonValue("dismissed")
   dismissed,
-
-  @JsonValue("request_pin")
   requestPin,
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class SessionState {
   final int id;
-
   final String protocol;
-
   final SessionType type;
-
   final SessionStatus status;
-
   final TrustedParty requestor;
-
   final String? pairingCode;
-
   final List<Credential>? offeredCredentials;
-
   final DisclosurePlan? disclosurePlan;
-
   final String? messageToSign;
-
   final String? error;
-
   final String? clientReturnUrl;
-
   final bool continueOnSecondDevice;
-
   final int remainingPinAttempts;
-
   final int pinBlockedTimeSeconds;
 
   SessionState({
@@ -102,10 +69,9 @@ class SessionState {
       _$SessionStateFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class DisclosurePlan {
   final IssueDuringDislosure? issueDuringDislosure;
-
   final List<DisclosurePickOne>? disclosureChoicesOverview;
 
   DisclosurePlan({this.issueDuringDislosure, this.disclosureChoicesOverview});
@@ -114,10 +80,9 @@ class DisclosurePlan {
       _$DisclosurePlanFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class IssueDuringDislosure {
   final List<IssuanceStep> steps;
-
   final Map<String, dynamic>? issuedCredentialIds;
 
   IssueDuringDislosure({required this.steps, this.issuedCredentialIds});
@@ -126,7 +91,7 @@ class IssueDuringDislosure {
       _$IssueDuringDislosureFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class IssuanceStep {
   final List<CredentialDescriptor> options;
 
@@ -136,12 +101,10 @@ class IssuanceStep {
       _$IssuanceStepFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class DisclosurePickOne {
   final bool optional;
-
   final List<SelectableCredentialInstance>? ownedOptions;
-
   final List<CredentialDescriptor>? obtainableOptions;
 
   DisclosurePickOne({
@@ -154,32 +117,20 @@ class DisclosurePickOne {
       _$DisclosurePickOneFromJson(json);
 }
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class SelectableCredentialInstance {
   final String credentialId;
-
   final String hash;
-
   final String imagePath;
-
   final TranslatedValue name;
-
   final TrustedParty issuer;
-
   final CredentialFormat format;
-
   final int? batchInstanceCountRemaining;
-
   final List<Attribute> attributes;
-
   final int issuanceDate;
-
   final int expiryDate;
-
   final bool revoked;
-
   final bool revocationSupported;
-
   final TranslatedValue? issueUrl;
 
   SelectableCredentialInstance({
@@ -189,12 +140,12 @@ class SelectableCredentialInstance {
     required this.name,
     required this.issuer,
     required this.format,
-    this.batchInstanceCountRemaining,
     required this.attributes,
     required this.issuanceDate,
     required this.expiryDate,
     required this.revoked,
     required this.revocationSupported,
+    this.batchInstanceCountRemaining,
     this.issueUrl,
   });
 
