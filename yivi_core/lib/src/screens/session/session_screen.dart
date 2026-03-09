@@ -19,7 +19,7 @@ import "widgets/disclosure_feedback_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/pairing_required.dart";
-import "widgets/schemaless_issue_during_disclosure.dart";
+import "widgets/issue_during_disclosure_screen.dart";
 import "widgets/session_scaffold.dart";
 
 /// Displays the current [SessionState] for a given session ID.
@@ -125,7 +125,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // in any case where issuance is required before being able to complete
     // this session (same for any session type)
     if (needsIssueBeforeDisclosure) {
-      return SchemalessIssueDuringDisclosure(
+      return IssueDuringDisclosureScreen(
         sessionState: session,
         onDismiss: _showDismissDialog,
       );
