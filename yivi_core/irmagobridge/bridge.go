@@ -168,7 +168,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 }
 
 func dispatchEvent(event any) {
-	jsonBytes, err := json.Marshal(event)
+	jsonBytes, err := json.MarshalIndent(event, "", "    ")
 	if err != nil {
 		reportError(errors.Errorf("Cannot marshal event payload: %s", err), false)
 		return
