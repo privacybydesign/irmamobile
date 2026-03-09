@@ -2,7 +2,7 @@ name: yivi
 description: "Yivi App"
 
 # A build number cannot be reused once a build is in use on Android.
-version: 7.13.0+4194498
+version: 7.13.3+4194501
 
 publish_to: none
 
@@ -20,6 +20,8 @@ dependencies:
   google_mlkit_text_recognition: ^0.15.0
   google_mlkit_commons: ^0.11.0
   camera: ^0.10.0+4
+  smart_auth: ^3.2.0
+  pinput: ^6.0.1
 
 dev_dependencies:
   integration_test:
@@ -32,7 +34,7 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v3.5.0
+      ref: v3.6.0
   package_info_plus: ^9.0.0
   collection: ^1.18.0
   flutter_riverpod: ^3.2.0

@@ -48,14 +48,14 @@ class CredentialOrderController
     extends AsyncNotifier<List<MultiFormatCredential>> {
   Timer? _debounce;
   List<String> _order = const []; // persisted order of IDs
-  final NewItemPolicy _policy = NewItemPolicy.prepend;
+  final NewItemPolicy _policy = .prepend;
 
   @override
   Future<List<MultiFormatCredential>> build() async {
     // Load persisted order once
     _order = await ref.read(credentialOrderRepoProvider).loadOrder();
 
-    // Set up a listener for subsequent updates (sync listener!)
+    // Set up a listener for subsequent updates
     ref.listen<AsyncValue<List<MultiFormatCredential>>>(
       credentialInfoListProvider,
       (prev, next) {
@@ -101,7 +101,7 @@ class CredentialOrderController
   List<MultiFormatCredential> _reconcile(
     List<MultiFormatCredential> external,
     List<String> storedOrder,
-    NewItemPolicy p,
+    NewItemPolicy newItemPolicy,
   ) {
     final byId = {for (final it in external) it.credentialType.fullId: it};
     final visible = <MultiFormatCredential>[];
@@ -116,7 +116,7 @@ class CredentialOrderController
     final newOnes = byId.values.toList();
     if (newOnes.isEmpty) return visible;
 
-    if (p == NewItemPolicy.append) {
+    if (newItemPolicy == .append) {
       visible.addAll(newOnes);
     } else {
       visible.insertAll(0, newOnes);

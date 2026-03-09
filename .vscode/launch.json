@@ -2,8 +2,28 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "yivi_app",
+			"program": "yivi_app/lib/main.dart",
+			"request": "launch",
+			"type": "dart",
+			"args": [
+				"--flavor",
+				"alpha"
+			]
+		},
+		{
+			"name": "yivi_fdroid",
+			"program": "yivi_fdroid/lib/main.dart",
+			"request": "launch",
+			"type": "dart",
+			"args": [
+				"--flavor",
+				"alpha"
+			]
+		},
+		{
 			"name": "Android app",
-			"program": "lib/main.dart",
+			"program": "yivi_app/lib/main.dart",
 			"request": "launch",
 			"type": "dart",
 			"args": [
@@ -13,7 +33,7 @@
 		},
 		{
 			"name": "Android prototypes",
-			"program": "lib/main_prototypes.dart",
+			"program": "yivi_app/lib/main_prototypes.dart",
 			"request": "launch",
 			"type": "dart",
 			"args": [
@@ -23,15 +43,15 @@
 		},
 		{
 			"name": "IOS app",
-			"program": "lib/main.dart",
+			"program": "yivi_app/lib/main.dart",
 			"request": "launch",
-			"type": "dart",
+			"type": "dart"
 		},
 		{
 			"name": "IOS prototypes",
-			"program": "lib/main_prototypes.dart",
+			"program": "yivi_app/lib/main_prototypes.dart",
 			"request": "launch",
-			"type": "dart",
+			"type": "dart"
 		}
 	]
 }

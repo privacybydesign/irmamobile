@@ -15,6 +15,9 @@ extension LanguageName on Locale {
 
       case "en":
         return "English";
+
+      case "de":
+        return "Deutsch";
     }
 
     throw UnsupportedError("""
