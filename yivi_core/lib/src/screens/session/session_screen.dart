@@ -331,7 +331,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Widget _buildError(SessionState session) {
     HapticFeedback.heavyImpact();
     return SessionErrorScreen(
-      error: SessionError(errorType: "", info: session.error!),
+      error: session.error ?? SessionError(errorType: "unknown", info: ""),
       onTapClose: () {
         if (mounted) {
           context.popToUnderlyingSessionOrHome(

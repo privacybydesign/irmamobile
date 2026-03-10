@@ -329,12 +329,12 @@ class _SessionPinIndicator extends StatelessWidget {
       label: joinedPin.isEmpty
           ? FlutterI18n.translate(context, "pin_accessibility.empty_pin_input")
           : pinVisible
-              ? joinedPin
-              : FlutterI18n.plural(
-                  context,
-                  "pin_accessibility.digits_entered",
-                  pinSize,
-                ),
+          ? joinedPin
+          : FlutterI18n.plural(
+              context,
+              "pin_accessibility.digits_entered",
+              pinSize,
+            ),
       child: ExcludeSemantics(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -445,7 +445,7 @@ class _SessionNumberPadKey extends StatelessWidget {
   final void Function(int) onEnterNumber;
 
   _SessionNumberPadKey(this.onEnterNumber, this.number, [this.subtitle])
-      : super(key: Key("session_number_pad_key_${number.toString()}"));
+    : super(key: Key("session_number_pad_key_${number.toString()}"));
 
   @override
   Widget build(BuildContext context) {

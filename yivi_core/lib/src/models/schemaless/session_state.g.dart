@@ -29,7 +29,9 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
           json['disclosure_plan'] as Map<String, dynamic>,
         ),
   messageToSign: json['message_to_sign'] as String?,
-  error: json['error'] as String?,
+  error: json['error'] == null
+      ? null
+      : SessionError.fromJson(json['error'] as Map<String, dynamic>),
   clientReturnUrl: json['client_return_url'] as String?,
   continueOnSecondDevice: json['continue_on_second_device'] as bool? ?? false,
   remainingPinAttempts: (json['remaining_pin_attempts'] as num?)?.toInt() ?? 0,

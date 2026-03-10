@@ -2,6 +2,7 @@ import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
 import "../log_entry.dart";
+import "../session.dart";
 import "../translated_value.dart";
 import "credential_store.dart";
 import "schemaless_events.dart";
@@ -42,7 +43,7 @@ class SessionState {
   final List<Credential>? offeredCredentials;
   final DisclosurePlan? disclosurePlan;
   final String? messageToSign;
-  final String? error;
+  final SessionError? error;
   final String? clientReturnUrl;
   final bool continueOnSecondDevice;
   final int remainingPinAttempts;

@@ -278,8 +278,9 @@ class IrmaRepository {
   }
 
   // -- Credential instances
-  Credentials get credentials =>
-      _credentialsSubject.hasValue ? _credentialsSubject.value : Credentials({});
+  Credentials get credentials => _credentialsSubject.hasValue
+      ? _credentialsSubject.value
+      : Credentials({});
 
   Stream<Credentials> getCredentials() {
     return _credentialsSubject.stream;
