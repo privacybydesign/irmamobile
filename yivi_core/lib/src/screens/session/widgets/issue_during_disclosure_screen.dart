@@ -54,8 +54,9 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final wizardState = ref.watch(issueDuringDisclosureProvider(sessionId));
-    final notifier =
-        ref.read(issueDuringDisclosureProvider(sessionId).notifier);
+    final notifier = ref.read(
+      issueDuringDisclosureProvider(sessionId).notifier,
+    );
 
     final steps = wizardState.steps;
     final currentStepIndex = wizardState.currentStepIndex;
@@ -75,9 +76,8 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
                 _onObtainData(
                   context,
                   ref,
-                  steps[currentStepIndex!]
-                      .options[wizardState
-                          .selectedOptionPerStep[currentStepIndex]],
+                  steps[currentStepIndex!].options[wizardState
+                      .selectedOptionPerStep[currentStepIndex]],
                 );
               },
         secondaryButtonLabel: "session.navigation_bar.cancel",
@@ -158,8 +158,7 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
                   compact: true,
                   style: IrmaCardStyle.highlighted,
                   headerTrailing: RadioIndicator(
-                    isSelected:
-                        i == wizardState.selectedOptionPerStep[index],
+                    isSelected: i == wizardState.selectedOptionPerStep[index],
                   ),
                 ),
               ),

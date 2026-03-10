@@ -70,8 +70,7 @@ class IssueDuringDisclosureNotifier
     SessionState session,
     List<int> previousSelections,
   ) {
-    final steps =
-        session.disclosurePlan?.issueDuringDislosure?.steps ?? [];
+    final steps = session.disclosurePlan?.issueDuringDislosure?.steps ?? [];
     final issued =
         session.disclosurePlan?.issueDuringDislosure?.issuedCredentialIds;
 
@@ -104,7 +103,9 @@ class IssueDuringDisclosureNotifier
   }
 }
 
-final issueDuringDisclosureProvider = NotifierProvider.family<
-    IssueDuringDisclosureNotifier, IssueDuringDisclosureState, int>(
-  (sessionId) => IssueDuringDisclosureNotifier(sessionId),
-);
+final issueDuringDisclosureProvider =
+    NotifierProvider.family<
+      IssueDuringDisclosureNotifier,
+      IssueDuringDisclosureState,
+      int
+    >((sessionId) => IssueDuringDisclosureNotifier(sessionId));

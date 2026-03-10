@@ -1,5 +1,3 @@
-import "dart:io";
-
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -10,10 +8,9 @@ import "../../../models/session.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
@@ -329,7 +326,7 @@ class _DisclosureChoiceEntry extends StatelessWidget {
       final showActionRow = changeable || optional;
 
       return Padding(
-        padding: EdgeInsets.only(bottom: theme.smallSpacing),
+        padding: EdgeInsets.only(bottom: theme.defaultSpacing),
         child: Column(
           children: [
             if (showActionRow)
@@ -363,7 +360,11 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                   ],
                 ),
               ),
-            _SelectedCredentialCard(credential: selected),
+            YiviCredentialCard.fromSelectableInstance(
+              instance: selected,
+              compact: true,
+              hideFooter: true,
+            ),
           ],
         ),
       );
@@ -401,58 +402,5 @@ class _DisclosureChoiceEntry extends StatelessWidget {
     }
 
     return const SizedBox.shrink();
-  }
-}
-
-class _SelectedCredentialCard extends StatelessWidget {
-  final SelectableCredentialInstance credential;
-
-  const _SelectedCredentialCard({required this.credential});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    return IrmaCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (credential.imagePath.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.only(right: theme.smallSpacing),
-                  child: Image.file(
-                    File(credential.imagePath),
-                    width: 40,
-                    height: 40,
-                    errorBuilder: (_, __, ___) =>
-                        const SizedBox(width: 40, height: 40),
-                  ),
-                ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      getTranslation(context, credential.name),
-                      style: theme.themeData.textTheme.titleSmall,
-                    ),
-                    Text(
-                      getTranslation(context, credential.issuer.name),
-                      style: theme.themeData.textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (credential.attributes.isNotEmpty) ...[
-            SizedBox(height: theme.smallSpacing),
-            YiviCredentialCardAttributeList(credential.attributes),
-          ],
-        ],
-      ),
-    );
   }
 }

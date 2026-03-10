@@ -103,12 +103,14 @@ class _DisclosureMakeChoiceScreenState
                       instance: owned[i],
                       compact: true,
                       hideFooter: true,
-                      style: _selection is _OwnedSelection &&
+                      style:
+                          _selection is _OwnedSelection &&
                               (_selection as _OwnedSelection).index == i
                           ? IrmaCardStyle.highlighted
                           : IrmaCardStyle.normal,
                       headerTrailing: RadioIndicator(
-                        isSelected: _selection is _OwnedSelection &&
+                        isSelected:
+                            _selection is _OwnedSelection &&
                             (_selection as _OwnedSelection).index == i,
                       ),
                     ),
@@ -133,17 +135,19 @@ class _DisclosureMakeChoiceScreenState
                   Padding(
                     padding: EdgeInsets.only(bottom: theme.smallSpacing),
                     child: GestureDetector(
-                      onTap: () => setState(
-                          () => _selection = _ObtainableSelection(i)),
+                      onTap: () =>
+                          setState(() => _selection = _ObtainableSelection(i)),
                       child: YiviCredentialCard.fromDescriptor(
                         descriptor: obtainable[i],
                         compact: true,
-                        style: _selection is _ObtainableSelection &&
+                        style:
+                            _selection is _ObtainableSelection &&
                                 (_selection as _ObtainableSelection).index == i
                             ? IrmaCardStyle.highlighted
                             : IrmaCardStyle.normal,
                         headerTrailing: RadioIndicator(
-                          isSelected: _selection is _ObtainableSelection &&
+                          isSelected:
+                              _selection is _ObtainableSelection &&
                               (_selection as _ObtainableSelection).index == i,
                         ),
                       ),
