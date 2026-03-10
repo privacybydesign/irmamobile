@@ -68,4 +68,3 @@ fix:
 
 # Fetches or updates all Go and Flutter dependencies and generates go bindings
 setup: get bind
-

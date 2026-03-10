@@ -3,6 +3,7 @@ import "dart:convert";
 import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
+import "package:pinput/pinput.dart";
 
 import "../models/session.dart";
 import "./provider_helpers.dart" as helpers;
@@ -10,6 +11,8 @@ import "./provider_helpers.dart" as helpers;
 final smsIssuerUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier("https://sms-issuer.staging.yivi.app"),
 );
+
+final smsRetrieverProvider = Provider<SmsRetriever?>((ref) => null);
 
 final smsIssuerApiProvider = Provider<SmsIssuerApi>(
   (ref) => DefaultSmsIssuerApi(host: ref.watch(smsIssuerUrlProvider)),

@@ -1,5 +1,3 @@
-import "dart:ui";
-
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
@@ -42,7 +40,7 @@ void main() {
       final firstCard = find.byType(IrmaCredentialTypeCard).first;
       final gesture = await tester.startGesture(
         tester.getCenter(firstCard),
-        kind: PointerDeviceKind.touch,
+        kind: .touch,
       );
 
       // long press
