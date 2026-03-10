@@ -7,6 +7,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
+import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -22,66 +23,21 @@ import "session_scaffold.dart";
 ///
 /// Uses [IrmaStepper] to display steps as a timeline, matching the visual
 /// style from the old disclosure permission issue wizard.
-class IssueDuringDisclosureScreen extends ConsumerStatefulWidget {
-  final SessionState sessionState;
+class IssueDuringDisclosureScreen extends ConsumerWidget {
+  final int sessionId;
   final VoidCallback onDismiss;
 
   const IssueDuringDisclosureScreen({
     super.key,
-    required this.sessionState,
+    required this.sessionId,
     required this.onDismiss,
   });
 
-  @override
-  ConsumerState<IssueDuringDisclosureScreen> createState() =>
-      _IssueDuringDisclosureScreenState();
-}
-
-class _IssueDuringDisclosureScreenState
-    extends ConsumerState<IssueDuringDisclosureScreen> {
-  late List<int> _selectedOptionPerStep;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeSelections();
-  }
-
-  @override
-  void didUpdateWidget(IssueDuringDisclosureScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.sessionState != widget.sessionState) {
-      _initializeSelections();
-    }
-  }
-
-  void _initializeSelections() {
-    final steps =
-        widget.sessionState.disclosurePlan?.issueDuringDislosure?.steps ?? [];
-    _selectedOptionPerStep = List.generate(steps.length, (_) => 0);
-  }
-
-  /// Returns true if any of the step's credential options have been issued.
-  bool _isStepCompleted(IssuanceStep step) {
-    final issued = widget
-        .sessionState
-        .disclosurePlan
-        ?.issueDuringDislosure
-        ?.issuedCredentialIds;
-    if (issued == null || issued.isEmpty) return false;
-    return step.options.any((opt) => issued.containsKey(opt.credentialId));
-  }
-
-  /// Returns the index of the first step that hasn't been completed yet,
-  /// or null if all steps are completed.
-  int? _findCurrentStepIndex(List<IssuanceStep> steps) {
-    for (var i = 0; i < steps.length; i++) {
-      if (!_isStepCompleted(steps[i])) return i;
-    }
-    return null;
-  }
-
-  Future<void> _onObtainData(CredentialDescriptor credential) async {
+  Future<void> _onObtainData(
+    BuildContext context,
+    WidgetRef ref,
+    CredentialDescriptor credential,
+  ) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final url = credential.issueURL?.translate(lang);
     if (url != null && url.isNotEmpty) {
@@ -96,42 +52,38 @@ class _IssueDuringDisclosureScreenState
     }
   }
 
-  String _explanationKey(bool isCompleted, bool isSingleStep) {
-    if (isCompleted) {
-      return "disclosure_permission.issue_wizard.explanation_complete";
-    }
-    return isSingleStep
-        ? "disclosure_permission.issue_wizard.explanation_incomplete_single"
-        : "disclosure_permission.issue_wizard.explanation_incomplete";
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
-    final steps =
-        widget.sessionState.disclosurePlan!.issueDuringDislosure!.steps;
+    final wizardState = ref.watch(issueDuringDisclosureProvider(sessionId));
+    final notifier =
+        ref.read(issueDuringDisclosureProvider(sessionId).notifier);
 
-    final currentStepIndex = _findCurrentStepIndex(steps);
-    final isCompleted = currentStepIndex == null;
-    final isSingleStep = steps.length == 1;
+    final steps = wizardState.steps;
+    final currentStepIndex = wizardState.currentStepIndex;
+    final isCompleted = wizardState.isCompleted;
+    final isSingleStep = wizardState.isSingleStep;
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.issue_wizard.title",
-      onDismiss: widget.onDismiss,
+      onDismiss: onDismiss,
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: isCompleted
             ? "disclosure_permission.next_step"
             : "disclosure_permission.obtain_data",
         onPrimaryPressed: isCompleted
-            ? widget.onDismiss
+            ? onDismiss
             : () {
                 _onObtainData(
-                  steps[currentStepIndex]
-                      .options[_selectedOptionPerStep[currentStepIndex]],
+                  context,
+                  ref,
+                  steps[currentStepIndex!]
+                      .options[wizardState
+                          .selectedOptionPerStep[currentStepIndex]],
                 );
               },
         secondaryButtonLabel: "session.navigation_bar.cancel",
-        onSecondaryPressed: widget.onDismiss,
+        onSecondaryPressed: onDismiss,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
@@ -140,22 +92,33 @@ class _IssueDuringDisclosureScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SessionProgressIndicator(
-                step: isCompleted ? steps.length : currentStepIndex + 1,
+                step: isCompleted ? steps.length : currentStepIndex! + 1,
                 stepCount: steps.length,
-                contentTranslationKey: _explanationKey(
-                  isCompleted,
-                  isSingleStep,
-                ),
+                contentTranslationKey: wizardState.explanationKey,
               ),
               SizedBox(height: theme.defaultSpacing),
               if (isSingleStep)
-                _buildStepContent(theme, steps[0], 0, currentStepIndex)
+                _buildStepContent(
+                  theme,
+                  notifier,
+                  wizardState,
+                  steps[0],
+                  0,
+                  currentStepIndex,
+                )
               else
                 IrmaStepper(
                   currentIndex: currentStepIndex,
                   children: [
                     for (final (index, step) in steps.indexed)
-                      _buildStepContent(theme, step, index, currentStepIndex),
+                      _buildStepContent(
+                        theme,
+                        notifier,
+                        wizardState,
+                        step,
+                        index,
+                        currentStepIndex,
+                      ),
                   ],
                 ),
             ],
@@ -167,6 +130,8 @@ class _IssueDuringDisclosureScreenState
 
   Widget _buildStepContent(
     IrmaThemeData theme,
+    IssueDuringDisclosureNotifier notifier,
+    IssueDuringDisclosureState wizardState,
     IssuanceStep step,
     int index,
     int? currentStepIndex,
@@ -190,8 +155,8 @@ class _IssueDuringDisclosureScreenState
               credential: step.options[i],
               isHighlighted: true,
               showRadio: true,
-              isSelected: i == _selectedOptionPerStep[index],
-              onTap: () => setState(() => _selectedOptionPerStep[index] = i),
+              isSelected: i == wizardState.selectedOptionPerStep[index],
+              onTap: () => notifier.selectOption(index, i),
             ),
         ],
       );
@@ -199,7 +164,7 @@ class _IssueDuringDisclosureScreenState
 
     // Single option (or non-current multi-option): show selected credential card
     return _CredentialTypeCard(
-      credential: step.options[_selectedOptionPerStep[index]],
+      credential: step.options[wizardState.selectedOptionPerStep[index]],
       isHighlighted: isCurrent,
     );
   }

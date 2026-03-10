@@ -133,7 +133,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // this session (same for any session type)
     if (needsIssueBeforeDisclosure) {
       return IssueDuringDisclosureScreen(
-        sessionState: session,
+        sessionId: widget.sessionId,
         onDismiss: _showDismissDialog,
       );
     }
