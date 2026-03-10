@@ -92,6 +92,7 @@ TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   parent: json['parent'] == null
       ? null
       : TrustedParty.fromJson(json['parent'] as Map<String, dynamic>),
+  verified: json['verified'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
@@ -101,6 +102,7 @@ Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
       'url': instance.url,
       'image_path': instance.imagePath,
       'parent': instance.parent,
+      'verified': instance.verified,
     };
 
 Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(

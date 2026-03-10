@@ -86,6 +86,7 @@ class TrustedParty {
   final TranslatedValue? url;
   final String? imagePath;
   final TrustedParty? parent;
+  final bool verified;
 
   TrustedParty({
     required this.id,
@@ -93,6 +94,7 @@ class TrustedParty {
     required this.url,
     required this.imagePath,
     required this.parent,
+    required this.verified,
   });
 
   factory TrustedParty.fromJson(Map<String, dynamic> json) =>

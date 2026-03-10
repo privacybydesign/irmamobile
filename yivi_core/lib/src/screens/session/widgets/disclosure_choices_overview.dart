@@ -207,8 +207,7 @@ class _DisclosureChoicesOverviewState
                   name: session.requestor.name,
                   logoPath: session.requestor.imagePath,
                 ),
-                // TODO: add verified to the trusted party class
-                isVerified: false,
+                isVerified: session.requestor.verified,
               ),
 
               SessionProgressIndicator(
