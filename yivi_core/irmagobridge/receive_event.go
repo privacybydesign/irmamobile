@@ -55,9 +55,19 @@ func DispatchFromNative(eventName, payloadString string) {
 		}
 	case "SessionUserInteractionEvent":
 		event := &sessionUserInteractionEvent{}
-		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.handleUserInteraction(event)
+		if err = json.Unmarshal(payloadBytes, event); err != nil {
+			break
 		}
+		// Run in a goroutine: the permission handler may block waiting for
+		// pin input (via the keyshare session), which requires dispatching
+		// events back to Dart on the main thread. Running synchronously
+		// would deadlock, because DispatchFromNative blocks the main thread.
+		go func() {
+			defer recoverFromPanic("Handling SessionUserInteractionEvent panicked")
+			if err := bridgeEventHandler.handleUserInteraction(event); err != nil {
+				reportError(errors.New(err), false)
+			}
+		}()
 	case "ClearAllDataEvent":
 		err = bridgeEventHandler.clearAllData()
 	case "DeleteCredentialEvent":

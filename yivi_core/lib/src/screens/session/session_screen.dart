@@ -14,7 +14,6 @@ import "../../util/navigation.dart";
 import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
-import "../pin/session_pin_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
@@ -22,6 +21,7 @@ import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
 import "widgets/pairing_required.dart";
+import "widgets/session_pin_entry_screen.dart";
 import "widgets/session_scaffold.dart";
 
 /// Displays the current [SessionState] for a given session ID.
@@ -52,6 +52,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// choices after they confirm the disclosure overview, before showing
   /// the issuance confirmation screen.
   List<DisclosureDisconSelection>? _pendingDisclosureChoices;
+
+  bool _pinSubmitting = false;
 
   @override
   void initState() {
@@ -84,10 +86,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       loading: () => _buildLoadingScreen(null),
       error: (_, __) => _buildLoadingScreen(null),
       data: (session) {
+        // Reset pin submitting state when session state updates
+        if (_pinSubmitting) _pinSubmitting = false;
+
         // Auto-pop when dismissed
         if (session.status == .dismissed) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) Navigator.of(context).pop();
+            if (mounted) {
+              context.popToUnderlyingSessionOrHome(
+                hasUnderlyingSession: widget.hasUnderlyingSession,
+              );
+            }
           });
           return _buildLoadingScreen(session);
         }
@@ -104,9 +113,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             onDismiss: _dismissSession,
           ),
           .requestPermission => _buildRequestPermission(session),
-          .requestPin => SessionPinScreen(
-            sessionId: widget.sessionId,
-            title: FlutterI18n.translate(context, _getAppBarTitle(session)),
+          .requestPin => SessionPinEntryScreen(
+            title: _getAppBarTitle(session),
+            remainingAttempts: session.remainingPinAttempts,
+            blockedTimeSeconds: session.pinBlockedTimeSeconds,
+            submitting: _pinSubmitting,
+            onPinEntered: (pin) => _submitPin(pin),
+            onCancel: _dismissSession,
           ),
           .error => _buildError(session),
           // dismissed and success are handled above
@@ -167,6 +180,19 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         _showShareConfirmDialog(session, choices);
       },
     );
+  }
+
+  void _submitPin(String pin) {
+    setState(() => _pinSubmitting = true);
+    _repo.bridgedDispatch(
+      SessionUserInteractionEvent.pin(
+        sessionId: widget.sessionId,
+        pin: pin,
+        proceed: true,
+      ),
+    );
+    // _pinSubmitting will be reset when the session state changes
+    // (rebuilds with a different status or updated remainingPinAttempts).
   }
 
   void _dismissSession() {
@@ -263,7 +289,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   Widget _buildSuccess(SessionState session) {
     void pop() {
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        context.popToUnderlyingSessionOrHome(
+          hasUnderlyingSession: widget.hasUnderlyingSession,
+        );
+      }
     }
 
     // If this is an issuance session spawned during a disclosure flow,
@@ -303,7 +333,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     return SessionErrorScreen(
       error: SessionError(errorType: "", info: session.error!),
       onTapClose: () {
-        if (mounted) Navigator.of(context).pop();
+        if (mounted) {
+          context.popToUnderlyingSessionOrHome(
+            hasUnderlyingSession: widget.hasUnderlyingSession,
+          );
+        }
       },
     );
   }

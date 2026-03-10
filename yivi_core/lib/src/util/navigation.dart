@@ -62,6 +62,14 @@ extension RoutingHelpers on BuildContext {
     Navigator.of(this).popUntil(ModalRoute.withName("/session"));
   }
 
+  void popToUnderlyingSessionOrHome({required bool hasUnderlyingSession}) {
+    if (hasUnderlyingSession) {
+      popToUnderlyingSession();
+    } else {
+      goHomeScreen();
+    }
+  }
+
   void goHomeScreenWithoutTransition() {
     TransitionStyleProvider.performInstantTransitionToHomeScreen(this);
   }
