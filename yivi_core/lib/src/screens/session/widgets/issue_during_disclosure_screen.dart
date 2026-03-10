@@ -4,14 +4,17 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
+import "../../../models/session.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
+import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_stepper.dart";
 import "../../../widgets/radio_indicator.dart";
+import "../../../widgets/requestor_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/translated_text.dart";
 import "session_scaffold.dart";
@@ -58,6 +61,9 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
       issueDuringDisclosureProvider(sessionId).notifier,
     );
 
+    final session = ref.watch(sessionStateProvider(sessionId)).value;
+    final requestor = session?.requestor;
+
     final steps = wizardState.steps;
     final currentStepIndex = wizardState.currentStepIndex;
     final isCompleted = wizardState.isCompleted;
@@ -89,6 +95,14 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (requestor != null)
+                RequestorHeader(
+                  requestorInfo: RequestorInfo(
+                    name: requestor.name,
+                    logoPath: requestor.imagePath,
+                  ),
+                  isVerified: requestor.verified,
+                ),
               SessionProgressIndicator(
                 step: isCompleted ? steps.length : currentStepIndex! + 1,
                 stepCount: steps.length,
