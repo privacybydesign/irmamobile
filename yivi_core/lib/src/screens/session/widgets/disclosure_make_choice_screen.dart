@@ -1,15 +1,10 @@
-import "dart:io";
-
 import "package:flutter/material.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
-import "../../../widgets/credential_card/yivi_credential_card_attribute_list.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/radio_indicator.dart";
@@ -99,31 +94,60 @@ class _DisclosureMakeChoiceScreenState
             children: [
               // Owned options — selectable
               for (var i = 0; i < owned.length; i++)
-                _OwnedChoiceOption(
-                  credential: owned[i],
-                  isSelected:
-                      _selection is _OwnedSelection &&
-                      (_selection as _OwnedSelection).index == i,
-                  onTap: () => setState(() => _selection = _OwnedSelection(i)),
+                Padding(
+                  padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                  child: GestureDetector(
+                    onTap: () =>
+                        setState(() => _selection = _OwnedSelection(i)),
+                    child: YiviCredentialCard.fromSelectableInstance(
+                      instance: owned[i],
+                      compact: true,
+                      hideFooter: true,
+                      style: _selection is _OwnedSelection &&
+                              (_selection as _OwnedSelection).index == i
+                          ? IrmaCardStyle.highlighted
+                          : IrmaCardStyle.normal,
+                      headerTrailing: RadioIndicator(
+                        isSelected: _selection is _OwnedSelection &&
+                            (_selection as _OwnedSelection).index == i,
+                      ),
+                    ),
+                  ),
                 ),
 
               // Obtainable options section
               if (obtainable.isNotEmpty) ...[
-                SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "disclosure_permission.obtain_new",
-                  style: theme.themeData.textTheme.headlineMedium,
-                  isHeader: true,
+                Padding(
+                  padding: EdgeInsets.only(
+                    bottom: theme.smallSpacing,
+                    left: theme.smallSpacing,
+                    top: theme.mediumSpacing,
+                  ),
+                  child: TranslatedText(
+                    "disclosure_permission.obtain_new",
+                    style: theme.themeData.textTheme.headlineMedium,
+                    isHeader: true,
+                  ),
                 ),
-                SizedBox(height: theme.smallSpacing),
                 for (var i = 0; i < obtainable.length; i++)
-                  _ObtainableChoiceOption(
-                    credential: obtainable[i],
-                    isSelected:
-                        _selection is _ObtainableSelection &&
-                        (_selection as _ObtainableSelection).index == i,
-                    onTap: () =>
-                        setState(() => _selection = _ObtainableSelection(i)),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                    child: GestureDetector(
+                      onTap: () => setState(
+                          () => _selection = _ObtainableSelection(i)),
+                      child: YiviCredentialCard.fromDescriptor(
+                        descriptor: obtainable[i],
+                        compact: true,
+                        style: _selection is _ObtainableSelection &&
+                                (_selection as _ObtainableSelection).index == i
+                            ? IrmaCardStyle.highlighted
+                            : IrmaCardStyle.normal,
+                        headerTrailing: RadioIndicator(
+                          isSelected: _selection is _ObtainableSelection &&
+                              (_selection as _ObtainableSelection).index == i,
+                        ),
+                      ),
+                    ),
                   ),
               ],
             ],
@@ -140,136 +164,6 @@ class _DisclosureMakeChoiceScreenState
                 Navigator.of(context).pop();
               }
             : _onObtainData,
-      ),
-    );
-  }
-}
-
-/// A selectable owned credential option with radio indicator on the top right.
-class _OwnedChoiceOption extends StatelessWidget {
-  final SelectableCredentialInstance credential;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _OwnedChoiceOption({
-    required this.credential,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: GestureDetector(
-        onTap: onTap,
-        child: IrmaCard(
-          style: isSelected ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (credential.imagePath.isNotEmpty)
-                    Padding(
-                      padding: EdgeInsets.only(right: theme.smallSpacing),
-                      child: Image.file(
-                        File(credential.imagePath),
-                        width: 40,
-                        height: 40,
-                        errorBuilder: (_, __, ___) =>
-                            const SizedBox(width: 40, height: 40),
-                      ),
-                    ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          getTranslation(context, credential.name),
-                          style: theme.themeData.textTheme.titleSmall,
-                        ),
-                        Text(
-                          getTranslation(context, credential.issuer.name),
-                          style: theme.themeData.textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  RadioIndicator(isSelected: isSelected),
-                ],
-              ),
-              if (credential.attributes.isNotEmpty) ...[
-                SizedBox(height: theme.smallSpacing),
-                YiviCredentialCardAttributeList(credential.attributes),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A selectable obtainable credential option with radio indicator on the top right.
-class _ObtainableChoiceOption extends StatelessWidget {
-  final CredentialDescriptor credential;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _ObtainableChoiceOption({
-    required this.credential,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: GestureDetector(
-        onTap: onTap,
-        child: IrmaCard(
-          style: isSelected ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (credential.imagePath.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.only(right: theme.smallSpacing),
-                  child: Image.file(
-                    File(credential.imagePath),
-                    width: 40,
-                    height: 40,
-                    errorBuilder: (_, __, ___) =>
-                        const SizedBox(width: 40, height: 40),
-                  ),
-                ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      credential.name.translate(lang),
-                      style: theme.themeData.textTheme.titleSmall,
-                    ),
-                    Text(
-                      credential.issuer.name.translate(lang),
-                      style: theme.themeData.textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              RadioIndicator(isSelected: isSelected),
-            ],
-          ),
-        ),
       ),
     );
   }

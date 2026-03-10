@@ -143,7 +143,7 @@ class _CredentialsDetailsScreenState
 
                 return Padding(
                   padding: .only(bottom: theme.defaultSpacing),
-                  child: YiviCredentialCard(
+                  child: YiviCredentialCard.fromCredential(
                     credential: cred,
                     compact: false,
                     headerTrailing: isDeletable || isReobtainable

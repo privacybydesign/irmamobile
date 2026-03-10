@@ -32,8 +32,8 @@ class ActivityDetailIssuance extends StatelessWidget {
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCredentialCard(
-                credential: cred.toCredential(),
+              child: YiviCredentialCard.fromLogCredential(
+                logCredential: cred,
                 compact: true,
               ),
             ),
@@ -59,8 +59,8 @@ class ActivityDetailIssuance extends StatelessWidget {
         for (var rawCredential in issuanceLog.credentials)
           Padding(
             padding: EdgeInsets.only(bottom: theme.smallSpacing),
-            child: YiviCredentialCard(
-              credential: rawCredential.toCredential(),
+            child: YiviCredentialCard.fromLogCredential(
+              logCredential: rawCredential,
               compact: true,
             ),
           ),

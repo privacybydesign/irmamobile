@@ -28,8 +28,8 @@ class ActivityDetailRemoval extends StatelessWidget {
         for (var removedCredential in removedCredentials)
           Padding(
             padding: EdgeInsets.only(top: theme.smallSpacing),
-            child: YiviCredentialCard(
-              credential: removedCredential.toCredential(),
+            child: YiviCredentialCard.fromLogCredential(
+              logCredential: removedCredential,
               compact: true,
             ),
           ),

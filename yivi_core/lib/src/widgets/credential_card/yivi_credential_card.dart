@@ -2,7 +2,11 @@ import "package:collection/collection.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/log_entry.dart";
+import "../../models/schemaless/credential_store.dart";
+import "../../models/schemaless/schemaless_events.dart";
+import "../../models/schemaless/session_state.dart";
+import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
 import "../credential_card/models/card_expiry_date.dart";
@@ -13,14 +17,22 @@ import "yivi_credential_card_footer.dart";
 import "yivi_credential_card_header.dart";
 
 class YiviCredentialCard extends ConsumerWidget {
-  final schemaless.Credential credential;
+  final TranslatedValue credentialName;
+  final TranslatedValue issuerName;
+  final String imagePath;
+  final List<Attribute> attributes;
+  final int expiryDate;
+  final bool revoked;
+  final Map<CredentialFormat, int?> batchInstanceCountsRemaining;
   final bool compact;
 
-  final List<schemaless.Attribute>? compareTo;
+  final List<Attribute>? compareTo;
   final Function()? onTap;
   final IrmaCardStyle style;
   final Widget? headerTrailing;
   final EdgeInsetsGeometry? padding;
+  final bool hideFooter;
+  final bool templateMode;
 
   /// when the instance count becomes lower than this,
   /// the re-obtain button shows and the instance count becomes the warning color
@@ -29,15 +41,142 @@ class YiviCredentialCard extends ConsumerWidget {
 
   const YiviCredentialCard({
     super.key,
-    required this.credential,
+    required this.credentialName,
+    required this.issuerName,
+    required this.imagePath,
+    required this.attributes,
+    required this.expiryDate,
+    required this.revoked,
+    required this.batchInstanceCountsRemaining,
     required this.compact,
     this.compareTo,
     this.onTap,
     this.headerTrailing,
     this.style = .normal,
     this.padding,
+    this.hideFooter = false,
+    this.templateMode = false,
     this.lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   });
+
+  YiviCredentialCard.fromCredential({
+    Key? key,
+    required Credential credential,
+    required bool compact,
+    List<Attribute>? compareTo,
+    Function()? onTap,
+    Widget? headerTrailing,
+    IrmaCardStyle style = IrmaCardStyle.normal,
+    EdgeInsetsGeometry? padding,
+    bool hideFooter = false,
+    int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+  }) : this(
+          key: key,
+          credentialName: credential.name,
+          issuerName: credential.issuer.name,
+          imagePath: credential.imagePath,
+          attributes: credential.attributes,
+          expiryDate: credential.expiryDate,
+          revoked: credential.revoked,
+          batchInstanceCountsRemaining:
+              credential.batchInstanceCountsRemaining,
+          compact: compact,
+          compareTo: compareTo,
+          onTap: onTap,
+          headerTrailing: headerTrailing,
+          style: style,
+          padding: padding,
+          hideFooter: hideFooter,
+          lowInstanceCountThreshold: lowInstanceCountThreshold,
+        );
+
+  YiviCredentialCard.fromSelectableInstance({
+    Key? key,
+    required SelectableCredentialInstance instance,
+    required bool compact,
+    List<Attribute>? compareTo,
+    Function()? onTap,
+    Widget? headerTrailing,
+    IrmaCardStyle style = IrmaCardStyle.normal,
+    EdgeInsetsGeometry? padding,
+    bool hideFooter = false,
+    int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+  }) : this(
+          key: key,
+          credentialName: instance.name,
+          issuerName: instance.issuer.name,
+          imagePath: instance.imagePath,
+          attributes: instance.attributes,
+          expiryDate: instance.expiryDate,
+          revoked: instance.revoked,
+          batchInstanceCountsRemaining: {
+            instance.format: instance.batchInstanceCountRemaining,
+          },
+          compact: compact,
+          compareTo: compareTo,
+          onTap: onTap,
+          headerTrailing: headerTrailing,
+          style: style,
+          padding: padding,
+          hideFooter: hideFooter,
+          lowInstanceCountThreshold: lowInstanceCountThreshold,
+        );
+
+  YiviCredentialCard.fromDescriptor({
+    Key? key,
+    required CredentialDescriptor descriptor,
+    required bool compact,
+    Function()? onTap,
+    Widget? headerTrailing,
+    IrmaCardStyle style = IrmaCardStyle.normal,
+    EdgeInsetsGeometry? padding,
+  }) : this(
+          key: key,
+          credentialName: descriptor.name,
+          issuerName: descriptor.issuer.name,
+          imagePath: descriptor.imagePath,
+          attributes: const [],
+          expiryDate: 0,
+          revoked: false,
+          batchInstanceCountsRemaining: {},
+          compact: compact,
+          onTap: onTap,
+          headerTrailing: headerTrailing,
+          style: style,
+          padding: padding,
+          hideFooter: true,
+          templateMode: true,
+        );
+
+  YiviCredentialCard.fromLogCredential({
+    Key? key,
+    required LogCredential logCredential,
+    required bool compact,
+    List<Attribute>? compareTo,
+    Function()? onTap,
+    Widget? headerTrailing,
+    IrmaCardStyle style = IrmaCardStyle.normal,
+    EdgeInsetsGeometry? padding,
+    bool hideFooter = false,
+    int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+  }) : this(
+          key: key,
+          credentialName: logCredential.name,
+          issuerName: logCredential.issuer.name,
+          imagePath: logCredential.imagePath,
+          attributes: logCredential.attributes,
+          expiryDate: logCredential.expiryDate,
+          revoked: logCredential.revoked,
+          batchInstanceCountsRemaining: {},
+          compact: compact,
+          compareTo: compareTo,
+          onTap: onTap,
+          headerTrailing: headerTrailing,
+          style: style,
+          padding: padding,
+          hideFooter: hideFooter,
+          lowInstanceCountThreshold: lowInstanceCountThreshold,
+        );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,26 +192,25 @@ class YiviCredentialCard extends ConsumerWidget {
         children: [
           YiviCredentialCardHeader(
             compact: compact,
-            credentialName: getTranslation(context, credential.name),
-            issuerName: getTranslation(context, credential.issuer.name),
-            logo: credential.imagePath,
+            credentialName: getTranslation(context, credentialName),
+            issuerName: getTranslation(context, issuerName),
+            logo: imagePath,
             trailing: headerTrailing,
             isExpired: _isExpiredInAnyWay(),
-            isRevoked: credential.revoked,
+            isRevoked: revoked,
             isExpiringSoon: _isExpiringSoonInAnyWay(),
           ),
-          // If there are attributes in this credential, then we show the attribute list
-          if (credential.attributes.isNotEmpty) ...[
+          if (attributes.isNotEmpty) ...[
             IrmaDivider(
               color: _isValid() ? null : theme.danger,
               padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
             ),
             YiviCredentialCardAttributeList(
-              credential.attributes,
+              attributes,
               compareTo: compareTo,
             ),
           ],
-          if (!credential.revoked)
+          if (!hideFooter && !revoked)
             Column(
               children: [
                 IrmaDivider(
@@ -80,22 +218,21 @@ class YiviCredentialCard extends ConsumerWidget {
                   padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
                 ),
                 YiviCredentialCardFooter(
-                  revoked: credential.revoked,
+                  revoked: revoked,
                   instanceBasedExpireState: _getInstanceCountBasedExpireState(),
                   timeBasedExpireState: _getTimeBasedExpireState(),
-                  expiryDate: CardExpiryDate.fromUnix(credential.expiryDate),
+                  expiryDate: CardExpiryDate.fromUnix(expiryDate),
                   instanceCount: _getInstanceCount(),
                 ),
               ],
             ),
-          _buildReobtainOption(context, theme, ref),
         ],
       ),
     );
   }
 
   ExpireState _getTimeBasedExpireState() {
-    final exp = CardExpiryDate.fromUnix(credential.expiryDate);
+    final exp = CardExpiryDate.fromUnix(expiryDate);
 
     if (exp.expired) {
       return .expired;
@@ -107,14 +244,13 @@ class YiviCredentialCard extends ConsumerWidget {
   }
 
   int? _getInstanceCount() {
-    return credential.batchInstanceCountsRemaining.values.firstWhereOrNull(
+    return batchInstanceCountsRemaining.values.firstWhereOrNull(
       (c) => c != null,
     );
   }
 
   ExpireState _getInstanceCountBasedExpireState() {
     final instanceCount = _getInstanceCount();
-    // idemix only, so doesn't expire
     if (instanceCount == null) {
       return .notExpired;
     }
@@ -128,10 +264,11 @@ class YiviCredentialCard extends ConsumerWidget {
   }
 
   bool _isValid() {
-    return !_isExpiredInAnyWay() && !credential.revoked;
+    return !_isExpiredInAnyWay() && !revoked;
   }
 
   bool _isExpiringSoonInAnyWay() {
+    if (templateMode) return false;
     final timeBased = _getTimeBasedExpireState();
     final instanceBased = _getInstanceCountBasedExpireState();
 
@@ -139,43 +276,10 @@ class YiviCredentialCard extends ConsumerWidget {
   }
 
   bool _isExpiredInAnyWay() {
+    if (templateMode) return false;
     final timeBased = _getTimeBasedExpireState();
     final instanceBased = _getInstanceCountBasedExpireState();
 
     return timeBased == .expired || instanceBased == .expired;
-  }
-
-  Widget _buildReobtainOption(
-    BuildContext context,
-    IrmaThemeData theme,
-    WidgetRef ref,
-  ) {
-    // if (type.obtainable) {
-    //   if (_isExpiringSoonInAnyWay() || credential.revoked) {
-    //     return Padding(
-    //       padding: EdgeInsets.only(top: theme.defaultSpacing),
-    //       child: YiviThemedButton(
-    //         label: "credential.options.reobtain",
-    //         style: YiviButtonStyle.filled,
-    //         onPressed: () => IrmaRepositoryProvider.of(
-    //           context,
-    //         ).openIssueURL(context, type, ref),
-    //       ),
-    //     );
-    //   }
-    // } else if (!_isValid()) {
-    //   return InformationBox(
-    //     message: FlutterI18n.translate(
-    //       context,
-    //       "credential.not_obtainable",
-    //       translationParams: {
-    //         "issuerName": issuer.name.translate(
-    //           FlutterI18n.currentLocale(context)!.languageCode,
-    //         ),
-    //       },
-    //     ),
-    //   );
-    // }
-    return Container();
   }
 }

@@ -36,8 +36,8 @@ class ActivityDetailDisclosure extends StatelessWidget {
                   : logEntry.signedMessageLog!.credentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCredentialCard(
-                credential: credential.toCredential(),
+              child: YiviCredentialCard.fromLogCredential(
+                logCredential: credential,
                 compact: true,
               ),
             ),

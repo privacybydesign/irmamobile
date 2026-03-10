@@ -1,5 +1,3 @@
-import "dart:io";
-
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -9,7 +7,7 @@ import "../../../models/schemaless/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_stepper.dart";
@@ -151,86 +149,32 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
             ),
           ),
           for (var i = 0; i < step.options.length; i++)
-            _CredentialTypeCard(
-              credential: step.options[i],
-              isHighlighted: true,
-              showRadio: true,
-              isSelected: i == wizardState.selectedOptionPerStep[index],
-              onTap: () => notifier.selectOption(index, i),
+            Padding(
+              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              child: GestureDetector(
+                onTap: () => notifier.selectOption(index, i),
+                child: YiviCredentialCard.fromDescriptor(
+                  descriptor: step.options[i],
+                  compact: true,
+                  style: IrmaCardStyle.highlighted,
+                  headerTrailing: RadioIndicator(
+                    isSelected:
+                        i == wizardState.selectedOptionPerStep[index],
+                  ),
+                ),
+              ),
             ),
         ],
       );
     }
 
     // Single option (or non-current multi-option): show selected credential card
-    return _CredentialTypeCard(
-      credential: step.options[wizardState.selectedOptionPerStep[index]],
-      isHighlighted: isCurrent,
-    );
-  }
-}
-
-class _CredentialTypeCard extends StatelessWidget {
-  final CredentialDescriptor credential;
-  final bool isHighlighted;
-  final bool showRadio;
-  final bool isSelected;
-  final VoidCallback? onTap;
-
-  const _CredentialTypeCard({
-    required this.credential,
-    this.isHighlighted = false,
-    this.showRadio = false,
-    this.isSelected = false,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Padding(
       padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: GestureDetector(
-        onTap: onTap,
-        child: IrmaCard(
-          style: isHighlighted ? .highlighted : .normal,
-          child: Row(
-            children: [
-              if (showRadio)
-                Padding(
-                  padding: EdgeInsets.only(right: theme.smallSpacing),
-                  child: RadioIndicator(isSelected: isSelected),
-                ),
-              if (credential.imagePath.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.only(right: theme.smallSpacing),
-                  child: Image.file(
-                    File(credential.imagePath),
-                    width: 40,
-                    height: 40,
-                    errorBuilder: (_, __, ___) =>
-                        const SizedBox(width: 40, height: 40),
-                  ),
-                ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      getTranslation(context, credential.name),
-                      style: theme.themeData.textTheme.titleSmall,
-                    ),
-                    Text(
-                      getTranslation(context, credential.issuer.name),
-                      style: theme.themeData.textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+      child: YiviCredentialCard.fromDescriptor(
+        descriptor: step.options[wizardState.selectedOptionPerStep[index]],
+        compact: true,
+        style: isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
       ),
     );
   }

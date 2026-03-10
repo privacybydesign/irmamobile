@@ -63,7 +63,7 @@ class IssuancePermission extends StatelessWidget {
         ...issuedCredentials.map(
           (credential) => Padding(
             padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-            child: YiviCredentialCard(
+            child: YiviCredentialCard.fromCredential(
               credential: credential,
               compact: false,
               lowInstanceCountThreshold: 0,

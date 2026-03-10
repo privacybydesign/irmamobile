@@ -151,4 +151,5 @@ class SelectableCredentialInstance {
 
   factory SelectableCredentialInstance.fromJson(Map<String, dynamic> json) =>
       _$SelectableCredentialInstanceFromJson(json);
+
 }

@@ -199,22 +199,6 @@ class LogCredential {
 
   final TranslatedValue? issueUrl;
 
-  Credential toCredential() => Credential(
-    credentialId: credentialId,
-    hash: "",
-    imagePath: imagePath,
-    name: name,
-    issuer: issuer,
-    credentialInstanceIds: {},
-    batchInstanceCountsRemaining: {},
-    attributes: attributes,
-    issuanceDate: issuanceDate,
-    expiryDate: expiryDate,
-    revoked: revoked,
-    revocationSupported: revocationSupported,
-    issueUrl: issueUrl ?? const TranslatedValue.empty(),
-  );
-
   factory LogCredential.fromJson(Map<String, dynamic> json) =>
       _$LogCredentialFromJson(json);
 }

@@ -79,7 +79,7 @@ class Attribute {
   Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable(fieldRename: .snake)
 class TrustedParty {
   final String id;
   final TranslatedValue name;
