@@ -180,6 +180,7 @@ class YiviCredentialCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
+    debugPrint("Expiry date: $expiryDate");
 
     return IrmaCard(
       style: _isExpiredInAnyWay() ? .danger : style,

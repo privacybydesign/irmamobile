@@ -6,7 +6,7 @@ import "schemaless_events.dart";
 
 part "credential_store.g.dart";
 
-@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class SchemalessCredentialStoreEvent extends Event {
   final List<CredentialStoreItem> credentials;
 
@@ -16,7 +16,7 @@ class SchemalessCredentialStoreEvent extends Event {
       _$SchemalessCredentialStoreEventFromJson(json);
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable(fieldRename: .snake)
 class CredentialDescriptor {
   final String credentialId;
   final TranslatedValue name;
@@ -44,7 +44,7 @@ class CredentialDescriptor {
   Map<String, dynamic> toJson() => _$CredentialDescriptorToJson(this);
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable(fieldRename: .snake)
 class CredentialStoreItem {
   final CredentialDescriptor credential;
   final Faq faq;
@@ -57,14 +57,11 @@ class CredentialStoreItem {
   Map<String, dynamic> toJson() => _$CredentialStoreItemToJson(this);
 }
 
-@JsonSerializable(fieldRename: FieldRename.snake)
+@JsonSerializable(fieldRename: .snake)
 class Faq {
   final TranslatedValue intro;
-
   final TranslatedValue purpose;
-
   final TranslatedValue content;
-
   final TranslatedValue howTo;
 
   Faq({

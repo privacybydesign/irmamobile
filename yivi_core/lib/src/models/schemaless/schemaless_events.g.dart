@@ -92,7 +92,7 @@ TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   parent: json['parent'] == null
       ? null
       : TrustedParty.fromJson(json['parent'] as Map<String, dynamic>),
-  verified: json['verified'] as bool? ?? false,
+  verified: json['verified'] as bool,
 );
 
 Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>

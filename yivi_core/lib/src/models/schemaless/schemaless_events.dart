@@ -112,7 +112,7 @@ class Credential {
   final TrustedParty issuer;
   final Map<CredentialFormat, String> credentialInstanceIds;
   final Map<CredentialFormat, int?> batchInstanceCountsRemaining;
-  List<Attribute> attributes;
+  final List<Attribute> attributes;
   final int issuanceDate;
   final int expiryDate;
   final bool revoked;
