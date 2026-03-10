@@ -1,13 +1,19 @@
+import "dart:math";
+
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_svg/flutter_svg.dart";
 
+import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
 import "../../../util/haptics.dart";
 import "../../../util/navigation.dart";
 import "../../../util/scale.dart";
+import "../../../util/tablet.dart";
+import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/link.dart";
 import "../../../widgets/pin_common/pin_wrong_attempts.dart";
-import "session_scaffold.dart";
 
 const _shortPinSize = 5;
 
@@ -105,17 +111,61 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SessionScaffold(
-      appBarTitle: widget.title,
-      onDismiss: widget.onCancel,
-      body: OrientationBuilder(
-        builder: (context, orientation) {
-          if (orientation == Orientation.landscape) {
-            return _buildLandscape(context);
-          }
-          return _buildPortrait(context);
-        },
+    final theme = IrmaTheme.of(context);
+    final paddingSize = theme.screenPadding;
+
+    return Scaffold(
+      appBar: IrmaAppBar(
+        titleTranslationKey: widget.title,
+        leading: YiviBackButton(onTap: widget.onCancel),
       ),
+      backgroundColor: theme.backgroundPrimary,
+      body: SafeArea(
+        child: Container(
+          alignment: Alignment.center,
+          margin: EdgeInsets.only(
+            left: paddingSize,
+            right: paddingSize,
+            bottom: paddingSize,
+          ),
+          child: _applyTabletSupport(
+            context,
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                OrientationBuilder(
+                  builder: (context, orientation) {
+                    if (orientation == Orientation.landscape) {
+                      return _buildLandscape(context);
+                    }
+                    return _buildPortrait(context);
+                  },
+                ),
+                if (widget.submitting)
+                  Padding(
+                    padding: EdgeInsets.all(theme.defaultSpacing),
+                    child: const CircularProgressIndicator(),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _applyTabletSupport(BuildContext context, Widget body) {
+    if (!context.isTabletDevice) return body;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const commonShortestPhoneEdge = 414.0;
+        const commonLargestPhoneEdge = 736.0;
+        return SizedBox(
+          width: commonShortestPhoneEdge,
+          height: min(constraints.maxHeight, commonLargestPhoneEdge),
+          child: body,
+        );
+      },
     );
   }
 
@@ -134,6 +184,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
+                        _buildScaledLogo(context),
                         Expanded(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -173,7 +224,9 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
                   child: IntrinsicHeight(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        _buildScaledLogo(context),
                         _buildInstructionText(context),
                         _buildDecoratedPinDots(context),
                         _buildForgotPinLink(context),
@@ -187,6 +240,15 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         ),
         Expanded(child: _SessionNumberPad(onEnterNumber: _onNumberEntered)),
       ],
+    );
+  }
+
+  Widget _buildScaledLogo(BuildContext context) {
+    return SvgPicture.asset(
+      yiviAsset("non-free/logo_no_margin.svg"),
+      width: 127.scaleToDesignSize(context),
+      height: 71.scaleToDesignSize(context),
+      semanticsLabel: FlutterI18n.translate(context, "accessibility.irma_logo"),
     );
   }
 
@@ -265,17 +327,10 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   }
 
   Widget _buildForgotPinLink(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Center(
-      child: GestureDetector(
+      child: Link(
         onTap: context.pushResetPinScreen,
-        child: Text(
-          FlutterI18n.translate(context, "pin.button_forgot"),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.themeData.colorScheme.primary,
-            decoration: TextDecoration.underline,
-          ),
-        ),
+        label: FlutterI18n.translate(context, "pin.button_forgot"),
       ),
     );
   }
