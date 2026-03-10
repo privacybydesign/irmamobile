@@ -30,7 +30,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
 
-  # the following packages are required by the integrationt tests
+  # the following packages are required by the integration tests
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
