@@ -24,12 +24,14 @@ class DisclosureChoicesOverview extends ConsumerStatefulWidget {
   final SessionState sessionState;
   final VoidCallback onDismiss;
   final ValueChanged<List<DisclosureDisconSelection>> onChoicesConfirmed;
+  final bool hasIssueDuringDisclosure;
 
   const DisclosureChoicesOverview({
     super.key,
     required this.sessionState,
     required this.onDismiss,
     required this.onChoicesConfirmed,
+    this.hasIssueDuringDisclosure = false,
   });
 
   @override
@@ -197,10 +199,10 @@ class _DisclosureChoicesOverviewState
       appBarTitle: "disclosure_permission.overview.title",
       onDismiss: widget.onDismiss,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: .all(theme.defaultSpacing),
         child: SafeArea(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
               RequestorHeader(
                 requestorInfo: RequestorInfo(
@@ -210,8 +212,10 @@ class _DisclosureChoicesOverviewState
                 isVerified: session.requestor.verified,
               ),
 
-              if (choices.length > 1)
+              if (widget.hasIssueDuringDisclosure)
                 SessionProgressIndicator(
+                  step: 2,
+                  stepCount: 2,
                   contentTranslationKey:
                       "disclosure_permission.overview.explanation",
                   contentTranslationParams: {"requestorName": requestorName},
@@ -226,7 +230,7 @@ class _DisclosureChoicesOverviewState
                   style: theme.themeData.textTheme.headlineMedium,
                 ),
                 Padding(
-                  padding: EdgeInsets.only(
+                  padding: .only(
                     top: theme.smallSpacing,
                     bottom: theme.defaultSpacing,
                   ),
@@ -328,24 +332,24 @@ class _DisclosureChoiceEntry extends StatelessWidget {
       final showActionRow = changeable || optional;
 
       return Padding(
-        padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+        padding: .only(bottom: theme.defaultSpacing),
         child: Column(
           children: [
             if (showActionRow)
               Padding(
-                padding: EdgeInsets.only(
+                padding: .only(
                   bottom: theme.smallSpacing,
                   top: theme.smallSpacing,
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: .end,
                   children: [
                     if (optional && onRemove != null)
                       IrmaIconButton(
                         key: const Key("remove_optional_data_button"),
                         icon: Icons.close,
                         size: 22,
-                        padding: EdgeInsets.zero,
+                        padding: .zero,
                         onTap: onRemove!,
                       ),
                     if (optional) const Spacer(),
@@ -353,8 +357,8 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                       Flexible(
                         child: YiviThemedButton(
                           label: "disclosure_permission.change_choice",
-                          style: YiviButtonStyle.outlined,
-                          size: YiviButtonSize.small,
+                          style: .outlined,
+                          size: .small,
                           isTransparent: true,
                           onPressed: onChangeChoice,
                         ),
@@ -376,11 +380,11 @@ class _DisclosureChoiceEntry extends StatelessWidget {
     final obtainable = pickOne.obtainableOptions;
     if (obtainable != null && obtainable.isNotEmpty) {
       return Card(
-        margin: EdgeInsets.only(bottom: theme.smallSpacing),
+        margin: .only(bottom: theme.smallSpacing),
         child: Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: .all(theme.defaultSpacing),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: .start,
             children: [
               Text(
                 FlutterI18n.translate(context, "disclosure.missing_credential"),
@@ -391,7 +395,7 @@ class _DisclosureChoiceEntry extends StatelessWidget {
               SizedBox(height: theme.smallSpacing),
               for (final cred in obtainable)
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
+                  padding: .symmetric(vertical: theme.tinySpacing),
                   child: Text(
                     getTranslation(context, cred.name),
                     style: theme.themeData.textTheme.bodyLarge,

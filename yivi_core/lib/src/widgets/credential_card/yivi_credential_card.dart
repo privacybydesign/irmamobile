@@ -134,7 +134,28 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          imagePath: descriptor.imagePath,
-         attributes: const [],
+         attributes: descriptor.attributes
+             .where((a) => a.requestedValue != null)
+             .map(
+               (a) => Attribute(
+                 id: a.id,
+                 displayName: a.displayName,
+                 description: a.description,
+                 value: a.requestedValue,
+               ),
+             )
+             .toList(),
+         compareTo: descriptor.attributes
+             .where((a) => a.requestedValue != null)
+             .map(
+               (a) => Attribute(
+                 id: a.id,
+                 displayName: a.displayName,
+                 description: a.description,
+                 value: a.requestedValue,
+               ),
+             )
+             .toList(),
          revoked: false,
          batchInstanceCountsRemaining: {},
          compact: compact,
@@ -178,7 +199,6 @@ class YiviCredentialCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
-    debugPrint("Expiry date: $expiryDate");
 
     return IrmaCard(
       style: _isExpiredInAnyWay() ? .danger : style,

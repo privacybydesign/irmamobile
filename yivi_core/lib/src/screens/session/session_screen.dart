@@ -177,8 +177,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
 
     // Pure disclosure or signature session where issuance is no longer required
+    final hadIssueDuringDisclosure = plan?.issueDuringDislosure != null;
     return DisclosureChoicesOverview(
       sessionState: session,
+      hasIssueDuringDisclosure: hadIssueDuringDisclosure,
       onDismiss: _showDismissDialog,
       onChoicesConfirmed: (choices) {
         _showShareConfirmDialog(session, choices);
