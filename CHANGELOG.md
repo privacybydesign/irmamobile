@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.13.4] - 2026-03-11s
+### Added
+- Add Tesseract4Android for F-Droid OCR 
+
 ## [7.13.3] - 2026-03-09
 ### Changed
 - For passports and ID-cards the app now also reads DG11 for names with diacritics and non-binary sex.
