@@ -165,9 +165,9 @@ class MRZHelper {
     return out;
   }
 
-  static bool _isDigits(String s) => RegExp(r'^\d+$').hasMatch(s);
-  static bool _isLetters(String s) => RegExp(r'^[A-Z]+$').hasMatch(s);
-  static bool _isLettersOrFiller(String s) => RegExp(r'^[A-Z<]+$').hasMatch(s);
+  static bool _isDigits(String s) => RegExp(r"^\d+$").hasMatch(s);
+  static bool _isLetters(String s) => RegExp(r"^[A-Z]+$").hasMatch(s);
+  static bool _isLettersOrFiller(String s) => RegExp(r"^[A-Z<]+$").hasMatch(s);
 
   static String _fixSexChar(String c) {
     if (c == 'M' || c == 'F' || c == 'X' || c == '<') return c;
@@ -188,8 +188,9 @@ class MRZHelper {
   }
 
   static List<String>? _fixTd3(List<String> lines) {
-    if (lines.length != 2 || lines[0].length != 44 || lines[1].length != 44)
+    if (lines.length != 2 || lines[0].length != 44 || lines[1].length != 44) {
       return null;
+    }
 
     final l1 = lines[0];
     final l2 = lines[1];
