@@ -15,7 +15,6 @@ class TesseractOcrProcessor implements OcrProcessor {
     required CameraImage inputImage,
     required int imageRotation,
   }) async {
-    if (!Platform.isAndroid) return null;
     if (_isProcessing) return null;
 
     _isProcessing = true;
@@ -173,18 +172,7 @@ class MRZHelper {
     return c;
   }
 
-  /// Attempt to fix OCR errors in MRZ lines based on known field types.
-  /// Returns fixed lines, or null if unfixable.
-  static List<String>? fixLines(List<String> lines) {
-    if (lines.length == 3 && lines.every((s) => s.length == 30)) {
-      return _fixTd1(lines);
-    }
-    if (lines.length == 2 && lines[0].length == 44) {
-      return _fixTd3(lines);
-    }
-    return null;
-  }
-
+  // Attempt to fix OCR errors in MRZ lines based on known field types.
   static List<String>? _fixTd3(List<String> lines) {
     if (lines.length != 2 || lines[0].length != 44 || lines[1].length != 44) {
       return null;

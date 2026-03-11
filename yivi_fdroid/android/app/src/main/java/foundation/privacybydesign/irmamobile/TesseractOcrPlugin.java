@@ -70,6 +70,12 @@ public class TesseractOcrPlugin implements FlutterPlugin, MethodChannel.MethodCa
             return;
         }
 
+        // Should not happen, but if for some reason it doen't get detached right
+        if (ocrExecutor == null || ocrExecutor.isShutdown()) {
+            result.error("OCR", "OCR engine not available", null);
+            return;
+        }
+
         ocrExecutor.execute(() -> {
             try {
                 String text = ocrEngine.ocrYPlane(

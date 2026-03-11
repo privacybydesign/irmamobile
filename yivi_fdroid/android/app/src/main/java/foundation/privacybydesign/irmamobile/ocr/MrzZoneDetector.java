@@ -37,7 +37,7 @@ public class MrzZoneDetector {
     }
 
     /**
-     * Hoofdmethode om de MRZ-zone in een afbeelding te detecteren.
+     * Head method to detect the MRZ zone in an image.
      */
     public static RoiResult detect(Mat src) {
         // 1. Convert to grayscale
@@ -57,13 +57,10 @@ public class MrzZoneDetector {
         int w = resized.cols();
         int h = resized.rows();
 
-        // 3. calculate brightness and contrast
-        MatOfDouble mean = new MatOfDouble();
+        // 3. calculate contrast
         MatOfDouble stddev = new MatOfDouble();
         Core.meanStdDev(resized, mean, stddev);
-        double brightness = mean.get(0, 0)[0];
         double contrast = stddev.get(0, 0)[0];
-        mean.release();
         stddev.release();
 
 
@@ -270,14 +267,6 @@ public class MrzZoneDetector {
                 return Double.compare(Imgproc.contourArea(o2), Imgproc.contourArea(o1));
             }
         });
-
-        int debugCount = Math.min(contours.size(), 8);
-        for (int i = 0; i < debugCount; i++) {
-            Rect r = Imgproc.boundingRect(contours.get(i));
-            double ar = (double) r.width / r.height;
-            double cov = (double) r.width / w;
-            double areaRatio = (double) (r.width * r.height) / (w * h);
-        }
 
         RoiResult best = null;
         double bestCenterY = 0;
