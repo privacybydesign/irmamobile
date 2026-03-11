@@ -103,11 +103,12 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
                   ),
                   isVerified: requestor.verified,
                 ),
-              SessionProgressIndicator(
-                step: isCompleted ? steps.length : currentStepIndex! + 1,
-                stepCount: steps.length,
-                contentTranslationKey: wizardState.explanationKey,
-              ),
+              if (steps.length > 1)
+                SessionProgressIndicator(
+                  step: isCompleted ? steps.length : currentStepIndex! + 1,
+                  stepCount: steps.length,
+                  contentTranslationKey: wizardState.explanationKey,
+                ),
               SizedBox(height: theme.defaultSpacing),
               if (isSingleStep)
                 _buildStepContent(

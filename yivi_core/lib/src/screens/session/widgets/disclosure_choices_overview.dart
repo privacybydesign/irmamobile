@@ -210,11 +210,12 @@ class _DisclosureChoicesOverviewState
                 isVerified: session.requestor.verified,
               ),
 
-              SessionProgressIndicator(
-                contentTranslationKey:
-                    "disclosure_permission.overview.explanation",
-                contentTranslationParams: {"requestorName": requestorName},
-              ),
+              if (choices.length > 1)
+                SessionProgressIndicator(
+                  contentTranslationKey:
+                      "disclosure_permission.overview.explanation",
+                  contentTranslationParams: {"requestorName": requestorName},
+                ),
 
               if (isSignature && session.messageToSign != null) ...[
                 SizedBox(height: theme.defaultSpacing),
