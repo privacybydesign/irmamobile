@@ -1,4 +1,3 @@
-import "dart:io";
 import "package:camera/camera.dart";
 import "package:flutter/services.dart";
 import "package:yivi_core/yivi_core.dart";
