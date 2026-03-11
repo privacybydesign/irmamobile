@@ -35,6 +35,7 @@ class ActivityDetailIssuance extends StatelessWidget {
               child: YiviCredentialCard.fromLogCredential(
                 logCredential: cred,
                 compact: true,
+                hideFooter: true,
               ),
             ),
           SizedBox(height: theme.smallSpacing),
@@ -62,6 +63,7 @@ class ActivityDetailIssuance extends StatelessWidget {
             child: YiviCredentialCard.fromLogCredential(
               logCredential: rawCredential,
               compact: true,
+              hideFooter: true,
             ),
           ),
       ],

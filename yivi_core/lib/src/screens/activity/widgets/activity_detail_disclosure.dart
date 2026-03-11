@@ -39,6 +39,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
               child: YiviCredentialCard.fromLogCredential(
                 logCredential: credential,
                 compact: true,
+                hideFooter: true,
               ),
             ),
         if (logEntry.type == LogType.signature) ...[

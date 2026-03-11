@@ -21,7 +21,7 @@ class YiviCredentialCard extends ConsumerWidget {
   final TranslatedValue issuerName;
   final String imagePath;
   final List<Attribute> attributes;
-  final int expiryDate;
+  final int? expiryDate;
   final bool revoked;
   final Map<CredentialFormat, int?> batchInstanceCountsRemaining;
   final bool compact;
@@ -45,7 +45,7 @@ class YiviCredentialCard extends ConsumerWidget {
     required this.issuerName,
     required this.imagePath,
     required this.attributes,
-    required this.expiryDate,
+    this.expiryDate,
     required this.revoked,
     required this.batchInstanceCountsRemaining,
     required this.compact,
@@ -135,7 +135,6 @@ class YiviCredentialCard extends ConsumerWidget {
          issuerName: descriptor.issuer.name,
          imagePath: descriptor.imagePath,
          attributes: const [],
-         expiryDate: 0,
          revoked: false,
          batchInstanceCountsRemaining: {},
          compact: compact,
@@ -164,7 +163,6 @@ class YiviCredentialCard extends ConsumerWidget {
          issuerName: logCredential.issuer.name,
          imagePath: logCredential.imagePath,
          attributes: logCredential.attributes,
-         expiryDate: logCredential.expiryDate,
          revoked: logCredential.revoked,
          batchInstanceCountsRemaining: {},
          compact: compact,
@@ -218,7 +216,7 @@ class YiviCredentialCard extends ConsumerWidget {
                   revoked: revoked,
                   instanceBasedExpireState: _getInstanceCountBasedExpireState(),
                   timeBasedExpireState: _getTimeBasedExpireState(),
-                  expiryDate: CardExpiryDate.fromUnix(expiryDate),
+                  expiryDate: expiryDate != null ? CardExpiryDate.fromUnix(expiryDate!) : null,
                   instanceCount: _getInstanceCount(),
                 ),
               ],
@@ -229,7 +227,8 @@ class YiviCredentialCard extends ConsumerWidget {
   }
 
   ExpireState _getTimeBasedExpireState() {
-    final exp = CardExpiryDate.fromUnix(expiryDate);
+    if (expiryDate == null) return .notExpired;
+    final exp = CardExpiryDate.fromUnix(expiryDate!);
 
     if (exp.expired) {
       return .expired;

@@ -31,6 +31,7 @@ class ActivityDetailRemoval extends StatelessWidget {
             child: YiviCredentialCard.fromLogCredential(
               logCredential: removedCredential,
               compact: true,
+              hideFooter: true,
             ),
           ),
       ],
