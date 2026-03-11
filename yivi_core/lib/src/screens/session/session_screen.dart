@@ -84,7 +84,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     return asyncSession.when(
       loading: () => _buildLoadingScreen(null),
-      error: (_, __) => _buildLoadingScreen(null),
+      error: (err, __) => SessionErrorScreen(
+        error: SessionError(errorType: "unknown", info: err.toString()),
+        onTapClose: () {
+          if (mounted) {
+            context.popToUnderlyingSessionOrHome(
+              hasUnderlyingSession: widget.hasUnderlyingSession,
+            );
+          }
+        },
+      ),
       data: (session) {
         // Reset pin submitting state when session state updates
         if (_pinSubmitting) _pinSubmitting = false;
