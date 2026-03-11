@@ -1,7 +1,5 @@
 import "dart:io";
-import "dart:typed_data";
 import "package:camera/camera.dart";
-import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 import "package:yivi_core/yivi_core.dart";
 
@@ -107,19 +105,19 @@ class MRZHelper {
 
     switch (len) {
       case 30:
-        // TD1: 3 lines, type I/A/C
+      // TD1: 3 lines, type I/A/C
         if (lines.length < 3) return null;
         if (!["I", "A", "C"].contains(typeChar)) return null;
         final td1 = lines.sublist(0, 3);
         return _fixTd1(td1) ?? td1;
 
       case 36:
-        // TD2 or MRVB: 2 lines, type I/A/C/V
+      // TD2 or MRVB: 2 lines, type I/A/C/V
         if (!["I", "A", "C", "V"].contains(typeChar)) return null;
         return lines.sublist(0, 2);
 
       case 44:
-        // TD3 of MRVA: 2 lines, type P/V
+      // TD3 of MRVA: 2 lines, type P/V
         if (!["P", "V"].contains(typeChar)) return null;
         final td3 = lines.sublist(0, 2);
         return _fixTd3(td3) ?? td3;
@@ -131,26 +129,26 @@ class MRZHelper {
 
   // ICAO fixer
   static const Map<String, String> _toDigit = {
-    'O': '0',
-    'Q': '0',
-    'D': '0',
-    'U': '0',
-    'I': '1',
-    'L': '1',
-    'Z': '2',
-    'S': '5',
-    'G': '6',
-    'B': '8',
-    'T': '7',
+    "O": "0",
+    "Q": "0",
+    "D": "0",
+    "U": "0",
+    "I": "1",
+    "L": "1",
+    "Z": "2",
+    "S": "5",
+    "G": "6",
+    "B": "8",
+    "T": "7",
   };
 
   static const Map<String, String> _toAlpha = {
-    '0': 'O',
-    '1': 'I',
-    '2': 'Z',
-    '5': 'S',
-    '6': 'G',
-    '8': 'B',
+    "0": "O",
+    "1": "I",
+    "2": "Z",
+    "5": "S",
+    "6": "G",
+    "8": "B",
   };
 
   static String _lettersToDigits(String s) {
@@ -170,8 +168,8 @@ class MRZHelper {
   static bool _isLettersOrFiller(String s) => RegExp(r"^[A-Z<]+$").hasMatch(s);
 
   static String _fixSexChar(String c) {
-    if (c == 'M' || c == 'F' || c == 'X' || c == '<') return c;
-    if (c == 'P') return 'F';
+    if (c == "M" || c == "F" || c == "X" || c == "<") return c;
+    if (c == "P") return "F";
     return c;
   }
 
@@ -220,14 +218,14 @@ class MRZHelper {
     final fixedL1 = docType + issuer + names;
     final fixedL2 =
         l2.substring(0, 9) +
-        docCd +
-        nat +
-        birth +
-        birthCd +
-        sex +
-        exp +
-        expCd +
-        l2.substring(28);
+            docCd +
+            nat +
+            birth +
+            birthCd +
+            sex +
+            exp +
+            expCd +
+            l2.substring(28);
 
     return [fixedL1, fixedL2];
   }
@@ -264,13 +262,13 @@ class MRZHelper {
     final fixedL1 = docType + issuer + l1.substring(5);
     final fixedL2 =
         birth +
-        birthCd +
-        sex +
-        exp +
-        expCd +
-        nat +
-        l2.substring(18, 29) +
-        finalCd;
+            birthCd +
+            sex +
+            exp +
+            expCd +
+            nat +
+            l2.substring(18, 29) +
+            finalCd;
 
     return [fixedL1, fixedL2, names];
   }
