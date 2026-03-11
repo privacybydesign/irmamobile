@@ -216,7 +216,9 @@ class YiviCredentialCard extends ConsumerWidget {
                   revoked: revoked,
                   instanceBasedExpireState: _getInstanceCountBasedExpireState(),
                   timeBasedExpireState: _getTimeBasedExpireState(),
-                  expiryDate: expiryDate != null ? CardExpiryDate.fromUnix(expiryDate!) : null,
+                  expiryDate: expiryDate != null
+                      ? CardExpiryDate.fromUnix(expiryDate!)
+                      : null,
                   instanceCount: _getInstanceCount(),
                 ),
               ],

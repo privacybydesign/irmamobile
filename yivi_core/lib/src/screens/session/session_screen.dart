@@ -13,7 +13,8 @@ import "../../util/language.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/loading_indicator.dart";
-import "../error/session_error_screen.dart";
+import "../../widgets/irma_bottom_bar.dart";
+import "../../widgets/irma_error_scaffold_body.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
@@ -84,16 +85,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     return asyncSession.when(
       loading: () => _buildLoadingScreen(null),
-      error: (err, __) => SessionErrorScreen(
-        error: SessionError(errorType: "unknown", info: err.toString()),
-        onTapClose: () {
-          if (mounted) {
-            context.popToUnderlyingSessionOrHome(
-              hasUnderlyingSession: widget.hasUnderlyingSession,
-            );
-          }
-        },
-      ),
+      error: (err, __) =>
+          _buildError(SessionError(errorType: "unknown", info: err.toString())),
       data: (session) {
         // Reset pin submitting state when session state updates
         if (_pinSubmitting) _pinSubmitting = false;
@@ -130,7 +123,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             onPinEntered: (pin) => _submitPin(pin),
             onCancel: _dismissSession,
           ),
-          .error => _buildError(session),
+          .error => _buildError(
+            session.error ?? SessionError(errorType: "unknown", info: ""),
+          ),
           // dismissed and success are handled above
           .dismissed || .success => _buildLoadingScreen(session),
         };
@@ -337,17 +332,28 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     return ArrowBack(type: t);
   }
 
-  Widget _buildError(SessionState session) {
+  void _closeSession() {
+    if (mounted) {
+      context.popToUnderlyingSessionOrHome(
+        hasUnderlyingSession: widget.hasUnderlyingSession,
+      );
+    }
+  }
+
+  Widget _buildError(SessionError error) {
     HapticFeedback.heavyImpact();
-    return SessionErrorScreen(
-      error: session.error ?? SessionError(errorType: "unknown", info: ""),
-      onTapClose: () {
-        if (mounted) {
-          context.popToUnderlyingSessionOrHome(
-            hasUnderlyingSession: widget.hasUnderlyingSession,
-          );
-        }
-      },
+    return SessionScaffold(
+      appBarTitle: "error.details_title",
+      onDismiss: _closeSession,
+      body: IrmaErrorScaffoldBody(
+        type: ErrorType.general,
+        details: error.toString(),
+        reportable: error.reportable,
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: FlutterI18n.translate(context, "error.button_ok"),
+        onPrimaryPressed: _closeSession,
+      ),
     );
   }
 }

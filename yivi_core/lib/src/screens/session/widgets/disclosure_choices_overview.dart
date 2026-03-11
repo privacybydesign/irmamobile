@@ -215,7 +215,9 @@ class _DisclosureChoicesOverviewState
                   contentTranslationKey:
                       "disclosure_permission.overview.explanation",
                   contentTranslationParams: {"requestorName": requestorName},
-                ),
+                )
+              else
+                SizedBox(height: theme.defaultSpacing),
 
               if (isSignature && session.messageToSign != null) ...[
                 SizedBox(height: theme.defaultSpacing),
