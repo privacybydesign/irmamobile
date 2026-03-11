@@ -159,16 +159,17 @@ class _OpenID4VciSessionScreenState
   }
 
   Future<void> _signInWithAutoCodeFlow(OpenID4VciSessionState state) async {
-    final s = state.generateSessionState();
+    // TODO: move `state` to irmago
+    //final s = state.generateSessionState();
+    final s = state.sessionID; // for now we use the sessionID as state, but ideally this should be a separate random value
+
     final url = Uri.parse(state.authorizationCodeRequestParameters!.authorizationRequestUrl);
     final urlWithState = url.replace(queryParameters: {
       ...url.queryParameters,
-      "state": s,
+      "state": s.toString(),
     }).toString();
 
     ref.read(irmaRepositoryProvider).openURLinAppBrowser(urlWithState);
-
-//    ref.read(irmaRepositoryProvider).openURLExternally(urlWithState);
   }
 
   Future<void> _signInWithPreAuthorizedCode(
@@ -191,8 +192,7 @@ class _OpenID4VciSessionScreenState
     }
 
     // Handle the permission
-    ref
-        .read(irmaRepositoryProvider)
+    ref.read(irmaRepositoryProvider)
         .bridgedDispatch(
           RespondPreAuthorizedCodeFlowPermissionEvent(
             sessionID: state.sessionID,

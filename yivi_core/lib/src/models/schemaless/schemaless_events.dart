@@ -81,18 +81,18 @@ class TrustedParty {
   @JsonKey(name: "Url")
   final TranslatedValue url;
 
-  @JsonKey(name: "ImagePath")
-  final String imagePath;
-
   @JsonKey(name: "Parent")
   final TrustedParty? parent;
+
+  @JsonKey(name: "ImagePath")
+  final String? imagePath;
 
   TrustedParty({
     required this.id,
     required this.name,
     required this.url,
-    required this.imagePath,
     required this.parent,
+    this.imagePath,
   });
 
   factory TrustedParty.fromJson(Map<String, dynamic> json) =>

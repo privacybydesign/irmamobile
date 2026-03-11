@@ -212,7 +212,7 @@ class IrmaRepository {
     } else if (event is HandleURLEvent) {
       try {
 // --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
-        if (event.url.startsWith("yivi-app://callback")) {
+        if (event.url.startsWith("yivi-app://auth-callback")) {
           final uri = Uri.parse(event.url);
           final state = uri.queryParameters["state"];
           if (state == null) {
@@ -222,7 +222,10 @@ class IrmaRepository {
             );
           }
           // find session with matching state
-          final session = await _sessionRepository.getSessionStateByState(state);
+          //final session = await _sessionRepository.getSessionStateByState(state);
+          // Parse 'state' to sessionID
+          final sessionID = int.parse(state);
+          final session = _sessionRepository.getCurrentSessionState(sessionID); // for now we use the sessionID as state, but ideally this should be a separate random value
           if (session == null) {
             throw MissingPointer(
               details: "no session found matching state $state",
@@ -246,6 +249,9 @@ class IrmaRepository {
                 code: code,
               ),
             );
+
+            closeInAppWebView();
+            return;
           } else {
             throw MissingPointer(
               details: "session with state $state is not an OpenID4VciSessionState",
