@@ -188,7 +188,9 @@ class _RequestorHeaderBase extends StatelessWidget {
       padding: EdgeInsets.zero,
       margin: EdgeInsets.all(theme.defaultSpacing),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: subtitleText != null
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
