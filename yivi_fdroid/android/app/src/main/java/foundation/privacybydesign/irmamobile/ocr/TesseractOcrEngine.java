@@ -147,8 +147,6 @@ public class TesseractOcrEngine {
             result = tess.getUTF8Text();
             tess.clear();
         }
-        t = System.currentTimeMillis();
-
         return (result != null ? result : "").trim();
     }
 
