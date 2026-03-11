@@ -135,7 +135,9 @@ class YiviCredentialCard extends ConsumerWidget {
          issuerName: descriptor.issuer.name,
          imagePath: descriptor.imagePath,
          attributes: descriptor.attributes
-             .where((a) => a.requestedValue != null)
+             .where((a) =>
+                 a.requestedValue != null &&
+                 a.requestedValue!.hasConcreteValue)
              .map(
                (a) => Attribute(
                  id: a.id,
@@ -146,7 +148,9 @@ class YiviCredentialCard extends ConsumerWidget {
              )
              .toList(),
          compareTo: descriptor.attributes
-             .where((a) => a.requestedValue != null)
+             .where((a) =>
+                 a.requestedValue != null &&
+                 a.requestedValue!.hasConcreteValue)
              .map(
                (a) => Attribute(
                  id: a.id,

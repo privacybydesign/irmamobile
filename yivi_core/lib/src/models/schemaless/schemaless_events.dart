@@ -51,6 +51,16 @@ class AttributeValue {
     this.base64Image,
   });
 
+  /// Whether this value has actual data set (not just a type marker).
+  bool get hasConcreteValue =>
+      intValue != null ||
+      boolValue != null ||
+      translatedString != null ||
+      array != null ||
+      object != null ||
+      imagePath != null ||
+      base64Image != null;
+
   factory AttributeValue.fromJson(Map<String, dynamic> json) =>
       _$AttributeValueFromJson(json);
 
