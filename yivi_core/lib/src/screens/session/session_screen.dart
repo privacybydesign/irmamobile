@@ -55,11 +55,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   List<DisclosureDisconSelection>? _pendingDisclosureChoices;
 
   bool _pinSubmitting = false;
+  bool _hasLongPin = false;
 
   @override
   void initState() {
     super.initState();
     _repo = ref.read(irmaRepositoryProvider);
+    _repo.preferences.getLongPin().first.then((value) {
+      if (mounted) setState(() => _hasLongPin = value);
+    });
   }
 
   @override
@@ -120,8 +124,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             remainingAttempts: session.remainingPinAttempts,
             blockedTimeSeconds: session.pinBlockedTimeSeconds,
             submitting: _pinSubmitting,
+            maxPinSize: _hasLongPin ? 16 : 5,
             onPinEntered: (pin) => _submitPin(pin),
             onCancel: _dismissSession,
+            onBlocked: () {
+              context.goHomeScreen();
+            },
           ),
           .error => _buildError(
             session.error ?? SessionError(errorType: "unknown", info: ""),

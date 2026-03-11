@@ -14,20 +14,25 @@ import "../../../util/tablet.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/pin_common/pin_wrong_attempts.dart";
+import "../../../widgets/pin_common/pin_wrong_blocked.dart";
 
 const _shortPinSize = 5;
+const _longPinSize = 16;
 
 /// A self-contained session pin entry screen.
 ///
 /// Manages pin state internally via [setState] — no bloc dependency.
 /// Calls [onPinEntered] with the full pin string once all digits are entered.
+/// Mirrors master's SessionPinScreen behavior for wrong pin / blocked dialogs.
 class SessionPinEntryScreen extends StatefulWidget {
   final String title;
   final int remainingAttempts;
   final int blockedTimeSeconds;
   final bool submitting;
+  final int maxPinSize;
   final ValueChanged<String> onPinEntered;
   final VoidCallback onCancel;
+  final VoidCallback? onBlocked;
 
   const SessionPinEntryScreen({
     super.key,
@@ -37,6 +42,8 @@ class SessionPinEntryScreen extends StatefulWidget {
     this.remainingAttempts = 0,
     this.blockedTimeSeconds = 0,
     this.submitting = false,
+    this.maxPinSize = _shortPinSize,
+    this.onBlocked,
   });
 
   @override
@@ -47,16 +54,17 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   List<int> _pin = [];
   bool _pinVisible = false;
   int? _previousRemainingAttempts;
+  int? _previousBlockedTimeSeconds;
   bool _submitted = false;
 
   @override
   void didUpdateWidget(SessionPinEntryScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Show wrong attempts dialog when remaining attempts decreased
-    if (widget.remainingAttempts > 0 &&
-        _previousRemainingAttempts != null &&
-        widget.remainingAttempts < _previousRemainingAttempts!) {
+    // Handle blocked state: navigate home when blocked
+    if (widget.blockedTimeSeconds > 0 &&
+        (_previousBlockedTimeSeconds == null ||
+            _previousBlockedTimeSeconds == 0)) {
       setState(() {
         _pin = [];
         _submitted = false;
@@ -64,39 +72,61 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
       HapticFeedback.heavyImpact();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        _showWrongAttemptsDialog(widget.remainingAttempts);
+        if (widget.onBlocked != null) {
+          widget.onBlocked!();
+        } else {
+          // Show blocked dialog, then navigate home
+          showDialog(
+            context: context,
+            builder: (ctx) => PinWrongBlockedDialog(
+              blocked: widget.blockedTimeSeconds,
+              onClose: () {
+                Navigator.of(ctx).pop();
+                context.goHomeScreen();
+              },
+            ),
+          );
+        }
+      });
+    }
+    // Handle wrong pin: show attempts dialog when remaining attempts changed
+    else if (widget.remainingAttempts > 0 &&
+        widget.remainingAttempts != _previousRemainingAttempts) {
+      setState(() {
+        _pin = [];
+        _submitted = false;
+      });
+      HapticFeedback.heavyImpact();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => PinWrongAttemptsDialog(
+            attemptsRemaining: widget.remainingAttempts,
+            onClose: () => Navigator.of(ctx).pop(),
+          ),
+        );
       });
     }
 
-    if (widget.blockedTimeSeconds > 0 && oldWidget.blockedTimeSeconds == 0) {
-      context.goHomeScreen();
-    }
-
     _previousRemainingAttempts = widget.remainingAttempts;
-  }
-
-  void _showWrongAttemptsDialog(int remaining) {
-    showDialog(
-      context: context,
-      builder: (context) => PinWrongAttemptsDialog(
-        attemptsRemaining: remaining,
-        onClose: () => Navigator.of(context).pop(),
-      ),
-    );
+    _previousBlockedTimeSeconds = widget.blockedTimeSeconds;
   }
 
   void _onNumberEntered(int number) {
     if (!_enabled || _submitted) return;
 
     setState(() {
-      if (number >= 0 && number < 10 && _pin.length < _shortPinSize) {
+      if (number >= 0 && number < 10 && _pin.length < widget.maxPinSize) {
         _pin = [..._pin, number];
       } else if (number < 0 && _pin.isNotEmpty) {
         _pin = _pin.sublist(0, _pin.length - 1);
       }
     });
 
-    if (_pin.length == _shortPinSize) {
+    // Auto-submit for short pin
+    if (widget.maxPinSize == _shortPinSize &&
+        _pin.length == widget.maxPinSize) {
       _submit();
     }
   }
@@ -108,6 +138,10 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   }
 
   bool get _enabled => !widget.submitting && widget.blockedTimeSeconds <= 0;
+
+  bool get _isLongPin => widget.maxPinSize == _longPinSize;
+
+  bool get _canSubmitLongPin => _isLongPin && _pin.length >= 6;
 
   @override
   Widget build(BuildContext context) {
@@ -170,8 +204,15 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   }
 
   Widget _buildPortrait(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return Column(
       children: [
+        // For short pin: invisible next button at top (maintains layout space)
+        if (!_isLongPin)
+          Padding(
+            padding: EdgeInsets.only(top: theme.screenPadding),
+            child: _buildNextButton(visibility: _WidgetVisibility.invisible),
+          ),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -204,6 +245,12 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
           ),
         ),
         Expanded(child: _SessionNumberPad(onEnterNumber: _onNumberEntered)),
+        // For long pin: visible next button at bottom
+        if (_isLongPin)
+          Padding(
+            padding: EdgeInsets.only(top: theme.screenPadding),
+            child: _buildNextButton(visibility: _WidgetVisibility.visible),
+          ),
       ],
     );
   }
@@ -230,6 +277,11 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
                         _buildInstructionText(context),
                         _buildDecoratedPinDots(context),
                         _buildForgotPinLink(context),
+                        _buildNextButton(
+                          visibility: _isLongPin
+                              ? _WidgetVisibility.visible
+                              : _WidgetVisibility.gone,
+                        ),
                       ],
                     ),
                   ),
@@ -267,6 +319,8 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   }
 
   Widget _buildDecoratedPinDots(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -277,7 +331,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
               widthFactor: .72,
               child: _SessionPinIndicator(
                 pin: _pin,
-                maxPinSize: _shortPinSize,
+                maxPinSize: widget.maxPinSize,
                 pinVisible: _pinVisible,
               ),
             ),
@@ -290,6 +344,28 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
             ),
           ],
         ),
+        if (_isLongPin)
+          FractionallySizedBox(
+            widthFactor: .72,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Divider(height: 1.0, color: theme.secondary),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Text(
+                    "${_pin.length}/$_longPinSize",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w300,
+                      color: _pin.isNotEmpty
+                          ? theme.secondary
+                          : Colors.transparent,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -326,6 +402,29 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     );
   }
 
+  Widget _buildNextButton({required _WidgetVisibility visibility}) {
+    const buttonHeight = 48.0;
+    final button = SizedBox(
+      height: buttonHeight,
+      child: ElevatedButton(
+        onPressed: _canSubmitLongPin && _enabled ? _submit : null,
+        child: Text(FlutterI18n.translate(context, "choose_pin.next")),
+      ),
+    );
+
+    return switch (visibility) {
+      _WidgetVisibility.gone => Visibility(visible: false, child: button),
+      _WidgetVisibility.invisible => Visibility(
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        visible: false,
+        child: button,
+      ),
+      _WidgetVisibility.visible => button,
+    };
+  }
+
   Widget _buildForgotPinLink(BuildContext context) {
     return Center(
       child: Link(
@@ -335,6 +434,8 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     );
   }
 }
+
+enum _WidgetVisibility { invisible, visible, gone }
 
 // ---------------------------------------------------------------------------
 // Pin indicator
@@ -380,6 +481,9 @@ class _SessionPinIndicator extends StatelessWidget {
     final pinSize = pin.length;
     final joinedPin = pin.join();
 
+    // For long pins, show dots for filled positions only (no empty outlines)
+    final dotsToShow = maxPinSize == _shortPinSize ? _shortPinSize : pinSize;
+
     return Semantics(
       label: joinedPin.isEmpty
           ? FlutterI18n.translate(context, "pin_accessibility.empty_pin_input")
@@ -395,7 +499,7 @@ class _SessionPinIndicator extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: List.generate(
-            _shortPinSize,
+            dotsToShow,
             (i) => Stack(
               alignment: Alignment.center,
               children: [
