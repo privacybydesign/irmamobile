@@ -5,12 +5,9 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 
-import "../../models/irma_configuration.dart";
 import "../../models/log_entry.dart";
-import "../../models/session_events.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
-import "../../util/combine.dart";
 import "../../util/string.dart";
 import "../../widgets/end_of_list_indicator.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -38,13 +35,10 @@ class _ActivityTabState extends State<ActivityTab> {
       if (!mounted) {
         return;
       }
-      _repoStateSubscription = IrmaRepositoryProvider.of(context)
-          .getEvents()
-          .listen((event) {
-            if (event is SuccessSessionEvent) {
-              _loadInitialLogs();
-            }
-          });
+      // TODO: listen for session success to refresh logs
+      _repoStateSubscription = IrmaRepositoryProvider.of(
+        context,
+      ).getEvents().listen((event) {});
     });
   }
 
@@ -105,7 +99,6 @@ class _ActivityTabState extends State<ActivityTab> {
 
   Widget _buildLogEntries(
     BuildContext context,
-    IrmaConfiguration irmaConfiguration,
     List<LogInfo> logEntries,
     bool moreLogsAvailable,
   ) {
@@ -138,10 +131,7 @@ class _ActivityTabState extends State<ActivityTab> {
           ),
         Padding(
           padding: EdgeInsets.only(bottom: theme.smallSpacing),
-          child: ActivityCard(
-            logEntry: logEntry,
-            irmaConfiguration: irmaConfiguration,
-          ),
+          child: ActivityCard(logEntry: logEntry),
         ),
       ];
     }).flattened.toList();
@@ -181,20 +171,15 @@ class _ActivityTabState extends State<ActivityTab> {
         titleTranslationKey: "home.nav_bar.activity",
         leading: null,
       ),
-      body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
-        stream: combine2(
-          _historyRepo.repo.getIrmaConfiguration(),
-          _historyRepo.getHistoryState(),
-        ),
+      body: StreamBuilder<HistoryState>(
+        stream: _historyRepo.getHistoryState(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: LoadingIndicator());
           }
-          final irmaConfiguration = snapshot.data!.a;
-          final historyState = snapshot.data!.b;
+          final historyState = snapshot.data!;
           return _buildLogEntries(
             context,
-            irmaConfiguration,
             historyState.logEntries,
             historyState.moreLogsAvailable,
           );

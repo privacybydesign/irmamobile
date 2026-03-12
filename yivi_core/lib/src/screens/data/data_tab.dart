@@ -9,7 +9,6 @@ import "package:flutter_svg/flutter_svg.dart";
 
 import "../../../package_name.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../providers/credentials_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
@@ -263,7 +262,7 @@ class _AllCredentialsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(credentialInfoListProvider);
+    final credentials = ref.watch(schemalessCredentialsProvider);
 
     return switch (credentials) {
       AsyncData(:final value) =>

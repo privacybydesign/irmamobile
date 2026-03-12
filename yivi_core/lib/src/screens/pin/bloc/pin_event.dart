@@ -1,6 +1,6 @@
 import "../../../data/irma_repository.dart";
 import "../../../models/authentication_events.dart";
-import "../../../models/session_events.dart";
+import "../../../models/schemaless/session_user_interaction.dart";
 
 class PinEvent {}
 
@@ -30,36 +30,23 @@ class Unlock extends Authenticate {
 // SessionPin event is sent by UI to initiate a pin entry from a session
 class SessionPin extends Authenticate {
   IrmaRepository repo;
-  int sessionID;
+  int sessionId;
   String pin;
 
-  SessionPin({required this.repo, required this.sessionID, required this.pin});
+  SessionPin({required this.repo, required this.sessionId, required this.pin});
 
   @override
   Future<AuthenticationEvent> dispatch() {
     repo.bridgedDispatch(
-      RespondPinEvent(sessionID: sessionID, pin: pin, proceed: true),
+      SessionUserInteractionEvent.pin(
+        sessionId: sessionId,
+        pin: pin,
+        proceed: true,
+      ),
     );
 
-    final resultEvent = repo.getEvents().firstWhere((event) {
-      return event is SessionEvent && event.sessionID == sessionID;
-    });
-    return resultEvent.then((event) {
-      if (event is KeyshareBlockedSessionEvent) {
-        return AuthenticationFailedEvent(
-          remainingAttempts: 0,
-          blockedDuration: event.duration,
-        );
-      } else if (event is RequestPinSessionEvent) {
-        return AuthenticationFailedEvent(
-          remainingAttempts: event.remainingAttempts,
-          blockedDuration: 0,
-        );
-      } else {
-        // Other errors are not authentication related, so the calling widget has to solve those.
-        return AuthenticationSuccessEvent();
-      }
-    });
+    // TODO: handle session pin response events from new session state model
+    return Future.value(AuthenticationSuccessEvent());
   }
 }
 

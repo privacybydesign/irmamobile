@@ -8,23 +8,23 @@ part of 'scheme_events.dart';
 
 InstallSchemeEvent _$InstallSchemeEventFromJson(Map<String, dynamic> json) =>
     InstallSchemeEvent(
-      url: json['URL'] as String,
-      publicKey: json['PublicKey'] as String,
+      url: json['url'] as String,
+      publicKey: json['public_key'] as String,
     );
 
 Map<String, dynamic> _$InstallSchemeEventToJson(InstallSchemeEvent instance) =>
-    <String, dynamic>{'URL': instance.url, 'PublicKey': instance.publicKey};
+    <String, dynamic>{'url': instance.url, 'public_key': instance.publicKey};
 
 RemoveSchemeEvent _$RemoveSchemeEventFromJson(Map<String, dynamic> json) =>
-    RemoveSchemeEvent(schemeId: json['SchemeID'] as String);
+    RemoveSchemeEvent(schemeId: json['scheme_id'] as String);
 
 Map<String, dynamic> _$RemoveSchemeEventToJson(RemoveSchemeEvent instance) =>
-    <String, dynamic>{'SchemeID': instance.schemeId};
+    <String, dynamic>{'scheme_id': instance.schemeId};
 
 RemoveRequestorSchemeEvent _$RemoveRequestorSchemeEventFromJson(
   Map<String, dynamic> json,
-) => RemoveRequestorSchemeEvent(schemeId: json['SchemeID'] as String);
+) => RemoveRequestorSchemeEvent(schemeId: json['scheme_id'] as String);
 
 Map<String, dynamic> _$RemoveRequestorSchemeEventToJson(
   RemoveRequestorSchemeEvent instance,
-) => <String, dynamic>{'SchemeID': instance.schemeId};
+) => <String, dynamic>{'scheme_id': instance.schemeId};

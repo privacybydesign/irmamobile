@@ -53,14 +53,12 @@ class Attribute {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class AttributeIdentifier {
   const AttributeIdentifier({required this.type, required this.credentialHash});
 
-  @JsonKey(name: "Type")
   final String type;
 
-  @JsonKey(name: "CredentialHash")
   final String credentialHash;
 
   factory AttributeIdentifier.fromJson(Map<String, dynamic> json) =>
@@ -68,7 +66,7 @@ class AttributeIdentifier {
   Map<String, dynamic> toJson() => _$AttributeIdentifierToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class DisclosedAttribute {
   const DisclosedAttribute({
     required this.identifier,
@@ -78,19 +76,16 @@ class DisclosedAttribute {
     this.rawValue,
   });
 
-  @JsonKey(name: "rawValue")
   final String? rawValue;
 
-  @JsonKey(name: "value") // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue value;
 
   @JsonKey(name: "id")
   final String identifier;
 
-  @JsonKey(name: "status")
   final String status;
 
-  @JsonKey(name: "issuancetime")
   final int issuanceTime;
 
   factory DisclosedAttribute.fromJson(Map<String, dynamic> json) =>
@@ -98,7 +93,7 @@ class DisclosedAttribute {
   Map<String, dynamic> toJson() => _$DisclosedAttributeToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class DisclosureCandidate {
   DisclosureCandidate({
     required this.type,
@@ -107,16 +102,13 @@ class DisclosureCandidate {
     this.credentialHash = "",
   });
 
-  @JsonKey(name: "Type")
   final String type;
 
-  @JsonKey(name: "CredentialHash")
   final String credentialHash;
 
-  @JsonKey(name: "Value") // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue value;
 
-  @JsonKey(name: "NotRevokable")
   final bool notRevokable;
 
   factory DisclosureCandidate.fromJson(Map<String, dynamic> json) =>

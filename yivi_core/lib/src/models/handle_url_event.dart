@@ -4,14 +4,12 @@ import "event.dart";
 
 part "handle_url_event.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class HandleURLEvent extends Event {
   HandleURLEvent({required this.url, this.isInitialUrl = false});
 
-  @JsonKey(name: "isInitialURL")
   final bool isInitialUrl;
 
-  @JsonKey(name: "url")
   final String url;
 
   factory HandleURLEvent.fromJson(Map<String, dynamic> json) =>

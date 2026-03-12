@@ -16,7 +16,6 @@ import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
-import "../models/credential_events.dart";
 import "../models/credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
@@ -27,10 +26,13 @@ import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
 import "../models/native_events.dart";
+import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
+import "../models/schemaless/session_state.dart";
+import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
-import "../models/session_state.dart";
+import "../models/translated_value.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
@@ -55,9 +57,9 @@ class _CredentialObtainState {
 
 class _ExternalBrowserCredtype {
   final String cred;
-  final String os;
+  final List<String> oses;
 
-  const _ExternalBrowserCredtype({required this.cred, required this.os});
+  const _ExternalBrowserCredtype({required this.cred, required this.oses});
 }
 
 class IrmaRepository {
@@ -70,9 +72,7 @@ class IrmaRepository {
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
-      sessionEventStream: _eventSubject
-          .where((event) => event is SessionEvent)
-          .cast<SessionEvent>(),
+      eventStream: _eventSubject.stream,
     );
     _credentialsSubject.forEach((creds) async {
       final event = await _issueWizardSubject.first;
@@ -108,6 +108,7 @@ class IrmaRepository {
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _schemalessCredentialsSubject =
       BehaviorSubject<List<schemaless.Credential>>();
+  final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
 
   final _enrollmentStatusEventSubject =
       BehaviorSubject<EnrollmentStatusEvent>();
@@ -142,6 +143,7 @@ class IrmaRepository {
       _eudiConfigurationSubject.close(),
       _credentialsSubject.close(),
       _schemalessCredentialsSubject.close(),
+      _credentialStoreSubject.close(),
       _enrollmentStatusEventSubject.close(),
       _enrollmentStatusSubject.close(),
       _enrollmentEventSubject.close(),
@@ -157,6 +159,7 @@ class IrmaRepository {
       _resumedFromBrowserSubject.close(),
       _issueWizardSubject.close(),
       _issueWizardActiveSubject.close(),
+      _sessionRepository.close(),
       _fatalErrorSubject.close(),
     ]);
   }
@@ -174,15 +177,10 @@ class IrmaRepository {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
-    } else if (event is CredentialsEvent) {
-      _credentialsSubject.add(
-        Credentials.fromRaw(
-          irmaConfiguration: await _irmaConfigurationSubject.first,
-          rawCredentials: event.credentials,
-        ),
-      );
     } else if (event is schemaless.SchemalessCredentialsEvent) {
       _schemalessCredentialsSubject.add(event.credentials);
+    } else if (event is SchemalessCredentialStoreEvent) {
+      _credentialStoreSubject.add(event.credentials);
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
       if (event is AuthenticationSuccessEvent) {
@@ -221,42 +219,27 @@ class IrmaRepository {
                   'expected "state" to be present in query parameters, but it wasn\'t',
             );
           }
-          // find session with matching state
-          //final session = await _sessionRepository.getSessionStateByState(state);
-          // Parse 'state' to sessionID
-          final sessionID = int.parse(state);
-          final session = _sessionRepository.getCurrentSessionState(sessionID); // for now we use the sessionID as state, but ideally this should be a separate random value
-          if (session == null) {
-            throw MissingPointer(
-              details: "no session found matching state $state",
-            );
-          }
 
-          // Update the session with the code from the url and send the response to irmago
-
-          if (session is OpenID4VciSessionState) {
-            final code = uri.queryParameters["code"];
+          final code = uri.queryParameters["code"];
             if (code == null) {
               throw MissingPointer(
                 details:
                     'expected "code" to be present in query parameters, but it wasn\'t',
               );
             }
-            bridgedDispatch(
-              RespondAuthorizationCodeEvent(
-                sessionID: session.sessionID,
-                proceed: true,
-                code: code,
-              ),
-            );
+          
+          // TODO: keep a list of pseudo-random state values, mapped to sessionIds and retrieve the sessionId from there instead of parsing it from the URL directly
+          // For now, we just assume the state is the sessionId, but this is not secure and should be fixed as soon as possible.
 
-            closeInAppWebView();
-            return;
-          } else {
-            throw MissingPointer(
-              details: "session with state $state is not an OpenID4VciSessionState",
-            );
-          }
+          bridgedDispatch(
+            SessionUserInteractionEvent.authCallback(
+              sessionId: int.parse(state),
+              code: code,
+            ),
+          );
+
+          closeInAppWebView();
+          return;
         }
 // --- END TODO
 
@@ -282,14 +265,6 @@ class IrmaRepository {
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
-    } else if (event is IssueWizardContentsEvent) {
-      _issueWizardSubject.add(
-        await processIssueWizard(
-          event.id,
-          event.wizardContents,
-          await _credentialsSubject.first,
-        ),
-      );
     }
   }
 
@@ -338,7 +313,9 @@ class IrmaRepository {
   }
 
   // -- Credential instances
-  Credentials get credentials => _credentialsSubject.value;
+  Credentials get credentials => _credentialsSubject.hasValue
+      ? _credentialsSubject.value
+      : Credentials({});
 
   Stream<Credentials> getCredentials() {
     return _credentialsSubject.stream;
@@ -346,6 +323,10 @@ class IrmaRepository {
 
   Stream<List<schemaless.Credential>> getSchemalessCredentials() {
     return _schemalessCredentialsSubject.stream;
+  }
+
+  Stream<List<CredentialStoreItem>> getCredentialStoreItems() {
+    return _credentialStoreSubject.stream;
   }
 
   // -- Enrollment
@@ -477,7 +458,7 @@ class IrmaRepository {
                 thisRequirement = scheme.minimumAppVersion.iOS;
                 break;
               default:
-                throw Exception("Unsupported Platfrom.operatingSystem");
+                throw Exception("Unsupported Platform.operatingSystem");
             }
             if (thisRequirement > minimumBuild) {
               minimumBuild = thisRequirement;
@@ -497,17 +478,20 @@ class IrmaRepository {
         .takeUntil(_fatalErrorSubject);
   }
 
-  // -- Session
-  SessionState? getCurrentSessionState(int sessionID) =>
-      _sessionRepository.getCurrentSessionState(sessionID);
-
-  Stream<SessionState> getSessionState(int sessionID) {
-    // Prevent states to be emitted twice when multiple sessions run in parallel.
-    return _sessionRepository.getSessionState(sessionID).distinct();
+  // -- Sessions
+  Stream<SessionState> getSessionState(int sessionId) {
+    return _sessionRepository.getSessionState(sessionId);
   }
 
-  Future<bool> hasActiveSessions() {
-    return _sessionRepository.hasActiveSessions();
+  /// Stream that emits session IDs when a new session is first seen.
+  Stream<int> getNewSessionIds() {
+    return _sessionRepository.newSessionIds;
+  }
+
+  Future<bool> hasActiveSessions({int? excludeSessionId}) {
+    return _sessionRepository.hasActiveSessions(
+      excludeSessionId: excludeSessionId,
+    );
   }
 
   // Returns a future whether the app was resumed by either
@@ -582,36 +566,42 @@ class IrmaRepository {
     );
   }
 
-  final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
-    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", os: "android"),
+  // https://api.flutter.dev/flutter/dart-io/Platform/operatingSystem.html
+  static const List<String> allOperatingSystems = [
+    "android",
+    "fuchsia",
+    "ios",
+    "linux",
+    "macos",
+    "windows",
   ];
 
-  final List<String> externalBrowserUrls = const [
-    "https://privacybydesign.foundation/myirma/",
-    "https://privacybydesign.foundation/mijnirma/",
-    "https://privacybydesign.foundation/demo/",
-    "https://privacybydesign.foundation/demo-en/",
+  final List<_ExternalBrowserCredtype> _externalBrowserCredtypes = const [
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", oses: ["ios"]),
+    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", oses: ["ios"]),
+    _ExternalBrowserCredtype(cred: "pbdf.pbdf.idin", oses: ["android"]),
+    _ExternalBrowserCredtype(
+      cred: "pbdf.PubHubs.account",
+      oses: allOperatingSystems,
+    ),
+    _ExternalBrowserCredtype(
+      cred: "irma-demo.PubHubs.account",
+      oses: allOperatingSystems,
+    ),
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
-      (irmaConfiguration) =>
-          _externalBrowserCredtypes
-              .where((type) => type.os == Platform.operatingSystem)
-              .map(
-                (type) =>
-                    irmaConfiguration
-                        .credentialTypes[type.cred]
-                        ?.issueUrl
-                        .values ??
-                    [],
-              )
-              .expand((v) => v)
-              .toList()
-            ..addAll(externalBrowserUrls),
+      (irmaConfiguration) => _externalBrowserCredtypes
+          .where((type) => type.oses.contains(Platform.operatingSystem))
+          .map(
+            (type) =>
+                irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ??
+                [],
+          )
+          .expand((v) => v)
+          .toList(),
     );
   }
 
@@ -628,12 +618,7 @@ class IrmaRepository {
   }
 
   // Passport issuance is a special case where we use the scanner built into the app as the issuer
-  void _startPassportIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startPassportIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -654,12 +639,7 @@ class IrmaRepository {
     }
   }
 
-  void _startIdCardIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startIdCardIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -682,10 +662,9 @@ class IrmaRepository {
 
   void _startDrivingLicenceIssuance(
     BuildContext context,
-    CredentialType type,
+    String url,
     WidgetRef ref,
   ) {
-    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -708,10 +687,9 @@ class IrmaRepository {
 
   void _startMobileNumberIssuance(
     BuildContext context,
-    CredentialType type,
+    String url,
     WidgetRef ref,
   ) {
-    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -728,12 +706,7 @@ class IrmaRepository {
     }
   }
 
-  void _startEmailIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startEmailIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -750,13 +723,24 @@ class IrmaRepository {
     }
   }
 
-  Future<void> openIssueURL(
+  Future<void> schemalessOpenIssueURL(
     BuildContext context,
-    CredentialType type,
+    CredentialDescriptor credential,
     WidgetRef ref,
   ) async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final url = credential.issueURL?.translate(lang);
+    if (url == null || url.isEmpty) {
+      throw UnsupportedError(
+        "Credential type ${credential.credentialId} does not have a suitable issue url for $lang",
+      );
+    }
+
     // handle some embedded issuance flows
-    if (const {"pbdf", "pbdf-staging"}.contains(type.schemeManagerId)) {
+    if (const {
+      "pbdf",
+      "pbdf-staging",
+    }.any((id) => credential.credentialId.startsWith(id))) {
       final embeddedFlows = {
         "passport": _startPassportIssuance,
         "drivinglicence": _startDrivingLicenceIssuance,
@@ -765,44 +749,59 @@ class IrmaRepository {
         "email": _startEmailIssuance,
       };
 
-      final flow = embeddedFlows[type.id];
+      final splitId = credential.credentialId.split(".");
+
+      final flow = embeddedFlows[splitId.last];
+
       if (flow != null) {
-        return flow(context, type, ref);
+        return flow(context, url, ref);
       }
     }
 
+    return openURL(url);
+  }
+
+  Future<void> openIssueURL(
+    BuildContext context,
+    String credentialId,
+    TranslatedValue? issueUrl,
+    WidgetRef ref,
+  ) async {
+    // handle some embedded issuance flows
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
+    final embeddedFlows = {
+      //----------- production
+      "pbdf.pbdf.passport": _startPassportIssuance,
+      "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
+      "pbdf.pbdf.idcard": _startIdCardIssuance,
+      "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
+      "pbdf.sidn-pbdf.email": _startEmailIssuance,
+      //----------- staging
+      "pbdf-staging.pbdf.passport": _startPassportIssuance,
+      "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
+      "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
+      "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
+      "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
+    };
+    final flow = embeddedFlows[credentialId];
+    if (flow != null) {
+      return flow(context, issueUrl!.translate(lang), ref);
+    }
+
     final irmaConfig = await _irmaConfigurationSubject.first;
-    final cred = irmaConfig.credentialTypes[type.fullId];
+    final cred = irmaConfig.credentialTypes[credentialId];
 
     if (cred == null) {
-      throw UnsupportedError("Credential type $type not found in irma config");
+      throw UnsupportedError(
+        "Credential type $credentialId not found in irma config",
+      );
     }
 
     final url = cred.issueUrl.translate(lang, fallback: "");
     if (url.isEmpty) {
       throw UnsupportedError(
-        "Credential type $type does not have a suitable issue url for $lang",
-      );
-    }
-
-    final alreadyObtainedCredentials = await _credentialsSubject.first;
-    final alreadyObtainedCredentialsTypes = alreadyObtainedCredentials.values
-        .map((cred) => cred.credentialType.fullId);
-
-    if (cred.isInCredentialStore ||
-        alreadyObtainedCredentialsTypes.contains(type.fullId)) {
-      final state = await _credentialObtainState.first;
-      final updatedLaunchedCredentials = {
-        ...state.previouslyLaunchedCredentials,
-        type.fullId,
-      };
-
-      _credentialObtainState.add(
-        _CredentialObtainState(
-          previouslyLaunchedCredentials: updatedLaunchedCredentials,
-        ),
+        "Credential type $credentialId does not have a suitable issue url for $lang",
       );
     }
 

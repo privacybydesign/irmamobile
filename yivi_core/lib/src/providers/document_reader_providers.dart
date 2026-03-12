@@ -32,7 +32,9 @@ final idCardReaderProvider = NotifierProvider.autoDispose
         documentParser: parser,
         dataGroupReader: dgReader,
         nfc: nfc,
-        config: DocumentReaderConfig(readIfAvailable: {.dg1, .dg2, .dg15}),
+        config: DocumentReaderConfig(
+          readIfAvailable: {.dg1, .dg2, .dg11, .dg15},
+        ),
       );
 
       return docReader;
@@ -69,7 +71,9 @@ final passportReaderProvider = NotifierProvider.autoDispose
         documentParser: parser,
         dataGroupReader: dgReader,
         nfc: nfc,
-        config: DocumentReaderConfig(readIfAvailable: {.dg1, .dg2, .dg15}),
+        config: DocumentReaderConfig(
+          readIfAvailable: {.dg1, .dg2, .dg11, .dg15},
+        ),
       );
 
       return docReader;

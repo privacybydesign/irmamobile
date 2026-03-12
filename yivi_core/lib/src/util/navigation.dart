@@ -1,10 +1,12 @@
+import "dart:convert";
+
 import "package:flutter/material.dart";
 import "package:flutter/widgets.dart";
 import "package:go_router/go_router.dart";
 
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
-import "../models/protocol.dart";
+import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
 
 extension RoutingHelpers on BuildContext {
@@ -60,6 +62,14 @@ extension RoutingHelpers on BuildContext {
     Navigator.of(this).popUntil(ModalRoute.withName("/session"));
   }
 
+  void popToUnderlyingSessionOrHome({required bool hasUnderlyingSession}) {
+    if (hasUnderlyingSession) {
+      popToUnderlyingSession();
+    } else {
+      goHomeScreen();
+    }
+  }
+
   void goHomeScreenWithoutTransition() {
     TransitionStyleProvider.performInstantTransitionToHomeScreen(this);
   }
@@ -103,6 +113,14 @@ extension RoutingHelpers on BuildContext {
     push("/home/add_data/details", extra: credentialType);
   }
 
+  void pushSchemalessDataDetailsScreen(AddDataDetailsRouteParams params) {
+    final url = Uri(
+      path: "/home/add_data/details",
+      queryParameters: params.toQueryParams(),
+    );
+    push(url.toString());
+  }
+
   void pushLanguageSettingsScreen() {
     push("/home/settings/change_language");
   }
@@ -111,11 +129,8 @@ extension RoutingHelpers on BuildContext {
     push("/change_pin");
   }
 
-  void pushActivityDetailsScreen({
-    required LogInfo logInfo,
-    required IrmaConfiguration config,
-  }) {
-    push("/home/activity_details", extra: (logInfo, config));
+  void pushActivityDetailsScreen({required LogInfo logInfo}) {
+    push("/home/activity_details", extra: logInfo);
   }
 
   void pushCredentialsDetailsScreen(CredentialsDetailsRouteParams params) {
@@ -270,6 +285,37 @@ class CredentialsDetailsRouteParams {
 
 // =============================================================================================
 
+class AddDataDetailsRouteParams {
+  final CredentialDescriptor credential;
+  final Faq? faq;
+
+  AddDataDetailsRouteParams({required this.credential, this.faq});
+
+  Map<String, String> toQueryParams() {
+    final credJson = jsonEncode(credential.toJson());
+    String? faqJson;
+    if (faq != null) {
+      faqJson = jsonEncode(faq!.toJson());
+    }
+    return {"credential": credJson, if (faqJson != null) "faq": faqJson};
+  }
+
+  static AddDataDetailsRouteParams fromQueryParams(Map<String, String> params) {
+    final credJson = params["credential"]!;
+    final faqJson = params["faq"];
+    Faq? faq;
+    if (faqJson != null) {
+      faq = Faq.fromJson(jsonDecode(faqJson));
+    }
+    return AddDataDetailsRouteParams(
+      credential: CredentialDescriptor.fromJson(jsonDecode(credJson)),
+      faq: faq,
+    );
+  }
+}
+
+// =============================================================================================
+
 class IssueWizardRouteParams {
   final String wizardID;
   final int? sessionID;
@@ -373,41 +419,25 @@ class PassportNfcReadingRouteParams {
 // =============================================================================================
 
 class SessionRouteParams {
-  final int sessionID;
-  final Protocol protocol;
-  final String sessionType;
+  final int sessionId;
   final bool hasUnderlyingSession;
-  final bool wizardActive;
-  final String? wizardCred;
 
   SessionRouteParams({
-    required this.sessionID,
-    required this.protocol,
-    required this.sessionType,
-    required this.hasUnderlyingSession,
-    required this.wizardActive,
-    this.wizardCred,
+    required this.sessionId,
+    this.hasUnderlyingSession = false,
   });
 
   Map<String, String> toQueryParams() {
     return {
-      "session_id": "$sessionID",
-      "protocol": protocolToString(protocol),
-      "session_type": sessionType,
-      "has_underlying_session": "$hasUnderlyingSession",
-      "wizard_active": "$wizardActive",
-      if (wizardCred != null) "wizard_cred": "$wizardCred",
+      "session_id": "$sessionId",
+      if (hasUnderlyingSession) "has_underlying_session": "true",
     };
   }
 
   static SessionRouteParams fromQueryParams(Map<String, String> params) {
     return SessionRouteParams(
-      sessionID: int.parse(params["session_id"]!),
-      protocol: stringToProtocol(params["protocol"]!),
-      sessionType: params["session_type"]!,
-      hasUnderlyingSession: bool.parse(params["has_underlying_session"]!),
-      wizardActive: bool.parse(params["wizard_active"]!),
-      wizardCred: params["wizard_cred"],
+      sessionId: int.parse(params["session_id"]!),
+      hasUnderlyingSession: params["has_underlying_session"] == "true",
     );
   }
 }

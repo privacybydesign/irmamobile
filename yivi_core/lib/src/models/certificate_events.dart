@@ -4,12 +4,10 @@ import "event.dart";
 
 part "certificate_events.g.dart";
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class InstallCertificateEvent extends Event {
-  @JsonKey(name: "Type")
   final String type;
 
-  @JsonKey(name: "PemContent")
   final String pemContent;
 
   InstallCertificateEvent({required this.type, required this.pemContent});
