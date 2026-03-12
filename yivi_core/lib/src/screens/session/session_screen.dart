@@ -178,7 +178,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
-        onDismiss: _showDismissDialog,
+        onDismiss: _dismissSession,
         onGivePermission: () {
           _grantPermission(_pendingDisclosureChoices ?? []);
         },

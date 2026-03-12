@@ -15,12 +15,11 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
   ) async {
     final List<Notification> updatedNotifications = notifications;
 
-    final List<schemaless.Credential> credentials;
-    try {
-      credentials = await repo.getSchemalessCredentials().first;
-    } on StateError {
-      return updatedNotifications;
-    }
+    final credentials = await repo
+        .getSchemalessCredentials()
+        .first
+        .timeout(const Duration(seconds: 5), onTimeout: () => []);
+    if (credentials.isEmpty) return updatedNotifications;
 
     for (final cred in credentials) {
       // Check if a notification should be shown for this credential, and if so which type
@@ -90,13 +89,11 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
   ) async {
     final List<Notification> updatedNotifications = notifications;
 
-    Set<String> credentialHashes;
-    try {
-      final credentials = await repo.getSchemalessCredentials().first;
-      credentialHashes = credentials.map((c) => c.hash).toSet();
-    } on StateError {
-      credentialHashes = <String>{};
-    }
+    final credentials = await repo
+        .getSchemalessCredentials()
+        .first
+        .timeout(const Duration(seconds: 5), onTimeout: () => []);
+    final credentialHashes = credentials.map((c) => c.hash).toSet();
 
     // Check if there are any notifications that are soft deleted and have a credential hash that is not in the repo
     // If so, remove them
