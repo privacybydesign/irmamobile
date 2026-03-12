@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
@@ -66,12 +66,12 @@ Future<void> filledNoChoiceMultipleCredsTest(
   );
 
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   await issueMunicipalityPersonalData(tester, irmaBinding);
 
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   await issueMobileNumber(tester, irmaBinding);
 

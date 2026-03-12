@@ -7,7 +7,7 @@ import "package:mrz_parser/mrz_parser.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
@@ -115,7 +115,7 @@ void main() {
       final cancelButton = find.byKey(const Key("bottom_bar_secondary"));
       await tester.tapAndSettle(cancelButton);
 
-      await tester.waitFor(find.byType(AddDataDetailsScreen));
+      await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
     });
 
     testWidgets("nfc failure after MRZ scan shows retry option", (

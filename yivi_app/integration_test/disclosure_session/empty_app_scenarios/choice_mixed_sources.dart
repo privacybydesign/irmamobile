@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
@@ -86,9 +86,9 @@ Future<void> choiceMixedSourcesTest(
     IrmaCardStyle.normal,
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
   await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // The second card should now be highlighted
@@ -102,9 +102,9 @@ Future<void> choiceMixedSourcesTest(
     IrmaCardStyle.highlighted,
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
   await issueEmailAddress(tester, irmaBinding);
 
   // Both should be finished now

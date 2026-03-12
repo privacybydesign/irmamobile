@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
@@ -119,9 +119,9 @@ Future<void> specificAttributeValuesTest(
     style: IrmaCardStyle.normal,
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // Issue the right iDIN credential
   await issueIdin(tester, irmaBinding);
@@ -164,9 +164,9 @@ Future<void> specificAttributeValuesTest(
     successColor,
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // Now obtain the iDEAL credential with the wrong BIC
   await issueCredentials(tester, irmaBinding, {
@@ -268,9 +268,9 @@ Future<void> specificAttributeValuesTest(
   await tester.pumpAndSettle();
   await tester.tapAndSettle(okButtonFinder);
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // Now issue the credential with requested BIC
   await issueCredentials(tester, irmaBinding, {

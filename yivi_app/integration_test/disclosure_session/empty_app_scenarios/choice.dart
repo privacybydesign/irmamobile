@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
@@ -65,9 +65,9 @@ Future<void> choiceTest(
     issuerName: "Demo Privacy by Design Foundation via SIDN",
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
   // Therefore, we mock this behavior using the helper below until we have a better solution.
