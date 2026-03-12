@@ -106,4 +106,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+
+    implementation 'cz.adaptech.tesseract4android:tesseract4android:4.9.0'
+    implementation 'org.opencv:opencv:4.9.0'
 }
