@@ -10,7 +10,7 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
@@ -175,7 +175,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
 
   await tester.tapAndSettle(find.text("Obtain data"));
 
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
   await tester.tapAndSettle(find.text("Add"));
 
   await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
@@ -1153,10 +1153,10 @@ Future<void> testOneCredentialTwoChoices(
   await tester.scrollUntilVisible(cardsFinder.at(2), 100);
   await tester.tapAndSettle(cardsFinder.at(2));
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
 
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
@@ -1230,10 +1230,10 @@ Future<void> testOneMissingOnePresent(
     credentialName: "Demo Mobile phone number",
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
 
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10);
@@ -1308,10 +1308,10 @@ Future<void> testDiscloseSdJwtThatsNotThere(
     credentialName: "Demo Email address",
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
 
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);

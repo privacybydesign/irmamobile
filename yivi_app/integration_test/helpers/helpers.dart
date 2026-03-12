@@ -13,9 +13,9 @@ import "package:yivi_core/app.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
-import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/util/test_detection.dart";
@@ -571,7 +571,7 @@ Future<void> navigateToCredentialDetailsPage(
   await tester.tapAndSettle(categoryTileFinder);
 
   // Expect detail page
-  expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
 }
 
 Future<void> openAddCredentialDetailsScreen(
@@ -598,5 +598,5 @@ Future<void> openAddCredentialDetailsScreen(
   );
   await tester.tapAndSettle(addCredentialTile);
 
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
+  await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
 }
