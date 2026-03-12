@@ -1,77 +1,96 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of "credentials.dart";
+part of 'credentials.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) =>
-    RawCredential(
-      id: json["ID"] as String,
-      issuerId: json["IssuerID"] as String,
-      schemeManagerId: json["SchemeManagerID"] as String,
-      signedOn: (json["SignedOn"] as num).toInt(),
-      expires: (json["Expires"] as num).toInt(),
-      attributes: (json["Attributes"] as Map<String, dynamic>).map(
+CredentialTypeInfo _$CredentialTypeInfoFromJson(Map<String, dynamic> json) =>
+    CredentialTypeInfo(
+      issuerName: TranslatedValue.fromJson(
+        json['IssuerName'] as Map<String, dynamic>?,
+      ),
+      name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
+      verifiableCredentialType: json['VerifiableCredentialType'] as String,
+      attributes: (json['Attributes'] as Map<String, dynamic>).map(
         (k, e) =>
             MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
       ),
-      hash: json["Hash"] as String,
-      revoked: json["Revoked"] as bool,
-      revocationSupported: json["RevocationSupported"] as bool,
-      format: stringToCredentialFormat(json["CredentialFormat"] as String),
-      instanceCount: (json["InstanceCount"] as num?)?.toInt(),
+      credentialFormat: $enumDecode(
+        _$CredentialFormatEnumMap,
+        json['CredentialFormat'],
+      ),
+    );
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+};
+
+RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) =>
+    RawCredential(
+      id: json['ID'] as String,
+      issuerId: json['IssuerID'] as String,
+      schemeManagerId: json['SchemeManagerID'] as String,
+      signedOn: (json['SignedOn'] as num).toInt(),
+      expires: (json['Expires'] as num).toInt(),
+      attributes: (json['Attributes'] as Map<String, dynamic>).map(
+        (k, e) =>
+            MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
+      ),
+      hash: json['Hash'] as String,
+      revoked: json['Revoked'] as bool,
+      revocationSupported: json['RevocationSupported'] as bool,
+      format: $enumDecode(_$CredentialFormatEnumMap, json['CredentialFormat']),
+      instanceCount: (json['InstanceCount'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) =>
     <String, dynamic>{
-      "ID": instance.id,
-      "IssuerID": instance.issuerId,
-      "SchemeManagerID": instance.schemeManagerId,
-      "SignedOn": instance.signedOn,
-      "Expires": instance.expires,
-      "Attributes": instance.attributes,
-      "Hash": instance.hash,
-      "Revoked": instance.revoked,
-      "RevocationSupported": instance.revocationSupported,
-      "CredentialFormat": credentialFormatToString(instance.format),
-      "InstanceCount": instance.instanceCount,
+      'ID': instance.id,
+      'IssuerID': instance.issuerId,
+      'SchemeManagerID': instance.schemeManagerId,
+      'SignedOn': instance.signedOn,
+      'Expires': instance.expires,
+      'Attributes': instance.attributes,
+      'Hash': instance.hash,
+      'Revoked': instance.revoked,
+      'RevocationSupported': instance.revocationSupported,
+      'CredentialFormat': _$CredentialFormatEnumMap[instance.format]!,
+      'InstanceCount': instance.instanceCount,
     };
 
 RawMultiFormatCredential _$RawMultiFormatCredentialFromJson(
   Map<String, dynamic> json,
 ) => RawMultiFormatCredential(
-  id: json["ID"] as String,
-  issuerId: json["IssuerID"] as String,
-  schemeManagerId: json["SchemeManagerID"] as String,
-  attributes: (json["Attributes"] as Map<String, dynamic>).map(
+  id: json['ID'] as String,
+  issuerId: json['IssuerID'] as String,
+  schemeManagerId: json['SchemeManagerID'] as String,
+  attributes: (json['Attributes'] as Map<String, dynamic>).map(
     (k, e) => MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
   ),
-  hashByFormat: parseHashByFormat(json["HashByFormat"] as Map<String, dynamic>),
-  signedOn: (json["SignedOn"] as num).toInt(),
-  expires: (json["Expires"] as num).toInt(),
-  revoked: json["Revoked"] as bool,
-  instanceCount: (json["InstanceCount"] as num?)?.toInt(),
+  hashByFormat: (json['HashByFormat'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry($enumDecode(_$CredentialFormatEnumMap, k), e as String),
+  ),
+  signedOn: (json['SignedOn'] as num).toInt(),
+  expires: (json['Expires'] as num).toInt(),
+  revoked: json['Revoked'] as bool,
+  instanceCount: (json['InstanceCount'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$RawMultiFormatCredentialToJson(
   RawMultiFormatCredential instance,
 ) => <String, dynamic>{
-  "ID": instance.id,
-  "IssuerID": instance.issuerId,
-  "SchemeManagerID": instance.schemeManagerId,
-  "Revoked": instance.revoked,
-  "Attributes": instance.attributes,
-  "HashByFormat": instance.hashByFormat.map(
+  'ID': instance.id,
+  'IssuerID': instance.issuerId,
+  'SchemeManagerID': instance.schemeManagerId,
+  'Revoked': instance.revoked,
+  'Attributes': instance.attributes,
+  'HashByFormat': instance.hashByFormat.map(
     (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
   ),
-  "SignedOn": instance.signedOn,
-  "Expires": instance.expires,
-  "InstanceCount": instance.instanceCount,
-};
-
-const _$CredentialFormatEnumMap = {
-  CredentialFormat.idemix: "idemix",
-  CredentialFormat.sdjwtvc: "sdjwtvc",
+  'SignedOn': instance.signedOn,
+  'Expires': instance.expires,
+  'InstanceCount': instance.instanceCount,
 };

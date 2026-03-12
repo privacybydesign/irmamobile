@@ -1,6 +1,7 @@
 import "package:yivi_core/src/data/irma_mock_bridge.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
 import "package:yivi_core/src/models/attribute_value.dart";
+import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_events.dart";
 import "package:yivi_core/src/models/session_state.dart";
@@ -23,11 +24,16 @@ Future<void> issueCredential(
   repo.bridgedDispatch(
     NewSessionEvent(
       sessionID: sessionID,
-      request: SessionPointer(irmaqr: "issuing", u: ""),
+      request: SessionPointer(
+        irmaqr: "issuing",
+        u: "",
+        protocol: Protocol.irma,
+      ),
     ),
   );
   await repo
       .getSessionState(sessionID)
+      .map((state) => state as IrmaSessionState)
       .firstWhere(
         (session) => session.status == SessionStatus.requestIssuancePermission,
       );
@@ -41,5 +47,6 @@ Future<void> issueCredential(
   );
   await repo
       .getSessionState(sessionID)
+      .map((state) => state as IrmaSessionState)
       .firstWhere((session) => session.status == SessionStatus.success);
 }

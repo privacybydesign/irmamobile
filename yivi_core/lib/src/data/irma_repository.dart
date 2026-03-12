@@ -21,11 +21,14 @@ import "../models/credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
+import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
 import "../models/native_events.dart";
+import "../models/schemaless/credential_store.dart";
+import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../models/session_state.dart";
@@ -102,11 +105,16 @@ class IrmaRepository {
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
+  final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
+  final _schemalessCredentialsSubject =
+      BehaviorSubject<List<schemaless.Credential>>();
+  final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
+
   final _enrollmentStatusEventSubject =
       BehaviorSubject<EnrollmentStatusEvent>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(
-    EnrollmentStatus.undetermined,
+    .undetermined,
   );
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
@@ -133,7 +141,10 @@ class IrmaRepository {
     await Future.wait([
       _eventSubject.close(),
       _irmaConfigurationSubject.close(),
+      _eudiConfigurationSubject.close(),
       _credentialsSubject.close(),
+      _schemalessCredentialsSubject.close(),
+      _credentialStoreSubject.close(),
       _enrollmentStatusEventSubject.close(),
       _enrollmentStatusSubject.close(),
       _enrollmentEventSubject.close(),
@@ -164,6 +175,8 @@ class IrmaRepository {
       }
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
+    } else if (event is EudiConfigurationEvent) {
+      _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is CredentialsEvent) {
       _credentialsSubject.add(
         Credentials.fromRaw(
@@ -171,6 +184,10 @@ class IrmaRepository {
           rawCredentials: event.credentials,
         ),
       );
+    } else if (event is schemaless.SchemalessCredentialsEvent) {
+      _schemalessCredentialsSubject.add(event.credentials);
+    } else if (event is SchemalessCredentialStoreEvent) {
+      _credentialStoreSubject.add(event.credentials);
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
       if (event is AuthenticationSuccessEvent) {
@@ -199,6 +216,49 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
+// --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
+        if (event.url.startsWith("yivi-app://callback")) {
+          final uri = Uri.parse(event.url);
+          final state = uri.queryParameters["state"];
+          if (state == null) {
+            throw MissingPointer(
+              details:
+                  'expected "state" to be present in query parameters, but it wasn\'t',
+            );
+          }
+          // find session with matching state
+          final session = await _sessionRepository.getSessionStateByState(state);
+          if (session == null) {
+            throw MissingPointer(
+              details: "no session found matching state $state",
+            );
+          }
+
+          // Update the session with the code from the url and send the response to irmago
+
+          if (session is OpenID4VciSessionState) {
+            final code = uri.queryParameters["code"];
+            if (code == null) {
+              throw MissingPointer(
+                details:
+                    'expected "code" to be present in query parameters, but it wasn\'t',
+              );
+            }
+            bridgedDispatch(
+              RespondAuthorizationCodeEvent(
+                sessionID: session.sessionID,
+                proceed: true,
+                code: code,
+              ),
+            );
+          } else {
+            throw MissingPointer(
+              details: "session with state $state is not an OpenID4VciSessionState",
+            );
+          }
+        }
+// --- END TODO
+
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
@@ -258,11 +318,16 @@ class IrmaRepository {
     );
   }
 
-  // -- Scheme manager, issuer, credential and attribute definitions
+  // -- Scheme manager, cert manager, issuer, credential and attribute definitions
   IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
+  EudiConfiguration get eudiConfiguration => _eudiConfigurationSubject.value;
 
   Stream<IrmaConfiguration> getIrmaConfiguration() {
     return _irmaConfigurationSubject.stream;
+  }
+
+  Stream<EudiConfiguration> getEudiConfiguration() {
+    return _eudiConfigurationSubject.stream;
   }
 
   Stream<Map<String, Issuer>> getIssuers() {
@@ -276,6 +341,14 @@ class IrmaRepository {
 
   Stream<Credentials> getCredentials() {
     return _credentialsSubject.stream;
+  }
+
+  Stream<List<schemaless.Credential>> getSchemalessCredentials() {
+    return _schemalessCredentialsSubject.stream;
+  }
+
+  Stream<List<CredentialStoreItem>> getCredentialStoreItems() {
+    return _credentialStoreSubject.stream;
   }
 
   // -- Enrollment
@@ -564,12 +637,7 @@ class IrmaRepository {
   }
 
   // Passport issuance is a special case where we use the scanner built into the app as the issuer
-  void _startPassportIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startPassportIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -590,12 +658,7 @@ class IrmaRepository {
     }
   }
 
-  void _startIdCardIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startIdCardIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -618,10 +681,9 @@ class IrmaRepository {
 
   void _startDrivingLicenceIssuance(
     BuildContext context,
-    CredentialType type,
+    String url,
     WidgetRef ref,
   ) {
-    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -644,10 +706,9 @@ class IrmaRepository {
 
   void _startMobileNumberIssuance(
     BuildContext context,
-    CredentialType type,
+    String url,
     WidgetRef ref,
   ) {
-    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -664,12 +725,7 @@ class IrmaRepository {
     }
   }
 
-  void _startEmailIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startEmailIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -686,12 +742,51 @@ class IrmaRepository {
     }
   }
 
+  Future<void> schemalessOpenIssueURL(
+    BuildContext context,
+    CredentialDescriptor credential,
+    WidgetRef ref,
+  ) async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final url = credential.issueURL?.translate(lang);
+    if (url == null || url.isEmpty) {
+      throw UnsupportedError(
+        "Credential type ${credential.credentialId} does not have a suitable issue url for $lang",
+      );
+    }
+
+    // handle some embedded issuance flows
+    if (const {
+      "pbdf",
+      "pbdf-staging",
+    }.any((id) => credential.credentialId.startsWith(id))) {
+      final embeddedFlows = {
+        "passport": _startPassportIssuance,
+        "drivinglicence": _startDrivingLicenceIssuance,
+        "idcard": _startIdCardIssuance,
+        "mobilenumber": _startMobileNumberIssuance,
+        "email": _startEmailIssuance,
+      };
+
+      final splitId = credential.credentialId.split(".");
+
+      final flow = embeddedFlows[splitId.last];
+
+      if (flow != null) {
+        return flow(context, url, ref);
+      }
+    }
+
+    return openURL(url);
+  }
+
   Future<void> openIssueURL(
     BuildContext context,
     CredentialType type,
     WidgetRef ref,
   ) async {
     // handle some embedded issuance flows
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     if (const {"pbdf", "pbdf-staging"}.contains(type.schemeManagerId)) {
       final embeddedFlows = {
         "passport": _startPassportIssuance,
@@ -703,11 +798,9 @@ class IrmaRepository {
 
       final flow = embeddedFlows[type.id];
       if (flow != null) {
-        return flow(context, type, ref);
+        return flow(context, type.issueUrl.translate(lang), ref);
       }
     }
-
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final irmaConfig = await _irmaConfigurationSubject.first;
     final cred = irmaConfig.credentialTypes[type.fullId];
@@ -764,7 +857,7 @@ class IrmaRepository {
       await _iiabchannel.invokeMethod("open_browser", url);
     } else {
       final uri = Uri.parse(url);
-      final hasOpened = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      final hasOpened = await launchUrl(uri, mode: .inAppWebView);
 
       // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
       if (!hasOpened) {
@@ -782,10 +875,7 @@ class IrmaRepository {
     }
     // On iOS, open Safari rather than Safari view controller
     final uri = Uri.parse(url);
-    final hasOpened = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+    final hasOpened = await launchUrl(uri, mode: .externalApplication);
 
     // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
     if (!hasOpened) {

@@ -2,8 +2,8 @@ package irmagobridge
 
 import (
 	"github.com/go-errors/errors"
-	irma "github.com/privacybydesign/irmago"
-	"github.com/privacybydesign/irmago/irmaclient"
+	"github.com/privacybydesign/irmago/irma"
+	"github.com/privacybydesign/irmago/irma/irmaclient"
 )
 
 // compile-time type-check ClientHandler to implement irmaclient.ClientHandler

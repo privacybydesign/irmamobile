@@ -1,15 +1,17 @@
 package irmagobridge
 
 import (
-	irma "github.com/privacybydesign/irmago"
-	"github.com/privacybydesign/irmago/irmaclient"
+	"github.com/privacybydesign/irmago/irma"
+	"github.com/privacybydesign/irmago/irma/irmaclient"
 )
 
 type sessionHandler struct {
-	sessionID         int
-	dismisser         irmaclient.SessionDismisser
-	permissionHandler irmaclient.PermissionHandler
-	pinHandler        irmaclient.PinHandler
+	sessionID                    int
+	dismisser                    irmaclient.SessionDismisser
+	permissionHandler            irmaclient.PermissionHandler
+	codeHandler                  irmaclient.CodeHandler
+	preAuthCodePermissionHandler irmaclient.TokenPermissionHandler
+	pinHandler                   irmaclient.PinHandler
 }
 
 // SessionHandler implements irmaclient.Handler
@@ -100,6 +102,36 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 		DisclosuresLabels:     request.Labels,
 		DisclosuresCandidates: candidates,
 	})
+}
+
+func (sh *sessionHandler) RequestAuthorizationCodeFlowPermission(
+	request *irma.AuthorizationCodeFlowRequest,
+	requestorInfo *irma.RequestorInfo,
+	callback irmaclient.CodeHandler,
+) {
+	action := &requestAuthorizationCodeFlowSessionEvent{
+		SessionID:               sh.sessionID,
+		RequestorInfo:           requestorInfo,
+		CredentialInfoList:      request.CredentialInfoList,
+		AuthorizationRequestUrl: request.AuthorizationRequestUrl,
+	}
+	sh.codeHandler = callback
+	dispatchEvent(action)
+}
+
+func (sh *sessionHandler) RequestPreAuthorizedCodeFlowPermission(
+	request *irma.PreAuthorizedCodeFlowPermissionRequest,
+	requestorInfo *irma.RequestorInfo,
+	callback irmaclient.TokenPermissionHandler,
+) {
+	action := &requestPreAuthorizedCodeFlowPermissionSessionEvent{
+		SessionID:                 sh.sessionID,
+		RequestorInfo:             requestorInfo,
+		CredentialInfoList:        request.CredentialInfoList,
+		TransactionCodeParameters: request.TransactionCodeParameters,
+	}
+	sh.preAuthCodePermissionHandler = callback
+	dispatchEvent(action)
 }
 
 func (sh *sessionHandler) RequestVerificationPermission(request *irma.DisclosureRequest, satisfiable bool, candidates [][]irmaclient.DisclosureCandidates, serverName *irma.RequestorInfo, ph irmaclient.PermissionHandler) {

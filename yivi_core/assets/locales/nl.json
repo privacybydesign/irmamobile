@@ -417,6 +417,11 @@
     "success_feedback": {
       "header": "Gelukt",
       "text": "De gegevens zijn successvol aan Yivi toegevoegd."
+    },
+    "pre-authorized_code": {
+      "transactioncode_dialog": {
+        "title": "Voer transactiecode in"
+      }
     }
   },
   "email_issuance": {
@@ -947,6 +952,19 @@
           "title": "Gegevens verwijderen",
           "content": "Weet je zeker dat je alle gegevens wilt verwijderen?"
         }
+      }
+    },
+    "cert_management": {
+      "title": "Certificaatbeheer",
+      "issuer_certs": "Issuer certificaten",
+      "verifier_certs": "Verifier certificaten",
+      "install_scheme_dialog": {
+        "title": "Certificaat installeren",
+        "content": "Voer de PEM gecodeerde inhoud van het certificaat in dat je wilt installeren:"
+      },
+      "warning_dialog": {
+        "title": "Pas op!",
+        "content": "Je staat op het punt om certificaten aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
       }
     }
   }

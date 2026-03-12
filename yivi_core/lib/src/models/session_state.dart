@@ -1,4 +1,8 @@
+import "dart:convert";
+
 import "package:collection/collection.dart";
+import "package:crypto/crypto.dart";
+import "package:flutter/foundation.dart";
 
 import "../util/con_dis_con.dart";
 import "attribute.dart";
@@ -8,6 +12,95 @@ import "session.dart";
 
 class SessionState {
   final int sessionID;
+
+  bool get isIssuanceSession => false;
+  bool get isFinished => false;
+
+  SessionState({required this.sessionID});
+}
+
+class AuthorizationCodeRequestParametersState {
+  AuthorizationCodeRequestParametersState({
+    required this.authorizationRequestUrl,
+    required this.authorizationCodeStateSalt,
+  });
+  final String authorizationRequestUrl;
+  final Uint8List authorizationCodeStateSalt;
+}
+
+class PreAuthorizationCodeTransactionCodeParametersState {
+  PreAuthorizationCodeTransactionCodeParametersState({
+    required this.inputMode,
+    this.length,
+    this.description,
+  });
+  final String inputMode;
+  final int? length;
+  final String? description;
+}
+
+class OpenID4VciSessionState extends SessionState {
+  OpenID4VciSessionState({
+    required super.sessionID,
+    required this.continueOnSecondDevice,
+    this.error,
+    this.requestorInfo,
+    this.credentialInfoList,
+    this.grantType,
+    this.authorizationCodeRequestParameters,
+    this.transactionCodeParameters,
+  });
+
+  final bool continueOnSecondDevice;
+  final SessionError? error;
+  final RequestorInfo? requestorInfo;
+  final List<CredentialTypeInfo>? credentialInfoList;
+  final String? grantType;
+  final AuthorizationCodeRequestParametersState?
+  authorizationCodeRequestParameters;
+  final PreAuthorizationCodeTransactionCodeParametersState?
+  transactionCodeParameters;
+
+  OpenID4VciSessionState copyWith({
+    SessionError? error,
+    RequestorInfo? requestorInfo,
+    List<CredentialTypeInfo>? credentialInfoList,
+    bool? continueOnSecondDevice,
+    String? grantType,
+    AuthorizationCodeRequestParametersState? authorizationCodeRequestParameters,
+    PreAuthorizationCodeTransactionCodeParametersState?
+    transactionCodeParameters,
+  }) {
+    return OpenID4VciSessionState(
+      sessionID: sessionID,
+      continueOnSecondDevice:
+          continueOnSecondDevice ?? this.continueOnSecondDevice,
+      error: error ?? this.error,
+      requestorInfo: requestorInfo ?? this.requestorInfo,
+      credentialInfoList: credentialInfoList ?? this.credentialInfoList,
+      grantType: grantType ?? this.grantType,
+      authorizationCodeRequestParameters:
+          authorizationCodeRequestParameters ??
+          this.authorizationCodeRequestParameters,
+      transactionCodeParameters:
+          transactionCodeParameters ?? this.transactionCodeParameters,
+    );
+  }
+
+  @override
+  bool get isIssuanceSession => true;
+
+  
+  String generateSessionState() {
+    if (authorizationCodeRequestParameters == null || authorizationCodeRequestParameters!.authorizationCodeStateSalt.isEmpty) {
+      throw Exception("Salt is required to be set before generating session state");
+    }
+    final d = sha256.convert(utf8.encode("$sessionID.${base64UrlEncode(authorizationCodeRequestParameters!.authorizationCodeStateSalt)}"));
+    return base64UrlEncode(d.bytes);
+  }
+}
+
+class IrmaSessionState extends SessionState {
   final bool continueOnSecondDevice;
   final SessionStatus status;
   final RequestorInfo serverName;
@@ -25,8 +118,8 @@ class SessionState {
   final String? pairingCode;
   final bool dismissed;
 
-  SessionState({
-    required this.sessionID,
+  IrmaSessionState({
+    required super.sessionID,
     required this.continueOnSecondDevice,
     required this.status,
     required this.serverName,
@@ -49,6 +142,7 @@ class SessionState {
   // 'redirect' session can also be issuance. Therefore we overrule the sessionType when
   // issuedCredentials is set. IrmaGo enforces that an error is triggered in case of a problematic
   // mismatch between both values, so we can safely do this.
+  @override
   bool get isIssuanceSession =>
       issuedCredentials?.isNotEmpty ?? sessionType == "issuing";
 
@@ -62,13 +156,14 @@ class SessionState {
       ) ??
       false;
 
+  @override
   bool get isFinished => [
     SessionStatus.success,
     SessionStatus.canceled,
     SessionStatus.error,
   ].contains(status);
 
-  SessionState copyWith({
+  IrmaSessionState copyWith({
     SessionStatus? status,
     RequestorInfo? serverName,
     ConDisCon<DisclosureCandidate>? disclosuresCandidates,
@@ -83,7 +178,7 @@ class SessionState {
     String? pairingCode,
     bool? dismissed,
   }) {
-    return SessionState(
+    return IrmaSessionState(
       sessionID: sessionID,
       continueOnSecondDevice: continueOnSecondDevice,
       status: status ?? this.status,

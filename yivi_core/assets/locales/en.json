@@ -417,6 +417,11 @@
     "success_feedback": {
       "header": "Success",
       "text": "The data has been successfully added to Yivi"
+    },
+    "pre-authorized_code": {
+      "transactioncode_dialog": {
+        "title": "Enter transaction code"
+      }
     }
   },
   "email_issuance": {
@@ -939,6 +944,19 @@
       "warning_dialog": {
         "title": "Warning!",
         "content": "Adding and removing schemes can break your app. Only continue this if you know what you are doing."
+      }
+    },
+    "cert_management": {
+      "title": "Certificate management",
+      "issuer_certs": "Issuer certificates",
+      "verifier_certs": "Verifier certificates",
+      "install_cert_dialog": {
+        "title": "Install certificate",
+        "content": "Fill in the PEM encoded content of the certificate you want to install:"
+      },
+      "warning_dialog": {
+        "title": "Warning!",
+        "content": "Adding and removing certificates can break your app. Only continue this if you know what you are doing."
       }
     },
     "delete_credentials": {

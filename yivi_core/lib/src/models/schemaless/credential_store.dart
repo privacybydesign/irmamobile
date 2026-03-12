@@ -1,0 +1,125 @@
+import "package:json_annotation/json_annotation.dart";
+
+import "../event.dart";
+import "../translated_value.dart";
+import "schemaless_events.dart";
+
+part "credential_store.g.dart";
+
+@JsonSerializable(createToJson: false)
+class SchemalessCredentialStoreEvent extends Event {
+  @JsonKey(name: "Credentials")
+  final List<CredentialStoreItem> credentials;
+
+  SchemalessCredentialStoreEvent({required this.credentials});
+
+  factory SchemalessCredentialStoreEvent.fromJson(Map<String, dynamic> json) =>
+      _$SchemalessCredentialStoreEventFromJson(json);
+}
+
+@JsonSerializable()
+class AttributeDescriptor {
+  @JsonKey(name: "Id")
+  final String id;
+
+  @JsonKey(name: "Name")
+  final TranslatedValue name;
+
+  @JsonKey(name: "Type")
+  final AttributeType type;
+
+  @JsonKey(name: "Nested", defaultValue: [], disallowNullValue: false)
+  final List<AttributeDescriptor> nested;
+
+  AttributeDescriptor({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.nested,
+  });
+
+  factory AttributeDescriptor.fromJson(Map<String, dynamic> json) =>
+      _$AttributeDescriptorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttributeDescriptorToJson(this);
+}
+
+@JsonSerializable()
+class CredentialDescriptor {
+  @JsonKey(name: "CredentialId")
+  final String credentialId;
+
+  @JsonKey(name: "Name")
+  final TranslatedValue name;
+
+  @JsonKey(name: "Issuer")
+  final TrustedParty issuer;
+
+  @JsonKey(name: "Category")
+  final TranslatedValue? category;
+
+  @JsonKey(name: "ImagePath")
+  final String imagePath;
+
+  @JsonKey(name: "Attributes")
+  final List<AttributeDescriptor> attributes;
+
+  @JsonKey(name: "IssueURL")
+  final TranslatedValue? issueURL;
+
+  CredentialDescriptor({
+    required this.credentialId,
+    required this.name,
+    required this.issuer,
+    required this.category,
+    required this.imagePath,
+    required this.attributes,
+    required this.issueURL,
+  });
+
+  factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
+      _$CredentialDescriptorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialDescriptorToJson(this);
+}
+
+@JsonSerializable()
+class CredentialStoreItem {
+  @JsonKey(name: "Credential")
+  final CredentialDescriptor credential;
+  @JsonKey(name: "Faq")
+  final Faq faq;
+
+  CredentialStoreItem({required this.credential, required this.faq});
+
+  factory CredentialStoreItem.fromJson(Map<String, dynamic> json) =>
+      _$CredentialStoreItemFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialStoreItemToJson(this);
+}
+
+@JsonSerializable()
+class Faq {
+  @JsonKey(name: "Into")
+  final TranslatedValue intro;
+
+  @JsonKey(name: "Purpose")
+  final TranslatedValue purpose;
+
+  @JsonKey(name: "Content")
+  final TranslatedValue content;
+
+  @JsonKey(name: "HowTo")
+  final TranslatedValue howTo;
+
+  Faq({
+    required this.intro,
+    required this.purpose,
+    required this.content,
+    required this.howTo,
+  });
+
+  factory Faq.fromJson(Map<String, dynamic> json) => _$FaqFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FaqToJson(this);
+}

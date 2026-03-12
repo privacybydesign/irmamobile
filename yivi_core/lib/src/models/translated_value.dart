@@ -54,4 +54,15 @@ class TranslatedValue {
       ? const TranslatedValue.empty()
       : TranslatedValue(Map<String, String>.from(json));
   Map<String, dynamic> toJson() => UnmodifiableMapView(_map);
+
+  static const _mapEquality = MapEquality<String, String>();
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is TranslatedValue && _mapEquality.equals(_map, other._map);
+  }
+
+  @override
+  int get hashCode => _mapEquality.hash(_map);
 }
