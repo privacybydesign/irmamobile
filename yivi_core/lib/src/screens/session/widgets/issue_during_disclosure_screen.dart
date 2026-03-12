@@ -108,31 +108,20 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
                 stepCount: 2,
                 contentTranslationKey: wizardState.explanationKey,
               ),
-              SizedBox(height: theme.defaultSpacing),
-              if (isSingleStep)
-                _buildStepContent(
-                  theme,
-                  notifier,
-                  wizardState,
-                  steps[0],
-                  0,
-                  currentStepIndex,
-                )
-              else
-                IrmaStepper(
-                  currentIndex: currentStepIndex,
-                  children: [
-                    for (final (index, step) in steps.indexed)
-                      _buildStepContent(
-                        theme,
-                        notifier,
-                        wizardState,
-                        step,
-                        index,
-                        currentStepIndex,
-                      ),
-                  ],
-                ),
+              IrmaStepper(
+                currentIndex: currentStepIndex,
+                children: [
+                  for (final (index, step) in steps.indexed)
+                    _buildStepContent(
+                      theme,
+                      notifier,
+                      wizardState,
+                      step,
+                      index,
+                      currentStepIndex,
+                    ),
+                ],
+              ),
             ],
           ),
         ),
