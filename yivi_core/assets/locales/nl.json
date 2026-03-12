@@ -734,9 +734,9 @@
       "title": "Voer rijbewijs code in",
       "explanation": "We hebben de code die voorop je rijbewijs staat (MRZ) nodig om een connectie met het document tot stand te brengen.",
       "fields": {
-        "mrz": "Machineleebare zone (MRZ)",
-        "mrz_required": "Machineleebare zone (MRZ) is verplicht",
-        "mrz_invalid": "Machineleebare zone (MRZ) is ongeldig"
+        "mrz": "Machineleesbare zone (MRZ)",
+        "mrz_required": "Machineleesbare zone (MRZ) is verplicht",
+        "mrz_invalid": "Machineleesbare zone (MRZ) is ongeldig"
       }
     },
     "nfc": {
