@@ -1214,12 +1214,34 @@ Future<void> testOneCredentialTwoChoices(
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  // now expect to see 4 cards, of which 3 are existing
-  expect(cardsFinder, findsNWidgets(4));
+  await tester.pumpAndSettle();
+
+  // after issuance, expect to be back on the disclosure overview with the newly issued credential
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  final overviewCardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  expect(overviewCardsFinder, findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    overviewCardsFinder,
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "test@example.com"},
+  );
+
+  // change choices to verify there are now 4 cards (3 existing + 1 obtainable)
+  await tapChangeChoicesButton(tester);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+
+  final updatedCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+  expect(updatedCardsFinder, findsNWidgets(4));
 
   // select one of them
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
-  await tester.tapAndSettle(cardsFinder.at(1));
+  await tester.scrollUntilVisible(updatedCardsFinder.at(1), 100);
+  await tester.tapAndSettle(updatedCardsFinder.at(1));
 
   // go back
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));

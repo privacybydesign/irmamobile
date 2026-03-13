@@ -124,6 +124,7 @@ class SchemalessCredentialOrderController
   void _debouncedSave(List<schemaless.Credential> items) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () async {
+      if (!ref.mounted) return;
       await ref
           .read(credentialOrderRepoProvider)
           .saveOrder(items.map((e) => e.credentialId).toList());

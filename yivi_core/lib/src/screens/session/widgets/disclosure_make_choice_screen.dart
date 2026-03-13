@@ -2,8 +2,8 @@ import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/session_state.dart";
-import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
@@ -61,20 +61,16 @@ class _DisclosureMakeChoiceScreenState
 
   bool get _isOwnedSelected => _selection is _OwnedSelection;
 
-  Future<void> _onObtainData() async {
+  void _onObtainData() {
     if (_selection is! _ObtainableSelection) return;
     final obtainable = widget.pickOne.obtainableOptions ?? [];
     final index = (_selection as _ObtainableSelection).index;
     if (index >= obtainable.length) return;
 
     final cred = obtainable[index];
-    try {
-      await ref
-          .read(irmaRepositoryProvider)
-          .openIssueURL(context, cred.credentialId, cred.issueURL, ref);
-    } catch (e) {
-      debugPrint("failed to open: $e");
-    }
+    context.pushSchemalessDataDetailsScreen(
+      AddDataDetailsRouteParams(credential: cred),
+    );
   }
 
   @override
