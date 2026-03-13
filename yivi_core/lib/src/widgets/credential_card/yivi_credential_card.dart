@@ -20,11 +20,11 @@ import "yivi_credential_card_header.dart";
 class YiviCredentialCard extends ConsumerWidget {
   final TranslatedValue credentialName;
   final TranslatedValue issuerName;
-  final String imagePath;
   final List<Attribute> attributes;
   final CredentialCardStatus status;
   final bool compact;
 
+  final String? imagePath;
   final List<Attribute>? compareTo;
   final Function()? onTap;
   final IrmaCardStyle style;
@@ -36,10 +36,10 @@ class YiviCredentialCard extends ConsumerWidget {
     super.key,
     required this.credentialName,
     required this.issuerName,
-    required this.imagePath,
     required this.attributes,
     required this.status,
     required this.compact,
+    this.imagePath,
     this.compareTo,
     this.onTap,
     this.headerTrailing,
@@ -202,6 +202,43 @@ class YiviCredentialCard extends ConsumerWidget {
            lowInstanceCountThreshold: lowInstanceCountThreshold,
            credentialId: logCredential.credentialId,
            issueUrl: logCredential.issueUrl,
+         ),
+         compact: compact,
+         compareTo: compareTo,
+         onTap: onTap,
+         headerTrailing: headerTrailing,
+         style: style,
+         padding: padding,
+         hideFooter: hideFooter,
+       );
+
+  YiviCredentialCard.fromCredentialTypeInfo({
+    Key? key,
+    required CredentialTypeInfo credential,
+    required bool compact,
+    List<Attribute>? compareTo,
+    Function()? onTap,
+    Widget? headerTrailing,
+    IrmaCardStyle style = IrmaCardStyle.normal,
+    EdgeInsetsGeometry? padding,
+    bool hideFooter = false,
+  }) : this(
+         key: key,
+         credentialName: credential.name,
+         issuerName: credential.issuerName,
+         imagePath: null,
+         attributes: credential.attributes
+             .map(
+               (id, translations) => MapEntry(id, Attribute(
+                 id: id,
+                 displayName: translations,
+               )),
+             )
+             .values.toList(),
+         status: CredentialCardStatus(
+           revoked: false,
+           batchInstanceCountsRemaining: {},
+           templateMode: true,
          ),
          compact: compact,
          compareTo: compareTo,

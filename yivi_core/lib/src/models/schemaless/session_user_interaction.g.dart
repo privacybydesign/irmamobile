@@ -30,4 +30,5 @@ const _$UserInteractionTypeEnumMap = {
   UserInteractionType.permission: 'permission',
   UserInteractionType.dismiss: 'dismiss',
   UserInteractionType.authCode: 'auth_code',
+  UserInteractionType.preAuthorizedCode: 'pre_authorized_code',
 };

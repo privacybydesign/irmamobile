@@ -71,14 +71,14 @@ class AttributeValue {
 class Attribute {
   final String id;
   final TranslatedValue displayName;
-  final TranslatedValue description;
+  final TranslatedValue? description;
   final AttributeValue? value;
   final AttributeValue? requestedValue;
 
   Attribute({
     required this.id,
     required this.displayName,
-    required this.description,
+    this.description,
     this.value,
     this.requestedValue,
   });
@@ -149,4 +149,22 @@ class Credential {
       _$CredentialFromJson(json);
 
   Map<String, dynamic> toJson() => _$CredentialToJson(this);
+}
+
+@JsonSerializable(fieldRename: .snake)
+class CredentialTypeInfo {
+  final TranslatedValue name;
+  final TranslatedValue issuerName;
+  final Map<String, TranslatedValue> attributes;
+
+  CredentialTypeInfo({
+    required this.name,
+    required this.issuerName,
+    required this.attributes,
+  });
+
+  factory CredentialTypeInfo.fromJson(Map<String, dynamic> json) =>
+      _$CredentialTypeInfoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialTypeInfoToJson(this);
 }

@@ -120,6 +120,18 @@ func (ah *eventHandler) handleUserInteraction(event *sessionUserInteractionEvent
 		interaction.Payload = payload
 	case client.UI_DismissSession:
 		// No payload needed
+	case client.UI_PreAuthorizedCode:
+		var payload client.SessionPreAuthorizedCodeInteractionPayload
+		if err := json.Unmarshal(event.Payload, &payload); err != nil {
+			return err
+		}
+		interaction.Payload = payload
+	case client.UI_AuthorizationCode:
+		var payload client.SessionAuthCodeInteractionPayload
+		if err := json.Unmarshal(event.Payload, &payload); err != nil {
+			return err
+		}
+		interaction.Payload = payload
 	}
 
 	yiviClient.HandleUserInteraction(interaction)

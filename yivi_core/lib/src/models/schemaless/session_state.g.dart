@@ -23,6 +23,9 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
   offeredCredentials: (json['offered_credentials'] as List<dynamic>?)
       ?.map((e) => Credential.fromJson(e as Map<String, dynamic>))
       .toList(),
+  offeredCredentialTypes: (json['offered_credential_types'] as List<dynamic>?)
+      ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
+      .toList(),
   disclosurePlan: json['disclosure_plan'] == null
       ? null
       : DisclosurePlan.fromJson(
@@ -37,6 +40,11 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
   remainingPinAttempts: (json['remaining_pin_attempts'] as num?)?.toInt() ?? 0,
   pinBlockedTimeSeconds:
       (json['pin_blocked_time_seconds'] as num?)?.toInt() ?? 0,
+  transactionCodeParameters: json['transaction_code_parameters'] == null
+      ? null
+      : PreAuthorizationCodeTransactionCodeParameters.fromJson(
+          json['transaction_code_parameters'] as Map<String, dynamic>,
+        ),
 );
 
 const _$SessionTypeEnumMap = {
@@ -52,6 +60,7 @@ const _$SessionStatusEnumMap = {
   SessionStatus.error: 'error',
   SessionStatus.dismissed: 'dismissed',
   SessionStatus.requestPin: 'request_pin',
+  SessionStatus.requestPreAuthorizedCode: 'request_pre_authorized_code',
   SessionStatus.requestAuthorizationCode: 'request_authorization_code',
 };
 
@@ -127,3 +136,12 @@ const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
 };
+
+PreAuthorizationCodeTransactionCodeParameters
+_$PreAuthorizationCodeTransactionCodeParametersFromJson(
+  Map<String, dynamic> json,
+) => PreAuthorizationCodeTransactionCodeParameters(
+  inputMode: json['input_mode'] as String,
+  length: (json['length'] as num?)?.toInt(),
+  description: json['description'] as String?,
+);

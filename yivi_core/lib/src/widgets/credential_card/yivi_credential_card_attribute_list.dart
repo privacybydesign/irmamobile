@@ -90,15 +90,14 @@ class _AttributeView extends StatelessWidget {
     }
 
     return Padding(
-      padding: .symmetric(vertical: theme.tinySpacing),
+      padding: 
+        .symmetric(vertical: attribute.value == null ? 0 : theme.tinySpacing),
       child: Column(
         mainAxisSize: .min,
         crossAxisAlignment: .start,
         children: [
           buildLabel(attribute),
-          if (attribute.value == null)
-            Text("", style: theme.themeData.textTheme.bodyLarge)
-          else
+          if (attribute.value != null)
             switch (attribute.value!.type) {
               .translatedString => buildTranslatedTextContent(attribute),
               .image => buildTappableImage(attribute),

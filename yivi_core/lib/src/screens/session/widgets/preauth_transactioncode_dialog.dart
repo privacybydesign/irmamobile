@@ -1,28 +1,27 @@
-/*
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
+import "../../../models/schemaless/session_state.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_dialog.dart";
 import "../../../widgets/yivi_themed_button.dart";
 
-class ProvideTransactionCodeDialog extends StatefulWidget {
-  const ProvideTransactionCodeDialog({
+class PreAuthTransactionCodeDialog extends StatefulWidget {
+  const PreAuthTransactionCodeDialog({
     super.key,
     required this.transactionCodeParameters,
   });
 
-  final PreAuthorizationCodeTransactionCodeParametersState
-  transactionCodeParameters;
+  final PreAuthorizationCodeTransactionCodeParameters transactionCodeParameters;
 
   @override
-  State<ProvideTransactionCodeDialog> createState() =>
-      _ProvideTransactionCodeDialogState();
+  State<PreAuthTransactionCodeDialog> createState() =>
+      _PreAuthTransactionCodeDialogState();
 }
 
-class _ProvideTransactionCodeDialogState
-    extends State<ProvideTransactionCodeDialog> {
+class _PreAuthTransactionCodeDialogState
+    extends State<PreAuthTransactionCodeDialog> {
   final controller = TextEditingController();
   bool isAddButtonEnabled = false;
 
@@ -37,7 +36,7 @@ class _ProvideTransactionCodeDialogState
     final theme = IrmaTheme.of(context);
     final navigator = Navigator.of(context);
 
-    var widget = context.widget as ProvideTransactionCodeDialog;
+    var widget = context.widget as PreAuthTransactionCodeDialog;
 
     return IrmaDialog(
       title: FlutterI18n.translate(
@@ -82,4 +81,3 @@ class _ProvideTransactionCodeDialogState
     );
   }
 }
-*/

@@ -5,7 +5,7 @@ import "../session_events.dart";
 part "session_user_interaction.g.dart";
 
 @JsonEnum(alwaysCreate: true, fieldRename: .snake)
-enum UserInteractionType { enteredPin, permission, dismiss, authCode }
+enum UserInteractionType { enteredPin, permission, dismiss, authCode, preAuthorizedCode }
 
 @JsonSerializable(createFactory: false, fieldRename: .snake)
 class SelectedCredential {
@@ -79,6 +79,16 @@ class SessionUserInteractionEvent extends SessionEvent {
     sessionId: sessionId,
     type: UserInteractionType.authCode,
     payload: {"code": code},
+  );
+
+  factory SessionUserInteractionEvent.preAuthorizedCodePermission({
+    required int sessionId,
+    required String? transactionCode,
+    required bool proceed,
+  }) => SessionUserInteractionEvent._(
+    sessionId: sessionId,
+    type: UserInteractionType.preAuthorizedCode,
+    payload: {"proceed": proceed, "transaction_code": transactionCode},
   );
 
   Map<String, dynamic> toJson() => _$SessionUserInteractionEventToJson(this);

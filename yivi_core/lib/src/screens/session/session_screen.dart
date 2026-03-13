@@ -23,7 +23,9 @@ import "widgets/disclosure_permission_introduction_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
+import "widgets/oid4vci_issuance_permission.dart";
 import "widgets/pairing_required.dart";
+import "widgets/preauth_transactioncode_dialog.dart";
 import "widgets/session_pin_entry_screen.dart";
 import "widgets/session_scaffold.dart";
 
@@ -153,7 +155,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           ),
           // dismissed and success are handled above
           .dismissed || .success => _buildLoadingScreen(session),
-          .requestAuthorizationCode => _buildLoadingScreen(session),
+          .requestPreAuthorizedCode || .requestAuthorizationCode => _buildOpenIdRequestPermission(session)
         };
       },
     );
@@ -230,6 +232,22 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       onDismiss: _showDismissDialog,
       onChoicesConfirmed: (choices) {
         _showShareConfirmDialog(session, choices);
+      },
+    );
+  }
+
+  Widget _buildOpenIdRequestPermission(SessionState session) {
+    // Convert the credential type info to a format suitable for the credential cards in the issuance permission screen
+    return OpenId4VciIssuancePermission(
+      issuedCredentials: session.offeredCredentialTypes!,
+      onDismiss: _showDismissDialog,
+      onGivePermission: () {
+        // Depending the protocol we're using, perform different action on permission grant
+          if (session.status == SessionStatus.requestPreAuthorizedCode) {
+            _grantPermissionPreAuthorizedCode(session);
+          } else {
+            //_grantPermissionAuthorizationCode(session);
+          }
       },
     );
   }
@@ -389,4 +407,42 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       ),
     );
   }
+
+  
+Future<void> _grantPermissionPreAuthorizedCode(SessionState session) async {
+    // If a transaction code is required, request it from the user
+    String? transactionCode;
+    if (session.transactionCodeParameters != null) {
+      transactionCode = await showDialog<String>(
+        context: context,
+        builder: (context) => PreAuthTransactionCodeDialog(
+          transactionCodeParameters: session.transactionCodeParameters!,
+        ),
+      );
+
+      // User cancelled the dialog, so we stop here and show the session screen again
+      if (transactionCode == null) {
+        return;
+      }
+    }
+
+    // Handle the permission
+    _repo.bridgedDispatch(
+      SessionUserInteractionEvent.preAuthorizedCodePermission(sessionId: session.id, transactionCode: transactionCode, proceed: true),
+    );
+  }
 }
+
+
+//   Future<void> _signInWithAutoCodeFlow(SessionState state) async {
+//     final s = state.generateSessionState();
+//     final url = Uri.parse(state.authorizationCodeRequestParameters!.authorizationRequestUrl);
+//     final urlWithState = url.replace(queryParameters: {
+//       ...url.queryParameters,
+//       "state": s,
+//     }).toString();
+
+//     _repo.openURLinAppBrowser(urlWithState);
+
+// //    _repo.openURLExternally(urlWithState);
+//   }

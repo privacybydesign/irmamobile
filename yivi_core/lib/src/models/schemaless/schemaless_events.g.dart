@@ -61,9 +61,9 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
   displayName: TranslatedValue.fromJson(
     json['display_name'] as Map<String, dynamic>?,
   ),
-  description: TranslatedValue.fromJson(
-    json['description'] as Map<String, dynamic>?,
-  ),
+  description: json['description'] == null
+      ? null
+      : TranslatedValue.fromJson(json['description'] as Map<String, dynamic>?),
   value: json['value'] == null
       ? null
       : AttributeValue.fromJson(json['value'] as Map<String, dynamic>),
@@ -159,3 +159,22 @@ const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
 };
+
+CredentialTypeInfo _$CredentialTypeInfoFromJson(Map<String, dynamic> json) =>
+    CredentialTypeInfo(
+      name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+      issuerName: TranslatedValue.fromJson(
+        json['issuer_name'] as Map<String, dynamic>?,
+      ),
+      attributes: (json['attributes'] as Map<String, dynamic>).map(
+        (k, e) =>
+            MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
+      ),
+    );
+
+Map<String, dynamic> _$CredentialTypeInfoToJson(CredentialTypeInfo instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'issuer_name': instance.issuerName,
+      'attributes': instance.attributes,
+    };

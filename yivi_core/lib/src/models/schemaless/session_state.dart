@@ -30,6 +30,7 @@ enum SessionStatus {
   error,
   dismissed,
   requestPin,
+  requestPreAuthorizedCode,
   requestAuthorizationCode,
 }
 
@@ -42,6 +43,7 @@ class SessionState {
   final TrustedParty requestor;
   final String? pairingCode;
   final List<Credential>? offeredCredentials;
+  final List<CredentialTypeInfo>? offeredCredentialTypes;
   final DisclosurePlan? disclosurePlan;
   final String? messageToSign;
   final SessionError? error;
@@ -49,6 +51,7 @@ class SessionState {
   final bool continueOnSecondDevice;
   final int remainingPinAttempts;
   final int pinBlockedTimeSeconds;
+  final PreAuthorizationCodeTransactionCodeParameters? transactionCodeParameters;
 
   SessionState({
     required this.id,
@@ -58,6 +61,7 @@ class SessionState {
     required this.requestor,
     this.pairingCode,
     this.offeredCredentials,
+    this.offeredCredentialTypes,
     this.disclosurePlan,
     this.messageToSign,
     this.error,
@@ -65,6 +69,7 @@ class SessionState {
     this.continueOnSecondDevice = false,
     this.remainingPinAttempts = 0,
     this.pinBlockedTimeSeconds = 0,
+    this.transactionCodeParameters,
   });
 
   factory SessionState.fromJson(Map<String, dynamic> json) =>
@@ -153,4 +158,19 @@ class SelectableCredentialInstance {
 
   factory SelectableCredentialInstance.fromJson(Map<String, dynamic> json) =>
       _$SelectableCredentialInstanceFromJson(json);
+}
+
+@JsonSerializable(createToJson: false, fieldRename: .snake)
+class PreAuthorizationCodeTransactionCodeParameters {
+  PreAuthorizationCodeTransactionCodeParameters({
+    required this.inputMode,
+    this.length,
+    this.description,
+  });
+  final String inputMode;
+  final int? length;
+  final String? description;
+
+  factory PreAuthorizationCodeTransactionCodeParameters.fromJson(Map<String, dynamic> json) =>
+      _$PreAuthorizationCodeTransactionCodeParametersFromJson(json);
 }
