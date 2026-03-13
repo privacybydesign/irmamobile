@@ -293,7 +293,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   final session2Url = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session2Url);
 
-  await tester.pumpAndSettle();
+  await tester.waitFor(find.byType(DisclosureChoicesOverview));
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   expect(cardsFinder, findsOneWidget);
@@ -1313,14 +1313,9 @@ Future<void> testOneMissingOnePresent(
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  expect(find.text("All required data has been added"), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-  expect(
-    find.text(
-      "This data has already been added to your app. Verify that the data is still correct.",
-    ),
-    findsOneWidget,
-  );
+  await tester.pumpAndSettle();
+
+  expect(find.text("All required data has been added."), findsOneWidget);
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
@@ -1391,7 +1386,7 @@ Future<void> testDiscloseSdJwtThatsNotThere(
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen

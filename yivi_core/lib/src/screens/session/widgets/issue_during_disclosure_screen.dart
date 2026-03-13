@@ -26,11 +26,13 @@ import "session_scaffold.dart";
 class IssueDuringDisclosureScreen extends ConsumerWidget {
   final int sessionId;
   final VoidCallback onDismiss;
+  final VoidCallback? onCompleted;
 
   const IssueDuringDisclosureScreen({
     super.key,
     required this.sessionId,
     required this.onDismiss,
+    this.onCompleted,
   });
 
   void _onObtainData(BuildContext context, CredentialDescriptor credential) {
@@ -62,7 +64,7 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
             ? "disclosure_permission.next_step"
             : "disclosure_permission.obtain_data",
         onPrimaryPressed: isCompleted
-            ? onDismiss
+            ? (onCompleted ?? onDismiss)
             : () {
                 _onObtainData(
                   context,

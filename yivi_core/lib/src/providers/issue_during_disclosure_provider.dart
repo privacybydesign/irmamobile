@@ -45,7 +45,7 @@ class IssueDuringDisclosureNotifier
     // Initialize from current session state
     final session = ref.read(sessionStateProvider(sessionId)).value;
     if (session != null) {
-      return _buildFromSession(session, const []);
+      return _buildFromSession(session, const [], const []);
     }
     return const IssueDuringDisclosureState();
   }
@@ -63,26 +63,40 @@ class IssueDuringDisclosureNotifier
   }
 
   void _updateFromSession(SessionState session) {
-    state = _buildFromSession(session, state.selectedOptionPerStep);
+    state = _buildFromSession(
+      session,
+      state.selectedOptionPerStep,
+      state.steps,
+    );
   }
 
   static IssueDuringDisclosureState _buildFromSession(
     SessionState session,
     List<int> previousSelections,
+    List<IssuanceStep> previousSteps,
   ) {
-    final steps = session.disclosurePlan?.issueDuringDislosure?.steps ?? [];
-    final issued =
-        session.disclosurePlan?.issueDuringDislosure?.issuedCredentialIds;
+    final issueDuring = session.disclosurePlan?.issueDuringDislosure;
+    // When issueDuringDislosure becomes null (all steps satisfied), retain
+    // the previous steps so the completed state can still be displayed.
+    final steps = issueDuring?.steps ?? previousSteps;
+    final issued = issueDuring?.issuedCredentialIds;
 
     final selections = List.generate(
       steps.length,
       (i) => i < previousSelections.length ? previousSelections[i] : 0,
     );
 
+    // If issueDuringDislosure is null but we have retained steps,
+    // all steps are completed (currentStepIndex = null).
+    final currentStepIndex =
+        issueDuring == null && previousSteps.isNotEmpty
+            ? null
+            : _findCurrentStepIndex(steps, issued);
+
     return IssueDuringDisclosureState(
       steps: steps,
       selectedOptionPerStep: selections,
-      currentStepIndex: _findCurrentStepIndex(steps, issued),
+      currentStepIndex: currentStepIndex,
     );
   }
 

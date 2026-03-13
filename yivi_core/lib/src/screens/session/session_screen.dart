@@ -63,6 +63,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// Null means we haven't loaded the preference yet.
   bool? _showIntroduction;
 
+  /// Whether issuance-during-disclosure was shown (steps were present at some point).
+  bool _hadIssueDuringDisclosure = false;
+
+  /// Whether the user has acknowledged the issuance-during-disclosure completion.
+  bool _issueDuringDisclosureAcknowledged = false;
+
   @override
   void initState() {
     super.initState();
@@ -174,15 +180,24 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         plan?.issueDuringDislosure != null &&
         plan!.issueDuringDislosure!.steps.isNotEmpty;
 
+    // Track that issuance-during-disclosure was shown.
+    if (needsIssueBeforeDisclosure) {
+      _hadIssueDuringDisclosure = true;
+    }
+
     final isIssuanceSession =
         session.type == .issuance && session.offeredCredentials != null;
 
-    // in any case where issuance is required before being able to complete
-    // this session (same for any session type)
-    if (needsIssueBeforeDisclosure) {
+    // Show issuance screen while steps are pending, or keep showing it
+    // in completed state until the user acknowledges by tapping "Next step".
+    if (needsIssueBeforeDisclosure ||
+        (_hadIssueDuringDisclosure && !_issueDuringDisclosureAcknowledged)) {
       return IssueDuringDisclosureScreen(
         sessionId: widget.sessionId,
         onDismiss: _showDismissDialog,
+        onCompleted: () {
+          setState(() => _issueDuringDisclosureAcknowledged = true);
+        },
       );
     }
 
