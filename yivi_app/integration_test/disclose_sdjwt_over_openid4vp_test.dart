@@ -739,10 +739,17 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
-  expect(cardsFinder, findsNWidgets(3));
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+
+  expect(choiceCardsFinder, findsNWidgets(3));
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(0),
+    choiceCardsFinder.at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: {
@@ -750,10 +757,10 @@ Future<void> testOptionallyDiscloseExtraCredential(
       "Email domain name": "example.com",
     },
   );
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
+  await tester.scrollUntilVisible(choiceCardsFinder.at(1), 100);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
+    choiceCardsFinder.at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: {
@@ -762,11 +769,11 @@ Future<void> testOptionallyDiscloseExtraCredential(
     },
   );
 
-  await tester.scrollUntilVisible(cardsFinder.at(2), 100);
+  await tester.scrollUntilVisible(choiceCardsFinder.at(2), 100);
   expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(2),
+    choiceCardsFinder.at(2),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
   );
@@ -1009,20 +1016,26 @@ Future<void> testTwoCredentialsTwoChoicesEach(
   // change the email
   await tester.scrollUntilVisible(choiceButtonFinder.at(0), 100);
   await tester.tapAndSettle(choiceButtonFinder.at(0));
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
 
   // expect two existing + an obtain data card
-  expect(cardsFinder, findsNWidgets(3));
+  expect(choiceCardsFinder, findsNWidgets(3));
   expect(
     find.descendant(
-      of: cardsFinder,
+      of: choiceCardsFinder,
       matching: find.text("one@example.com", skipOffstage: false),
     ),
     findsOneWidget,
   );
   expect(
     find.descendant(
-      of: cardsFinder,
+      of: choiceCardsFinder,
       matching: find.text("two@template.com", skipOffstage: false),
     ),
     findsOneWidget,
@@ -1035,18 +1048,25 @@ Future<void> testTwoCredentialsTwoChoicesEach(
   await tester.scrollUntilVisible(choiceButtonFinder.at(1), 100);
   await tester.tapAndSettle(choiceButtonFinder.at(1));
 
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final phoneChoiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+
   // expect two existing + an obtain data card
-  expect(cardsFinder, findsExactly(3));
+  expect(phoneChoiceCardsFinder, findsExactly(3));
   expect(
     find.descendant(
-      of: cardsFinder,
+      of: phoneChoiceCardsFinder,
       matching: find.text("0612345678", skipOffstage: false),
     ),
     findsOneWidget,
   );
   expect(
     find.descendant(
-      of: cardsFinder,
+      of: phoneChoiceCardsFinder,
       matching: find.text("0687654321", skipOffstage: false),
     ),
     findsOneWidget,
@@ -1058,6 +1078,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   await navigateToLatestActivity(tester, irmaBinding);
 
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   const expectedNumCards = 2;
 
   expect(cardsFinder, findsExactly(expectedNumCards));
