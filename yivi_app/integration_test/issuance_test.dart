@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
-import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";

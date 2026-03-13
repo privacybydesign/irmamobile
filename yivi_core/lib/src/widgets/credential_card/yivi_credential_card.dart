@@ -1,20 +1,23 @@
 import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../models/log_entry.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/translated_value.dart";
+import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
 import "../irma_card.dart";
 import "../irma_divider.dart";
+import "../yivi_themed_button.dart";
 import "models/credential_card_status.dart";
 import "yivi_credential_card_attribute_list.dart";
 import "yivi_credential_card_footer.dart";
 import "yivi_credential_card_header.dart";
 
-class YiviCredentialCard extends StatelessWidget {
+class YiviCredentialCard extends ConsumerWidget {
   final TranslatedValue credentialName;
   final TranslatedValue issuerName;
   final String imagePath;
@@ -70,6 +73,8 @@ class YiviCredentialCard extends StatelessWidget {
            batchInstanceCountsRemaining:
                credential.batchInstanceCountsRemaining,
            lowInstanceCountThreshold: lowInstanceCountThreshold,
+           credentialId: credential.credentialId,
+           issueUrl: credential.issueUrl,
          ),
          compact: compact,
          compareTo: compareTo,
@@ -104,6 +109,8 @@ class YiviCredentialCard extends StatelessWidget {
              instance.format: instance.batchInstanceCountRemaining,
            },
            lowInstanceCountThreshold: lowInstanceCountThreshold,
+           credentialId: instance.credentialId,
+           issueUrl: instance.issueUrl,
          ),
          compact: compact,
          compareTo: compareTo,
@@ -161,6 +168,8 @@ class YiviCredentialCard extends StatelessWidget {
            revoked: false,
            batchInstanceCountsRemaining: {},
            templateMode: true,
+           credentialId: descriptor.credentialId,
+           issueUrl: descriptor.issueURL,
          ),
          compact: compact,
          onTap: onTap,
@@ -191,6 +200,8 @@ class YiviCredentialCard extends StatelessWidget {
            revoked: logCredential.revoked,
            batchInstanceCountsRemaining: {},
            lowInstanceCountThreshold: lowInstanceCountThreshold,
+           credentialId: logCredential.credentialId,
+           issueUrl: logCredential.issueUrl,
          ),
          compact: compact,
          compareTo: compareTo,
@@ -202,7 +213,7 @@ class YiviCredentialCard extends StatelessWidget {
        );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
 
     return IrmaCard(
@@ -244,6 +255,22 @@ class YiviCredentialCard extends StatelessWidget {
                   instanceCount: status.instanceCount,
                 ),
               ],
+            ),
+          if (status.showReobtain)
+            Padding(
+              padding: EdgeInsets.only(top: theme.defaultSpacing),
+              child: YiviThemedButton(
+                label: "credential.options.reobtain",
+                style: YiviButtonStyle.filled,
+                onPressed: () => ref
+                    .read(irmaRepositoryProvider)
+                    .openIssueURL(
+                      context,
+                      status.credentialId!,
+                      status.issueUrl,
+                      ref,
+                    ),
+              ),
             ),
         ],
       ),

@@ -305,12 +305,12 @@ class SessionError {
     // Handle both snake_case (from bridge sessionError wrapper) and
     // PascalCase (from Go's default marshaling of irma.SessionError).
     final normalized = <String, dynamic>{
-      'error_type': json['error_type'] ?? json['ErrorType'] ?? '',
-      'info': json['info'] ?? json['Info'] ?? '',
-      'wrapped_error': json['wrapped_error'] ?? json['WrappedError'] ?? '',
-      'stack': json['stack'] ?? json['Stack'] ?? '',
-      'remote_status': json['remote_status'] ?? json['RemoteStatus'],
-      'remote_error': json['remote_error'] ?? json['RemoteError'],
+      "error_type": json["error_type"] ?? json["ErrorType"] ?? "",
+      "info": json["info"] ?? json["Info"] ?? "",
+      "wrapped_error": json["wrapped_error"] ?? json["WrappedError"] ?? "",
+      "stack": json["stack"] ?? json["Stack"] ?? "",
+      "remote_status": json["remote_status"] ?? json["RemoteStatus"],
+      "remote_error": json["remote_error"] ?? json["RemoteError"],
     };
     return _$SessionErrorFromJson(normalized);
   }

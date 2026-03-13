@@ -114,6 +114,39 @@ class _DisclosureChoicesOverviewState
     widget.onChoicesConfirmed(disclosureChoices);
   }
 
+  /// Returns true if any selected credential instance is expired or has zero
+  /// remaining instance count, meaning the disclosure cannot proceed.
+  bool _hasUnsharableSelection() {
+    final choices =
+        widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
+    final userState = ref.read(sessionUserChoicesProvider(_sessionId));
+    final addedOptional = userState.addedOptionalIndices;
+
+    for (var i = 0; i < choices.length; i++) {
+      final pickOne = choices[i];
+      // Skip optional choices that haven't been added
+      if (pickOne.optional && !addedOptional.contains(i)) continue;
+
+      final owned = pickOne.ownedOptions;
+      if (owned == null || owned.isEmpty) continue;
+
+      final selectedIndex = _selectedIndexFor(i);
+      if (selectedIndex >= owned.length) continue;
+
+      final instance = owned[selectedIndex];
+      final now = DateTime.now();
+      final expiryDateTime = DateTime.fromMillisecondsSinceEpoch(
+        instance.expiryDate * 1000,
+      );
+      if (expiryDateTime.isBefore(now)) return true;
+      if (instance.batchInstanceCountRemaining != null &&
+          instance.batchInstanceCountRemaining! <= 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void _onChangeChoice(int disconIndex, {bool addOptional = false}) {
     final choices =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
@@ -297,7 +330,7 @@ class _DisclosureChoicesOverviewState
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: confirmButtonKey,
-        onPrimaryPressed: _onApprove,
+        onPrimaryPressed: _hasUnsharableSelection() ? null : _onApprove,
       ),
     );
   }

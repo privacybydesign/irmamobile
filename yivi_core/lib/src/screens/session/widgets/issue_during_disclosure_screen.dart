@@ -1,14 +1,13 @@
 import "package:flutter/material.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/session.dart";
-import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
@@ -34,23 +33,10 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
     required this.onDismiss,
   });
 
-  Future<void> _onObtainData(
-    BuildContext context,
-    WidgetRef ref,
-    CredentialDescriptor credential,
-  ) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = credential.issueURL?.translate(lang);
-    if (url != null && url.isNotEmpty) {
-      ref
-          .read(irmaRepositoryProvider)
-          .openIssueURL(
-            context,
-            credential.credentialId,
-            credential.issueURL,
-            ref,
-          );
-    }
+  void _onObtainData(BuildContext context, CredentialDescriptor credential) {
+    context.pushSchemalessDataDetailsScreen(
+      AddDataDetailsRouteParams(credential: credential),
+    );
   }
 
   @override
@@ -67,7 +53,6 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
     final steps = wizardState.steps;
     final currentStepIndex = wizardState.currentStepIndex;
     final isCompleted = wizardState.isCompleted;
-    final isSingleStep = wizardState.isSingleStep;
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.issue_wizard.title",
@@ -81,7 +66,6 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
             : () {
                 _onObtainData(
                   context,
-                  ref,
                   steps[currentStepIndex!].options[wizardState
                       .selectedOptionPerStep[currentStepIndex]],
                 );

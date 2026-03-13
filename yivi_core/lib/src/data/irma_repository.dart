@@ -209,7 +209,7 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
-// --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
+        // --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
         if (event.url.startsWith("yivi-app://auth-callback")) {
           final uri = Uri.parse(event.url);
           final state = uri.queryParameters["state"];
@@ -221,13 +221,13 @@ class IrmaRepository {
           }
 
           final code = uri.queryParameters["code"];
-            if (code == null) {
-              throw MissingPointer(
-                details:
-                    'expected "code" to be present in query parameters, but it wasn\'t',
-              );
-            }
-          
+          if (code == null) {
+            throw MissingPointer(
+              details:
+                  'expected "code" to be present in query parameters, but it wasn\'t',
+            );
+          }
+
           // TODO: keep a list of pseudo-random state values, mapped to sessionIds and retrieve the sessionId from there instead of parsing it from the URL directly
           // For now, we just assume the state is the sessionId, but this is not secure and should be fixed as soon as possible.
 
@@ -241,7 +241,7 @@ class IrmaRepository {
           closeInAppWebView();
           return;
         }
-// --- END TODO
+        // --- END TODO
 
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);

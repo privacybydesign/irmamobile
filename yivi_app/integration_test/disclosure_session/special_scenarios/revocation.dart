@@ -103,7 +103,9 @@ Future<void> revocationTest(
   await tester.tapAndSettle(notificationCardFinder);
 
   // Expect the credential detail screen
-  final credentialDetailScreenFinder = find.byType(SchemalessCredentialsDetailsScreen);
+  final credentialDetailScreenFinder = find.byType(
+    SchemalessCredentialsDetailsScreen,
+  );
   expect(credentialDetailScreenFinder, findsOneWidget);
 
   // Expect the actual credential card

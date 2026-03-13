@@ -18,6 +18,8 @@ import "../../widgets/loading_indicator.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
+import "widgets/disclosure_permission_confirm_dialog.dart";
+import "widgets/disclosure_permission_introduction_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
@@ -57,12 +59,21 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   bool _pinSubmitting = false;
   bool _hasLongPin = false;
 
+  /// Whether the disclosure introduction screen should be shown.
+  /// Null means we haven't loaded the preference yet.
+  bool? _showIntroduction;
+
   @override
   void initState() {
     super.initState();
     _repo = ref.read(irmaRepositoryProvider);
     _repo.preferences.getLongPin().first.then((value) {
       if (mounted) setState(() => _hasLongPin = value);
+    });
+    _repo.preferences.getCompletedDisclosurePermissionIntro().first.then((
+      introCompleted,
+    ) {
+      if (mounted) setState(() => _showIntroduction = !introCompleted);
     });
   }
 
@@ -143,6 +154,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildRequestPermission(SessionState session) {
+    // Show introduction screen for disclosure/signature sessions if not yet completed.
+    if (_showIntroduction == true && session.type != SessionType.issuance) {
+      return DisclosurePermissionIntroductionScreen(
+        onContinue: () {
+          _repo.preferences.setCompletedDisclosurePermissionIntro(true);
+          setState(() => _showIntroduction = false);
+        },
+        onDismiss: _showDismissDialog,
+      );
+    }
+
     final plan = session.disclosurePlan;
     final hasDisclosureChoices =
         plan?.disclosureChoicesOverview?.isNotEmpty ?? false;
@@ -243,27 +265,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     SessionState session,
     List<DisclosureDisconSelection> choices,
   ) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final isSignature = session.type == SessionType.signature;
-    final requestorName = session.requestor.name.translate(lang);
-
     final confirmed =
         await showDialog<bool>(
           context: context,
-          builder: (context) => IrmaConfirmationDialog(
-            titleTranslationKey: isSignature
-                ? "disclosure_permission.confirm_dialog.title_signature"
-                : "disclosure_permission.confirm_dialog.title",
-            contentTranslationKey: isSignature
-                ? "disclosure_permission.confirm_dialog.explanation_signature"
-                : "disclosure_permission.confirm_dialog.explanation",
-            contentTranslationParams: {"requestorName": requestorName},
-            confirmTranslationKey: isSignature
-                ? "disclosure_permission.confirm_dialog.confirm_signature"
-                : "disclosure_permission.confirm_dialog.confirm",
-            cancelTranslationKey: isSignature
-                ? "disclosure_permission.confirm_dialog.decline_signature"
-                : "disclosure_permission.confirm_dialog.decline",
+          builder: (context) => DisclosurePermissionConfirmDialog(
+            requestor: session.requestor,
+            isSignatureSession: session.type == SessionType.signature,
           ),
         ) ??
         false;

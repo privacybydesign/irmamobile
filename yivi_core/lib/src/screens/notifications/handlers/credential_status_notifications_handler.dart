@@ -15,10 +15,10 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
   ) async {
     final List<Notification> updatedNotifications = notifications;
 
-    final credentials = await repo
-        .getSchemalessCredentials()
-        .first
-        .timeout(const Duration(seconds: 5), onTimeout: () => []);
+    final credentials = await repo.getSchemalessCredentials().first.timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => [],
+    );
     if (credentials.isEmpty) return updatedNotifications;
 
     for (final cred in credentials) {
@@ -89,10 +89,10 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
   ) async {
     final List<Notification> updatedNotifications = notifications;
 
-    final credentials = await repo
-        .getSchemalessCredentials()
-        .first
-        .timeout(const Duration(seconds: 5), onTimeout: () => []);
+    final credentials = await repo.getSchemalessCredentials().first.timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => [],
+    );
     final credentialHashes = credentials.map((c) => c.hash).toSet();
 
     // Check if there are any notifications that are soft deleted and have a credential hash that is not in the repo
