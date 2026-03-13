@@ -404,18 +404,25 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
 
   await tapChangeChoicesButton(tester);
 
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+
   // make sure there are three choices available (two existing + option to issue new one)
-  expect(cardsFinder, findsNWidgets(3));
+  expect(choiceCardsFinder, findsNWidgets(3));
   expect(
     find.descendant(
-      of: cardsFinder.at(0),
+      of: choiceCardsFinder.at(0),
       matching: find.text("one@example.com"),
     ),
     findsOneWidget,
   );
   expect(
     find.descendant(
-      of: cardsFinder.at(1),
+      of: choiceCardsFinder.at(1),
       matching: find.text("two@template.com"),
     ),
     findsOneWidget,
@@ -425,7 +432,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
   expect(
     find.descendant(
-      of: cardsFinder.at(2),
+      of: choiceCardsFinder.at(2),
       matching: find.text("one@example.com"),
     ),
     findsOneWidget,
@@ -510,18 +517,25 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   await tapChangeChoicesButton(tester);
   expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+
   // make sure there are two existing choices available + one obtain data
-  expect(cardsFinder, findsNWidgets(3));
+  expect(choiceCardsFinder, findsNWidgets(3));
   expect(
     find.descendant(
-      of: cardsFinder.at(0),
+      of: choiceCardsFinder.at(0),
       matching: find.text("one@example.com"),
     ),
     findsOneWidget,
   );
   expect(
     find.descendant(
-      of: cardsFinder.at(1),
+      of: choiceCardsFinder.at(1),
       matching: find.text("three@example.com"),
     ),
     findsOneWidget,
@@ -530,7 +544,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
   expect(
     find.descendant(
-      of: cardsFinder.at(2),
+      of: choiceCardsFinder.at(2),
       matching: find.text("one@example.com"),
     ),
     findsOneWidget,
@@ -607,7 +621,14 @@ Future<void> testClaimValueOnePresentOneNot(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(cardsFinder, findsNWidgets(2));
+
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+  expect(choiceCardsFinder, findsNWidgets(2));
 
   expect(find.text("Obtain new data"), findsOneWidget);
 
@@ -864,7 +885,13 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final cardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
 
   // expect 4 existing credentials + 2 buttons to obtain new ones
   expect(cardsFinder, findsNWidgets(6));
@@ -1128,8 +1155,12 @@ Future<void> testOneCredentialTwoChoices(
 
   expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
-  // expect two credentials: email and phone...
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final cardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
 
   expect(cardsFinder, findsNWidgets(3));
 
@@ -1616,8 +1647,12 @@ Future<void> testDiscloseSdJwtWithChoices(
 
   expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
-  // expect two credentials: email and phone...
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final cardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
   // 2 existing + 2 obtainable
   expect(cardsFinder, findsNWidgets(4));
   await evaluateCredentialCard(
