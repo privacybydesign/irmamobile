@@ -13,271 +13,136 @@ import (
 // Incoming events
 // //
 type enrollEvent struct {
-	Email    *string
-	Pin      string
-	Language string
-	SchemeID irma.SchemeManagerIdentifier
+	Email    *string                      `json:"email"`
+	Pin      string                       `json:"pin"`
+	Language string                       `json:"language"`
+	SchemeID irma.SchemeManagerIdentifier `json:"scheme_id"`
 }
 
 type authenticateEvent struct {
-	Pin      string
-	SchemeID irma.SchemeManagerIdentifier
+	Pin      string                       `json:"pin"`
+	SchemeID irma.SchemeManagerIdentifier `json:"scheme_id"`
 }
 
 type changePinEvent struct {
-	OldPin string
-	NewPin string
+	OldPin string `json:"old_pin"`
+	NewPin string `json:"new_pin"`
 }
 
 type newSessionEvent struct {
-	SessionID int
-	Request   json.RawMessage
+	Request json.RawMessage `json:"request"`
 }
 
-type respondAuthorizationCodeEvent struct {
-	SessionID int
-	Proceed   bool
-	Code      *string
-}
-
-type respondPreAuthorizedCodeFlowPermissionEvent struct {
-	SessionID       int
-	Proceed         bool
-	TransactionCode *string
-}
-
-type respondPermissionEvent struct {
-	SessionID         int
-	Proceed           bool
-	DisclosureChoices [][]*irma.AttributeIdentifier
-}
-
-type respondPinEvent struct {
-	SessionID int
-	Proceed   bool
-	Pin       string
+type sessionUserInteractionEvent struct {
+	SessionId int                        `json:"session_id"`
+	Type      client.UserInteractionType `json:"type"`
+	Payload   json.RawMessage            `json:"payload"`
 }
 
 type deleteCredentialEvent struct {
-	HashByFormat map[irmaclient.CredentialFormat]string
-}
-
-type dismissSessionEvent struct {
-	SessionID int
+	HashByFormat map[irmaclient.CredentialFormat]string `json:"hash_by_format"`
 }
 
 type loadLogsEvent struct {
-	Before *uint64
-	Max    int
+	Before *uint64 `json:"before"`
+	Max    int     `json:"max"`
 }
 
 type clientPreferencesEvent struct {
-	Preferences clientsettings.Preferences
-}
-
-type getIssueWizardContentsEvent struct {
-	ID irma.IssueWizardIdentifier
+	Preferences clientsettings.Preferences `json:"client_preferences"`
 }
 
 type installSchemeEvent struct {
-	URL       string
-	PublicKey string
+	URL       string `json:"url"`
+	PublicKey string `json:"public_key"`
 }
 
 type removeSchemeEvent struct {
-	SchemeID irma.SchemeManagerIdentifier
+	SchemeID irma.SchemeManagerIdentifier `json:"scheme_id"`
 }
 
 type removeRequestorSchemeEvent struct {
-	SchemeID irma.RequestorSchemeIdentifier
+	SchemeID irma.RequestorSchemeIdentifier `json:"scheme_id"`
 }
 
 type installCertificateEvent struct {
-	Type       string
-	PemContent string
+	Type       string `json:"type"`
+	PemContent string `json:"pem_content"`
 }
 
 // //
 // Outgoing events
 // //
 type errorEvent struct {
-	Exception string
-	Stack     string
-	Fatal     bool
+	Exception string `json:"exception"`
+	Stack     string `json:"stack"`
+	Fatal     bool   `json:"fatal"`
 }
 
 type irmaConfigurationEvent struct {
-	IrmaConfiguration *WrappedConfiguration
+	IrmaConfiguration *WrappedConfiguration `json:"irma_configuration"`
 }
 
 type eudiConfigurationEvent struct {
-	EudiConfiguration *WrappedEudiConfiguration
-}
-
-type credentialsEvent struct {
-	Credentials irma.CredentialInfoList
+	EudiConfiguration *WrappedEudiConfiguration `json:"eudi_configuration"`
 }
 
 type schemalessCredentialsEvent struct {
-	Credentials []*client.Credential
+	Credentials []*client.Credential `json:"credentials"`
 }
 
 type schemalessCredentialStoreEvent struct {
-	Credentials []*client.CredentialStoreItem
+	Credentials []*client.CredentialStoreItem `json:"credentials"`
 }
 
 type enrollmentStatusEvent struct {
-	EnrolledSchemeManagerIds   []irma.SchemeManagerIdentifier
-	UnenrolledSchemeManagerIds []irma.SchemeManagerIdentifier
+	EnrolledSchemeManagerIds   []irma.SchemeManagerIdentifier `json:"enrolled_scheme_manager_ids"`
+	UnenrolledSchemeManagerIds []irma.SchemeManagerIdentifier `json:"unenrolled_scheme_manager_ids"`
 }
 
 type authenticationSuccessEvent struct{}
 
 type authenticationFailedEvent struct {
-	RemainingAttempts int
-	BlockedDuration   int
+	RemainingAttempts int `json:"remaining_attempts"`
+	BlockedDuration   int `json:"blocked_duration"`
 }
 
 type authenticationErrorEvent struct {
-	Error *sessionError
+	Error *sessionError `json:"error"`
 }
 
 type enrollmentFailureEvent struct {
-	SchemeManagerID irma.SchemeManagerIdentifier
-	Error           *sessionError
+	SchemeManagerID irma.SchemeManagerIdentifier `json:"scheme_manager_id"`
+	Error           *sessionError                `json:"error"`
 }
 
 type enrollmentSuccessEvent struct {
-	SchemeManagerID irma.SchemeManagerIdentifier
+	SchemeManagerID irma.SchemeManagerIdentifier `json:"scheme_manager_id"`
 }
 
 type changePinErrorEvent struct {
-	SchemeManagerID irma.SchemeManagerIdentifier
-	Error           *sessionError
+	SchemeManagerID irma.SchemeManagerIdentifier `json:"scheme_manager_id"`
+	Error           *sessionError                `json:"error"`
 }
 
 type changePinSuccessEvent struct{}
 
 type changePinFailedEvent struct {
-	SchemeManagerID   irma.SchemeManagerIdentifier
-	RemainingAttempts int
-	Timeout           int
-}
-
-type issueWizardContentsEvent struct {
-	ID             irma.IssueWizardIdentifier
-	WizardContents []irma.IssueWizardItem
+	SchemeManagerID   irma.SchemeManagerIdentifier `json:"scheme_manager_id"`
+	RemainingAttempts int                          `json:"remaining_attempts"`
+	Timeout           int                          `json:"timeout"`
 }
 
 // //
 // Session events
 // //
 
-// TODO: serverName as a TranslatedString doesn't make much sense
-type statusUpdateSessionEvent struct {
-	SessionID int
-	Action    irma.Action
-	Status    irma.ClientStatus
-}
-
-type clientReturnURLSetSessionEvent struct {
-	SessionID       int
-	ClientReturnURL string
-}
-
-type successSessionEvent struct {
-	SessionID int
-}
-
-type failureSessionEvent struct {
-	SessionID int
-	Error     *sessionError
-}
-
-type canceledSessionEvent struct {
-	SessionID int
-}
-
-type rawMultiFormatCredential struct {
-	ID              string
-	IssuerID        string
-	SchemeManagerID string
-	Revoked         bool
-	Attributes      map[irma.AttributeTypeIdentifier]irma.TranslatedString
-	HashByFormat    map[irmaclient.CredentialFormat]string
-	SignedOn        irma.Timestamp
-	Expires         irma.Timestamp
-	InstanceCount   *uint
-}
-
-type requestIssuancePermissionSessionEvent struct {
-	SessionID             int
-	ServerName            *irma.RequestorInfo
-	Satisfiable           bool
-	IssuedCredentials     []rawMultiFormatCredential
-	Disclosures           irma.AttributeConDisCon
-	DisclosuresLabels     map[int]irma.TranslatedString
-	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
-}
-
-type requestAuthorizationCodeFlowSessionEvent struct {
-	SessionID               int
-	RequestorInfo           *irma.RequestorInfo
-	CredentialInfoList      irma.CredentialTypeInfoList
-	AuthorizationRequestUrl string
-}
-
-type requestPreAuthorizedCodeFlowPermissionSessionEvent struct {
-	SessionID                 int
-	RequestorInfo             *irma.RequestorInfo
-	CredentialInfoList        irma.CredentialTypeInfoList
-	TransactionCodeParameters *irma.PreAuthorizedCodeTransactionCodeParameters
-}
-
-type requestVerificationPermissionSessionEvent struct {
-	SessionID             int
-	ServerName            *irma.RequestorInfo
-	Satisfiable           bool
-	Disclosures           irma.AttributeConDisCon
-	DisclosuresLabels     map[int]irma.TranslatedString
-	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
-	IsSignatureSession    bool
-	SignedMessage         string
-}
-
-type requestPinSessionEvent struct {
-	SessionID         int
-	RemainingAttempts int
-}
-
-type pairingRequiredSessionEvent struct {
-	SessionID   int
-	PairingCode string
-}
-
-type keyshareEnrollmentMissingSessionEvent struct {
-	SessionID       int
-	SchemeManagerID irma.SchemeManagerIdentifier
-}
-
-type keyshareEnrollmentDeletedSessionEvent struct {
-	SessionID       int
-	SchemeManagerID irma.SchemeManagerIdentifier
-}
-
-type keyshareBlockedSessionEvent struct {
-	SessionID       int
-	SchemeManagerID irma.SchemeManagerIdentifier
-	Duration        int
-}
-
-type keyshareEnrollmentIncompleteSessionEvent struct {
-	SessionID       int
-	SchemeManagerID irma.SchemeManagerIdentifier
+type sessionStateEvent struct {
+	SessionState client.SessionState `json:"session_state"`
 }
 
 type logsEvent struct {
-	LogEntries []irmaclient.LogInfo
+	LogEntries []client.LogInfo `json:"log_entries"`
 }
 
 // //
@@ -288,12 +153,12 @@ type sessionError struct {
 }
 
 func (err *sessionError) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&map[string]interface{}{
-		"ErrorType":    err.ErrorType,
-		"WrappedError": err.WrappedError(),
-		"Info":         err.Info,
-		"Stack":        err.Stack(),
-		"RemoteStatus": err.RemoteStatus,
-		"RemoteError":  err.RemoteError,
+	return json.Marshal(&map[string]any{
+		"error_type":    err.ErrorType,
+		"wrapped_error": err.WrappedError(),
+		"info":          err.Info,
+		"stack":         err.Stack(),
+		"remote_status": err.RemoteStatus,
+		"remote_error":  err.RemoteError,
 	})
 }

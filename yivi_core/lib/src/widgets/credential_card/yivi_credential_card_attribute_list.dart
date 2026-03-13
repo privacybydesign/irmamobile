@@ -1,64 +1,73 @@
+import "dart:convert";
+
 import "package:collection/collection.dart";
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../models/attribute.dart";
-import "../../models/attribute_value.dart";
+import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
-import "../irma_divider.dart";
-import "../translated_text.dart";
 
 class YiviCredentialCardAttributeList extends StatelessWidget {
-  final List<Attribute> attributes;
-  final List<Attribute>? compareTo;
+  final List<schemaless.Attribute> attributes;
+  final List<schemaless.Attribute>? compareTo;
 
   const YiviCredentialCardAttributeList(this.attributes, {this.compareTo});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    return Column(
+      spacing: theme.smallSpacing,
+      mainAxisSize: .min,
+      crossAxisAlignment: .start,
+      children: [
+        for (final a in attributes)
+          _AttributeView(
+            attribute: a,
+            compareTo: compareTo?.firstWhereOrNull((c) => c.id == a.id)?.value,
+          ),
+      ],
+    );
+  }
+}
+
+class _AttributeView extends StatelessWidget {
+  const _AttributeView({required this.attribute, this.compareTo});
+  final schemaless.Attribute attribute;
+  final schemaless.AttributeValue? compareTo;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final attributesWithValue = attributes.where(
-      (attr) =>
-          attr.value is! NullValue &&
-          (compareTo?.any(
-                (attrComp) =>
-                    attrComp.value is! NullValue &&
-                    attr.attributeType.fullId == attrComp.attributeType.fullId,
-              ) ??
-              true),
-    );
-
-    final textValueAttrs = attributesWithValue.where(
-      (a) => a.value is TextValue,
-    );
-    final photoValueAttrs = attributesWithValue.where(
-      (a) => a.value is PhotoValue,
-    );
-
-    Text buildLabel(Attribute a) => Text(
-      a.attributeType.name.translate(lang),
+    Text buildLabel(schemaless.Attribute a) => Text(
+      a.displayName.translate(lang),
       style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
     );
 
-    TranslatedText buildTextContent(Attribute attribute, TextValue attrValue) {
-      final Attribute? compareValue = compareTo?.firstWhereOrNull(
-        (e) => e.attributeType.fullId == attribute.attributeType.fullId,
-      );
-      return TranslatedText(
-        attrValue.translated.translate(lang),
+    Color valueColor(schemaless.AttributeValue? val) {
+      if (compareTo == null) return theme.dark;
+      return val?.translatedString == compareTo?.translatedString
+          ? theme.success
+          : theme.error;
+    }
+
+    Text buildTranslatedTextContent(schemaless.Attribute attribute) {
+      final txt = attribute.value?.translatedString;
+      return Text(
+        txt?.translate(lang) ?? "",
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: compareValue == null || compareValue.value is NullValue
-              ? theme.dark
-              : attribute.value.raw == compareValue.value.raw
-              ? theme.success
-              : theme.error,
+          color: valueColor(attribute.value),
         ),
       );
     }
 
-    GestureDetector buildTappableImage(Attribute attribute, Image image) {
+    GestureDetector buildTappableImage(schemaless.Attribute attribute) {
+      final val = attribute.value;
+      final raw = val?.imagePath ?? val?.base64Image ?? "";
+      final image = _imageFromRaw(raw);
       return GestureDetector(
         onTap: () {
           Navigator.push(
@@ -66,7 +75,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => Scaffold(
                 appBar: IrmaAppBar(
-                  titleString: attribute.attributeType.name.translate(lang),
+                  titleString: attribute.displayName.translate(lang),
                 ),
                 body: SingleChildScrollView(child: Center(child: image)),
               ),
@@ -80,38 +89,30 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       );
     }
 
-    return Column(
-      spacing: theme.smallSpacing,
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (Attribute a in textValueAttrs)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildLabel(a),
-                buildTextContent(a, a.value as TextValue),
-              ],
-            ),
-          ),
-        for (Attribute a in photoValueAttrs)
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (a == photoValueAttrs.first) const IrmaDivider(),
-                buildLabel(a),
-                SizedBox(height: theme.tinySpacing),
-                buildTappableImage(a, (a.value as PhotoValue).image),
-              ],
-            ),
-          ),
-      ],
+    return Padding(
+      padding: 
+        .symmetric(vertical: attribute.value == null ? 0 : theme.tinySpacing),
+      child: Column(
+        mainAxisSize: .min,
+        crossAxisAlignment: .start,
+        children: [
+          buildLabel(attribute),
+          if (attribute.value != null)
+            switch (attribute.value!.type) {
+              .translatedString => buildTranslatedTextContent(attribute),
+              .image => buildTappableImage(attribute),
+              .base64Image => buildTappableImage(attribute),
+              .boolean => throw UnimplementedError(),
+              .integer => throw UnimplementedError(),
+              .object => throw UnimplementedError(),
+              .array => throw UnimplementedError(),
+            },
+        ],
+      ),
     );
+  }
+
+  Image _imageFromRaw(String raw) {
+    return .memory(const Base64Decoder().convert(raw), fit: .fitWidth);
   }
 }

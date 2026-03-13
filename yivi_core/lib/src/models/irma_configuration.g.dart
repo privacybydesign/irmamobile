@@ -10,7 +10,7 @@ IrmaConfigurationEvent _$IrmaConfigurationEventFromJson(
   Map<String, dynamic> json,
 ) => IrmaConfigurationEvent(
   irmaConfiguration: IrmaConfiguration.fromJson(
-    json['IrmaConfiguration'] as Map<String, dynamic>,
+    json['irma_configuration'] as Map<String, dynamic>,
   ),
 );
 

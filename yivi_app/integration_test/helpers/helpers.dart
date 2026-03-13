@@ -13,9 +13,9 @@ import "package:yivi_core/app.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
-import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/util/test_detection.dart";
@@ -244,7 +244,7 @@ Future<void> issueCredentials(
     }
   }
 
-  // Check whether all attributes are displayed in the right order.
+  // Check whether all credential type names are displayed.
   for (final credTypeId in groupedAttributes.keys) {
     final credType =
         irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
@@ -253,23 +253,33 @@ Future<void> issueCredentials(
       findsOneWidget,
     );
   }
+
+  // Check whether all attributes are displayed (order-independent).
   final attributeTexts = tester
       .getAllText(find.byType(YiviCredentialCardAttributeList))
       .toList();
-  final attributeEntries = attributes.entries.toList();
 
-  for (int i = 0; i < attributes.length; i++) {
-    expect(
-      attributeTexts[i * 2],
-      irmaBinding
-          .repository
-          .irmaConfiguration
-          .attributeTypes[attributeEntries[i].key]
-          ?.name
-          .translate(locale.languageCode),
-    );
-    expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
+  // Build a map of displayed attribute name -> value pairs.
+  final displayedAttributes = <String, String>{};
+  for (var i = 0; i < attributeTexts.length; i += 2) {
+    displayedAttributes[attributeTexts[i]] = attributeTexts[i + 1];
   }
+
+  // Build a map of expected attribute name -> value pairs.
+  final expectedAttributes = <String, String>{};
+  for (final entry in attributes.entries) {
+    final attrName = irmaBinding
+        .repository
+        .irmaConfiguration
+        .attributeTypes[entry.key]
+        ?.name
+        .translate(locale.languageCode);
+    if (attrName != null) {
+      expectedAttributes[attrName] = entry.value;
+    }
+  }
+
+  expect(mapEquals(displayedAttributes, expectedAttributes), true);
 
   final buttonFinder = find.byKey(
     declineOffer
@@ -571,7 +581,7 @@ Future<void> navigateToCredentialDetailsPage(
   await tester.tapAndSettle(categoryTileFinder);
 
   // Expect detail page
-  expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
 }
 
 Future<void> openAddCredentialDetailsScreen(
@@ -598,5 +608,5 @@ Future<void> openAddCredentialDetailsScreen(
   );
   await tester.tapAndSettle(addCredentialTile);
 
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
+  await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
 }

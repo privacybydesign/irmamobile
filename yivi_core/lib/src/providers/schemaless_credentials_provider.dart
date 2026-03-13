@@ -5,8 +5,12 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:string_similarity/string_similarity.dart";
 
 import "../models/schemaless/schemaless_events.dart" as schemaless;
-import "credentials_provider.dart";
+import "./provider_helpers.dart" as helpers;
 import "irma_repository_provider.dart";
+
+final credentialsSearchQueryProvider = NotifierProvider(
+  () => helpers.ValueNotifier(""),
+);
 
 final schemalessCredentialsProvider =
     StreamProvider<List<schemaless.Credential>>((ref) async* {

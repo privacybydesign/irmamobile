@@ -6,9 +6,8 @@ import "schemaless_events.dart";
 
 part "credential_store.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class SchemalessCredentialStoreEvent extends Event {
-  @JsonKey(name: "Credentials")
   final List<CredentialStoreItem> credentials;
 
   SchemalessCredentialStoreEvent({required this.credentials});
@@ -17,54 +16,16 @@ class SchemalessCredentialStoreEvent extends Event {
       _$SchemalessCredentialStoreEventFromJson(json);
 }
 
-@JsonSerializable()
-class AttributeDescriptor {
-  @JsonKey(name: "Id")
-  final String id;
-
-  @JsonKey(name: "Name")
-  final TranslatedValue name;
-
-  @JsonKey(name: "Type")
-  final AttributeType type;
-
-  @JsonKey(name: "Nested", defaultValue: [], disallowNullValue: false)
-  final List<AttributeDescriptor> nested;
-
-  AttributeDescriptor({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.nested,
-  });
-
-  factory AttributeDescriptor.fromJson(Map<String, dynamic> json) =>
-      _$AttributeDescriptorFromJson(json);
-
-  Map<String, dynamic> toJson() => _$AttributeDescriptorToJson(this);
-}
-
-@JsonSerializable()
+@JsonSerializable(fieldRename: .snake)
 class CredentialDescriptor {
-  @JsonKey(name: "CredentialId")
   final String credentialId;
-
-  @JsonKey(name: "Name")
   final TranslatedValue name;
-
-  @JsonKey(name: "Issuer")
   final TrustedParty issuer;
-
-  @JsonKey(name: "Category")
   final TranslatedValue? category;
-
-  @JsonKey(name: "ImagePath")
   final String imagePath;
+  final List<Attribute> attributes;
 
-  @JsonKey(name: "Attributes")
-  final List<AttributeDescriptor> attributes;
-
-  @JsonKey(name: "IssueURL")
+  @JsonKey(name: "issue_url")
   final TranslatedValue? issueURL;
 
   CredentialDescriptor({
@@ -83,11 +44,9 @@ class CredentialDescriptor {
   Map<String, dynamic> toJson() => _$CredentialDescriptorToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: .snake)
 class CredentialStoreItem {
-  @JsonKey(name: "Credential")
   final CredentialDescriptor credential;
-  @JsonKey(name: "Faq")
   final Faq faq;
 
   CredentialStoreItem({required this.credential, required this.faq});
@@ -98,18 +57,11 @@ class CredentialStoreItem {
   Map<String, dynamic> toJson() => _$CredentialStoreItemToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: .snake)
 class Faq {
-  @JsonKey(name: "Into")
   final TranslatedValue intro;
-
-  @JsonKey(name: "Purpose")
   final TranslatedValue purpose;
-
-  @JsonKey(name: "Content")
   final TranslatedValue content;
-
-  @JsonKey(name: "HowTo")
   final TranslatedValue howTo;
 
   Faq({

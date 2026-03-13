@@ -199,8 +199,9 @@
     },
     "issue_wizard": {
       "title": "Daten sammeln",
-      "explanation_incomplete": "Meine Daten Schritt für Schritt abrufen und danach mit der anfragenden Partei teilen",
-      "explanation_complete": "Alle erforderlichen Daten wurden hinzugefügt"
+      "explanation_incomplete": "Meine Daten Schritt für Schritt abrufen und danach mit der anfragenden Partei teilen.",
+      "explanation_incomplete_single": "Die benötigten Daten abrufen und danach mit der anfragenden Partei teilen.",
+      "explanation_complete": "Alle erforderlichen Daten wurden hinzugefügt."
     },
     "previously_added": {
       "title": "Daten validieren",

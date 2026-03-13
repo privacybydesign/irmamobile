@@ -151,9 +151,6 @@ func dispatchSchemalessCredentialsEvent() {
 
 func dispatchCredentialsEvent() {
 	dispatchSchemalessCredentialsEvent()
-	dispatchEvent(&credentialsEvent{
-		Credentials: yiviClient.CredentialInfoList(),
-	})
 }
 
 func dispatchEnrollmentStatusEvent() {

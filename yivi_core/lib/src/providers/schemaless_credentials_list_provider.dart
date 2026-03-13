@@ -2,9 +2,37 @@ import "dart:async";
 
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+import "../data/irma_preferences.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
-import "credentials_list_provider.dart";
+import "preferences_provider.dart";
 import "schemaless_credentials_provider.dart";
+
+abstract class OrderRepo {
+  Future<List<String>> loadOrder();
+  Future<void> saveOrder(List<String> ids);
+}
+
+class IrmaPreferencesOrderRepo implements OrderRepo {
+  final IrmaPreferences _prefs;
+
+  IrmaPreferencesOrderRepo(this._prefs);
+
+  @override
+  Future<List<String>> loadOrder() async {
+    return _prefs.getCredentialOrder();
+  }
+
+  @override
+  Future<void> saveOrder(List<String> ids) {
+    return _prefs.setCredentialOrder(ids);
+  }
+}
+
+final credentialOrderRepoProvider = Provider(
+  (ref) => IrmaPreferencesOrderRepo(ref.watch(preferencesProvider)),
+);
+
+enum NewItemPolicy { append, prepend }
 
 /// ----- Controller: reconciles external items with stored order
 final schemalessCredentialOrderControllerProvider =
@@ -96,6 +124,7 @@ class SchemalessCredentialOrderController
   void _debouncedSave(List<schemaless.Credential> items) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () async {
+      if (!ref.mounted) return;
       await ref
           .read(credentialOrderRepoProvider)
           .saveOrder(items.map((e) => e.credentialId).toList());

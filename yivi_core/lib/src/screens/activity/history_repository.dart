@@ -35,11 +35,10 @@ class HistoryState {
   }
 }
 
-bool _isKeyshareCredential(IrmaConfiguration config, CredentialLog log) {
-  return log.attributes.keys.any(
-    (attr) => config.schemeManagers.values.any(
-      (scheme) =>
-          scheme.keyshareAttributes.contains("${log.credentialType}.$attr"),
+bool _isKeyshareCredential(IrmaConfiguration config, LogCredential log) {
+  return config.schemeManagers.values.any(
+    (scheme) => scheme.keyshareAttributes.any(
+      (attr) => attr.startsWith(log.credentialId),
     ),
   );
 }

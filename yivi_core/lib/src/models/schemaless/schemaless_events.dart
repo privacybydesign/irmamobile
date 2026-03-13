@@ -6,9 +6,8 @@ import "../translated_value.dart";
 
 part "schemaless_events.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class SchemalessCredentialsEvent extends Event {
-  @JsonKey(name: "Credentials")
   final List<Credential> credentials;
 
   SchemalessCredentialsEvent({required this.credentials});
@@ -21,7 +20,6 @@ class SchemalessCredentialsEvent extends Event {
 enum AttributeType {
   object,
   array,
-  string,
   translatedString,
   boolean,
   integer,
@@ -29,15 +27,39 @@ enum AttributeType {
   base64Image,
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: .snake)
 class AttributeValue {
-  @JsonKey(name: "Type")
   final AttributeType type;
+  @JsonKey(name: "int")
+  final int? intValue;
+  @JsonKey(name: "bool")
+  final bool? boolValue;
+  final TranslatedValue? translatedString;
+  final List<AttributeValue>? array;
+  final List<Attribute>? object;
+  final String? imagePath;
+  final String? base64Image;
 
-  @JsonKey(name: "Data")
-  final dynamic data;
+  AttributeValue({
+    required this.type,
+    this.intValue,
+    this.boolValue,
+    this.translatedString,
+    this.array,
+    this.object,
+    this.imagePath,
+    this.base64Image,
+  });
 
-  AttributeValue({required this.type, required this.data});
+  /// Whether this value has actual data set (not just a type marker).
+  bool get hasConcreteValue =>
+      intValue != null ||
+      boolValue != null ||
+      translatedString != null ||
+      array != null ||
+      object != null ||
+      imagePath != null ||
+      base64Image != null;
 
   factory AttributeValue.fromJson(Map<String, dynamic> json) =>
       _$AttributeValueFromJson(json);
@@ -45,25 +67,20 @@ class AttributeValue {
   Map<String, dynamic> toJson() => _$AttributeValueToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: .snake)
 class Attribute {
-  @JsonKey(name: "Id")
   final String id;
-
-  @JsonKey(name: "DisplayName")
   final TranslatedValue displayName;
-
-  @JsonKey(name: "Description")
-  final TranslatedValue description;
-
-  @JsonKey(name: "Value")
-  final AttributeValue value;
+  final TranslatedValue? description;
+  final AttributeValue? value;
+  final AttributeValue? requestedValue;
 
   Attribute({
     required this.id,
     required this.displayName,
-    required this.description,
-    required this.value,
+    this.description,
+    this.value,
+    this.requestedValue,
   });
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>
@@ -72,29 +89,22 @@ class Attribute {
   Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: .snake)
 class TrustedParty {
-  @JsonKey(name: "Id")
   final String id;
-
-  @JsonKey(name: "Name")
   final TranslatedValue name;
-
-  @JsonKey(name: "Url")
   final TranslatedValue? url;
-
-  @JsonKey(name: "ImagePath")
   final String? imagePath;
-
-  @JsonKey(name: "Parent")
   final TrustedParty? parent;
+  final bool verified;
 
   TrustedParty({
     required this.id,
     required this.name,
     required this.url,
-    required this.imagePath,
     required this.parent,
+    required this.verified,
+    this.imagePath,
   });
 
   factory TrustedParty.fromJson(Map<String, dynamic> json) =>
@@ -103,45 +113,20 @@ class TrustedParty {
   Map<String, dynamic> toJson() => _$TrustedPartyToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: .snake)
 class Credential {
-  @JsonKey(name: "CredentialId")
   final String credentialId;
-
-  @JsonKey(name: "Hash")
   final String hash;
-
-  @JsonKey(name: "ImagePath")
   final String imagePath;
-
-  @JsonKey(name: "Name")
   final TranslatedValue name;
-
-  @JsonKey(name: "Issuer")
   final TrustedParty issuer;
-
-  @JsonKey(name: "CredentialInstanceIds")
   final Map<CredentialFormat, String> credentialInstanceIds;
-
-  @JsonKey(name: "BatchInstanceCountsRemaining")
   final Map<CredentialFormat, int?> batchInstanceCountsRemaining;
-
-  @JsonKey(name: "Attributes")
-  List<Attribute> attributes;
-
-  @JsonKey(name: "IssuanceDate")
+  final List<Attribute> attributes;
   final int issuanceDate;
-
-  @JsonKey(name: "ExpiryDate")
   final int expiryDate;
-
-  @JsonKey(name: "Revoked")
   final bool revoked;
-
-  @JsonKey(name: "RevocationSupported")
   final bool revocationSupported;
-
-  @JsonKey(name: "IssueURL")
   final TranslatedValue issueUrl;
 
   Credential({
@@ -164,4 +149,22 @@ class Credential {
       _$CredentialFromJson(json);
 
   Map<String, dynamic> toJson() => _$CredentialToJson(this);
+}
+
+@JsonSerializable(fieldRename: .snake)
+class CredentialTypeInfo {
+  final TranslatedValue name;
+  final TranslatedValue issuerName;
+  final Map<String, TranslatedValue> attributes;
+
+  CredentialTypeInfo({
+    required this.name,
+    required this.issuerName,
+    required this.attributes,
+  });
+
+  factory CredentialTypeInfo.fromJson(Map<String, dynamic> json) =>
+      _$CredentialTypeInfoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CredentialTypeInfoToJson(this);
 }

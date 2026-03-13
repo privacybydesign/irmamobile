@@ -10,13 +10,13 @@ import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
@@ -171,11 +171,11 @@ Future<void> testDisclosePassportOpensPassportScanner(
   await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
 
   await tester.tapAndSettle(find.text("Obtain data"));
 
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
   await tester.tapAndSettle(find.text("Add"));
 
   await tester.waitFor(find.byType(MrzReaderScreen<PassportMrzParser>));
@@ -218,7 +218,7 @@ Future<void> testDisclosePassportOpensPassportScanner(
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   // should be back at the issue wizard screen
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
 }
 
 Future<void> navigateToLatestActivity(
@@ -253,6 +253,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(
     domain: "example.com",
   );
 
+  await tester.waitFor(find.text("OK"));
   await tester.tapAndSettle(find.text("OK"));
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
@@ -280,7 +281,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
@@ -292,8 +293,8 @@ Future<void> testEmptySdJwtStillShowsInOptions(
   final session2Url = await startOpenID4VPSession(dcql);
   irmaBinding.repository.startTestSessionFromUrl(session2Url);
 
-  await tester.pumpAndSettle();
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  await tester.waitFor(find.byType(DisclosureChoicesOverview));
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(tester, cardsFinder, isExpired: true);
@@ -396,25 +397,32 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   await evaluateIntroduction(tester);
 
   await tester.pumpAndSettle();
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+
   // make sure there are three choices available (two existing + option to issue new one)
-  expect(cardsFinder, findsNWidgets(3));
+  expect(choiceCardsFinder, findsNWidgets(3));
   expect(
     find.descendant(
-      of: cardsFinder.at(0),
+      of: choiceCardsFinder.at(0),
       matching: find.text("one@example.com"),
     ),
     findsOneWidget,
   );
   expect(
     find.descendant(
-      of: cardsFinder.at(1),
+      of: choiceCardsFinder.at(1),
       matching: find.text("two@template.com"),
     ),
     findsOneWidget,
@@ -424,7 +432,7 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
   expect(
     find.descendant(
-      of: cardsFinder.at(2),
+      of: choiceCardsFinder.at(2),
       matching: find.text("one@example.com"),
     ),
     findsOneWidget,
@@ -491,7 +499,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
@@ -507,20 +515,27 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
 
   // make sure there are two existing choices available + one obtain data
-  expect(cardsFinder, findsNWidgets(3));
+  expect(choiceCardsFinder, findsNWidgets(3));
   expect(
     find.descendant(
-      of: cardsFinder.at(0),
+      of: choiceCardsFinder.at(0),
       matching: find.text("one@example.com"),
     ),
     findsOneWidget,
   );
   expect(
     find.descendant(
-      of: cardsFinder.at(1),
+      of: choiceCardsFinder.at(1),
       matching: find.text("three@example.com"),
     ),
     findsOneWidget,
@@ -529,7 +544,7 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
   expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
   expect(
     find.descendant(
-      of: cardsFinder.at(2),
+      of: choiceCardsFinder.at(2),
       matching: find.text("one@example.com"),
     ),
     findsOneWidget,
@@ -590,7 +605,7 @@ Future<void> testClaimValueOnePresentOneNot(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
@@ -606,7 +621,14 @@ Future<void> testClaimValueOnePresentOneNot(
   );
 
   await tapChangeChoicesButton(tester);
-  expect(cardsFinder, findsNWidgets(2));
+
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+  expect(choiceCardsFinder, findsNWidgets(2));
 
   expect(find.text("Obtain new data"), findsOneWidget);
 
@@ -697,7 +719,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
 
   expect(cardsFinder, findsOneWidget);
@@ -715,12 +737,19 @@ Future<void> testOptionallyDiscloseExtraCredential(
 
   await tester.tapAndSettle(addOptionalDataButton);
 
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
-  expect(cardsFinder, findsNWidgets(3));
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+
+  expect(choiceCardsFinder, findsNWidgets(3));
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(0),
+    choiceCardsFinder.at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: {
@@ -728,10 +757,10 @@ Future<void> testOptionallyDiscloseExtraCredential(
       "Email domain name": "example.com",
     },
   );
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
+  await tester.scrollUntilVisible(choiceCardsFinder.at(1), 100);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
+    choiceCardsFinder.at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
     attributes: {
@@ -740,11 +769,11 @@ Future<void> testOptionallyDiscloseExtraCredential(
     },
   );
 
-  await tester.scrollUntilVisible(cardsFinder.at(2), 100);
+  await tester.scrollUntilVisible(choiceCardsFinder.at(2), 100);
   expect(find.text("Obtain new data", skipOffstage: false), findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(2),
+    choiceCardsFinder.at(2),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
   );
@@ -860,10 +889,16 @@ Future<void> testSelectOneOfTwoPossibleEmailsAndTwoPossiblePhones(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final cardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
 
   // expect 4 existing credentials + 2 buttons to obtain new ones
   expect(cardsFinder, findsNWidgets(6));
@@ -974,27 +1009,33 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   final choiceButtonFinder = find.text("Change choice", skipOffstage: false);
   expect(choiceButtonFinder, findsNWidgets(2));
 
   // change the email
   await tester.scrollUntilVisible(choiceButtonFinder.at(0), 100);
   await tester.tapAndSettle(choiceButtonFinder.at(0));
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final choiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
 
   // expect two existing + an obtain data card
-  expect(cardsFinder, findsNWidgets(3));
+  expect(choiceCardsFinder, findsNWidgets(3));
   expect(
     find.descendant(
-      of: cardsFinder,
+      of: choiceCardsFinder,
       matching: find.text("one@example.com", skipOffstage: false),
     ),
     findsOneWidget,
   );
   expect(
     find.descendant(
-      of: cardsFinder,
+      of: choiceCardsFinder,
       matching: find.text("two@template.com", skipOffstage: false),
     ),
     findsOneWidget,
@@ -1007,18 +1048,25 @@ Future<void> testTwoCredentialsTwoChoicesEach(
   await tester.scrollUntilVisible(choiceButtonFinder.at(1), 100);
   await tester.tapAndSettle(choiceButtonFinder.at(1));
 
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final phoneChoiceCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+
   // expect two existing + an obtain data card
-  expect(cardsFinder, findsExactly(3));
+  expect(phoneChoiceCardsFinder, findsExactly(3));
   expect(
     find.descendant(
-      of: cardsFinder,
+      of: phoneChoiceCardsFinder,
       matching: find.text("0612345678", skipOffstage: false),
     ),
     findsOneWidget,
   );
   expect(
     find.descendant(
-      of: cardsFinder,
+      of: phoneChoiceCardsFinder,
       matching: find.text("0687654321", skipOffstage: false),
     ),
     findsOneWidget,
@@ -1030,6 +1078,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   await navigateToLatestActivity(tester, irmaBinding);
 
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   const expectedNumCards = 2;
 
   expect(cardsFinder, findsExactly(expectedNumCards));
@@ -1121,14 +1170,18 @@ Future<void> testOneCredentialTwoChoices(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   await tapChangeChoicesButton(tester);
 
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
-  // expect two credentials: email and phone...
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final cardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
 
   expect(cardsFinder, findsNWidgets(3));
 
@@ -1153,20 +1206,42 @@ Future<void> testOneCredentialTwoChoices(
   await tester.scrollUntilVisible(cardsFinder.at(2), 100);
   await tester.tapAndSettle(cardsFinder.at(2));
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
 
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  // now expect to see 4 cards, of which 3 are existing
-  expect(cardsFinder, findsNWidgets(4));
+  await tester.pumpAndSettle();
+
+  // after issuance, expect to be back on the disclosure overview with the newly issued credential
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  final overviewCardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  expect(overviewCardsFinder, findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    overviewCardsFinder,
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    credentialName: "Demo Email address",
+    attributes: {"Email address": "test@example.com"},
+  );
+
+  // change choices to verify there are now 4 cards (3 existing + 1 obtainable)
+  await tapChangeChoicesButton(tester);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+
+  final updatedCardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
+  expect(updatedCardsFinder, findsNWidgets(4));
 
   // select one of them
-  await tester.scrollUntilVisible(cardsFinder.at(1), 100);
-  await tester.tapAndSettle(cardsFinder.at(1));
+  await tester.scrollUntilVisible(updatedCardsFinder.at(1), 100);
+  await tester.tapAndSettle(updatedCardsFinder.at(1));
 
   // go back
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
@@ -1219,7 +1294,7 @@ Future<void> testOneMissingOnePresent(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   final cardFinder = find.byType(YiviCredentialCard);
 
   expect(cardFinder, findsOneWidget);
@@ -1230,26 +1305,21 @@ Future<void> testOneMissingOnePresent(
     credentialName: "Demo Mobile phone number",
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
 
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueMobileNumber(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  expect(find.text("All required data has been added"), findsOneWidget);
-  await tester.tapAndSettle(find.text("Next step"));
-  expect(
-    find.text(
-      "This data has already been added to your app. Verify that the data is still correct.",
-    ),
-    findsOneWidget,
-  );
+  await tester.pumpAndSettle();
+
+  expect(find.text("All required data has been added."), findsOneWidget);
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
@@ -1298,7 +1368,7 @@ Future<void> testDiscloseSdJwtThatsNotThere(
 
   await tester.pumpAndSettle();
 
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   final cardFinder = find.byType(YiviCredentialCard);
   expect(cardFinder, findsOneWidget);
   await evaluateCredentialCard(
@@ -1308,19 +1378,19 @@ Future<void> testDiscloseSdJwtThatsNotThere(
     credentialName: "Demo Email address",
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
 
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // we can't actually open the browser in the integration test, so we'll just start an issuance session
   await issueEmailAddress(tester, irmaBinding, sdJwtBatchSize: 10);
 
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   await shareAndFinishDisclosureSession(tester);
 }
 
@@ -1598,7 +1668,7 @@ Future<void> testDiscloseSdJwtWithChoices(
 
   await evaluateIntroduction(tester);
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // expect one card, namely the email credential
   final cardFinder = find.byType(YiviCredentialCard);
@@ -1613,10 +1683,14 @@ Future<void> testDiscloseSdJwtWithChoices(
 
   await tapChangeChoicesButton(tester);
 
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
-  // expect two credentials: email and phone...
-  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  // Scope card finder to the make-choice screen to avoid offstage cards from the overview.
+  final cardsFinder = find.descendant(
+    of: find.byType(DisclosureMakeChoiceScreen),
+    matching: find.byType(YiviCredentialCard),
+    skipOffstage: false,
+  );
   // 2 existing + 2 obtainable
   expect(cardsFinder, findsNWidgets(4));
   await evaluateCredentialCard(
