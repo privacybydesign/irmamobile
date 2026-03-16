@@ -90,8 +90,9 @@ class _AttributeView extends StatelessWidget {
     }
 
     return Padding(
-      padding: 
-        .symmetric(vertical: attribute.value == null ? 0 : theme.tinySpacing),
+      padding: .symmetric(
+        vertical: attribute.value == null ? 0 : theme.tinySpacing,
+      ),
       child: Column(
         mainAxisSize: .min,
         crossAxisAlignment: .start,

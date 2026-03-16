@@ -88,10 +88,9 @@ class IssueDuringDisclosureNotifier
 
     // If issueDuringDislosure is null but we have retained steps,
     // all steps are completed (currentStepIndex = null).
-    final currentStepIndex =
-        issueDuring == null && previousSteps.isNotEmpty
-            ? null
-            : _findCurrentStepIndex(steps, issued);
+    final currentStepIndex = issueDuring == null && previousSteps.isNotEmpty
+        ? null
+        : _findCurrentStepIndex(steps, issued);
 
     return IssueDuringDisclosureState(
       steps: steps,

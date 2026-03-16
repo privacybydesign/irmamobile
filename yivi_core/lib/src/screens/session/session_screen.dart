@@ -155,7 +155,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           ),
           // dismissed and success are handled above
           .dismissed || .success => _buildLoadingScreen(session),
-          .requestPreAuthorizedCode || .requestAuthorizationCode => _buildOpenIdRequestPermission(session)
+          .requestPreAuthorizedCode ||
+          .requestAuthorizationCode => _buildOpenIdRequestPermission(session),
         };
       },
     );
@@ -243,11 +244,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       onDismiss: _showDismissDialog,
       onGivePermission: () {
         // Depending the protocol we're using, perform different action on permission grant
-          if (session.status == SessionStatus.requestPreAuthorizedCode) {
-            _grantPermissionPreAuthorizedCode(session);
-          } else {
-            //_grantPermissionAuthorizationCode(session);
-          }
+        if (session.status == SessionStatus.requestPreAuthorizedCode) {
+          _grantPermissionPreAuthorizedCode(session);
+        } else {
+          //_grantPermissionAuthorizationCode(session);
+        }
       },
     );
   }
@@ -408,8 +409,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
   }
 
-  
-Future<void> _grantPermissionPreAuthorizedCode(SessionState session) async {
+  Future<void> _grantPermissionPreAuthorizedCode(SessionState session) async {
     // If a transaction code is required, request it from the user
     String? transactionCode;
     if (session.transactionCodeParameters != null) {
@@ -428,11 +428,14 @@ Future<void> _grantPermissionPreAuthorizedCode(SessionState session) async {
 
     // Handle the permission
     _repo.bridgedDispatch(
-      SessionUserInteractionEvent.preAuthorizedCodePermission(sessionId: session.id, transactionCode: transactionCode, proceed: true),
+      SessionUserInteractionEvent.preAuthorizedCodePermission(
+        sessionId: session.id,
+        transactionCode: transactionCode,
+        proceed: true,
+      ),
     );
   }
 }
-
 
 //   Future<void> _signInWithAutoCodeFlow(SessionState state) async {
 //     final s = state.generateSessionState();

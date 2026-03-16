@@ -5,7 +5,13 @@ import "../session_events.dart";
 part "session_user_interaction.g.dart";
 
 @JsonEnum(alwaysCreate: true, fieldRename: .snake)
-enum UserInteractionType { enteredPin, permission, dismiss, authCode, preAuthorizedCode }
+enum UserInteractionType {
+  enteredPin,
+  permission,
+  dismiss,
+  authCode,
+  preAuthorizedCode,
+}
 
 @JsonSerializable(createFactory: false, fieldRename: .snake)
 class SelectedCredential {

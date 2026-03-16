@@ -229,12 +229,11 @@ class YiviCredentialCard extends ConsumerWidget {
          imagePath: null,
          attributes: credential.attributes
              .map(
-               (id, translations) => MapEntry(id, Attribute(
-                 id: id,
-                 displayName: translations,
-               )),
+               (id, translations) =>
+                   MapEntry(id, Attribute(id: id, displayName: translations)),
              )
-             .values.toList(),
+             .values
+             .toList(),
          status: CredentialCardStatus(
            revoked: false,
            batchInstanceCountsRemaining: {},

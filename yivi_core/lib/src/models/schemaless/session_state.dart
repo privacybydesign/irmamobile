@@ -51,7 +51,8 @@ class SessionState {
   final bool continueOnSecondDevice;
   final int remainingPinAttempts;
   final int pinBlockedTimeSeconds;
-  final PreAuthorizationCodeTransactionCodeParameters? transactionCodeParameters;
+  final PreAuthorizationCodeTransactionCodeParameters?
+  transactionCodeParameters;
 
   SessionState({
     required this.id,
@@ -171,6 +172,7 @@ class PreAuthorizationCodeTransactionCodeParameters {
   final int? length;
   final String? description;
 
-  factory PreAuthorizationCodeTransactionCodeParameters.fromJson(Map<String, dynamic> json) =>
-      _$PreAuthorizationCodeTransactionCodeParametersFromJson(json);
+  factory PreAuthorizationCodeTransactionCodeParameters.fromJson(
+    Map<String, dynamic> json,
+  ) => _$PreAuthorizationCodeTransactionCodeParametersFromJson(json);
 }

@@ -1218,7 +1218,10 @@ Future<void> testOneCredentialTwoChoices(
 
   // after issuance, expect to be back on the disclosure overview with the newly issued credential
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  final overviewCardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  final overviewCardsFinder = find.byType(
+    YiviCredentialCard,
+    skipOffstage: false,
+  );
   expect(overviewCardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
