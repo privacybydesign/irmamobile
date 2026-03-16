@@ -6,6 +6,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 
 import "../../models/log_entry.dart";
+import "../../models/schemaless/session_state.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/string.dart";
@@ -35,10 +36,14 @@ class _ActivityTabState extends State<ActivityTab> {
       if (!mounted) {
         return;
       }
-      // TODO: listen for session success to refresh logs
-      _repoStateSubscription = IrmaRepositoryProvider.of(
-        context,
-      ).getEvents().listen((event) {});
+      _repoStateSubscription = IrmaRepositoryProvider.of(context)
+          .getEvents()
+          .listen((event) {
+            if (event is SessionStateEvent &&
+                event.sessionState.status == SessionStatus.success) {
+              _loadInitialLogs();
+            }
+          });
     });
   }
 
