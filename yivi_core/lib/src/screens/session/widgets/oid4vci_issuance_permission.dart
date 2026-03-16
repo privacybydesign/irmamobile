@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/schemaless/credential_store.dart" as schemaless;
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -11,7 +11,7 @@ import "session_scaffold.dart";
 class OpenId4VciIssuancePermission extends StatelessWidget {
   final VoidCallback? onDismiss;
   final VoidCallback? onGivePermission;
-  final List<schemaless.CredentialTypeInfo> issuedCredentials;
+  final List<schemaless.CredentialDescriptor> issuedCredentials;
 
   const OpenId4VciIssuancePermission({
     super.key,
@@ -63,8 +63,8 @@ class OpenId4VciIssuancePermission extends StatelessWidget {
         ...issuedCredentials.map(
           (credential) => Padding(
             padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-            child: YiviCredentialCard.fromCredentialTypeInfo(
-              credential: credential,
+            child: YiviCredentialCard.fromDescriptorWithEmptyAttributeValues(
+              descriptor: credential,
               compact: true,
             ),
           ),

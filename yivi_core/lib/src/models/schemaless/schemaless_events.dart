@@ -150,21 +150,3 @@ class Credential {
 
   Map<String, dynamic> toJson() => _$CredentialToJson(this);
 }
-
-@JsonSerializable(fieldRename: .snake)
-class CredentialTypeInfo {
-  final TranslatedValue name;
-  final TranslatedValue issuerName;
-  final Map<String, TranslatedValue> attributes;
-
-  CredentialTypeInfo({
-    required this.name,
-    required this.issuerName,
-    required this.attributes,
-  });
-
-  factory CredentialTypeInfo.fromJson(Map<String, dynamic> json) =>
-      _$CredentialTypeInfoFromJson(json);
-
-  Map<String, dynamic> toJson() => _$CredentialTypeInfoToJson(this);
-}
