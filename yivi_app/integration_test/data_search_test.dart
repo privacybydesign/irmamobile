@@ -2,7 +2,7 @@ import "package:flutter/cupertino.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/irma_credential_type_card.dart";
+import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/helpers.dart";
@@ -90,7 +90,7 @@ void main() {
 }
 
 Future<void> pressCredentialTypeCard(WidgetTester tester) async {
-  final firstCred = find.byType(IrmaCredentialTypeCard);
+  final firstCred = find.byType(SchemalessYiviCredentialTypeCard);
   await tester.tapAndSettle(firstCred.first);
 }
 
