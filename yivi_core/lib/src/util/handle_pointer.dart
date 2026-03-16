@@ -30,13 +30,35 @@ Future<void> handlePointer(
   }
 
   if (pointer is SessionPointer && context.mounted) {
-    _startSession(context, pointer);
+    _startSession(context, pointer, pushReplacement: pushReplacement);
   }
 }
 
-/// Dispatches a NewSessionEvent to Go. The session screen will be automatically
-/// pushed by the [SchemalessSessionListener] when Go responds with a [SessionStateEvent].
-void _startSession(BuildContext context, SessionPointer sessionPointer) {
+/// Dispatches a NewSessionEvent to Go and pushes the session screen
+/// when Go responds with a [SessionStateEvent] containing the session ID.
+void _startSession(
+  BuildContext context,
+  SessionPointer sessionPointer, {
+  bool pushReplacement = false,
+}) {
   final repo = IrmaRepositoryProvider.of(context);
   repo.bridgedDispatch(NewSessionEvent(request: sessionPointer));
+
+  // Listen for the next new session ID and push the session screen.
+  repo.getNewSessionIds().first.then((sessionId) async {
+    if (!context.mounted) return;
+    final hasUnderlying = await repo.hasActiveSessions(
+      excludeSessionId: sessionId,
+    );
+    if (!context.mounted) return;
+    final params = SessionRouteParams(
+      sessionId: sessionId,
+      hasUnderlyingSession: hasUnderlying,
+    );
+    if (pushReplacement) {
+      context.pushReplacementSessionScreen(params);
+    } else {
+      context.pushSessionScreen(params);
+    }
+  });
 }

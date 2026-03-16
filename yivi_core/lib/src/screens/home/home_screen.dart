@@ -7,7 +7,6 @@ import "../activity/activity_tab.dart";
 import "../data/data_tab.dart";
 import "../more/more_tab.dart";
 import "../notifications/notifications_tab.dart";
-import "../session/widgets/new_session_listener.dart";
 import "widgets/irma_nav_bar.dart";
 import "widgets/irma_qr_scan_button.dart";
 import "widgets/pending_pointer_listener.dart";
@@ -48,33 +47,31 @@ class HomeScreen extends StatelessWidget {
               changeTab(.data);
             }
           },
-          child: NewSessionListener(
-            child: PendingPointerListener(
-              child: Container(
-                color: Colors.white,
-                child: SafeArea(
-                  left: false,
-                  right: false,
-                  top: false,
-                  child: Scaffold(
-                    body: switch (tabState) {
-                      .notifications => NotificationsTab(),
-                      .data => DataTab(),
-                      .activity => ActivityTab(),
-                      .more => MoreTab(onChangeTab: changeTab),
-                    },
-                    floatingActionButtonLocation: .centerDocked,
-                    resizeToAvoidBottomInset: false,
-                    floatingActionButton: Padding(
-                      padding: const .only(bottom: 6),
-                      child: const IrmaQrScanButton(
-                        key: Key("nav_button_scanner"),
-                      ),
+          child: PendingPointerListener(
+            child: Container(
+              color: Colors.white,
+              child: SafeArea(
+                left: false,
+                right: false,
+                top: false,
+                child: Scaffold(
+                  body: switch (tabState) {
+                    .notifications => NotificationsTab(),
+                    .data => DataTab(),
+                    .activity => ActivityTab(),
+                    .more => MoreTab(onChangeTab: changeTab),
+                  },
+                  floatingActionButtonLocation: .centerDocked,
+                  resizeToAvoidBottomInset: false,
+                  floatingActionButton: Padding(
+                    padding: const .only(bottom: 6),
+                    child: const IrmaQrScanButton(
+                      key: Key("nav_button_scanner"),
                     ),
-                    bottomNavigationBar: IrmaNavBar(
-                      selectedTab: tabState,
-                      onChangeTab: changeTab,
-                    ),
+                  ),
+                  bottomNavigationBar: IrmaNavBar(
+                    selectedTab: tabState,
+                    onChangeTab: changeTab,
                   ),
                 ),
               ),

@@ -114,13 +114,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         // Reset pin submitting state when session state updates
         if (_pinSubmitting) _pinSubmitting = false;
 
-        // Auto-pop when dismissed
+        // Auto-pop when dismissed — pop back to the previous screen
+        // (scanner, home, or underlying session).
         if (session.status == .dismissed) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
-              context.popToUnderlyingSessionOrHome(
-                hasUnderlyingSession: widget.hasUnderlyingSession,
-              );
+              if (widget.hasUnderlyingSession) {
+                context.popToUnderlyingSession();
+              } else {
+                Navigator.of(context).pop();
+              }
             }
           });
           return _buildLoadingScreen(session);
