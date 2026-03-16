@@ -179,7 +179,6 @@ class YiviCredentialCard extends ConsumerWidget {
          hideFooter: true,
        );
 
-  
   YiviCredentialCard.fromDescriptorWithEmptyAttributeValues({
     Key? key,
     required CredentialDescriptor descriptor,

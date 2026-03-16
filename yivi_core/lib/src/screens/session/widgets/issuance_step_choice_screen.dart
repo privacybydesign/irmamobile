@@ -116,7 +116,8 @@ class _CredentialTypeOption extends StatelessWidget {
                 padding: EdgeInsets.only(right: theme.smallSpacing),
                 child: RadioIndicator(isSelected: isSelected),
               ),
-              if (credential.imagePath != null && credential.imagePath!.isNotEmpty)
+              if (credential.imagePath != null &&
+                  credential.imagePath!.isNotEmpty)
                 Padding(
                   padding: EdgeInsets.only(right: theme.smallSpacing),
                   child: Image.file(

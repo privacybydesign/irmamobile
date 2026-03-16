@@ -116,7 +116,7 @@ Future<void> testIssuanceLowInstanceCountNoReobtainButtonDuringIssuance(
       .widgetList<YiviCredentialCard>(cardFinder)
       .toList();
   expect(credentialCards.length, equals(1));
-  expect(credentialCards[0].instanceCount, equals(credentialCount));
+  expect(credentialCards[0].status.instanceCount, equals(credentialCount));
 
   expect(
     find.text("$credentialCount times left", skipOffstage: false),
@@ -164,7 +164,7 @@ Future<void> testIssueEmailWithSdJwt(
       .widgetList<YiviCredentialCard>(cardFinder)
       .toList();
   expect(credentialCards.length, equals(1));
-  expect(credentialCards[0].instanceCount, equals(credentialCount));
+  expect(credentialCards[0].status.instanceCount, equals(credentialCount));
 
   if (locale == Locale("nl", "NL")) {
     expect(
