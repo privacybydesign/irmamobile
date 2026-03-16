@@ -22,7 +22,7 @@ class CredentialDescriptor {
   final TranslatedValue name;
   final TrustedParty issuer;
   final TranslatedValue? category;
-  final String imagePath;
+  final String? imagePath;
   final List<Attribute> attributes;
 
   @JsonKey(name: "issue_url")

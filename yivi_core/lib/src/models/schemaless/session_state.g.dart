@@ -24,7 +24,7 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
       ?.map((e) => Credential.fromJson(e as Map<String, dynamic>))
       .toList(),
   offeredCredentialTypes: (json['offered_credential_types'] as List<dynamic>?)
-      ?.map((e) => CredentialTypeInfo.fromJson(e as Map<String, dynamic>))
+      ?.map((e) => CredentialDescriptor.fromJson(e as Map<String, dynamic>))
       .toList(),
   disclosurePlan: json['disclosure_plan'] == null
       ? null

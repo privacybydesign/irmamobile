@@ -23,7 +23,7 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
   category: json['category'] == null
       ? null
       : TranslatedValue.fromJson(json['category'] as Map<String, dynamic>?),
-  imagePath: json['image_path'] as String,
+  imagePath: json['image_path'] as String?,
   attributes: (json['attributes'] as List<dynamic>)
       .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
       .toList(),

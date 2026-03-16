@@ -43,7 +43,7 @@ class SessionState {
   final TrustedParty requestor;
   final String? pairingCode;
   final List<Credential>? offeredCredentials;
-  final List<CredentialTypeInfo>? offeredCredentialTypes;
+  final List<CredentialDescriptor>? offeredCredentialTypes;
   final DisclosurePlan? disclosurePlan;
   final String? messageToSign;
   final SessionError? error;

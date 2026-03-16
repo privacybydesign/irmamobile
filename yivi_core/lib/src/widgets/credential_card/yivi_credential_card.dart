@@ -179,6 +179,36 @@ class YiviCredentialCard extends ConsumerWidget {
          hideFooter: true,
        );
 
+  
+  YiviCredentialCard.fromDescriptorWithEmptyAttributeValues({
+    Key? key,
+    required CredentialDescriptor descriptor,
+    required bool compact,
+    Function()? onTap,
+    Widget? headerTrailing,
+    IrmaCardStyle style = IrmaCardStyle.normal,
+    EdgeInsetsGeometry? padding,
+  }) : this(
+         key: key,
+         credentialName: descriptor.name,
+         issuerName: descriptor.issuer.name,
+         imagePath: descriptor.imagePath,
+         attributes: descriptor.attributes,
+         status: CredentialCardStatus(
+           revoked: false,
+           batchInstanceCountsRemaining: {},
+           templateMode: true,
+           credentialId: descriptor.credentialId,
+           issueUrl: descriptor.issueURL,
+         ),
+         compact: compact,
+         onTap: onTap,
+         headerTrailing: headerTrailing,
+         style: style,
+         padding: padding,
+         hideFooter: true,
+       );
+
   YiviCredentialCard.fromLogCredential({
     Key? key,
     required LogCredential logCredential,
@@ -202,42 +232,6 @@ class YiviCredentialCard extends ConsumerWidget {
            lowInstanceCountThreshold: lowInstanceCountThreshold,
            credentialId: logCredential.credentialId,
            issueUrl: logCredential.issueUrl,
-         ),
-         compact: compact,
-         compareTo: compareTo,
-         onTap: onTap,
-         headerTrailing: headerTrailing,
-         style: style,
-         padding: padding,
-         hideFooter: hideFooter,
-       );
-
-  YiviCredentialCard.fromCredentialTypeInfo({
-    Key? key,
-    required CredentialTypeInfo credential,
-    required bool compact,
-    List<Attribute>? compareTo,
-    Function()? onTap,
-    Widget? headerTrailing,
-    IrmaCardStyle style = IrmaCardStyle.normal,
-    EdgeInsetsGeometry? padding,
-    bool hideFooter = false,
-  }) : this(
-         key: key,
-         credentialName: credential.name,
-         issuerName: credential.issuerName,
-         imagePath: null,
-         attributes: credential.attributes
-             .map(
-               (id, translations) =>
-                   MapEntry(id, Attribute(id: id, displayName: translations)),
-             )
-             .values
-             .toList(),
-         status: CredentialCardStatus(
-           revoked: false,
-           batchInstanceCountsRemaining: {},
-           templateMode: true,
          ),
          compact: compact,
          compareTo: compareTo,
