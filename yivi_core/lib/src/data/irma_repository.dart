@@ -216,7 +216,7 @@ class IrmaRepository {
           if (state == null) {
             throw MissingPointer(
               details:
-                  'expected "state" to be present in query parameters, but it wasn\'t',
+                  'expected "state" to be present in query parameters, but wasn\'t',
             );
           }
 
@@ -224,20 +224,28 @@ class IrmaRepository {
           if (code == null) {
             throw MissingPointer(
               details:
-                  'expected "code" to be present in query parameters, but it wasn\'t',
+                  'expected "code" to be present in query parameters, but wasn\'t',
             );
           }
 
-          // TODO: keep a list of pseudo-random state values, mapped to sessionIds and retrieve the sessionId from there instead of parsing it from the URL directly
-          // For now, we just assume the state is the sessionId, but this is not secure and should be fixed as soon as possible.
+          final sessionStream = _sessionRepository
+              .getSessionStateByOpenId4VciState(state);
+          if (await sessionStream.isEmpty) {
+            throw MissingPointer(
+              details: 'No session found for state value "$state"',
+            );
+          }
 
+          final session = await sessionStream.first;
           bridgedDispatch(
             SessionUserInteractionEvent.authCallback(
-              sessionId: int.parse(state),
+              sessionId: session.id,
               code: code,
+              proceed: true,
             ),
           );
 
+          // TODO: check if Success/Failure will pop to the correct screen
           closeInAppWebView();
           return;
         }
@@ -481,6 +489,10 @@ class IrmaRepository {
   // -- Sessions
   Stream<SessionState> getSessionState(int sessionId) {
     return _sessionRepository.getSessionState(sessionId);
+  }
+
+  Stream<SessionState> getSessionStateByOpenId4VciState(String sessionState) {
+    return _sessionRepository.getSessionStateByOpenId4VciState(sessionState);
   }
 
   /// Stream that emits session IDs when a new session is first seen.

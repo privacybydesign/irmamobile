@@ -248,9 +248,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       onGivePermission: () {
         // Depending the protocol we're using, perform different action on permission grant
         if (session.status == SessionStatus.requestPreAuthorizedCode) {
-          _grantPermissionPreAuthorizedCode(session);
-        } else {
-          //_grantPermissionAuthorizationCode(session);
+          _grantPermissionPreAuthorizedCodeFlow(session);
+        } else if (session.status == SessionStatus.requestAuthorizationCode) {
+          _grantPermissionAuthorizationCodeFlow(session);
         }
       },
     );
@@ -412,7 +412,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     );
   }
 
-  Future<void> _grantPermissionPreAuthorizedCode(SessionState session) async {
+  Future<void> _grantPermissionPreAuthorizedCodeFlow(
+    SessionState session,
+  ) async {
     // If a transaction code is required, request it from the user
     String? transactionCode;
     if (session.transactionCodeParameters != null) {
@@ -438,17 +440,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       ),
     );
   }
+
+  Future<void> _grantPermissionAuthorizationCodeFlow(SessionState state) async {
+    _repo.openURLinAppBrowser(state.authorizationRequestUrl!);
+  }
 }
-
-//   Future<void> _signInWithAutoCodeFlow(SessionState state) async {
-//     final s = state.generateSessionState();
-//     final url = Uri.parse(state.authorizationCodeRequestParameters!.authorizationRequestUrl);
-//     final urlWithState = url.replace(queryParameters: {
-//       ...url.queryParameters,
-//       "state": s,
-//     }).toString();
-
-//     _repo.openURLinAppBrowser(urlWithState);
-
-// //    _repo.openURLExternally(urlWithState);
-//   }
