@@ -9,7 +9,7 @@ enum UserInteractionType {
   enteredPin,
   permission,
   dismiss,
-  authCode,
+  authorizationCode,
   preAuthorizedCode,
 }
 
@@ -81,10 +81,11 @@ class SessionUserInteractionEvent extends SessionEvent {
   factory SessionUserInteractionEvent.authCallback({
     required int sessionId,
     required String code,
+    required bool proceed,
   }) => SessionUserInteractionEvent._(
     sessionId: sessionId,
-    type: UserInteractionType.authCode,
-    payload: {"code": code},
+    type: UserInteractionType.authorizationCode,
+    payload: {"code": code, "proceed": proceed},
   );
 
   factory SessionUserInteractionEvent.preAuthorizedCodePermission({

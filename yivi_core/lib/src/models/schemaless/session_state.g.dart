@@ -40,6 +40,8 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
   remainingPinAttempts: (json['remaining_pin_attempts'] as num?)?.toInt() ?? 0,
   pinBlockedTimeSeconds:
       (json['pin_blocked_time_seconds'] as num?)?.toInt() ?? 0,
+  oid4VciState: json['oid4_vci_state'] as String?,
+  authorizationRequestUrl: json['authorization_request_url'] as String?,
   transactionCodeParameters: json['transaction_code_parameters'] == null
       ? null
       : PreAuthorizationCodeTransactionCodeParameters.fromJson(

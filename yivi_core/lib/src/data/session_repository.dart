@@ -57,6 +57,20 @@ class SessionRepository {
         .map((map) => map[sessionId]!);
   }
 
+  /// Returns a stream of [SessionState] for the given session ID.
+  Stream<SessionState> getSessionStateByOpenId4VciState(String sessionState) {
+    return _states
+        .where(
+          (map) =>
+              map.values.any((state) => state.oid4VciState == sessionState),
+        )
+        .map(
+          (map) => map.values.firstWhere(
+            (state) => state.oid4VciState == sessionState,
+          ),
+        );
+  }
+
   /// Returns the current [SessionState] for the given session ID, if available.
   SessionState? getCurrentSessionState(int sessionId) {
     return _states.value[sessionId];
