@@ -317,6 +317,13 @@ class _DisclosureChoicesOverviewState
                   ),
               ],
 
+              if (choices.isEmpty ||
+                  (requiredChoices.isEmpty && addedOptionalChoices.isEmpty))
+                TranslatedText(
+                  "disclosure_permission.no_data_selected",
+                  style: theme.themeData.textTheme.headlineMedium,
+                ),
+
               // Add optional data button
               if (hasUnaddedOptional) ...[
                 SizedBox(height: theme.defaultSpacing),
@@ -333,12 +340,6 @@ class _DisclosureChoicesOverviewState
                   },
                 ),
               ],
-
-              if (choices.isEmpty)
-                TranslatedText(
-                  "disclosure_permission.no_data_selected",
-                  style: theme.themeData.textTheme.headlineMedium,
-                ),
             ],
           ),
         ),

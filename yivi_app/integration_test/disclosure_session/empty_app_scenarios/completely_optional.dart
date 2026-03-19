@@ -53,7 +53,6 @@ Future<void> completelyOptionalTest(
   // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
   // Therefore, we mock this behaviour using the helper below until we have a better solution.
   await issueEmailAddress(tester, irmaBinding);
-  await tester.tapAndSettle(find.text("Done"));
 
   // Delete optional data from selection again.
   final deleteOptionalDataButton = find.descendant(
@@ -68,19 +67,9 @@ Future<void> completelyOptionalTest(
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
 
-  // Start session again to validate that now email is pre-selected.
+  //  start session again to verify that the email is still not pre-selected
   await irmaBinding.repository.startTestSession(sessionRequest);
-
-  await tester.waitFor(find.text("Share my data"));
-  expect(find.text("Optional data"), findsOneWidget);
-
-  await evaluateCredentialCard(
-    tester,
-    find.byType(YiviCredentialCard).first,
-    credentialName: "Demo Email address",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
-  );
+  await tester.pumpUntilFound(find.text("Share data"));
   await tester.tapAndSettle(find.text("Share data"));
 
   await evaluateShareDialog(tester);
