@@ -88,6 +88,11 @@ IssueDuringDislosure _$IssueDuringDislosureFromJson(
       .map((e) => IssuanceStep.fromJson(e as Map<String, dynamic>))
       .toList(),
   issuedCredentialIds: json['issued_credential_ids'] as Map<String, dynamic>?,
+  wrongCredentialIssued: json['wrong_credential_issued'] == null
+      ? null
+      : Credential.fromJson(
+          json['wrong_credential_issued'] as Map<String, dynamic>,
+        ),
 );
 
 IssuanceStep _$IssuanceStepFromJson(Map<String, dynamic> json) => IssuanceStep(

@@ -96,8 +96,13 @@ class DisclosurePlan {
 class IssueDuringDislosure {
   final List<IssuanceStep> steps;
   final Map<String, dynamic>? issuedCredentialIds;
+  final Credential? wrongCredentialIssued;
 
-  IssueDuringDislosure({required this.steps, this.issuedCredentialIds});
+  IssueDuringDislosure({
+    required this.steps,
+    this.issuedCredentialIds,
+    this.wrongCredentialIssued,
+  });
 
   factory IssueDuringDislosure.fromJson(Map<String, dynamic> json) =>
       _$IssueDuringDislosureFromJson(json);

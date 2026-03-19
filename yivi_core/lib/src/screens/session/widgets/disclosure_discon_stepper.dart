@@ -55,11 +55,7 @@ class DisclosureDisconStepper extends StatelessWidget {
     );
   }
 
-  Widget _buildStepContent(
-    IrmaThemeData theme,
-    IssuanceStep step,
-    int index,
-  ) {
+  Widget _buildStepContent(IrmaThemeData theme, IssuanceStep step, int index) {
     final isCurrent = index == currentStepIndex;
 
     // Step with multiple options: show choice with radio buttons
@@ -78,9 +74,10 @@ class DisclosureDisconStepper extends StatelessWidget {
             options: step.options,
             selectedIndex: selectedOptionPerStep[index],
             onChoiceUpdated: onChoiceUpdated != null
-                ? (optionIndex) => onChoiceUpdated!(
-                      (stepIndex: index, optionIndex: optionIndex),
-                    )
+                ? (optionIndex) => onChoiceUpdated!((
+                    stepIndex: index,
+                    optionIndex: optionIndex,
+                  ))
                 : null,
           ),
         ],

@@ -1,5 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+import "../models/schemaless/credential_store.dart";
+import "../models/schemaless/schemaless_events.dart";
 import "../models/schemaless/session_state.dart";
 import "session_state_provider.dart";
 
@@ -8,14 +10,25 @@ class IssueDuringDisclosureState {
   final List<int> selectedOptionPerStep;
   final int? currentStepIndex;
 
+  /// Non-null when the user just obtained a credential whose attribute values
+  /// don't match the requested values. The UI should show a dialog and then
+  /// call [IssueDuringDisclosureNotifier.dismissWrongCredentialDialog].
+  final Credential? wrongCredentialIssued;
+
+  /// The template descriptor that the wrong credential was supposed to match.
+  final CredentialDescriptor? wrongCredentialTemplate;
+
   const IssueDuringDisclosureState({
     this.steps = const [],
     this.selectedOptionPerStep = const [],
     this.currentStepIndex,
+    this.wrongCredentialIssued,
+    this.wrongCredentialTemplate,
   });
 
   bool get isCompleted => steps.isNotEmpty && currentStepIndex == null;
   bool get isSingleStep => steps.length == 1;
+  bool get hasWrongCredential => wrongCredentialIssued != null;
 
   String get explanationKey {
     if (isCompleted) {
@@ -62,6 +75,14 @@ class IssueDuringDisclosureNotifier
     }
   }
 
+  void dismissWrongCredentialDialog() {
+    state = IssueDuringDisclosureState(
+      steps: state.steps,
+      selectedOptionPerStep: state.selectedOptionPerStep,
+      currentStepIndex: state.currentStepIndex,
+    );
+  }
+
   void _updateFromSession(SessionState session) {
     state = _buildFromSession(
       session,
@@ -92,10 +113,27 @@ class IssueDuringDisclosureNotifier
         ? null
         : _findCurrentStepIndex(steps, issued);
 
+    // Find the template that the wrong credential was supposed to match.
+    final wrongCred = issueDuring?.wrongCredentialIssued;
+    CredentialDescriptor? wrongTemplate;
+    if (wrongCred != null) {
+      for (final step in steps) {
+        for (final option in step.options) {
+          if (option.credentialId == wrongCred.credentialId) {
+            wrongTemplate = option;
+            break;
+          }
+        }
+        if (wrongTemplate != null) break;
+      }
+    }
+
     return IssueDuringDisclosureState(
       steps: steps,
       selectedOptionPerStep: selections,
       currentStepIndex: currentStepIndex,
+      wrongCredentialIssued: wrongCred,
+      wrongCredentialTemplate: wrongTemplate,
     );
   }
 

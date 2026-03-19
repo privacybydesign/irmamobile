@@ -11,6 +11,7 @@ import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
 import "disclosure_discon_stepper.dart";
+import "disclosure_permission_wrong_credentials_obtained_dialog.dart";
 import "session_scaffold.dart";
 
 /// Shows the issuance-during-disclosure steps that the user needs to complete
@@ -51,53 +52,66 @@ class IssueDuringDisclosureScreen extends ConsumerWidget {
     final currentStepIndex = wizardState.currentStepIndex;
     final isCompleted = wizardState.isCompleted;
 
-    return SessionScaffold(
-      appBarTitle: "disclosure_permission.issue_wizard.title",
-      onDismiss: onDismiss,
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: isCompleted
-            ? "disclosure_permission.next_step"
-            : "disclosure_permission.obtain_data",
-        onPrimaryPressed: isCompleted
-            ? (onCompleted ?? onDismiss)
-            : () {
-                _onObtainData(
-                  context,
-                  steps[currentStepIndex!].options[wizardState
-                      .selectedOptionPerStep[currentStepIndex]],
-                );
-              },
-        secondaryButtonLabel: "session.navigation_bar.cancel",
-        onSecondaryPressed: onDismiss,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (requestor != null)
-                RequestorHeader(
-                  requestorInfo: RequestorInfo(
-                    name: requestor.name,
-                    logoPath: requestor.imagePath,
+    return Stack(
+      children: [
+        SessionScaffold(
+          appBarTitle: "disclosure_permission.issue_wizard.title",
+          onDismiss: onDismiss,
+          bottomNavigationBar: IrmaBottomBar(
+            primaryButtonLabel: isCompleted
+                ? "disclosure_permission.next_step"
+                : "disclosure_permission.obtain_data",
+            onPrimaryPressed: isCompleted
+                ? (onCompleted ?? onDismiss)
+                : () {
+                    _onObtainData(
+                      context,
+                      steps[currentStepIndex!].options[wizardState
+                          .selectedOptionPerStep[currentStepIndex]],
+                    );
+                  },
+            secondaryButtonLabel: "session.navigation_bar.cancel",
+            onSecondaryPressed: onDismiss,
+          ),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.all(theme.defaultSpacing),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (requestor != null)
+                    RequestorHeader(
+                      requestorInfo: RequestorInfo(
+                        name: requestor.name,
+                        logoPath: requestor.imagePath,
+                      ),
+                      isVerified: requestor.verified,
+                    ),
+                  SessionProgressIndicator(
+                    step: 1,
+                    stepCount: 2,
+                    contentTranslationKey: wizardState.explanationKey,
                   ),
-                  isVerified: requestor.verified,
-                ),
-              SessionProgressIndicator(
-                step: 1,
-                stepCount: 2,
-                contentTranslationKey: wizardState.explanationKey,
+                  DisclosureDisconStepper.fromState(
+                    wizardState: wizardState,
+                    notifier: notifier,
+                  ),
+                ],
               ),
-              DisclosureDisconStepper.fromState(
-                wizardState: wizardState,
-                notifier: notifier,
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+        if (wizardState.hasWrongCredential)
+          ModalBarrier(dismissible: true, color: Colors.black54),
+        if (wizardState.hasWrongCredential)
+          Center(
+            child: DisclosurePermissionWrongCredentialsAddedDialog(
+              wrongCredential: wizardState.wrongCredentialIssued!,
+              template: wizardState.wrongCredentialTemplate!,
+              onDismiss: () => notifier.dismissWrongCredentialDialog(),
+            ),
+          ),
+      ],
     );
   }
-
 }

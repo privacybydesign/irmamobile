@@ -60,12 +60,14 @@ class DisclosurePermissionChoice extends StatelessWidget {
       onChoiceUpdated: onChoiceUpdated,
       cardBuilder: (index, isSelected) =>
           YiviCredentialCard.fromSelectableInstance(
-        instance: options[index],
-        compact: true,
-        hideFooter: true,
-        style: isSelected ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
-        headerTrailing: RadioIndicator(isSelected: isSelected),
-      ),
+            instance: options[index],
+            compact: true,
+            hideFooter: true,
+            style: isSelected
+                ? IrmaCardStyle.highlighted
+                : IrmaCardStyle.normal,
+            headerTrailing: RadioIndicator(isSelected: isSelected),
+          ),
     );
   }
 
@@ -82,7 +84,9 @@ class DisclosurePermissionChoice extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: GestureDetector(
-                onTap: onChoiceUpdated != null ? () => onChoiceUpdated!(i) : null,
+                onTap: onChoiceUpdated != null
+                    ? () => onChoiceUpdated!(i)
+                    : null,
                 child: _cardBuilder(i, i == selectedIndex),
               ),
             ),
