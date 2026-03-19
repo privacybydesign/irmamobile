@@ -1,7 +1,11 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
+import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../providers/session_state_provider.dart";
+import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
@@ -37,12 +41,18 @@ class DisclosureMakeChoiceScreen extends ConsumerStatefulWidget {
   final DisclosurePickOne pickOne;
   final int initialSelectedIndex;
   final ValueChanged<int> onChoiceMade;
+  final int sessionId;
+  final int disconIndex;
+  final bool addOptional;
 
   const DisclosureMakeChoiceScreen({
     super.key,
     required this.pickOne,
     required this.initialSelectedIndex,
     required this.onChoiceMade,
+    required this.sessionId,
+    required this.disconIndex,
+    this.addOptional = false,
   });
 
   @override
@@ -53,18 +63,28 @@ class DisclosureMakeChoiceScreen extends ConsumerStatefulWidget {
 class _DisclosureMakeChoiceScreenState
     extends ConsumerState<DisclosureMakeChoiceScreen> {
   late _Selection _selection;
+  late Set<String> _previousOwnedHashes;
 
   @override
   void initState() {
     super.initState();
-    _selection = _OwnedSelection(widget.initialSelectedIndex);
+    final hasOwned = (widget.pickOne.ownedOptions ?? []).isNotEmpty;
+    if (hasOwned) {
+      _selection = _OwnedSelection(widget.initialSelectedIndex);
+    } else if ((widget.pickOne.obtainableOptions ?? []).isNotEmpty) {
+      _selection = const _ObtainableSelection(0);
+    } else {
+      _selection = const _OwnedSelection(0);
+    }
+    _previousOwnedHashes = {
+      for (final owned in widget.pickOne.ownedOptions ?? []) owned.hash,
+    };
   }
 
   bool get _isOwnedSelected => _selection is _OwnedSelection;
 
-  void _onObtainData() {
+  void _onObtainData(List<CredentialDescriptor> obtainable) {
     if (_selection is! _ObtainableSelection) return;
-    final obtainable = widget.pickOne.obtainableOptions ?? [];
     final index = (_selection as _ObtainableSelection).index;
     if (index >= obtainable.length) return;
 
@@ -74,11 +94,64 @@ class _DisclosureMakeChoiceScreenState
     );
   }
 
+  void _onDone() {
+    widget.onChoiceMade((_selection as _OwnedSelection).index);
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Watch session state to use live data for this discon.
+    final sessionAsync = ref.watch(sessionStateProvider(widget.sessionId));
+    final livePickOne = sessionAsync.whenOrNull(
+      data: (session) {
+        final choices = session.disclosurePlan?.disclosureChoicesOverview;
+        if (choices != null && widget.disconIndex < choices.length) {
+          return choices[widget.disconIndex];
+        }
+        return null;
+      },
+    );
+
+    // Use live data when available, falling back to the initial snapshot.
+    final pickOne = livePickOne ?? widget.pickOne;
+    final owned = pickOne.ownedOptions ?? [];
+    final obtainable = pickOne.obtainableOptions ?? [];
+
+    // Detect newly obtained credentials and auto-select them.
+    if (livePickOne != null) {
+      for (var i = 0; i < owned.length; i++) {
+        if (!_previousOwnedHashes.contains(owned[i].hash)) {
+          // A new credential appeared — update provider and select it.
+          _previousOwnedHashes = {for (final o in owned) o.hash};
+
+          final cred = owned[i];
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            final notifier = ref.read(
+              sessionUserChoicesProvider(widget.sessionId).notifier,
+            );
+            if (widget.addOptional) {
+              notifier.addOptional(widget.disconIndex);
+            }
+            notifier.setChoice(
+              widget.disconIndex,
+              SelectedCredential(
+                credentialId: cred.credentialId,
+                credentialHash: cred.hash,
+                attributePaths: cred.attributes
+                    .map((attr) => <dynamic>[attr.id])
+                    .toList(),
+              ),
+            );
+            setState(() => _selection = _OwnedSelection(i));
+          });
+          break;
+        }
+      }
+    }
+
     final theme = IrmaTheme.of(context);
-    final owned = widget.pickOne.ownedOptions ?? [];
-    final obtainable = widget.pickOne.obtainableOptions ?? [];
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.change_choice",
@@ -146,11 +219,8 @@ class _DisclosureMakeChoiceScreenState
             ? "ui.done"
             : "disclosure_permission.obtain_data",
         onPrimaryPressed: _isOwnedSelected
-            ? () {
-                widget.onChoiceMade((_selection as _OwnedSelection).index);
-                Navigator.of(context).pop();
-              }
-            : _onObtainData,
+            ? _onDone
+            : () => _onObtainData(obtainable),
       ),
     );
   }

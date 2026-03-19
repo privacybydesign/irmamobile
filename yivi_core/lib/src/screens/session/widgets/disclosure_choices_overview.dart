@@ -5,6 +5,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../models/session.dart";
+import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
@@ -157,6 +158,9 @@ class _DisclosureChoicesOverviewState
         builder: (_) => DisclosureMakeChoiceScreen(
           pickOne: choices[disconIndex],
           initialSelectedIndex: _selectedIndexFor(disconIndex),
+          sessionId: _sessionId,
+          disconIndex: disconIndex,
+          addOptional: addOptional,
           onChoiceMade: (newIndex) {
             final notifier = ref.read(
               sessionUserChoicesProvider(_sessionId).notifier,
@@ -164,7 +168,18 @@ class _DisclosureChoicesOverviewState
             if (addOptional) {
               notifier.addOptional(disconIndex);
             }
-            final owned = choices[disconIndex].ownedOptions;
+            // Read the current session state to get up-to-date owned options,
+            // since new credentials may have been obtained.
+            final currentChoices =
+                ref
+                    .read(sessionStateProvider(_sessionId))
+                    .value
+                    ?.disclosurePlan
+                    ?.disclosureChoicesOverview ??
+                [];
+            final owned = disconIndex < currentChoices.length
+                ? currentChoices[disconIndex].ownedOptions
+                : null;
             if (owned != null && newIndex < owned.length) {
               final selected = owned[newIndex];
               notifier.setChoice(
@@ -362,13 +377,12 @@ class _DisclosureChoiceEntry extends StatelessWidget {
 
     if (owned != null && owned.isNotEmpty) {
       final selected = owned[selectedIndex];
-      final showActionRow = changeable || optional;
 
       return Padding(
         padding: .only(bottom: theme.defaultSpacing),
         child: Column(
           children: [
-            if (showActionRow)
+            if (changeable && !optional)
               Padding(
                 padding: .only(
                   bottom: theme.smallSpacing,
@@ -377,25 +391,15 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: .end,
                   children: [
-                    if (optional && onRemove != null)
-                      IrmaIconButton(
-                        key: const Key("remove_optional_data_button"),
-                        icon: Icons.close,
-                        size: 22,
-                        padding: .zero,
-                        onTap: onRemove!,
+                    Flexible(
+                      child: YiviThemedButton(
+                        label: "disclosure_permission.change_choice",
+                        style: .outlined,
+                        size: .small,
+                        isTransparent: true,
+                        onPressed: onChangeChoice,
                       ),
-                    if (optional) const Spacer(),
-                    if (changeable)
-                      Flexible(
-                        child: YiviThemedButton(
-                          label: "disclosure_permission.change_choice",
-                          style: .outlined,
-                          size: .small,
-                          isTransparent: true,
-                          onPressed: onChangeChoice,
-                        ),
-                      ),
+                    ),
                   ],
                 ),
               ),
@@ -403,6 +407,15 @@ class _DisclosureChoiceEntry extends StatelessWidget {
               instance: selected,
               compact: true,
               hideFooter: true,
+              headerTrailing: optional && onRemove != null
+                  ? IrmaIconButton(
+                      key: const Key("remove_optional_data_button"),
+                      icon: Icons.close,
+                      size: 22,
+                      padding: .zero,
+                      onTap: onRemove!,
+                    )
+                  : null,
             ),
           ],
         ),

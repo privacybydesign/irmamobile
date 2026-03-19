@@ -73,10 +73,6 @@ Future<void> optionalsTest(
   // Issue the email
   await issueEmailAddress(tester, irmaBinding);
 
-  // Press done
-  await tester.tapAndSettle(find.text("Done"));
-  expect(find.byType(DisclosureMakeChoiceScreen), findsNothing);
-
   // Optional data section should have a title now
   final optionalDataHeaderFinder = find.text("Optional data");
   expect(optionalDataHeaderFinder, findsOneWidget);
@@ -126,9 +122,6 @@ Future<void> optionalsTest(
   expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   await issueMobileNumber(tester, irmaBinding);
-
-  // Press done
-  await tester.tapAndSettle(find.text("Done"));
 
   // Last (optional) card should be phone number now
   expect(
