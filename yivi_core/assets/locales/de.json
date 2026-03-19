@@ -242,6 +242,8 @@
     "wrong_credentials_added": {
       "title": "Fehler",
       "explanation": "Daten wurden zur App hinzugefügt, aber sie erfüllen nicht die angeforderten Kriterien. Bitte rufen Sie die richtigen Daten ab.",
+      "you_issued": "Erhalten",
+      "expected": "Erwartet",
       "dismiss_action": "OK"
     },
     "call": {

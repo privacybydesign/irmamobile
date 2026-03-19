@@ -1,3 +1,5 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
@@ -26,8 +28,6 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    // Build compareTo list: attributes with value constraints from the template,
-    // using the requested value as the "expected" value for comparison.
     final compareTo = template.attributes
         .where(
           (a) => a.requestedValue != null && a.requestedValue!.hasConcreteValue,
@@ -42,36 +42,93 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
         )
         .toList();
 
-    return IrmaDialog(
-      title: FlutterI18n.translate(
-        context,
-        "disclosure_permission.wrong_credentials_added.title",
-      ),
-      content: FlutterI18n.translate(
-        context,
-        "disclosure_permission.wrong_credentials_added.explanation",
-      ),
-      child: Column(
-        children: [
-          // Show obtained credential with wrong values, compared to expected
-          YiviCredentialCard.fromCredential(
-            credential: wrongCredential,
-            compact: true,
-            hideFooter: true,
-            compareTo: compareTo,
+    return YiviDialog(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        child: ColoredBox(
+          color: theme.backgroundTertiary,
+          child: Padding(
+            padding: EdgeInsets.all(theme.defaultSpacing),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      Semantics(
+                        namesRoute: !Platform.isIOS,
+                        label: FlutterI18n.translate(
+                          context,
+                          "accessibility.alert",
+                        ),
+                        child: Text(
+                          FlutterI18n.translate(
+                            context,
+                            "disclosure_permission.wrong_credentials_added.title",
+                          ),
+                          style: theme.textTheme.displaySmall,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(height: theme.mediumSpacing),
+                      Text(
+                        FlutterI18n.translate(
+                          context,
+                          "disclosure_permission.wrong_credentials_added.explanation",
+                        ),
+                        style: theme.textTheme.bodyMedium,
+                        textAlign: TextAlign.left,
+                      ),
+                      SizedBox(height: theme.defaultSpacing),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          FlutterI18n.translate(
+                            context,
+                            "disclosure_permission.wrong_credentials_added.you_issued",
+                          ),
+                          style: theme.themeData.textTheme.headlineMedium,
+                        ),
+                      ),
+                      SizedBox(height: theme.smallSpacing),
+                      YiviCredentialCard.fromCredential(
+                        credential: wrongCredential,
+                        compact: true,
+                        hideFooter: true,
+                        compareTo: compareTo,
+                      ),
+                      SizedBox(height: theme.defaultSpacing),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          FlutterI18n.translate(
+                            context,
+                            "disclosure_permission.wrong_credentials_added.expected",
+                          ),
+                          style: theme.themeData.textTheme.headlineMedium,
+                        ),
+                      ),
+                      SizedBox(height: theme.smallSpacing),
+                      YiviCredentialCard.fromDescriptor(
+                        descriptor: template,
+                        compact: true,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: theme.defaultSpacing),
+                YiviThemedButton(
+                  label:
+                      "disclosure_permission.wrong_credentials_added.dismiss_action",
+                  onPressed: onDismiss,
+                ),
+              ],
+            ),
           ),
-          // Show template card with the expected values
-          YiviCredentialCard.fromDescriptor(
-            descriptor: template,
-            compact: true,
-          ),
-          SizedBox(height: theme.defaultSpacing),
-          YiviThemedButton(
-            label:
-                "disclosure_permission.wrong_credentials_added.dismiss_action",
-            onPressed: onDismiss,
-          ),
-        ],
+        ),
       ),
     );
   }

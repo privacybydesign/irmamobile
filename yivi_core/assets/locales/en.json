@@ -242,6 +242,8 @@
     "wrong_credentials_added": {
       "title": "Error",
       "explanation": "Data has been added to the app, but they do not meet the requested criteria. Please obtain the right data.",
+      "you_issued": "Received",
+      "expected": "Expected",
       "dismiss_action": "OK"
     },
     "call": {

@@ -37,7 +37,8 @@ class IssueDuringDisclosureScreen extends ConsumerStatefulWidget {
 }
 
 class _IssueDuringDisclosureScreenState
-    extends ConsumerState<IssueDuringDisclosureScreen> with RouteAware {
+    extends ConsumerState<IssueDuringDisclosureScreen>
+    with RouteAware {
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   void _onObtainData(BuildContext context, CredentialDescriptor credential) {

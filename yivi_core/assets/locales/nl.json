@@ -242,6 +242,8 @@
     "wrong_credentials_added": {
       "title": "Foutmelding",
       "explanation": "Gegevens zijn toegevoegd in de app, maar zijn niet de gevraagde gegevens. Haal de juiste gegevens op.",
+      "you_issued": "Ontvangen",
+      "expected": "Verwacht",
       "dismiss_action": "OK"
     },
     "call": {
