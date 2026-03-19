@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -39,7 +39,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
   await evaluateIntroduction(tester);
 
   // Expect a stepper with the email card
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);
 
@@ -111,7 +111,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
   });
 
   // Issue wizard should be completed now
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
 
   // Check the credential card now that is has been completed
   await evaluateCredentialCard(
@@ -126,7 +126,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(
     find.text(
       "This data has already been added to your app. Verify that the data is still correct.",
@@ -147,7 +147,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
   // Continue to choices overview
   await tester.tapAndSettle(find.text("Next step"));
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(
     find.text("Share my data with is.demo.staging.yivi.app"),
     findsOneWidget,

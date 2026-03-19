@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -34,7 +34,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   await evaluateIntroduction(tester);
 
   // Expect obtain credential screen
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   expect(
     find.text(
       "Obtain my data step by step and share it with the requesting party after that",
@@ -112,7 +112,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   });
 
   // Issue wizard should be completed now
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
 
   // Check the credential card now that is has been completed
   await evaluateCredentialCard(
@@ -126,7 +126,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
 
   await tester.tapAndSettle(find.text("Next step"));
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(
     find.text("Share my data with is.demo.staging.yivi.app"),
     findsOneWidget,

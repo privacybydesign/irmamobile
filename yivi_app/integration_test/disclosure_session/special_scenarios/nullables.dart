@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -29,7 +29,7 @@ Future<void> nullablesTest(
   await evaluateIntroduction(tester);
 
   // Expect obtain credential screen
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   expect(
     find.text(
       "Obtain my data step by step and share it with the requesting party after that",

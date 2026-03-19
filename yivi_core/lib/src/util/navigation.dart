@@ -59,7 +59,12 @@ extension RoutingHelpers on BuildContext {
   void popToUnderlyingSession() {
     // we have to at least do one pop in case the current screen is already a session
     Navigator.of(this).pop();
-    Navigator.of(this).popUntil(ModalRoute.withName("/session"));
+    Navigator.of(this).popUntil((route) {
+      final name = route.settings.name;
+      // GoRouter sets the route name to the full URI (including query params),
+      // so we match on the path prefix rather than an exact name.
+      return name != null && name.startsWith("/session");
+    });
   }
 
   void popToUnderlyingSessionOrHome({required bool hasUnderlyingSession}) {

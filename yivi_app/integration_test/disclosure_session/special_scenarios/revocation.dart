@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
@@ -61,7 +61,7 @@ Future<void> revocationTest(
   await evaluateIntroduction(tester);
 
   // The disclosure permission overview screen should be visible.
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(find.text("Share my data"), findsOneWidget);
   expect(
     find.text("Share my data with is.demo.staging.yivi.app"),
@@ -150,7 +150,7 @@ Future<void> revocationTest(
       ''');
 
   await evaluateIntroduction(tester);
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // Find the revoked credential card and evaluate it
   final demoCredentialCardFinder = cardsFinder.first;

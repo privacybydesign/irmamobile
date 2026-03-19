@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_icon_button.dart";
 
@@ -53,7 +53,7 @@ Future<void> optionalsTest(
   await issueMunicipalityAddress(tester, irmaBinding);
 
   // Issue wizard should be completed
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
   await tester.tapAndSettle(find.text("Next step"));
 
   // A card for adding optional data should be present. Tap it.
@@ -64,7 +64,7 @@ Future<void> optionalsTest(
   await tester.tapAndSettle(addOptionalDataCardFinder);
 
   // Expect the make choice screen
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
   // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
@@ -75,7 +75,7 @@ Future<void> optionalsTest(
 
   // Press done
   await tester.tapAndSettle(find.text("Done"));
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsNothing);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsNothing);
 
   // Optional data section should have a title now
   final optionalDataHeaderFinder = find.text("Optional data");
@@ -113,7 +113,7 @@ Future<void> optionalsTest(
   await tester.tapAndSettle(addOptionalDataCardFinder);
 
   // Make choice screen should reappear
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
   // Select the mobile number option this time
   final mobileNumberHeaderFinder = find.text("Demo Mobile phone number");

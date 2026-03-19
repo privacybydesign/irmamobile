@@ -9,6 +9,7 @@ import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/radio_indicator.dart";
 import "../../../widgets/translated_text.dart";
+import "disclosure_permission_choice.dart";
 import "session_scaffold.dart";
 
 /// Selection type: either an owned credential (by index) or an obtainable one.
@@ -89,28 +90,14 @@ class _DisclosureMakeChoiceScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Owned options — selectable
-              for (var i = 0; i < owned.length; i++)
-                Padding(
-                  padding: EdgeInsets.only(bottom: theme.smallSpacing),
-                  child: GestureDetector(
-                    onTap: () =>
-                        setState(() => _selection = _OwnedSelection(i)),
-                    child: YiviCredentialCard.fromSelectableInstance(
-                      instance: owned[i],
-                      compact: true,
-                      hideFooter: true,
-                      style:
-                          _selection is _OwnedSelection &&
-                              (_selection as _OwnedSelection).index == i
-                          ? IrmaCardStyle.highlighted
-                          : IrmaCardStyle.normal,
-                      headerTrailing: RadioIndicator(
-                        isSelected:
-                            _selection is _OwnedSelection &&
-                            (_selection as _OwnedSelection).index == i,
-                      ),
-                    ),
-                  ),
+              if (owned.isNotEmpty)
+                DisclosurePermissionChoice.fromInstances(
+                  options: owned,
+                  selectedIndex: _selection is _OwnedSelection
+                      ? (_selection as _OwnedSelection).index
+                      : -1,
+                  onChoiceUpdated: (i) =>
+                      setState(() => _selection = _OwnedSelection(i)),
                 ),
 
               // Obtainable options section

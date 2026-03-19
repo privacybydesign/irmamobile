@@ -12,12 +12,12 @@ import "../../providers/session_state_provider.dart";
 import "../../util/language.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/irma_error_scaffold_body.dart";
 import "../../widgets/loading_indicator.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
+import "widgets/disclosure_permission_close_dialog.dart";
 import "widgets/disclosure_permission_confirm_dialog.dart";
 import "widgets/disclosure_permission_introduction_screen.dart";
 import "widgets/issuance_permission.dart";
@@ -277,25 +277,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Future<void> _showDismissDialog() async {
-    final confirmed =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => const IrmaConfirmationDialog(
-            titleTranslationKey:
-                "disclosure_permission.confirm_close_dialog.title",
-            contentTranslationKey:
-                "disclosure_permission.confirm_close_dialog.explanation",
-            confirmTranslationKey:
-                "disclosure_permission.confirm_close_dialog.confirm",
-            cancelTranslationKey:
-                "disclosure_permission.confirm_close_dialog.decline",
-          ),
-        ) ??
-        false;
-
-    if (confirmed && mounted) {
-      _dismissSession();
-    }
+    await DisclosurePermissionCloseDialog.show(
+      context,
+      onConfirm: _dismissSession,
+    );
   }
 
   Future<void> _showShareConfirmDialog(

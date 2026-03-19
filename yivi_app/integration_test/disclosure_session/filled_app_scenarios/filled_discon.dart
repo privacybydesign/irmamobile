@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -43,7 +43,7 @@ Future<void> filledDisconTest(
 
   // Both cards are already obtained
   // Expect choices screen.
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // Expect cards to have the right content
   final cardsFinder = find.byType(YiviCredentialCard);
@@ -138,14 +138,14 @@ Future<void> filledDisconTest(
   );
 
   await tester.tapAndSettle(find.text("Done"));
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // Check the second change choice
   await tester.scrollUntilVisible(changeChoiceFinder.at(1).hitTestable(), 50);
   await tester.tapAndSettle(changeChoiceFinder.at(1));
 
   // Evaluate the choice screen
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
@@ -165,7 +165,7 @@ Future<void> filledDisconTest(
 
   // Leave the choices as they are
   await tester.tapAndSettle(find.text("Done"));
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(
     find.text("Share my data with is.demo.staging.yivi.app"),
     findsOneWidget,

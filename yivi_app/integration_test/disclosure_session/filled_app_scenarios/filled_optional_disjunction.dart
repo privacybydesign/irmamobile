@@ -59,7 +59,7 @@ Future<void> filledOptionalDisjunctionTest(
   // Therefore, we mock this behaviour using the helper below until we have a better solution.
   await issueEmailAddress(tester, irmaBinding);
 
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
 
   // Complete issue wizard
   await tester.tapAndSettle(find.text("Next step"));

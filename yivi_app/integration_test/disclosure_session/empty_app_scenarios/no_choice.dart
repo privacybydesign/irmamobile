@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 
@@ -43,11 +43,11 @@ Future<void> noChoiceTest(
   await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // Issue wizard should be completed
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen. It should not show change choice options.
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(find.text("Change choice"), findsNothing);
 
   final requestorHeaderFinder = find.byType(RequestorHeader);
