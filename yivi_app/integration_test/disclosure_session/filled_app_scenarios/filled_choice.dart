@@ -114,10 +114,29 @@ Future<void> filledChoiceTest(
   await issueMunicipalityPersonalData(tester, irmaBinding);
   await issueMobileNumber(tester, irmaBinding);
 
+  // After issuance, we should be back on the overview with the newly
+  // issued mobile number auto-selected.
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(cardFinder, findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    cardFinder.first,
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Mobile phone number": "0612345678"},
+    style: IrmaCardStyle.normal,
+  );
+
+  // Tap "Change choice" to go to the make choice screen
+  final changeChoiceFinder2 = find.text("Change choice");
+  await tester.scrollUntilVisible(changeChoiceFinder2.hitTestable(), 50);
+  await tester.tapAndSettle(changeChoiceFinder2);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+
   // Now four cards should be visible
   expect(cardFinder, findsNWidgets(4));
 
-  // Check if all cards display the correct
+  // Check if all cards display the correct data
   await evaluateCredentialCard(
     tester,
     cardFinder.first,
