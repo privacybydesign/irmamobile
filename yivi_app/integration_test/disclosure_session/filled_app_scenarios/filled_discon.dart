@@ -5,6 +5,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overvie
 import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -117,6 +118,15 @@ Future<void> filledDisconTest(
 
   await issueIdin(tester, irmaBinding);
 
+  // After issuance, we should be back on the overview with iDIN auto-selected.
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+
+  // Tap "Change choice" to verify the make choice screen
+  final changeChoiceFinder2 = find.text("Change choice");
+  await tester.scrollUntilVisible(changeChoiceFinder2.first.hitTestable(), 50);
+  await tester.tapAndSettle(changeChoiceFinder2.first);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+
   // Now the second card should be filled too
   await evaluateCredentialCard(
     tester,
@@ -127,7 +137,6 @@ Future<void> filledDisconTest(
     isSelected: false,
   );
 
-  // Second card should show the option to add iDIN
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
@@ -166,10 +175,7 @@ Future<void> filledDisconTest(
   // Leave the choices as they are
   await tester.tapAndSettle(find.text("Done"));
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,

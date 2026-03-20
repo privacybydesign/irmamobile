@@ -7,6 +7,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_scr
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -45,7 +46,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   expect(
     find.text(
-      "Obtain my data step by step and share it with the requesting party after that",
+      "Obtain the required data and share it with the requesting party after that.",
     ),
     findsOneWidget,
   );
@@ -85,21 +86,14 @@ Future<void> filledNoChoiceMultipleCredsTest(
   // Continue
   await tester.tapAndSettle(find.text("Next step"));
 
-  // Expect the choices screen
+  // Expect the overview screen
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
-  // With the correct header
-  expect(
-    find.text(
-      "This data has already been added to your app. Verify that the data is still correct.",
-    ),
-    findsOneWidget,
-  );
+  // The requestor header should be present
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
-  // One card should be visible here too
-  expect(cardsFinder, findsOneWidget);
-
-  // The card should show the previously obtained credential
+  // Two cards should be visible: email and mobile phone
+  expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
@@ -108,13 +102,21 @@ Future<void> filledNoChoiceMultipleCredsTest(
     attributes: {"Email address": "test@example.com"},
     style: IrmaCardStyle.normal,
   );
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.at(1),
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: {"Mobile phone number": "0612345678"},
+    style: IrmaCardStyle.normal,
+  );
 
   // Change choice should be visible
   final changeChoiceFinder = find.text("Change choice");
-  await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
+  await tester.scrollUntilVisible(changeChoiceFinder.first.hitTestable(), 50);
 
   // Press the change choice
-  await tester.tapAndSettle(changeChoiceFinder);
+  await tester.tapAndSettle(changeChoiceFinder.first);
 
   // Expect make choice screen
   expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
@@ -122,8 +124,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
   // This screen should show two options
   expect(cardsFinder, findsNWidgets(2));
 
-  // The card should show the previously obtained credential,
-  // with highlighted styling
+  // The card should show the previously obtained credential
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
@@ -146,18 +147,6 @@ Future<void> filledNoChoiceMultipleCredsTest(
 
   // Expect the choices screen
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-
-  // Continue to overview
-  await tester.tapAndSettle(find.text("Next step"));
-
-  // The overview also uses the ChoicesScreen. Expect it one more time.
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-
-  // The title should have changed though
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
 
   // Now two filled cards should be visible
   expect(cardsFinder, findsNWidgets(2));

@@ -3,6 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -63,13 +64,8 @@ Future<void> filledOptionalDisjunctionTest(
 
   // Complete issue wizard
   await tester.tapAndSettle(find.text("Next step"));
-  expect(
-    find.text(
-      "This data has already been added to your app. Verify that the data is still correct.",
-    ),
-    findsOneWidget,
-  );
-  expect(find.text("No data selected"), findsOneWidget);
+
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   // Try to add optional data.
   final addOptionalDataButton = find.text("Add optional data").hitTestable();
@@ -107,31 +103,11 @@ Future<void> filledOptionalDisjunctionTest(
 
   // Select the mobile phone number that we added at the beginning of this test.
   await tester.tapAndSettle(find.text("Done"));
-  expect(
-    find.text(
-      "This data has already been added to your app. Verify that the data is still correct.",
-    ),
-    findsOneWidget,
-  );
-
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Mobile phone number",
-    issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
-    style: IrmaCardStyle.normal,
-  );
-
-  // Continue to the disclosure permission overview screen.
-  await tester.tapAndSettle(find.text("Next step"));
 
   expect(find.text("Share my data"), findsOneWidget);
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
+  expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
