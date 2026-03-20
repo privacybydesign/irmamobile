@@ -105,6 +105,10 @@ Future<void> randomBlindTest(
   expect(firstAttributeName, expectedFirstAttributeName);
 
   final confirmButtonFinder = find.text("Sign and share");
+  await tester.waitFor(
+    confirmButtonFinder,
+    timeout: const Duration(seconds: 5),
+  );
   await tester.tapAndSettle(confirmButtonFinder);
 
   await evaluateShareDialog(tester, isSignatureSession: true);
