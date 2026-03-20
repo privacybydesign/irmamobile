@@ -83,6 +83,13 @@ class _DisclosureMakeChoiceScreenState
 
   bool get _isOwnedSelected => _selection is _OwnedSelection;
 
+  bool _selectedObtainableIsObtainable(List<CredentialDescriptor> obtainable) {
+    if (_selection is! _ObtainableSelection) return false;
+    final index = (_selection as _ObtainableSelection).index;
+    if (index >= obtainable.length) return false;
+    return obtainable[index].issueURL != null;
+  }
+
   void _onObtainData(List<CredentialDescriptor> obtainable) {
     if (_selection is! _ObtainableSelection) return;
     final index = (_selection as _ObtainableSelection).index;
@@ -191,20 +198,27 @@ class _DisclosureMakeChoiceScreenState
                   Padding(
                     padding: EdgeInsets.only(bottom: theme.smallSpacing),
                     child: GestureDetector(
-                      onTap: () =>
-                          setState(() => _selection = _ObtainableSelection(i)),
-                      child: YiviCredentialCard.fromDescriptor(
-                        descriptor: obtainable[i],
-                        compact: true,
-                        style:
-                            _selection is _ObtainableSelection &&
-                                (_selection as _ObtainableSelection).index == i
-                            ? IrmaCardStyle.highlighted
-                            : IrmaCardStyle.normal,
-                        headerTrailing: RadioIndicator(
-                          isSelected:
+                      onTap: obtainable[i].issueURL != null
+                          ? () => setState(
+                              () => _selection = _ObtainableSelection(i),
+                            )
+                          : null,
+                      child: Opacity(
+                        opacity: obtainable[i].issueURL != null ? 1.0 : 0.5,
+                        child: YiviCredentialCard.fromDescriptor(
+                          descriptor: obtainable[i],
+                          compact: true,
+                          style:
                               _selection is _ObtainableSelection &&
-                              (_selection as _ObtainableSelection).index == i,
+                                  (_selection as _ObtainableSelection).index ==
+                                      i
+                              ? IrmaCardStyle.highlighted
+                              : IrmaCardStyle.normal,
+                          headerTrailing: RadioIndicator(
+                            isSelected:
+                                _selection is _ObtainableSelection &&
+                                (_selection as _ObtainableSelection).index == i,
+                          ),
                         ),
                       ),
                     ),
@@ -217,10 +231,14 @@ class _DisclosureMakeChoiceScreenState
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: _isOwnedSelected
             ? "ui.done"
-            : "disclosure_permission.obtain_data",
+            : _selectedObtainableIsObtainable(obtainable)
+                ? "disclosure_permission.obtain_data"
+                : "disclosure_permission.close",
         onPrimaryPressed: _isOwnedSelected
             ? _onDone
-            : () => _onObtainData(obtainable),
+            : _selectedObtainableIsObtainable(obtainable)
+                ? () => _onObtainData(obtainable)
+                : () => Navigator.of(context).pop(),
       ),
     );
   }

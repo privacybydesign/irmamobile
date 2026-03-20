@@ -35,13 +35,26 @@ class DisclosurePermissionChoice extends StatelessWidget {
       key: key,
       optionCount: options.length,
       selectedIndex: selectedIndex,
-      onChoiceUpdated: onChoiceUpdated,
-      cardBuilder: (index, isSelected) => YiviCredentialCard.fromDescriptor(
-        descriptor: options[index],
-        compact: true,
-        style: IrmaCardStyle.highlighted,
-        headerTrailing: RadioIndicator(isSelected: isSelected),
-      ),
+      onChoiceUpdated: onChoiceUpdated != null
+          ? (index) {
+              // Only allow selecting obtainable options.
+              if (options[index].issueURL != null) {
+                onChoiceUpdated(index);
+              }
+            }
+          : null,
+      cardBuilder: (index, isSelected) {
+        final isObtainable = options[index].issueURL != null;
+        return Opacity(
+          opacity: isObtainable ? 1.0 : 0.5,
+          child: YiviCredentialCard.fromDescriptor(
+            descriptor: options[index],
+            compact: true,
+            style: IrmaCardStyle.highlighted,
+            headerTrailing: RadioIndicator(isSelected: isSelected),
+          ),
+        );
+      },
     );
   }
 

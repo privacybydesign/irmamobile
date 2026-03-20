@@ -63,11 +63,12 @@ Future<void> randomBlindTest(
   // Start random blind signature session again
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // The introduction is shown again because the last session was cancelled
-  await evaluateIntroduction(tester);
-
   // We should go straight to the overview screen.
   final overViewScreenFinder = find.byType(DisclosureChoicesOverview);
+  await tester.pumpUntilFound(
+    overViewScreenFinder,
+    timeout: const Duration(seconds: 5),
+  );
   expect(overViewScreenFinder, findsOneWidget);
 
   // The signable message should be present

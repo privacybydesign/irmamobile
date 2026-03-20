@@ -201,6 +201,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return IssueDuringDisclosureScreen(
         sessionId: widget.sessionId,
         onDismiss: _showDismissDialog,
+        onClose: _dismissSession,
         onCompleted: () {
           setState(() => _issueDuringDisclosureAcknowledged = true);
         },

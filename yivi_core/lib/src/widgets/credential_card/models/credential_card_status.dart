@@ -37,6 +37,10 @@ class CredentialCardStatus {
   /// true when the credential has a valid issue URL and is expiring, expired, or revoked.
   final bool showReobtain;
 
+  /// Whether the "not obtainable" information box should be shown:
+  /// true when the credential has no valid issue URL and is not valid or is a template.
+  final bool showNotObtainable;
+
   const CredentialCardStatus._({
     required this.expiryDate,
     required this.revoked,
@@ -49,6 +53,7 @@ class CredentialCardStatus {
     required this.credentialId,
     required this.issueUrl,
     required this.showReobtain,
+    required this.showNotObtainable,
   });
 
   factory CredentialCardStatus({
@@ -89,6 +94,8 @@ class CredentialCardStatus {
     final hasValidIssueUrl =
         issueUrl != null && issueUrl.values.any((v) => v.isNotEmpty);
     final showReobtain = hasValidIssueUrl && (hasWarning || revoked);
+    final showNotObtainable =
+        !hasValidIssueUrl && (!isValid || templateMode);
 
     return CredentialCardStatus._(
       expiryDate: expiryDate,
@@ -102,6 +109,7 @@ class CredentialCardStatus {
       credentialId: credentialId,
       issueUrl: issueUrl,
       showReobtain: showReobtain,
+      showNotObtainable: showNotObtainable,
     );
   }
 

@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../models/log_entry.dart";
@@ -9,6 +10,7 @@ import "../../models/translated_value.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
+import "../information_box.dart";
 import "../irma_card.dart";
 import "../irma_divider.dart";
 import "../yivi_themed_button.dart";
@@ -299,6 +301,19 @@ class YiviCredentialCard extends ConsumerWidget {
                       status.issueUrl,
                       ref,
                     ),
+              ),
+            ),
+          if (status.showNotObtainable)
+            Padding(
+              padding: EdgeInsets.only(top: theme.defaultSpacing),
+              child: InformationBox(
+                message: FlutterI18n.translate(
+                  context,
+                  "credential.not_obtainable",
+                  translationParams: {
+                    "issuerName": getTranslation(context, issuerName),
+                  },
+                ),
               ),
             ),
         ],
