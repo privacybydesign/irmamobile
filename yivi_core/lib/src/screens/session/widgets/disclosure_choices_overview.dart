@@ -139,6 +139,7 @@ class _DisclosureChoicesOverviewState
       final expiryDateTime = DateTime.fromMillisecondsSinceEpoch(
         instance.expiryDate * 1000,
       );
+      if (instance.revoked) return true;
       if (expiryDateTime.isBefore(now)) return true;
       if (instance.batchInstanceCountRemaining != null &&
           instance.batchInstanceCountRemaining! <= 0) {

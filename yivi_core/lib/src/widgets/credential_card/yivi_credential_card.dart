@@ -246,7 +246,7 @@ class YiviCredentialCard extends ConsumerWidget {
     final theme = IrmaTheme.of(context);
 
     return IrmaCard(
-      style: status.isExpired ? IrmaCardStyle.danger : style,
+      style: status.isExpired || status.revoked ? IrmaCardStyle.danger : style,
       onTap: onTap,
       padding: padding,
       child: Column(

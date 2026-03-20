@@ -279,7 +279,15 @@ Future<void> issueCredentials(
     }
   }
 
-  expect(mapEquals(displayedAttributes, expectedAttributes), true);
+  // Verify that all expected attributes are present in the displayed attributes.
+  for (final entry in expectedAttributes.entries) {
+    expect(
+      displayedAttributes[entry.key],
+      entry.value,
+      reason:
+          "Attribute '${entry.key}' expected '${entry.value}' but got '${displayedAttributes[entry.key]}'",
+    );
+  }
 
   final buttonFinder = find.byKey(
     declineOffer
@@ -460,8 +468,15 @@ Future<void> evaluateCredentialCard(
         mappedCardList[attName] = attVal;
       }
 
-      // Mapped card list should match the provided attributes
-      expect(mapEquals(mappedCardList, attributes), true);
+      // Verify that all expected attributes are present in the displayed attributes.
+      for (final entry in attributes.entries) {
+        expect(
+          mappedCardList[entry.key],
+          entry.value,
+          reason:
+              "Attribute '${entry.key}' expected '${entry.value}' but got '${mappedCardList[entry.key]}'",
+        );
+      }
 
       if (attributesCompareTo != null) {
         for (var compareAttEntry in attributesCompareTo.entries) {

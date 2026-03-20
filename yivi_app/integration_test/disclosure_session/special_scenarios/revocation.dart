@@ -147,7 +147,8 @@ Future<void> revocationTest(
         }
       ''');
 
-  await evaluateIntroduction(tester);
+  // Introduction was already completed in the first session, so it's skipped.
+  await tester.waitFor(find.byType(DisclosureChoicesOverview));
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // Find the revoked credential card and evaluate it
