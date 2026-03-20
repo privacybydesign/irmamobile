@@ -54,10 +54,7 @@ Future<void> signingTest(
     "Message to be signed by user",
   );
 
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);

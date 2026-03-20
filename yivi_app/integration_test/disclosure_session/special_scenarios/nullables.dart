@@ -32,7 +32,7 @@ Future<void> nullablesTest(
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   expect(
     find.text(
-      "Obtain my data step by step and share it with the requesting party after that",
+      "Obtain the required data and share it with the requesting party after that.",
     ),
     findsOneWidget,
   );

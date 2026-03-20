@@ -41,10 +41,12 @@ Future<void> combinedDisclosureIssuanceSessionTest(
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
-  await tester.tapAndSettle(find.text("Share data"));
-  await evaluateShareDialog(tester);
+  // Combined issuance+disclosure sessions skip the introduction screen
+  // and go straight to the disclosure choices overview.
+  // For issuance sessions, the button says "Next" instead of "Share data".
+  await tester.waitFor(find.text("Next"));
+  await tester.tapAndSettle(find.text("Next"));
 
   // Expect add data screen
   expect(find.byType(IssuancePermission), findsOneWidget);

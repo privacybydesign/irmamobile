@@ -7,6 +7,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overvie
 import "package:yivi_core/src/widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "../../helpers/helpers.dart";
@@ -63,10 +64,7 @@ Future<void> revocationTest(
   // The disclosure permission overview screen should be visible.
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(find.text("Share my data"), findsOneWidget);
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   // Find all credential cards
   final cardsFinder = find.byType(YiviCredentialCard);
