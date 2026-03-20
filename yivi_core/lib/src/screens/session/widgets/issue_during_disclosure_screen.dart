@@ -92,8 +92,8 @@ class _IssueDuringDisclosureScreenState
 
     // Check if the currently selected credential can be obtained.
     final currentCredential = currentStepIndex != null
-        ? steps[currentStepIndex]
-              .options[wizardState.selectedOptionPerStep[currentStepIndex]]
+        ? steps[currentStepIndex].options[wizardState
+              .selectedOptionPerStep[currentStepIndex]]
         : null;
     final currentIsObtainable = currentCredential?.issueURL != null;
 

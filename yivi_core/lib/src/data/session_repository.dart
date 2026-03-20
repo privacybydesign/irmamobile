@@ -76,6 +76,14 @@ class SessionRepository {
     return _states.value[sessionId];
   }
 
+  /// Returns the IDs of all sessions currently in the requestPermission state.
+  Future<List<int>> getActiveSessionIds() async {
+    return _states.value.entries
+        .where((e) => e.value.status == .requestPermission)
+        .map((e) => e.key)
+        .toList();
+  }
+
   /// Returns whether any session is currently in the requestPermission state.
   /// Optionally excludes a specific session ID from the check.
   Future<bool> hasActiveSessions({int? excludeSessionId}) async {

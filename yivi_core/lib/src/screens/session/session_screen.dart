@@ -350,12 +350,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return _buildLoadingScreen(session);
     }
 
-    // Second-device flow: show a success screen with a dismiss button.
-    if (session.continueOnSecondDevice) {
-      if (session.type == .issuance) {
+    // Issuance sessions always show a success screen.
+    if (session.type == .issuance && session.continueOnSecondDevice) {
+      if (session.continueOnSecondDevice) {
         return IssuanceSuccessScreen(onDismiss: (_) => pop());
       }
+      return ArrowBack(type: .issuance);
+    }
 
+    // Disclosure/signature: show a feedback screen with a dismiss button.
+    if (session.continueOnSecondDevice) {
       return DisclosureFeedbackScreen(
         feedbackType: .success,
         isSignatureSession: session.type == .signature,
@@ -364,13 +368,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
     }
 
-    final ArrowBackType t = switch (session.type) {
-      .disclosure => .disclosure,
-      .issuance => .issuance,
-      .signature => .signature,
-    };
-
-    return ArrowBack(type: t);
+    // First-device disclosure/signature: show arrow back to browser.
+    return ArrowBack(
+      type: session.type == .disclosure ? .disclosure : .signature,
+    );
   }
 
   void _closeSession() {

@@ -506,6 +506,16 @@ class IrmaRepository {
     );
   }
 
+  /// Dismisses all sessions that are currently in the requestPermission state.
+  Future<void> dismissAllActiveSessions() async {
+    final activeSessionIds = await _sessionRepository.getActiveSessionIds();
+    for (final sessionId in activeSessionIds) {
+      bridgedDispatch(
+        SessionUserInteractionEvent.dismiss(sessionId: sessionId),
+      );
+    }
+  }
+
   // Returns a future whether the app was resumed by either
   // 1) coming back from the browser, or
   // 2) handling an incoming URL

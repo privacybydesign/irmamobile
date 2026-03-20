@@ -138,6 +138,9 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   }
 
   Future<void> tearDown() async {
+    // Dismiss all active sessions to prevent them from bleeding into the next test.
+    await _repository?.dismissAllActiveSessions();
+
     // Make sure there is a listener for the bridge events.
     final dataClearedFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
       (event) =>

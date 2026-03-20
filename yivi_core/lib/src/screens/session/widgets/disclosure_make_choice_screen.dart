@@ -232,13 +232,13 @@ class _DisclosureMakeChoiceScreenState
         primaryButtonLabel: _isOwnedSelected
             ? "ui.done"
             : _selectedObtainableIsObtainable(obtainable)
-                ? "disclosure_permission.obtain_data"
-                : "disclosure_permission.close",
+            ? "disclosure_permission.obtain_data"
+            : "disclosure_permission.close",
         onPrimaryPressed: _isOwnedSelected
             ? _onDone
             : _selectedObtainableIsObtainable(obtainable)
-                ? () => _onObtainData(obtainable)
-                : () => Navigator.of(context).pop(),
+            ? () => _onObtainData(obtainable)
+            : () => Navigator.of(context).pop(),
       ),
     );
   }

@@ -94,8 +94,7 @@ class CredentialCardStatus {
     final hasValidIssueUrl =
         issueUrl != null && issueUrl.values.any((v) => v.isNotEmpty);
     final showReobtain = hasValidIssueUrl && (hasWarning || revoked);
-    final showNotObtainable =
-        !hasValidIssueUrl && (!isValid || templateMode);
+    final showNotObtainable = !hasValidIssueUrl && (!isValid || templateMode);
 
     return CredentialCardStatus._(
       expiryDate: expiryDate,
