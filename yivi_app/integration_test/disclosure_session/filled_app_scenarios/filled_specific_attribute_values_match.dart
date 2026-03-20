@@ -5,6 +5,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_permission_wron
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -119,39 +120,16 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: {"Email domain name": "test.com"},
+    attributesCompareTo: {"Email domain name": "test.com"},
     style: IrmaCardStyle.normal,
   );
 
   await tester.tapAndSettle(find.text("Next step"));
 
-  // Expect the choices screen
+  // Expect the overview screen
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  expect(
-    find.text(
-      "This data has already been added to your app. Verify that the data is still correct.",
-    ),
-    findsOneWidget,
-  );
-
-  // The already added municipality should appear now
-  await evaluateCredentialCard(
-    tester,
-    cardsFinder.first,
-    credentialName: "Demo Address",
-    issuerName: "Demo Municipality",
-    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
-    style: IrmaCardStyle.normal,
-  );
-
-  // Continue to choices overview
-  await tester.tapAndSettle(find.text("Next step"));
-
-  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
