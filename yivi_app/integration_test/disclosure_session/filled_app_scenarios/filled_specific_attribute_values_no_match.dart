@@ -5,6 +5,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_permission_wron
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -37,7 +38,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   expect(
     find.text(
-      "Obtain my data step by step and share it with the requesting party after that",
+      "Obtain the required data and share it with the requesting party after that.",
     ),
     findsOneWidget,
   );
@@ -120,17 +121,15 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: {"Email domain name": "sidn.nl"},
+    attributesCompareTo: {"Email domain name": "sidn.nl"},
     style: IrmaCardStyle.normal,
   );
 
   await tester.tapAndSettle(find.text("Next step"));
 
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
