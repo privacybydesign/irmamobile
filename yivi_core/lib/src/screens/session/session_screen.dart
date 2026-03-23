@@ -56,7 +56,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// the issuance confirmation screen.
   List<DisclosureDisconSelection>? _pendingDisclosureChoices;
 
-  bool _pinSubmitting = false;
+  /// True after dispatching a user interaction (PIN, permission grant, etc.)
+  /// until the next [SessionState] arrives from the backend.
+  bool _awaitingStateUpdate = false;
   bool _hasLongPin = false;
 
   /// Whether the disclosure introduction screen should be shown.
@@ -104,14 +106,23 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final asyncSession = ref.watch(sessionStateProvider(widget.sessionId));
     _lastSession = asyncSession;
 
+    // Reset the awaiting flag when a new session state arrives.
+    ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
+      if (_awaitingStateUpdate && next.hasValue) {
+        setState(() => _awaitingStateUpdate = false);
+      }
+    });
+
+    // Show loading while waiting for a state update after user interaction.
+    if (_awaitingStateUpdate) {
+      return _buildLoadingScreen(asyncSession.value);
+    }
+
     return asyncSession.when(
       loading: () => _buildLoadingScreen(null),
       error: (err, __) =>
           _buildError(SessionError(errorType: "unknown", info: err.toString())),
       data: (session) {
-        // Reset pin submitting state when session state updates
-        if (_pinSubmitting) _pinSubmitting = false;
-
         // Auto-pop when dismissed — pop back to the previous screen
         // (scanner, home, or underlying session).
         if (session.status == .dismissed) {
@@ -143,7 +154,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             title: _getAppBarTitle(session),
             remainingAttempts: session.remainingPinAttempts,
             blockedTimeSeconds: session.pinBlockedTimeSeconds,
-            submitting: _pinSubmitting,
+            submitting: _awaitingStateUpdate,
             maxPinSize: _hasLongPin ? 16 : 5,
             onPinEntered: (pin) => _submitPin(pin),
             onCancel: _dismissSession,
@@ -256,7 +267,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _submitPin(String pin) {
-    setState(() => _pinSubmitting = true);
+    setState(() => _awaitingStateUpdate = true);
     _repo.bridgedDispatch(
       SessionUserInteractionEvent.pin(
         sessionId: widget.sessionId,
@@ -264,8 +275,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         proceed: true,
       ),
     );
-    // _pinSubmitting will be reset when the session state changes
-    // (rebuilds with a different status or updated remainingPinAttempts).
   }
 
   void _dismissSession() {
@@ -320,6 +329,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _grantPermission(List<DisclosureDisconSelection> disclosureChoices) {
+    setState(() => _awaitingStateUpdate = true);
     final repo = ref.read(irmaRepositoryProvider);
     repo.bridgedDispatch(
       SessionUserInteractionEvent.permission(
@@ -405,6 +415,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
 
     // Handle the permission
+    setState(() => _awaitingStateUpdate = true);
     _repo.bridgedDispatch(
       SessionUserInteractionEvent.preAuthorizedCodePermission(
         sessionId: session.id,
