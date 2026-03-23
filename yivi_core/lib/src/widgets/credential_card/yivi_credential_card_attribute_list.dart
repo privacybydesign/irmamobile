@@ -18,12 +18,24 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
+    final sorted = [...attributes]
+      ..sort((a, b) {
+        final aIsImage =
+            a.value?.type == schemaless.AttributeType.image ||
+            a.value?.type == schemaless.AttributeType.base64Image;
+        final bIsImage =
+            b.value?.type == schemaless.AttributeType.image ||
+            b.value?.type == schemaless.AttributeType.base64Image;
+        if (aIsImage == bIsImage) return 0;
+        return aIsImage ? 1 : -1;
+      });
+
     return Column(
       spacing: theme.smallSpacing,
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       children: [
-        for (final a in attributes)
+        for (final a in sorted)
           _AttributeView(
             attribute: a,
             compareTo: compareTo?.firstWhereOrNull((c) => c.id == a.id)?.value,
@@ -64,27 +76,30 @@ class _AttributeView extends StatelessWidget {
       );
     }
 
-    GestureDetector buildTappableImage(schemaless.Attribute attribute) {
+    Widget buildTappableImage(schemaless.Attribute attribute) {
       final val = attribute.value;
       final raw = val?.imagePath ?? val?.base64Image ?? "";
       final image = _imageFromRaw(raw);
-      return GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Scaffold(
-                appBar: IrmaAppBar(
-                  titleString: attribute.displayName.translate(lang),
+      return Padding(
+        padding: EdgeInsets.only(top: theme.tinySpacing),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Scaffold(
+                  appBar: IrmaAppBar(
+                    titleString: attribute.displayName.translate(lang),
+                  ),
+                  body: SingleChildScrollView(child: Center(child: image)),
                 ),
-                body: SingleChildScrollView(child: Center(child: image)),
               ),
-            ),
-          );
-        },
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
-          child: image,
+            );
+          },
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
+            child: image,
+          ),
         ),
       );
     }
