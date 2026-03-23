@@ -157,7 +157,7 @@ class _ActivityTabState extends State<ActivityTab> {
             Padding(
               padding: EdgeInsets.only(
                 top: theme.defaultSpacing,
-                bottom: theme.mediumSpacing,
+                bottom: theme.hugeSpacing,
               ),
               child: EndOfListIndicator(isLoading: moreLogsAvailable),
             ),
