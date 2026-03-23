@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../data/irma_repository.dart";
@@ -11,9 +10,8 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../util/language.dart";
 import "../../util/navigation.dart";
-import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_error_scaffold_body.dart";
 import "../../widgets/loading_indicator.dart";
+import "../error/session_error_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
@@ -384,19 +382,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   Widget _buildError(SessionError error) {
     HapticFeedback.heavyImpact();
-    return SessionScaffold(
-      appBarTitle: "error.details_title",
-      onDismiss: _closeSession,
-      body: IrmaErrorScaffoldBody(
-        type: ErrorType.general,
-        details: error.toString(),
-        reportable: error.reportable,
-      ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, "error.button_ok"),
-        onPrimaryPressed: _closeSession,
-      ),
-    );
+    return SessionErrorScreen(error: error, onTapClose: _closeSession);
   }
 
   Future<void> _grantPermissionPreAuthorizedCodeFlow(
