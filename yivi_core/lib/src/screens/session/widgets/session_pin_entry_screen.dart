@@ -12,6 +12,7 @@ import "../../../util/navigation.dart";
 import "../../../util/scale.dart";
 import "../../../util/tablet.dart";
 import "../../../widgets/irma_app_bar.dart";
+import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../../../widgets/pin_common/pin_wrong_blocked.dart";
@@ -145,7 +146,8 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: widget.title,
-        leading: YiviBackButton(onTap: widget.onCancel),
+        leading: const SizedBox.shrink(),
+        actions: [IrmaCloseButton(onTap: widget.onCancel)],
       ),
       backgroundColor: theme.backgroundPrimary,
       body: SafeArea(

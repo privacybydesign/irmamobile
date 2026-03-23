@@ -130,11 +130,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         if (session.status == .dismissed) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
-              if (widget.hasUnderlyingSession) {
-                context.popToUnderlyingSession();
-              } else {
-                Navigator.of(context).pop();
-              }
+              context.popToUnderlyingSessionOrHome(
+                hasUnderlyingSession: widget.hasUnderlyingSession,
+              );
             }
           });
           return _buildLoadingScreen(session);
@@ -159,7 +157,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             submitting: _awaitingStateUpdate,
             maxPinSize: _hasLongPin ? 16 : 5,
             onPinEntered: (pin) => _submitPin(pin),
-            onCancel: _dismissSession,
+            onCancel: _showDismissDialog,
           ),
           .error => _buildError(
             session.error ?? SessionError(errorType: "unknown", info: ""),
