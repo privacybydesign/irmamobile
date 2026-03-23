@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../models/session.dart";
+import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
 import "irma_avatar.dart";
 import "irma_card.dart";
@@ -24,10 +24,10 @@ _buildRequestorAvatar({
 }
 
 class RequestorHeader extends StatelessWidget {
-  final RequestorInfo? requestorInfo;
+  final TrustedParty? requestor;
   final bool? isVerified;
 
-  const RequestorHeader({this.requestorInfo, this.isVerified});
+  const RequestorHeader({this.requestor, this.isVerified});
 
   _showCredentialOptionsBottomSheet(BuildContext context) async {
     return showModalBottomSheet<void>(
@@ -47,13 +47,13 @@ class RequestorHeader extends StatelessWidget {
     Widget? subtitleTextWidget;
     Color? backgroundColorOverride;
 
-    final localizedRequestorName = requestorInfo != null
-        ? requestorInfo!.name.translate(lang)
+    final localizedRequestorName = requestor != null
+        ? requestor!.name.translate(lang)
         : FlutterI18n.translate(context, "ui.unknown");
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,
-      imagePath: requestorInfo?.logoPath,
+      imagePath: requestor?.imagePath,
     );
 
     if (isVerified != null) {

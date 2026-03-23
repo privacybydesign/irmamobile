@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/credential_store.dart";
-import "../../../models/session.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
@@ -144,10 +143,7 @@ class _IssueDuringDisclosureScreenState
                   children: [
                     if (requestor != null)
                       RequestorHeader(
-                        requestorInfo: RequestorInfo(
-                          name: requestor.name,
-                          logoPath: requestor.imagePath,
-                        ),
+                        requestor: requestor,
                         isVerified: requestor.verified,
                       ),
                     SessionProgressIndicator(

@@ -116,7 +116,7 @@ Future<void> evaluateRequestorHeader(
   var requestorHeaderWidget =
       requestorHeaderFinder.first.evaluate().single.widget as RequestorHeader;
   final translatedRequestorHeaderNameText = requestorHeaderWidget
-      .requestorInfo!
+      .requestor!
       .name
       .translate("en");
   expect(translatedRequestorHeaderNameText, localizedRequestorName);

@@ -4,7 +4,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
-import "../../../models/session.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
@@ -254,10 +253,7 @@ class _DisclosureChoicesOverviewState
             crossAxisAlignment: .start,
             children: [
               RequestorHeader(
-                requestorInfo: RequestorInfo(
-                  name: session.requestor.name,
-                  logoPath: session.requestor.imagePath,
-                ),
+                requestor: session.requestor,
                 isVerified: session.requestor.verified,
               ),
 

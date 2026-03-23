@@ -51,8 +51,8 @@ class ActivityCard extends StatelessWidget {
       if (logEntry.type == LogType.issuance) {
         final serverName = logEntry.issuanceLog!.issuer.name.translate(lang);
         title = serverName;
-        if (logEntry.issuanceLog!.issuer.logoPath != null) {
-          logo = logEntry.issuanceLog!.issuer.logoPath;
+        if (logEntry.issuanceLog!.issuer.imagePath != null) {
+          logo = logEntry.issuanceLog!.issuer.imagePath;
         }
         subtitleTranslationKey = "activity.data_received";
         semanticLabel = FlutterI18n.translate(
@@ -65,8 +65,8 @@ class ActivityCard extends StatelessWidget {
           lang,
         );
         title = serverName;
-        if (logEntry.disclosureLog!.verifier.logoPath != null) {
-          logo = logEntry.disclosureLog!.verifier.logoPath;
+        if (logEntry.disclosureLog!.verifier.imagePath != null) {
+          logo = logEntry.disclosureLog!.verifier.imagePath;
         }
 
         subtitleTranslationKey = "activity.data_shared";
@@ -80,8 +80,8 @@ class ActivityCard extends StatelessWidget {
           lang,
         );
         title = serverName;
-        if (logEntry.signedMessageLog!.verifier.logoPath != null) {
-          logo = logEntry.signedMessageLog!.verifier.logoPath;
+        if (logEntry.signedMessageLog!.verifier.imagePath != null) {
+          logo = logEntry.signedMessageLog!.verifier.imagePath;
         }
         subtitleTranslationKey = "activity.message_signed";
         semanticLabel = FlutterI18n.translate(

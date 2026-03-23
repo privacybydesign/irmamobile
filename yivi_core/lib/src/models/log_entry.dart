@@ -3,7 +3,6 @@ import "package:json_annotation/json_annotation.dart";
 import "event.dart";
 import "protocol.dart";
 import "schemaless/schemaless_events.dart";
-import "session.dart";
 import "translated_value.dart";
 
 part "log_entry.g.dart";
@@ -83,7 +82,7 @@ class LogInfo {
 
   final RemovalLog? removalLog;
 
-  RequestorInfo? get requestorInfo => switch (type) {
+  TrustedParty? get requestor => switch (type) {
     LogType.disclosure => disclosureLog!.verifier,
     LogType.signature => signedMessageLog!.verifier,
     LogType.issuance => issuanceLog!.issuer,
@@ -111,7 +110,7 @@ class IssuanceLog {
   @JsonKey(defaultValue: [])
   final List<LogCredential> disclosedCredentials;
 
-  final RequestorInfo issuer;
+  final TrustedParty issuer;
 
   factory IssuanceLog.fromJson(Map<String, dynamic> json) =>
       _$IssuanceLogFromJson(json);
@@ -130,7 +129,7 @@ class DisclosureLog {
 
   final List<LogCredential> credentials;
 
-  final RequestorInfo verifier;
+  final TrustedParty verifier;
 
   factory DisclosureLog.fromJson(Map<String, dynamic> json) =>
       _$DisclosureLogFromJson(json);

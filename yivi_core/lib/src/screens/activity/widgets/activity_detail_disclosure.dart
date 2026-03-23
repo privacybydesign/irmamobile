@@ -60,7 +60,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
-        RequestorHeader(requestorInfo: logEntry.requestorInfo),
+        RequestorHeader(requestor: logEntry.requestor),
       ],
     );
   }
