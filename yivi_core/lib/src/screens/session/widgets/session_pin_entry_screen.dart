@@ -26,24 +26,22 @@ const _longPinSize = 16;
 /// Mirrors master's SessionPinScreen behavior for wrong pin / blocked dialogs.
 class SessionPinEntryScreen extends StatefulWidget {
   final String title;
-  final int remainingAttempts;
-  final int blockedTimeSeconds;
+  final int? remainingAttempts;
+  final int? blockedTimeSeconds;
   final bool submitting;
   final int maxPinSize;
   final ValueChanged<String> onPinEntered;
   final VoidCallback onCancel;
-  final VoidCallback? onBlocked;
 
   const SessionPinEntryScreen({
     super.key,
     required this.title,
     required this.onPinEntered,
     required this.onCancel,
-    this.remainingAttempts = 0,
-    this.blockedTimeSeconds = 0,
+    this.remainingAttempts,
+    this.blockedTimeSeconds,
     this.submitting = false,
     this.maxPinSize = _shortPinSize,
-    this.onBlocked,
   });
 
   @override
@@ -61,10 +59,11 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   void didUpdateWidget(SessionPinEntryScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Handle blocked state: navigate home when blocked
-    if (widget.blockedTimeSeconds > 0 &&
-        (_previousBlockedTimeSeconds == null ||
-            _previousBlockedTimeSeconds == 0)) {
+    // Handle blocked state: show blocked dialog, stay in session.
+    // Pop any existing dialog first (e.g. a wrong pin dialog from a
+    // preceding state update).
+    if (widget.blockedTimeSeconds != null &&
+        _previousBlockedTimeSeconds == null) {
       setState(() {
         _pin = [];
         _submitted = false;
@@ -72,26 +71,21 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
       HapticFeedback.heavyImpact();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        if (widget.onBlocked != null) {
-          widget.onBlocked!();
-        } else {
-          // Show blocked dialog, then navigate home
-          showDialog(
-            context: context,
-            builder: (ctx) => PinWrongBlockedDialog(
-              blocked: widget.blockedTimeSeconds,
-              onClose: () {
-                Navigator.of(ctx).pop();
-                context.goHomeScreen();
-              },
-            ),
-          );
-        }
+        // Dismiss any existing pin dialog before showing the blocked one.
+        Navigator.of(context).popUntil((route) => route is! DialogRoute);
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) =>
+              PinWrongBlockedDialog(blocked: widget.blockedTimeSeconds!),
+        );
       });
     }
-    // Handle wrong pin: show attempts dialog when remaining attempts changed
-    else if (widget.remainingAttempts > 0 &&
-        widget.remainingAttempts != _previousRemainingAttempts) {
+    // Handle wrong pin: show attempts dialog when remaining attempts is set
+    // but only if the pin is not blocked (blocked dialog takes priority).
+    else if (widget.remainingAttempts != null &&
+        widget.remainingAttempts != _previousRemainingAttempts &&
+        widget.blockedTimeSeconds == null) {
       setState(() {
         _pin = [];
         _submitted = false;
@@ -102,7 +96,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         showDialog(
           context: context,
           builder: (ctx) => PinWrongAttemptsDialog(
-            attemptsRemaining: widget.remainingAttempts,
+            attemptsRemaining: widget.remainingAttempts!,
             onClose: () => Navigator.of(ctx).pop(),
           ),
         );
@@ -137,7 +131,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
     widget.onPinEntered(_pin.join());
   }
 
-  bool get _enabled => !widget.submitting && widget.blockedTimeSeconds <= 0;
+  bool get _enabled => !widget.submitting;
 
   bool get _isLongPin => widget.maxPinSize == _longPinSize;
 

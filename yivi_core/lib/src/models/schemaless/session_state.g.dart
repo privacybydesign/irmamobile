@@ -37,9 +37,8 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
       : SessionError.fromJson(json['error'] as Map<String, dynamic>),
   clientReturnUrl: json['client_return_url'] as String?,
   continueOnSecondDevice: json['continue_on_second_device'] as bool? ?? false,
-  remainingPinAttempts: (json['remaining_pin_attempts'] as num?)?.toInt() ?? 0,
-  pinBlockedTimeSeconds:
-      (json['pin_blocked_time_seconds'] as num?)?.toInt() ?? 0,
+  remainingPinAttempts: (json['remaining_pin_attempts'] as num?)?.toInt(),
+  pinBlockedTimeSeconds: (json['pin_blocked_time_seconds'] as num?)?.toInt(),
   oid4VciState: json['oid4_vci_state'] as String?,
   authorizationRequestUrl: json['authorization_request_url'] as String?,
   transactionCodeParameters: json['transaction_code_parameters'] == null

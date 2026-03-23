@@ -49,8 +49,8 @@ class SessionState {
   final SessionError? error;
   final String? clientReturnUrl;
   final bool continueOnSecondDevice;
-  final int remainingPinAttempts;
-  final int pinBlockedTimeSeconds;
+  final int? remainingPinAttempts;
+  final int? pinBlockedTimeSeconds;
   final String? oid4VciState;
   final String? authorizationRequestUrl;
   final PreAuthorizationCodeTransactionCodeParameters?
@@ -70,8 +70,8 @@ class SessionState {
     this.error,
     this.clientReturnUrl,
     this.continueOnSecondDevice = false,
-    this.remainingPinAttempts = 0,
-    this.pinBlockedTimeSeconds = 0,
+    this.remainingPinAttempts,
+    this.pinBlockedTimeSeconds,
     this.oid4VciState,
     this.authorizationRequestUrl,
     this.transactionCodeParameters,

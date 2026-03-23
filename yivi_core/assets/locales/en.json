@@ -566,9 +566,9 @@
     },
     "invalid_title": "PIN incorrect",
     "invalid_pin": {
-      "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily.",
-      "attempts-1": "This PIN is not correct. You have {attemps} attempt left before your Yivi app will be blocked temporarily.",
-      "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily."
+      "attempts-0": "This PIN is not correct. You have {count} attempts left before your Yivi app will be blocked temporarily.",
+      "attempts-1": "This PIN is not correct. You have {count} attempt left before your Yivi app will be blocked temporarily.",
+      "attempts-2": "This PIN is not correct. You have {count} attempts left before your Yivi app will be blocked temporarily."
     },
     "invalid_close": "Try again",
     "blocked_title": "App blocked",

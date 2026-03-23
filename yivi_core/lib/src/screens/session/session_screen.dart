@@ -113,8 +113,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       }
     });
 
-    // Show loading while waiting for a state update after user interaction.
-    if (_awaitingStateUpdate) {
+    // Show loading while waiting for a state update after user interaction,
+    // except when on the PIN screen — it handles its own loading overlay
+    // and must stay mounted so didUpdateWidget can detect wrong PIN attempts.
+    if (_awaitingStateUpdate && asyncSession.value?.status != .requestPin) {
       return _buildLoadingScreen(asyncSession.value);
     }
 
@@ -158,9 +160,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             maxPinSize: _hasLongPin ? 16 : 5,
             onPinEntered: (pin) => _submitPin(pin),
             onCancel: _dismissSession,
-            onBlocked: () {
-              context.goHomeScreen();
-            },
           ),
           .error => _buildError(
             session.error ?? SessionError(errorType: "unknown", info: ""),

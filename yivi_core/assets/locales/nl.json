@@ -566,9 +566,9 @@
     },
     "invalid_title": "Pincode is onjuist",
     "invalid_pin": {
-      "attempts-0": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-1": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-2": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
+      "attempts-0": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-1": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-2": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
     },
     "invalid_close": "Opnieuw proberen",
     "blocked_title": "App geblokkeerd",

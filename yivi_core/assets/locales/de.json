@@ -561,9 +561,9 @@
     },
     "invalid_title": "PIN falsch",
     "invalid_pin": {
-      "attempts-0": "Diese PIN ist nicht korrekt. Sie haben noch {attemps} Versuche, bevor Ihre Yivi-App vorübergehend gesperrt wird.",
-      "attempts-1": "Diese PIN ist nicht korrekt. Sie haben noch {attemps} Versuch, bevor Ihre Yivi-App vorübergehend gesperrt wird.",
-      "attempts-2": "Diese PIN ist nicht korrekt. Sie haben noch {attemps} Versuche, bevor Ihre Yivi-App vorübergehend gesperrt wird."
+      "attempts-0": "Diese PIN ist nicht korrekt. Sie haben noch {count} Versuche, bevor Ihre Yivi-App vorübergehend gesperrt wird.",
+      "attempts-1": "Diese PIN ist nicht korrekt. Sie haben noch {count} Versuch, bevor Ihre Yivi-App vorübergehend gesperrt wird.",
+      "attempts-2": "Diese PIN ist nicht korrekt. Sie haben noch {count} Versuche, bevor Ihre Yivi-App vorübergehend gesperrt wird."
     },
     "invalid_close": "Erneut versuchen",
     "blocked_title": "App gesperrt",
