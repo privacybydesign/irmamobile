@@ -69,7 +69,7 @@ Future<void> completelyOptionalTest(
 
   //  start session again to verify that the email is still not pre-selected
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await tester.pumpUntilFound(find.text("Share data"));
+  await tester.waitFor(find.text("Share data"));
   await tester.tapAndSettle(find.text("Share data"));
 
   await evaluateShareDialog(tester);
