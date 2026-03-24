@@ -17,10 +17,10 @@ set -euo pipefail
 # The static libraries are cached in build/sqlcipher-android/ and only built
 # once. Delete that directory to force a rebuild (e.g. after a version bump).
 #
-# gomobile bind builds all ABIs in a single invocation, but each ABI needs
-# different -I/-L flags pointing to its own static libs. Since gomobile does
-# not support per-ABI CGO flags, we invoke it once per ABI and merge the
-# resulting AARs.
+# Each Android ABI needs its own -I/-L flags pointing to the matching static
+# libs. Since gomobile doesn't support per-ABI CGO flags and the linker
+# rejects .a files for the wrong architecture, we invoke gomobile once per
+# ABI and merge the resulting libgojni.so files into a single AAR.
 #
 # Prerequisites:
 #   - Go, gomobile (see ci_scripts/install_gomobile.sh)
@@ -39,6 +39,8 @@ NDK_VERSION="28.2.13676358"
 NDK_HOME="${ANDROID_HOME}/ndk/${NDK_VERSION}"
 TOOLCHAIN="${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64"
 MIN_API=26
+
+ABIS="arm64-v8a armeabi-v7a x86_64"
 
 # --- ABI mapping helpers ---
 
@@ -175,7 +177,7 @@ build_sqlcipher() {
 # =============================================================================
 ensure_sqlcipher_libs() {
   local needs_build=false
-  for abi in arm64-v8a armeabi-v7a x86_64; do
+  for abi in ${ABIS}; do
     if [ ! -f "${SQLCIPHER_DIR}/${abi}/lib/libsqlcipher.a" ] || \
        [ ! -f "${SQLCIPHER_DIR}/${abi}/lib/libcrypto.a" ]; then
       needs_build=true
@@ -202,7 +204,7 @@ ensure_sqlcipher_libs() {
       | tar -xzf - -C "${SRC_DIR}"
   fi
 
-  for abi in arm64-v8a armeabi-v7a x86_64; do
+  for abi in ${ABIS}; do
     build_openssl "${abi}"
     build_sqlcipher "${abi}"
   done
@@ -219,9 +221,11 @@ ensure_sqlcipher_libs
 cd yivi_core
 
 # --- Android ---
-# Build each ABI separately so we can pass the correct -I/-L flags for that
-# ABI's static SQLCipher. The first invocation creates the AAR; subsequent
-# ones build into temp AARs and we merge their libgojni.so into the first.
+# We build each ABI separately because each needs -I/-L flags pointing to its
+# own architecture-specific static SQLCipher + OpenSSL libraries. The linker
+# rejects .a files for the wrong architecture, so we can't pass all paths at
+# once. The first invocation creates the AAR; subsequent ones produce temporary
+# AARs and we merge their libgojni.so into the first.
 
 FIRST=true
 for target in android/arm64 android/arm android/amd64; do
@@ -239,7 +243,8 @@ for target in android/arm64 android/arm android/amd64; do
       github.com/privacybydesign/irmamobile/irmagobridge
     FIRST=false
   else
-    # Build this ABI into a temporary AAR, then copy its .so into the main AAR.
+    # Build this ABI into a temporary AAR, then copy its libgojni.so into the
+    # main AAR. gomobile produces one .so per ABI under jni/<abi>/.
     TMPDIR_AAR="$(mktemp -d)"
     TMPAAR="${TMPDIR_AAR}/irmagobridge.aar"
     gomobile bind -target "${target}" -androidapi 26 \
@@ -261,6 +266,7 @@ done
 # On iOS, SQLCipher is provided as a CocoaPods dependency (see yivi_core.podspec).
 # The #cgo directive in sqlcipher.go uses pkg-config to find the host sqlcipher
 # headers at compile time; CocoaPods links the actual library at app build time.
+echo "==> Building gomobile for ios..."
 gomobile bind -target ios -iosversion 15.6 -o ios/Irmagobridge.xcframework \
   github.com/privacybydesign/irmamobile/irmagobridge
 
