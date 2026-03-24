@@ -92,10 +92,16 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - SQLCipher (4.10.0):
+    - SQLCipher/standard (= 4.10.0)
+  - SQLCipher/common (4.10.0)
+  - SQLCipher/standard (4.10.0):
+    - SQLCipher/common
   - url_launcher_ios (0.0.1):
     - Flutter
   - yivi_core (0.0.1):
     - Flutter
+    - SQLCipher (~> 4.10.0)
 
 DEPENDENCIES:
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
@@ -134,6 +140,7 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - Sentry
+    - SQLCipher
 
 EXTERNAL SOURCES:
   camera_avfoundation:
@@ -205,8 +212,9 @@ SPEC CHECKSUMS:
   sentry_flutter: 4c33648b7e83310aa1fdb1b10c5491027d9643f0
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
+  SQLCipher: eb79c64049cb002b4e9fcb30edb7979bf4706dfc
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
-  yivi_core: 564dc65682e8e0f812f882451b860725b0b442af
+  yivi_core: 313dbabb14f68b7a99a2c4864df93243ce4d6989
 
 PODFILE CHECKSUM: dfdfa93e068236aa3f0a0be562d17513964dbc69
 
