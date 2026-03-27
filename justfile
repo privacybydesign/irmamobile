@@ -8,6 +8,8 @@ gen:
 bind:
     ./bind_go.sh
 
+[linux]
+[windows]
 bind:
     ./bind_go.sh android
 

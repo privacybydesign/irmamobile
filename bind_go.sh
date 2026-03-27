@@ -16,12 +16,13 @@ set -euo pipefail
 #
 # The Go code in irmago links against SQLCipher (encrypted SQLite) via CGo.
 # On iOS, CocoaPods provides SQLCipher at link time (see yivi_core.podspec).
-# On Android, there is no package manager for native libs, so we must
-# cross-compile SQLCipher (and its dependency OpenSSL) as static libraries
+# On Android, there is no package manager for native libs, so we download
+# prebuilt static SQLCipher + OpenSSL libraries from
+# https://github.com/privacybydesign/yivi-sqlcipher-prebuilt/releases
 # and link them into libgojni.so ourselves.
 #
-# The static libraries are cached in build/sqlcipher-android/ and only built
-# once. Delete that directory to force a rebuild (e.g. after a version bump).
+# The prebuilt libraries are cached in build/sqlcipher-prebuilt/ and only
+# downloaded once. Delete that directory to force a re-download.
 #
 # Each Android ABI needs its own -I/-L flags pointing to the matching static
 # libs. Since gomobile doesn't support per-ABI CGO flags and the linker
@@ -66,13 +67,12 @@ case "$BUILD_TARGET" in
 esac
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SQLCIPHER_DIR="${SCRIPT_DIR}/build/sqlcipher-android"
 
 SQLCIPHER_VERSION="4.14.0"
-OPENSSL_VERSION="3.4.1"
-SRC_DIR="${SQLCIPHER_DIR}/src"
-NDK_VERSION="28.2.13676358"
-MIN_API=26
+PREBUILT_DIR="${SCRIPT_DIR}/build/sqlcipher-prebuilt"
+PREBUILT_BASE_URL="https://github.com/privacybydesign/yivi-sqlcipher-prebuilt/releases/download/v${SQLCIPHER_VERSION}"
+
+ANDROID_SHA256="2ef9e2a78bdf6d9c92f49efd7b3676147242e2e4566c1d64f0335082b0ddf55e"
 
 # Detect host OS for NDK toolchain prebuilt path selection.
 detect_host_os() {
@@ -84,19 +84,6 @@ detect_host_os() {
     MINGW*|MSYS*|CYGWIN*) echo "windows-x86_64" ;;
     *)  echo "Unsupported host OS: $uname" >&2; exit 1 ;;
   esac
-}
-
-# Cross-platform CPU count helper.
-get_cpu_count() {
-  if command -v nproc &>/dev/null; then
-    nproc
-  elif command -v sysctl &>/dev/null; then
-    sysctl -n hw.ncpu
-  elif [ -n "${NUMBER_OF_PROCESSORS:-}" ]; then
-    echo "$NUMBER_OF_PROCESSORS"
-  else
-    echo 4
-  fi
 }
 
 # Convert a Windows absolute path (e.g. C:\foo\bar) to a WSL mount path
@@ -112,19 +99,13 @@ win_to_wsl_path() {
 
 HOST_OS="$(detect_host_os)"
 # Under WSL, ANDROID_HOME is a Windows path; convert it to a WSL mount path.
-# WSL reports uname as Linux, so check /proc/version instead of HOST_OS.
 if [ "$HOST_OS" = "windows-x86_64" ]; then
   ANDROID_HOME="$(win_to_wsl_path "$ANDROID_HOME")"
   ANDROID_HOME="${ANDROID_HOME%/}"
 fi
-NDK_HOME="${ANDROID_HOME}/ndk/${NDK_VERSION}"
-TOOLCHAIN="${NDK_HOME}/toolchains/llvm/prebuilt/${HOST_OS}"
-
-ABIS="arm64-v8a armeabi-v7a x86_64"
 
 # arm64-v8a cross-compilation is not supported on Windows; remove it.
 if [ "$HOST_OS" = "windows-x86_64" ]; then
-  ABIS="armeabi-v7a x86_64"
   if echo "$ANDROID_TARGETS" | grep -q 'android/arm64'; then
     echo "==> Skipping arm64-v8a (not supported on Windows)."
     ANDROID_TARGETS="${ANDROID_TARGETS//android\/arm64/}"
@@ -134,31 +115,7 @@ if [ "$HOST_OS" = "windows-x86_64" ]; then
   fi
 fi
 
-# --- ABI mapping helpers ---
-
-get_triple() {
-  case "$1" in
-    arm64-v8a)   echo "aarch64-linux-android" ;;
-    armeabi-v7a) echo "armv7a-linux-androideabi" ;;
-    x86_64)      echo "x86_64-linux-android" ;;
-  esac
-}
-
-get_openssl_target() {
-  case "$1" in
-    arm64-v8a)   echo "android-arm64" ;;
-    armeabi-v7a) echo "android-arm" ;;
-    x86_64)      echo "android-x86_64" ;;
-  esac
-}
-
-get_host_triple() {
-  case "$1" in
-    arm64-v8a)   echo "aarch64-linux-android" ;;
-    armeabi-v7a) echo "arm-linux-androideabi" ;;
-    x86_64)      echo "x86_64-linux-android" ;;
-  esac
-}
+# --- ABI mapping helper ---
 
 get_abi() {
   case "$1" in
@@ -169,142 +126,50 @@ get_abi() {
 }
 
 # =============================================================================
-# Cross-compile OpenSSL as a static library for one Android ABI.
-# SQLCipher uses OpenSSL's libcrypto for its encryption routines.
+# Download and verify prebuilt SQLCipher + OpenSSL static libraries.
 # =============================================================================
-build_openssl() {
-  local abi="$1"
-  local target
-  target="$(get_openssl_target "$abi")"
-  local prefix="${SQLCIPHER_DIR}/${abi}"
 
-  if [ -f "${prefix}/lib/libcrypto.a" ]; then
-    return
+verify_sha256() {
+  local file="$1"
+  local expected="$2"
+  local actual
+  if command -v sha256sum &>/dev/null; then
+    actual="$(sha256sum "$file" | cut -d' ' -f1)"
+  else
+    actual="$(shasum -a 256 "$file" | cut -d' ' -f1)"
   fi
-
-  echo "==> Building OpenSSL ${OPENSSL_VERSION} for ${abi}..."
-
-  local work="${SQLCIPHER_DIR}/openssl-build-${abi}"
-  rm -rf "${work}"
-  cp -a "${SRC_DIR}/openssl-${OPENSSL_VERSION}" "${work}"
-  cd "${work}"
-
-  export ANDROID_NDK_ROOT="${NDK_HOME}"
-  export PATH="${TOOLCHAIN}/bin:${PATH}"
-  if [ "$HOST_OS" = "windows-x86_64" ]; then
-    export PATH="/c/Strawberry/perl/bin:${PATH}"
+  if [ "$actual" != "$expected" ]; then
+    echo "ERROR: SHA256 checksum mismatch for $(basename "$file")"
+    echo "  Expected: ${expected}"
+    echo "  Got:      ${actual}"
+    rm -f "$file"
+    exit 1
   fi
-
-  ./Configure "${target}" \
-    -D__ANDROID_API__=${MIN_API} \
-    --prefix="${prefix}" \
-    no-shared no-tests no-ui-console no-engine no-async \
-    2>&1 | tail -3
-
-  make -j"$(get_cpu_count)" build_libs 2>&1 | tail -3
-  make install_dev 2>&1 | tail -3
-
-  cd "${SCRIPT_DIR}"
-  rm -rf "${work}"
 }
 
-# =============================================================================
-# Cross-compile SQLCipher as a static library for one Android ABI.
-#
-# We only build the static library (libsqlite3.a), not the CLI shell, because
-# the shell tries to link against zlib/readline which aren't available in the
-# NDK sysroot. The library is renamed to libsqlcipher.a so the linker flag
-# -lsqlcipher (from sqlcipher.go's #cgo android LDFLAGS) resolves correctly.
-# =============================================================================
-build_sqlcipher() {
-  local abi="$1"
-  local triple
-  triple="$(get_triple "$abi")"
-  local host_triple
-  host_triple="$(get_host_triple "$abi")"
-  local prefix="${SQLCIPHER_DIR}/${abi}"
+download_prebuilt() {
+  local platform="$1"
+  local expected_sha256="$2"
+  local dest="${PREBUILT_DIR}/${platform}"
 
-  if [ -f "${prefix}/lib/libsqlcipher.a" ]; then
+  if [ -d "$dest" ]; then
+    echo "==> Prebuilt SQLCipher for ${platform} already available."
     return
   fi
 
-  echo "==> Building SQLCipher ${SQLCIPHER_VERSION} for ${abi}..."
+  local tarball="sqlcipher-${SQLCIPHER_VERSION}-${platform}.tar.gz"
+  local url="${PREBUILT_BASE_URL}/${tarball}"
+  local tmpfile="${PREBUILT_DIR}/${tarball}"
 
-  local work="${SQLCIPHER_DIR}/sqlcipher-build-${abi}"
-  rm -rf "${work}"
-  cp -a "${SRC_DIR}/sqlcipher-${SQLCIPHER_VERSION}" "${work}"
-  cd "${work}"
+  mkdir -p "${PREBUILT_DIR}"
+  echo "==> Downloading prebuilt SQLCipher ${SQLCIPHER_VERSION} for ${platform}..."
+  curl -fSL -o "$tmpfile" "$url"
 
-  local cc="${TOOLCHAIN}/bin/${triple}${MIN_API}-clang"
-  local ar="${TOOLCHAIN}/bin/llvm-ar"
-  local ranlib="${TOOLCHAIN}/bin/llvm-ranlib"
+  verify_sha256 "$tmpfile" "$expected_sha256"
 
-  CC="${cc}" AR="${ar}" RANLIB="${ranlib}" \
-  ./configure \
-    --host="${host_triple}" \
-    --prefix="${prefix}" \
-    --disable-shared \
-    --with-tempstore=yes \
-    --disable-tcl \
-    CFLAGS="-DSQLITE_HAS_CODEC \
-            -DSQLCIPHER_CRYPTO_OPENSSL \
-            -DSQLITE_TEMP_STORE=2 \
-            -DSQLITE_EXTRA_INIT=sqlcipher_extra_init \
-            -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown \
-            -I${prefix}/include" \
-    LDFLAGS="-L${prefix}/lib -lcrypto" \
-    2>&1 | tail -5
-
-  make -j"$(get_cpu_count)" libsqlite3.a 2>&1 | tail -3
-
-  mkdir -p "${prefix}/lib" "${prefix}/include/sqlcipher"
-  cp libsqlite3.a "${prefix}/lib/libsqlcipher.a"
-  cp sqlite3.h "${prefix}/include/sqlcipher/sqlite3.h"
-  cp sqlite3.h "${prefix}/include/sqlite3.h"
-
-  cd "${SCRIPT_DIR}"
-  rm -rf "${work}"
-}
-
-# =============================================================================
-# Ensure static SQLCipher + OpenSSL libs exist for all Android ABIs.
-# This is a one-time build; subsequent runs skip it entirely.
-# =============================================================================
-ensure_sqlcipher_libs() {
-  local needs_build=false
-  for abi in ${ABIS}; do
-    if [ ! -f "${SQLCIPHER_DIR}/${abi}/lib/libsqlcipher.a" ] || \
-       [ ! -f "${SQLCIPHER_DIR}/${abi}/lib/libcrypto.a" ]; then
-      needs_build=true
-      break
-    fi
-  done
-
-  if [ "$needs_build" = false ]; then
-    return
-  fi
-
-  echo "==> SQLCipher static libraries not found, building (one-time)..."
-  mkdir -p "${SRC_DIR}"
-
-  if [ ! -d "${SRC_DIR}/openssl-${OPENSSL_VERSION}" ]; then
-    echo "==> Downloading OpenSSL ${OPENSSL_VERSION}..."
-    curl -sL "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" \
-      | tar -xzf - -C "${SRC_DIR}"
-  fi
-
-  if [ ! -d "${SRC_DIR}/sqlcipher-${SQLCIPHER_VERSION}" ]; then
-    echo "==> Downloading SQLCipher ${SQLCIPHER_VERSION}..."
-    curl -sL "https://github.com/sqlcipher/sqlcipher/archive/refs/tags/v${SQLCIPHER_VERSION}.tar.gz" \
-      | tar -xzf - -C "${SRC_DIR}"
-  fi
-
-  for abi in ${ABIS}; do
-    build_openssl "${abi}"
-    build_sqlcipher "${abi}"
-  done
-
-  echo "==> SQLCipher static libraries ready."
+  tar -xzf "$tmpfile" -C "${PREBUILT_DIR}"
+  rm -f "$tmpfile"
+  echo "==> Prebuilt SQLCipher for ${platform} ready."
 }
 
 # =============================================================================
@@ -315,7 +180,7 @@ ensure_sqlcipher_libs() {
 # =============================================================================
 
 if [ "$BUILD_ANDROID" = true ]; then
-  ensure_sqlcipher_libs
+  download_prebuilt android "$ANDROID_SHA256"
 fi
 
 cd yivi_core
@@ -326,12 +191,12 @@ build_android_abi() {
   local outfile="$2"
   local abi
   abi="$(get_abi "$target")"
-  local prefix="${SQLCIPHER_DIR}/${abi}"
+  local android_dir="${PREBUILT_DIR}/android"
 
   echo "==> Building gomobile for ${target} (${abi})..."
 
-  CGO_CFLAGS="-I${prefix}/include -I${prefix}/include/sqlcipher" \
-  CGO_LDFLAGS="-L${prefix}/lib" \
+  CGO_CFLAGS="-I${android_dir}/include -I${android_dir}/include/sqlcipher" \
+  CGO_LDFLAGS="-L${android_dir}/${abi}/lib" \
   gomobile bind -target "${target}" -androidapi 26 \
     -o "${outfile}" \
     github.com/privacybydesign/irmamobile/irmagobridge
