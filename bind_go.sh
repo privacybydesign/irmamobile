@@ -72,11 +72,67 @@ SQLCIPHER_VERSION="4.14.0"
 OPENSSL_VERSION="3.4.1"
 SRC_DIR="${SQLCIPHER_DIR}/src"
 NDK_VERSION="28.2.13676358"
-NDK_HOME="${ANDROID_HOME}/ndk/${NDK_VERSION}"
-TOOLCHAIN="${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64"
 MIN_API=26
 
+# Detect host OS for NDK toolchain prebuilt path selection.
+detect_host_os() {
+  local uname
+  uname="$(uname -s)"
+  case "$uname" in
+    Darwin*)            echo "darwin-x86_64" ;;
+    Linux*)             echo "linux-x86_64" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows-x86_64" ;;
+    *)  echo "Unsupported host OS: $uname" >&2; exit 1 ;;
+  esac
+}
+
+# Cross-platform CPU count helper.
+get_cpu_count() {
+  if command -v nproc &>/dev/null; then
+    nproc
+  elif command -v sysctl &>/dev/null; then
+    sysctl -n hw.ncpu
+  elif [ -n "${NUMBER_OF_PROCESSORS:-}" ]; then
+    echo "$NUMBER_OF_PROCESSORS"
+  else
+    echo 4
+  fi
+}
+
+# Convert a Windows absolute path (e.g. C:\foo\bar) to a WSL mount path
+# (e.g. /c/foo/bar). Only the leading drive letter is special-cased;
+# remaining backslashes are replaced with forward slashes.
+win_to_wsl_path() {
+  local p="${1//\\//}"
+  if [[ "$p" =~ ^([A-Za-z]):(.*) ]]; then
+    p="/${BASH_REMATCH[1],,}${BASH_REMATCH[2]}"
+  fi
+  echo "$p"
+}
+
+HOST_OS="$(detect_host_os)"
+# Under WSL, ANDROID_HOME is a Windows path; convert it to a WSL mount path.
+# WSL reports uname as Linux, so check /proc/version instead of HOST_OS.
+if [ "$HOST_OS" = "windows-x86_64" ]; then
+  ANDROID_HOME="$(win_to_wsl_path "$ANDROID_HOME")"
+  ANDROID_HOME="${ANDROID_HOME%/}"
+fi
+NDK_HOME="${ANDROID_HOME}/ndk/${NDK_VERSION}"
+TOOLCHAIN="${NDK_HOME}/toolchains/llvm/prebuilt/${HOST_OS}"
+
 ABIS="arm64-v8a armeabi-v7a x86_64"
+
+# arm64-v8a cross-compilation is not supported on Windows; remove it.
+if [ "$HOST_OS" = "windows-x86_64" ]; then
+  ABIS="armeabi-v7a x86_64"
+  if echo "$ANDROID_TARGETS" | grep -q 'android/arm64'; then
+    echo "==> Skipping arm64-v8a (not supported on Windows)."
+    ANDROID_TARGETS="${ANDROID_TARGETS//android\/arm64/}"
+    ANDROID_TARGETS="${ANDROID_TARGETS//  / }"
+    ANDROID_TARGETS="${ANDROID_TARGETS# }"
+    ANDROID_TARGETS="${ANDROID_TARGETS% }"
+  fi
+fi
 
 # --- ABI mapping helpers ---
 
@@ -135,6 +191,13 @@ build_openssl() {
 
   export ANDROID_NDK_ROOT="${NDK_HOME}"
   export PATH="${TOOLCHAIN}/bin:${PATH}"
+  export PATH="/c/Strawberry/perl/bin:${PATH}"
+
+  ls -l "$TOOLCHAIN"
+
+  which clang
+
+  echo "$PWD"
 
   ./Configure "${target}" \
     -D__ANDROID_API__=${MIN_API} \
@@ -142,7 +205,7 @@ build_openssl() {
     no-shared no-tests no-ui-console no-engine no-async \
     2>&1 | tail -3
 
-  make -j"$(sysctl -n hw.ncpu)" build_libs 2>&1 | tail -3
+  make -j"$(get_cpu_count)" build_libs 2>&1 | tail -3
   make install_dev 2>&1 | tail -3
 
   cd "${SCRIPT_DIR}"
@@ -196,7 +259,7 @@ build_sqlcipher() {
     LDFLAGS="-L${prefix}/lib -lcrypto" \
     2>&1 | tail -5
 
-  make -j"$(sysctl -n hw.ncpu)" libsqlite3.a 2>&1 | tail -3
+  make -j"$(get_cpu_count)" libsqlite3.a 2>&1 | tail -3
 
   mkdir -p "${prefix}/lib" "${prefix}/include/sqlcipher"
   cp libsqlite3.a "${prefix}/lib/libsqlcipher.a"
@@ -330,7 +393,7 @@ if [ "$BUILD_ANDROID" = true ] && [ "${#ANDROID_TMPDIRS[@]}" -gt 0 ]; then
   for i in $(seq 1 $(( ${#ANDROID_TMPDIRS[@]} - 1 ))); do
     TMPDIR_EXTRACT="$(mktemp -d)"
     cd "${TMPDIR_EXTRACT}"
-    unzip -q "${ANDROID_TMPDIRS[$i]}/irmagobridge.aar" "jni/*"
+    unzip -q "${ANDROID_TMPDIRS[$i]}/irmagobridge.aar" "jni/x86_64/*"
     cd "${SCRIPT_DIR}/yivi_core"
     jar -uf android/irmagobridge/irmagobridge.aar -C "${TMPDIR_EXTRACT}" jni/
     rm -rf "${TMPDIR_EXTRACT}"
@@ -343,9 +406,13 @@ fi
 
 # --- Symlink irma_configuration into Android assets ---
 if [ "$BUILD_ANDROID" = true ] && [ ! -e "./android/src/main/assets/irma_configuration" ]; then
-    if [[ "$OSTYPE" == "msys"* ]]; then
-        cmd.exe <<<$"mklink /j .\android\src\main\assets\irma_configuration .\..\irma_configuration"
-    else
+    case "$(uname -s)" in
+      MINGW*|MSYS*|CYGWIN*)
+        # Use a directory junction (no elevation needed) on Windows.
+        cmd.exe /c "mklink /j \"android\\src\\main\\assets\\irma_configuration\" \"..\\..\\irma_configuration\""
+        ;;
+      *)
         ln -s "../../../../../irma_configuration" "./android/src/main/assets/irma_configuration"
-    fi
+        ;;
+    esac
 fi
