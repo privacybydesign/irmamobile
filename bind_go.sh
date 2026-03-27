@@ -191,13 +191,9 @@ build_openssl() {
 
   export ANDROID_NDK_ROOT="${NDK_HOME}"
   export PATH="${TOOLCHAIN}/bin:${PATH}"
-  export PATH="/c/Strawberry/perl/bin:${PATH}"
-
-  ls -l "$TOOLCHAIN"
-
-  which clang
-
-  echo "$PWD"
+  if [ "$HOST_OS" = "windows-x86_64" ]; then
+    export PATH="/c/Strawberry/perl/bin:${PATH}"
+  fi
 
   ./Configure "${target}" \
     -D__ANDROID_API__=${MIN_API} \
@@ -391,9 +387,10 @@ if [ "$BUILD_ANDROID" = true ] && [ "${#ANDROID_TMPDIRS[@]}" -gt 0 ]; then
   cp "${ANDROID_TMPDIRS[0]}/irmagobridge.aar" android/irmagobridge/irmagobridge.aar
 
   for i in $(seq 1 $(( ${#ANDROID_TMPDIRS[@]} - 1 ))); do
+    merge_abi="$(get_abi "${TARGETS[$i]}")"
     TMPDIR_EXTRACT="$(mktemp -d)"
     cd "${TMPDIR_EXTRACT}"
-    unzip -q "${ANDROID_TMPDIRS[$i]}/irmagobridge.aar" "jni/x86_64/*"
+    unzip -q "${ANDROID_TMPDIRS[$i]}/irmagobridge.aar" "jni/${merge_abi}/*"
     cd "${SCRIPT_DIR}/yivi_core"
     jar -uf android/irmagobridge/irmagobridge.aar -C "${TMPDIR_EXTRACT}" jni/
     rm -rf "${TMPDIR_EXTRACT}"
