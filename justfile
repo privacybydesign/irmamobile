@@ -4,8 +4,14 @@ gen:
     cd yivi_core && dart run build_runner build --delete-conflicting-outputs
 
 # Generates the bindings for irmaclient
+[macos]
 bind:
     ./bind_go.sh
+
+[linux]
+[windows]
+bind:
+    ./bind_go.sh android
 
 # Builds the App Store/PlayStore version of the app
 build *args:

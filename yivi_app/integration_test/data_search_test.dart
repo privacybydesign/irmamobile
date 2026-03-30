@@ -1,8 +1,8 @@
 import "package:flutter/cupertino.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
-import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
-import "package:yivi_core/src/widgets/credential_card/irma_credential_type_card.dart";
+import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/helpers.dart";
@@ -56,7 +56,7 @@ void main() {
       expect(numCredentials, equals(5));
 
       await pressCredentialTypeCard(tester);
-      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
     });
 
     testWidgets("query-for-single", (tester) async {
@@ -67,7 +67,7 @@ void main() {
       expect(countCredentialTypeCards(tester), equals(expectedNumResults));
 
       await pressCredentialTypeCard(tester);
-      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
 
       final backButton = find.byType(YiviBackButton);
       await tester.tapAndSettle(backButton);
@@ -84,13 +84,13 @@ void main() {
       expect(numCreds, equals(2));
 
       await pressCredentialTypeCard(tester);
-      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
     });
   });
 }
 
 Future<void> pressCredentialTypeCard(WidgetTester tester) async {
-  final firstCred = find.byType(IrmaCredentialTypeCard);
+  final firstCred = find.byType(SchemalessYiviCredentialTypeCard);
   await tester.tapAndSettle(firstCred.first);
 }
 

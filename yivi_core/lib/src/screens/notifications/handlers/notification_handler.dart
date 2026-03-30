@@ -8,7 +8,7 @@ abstract class NotificationHandler {
     IrmaRepository repo,
     List<Notification> notifications,
   );
-  List<Notification> cleanUp(
+  Future<List<Notification>> cleanUp(
     IrmaRepository repo,
     List<Notification> notifications,
   );

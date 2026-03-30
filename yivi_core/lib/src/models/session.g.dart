@@ -20,7 +20,7 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
     u: json['u'] as String,
     irmaqr: json['irmaqr'] as String,
     protocol: _protocolFromJsonAlwaysIrma(json['protocol'] as String?),
-    continueOnSecondDevice: json['continueOnSecondDevice'] as bool? ?? false,
+    continueOnSecondDevice: json['continue_on_second_device'] as bool? ?? false,
   );
 }
 
@@ -29,28 +29,28 @@ Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) =>
       'u': instance.u,
       'irmaqr': instance.irmaqr,
       'protocol': protocolToString(instance.protocol),
-      'continueOnSecondDevice': instance.continueOnSecondDevice,
+      'continue_on_second_device': instance.continueOnSecondDevice,
     };
 
 SessionError _$SessionErrorFromJson(Map<String, dynamic> json) => SessionError(
-  errorType: json['ErrorType'] as String,
-  info: json['Info'] as String,
-  wrappedError: json['WrappedError'] as String? ?? "",
-  stack: json['Stack'] as String? ?? "",
-  remoteStatus: (json['RemoteStatus'] as num?)?.toInt(),
-  remoteError: json['RemoteError'] == null
+  errorType: json['error_type'] as String,
+  info: json['info'] as String,
+  wrappedError: json['wrapped_error'] as String? ?? "",
+  stack: json['stack'] as String? ?? "",
+  remoteStatus: (json['remote_status'] as num?)?.toInt(),
+  remoteError: json['remote_error'] == null
       ? null
-      : RemoteError.fromJson(json['RemoteError'] as Map<String, dynamic>),
+      : RemoteError.fromJson(json['remote_error'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$SessionErrorToJson(SessionError instance) =>
     <String, dynamic>{
-      'ErrorType': instance.errorType,
-      'WrappedError': instance.wrappedError,
-      'Info': instance.info,
-      'Stack': instance.stack,
-      'RemoteStatus': instance.remoteStatus,
-      'RemoteError': instance.remoteError,
+      'error_type': instance.errorType,
+      'wrapped_error': instance.wrappedError,
+      'info': instance.info,
+      'stack': instance.stack,
+      'remote_status': instance.remoteStatus,
+      'remote_error': instance.remoteError,
     };
 
 RemoteError _$RemoteErrorFromJson(Map<String, dynamic> json) => RemoteError(
@@ -84,7 +84,7 @@ RequestorInfo _$RequestorInfoFromJson(Map<String, dynamic> json) =>
           : TranslatedValue.fromJson(json['industry'] as Map<String, dynamic>?),
       id: json['id'] as String?,
       logo: json['logo'] as String?,
-      logoPath: json['logoPath'] as String?,
+      logoPath: json['logo_path'] as String?,
     );
 
 Map<String, dynamic> _$RequestorInfoToJson(RequestorInfo instance) =>
@@ -93,7 +93,7 @@ Map<String, dynamic> _$RequestorInfoToJson(RequestorInfo instance) =>
       'name': instance.name,
       'industry': instance.industry,
       'logo': instance.logo,
-      'logoPath': instance.logoPath,
+      'logo_path': instance.logoPath,
       'unverified': instance.unverified,
       'hostnames': instance.hostnames,
     };

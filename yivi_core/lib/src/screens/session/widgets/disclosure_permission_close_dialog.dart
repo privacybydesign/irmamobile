@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../../../../widgets/irma_confirmation_dialog.dart";
+import "../../../widgets/irma_confirmation_dialog.dart";
 
 class DisclosurePermissionCloseDialog extends StatelessWidget {
   static Future<void> show(

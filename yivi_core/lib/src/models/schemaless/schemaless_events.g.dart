@@ -9,27 +9,46 @@ part of 'schemaless_events.dart';
 SchemalessCredentialsEvent _$SchemalessCredentialsEventFromJson(
   Map<String, dynamic> json,
 ) => SchemalessCredentialsEvent(
-  credentials: (json['Credentials'] as List<dynamic>)
+  credentials: (json['credentials'] as List<dynamic>)
       .map((e) => Credential.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
 
 AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
     AttributeValue(
-      type: $enumDecode(_$AttributeTypeEnumMap, json['Type']),
-      data: json['Data'],
+      type: $enumDecode(_$AttributeTypeEnumMap, json['type']),
+      intValue: (json['int'] as num?)?.toInt(),
+      boolValue: json['bool'] as bool?,
+      translatedString: json['translated_string'] == null
+          ? null
+          : TranslatedValue.fromJson(
+              json['translated_string'] as Map<String, dynamic>?,
+            ),
+      array: (json['array'] as List<dynamic>?)
+          ?.map((e) => AttributeValue.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      object: (json['object'] as List<dynamic>?)
+          ?.map((e) => Attribute.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      imagePath: json['image_path'] as String?,
+      base64Image: json['base64_image'] as String?,
     );
 
 Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
     <String, dynamic>{
-      'Type': _$AttributeTypeEnumMap[instance.type]!,
-      'Data': instance.data,
+      'type': _$AttributeTypeEnumMap[instance.type]!,
+      'int': instance.intValue,
+      'bool': instance.boolValue,
+      'translated_string': instance.translatedString,
+      'array': instance.array,
+      'object': instance.object,
+      'image_path': instance.imagePath,
+      'base64_image': instance.base64Image,
     };
 
 const _$AttributeTypeEnumMap = {
   AttributeType.object: 'object',
   AttributeType.array: 'array',
-  AttributeType.string: 'string',
   AttributeType.translatedString: 'translated_string',
   AttributeType.boolean: 'boolean',
   AttributeType.integer: 'integer',
@@ -38,91 +57,102 @@ const _$AttributeTypeEnumMap = {
 };
 
 Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
-  id: json['Id'] as String,
+  id: json['id'] as String,
   displayName: TranslatedValue.fromJson(
-    json['DisplayName'] as Map<String, dynamic>?,
+    json['display_name'] as Map<String, dynamic>?,
   ),
-  description: TranslatedValue.fromJson(
-    json['Description'] as Map<String, dynamic>?,
-  ),
-  value: AttributeValue.fromJson(json['Value'] as Map<String, dynamic>),
+  description: json['description'] == null
+      ? null
+      : TranslatedValue.fromJson(json['description'] as Map<String, dynamic>?),
+  value: json['value'] == null
+      ? null
+      : AttributeValue.fromJson(json['value'] as Map<String, dynamic>),
+  requestedValue: json['requested_value'] == null
+      ? null
+      : AttributeValue.fromJson(
+          json['requested_value'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
-  'Id': instance.id,
-  'DisplayName': instance.displayName,
-  'Description': instance.description,
-  'Value': instance.value,
+  'id': instance.id,
+  'display_name': instance.displayName,
+  'description': instance.description,
+  'value': instance.value,
+  'requested_value': instance.requestedValue,
 };
 
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
-  id: json['Id'] as String,
-  name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
-  url: json['Url'] == null
+  id: json['id'] as String,
+  name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+  url: json['url'] == null
       ? null
-      : TranslatedValue.fromJson(json['Url'] as Map<String, dynamic>?),
-  imagePath: json['ImagePath'] as String?,
-  parent: json['Parent'] == null
+      : TranslatedValue.fromJson(json['url'] as Map<String, dynamic>?),
+  parent: json['parent'] == null
       ? null
-      : TrustedParty.fromJson(json['Parent'] as Map<String, dynamic>),
+      : TrustedParty.fromJson(json['parent'] as Map<String, dynamic>),
+  verified: json['verified'] as bool,
+  imagePath: json['image_path'] as String?,
 );
 
 Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
     <String, dynamic>{
-      'Id': instance.id,
-      'Name': instance.name,
-      'Url': instance.url,
-      'ImagePath': instance.imagePath,
-      'Parent': instance.parent,
+      'id': instance.id,
+      'name': instance.name,
+      'url': instance.url,
+      'image_path': instance.imagePath,
+      'parent': instance.parent,
+      'verified': instance.verified,
     };
 
 Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
-  credentialId: json['CredentialId'] as String,
-  hash: json['Hash'] as String,
-  imagePath: json['ImagePath'] as String,
-  name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
-  issuer: TrustedParty.fromJson(json['Issuer'] as Map<String, dynamic>),
-  credentialInstanceIds: (json['CredentialInstanceIds'] as Map<String, dynamic>)
-      .map(
+  credentialId: json['credential_id'] as String,
+  hash: json['hash'] as String,
+  imagePath: json['image_path'] as String,
+  name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+  issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
+  credentialInstanceIds:
+      (json['credential_instance_ids'] as Map<String, dynamic>).map(
         (k, e) =>
             MapEntry($enumDecode(_$CredentialFormatEnumMap, k), e as String),
       ),
   batchInstanceCountsRemaining:
-      (json['BatchInstanceCountsRemaining'] as Map<String, dynamic>).map(
+      (json['batch_instance_counts_remaining'] as Map<String, dynamic>).map(
         (k, e) => MapEntry(
           $enumDecode(_$CredentialFormatEnumMap, k),
           (e as num?)?.toInt(),
         ),
       ),
-  attributes: (json['Attributes'] as List<dynamic>)
+  attributes: (json['attributes'] as List<dynamic>)
       .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
       .toList(),
-  issuanceDate: (json['IssuanceDate'] as num).toInt(),
-  expiryDate: (json['ExpiryDate'] as num).toInt(),
-  revoked: json['Revoked'] as bool,
-  revocationSupported: json['RevocationSupported'] as bool,
-  issueUrl: TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>?),
+  issuanceDate: (json['issuance_date'] as num).toInt(),
+  expiryDate: (json['expiry_date'] as num).toInt(),
+  revoked: json['revoked'] as bool,
+  revocationSupported: json['revocation_supported'] as bool,
+  issueUrl: TranslatedValue.fromJson(
+    json['issue_url'] as Map<String, dynamic>?,
+  ),
 );
 
 Map<String, dynamic> _$CredentialToJson(Credential instance) =>
     <String, dynamic>{
-      'CredentialId': instance.credentialId,
-      'Hash': instance.hash,
-      'ImagePath': instance.imagePath,
-      'Name': instance.name,
-      'Issuer': instance.issuer,
-      'CredentialInstanceIds': instance.credentialInstanceIds.map(
+      'credential_id': instance.credentialId,
+      'hash': instance.hash,
+      'image_path': instance.imagePath,
+      'name': instance.name,
+      'issuer': instance.issuer,
+      'credential_instance_ids': instance.credentialInstanceIds.map(
         (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
       ),
-      'BatchInstanceCountsRemaining': instance.batchInstanceCountsRemaining.map(
-        (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
-      ),
-      'Attributes': instance.attributes,
-      'IssuanceDate': instance.issuanceDate,
-      'ExpiryDate': instance.expiryDate,
-      'Revoked': instance.revoked,
-      'RevocationSupported': instance.revocationSupported,
-      'IssueURL': instance.issueUrl,
+      'batch_instance_counts_remaining': instance.batchInstanceCountsRemaining
+          .map((k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e)),
+      'attributes': instance.attributes,
+      'issuance_date': instance.issuanceDate,
+      'expiry_date': instance.expiryDate,
+      'revoked': instance.revoked,
+      'revocation_supported': instance.revocationSupported,
+      'issue_url': instance.issueUrl,
     };
 
 const _$CredentialFormatEnumMap = {

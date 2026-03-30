@@ -179,9 +179,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         await _startIssuance(rawDocData);
       }
     } catch (e) {
-      setState(() {
-        issuanceError = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          issuanceError = e.toString();
+        });
+      }
     }
   }
 
@@ -212,9 +214,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ),
       );
     } catch (e) {
-      setState(() {
-        issuanceError = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          issuanceError = e.toString();
+        });
+      }
       if (kDebugMode) {
         debugPrint("issuance error: $e");
       }

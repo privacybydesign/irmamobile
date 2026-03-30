@@ -1,19 +1,16 @@
-import "dart:async";
-
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../models/credential_events.dart";
-import "../../models/credentials.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
-import "../../widgets/credential_card/schemaless_yivi_credential_card.dart";
+import "../../widgets/credential_card/yivi_credential_card.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/progress.dart";
@@ -126,6 +123,7 @@ class _CredentialsDetailsScreenState
 
   SizedBox _buildCredentialsList(List<schemaless.Credential> credentials) {
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
@@ -137,36 +135,33 @@ class _CredentialsDetailsScreenState
             crossAxisAlignment: .start,
             children: [
               SizedBox(height: theme.defaultSpacing),
-              ...credentials.map(
-                (cred) => Padding(
+              ...credentials.map((cred) {
+                final isDeletable = cred.credentialInstanceIds.isNotEmpty;
+                final isReobtainable = cred.issueUrl
+                    .translate(lang, fallback: "")
+                    .isNotEmpty;
+
+                return Padding(
                   padding: .only(bottom: theme.defaultSpacing),
-                  child: SchemalessYiviCredentialCard(
+                  child: YiviCredentialCard.fromCredential(
                     credential: cred,
                     compact: false,
+                    headerTrailing: isDeletable || isReobtainable
+                        ? Transform.translate(
+                            offset: Offset(theme.smallSpacing, -10),
+                            child: IconButton(
+                              onPressed: () =>
+                                  _showCredentialOptionsBottomSheet(
+                                    context,
+                                    cred,
+                                  ),
+                              icon: const Icon(Icons.more_horiz_sharp),
+                            ),
+                          )
+                        : null,
                   ),
-                  // child: YiviCredentialCard.fromMultiFormatCredential(
-                  //   cred,
-                  //   compact: false,
-                  //   headerTrailing:
-                  //       // Credential must either be reobtainable or deletable
-                  //       // for the options bottom sheet to be accessible
-                  //       cred.credentialType.disallowDelete &&
-                  //           cred.credentialType.issueUrl.isEmpty
-                  //       ? null
-                  //       : Transform.translate(
-                  //           offset: Offset(theme.smallSpacing, -10),
-                  //           child: IconButton(
-                  //             onPressed: () =>
-                  //                 _showCredentialOptionsBottomSheet(
-                  //                   context,
-                  //                   cred,
-                  //                 ),
-                  //             icon: const Icon(Icons.more_horiz_sharp),
-                  //           ),
-                  //         ),
-                  // ),
-                ),
-              ),
+                );
+              }),
               SizedBox(height: theme.largeSpacing),
             ],
           ),
@@ -177,12 +172,17 @@ class _CredentialsDetailsScreenState
 
   Future<void> _showCredentialOptionsBottomSheet(
     BuildContext context,
-    MultiFormatCredential cred,
+    schemaless.Credential cred,
   ) async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final isReobtainable = cred.issueUrl
+        .translate(lang, fallback: "")
+        .isNotEmpty;
+
     showModalBottomSheet(
       context: context,
       builder: (context) => IrmaCredentialCardOptionsBottomSheet(
-        onDelete: cred.credentialType.disallowDelete
+        onDelete: cred.credentialInstanceIds.isEmpty
             ? null
             : () async {
                 Navigator.of(context).pop();
@@ -191,7 +191,7 @@ class _CredentialsDetailsScreenState
                   cred,
                 );
               },
-        onReobtain: cred.credentialType.issueUrl.isEmpty
+        onReobtain: !isReobtainable
             ? null
             : () {
                 Navigator.of(context).pop();
@@ -203,7 +203,7 @@ class _CredentialsDetailsScreenState
 
   Future<void> _showConfirmDeleteDialog(
     BuildContext context,
-    MultiFormatCredential credential,
+    schemaless.Credential credential,
   ) async {
     final confirmed =
         await showDialog<bool>(
@@ -219,13 +219,11 @@ class _CredentialsDetailsScreenState
 
   void _deleteCredential(
     BuildContext context,
-    MultiFormatCredential credential,
+    schemaless.Credential credential,
   ) {
-    if (!credential.credentialType.disallowDelete) {
-      IrmaRepositoryProvider.of(context).bridgedDispatch(
-        DeleteCredentialEvent(hashByFormat: credential.hashByFormat),
-      );
-    }
+    IrmaRepositoryProvider.of(context).bridgedDispatch(
+      DeleteCredentialEvent(hashByFormat: credential.credentialInstanceIds),
+    );
   }
 
   void _showDeletedSnackbar() {
@@ -246,12 +244,12 @@ class _CredentialsDetailsScreenState
 
   void _reobtainCredential(
     BuildContext context,
-    MultiFormatCredential credential,
+    schemaless.Credential credential,
   ) {
-    if (credential.credentialType.issueUrl.isNotEmpty) {
-      IrmaRepositoryProvider.of(
-        context,
-      ).openIssueURL(context, credential.credentialType, ref);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final url = credential.issueUrl.translate(lang, fallback: "");
+    if (url.isNotEmpty) {
+      IrmaRepositoryProvider.of(context).openURL(url);
     }
   }
 }

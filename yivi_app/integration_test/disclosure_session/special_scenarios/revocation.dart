@@ -1,12 +1,13 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
+import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "../../helpers/helpers.dart";
@@ -61,12 +62,9 @@ Future<void> revocationTest(
   await evaluateIntroduction(tester);
 
   // The disclosure permission overview screen should be visible.
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(find.text("Share my data"), findsOneWidget);
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   // Find all credential cards
   final cardsFinder = find.byType(YiviCredentialCard);
@@ -103,7 +101,9 @@ Future<void> revocationTest(
   await tester.tapAndSettle(notificationCardFinder);
 
   // Expect the credential detail screen
-  final credentialDetailScreenFinder = find.byType(CredentialsDetailsScreen);
+  final credentialDetailScreenFinder = find.byType(
+    SchemalessCredentialsDetailsScreen,
+  );
   expect(credentialDetailScreenFinder, findsOneWidget);
 
   // Expect the actual credential card
@@ -147,8 +147,9 @@ Future<void> revocationTest(
         }
       ''');
 
-  await evaluateIntroduction(tester);
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  // Introduction was already completed in the first session, so it's skipped.
+  await tester.waitFor(find.byType(DisclosureChoicesOverview));
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // Find the revoked credential card and evaluate it
   final demoCredentialCardFinder = cardsFinder.first;

@@ -9,7 +9,6 @@ import "package:rxdart/rxdart.dart";
 
 import "src/data/irma_repository.dart";
 import "src/models/enrollment_status.dart";
-import "src/models/irma_configuration.dart";
 import "src/models/log_entry.dart";
 import "src/models/mrz.dart";
 import "src/models/translated_value.dart";
@@ -170,13 +169,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           GoRoute(
             path: "activity_details",
             builder: (context, state) {
-              final (logEntry, irmaConfiguration) =
-                  state.extra as (LogInfo, IrmaConfiguration);
+              final logEntry = state.extra as LogInfo;
               return ActivityDetailsScreen(
-                args: ActivityDetailsScreenArgs(
-                  logEntry: logEntry,
-                  irmaConfiguration: irmaConfiguration,
-                ),
+                args: ActivityDetailsScreenArgs(logEntry: logEntry),
               );
             },
           ),
@@ -232,7 +227,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           final args = SessionRouteParams.fromQueryParams(
             state.uri.queryParameters,
           );
-          return SessionScreen(params: args);
+          return SessionScreen(
+            sessionId: args.sessionId,
+            hasUnderlyingSession: args.hasUnderlyingSession,
+          );
         },
       ),
       GoRoute(

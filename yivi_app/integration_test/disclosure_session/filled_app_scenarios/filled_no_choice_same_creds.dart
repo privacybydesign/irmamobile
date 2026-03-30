@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -84,7 +84,7 @@ Future<void> filledNoChoiceSameCredsTest(
   await tester.tapAndSettle(doneButterFinder);
 
   // Expect to be on the overview screen
-  final overviewScreenFinder = find.byType(DisclosurePermissionChoicesScreen);
+  final overviewScreenFinder = find.byType(DisclosureChoicesOverview);
   expect(overviewScreenFinder, findsOneWidget);
 
   // The only credential on the overview should be the second email

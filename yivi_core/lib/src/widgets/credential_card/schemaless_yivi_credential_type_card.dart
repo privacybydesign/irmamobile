@@ -7,7 +7,7 @@ import "../irma_avatar.dart";
 import "../irma_card.dart";
 
 class SchemalessYiviCredentialTypeCard extends StatelessWidget {
-  final String credentialImagePath;
+  final String? credentialImagePath;
   final TranslatedValue credentialName;
   final String credentialId;
   final TranslatedValue issuerName;
@@ -20,7 +20,7 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
     this.onTap,
     this.checked = false,
     this.trailingIcon,
-    required this.credentialImagePath,
+    this.credentialImagePath,
     required this.credentialName,
     required this.credentialId,
     required this.issuerName,

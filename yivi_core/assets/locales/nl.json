@@ -200,7 +200,8 @@
     "issue_wizard": {
       "title": "Verzamel gegevens",
       "explanation_incomplete": "Haal stap voor stap mijn gegevens op en deel ze daarna met de partij die daarom vraagt.",
-      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd"
+      "explanation_incomplete_single": "Haal de benodigde gegevens op en deel ze daarna met de partij die daarom vraagt.",
+      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd."
     },
     "previously_added": {
       "title": "Controleer gegevens",
@@ -241,6 +242,8 @@
     "wrong_credentials_added": {
       "title": "Foutmelding",
       "explanation": "Gegevens zijn toegevoegd in de app, maar zijn niet de gevraagde gegevens. Haal de juiste gegevens op.",
+      "you_issued": "Ontvangen",
+      "expected": "Verwacht",
       "dismiss_action": "OK"
     },
     "call": {
@@ -563,9 +566,9 @@
     },
     "invalid_title": "Pincode is onjuist",
     "invalid_pin": {
-      "attempts-0": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-1": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-2": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
+      "attempts-0": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-1": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-2": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
     },
     "invalid_close": "Opnieuw proberen",
     "blocked_title": "App geblokkeerd",

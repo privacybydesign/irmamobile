@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attribute_list.dart";
@@ -35,7 +35,7 @@ Future<void> randomBlindTest(
 
   await evaluateIntroduction(tester);
 
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
 
   expect(
     find.text(
@@ -63,11 +63,12 @@ Future<void> randomBlindTest(
   // Start random blind signature session again
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // The introduction is shown again because the last session was cancelled
-  await evaluateIntroduction(tester);
-
   // We should go straight to the overview screen.
-  final overViewScreenFinder = find.byType(DisclosurePermissionChoicesScreen);
+  final overViewScreenFinder = find.byType(DisclosureChoicesOverview);
+  await tester.pumpUntilFound(
+    overViewScreenFinder,
+    timeout: const Duration(seconds: 5),
+  );
   expect(overViewScreenFinder, findsOneWidget);
 
   // The signable message should be present
@@ -104,6 +105,10 @@ Future<void> randomBlindTest(
   expect(firstAttributeName, expectedFirstAttributeName);
 
   final confirmButtonFinder = find.text("Sign and share");
+  await tester.waitFor(
+    confirmButtonFinder,
+    timeout: const Duration(seconds: 5),
+  );
   await tester.tapAndSettle(confirmButtonFinder);
 
   await evaluateShareDialog(tester, isSignatureSession: true);

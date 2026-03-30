@@ -9,13 +9,13 @@ part of 'certificate_events.dart';
 InstallCertificateEvent _$InstallCertificateEventFromJson(
   Map<String, dynamic> json,
 ) => InstallCertificateEvent(
-  type: json['Type'] as String,
-  pemContent: json['PemContent'] as String,
+  type: json['type'] as String,
+  pemContent: json['pem_content'] as String,
 );
 
 Map<String, dynamic> _$InstallCertificateEventToJson(
   InstallCertificateEvent instance,
 ) => <String, dynamic>{
-  'Type': instance.type,
-  'PemContent': instance.pemContent,
+  'type': instance.type,
+  'pem_content': instance.pemContent,
 };

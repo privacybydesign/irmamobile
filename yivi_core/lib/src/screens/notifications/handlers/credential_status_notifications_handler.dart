@@ -1,6 +1,7 @@
 import "package:collection/collection.dart";
 
 import "../../../data/irma_repository.dart";
+import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../widgets/credential_card/models/card_expiry_date.dart";
 import "../models/credential_status_notification.dart";
 import "../models/notification.dart";
@@ -14,22 +15,15 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
   ) async {
     final List<Notification> updatedNotifications = notifications;
 
-    // Wait until the credentials are present
-    final credentials = await repo.getCredentials().first;
+    final credentials = await repo.getSchemalessCredentials().first.timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => [],
+    );
+    if (credentials.isEmpty) return updatedNotifications;
 
-    for (final cred in credentials.values) {
+    for (final cred in credentials) {
       // Check if a notification should be shown for this credential, and if so which type
-      CredentialStatusNotificationType? notificationType;
-
-      if (!cred.isKeyshareCredential) {
-        if (cred.revoked) {
-          notificationType = CredentialStatusNotificationType.revoked;
-        } else if (cred.expired) {
-          notificationType = CredentialStatusNotificationType.expired;
-        } else if (CardExpiryDate(cred.expires).expiresSoon) {
-          notificationType = CredentialStatusNotificationType.expiringSoon;
-        }
-      }
+      final notificationType = _getNotificationType(cred);
 
       // If a notification should be shown for this credential
       if (notificationType != null) {
@@ -61,7 +55,7 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
             CredentialStatusNotification(
               type: notificationType,
               credentialHash: cred.hash,
-              credentialTypeId: cred.credentialType.fullId,
+              credentialTypeId: cred.credentialId,
               timestamp: DateTime.now(),
             ),
           );
@@ -72,19 +66,41 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
     return updatedNotifications;
   }
 
+  CredentialStatusNotificationType? _getNotificationType(
+    schemaless.Credential cred,
+  ) {
+    if (cred.revoked) {
+      return CredentialStatusNotificationType.revoked;
+    }
+    final expiryDate = CardExpiryDate.fromUnix(cred.expiryDate);
+    if (expiryDate.expired) {
+      return CredentialStatusNotificationType.expired;
+    }
+    if (expiryDate.expiresSoon) {
+      return CredentialStatusNotificationType.expiringSoon;
+    }
+    return null;
+  }
+
   @override
-  List<Notification> cleanUp(
+  Future<List<Notification>> cleanUp(
     IrmaRepository repo,
     List<Notification> notifications,
-  ) {
+  ) async {
     final List<Notification> updatedNotifications = notifications;
+
+    final credentials = await repo.getSchemalessCredentials().first.timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => [],
+    );
+    final credentialHashes = credentials.map((c) => c.hash).toSet();
 
     // Check if there are any notifications that are soft deleted and have a credential hash that is not in the repo
     // If so, remove them
     updatedNotifications.removeWhere((notification) {
       if (notification is CredentialStatusNotification &&
           notification.softDeleted) {
-        return !repo.credentials.containsKey(notification.credentialHash);
+        return !credentialHashes.contains(notification.credentialHash);
       }
 
       return false;

@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/irma_quote.dart";
@@ -36,7 +36,7 @@ Future<void> signingTest(
   await irmaBinding.repository.startTestSession(sessionRequest);
   await evaluateIntroduction(tester);
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   final requestorHeaderFinder = find.byType(RequestorHeader);
   await evaluateRequestorHeader(
@@ -54,10 +54,7 @@ Future<void> signingTest(
     "Message to be signed by user",
   );
 
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   final cardsFinder = find.byType(YiviCredentialCard);
   expect(cardsFinder, findsOneWidget);

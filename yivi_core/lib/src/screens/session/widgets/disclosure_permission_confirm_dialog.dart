@@ -1,11 +1,11 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../../../models/session.dart";
-import "../../../../widgets/irma_confirmation_dialog.dart";
+import "../../../models/schemaless/schemaless_events.dart";
+import "../../../widgets/irma_confirmation_dialog.dart";
 
 class DisclosurePermissionConfirmDialog extends StatelessWidget {
-  final RequestorInfo requestor;
+  final TrustedParty requestor;
   final bool isSignatureSession;
 
   const DisclosurePermissionConfirmDialog({

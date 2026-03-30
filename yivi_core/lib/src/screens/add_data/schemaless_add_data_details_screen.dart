@@ -52,7 +52,7 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
       0,
     );
 
-    final text = (widget.faq?.intro.isEmpty ?? false)
+    final text = (widget.faq == null || widget.faq!.intro.isEmpty)
         ?
           // Fallback generic add credential text
           FlutterI18n.translate(
