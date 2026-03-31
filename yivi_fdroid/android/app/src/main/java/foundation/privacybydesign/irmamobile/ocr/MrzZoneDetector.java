@@ -58,9 +58,11 @@ public class MrzZoneDetector {
         int h = resized.rows();
 
         // 3. calculate contrast
+        MatOfDouble mean = new MatOfDouble();
         MatOfDouble stddev = new MatOfDouble();
         Core.meanStdDev(resized, mean, stddev);
         double contrast = stddev.get(0, 0)[0];
+        mean.release();
         stddev.release();
 
 
