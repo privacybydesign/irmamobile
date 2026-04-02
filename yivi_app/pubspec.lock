@@ -497,10 +497,10 @@ packages:
     dependency: transitive
     description:
       name: logger
-      sha256: a7967e31b703831a893bbc3c3dd11db08126fe5f369b5c648a36f821979f5be3
+      sha256: "25aee487596a6257655a1e091ec2ae66bc30e7af663592cc3a27e6591e05035c"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.2"
+    version: "2.7.0"
   logging:
     dependency: transitive
     description:
@@ -1241,8 +1241,8 @@ packages:
     dependency: "direct dev"
     description:
       path: "."
-      ref: "v3.6.0"
-      resolved-ref: d6b4e2320467d0b72c6509c510c542ec1c5cdaed
+      ref: "v3.7.0"
+      resolved-ref: c7ba5c47e6c9c5e8cd415416f2db76b5c98d6642
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"

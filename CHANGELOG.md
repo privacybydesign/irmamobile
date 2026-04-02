@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make data tab, credential details, activity and add-data screens schema-independent
 - Add certificate management in developer mode
 
+## [7.13.4] - 2026-04-01
+### Changed
+- Add Tesseract4Android for F-Droid OCR 
+- Add PACE CAM support
+
 ## [7.13.3] - 2026-03-09
 ### Changed
 - For passports and ID-cards the app now also reads DG11 for names with diacritics and non-binary sex.
@@ -597,6 +602,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.13.4]: https://github.com/privacybydesign/irmamobile/compare/v7.13.3...v7.13.4
 [7.13.3]: https://github.com/privacybydesign/irmamobile/compare/v7.13.2...v7.13.3
 [7.13.2]: https://github.com/privacybydesign/irmamobile/compare/v7.13.1...v7.13.2
 [7.13.1]: https://github.com/privacybydesign/irmamobile/compare/v7.13.0...v7.13.1

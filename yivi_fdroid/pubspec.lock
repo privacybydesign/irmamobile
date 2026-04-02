@@ -1202,8 +1202,8 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: "v3.6.0"
-      resolved-ref: d6b4e2320467d0b72c6509c510c542ec1c5cdaed
+      ref: "v3.7.0"
+      resolved-ref: c7ba5c47e6c9c5e8cd415416f2db76b5c98d6642
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"
