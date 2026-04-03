@@ -3,6 +3,7 @@ import "dart:convert";
 import "package:json_annotation/json_annotation.dart";
 
 import "../data/irma_repository.dart";
+import "protocol.dart";
 import "translated_value.dart";
 
 part "session.g.dart";
@@ -50,7 +51,24 @@ abstract class Pointer {
       return SessionPointer(
         u: content,
         irmaqr: "disclosing",
-        protocol: "openid4vp",
+        protocol: Protocol.openid4vp,
+      );
+    }
+
+    if (content.startsWith("openid-credential-offer://")) {
+      final uri = Uri.parse(content);
+      final credentialOfferUri = uri.queryParameters["credential_offer_uri"];
+      final credentialOffer = uri.queryParameters["credential_offer"];
+      if (credentialOfferUri == null && credentialOffer == null) {
+        throw MissingPointer(
+          details:
+              'expected "credential_offer" or "credential_offer_uri" to be present in query parameters, but it wasn\'t',
+        );
+      }
+      return SessionPointer(
+        u: content,
+        irmaqr: "issuing",
+        protocol: Protocol.openid4vci,
       );
     }
 
@@ -101,7 +119,7 @@ abstract class Pointer {
 }
 
 /// A pointer that refers to an issue wizard only.
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class IssueWizardPointer implements Pointer {
   @JsonKey(name: "wizard", required: true)
   final String wizard;
@@ -153,8 +171,13 @@ class IssueWizardPointer implements Pointer {
   }
 }
 
+// parsing session pointer directly from json only happens for irma sessions
+Protocol _protocolFromJsonAlwaysIrma(String? protocol) {
+  return Protocol.irma;
+}
+
 /// A pointer that refers to a new IRMA session.
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class SessionPointer implements Pointer {
   @JsonKey(name: "u", required: true)
   final String u;
@@ -162,20 +185,24 @@ class SessionPointer implements Pointer {
   @JsonKey(name: "irmaqr", required: true)
   final String irmaqr;
 
-  @JsonKey(name: "protocol", required: false)
-  String? protocol;
+  @JsonKey(
+    name: "protocol",
+    required: false,
+    toJson: protocolToString,
+    fromJson: _protocolFromJsonAlwaysIrma,
+  )
+  Protocol protocol;
 
   /// Whether the session should be continued on the mobile device,
   /// or on the device which has displayed a QR code.
   /// Field is not always specified in QRs now.
   /// To make sure we can override its value if necessary, the field is not final fow now.
-  @JsonKey(name: "continueOnSecondDevice")
   bool continueOnSecondDevice;
 
   SessionPointer({
     required this.u,
     required this.irmaqr,
-    this.protocol,
+    required this.protocol,
     this.continueOnSecondDevice = false,
   });
 
@@ -220,12 +247,7 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
   String get u => _sessionPointer.u;
 
   @override
-  String? get protocol => _sessionPointer.protocol;
-
-  @override
-  set protocol(String? protocol) {
-    _sessionPointer.protocol = protocol;
-  }
+  Protocol get protocol => _sessionPointer.protocol;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -247,9 +269,14 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
       requestor: requestor,
     );
   }
+
+  @override
+  set protocol(Protocol protocol) {
+    _sessionPointer.protocol = protocol;
+  }
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class SessionError {
   SessionError({
     required this.errorType,
@@ -260,28 +287,33 @@ class SessionError {
     this.remoteError,
   });
 
-  @JsonKey(name: "ErrorType")
   final String errorType;
 
-  @JsonKey(name: "WrappedError")
   final String wrappedError;
 
-  @JsonKey(name: "Info")
   final String info;
 
-  @JsonKey(name: "Stack")
   final String stack;
 
-  @JsonKey(name: "RemoteStatus")
   final int? remoteStatus;
 
-  @JsonKey(name: "RemoteError")
   final RemoteError? remoteError;
 
   bool get reportable => !["https", "notSupported"].contains(errorType);
 
-  factory SessionError.fromJson(Map<String, dynamic> json) =>
-      _$SessionErrorFromJson(json);
+  factory SessionError.fromJson(Map<String, dynamic> json) {
+    // Handle both snake_case (from bridge sessionError wrapper) and
+    // PascalCase (from Go's default marshaling of irma.SessionError).
+    final normalized = <String, dynamic>{
+      "error_type": json["error_type"] ?? json["ErrorType"] ?? "",
+      "info": json["info"] ?? json["Info"] ?? "",
+      "wrapped_error": json["wrapped_error"] ?? json["WrappedError"] ?? "",
+      "stack": json["stack"] ?? json["Stack"] ?? "",
+      "remote_status": json["remote_status"] ?? json["RemoteStatus"],
+      "remote_error": json["remote_error"] ?? json["RemoteError"],
+    };
+    return _$SessionErrorFromJson(normalized);
+  }
   Map<String, dynamic> toJson() => _$SessionErrorToJson(this);
 
   @override
@@ -294,7 +326,7 @@ class SessionError {
   ].join();
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RemoteError {
   RemoteError({
     this.status,
@@ -304,19 +336,15 @@ class RemoteError {
     this.stacktrace,
   });
 
-  @JsonKey(name: "status")
   final int? status;
 
   @JsonKey(name: "error")
   final String? errorName;
 
-  @JsonKey(name: "description")
   final String? description;
 
-  @JsonKey(name: "message")
   final String? message;
 
-  @JsonKey(name: "stacktrace")
   final String? stacktrace;
 
   RemoteError copyWithoutStacktrace() => RemoteError(
@@ -334,29 +362,21 @@ class RemoteError {
   String toString() => jsonEncode(copyWithoutStacktrace());
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RequestorInfo {
-  @JsonKey(name: "id")
   final String? id;
 
-  @JsonKey(name: "name")
   final TranslatedValue name;
 
-  @JsonKey(
-    name: "industry",
-  ) // Default value is set by fromJson of TranslatedValue
+  // Default value is set by fromJson of TranslatedValue
   final TranslatedValue industry;
 
-  @JsonKey(name: "logo")
   final String? logo;
 
-  @JsonKey(name: "logoPath")
   final String? logoPath;
 
-  @JsonKey(name: "unverified")
   final bool unverified;
 
-  @JsonKey(name: "hostnames")
   final List<String> hostnames;
 
   RequestorInfo({

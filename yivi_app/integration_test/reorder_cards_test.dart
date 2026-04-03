@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "package:yivi_core/src/widgets/credential_card/irma_credential_type_card.dart";
+import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -37,7 +37,7 @@ void main() {
         ]),
       );
 
-      final firstCard = find.byType(IrmaCredentialTypeCard).first;
+      final firstCard = find.byType(SchemalessYiviCredentialTypeCard).first;
       final gesture = await tester.startGesture(
         tester.getCenter(firstCard),
         kind: .touch,
@@ -116,7 +116,7 @@ void main() {
 }
 
 Future<void> deletePersonalDataCard(WidgetTester tester) async {
-  final cardFinder = find.byType(IrmaCredentialTypeCard).at(2);
+  final cardFinder = find.byType(SchemalessYiviCredentialTypeCard).at(2);
   await tester.scrollUntilVisible(cardFinder, 100);
   await tester.tapAndSettle(cardFinder);
 
@@ -144,10 +144,10 @@ Future<void> deletePersonalDataCard(WidgetTester tester) async {
 
 List<String> getCredentialOrderOnScreen(WidgetTester tester) {
   return tester
-      .widgetList<IrmaCredentialTypeCard>(
-        find.byType(IrmaCredentialTypeCard, skipOffstage: false),
+      .widgetList<SchemalessYiviCredentialTypeCard>(
+        find.byType(SchemalessYiviCredentialTypeCard, skipOffstage: false),
       )
-      .map((c) => c.credType.fullId)
+      .map((c) => c.credentialId)
       .toList();
 }
 

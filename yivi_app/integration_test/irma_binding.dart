@@ -58,8 +58,6 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
       mostRecentTermsUrlEn: "testurl",
     );
 
-    await _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
-
     _bridge.dispatch(AppReadyEvent());
     EnrollmentStatusEvent currEnrollmentStatus =
         await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
@@ -102,6 +100,9 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
       ),
     );
 
+    // Mark terms as accepted (must be after the conditional tearDown which clears all preferences).
+    await _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
+
     // Enable screenshots to make sure screen recordings can be made.
     await _preferences!.setScreenshotsEnabled(true);
 
@@ -137,6 +138,9 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   }
 
   Future<void> tearDown() async {
+    // Dismiss all active sessions to prevent them from bleeding into the next test.
+    await _repository?.dismissAllActiveSessions();
+
     // Make sure there is a listener for the bridge events.
     final dataClearedFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
       (event) =>

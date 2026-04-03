@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 
@@ -40,7 +40,7 @@ Future<void> attributeOrderTest(
   await evaluateIntroduction(tester);
 
   // Expect the choices screen
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // Check the attribute order.
   await evaluateCredentialCard(

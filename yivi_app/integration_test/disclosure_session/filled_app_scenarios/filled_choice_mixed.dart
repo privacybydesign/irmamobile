@@ -1,10 +1,11 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -37,10 +38,8 @@ Future<void> filledChoiceMixedTest(
 
   // Should go straight to overview screen,
   // because the address has already been obtained
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  await tester.waitFor(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-  );
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  await tester.waitFor(find.byType(RequestorHeader));
 
   // Expect the already obtained municipality address
   final cardsFinder = find.byType(YiviCredentialCard);
@@ -63,7 +62,7 @@ Future<void> filledChoiceMixedTest(
   await tester.tapAndSettle(changeChoiceFinder);
 
   // Expect make choice screen
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
   //This screen to have two options
   expect(cardsFinder, findsNWidgets(2));
@@ -95,10 +94,33 @@ Future<void> filledChoiceMixedTest(
   await evaluateCredentialCard(tester, cardsFinder.at(1), isSelected: true);
 
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // Issue iDin
   await issueIdin(tester, irmaBinding);
+
+  // After issuance, we should be back on the overview with the newly
+  // issued iDIN auto-selected.
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  await tester.waitFor(
+    find.byType(RequestorHeader),
+    timeout: const Duration(seconds: 5),
+  );
+  expect(cardsFinder, findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    cardsFinder.first,
+    credentialName: "Demo iDIN",
+    issuerName: "Demo iDIN",
+    attributes: {"Address": "Meander 501", "City": "Arnhem"},
+    style: IrmaCardStyle.normal,
+  );
+
+  // Tap "Change choice" to verify the make choice screen
+  final changeChoiceFinder2 = find.text("Change choice");
+  await tester.scrollUntilVisible(changeChoiceFinder2.hitTestable(), 50);
+  await tester.tapAndSettle(changeChoiceFinder2);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
   // Now two filled cards should be present
   await evaluateCredentialCard(
@@ -119,11 +141,8 @@ Future<void> filledChoiceMixedTest(
   await tester.tapAndSettle(find.text("Done"));
 
   // Expect choices overview
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(

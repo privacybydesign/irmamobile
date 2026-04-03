@@ -4,8 +4,14 @@ gen:
     cd yivi_core && dart run build_runner build --delete-conflicting-outputs
 
 # Generates the bindings for irmaclient
+[macos]
 bind:
     ./bind_go.sh
+
+[linux]
+[windows]
+bind:
+    ./bind_go.sh android
 
 # Builds the App Store/PlayStore version of the app
 build *args:
@@ -53,8 +59,18 @@ lint: check-fmt
     cd yivi_app && flutter analyze --no-fatal-infos
     cd yivi_fdroid && flutter analyze --no-fatal-infos
 
-# Fixes all Flutter issues it can automatically fix
-fix: fmt
+# Fetches or updates all Go and Flutter dependencies
+get:
+    cd yivi_core && go mod tidy
+    cd yivi_core && flutter pub get
+    cd yivi_app && flutter pub get
+    cd yivi_fdroid && flutter pub get
+
+# Applies all Flutter fixes that can be applied automatically
+fix:
     cd yivi_core && dart fix --apply
     cd yivi_app && dart fix --apply
     cd yivi_fdroid && dart fix --apply
+
+# Fetches or updates all Go and Flutter dependencies and generates go bindings
+setup: get bind

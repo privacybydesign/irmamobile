@@ -14,8 +14,9 @@ import (
 	"time"
 
 	"github.com/go-errors/errors"
-	irma "github.com/privacybydesign/irmago"
-	"github.com/privacybydesign/irmago/irmaclient"
+	"github.com/privacybydesign/irmago/client"
+	"github.com/privacybydesign/irmago/irma"
+	"github.com/privacybydesign/irmago/irma/irmaclient"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,7 +29,7 @@ type IrmaMobileBridge interface {
 type Signer irmaclient.Signer
 
 var bridge IrmaMobileBridge
-var client *irmaclient.Client
+var yiviClient *client.Client
 var appDataVersion = "v2"
 var clientLoaded = make(chan struct{})
 var clientErr *errors.Error
@@ -38,12 +39,11 @@ var embeddedAssets embed.FS
 
 // eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
-var bridgeEventHandler = &eventHandler{
-	sessionLookup: map[int]*sessionHandler{},
-}
+var bridgeEventHandler = &eventHandler{}
 
 // clientHandler is used for messages coming in from irmago (see client_handler.go)
-var bridgeClientHandler = &clientHandler{}
+var bridgeClientHandler = &YiviClientHandler{}
+var sessionHandler = &YiviSessionHandler{}
 
 // Prestart is invoked only on Android in MainActivity's onCreate, to initialize
 // the Go binding at the earliest moment, instead of inside the Flutter plugin
@@ -69,7 +69,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	bridge = givenBridge
 
-	if client != nil || clientErr != nil {
+	if yiviClient != nil || clientErr != nil {
 		// If this function was run previously, either client or clientErr (or both) will be non-nil.
 		// In the first case, nothing to do. In the second case, retrying won't help. Either way, we
 		// just return - also ensuring that clientLoaded is not closed a second time, which would panic.
@@ -154,21 +154,21 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
 	irma.Logger.SetLevel(logrus.InfoLevel)
-	client, err = irmaclient.New(appVersionDataPath, irmaConfigurationPath, bridgeClientHandler, signer, aesKeyCopy)
+	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
 	}
 
-	if !client.GetPreferences().DeveloperMode {
+	if !yiviClient.GetPreferences().DeveloperMode {
 		irma.Logger.SetLevel(logrus.ErrorLevel)
 	}
 
-	client.InitJobs(60 * time.Minute)
+	yiviClient.InitJobs(60 * time.Minute)
 }
 
-func dispatchEvent(event interface{}) {
-	jsonBytes, err := json.Marshal(event)
+func dispatchEvent(event any) {
+	jsonBytes, err := json.MarshalIndent(event, "", "    ")
 	if err != nil {
 		reportError(errors.Errorf("Cannot marshal event payload: %s", err), false)
 		return
@@ -182,14 +182,14 @@ func dispatchEvent(event interface{}) {
 func Stop() {
 	defer recoverFromEarlyPanic("Closing of bridge panicked")
 
-	if client != nil {
-		if err := client.Close(); err != nil {
+	if yiviClient != nil {
+		if err := yiviClient.Close(); err != nil {
 			clientErr = errors.WrapPrefix(err, "Cannot close client", 0)
 			return
 		}
 	}
 
-	client = nil
+	yiviClient = nil
 	clientErr = nil
 	clientLoaded = make(chan struct{})
 }

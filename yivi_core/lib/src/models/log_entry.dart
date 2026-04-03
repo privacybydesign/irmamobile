@@ -1,80 +1,61 @@
 import "package:json_annotation/json_annotation.dart";
 
 import "event.dart";
-import "session.dart";
+import "protocol.dart";
+import "schemaless/schemaless_events.dart";
+import "translated_value.dart";
 
 part "log_entry.g.dart";
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class LogsEvent extends Event {
   LogsEvent({required this.logEntries});
 
-  @JsonKey(name: "LogEntries")
   final List<LogInfo> logEntries;
 
   factory LogsEvent.fromJson(Map<String, dynamic> json) =>
       _$LogsEventFromJson(json);
 }
 
-@JsonSerializable(createFactory: false)
+@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
 class LoadLogsEvent extends Event {
   LoadLogsEvent({required this.max, this.before});
 
-  @JsonKey(name: "Before")
   final int? before;
 
-  @JsonKey(name: "Max")
   final int max;
 
   Map<String, dynamic> toJson() => _$LoadLogsEventToJson(this);
 }
 
-enum LogType { disclosure, signature, issuance, removal }
+@JsonEnum(alwaysCreate: true)
+enum LogType {
+  @JsonValue("disclosure")
+  disclosure,
 
-enum Protocol { irma, openid4vp }
+  @JsonValue("signature")
+  signature,
 
-enum CredentialFormat { idemix, sdjwtvc }
+  @JsonValue("issuance")
+  issuance,
 
-LogType _toLogEntryType(String type) {
-  return LogType.values.firstWhere((v) => v.toString() == "LogType.$type");
+  @JsonValue("removal")
+  removal,
 }
 
-Protocol _toProtocol(String protocol) {
-  return switch (protocol) {
-    "irma" => Protocol.irma,
-    "openid4vp" => Protocol.openid4vp,
-    _ => throw Exception("invalid protocol: $protocol"),
-  };
-}
+@JsonEnum(alwaysCreate: true)
+enum CredentialFormat {
+  @JsonValue("idemix")
+  idemix,
 
-String credentialFormatToString(CredentialFormat format) {
-  return switch (format) {
-    CredentialFormat.sdjwtvc => "dc+sd-jwt",
-    CredentialFormat.idemix => "idemix",
-  };
-}
-
-CredentialFormat stringToCredentialFormat(String format) {
-  return switch (format) {
-    "dc+sd-jwt" => CredentialFormat.sdjwtvc,
-    "idemix" => CredentialFormat.idemix,
-    _ => throw Exception("invalid credential format: $format"),
-  };
-}
-
-List<CredentialFormat> _toCredentialFormatList(dynamic value) {
-  if (value == null) {
-    return [];
-  }
-  return (value as List<dynamic>)
-      .map((v) => stringToCredentialFormat(v as String))
-      .toList();
+  @JsonValue("dc+sd-jwt")
+  sdjwtvc,
 }
 
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
     DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class LogInfo {
   const LogInfo({
     required this.id,
@@ -86,28 +67,22 @@ class LogInfo {
     required this.removalLog,
   });
 
-  @JsonKey(name: "ID")
   final int id;
 
-  @JsonKey(name: "Type", fromJson: _toLogEntryType)
   final LogType type;
 
-  @JsonKey(name: "Time", fromJson: _epochSecondsToDateTime)
+  @JsonKey(fromJson: _epochSecondsToDateTime)
   final DateTime time;
 
-  @JsonKey(name: "IssuanceLog")
   final IssuanceLog? issuanceLog;
 
-  @JsonKey(name: "DisclosureLog")
   final DisclosureLog? disclosureLog;
 
-  @JsonKey(name: "SignedMessageLog")
   final SignedMessageLog? signedMessageLog;
 
-  @JsonKey(name: "RemovalLog")
   final RemovalLog? removalLog;
 
-  RequestorInfo? get requestorInfo => switch (type) {
+  TrustedParty? get requestor => switch (type) {
     LogType.disclosure => disclosureLog!.verifier,
     LogType.signature => signedMessageLog!.verifier,
     LogType.issuance => issuanceLog!.issuer,
@@ -118,7 +93,7 @@ class LogInfo {
       _$LogInfoFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class IssuanceLog {
   IssuanceLog({
     required this.protocol,
@@ -127,23 +102,21 @@ class IssuanceLog {
     required this.issuer,
   });
 
-  @JsonKey(name: "Protocol", fromJson: _toProtocol)
+  @JsonKey(fromJson: stringToProtocol)
   final Protocol protocol;
 
-  @JsonKey(name: "Credentials")
-  final List<CredentialLog> credentials;
+  final List<LogCredential> credentials;
 
-  @JsonKey(name: "DisclosedCredentials")
-  final List<CredentialLog> disclosedCredentials;
+  @JsonKey(defaultValue: [])
+  final List<LogCredential> disclosedCredentials;
 
-  @JsonKey(name: "Issuer")
-  final RequestorInfo issuer;
+  final TrustedParty issuer;
 
   factory IssuanceLog.fromJson(Map<String, dynamic> json) =>
       _$IssuanceLogFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class DisclosureLog {
   DisclosureLog({
     required this.protocol,
@@ -151,20 +124,18 @@ class DisclosureLog {
     required this.verifier,
   });
 
-  @JsonKey(name: "Protocol", fromJson: _toProtocol)
+  @JsonKey(fromJson: stringToProtocol)
   final Protocol protocol;
 
-  @JsonKey(name: "Credentials")
-  final List<CredentialLog> credentials;
+  final List<LogCredential> credentials;
 
-  @JsonKey(name: "Verifier")
-  final RequestorInfo verifier;
+  final TrustedParty verifier;
 
   factory DisclosureLog.fromJson(Map<String, dynamic> json) =>
       _$DisclosureLogFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class SignedMessageLog extends DisclosureLog {
   SignedMessageLog({
     required super.protocol,
@@ -173,41 +144,60 @@ class SignedMessageLog extends DisclosureLog {
     required this.message,
   });
 
-  @JsonKey(name: "Message")
   final String message;
 
   factory SignedMessageLog.fromJson(Map<String, dynamic> json) =>
       _$SignedMessageLogFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class RemovalLog {
   RemovalLog({required this.credentials});
 
-  @JsonKey(name: "Credentials")
-  final List<CredentialLog> credentials;
+  final List<LogCredential> credentials;
 
   factory RemovalLog.fromJson(Map<String, dynamic> json) =>
       _$RemovalLogFromJson(json);
 }
 
-@JsonSerializable(createToJson: false)
-class CredentialLog {
-  CredentialLog({
+@JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
+class LogCredential {
+  LogCredential({
+    required this.credentialId,
     required this.formats,
-    required this.credentialType,
+    required this.imagePath,
+    required this.name,
+    required this.issuer,
     required this.attributes,
+    required this.issuanceDate,
+    required this.expiryDate,
+    required this.revoked,
+    required this.revocationSupported,
+    this.issueUrl,
   });
 
-  @JsonKey(name: "Formats", fromJson: _toCredentialFormatList)
+  final String credentialId;
+
   final List<CredentialFormat> formats;
 
-  @JsonKey(name: "CredentialType")
-  final String credentialType;
+  final String imagePath;
 
-  @JsonKey(name: "Attributes")
-  final Map<String, String> attributes;
+  final TranslatedValue name;
 
-  factory CredentialLog.fromJson(Map<String, dynamic> json) =>
-      _$CredentialLogFromJson(json);
+  final TrustedParty issuer;
+
+  final List<Attribute> attributes;
+
+  final int issuanceDate;
+
+  final int expiryDate;
+
+  final bool revoked;
+
+  final bool revocationSupported;
+
+  final TranslatedValue? issueUrl;
+
+  factory LogCredential.fromJson(Map<String, dynamic> json) =>
+      _$LogCredentialFromJson(json);
 }

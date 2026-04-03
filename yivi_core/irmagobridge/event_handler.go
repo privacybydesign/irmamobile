@@ -1,26 +1,20 @@
 package irmagobridge
 
 import (
+	"encoding/json"
 	"fmt"
+	"slices"
 
 	"github.com/go-errors/errors"
-	irma "github.com/privacybydesign/irmago"
-	irmaclient "github.com/privacybydesign/irmago/irmaclient"
+	"github.com/privacybydesign/irmago/common/clientmodels"
+	"github.com/privacybydesign/irmago/irma"
 )
 
-type eventHandler struct {
-	sessionLookup map[int]*sessionHandler
-}
+type eventHandler struct{}
 
 // Enrollment to a keyshare server
 func (ah *eventHandler) enroll(event *enrollEvent) (err error) {
-	found := false
-	for _, schemeID := range client.UnenrolledSchemeManagers() {
-		if schemeID == event.SchemeID {
-			found = true
-			break
-		}
-	}
+	found := slices.Contains(yiviClient.UnenrolledSchemeManagers(), event.SchemeID)
 
 	if !found {
 		msg := fmt.Sprintf("no unenrolled scheme manager found with name %s", event.SchemeID)
@@ -35,14 +29,14 @@ func (ah *eventHandler) enroll(event *enrollEvent) (err error) {
 		return
 	}
 
-	client.KeyshareEnroll(event.SchemeID, event.Email, event.Pin, event.Language)
+	yiviClient.KeyshareEnroll(event.SchemeID, event.Email, event.Pin, event.Language)
 	return
 }
 
 // Authenticate to the keyshare server to get access to the app
 func (ah *eventHandler) authenticate(event *authenticateEvent) error {
 	enrolled := false
-	for _, schemeID := range client.EnrolledSchemeManagers() {
+	for _, schemeID := range yiviClient.EnrolledSchemeManagers() {
 		if schemeID == event.SchemeID {
 			enrolled = true
 		}
@@ -61,7 +55,7 @@ func (ah *eventHandler) authenticate(event *authenticateEvent) error {
 
 	go func() {
 		defer recoverFromPanic("Handling authenticate event panicked")
-		success, tries, blocked, err := client.KeyshareVerifyPin(event.Pin, event.SchemeID)
+		success, tries, blocked, err := yiviClient.KeyshareVerifyPin(event.Pin, event.SchemeID)
 		if err != nil {
 			serr, ok := err.(*irma.SessionError)
 			if !ok {
@@ -89,67 +83,63 @@ func (ah *eventHandler) authenticate(event *authenticateEvent) error {
 
 // Change keyshare server PIN
 func (ah *eventHandler) changePin(event *changePinEvent) (err error) {
-	enrolled := client.EnrolledSchemeManagers()
+	enrolled := yiviClient.EnrolledSchemeManagers()
 
 	if len(enrolled) == 0 {
 		return errors.Errorf("No enrolled scheme managers to change pin for")
 	}
 
-	client.KeyshareChangePin(event.OldPin, event.NewPin)
+	yiviClient.KeyshareChangePin(event.OldPin, event.NewPin)
 	return nil
 }
 
 // Start a new IRMA session
 func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
-	if event.SessionID < 1 {
-		return errors.Errorf("Session id should be provided and larger than zero")
-	}
-
-	sessionHandler := &sessionHandler{sessionID: event.SessionID}
-	ah.sessionLookup[sessionHandler.sessionID] = sessionHandler
-
-	sessionHandler.dismisser = client.NewSession(string(event.Request), sessionHandler)
+	yiviClient.NewSession(string(event.Request))
 	return nil
 }
 
-// Responding to a permission prompt when disclosing, issuing or signing
-func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err error) {
-	sh, err := ah.findSessionHandler(event.SessionID)
-	if err != nil {
-		return err
-	}
-	if sh.permissionHandler == nil {
-		return errors.Errorf("Unset permissionHandler in RespondPermission")
+func (ah *eventHandler) handleUserInteraction(event *sessionUserInteractionEvent) error {
+	interaction := clientmodels.SessionUserInteraction{
+		SessionId: event.SessionId,
+		Type:      event.Type,
 	}
 
-	go func() {
-		defer recoverFromPanic("Handling respondPermission event panicked")
-		disclosureChoice := &irma.DisclosureChoice{Attributes: event.DisclosureChoices}
-		sh.permissionHandler(event.Proceed, disclosureChoice)
-	}()
-
-	return nil
-}
-
-// Responding to a request for a pin code
-func (ah *eventHandler) respondPin(event *respondPinEvent) (err error) {
-	sh, err := ah.findSessionHandler(event.SessionID)
-	if err != nil {
-		return err
+	switch event.Type {
+	case clientmodels.UI_Permission:
+		var payload clientmodels.SessionPermissionInteractionPayload
+		if err := json.Unmarshal(event.Payload, &payload); err != nil {
+			return err
+		}
+		interaction.Payload = payload
+	case clientmodels.UI_EnteredPin:
+		var payload clientmodels.PinInteractionPayload
+		if err := json.Unmarshal(event.Payload, &payload); err != nil {
+			return err
+		}
+		interaction.Payload = payload
+	case clientmodels.UI_DismissSession:
+		// No payload needed
+	case clientmodels.UI_PreAuthorizedCode:
+		var payload clientmodels.SessionPreAuthorizedCodeInteractionPayload
+		if err := json.Unmarshal(event.Payload, &payload); err != nil {
+			return err
+		}
+		interaction.Payload = payload
+	case clientmodels.UI_AuthorizationCode:
+		var payload clientmodels.SessionAuthCodeInteractionPayload
+		if err := json.Unmarshal(event.Payload, &payload); err != nil {
+			return err
+		}
+		interaction.Payload = payload
 	}
-	if sh.pinHandler == nil {
-		return errors.Errorf("Unset pinHandler in RespondPin")
-	}
 
-	go func() {
-		defer recoverFromPanic("Handling respondPin event panicked")
-		sh.pinHandler(event.Proceed, event.Pin)
-	}()
+	yiviClient.HandleUserInteraction(interaction)
 	return nil
 }
 
 func (ah *eventHandler) clearAllData() (err error) {
-	if err := client.RemoveStorage(); err != nil {
+	if err := yiviClient.RemoveStorage(); err != nil {
 		return err
 	}
 
@@ -160,7 +150,7 @@ func (ah *eventHandler) clearAllData() (err error) {
 
 // Delete an individual credential
 func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
-	if err := client.RemoveCredentialsByHash(event.HashByFormat); err != nil {
+	if err := yiviClient.RemoveCredentialsByHash(event.HashByFormat); err != nil {
 		return err
 	}
 
@@ -168,30 +158,8 @@ func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
 	return nil
 }
 
-// Dismiss the current session
-func (ah *eventHandler) dismissSession(event *dismissSessionEvent) error {
-	sh, err := ah.findSessionHandler(event.SessionID)
-	if err != nil {
-		return err
-	}
-	if sh.dismisser != nil {
-		sh.dismisser.Dismiss()
-	}
-	return nil
-}
-
-// findSessionHandler is a helper function to find a session in the sessionLookup
-func (ah *eventHandler) findSessionHandler(sessionID int) (*sessionHandler, error) {
-	sh := ah.sessionLookup[sessionID]
-	if sh == nil {
-		return nil, errors.Errorf("Invalid session ID in RespondPermission: %d", sessionID)
-	}
-
-	return sh, nil
-}
-
 func (ah *eventHandler) updateSchemes() error {
-	err := client.GetIrmaConfiguration().UpdateSchemes()
+	err := yiviClient.GetIrmaConfiguration().UpdateSchemes()
 	if err != nil {
 		return err
 	}
@@ -201,14 +169,14 @@ func (ah *eventHandler) updateSchemes() error {
 }
 
 func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
-	var logEntries []irmaclient.LogInfo
+	var logEntries []clientmodels.LogInfo
 	var err error
 
 	// When before is not sent, it gets Go's default value 0 and 0 is never a valid id
 	if action.Before == nil {
-		logEntries, err = client.LoadNewestLogs(action.Max)
+		logEntries, err = yiviClient.LoadNewestLogs(action.Max)
 	} else {
-		logEntries, err = client.LoadLogsBefore(*action.Before, action.Max)
+		logEntries, err = yiviClient.LoadLogsBefore(*action.Before, action.Max)
 	}
 	if err != nil {
 		return err
@@ -222,28 +190,12 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 }
 
 func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
-	client.SetPreferences(event.Preferences)
-	return nil
-}
-
-func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEvent) error {
-	wizard := client.GetIrmaConfiguration().IssueWizards[event.ID]
-	if wizard == nil {
-		return errors.New("issue wizard not found")
-	}
-	contents, err := wizard.Path(client.GetIrmaConfiguration(), client.CredentialInfoList())
-	if err != nil {
-		return errors.WrapPrefix(err, "failed to process issue wizard", 0)
-	}
-	dispatchEvent(&issueWizardContentsEvent{
-		ID:             event.ID,
-		WizardContents: contents,
-	})
+	yiviClient.SetPreferences(event.Preferences)
 	return nil
 }
 
 func (ah *eventHandler) installScheme(event *installSchemeEvent) error {
-	err := client.GetIrmaConfiguration().InstallScheme(event.URL, []byte(event.PublicKey))
+	err := yiviClient.GetIrmaConfiguration().InstallScheme(event.URL, []byte(event.PublicKey))
 	if err != nil {
 		return err
 	}
@@ -253,7 +205,7 @@ func (ah *eventHandler) installScheme(event *installSchemeEvent) error {
 }
 
 func (ah *eventHandler) removeScheme(event *removeSchemeEvent) error {
-	err := client.RemoveScheme(event.SchemeID)
+	err := yiviClient.RemoveScheme(event.SchemeID)
 	if err != nil {
 		return err
 	}
@@ -263,10 +215,31 @@ func (ah *eventHandler) removeScheme(event *removeSchemeEvent) error {
 }
 
 func (ah *eventHandler) removeRequestorScheme(event *removeRequestorSchemeEvent) error {
-	err := client.RemoveRequestorScheme(event.SchemeID)
+	err := yiviClient.RemoveRequestorScheme(event.SchemeID)
 	if err != nil {
 		return err
 	}
+	dispatchConfigurationEvent()
+	return nil
+}
+
+func (ah *eventHandler) installCertificate(event *installCertificateEvent) error {
+	conf := yiviClient.GetEudiConfiguration()
+
+	switch event.Type {
+	case "issuer":
+		if err := conf.Issuers.InstallCertificate([]byte(event.PemContent)); err != nil {
+			return err
+		}
+	case "verifier":
+		if err := conf.Verifiers.InstallCertificate([]byte(event.PemContent)); err != nil {
+			return err
+		}
+	}
+
+	// Reload configuration to pick up the new certificate
+	conf.Reload()
+
 	dispatchConfigurationEvent()
 	return nil
 }

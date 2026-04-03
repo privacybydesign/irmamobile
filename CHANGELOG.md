@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Restructure session handling to use a schema-independent interface via irmago
+- Add support for issuing SD-JWT VC credentials over the OpenID4VCI protocol
+- Add support for Pre-Authorized code flow with tx_code
+- Replace disclosure permission BLoC with Riverpod-based session state management
+- Make data tab, credential details, activity and add-data screens schema-independent
+- Add certificate management in developer mode
 
 ## [7.13.4] - 2026-04-01
 ### Changed
