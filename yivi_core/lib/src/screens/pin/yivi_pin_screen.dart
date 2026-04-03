@@ -1,6 +1,5 @@
 library;
 
-import "dart:async";
 import "dart:math";
 
 import "package:flutter/material.dart";
@@ -178,7 +177,16 @@ class YiviPinScreen extends StatelessWidget {
             },
           ),
         ),
-        Expanded(child: _NumberPad(onEnterNumber: pinBloc.add)),
+        Expanded(
+          child: IgnorePointer(
+            ignoring: !enabled,
+            child: AnimatedOpacity(
+              opacity: enabled ? 1.0 : 0.4,
+              duration: const Duration(milliseconds: 200),
+              child: _NumberPad(onEnterNumber: pinBloc.add),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -246,7 +254,16 @@ class YiviPinScreen extends StatelessWidget {
             },
           ),
         ),
-        Expanded(child: _NumberPad(onEnterNumber: pinBloc.add)),
+        Expanded(
+          child: IgnorePointer(
+            ignoring: !enabled,
+            child: AnimatedOpacity(
+              opacity: enabled ? 1.0 : 0.4,
+              duration: const Duration(milliseconds: 200),
+              child: _NumberPad(onEnterNumber: pinBloc.add),
+            ),
+          ),
+        ),
         if (maxPinSize != shortPinSize)
           Padding(
             padding: EdgeInsets.only(top: theme.screenPadding),
