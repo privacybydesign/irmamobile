@@ -117,7 +117,7 @@ class TrustedParty {
 class Credential {
   final String credentialId;
   final String hash;
-  final String imagePath;
+  final String? imagePath;
   final TranslatedValue name;
   final TrustedParty issuer;
   final Map<CredentialFormat, String> credentialInstanceIds;
@@ -132,7 +132,6 @@ class Credential {
   Credential({
     required this.credentialId,
     required this.hash,
-    required this.imagePath,
     required this.name,
     required this.issuer,
     required this.credentialInstanceIds,
@@ -143,6 +142,7 @@ class Credential {
     required this.revoked,
     required this.revocationSupported,
     required this.issueUrl,
+    this.imagePath,
   });
 
   factory Credential.fromJson(Map<String, dynamic> json) =>

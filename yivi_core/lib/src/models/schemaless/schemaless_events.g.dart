@@ -108,7 +108,6 @@ Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
 Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   credentialId: json['credential_id'] as String,
   hash: json['hash'] as String,
-  imagePath: json['image_path'] as String,
   name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
   issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
   credentialInstanceIds:
@@ -133,6 +132,7 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   issueUrl: TranslatedValue.fromJson(
     json['issue_url'] as Map<String, dynamic>?,
   ),
+  imagePath: json['image_path'] as String?,
 );
 
 Map<String, dynamic> _$CredentialToJson(Credential instance) =>

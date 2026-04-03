@@ -138,7 +138,7 @@ class DisclosurePickOne {
 class SelectableCredentialInstance {
   final String credentialId;
   final String hash;
-  final String imagePath;
+  final String? imagePath;
   final TranslatedValue name;
   final TrustedParty issuer;
   final CredentialFormat format;
@@ -153,7 +153,6 @@ class SelectableCredentialInstance {
   SelectableCredentialInstance({
     required this.credentialId,
     required this.hash,
-    required this.imagePath,
     required this.name,
     required this.issuer,
     required this.format,
@@ -162,6 +161,7 @@ class SelectableCredentialInstance {
     required this.expiryDate,
     required this.revoked,
     required this.revocationSupported,
+    this.imagePath,
     this.batchInstanceCountRemaining,
     this.issueUrl,
   });

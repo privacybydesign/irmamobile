@@ -6,7 +6,7 @@ import (
 	"slices"
 
 	"github.com/go-errors/errors"
-	"github.com/privacybydesign/irmago/client"
+	"github.com/privacybydesign/irmago/common/clientmodels"
 	"github.com/privacybydesign/irmago/irma"
 )
 
@@ -100,34 +100,34 @@ func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
 }
 
 func (ah *eventHandler) handleUserInteraction(event *sessionUserInteractionEvent) error {
-	interaction := client.SessionUserInteraction{
+	interaction := clientmodels.SessionUserInteraction{
 		SessionId: event.SessionId,
 		Type:      event.Type,
 	}
 
 	switch event.Type {
-	case client.UI_Permission:
-		var payload client.SessionPermissionInteractionPayload
+	case clientmodels.UI_Permission:
+		var payload clientmodels.SessionPermissionInteractionPayload
 		if err := json.Unmarshal(event.Payload, &payload); err != nil {
 			return err
 		}
 		interaction.Payload = payload
-	case client.UI_EnteredPin:
-		var payload client.PinInteractionPayload
+	case clientmodels.UI_EnteredPin:
+		var payload clientmodels.PinInteractionPayload
 		if err := json.Unmarshal(event.Payload, &payload); err != nil {
 			return err
 		}
 		interaction.Payload = payload
-	case client.UI_DismissSession:
+	case clientmodels.UI_DismissSession:
 		// No payload needed
-	case client.UI_PreAuthorizedCode:
-		var payload client.SessionPreAuthorizedCodeInteractionPayload
+	case clientmodels.UI_PreAuthorizedCode:
+		var payload clientmodels.SessionPreAuthorizedCodeInteractionPayload
 		if err := json.Unmarshal(event.Payload, &payload); err != nil {
 			return err
 		}
 		interaction.Payload = payload
-	case client.UI_AuthorizationCode:
-		var payload client.SessionAuthCodeInteractionPayload
+	case clientmodels.UI_AuthorizationCode:
+		var payload clientmodels.SessionAuthCodeInteractionPayload
 		if err := json.Unmarshal(event.Payload, &payload); err != nil {
 			return err
 		}
@@ -169,7 +169,7 @@ func (ah *eventHandler) updateSchemes() error {
 }
 
 func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
-	var logEntries []client.LogInfo
+	var logEntries []clientmodels.LogInfo
 	var err error
 
 	// When before is not sent, it gets Go's default value 0 and 0 is never a valid id

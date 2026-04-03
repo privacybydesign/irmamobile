@@ -3,10 +3,9 @@ package irmagobridge
 import (
 	"encoding/json"
 
-	"github.com/privacybydesign/irmago/client"
 	"github.com/privacybydesign/irmago/client/clientsettings"
+	"github.com/privacybydesign/irmago/common/clientmodels"
 	"github.com/privacybydesign/irmago/irma"
-	"github.com/privacybydesign/irmago/irma/irmaclient"
 )
 
 // //
@@ -34,13 +33,13 @@ type newSessionEvent struct {
 }
 
 type sessionUserInteractionEvent struct {
-	SessionId int                        `json:"session_id"`
-	Type      client.UserInteractionType `json:"type"`
-	Payload   json.RawMessage            `json:"payload"`
+	SessionId int                              `json:"session_id"`
+	Type      clientmodels.UserInteractionType `json:"type"`
+	Payload   json.RawMessage                  `json:"payload"`
 }
 
 type deleteCredentialEvent struct {
-	HashByFormat map[irmaclient.CredentialFormat]string `json:"hash_by_format"`
+	HashByFormat map[clientmodels.CredentialFormat]string `json:"hash_by_format"`
 }
 
 type loadLogsEvent struct {
@@ -88,11 +87,11 @@ type eudiConfigurationEvent struct {
 }
 
 type schemalessCredentialsEvent struct {
-	Credentials []*client.Credential `json:"credentials"`
+	Credentials []*clientmodels.Credential `json:"credentials"`
 }
 
 type schemalessCredentialStoreEvent struct {
-	Credentials []*client.CredentialStoreItem `json:"credentials"`
+	Credentials []*clientmodels.CredentialStoreItem `json:"credentials"`
 }
 
 type enrollmentStatusEvent struct {
@@ -138,11 +137,11 @@ type changePinFailedEvent struct {
 // //
 
 type sessionStateEvent struct {
-	SessionState client.SessionState `json:"session_state"`
+	SessionState clientmodels.SessionState `json:"session_state"`
 }
 
 type logsEvent struct {
-	LogEntries []client.LogInfo `json:"log_entries"`
+	LogEntries []clientmodels.LogInfo `json:"log_entries"`
 }
 
 // //

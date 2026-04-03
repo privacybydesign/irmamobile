@@ -1,19 +1,19 @@
 package irmagobridge
 
 import (
-	"github.com/privacybydesign/irmago/client"
+	"github.com/privacybydesign/irmago/common/clientmodels"
 )
 
 type YiviSessionHandler struct {
 }
 
-func (handler *YiviSessionHandler) UpdateSession(session client.SessionState) {
+func (handler *YiviSessionHandler) UpdateSession(session clientmodels.SessionState) {
 	dispatchEvent(&sessionStateEvent{
 		SessionState: session,
 	})
-	if session.Status == client.Status_Success ||
-		session.Status == client.Status_Error ||
-		session.Status == client.Status_Dismissed {
+	if session.Status == clientmodels.Status_Success ||
+		session.Status == clientmodels.Status_Error ||
+		session.Status == clientmodels.Status_Dismissed {
 		dispatchCredentialsEvent()
 	}
 }

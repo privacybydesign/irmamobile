@@ -78,7 +78,11 @@ class _CredentialsDetailsScreenState
         children: [
           Transform.translate(
             offset: Offset(0, 4),
-            child: IrmaAvatar(logoPath: c.imagePath, size: 20),
+            child: IrmaAvatar(
+              logoPath: c.imagePath,
+              initials: c.imagePath == null && name.isNotEmpty ? name[0] : null,
+              size: 20,
+            ),
           ),
           Text(name, style: theme.textTheme.displaySmall),
         ],
