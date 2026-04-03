@@ -37,6 +37,8 @@ class _SessionPinScreenState extends State<SessionPinScreen>
   late final IrmaRepository _repo;
   late final PinBloc _pinBloc;
   final _navigatorKey = GlobalKey();
+  EnterPinStateBloc? _enterPinBloc;
+  int? _currentMaxPinSize;
 
   StreamSubscription? _pinBlocSubscription;
 
@@ -49,9 +51,11 @@ class _SessionPinScreenState extends State<SessionPinScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
         if (pinState.pinInvalid) {
+          _resetEnterPinBloc();
           _handleInvalidPin(pinState);
           HapticFeedback.heavyImpact();
         } else if (pinState.error != null) {
+          _resetEnterPinBloc();
           _handleError(pinState);
           HapticFeedback.heavyImpact();
         } else {
@@ -73,8 +77,25 @@ class _SessionPinScreenState extends State<SessionPinScreen>
     }
   }
 
+  EnterPinStateBloc _getOrCreateEnterPinBloc(int maxPinSize) {
+    if (_enterPinBloc == null || _currentMaxPinSize != maxPinSize) {
+      _enterPinBloc?.close();
+      _enterPinBloc = EnterPinStateBloc(maxPinSize);
+      _currentMaxPinSize = maxPinSize;
+    }
+    return _enterPinBloc!;
+  }
+
+  void _resetEnterPinBloc() {
+    if (_enterPinBloc != null && _currentMaxPinSize != null) {
+      _enterPinBloc!.close();
+      _enterPinBloc = EnterPinStateBloc(_currentMaxPinSize!);
+    }
+  }
+
   @override
   void dispose() {
+    _enterPinBloc?.close();
     _pinBlocSubscription?.cancel();
     _pinBloc.close();
     WidgetsBinding.instance.removeObserver(this);
@@ -181,7 +202,7 @@ class _SessionPinScreenState extends State<SessionPinScreen>
                             final maxPinSize = (snapshot.data ?? false)
                                 ? longPinSize
                                 : shortPinSize;
-                            final pinBloc = EnterPinStateBloc(maxPinSize);
+                            final pinBloc = _getOrCreateEnterPinBloc(maxPinSize);
 
                             final enabled =
                                 (blockedFor.data ?? Duration.zero).inSeconds <=

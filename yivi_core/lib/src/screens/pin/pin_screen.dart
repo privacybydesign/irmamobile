@@ -35,6 +35,8 @@ class PinScreen extends StatefulWidget {
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   late final PinBloc _pinBloc;
+  EnterPinStateBloc? _enterPinBloc;
+  int? _currentMaxPinSize;
 
   StreamSubscription? _pinBlocSubscription;
 
@@ -75,6 +77,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
       if (pinState.authenticated) {
         _pinBlocSubscription?.cancel();
       } else if (pinState.pinInvalid) {
+        _resetEnterPinBloc();
         final secondsBlocked =
             pinState.blockedUntil?.difference(DateTime.now()).inSeconds ?? 0;
         if (pinState.remainingAttempts != null &&
@@ -84,6 +87,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
           _showBlockedDialog(secondsBlocked);
         }
       } else if (pinState.error != null) {
+        _resetEnterPinBloc();
         _goToSessionErrorScreen(pinState);
       }
       if (!pinState.authenticated) {
@@ -140,8 +144,25 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     );
   }
 
+  EnterPinStateBloc _getOrCreateEnterPinBloc(int maxPinSize) {
+    if (_enterPinBloc == null || _currentMaxPinSize != maxPinSize) {
+      _enterPinBloc?.close();
+      _enterPinBloc = EnterPinStateBloc(maxPinSize);
+      _currentMaxPinSize = maxPinSize;
+    }
+    return _enterPinBloc!;
+  }
+
+  void _resetEnterPinBloc() {
+    if (_enterPinBloc != null && _currentMaxPinSize != null) {
+      _enterPinBloc!.close();
+      _enterPinBloc = EnterPinStateBloc(_currentMaxPinSize!);
+    }
+  }
+
   @override
   void dispose() {
+    _enterPinBloc?.close();
     _pinBloc.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -202,7 +223,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                           ? longPinSize
                           : shortPinSize;
 
-                      final pinBloc = EnterPinStateBloc(maxPinSize);
+                      final pinBloc = _getOrCreateEnterPinBloc(maxPinSize);
 
                       final enabled =
                           (blockedFor.data ?? Duration.zero).inSeconds <= 0 &&
