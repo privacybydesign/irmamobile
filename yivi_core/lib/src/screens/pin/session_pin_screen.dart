@@ -202,7 +202,9 @@ class _SessionPinScreenState extends State<SessionPinScreen>
                             final maxPinSize = (snapshot.data ?? false)
                                 ? longPinSize
                                 : shortPinSize;
-                            final pinBloc = _getOrCreateEnterPinBloc(maxPinSize);
+                            final pinBloc = _getOrCreateEnterPinBloc(
+                              maxPinSize,
+                            );
 
                             final enabled =
                                 (blockedFor.data ?? Duration.zero).inSeconds <=
