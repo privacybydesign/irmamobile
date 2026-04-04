@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../providers/irma_repository_provider.dart";
 import "../widgets/irma_app_bar.dart";
@@ -44,29 +45,41 @@ class YiviChoosePinScaffold extends StatelessWidget {
             valueListenable: toggleValue,
             builder: (context, longPin, _) {
               final maxPinSize = longPin ? longPinSize : shortPinSize;
-              final pinBloc = EnterPinStateBloc(maxPinSize);
               final instructionKey =
                   'choose_pin.instruction.${longPin ? 'long' : 'short'}';
-              return YiviPinScreen(
-                scaffoldKey: _scaffoldKey,
-                instructionKey: instructionKey,
-                maxPinSize: maxPinSize,
-                onSubmit: _submit,
-                pinBloc: pinBloc,
-                onTogglePinSize: () => toggleValue.value = !toggleValue.value,
-                displayPinLength: true,
-                checkSecurePin: true,
-                listener: (context, state) {
-                  if (maxPinSize == shortPinSize && state.goodEnough) {
-                    _submit(state.toString());
-                  }
-                },
-                submitButtonVisibilityListener: (context, state) {
-                  if (!longPin && state.pin.length < shortPinSize) {
-                    return defaultSubmitButtonVisibility(context, maxPinSize);
-                  }
-                  return WidgetVisibility.visible;
-                },
+              return ProviderScope(
+                overrides: [
+                  enterPinProvider.overrideWith(() => EnterPinNotifier()),
+                ],
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    ref.read(enterPinProvider.notifier).configure(maxPinSize);
+                    return YiviPinScreen(
+                      scaffoldKey: _scaffoldKey,
+                      instructionKey: instructionKey,
+                      maxPinSize: maxPinSize,
+                      onSubmit: _submit,
+                      onTogglePinSize: () =>
+                          toggleValue.value = !toggleValue.value,
+                      displayPinLength: true,
+                      checkSecurePin: true,
+                      listener: (context, state) {
+                        if (maxPinSize == shortPinSize && state.goodEnough) {
+                          _submit(state.toString());
+                        }
+                      },
+                      submitButtonVisibilityListener: (context, state) {
+                        if (!longPin && state.pin.length < shortPinSize) {
+                          return defaultSubmitButtonVisibility(
+                            context,
+                            maxPinSize,
+                          );
+                        }
+                        return WidgetVisibility.visible;
+                      },
+                    );
+                  },
+                ),
               );
             },
           );
