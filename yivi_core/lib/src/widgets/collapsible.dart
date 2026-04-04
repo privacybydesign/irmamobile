@@ -84,7 +84,8 @@ class _CollapsibleState extends State<Collapsible> {
       _isExpanded = expansionState;
     });
     if (Platform.isAndroid) {
-      SemanticsService.announce(
+      SemanticsService.sendAnnouncement(
+        View.of(context),
         _isExpanded
             ? FlutterI18n.translate(context, "accessibility.expanded")
             : FlutterI18n.translate(context, "accessibility.collapsed"),

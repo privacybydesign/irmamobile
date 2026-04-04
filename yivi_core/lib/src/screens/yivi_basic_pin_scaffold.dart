@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../providers/irma_repository_provider.dart";
 import "../widgets/irma_app_bar.dart";
@@ -43,19 +44,27 @@ class YiviBasicPinScaffold extends StatelessWidget {
           final maxPinSize = (snapshot.data ?? false)
               ? longPinSize
               : shortPinSize;
-          final pinBloc = EnterPinStateBloc(maxPinSize);
 
-          return YiviPinScreen(
-            instructionKey: instructionKey,
-            maxPinSize: maxPinSize,
-            onSubmit: submit,
-            pinBloc: pinBloc,
-            listener: (context, state) {
-              if (maxPinSize == shortPinSize &&
-                  state.pin.length == maxPinSize) {
-                submit(state.toString());
-              }
-            },
+          return ProviderScope(
+            overrides: [
+              enterPinProvider.overrideWith(() => EnterPinNotifier()),
+            ],
+            child: Consumer(
+              builder: (context, ref, _) {
+                ref.read(enterPinProvider.notifier).configure(maxPinSize);
+                return YiviPinScreen(
+                  instructionKey: instructionKey,
+                  maxPinSize: maxPinSize,
+                  onSubmit: submit,
+                  listener: (context, state) {
+                    if (maxPinSize == shortPinSize &&
+                        state.pin.length == maxPinSize) {
+                      submit(state.toString());
+                    }
+                  },
+                );
+              },
+            ),
           );
         },
       ),

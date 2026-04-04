@@ -106,37 +106,43 @@ class EnterPinState {
   }
 }
 
-class EnterPinStateBloc extends Bloc<int, EnterPinState> {
-  final int maxPinSize;
-  EnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty());
+final enterPinProvider =
+    NotifierProvider.autoDispose<EnterPinNotifier, EnterPinState>(
+      EnterPinNotifier.new,
+    );
+
+class EnterPinNotifier extends Notifier<EnterPinState> {
+  int _maxPinSize = shortPinSize;
 
   @override
-  Stream<EnterPinState> mapEventToState(int event) async* {
-    Pin pin = Pin.from(state.pin);
+  EnterPinState build() => EnterPinState.empty();
 
-    if (event >= 0 && event < 10 && state.pin.length < maxPinSize) {
-      pin.add(event);
-    } else if (event.isNegative && state.pin.isNotEmpty) {
-      pin.removeLast();
+  int get maxPinSize => _maxPinSize;
+
+  void configure(int maxPinSize) {
+    if (_maxPinSize != maxPinSize) {
+      _maxPinSize = maxPinSize;
+      state = EnterPinState.empty();
     }
-
-    yield EnterPinState.createFrom(pin: pin);
-  }
-}
-
-@visibleForTesting
-class TestEnterPinStateBloc extends Bloc<Pin, EnterPinState> {
-  final int maxPinSize;
-
-  TestEnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty());
-
-  @override
-  void add(Pin event) {
-    super.add(event.length > maxPinSize ? event.sublist(0, maxPinSize) : event);
   }
 
-  @override
-  Stream<EnterPinState> mapEventToState(Pin event) async* {
-    yield EnterPinState.createFrom(pin: event);
+  void enterNumber(int number) {
+    if (number >= 0 && number < 10 && state.pin.length < _maxPinSize) {
+      final pin = Pin.from(state.pin)..add(number);
+      state = EnterPinState.createFrom(pin: pin);
+    } else if (number.isNegative && state.pin.isNotEmpty) {
+      final pin = Pin.from(state.pin)..removeLast();
+      state = EnterPinState.createFrom(pin: pin);
+    }
+  }
+
+  void clear() => state = EnterPinState.empty();
+
+  @visibleForTesting
+  void setPin(Pin pin) {
+    final clampedPin = pin.length > _maxPinSize
+        ? pin.sublist(0, _maxPinSize)
+        : pin;
+    state = EnterPinState.createFrom(pin: clampedPin);
   }
 }
