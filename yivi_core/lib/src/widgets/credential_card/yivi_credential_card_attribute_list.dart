@@ -76,6 +76,30 @@ class _AttributeView extends StatelessWidget {
       );
     }
 
+    Text buildTextContent(schemaless.Attribute attribute) {
+      final txt = attribute.value?.string;
+      return Text(
+        txt ?? "",
+        style: theme.themeData.textTheme.bodyLarge!.copyWith(
+          color: valueColor(attribute.value),
+        ),
+      );
+    }
+
+    Text buildBooleanContent(schemaless.Attribute attribute) {
+      final val = attribute.value?.boolValue;
+      
+      // TODO: localize yes/no values
+      final localizedTxt = val == null ? "" : (val ? "Yes" : "No");
+
+      return Text(
+        localizedTxt,
+        style: theme.themeData.textTheme.bodyLarge!.copyWith(
+          color: valueColor(attribute.value),
+        ),
+      );
+    }
+
     Widget buildTappableImage(schemaless.Attribute attribute) {
       final val = attribute.value;
       final raw = val?.imagePath ?? val?.base64Image ?? "";
@@ -89,7 +113,7 @@ class _AttributeView extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => Scaffold(
                   appBar: IrmaAppBar(
-                    titleString: attribute.displayName.translate(lang),
+                    titleString: attribute.displayName.translate(lang, fallbackLang: ""),
                   ),
                   body: SingleChildScrollView(child: Center(child: image)),
                 ),
@@ -116,9 +140,10 @@ class _AttributeView extends StatelessWidget {
           if (attribute.value != null)
             switch (attribute.value!.type) {
               .translatedString => buildTranslatedTextContent(attribute),
+              .string => buildTextContent(attribute),
               .image => buildTappableImage(attribute),
               .base64Image => buildTappableImage(attribute),
-              .boolean => throw UnimplementedError(),
+              .boolean => buildBooleanContent(attribute),
               .integer => throw UnimplementedError(),
               .object => throw UnimplementedError(),
               .array => throw UnimplementedError(),

@@ -20,6 +20,7 @@ class SchemalessCredentialsEvent extends Event {
 enum AttributeType {
   object,
   array,
+  string,
   translatedString,
   boolean,
   integer,
@@ -34,6 +35,7 @@ class AttributeValue {
   final int? intValue;
   @JsonKey(name: "bool")
   final bool? boolValue;
+  final String? string;
   final TranslatedValue? translatedString;
   final List<AttributeValue>? array;
   final List<Attribute>? object;
@@ -44,6 +46,7 @@ class AttributeValue {
     required this.type,
     this.intValue,
     this.boolValue,
+    this.string,
     this.translatedString,
     this.array,
     this.object,
@@ -55,6 +58,7 @@ class AttributeValue {
   bool get hasConcreteValue =>
       intValue != null ||
       boolValue != null ||
+      string != null ||
       translatedString != null ||
       array != null ||
       object != null ||

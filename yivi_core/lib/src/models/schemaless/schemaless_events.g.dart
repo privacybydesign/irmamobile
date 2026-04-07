@@ -19,6 +19,7 @@ AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
       type: $enumDecode(_$AttributeTypeEnumMap, json['type']),
       intValue: (json['int'] as num?)?.toInt(),
       boolValue: json['bool'] as bool?,
+      string: json['string'] as String?,
       translatedString: json['translated_string'] == null
           ? null
           : TranslatedValue.fromJson(
@@ -39,6 +40,7 @@ Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
       'type': _$AttributeTypeEnumMap[instance.type]!,
       'int': instance.intValue,
       'bool': instance.boolValue,
+      'string': instance.string,
       'translated_string': instance.translatedString,
       'array': instance.array,
       'object': instance.object,
@@ -49,6 +51,7 @@ Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
 const _$AttributeTypeEnumMap = {
   AttributeType.object: 'object',
   AttributeType.array: 'array',
+  AttributeType.string: 'string',
   AttributeType.translatedString: 'translated_string',
   AttributeType.boolean: 'boolean',
   AttributeType.integer: 'integer',
