@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:intl_phone_number_input/intl_phone_number_input.dart";
+import "package:intl_phone_number_input/src/models/country_list.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
@@ -47,6 +48,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   void initState() {
     super.initState();
+    _ensureCaribeanCountriesRegistered();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
@@ -267,6 +269,67 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
               ),
       ),
     );
+  }
+
+  /// Adds Caribbean countries that are missing from the intl_phone_number_input package.
+  static void _ensureCaribeanCountriesRegistered() {
+    final existing = Countries.countryList
+        .map((c) => c["alpha_2_code"] as String)
+        .toSet();
+
+    const missingCountries = [
+      {
+        "num_code": "534",
+        "alpha_2_code": "SX",
+        "alpha_3_code": "SXM",
+        "en_short_name": "Sint Maarten",
+        "nationality": "Sint Maartener",
+        "dial_code": "+1721",
+        "nameTranslations": {
+          "nl": "Sint Maarten",
+          "en": "Sint Maarten",
+          "de": "Sint Maarten",
+          "fr": "Saint-Martin (partie néerlandaise)",
+          "es": "San Martín",
+        },
+      },
+      {
+        "num_code": "531",
+        "alpha_2_code": "CW",
+        "alpha_3_code": "CUW",
+        "en_short_name": "Curaçao",
+        "nationality": "Curaçaoan",
+        "dial_code": "+5999",
+        "nameTranslations": {
+          "nl": "Curaçao",
+          "en": "Curaçao",
+          "de": "Curaçao",
+          "fr": "Curaçao",
+          "es": "Curazao",
+        },
+      },
+      {
+        "num_code": "535",
+        "alpha_2_code": "BQ",
+        "alpha_3_code": "BES",
+        "en_short_name": "Caribbean Netherlands",
+        "nationality": "Dutch Caribbean",
+        "dial_code": "+599",
+        "nameTranslations": {
+          "nl": "Caribisch Nederland",
+          "en": "Caribbean Netherlands",
+          "de": "Karibische Niederlande",
+          "fr": "Pays-Bas caribéens",
+          "es": "Caribe Neerlandés",
+        },
+      },
+    ];
+
+    for (final country in missingCountries) {
+      if (!existing.contains(country["alpha_2_code"])) {
+        Countries.countryList.add(country);
+      }
+    }
   }
 
   int countryComparator(a, b) {
