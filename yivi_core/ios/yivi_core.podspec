@@ -27,7 +27,8 @@ A new Flutter plugin project.
   s.swift_version = '5.0'
 
   # including the irmago bridge here
-  s.vendored_frameworks = 'Irmagobridge.xcframework' 
+  s.vendored_frameworks = 'Irmagobridge.xcframework'
+  s.library = 'resolv'
   s.resources = ['Assets/**/*']
 
   # If your plugin requires a privacy manifest, for example if it uses any

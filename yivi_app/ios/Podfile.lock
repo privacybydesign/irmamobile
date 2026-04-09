@@ -214,7 +214,7 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   SQLCipher: eb79c64049cb002b4e9fcb30edb7979bf4706dfc
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
-  yivi_core: 313dbabb14f68b7a99a2c4864df93243ce4d6989
+  yivi_core: a3ab0d1f43072b4c28c8fda757a25cebe72bdc47
 
 PODFILE CHECKSUM: dfdfa93e068236aa3f0a0be562d17513964dbc69
 
