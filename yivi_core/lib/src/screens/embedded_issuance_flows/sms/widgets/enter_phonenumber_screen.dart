@@ -48,7 +48,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   void initState() {
     super.initState();
-    _ensureCaribeanCountriesRegistered();
+    _ensureCaribbeanCountriesRegistered();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
@@ -272,7 +272,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   }
 
   /// Adds Caribbean countries that are missing from the intl_phone_number_input package.
-  static void _ensureCaribeanCountriesRegistered() {
+  static void _ensureCaribbeanCountriesRegistered() {
     final existing = Countries.countryList
         .map((c) => c["alpha_2_code"] as String)
         .toSet();
