@@ -20,11 +20,6 @@ AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
       intValue: (json['int'] as num?)?.toInt(),
       boolValue: json['bool'] as bool?,
       string: json['string'] as String?,
-      translatedString: json['translated_string'] == null
-          ? null
-          : TranslatedValue.fromJson(
-              json['translated_string'] as Map<String, dynamic>?,
-            ),
       array: (json['array'] as List<dynamic>?)
           ?.map((e) => AttributeValue.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -41,7 +36,6 @@ Map<String, dynamic> _$AttributeValueToJson(AttributeValue instance) =>
       'int': instance.intValue,
       'bool': instance.boolValue,
       'string': instance.string,
-      'translated_string': instance.translatedString,
       'array': instance.array,
       'object': instance.object,
       'image_path': instance.imagePath,
@@ -52,7 +46,6 @@ const _$AttributeTypeEnumMap = {
   AttributeType.object: 'object',
   AttributeType.array: 'array',
   AttributeType.string: 'string',
-  AttributeType.translatedString: 'translated_string',
   AttributeType.boolean: 'boolean',
   AttributeType.integer: 'integer',
   AttributeType.image: 'image',

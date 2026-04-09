@@ -61,19 +61,9 @@ class _AttributeView extends StatelessWidget {
 
     Color valueColor(schemaless.AttributeValue? val) {
       if (compareTo == null) return theme.dark;
-      return val?.translatedString == compareTo?.translatedString
+      return val?.string == compareTo?.string
           ? theme.success
           : theme.error;
-    }
-
-    Text buildTranslatedTextContent(schemaless.Attribute attribute) {
-      final txt = attribute.value?.translatedString;
-      return Text(
-        txt?.translate(lang) ?? "",
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: valueColor(attribute.value),
-        ),
-      );
     }
 
     Text buildTextContent(schemaless.Attribute attribute) {
@@ -139,7 +129,6 @@ class _AttributeView extends StatelessWidget {
           buildLabel(attribute),
           if (attribute.value != null)
             switch (attribute.value!.type) {
-              .translatedString => buildTranslatedTextContent(attribute),
               .string => buildTextContent(attribute),
               .image => buildTappableImage(attribute),
               .base64Image => buildTappableImage(attribute),

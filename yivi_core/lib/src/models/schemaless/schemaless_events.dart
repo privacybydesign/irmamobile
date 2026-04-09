@@ -21,7 +21,6 @@ enum AttributeType {
   object,
   array,
   string,
-  translatedString,
   boolean,
   integer,
   image,
@@ -36,7 +35,6 @@ class AttributeValue {
   @JsonKey(name: "bool")
   final bool? boolValue;
   final String? string;
-  final TranslatedValue? translatedString;
   final List<AttributeValue>? array;
   final List<Attribute>? object;
   final String? imagePath;
@@ -47,7 +45,6 @@ class AttributeValue {
     this.intValue,
     this.boolValue,
     this.string,
-    this.translatedString,
     this.array,
     this.object,
     this.imagePath,
@@ -59,7 +56,6 @@ class AttributeValue {
       intValue != null ||
       boolValue != null ||
       string != null ||
-      translatedString != null ||
       array != null ||
       object != null ||
       imagePath != null ||
