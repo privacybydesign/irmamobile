@@ -76,6 +76,27 @@ class _AttributeView extends StatelessWidget {
       );
     }
 
+    Text buildIntegerContent(schemaless.Attribute attribute) {
+      final val = attribute.value?.intValue;
+      return Text(
+        val?.toString() ?? "",
+        style: theme.themeData.textTheme.bodyLarge!.copyWith(
+          color: valueColor(attribute.value),
+        ),
+      );
+    }
+
+    Text buildArrayContent(schemaless.Attribute attribute) {
+      final items = attribute.value?.array ?? [];
+      final text = items.map((item) => item.string ?? item.intValue?.toString() ?? "").join(", ");
+      return Text(
+        text,
+        style: theme.themeData.textTheme.bodyLarge!.copyWith(
+          color: valueColor(attribute.value),
+        ),
+      );
+    }
+
     Text buildBooleanContent(schemaless.Attribute attribute) {
       final val = attribute.value?.boolValue;
       
@@ -133,9 +154,9 @@ class _AttributeView extends StatelessWidget {
               .image => buildTappableImage(attribute),
               .base64Image => buildTappableImage(attribute),
               .boolean => buildBooleanContent(attribute),
-              .integer => throw UnimplementedError(),
+              .integer => buildIntegerContent(attribute),
               .object => throw UnimplementedError(),
-              .array => throw UnimplementedError(),
+              .array => buildArrayContent(attribute),
             },
         ],
       ),
