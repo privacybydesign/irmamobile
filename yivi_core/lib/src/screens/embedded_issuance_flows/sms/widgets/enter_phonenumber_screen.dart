@@ -49,6 +49,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   void initState() {
     super.initState();
     _ensureCaribbeanCountriesRegistered();
+    _removeExcludedCountries();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
@@ -349,6 +350,51 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
 
     // Neither preferred → keep original ordering or sort alphabetically
     return a.alpha2Code.compareTo(b.alpha2Code);
+  }
+
+  /// Removes countries that should not be available in the phone number input.
+  static void _removeExcludedCountries() {
+    const excludedCountries = {
+      "AF", // Afghanistan
+      "AO", // Angola
+      "DZ", // Algeria
+      "AZ", // Azerbaijan
+      "BD", // Bangladesh
+      "BY", // Belarus
+      "BT", // Bhutan
+      "BI", // Burundi
+      "EG", // Egypt
+      "ET", // Ethiopia
+      "ID", // Indonesia
+      "IR", // Iran
+      "IQ", // Iraq
+      "JO", // Jordan
+      "KZ", // Kazakhstan
+      "XK", // Kosovo
+      "KG", // Kyrgyzstan
+      "LB", // Lebanon
+      "LY", // Libya
+      "MG", // Madagascar
+      "MW", // Malawi
+      "MR", // Mauritania
+      "NP", // Nepal
+      "PK", // Pakistan
+      "RU", // Russia
+      "SN", // Senegal
+      "SI", // Slovenia
+      "LK", // Sri Lanka
+      "SY", // Syria
+      "TJ", // Tajikistan
+      "TZ", // Tanzania
+      "TN", // Tunisia
+      "TM", // Turkmenistan
+      "UZ", // Uzbekistan
+      "YE", // Yemen
+    };
+
+    Countries.countryList.removeWhere(
+      (c) => excludedCountries.contains(c["alpha_2_code"]),
+    );
   }
 
   // Some countries that should appear on the top of the list
