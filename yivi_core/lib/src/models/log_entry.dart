@@ -52,9 +52,6 @@ enum CredentialFormat {
   sdjwtvc,
 }
 
-DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
-    DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
-
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class LogInfo {
   const LogInfo({
@@ -68,18 +65,11 @@ class LogInfo {
   });
 
   final int id;
-
   final LogType type;
-
-  @JsonKey(fromJson: _epochSecondsToDateTime)
   final DateTime time;
-
   final IssuanceLog? issuanceLog;
-
   final DisclosureLog? disclosureLog;
-
   final SignedMessageLog? signedMessageLog;
-
   final RemovalLog? removalLog;
 
   TrustedParty? get requestor => switch (type) {
