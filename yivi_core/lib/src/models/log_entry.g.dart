@@ -18,7 +18,7 @@ Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) =>
 LogInfo _$LogInfoFromJson(Map<String, dynamic> json) => LogInfo(
   id: (json['id'] as num).toInt(),
   type: $enumDecode(_$LogTypeEnumMap, json['type']),
-  time: _epochSecondsToDateTime((json['time'] as num).toInt()),
+  time: DateTime.parse(json['time'] as String),
   issuanceLog: json['issuance_log'] == null
       ? null
       : IssuanceLog.fromJson(json['issuance_log'] as Map<String, dynamic>),

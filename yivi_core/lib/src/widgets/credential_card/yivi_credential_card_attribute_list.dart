@@ -48,6 +48,13 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   }
 }
 
+class IndentPointer {
+    int indentLevel = 0;
+
+    void increase() => indentLevel++;
+    String getIndenting() => (indentLevel > 0 ? "${" " * indentLevel}-" : "");
+}
+
 class _AttributeView extends StatelessWidget {
   const _AttributeView({required this.attribute, this.compareTo});
   final schemaless.Attribute attribute;
@@ -57,51 +64,75 @@ class _AttributeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    Text buildLabel(schemaless.Attribute a) => Text(
+    final indenting = IndentPointer();
+
+    return Padding(
+      padding: .symmetric(
+        vertical: attribute.value == null ? 0 : theme.tinySpacing,
+      ),
+      child: Column(
+        mainAxisSize: .min,
+        crossAxisAlignment: .start,
+        children: [
+          buildLabel(attribute, theme, lang),
+          buildContentForAttribute(attribute, context, theme, lang, indenting),
+        ],
+      ),
+    );
+  }
+
+  Image _imageFromRaw(String raw) {
+    return .memory(const Base64Decoder().convert(raw), fit: .fitWidth);
+  }
+
+  Text buildLabel(schemaless.Attribute a, IrmaThemeData theme, String lang) => Text(
       a.displayName.translate(lang),
       style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
     );
 
-    Color valueColor(schemaless.AttributeValue? val) {
+    Color valueColor(schemaless.AttributeValue? val, IrmaThemeData theme) {
       if (compareTo == null) return theme.dark;
       return val?.string == compareTo?.string ? theme.success : theme.error;
     }
 
-    Text buildTextContent(schemaless.Attribute attribute) {
-      final txt = attribute.value?.string;
+    Text buildTextContent(schemaless.AttributeValue val, IrmaThemeData theme, String lang, IndentPointer indenting) {
+      final txt = val.string;
+      final prepend = indenting.getIndenting();
       return Text(
-        txt ?? "",
+        "$prepend ${txt ?? ""}",
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: valueColor(attribute.value),
+          color: valueColor(val, theme),
         ),
       );
     }
 
-    Text buildIntegerContent(schemaless.Attribute attribute) {
-      final val = attribute.value?.intValue;
-      return Text(
-        val?.toString() ?? "",
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: valueColor(attribute.value),
-        ),
-      );
-    }
-
-    Text buildBooleanContent(schemaless.Attribute attribute) {
-      final val = attribute.value?.boolValue;
+    Text buildBooleanContent(schemaless.AttributeValue val, IrmaThemeData theme, String lang, IndentPointer indenting) {
+      final boolVal = val.boolValue;
 
       // TODO: localize yes/no values
-      final localizedTxt = val == null ? "" : (val ? "Yes" : "No");
+      final localizedTxt = boolVal == null ? "" : (boolVal ? "Yes" : "No");
+      final prepend = indenting.getIndenting();
 
       return Text(
-        localizedTxt,
+        "$prepend $localizedTxt",
         style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: valueColor(attribute.value),
+          color: valueColor(val, theme),
         ),
       );
     }
 
-    Widget buildTappableImage(schemaless.Attribute attribute) {
+    Text buildIntegerContent(schemaless.AttributeValue val, IrmaThemeData theme, String lang, IndentPointer indenting) {
+      final intVal = val.intValue;
+      final prepend = indenting.getIndenting();
+      return Text(
+        "$prepend ${intVal?.toString() ?? ""}",
+        style: theme.themeData.textTheme.bodyLarge!.copyWith(
+          color: valueColor(val, theme),
+        ),
+      );
+    }
+
+    Widget buildTappableImage(schemaless.Attribute attribute, BuildContext context, IrmaThemeData theme, String lang) {
       final val = attribute.value;
       final raw = val?.imagePath ?? val?.base64Image ?? "";
       final image = _imageFromRaw(raw);
@@ -132,29 +163,25 @@ class _AttributeView extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: .symmetric(
-        vertical: attribute.value == null ? 0 : theme.tinySpacing,
-      ),
-      child: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .start,
-        children: [
-          buildLabel(attribute),
-          if (attribute.value != null)
-            switch (attribute.value!.type) {
-              .string => buildTextContent(attribute),
-              .image => buildTappableImage(attribute),
-              .base64Image => buildTappableImage(attribute),
-              .boolean => buildBooleanContent(attribute),
-              .integer => buildIntegerContent(attribute),
-            },
-        ],
-      ),
-    );
-  }
+    Widget buildContentForAttribute(schemaless.Attribute attribute, BuildContext context, IrmaThemeData theme, String lang, IndentPointer indenting) {
+      if (attribute.value != null) {
+        return switch (attribute.value!.type) {
+          .string || .boolean || .integer => buildContentAttributeValue(attribute.value!, context, theme, lang, indenting),
+          .image => buildTappableImage(attribute, context, theme, lang),
+          .base64Image => buildTappableImage(attribute, context, theme, lang),
+        };
+      }
+      return const SizedBox.shrink();
+    }
 
-  Image _imageFromRaw(String raw) {
-    return .memory(const Base64Decoder().convert(raw), fit: .fitWidth);
-  }
+    Widget buildContentAttributeValue(schemaless.AttributeValue val, BuildContext context, IrmaThemeData theme, String lang, IndentPointer indenting) {
+      return switch (val.type) {
+        .string => buildTextContent(val, theme, lang, indenting),
+        .boolean => buildBooleanContent(val, theme, lang, indenting),
+        .integer => buildIntegerContent(val, theme, lang, indenting),
+        // Handled at buildContentForAttribute
+        .image => throw UnimplementedError(),
+        .base64Image => throw UnimplementedError(),
+      };
+    }
 }

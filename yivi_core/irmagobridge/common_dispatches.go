@@ -2,6 +2,7 @@ package irmagobridge
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/go-errors/errors"
 	"github.com/privacybydesign/irmago/eudi"
@@ -41,16 +42,16 @@ func (conf *WrappedConfiguration) MarshalJSON() ([]byte, error) {
 
 type WrappedEudiConfiguration eudi.Configuration
 type Cert struct {
-	Thumbprint string
-	Subject    string
-	ChildCert  *Cert
-	Deleteable bool
+	Thumbprint string `json:"thumbprint"`
+	Subject    string `json:"subject"`
+	ChildCert  *Cert  `json:"childCert,omitempty"`
+	Deleteable bool   `json:"deleteable"`
 }
 
 func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 	var encodedData struct {
-		Issuers   []Cert
-		Verifiers []Cert
+		Issuers   []Cert `json:"issuers"`
+		Verifiers []Cert `json:"verifiers"`
 	}
 
 	encodedData.Issuers = []Cert{}
@@ -72,7 +73,7 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 		var parentCert *Cert
 		for _, cert := range chain {
 			c := &Cert{
-				Thumbprint: string(cert.Signature),
+				Thumbprint: fmt.Sprintf("%x", cert.Signature),
 				Subject:    cert.Subject.CommonName,
 				Deleteable: false,
 			}
@@ -102,7 +103,7 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 		var parentCert *Cert
 		for _, cert := range chain {
 			c := &Cert{
-				Thumbprint: string(cert.Signature),
+				Thumbprint: fmt.Sprintf("%x", cert.Signature),
 				Subject:    cert.Subject.CommonName,
 				Deleteable: false,
 			}
