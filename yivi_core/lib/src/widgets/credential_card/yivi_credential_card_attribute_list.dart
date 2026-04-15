@@ -101,7 +101,6 @@ class _AttributeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final indenting = IndentPointer();
 
     return Padding(
       padding: .symmetric(
@@ -112,7 +111,7 @@ class _AttributeView extends StatelessWidget {
         crossAxisAlignment: .start,
         children: [
           buildLabel(attribute, theme, lang),
-          buildContentForAttribute(attribute, context, theme, lang, indenting),
+          buildContentForAttribute(attribute, context, theme, lang),
         ],
       ),
     );
@@ -136,13 +135,9 @@ class _AttributeView extends StatelessWidget {
   Text buildTextContent(
     schemaless.AttributeValue val,
     IrmaThemeData theme,
-    String lang,
-    IndentPointer indenting,
   ) {
-    final txt = val.string;
-    final prepend = indenting.getIndenting();
     return Text(
-      "$prepend ${txt ?? ""}",
+      val.string ?? "",
       style: theme.themeData.textTheme.bodyLarge!.copyWith(
         color: valueColor(val, theme),
       ),
@@ -152,17 +147,14 @@ class _AttributeView extends StatelessWidget {
   Text buildBooleanContent(
     schemaless.AttributeValue val,
     IrmaThemeData theme,
-    String lang,
-    IndentPointer indenting,
   ) {
     final boolVal = val.boolValue;
 
     // TODO: localize yes/no values
     final localizedTxt = boolVal == null ? "" : (boolVal ? "Yes" : "No");
-    final prepend = indenting.getIndenting();
 
     return Text(
-      "$prepend $localizedTxt",
+      localizedTxt,
       style: theme.themeData.textTheme.bodyLarge!.copyWith(
         color: valueColor(val, theme),
       ),
@@ -172,13 +164,9 @@ class _AttributeView extends StatelessWidget {
   Text buildIntegerContent(
     schemaless.AttributeValue val,
     IrmaThemeData theme,
-    String lang,
-    IndentPointer indenting,
   ) {
-    final intVal = val.intValue;
-    final prepend = indenting.getIndenting();
     return Text(
-      "$prepend ${intVal?.toString() ?? ""}",
+      val.intValue?.toString() ?? "",
       style: theme.themeData.textTheme.bodyLarge!.copyWith(
         color: valueColor(val, theme),
       ),
@@ -226,38 +214,14 @@ class _AttributeView extends StatelessWidget {
     BuildContext context,
     IrmaThemeData theme,
     String lang,
-    IndentPointer indenting,
   ) {
-    if (attribute.value != null) {
-      return switch (attribute.value!.type) {
-        .string || .boolean || .integer => buildContentAttributeValue(
-          attribute.value!,
-          context,
-          theme,
-          lang,
-          indenting,
-        ),
-        .image => buildTappableImage(attribute, context, theme, lang),
-        .base64Image => buildTappableImage(attribute, context, theme, lang),
-      };
-    }
-    return const SizedBox.shrink();
-  }
-
-  Widget buildContentAttributeValue(
-    schemaless.AttributeValue val,
-    BuildContext context,
-    IrmaThemeData theme,
-    String lang,
-    IndentPointer indenting,
-  ) {
-    return switch (val.type) {
-      .string => buildTextContent(val, theme, lang, indenting),
-      .boolean => buildBooleanContent(val, theme, lang, indenting),
-      .integer => buildIntegerContent(val, theme, lang, indenting),
-      // Handled at buildContentForAttribute
-      .image => throw UnimplementedError(),
-      .base64Image => throw UnimplementedError(),
+    if (attribute.value == null) return const SizedBox.shrink();
+    return switch (attribute.value!.type) {
+      .string => buildTextContent(attribute.value!, theme),
+      .boolean => buildBooleanContent(attribute.value!, theme),
+      .integer => buildIntegerContent(attribute.value!, theme),
+      .image => buildTappableImage(attribute, context, theme, lang),
+      .base64Image => buildTappableImage(attribute, context, theme, lang),
     };
   }
 }
