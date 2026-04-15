@@ -35,7 +35,9 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
     Widget avatar = IrmaAvatar(
       size: logoContainerSize,
       logoPath: credentialImagePath,
-      initials: credentialImagePath == null && getTranslation(context, credentialName).isNotEmpty
+      initials:
+          credentialImagePath == null &&
+              getTranslation(context, credentialName).isNotEmpty
           ? getTranslation(context, credentialName)[0]
           : null,
     );

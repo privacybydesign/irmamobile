@@ -1,6 +1,7 @@
 import "dart:convert";
 
 import "package:collection/collection.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
@@ -38,7 +39,9 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
         for (final a in sorted)
           _AttributeView(
             attribute: a,
-            compareTo: compareTo?.firstWhereOrNull((c) => c.id == a.id)?.value,
+            compareTo: compareTo
+                ?.firstWhereOrNull((c) => listEquals(c.claimPath, a.claimPath))
+                ?.value,
           ),
       ],
     );
@@ -61,9 +64,7 @@ class _AttributeView extends StatelessWidget {
 
     Color valueColor(schemaless.AttributeValue? val) {
       if (compareTo == null) return theme.dark;
-      return val?.string == compareTo?.string
-          ? theme.success
-          : theme.error;
+      return val?.string == compareTo?.string ? theme.success : theme.error;
     }
 
     Text buildTextContent(schemaless.Attribute attribute) {
@@ -86,20 +87,9 @@ class _AttributeView extends StatelessWidget {
       );
     }
 
-    Text buildArrayContent(schemaless.Attribute attribute) {
-      final items = attribute.value?.array ?? [];
-      final text = items.map((item) => item.string ?? item.intValue?.toString() ?? "").join(", ");
-      return Text(
-        text,
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: valueColor(attribute.value),
-        ),
-      );
-    }
-
     Text buildBooleanContent(schemaless.Attribute attribute) {
       final val = attribute.value?.boolValue;
-      
+
       // TODO: localize yes/no values
       final localizedTxt = val == null ? "" : (val ? "Yes" : "No");
 
@@ -124,7 +114,10 @@ class _AttributeView extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => Scaffold(
                   appBar: IrmaAppBar(
-                    titleString: attribute.displayName.translate(lang, fallbackLang: ""),
+                    titleString: attribute.displayName.translate(
+                      lang,
+                      fallbackLang: "",
+                    ),
                   ),
                   body: SingleChildScrollView(child: Center(child: image)),
                 ),
@@ -155,8 +148,6 @@ class _AttributeView extends StatelessWidget {
               .base64Image => buildTappableImage(attribute),
               .boolean => buildBooleanContent(attribute),
               .integer => buildIntegerContent(attribute),
-              .object => throw UnimplementedError(),
-              .array => buildArrayContent(attribute),
             },
         ],
       ),

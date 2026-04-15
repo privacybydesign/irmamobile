@@ -95,7 +95,7 @@ class _DisclosureChoicesOverviewState
                   credentialId: selected.credentialId,
                   credentialHash: selected.hash,
                   attributePaths: selected.attributes
-                      .map((attr) => <dynamic>[attr.id])
+                      .map((attr) => attr.claimPath)
                       .toList(),
                 ),
               ],
@@ -188,7 +188,7 @@ class _DisclosureChoicesOverviewState
                   credentialId: selected.credentialId,
                   credentialHash: selected.hash,
                   attributePaths: selected.attributes
-                      .map((attr) => <dynamic>[attr.id])
+                      .map((attr) => attr.claimPath)
                       .toList(),
                 ),
               );

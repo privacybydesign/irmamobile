@@ -34,7 +34,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
         )
         .map(
           (a) => Attribute(
-            id: a.id,
+            claimPath: a.claimPath,
             displayName: a.displayName,
             description: a.description,
             value: a.requestedValue,
