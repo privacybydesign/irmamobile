@@ -30,6 +30,9 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
   issueURL: json['issue_url'] == null
       ? null
       : TranslatedValue.fromJson(json['issue_url'] as Map<String, dynamic>?),
+  image: json['image'] == null
+      ? null
+      : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$CredentialDescriptorToJson(
@@ -40,6 +43,7 @@ Map<String, dynamic> _$CredentialDescriptorToJson(
   'issuer': instance.issuer,
   'category': instance.category,
   'image_path': instance.imagePath,
+  'image': instance.image,
   'attributes': instance.attributes,
   'issue_url': instance.issueURL,
 };

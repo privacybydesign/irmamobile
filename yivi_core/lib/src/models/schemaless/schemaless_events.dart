@@ -1,3 +1,7 @@
+
+import "dart:convert";
+
+import "package:flutter/material.dart";
 import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
@@ -99,6 +103,7 @@ class TrustedParty {
   final TranslatedValue name;
   final TranslatedValue? url;
   final String? imagePath;
+  final LogoImage? image;
   final TrustedParty? parent;
   final bool verified;
 
@@ -109,7 +114,12 @@ class TrustedParty {
     required this.parent,
     required this.verified,
     this.imagePath,
+    this.image,
   });
+
+  Image? getImageFromBase64() {
+    return image?.getImageFromBase64();
+  }
 
   factory TrustedParty.fromJson(Map<String, dynamic> json) =>
       _$TrustedPartyFromJson(json);
@@ -118,10 +128,29 @@ class TrustedParty {
 }
 
 @JsonSerializable(fieldRename: .snake)
+class LogoImage {
+  final String base64;
+  final String? mimeType;
+
+  LogoImage({required this.base64, this.mimeType});
+
+  Image getImageFromBase64() {
+    return Image.memory(
+      base64Decode(base64),
+    );
+  }
+
+  factory LogoImage.fromJson(Map<String, dynamic> json) => _$LogoImageFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LogoImageToJson(this);
+}
+
+@JsonSerializable(fieldRename: .snake)
 class Credential {
   final String credentialId;
   final String hash;
   final String? imagePath;
+  final LogoImage? image;
   final TranslatedValue name;
   final TrustedParty issuer;
   final Map<CredentialFormat, String> credentialInstanceIds;
@@ -147,7 +176,12 @@ class Credential {
     required this.revocationSupported,
     required this.issueUrl,
     this.imagePath,
+    this.image,
   });
+
+  Image? getImageFromBase64() {
+      return image?.getImageFromBase64();
+  }
 
   factory Credential.fromJson(Map<String, dynamic> json) =>
       _$CredentialFromJson(json);

@@ -27,6 +27,7 @@ class YiviCredentialCard extends ConsumerWidget {
   final bool compact;
 
   final String? imagePath;
+  final Image? image;
   final List<Attribute>? compareTo;
   final Function()? onTap;
   final IrmaCardStyle style;
@@ -42,6 +43,7 @@ class YiviCredentialCard extends ConsumerWidget {
     required this.status,
     required this.compact,
     this.imagePath,
+    this.image,
     this.compareTo,
     this.onTap,
     this.headerTrailing,
@@ -68,6 +70,7 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: credential.name,
          issuerName: credential.issuer.name,
          imagePath: credential.imagePath,
+         image: credential.getImageFromBase64(),
          attributes: credential.attributes,
          status: CredentialCardStatus(
            expiryDateUnix: credential.expiryDate,
@@ -136,6 +139,7 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          imagePath: descriptor.imagePath,
+         image: descriptor.getImageFromBase64(),
          attributes: descriptor.attributes
              .where(
                (a) =>
@@ -194,6 +198,7 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          imagePath: descriptor.imagePath,
+         image: descriptor.getImageFromBase64(),
          attributes: descriptor.attributes,
          status: CredentialCardStatus(
            revoked: false,
@@ -259,7 +264,8 @@ class YiviCredentialCard extends ConsumerWidget {
             compact: compact,
             credentialName: getTranslation(context, credentialName),
             issuerName: getTranslation(context, issuerName),
-            logo: imagePath,
+            logoPath: imagePath,
+            logoImage: image,
             trailing: headerTrailing,
             isExpired: status.isExpired,
             isRevoked: status.revoked,

@@ -96,6 +96,9 @@ TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
       : TrustedParty.fromJson(json['parent'] as Map<String, dynamic>),
   verified: json['verified'] as bool,
   imagePath: json['image_path'] as String?,
+  image: json['image'] == null
+      ? null
+      : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
@@ -104,9 +107,20 @@ Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
       'name': instance.name,
       'url': instance.url,
       'image_path': instance.imagePath,
+      'image': instance.image,
       'parent': instance.parent,
       'verified': instance.verified,
     };
+
+LogoImage _$LogoImageFromJson(Map<String, dynamic> json) => LogoImage(
+  base64: json['base64'] as String,
+  mimeType: json['mime_type'] as String?,
+);
+
+Map<String, dynamic> _$LogoImageToJson(LogoImage instance) => <String, dynamic>{
+  'base64': instance.base64,
+  'mime_type': instance.mimeType,
+};
 
 Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   credentialId: json['credential_id'] as String,
@@ -136,6 +150,9 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
     json['issue_url'] as Map<String, dynamic>?,
   ),
   imagePath: json['image_path'] as String?,
+  image: json['image'] == null
+      ? null
+      : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$CredentialToJson(Credential instance) =>
@@ -143,6 +160,7 @@ Map<String, dynamic> _$CredentialToJson(Credential instance) =>
       'credential_id': instance.credentialId,
       'hash': instance.hash,
       'image_path': instance.imagePath,
+      'image': instance.image,
       'name': instance.name,
       'issuer': instance.issuer,
       'credential_instance_ids': instance.credentialInstanceIds.map(

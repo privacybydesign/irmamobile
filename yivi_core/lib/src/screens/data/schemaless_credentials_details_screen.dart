@@ -70,6 +70,14 @@ class _CredentialsDetailsScreenState
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final name = c.name.translate(lang);
     final theme = IrmaTheme.of(context);
+    
+    var imagePath = c.imagePath;
+    Image? credentialImageBase64 = c.getImageFromBase64();
+
+    if (credentialImageBase64 != null) {
+      imagePath = null;
+    }
+
     return IrmaAppBar(
       title: Row(
         mainAxisSize: .min,
@@ -79,8 +87,9 @@ class _CredentialsDetailsScreenState
           Transform.translate(
             offset: Offset(0, 4),
             child: IrmaAvatar(
-              logoPath: c.imagePath,
-              initials: c.imagePath == null && name.isNotEmpty ? name[0] : null,
+              logoPath: imagePath,
+              logoImage: credentialImageBase64,
+              initials: imagePath == null && credentialImageBase64 == null && name.isNotEmpty ? name[0] : null,
               size: 20,
             ),
           ),

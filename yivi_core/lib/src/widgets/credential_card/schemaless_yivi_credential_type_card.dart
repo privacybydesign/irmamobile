@@ -8,6 +8,7 @@ import "../irma_card.dart";
 
 class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   final String? credentialImagePath;
+  final Image? credentialImageBase64;
   final TranslatedValue credentialName;
   final String credentialId;
   final TranslatedValue issuerName;
@@ -21,6 +22,7 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
     this.checked = false,
     this.trailingIcon,
     this.credentialImagePath,
+    this.credentialImageBase64,
     required this.credentialName,
     required this.credentialId,
     required this.issuerName,
@@ -34,8 +36,9 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
 
     Widget avatar = IrmaAvatar(
       size: logoContainerSize,
+      logoImage: credentialImageBase64,
       logoPath: credentialImagePath,
-      initials: credentialImagePath == null && getTranslation(context, credentialName).isNotEmpty
+      initials: credentialImagePath == null && credentialImageBase64 == null && getTranslation(context, credentialName).isNotEmpty
           ? getTranslation(context, credentialName)[0]
           : null,
     );

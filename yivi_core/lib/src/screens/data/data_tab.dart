@@ -299,6 +299,7 @@ class _CredentialsTypeList extends StatelessWidget {
               credentialName: c.name,
               issuerName: c.issuer.name,
               credentialImagePath: c.imagePath,
+              credentialImageBase64: c.getImageFromBase64(),
               onTap: () => context.pushCredentialsDetailsScreen(
                 CredentialsDetailsRouteParams(
                   categoryName: "home.nav_bar.data",
@@ -394,6 +395,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
                   credentialName: cred.name,
                   issuerName: cred.issuer.name,
                   credentialImagePath: cred.imagePath,
+                  credentialImageBase64: cred.getImageFromBase64(),
                   onTap: () => context.pushCredentialsDetailsScreen(
                     CredentialsDetailsRouteParams(
                       categoryName: "home.nav_bar.data",

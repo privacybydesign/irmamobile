@@ -1,3 +1,4 @@
+import "package:flutter/material.dart";
 import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
@@ -23,6 +24,7 @@ class CredentialDescriptor {
   final TrustedParty issuer;
   final TranslatedValue? category;
   final String? imagePath;
+  final LogoImage? image;
   final List<Attribute> attributes;
 
   @JsonKey(name: "issue_url")
@@ -36,7 +38,13 @@ class CredentialDescriptor {
     required this.imagePath,
     required this.attributes,
     required this.issueURL,
+    this.image,
   });
+  
+  Image? getImageFromBase64() {
+    return image?.getImageFromBase64();
+  }
+
 
   factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
       _$CredentialDescriptorFromJson(json);
