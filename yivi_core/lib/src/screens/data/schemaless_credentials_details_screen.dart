@@ -71,13 +71,6 @@ class _CredentialsDetailsScreenState
     final name = c.name.translate(lang);
     final theme = IrmaTheme.of(context);
     
-    var imagePath = c.imagePath;
-    Image? credentialImageBase64 = c.getImageFromBase64();
-
-    if (credentialImageBase64 != null) {
-      imagePath = null;
-    }
-
     return IrmaAppBar(
       title: Row(
         mainAxisSize: .min,
@@ -87,9 +80,9 @@ class _CredentialsDetailsScreenState
           Transform.translate(
             offset: Offset(0, 4),
             child: IrmaAvatar(
-              logoPath: imagePath,
-              logoImage: credentialImageBase64,
-              initials: imagePath == null && credentialImageBase64 == null && name.isNotEmpty ? name[0] : null,
+              logoPath: c.imagePath,
+              logoImage: c.image?.getImageFromBase64(),
+              initials: c.imagePath == null && c.image == null && name.isNotEmpty ? name[0] : null,
               size: 20,
             ),
           ),

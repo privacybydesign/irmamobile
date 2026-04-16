@@ -1,4 +1,3 @@
-import "package:flutter/material.dart";
 import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
@@ -41,11 +40,6 @@ class CredentialDescriptor {
     this.image,
   });
   
-  Image? getImageFromBase64() {
-    return image?.getImageFromBase64();
-  }
-
-
   factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
       _$CredentialDescriptorFromJson(json);
 

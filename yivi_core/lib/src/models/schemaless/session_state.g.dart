@@ -131,6 +131,9 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
   revoked: json['revoked'] as bool,
   revocationSupported: json['revocation_supported'] as bool,
   imagePath: json['image_path'] as String?,
+  image: json['image'] == null
+      ? null
+      : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
   batchInstanceCountRemaining: (json['batch_instance_count_remaining'] as num?)
       ?.toInt(),
   issueUrl: json['issue_url'] == null

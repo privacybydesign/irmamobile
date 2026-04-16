@@ -53,7 +53,7 @@ class RequestorHeader extends StatelessWidget {
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,
-      image: requestor?.getImageFromBase64(),
+      image: requestor?.image?.getImageFromBase64(),
       imagePath: requestor?.imagePath,
     );
 

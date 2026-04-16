@@ -72,7 +72,7 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: credential.name,
          issuerName: credential.issuer.name,
          imagePath: credential.imagePath,
-         image: credential.getImageFromBase64(),
+         image: credential.image?.getImageFromBase64(),
          attributes: credential.attributes,
          status: CredentialCardStatus(
            expiryDateUnix: credential.expiryDate,
@@ -108,6 +108,7 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: instance.name,
          issuerName: instance.issuer.name,
          imagePath: instance.imagePath,
+         image: instance.image?.getImageFromBase64(),
          attributes: instance.attributes,
          status: CredentialCardStatus(
            expiryDateUnix: instance.expiryDate,
@@ -141,7 +142,7 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          imagePath: descriptor.imagePath,
-         image: descriptor.getImageFromBase64(),
+         image: descriptor.image?.getImageFromBase64(),
          attributes: descriptor.attributes
              .where(
                (a) =>
@@ -200,7 +201,7 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          imagePath: descriptor.imagePath,
-         image: descriptor.getImageFromBase64(),
+         image: descriptor.image?.getImageFromBase64(),
          attributes: descriptor.attributes,
          status: CredentialCardStatus(
            revoked: false,

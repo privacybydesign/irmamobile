@@ -139,6 +139,7 @@ class SelectableCredentialInstance {
   final String credentialId;
   final String hash;
   final String? imagePath;
+  final LogoImage? image;
   final TranslatedValue name;
   final TrustedParty issuer;
   final CredentialFormat format;
@@ -162,6 +163,7 @@ class SelectableCredentialInstance {
     required this.revoked,
     required this.revocationSupported,
     this.imagePath,
+    this.image,
     this.batchInstanceCountRemaining,
     this.issueUrl,
   });

@@ -99,10 +99,6 @@ class TrustedParty {
     this.image,
   });
 
-  Image? getImageFromBase64() {
-    return image?.getImageFromBase64();
-  }
-
   factory TrustedParty.fromJson(Map<String, dynamic> json) =>
       _$TrustedPartyFromJson(json);
 
@@ -160,10 +156,6 @@ class Credential {
     this.imagePath,
     this.image,
   });
-
-  Image? getImageFromBase64() {
-      return image?.getImageFromBase64();
-  }
 
   factory Credential.fromJson(Map<String, dynamic> json) =>
       _$CredentialFromJson(json);
