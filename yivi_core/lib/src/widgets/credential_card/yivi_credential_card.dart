@@ -34,6 +34,7 @@ class YiviCredentialCard extends ConsumerWidget {
   final Widget? headerTrailing;
   final EdgeInsetsGeometry? padding;
   final bool hideFooter;
+  final bool hideNotObtainable;
 
   const YiviCredentialCard({
     super.key,
@@ -50,6 +51,7 @@ class YiviCredentialCard extends ConsumerWidget {
     this.style = IrmaCardStyle.normal,
     this.padding,
     this.hideFooter = false,
+    this.hideNotObtainable = false,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -148,7 +150,7 @@ class YiviCredentialCard extends ConsumerWidget {
              )
              .map(
                (a) => Attribute(
-                 id: a.id,
+                 claimPath: a.claimPath,
                  displayName: a.displayName,
                  description: a.description,
                  value: a.requestedValue,
@@ -163,7 +165,7 @@ class YiviCredentialCard extends ConsumerWidget {
              )
              .map(
                (a) => Attribute(
-                 id: a.id,
+                 claimPath: a.claimPath,
                  displayName: a.displayName,
                  description: a.description,
                  value: a.requestedValue,
@@ -213,6 +215,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: true,
+         hideNotObtainable: true,
        );
 
   YiviCredentialCard.fromLogCredential({
@@ -309,7 +312,7 @@ class YiviCredentialCard extends ConsumerWidget {
                     ),
               ),
             ),
-          if (status.showNotObtainable)
+          if (status.showNotObtainable && !hideNotObtainable)
             Padding(
               padding: EdgeInsets.only(top: theme.defaultSpacing),
               child: InformationBox(

@@ -21,16 +21,7 @@ class SchemalessCredentialsEvent extends Event {
 }
 
 @JsonEnum(alwaysCreate: true, fieldRename: .snake)
-enum AttributeType {
-  object,
-  array,
-  string,
-  translatedString,
-  boolean,
-  integer,
-  image,
-  base64Image,
-}
+enum AttributeType { string, boolean, integer, image, base64Image }
 
 @JsonSerializable(fieldRename: .snake)
 class AttributeValue {
@@ -40,9 +31,6 @@ class AttributeValue {
   @JsonKey(name: "bool")
   final bool? boolValue;
   final String? string;
-  final TranslatedValue? translatedString;
-  final List<AttributeValue>? array;
-  final List<Attribute>? object;
   final String? imagePath;
   final String? base64Image;
 
@@ -51,9 +39,6 @@ class AttributeValue {
     this.intValue,
     this.boolValue,
     this.string,
-    this.translatedString,
-    this.array,
-    this.object,
     this.imagePath,
     this.base64Image,
   });
@@ -63,9 +48,6 @@ class AttributeValue {
       intValue != null ||
       boolValue != null ||
       string != null ||
-      translatedString != null ||
-      array != null ||
-      object != null ||
       imagePath != null ||
       base64Image != null;
 
@@ -77,14 +59,14 @@ class AttributeValue {
 
 @JsonSerializable(fieldRename: .snake)
 class Attribute {
-  final String id;
+  final List<dynamic> claimPath;
   final TranslatedValue displayName;
   final TranslatedValue? description;
   final AttributeValue? value;
   final AttributeValue? requestedValue;
 
   Attribute({
-    required this.id,
+    required this.claimPath,
     required this.displayName,
     this.description,
     this.value,

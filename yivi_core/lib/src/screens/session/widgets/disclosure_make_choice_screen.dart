@@ -147,7 +147,7 @@ class _DisclosureMakeChoiceScreenState
                 credentialId: cred.credentialId,
                 credentialHash: cred.hash,
                 attributePaths: cred.attributes
-                    .map((attr) => <dynamic>[attr.id])
+                    .map((attr) => attr.claimPath)
                     .toList(),
               ),
             );

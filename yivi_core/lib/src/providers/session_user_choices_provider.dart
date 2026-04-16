@@ -98,7 +98,7 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
                 credentialId: cred.credentialId,
                 credentialHash: cred.hash,
                 attributePaths: cred.attributes
-                    .map((attr) => <dynamic>[attr.id])
+                    .map((attr) => attr.claimPath)
                     .toList(),
               ),
             );
