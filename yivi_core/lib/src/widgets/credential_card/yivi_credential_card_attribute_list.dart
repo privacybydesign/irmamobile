@@ -6,6 +6,7 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
 
@@ -61,6 +62,43 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
         children.add(
           _ArrayAttributeGroupView(attributes: group, compareTo: compareTo),
         );
+      } else if (sorted[i].value == null && i + 1 < sorted.length) {
+        // Valueless attribute that precedes array elements: use it as the
+        // section header for the following array/object group.
+        final header = sorted[i];
+        i++;
+        final group = <schemaless.Attribute>[];
+        final expectedParent = header.claimPath;
+        while (i < sorted.length) {
+          final p = _arrayParentPath(sorted[i]);
+          if (p != null && listEquals(p, expectedParent)) {
+            group.add(sorted[i]);
+            i++;
+          } else {
+            break;
+          }
+        }
+        if (group.isNotEmpty) {
+          children.add(
+            _ArrayAttributeGroupView(
+              attributes: group,
+              compareTo: compareTo,
+              sectionHeader: header.displayName,
+            ),
+          );
+        } else {
+          // No array elements followed; render as a regular attribute.
+          children.add(
+            _AttributeView(
+              attribute: header,
+              compareTo: compareTo
+                  ?.firstWhereOrNull(
+                    (c) => listEquals(c.claimPath, header.claimPath),
+                  )
+                  ?.value,
+            ),
+          );
+        }
       } else {
         children.add(
           _AttributeView(
@@ -229,17 +267,24 @@ class _AttributeView extends StatelessWidget {
 /// Renders a group of array element attributes under a single label,
 /// with each value indented with a dash prefix (matching the old nested array style).
 class _ArrayAttributeGroupView extends StatelessWidget {
-  const _ArrayAttributeGroupView({required this.attributes, this.compareTo});
+  const _ArrayAttributeGroupView({
+    required this.attributes,
+    this.compareTo,
+    this.sectionHeader,
+  });
   final List<schemaless.Attribute> attributes;
   final List<schemaless.Attribute>? compareTo;
+  final TranslatedValue? sectionHeader;
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
-    // Use the display name from the first element (all share the same label).
-    final label = attributes.first.displayName.translate(lang);
+    // Use the section header if provided, otherwise fall back to the first
+    // element's display name.
+    final label =
+        (sectionHeader ?? attributes.first.displayName).translate(lang);
 
     return Padding(
       padding: .symmetric(vertical: theme.tinySpacing),
