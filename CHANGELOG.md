@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove unsupported countries from sms issuance phone entry screen
 - Add some missing country codes in sms issuance phone enter screen
 - Automatically convert email input to lowercase in email issuance screen
+- Update to vcmrtd v3.8.0 to fix German passport reading issues
 
 ## [7.13.4] - 2026-04-01
 ### Changed
