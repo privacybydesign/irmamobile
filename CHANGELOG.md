@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [7.13.5] - 2026-04-22
 ### Changed
 - Remove unsupported countries from sms issuance phone entry screen
 - Add some missing country codes in sms issuance phone enter screen
@@ -600,6 +602,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.13.5]: https://github.com/privacybydesign/irmamobile/compare/v7.13.4...v7.13.5
 [7.13.4]: https://github.com/privacybydesign/irmamobile/compare/v7.13.3...v7.13.4
 [7.13.3]: https://github.com/privacybydesign/irmamobile/compare/v7.13.2...v7.13.3
 [7.13.2]: https://github.com/privacybydesign/irmamobile/compare/v7.13.1...v7.13.2
