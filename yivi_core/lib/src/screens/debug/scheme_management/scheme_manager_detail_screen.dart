@@ -1,6 +1,7 @@
 import "package:collection/collection.dart";
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:rxdart/rxdart.dart";
 
 import "../../../models/authentication_events.dart";
@@ -38,18 +39,25 @@ class SchemeManagerDetailScreen extends StatelessWidget {
 
     return navigator.push(
       MaterialPageRoute(
-        builder: (context) => YiviPinScaffold(
-          appBar: IrmaAppBar(titleString: title, hasBorder: false),
-          body: YiviPinScreen(
-            instruction: instruction,
-            pinBloc: EnterPinStateBloc(maxPinSize),
-            maxPinSize: maxPinSize,
-            onSubmit: (pin) => navigator.pop(pin),
-            listener: (context, state) {
-              if (!hasLongPin && state.pin.length == 5) {
-                navigator.pop(state.toString());
-              }
-            },
+        builder: (context) => ProviderScope(
+          overrides: [enterPinProvider.overrideWith(() => EnterPinNotifier())],
+          child: YiviPinScaffold(
+            appBar: IrmaAppBar(titleString: title, hasBorder: false),
+            body: Consumer(
+              builder: (context, ref, _) {
+                ref.read(enterPinProvider.notifier).configure(maxPinSize);
+                return YiviPinScreen(
+                  instruction: instruction,
+                  maxPinSize: maxPinSize,
+                  onSubmit: (pin) => navigator.pop(pin),
+                  listener: (context, state) {
+                    if (!hasLongPin && state.pin.length == 5) {
+                      navigator.pop(state.toString());
+                    }
+                  },
+                );
+              },
+            ),
           ),
         ),
       ),

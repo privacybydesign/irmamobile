@@ -1,14 +1,11 @@
 part of "yivi_pin_screen.dart";
 
-class _UnsecurePinWarningTextButton extends StatelessWidget {
-  final EnterPinStateBloc bloc;
+class _UnsecurePinWarningTextButton extends ConsumerWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
-  final BuildContext context;
 
-  _UnsecurePinWarningTextButton({required this.scaffoldKey, required this.bloc})
-    : context = scaffoldKey.currentContext!;
+  const _UnsecurePinWarningTextButton({required this.scaffoldKey});
 
-  void _showSecurePinRules(EnterPinState state) {
+  void _showSecurePinRules(BuildContext context, EnterPinState state) {
     final theme = IrmaTheme.of(context);
     final rules = <Widget>[
       Stack(
@@ -90,33 +87,29 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
+    final state = ref.watch(enterPinProvider);
 
-    return BlocBuilder<EnterPinStateBloc, EnterPinState>(
-      bloc: bloc,
-      builder: (context, state) {
-        return Center(
-          child: TextButton(
-            onPressed: () => _showSecurePinRules(state),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  FlutterI18n.translate(context, "secure_pin.info_button"),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.warning,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(width: 2.0),
-                Icon(Icons.info_outlined, color: theme.warning),
-              ],
+    return Center(
+      child: TextButton(
+        onPressed: () => _showSecurePinRules(context, state),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              FlutterI18n.translate(context, "secure_pin.info_button"),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.warning,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-        );
-      },
+            const SizedBox(width: 2.0),
+            Icon(Icons.info_outlined, color: theme.warning),
+          ],
+        ),
+      ),
     );
   }
 }
