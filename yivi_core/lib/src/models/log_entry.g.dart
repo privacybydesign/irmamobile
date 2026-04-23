@@ -13,7 +13,10 @@ LogsEvent _$LogsEventFromJson(Map<String, dynamic> json) => LogsEvent(
 );
 
 Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) =>
-    <String, dynamic>{'before': instance.before, 'max': instance.max};
+    <String, dynamic>{
+      'before': instance.before?.toIso8601String(),
+      'max': instance.max,
+    };
 
 LogInfo _$LogInfoFromJson(Map<String, dynamic> json) => LogInfo(
   id: (json['id'] as num).toInt(),
@@ -52,7 +55,9 @@ IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
           ?.map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
           .toList() ??
       [],
-  issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
+  issuer: json['issuer'] == null
+      ? null
+      : TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
 );
 
 DisclosureLog _$DisclosureLogFromJson(Map<String, dynamic> json) =>
@@ -61,7 +66,9 @@ DisclosureLog _$DisclosureLogFromJson(Map<String, dynamic> json) =>
       credentials: (json['credentials'] as List<dynamic>)
           .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
-      verifier: TrustedParty.fromJson(json['verifier'] as Map<String, dynamic>),
+      verifier: json['verifier'] == null
+          ? null
+          : TrustedParty.fromJson(json['verifier'] as Map<String, dynamic>),
     );
 
 SignedMessageLog _$SignedMessageLogFromJson(Map<String, dynamic> json) =>
@@ -70,7 +77,9 @@ SignedMessageLog _$SignedMessageLogFromJson(Map<String, dynamic> json) =>
       credentials: (json['credentials'] as List<dynamic>)
           .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
-      verifier: TrustedParty.fromJson(json['verifier'] as Map<String, dynamic>),
+      verifier: json['verifier'] == null
+          ? null
+          : TrustedParty.fromJson(json['verifier'] as Map<String, dynamic>),
       message: json['message'] as String,
     );
 

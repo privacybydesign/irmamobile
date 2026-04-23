@@ -47,9 +47,10 @@ class ActivityCard extends StatelessWidget {
       logoImage = firstCred.image?.getImageFromBase64();
     } else {
       if (logEntry.type == LogType.issuance) {
-        final serverName = logEntry.issuanceLog!.issuer.name.translate(lang);
+        final serverName =
+            logEntry.issuanceLog!.issuer?.name.translate(lang) ?? "";
         title = serverName;
-        logoImage = logEntry.issuanceLog!.issuer.image?.getImageFromBase64();
+        logoImage = logEntry.issuanceLog!.issuer?.image?.getImageFromBase64();
         subtitleTranslationKey = "activity.data_received";
         semanticLabel = FlutterI18n.translate(
           context,
@@ -57,11 +58,11 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.disclosure) {
-        final serverName = logEntry.disclosureLog!.verifier.name.translate(
-          lang,
-        );
+        final serverName =
+            logEntry.disclosureLog!.verifier?.name.translate(lang) ?? "";
         title = serverName;
-        logoImage = logEntry.disclosureLog!.verifier.image?.getImageFromBase64();
+        logoImage =
+            logEntry.disclosureLog!.verifier?.image?.getImageFromBase64();
 
         subtitleTranslationKey = "activity.data_shared";
         semanticLabel = FlutterI18n.translate(
@@ -70,11 +71,11 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.signature) {
-        final serverName = logEntry.signedMessageLog!.verifier.name.translate(
-          lang,
-        );
+        final serverName =
+            logEntry.signedMessageLog!.verifier?.name.translate(lang) ?? "";
         title = serverName;
-        logoImage = logEntry.signedMessageLog!.verifier.image?.getImageFromBase64();
+        logoImage =
+            logEntry.signedMessageLog!.verifier?.image?.getImageFromBase64();
         subtitleTranslationKey = "activity.message_signed";
         semanticLabel = FlutterI18n.translate(
           context,

@@ -172,7 +172,7 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 	var logEntries []clientmodels.LogInfo
 	var err error
 
-	// When before is not sent, it gets Go's default value 0 and 0 is never a valid id
+	// When before is not sent, load the newest logs
 	if action.Before == nil {
 		logEntries, err = yiviClient.LoadNewestLogs(action.Max)
 	} else {

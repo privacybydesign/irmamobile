@@ -73,7 +73,7 @@ class _ActivityTabState extends State<ActivityTab> {
     final historyState = await _historyRepo.getHistoryState().first;
     if (historyState.moreLogsAvailable && !historyState.loading && mounted) {
       IrmaRepositoryProvider.of(context).bridgedDispatch(
-        LoadLogsEvent(before: historyState.logEntries.last.id, max: 10),
+        LoadLogsEvent(before: historyState.logEntries.last.time, max: 10),
       );
     }
   }

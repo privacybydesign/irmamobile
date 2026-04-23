@@ -2,6 +2,7 @@ package irmagobridge
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/privacybydesign/irmago/client/clientsettings"
 	"github.com/privacybydesign/irmago/common/clientmodels"
@@ -43,8 +44,8 @@ type deleteCredentialEvent struct {
 }
 
 type loadLogsEvent struct {
-	Before *uint64 `json:"before"`
-	Max    int     `json:"max"`
+	Before *time.Time `json:"before"`
+	Max    int        `json:"max"`
 }
 
 type clientPreferencesEvent struct {

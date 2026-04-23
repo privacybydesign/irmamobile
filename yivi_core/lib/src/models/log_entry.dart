@@ -21,7 +21,7 @@ class LogsEvent extends Event {
 class LoadLogsEvent extends Event {
   LoadLogsEvent({required this.max, this.before});
 
-  final int? before;
+  final DateTime? before;
 
   final int max;
 
@@ -89,7 +89,7 @@ class IssuanceLog {
     required this.protocol,
     required this.credentials,
     required this.disclosedCredentials,
-    required this.issuer,
+    this.issuer,
   });
 
   @JsonKey(fromJson: stringToProtocol)
@@ -100,7 +100,7 @@ class IssuanceLog {
   @JsonKey(defaultValue: [])
   final List<LogCredential> disclosedCredentials;
 
-  final TrustedParty issuer;
+  final TrustedParty? issuer;
 
   factory IssuanceLog.fromJson(Map<String, dynamic> json) =>
       _$IssuanceLogFromJson(json);
@@ -111,7 +111,7 @@ class DisclosureLog {
   DisclosureLog({
     required this.protocol,
     required this.credentials,
-    required this.verifier,
+    this.verifier,
   });
 
   @JsonKey(fromJson: stringToProtocol)
@@ -119,7 +119,7 @@ class DisclosureLog {
 
   final List<LogCredential> credentials;
 
-  final TrustedParty verifier;
+  final TrustedParty? verifier;
 
   factory DisclosureLog.fromJson(Map<String, dynamic> json) =>
       _$DisclosureLogFromJson(json);
@@ -130,7 +130,7 @@ class SignedMessageLog extends DisclosureLog {
   SignedMessageLog({
     required super.protocol,
     required super.credentials,
-    required super.verifier,
+    super.verifier,
     required this.message,
   });
 

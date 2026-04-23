@@ -45,7 +45,7 @@ class ActivityDetailIssuance extends StatelessWidget {
             isHeader: true,
           ),
           SizedBox(height: theme.smallSpacing),
-          RequestorHeader(requestor: requestor, isVerified: requestor.verified),
+          RequestorHeader(requestor: requestor, isVerified: requestor?.verified),
           SizedBox(height: theme.defaultSpacing),
         ],
         TranslatedText(

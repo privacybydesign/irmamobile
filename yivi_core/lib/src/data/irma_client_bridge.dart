@@ -98,6 +98,7 @@ class IrmaClientBridge extends IrmaBridge {
           "IrmaConfigurationEvent",
           "SchemalessCredentialsEvent",
           "SchemalessCredentialStoreEvent",
+          "LogsEvent",
         };
         if (nonPrinting.contains(call.method)) {
           if (kDebugMode) {
