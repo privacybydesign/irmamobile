@@ -191,7 +191,19 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
                                   ? .onUserInteraction
                                   : .disabled,
                               onChanged: (v) {
-                                final ok = isValidEmail(v);
+                                final lower = v.toLowerCase();
+                                if (v != lower) {
+                                  _textController.value = _textController.value
+                                      .copyWith(
+                                        text: lower,
+                                        selection: TextSelection.collapsed(
+                                          offset: _textController
+                                              .selection
+                                              .baseOffset,
+                                        ),
+                                      );
+                                }
+                                final ok = isValidEmail(lower);
                                 if (ok != _validEmail) {
                                   setState(() => _validEmail = ok);
                                 }

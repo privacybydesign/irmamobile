@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:intl_phone_number_input/intl_phone_number_input.dart";
+import "package:intl_phone_number_input/src/models/country_list.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
@@ -47,6 +48,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
   @override
   void initState() {
     super.initState();
+    _ensureCaribbeanCountriesRegistered();
+    _removeExcludedCountries();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
@@ -269,6 +272,67 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
     );
   }
 
+  /// Adds Caribbean countries that are missing from the intl_phone_number_input package.
+  static void _ensureCaribbeanCountriesRegistered() {
+    final existing = Countries.countryList
+        .map((c) => c["alpha_2_code"] as String)
+        .toSet();
+
+    const missingCountries = [
+      {
+        "num_code": "534",
+        "alpha_2_code": "SX",
+        "alpha_3_code": "SXM",
+        "en_short_name": "Sint Maarten",
+        "nationality": "Sint Maartener",
+        "dial_code": "+1721",
+        "nameTranslations": {
+          "nl": "Sint Maarten",
+          "en": "Sint Maarten",
+          "de": "Sint Maarten",
+          "fr": "Saint-Martin (partie néerlandaise)",
+          "es": "San Martín",
+        },
+      },
+      {
+        "num_code": "531",
+        "alpha_2_code": "CW",
+        "alpha_3_code": "CUW",
+        "en_short_name": "Curaçao",
+        "nationality": "Curaçaoan",
+        "dial_code": "+5999",
+        "nameTranslations": {
+          "nl": "Curaçao",
+          "en": "Curaçao",
+          "de": "Curaçao",
+          "fr": "Curaçao",
+          "es": "Curazao",
+        },
+      },
+      {
+        "num_code": "535",
+        "alpha_2_code": "BQ",
+        "alpha_3_code": "BES",
+        "en_short_name": "Caribbean Netherlands",
+        "nationality": "Dutch Caribbean",
+        "dial_code": "+599",
+        "nameTranslations": {
+          "nl": "Caribisch Nederland",
+          "en": "Caribbean Netherlands",
+          "de": "Karibische Niederlande",
+          "fr": "Pays-Bas caribéens",
+          "es": "Caribe Neerlandés",
+        },
+      },
+    ];
+
+    for (final country in missingCountries) {
+      if (!existing.contains(country["alpha_2_code"])) {
+        Countries.countryList.add(country);
+      }
+    }
+  }
+
   int countryComparator(a, b) {
     final indexA = preferredOrder.indexOf(a.alpha2Code);
     final indexB = preferredOrder.indexOf(b.alpha2Code);
@@ -286,6 +350,51 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
 
     // Neither preferred → keep original ordering or sort alphabetically
     return a.alpha2Code.compareTo(b.alpha2Code);
+  }
+
+  /// Removes countries that should not be available in the phone number input.
+  static void _removeExcludedCountries() {
+    const excludedCountries = {
+      "AF", // Afghanistan
+      "AO", // Angola
+      "DZ", // Algeria
+      "AZ", // Azerbaijan
+      "BD", // Bangladesh
+      "BY", // Belarus
+      "BT", // Bhutan
+      "BI", // Burundi
+      "EG", // Egypt
+      "ET", // Ethiopia
+      "ID", // Indonesia
+      "IR", // Iran
+      "IQ", // Iraq
+      "JO", // Jordan
+      "KZ", // Kazakhstan
+      "XK", // Kosovo
+      "KG", // Kyrgyzstan
+      "LB", // Lebanon
+      "LY", // Libya
+      "MG", // Madagascar
+      "MW", // Malawi
+      "MR", // Mauritania
+      "NP", // Nepal
+      "PK", // Pakistan
+      "RU", // Russia
+      "SN", // Senegal
+      "SI", // Slovenia
+      "LK", // Sri Lanka
+      "SY", // Syria
+      "TJ", // Tajikistan
+      "TZ", // Tanzania
+      "TN", // Tunisia
+      "TM", // Turkmenistan
+      "UZ", // Uzbekistan
+      "YE", // Yemen
+    };
+
+    Countries.countryList.removeWhere(
+      (c) => excludedCountries.contains(c["alpha_2_code"]),
+    );
   }
 
   // Some countries that should appear on the top of the list
