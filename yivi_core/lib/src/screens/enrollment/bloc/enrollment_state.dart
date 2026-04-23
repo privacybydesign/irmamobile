@@ -2,12 +2,6 @@ part of "enrollment_bloc.dart";
 
 abstract class EnrollmentState {}
 
-class EnrollmentIntroduction extends EnrollmentState {
-  final int currentStepIndex;
-
-  EnrollmentIntroduction({this.currentStepIndex = 0});
-}
-
 class EnrollmentChoosePin extends EnrollmentState {}
 
 class EnrollmentConfirmPin extends EnrollmentState {
