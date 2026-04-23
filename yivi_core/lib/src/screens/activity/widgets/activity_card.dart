@@ -23,7 +23,7 @@ class ActivityCard extends StatelessWidget {
     String title = "";
     String subtitleTranslationKey = "";
     String semanticLabel = "";
-    String? logo;
+    Image? logoImage;
 
     final localizedTimeStamp = FlutterI18n.translate(
       context,
@@ -44,16 +44,12 @@ class ActivityCard extends StatelessWidget {
         translationParams: {"issuerName": title, "date": localizedTimeStamp},
       );
 
-      if (firstCred.imagePath.isNotEmpty) {
-        logo = firstCred.imagePath;
-      }
+      logoImage = firstCred.image?.getImageFromBase64();
     } else {
       if (logEntry.type == LogType.issuance) {
         final serverName = logEntry.issuanceLog!.issuer.name.translate(lang);
         title = serverName;
-        if (logEntry.issuanceLog!.issuer.imagePath != null) {
-          logo = logEntry.issuanceLog!.issuer.imagePath;
-        }
+        logoImage = logEntry.issuanceLog!.issuer.image?.getImageFromBase64();
         subtitleTranslationKey = "activity.data_received";
         semanticLabel = FlutterI18n.translate(
           context,
@@ -65,9 +61,7 @@ class ActivityCard extends StatelessWidget {
           lang,
         );
         title = serverName;
-        if (logEntry.disclosureLog!.verifier.imagePath != null) {
-          logo = logEntry.disclosureLog!.verifier.imagePath;
-        }
+        logoImage = logEntry.disclosureLog!.verifier.image?.getImageFromBase64();
 
         subtitleTranslationKey = "activity.data_shared";
         semanticLabel = FlutterI18n.translate(
@@ -80,9 +74,7 @@ class ActivityCard extends StatelessWidget {
           lang,
         );
         title = serverName;
-        if (logEntry.signedMessageLog!.verifier.imagePath != null) {
-          logo = logEntry.signedMessageLog!.verifier.imagePath;
-        }
+        logoImage = logEntry.signedMessageLog!.verifier.image?.getImageFromBase64();
         subtitleTranslationKey = "activity.message_signed";
         semanticLabel = FlutterI18n.translate(
           context,
@@ -115,7 +107,7 @@ class ActivityCard extends StatelessWidget {
                         children: [
                           IrmaAvatar(
                             size: 52,
-                            logoPath: logo,
+                            logoImage: logoImage,
                             initials: title != "" ? title[0] : null,
                           ),
                           SizedBox(width: theme.smallSpacing),

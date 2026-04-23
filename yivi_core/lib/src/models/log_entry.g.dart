@@ -86,7 +86,6 @@ LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
       formats: (json['formats'] as List<dynamic>)
           .map((e) => $enumDecode(_$CredentialFormatEnumMap, e))
           .toList(),
-      imagePath: json['image_path'] as String,
       name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
       issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
       attributes: (json['attributes'] as List<dynamic>)
@@ -101,6 +100,9 @@ LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
           : TranslatedValue.fromJson(
               json['issue_url'] as Map<String, dynamic>?,
             ),
+      image: json['image'] == null
+          ? null
+          : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
     );
 
 const _$CredentialFormatEnumMap = {

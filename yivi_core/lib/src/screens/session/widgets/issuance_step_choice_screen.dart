@@ -116,16 +116,13 @@ class _CredentialTypeOption extends StatelessWidget {
                 padding: EdgeInsets.only(right: theme.smallSpacing),
                 child: RadioIndicator(isSelected: isSelected),
               ),
-              if (credential.imagePath != null &&
-                  credential.imagePath!.isNotEmpty)
+              if (credential.image != null)
                 Padding(
                   padding: EdgeInsets.only(right: theme.smallSpacing),
-                  child: Image.file(
-                    File(credential.imagePath!),
+                  child: SizedBox(
                     width: 40,
                     height: 40,
-                    errorBuilder: (_, __, ___) =>
-                        const SizedBox(width: 40, height: 40),
+                    child: credential.image!.getImageFromBase64(),
                   ),
                 ),
               Expanded(

@@ -80,9 +80,8 @@ class _CredentialsDetailsScreenState
           Transform.translate(
             offset: Offset(0, 4),
             child: IrmaAvatar(
-              logoPath: c.imagePath,
               logoImage: c.image?.getImageFromBase64(),
-              initials: c.imagePath == null && c.image == null && name.isNotEmpty ? name[0] : null,
+              initials: c.image == null && name.isNotEmpty ? name[0] : null,
               size: 20,
             ),
           ),

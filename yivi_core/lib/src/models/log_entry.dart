@@ -155,7 +155,6 @@ class LogCredential {
   LogCredential({
     required this.credentialId,
     required this.formats,
-    required this.imagePath,
     required this.name,
     required this.issuer,
     required this.attributes,
@@ -164,13 +163,14 @@ class LogCredential {
     required this.revoked,
     required this.revocationSupported,
     this.issueUrl,
+    this.image,
   });
 
   final String credentialId;
 
   final List<CredentialFormat> formats;
 
-  final String imagePath;
+  final LogoImage? image;
 
   final TranslatedValue name;
 
