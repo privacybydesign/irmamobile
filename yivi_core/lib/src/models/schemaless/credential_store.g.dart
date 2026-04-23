@@ -23,7 +23,6 @@ CredentialDescriptor _$CredentialDescriptorFromJson(
   category: json['category'] == null
       ? null
       : TranslatedValue.fromJson(json['category'] as Map<String, dynamic>?),
-  imagePath: json['image_path'] as String?,
   attributes: (json['attributes'] as List<dynamic>)
       .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -42,7 +41,6 @@ Map<String, dynamic> _$CredentialDescriptorToJson(
   'name': instance.name,
   'issuer': instance.issuer,
   'category': instance.category,
-  'image_path': instance.imagePath,
   'image': instance.image,
   'attributes': instance.attributes,
   'issue_url': instance.issueURL,

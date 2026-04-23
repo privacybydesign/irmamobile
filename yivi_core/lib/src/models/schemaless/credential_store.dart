@@ -22,7 +22,6 @@ class CredentialDescriptor {
   final TranslatedValue name;
   final TrustedParty issuer;
   final TranslatedValue? category;
-  final String? imagePath;
   final LogoImage? image;
   final List<Attribute> attributes;
 
@@ -34,7 +33,6 @@ class CredentialDescriptor {
     required this.name,
     required this.issuer,
     required this.category,
-    required this.imagePath,
     required this.attributes,
     required this.issueURL,
     this.image,

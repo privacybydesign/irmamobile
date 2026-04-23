@@ -141,7 +141,6 @@ class YiviCredentialCard extends ConsumerWidget {
          key: key,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
-         imagePath: descriptor.imagePath,
          image: descriptor.image?.getImageFromBase64(),
          attributes: descriptor.attributes
              .where(
@@ -200,7 +199,6 @@ class YiviCredentialCard extends ConsumerWidget {
          key: key,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
-         imagePath: descriptor.imagePath,
          image: descriptor.image?.getImageFromBase64(),
          attributes: descriptor.attributes,
          status: CredentialCardStatus(
