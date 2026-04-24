@@ -7,7 +7,8 @@ import "../translated_text.dart";
 class YiviCredentialCardHeader extends StatelessWidget {
   final bool compact;
   final String credentialName;
-  final String? logo;
+  final String? logoPath;
+  final Image? logoImage;
   final String? issuerName;
   final Widget? trailing;
   final bool isExpired;
@@ -17,7 +18,8 @@ class YiviCredentialCardHeader extends StatelessWidget {
   const YiviCredentialCardHeader({
     required this.credentialName,
     required this.compact,
-    this.logo,
+    this.logoPath,
+    this.logoImage,
     this.issuerName,
     this.trailing,
     this.isExpiringSoon = false,
@@ -77,7 +79,12 @@ class YiviCredentialCardHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ExcludeSemantics(
-                      child: IrmaAvatar(logoPath: logo, size: _compactLogoSize),
+                      child: IrmaAvatar(
+                        logoPath: logoPath,
+                        logoImage: logoImage,
+                        initials: logoPath == null && logoImage == null ? credentialName[0] : null,
+                        size: _compactLogoSize,
+                      ),
                     ),
                     SizedBox(width: theme.defaultSpacing),
                     Expanded(
@@ -123,7 +130,12 @@ class YiviCredentialCardHeader extends StatelessWidget {
               else
                 SizedBox(height: theme.smallSpacing),
               ExcludeSemantics(
-                child: IrmaAvatar(logoPath: logo, size: _expandedLogoSize),
+                child: IrmaAvatar(
+                  logoPath: logoPath,
+                  logoImage: logoImage,
+                  initials: logoPath == null && logoImage == null ? credentialName[0] : null,
+                  size: _expandedLogoSize,
+                ),
               ),
               SizedBox(height: theme.mediumSpacing),
               Column(

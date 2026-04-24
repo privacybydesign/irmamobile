@@ -199,8 +199,9 @@
     },
     "issue_wizard": {
       "title": "Collect data",
-      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that",
-      "explanation_complete": "All required data has been added"
+      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that.",
+      "explanation_incomplete_single": "Obtain the required data and share it with the requesting party after that.",
+      "explanation_complete": "All required data has been added."
     },
     "previously_added": {
       "title": "Validate data",
@@ -241,6 +242,8 @@
     "wrong_credentials_added": {
       "title": "Error",
       "explanation": "Data has been added to the app, but they do not meet the requested criteria. Please obtain the right data.",
+      "you_issued": "Received",
+      "expected": "Expected",
       "dismiss_action": "OK"
     },
     "call": {
@@ -417,6 +420,11 @@
     "success_feedback": {
       "header": "Success",
       "text": "The data has been successfully added to Yivi"
+    },
+    "pre-authorized_code": {
+      "transactioncode_dialog": {
+        "title": "Enter transaction code"
+      }
     }
   },
   "email_issuance": {
@@ -558,9 +566,9 @@
     },
     "invalid_title": "PIN incorrect",
     "invalid_pin": {
-      "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily.",
-      "attempts-1": "This PIN is not correct. You have {attemps} attempt left before your Yivi app will be blocked temporarily.",
-      "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily."
+      "attempts-0": "This PIN is not correct. You have {count} attempts left before your Yivi app will be blocked temporarily.",
+      "attempts-1": "This PIN is not correct. You have {count} attempt left before your Yivi app will be blocked temporarily.",
+      "attempts-2": "This PIN is not correct. You have {count} attempts left before your Yivi app will be blocked temporarily."
     },
     "invalid_close": "Try again",
     "blocked_title": "App blocked",
@@ -939,6 +947,19 @@
       "warning_dialog": {
         "title": "Warning!",
         "content": "Adding and removing schemes can break your app. Only continue this if you know what you are doing."
+      }
+    },
+    "cert_management": {
+      "title": "Certificate management",
+      "issuer_certs": "Issuer certificates",
+      "verifier_certs": "Verifier certificates",
+      "install_cert_dialog": {
+        "title": "Install certificate",
+        "content": "Fill in the PEM encoded content of the certificate you want to install:"
+      },
+      "warning_dialog": {
+        "title": "Warning!",
+        "content": "Adding and removing certificates can break your app. Only continue this if you know what you are doing."
       }
     },
     "delete_credentials": {

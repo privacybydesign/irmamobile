@@ -6,15 +6,16 @@ import "package:flutter/services.dart";
 import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/client_preferences.dart";
-import "../models/credential_events.dart";
 import "../models/enrollment_events.dart";
 import "../models/error_event.dart";
+import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
-import "../models/issue_wizard.dart";
 import "../models/log_entry.dart";
-import "../models/session_events.dart";
+import "../models/schemaless/credential_store.dart";
+import "../models/schemaless/schemaless_events.dart" as schemaless;
+import "../models/schemaless/session_state.dart";
 import "../sentry/sentry.dart";
 import "irma_bridge.dart";
 
@@ -26,7 +27,12 @@ class IrmaClientBridge extends IrmaBridge {
 
   static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
     IrmaConfigurationEvent: (j) => IrmaConfigurationEvent.fromJson(j),
-    CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
+    EudiConfigurationEvent: (j) => EudiConfigurationEvent.fromJson(j),
+    schemaless.SchemalessCredentialsEvent: (j) =>
+        schemaless.SchemalessCredentialsEvent.fromJson(j),
+    SchemalessCredentialStoreEvent: (j) =>
+        SchemalessCredentialStoreEvent.fromJson(j),
+    SessionStateEvent: (j) => SessionStateEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
     LogsEvent: (j) => LogsEvent.fromJson(j),
 
@@ -45,33 +51,7 @@ class IrmaClientBridge extends IrmaBridge {
 
     ClientPreferencesEvent: (j) => ClientPreferencesEvent.fromJson(j),
 
-    StatusUpdateSessionEvent: (j) => StatusUpdateSessionEvent.fromJson(j),
-    RequestVerificationPermissionSessionEvent: (j) =>
-        RequestVerificationPermissionSessionEvent.fromJson(j),
-    RequestIssuancePermissionSessionEvent: (j) =>
-        RequestIssuancePermissionSessionEvent.fromJson(j),
-    RequestPinSessionEvent: (j) => RequestPinSessionEvent.fromJson(j),
-    PairingRequiredSessionEvent: (j) => PairingRequiredSessionEvent.fromJson(j),
-    SuccessSessionEvent: (j) => SuccessSessionEvent.fromJson(j),
-    CanceledSessionEvent: (j) => CanceledSessionEvent.fromJson(j),
-
-    KeyshareEnrollmentMissingSessionEvent: (j) =>
-        KeyshareEnrollmentMissingSessionEvent.fromJson(j),
-    KeyshareEnrollmentDeletedSessionEvent: (j) =>
-        KeyshareEnrollmentDeletedSessionEvent.fromJson(j),
-    KeyshareBlockedSessionEvent: (j) => KeyshareBlockedSessionEvent.fromJson(j),
-    KeyshareEnrollmentIncompleteSessionEvent: (j) =>
-        KeyshareEnrollmentIncompleteSessionEvent.fromJson(j),
-
-    ClientReturnURLSetSessionEvent: (j) =>
-        ClientReturnURLSetSessionEvent.fromJson(j),
-    FailureSessionEvent: (j) => FailureSessionEvent.fromJson(j),
-
-    IssueWizardContentsEvent: (j) => IssueWizardContentsEvent.fromJson(j),
-
     ErrorEvent: (j) => ErrorEvent.fromJson(j),
-
-    // FooBar: (j) => FooBar.fromJson(j),
   };
 
   // Create a lookup of unmarshallers
@@ -87,10 +67,20 @@ class IrmaClientBridge extends IrmaBridge {
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
 
+  static final _base64Pattern = RegExp(r'"base64"\s*:\s*"[^"]*"');
+
+  void printLongString(String text) {
+    final sanitized = text.replaceAll(_base64Pattern, '"base64": "<omitted>"');
+    final RegExp pattern = RegExp(".{1,800}"); // 800 is the size of each chunk
+    pattern
+        .allMatches(sanitized)
+        .forEach((RegExpMatch match) => debugPrint(match.group(0)));
+  }
+
   Future<void> _handleMethodCall(MethodCall call) async {
     if (call.method == "GoLog") {
       if (kDebugMode) {
-        debugPrint("[GO]: ${call.arguments}");
+        printLongString("[GO]: ${call.arguments}");
       }
       return;
     }
@@ -107,15 +97,21 @@ class IrmaClientBridge extends IrmaBridge {
       if (debugLogging) {
         // the irma config event has so much data in its payload it bloats all logs,
         // therefore we explicitly don't print the payload
-        if (call.method == "IrmaConfigurationEvent") {
+        const nonPrinting = {
+          "IrmaConfigurationEvent",
+          "SchemalessCredentialsEvent",
+          "SchemalessCredentialStoreEvent",
+          "LogsEvent",
+        };
+        if (nonPrinting.contains(call.method)) {
           if (kDebugMode) {
-            debugPrint(
+            printLongString(
               "Received bridge event: ${call.method} -- payload omitted",
             );
           }
         } else {
           if (kDebugMode) {
-            debugPrint(
+            printLongString(
               "Received bridge event: ${call.method} with payload ${call.arguments}",
             );
           }
@@ -135,7 +131,7 @@ class IrmaClientBridge extends IrmaBridge {
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
     if (debugLogging && kDebugMode) {
-      debugPrint(
+      printLongString(
         "Sending ${event.runtimeType.toString()} to bridge: $encodedEvent",
       );
     }

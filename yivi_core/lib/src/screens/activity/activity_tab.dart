@@ -5,12 +5,10 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 
-import "../../models/irma_configuration.dart";
 import "../../models/log_entry.dart";
-import "../../models/session_events.dart";
+import "../../models/schemaless/session_state.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
-import "../../util/combine.dart";
 import "../../util/string.dart";
 import "../../widgets/end_of_list_indicator.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -41,7 +39,8 @@ class _ActivityTabState extends State<ActivityTab> {
       _repoStateSubscription = IrmaRepositoryProvider.of(context)
           .getEvents()
           .listen((event) {
-            if (event is SuccessSessionEvent) {
+            if (event is SessionStateEvent &&
+                event.sessionState.status == SessionStatus.success) {
               _loadInitialLogs();
             }
           });
@@ -74,7 +73,7 @@ class _ActivityTabState extends State<ActivityTab> {
     final historyState = await _historyRepo.getHistoryState().first;
     if (historyState.moreLogsAvailable && !historyState.loading && mounted) {
       IrmaRepositoryProvider.of(context).bridgedDispatch(
-        LoadLogsEvent(before: historyState.logEntries.last.id, max: 10),
+        LoadLogsEvent(before: historyState.logEntries.last.time, max: 10),
       );
     }
   }
@@ -105,7 +104,6 @@ class _ActivityTabState extends State<ActivityTab> {
 
   Widget _buildLogEntries(
     BuildContext context,
-    IrmaConfiguration irmaConfiguration,
     List<LogInfo> logEntries,
     bool moreLogsAvailable,
   ) {
@@ -138,10 +136,7 @@ class _ActivityTabState extends State<ActivityTab> {
           ),
         Padding(
           padding: EdgeInsets.only(bottom: theme.smallSpacing),
-          child: ActivityCard(
-            logEntry: logEntry,
-            irmaConfiguration: irmaConfiguration,
-          ),
+          child: ActivityCard(logEntry: logEntry),
         ),
       ];
     }).flattened.toList();
@@ -162,7 +157,7 @@ class _ActivityTabState extends State<ActivityTab> {
             Padding(
               padding: EdgeInsets.only(
                 top: theme.defaultSpacing,
-                bottom: theme.mediumSpacing,
+                bottom: theme.hugeSpacing,
               ),
               child: EndOfListIndicator(isLoading: moreLogsAvailable),
             ),
@@ -181,20 +176,15 @@ class _ActivityTabState extends State<ActivityTab> {
         titleTranslationKey: "home.nav_bar.activity",
         leading: null,
       ),
-      body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
-        stream: combine2(
-          _historyRepo.repo.getIrmaConfiguration(),
-          _historyRepo.getHistoryState(),
-        ),
+      body: StreamBuilder<HistoryState>(
+        stream: _historyRepo.getHistoryState(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: LoadingIndicator());
           }
-          final irmaConfiguration = snapshot.data!.a;
-          final historyState = snapshot.data!.b;
+          final historyState = snapshot.data!;
           return _buildLogEntries(
             context,
-            irmaConfiguration,
             historyState.logEntries,
             historyState.moreLogsAvailable,
           );

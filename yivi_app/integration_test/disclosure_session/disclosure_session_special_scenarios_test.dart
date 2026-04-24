@@ -16,8 +16,8 @@ void main() {
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   group("disclosure-session", () {
-    setUp(() async => irmaBinding.setUp());
-    tearDown(() => irmaBinding.tearDown());
+    setUp(() async => await irmaBinding.setUp());
+    tearDown(() async => await irmaBinding.tearDown());
 
     group("special-scenarios", () {
       // Session with an optional attribute that cannot be null

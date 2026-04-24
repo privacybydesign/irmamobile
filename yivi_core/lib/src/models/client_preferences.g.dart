@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of "client_preferences.dart";
+part of 'client_preferences.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -10,16 +10,16 @@ ClientPreferencesEvent _$ClientPreferencesEventFromJson(
   Map<String, dynamic> json,
 ) => ClientPreferencesEvent(
   clientPreferences: ClientPreferences.fromJson(
-    json["Preferences"] as Map<String, dynamic>,
+    json['client_preferences'] as Map<String, dynamic>,
   ),
 );
 
 Map<String, dynamic> _$ClientPreferencesEventToJson(
   ClientPreferencesEvent instance,
-) => <String, dynamic>{"Preferences": instance.clientPreferences};
+) => <String, dynamic>{'client_preferences': instance.clientPreferences};
 
 ClientPreferences _$ClientPreferencesFromJson(Map<String, dynamic> json) =>
-    ClientPreferences(developerMode: json["DeveloperMode"] as bool);
+    ClientPreferences(developerMode: json['developer_mode'] as bool);
 
 Map<String, dynamic> _$ClientPreferencesToJson(ClientPreferences instance) =>
-    <String, dynamic>{"DeveloperMode": instance.developerMode};
+    <String, dynamic>{'developer_mode': instance.developerMode};

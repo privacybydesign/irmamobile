@@ -56,7 +56,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
     // Run the clean up method of each notification handler
     for (final notificationHandler in _notificationHandlers) {
-      initialNotifications = notificationHandler.cleanUp(
+      initialNotifications = await notificationHandler.cleanUp(
         _repo,
         initialNotifications,
       );

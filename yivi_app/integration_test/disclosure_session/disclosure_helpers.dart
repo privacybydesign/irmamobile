@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_introduction_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_confirm_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_introduction_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -74,6 +74,7 @@ Future<void> evaluateFeedback(
     expect(find.text("Canceled"), findsOneWidget);
   }
 
+  await tester.waitFor(find.text("OK"));
   await tester.tapAndSettle(find.text("OK"));
 
   // Session flow should be over now
@@ -115,7 +116,7 @@ Future<void> evaluateRequestorHeader(
   var requestorHeaderWidget =
       requestorHeaderFinder.first.evaluate().single.widget as RequestorHeader;
   final translatedRequestorHeaderNameText = requestorHeaderWidget
-      .requestorInfo!
+      .requestor!
       .name
       .translate("en");
   expect(translatedRequestorHeaderNameText, localizedRequestorName);

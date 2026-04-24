@@ -1,10 +1,11 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
@@ -34,10 +35,10 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   await evaluateIntroduction(tester);
 
   // Expect obtain credential screen
-  expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
+  expect(find.byType(IssueDuringDisclosureScreen), findsOneWidget);
   expect(
     find.text(
-      "Obtain my data step by step and share it with the requesting party after that",
+      "Obtain the required data and share it with the requesting party after that.",
     ),
     findsOneWidget,
   );
@@ -55,7 +56,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   );
 
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // Now obtain the email credential with wrong domain
   await issueCredentials(tester, irmaBinding, {
@@ -103,7 +104,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   await tester.tapAndSettle(okButtonFinder);
 
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // Now issue the correct right credential
   await issueCredentials(tester, irmaBinding, {
@@ -112,7 +113,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
   });
 
   // Issue wizard should be completed now
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
 
   // Check the credential card now that is has been completed
   await evaluateCredentialCard(
@@ -120,17 +121,15 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: {"Email domain name": "sidn.nl"},
+    attributesCompareTo: {"Email domain name": "sidn.nl"},
     style: IrmaCardStyle.normal,
   );
 
   await tester.tapAndSettle(find.text("Next step"));
 
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(
-    find.text("Share my data with is.demo.staging.yivi.app"),
-    findsOneWidget,
-  );
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(find.byType(RequestorHeader), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,

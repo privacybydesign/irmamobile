@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_discon_stepper.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_choice.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -65,9 +65,9 @@ Future<void> choiceTest(
     issuerName: "Demo Privacy by Design Foundation via SIDN",
   );
 
-  // Continue and expect the AddDataDetailsScreen
+  // Continue and expect the SchemalessAddDataDetailsScreen
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
   // Therefore, we mock this behavior using the helper below until we have a better solution.
@@ -75,11 +75,11 @@ Future<void> choiceTest(
 
   // The choice should be gone now and the phase should be completed.
   expect(disconChoiceFinder, findsNothing);
-  expect(find.text("All required data has been added"), findsOneWidget);
+  expect(find.text("All required data has been added."), findsOneWidget);
   await tester.tapAndSettle(find.text("Next step"));
 
   // Expect the choices screen
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   await tester.tapAndSettle(find.text("Share data"));
 
   await evaluateShareDialog(tester);

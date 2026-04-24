@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of "enrollment_events.dart";
+part of 'enrollment_events.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -9,11 +9,12 @@ part of "enrollment_events.dart";
 EnrollmentStatusEvent _$EnrollmentStatusEventFromJson(
   Map<String, dynamic> json,
 ) => EnrollmentStatusEvent(
-  enrolledSchemeManagerIds: (json["EnrolledSchemeManagerIds"] as List<dynamic>)
-      .map((e) => e as String)
-      .toList(),
+  enrolledSchemeManagerIds:
+      (json['enrolled_scheme_manager_ids'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
   unenrolledSchemeManagerIds:
-      (json["UnenrolledSchemeManagerIds"] as List<dynamic>)
+      (json['unenrolled_scheme_manager_ids'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
 );
@@ -21,43 +22,45 @@ EnrollmentStatusEvent _$EnrollmentStatusEventFromJson(
 Map<String, dynamic> _$EnrollmentStatusEventToJson(
   EnrollmentStatusEvent instance,
 ) => <String, dynamic>{
-  "EnrolledSchemeManagerIds": instance.enrolledSchemeManagerIds,
-  "UnenrolledSchemeManagerIds": instance.unenrolledSchemeManagerIds,
+  'enrolled_scheme_manager_ids': instance.enrolledSchemeManagerIds,
+  'unenrolled_scheme_manager_ids': instance.unenrolledSchemeManagerIds,
 };
 
 EnrollEvent _$EnrollEventFromJson(Map<String, dynamic> json) => EnrollEvent(
-  email: json["Email"] as String,
-  pin: json["Pin"] as String,
-  language: json["Language"] as String,
-  schemeId: json["SchemeID"] as String,
+  email: json['email'] as String,
+  pin: json['pin'] as String,
+  language: json['language'] as String,
+  schemeId: json['scheme_id'] as String,
 );
 
 Map<String, dynamic> _$EnrollEventToJson(EnrollEvent instance) =>
     <String, dynamic>{
-      "Email": instance.email,
-      "Pin": instance.pin,
-      "Language": instance.language,
-      "SchemeID": instance.schemeId,
+      'email': instance.email,
+      'pin': instance.pin,
+      'language': instance.language,
+      'scheme_id': instance.schemeId,
     };
 
 EnrollmentFailureEvent _$EnrollmentFailureEventFromJson(
   Map<String, dynamic> json,
 ) => EnrollmentFailureEvent(
-  schemeManagerID: json["SchemeManagerID"] as String,
-  error: SessionError.fromJson(json["Error"] as Map<String, dynamic>),
+  schemeManagerID: json['scheme_manager_id'] as String,
+  error: SessionError.fromJson(json['error'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$EnrollmentFailureEventToJson(
   EnrollmentFailureEvent instance,
 ) => <String, dynamic>{
-  "SchemeManagerID": instance.schemeManagerID,
-  "Error": instance.error,
+  'scheme_manager_id': instance.schemeManagerID,
+  'error': instance.error,
 };
 
 EnrollmentSuccessEvent _$EnrollmentSuccessEventFromJson(
   Map<String, dynamic> json,
-) => EnrollmentSuccessEvent(schemeManagerID: json["SchemeManagerID"] as String);
+) => EnrollmentSuccessEvent(
+  schemeManagerID: json['scheme_manager_id'] as String,
+);
 
 Map<String, dynamic> _$EnrollmentSuccessEventToJson(
   EnrollmentSuccessEvent instance,
-) => <String, dynamic>{"SchemeManagerID": instance.schemeManagerID};
+) => <String, dynamic>{'scheme_manager_id': instance.schemeManagerID};

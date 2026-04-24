@@ -16,19 +16,23 @@ import "../models/authentication_events.dart";
 import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
-import "../models/credential_events.dart";
 import "../models/credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
+import "../models/eudi_configuration.dart";
 import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
 import "../models/native_events.dart";
+import "../models/schemaless/credential_store.dart";
+import "../models/schemaless/schemaless_events.dart" as schemaless;
+import "../models/schemaless/session_state.dart";
+import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
-import "../models/session_state.dart";
+import "../models/translated_value.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
@@ -68,9 +72,7 @@ class IrmaRepository {
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
-      sessionEventStream: _eventSubject
-          .where((event) => event is SessionEvent)
-          .cast<SessionEvent>(),
+      eventStream: _eventSubject.stream,
     );
     _credentialsSubject.forEach((creds) async {
       final event = await _issueWizardSubject.first;
@@ -102,11 +104,16 @@ class IrmaRepository {
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
+  final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
+  final _schemalessCredentialsSubject =
+      BehaviorSubject<List<schemaless.Credential>>();
+  final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
+
   final _enrollmentStatusEventSubject =
       BehaviorSubject<EnrollmentStatusEvent>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(
-    EnrollmentStatus.undetermined,
+    .undetermined,
   );
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
@@ -133,7 +140,10 @@ class IrmaRepository {
     await Future.wait([
       _eventSubject.close(),
       _irmaConfigurationSubject.close(),
+      _eudiConfigurationSubject.close(),
       _credentialsSubject.close(),
+      _schemalessCredentialsSubject.close(),
+      _credentialStoreSubject.close(),
       _enrollmentStatusEventSubject.close(),
       _enrollmentStatusSubject.close(),
       _enrollmentEventSubject.close(),
@@ -149,6 +159,7 @@ class IrmaRepository {
       _resumedFromBrowserSubject.close(),
       _issueWizardSubject.close(),
       _issueWizardActiveSubject.close(),
+      _sessionRepository.close(),
       _fatalErrorSubject.close(),
     ]);
   }
@@ -164,13 +175,12 @@ class IrmaRepository {
       }
     } else if (event is IrmaConfigurationEvent) {
       _irmaConfigurationSubject.add(event.irmaConfiguration);
-    } else if (event is CredentialsEvent) {
-      _credentialsSubject.add(
-        Credentials.fromRaw(
-          irmaConfiguration: await _irmaConfigurationSubject.first,
-          rawCredentials: event.credentials,
-        ),
-      );
+    } else if (event is EudiConfigurationEvent) {
+      _eudiConfigurationSubject.add(event.eudiConfiguration);
+    } else if (event is schemaless.SchemalessCredentialsEvent) {
+      _schemalessCredentialsSubject.add(event.credentials);
+    } else if (event is SchemalessCredentialStoreEvent) {
+      _credentialStoreSubject.add(event.credentials);
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
       if (event is AuthenticationSuccessEvent) {
@@ -199,6 +209,48 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
+        // --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
+        if (event.url.startsWith("yivi-app://auth-callback")) {
+          final uri = Uri.parse(event.url);
+          final state = uri.queryParameters["state"];
+          if (state == null) {
+            throw MissingPointer(
+              details:
+                  'expected "state" to be present in query parameters, but wasn\'t',
+            );
+          }
+
+          final code = uri.queryParameters["code"];
+          if (code == null) {
+            throw MissingPointer(
+              details:
+                  'expected "code" to be present in query parameters, but wasn\'t',
+            );
+          }
+
+          final sessionStream = _sessionRepository
+              .getSessionStateByOpenId4VciState(state);
+          if (await sessionStream.isEmpty) {
+            throw MissingPointer(
+              details: 'No session found for state value "$state"',
+            );
+          }
+
+          final session = await sessionStream.first;
+          bridgedDispatch(
+            SessionUserInteractionEvent.authCallback(
+              sessionId: session.id,
+              code: code,
+              proceed: true,
+            ),
+          );
+
+          // TODO: check if Success/Failure will pop to the correct screen
+          closeInAppWebView();
+          return;
+        }
+        // --- END TODO
+
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
@@ -221,14 +273,6 @@ class IrmaRepository {
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
-    } else if (event is IssueWizardContentsEvent) {
-      _issueWizardSubject.add(
-        await processIssueWizard(
-          event.id,
-          event.wizardContents,
-          await _credentialsSubject.first,
-        ),
-      );
     }
   }
 
@@ -258,11 +302,16 @@ class IrmaRepository {
     );
   }
 
-  // -- Scheme manager, issuer, credential and attribute definitions
+  // -- Scheme manager, cert manager, issuer, credential and attribute definitions
   IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
+  EudiConfiguration get eudiConfiguration => _eudiConfigurationSubject.value;
 
   Stream<IrmaConfiguration> getIrmaConfiguration() {
     return _irmaConfigurationSubject.stream;
+  }
+
+  Stream<EudiConfiguration> getEudiConfiguration() {
+    return _eudiConfigurationSubject.stream;
   }
 
   Stream<Map<String, Issuer>> getIssuers() {
@@ -272,10 +321,20 @@ class IrmaRepository {
   }
 
   // -- Credential instances
-  Credentials get credentials => _credentialsSubject.value;
+  Credentials get credentials => _credentialsSubject.hasValue
+      ? _credentialsSubject.value
+      : Credentials({});
 
   Stream<Credentials> getCredentials() {
     return _credentialsSubject.stream;
+  }
+
+  Stream<List<schemaless.Credential>> getSchemalessCredentials() {
+    return _schemalessCredentialsSubject.stream;
+  }
+
+  Stream<List<CredentialStoreItem>> getCredentialStoreItems() {
+    return _credentialStoreSubject.stream;
   }
 
   // -- Enrollment
@@ -427,17 +486,34 @@ class IrmaRepository {
         .takeUntil(_fatalErrorSubject);
   }
 
-  // -- Session
-  SessionState? getCurrentSessionState(int sessionID) =>
-      _sessionRepository.getCurrentSessionState(sessionID);
-
-  Stream<SessionState> getSessionState(int sessionID) {
-    // Prevent states to be emitted twice when multiple sessions run in parallel.
-    return _sessionRepository.getSessionState(sessionID).distinct();
+  // -- Sessions
+  Stream<SessionState> getSessionState(int sessionId) {
+    return _sessionRepository.getSessionState(sessionId);
   }
 
-  Future<bool> hasActiveSessions() {
-    return _sessionRepository.hasActiveSessions();
+  Stream<SessionState> getSessionStateByOpenId4VciState(String sessionState) {
+    return _sessionRepository.getSessionStateByOpenId4VciState(sessionState);
+  }
+
+  /// Stream that emits session IDs when a new session is first seen.
+  Stream<int> getNewSessionIds() {
+    return _sessionRepository.newSessionIds;
+  }
+
+  Future<bool> hasActiveSessions({int? excludeSessionId}) {
+    return _sessionRepository.hasActiveSessions(
+      excludeSessionId: excludeSessionId,
+    );
+  }
+
+  /// Dismisses all sessions that are currently in the requestPermission state.
+  Future<void> dismissAllActiveSessions() async {
+    final activeSessionIds = await _sessionRepository.getActiveSessionIds();
+    for (final sessionId in activeSessionIds) {
+      bridgedDispatch(
+        SessionUserInteractionEvent.dismiss(sessionId: sessionId),
+      );
+    }
   }
 
   // Returns a future whether the app was resumed by either
@@ -564,12 +640,7 @@ class IrmaRepository {
   }
 
   // Passport issuance is a special case where we use the scanner built into the app as the issuer
-  void _startPassportIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startPassportIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -590,12 +661,7 @@ class IrmaRepository {
     }
   }
 
-  void _startIdCardIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startIdCardIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -618,10 +684,9 @@ class IrmaRepository {
 
   void _startDrivingLicenceIssuance(
     BuildContext context,
-    CredentialType type,
+    String url,
     WidgetRef ref,
   ) {
-    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -644,10 +709,9 @@ class IrmaRepository {
 
   void _startMobileNumberIssuance(
     BuildContext context,
-    CredentialType type,
+    String url,
     WidgetRef ref,
   ) {
-    final url = type.issueUrl.values.first;
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -664,12 +728,7 @@ class IrmaRepository {
     }
   }
 
-  void _startEmailIssuance(
-    BuildContext context,
-    CredentialType type,
-    WidgetRef ref,
-  ) {
-    final url = type.issueUrl.values.first;
+  void _startEmailIssuance(BuildContext context, String url, WidgetRef ref) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -686,13 +745,24 @@ class IrmaRepository {
     }
   }
 
-  Future<void> openIssueURL(
+  Future<void> schemalessOpenIssueURL(
     BuildContext context,
-    CredentialType type,
+    CredentialDescriptor credential,
     WidgetRef ref,
   ) async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final url = credential.issueURL?.translate(lang);
+    if (url == null || url.isEmpty) {
+      throw UnsupportedError(
+        "Credential type ${credential.credentialId} does not have a suitable issue url for $lang",
+      );
+    }
+
     // handle some embedded issuance flows
-    if (const {"pbdf", "pbdf-staging"}.contains(type.schemeManagerId)) {
+    if (const {
+      "pbdf",
+      "pbdf-staging",
+    }.any((id) => credential.credentialId.startsWith(id))) {
       final embeddedFlows = {
         "passport": _startPassportIssuance,
         "drivinglicence": _startDrivingLicenceIssuance,
@@ -701,44 +771,59 @@ class IrmaRepository {
         "email": _startEmailIssuance,
       };
 
-      final flow = embeddedFlows[type.id];
+      final splitId = credential.credentialId.split(".");
+
+      final flow = embeddedFlows[splitId.last];
+
       if (flow != null) {
-        return flow(context, type, ref);
+        return flow(context, url, ref);
       }
     }
 
+    return openURL(url);
+  }
+
+  Future<void> openIssueURL(
+    BuildContext context,
+    String credentialId,
+    TranslatedValue? issueUrl,
+    WidgetRef ref,
+  ) async {
+    // handle some embedded issuance flows
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
+    final embeddedFlows = {
+      //----------- production
+      "pbdf.pbdf.passport": _startPassportIssuance,
+      "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
+      "pbdf.pbdf.idcard": _startIdCardIssuance,
+      "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
+      "pbdf.sidn-pbdf.email": _startEmailIssuance,
+      //----------- staging
+      "pbdf-staging.pbdf.passport": _startPassportIssuance,
+      "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
+      "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
+      "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
+      "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
+    };
+    final flow = embeddedFlows[credentialId];
+    if (flow != null) {
+      return flow(context, issueUrl!.translate(lang), ref);
+    }
+
     final irmaConfig = await _irmaConfigurationSubject.first;
-    final cred = irmaConfig.credentialTypes[type.fullId];
+    final cred = irmaConfig.credentialTypes[credentialId];
 
     if (cred == null) {
-      throw UnsupportedError("Credential type $type not found in irma config");
+      throw UnsupportedError(
+        "Credential type $credentialId not found in irma config",
+      );
     }
 
     final url = cred.issueUrl.translate(lang, fallback: "");
     if (url.isEmpty) {
       throw UnsupportedError(
-        "Credential type $type does not have a suitable issue url for $lang",
-      );
-    }
-
-    final alreadyObtainedCredentials = await _credentialsSubject.first;
-    final alreadyObtainedCredentialsTypes = alreadyObtainedCredentials.values
-        .map((cred) => cred.credentialType.fullId);
-
-    if (cred.isInCredentialStore ||
-        alreadyObtainedCredentialsTypes.contains(type.fullId)) {
-      final state = await _credentialObtainState.first;
-      final updatedLaunchedCredentials = {
-        ...state.previouslyLaunchedCredentials,
-        type.fullId,
-      };
-
-      _credentialObtainState.add(
-        _CredentialObtainState(
-          previouslyLaunchedCredentials: updatedLaunchedCredentials,
-        ),
+        "Credential type $credentialId does not have a suitable issue url for $lang",
       );
     }
 
@@ -764,7 +849,7 @@ class IrmaRepository {
       await _iiabchannel.invokeMethod("open_browser", url);
     } else {
       final uri = Uri.parse(url);
-      final hasOpened = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      final hasOpened = await launchUrl(uri, mode: .inAppWebView);
 
       // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
       if (!hasOpened) {
@@ -782,10 +867,7 @@ class IrmaRepository {
     }
     // On iOS, open Safari rather than Safari view controller
     final uri = Uri.parse(url);
-    final hasOpened = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+    final hasOpened = await launchUrl(uri, mode: .externalApplication);
 
     // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
     if (!hasOpened) {

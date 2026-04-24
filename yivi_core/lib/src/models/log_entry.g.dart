@@ -1,83 +1,119 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of "log_entry.dart";
+part of 'log_entry.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 LogsEvent _$LogsEventFromJson(Map<String, dynamic> json) => LogsEvent(
-  logEntries: (json["LogEntries"] as List<dynamic>)
+  logEntries: (json['log_entries'] as List<dynamic>)
       .map((e) => LogInfo.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
 
 Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) =>
-    <String, dynamic>{"Before": instance.before, "Max": instance.max};
+    <String, dynamic>{
+      'before': instance.before?.toIso8601String(),
+      'max': instance.max,
+    };
 
 LogInfo _$LogInfoFromJson(Map<String, dynamic> json) => LogInfo(
-  id: (json["ID"] as num).toInt(),
-  type: _toLogEntryType(json["Type"] as String),
-  time: _epochSecondsToDateTime((json["Time"] as num).toInt()),
-  issuanceLog: json["IssuanceLog"] == null
+  type: $enumDecode(_$LogTypeEnumMap, json['type']),
+  time: DateTime.parse(json['time'] as String),
+  issuanceLog: json['issuance_log'] == null
       ? null
-      : IssuanceLog.fromJson(json["IssuanceLog"] as Map<String, dynamic>),
-  disclosureLog: json["DisclosureLog"] == null
+      : IssuanceLog.fromJson(json['issuance_log'] as Map<String, dynamic>),
+  disclosureLog: json['disclosure_log'] == null
       ? null
-      : DisclosureLog.fromJson(json["DisclosureLog"] as Map<String, dynamic>),
-  signedMessageLog: json["SignedMessageLog"] == null
+      : DisclosureLog.fromJson(json['disclosure_log'] as Map<String, dynamic>),
+  signedMessageLog: json['signed_message_log'] == null
       ? null
       : SignedMessageLog.fromJson(
-          json["SignedMessageLog"] as Map<String, dynamic>,
+          json['signed_message_log'] as Map<String, dynamic>,
         ),
-  removalLog: json["RemovalLog"] == null
+  removalLog: json['removal_log'] == null
       ? null
-      : RemovalLog.fromJson(json["RemovalLog"] as Map<String, dynamic>),
+      : RemovalLog.fromJson(json['removal_log'] as Map<String, dynamic>),
 );
 
+const _$LogTypeEnumMap = {
+  LogType.disclosure: 'disclosure',
+  LogType.signature: 'signature',
+  LogType.issuance: 'issuance',
+  LogType.removal: 'removal',
+};
+
 IssuanceLog _$IssuanceLogFromJson(Map<String, dynamic> json) => IssuanceLog(
-  protocol: _toProtocol(json["Protocol"] as String),
-  credentials: (json["Credentials"] as List<dynamic>)
-      .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+  protocol: stringToProtocol(json['protocol'] as String),
+  credentials: (json['credentials'] as List<dynamic>)
+      .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
       .toList(),
-  disclosedCredentials: (json["DisclosedCredentials"] as List<dynamic>)
-      .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  issuer: RequestorInfo.fromJson(json["Issuer"] as Map<String, dynamic>),
+  disclosedCredentials:
+      (json['disclosed_credentials'] as List<dynamic>?)
+          ?.map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      [],
+  issuer: json['issuer'] == null
+      ? null
+      : TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
 );
 
 DisclosureLog _$DisclosureLogFromJson(Map<String, dynamic> json) =>
     DisclosureLog(
-      protocol: _toProtocol(json["Protocol"] as String),
-      credentials: (json["Credentials"] as List<dynamic>)
-          .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+      protocol: stringToProtocol(json['protocol'] as String),
+      credentials: (json['credentials'] as List<dynamic>)
+          .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
-      verifier: RequestorInfo.fromJson(
-        json["Verifier"] as Map<String, dynamic>,
-      ),
+      verifier: json['verifier'] == null
+          ? null
+          : TrustedParty.fromJson(json['verifier'] as Map<String, dynamic>),
     );
 
 SignedMessageLog _$SignedMessageLogFromJson(Map<String, dynamic> json) =>
     SignedMessageLog(
-      protocol: _toProtocol(json["Protocol"] as String),
-      credentials: (json["Credentials"] as List<dynamic>)
-          .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+      protocol: stringToProtocol(json['protocol'] as String),
+      credentials: (json['credentials'] as List<dynamic>)
+          .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
           .toList(),
-      verifier: RequestorInfo.fromJson(
-        json["Verifier"] as Map<String, dynamic>,
-      ),
-      message: json["Message"] as String,
+      verifier: json['verifier'] == null
+          ? null
+          : TrustedParty.fromJson(json['verifier'] as Map<String, dynamic>),
+      message: json['message'] as String,
     );
 
 RemovalLog _$RemovalLogFromJson(Map<String, dynamic> json) => RemovalLog(
-  credentials: (json["Credentials"] as List<dynamic>)
-      .map((e) => CredentialLog.fromJson(e as Map<String, dynamic>))
+  credentials: (json['credentials'] as List<dynamic>)
+      .map((e) => LogCredential.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
 
-CredentialLog _$CredentialLogFromJson(Map<String, dynamic> json) =>
-    CredentialLog(
-      formats: _toCredentialFormatList(json["Formats"]),
-      credentialType: json["CredentialType"] as String,
-      attributes: Map<String, String>.from(json["Attributes"] as Map),
+LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
+    LogCredential(
+      credentialId: json['credential_id'] as String,
+      formats: (json['formats'] as List<dynamic>)
+          .map((e) => $enumDecode(_$CredentialFormatEnumMap, e))
+          .toList(),
+      name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+      issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
+      attributes: (json['attributes'] as List<dynamic>)
+          .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      issuanceDate: (json['issuance_date'] as num).toInt(),
+      expiryDate: (json['expiry_date'] as num).toInt(),
+      revoked: json['revoked'] as bool,
+      revocationSupported: json['revocation_supported'] as bool,
+      issueUrl: json['issue_url'] == null
+          ? null
+          : TranslatedValue.fromJson(
+              json['issue_url'] as Map<String, dynamic>?,
+            ),
+      image: json['image'] == null
+          ? null
+          : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
     );
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+};
