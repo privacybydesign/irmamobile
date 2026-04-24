@@ -127,12 +127,16 @@ Future<void> testIssueEmailOpenId4Vci(
 
   // Second permission screen: IssuancePermission with filled values
   await tester.waitFor(find.byType(IssuancePermission));
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-  expect(find.text("Email"), findsOneWidget);
-  expect(find.text("test@example.com"), findsOneWidget);
-  expect(find.text("Domain"), findsOneWidget);
-  expect(find.text("example.com"), findsOneWidget);
-  // Tap "Add"
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Email Credential (SD-JWT)",
+    isExpired: false,
+    attributes: {
+      "Email": "test@example.com",
+      "Domain": "example.com",
+    },
+  );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   // Success screen
@@ -189,11 +193,16 @@ Future<void> testIssueEmailOpenId4VciWithTxCode(
 
   // Second permission screen with filled values
   await tester.waitFor(find.byType(IssuancePermission));
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-  expect(find.text("Email"), findsOneWidget);
-  expect(find.text("test@example.com"), findsOneWidget);
-  expect(find.text("Domain"), findsOneWidget);
-  expect(find.text("example.com"), findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Email Credential (SD-JWT)",
+    isExpired: false,
+    attributes: {
+      "Email": "test@example.com",
+      "Domain": "example.com",
+    },
+  );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   // Success screen
@@ -484,10 +493,16 @@ Future<void> testCancelTxCodeDialogThenSucceed(
 
   // Second permission screen with filled values
   await tester.waitFor(find.byType(IssuancePermission));
-  expect(find.text("Email"), findsOneWidget);
-  expect(find.text("test@example.com"), findsOneWidget);
-  expect(find.text("Domain"), findsOneWidget);
-  expect(find.text("example.com"), findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Email Credential (SD-JWT)",
+    isExpired: false,
+    attributes: {
+      "Email": "test@example.com",
+      "Domain": "example.com",
+    },
+  );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   // Success screen
