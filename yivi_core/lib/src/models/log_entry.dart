@@ -55,7 +55,6 @@ enum CredentialFormat {
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)
 class LogInfo {
   const LogInfo({
-    required this.id,
     required this.type,
     required this.time,
     required this.issuanceLog,
@@ -64,7 +63,6 @@ class LogInfo {
     required this.removalLog,
   });
 
-  final int id;
   final LogType type;
   final DateTime time;
   final IssuanceLog? issuanceLog;
