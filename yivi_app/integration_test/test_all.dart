@@ -14,6 +14,7 @@ import "enroll_test.dart" as enroll_test;
 import "external_browser_credtypes_test.dart" as external_browser_test;
 import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
+import "openid4vci_issuance_test.dart" as openid4vci_issuance_test;
 // import "issue_wizard_test.dart" as issue_wizard_test;
 import "login_test.dart" as login_test;
 import "more_tab_test.dart" as more_tab_test;
@@ -27,6 +28,7 @@ import "settings_test.dart" as settings_test;
 void main() {
   external_browser_test.main();
   irma_sdjwt_test.main();
+  openid4vci_issuance_test.main();
   openid4vp_test.main();
   reorder_cards_test.main();
   new_terms.main();
