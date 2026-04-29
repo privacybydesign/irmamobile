@@ -7,13 +7,18 @@ import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_detail_removal.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/oid4vci_issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/preauth_transactioncode_dialog.dart";
+import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
+import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "helpers/helpers.dart";
@@ -96,6 +101,16 @@ void main() {
     testWidgets(
       "cancel-tx-code-dialog-then-succeed",
       (tester) => testCancelTxCodeDialogThenSucceed(tester, irmaBinding),
+    );
+
+    // =========================================================================
+    // Credential management tests
+    // =========================================================================
+
+    testWidgets(
+      "remove-deduped-and-unique-credentials",
+      (tester) =>
+          testRemoveDedupedAndUniqueCredentials(tester, irmaBinding),
     );
   });
 }
@@ -523,6 +538,150 @@ Future<void> testCancelTxCodeDialogThenSucceed(
       "Domain": "example.com",
     },
   );
+}
+
+// =============================================================================
+// Credential management test implementations
+// =============================================================================
+
+Future<void> testRemoveDedupedAndUniqueCredentials(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  // Issue 3 EmailCredentialSdJwt credentials. The first two share attribute
+  // values; the third differs only in the email address. The wallet groups
+  // credentials with identical attribute values into a single card on the
+  // details screen, so we expect 2 cards rather than 3.
+  await _issueEmailCredViaPreAuth(
+    tester,
+    irmaBinding,
+    email: "test@example.com",
+  );
+  await _issueEmailCredViaPreAuth(
+    tester,
+    irmaBinding,
+    email: "test@example.com",
+  );
+  await _issueEmailCredViaPreAuth(
+    tester,
+    irmaBinding,
+    email: "other@example.com",
+  );
+
+  // Open the email category details screen. We tap the only credential type
+  // card on the data tab rather than a key built from a guessed credential ID.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await tester.waitFor(find.byType(SchemalessYiviCredentialTypeCard));
+  final emailTypeCard = find.byType(SchemalessYiviCredentialTypeCard);
+  expect(emailTypeCard, findsOneWidget);
+  await tester.tapAndSettle(emailTypeCard);
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+
+  // Two cards: one merged (test@) representing both identical instances,
+  // one unique (other@).
+  expect(find.byType(YiviCredentialCard), findsExactly(2));
+
+  // Delete the merged card first
+  final mergedCard = find.ancestor(
+    of: find.text("test@example.com"),
+    matching: find.byType(YiviCredentialCard),
+  );
+  expect(mergedCard, findsOneWidget);
+  await tester.tapAndSettle(
+    find.descendant(
+      of: mergedCard,
+      matching: find.byIcon(Icons.more_horiz_sharp),
+    ),
+  );
+  await tester.tapAndSettle(find.text("Delete data"));
+  expect(find.byType(DeleteCredentialConfirmationDialog), findsOneWidget);
+  await tester.tapAndSettle(find.text("Delete"));
+
+  // Only the unique card remains
+  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  expect(find.text("other@example.com"), findsOneWidget);
+
+  // Delete the remaining (unique) card
+  await tester.tapAndSettle(find.byIcon(Icons.more_horiz_sharp));
+  await tester.tapAndSettle(find.text("Delete data"));
+  expect(find.byType(DeleteCredentialConfirmationDialog), findsOneWidget);
+  await tester.tapAndSettle(find.text("Delete"));
+
+  // After deleting the last credential of this type, the details screen pops
+  // back to the data tab and no credential type card should remain.
+  await tester.waitFor(find.byType(DataTab));
+  expect(find.byType(SchemalessYiviCredentialTypeCard), findsNothing);
+
+  // Activity tab: two removal entries, drilled into in turn.
+  await tester.tap(
+    find.byKey(const Key("nav_button_activity"), skipOffstage: false),
+  );
+  await tester.pump(const Duration(seconds: 1));
+
+  expect(find.text("Data deleted"), findsExactly(2));
+
+  // Most-recent activity entry → unique-card removal (deleted second)
+  await tester.tapAndSettle(
+    find.byType(ActivityCard, skipOffstage: false).at(0),
+  );
+  expect(find.byType(ActivityDetailsScreen), findsOneWidget);
+  expect(find.byType(ActivityDetailRemoval), findsOneWidget);
+  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Email Credential (SD-JWT)",
+    issuerName: "Test Issuer",
+    attributes: {
+      "Email": "other@example.com",
+      "Domain": "example.com",
+    },
+  );
+
+  // Back to activity list, then drill into the older removal
+  await tester.tapAndSettle(find.byType(YiviBackButton));
+
+  await tester.tapAndSettle(
+    find.byType(ActivityCard, skipOffstage: false).at(1),
+  );
+  expect(find.byType(ActivityDetailsScreen), findsOneWidget);
+  expect(find.byType(ActivityDetailRemoval), findsOneWidget);
+  expect(find.byType(YiviCredentialCard), findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Email Credential (SD-JWT)",
+    issuerName: "Test Issuer",
+    attributes: {
+      "Email": "test@example.com",
+      "Domain": "example.com",
+    },
+  );
+}
+
+/// Issues a single EmailCredentialSdJwt via the pre-authorized code flow with
+/// the wallet at home. Returns to home after success.
+Future<void> _issueEmailCredViaPreAuth(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  required String email,
+}) async {
+  final offer = await startOpenID4VCISession(
+    credentialConfigId: "EmailCredentialSdJwt",
+    credentialData: {"email": email, "domain": "example.com"},
+  );
+  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
+
+  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+  await tester.waitFor(find.byType(IssuancePermission));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+  await tester.waitFor(find.byType(IssuanceSuccessScreen));
+  await tester.tapAndSettle(find.text("OK"));
 }
 
 // =============================================================================
