@@ -20,7 +20,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
   const YiviCredentialCardAttributeList(
     this.attributes, {
     this.compareTo,
-    this.showDividers = false,
+    this.showDividers = true,
   });
 
   @override
@@ -510,14 +510,14 @@ class _RowContent extends StatelessWidget {
 // Shared label / value text styles.
 TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 14,
+  fontSize: 13,
   fontWeight: FontWeight.w400,
   color: theme.neutralExtraDark,
 );
 
 TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
   fontFamily: theme.primaryFontFamily,
-  fontSize: 15,
+  fontSize: 14,
   fontWeight: FontWeight.w700,
   color: color,
 );
@@ -736,8 +736,8 @@ class _ItemEyebrowContent extends StatelessWidget {
 
 TextStyle _eyebrowStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 12,
+  fontSize: 11,
   fontWeight: FontWeight.w700,
   color: theme.neutralDark,
-  letterSpacing: 0.96, // 0.08em × 12px
+  letterSpacing: 0.88, // 0.08em × 11px
 );
