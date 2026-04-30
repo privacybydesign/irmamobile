@@ -13,8 +13,15 @@ import "../irma_app_bar.dart";
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
   final List<schemaless.Attribute>? compareTo;
+  // When true (default), each leaf/primarray row draws a 1px horizontal
+  // divider at its bottom (suppressed on the last row of any parent group).
+  final bool showDividers;
 
-  const YiviCredentialCardAttributeList(this.attributes, {this.compareTo});
+  const YiviCredentialCardAttributeList(
+    this.attributes, {
+    this.compareTo,
+    this.showDividers = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +48,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
           _RenderItemView(
             item: items[i],
             nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
+            showDivider: showDividers,
           ),
       ],
     );
@@ -348,9 +356,16 @@ List<_RenderItem> _flatten(_GroupNode root) {
           emit(c.children.first, depth, isLast);
           continue;
         }
-        // All-items: suppress the eyebrow (each item carries the parent label).
+        // All-items: suppress the eyebrow (each item carries the parent
+        // label, e.g. "DEPARTMENTS 1/2"). Don't add an indent level either —
+        // the items render at the same depth as the suppressed group so they
+        // sit at their parent's level instead of one step deeper.
         final allItems = c.children.every((cc) => cc is _ItemNode);
-        if (c.label != null && !allItems) {
+        if (allItems) {
+          visit(c.children, depth);
+          continue;
+        }
+        if (c.label != null) {
           emit(c, depth, false);
         }
         visit(c.children, depth + 1);
@@ -381,13 +396,20 @@ class _RenderItemView extends StatelessWidget {
   // is the last row. Used to decide which guide-line segments end in this
   // row (so they should stop at the value bottom rather than continue down).
   final int nextDepth;
-  const _RenderItemView({required this.item, required this.nextDepth});
+  // When false, suppresses the horizontal divider line entirely — guide
+  // lines and indent are unaffected.
+  final bool showDivider;
+  const _RenderItemView({
+    required this.item,
+    required this.nextDepth,
+    required this.showDivider,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final node = item.node;
-    final showDivider = !item.isLast && _rowDrawsBorder(node);
+    final drawDivider = showDivider && !item.isLast && _rowDrawsBorder(node);
     final indentLeft = item.depth * theme.defaultSpacing;
     final isEyebrow = _isEyebrow(node);
     final isFirstAtDepth =
@@ -408,7 +430,7 @@ class _RenderItemView extends StatelessWidget {
     // Inset from the Stack bottom up to the bottom of the value content (i.e.,
     // skipping the row's bottom padding and the divider, if any). Used as the
     // `bottom` for guide-line segments that end in this row.
-    final endingLineBottom = bottomPad + (showDivider ? 1.0 : 0.0);
+    final endingLineBottom = bottomPad + (drawDivider ? 1.0 : 0.0);
 
     return Stack(
       clipBehavior: Clip.none,
@@ -439,7 +461,7 @@ class _RenderItemView extends StatelessWidget {
                 child: _RowContent(node: node),
               ),
             ),
-            if (showDivider)
+            if (drawDivider)
               Padding(
                 padding: EdgeInsets.only(left: indentLeft),
                 child: Container(height: 1, color: theme.neutralExtraLight),
@@ -488,14 +510,14 @@ class _RowContent extends StatelessWidget {
 // Shared label / value text styles.
 TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 13,
+  fontSize: 14,
   fontWeight: FontWeight.w400,
-  color: theme.neutralDark,
+  color: theme.neutralExtraDark,
 );
 
 TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
   fontFamily: theme.primaryFontFamily,
-  fontSize: 14,
+  fontSize: 15,
   fontWeight: FontWeight.w700,
   color: color,
 );
@@ -527,7 +549,7 @@ class _LeafContent extends StatelessWidget {
   }
 
   Color _valueColor(schemaless.AttributeValue? val, IrmaThemeData theme) {
-    if (!node.hasCompareTo) return theme.neutralExtraDark;
+    if (!node.hasCompareTo) return theme.dark;
     return val?.string == node.compareToValue?.string
         ? theme.success
         : theme.error;
@@ -643,7 +665,7 @@ class _PrimArrayContent extends StatelessWidget {
           Expanded(
             child: Text(
               _formatValue(v),
-              style: _valueStyle(theme, theme.neutralExtraDark),
+              style: _valueStyle(theme, theme.dark),
             ),
           ),
         ],
@@ -714,8 +736,8 @@ class _ItemEyebrowContent extends StatelessWidget {
 
 TextStyle _eyebrowStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: FontWeight.w700,
   color: theme.neutralDark,
-  letterSpacing: 0.88, // 0.08em × 11px
+  letterSpacing: 0.96, // 0.08em × 12px
 );

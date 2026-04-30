@@ -6,10 +6,10 @@ import "../translated_text.dart";
 
 TextStyle _issuerEyebrowStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 12,
+  fontSize: 13,
   fontWeight: FontWeight.w600,
   color: theme.neutralDark,
-  letterSpacing: 0.72, // 0.06em × 12
+  letterSpacing: 0.78, // 0.06em × 13
   height: 1.4,
 );
 
@@ -18,7 +18,7 @@ TextStyle _credentialNameStyle(IrmaThemeData theme, double fontSize) =>
       fontFamily: theme.primaryFontFamily,
       fontSize: fontSize,
       fontWeight: FontWeight.w700,
-      color: theme.neutralExtraDark,
+      color: theme.dark,
       height: 26 / 19,
     );
 
@@ -82,7 +82,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
 
     // Always use the compact layout for now — the expanded variant has
     // been retired while we align the header style with the design.
-    return Column(
+    final mainColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (status != null) ...[status, SizedBox(height: theme.smallSpacing)],
@@ -99,7 +99,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                 size: _compactLogoSize,
               ),
             ),
-            SizedBox(width: theme.smallSpacing),
+            SizedBox(width: theme.smallSpacing + theme.tinySpacing),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -110,7 +110,6 @@ class YiviCredentialCardHeader extends StatelessWidget {
                       issuerName!.toUpperCase(),
                       style: _issuerEyebrowStyle(theme),
                     ),
-                  SizedBox(height: 2),
                   Text(
                     credentialName,
                     style: _credentialNameStyle(theme, 19),
@@ -119,8 +118,25 @@ class YiviCredentialCardHeader extends StatelessWidget {
                 ],
               ),
             ),
-            if (trailing != null) trailing!,
           ],
+        ),
+      ],
+    );
+
+    if (trailing == null) return mainColumn;
+
+    return Stack(
+      children: [
+        // Reserve space on the right so the credential name doesn't run
+        // under the trailing button in narrow layouts.
+        Padding(
+          padding: EdgeInsets.only(right: theme.mediumSpacing),
+          child: mainColumn,
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: trailing!,
         ),
       ],
     );
