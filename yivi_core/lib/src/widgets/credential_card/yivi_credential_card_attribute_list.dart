@@ -540,7 +540,7 @@ class _LeafContent extends StatelessWidget {
     return Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
-      spacing: 1,
+      spacing: 0,
       children: [
         Text(attribute.displayName.translate(lang), style: _labelStyle(theme)),
         _buildValue(context, theme, lang),
@@ -634,7 +634,7 @@ class _PrimArrayContent extends StatelessWidget {
     return Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
-      spacing: 1,
+      spacing: 0,
       children: [
         Text(node.label.translate(lang), style: _labelStyle(theme)),
         for (final v in node.values) _bulletRow(theme, v),
