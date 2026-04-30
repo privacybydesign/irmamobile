@@ -18,8 +18,6 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final sorted = [...attributes]
       ..sort((a, b) {
         final aIsImage =
@@ -33,14 +31,17 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
       });
 
     final tree = _buildTree(sorted, compareTo: compareTo);
+    final items = _flatten(tree);
 
     return Column(
-      spacing: theme.smallSpacing,
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       children: [
-        for (final child in tree.children)
-          _NodeView(node: child, depth: 0),
+        for (var i = 0; i < items.length; i++)
+          _RenderItemView(
+            item: items[i],
+            nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
+          ),
       ],
     );
   }
@@ -284,33 +285,229 @@ void _stampItemTotals(_Node node) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Renderer
+// Flatten — walk the tree depth-first and produce a list of rows. Each row
+// is a single _RenderItem that knows its depth and whether it's the last
+// child of its parent (used to suppress the bottom divider, matching the
+// design's "borderBottom: isLast ? 'none'" rule).
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _NodeView extends StatelessWidget {
+class _RenderItem {
   final _Node node;
   final int depth;
+  final bool isLast;
+  // Depth of the previously emitted row, or -1 if this is the first row.
+  // Used by the renderer to decide which guide-line segments are newly
+  // introduced (and should be inset slightly from the row top) versus
+  // continuations from the row above (which stay flush so the line connects).
+  final int previousDepth;
+  _RenderItem({
+    required this.node,
+    required this.depth,
+    required this.isLast,
+    required this.previousDepth,
+  });
+}
 
-  const _NodeView({required this.node, required this.depth});
+List<_RenderItem> _flatten(_GroupNode root) {
+  final out = <_RenderItem>[];
+  var lastDepth = -1;
+
+  void emit(_Node node, int depth, bool isLast) {
+    out.add(
+      _RenderItem(
+        node: node,
+        depth: depth,
+        isLast: isLast,
+        previousDepth: lastDepth,
+      ),
+    );
+    lastDepth = depth;
+  }
+
+  void visit(List<_Node> children, int depth) {
+    for (var i = 0; i < children.length; i++) {
+      final c = children[i];
+      final isLast = i == children.length - 1;
+
+      if (c is _RowNode || c is _PrimArrayNode) {
+        emit(c, depth, isLast);
+        continue;
+      }
+
+      if (c is _GroupNode) {
+        // Empty group → render as a single labelled row.
+        if (c.children.isEmpty) {
+          emit(c, depth, isLast);
+          continue;
+        }
+        // Collapse: only child is a same-label primarray → drop the eyebrow.
+        if (c.children.length == 1 &&
+            c.children.first is _PrimArrayNode &&
+            c.label != null &&
+            (c.children.first as _PrimArrayNode).label == c.label) {
+          emit(c.children.first, depth, isLast);
+          continue;
+        }
+        // All-items: suppress the eyebrow (each item carries the parent label).
+        final allItems = c.children.every((cc) => cc is _ItemNode);
+        if (c.label != null && !allItems) {
+          emit(c, depth, false);
+        }
+        visit(c.children, depth + 1);
+        continue;
+      }
+
+      if (c is _ItemNode) {
+        emit(c, depth, false);
+        visit(c.children, depth + 1);
+        continue;
+      }
+    }
+  }
+
+  visit(root.children, 0);
+  return out;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Render — every row is a full-width container. Indent and guide-line
+// segments are drawn INSIDE each row so the bottom divider can span the
+// card's content edge-to-edge.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _RenderItemView extends StatelessWidget {
+  final _RenderItem item;
+  // Depth of the row that follows this one in the flat list, or -1 if this
+  // is the last row. Used to decide which guide-line segments end in this
+  // row (so they should stop at the value bottom rather than continue down).
+  final int nextDepth;
+  const _RenderItemView({required this.item, required this.nextDepth});
 
   @override
   Widget build(BuildContext context) {
-    return switch (node) {
-      _RowNode n => _LeafRow(node: n),
-      _PrimArrayNode n => _PrimArrayRow(node: n),
-      _GroupNode n => _GroupView(node: n, depth: depth),
-      _ItemNode n => _ItemView(node: n, depth: depth),
-    };
+    final theme = IrmaTheme.of(context);
+    final node = item.node;
+    final showDivider = !item.isLast && _rowDrawsBorder(node);
+    final indentLeft = item.depth * theme.defaultSpacing;
+    final isEyebrow = _isEyebrow(node);
+    final isFirstAtDepth =
+        item.previousDepth >= 0 && item.depth > item.previousDepth;
+    // Eyebrows get more breathing room above. First-at-depth claims drop top
+    // padding to 0 so the visible glyph top of the label aligns with the
+    // top of the freshly-introduced vertical line (which itself is inset by
+    // tinySpacing from the row top).
+    final double topPad;
+    if (isEyebrow) {
+      topPad = theme.smallSpacing;
+    } else if (isFirstAtDepth) {
+      topPad = 0;
+    } else {
+      topPad = theme.tinySpacing;
+    }
+    final bottomPad = theme.tinySpacing;
+    // Inset from the Stack bottom up to the bottom of the value content (i.e.,
+    // skipping the row's bottom padding and the divider, if any). Used as the
+    // `bottom` for guide-line segments that end in this row.
+    final endingLineBottom = bottomPad + (showDivider ? 1.0 : 0.0);
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Vertical guide-line segments — one per ancestor level. Newly
+        // introduced segments are inset slightly from the row top so the
+        // line "starts" a tiny bit below where it appears. Continuation
+        // segments stay flush at top: 0 so the line connects across rows.
+        // A segment ending in this row (no subsequent row has depth > i)
+        // stops at the value bottom so the line doesn't trail past the
+        // last attribute.
+        for (var i = 0; i < item.depth; i++)
+          Positioned(
+            left: i * theme.defaultSpacing,
+            top: i >= item.previousDepth ? theme.tinySpacing : 0,
+            bottom: i >= nextDepth ? endingLineBottom : 0,
+            width: 1,
+            child: Container(color: theme.neutralExtraLight),
+          ),
+        Column(
+          mainAxisSize: .min,
+          crossAxisAlignment: .stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
+              child: Padding(
+                padding: EdgeInsets.only(left: indentLeft),
+                child: _RowContent(node: node),
+              ),
+            ),
+            if (showDivider)
+              Padding(
+                padding: EdgeInsets.only(left: indentLeft),
+                child: Container(height: 1, color: theme.neutralExtraLight),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  static bool _rowDrawsBorder(_Node node) {
+    // Eyebrows (group/item headings) don't draw their own border — only leaves
+    // and primarrays (and empty-group fallbacks rendered as labelled rows).
+    if (node is _RowNode) return true;
+    if (node is _PrimArrayNode) return true;
+    if (node is _GroupNode) return node.children.isEmpty;
+    return false;
+  }
+
+  static bool _isEyebrow(_Node node) {
+    if (node is _GroupNode) return node.children.isNotEmpty;
+    if (node is _ItemNode) return true;
+    return false;
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Leaf row — always stacked (label on top, value below).
+// Row content — dispatches to the right inner widget based on node kind.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _LeafRow extends StatelessWidget {
+class _RowContent extends StatelessWidget {
+  final _Node node;
+  const _RowContent({required this.node});
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (node) {
+      _RowNode n => _LeafContent(node: n),
+      _PrimArrayNode n => _PrimArrayContent(node: n),
+      _GroupNode n => _EyebrowContent(node: n),
+      _ItemNode n => _ItemEyebrowContent(node: n),
+    };
+  }
+}
+
+// Shared label / value text styles.
+TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
+  fontFamily: theme.secondaryFontFamily,
+  fontSize: 13,
+  fontWeight: FontWeight.w400,
+  color: theme.neutralDark,
+);
+
+TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
+  fontFamily: theme.primaryFontFamily,
+  fontSize: 14,
+  fontWeight: FontWeight.w700,
+  color: color,
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Leaf content — label on top, value below (no padding/border, container
+// handles those).
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _LeafContent extends StatelessWidget {
   final _RowNode node;
-  const _LeafRow({required this.node});
+  const _LeafContent({required this.node});
 
   @override
   Widget build(BuildContext context) {
@@ -318,57 +515,43 @@ class _LeafRow extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final attribute = node.attribute;
 
-    return Padding(
-      padding: .symmetric(
-        vertical: attribute.value == null ? 0 : theme.tinySpacing,
-      ),
-      child: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .start,
-        children: [
-          Text(
-            attribute.displayName.translate(lang),
-            style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
-          ),
-          _buildContent(context, theme, lang),
-        ],
-      ),
+    return Column(
+      mainAxisSize: .min,
+      crossAxisAlignment: .start,
+      spacing: 1,
+      children: [
+        Text(attribute.displayName.translate(lang), style: _labelStyle(theme)),
+        _buildValue(context, theme, lang),
+      ],
     );
   }
 
   Color _valueColor(schemaless.AttributeValue? val, IrmaThemeData theme) {
-    if (!node.hasCompareTo) return theme.dark;
+    if (!node.hasCompareTo) return theme.neutralExtraDark;
     return val?.string == node.compareToValue?.string
         ? theme.success
         : theme.error;
   }
 
-  Widget _buildContent(
+  Widget _buildValue(
     BuildContext context,
     IrmaThemeData theme,
     String lang,
   ) {
-    final attribute = node.attribute;
-    final val = attribute.value;
+    final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: _valueColor(val, theme),
-        ),
+        style: _valueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.boolean => Text(
         val.boolValue == null ? "" : (val.boolValue! ? "Yes" : "No"),
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: _valueColor(val, theme),
-        ),
+        style: _valueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: theme.themeData.textTheme.bodyLarge!.copyWith(
-          color: _valueColor(val, theme),
-        ),
+        style: _valueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image =>
@@ -388,29 +571,26 @@ class _LeafRow extends StatelessWidget {
       const Base64Decoder().convert(raw),
       fit: BoxFit.fitWidth,
     );
-    return Padding(
-      padding: EdgeInsets.only(top: theme.tinySpacing),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Scaffold(
-                appBar: IrmaAppBar(
-                  titleString: attribute.displayName.translate(
-                    lang,
-                    fallbackLang: "",
-                  ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: IrmaAppBar(
+                titleString: attribute.displayName.translate(
+                  lang,
+                  fallbackLang: "",
                 ),
-                body: SingleChildScrollView(child: Center(child: image)),
               ),
+              body: SingleChildScrollView(child: Center(child: image)),
             ),
-          );
-        },
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
-          child: image,
-        ),
+          ),
+        );
+      },
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 66, maxHeight: 100),
+        child: image,
       ),
     );
   }
@@ -420,28 +600,23 @@ class _LeafRow extends StatelessWidget {
 // Array of primitives — stacked list with • bullets.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _PrimArrayRow extends StatelessWidget {
+class _PrimArrayContent extends StatelessWidget {
   final _PrimArrayNode node;
-  const _PrimArrayRow({required this.node});
+  const _PrimArrayContent({required this.node});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
-    return Padding(
-      padding: .symmetric(vertical: theme.tinySpacing),
-      child: Column(
-        mainAxisSize: .min,
-        crossAxisAlignment: .start,
-        children: [
-          Text(
-            node.label.translate(lang),
-            style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
-          ),
-          for (final v in node.values) _bulletRow(theme, v),
-        ],
-      ),
+    return Column(
+      mainAxisSize: .min,
+      crossAxisAlignment: .start,
+      spacing: 1,
+      children: [
+        Text(node.label.translate(lang), style: _labelStyle(theme)),
+        for (final v in node.values) _bulletRow(theme, v),
+      ],
     );
   }
 
@@ -468,9 +643,7 @@ class _PrimArrayRow extends StatelessWidget {
           Expanded(
             child: Text(
               _formatValue(v),
-              style: theme.themeData.textTheme.bodyLarge!.copyWith(
-                color: theme.dark,
-              ),
+              style: _valueStyle(theme, theme.neutralExtraDark),
             ),
           ),
         ],
@@ -491,77 +664,36 @@ class _PrimArrayRow extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Group — header-introduced container.
+// Eyebrow content — uppercase group/item heading.
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _GroupView extends StatelessWidget {
+class _EyebrowContent extends StatelessWidget {
   final _GroupNode node;
-  final int depth;
-
-  const _GroupView({required this.node, required this.depth});
+  const _EyebrowContent({required this.node});
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final children = node.children;
-
-    // Empty group (header without descendants in the data) → render as a
-    // plain labelled row, matching today's flat behavior for valueless attrs.
-    if (children.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.zero,
-        child: Text(
-          node.label?.translate(lang) ?? "",
-          style: theme.themeData.textTheme.bodyMedium!.copyWith(fontSize: 14),
-        ),
+    // Empty groups (header without descendants) fall through here when they
+    // were rendered as labelled rows by the flatten step. Render as a plain
+    // bodyMedium-like label.
+    if (node.children.isEmpty) {
+      return Text(
+        node.label?.translate(lang) ?? "",
+        style: _labelStyle(theme),
       );
     }
-
-    // Group whose only child is a primitive-array row with the same label →
-    // collapse: render the prim-array row directly, no double label.
-    if (children.length == 1 &&
-        children.first is _PrimArrayNode &&
-        node.label != null &&
-        (children.first as _PrimArrayNode).label == node.label) {
-      return _PrimArrayRow(node: children.first as _PrimArrayNode);
-    }
-
-    // Group whose children are all _ItemNodes → suppress the heading; each
-    // item already carries the parent label in its eyebrow.
-    final allItems = children.every((c) => c is _ItemNode);
-    final showHeading = node.label != null && !allItems;
-
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .start,
-      children: [
-        if (showHeading)
-          Padding(
-            padding: EdgeInsets.only(
-              top: depth == 0 ? 0 : theme.smallSpacing,
-              bottom: theme.tinySpacing,
-            ),
-            child: Text(
-              node.label!.translate(lang).toUpperCase(),
-              style: _eyebrowStyle(theme),
-            ),
-          ),
-        _IndentedChildren(children: children, depth: depth),
-      ],
+    return Text(
+      node.label!.translate(lang).toUpperCase(),
+      style: _eyebrowStyle(theme),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Item — array-of-objects entry with "PARENT N/M" eyebrow.
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _ItemView extends StatelessWidget {
+class _ItemEyebrowContent extends StatelessWidget {
   final _ItemNode node;
-  final int depth;
-
-  const _ItemView({required this.node, required this.depth});
+  const _ItemEyebrowContent({required this.node});
 
   @override
   Widget build(BuildContext context) {
@@ -569,64 +701,10 @@ class _ItemView extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final parentLabel =
         node.parentLabel?.translate(lang).toUpperCase() ?? "ITEM";
-    final eyebrow = node.totalItems > 1
+    final text = node.totalItems > 1
         ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
         : "$parentLabel ${node.itemIndex}";
-
-    return Column(
-      mainAxisSize: .min,
-      crossAxisAlignment: .start,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            top: node.itemIndex == 1 ? theme.tinySpacing : theme.smallSpacing,
-            bottom: theme.tinySpacing,
-          ),
-          child: Text(eyebrow, style: _eyebrowStyle(theme)),
-        ),
-        _IndentedChildren(children: node.children, depth: depth),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Indented children container with 1px guide line.
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _IndentedChildren extends StatelessWidget {
-  final List<_Node> children;
-  final int depth;
-
-  const _IndentedChildren({required this.children, required this.depth});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    return IntrinsicHeight(
-      child: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            top: theme.tinySpacing,
-            bottom: theme.tinySpacing,
-            child: Container(width: 1, color: theme.neutralExtraLight),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: theme.defaultSpacing),
-            child: Column(
-              mainAxisSize: .min,
-              crossAxisAlignment: .start,
-              children: [
-                for (final c in children)
-                  _NodeView(node: c, depth: depth + 1),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    return Text(text, style: _eyebrowStyle(theme));
   }
 }
 
