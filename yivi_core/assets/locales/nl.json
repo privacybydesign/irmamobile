@@ -296,7 +296,7 @@
         "title": "Bevestig onze e-mail",
         "header": "Onze e-mail is gestuurd naar:",
         "explanation": "Het kan even duren voordat onze e-mail verschijnt. Geen e-mail ontvangen? Controleer of hij in je spamfolder zit.",
-        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@yivi.app**. Open de link in dat bericht om je e-mailadres aan de Yivi-app te koppelen."
+        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@mail.yivi.app**. Open de link in dat bericht om je e-mailadres aan de Yivi-app te koppelen."
       }
     },
     "terms_and_conditions": {

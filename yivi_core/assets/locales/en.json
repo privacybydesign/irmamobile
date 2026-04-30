@@ -296,7 +296,7 @@
         "title": "Confirm your e-mail address",
         "header": "Our e-mail has been sent to:",
         "explanation": "It can take a few minutes until the e-mail arrives. Didn't receive our e-mail? Please check your spam folder.",
-        "explanation_extra_markdown": "You have received an e-mail from **noreply@yivi.app**. Open the link in this message to link your e-mail address to your Yivi app."
+        "explanation_extra_markdown": "You have received an e-mail from **noreply@mail.yivi.app**. Open the link in this message to link your e-mail address to your Yivi app."
       }
     },
     "terms_and_conditions": {

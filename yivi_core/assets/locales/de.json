@@ -296,7 +296,7 @@
         "title": "Bestätigen Sie Ihre E-Mail-Adresse",
         "header": "Unsere E-Mail wurde gesendet an:",
         "explanation": "Es kann einige Minuten dauern, bis die E-Mail ankommt. Haben Sie unsere E-Mail nicht erhalten? Bitte überprüfen Sie Ihren Spam-Ordner.",
-        "explanation_extra_markdown": "Sie haben eine E-Mail von **noreply@yivi.app** erhalten. Öffnen Sie den Link in dieser Nachricht, um Ihre E-Mail-Adresse mit Ihrer Yivi-App zu verknüpfen."
+        "explanation_extra_markdown": "Sie haben eine E-Mail von **noreply@mail.yivi.app** erhalten. Öffnen Sie den Link in dieser Nachricht, um Ihre E-Mail-Adresse mit Ihrer Yivi-App zu verknüpfen."
       }
     },
     "terms_and_conditions": {

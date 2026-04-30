@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Update the enrollment 'from' emailaddress
 - Restructure session handling to use a schema-independent interface via irmago
 - Add support for issuing SD-JWT VC credentials over the OpenID4VCI protocol
 - Add support for Pre-Authorized code flow with tx_code
