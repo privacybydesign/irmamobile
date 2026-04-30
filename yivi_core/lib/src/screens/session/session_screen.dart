@@ -22,8 +22,8 @@ import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
 import "widgets/oid4vci_issuance_permission.dart";
+import "widgets/oid4vci_preauth_txcode_dialog.dart";
 import "widgets/pairing_required.dart";
-import "widgets/preauth_transactioncode_dialog.dart";
 import "widgets/session_pin_entry_screen.dart";
 import "widgets/session_scaffold.dart";
 
