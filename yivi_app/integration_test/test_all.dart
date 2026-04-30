@@ -16,6 +16,7 @@ import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
 import "openid4vci_authcode_issuance_test.dart"
     as openid4vci_authcode_issuance_test;
+import "openid4vci_disclosure_test.dart" as openid4vci_disclosure_test;
 import "openid4vci_issuance_test.dart" as openid4vci_issuance_test;
 // import "issue_wizard_test.dart" as issue_wizard_test;
 import "login_test.dart" as login_test;
@@ -32,6 +33,7 @@ void main() {
   irma_sdjwt_test.main();
   openid4vci_issuance_test.main();
   openid4vci_authcode_issuance_test.main();
+  openid4vci_disclosure_test.main();
   openid4vp_test.main();
   reorder_cards_test.main();
   new_terms.main();
