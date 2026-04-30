@@ -152,16 +152,13 @@ class _CredentialsDetailsScreenState
                     credential: cred,
                     compact: false,
                     headerTrailing: isDeletable || isReobtainable
-                        ? Transform.translate(
-                            offset: Offset(theme.smallSpacing, -10),
-                            child: IconButton(
-                              onPressed: () =>
-                                  _showCredentialOptionsBottomSheet(
-                                    context,
-                                    cred,
-                                  ),
-                              icon: const Icon(Icons.more_horiz_sharp),
+                        ? IconButton(
+                            onPressed: () => _showCredentialOptionsBottomSheet(
+                              context,
+                              cred,
                             ),
+                            icon: const Icon(Icons.more_horiz_sharp),
+                            visualDensity: VisualDensity.compact,
                           )
                         : null,
                   ),
