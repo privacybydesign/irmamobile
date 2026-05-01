@@ -13,14 +13,14 @@ import "../irma_app_bar.dart";
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
   final List<schemaless.Attribute>? compareTo;
-  // When true (default), each leaf/primarray row draws a 1px horizontal
-  // divider at its bottom (suppressed on the last row of any parent group).
+  // When true, each leaf/primarray row draws a 1px horizontal divider at
+  // its bottom (suppressed on the last row of any parent group).
   final bool showDividers;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
     this.compareTo,
-    this.showDividers = true,
+    this.showDividers = false,
   });
 
   @override

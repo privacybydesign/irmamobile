@@ -24,9 +24,9 @@ class YiviCredentialCardFooter extends StatelessWidget {
     this.instanceCount,
   });
 
-  Color? _getTextColorForExpireState(ExpireState state, IrmaThemeData theme) {
+  Color _getTextColorForExpireState(ExpireState state, IrmaThemeData theme) {
     return switch (state) {
-      ExpireState.notExpired => null,
+      ExpireState.notExpired => theme.dark,
       ExpireState.almostExpired => theme.warning,
       ExpireState.expired => theme.error,
     };
@@ -58,7 +58,10 @@ class YiviCredentialCardFooter extends StatelessWidget {
                     children: [
                       TranslatedText(
                         "credential.valid_until",
-                        style: TextStyle(fontSize: 14),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: theme.neutralExtraDark,
+                        ),
                       ),
                       Text(
                         printableDate(expiryDate!.dateTime!, lang),
@@ -81,7 +84,10 @@ class YiviCredentialCardFooter extends StatelessWidget {
                     children: [
                       TranslatedText(
                         "credential.sharable",
-                        style: TextStyle(fontSize: 14),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: theme.neutralExtraDark,
+                        ),
                       ),
                       if (instanceCount != null)
                         TranslatedText(
@@ -100,6 +106,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                           "credential.sharable_unlimited",
                           style: theme.textTheme.bodyLarge!.copyWith(
                             fontSize: 14,
+                            color: theme.dark,
                           ),
                         ),
                     ],
