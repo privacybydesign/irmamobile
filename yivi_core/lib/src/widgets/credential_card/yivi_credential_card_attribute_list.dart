@@ -510,14 +510,14 @@ class _RowContent extends StatelessWidget {
 // Shared label / value text styles.
 TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 13,
+  fontSize: 14,
   fontWeight: FontWeight.w400,
   color: theme.neutralExtraDark,
 );
 
 TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
   fontFamily: theme.primaryFontFamily,
-  fontSize: 14,
+  fontSize: 16,
   fontWeight: FontWeight.w700,
   color: color,
 );
@@ -736,8 +736,8 @@ class _ItemEyebrowContent extends StatelessWidget {
 
 TextStyle _eyebrowStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: FontWeight.w700,
   color: theme.neutralDark,
-  letterSpacing: 0.88, // 0.08em × 11px
+  letterSpacing: 0.96, // 0.08em × 12px
 );
