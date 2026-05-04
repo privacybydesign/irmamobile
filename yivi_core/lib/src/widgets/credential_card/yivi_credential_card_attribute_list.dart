@@ -643,6 +643,8 @@ class _PrimArrayContent extends StatelessWidget {
   }
 
   Widget _bulletRow(IrmaThemeData theme, schemaless.AttributeValue v) {
+    final valueStyle = _valueStyle(theme, theme.dark).copyWith(height: 1.2);
+    final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
       padding: EdgeInsets.only(top: theme.tinySpacing / 2),
       child: Row(
@@ -650,23 +652,21 @@ class _PrimArrayContent extends StatelessWidget {
         children: [
           SizedBox(
             width: 12,
-            child: Text(
-              "•",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: theme.neutral,
-                fontSize: 16,
-                height: 1.2,
-                fontFamily: theme.secondaryFontFamily,
+            height: lineHeight,
+            child: Center(
+              child: Container(
+                width: 4,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.neutral,
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
           ),
           SizedBox(width: theme.tinySpacing),
           Expanded(
-            child: Text(
-              _formatValue(v),
-              style: _valueStyle(theme, theme.dark),
-            ),
+            child: Text(_formatValue(v), style: valueStyle),
           ),
         ],
       ),
