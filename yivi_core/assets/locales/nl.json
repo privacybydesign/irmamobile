@@ -428,7 +428,14 @@
         "body": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {credential} te ontvangen.",
         "body_multiple": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {count} gegevens te ontvangen.",
         "continue": "Doorgaan",
-        "cancel": "Annuleren"
+        "cancel": "Annuleren",
+        "invalid_code_error-0": "Onjuiste code. Nog {count} pogingen over.",
+        "invalid_code_error-1": "Onjuiste code. Nog {count} poging over.",
+        "invalid_code_error-2": "Onjuiste code. Nog {count} pogingen over."
+      },
+      "tx_code_lockout": {
+        "title": "Te veel onjuiste codes",
+        "body": "Je hebt de transactiecode te vaak verkeerd ingevoerd. Begin opnieuw om een nieuwe code te ontvangen."
       }
     },
     "authorization_code": {

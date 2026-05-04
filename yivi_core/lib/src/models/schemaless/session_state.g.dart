@@ -46,6 +46,8 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
       : PreAuthorizationCodeTransactionCodeParameters.fromJson(
           json['transaction_code_parameters'] as Map<String, dynamic>,
         ),
+  remainingTxCodeAttempts: (json['remaining_tx_code_attempts'] as num?)
+      ?.toInt(),
 );
 
 const _$SessionTypeEnumMap = {

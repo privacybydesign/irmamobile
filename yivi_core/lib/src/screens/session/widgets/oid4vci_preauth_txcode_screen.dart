@@ -1,17 +1,20 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:pinput/pinput.dart";
 
 import "../../../models/schemaless/credential_store.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
+import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "session_scaffold.dart";
 
-class OpenId4VciPreAuthTxCodeScreen extends StatefulWidget {
+class OpenId4VciPreAuthTxCodeScreen extends ConsumerStatefulWidget {
+  final int sessionId;
   final List<schemaless.CredentialDescriptor> issuedCredentials;
   final PreAuthorizationCodeTransactionCodeParameters transactionCodeParameters;
   final void Function(String code) onSubmit;
@@ -19,6 +22,7 @@ class OpenId4VciPreAuthTxCodeScreen extends StatefulWidget {
 
   const OpenId4VciPreAuthTxCodeScreen({
     super.key,
+    required this.sessionId,
     required this.issuedCredentials,
     required this.transactionCodeParameters,
     required this.onSubmit,
@@ -26,12 +30,12 @@ class OpenId4VciPreAuthTxCodeScreen extends StatefulWidget {
   });
 
   @override
-  State<OpenId4VciPreAuthTxCodeScreen> createState() =>
+  ConsumerState<OpenId4VciPreAuthTxCodeScreen> createState() =>
       _OpenId4VciPreAuthTxCodeScreenState();
 }
 
 class _OpenId4VciPreAuthTxCodeScreenState
-    extends State<OpenId4VciPreAuthTxCodeScreen> {
+    extends ConsumerState<OpenId4VciPreAuthTxCodeScreen> {
   final _focusNode = FocusNode();
   final _textController = TextEditingController();
 
@@ -50,7 +54,8 @@ class _OpenId4VciPreAuthTxCodeScreenState
     super.dispose();
   }
 
-  bool get _isNumeric => widget.transactionCodeParameters.inputMode == "numeric";
+  bool get _isNumeric =>
+      widget.transactionCodeParameters.inputMode == "numeric";
 
   TextInputType get _keyboardType =>
       _isNumeric ? TextInputType.number : TextInputType.text;
@@ -127,8 +132,26 @@ class _OpenId4VciPreAuthTxCodeScreenState
 
   @override
   Widget build(BuildContext context) {
+    // When a wrong code is submitted the backend reports a new
+    // remainingTxCodeAttempts value. Clear the input and refocus so the
+    // user can retry. The error styling itself is driven directly off
+    // session state below.
+    ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
+      final prevAttempts = prev?.value?.remainingTxCodeAttempts;
+      final nextAttempts = next.value?.remainingTxCodeAttempts;
+      if (nextAttempts != null && nextAttempts != prevAttempts) {
+        _textController.clear();
+        _focusNode.requestFocus();
+      }
+    });
+
     final theme = IrmaTheme.of(context);
     final length = widget.transactionCodeParameters.length;
+    final remainingAttempts = ref
+        .watch(sessionStateProvider(widget.sessionId))
+        .value
+        ?.remainingTxCodeAttempts;
+    final codeInvalid = remainingAttempts != null;
 
     return SessionScaffold(
       appBarTitle: "issuance.pre-authorized_code.tx_code_screen.title",
@@ -152,7 +175,16 @@ class _OpenId4VciPreAuthTxCodeScreenState
                 SizedBox(height: theme.defaultSpacing),
                 _buildBody(context),
                 SizedBox(height: theme.largeSpacing),
-                _buildInput(context, length),
+                _buildInput(context, length, codeInvalid),
+                if (codeInvalid)
+                  Text(
+                    FlutterI18n.plural(
+                      context,
+                      "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
+                      remainingAttempts,
+                    ),
+                    style: TextStyle(color: theme.error),
+                  ),
                 SizedBox(height: theme.largeSpacing),
               ],
             ),
@@ -162,7 +194,7 @@ class _OpenId4VciPreAuthTxCodeScreenState
     );
   }
 
-  Widget _buildInput(BuildContext context, int? length) {
+  Widget _buildInput(BuildContext context, int? length, bool codeInvalid) {
     final theme = IrmaTheme.of(context);
 
     if (length != null) {
@@ -175,7 +207,9 @@ class _OpenId4VciPreAuthTxCodeScreenState
           fontWeight: FontWeight.w600,
         ),
         decoration: BoxDecoration(
-          color: theme.surfaceSecondary,
+          color: codeInvalid
+              ? theme.error.withAlpha(40)
+              : theme.surfaceSecondary,
           borderRadius: BorderRadius.circular(10),
         ),
       );
@@ -184,8 +218,10 @@ class _OpenId4VciPreAuthTxCodeScreenState
         width: 54,
         height: 54,
         decoration: BoxDecoration(
-          color: theme.surfaceSecondary,
-          border: Border.all(color: theme.link),
+          color: codeInvalid
+              ? theme.error.withAlpha(40)
+              : theme.surfaceSecondary,
+          border: Border.all(color: codeInvalid ? theme.error : theme.link),
           borderRadius: BorderRadius.circular(10),
         ),
       );
@@ -216,6 +252,14 @@ class _OpenId4VciPreAuthTxCodeScreenState
       textAlign: TextAlign.center,
       keyboardType: _keyboardType,
       inputFormatters: _inputFormatters,
+      decoration: InputDecoration(
+        enabledBorder: codeInvalid
+            ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
+            : null,
+        focusedBorder: codeInvalid
+            ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
+            : null,
+      ),
       onChanged: (_) => setState(() {}),
       onSubmitted: (value) {
         if (value.isNotEmpty) widget.onSubmit(value);

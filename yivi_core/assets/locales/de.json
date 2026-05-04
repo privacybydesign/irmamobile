@@ -428,7 +428,14 @@
         "body": "{issuer} hat Ihnen einen Transaktionscode gesendet. Geben Sie ihn unten ein, um {credential} zu erhalten.",
         "body_multiple": "{issuer} hat Ihnen einen Transaktionscode gesendet. Geben Sie ihn unten ein, um {count} Daten zu erhalten.",
         "continue": "Weiter",
-        "cancel": "Abbrechen"
+        "cancel": "Abbrechen",
+        "invalid_code_error-0": "Falscher Code. Noch {count} Versuche übrig.",
+        "invalid_code_error-1": "Falscher Code. Noch {count} Versuch übrig.",
+        "invalid_code_error-2": "Falscher Code. Noch {count} Versuche übrig."
+      },
+      "tx_code_lockout": {
+        "title": "Zu viele falsche Codes",
+        "body": "Sie haben den Transaktionscode zu oft falsch eingegeben. Bitte starten Sie den Vorgang neu, um einen neuen Code zu erhalten."
       }
     },
     "authorization_code": {

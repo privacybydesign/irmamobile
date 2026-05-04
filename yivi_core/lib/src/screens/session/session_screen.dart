@@ -15,6 +15,7 @@ import "../../util/language.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
+import "../error/tx_code_lockout_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
@@ -79,6 +80,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// when the user returns from a cancelled browser flow.
   bool _autoTriggeredForOpenId4Vci = false;
 
+  /// Tracks the most recent non-null `remainingTxCodeAttempts`. When the
+  /// session subsequently transitions to [SessionStatus.error] with this
+  /// equal to 1, we know the cause is a tx_code lockout and can show the
+  /// dedicated screen instead of the generic error.
+  int? _lastSeenRemainingTxCodeAttempts;
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +125,16 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
       if (_awaitingStateUpdate && next.hasValue) {
         setState(() => _awaitingStateUpdate = false);
+      }
+    });
+
+    // Track the latest non-null remainingTxCodeAttempts so that, if the
+    // session subsequently errors out, we can detect the tx_code-lockout
+    // case and show the dedicated screen.
+    ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
+      final attempts = next.value?.remainingTxCodeAttempts;
+      if (attempts != null) {
+        _lastSeenRemainingTxCodeAttempts = attempts;
       }
     });
 
@@ -186,9 +203,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             onPinEntered: (pin) => _submitPin(pin),
             onCancel: _dismissSession,
           ),
-          .error => _buildError(
-            session.error ?? SessionError(errorType: "unknown", info: ""),
-          ),
+          .error =>
+            _lastSeenRemainingTxCodeAttempts == 1
+                ? TxCodeLockoutScreen(onTapClose: _closeSession)
+                : _buildError(
+                    session.error ??
+                        SessionError(errorType: "unknown", info: ""),
+                  ),
           // dismissed and success are handled above
           .dismissed || .success => _buildLoadingScreen(session),
           .requestPreAuthorizedCode ||
@@ -278,6 +299,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     if (session.status == SessionStatus.requestPreAuthorizedCode) {
       if (session.transactionCodeParameters != null) {
         return OpenId4VciPreAuthTxCodeScreen(
+          sessionId: widget.sessionId,
           issuedCredentials: session.offeredCredentialTypes!,
           transactionCodeParameters: session.transactionCodeParameters!,
           onSubmit: (code) =>

@@ -55,6 +55,7 @@ class SessionState {
   final String? authorizationRequestUrl;
   final PreAuthorizationCodeTransactionCodeParameters?
   transactionCodeParameters;
+  final int? remainingTxCodeAttempts;
 
   SessionState({
     required this.id,
@@ -75,6 +76,7 @@ class SessionState {
     this.oid4VciState,
     this.authorizationRequestUrl,
     this.transactionCodeParameters,
+    this.remainingTxCodeAttempts,
   });
 
   factory SessionState.fromJson(Map<String, dynamic> json) =>

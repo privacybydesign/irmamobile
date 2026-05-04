@@ -11,6 +11,7 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_removal.d
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
+import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/oid4vci_preauth_txcode_screen.dart";
@@ -83,8 +84,28 @@ void main() {
     );
 
     testWidgets(
-      "wrong-tx-code-shows-error",
-      (tester) => testWrongTxCodeShowsError(tester, irmaBinding),
+      "wrong-tx-code-shows-inline-error",
+      (tester) => testWrongTxCodeShowsInlineError(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "wrong-then-correct-tx-code",
+      (tester) => testWrongThenCorrectTxCode(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "two-wrong-attempts-then-correct-tx-code",
+      (tester) => testTwoWrongAttemptsThenCorrect(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "three-wrong-tx-code-attempts-shows-lockout",
+      (tester) => testThreeWrongAttemptsLockout(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "cancel-after-wrong-tx-code-attempt",
+      (tester) => testCancelAfterWrongAttempt(tester, irmaBinding),
     );
 
     testWidgets(
@@ -339,7 +360,9 @@ Future<void> testDismissOnIssuancePermissionScreen(
   expect(find.text("There are no logged activities yet"), findsOneWidget);
 }
 
-Future<void> testWrongTxCodeShowsError(
+/// A wrong tx_code keeps the user on the tx_code screen with an inline
+/// error and a cleared input — no navigation to the generic error screen.
+Future<void> testWrongTxCodeShowsInlineError(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
@@ -353,32 +376,191 @@ Future<void> testWrongTxCodeShowsError(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // Tx code screen — enter wrong code
   await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     "000000",
   );
-  // Pinput auto-submits on completion.
   await tester.pumpAndSettle();
 
-  // Error screen should appear
-  await tester.waitFor(find.byType(ErrorScreen));
+  // Still on tx_code screen — no navigation to ErrorScreen.
+  expect(find.byType(OpenId4VciPreAuthTxCodeScreen), findsOneWidget);
+  expect(find.byType(ErrorScreen), findsNothing);
+  // Inline error is visible with the remaining-attempts count.
+  expect(find.text("Incorrect code. 2 attempts remaining."), findsOneWidget);
 
-  // Close the error screen
-  await tester.tapAndSettle(find.text("OK"));
-
-  // Should be back at home
+  // Cancel out and verify clean state.
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
   await tester.waitFor(find.byType(DataTab));
 
-  // Verify no credential stored
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  expect(
+    find.byKey(Key("${_emailCredentialTileKey}_tile")),
+    findsNothing,
+  );
+}
+
+/// Wrong code, then the correct code: success path still works after retry.
+Future<void> testWrongThenCorrectTxCode(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  final offer = await startOpenID4VCISession(
+    credentialConfigId: "EmailCredentialSdJwt",
+    credentialData: {"email": "test@example.com", "domain": "example.com"},
+    txCodeInputMode: "numeric",
+    txCodeLength: 6,
+  );
+  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
+
+  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+
+  // First attempt: wrong code.
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    "000000",
+  );
+  await tester.pumpAndSettle();
+  expect(find.text("Incorrect code. 2 attempts remaining."), findsOneWidget);
+
+  // Second attempt: correct code.
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    offer.txCode!,
+  );
+  await tester.pumpAndSettle();
+
+  await tester.waitFor(find.byType(IssuancePermission));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+  await tester.waitFor(find.byType(IssuanceSuccessScreen));
+  await tester.tapAndSettle(find.text("OK"));
+}
+
+/// Two wrong codes, then correct: verifies the singular wording on the
+/// last-chance attempt ("1 attempt remaining").
+Future<void> testTwoWrongAttemptsThenCorrect(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  final offer = await startOpenID4VCISession(
+    credentialConfigId: "EmailCredentialSdJwt",
+    credentialData: {"email": "test@example.com", "domain": "example.com"},
+    txCodeInputMode: "numeric",
+    txCodeLength: 6,
+  );
+  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
+
+  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    "000000",
+  );
+  await tester.pumpAndSettle();
+  expect(find.text("Incorrect code. 2 attempts remaining."), findsOneWidget);
+
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    "111111",
+  );
+  await tester.pumpAndSettle();
+  expect(find.text("Incorrect code. 1 attempt remaining."), findsOneWidget);
+
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    offer.txCode!,
+  );
+  await tester.pumpAndSettle();
+
+  await tester.waitFor(find.byType(IssuancePermission));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+  await tester.waitFor(find.byType(IssuanceSuccessScreen));
+  await tester.tapAndSettle(find.text("OK"));
+}
+
+/// Three wrong codes in a row → dedicated lockout screen, not the generic
+/// error screen.
+Future<void> testThreeWrongAttemptsLockout(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  final offer = await startOpenID4VCISession(
+    credentialConfigId: "EmailCredentialSdJwt",
+    credentialData: {"email": "test@example.com", "domain": "example.com"},
+    txCodeInputMode: "numeric",
+    txCodeLength: 6,
+  );
+  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
+
+  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+
+  for (final wrong in const ["000000", "111111", "222222"]) {
+    await tester.enterText(
+      find.byKey(const Key("oid4vci_tx_code_input_field")),
+      wrong,
+    );
+    await tester.pumpAndSettle();
+  }
+
+  await tester.waitFor(find.byType(TxCodeLockoutScreen));
+  expect(find.byType(ErrorScreen), findsNothing);
+
+  await tester.tapAndSettle(find.text("OK"));
+  await tester.waitFor(find.byType(DataTab));
+
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   expect(
     find.byKey(Key("${_emailCredentialTileKey}_tile")),
     findsNothing,
   );
 
-  // Verify no activity logged
+  await tester.tap(find.byKey(const Key("nav_button_activity")));
+  await tester.pump(const Duration(seconds: 1));
+  expect(find.text("There are no logged activities yet"), findsOneWidget);
+}
+
+/// User can cancel cleanly after a wrong attempt — no leaked retry state,
+/// no credential issued.
+Future<void> testCancelAfterWrongAttempt(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  final offer = await startOpenID4VCISession(
+    credentialConfigId: "EmailCredentialSdJwt",
+    credentialData: {"email": "test@example.com", "domain": "example.com"},
+    txCodeInputMode: "numeric",
+    txCodeLength: 6,
+  );
+  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
+
+  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    "000000",
+  );
+  await tester.pumpAndSettle();
+  expect(find.text("Incorrect code. 2 attempts remaining."), findsOneWidget);
+
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
+  await tester.waitFor(find.byType(DataTab));
+
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  expect(
+    find.byKey(Key("${_emailCredentialTileKey}_tile")),
+    findsNothing,
+  );
+
   await tester.tap(find.byKey(const Key("nav_button_activity")));
   await tester.pump(const Duration(seconds: 1));
   expect(find.text("There are no logged activities yet"), findsOneWidget);

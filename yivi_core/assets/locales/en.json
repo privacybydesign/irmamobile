@@ -428,7 +428,14 @@
         "body": "{issuer} sent you a transaction code. Enter it below to receive {credential}.",
         "body_multiple": "{issuer} sent you a transaction code. Enter it below to receive {count} credentials.",
         "continue": "Continue",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "invalid_code_error-0": "Incorrect code. {count} attempts remaining.",
+        "invalid_code_error-1": "Incorrect code. {count} attempt remaining.",
+        "invalid_code_error-2": "Incorrect code. {count} attempts remaining."
+      },
+      "tx_code_lockout": {
+        "title": "Too many incorrect codes",
+        "body": "You've entered the wrong transaction code too many times. Please start over to receive a new code."
       }
     },
     "authorization_code": {
