@@ -382,6 +382,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
           padding: EdgeInsets.all(theme.defaultSpacing),
           itemCount: items.length,
           buildDefaultDragHandles: false,
+          footer: SizedBox(height: 50),
           itemBuilder: (_, i) {
             final cred = items[i];
 
