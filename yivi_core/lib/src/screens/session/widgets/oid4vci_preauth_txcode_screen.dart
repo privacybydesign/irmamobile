@@ -64,24 +64,65 @@ class _OpenId4VciPreAuthTxCodeScreenState
         : "issuance.pre-authorized_code.tx_code_screen.body";
   }
 
-  Map<String, String> _bodyParams(BuildContext context) {
+  Widget _buildBody(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final baseStyle = theme.textTheme.bodyMedium;
+    final boldStyle = baseStyle?.copyWith(fontWeight: FontWeight.bold);
+
+    final template = FlutterI18n.translate(context, _bodyKey());
     final issuer = getTranslation(
       context,
       widget.issuedCredentials.first.issuer.name,
     );
-    if (widget.issuedCredentials.length > 1) {
-      return {
-        "issuer": issuer,
-        "count": widget.issuedCredentials.length.toString(),
-      };
-    }
-    return {
-      "issuer": issuer,
-      "credential": getTranslation(
-        context,
-        widget.issuedCredentials.first.name,
-      ),
+
+    final replacements = <String, ({String text, bool bold})>{
+      "{issuer}": (text: issuer, bold: true),
     };
+    if (widget.issuedCredentials.length > 1) {
+      replacements["{count}"] = (
+        text: widget.issuedCredentials.length.toString(),
+        bold: false,
+      );
+    } else {
+      replacements["{credential}"] = (
+        text: getTranslation(context, widget.issuedCredentials.first.name),
+        bold: true,
+      );
+    }
+
+    return Text.rich(
+      TextSpan(
+        style: baseStyle,
+        children: _buildSpans(template, replacements, boldStyle),
+      ),
+    );
+  }
+
+  List<InlineSpan> _buildSpans(
+    String template,
+    Map<String, ({String text, bool bold})> replacements,
+    TextStyle? boldStyle,
+  ) {
+    final pattern = RegExp(replacements.keys.map(RegExp.escape).join("|"));
+    final spans = <InlineSpan>[];
+    var cursor = 0;
+    for (final match in pattern.allMatches(template)) {
+      if (match.start > cursor) {
+        spans.add(TextSpan(text: template.substring(cursor, match.start)));
+      }
+      final replacement = replacements[match[0]]!;
+      spans.add(
+        TextSpan(
+          text: replacement.text,
+          style: replacement.bold ? boldStyle : null,
+        ),
+      );
+      cursor = match.end;
+    }
+    if (cursor < template.length) {
+      spans.add(TextSpan(text: template.substring(cursor)));
+    }
+    return spans;
   }
 
   @override
@@ -109,19 +150,7 @@ class _OpenId4VciPreAuthTxCodeScreenState
                   ),
                 ),
                 SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  _bodyKey(),
-                  translationParams: _bodyParams(context),
-                ),
-                if (widget.transactionCodeParameters.description != null) ...[
-                  SizedBox(height: theme.smallSpacing),
-                  Text(
-                    widget.transactionCodeParameters.description!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.neutral,
-                    ),
-                  ),
-                ],
+                _buildBody(context),
                 SizedBox(height: theme.largeSpacing),
                 _buildInput(context, length),
                 SizedBox(height: theme.largeSpacing),
