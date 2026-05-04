@@ -273,17 +273,25 @@ class YiviCredentialCard extends ConsumerWidget {
             isRevoked: status.revoked,
             isExpiringSoon: status.hasWarning,
           ),
-          if (attributes.isNotEmpty) ...[
-            SizedBox(height: theme.defaultSpacing),
+          IrmaDivider(
+            color: status.isExpired ? theme.danger : null,
+            padding: EdgeInsets.only(
+              top: theme.defaultSpacing,
+              bottom: theme.defaultSpacing / 2,
+            ),
+          ),
+          if (attributes.isNotEmpty)
             YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
-          ],
           if (!hideFooter && !status.revoked)
             Column(
               children: [
-                IrmaDivider(
-                  color: status.isExpired ? theme.danger : null,
-                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-                ),
+                if (attributes.isNotEmpty)
+                  IrmaDivider(
+                    color: status.isExpired ? theme.danger : null,
+                    padding: EdgeInsets.symmetric(
+                      vertical: theme.defaultSpacing,
+                    ),
+                  ),
                 YiviCredentialCardFooter(
                   instanceBasedExpireState: status.instanceExpireState,
                   timeBasedExpireState: status.timeExpireState,
