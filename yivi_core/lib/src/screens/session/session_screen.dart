@@ -1,8 +1,11 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../data/irma_repository.dart";
+import "../../models/native_events.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
@@ -357,16 +360,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return _buildLoadingScreen(session);
     }
 
-    // Issuance sessions always show a success screen.
-    if (session.type == .issuance && session.continueOnSecondDevice) {
-      if (session.continueOnSecondDevice) {
+    // Multi-device session: result lives on the other device, so just confirm
+    // success here.
+    if (session.continueOnSecondDevice) {
+      if (session.type == .issuance) {
         return IssuanceSuccessScreen(onDismiss: (_) => pop());
       }
-      return ArrowBack(type: .issuance);
-    }
-
-    // Disclosure/signature: show a feedback screen with a dismiss button.
-    if (session.continueOnSecondDevice) {
       return DisclosureFeedbackScreen(
         feedbackType: .success,
         isSignatureSession: session.type == .signature,
@@ -375,10 +374,24 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
     }
 
-    // First-device disclosure/signature: show arrow back to browser.
-    return ArrowBack(
-      type: session.type == .disclosure ? .disclosure : .signature,
-    );
+    // Same-device session: hand the user back to the calling app. iOS lacks a
+    // programmatic way to do that, so we show ArrowBack telling them to tap
+    // the back link in the status bar. On Android we move the task to the
+    // background so the OS surfaces the previous app automatically.
+    if (Platform.isIOS) {
+      return ArrowBack(
+        type: session.type == .issuance
+            ? .issuance
+            : session.type == .signature
+            ? .signature
+            : .disclosure,
+      );
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+      pop();
+    });
+    return _buildLoadingScreen(session);
   }
 
   void _closeSession() {
