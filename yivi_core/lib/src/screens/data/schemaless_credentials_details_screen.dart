@@ -252,10 +252,11 @@ class _CredentialsDetailsScreenState
     BuildContext context,
     schemaless.Credential credential,
   ) {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = credential.issueUrl.translate(lang, fallback: "");
-    if (url.isNotEmpty) {
-      IrmaRepositoryProvider.of(context).openURL(url);
-    }
+    IrmaRepositoryProvider.of(context).openIssueURL(
+      context,
+      credential.credentialId,
+      credential.issueUrl,
+      ref,
+    );
   }
 }
