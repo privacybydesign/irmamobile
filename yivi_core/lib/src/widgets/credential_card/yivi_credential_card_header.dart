@@ -13,7 +13,7 @@ TextStyle _issuerEyebrowStyle(IrmaThemeData theme) => TextStyle(
   height: 1.4,
 );
 
-TextStyle _credentialNameStyle(IrmaThemeData theme, double fontSize) =>
+TextStyle credentialNameStyle(IrmaThemeData theme, double fontSize) =>
     TextStyle(
       fontFamily: theme.primaryFontFamily,
       fontSize: fontSize,
@@ -112,7 +112,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                     ),
                   Text(
                     credentialName,
-                    style: _credentialNameStyle(theme, 19),
+                    style: credentialNameStyle(theme, 19),
                     softWrap: true,
                   ),
                 ],

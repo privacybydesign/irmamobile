@@ -80,11 +80,8 @@ void main() {
       (tester) => testIssueEmailOpenId4VciAuthCode(tester, irmaBinding),
     );
 
-    // TODO: skipped — deeply nested credential rendering needs investigation
-    // for scroll-based assertions. Mirrors the skipped pre-authorized variant.
     testWidgets(
       "issue-organization-openid4vci-authcode",
-      skip: true,
       (tester) => testIssueOrganizationOpenId4VciAuthCode(tester, irmaBinding),
     );
 

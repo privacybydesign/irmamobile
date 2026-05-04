@@ -15,6 +15,7 @@ import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/progress.dart";
 import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_bottom_sheet.dart";
 
 class SchemalessCredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String categoryName;
@@ -158,7 +159,9 @@ class _CredentialsDetailsScreenState
                               cred,
                             ),
                             icon: const Icon(Icons.more_horiz_sharp),
+                            padding: EdgeInsets.zero,
                             visualDensity: VisualDensity.compact,
+                            constraints: const BoxConstraints(),
                           )
                         : null,
                   ),
@@ -181,9 +184,10 @@ class _CredentialsDetailsScreenState
         .translate(lang, fallback: "")
         .isNotEmpty;
 
-    showModalBottomSheet(
+    showYiviBottomSheet(
       context: context,
-      builder: (context) => IrmaCredentialCardOptionsBottomSheet(
+      titleKey: "credential.options.title",
+      child: IrmaCredentialCardOptionsBottomSheet(
         onDelete: cred.credentialInstanceIds.isEmpty
             ? null
             : () async {

@@ -14,7 +14,7 @@ import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/oid4vci_issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/preauth_transactioncode_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/oid4vci_preauth_txcode_dialog.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
@@ -70,12 +70,8 @@ void main() {
       (tester) => testIssueEmailOpenId4VciWithTxCode(tester, irmaBinding),
     );
 
-    // TODO: skipped — deeply nested credential rendering needs investigation
-    // for scroll-based assertions. The credential is issued correctly (confirmed
-    // via logs) but asserting all values in the scrollable list is fragile.
     testWidgets(
       "issue-organization-openid4vci",
-      skip: true,
       (tester) => testIssueOrganizationOpenId4Vci(tester, irmaBinding),
     );
 
