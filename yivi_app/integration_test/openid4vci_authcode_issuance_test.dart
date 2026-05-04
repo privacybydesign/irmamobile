@@ -19,7 +19,7 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/oid4vci_issuance_permission.dart";
+import "package:yivi_core/src/screens/session/widgets/oid4vci_authcode_pending_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "helpers/helpers.dart";
@@ -90,13 +90,13 @@ void main() {
     // =========================================================================
 
     testWidgets(
-      "dismiss-on-first-permission-screen",
-      (tester) => testDismissOnFirstPermissionScreen(tester, irmaBinding),
+      "dismiss-on-pending-screen",
+      (tester) => testDismissOnPendingScreen(tester, irmaBinding),
     );
 
     testWidgets(
-      "dismiss-on-second-permission-screen",
-      (tester) => testDismissOnSecondPermissionScreen(tester, irmaBinding),
+      "dismiss-on-issuance-permission-screen",
+      (tester) => testDismissOnIssuancePermissionScreen(tester, irmaBinding),
     );
   });
 }
@@ -120,15 +120,9 @@ Future<void> testIssueEmailOpenId4VciAuthCode(
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
   final sessionId = await newSessionFuture;
 
-  // First permission screen: OpenId4VciIssuancePermission
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-  expect(find.text("Email"), findsOneWidget);
-  expect(find.text("Domain"), findsOneWidget);
-
-  // Resolve the wallet's oid4VciState and obtain an auth code from the mock AS
-  // before the user taps "Add". This way the synthetic deep-link can be
-  // dispatched immediately after the wallet fires off the browser launch.
+  // The wallet auto-launches the browser when the session enters
+  // requestAuthorizationCode. Wait for oid4VciState to be populated, then
+  // dispatch the synthetic deep-link that mimics the browser redirect.
   final session = await irmaBinding.repository
       .getSessionState(sessionId)
       .firstWhere((s) => s.oid4VciState != null);
@@ -137,17 +131,13 @@ Future<void> testIssueEmailOpenId4VciAuthCode(
     issuerState: offer.issuerState,
     walletState: walletState,
   );
-
-  // Tap "Add" — wallet calls openURLinAppBrowser, then we dispatch the synthetic
-  // callback that mimics the browser redirecting back to yivi-app://auth-callback.
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,
     code: code,
   );
 
-  // Second permission screen: IssuancePermission with filled values
+  // Permission screen: IssuancePermission with filled values
   await tester.waitFor(find.byType(IssuancePermission));
   await evaluateCredentialCard(
     tester,
@@ -229,11 +219,6 @@ Future<void> testIssueOrganizationOpenId4VciAuthCode(
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
   final sessionId = await newSessionFuture;
 
-  // First permission screen
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-  expect(find.text("University"), findsAtLeast(1));
-
   final session = await irmaBinding.repository
       .getSessionState(sessionId)
       .firstWhere((s) => s.oid4VciState != null);
@@ -243,14 +228,14 @@ Future<void> testIssueOrganizationOpenId4VciAuthCode(
     walletState: walletState,
   );
 
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // Wallet auto-launched the browser; dispatch the synthetic redirect.
   dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,
     code: code,
   );
 
-  // Second permission screen — spot-check all key values by scrolling to each
+  // Permission screen — spot-check all key values by scrolling to each
   await tester.waitFor(find.byType(IssuancePermission));
   await tester.pumpAndSettle();
   expect(find.byType(YiviCredentialCard), findsOneWidget);
@@ -297,7 +282,7 @@ Future<void> testIssueOrganizationOpenId4VciAuthCode(
 // Dismissal test implementations
 // =============================================================================
 
-Future<void> testDismissOnFirstPermissionScreen(
+Future<void> testDismissOnPendingScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
@@ -309,15 +294,12 @@ Future<void> testDismissOnFirstPermissionScreen(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // First permission screen
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
+  // The wallet auto-launches the browser. Without a synthetic redirect, the
+  // session stays in requestAuthorizationCode and the pending screen renders.
+  await tester.waitFor(find.byType(OpenId4VciAuthCodePendingScreen));
 
-  // Tap "Cancel"
+  // Tap "Cancel" to dismiss the session directly.
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
-
-  // Confirm dismiss dialog — tap "Yes"
-  await tester.waitFor(find.text("Yes"));
-  await tester.tapAndSettle(find.text("Yes"));
 
   // Should be back at home
   await tester.waitFor(find.byType(DataTab));
@@ -335,7 +317,7 @@ Future<void> testDismissOnFirstPermissionScreen(
   expect(find.text("There are no logged activities yet"), findsOneWidget);
 }
 
-Future<void> testDismissOnSecondPermissionScreen(
+Future<void> testDismissOnIssuancePermissionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
@@ -350,9 +332,6 @@ Future<void> testDismissOnSecondPermissionScreen(
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
   final sessionId = await newSessionFuture;
 
-  // First permission screen — tap "Add" to proceed
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-
   final session = await irmaBinding.repository
       .getSessionState(sessionId)
       .firstWhere((s) => s.oid4VciState != null);
@@ -362,18 +341,18 @@ Future<void> testDismissOnSecondPermissionScreen(
     walletState: walletState,
   );
 
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // Browser auto-launched; dispatch the synthetic redirect to advance state.
   dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,
     code: code,
   );
 
-  // Second permission screen — tap "Cancel" to dismiss
+  // Permission screen — tap "Cancel" to dismiss
   await tester.waitFor(find.byType(IssuancePermission));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
 
-  // Should be back at home (IssuancePermission dismisses directly, no dialog)
+  // Should be back at home
   await tester.waitFor(find.byType(DataTab));
 
   // Verify no credential stored

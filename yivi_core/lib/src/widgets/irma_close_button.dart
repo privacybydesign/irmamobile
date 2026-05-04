@@ -29,19 +29,27 @@ class IrmaCloseButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: FlutterI18n.translate(context, "accessibility.close"),
-      child: Material(
-        color: theme.neutralExtraLight,
-        shape: const CircleBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: effectiveOnTap,
-          customBorder: const CircleBorder(),
-          child: SizedBox.square(
-            dimension: size,
-            child: Icon(
-              Icons.close,
-              size: 24,
-              color: theme.neutralExtraDark,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade300,
+              offset: const Offset(0.0, 1.0),
+              blurRadius: 6.0,
+            ),
+          ],
+        ),
+        child: Material(
+          color: theme.light,
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: effectiveOnTap,
+            customBorder: const CircleBorder(),
+            child: SizedBox.square(
+              dimension: size,
+              child: Icon(Icons.close, size: 24, color: theme.dark),
             ),
           ),
         ),

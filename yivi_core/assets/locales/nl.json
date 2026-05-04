@@ -422,8 +422,22 @@
       "text": "De gegevens zijn successvol aan Yivi toegevoegd."
     },
     "pre-authorized_code": {
-      "transactioncode_dialog": {
-        "title": "Voer transactiecode in"
+      "tx_code_screen": {
+        "title": "Gegevens toevoegen",
+        "header": "Voer de transactiecode in",
+        "body": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {credential} te ontvangen.",
+        "body_multiple": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {count} gegevens te ontvangen.",
+        "continue": "Doorgaan",
+        "cancel": "Annuleren"
+      }
+    },
+    "authorization_code": {
+      "pending": {
+        "title": "Gegevens toevoegen",
+        "header": "Ga verder in je browser",
+        "body": "We hebben de browser geopend zodat je de stappen bij {issuer} kunt voltooien. Als je klaar bent kom je automatisch terug.",
+        "open_browser": "Browser opnieuw openen",
+        "cancel": "Annuleren"
       }
     }
   },

@@ -422,8 +422,22 @@
       "text": "The data has been successfully added to Yivi"
     },
     "pre-authorized_code": {
-      "transactioncode_dialog": {
-        "title": "Enter transaction code"
+      "tx_code_screen": {
+        "title": "Add data",
+        "header": "Enter the transaction code",
+        "body": "{issuer} sent you a transaction code. Enter it below to receive {credential}.",
+        "body_multiple": "{issuer} sent you a transaction code. Enter it below to receive {count} credentials.",
+        "continue": "Continue",
+        "cancel": "Cancel"
+      }
+    },
+    "authorization_code": {
+      "pending": {
+        "title": "Add data",
+        "header": "Continue in your browser",
+        "body": "We've opened the browser so you can complete the steps at {issuer}. When you're done, you'll return here automatically.",
+        "open_browser": "Open browser again",
+        "cancel": "Cancel"
       }
     }
   },

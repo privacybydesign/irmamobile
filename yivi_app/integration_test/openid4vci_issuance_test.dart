@@ -13,13 +13,11 @@ import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/oid4vci_issuance_permission.dart";
-import "package:yivi_core/src/screens/session/widgets/oid4vci_preauth_txcode_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/oid4vci_preauth_txcode_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
-import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -80,13 +78,8 @@ void main() {
     // =========================================================================
 
     testWidgets(
-      "dismiss-on-first-permission-screen",
-      (tester) => testDismissOnFirstPermissionScreen(tester, irmaBinding),
-    );
-
-    testWidgets(
-      "dismiss-on-second-permission-screen",
-      (tester) => testDismissOnSecondPermissionScreen(tester, irmaBinding),
+      "dismiss-on-issuance-permission-screen",
+      (tester) => testDismissOnIssuancePermissionScreen(tester, irmaBinding),
     );
 
     testWidgets(
@@ -95,8 +88,8 @@ void main() {
     );
 
     testWidgets(
-      "cancel-tx-code-dialog-then-succeed",
-      (tester) => testCancelTxCodeDialogThenSucceed(tester, irmaBinding),
+      "cancel-tx-code-screen-dismisses-session",
+      (tester) => testCancelTxCodeScreenDismissesSession(tester, irmaBinding),
     );
 
     // =========================================================================
@@ -127,16 +120,8 @@ Future<void> testIssueEmailOpenId4Vci(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // First permission screen: OpenId4VciIssuancePermission
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-  // Assert attribute labels are visible
-  expect(find.text("Email"), findsOneWidget);
-  expect(find.text("Domain"), findsOneWidget);
-  // Tap "Add"
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
-  // Second permission screen: IssuancePermission with filled values
+  // No tx code: the wallet auto-grants and lands directly on IssuancePermission
+  // with filled values.
   await tester.waitFor(find.byType(IssuancePermission));
   await evaluateCredentialCard(
     tester,
@@ -184,25 +169,16 @@ Future<void> testIssueEmailOpenId4VciWithTxCode(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // First permission screen
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-  expect(find.text("Email"), findsOneWidget);
-  expect(find.text("Domain"), findsOneWidget);
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
-  // Transaction code dialog appears
-  await tester.waitFor(find.byType(PreAuthTransactionCodeDialog));
-  await tester.enterText(find.byType(TextField), offer.txCode!);
-  await tester.pumpAndSettle();
-  // Tap "Add" button in the dialog
-  final dialogAddButton = find.descendant(
-    of: find.byType(PreAuthTransactionCodeDialog),
-    matching: find.byType(YiviThemedButton),
+  // Tx code screen appears directly (no preview screen anymore).
+  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    offer.txCode!,
   );
-  await tester.tapAndSettle(dialogAddButton);
+  // Pinput auto-submits on completion.
+  await tester.pumpAndSettle();
 
-  // Second permission screen with filled values
+  // Permission screen with filled values
   await tester.waitFor(find.byType(IssuancePermission));
   await evaluateCredentialCard(
     tester,
@@ -281,14 +257,7 @@ Future<void> testIssueOrganizationOpenId4Vci(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // First permission screen
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  expect(find.byType(YiviCredentialCard), findsOneWidget);
-  // Assert attribute labels are visible
-  expect(find.text("University"), findsAtLeast(1));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
-  // Second permission screen — spot-check all key values by scrolling to each
+  // No tx code: lands directly on IssuancePermission with filled values.
   await tester.waitFor(find.byType(IssuancePermission));
   await tester.pumpAndSettle();
   expect(find.byType(YiviCredentialCard), findsOneWidget);
@@ -338,7 +307,7 @@ Future<void> testIssueOrganizationOpenId4Vci(
 // Error / dismissal test implementations
 // =============================================================================
 
-Future<void> testDismissOnFirstPermissionScreen(
+Future<void> testDismissOnIssuancePermissionScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
@@ -350,53 +319,11 @@ Future<void> testDismissOnFirstPermissionScreen(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // First permission screen
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-
-  // Tap "Cancel"
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
-
-  // Confirm dismiss dialog — tap "Yes"
-  await tester.waitFor(find.text("Yes"));
-  await tester.tapAndSettle(find.text("Yes"));
-
-  // Should be back at home
-  await tester.waitFor(find.byType(DataTab));
-
-  // Verify no credential stored
-  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  expect(
-    find.byKey(Key("${_emailCredentialTileKey}_tile")),
-    findsNothing,
-  );
-
-  // Verify no activity logged
-  await tester.tap(find.byKey(const Key("nav_button_activity")));
-  await tester.pump(const Duration(seconds: 1));
-  expect(find.text("There are no logged activities yet"), findsOneWidget);
-}
-
-Future<void> testDismissOnSecondPermissionScreen(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) async {
-  await pumpAndUnlockApp(tester, irmaBinding.repository);
-
-  final offer = await startOpenID4VCISession(
-    credentialConfigId: "EmailCredentialSdJwt",
-    credentialData: {"email": "test@example.com", "domain": "example.com"},
-  );
-  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
-
-  // First permission screen — tap "Add" to proceed
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
-  // Second permission screen — tap "Cancel" to dismiss
+  // No tx code: lands directly on IssuancePermission. Tap "Cancel".
   await tester.waitFor(find.byType(IssuancePermission));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
 
-  // Should be back at home (IssuancePermission dismisses directly, no dialog)
+  // Should be back at home
   await tester.waitFor(find.byType(DataTab));
 
   // Verify no credential stored
@@ -426,19 +353,14 @@ Future<void> testWrongTxCodeShowsError(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // First permission screen
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
-  // Transaction code dialog — enter wrong code
-  await tester.waitFor(find.byType(PreAuthTransactionCodeDialog));
-  await tester.enterText(find.byType(TextField), "000000");
-  await tester.pumpAndSettle();
-  final dialogAddButton = find.descendant(
-    of: find.byType(PreAuthTransactionCodeDialog),
-    matching: find.byType(YiviThemedButton),
+  // Tx code screen — enter wrong code
+  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    "000000",
   );
-  await tester.tapAndSettle(dialogAddButton);
+  // Pinput auto-submits on completion.
+  await tester.pumpAndSettle();
 
   // Error screen should appear
   await tester.waitFor(find.byType(ErrorScreen));
@@ -462,7 +384,7 @@ Future<void> testWrongTxCodeShowsError(
   expect(find.text("There are no logged activities yet"), findsOneWidget);
 }
 
-Future<void> testCancelTxCodeDialogThenSucceed(
+Future<void> testCancelTxCodeScreenDismissesSession(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
@@ -476,64 +398,24 @@ Future<void> testCancelTxCodeDialogThenSucceed(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // First permission screen
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+  // Tx code screen — tap "Cancel" in the bottom bar to dismiss the session.
+  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
 
-  // Transaction code dialog — dismiss it by tapping outside
-  await tester.waitFor(find.byType(PreAuthTransactionCodeDialog));
-  // Tap outside the dialog to dismiss it (tap at the top-left corner of the screen)
-  await tester.tapAt(const Offset(10, 10));
-  await tester.pumpAndSettle();
+  // Should be back at home (no confirmation dialog).
+  await tester.waitFor(find.byType(DataTab));
 
-  // Should be back on first permission screen
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-
-  // Tap "Add" again
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
-  // Transaction code dialog appears again — enter correct code this time
-  await tester.waitFor(find.byType(PreAuthTransactionCodeDialog));
-  await tester.enterText(find.byType(TextField), offer.txCode!);
-  await tester.pumpAndSettle();
-  final dialogAddButton = find.descendant(
-    of: find.byType(PreAuthTransactionCodeDialog),
-    matching: find.byType(YiviThemedButton),
+  // Verify no credential stored
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  expect(
+    find.byKey(Key("${_emailCredentialTileKey}_tile")),
+    findsNothing,
   );
-  await tester.tapAndSettle(dialogAddButton);
 
-  // Second permission screen with filled values
-  await tester.waitFor(find.byType(IssuancePermission));
-  await evaluateCredentialCard(
-    tester,
-    find.byType(YiviCredentialCard).first,
-    credentialName: "Email Credential (SD-JWT)",
-    isExpired: false,
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
-  );
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
-  // Success screen
-  await tester.waitFor(find.byType(IssuanceSuccessScreen));
-  await tester.tapAndSettle(find.text("OK"));
-
-  // Verify activity log
-  await navigateToLatestActivity(tester);
-  expect(find.byType(ActivityDetailIssuance), findsOneWidget);
-  await evaluateCredentialCard(
-    tester,
-    find.byType(YiviCredentialCard).first,
-    credentialName: "Email Credential (SD-JWT)",
-    issuerName: "Test Issuer",
-    isExpired: false,
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
-  );
+  // Verify no activity logged
+  await tester.tap(find.byKey(const Key("nav_button_activity")));
+  await tester.pump(const Duration(seconds: 1));
+  expect(find.text("There are no logged activities yet"), findsOneWidget);
 }
 
 // =============================================================================
@@ -670,9 +552,7 @@ Future<void> _issueEmailCredViaPreAuth(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  await tester.waitFor(find.byType(OpenId4VciIssuancePermission));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
-
+  // No tx code: auto-grants and lands directly on IssuancePermission.
   await tester.waitFor(find.byType(IssuancePermission));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 

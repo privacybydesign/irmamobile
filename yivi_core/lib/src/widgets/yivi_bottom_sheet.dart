@@ -74,7 +74,7 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
       constraints: BoxConstraints(minHeight: minHeight),
       child: Container(
         decoration: BoxDecoration(
-          color: theme.backgroundPrimary,
+          color: theme.backgroundSecondary,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(_topRadius),
           ),
@@ -110,7 +110,7 @@ class _Header extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.backgroundPrimary,
+        color: theme.backgroundSecondary,
         boxShadow: scrolled
             ? [
                 BoxShadow(
@@ -133,11 +133,14 @@ class _Header extends StatelessWidget {
                     theme.defaultSpacing,
                     theme.mediumSpacing,
                     _titleRightReservation,
-                    theme.defaultSpacing,
+                    theme.mediumSpacing,
                   ),
                   child: TranslatedText(
                     titleKey,
-                    style: credentialNameStyle(theme, 19),
+                    style: credentialNameStyle(
+                      theme,
+                      19,
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 const Positioned(
