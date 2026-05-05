@@ -47,7 +47,11 @@ const _organizationExpectedValues = [
 ];
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  // Required for enterText to work on iOS integration tests (Pinput included).
+  binding.testTextInput.register();
+
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
@@ -190,17 +194,16 @@ Future<void> testIssueEmailOpenId4VciWithTxCode(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // Tx code screen appears directly (no preview screen anymore).
-  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  // Tx code screen appears directly (no preview screen anymore). Use
+  // pumpUntilFound rather than waitFor here: waitFor pumps-and-settles, but
+  // Pinput's blinking-cursor animation never settles once the screen mounts.
+  await tester.pumpUntilFound(find.byType(OpenId4VciPreAuthTxCodeScreen));
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     offer.txCode!,
   );
   // Pinput auto-submits on completion.
-  await tester.pumpAndSettle();
-
-  // Permission screen with filled values
-  await tester.waitFor(find.byType(IssuancePermission));
+  await tester.pumpUntilFound(find.byType(IssuancePermission));
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard).first,
@@ -376,22 +379,31 @@ Future<void> testWrongTxCodeShowsInlineError(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  // Pinput's blinking-cursor animation never settles, so we cannot use
+  // waitFor / pumpAndSettle while the tx_code screen is on top.
+  await tester.pumpUntilFound(find.byType(OpenId4VciPreAuthTxCodeScreen));
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     "000000",
   );
-  await tester.pumpAndSettle();
+  await tester.pumpUntilFound(
+    find.text("Incorrect code. 2 attempts remaining."),
+  );
 
   // Still on tx_code screen — no navigation to ErrorScreen.
   expect(find.byType(OpenId4VciPreAuthTxCodeScreen), findsOneWidget);
   expect(find.byType(ErrorScreen), findsNothing);
-  // Inline error is visible with the remaining-attempts count.
-  expect(find.text("Incorrect code. 2 attempts remaining."), findsOneWidget);
 
-  // Cancel out and verify clean state.
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
-  await tester.waitFor(find.byType(DataTab));
+  // Cancel out and verify clean state. We wait for the tx_code screen to
+  // unmount before any tap-and-settle: while it's animating out, its cursor
+  // still ticks and any subsequent tap may be absorbed by the off-stage
+  // route.
+  await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+  // After the tx_code screen unmounts the cursor stops, so pumpAndSettle is
+  // safe again — and we need it because the home's bottom nav transition
+  // continues briefly after the pop completes.
+  await tester.pumpUntilGone(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.pumpAndSettle();
 
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   expect(
@@ -415,24 +427,23 @@ Future<void> testWrongThenCorrectTxCode(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.pumpUntilFound(find.byType(OpenId4VciPreAuthTxCodeScreen));
 
   // First attempt: wrong code.
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     "000000",
   );
-  await tester.pumpAndSettle();
-  expect(find.text("Incorrect code. 2 attempts remaining."), findsOneWidget);
+  await tester.pumpUntilFound(
+    find.text("Incorrect code. 2 attempts remaining."),
+  );
 
   // Second attempt: correct code.
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     offer.txCode!,
   );
-  await tester.pumpAndSettle();
-
-  await tester.waitFor(find.byType(IssuancePermission));
+  await tester.pumpUntilFound(find.byType(IssuancePermission));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await tester.waitFor(find.byType(IssuanceSuccessScreen));
@@ -455,29 +466,29 @@ Future<void> testTwoWrongAttemptsThenCorrect(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.pumpUntilFound(find.byType(OpenId4VciPreAuthTxCodeScreen));
 
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     "000000",
   );
-  await tester.pumpAndSettle();
-  expect(find.text("Incorrect code. 2 attempts remaining."), findsOneWidget);
+  await tester.pumpUntilFound(
+    find.text("Incorrect code. 2 attempts remaining."),
+  );
 
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     "111111",
   );
-  await tester.pumpAndSettle();
-  expect(find.text("Incorrect code. 1 attempt remaining."), findsOneWidget);
+  await tester.pumpUntilFound(
+    find.text("Incorrect code. 1 attempt remaining."),
+  );
 
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     offer.txCode!,
   );
-  await tester.pumpAndSettle();
-
-  await tester.waitFor(find.byType(IssuancePermission));
+  await tester.pumpUntilFound(find.byType(IssuancePermission));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   await tester.waitFor(find.byType(IssuanceSuccessScreen));
@@ -500,17 +511,27 @@ Future<void> testThreeWrongAttemptsLockout(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.pumpUntilFound(find.byType(OpenId4VciPreAuthTxCodeScreen));
 
-  for (final wrong in const ["000000", "111111", "222222"]) {
-    await tester.enterText(
-      find.byKey(const Key("oid4vci_tx_code_input_field")),
-      wrong,
-    );
-    await tester.pumpAndSettle();
-  }
-
-  await tester.waitFor(find.byType(TxCodeLockoutScreen));
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    "000000",
+  );
+  await tester.pumpUntilFound(
+    find.text("Incorrect code. 2 attempts remaining."),
+  );
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    "111111",
+  );
+  await tester.pumpUntilFound(
+    find.text("Incorrect code. 1 attempt remaining."),
+  );
+  await tester.enterText(
+    find.byKey(const Key("oid4vci_tx_code_input_field")),
+    "222222",
+  );
+  await tester.pumpUntilFound(find.byType(TxCodeLockoutScreen));
   expect(find.byType(ErrorScreen), findsNothing);
 
   await tester.tapAndSettle(find.text("OK"));
@@ -543,17 +564,22 @@ Future<void> testCancelAfterWrongAttempt(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.pumpUntilFound(find.byType(OpenId4VciPreAuthTxCodeScreen));
 
   await tester.enterText(
     find.byKey(const Key("oid4vci_tx_code_input_field")),
     "000000",
   );
-  await tester.pumpAndSettle();
-  expect(find.text("Incorrect code. 2 attempts remaining."), findsOneWidget);
+  await tester.pumpUntilFound(
+    find.text("Incorrect code. 2 attempts remaining."),
+  );
 
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
-  await tester.waitFor(find.byType(DataTab));
+  await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
+  // After the tx_code screen unmounts the cursor stops, so pumpAndSettle is
+  // safe again — and we need it because the home's bottom nav transition
+  // continues briefly after the pop completes.
+  await tester.pumpUntilGone(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.pumpAndSettle();
 
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   expect(
@@ -581,11 +607,14 @@ Future<void> testCancelTxCodeScreenDismissesSession(
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
   // Tx code screen — tap "Cancel" in the bottom bar to dismiss the session.
-  await tester.waitFor(find.byType(OpenId4VciPreAuthTxCodeScreen));
-  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
+  await tester.pumpUntilFound(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.tap(find.byKey(const Key("bottom_bar_secondary")));
 
-  // Should be back at home (no confirmation dialog).
-  await tester.waitFor(find.byType(DataTab));
+  // Should be back at home (no confirmation dialog). Wait for the tx_code
+  // screen to actually unmount — until then, its blinking cursor blocks
+  // pumpAndSettle and the route still absorbs taps.
+  await tester.pumpUntilGone(find.byType(OpenId4VciPreAuthTxCodeScreen));
+  await tester.pumpAndSettle();
 
   // Verify no credential stored
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
