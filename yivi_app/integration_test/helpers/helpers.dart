@@ -446,7 +446,7 @@ Future<void> evaluateCredentialCard(
 
       // Compare the issuer credential name
       if (issuerName != null) {
-        expect(cardHeaderText.elementAt(1), "by $issuerName");
+        expect(cardHeaderText.elementAt(1), issuerName);
       }
     }
   }

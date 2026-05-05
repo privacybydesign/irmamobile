@@ -4,12 +4,11 @@ import "../../theme/theme.dart";
 import "../irma_avatar.dart";
 import "../translated_text.dart";
 
-TextStyle _issuerEyebrowStyle(IrmaThemeData theme) => TextStyle(
+TextStyle _issuerLabelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
   fontSize: 13,
   fontWeight: FontWeight.w600,
   color: theme.neutralDark,
-  letterSpacing: 0.78, // 0.06em × 13
   height: 1.4,
 );
 
@@ -105,16 +104,16 @@ class YiviCredentialCardHeader extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (issuerName != null)
-                    Text(
-                      issuerName!.toUpperCase(),
-                      style: _issuerEyebrowStyle(theme),
-                    ),
                   Text(
                     credentialName,
                     style: credentialNameStyle(theme, 19),
                     softWrap: true,
                   ),
+                  if (issuerName != null)
+                    Text(
+                      issuerName!,
+                      style: _issuerLabelStyle(theme),
+                    ),
                 ],
               ),
             ),
