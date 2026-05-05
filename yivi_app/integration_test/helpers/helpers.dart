@@ -347,14 +347,31 @@ Future<void> evaluateRequestor(
   expect(nameFinder, findsOneWidget);
 }
 
+/// One label-value entry in an [attributes] list. The value is one of:
+/// - `String`: a leaf row (label + value)
+/// - `List<String>`: a primitive array, rendered as bullets
+/// - [Block] (`List<AttrRow>`): a nested group
+/// - `List<Block>`: an array of nested items
+typedef AttrRow = (String label, Object value);
+
+/// Ordered list of rows, used for nested groups and as item children.
+typedef Block = List<AttrRow>;
+
 Future<void> evaluateCredentialCard(
   WidgetTester tester,
   Finder credentialCardFinder, {
   String? credentialName,
   String? issuerName,
   int? instancesRemaining,
-  Map<String, String>? attributes,
-  Map<String, String>? attributesCompareTo,
+  /// Expected card attributes in render order. The DFS preorder of this list
+  /// must match, element-for-element, the rendered leaves and primitive-array
+  /// rows on the card. See [AttrRow] for the supported value shapes.
+  List<AttrRow>? attributes,
+  /// Color-comparison check for disclosure cards. Each row's value is the
+  /// expected value the verifier asked for; the matcher checks that the
+  /// rendered text for that label is colored green if it matches, red
+  /// otherwise. Flat-only — only `String` values are honored.
+  List<AttrRow>? attributesCompareTo,
   bool? isSelected,
   String? footerText,
   IrmaCardStyle? style,
@@ -459,46 +476,40 @@ Future<void> evaluateCredentialCard(
     );
 
     if (attributes.isNotEmpty) {
-      final cardAttListText = tester.getAllText(cardAttList).toList();
-
-      var mappedCardList = <String, String>{};
-      for (var i = 0; i < cardAttListText.length; i = i + 2) {
-        final attName = cardAttListText[i];
-        final attVal = cardAttListText[i + 1];
-        mappedCardList[attName] = attVal;
-      }
-
-      // Verify that all expected attributes are present in the displayed attributes.
-      for (final entry in attributes.entries) {
-        expect(
-          mappedCardList[entry.key],
-          entry.value,
-          reason:
-              "Attribute '${entry.key}' expected '${entry.value}' but got '${mappedCardList[entry.key]}'",
-        );
-      }
+      _matchAttributes(tester, cardAttList, attributes);
 
       if (attributesCompareTo != null) {
-        for (var compareAttEntry in attributesCompareTo.entries) {
-          // This key should be present in mappedCardList
-          expect(mappedCardList.containsKey(compareAttEntry.key), true);
-
-          // Expected the targeted attribute value to be in the list
+        final renderedMap = _renderedLabelValues(tester, cardAttList);
+        for (final (label, expected) in attributesCompareTo) {
+          if (expected is! String) {
+            throw ArgumentError(
+              "attributesCompareTo only supports String values; got ${expected.runtimeType} for '$label'",
+            );
+          }
+          final renderedValues = renderedMap[label];
+          expect(
+            renderedValues,
+            isNotNull,
+            reason: "attributesCompareTo: label '$label' not rendered",
+          );
+          expect(
+            renderedValues!.length,
+            1,
+            reason:
+                "attributesCompareTo: label '$label' must be a leaf, got ${renderedValues.length} values",
+          );
+          final renderedValue = renderedValues.single;
           final textFinder = find.descendant(
             of: cardAttList,
-            matching: find.text(mappedCardList[compareAttEntry.key]!),
+            matching: find.text(renderedValue),
           );
           expect(textFinder, findsOneWidget);
 
-          Color expectedTextColor;
-          if (mappedCardList[compareAttEntry.key] == null ||
-              mappedCardList[compareAttEntry.key]! != compareAttEntry.value) {
-            expectedTextColor = const Color(0xffbd1919);
-          } else {
-            expectedTextColor = const Color(0xff00973a);
-          }
+          final expectedTextColor = renderedValue == expected
+              ? const Color(0xff00973a)
+              : const Color(0xffbd1919);
           expect(
-            (textFinder.evaluate().first.widget as Text).style?.color!,
+            (textFinder.evaluate().first.widget as Text).style?.color,
             expectedTextColor,
           );
         }
@@ -551,6 +562,145 @@ Future<void> evaluateCredentialCard(
       );
     }
   }
+}
+
+/// Walks the card's attribute list and pairs each label with its run of
+/// following values, recovering an ordered list of (label, [values]) entries.
+/// Classification keys off the font sizes used by the renderer
+/// (`yivi_credential_card_attribute_list.dart`):
+///   - 14: label (leaf or prim-array)
+///   - 16: leaf value or prim-array bullet
+///   - 12: eyebrow header (group/item) — closes the current run, ignored.
+List<_LabelValues> _renderedRows(WidgetTester tester, Finder cardAttList) {
+  final texts = tester
+      .widgetList<Text>(
+        find.descendant(of: cardAttList, matching: find.byType(Text)),
+      )
+      .toList();
+
+  final rendered = <_LabelValues>[];
+  String? pendingLabel;
+  List<String>? pendingValues;
+
+  void flush() {
+    if (pendingLabel != null) {
+      rendered.add(_LabelValues(pendingLabel!, pendingValues ?? const []));
+      pendingLabel = null;
+      pendingValues = null;
+    }
+  }
+
+  for (final t in texts) {
+    final size = t.style?.fontSize;
+    final data = t.data;
+    if (data == null) continue;
+    if (size == 14) {
+      flush();
+      pendingLabel = data;
+      pendingValues = [];
+    } else if (size == 16) {
+      if (pendingLabel == null) continue;
+      pendingValues!.add(data);
+    } else {
+      // Eyebrow (12) or unknown — closes the current label's value run.
+      flush();
+    }
+  }
+  flush();
+  return rendered;
+}
+
+/// Convenience wrapper around [_renderedRows] for callers that want a
+/// label-keyed lookup (used by [attributesCompareTo]). Asserts uniqueness.
+Map<String, List<String>> _renderedLabelValues(
+  WidgetTester tester,
+  Finder cardAttList,
+) {
+  final rows = _renderedRows(tester, cardAttList);
+  final map = <String, List<String>>{};
+  for (final r in rows) {
+    map[r.label] = r.values;
+  }
+  return map;
+}
+
+/// Flattens an ordered [List<AttrRow>] tree into a sequence of (label, [values])
+/// expectations in DFS preorder. Mirrors the renderer's flatten step
+/// (`yivi_credential_card_attribute_list.dart`): leaves emit one entry,
+/// primitive arrays emit one entry with all bullets, item arrays recurse
+/// into each item's children, and nested groups recurse into their children.
+List<_LabelValues> _flattenExpected(List<AttrRow> rows) {
+  final out = <_LabelValues>[];
+  void walk(List<AttrRow> rows) {
+    for (final (label, value) in rows) {
+      if (value is String) {
+        out.add(_LabelValues(label, [value]));
+      } else if (value is List) {
+        if (value.isEmpty) {
+          out.add(_LabelValues(label, const []));
+        } else if (value.every((v) => v is String)) {
+          out.add(_LabelValues(label, value.cast<String>()));
+        } else if (value.every((v) => v is List)) {
+          // List<Block>: array of items. Recurse into each item.
+          for (final item in value) {
+            walk((item as List).cast<AttrRow>());
+          }
+        } else {
+          throw ArgumentError(
+            "Mixed list at '$label': expected List<String>, "
+            "List<Block>, or List<AttrRow>; got $value",
+          );
+        }
+      } else {
+        throw ArgumentError(
+          "Unsupported value type at '$label': ${value.runtimeType}",
+        );
+      }
+    }
+  }
+  walk(rows);
+  return out;
+}
+
+/// Order-strict matcher: rendered and expected sequences must match
+/// element-for-element (label and value-list).
+void _matchAttributes(
+  WidgetTester tester,
+  Finder cardAttList,
+  List<AttrRow> expected,
+) {
+  final rendered = _renderedRows(tester, cardAttList);
+  final flat = _flattenExpected(expected);
+
+  if (rendered.length != flat.length) {
+    fail(
+      "Attribute row count mismatch.\n"
+      "  expected (${flat.length}): $flat\n"
+      "  rendered (${rendered.length}): $rendered",
+    );
+  }
+  for (var i = 0; i < flat.length; i++) {
+    expect(
+      rendered[i].label,
+      flat[i].label,
+      reason: "Row $i label mismatch.\n  expected: $flat\n  rendered: $rendered",
+    );
+    expect(
+      rendered[i].values,
+      flat[i].values,
+      reason: "Row $i values mismatch for '${flat[i].label}'.\n"
+          "  expected: $flat\n  rendered: $rendered",
+    );
+  }
+}
+
+class _LabelValues {
+  final String label;
+  final List<String> values;
+  const _LabelValues(this.label, this.values);
+
+  @override
+  String toString() => "($label → $values)";
 }
 
 Future<void> evaluateNotificationCard(

@@ -325,7 +325,7 @@ Future<void> testEmptySdJwtStillShowsInOptions(
     find.byType(YiviCredentialCard),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {"Email address": "one@example.com"},
+    attributes: [("Email address", "one@example.com")],
   );
   await evaluateRequestor(tester, find.byType(RequestorHeader), "Yivi B.V.");
 }
@@ -508,10 +508,10 @@ Future<void> testClaimWithMultipleValueOptionsTwoMatch(
     cardsFinder,
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "one@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "one@example.com"),
+      ("Email domain name", "example.com"),
+    ],
   );
 
   await tapChangeChoicesButton(tester);
@@ -614,10 +614,10 @@ Future<void> testClaimValueOnePresentOneNot(
     cardsFinder,
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "two@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "two@example.com"),
+      ("Email domain name", "example.com"),
+    ],
   );
 
   await tapChangeChoicesButton(tester);
@@ -728,7 +728,7 @@ Future<void> testOptionallyDiscloseExtraCredential(
     cardsFinder,
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
   );
 
   final addOptionalDataButton = find.text("Add optional data");
@@ -752,10 +752,10 @@ Future<void> testOptionallyDiscloseExtraCredential(
     choiceCardsFinder.at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "one@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "one@example.com"),
+      ("Email domain name", "example.com"),
+    ],
   );
   await tester.scrollUntilVisible(choiceCardsFinder.at(1), 100);
   await evaluateCredentialCard(
@@ -763,10 +763,10 @@ Future<void> testOptionallyDiscloseExtraCredential(
     choiceCardsFinder.at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "two@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "two@example.com"),
+      ("Email domain name", "example.com"),
+    ],
   );
 
   await tester.scrollUntilVisible(choiceCardsFinder.at(2), 100);
@@ -790,10 +790,10 @@ Future<void> testOptionallyDiscloseExtraCredential(
     cardsFinder.at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "one@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "one@example.com"),
+      ("Email domain name", "example.com"),
+    ],
   );
 
   // remove the optional credential card
@@ -1100,10 +1100,10 @@ Future<void> testTwoCredentialsTwoChoicesEach(
         f,
         issuerName: "Demo Privacy by Design Foundation via SIDN",
         credentialName: "Demo Email address",
-        attributes: {
-          "Email address": "one@example.com",
-          "Email domain name": "example.com",
-        },
+        attributes: [
+          ("Email address", "one@example.com"),
+          ("Email domain name", "example.com"),
+        ],
       );
       emailFound = true;
     } else {
@@ -1112,7 +1112,7 @@ Future<void> testTwoCredentialsTwoChoicesEach(
         f,
         issuerName: "Demo Privacy by Design Foundation via SIDN",
         credentialName: "Demo Mobile phone number",
-        attributes: {"Mobile phone number": "0687654321"},
+        attributes: [("Mobile phone number", "0687654321")],
       );
       mobilenumberFound = true;
     }
@@ -1190,14 +1190,14 @@ Future<void> testOneCredentialTwoChoices(
     cardsFinder.at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {"Email address": "one@example.com"},
+    attributes: [("Email address", "one@example.com")],
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {"Email address": "two@template.com"},
+    attributes: [("Email address", "two@template.com")],
   );
 
   expect(find.text("Obtain new data"), findsOneWidget);
@@ -1228,7 +1228,7 @@ Future<void> testOneCredentialTwoChoices(
     overviewCardsFinder,
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
   );
 
   // change choices to verify there are now 4 cards (3 existing + 1 obtainable)
@@ -1329,14 +1329,14 @@ Future<void> testOneMissingOnePresent(
     find.byType(YiviCredentialCard, skipOffstage: false).at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
   );
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard, skipOffstage: false).at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
   );
 
   await shareAndFinishDisclosureSession(tester);
@@ -1442,10 +1442,10 @@ Future<void> testZeroInstanceCountShowsReobtainButton(
     isExpired: true,
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "test@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "test@example.com"),
+      ("Email domain name", "example.com"),
+    ],
   );
 }
 
@@ -1490,7 +1490,7 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
     find.byType(YiviCredentialCard, skipOffstage: false),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
   );
 
   await shareAndFinishDisclosureSession(tester);
@@ -1504,10 +1504,10 @@ Future<void> testLowCredentialInstanceCountShowsReobtainButton(
     isExpiringSoon: true,
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "test@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "test@example.com"),
+      ("Email domain name", "example.com"),
+    ],
   );
 }
 
@@ -1570,17 +1570,17 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
     find.byType(YiviCredentialCard, skipOffstage: false).at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "test@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "test@example.com"),
+      ("Email domain name", "example.com"),
+    ],
   );
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard, skipOffstage: false).at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
   );
 
   await shareAndFinishDisclosureSession(tester);
@@ -1592,10 +1592,10 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
     find.byType(YiviCredentialCard),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "test@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "test@example.com"),
+      ("Email domain name", "example.com"),
+    ],
     instancesRemaining: credentialCount - 1,
   );
 
@@ -1609,7 +1609,7 @@ Future<void> testDiscloseSdJwtOverOpenID4VP(
     find.byType(YiviCredentialCard),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     instancesRemaining: credentialCount - 1,
   );
 }
@@ -1681,7 +1681,7 @@ Future<void> testDiscloseSdJwtWithChoices(
     cardFinder,
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
   );
 
   await tapChangeChoicesButton(tester);
@@ -1701,14 +1701,14 @@ Future<void> testDiscloseSdJwtWithChoices(
     cardsFinder.at(0),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
   );
 
   await tester.scrollUntilVisible(cardsFinder.at(1), 100);
@@ -1725,10 +1725,10 @@ Future<void> testDiscloseSdJwtWithChoices(
     find.byType(YiviCredentialCard),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "test@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "test@example.com"),
+      ("Email domain name", "example.com"),
+    ],
     instancesRemaining: credentialCount,
   );
 
@@ -1742,7 +1742,7 @@ Future<void> testDiscloseSdJwtWithChoices(
     find.byType(YiviCredentialCard),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Mobile phone number",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     instancesRemaining: credentialCount - 1,
   );
 }

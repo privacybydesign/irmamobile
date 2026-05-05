@@ -55,7 +55,7 @@ Future<void> filledDisconTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
+    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -63,7 +63,7 @@ Future<void> filledDisconTest(
     cardsFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     style: IrmaCardStyle.normal,
   );
 
@@ -79,7 +79,7 @@ Future<void> filledDisconTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
+    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
     isSelected: true,
   );
 
@@ -90,7 +90,7 @@ Future<void> filledDisconTest(
     secondCardFinder,
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
   await tester.scrollUntilVisible(secondCardFinder.hitTestable(), 50);
@@ -133,7 +133,7 @@ Future<void> filledDisconTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
+    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
     isSelected: false,
   );
 
@@ -142,7 +142,7 @@ Future<void> filledDisconTest(
     cardsFinder.at(1),
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {"Address": "Meander 501", "City": "Arnhem"},
+    attributes: [("Address", "Meander 501"), ("City", "Arnhem")],
     isSelected: true,
   );
 
@@ -160,7 +160,7 @@ Future<void> filledDisconTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     isSelected: true,
   );
   await evaluateCredentialCard(
@@ -168,7 +168,7 @@ Future<void> filledDisconTest(
     cardsFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -182,7 +182,7 @@ Future<void> filledDisconTest(
     cardsFinder.first,
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {"Address": "Meander 501", "City": "Arnhem"},
+    attributes: [("Address", "Meander 501"), ("City", "Arnhem")],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -190,7 +190,7 @@ Future<void> filledDisconTest(
     cardsFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     style: IrmaCardStyle.normal,
   );
 

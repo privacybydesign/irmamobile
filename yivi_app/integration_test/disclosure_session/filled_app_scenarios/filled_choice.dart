@@ -52,7 +52,7 @@ Future<void> filledChoiceTest(
     cardFinder,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     style: IrmaCardStyle.normal,
   );
 
@@ -76,7 +76,7 @@ Future<void> filledChoiceTest(
     cardFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     isSelected: true,
   );
 
@@ -86,7 +86,7 @@ Future<void> filledChoiceTest(
     cardFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -98,7 +98,7 @@ Future<void> filledChoiceTest(
     thirdCardFinder,
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -123,7 +123,7 @@ Future<void> filledChoiceTest(
     cardFinder.first,
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     style: IrmaCardStyle.normal,
   );
 
@@ -142,7 +142,7 @@ Future<void> filledChoiceTest(
     cardFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     isSelected: false,
   );
   await evaluateCredentialCard(
@@ -150,7 +150,7 @@ Future<void> filledChoiceTest(
     cardFinder.at(1),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     isSelected: true,
   );
 
@@ -159,7 +159,7 @@ Future<void> filledChoiceTest(
     cardFinder.at(2),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
   await evaluateCredentialCard(
@@ -167,7 +167,7 @@ Future<void> filledChoiceTest(
     cardFinder.at(3),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -189,7 +189,7 @@ Future<void> filledChoiceTest(
     cardFinder.first,
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     style: IrmaCardStyle.normal,
   );
 

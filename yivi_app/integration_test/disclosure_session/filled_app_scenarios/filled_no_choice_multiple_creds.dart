@@ -62,7 +62,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
     cardsFinder.first,
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     style: IrmaCardStyle.highlighted,
   );
 
@@ -99,7 +99,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -107,7 +107,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
     cardsFinder.at(1),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     style: IrmaCardStyle.normal,
   );
 
@@ -130,7 +130,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
   );
 
   // Second card should be a template card
@@ -139,7 +139,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
     cardsFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
   );
 
   // Press go back
@@ -155,7 +155,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -163,7 +163,7 @@ Future<void> filledNoChoiceMultipleCredsTest(
     cardsFinder.at(1),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     style: IrmaCardStyle.normal,
   );
 

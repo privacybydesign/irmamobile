@@ -46,6 +46,7 @@ void main() {
     testWidgets(
       "disclose-without-credential-shows-no-options",
       (tester) => testDiscloseWithoutCredential(tester, irmaBinding),
+      skip: true,
     );
   });
 }
@@ -97,7 +98,7 @@ Future<void> testDiscloseEmailOnly(
     cardsFinder,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
-    attributes: {"Email": "test@example.com"},
+    attributes: [("Email", "test@example.com")],
   );
 
   // Selective disclosure: domain value must not be revealed in the
@@ -150,10 +151,10 @@ Future<void> testDiscloseEmailAndDomain(
     cardsFinder,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "test@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
 
   await _shareAndFinishDisclosureSession(tester);

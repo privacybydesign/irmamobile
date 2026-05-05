@@ -24,7 +24,7 @@ Future<void> _evaluateDemoCredentialCard(
   revokedCardFinder,
   credentialName: "Demo Root",
   issuerName: "Demo MijnOverheid.nl",
-  attributes: {"BSN": "12345"},
+  attributes: [("BSN", "12345")],
   isRevoked: isRevoked,
 );
 
@@ -117,7 +117,7 @@ Future<void> revocationTest(
     credentialCardFinder,
     credentialName: "Demo Root",
     issuerName: "Demo MijnOverheid.nl",
-    attributes: {"BSN": "12345"},
+    attributes: [("BSN", "12345")],
     isRevoked: true,
   );
 

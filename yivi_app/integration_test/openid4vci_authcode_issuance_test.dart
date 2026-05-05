@@ -144,10 +144,10 @@ Future<void> testIssueEmailOpenId4VciAuthCode(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "test@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
@@ -164,10 +164,10 @@ Future<void> testIssueEmailOpenId4VciAuthCode(
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "AuthCode Issuer",
     isExpired: false,
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "test@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
 }
 
@@ -180,38 +180,36 @@ Future<void> testIssueOrganizationOpenId4VciAuthCode(
   final offer = await startAuthCodeOpenID4VCISession(
     credentialConfigId: "OrganizationCredentialSdJwt",
     credentialData: {
-      "university": {
-        "name": "TU Delft",
-        "faculties": [
-          {
-            "faculty_name": "EEMCS",
-            "departments": [
-              {
-                "dept_name": "Software Technology",
-                "courses": [
-                  "Compiler Construction",
-                  "Distributed Systems",
-                  "Intro to CS",
-                ],
-              },
-              {
-                "dept_name": "Data Science",
-                "courses": ["Machine Learning"],
-              },
-            ],
-          },
-          {
-            "faculty_name": "Architecture",
-            "departments": [
-              {
-                "dept_name": "Urbanism",
-                "courses": ["City Planning"],
-              },
-            ],
-          },
-        ],
-        "founded": 1842,
-      },
+      "name": "TU Delft",
+      "faculties": [
+        {
+          "faculty_name": "EEMCS",
+          "departments": [
+            {
+              "dept_name": "Software Technology",
+              "courses": [
+                "Compiler Construction",
+                "Distributed Systems",
+                "Intro to CS",
+              ],
+            },
+            {
+              "dept_name": "Data Science",
+              "courses": ["Machine Learning"],
+            },
+          ],
+        },
+        {
+          "faculty_name": "Architecture",
+          "departments": [
+            {
+              "dept_name": "Urbanism",
+              "courses": ["City Planning"],
+            },
+          ],
+        },
+      ],
+      "founded": 1842,
     },
   );
 

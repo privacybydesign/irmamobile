@@ -49,7 +49,7 @@ Future<void> filledChoiceMixedTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
+    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
     style: IrmaCardStyle.normal,
   );
 
@@ -71,7 +71,7 @@ Future<void> filledChoiceMixedTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
+    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
     isSelected: true,
   );
 
@@ -81,7 +81,7 @@ Future<void> filledChoiceMixedTest(
     secondCardFinder,
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -112,7 +112,7 @@ Future<void> filledChoiceMixedTest(
     cardsFinder.first,
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {"Address": "Meander 501", "City": "Arnhem"},
+    attributes: [("Address", "Meander 501"), ("City", "Arnhem")],
     style: IrmaCardStyle.normal,
   );
 
@@ -128,14 +128,14 @@ Future<void> filledChoiceMixedTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
+    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {"Address": "Meander 501", "City": "Arnhem"},
+    attributes: [("Address", "Meander 501"), ("City", "Arnhem")],
   );
 
   await tester.tapAndSettle(find.text("Done"));
@@ -150,7 +150,7 @@ Future<void> filledChoiceMixedTest(
     cardsFinder.first,
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {"Address": "Meander 501", "City": "Arnhem"},
+    attributes: [("Address", "Meander 501"), ("City", "Arnhem")],
     style: IrmaCardStyle.normal,
   );
 

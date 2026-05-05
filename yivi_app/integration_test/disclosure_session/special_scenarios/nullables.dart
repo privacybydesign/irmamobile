@@ -48,7 +48,7 @@ Future<void> nullablesTest(
     cardsFinder.first,
     credentialName: "Demo IRMATube Member",
     issuerName: "Demo IRMATube",
-    attributes: {}, // TODO Add check for the required/notNull attirbute
+    attributes: [], // TODO Add check for the required/notNull attirbute
     style: IrmaCardStyle.highlighted,
   );
 

@@ -49,7 +49,7 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     style: IrmaCardStyle.highlighted,
   );
 
@@ -81,7 +81,7 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.first,
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     isSelected: true,
   );
   await evaluateCredentialCard(
@@ -89,7 +89,7 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.at(1),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
   await evaluateCredentialCard(
@@ -97,7 +97,7 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.at(2),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -113,10 +113,10 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {
-      "Email address": "test@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "test@example.com"),
+      ("Email domain name", "example.com"),
+    ],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -124,7 +124,7 @@ Future<void> filledOptionalDisjunctionTest(
     cardsFinder.at(1),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     style: IrmaCardStyle.normal,
   );
 

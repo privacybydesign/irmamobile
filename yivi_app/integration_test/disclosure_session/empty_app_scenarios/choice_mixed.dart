@@ -64,7 +64,7 @@ Future<void> choiceMixedTest(
     choiceCardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {},
+    attributes: [],
     isSelected: true,
   );
   await evaluateCredentialCard(
@@ -72,7 +72,7 @@ Future<void> choiceMixedTest(
     choiceCardsFinder.at(1),
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -88,7 +88,7 @@ Future<void> choiceMixedTest(
     choiceCardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
   await evaluateCredentialCard(
@@ -96,7 +96,7 @@ Future<void> choiceMixedTest(
     choiceCardsFinder.at(1),
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {},
+    attributes: [],
     isSelected: true,
   );
 
@@ -121,7 +121,7 @@ Future<void> choiceMixedTest(
     disConCardsFinder.first,
     credentialName: "Demo iDIN",
     issuerName: "Demo iDIN",
-    attributes: {},
+    attributes: [],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -129,7 +129,7 @@ Future<void> choiceMixedTest(
     disConCardsFinder.at(1),
     credentialName: "Demo Vektis agb by Nuts",
     issuerName: "Demo Nuts",
-    attributes: {},
+    attributes: [],
     style: IrmaCardStyle.highlighted,
   );
 

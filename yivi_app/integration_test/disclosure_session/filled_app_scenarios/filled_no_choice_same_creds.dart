@@ -57,7 +57,7 @@ Future<void> filledNoChoiceSameCredsTest(
     isSelected: true,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {"Email address": "first-email@example.com"},
+    attributes: [("Email address", "first-email@example.com")],
   );
 
   final secondCredentialCard = credentialCardsFinder.at(1);
@@ -67,7 +67,7 @@ Future<void> filledNoChoiceSameCredsTest(
     isSelected: false,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {"Email address": "second-email@example.com"},
+    attributes: [("Email address", "second-email@example.com")],
   );
 
   // Scroll to the second credential
@@ -93,7 +93,7 @@ Future<void> filledNoChoiceSameCredsTest(
     credentialCardsFinder.first,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {"Email address": "second-email@example.com"},
+    attributes: [("Email address", "second-email@example.com")],
   );
 
   // Finish the flow

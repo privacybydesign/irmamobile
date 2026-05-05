@@ -75,10 +75,10 @@ Future<void> testIssuanceLowInstanceCountNoReobtainButtonDuringIssuance(
     find.byType(YiviCredentialCard),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "test@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "test@example.com"),
+      ("Email domain name", "example.com"),
+    ],
     isRevoked: false,
     isExpired: false,
     instancesRemaining: 1,

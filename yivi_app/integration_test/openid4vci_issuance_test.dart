@@ -31,19 +31,37 @@ const _adminToken = "veramo-issuer-admin-token";
 const _emailCredentialTileKey =
     "https://veramo-issuer.openid4vc.staging.yivi.app/test-issuer/vct/email";
 
-const _organizationExpectedValues = [
-  "TU Delft",
-  "EEMCS",
-  "Software Technology",
-  "Compiler Construction",
-  "Distributed Systems",
-  "Intro to CS",
-  "Data Science",
-  "Machine Learning",
-  "Architecture",
-  "Urbanism",
-  "City Planning",
-  "1842",
+final List<AttrRow> _organizationExpectedAttributes = [
+  ("University Name", "TU Delft"),
+  ("Founded", "1842"),
+  ("Faculties", <Block>[
+    [
+      ("Faculty Name", "EEMCS"),
+      ("Departments", <Block>[
+        [
+          ("Department Name", "Software Technology"),
+          ("Courses", [
+            "Compiler Construction",
+            "Distributed Systems",
+            "Intro to CS",
+          ]),
+        ],
+        [
+          ("Department Name", "Data Science"),
+          ("Courses", ["Machine Learning"]),
+        ],
+      ]),
+    ],
+    [
+      ("Faculty Name", "Architecture"),
+      ("Departments", <Block>[
+        [
+          ("Department Name", "Urbanism"),
+          ("Courses", ["City Planning"]),
+        ],
+      ]),
+    ],
+  ]),
 ];
 
 void main() {
@@ -153,10 +171,10 @@ Future<void> testIssueEmailOpenId4Vci(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "test@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
@@ -173,10 +191,10 @@ Future<void> testIssueEmailOpenId4Vci(
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
     isExpired: false,
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "test@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
 }
 
@@ -209,10 +227,10 @@ Future<void> testIssueEmailOpenId4VciWithTxCode(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "test@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
@@ -229,10 +247,10 @@ Future<void> testIssueEmailOpenId4VciWithTxCode(
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
     isExpired: false,
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "test@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
 }
 
@@ -245,38 +263,36 @@ Future<void> testIssueOrganizationOpenId4Vci(
   final offer = await startOpenID4VCISession(
     credentialConfigId: "OrganizationCredentialSdJwt",
     credentialData: {
-      "university": {
-        "name": "TU Delft",
-        "faculties": [
-          {
-            "faculty_name": "EEMCS",
-            "departments": [
-              {
-                "dept_name": "Software Technology",
-                "courses": [
-                  "Compiler Construction",
-                  "Distributed Systems",
-                  "Intro to CS",
-                ],
-              },
-              {
-                "dept_name": "Data Science",
-                "courses": ["Machine Learning"],
-              },
-            ],
-          },
-          {
-            "faculty_name": "Architecture",
-            "departments": [
-              {
-                "dept_name": "Urbanism",
-                "courses": ["City Planning"],
-              },
-            ],
-          },
-        ],
-        "founded": 1842,
-      },
+      "name": "TU Delft",
+      "faculties": [
+        {
+          "faculty_name": "EEMCS",
+          "departments": [
+            {
+              "dept_name": "Software Technology",
+              "courses": [
+                "Compiler Construction",
+                "Distributed Systems",
+                "Intro to CS",
+              ],
+            },
+            {
+              "dept_name": "Data Science",
+              "courses": ["Machine Learning"],
+            },
+          ],
+        },
+        {
+          "faculty_name": "Architecture",
+          "departments": [
+            {
+              "dept_name": "Urbanism",
+              "courses": ["City Planning"],
+            },
+          ],
+        },
+      ],
+      "founded": 1842,
     },
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
@@ -286,18 +302,16 @@ Future<void> testIssueOrganizationOpenId4Vci(
   await tester.pumpAndSettle();
   expect(find.byType(YiviCredentialCard), findsOneWidget);
 
-  final scrollable = find.byType(Scrollable).first;
-  for (final value in _organizationExpectedValues) {
-    await tester.scrollUntilVisible(
-      find.text(value),
-      100,
-      scrollable: scrollable,
-      maxScrolls: 50,
-    );
-    expect(find.text(value), findsAtLeast(1));
-  }
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Organization Credential (SD-JWT)",
+    isExpired: false,
+    attributes: _organizationExpectedAttributes,
+  );
 
   // Scroll back to the top to tap "Add"
+  final scrollable = find.byType(Scrollable).first;
   await tester.scrollUntilVisible(
     find.byKey(const Key("bottom_bar_primary")),
     -100,
@@ -310,21 +324,18 @@ Future<void> testIssueOrganizationOpenId4Vci(
   await tester.waitFor(find.byType(IssuanceSuccessScreen));
   await tester.tapAndSettle(find.text("OK"));
 
-  // Verify activity log — same spot-checks
+  // Verify activity log — same nested-claim assertion.
   await navigateToLatestActivity(tester);
   expect(find.byType(ActivityDetailIssuance), findsOneWidget);
   await tester.pumpAndSettle();
 
-  final activityScrollable = find.byType(Scrollable).first;
-  for (final value in _organizationExpectedValues) {
-    await tester.scrollUntilVisible(
-      find.text(value),
-      100,
-      scrollable: activityScrollable,
-      maxScrolls: 50,
-    );
-    expect(find.text(value), findsAtLeast(1));
-  }
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Organization Credential (SD-JWT)",
+    issuerName: "Test Issuer",
+    attributes: _organizationExpectedAttributes,
+  );
 }
 
 // =============================================================================
@@ -723,10 +734,10 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
-    attributes: {
-      "Email": "other@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "other@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
 
   // Back to activity list, then drill into the older removal
@@ -743,10 +754,10 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
-    attributes: {
-      "Email": "test@example.com",
-      "Domain": "example.com",
-    },
+    attributes: [
+      ("Email", "test@example.com"),
+      ("Domain", "example.com"),
+    ],
   );
 }
 
