@@ -44,6 +44,9 @@ test:
 test-all *args:
     cd yivi_app && flutter test integration_test/test_all.dart {{args}} | tee test.log
 
+test-all-android:
+    cd yivi_app && flutter test integration_test/test_all.dart --flavor alpha
+
 # Formats all Dart & Go code
 fmt:
     dart format .

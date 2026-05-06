@@ -502,7 +502,7 @@ void dispatchAuthCallback(
 }) {
   repo.dispatch(
     HandleURLEvent(
-      url: "yivi-app://auth-callback?state=$walletState&code=$code",
+      url: "https://open.yivi.app/auth-callback?state=$walletState&code=$code",
     ),
   );
 }
