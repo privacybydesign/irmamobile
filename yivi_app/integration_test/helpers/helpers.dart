@@ -24,6 +24,7 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attri
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_header.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -378,6 +379,11 @@ Future<void> evaluateCredentialCard(
   bool? isRevoked,
   bool? isExpired,
   bool? isExpiringSoon,
+  /// Overrides the default Reobtain-button expectation. By default, the helper
+  /// expects a Reobtain button when the cred is expired/revoked/expiring. Pass
+  /// `false` for OID4VCI creds (no IssueURL → button never rendered, even when
+  /// in a warning state).
+  bool? expectReobtainButton,
 }) async {
   expect(
     find.descendant(
@@ -422,8 +428,18 @@ Future<void> evaluateCredentialCard(
     );
     expect(cardHeaderFinder, findsOneWidget);
 
-    // Get the text from the header
-    var cardHeaderText = tester.getAllText(cardHeaderFinder);
+    // Get the text from the header, excluding the avatar's fallback initials
+    // text (rendered when no logo image is available).
+    final avatarFinder = find.descendant(
+      of: cardHeaderFinder,
+      matching: find.byType(IrmaAvatar),
+    );
+    final avatarTexts = avatarFinder.evaluate().isEmpty
+        ? const <String>{}
+        : tester.getAllText(avatarFinder).toSet();
+    var cardHeaderText = tester
+        .getAllText(cardHeaderFinder)
+        .where((t) => !avatarTexts.contains(t));
     final credentialStatusTexts = {
       "revoked": "Revoked",
       "expired": "Expired",
@@ -539,9 +555,10 @@ Future<void> evaluateCredentialCard(
 
     if (shouldCheckCardStatus) {
       final isReobtainable =
-          (isExpired ?? false) ||
-          (isRevoked ?? false) ||
-          (isExpiringSoon ?? false);
+          expectReobtainButton ??
+          ((isExpired ?? false) ||
+              (isRevoked ?? false) ||
+              (isExpiringSoon ?? false));
 
       // Find reobtainable button
       final reobtainButtonFinder = find.descendant(

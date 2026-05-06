@@ -11,18 +11,19 @@ import "embedded_issuance_flows/id_card_test.dart" as id_card_test;
 import "embedded_issuance_flows/passport_test.dart" as passport_test;
 import "embedded_issuance_flows/sms_issuance_test.dart" as sms_issuance_test;
 import "enroll_test.dart" as enroll_test;
+import "eudi_disclosure_sessions/eudi_disclosure_sessions_test_all.dart"
+    as eudi_disclosure_sessions;
 import "external_browser_credtypes_test.dart" as external_browser_test;
 import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
-import "openid4vci_authcode_issuance_test.dart"
-    as openid4vci_authcode_issuance_test;
-import "openid4vci_disclosure_test.dart" as openid4vci_disclosure_test;
-import "openid4vci_issuance_test.dart" as openid4vci_issuance_test;
 // import "issue_wizard_test.dart" as issue_wizard_test;
 import "login_test.dart" as login_test;
 import "more_tab_test.dart" as more_tab_test;
 import "new_terms_test.dart" as new_terms;
 import "notifications_test.dart" as notifications_test;
+import "openid4vci_authcode_issuance_test.dart"
+    as openid4vci_authcode_issuance_test;
+import "openid4vci_issuance_test.dart" as openid4vci_issuance_test;
 import "qr_on_pin_screen_test.dart" as qr_on_pin_screen_test;
 import "reorder_cards_test.dart" as reorder_cards_test;
 import "settings_test.dart" as settings_test;
@@ -33,8 +34,8 @@ void main() {
   irma_sdjwt_test.main();
   openid4vci_issuance_test.main();
   openid4vci_authcode_issuance_test.main();
-  openid4vci_disclosure_test.main();
   openid4vp_test.main();
+  eudi_disclosure_sessions.main();
   reorder_cards_test.main();
   new_terms.main();
   search_test.main();
