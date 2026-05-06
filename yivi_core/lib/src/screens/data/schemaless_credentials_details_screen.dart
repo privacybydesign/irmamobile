@@ -15,6 +15,7 @@ import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
 import "../../widgets/progress.dart";
 import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_bottom_sheet.dart";
 
 class SchemalessCredentialsDetailsScreen extends ConsumerStatefulWidget {
   final String categoryName;
@@ -152,16 +153,15 @@ class _CredentialsDetailsScreenState
                     credential: cred,
                     compact: false,
                     headerTrailing: isDeletable || isReobtainable
-                        ? Transform.translate(
-                            offset: Offset(theme.smallSpacing, -10),
-                            child: IconButton(
-                              onPressed: () =>
-                                  _showCredentialOptionsBottomSheet(
-                                    context,
-                                    cred,
-                                  ),
-                              icon: const Icon(Icons.more_horiz_sharp),
+                        ? IconButton(
+                            onPressed: () => _showCredentialOptionsBottomSheet(
+                              context,
+                              cred,
                             ),
+                            icon: const Icon(Icons.more_horiz_sharp),
+                            padding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
+                            constraints: const BoxConstraints(),
                           )
                         : null,
                   ),
@@ -184,9 +184,10 @@ class _CredentialsDetailsScreenState
         .translate(lang, fallback: "")
         .isNotEmpty;
 
-    showModalBottomSheet(
+    showYiviBottomSheet(
       context: context,
-      builder: (context) => IrmaCredentialCardOptionsBottomSheet(
+      titleKey: "credential.options.title",
+      child: IrmaCredentialCardOptionsBottomSheet(
         onDelete: cred.credentialInstanceIds.isEmpty
             ? null
             : () async {
@@ -251,10 +252,11 @@ class _CredentialsDetailsScreenState
     BuildContext context,
     schemaless.Credential credential,
   ) {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = credential.issueUrl.translate(lang, fallback: "");
-    if (url.isNotEmpty) {
-      IrmaRepositoryProvider.of(context).openURL(url);
-    }
+    IrmaRepositoryProvider.of(context).openIssueURL(
+      context,
+      credential.credentialId,
+      credential.issueUrl,
+      ref,
+    );
   }
 }

@@ -19,7 +19,7 @@ Future<void> specificAttributeValuesTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  const defaultTextColor = Color(0xff000000);
+  const labelColor = Color(0xff484747);
   const successColor = Color(0xff00973a);
   const errorColor = Color(0xffbd1919);
 
@@ -79,7 +79,7 @@ Future<void> specificAttributeValuesTest(
   expect(firstCardAttNameFinder, findsOneWidget);
   expect(
     (firstCardAttNameFinder.evaluate().first.widget as Text).style?.color!,
-    defaultTextColor,
+    labelColor,
   );
 
   // The names of the other requested attributes (without a value) should not be visible
@@ -150,7 +150,7 @@ Future<void> specificAttributeValuesTest(
   expect(secondCardAttNameFinder, findsOneWidget);
   expect(
     (secondCardAttNameFinder.evaluate().first.widget as Text).style?.color!,
-    defaultTextColor,
+    labelColor,
   );
 
   // The value of the attribute should be visible and styled green
@@ -209,7 +209,7 @@ Future<void> specificAttributeValuesTest(
     (firstDialogCardAttNameFinder.evaluate().first.widget as Text)
         .style
         ?.color!,
-    defaultTextColor,
+    labelColor,
   );
 
   // The attribute value should match the added credential and should be styled red
@@ -246,7 +246,7 @@ Future<void> specificAttributeValuesTest(
     (secondDialogCardAttNameFinder.evaluate().first.widget as Text)
         .style
         ?.color!,
-    defaultTextColor,
+    labelColor,
   );
 
   // The attribute value should match requested value

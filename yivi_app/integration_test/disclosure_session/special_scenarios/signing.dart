@@ -63,7 +63,7 @@ Future<void> signingTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     style: IrmaCardStyle.normal,
   );
 

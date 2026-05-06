@@ -13,7 +13,6 @@ import "package:yivi_core/src/screens/enrollment/confirm_pin/confirm_pin_screen.
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/enrollment/widgets/enrollment_instruction.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/widgets/irma_bottom_sheet.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 import "package:yivi_core/src/widgets/irma_dialog.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -235,7 +234,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Expect the bottom sheet to be visible
-      final bottomSheetFinder = find.byType(IrmaBottomSheet);
+      final bottomSheetFinder = find.byType(BottomSheet);
       expect(bottomSheetFinder, findsOneWidget);
 
       // Expect the bottom sheet to contain the correct text

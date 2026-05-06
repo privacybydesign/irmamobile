@@ -1,8 +1,11 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../data/irma_repository.dart";
+import "../../models/native_events.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
@@ -12,6 +15,7 @@ import "../../util/language.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
+import "../error/tx_code_lockout_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
@@ -21,8 +25,8 @@ import "widgets/disclosure_permission_introduction_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
-import "widgets/oid4vci_issuance_permission.dart";
-import "widgets/oid4vci_preauth_txcode_dialog.dart";
+import "widgets/oid4vci_authcode_pending_screen.dart";
+import "widgets/oid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
 import "widgets/session_pin_entry_screen.dart";
 import "widgets/session_scaffold.dart";
@@ -71,6 +75,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// Whether the user has acknowledged the issuance-during-disclosure completion.
   bool _issueDuringDisclosureAcknowledged = false;
 
+  /// True after the OID4VCI side effect (auto-grant or browser launch) has
+  /// fired for the current session, so we don't fire it again on rebuilds or
+  /// when the user returns from a cancelled browser flow.
+  bool _autoTriggeredForOpenId4Vci = false;
+
+  /// Tracks the most recent non-null `remainingTxCodeAttempts`. When the
+  /// session subsequently transitions to [SessionStatus.error] with this
+  /// equal to 1, we know the cause is a tx_code lockout and can show the
+  /// dedicated screen instead of the generic error.
+  int? _lastSeenRemainingTxCodeAttempts;
+
   @override
   void initState() {
     super.initState();
@@ -110,6 +125,33 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
       if (_awaitingStateUpdate && next.hasValue) {
         setState(() => _awaitingStateUpdate = false);
+      }
+    });
+
+    // Track the latest non-null remainingTxCodeAttempts so that, if the
+    // session subsequently errors out, we can detect the tx_code-lockout
+    // case and show the dedicated screen.
+    ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
+      final attempts = next.value?.remainingTxCodeAttempts;
+      if (attempts != null) {
+        _lastSeenRemainingTxCodeAttempts = attempts;
+      }
+    });
+
+    // Auto-trigger OID4VCI side effects on first entry into the relevant
+    // states. The flag prevents re-firing on rebuilds (e.g. when the user
+    // returns from a cancelled browser session).
+    ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
+      final session = next.value;
+      if (session == null || _autoTriggeredForOpenId4Vci) return;
+
+      if (session.status == SessionStatus.requestPreAuthorizedCode &&
+          session.transactionCodeParameters == null) {
+        _autoTriggeredForOpenId4Vci = true;
+        _grantPreAuthorizedCode(session, transactionCode: null);
+      } else if (session.status == SessionStatus.requestAuthorizationCode) {
+        _autoTriggeredForOpenId4Vci = true;
+        _repo.openURLinAppBrowser(session.authorizationRequestUrl!);
       }
     });
 
@@ -161,9 +203,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             onPinEntered: (pin) => _submitPin(pin),
             onCancel: _dismissSession,
           ),
-          .error => _buildError(
-            session.error ?? SessionError(errorType: "unknown", info: ""),
-          ),
+          .error =>
+            _lastSeenRemainingTxCodeAttempts == 1
+                ? TxCodeLockoutScreen(onTapClose: _closeSession)
+                : _buildError(
+                    session.error ??
+                        SessionError(errorType: "unknown", info: ""),
+                  ),
           // dismissed and success are handled above
           .dismissed || .success => _buildLoadingScreen(session),
           .requestPreAuthorizedCode ||
@@ -250,18 +296,29 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildOpenIdRequestPermission(SessionState session) {
-    // Convert the credential type info to a format suitable for the credential cards in the issuance permission screen
-    return OpenId4VciIssuancePermission(
-      issuedCredentials: session.offeredCredentialTypes!,
-      onDismiss: _showDismissDialog,
-      onGivePermission: () {
-        // Depending the protocol we're using, perform different action on permission grant
-        if (session.status == SessionStatus.requestPreAuthorizedCode) {
-          _grantPermissionPreAuthorizedCodeFlow(session);
-        } else if (session.status == SessionStatus.requestAuthorizationCode) {
-          _grantPermissionAuthorizationCodeFlow(session);
-        }
-      },
+    if (session.status == SessionStatus.requestPreAuthorizedCode) {
+      if (session.transactionCodeParameters != null) {
+        return OpenId4VciPreAuthTxCodeScreen(
+          sessionId: widget.sessionId,
+          issuedCredentials: session.offeredCredentialTypes!,
+          transactionCodeParameters: session.transactionCodeParameters!,
+          onSubmit: (code) =>
+              _grantPreAuthorizedCode(session, transactionCode: code),
+          onDismiss: _dismissSession,
+        );
+      }
+      // No tx code: auto-grant has already fired in ref.listen above; show a
+      // loading screen until the next state arrives.
+      return _buildLoadingScreen(session);
+    }
+
+    // requestAuthorizationCode: browser auto-opened via ref.listen. This
+    // screen is shown when the user returns to the app without completing.
+    return OpenId4VciAuthCodePendingScreen(
+      issuer: session.offeredCredentialTypes!.first.issuer,
+      onOpenBrowser: () =>
+          _repo.openURLinAppBrowser(session.authorizationRequestUrl!),
+      onDismiss: _dismissSession,
     );
   }
 
@@ -357,16 +414,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return _buildLoadingScreen(session);
     }
 
-    // Issuance sessions always show a success screen.
-    if (session.type == .issuance && session.continueOnSecondDevice) {
-      if (session.continueOnSecondDevice) {
+    // Multi-device session: result lives on the other device, so just confirm
+    // success here.
+    if (session.continueOnSecondDevice) {
+      if (session.type == .issuance) {
         return IssuanceSuccessScreen(onDismiss: (_) => pop());
       }
-      return ArrowBack(type: .issuance);
-    }
-
-    // Disclosure/signature: show a feedback screen with a dismiss button.
-    if (session.continueOnSecondDevice) {
       return DisclosureFeedbackScreen(
         feedbackType: .success,
         isSignatureSession: session.type == .signature,
@@ -375,10 +428,24 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       );
     }
 
-    // First-device disclosure/signature: show arrow back to browser.
-    return ArrowBack(
-      type: session.type == .disclosure ? .disclosure : .signature,
-    );
+    // Same-device session: hand the user back to the calling app. iOS lacks a
+    // programmatic way to do that, so we show ArrowBack telling them to tap
+    // the back link in the status bar. On Android we move the task to the
+    // background so the OS surfaces the previous app automatically.
+    if (Platform.isIOS) {
+      return ArrowBack(
+        type: session.type == .issuance
+            ? .issuance
+            : session.type == .signature
+            ? .signature
+            : .disclosure,
+      );
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
+      pop();
+    });
+    return _buildLoadingScreen(session);
   }
 
   void _closeSession() {
@@ -394,26 +461,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     return SessionErrorScreen(error: error, onTapClose: _closeSession);
   }
 
-  Future<void> _grantPermissionPreAuthorizedCodeFlow(
-    SessionState session,
-  ) async {
-    // If a transaction code is required, request it from the user
-    String? transactionCode;
-    if (session.transactionCodeParameters != null) {
-      transactionCode = await showDialog<String>(
-        context: context,
-        builder: (context) => PreAuthTransactionCodeDialog(
-          transactionCodeParameters: session.transactionCodeParameters!,
-        ),
-      );
-
-      // User cancelled the dialog, so we stop here and show the session screen again
-      if (transactionCode == null) {
-        return;
-      }
-    }
-
-    // Handle the permission
+  void _grantPreAuthorizedCode(
+    SessionState session, {
+    required String? transactionCode,
+  }) {
     setState(() => _awaitingStateUpdate = true);
     _repo.bridgedDispatch(
       SessionUserInteractionEvent.preAuthorizedCodePermission(
@@ -422,9 +473,5 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         proceed: true,
       ),
     );
-  }
-
-  Future<void> _grantPermissionAuthorizationCodeFlow(SessionState state) async {
-    _repo.openURLinAppBrowser(state.authorizationRequestUrl!);
   }
 }

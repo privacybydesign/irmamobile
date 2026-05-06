@@ -48,12 +48,12 @@ Future<void> attributeOrderTest(
     find.byType(YiviCredentialCard),
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {
-      "Street": "Meander",
-      "House number": "501",
-      "City": "Arnhem",
-      "Municipality": "Arnhem",
-    },
+    attributes: [
+      ("Street", "Meander"),
+      ("House number", "501"),
+      ("City", "Arnhem"),
+      ("Municipality", "Arnhem"),
+    ],
     style: IrmaCardStyle.normal,
   );
 

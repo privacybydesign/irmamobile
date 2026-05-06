@@ -49,8 +49,8 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email domain name": "test.com"},
-    attributesCompareTo: {"Email domain name": "test.com"},
+    attributes: [("Email domain name", "test.com")],
+    attributesCompareTo: [("Email domain name", "test.com")],
     style: IrmaCardStyle.highlighted,
   );
 
@@ -82,8 +82,8 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     dialogCardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email domain name": "demo.com"},
-    attributesCompareTo: {"Email domain name": "test.com"},
+    attributes: [("Email domain name", "demo.com")],
+    attributesCompareTo: [("Email domain name", "test.com")],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -91,8 +91,8 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     dialogCardsFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email domain name": "test.com"},
-    attributesCompareTo: {"Email domain name": "test.com"},
+    attributes: [("Email domain name", "test.com")],
+    attributesCompareTo: [("Email domain name", "test.com")],
     style: IrmaCardStyle.normal,
   );
 
@@ -120,8 +120,8 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email domain name": "test.com"},
-    attributesCompareTo: {"Email domain name": "test.com"},
+    attributes: [("Email domain name", "test.com")],
+    attributesCompareTo: [("Email domain name", "test.com")],
     style: IrmaCardStyle.normal,
   );
 
@@ -136,7 +136,7 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: {"Street": "Meander", "House number": "501", "City": "Arnhem"},
+    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
     style: IrmaCardStyle.normal,
   );
 
@@ -145,10 +145,10 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     cardsFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {
-      "Email address": "test@test.com",
-      "Email domain name": "test.com",
-    },
+    attributes: [
+      ("Email address", "test@test.com"),
+      ("Email domain name", "test.com"),
+    ],
     style: IrmaCardStyle.normal,
   );
 

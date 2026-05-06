@@ -132,10 +132,10 @@ void main() {
         credentialCardFinder,
         credentialName: "Demo Email address",
         issuerName: "Demo Privacy by Design Foundation via SIDN",
-        attributes: {
-          "Email address": "test@example.com",
-          "Email domain name": "example.com",
-        },
+        attributes: [
+          ("Email address", "test@example.com"),
+          ("Email domain name", "example.com"),
+        ],
       );
 
       await evaluateIssuedEmailAddressCard();

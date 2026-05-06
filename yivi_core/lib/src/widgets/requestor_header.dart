@@ -8,6 +8,7 @@ import "irma_card.dart";
 import "irma_icon_indicator.dart";
 import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
+import "yivi_bottom_sheet.dart";
 
 _buildRequestorAvatar({
   required String? title,
@@ -29,12 +30,12 @@ class RequestorHeader extends StatelessWidget {
 
   const RequestorHeader({this.requestor, this.isVerified});
 
-  _showCredentialOptionsBottomSheet(BuildContext context) async {
-    return showModalBottomSheet<void>(
-      enableDrag: true,
-      scrollControlDisabledMaxHeightRatio: 0.8,
+  _showCredentialOptionsBottomSheet(BuildContext context) {
+    return showYiviBottomSheet(
       context: context,
-      builder: (context) => RequestorVerificationExplanationBottomSheet(),
+      titleKey:
+          "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
+      child: RequestorVerificationExplanationBottomSheet(),
     );
   }
 

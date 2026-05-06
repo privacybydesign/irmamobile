@@ -420,6 +420,32 @@
     "success_feedback": {
       "header": "Erfolg",
       "text": "Die Daten wurden erfolgreich zu Yivi hinzugefügt"
+    },
+    "pre-authorized_code": {
+      "tx_code_screen": {
+        "title": "Daten hinzufügen",
+        "header": "Transaktionscode eingeben",
+        "body": "{issuer} hat Ihnen einen Transaktionscode gesendet. Geben Sie ihn unten ein, um {credential} zu erhalten.",
+        "body_multiple": "{issuer} hat Ihnen einen Transaktionscode gesendet. Geben Sie ihn unten ein, um {count} Daten zu erhalten.",
+        "continue": "Weiter",
+        "cancel": "Abbrechen",
+        "invalid_code_error-0": "Falscher Code. Noch {count} Versuche übrig.",
+        "invalid_code_error-1": "Falscher Code. Noch {count} Versuch übrig.",
+        "invalid_code_error-2": "Falscher Code. Noch {count} Versuche übrig."
+      },
+      "tx_code_lockout": {
+        "title": "Zu viele falsche Codes",
+        "body": "Sie haben den Transaktionscode zu oft falsch eingegeben. Bitte starten Sie den Vorgang neu, um einen neuen Code zu erhalten."
+      }
+    },
+    "authorization_code": {
+      "pending": {
+        "title": "Daten hinzufügen",
+        "header": "Im Browser fortfahren",
+        "body": "Wir haben den Browser geöffnet, damit Sie die Schritte bei {issuer} abschließen können. Wenn Sie fertig sind, kehren Sie automatisch hierher zurück.",
+        "open_browser": "Browser erneut öffnen",
+        "cancel": "Abbrechen"
+      }
     }
   },
   "email_issuance": {

@@ -50,8 +50,8 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email domain name": "sidn.nl"},
-    attributesCompareTo: {"Email domain name": "sidn.nl"},
+    attributes: [("Email domain name", "sidn.nl")],
+    attributesCompareTo: [("Email domain name", "sidn.nl")],
     style: IrmaCardStyle.highlighted,
   );
 
@@ -83,8 +83,8 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     dialogCardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email domain name": "demo.com"},
-    attributesCompareTo: {"Email domain name": "sidn.nl"},
+    attributes: [("Email domain name", "demo.com")],
+    attributesCompareTo: [("Email domain name", "sidn.nl")],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -92,8 +92,8 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     dialogCardsFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email domain name": "sidn.nl"},
-    attributesCompareTo: {"Email domain name": "sidn.nl"},
+    attributes: [("Email domain name", "sidn.nl")],
+    attributesCompareTo: [("Email domain name", "sidn.nl")],
     style: IrmaCardStyle.normal,
   );
 
@@ -121,8 +121,8 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email domain name": "sidn.nl"},
-    attributesCompareTo: {"Email domain name": "sidn.nl"},
+    attributes: [("Email domain name", "sidn.nl")],
+    attributesCompareTo: [("Email domain name", "sidn.nl")],
     style: IrmaCardStyle.normal,
   );
 
@@ -136,10 +136,10 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     cardsFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {
-      "Email address": "test@sidn.nl",
-      "Email domain name": "sidn.nl",
-    },
+    attributes: [
+      ("Email address", "test@sidn.nl"),
+      ("Email domain name", "sidn.nl"),
+    ],
     style: IrmaCardStyle.normal,
   );
 
