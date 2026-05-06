@@ -69,4 +69,7 @@ Future<void> declineDisclosureTest(
 
   // Back at home.
   expect(find.byType(HomeScreen), findsOneWidget);
+
+  // No disclosure log was written; only the prior issuance entry remains.
+  await verifyActivityLogCount(tester, 1);
 }

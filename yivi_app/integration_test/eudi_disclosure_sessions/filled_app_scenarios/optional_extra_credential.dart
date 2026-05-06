@@ -163,4 +163,15 @@ Future<void> optionalExtraCredentialTest(
   expect(addOptionalDataButton, findsOneWidget);
 
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Phone Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [("Phone Number", "0612345678")],
+      ),
+    ],
+  );
 }

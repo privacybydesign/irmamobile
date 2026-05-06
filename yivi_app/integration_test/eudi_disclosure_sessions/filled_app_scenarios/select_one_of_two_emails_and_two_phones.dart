@@ -131,4 +131,15 @@ Future<void> selectOneOfTwoEmailsAndTwoPhonesTest(
   // Confirm choice / go back.
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Phone Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [("Phone Number", "0687654321")],
+      ),
+    ],
+  );
 }

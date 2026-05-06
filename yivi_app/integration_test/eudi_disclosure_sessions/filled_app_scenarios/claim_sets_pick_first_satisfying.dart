@@ -115,4 +115,15 @@ Future<void> claimSetsPickFirstSatisfyingTest(
   // Confirm choice / go back.
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Email Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [("Email", "one@example.com")],
+      ),
+    ],
+  );
 }

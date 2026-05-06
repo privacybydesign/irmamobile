@@ -71,4 +71,6 @@ Future<void> multipleCredsAllMissingTest(
   // dismiss flow is async; see cred_missing.dart for the full explanation).
   await tester.waitUntilDisappeared(find.byType(SessionScreen));
   expect(find.byType(HomeScreen), findsOneWidget);
+
+  await verifyEmptyActivityLog(tester);
 }

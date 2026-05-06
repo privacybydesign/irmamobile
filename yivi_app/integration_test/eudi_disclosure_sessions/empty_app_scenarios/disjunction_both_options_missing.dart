@@ -68,4 +68,6 @@ Future<void> disjunctionBothOptionsMissingTest(
 
   await tester.waitUntilDisappeared(find.byType(SessionScreen));
   expect(find.byType(HomeScreen), findsOneWidget);
+
+  await verifyEmptyActivityLog(tester);
 }

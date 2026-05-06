@@ -59,4 +59,15 @@ Future<void> singleCredEmailOnlyTest(
   expect(find.text("example.com"), findsNothing);
 
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Email Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [("Email", "test@example.com")],
+      ),
+    ],
+  );
 }

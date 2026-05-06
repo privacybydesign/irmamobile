@@ -75,4 +75,18 @@ Future<void> valueOptionsOnePresentOneNotTest(
   expect(find.text("Change choice"), findsNothing);
 
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Email Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [
+          ("Email", "two@example.com"),
+          ("Domain", "example.com"),
+        ],
+      ),
+    ],
+  );
 }

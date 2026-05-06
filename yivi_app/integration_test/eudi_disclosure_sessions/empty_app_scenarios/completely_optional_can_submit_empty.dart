@@ -59,4 +59,9 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
 
   // Share button is enabled; submit empty disclosure and complete.
   await shareAndFinishEudiDisclosure(tester);
+
+  // The wallet does not write an activity entry for an empty OID4VCI
+  // disclosure (verified empirically against staging veramo) — confirm the
+  // log is still empty.
+  await verifyEmptyActivityLog(tester);
 }

@@ -119,4 +119,15 @@ Future<void> discloseWithChoiceDisjunctionTest(
   await tester.tapAndSettle(cardsFinder.at(1));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Phone Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [("Phone Number", "0612345678")],
+      ),
+    ],
+  );
 }

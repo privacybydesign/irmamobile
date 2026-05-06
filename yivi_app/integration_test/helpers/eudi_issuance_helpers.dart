@@ -3,12 +3,16 @@ import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
+import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../disclosure_session/disclosure_helpers.dart";
 import "../irma_binding.dart";
 import "../util.dart";
+import "helpers.dart";
 
 const veramoIssuerBaseUrl =
     "https://veramo-issuer.openid4vc.staging.yivi.app/test-issuer";
@@ -196,6 +200,76 @@ Future<void> shareAndFinishEudiDisclosure(WidgetTester tester) async {
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
+}
+
+/// Opens the activity tab, taps the most recent [ActivityCard], and runs
+/// [evaluateCredentialCard] against each credential card on the resulting
+/// [ActivityDetailsScreen].
+///
+/// `expectedCredentials` lists one spec per card in the order they're
+/// rendered. Pass an empty list for empty disclosures (just verifies a log
+/// entry exists and is openable).
+Future<void> verifyMostRecentActivityLog(
+  WidgetTester tester, {
+  required List<
+    ({
+      String credentialName,
+      String issuerName,
+      List<AttrRow> attributes,
+    })
+  >
+  expectedCredentials,
+}) async {
+  await tester.tap(
+    find.byKey(const Key("nav_button_activity"), skipOffstage: false),
+  );
+  await tester.pump(const Duration(seconds: 1));
+  await tester.tapAndSettle(
+    find.byType(ActivityCard, skipOffstage: false).first,
+  );
+  expect(find.byType(ActivityDetailsScreen), findsOneWidget);
+
+  if (expectedCredentials.isEmpty) {
+    return;
+  }
+
+  final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
+  expect(cardsFinder, findsNWidgets(expectedCredentials.length));
+
+  for (var i = 0; i < expectedCredentials.length; i++) {
+    final spec = expectedCredentials[i];
+    await evaluateCredentialCard(
+      tester,
+      cardsFinder.at(i),
+      credentialName: spec.credentialName,
+      issuerName: spec.issuerName,
+      attributes: spec.attributes,
+    );
+  }
+}
+
+/// Taps the activity tab and asserts no log entries exist (the empty-state
+/// placeholder is shown).
+Future<void> verifyEmptyActivityLog(WidgetTester tester) async {
+  await tester.tap(
+    find.byKey(const Key("nav_button_activity"), skipOffstage: false),
+  );
+  await tester.pump(const Duration(seconds: 1));
+  expect(find.text("There are no logged activities yet"), findsOneWidget);
+  expect(find.byType(ActivityCard), findsNothing);
+}
+
+/// Taps the activity tab and asserts that exactly [expected] log entries
+/// exist (`ActivityCard`s on the activity tab).
+Future<void> verifyActivityLogCount(
+  WidgetTester tester,
+  int expected,
+) async {
+  await tester.tap(
+    find.byKey(const Key("nav_button_activity"), skipOffstage: false),
+  );
+  await tester.pump(const Duration(seconds: 1));
+  expect(find.byType(ActivityCard, skipOffstage: false), findsNWidgets(expected));
 }
 
 /// Posts a DCQL query to the veramo-verifier and returns the wallet-facing

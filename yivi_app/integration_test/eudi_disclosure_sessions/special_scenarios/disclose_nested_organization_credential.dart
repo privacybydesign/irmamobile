@@ -67,4 +67,18 @@ Future<void> discloseNestedOrganizationCredentialTest(
   expect(find.text("Architecture"), findsNothing);
 
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Organization Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [
+          ("University Name", "TU Delft"),
+          ("Founded", "1842"),
+        ],
+      ),
+    ],
+  );
 }

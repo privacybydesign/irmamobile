@@ -59,4 +59,18 @@ Future<void> singleCredEmailAndDomainTest(
   );
 
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Email Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [
+          ("Email", "test@example.com"),
+          ("Domain", "example.com"),
+        ],
+      ),
+    ],
+  );
 }

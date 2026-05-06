@@ -142,4 +142,23 @@ Future<void> twoCredentialsTwoChoicesEachTest(
 
   await tester.tapAndSettle(find.byType(YiviBackButton));
   await shareAndFinishEudiDisclosure(tester);
+
+  await verifyMostRecentActivityLog(
+    tester,
+    expectedCredentials: [
+      (
+        credentialName: "Email Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [
+          ("Email", "one@example.com"),
+          ("Domain", "example.com"),
+        ],
+      ),
+      (
+        credentialName: "Phone Credential (SD-JWT)",
+        issuerName: "Test Issuer",
+        attributes: [("Phone Number", "0612345678")],
+      ),
+    ],
+  );
 }

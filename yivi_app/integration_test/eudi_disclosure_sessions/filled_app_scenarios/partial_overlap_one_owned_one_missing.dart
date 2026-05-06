@@ -95,4 +95,7 @@ Future<void> partialOverlapOneOwnedOneMissingTest(
   // Wait for the SessionScreen to unmount before ending the test.
   await tester.waitUntilDisappeared(find.byType(SessionScreen));
   expect(find.byType(HomeScreen), findsOneWidget);
+
+  // No disclosure log was written; only the prior issuance entry remains.
+  await verifyActivityLogCount(tester, 1);
 }

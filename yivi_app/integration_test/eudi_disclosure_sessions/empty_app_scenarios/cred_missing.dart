@@ -86,4 +86,6 @@ Future<void> credMissingTest(
   // the next test's setUp doesn't race against this widget tree's dispose.
   await tester.waitUntilDisappeared(find.byType(SessionScreen));
   expect(find.byType(HomeScreen), findsOneWidget);
+
+  await verifyEmptyActivityLog(tester);
 }

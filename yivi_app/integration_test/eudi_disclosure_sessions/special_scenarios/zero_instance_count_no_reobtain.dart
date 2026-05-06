@@ -77,4 +77,12 @@ Future<void> zeroInstanceCountNoReobtainTest(
       ("Domain", "example.com"),
     ],
   );
+
+  // Pop the credential-details sub-route so the bottom nav bar is visible
+  // again — `verifyActivityLogCount` taps `nav_button_activity` which only
+  // renders inside the home scaffold.
+  await navigateBack(tester);
+
+  // 1 issuance + 2 disclosures = 3 activity log entries.
+  await verifyActivityLogCount(tester, 3);
 }
