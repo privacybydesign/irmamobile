@@ -10,7 +10,6 @@ import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/translated_text.dart";
 import "session_scaffold.dart";
 
 class OpenId4VciPreAuthTxCodeScreen extends ConsumerStatefulWidget {
@@ -63,18 +62,7 @@ class _OpenId4VciPreAuthTxCodeScreenState
   List<TextInputFormatter> get _inputFormatters =>
       _isNumeric ? [FilteringTextInputFormatter.digitsOnly] : const [];
 
-  String _bodyKey() {
-    return widget.issuedCredentials.length > 1
-        ? "issuance.pre-authorized_code.tx_code_screen.body_multiple"
-        : "issuance.pre-authorized_code.tx_code_screen.body";
-  }
-
-  Widget _buildBody(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final baseStyle = theme.textTheme.bodyMedium;
-    final boldStyle = baseStyle?.copyWith(fontWeight: FontWeight.bold);
-
-    final template = FlutterI18n.translate(context, _bodyKey());
+  String _getTextReplacements(String template, BuildContext context) {
     final issuer = getTranslation(
       context,
       widget.issuedCredentials.first.issuer.name,
@@ -95,39 +83,11 @@ class _OpenId4VciPreAuthTxCodeScreenState
       );
     }
 
-    return Text.rich(
-      TextSpan(
-        style: baseStyle,
-        children: _buildSpans(template, replacements, boldStyle),
-      ),
-    );
-  }
+    for (final entry in replacements.entries) {
+      template = template.replaceAll(entry.key, entry.value.text);
+    }
 
-  List<InlineSpan> _buildSpans(
-    String template,
-    Map<String, ({String text, bool bold})> replacements,
-    TextStyle? boldStyle,
-  ) {
-    final pattern = RegExp(replacements.keys.map(RegExp.escape).join("|"));
-    final spans = <InlineSpan>[];
-    var cursor = 0;
-    for (final match in pattern.allMatches(template)) {
-      if (match.start > cursor) {
-        spans.add(TextSpan(text: template.substring(cursor, match.start)));
-      }
-      final replacement = replacements[match[0]]!;
-      spans.add(
-        TextSpan(
-          text: replacement.text,
-          style: replacement.bold ? boldStyle : null,
-        ),
-      );
-      cursor = match.end;
-    }
-    if (cursor < template.length) {
-      spans.add(TextSpan(text: template.substring(cursor)));
-    }
-    return spans;
+    return template;
   }
 
   @override
@@ -144,6 +104,18 @@ class _OpenId4VciPreAuthTxCodeScreenState
         _focusNode.requestFocus();
       }
     });
+
+    final headerTemplate = FlutterI18n.translate(
+          context,
+          "issuance.pre-authorized_code.tx_code_screen.header",
+        );
+    final bodyTemplate = widget.transactionCodeParameters.description ??
+        FlutterI18n.translate(
+          context,
+          widget.issuedCredentials.length > 1 
+              ? "issuance.pre-authorized_code.tx_code_screen.body_multiple"
+              : "issuance.pre-authorized_code.tx_code_screen.body",
+        );
 
     final theme = IrmaTheme.of(context);
     final length = widget.transactionCodeParameters.length;
@@ -165,15 +137,20 @@ class _OpenId4VciPreAuthTxCodeScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: theme.defaultSpacing),
-                TranslatedText(
-                  "issuance.pre-authorized_code.tx_code_screen.header",
-                  isHeader: true,
-                  style: theme.textTheme.bodyLarge!.copyWith(
-                    color: theme.neutralExtraDark,
+                Semantics(
+                  header: true,
+                  child: Text(
+                    _getTextReplacements(headerTemplate, context),
+                    style: theme.textTheme.bodyLarge!.copyWith(
+                      color: theme.neutralExtraDark,
+                    ),
                   ),
                 ),
                 SizedBox(height: theme.defaultSpacing),
-                _buildBody(context),
+                Text(
+                  _getTextReplacements(bodyTemplate, context),
+                  style: theme.textTheme.bodyMedium,
+                ),
                 SizedBox(height: theme.largeSpacing),
                 _buildInput(context, length, codeInvalid),
                 if (codeInvalid)

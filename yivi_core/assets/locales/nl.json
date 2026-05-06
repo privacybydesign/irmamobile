@@ -424,7 +424,7 @@
     "pre-authorized_code": {
       "tx_code_screen": {
         "title": "Gegevens toevoegen",
-        "header": "Voer de transactiecode in",
+        "header": "{issuer} vraagt een transactiecode",
         "body": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {credential} te ontvangen.",
         "body_multiple": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {count} gegevens te ontvangen.",
         "continue": "Doorgaan",
