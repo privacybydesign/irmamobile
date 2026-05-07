@@ -492,7 +492,7 @@ Future<String> getAuthCodeFromMockAS({
   return code;
 }
 
-/// Mimics the OS delivering the `yivi-app://auth-callback` deep link after the
+/// Mimics the OS delivering the `https://open.yivi.app/-/auth-callback` deep link after the
 /// user returns from the browser. The repository looks up the in-flight session
 /// by `walletState` and dispatches a [SessionUserInteractionEvent.authCallback].
 void dispatchAuthCallback(
@@ -502,7 +502,7 @@ void dispatchAuthCallback(
 }) {
   repo.dispatch(
     HandleURLEvent(
-      url: "https://open.yivi.app/auth-callback?state=$walletState&code=$code",
+      url: "https://open.yivi.app/-/auth-callback?state=$walletState&code=$code",
     ),
   );
 }

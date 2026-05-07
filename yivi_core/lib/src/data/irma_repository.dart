@@ -210,7 +210,7 @@ class IrmaRepository {
     } else if (event is HandleURLEvent) {
       try {
         // --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
-        if (event.url.startsWith("https://open.yivi.app/auth-callback")) {
+        if (event.url.startsWith("https://open.yivi.app/-/auth-callback")) {
           final uri = Uri.parse(event.url);
           final state = uri.queryParameters["state"];
           if (state == null) {
