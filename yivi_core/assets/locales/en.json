@@ -424,7 +424,7 @@
     "pre-authorized_code": {
       "tx_code_screen": {
         "title": "Add data",
-        "header": "Enter the transaction code",
+        "header": "{issuer} requests a transaction code",
         "body": "{issuer} sent you a transaction code. Enter it below to receive {credential}.",
         "body_multiple": "{issuer} sent you a transaction code. Enter it below to receive {count} credentials.",
         "continue": "Continue",
