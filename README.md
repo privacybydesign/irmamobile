@@ -93,6 +93,9 @@ attaching data to signed statements. These data can be relevant properties, such
 
 * You can use `flutter run -t` to run different app configurations, for example run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.
 
+* On Android emulators, App Links do not work by default, as they are verified against the signature in the assetlinks.json on `https://open.yivi.app`, which does not match on custom builds.
+In order to make this work on emulators, you need to run the app using `flutter run` once, then close the app and go to `System settings`. In the `Apps` section, find the Yivi app and go to `Open by default`. In this screen, you will see `0 verified links`. Click `Add link` and select all available links (for now, `open.yivi.app` and `irma.app`). Also, make sure `In the app` is selected to open these domains in the app, rather than a browser.
+
 ## Using `just`
 Most important things inside of this project can be controlled using [`just`](https://github.com/casey/just).
 To see an overview of all available commands and what they do, run:
