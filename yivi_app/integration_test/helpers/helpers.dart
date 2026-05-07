@@ -13,6 +13,7 @@ import "package:yivi_core/app.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
@@ -33,6 +34,7 @@ import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
 import "../util.dart";
+import "fake_rooted_device_detector.dart";
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlockAndWaitForHome(WidgetTester tester) async {
@@ -56,15 +58,19 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
 
 Future<void> pumpYiviApp(
   WidgetTester tester,
-  IrmaRepository repo, [
+  IrmaRepository repo, {
   Locale? defaultLanguage,
   List<Override>? providerOverrides,
-]) async {
+  bool isDeviceRooted = false,
+}) async {
   await tester.pumpWidgetAndSettle(
     ProviderScope(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
+        rootedDeviceDetectorProvider.overrideWithValue(
+          FakeRootedDeviceDetector(rooted: isDeviceRooted),
+        ),
         ocrProcessorProvider.overrideWithValue(GoogleMLKitOcrProcessor()),
         if (providerOverrides != null) ...providerOverrides,
       ],
@@ -86,11 +92,18 @@ Future<void> pumpYiviApp(
 // Pump a new app and unlock it
 Future<void> pumpAndUnlockApp(
   WidgetTester tester,
-  IrmaRepository repo, [
-  Locale? locale,
+  IrmaRepository repo, {
+  Locale? defaultLanguage,
   List<Override>? providerOverrides,
-]) async {
-  await pumpYiviApp(tester, repo, locale, providerOverrides);
+  bool isDeviceRooted = false,
+}) async {
+  await pumpYiviApp(
+    tester,
+    repo,
+    defaultLanguage: defaultLanguage,
+    providerOverrides: providerOverrides,
+    isDeviceRooted: isDeviceRooted,
+  );
   await unlockAndWaitForHome(tester);
 }
 
@@ -775,8 +788,7 @@ Future<void> openAddCredentialDetailsScreen(
   await pumpAndUnlockApp(
     tester,
     binding.repository,
-    null,
-    overrides.isEmpty ? null : overrides,
+    providerOverrides: overrides.isEmpty ? null : overrides,
   );
 
   final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);

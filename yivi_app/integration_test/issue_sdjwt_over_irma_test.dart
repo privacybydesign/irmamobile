@@ -129,7 +129,11 @@ Future<void> testIssueEmailWithSdJwt(
   IntegrationTestIrmaBinding irmaBinding,
   Locale locale,
 ) async {
-  await pumpAndUnlockApp(tester, irmaBinding.repository, locale);
+  await pumpAndUnlockApp(
+    tester,
+    irmaBinding.repository,
+    defaultLanguage: locale,
+  );
 
   const credentialCount = 50;
 

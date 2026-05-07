@@ -139,13 +139,18 @@ Future<void> testDisclosePassportOpensPassportScanner(
   );
   final fakeIssuer = FakePassportIssuer();
 
-  await pumpAndUnlockApp(tester, irmaBinding.repository, Locale("en"), [
-    passportReaderProvider.overrideWith2((mrz) {
-      fakeReader.setMrz(mrz);
-      return fakeReader;
-    }),
-    passportIssuerProvider.overrideWithValue(fakeIssuer),
-  ]);
+  await pumpAndUnlockApp(
+    tester,
+    irmaBinding.repository,
+    defaultLanguage: Locale("en"),
+    providerOverrides: [
+      passportReaderProvider.overrideWith2((mrz) {
+        fakeReader.setMrz(mrz);
+        return fakeReader;
+      }),
+      passportIssuerProvider.overrideWithValue(fakeIssuer),
+    ],
+  );
 
   final dcql = {
     "credentials": [

@@ -14,6 +14,7 @@ import "src/models/mrz.dart";
 import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
 import "src/providers/irma_repository_provider.dart";
+import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
 import "src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "src/screens/add_data/schemaless_add_data_screen.dart";
@@ -44,6 +45,7 @@ import "src/screens/pin/pin_screen.dart";
 import "src/screens/required_update/required_update_screen.dart";
 import "src/screens/reset_pin/reset_pin_screen.dart";
 import "src/screens/rooted_warning/repository.dart";
+import "src/screens/rooted_warning/rooted_device_detector.dart";
 import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/scanner/scanner_screen.dart";
 import "src/screens/session/session_screen.dart";
@@ -59,7 +61,8 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
-  final redirectionTriggers = RedirectionListenable(repo);
+  final rootedDeviceDetector = ref.read(rootedDeviceDetectorProvider);
+  final redirectionTriggers = RedirectionListenable(repo, rootedDeviceDetector);
 
   const whiteListedOnLocked = {
     "/reset_pin",
@@ -272,6 +275,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             onAcceptRiskButtonPressed: () {
               DetectRootedDeviceIrmaPrefsRepository(
                 preferences: repo.preferences,
+                detector: rootedDeviceDetector,
               ).setHasAcceptedRootedDeviceRisk();
             },
           );
@@ -669,11 +673,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
     ],
     redirect: (context, state) {
-      if (redirectionTriggers.value.enrollmentStatus == .unenrolled) {
-        return "/enrollment";
-      }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
         return "/rooted_warning";
+      }
+      if (redirectionTriggers.value.enrollmentStatus == .unenrolled) {
+        return "/enrollment";
       }
       if (redirectionTriggers.value.showNameChangedMessage) {
         return "/name_changed";
@@ -712,9 +716,9 @@ class RouteNotFoundScreen extends StatelessWidget {
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
   late final Stream<RedirectionTriggers> _streamSubscription;
 
-  RedirectionListenable(IrmaRepository repo)
+  RedirectionListenable(IrmaRepository repo, RootedDeviceDetector detector)
     : super(RedirectionTriggers.withDefaults()) {
-    final warningStream = _displayDeviceIsRootedWarning(repo);
+    final warningStream = _displayDeviceIsRootedWarning(repo, detector);
     final lockedStream = repo.getLocked();
     final infoStream = repo
         .getVersionInformation()
@@ -824,9 +828,13 @@ class RedirectionTriggers {
   );
 }
 
-Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
+Stream<bool> _displayDeviceIsRootedWarning(
+  IrmaRepository irmaRepo,
+  RootedDeviceDetector detector,
+) {
   final repo = DetectRootedDeviceIrmaPrefsRepository(
     preferences: irmaRepo.preferences,
+    detector: detector,
   );
   final streamController = StreamController<bool>();
   repo.isDeviceRooted().then((isRooted) {

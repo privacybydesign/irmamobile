@@ -106,9 +106,6 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     // Enable screenshots to make sure screen recordings can be made.
     await _preferences!.setScreenshotsEnabled(true);
 
-    // Prevent rooted warning to be shown on simulators.
-    await _preferences!.setAcceptedRootedRisk(true);
-
     // Always set ShowNameChangedNotification to false when testing
     await _preferences!.setShowNameChangedNotification(false);
 
@@ -127,8 +124,6 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
         (event) => event is EnrollmentSuccessEvent,
       );
     }
-
-    await _preferences!.setAcceptedRootedRisk(true);
 
     _repository = IrmaRepository(
       client: _bridge,

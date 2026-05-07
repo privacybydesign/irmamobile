@@ -26,6 +26,7 @@ import "openid4vci_authcode_issuance_test.dart"
 import "openid4vci_issuance_test.dart" as openid4vci_issuance_test;
 import "qr_on_pin_screen_test.dart" as qr_on_pin_screen_test;
 import "reorder_cards_test.dart" as reorder_cards_test;
+import "rooted_warning_test.dart" as rooted_warning_test;
 import "settings_test.dart" as settings_test;
 
 /// Wrapper to execute all tests at once.
@@ -40,6 +41,7 @@ void main() {
   new_terms.main();
   search_test.main();
   qr_on_pin_screen_test.main();
+  rooted_warning_test.main();
   enroll_test.main();
   login_test.main();
   settings_test.main();

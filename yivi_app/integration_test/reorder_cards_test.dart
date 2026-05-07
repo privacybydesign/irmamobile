@@ -155,7 +155,11 @@ Future<void> pumpFilledAppOnDataPage(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  await pumpAndUnlockApp(tester, irmaBinding.repository, Locale("en"));
+  await pumpAndUnlockApp(
+    tester,
+    irmaBinding.repository,
+    defaultLanguage: Locale("en"),
+  );
   await fillApp(tester, irmaBinding);
   await tester.tapAndSettle(find.byKey(const Key("ok_button")));
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));

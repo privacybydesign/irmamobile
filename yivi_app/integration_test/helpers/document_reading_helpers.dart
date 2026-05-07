@@ -23,13 +23,17 @@ Future<void> navigateToDrivingLicenceNfcReadingScreen(
   FakeDrivingLicenceReader reader,
   FakePassportIssuer issuer,
 ) async {
-  await pumpAndUnlockApp(tester, binding.repository, null, [
-    drivingLicenceReaderProvider.overrideWith2((mrz) {
-      reader.setMrz(mrz);
-      return reader;
-    }),
-    passportIssuerProvider.overrideWithValue(issuer),
-  ]);
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    providerOverrides: [
+      drivingLicenceReaderProvider.overrideWith2((mrz) {
+        reader.setMrz(mrz);
+        return reader;
+      }),
+      passportIssuerProvider.overrideWithValue(issuer),
+    ],
+  );
 
   final homeContext = tester.element(find.byType(HomeScreen));
   homeContext.pushDrivingLicenceManualEntryScreen();
@@ -54,13 +58,17 @@ Future<void> navigateToIdCardNfcReadingScreen(
   FakePassportReader reader,
   FakePassportIssuer issuer,
 ) async {
-  await pumpAndUnlockApp(tester, binding.repository, null, [
-    idCardReaderProvider.overrideWith2((mrz) {
-      reader.setMrz(mrz);
-      return reader;
-    }),
-    passportIssuerProvider.overrideWithValue(issuer),
-  ]);
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    providerOverrides: [
+      idCardReaderProvider.overrideWith2((mrz) {
+        reader.setMrz(mrz);
+        return reader;
+      }),
+      passportIssuerProvider.overrideWithValue(issuer),
+    ],
+  );
 
   final homeContext = tester.element(find.byType(HomeScreen));
   homeContext.pushIdCardManualEntryScreen();
@@ -92,13 +100,17 @@ Future<void> navigateToPassportNfcReadingScreen(
   FakePassportReader reader,
   FakePassportIssuer issuer,
 ) async {
-  await pumpAndUnlockApp(tester, binding.repository, null, [
-    passportReaderProvider.overrideWith2((mrz) {
-      reader.setMrz(mrz);
-      return reader;
-    }),
-    passportIssuerProvider.overrideWithValue(issuer),
-  ]);
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    providerOverrides: [
+      passportReaderProvider.overrideWith2((mrz) {
+        reader.setMrz(mrz);
+        return reader;
+      }),
+      passportIssuerProvider.overrideWithValue(issuer),
+    ],
+  );
 
   final homeContext = tester.element(find.byType(HomeScreen));
   homeContext.pushPassportManualEntryScreen();

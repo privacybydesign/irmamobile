@@ -1,8 +1,5 @@
-import "dart:io";
-
-import "package:jailbreak_root_detection/jailbreak_root_detection.dart";
-
 import "../../data/irma_preferences.dart";
+import "rooted_device_detector.dart";
 
 abstract class DetectRootedDeviceRepository {
   Stream<bool> hasAcceptedRootedDeviceRisk();
@@ -13,9 +10,13 @@ abstract class DetectRootedDeviceRepository {
 class DetectRootedDeviceIrmaPrefsRepository
     implements DetectRootedDeviceRepository {
   final IrmaPreferences _preferences;
+  final RootedDeviceDetector _detector;
 
-  DetectRootedDeviceIrmaPrefsRepository({required IrmaPreferences preferences})
-    : _preferences = preferences;
+  DetectRootedDeviceIrmaPrefsRepository({
+    required IrmaPreferences preferences,
+    required RootedDeviceDetector detector,
+  }) : _preferences = preferences,
+       _detector = detector;
 
   @override
   Stream<bool> hasAcceptedRootedDeviceRisk() {
@@ -28,14 +29,5 @@ class DetectRootedDeviceIrmaPrefsRepository
   }
 
   @override
-  Future<bool> isDeviceRooted() async {
-    final isJailBroken = await JailbreakRootDetection.instance.isJailBroken;
-
-    // On ios we add the check for simulators, so the warning doesn't show in simulators
-    if (Platform.isIOS) {
-      return isJailBroken && await JailbreakRootDetection.instance.isRealDevice;
-    }
-
-    return isJailBroken;
-  }
+  Future<bool> isDeviceRooted() => _detector.isDeviceRooted();
 }

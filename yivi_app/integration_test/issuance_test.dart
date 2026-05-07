@@ -27,7 +27,11 @@ void main() {
       WidgetTester tester,
       Locale locale,
     ) async {
-      await pumpAndUnlockApp(tester, irmaBinding.repository, locale);
+      await pumpAndUnlockApp(
+        tester,
+        irmaBinding.repository,
+        defaultLanguage: locale,
+      );
 
       await issueMunicipalityPersonalData(tester, irmaBinding, locale: locale);
       await tester.pumpAndSettle();
