@@ -33,8 +33,14 @@ Future<void> discloseNestedOrganizationCredentialTest(
           "vct_values": [veramoOrganizationCredentialVct],
         },
         "claims": [
-          {"id": "n", "path": ["name"]},
-          {"id": "f", "path": ["founded"]},
+          {
+            "id": "n",
+            "path": ["name"],
+          },
+          {
+            "id": "f",
+            "path": ["founded"],
+          },
         ],
       },
     ],
@@ -54,10 +60,7 @@ Future<void> discloseNestedOrganizationCredentialTest(
     cardsFinder,
     issuerName: "Test Issuer",
     credentialName: "Organization Credential (SD-JWT)",
-    attributes: [
-      ("University Name", "TU Delft"),
-      ("Founded", "1842"),
-    ],
+    attributes: [("University Name", "TU Delft"), ("Founded", "1842")],
   );
 
   // The deeper structure must NOT leak into the disclosure card — selective
@@ -74,10 +77,7 @@ Future<void> discloseNestedOrganizationCredentialTest(
       (
         credentialName: "Organization Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [
-          ("University Name", "TU Delft"),
-          ("Founded", "1842"),
-        ],
+        attributes: [("University Name", "TU Delft"), ("Founded", "1842")],
       ),
     ],
   );

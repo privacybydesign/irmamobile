@@ -34,7 +34,9 @@ Future<void> declineDisclosureTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"path": ["email"]},
+          {
+            "path": ["email"],
+          },
         ],
       },
     ],

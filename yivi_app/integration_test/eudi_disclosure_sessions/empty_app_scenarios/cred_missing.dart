@@ -41,7 +41,10 @@ Future<void> credMissingTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"id": "em", "path": ["email"]},
+          {
+            "id": "em",
+            "path": ["email"],
+          },
         ],
       },
     ],

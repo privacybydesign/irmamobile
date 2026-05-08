@@ -19,21 +19,9 @@ Future<void> optionalExtraCredentialTest(
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    email: "one@example.com",
-  );
-  await issueEmailViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    email: "two@example.com",
-  );
-  await issuePhoneViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    phoneNumber: "0612345678",
-  );
+  await issueEmailViaOpenID4VCI(tester, irmaBinding, email: "one@example.com");
+  await issueEmailViaOpenID4VCI(tester, irmaBinding, email: "two@example.com");
+  await issuePhoneViaOpenID4VCI(tester, irmaBinding, phoneNumber: "0612345678");
 
   final dcql = {
     "credentials": [
@@ -121,10 +109,7 @@ Future<void> optionalExtraCredentialTest(
     choiceCardsFinder.at(0),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [
-      ("Email", "one@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
   );
   await tester.scrollUntilVisible(choiceCardsFinder.at(1), 100);
   await evaluateCredentialCard(
@@ -132,10 +117,7 @@ Future<void> optionalExtraCredentialTest(
     choiceCardsFinder.at(1),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [
-      ("Email", "two@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "two@example.com"), ("Domain", "example.com")],
   );
   expect(find.text("Obtain new data"), findsNothing);
 
@@ -150,10 +132,7 @@ Future<void> optionalExtraCredentialTest(
     cardsFinder.at(1),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [
-      ("Email", "one@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
   );
 
   // Remove the optional card.

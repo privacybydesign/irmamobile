@@ -106,13 +106,14 @@ class _OpenId4VciPreAuthTxCodeScreenState
     });
 
     final headerTemplate = FlutterI18n.translate(
-          context,
-          "issuance.pre-authorized_code.tx_code_screen.header",
-        );
-    final bodyTemplate = widget.transactionCodeParameters.description ??
+      context,
+      "issuance.pre-authorized_code.tx_code_screen.header",
+    );
+    final bodyTemplate =
+        widget.transactionCodeParameters.description ??
         FlutterI18n.translate(
           context,
-          widget.issuedCredentials.length > 1 
+          widget.issuedCredentials.length > 1
               ? "issuance.pre-authorized_code.tx_code_screen.body_multiple"
               : "issuance.pre-authorized_code.tx_code_screen.body",
         );

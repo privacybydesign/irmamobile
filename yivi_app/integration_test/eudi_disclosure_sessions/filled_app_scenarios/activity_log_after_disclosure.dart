@@ -25,11 +25,7 @@ Future<void> activityLogAfterDisclosureTest(
     email: "test@example.com",
     domain: "example.com",
   );
-  await issuePhoneViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    phoneNumber: "0612345678",
-  );
+  await issuePhoneViaOpenID4VCI(tester, irmaBinding, phoneNumber: "0612345678");
 
   final dcql = {
     "credentials": [
@@ -40,8 +36,14 @@ Future<void> activityLogAfterDisclosureTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"id": "em", "path": ["email"]},
-          {"id": "do", "path": ["domain"]},
+          {
+            "id": "em",
+            "path": ["email"],
+          },
+          {
+            "id": "do",
+            "path": ["domain"],
+          },
         ],
       },
       {
@@ -51,7 +53,10 @@ Future<void> activityLogAfterDisclosureTest(
           "vct_values": [veramoPhoneCredentialVct],
         },
         "claims": [
-          {"id": "mn", "path": ["phone_number"]},
+          {
+            "id": "mn",
+            "path": ["phone_number"],
+          },
         ],
       },
     ],
@@ -66,10 +71,7 @@ Future<void> activityLogAfterDisclosureTest(
     find.byType(YiviCredentialCard, skipOffstage: false).at(0),
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
   await evaluateCredentialCard(
     tester,

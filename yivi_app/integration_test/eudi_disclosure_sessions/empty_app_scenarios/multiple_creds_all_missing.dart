@@ -29,7 +29,9 @@ Future<void> multipleCredsAllMissingTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"path": ["email"]},
+          {
+            "path": ["email"],
+          },
         ],
       },
       {
@@ -39,7 +41,9 @@ Future<void> multipleCredsAllMissingTest(
           "vct_values": [veramoPhoneCredentialVct],
         },
         "claims": [
-          {"path": ["phone_number"]},
+          {
+            "path": ["phone_number"],
+          },
         ],
       },
     ],

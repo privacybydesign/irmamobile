@@ -30,8 +30,14 @@ Future<void> singleCredEmailAndDomainTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"id": "em", "path": ["email"]},
-          {"id": "do", "path": ["domain"]},
+          {
+            "id": "em",
+            "path": ["email"],
+          },
+          {
+            "id": "do",
+            "path": ["domain"],
+          },
         ],
       },
     ],
@@ -52,10 +58,7 @@ Future<void> singleCredEmailAndDomainTest(
     cardsFinder,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
 
   await shareAndFinishEudiDisclosure(tester);
@@ -66,10 +69,7 @@ Future<void> singleCredEmailAndDomainTest(
       (
         credentialName: "Email Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [
-          ("Email", "test@example.com"),
-          ("Domain", "example.com"),
-        ],
+        attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
       ),
     ],
   );

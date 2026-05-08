@@ -39,7 +39,9 @@ class _NotificationsTabState extends State<NotificationsTab> {
       _notificationsBloc.add(MarkNotificationAsRead(notification.id));
 
       context.pushCredentialsDetailsScreen(
-        CredentialsDetailsRouteParams(credentialTypeId: action.credentialTypeId),
+        CredentialsDetailsRouteParams(
+          credentialTypeId: action.credentialTypeId,
+        ),
       );
     }
   }

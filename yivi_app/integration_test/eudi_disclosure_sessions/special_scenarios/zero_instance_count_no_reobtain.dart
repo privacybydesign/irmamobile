@@ -40,7 +40,9 @@ Future<void> zeroInstanceCountNoReobtainTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"path": ["email"]},
+          {
+            "path": ["email"],
+          },
         ],
       },
     ],
@@ -72,10 +74,7 @@ Future<void> zeroInstanceCountNoReobtainTest(
     expectReobtainButton: false,
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
 
   // Pop the credential-details sub-route so the bottom nav bar is visible

@@ -28,34 +28,42 @@ const _emailCredentialTileKey =
 final List<AttrRow> _organizationExpectedAttributes = [
   ("University Name", "TU Delft"),
   ("Founded", "1842"),
-  ("Faculties", <Block>[
-    [
-      ("Faculty Name", "EEMCS"),
-      ("Departments", <Block>[
-        [
-          ("Department Name", "Software Technology"),
-          ("Courses", [
-            "Compiler Construction",
-            "Distributed Systems",
-            "Intro to CS",
-          ]),
-        ],
-        [
-          ("Department Name", "Data Science"),
-          ("Courses", ["Machine Learning"]),
-        ],
-      ]),
+  (
+    "Faculties",
+    <Block>[
+      [
+        ("Faculty Name", "EEMCS"),
+        (
+          "Departments",
+          <Block>[
+            [
+              ("Department Name", "Software Technology"),
+              (
+                "Courses",
+                ["Compiler Construction", "Distributed Systems", "Intro to CS"],
+              ),
+            ],
+            [
+              ("Department Name", "Data Science"),
+              ("Courses", ["Machine Learning"]),
+            ],
+          ],
+        ),
+      ],
+      [
+        ("Faculty Name", "Architecture"),
+        (
+          "Departments",
+          <Block>[
+            [
+              ("Department Name", "Urbanism"),
+              ("Courses", ["City Planning"]),
+            ],
+          ],
+        ),
+      ],
     ],
-    [
-      ("Faculty Name", "Architecture"),
-      ("Departments", <Block>[
-        [
-          ("Department Name", "Urbanism"),
-          ("Courses", ["City Planning"]),
-        ],
-      ]),
-    ],
-  ]),
+  ),
 ];
 
 void main() {
@@ -135,8 +143,7 @@ void main() {
 
     testWidgets(
       "remove-deduped-and-unique-credentials",
-      (tester) =>
-          testRemoveDedupedAndUniqueCredentials(tester, irmaBinding),
+      (tester) => testRemoveDedupedAndUniqueCredentials(tester, irmaBinding),
     );
   });
 }
@@ -165,10 +172,7 @@ Future<void> testIssueEmailOpenId4Vci(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
@@ -185,10 +189,7 @@ Future<void> testIssueEmailOpenId4Vci(
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
     isExpired: false,
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
 }
 
@@ -221,10 +222,7 @@ Future<void> testIssueEmailOpenId4VciWithTxCode(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
@@ -241,10 +239,7 @@ Future<void> testIssueEmailOpenId4VciWithTxCode(
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
     isExpired: false,
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
 }
 
@@ -357,10 +352,7 @@ Future<void> testDismissOnIssuancePermissionScreen(
 
   // Verify no credential stored
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  expect(
-    find.byKey(Key("${_emailCredentialTileKey}_tile")),
-    findsNothing,
-  );
+  expect(find.byKey(Key("${_emailCredentialTileKey}_tile")), findsNothing);
 
   // Verify no activity logged
   await tester.tap(find.byKey(const Key("nav_button_activity")));
@@ -411,10 +403,7 @@ Future<void> testWrongTxCodeShowsInlineError(
   await tester.pumpAndSettle();
 
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  expect(
-    find.byKey(Key("${_emailCredentialTileKey}_tile")),
-    findsNothing,
-  );
+  expect(find.byKey(Key("${_emailCredentialTileKey}_tile")), findsNothing);
 }
 
 /// Wrong code, then the correct code: success path still works after retry.
@@ -543,10 +532,7 @@ Future<void> testThreeWrongAttemptsLockout(
   await tester.waitFor(find.byType(DataTab));
 
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  expect(
-    find.byKey(Key("${_emailCredentialTileKey}_tile")),
-    findsNothing,
-  );
+  expect(find.byKey(Key("${_emailCredentialTileKey}_tile")), findsNothing);
 
   await tester.tap(find.byKey(const Key("nav_button_activity")));
   await tester.pump(const Duration(seconds: 1));
@@ -587,10 +573,7 @@ Future<void> testCancelAfterWrongAttempt(
   await tester.pumpAndSettle();
 
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  expect(
-    find.byKey(Key("${_emailCredentialTileKey}_tile")),
-    findsNothing,
-  );
+  expect(find.byKey(Key("${_emailCredentialTileKey}_tile")), findsNothing);
 
   await tester.tap(find.byKey(const Key("nav_button_activity")));
   await tester.pump(const Duration(seconds: 1));
@@ -623,10 +606,7 @@ Future<void> testCancelTxCodeScreenDismissesSession(
 
   // Verify no credential stored
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  expect(
-    find.byKey(Key("${_emailCredentialTileKey}_tile")),
-    findsNothing,
-  );
+  expect(find.byKey(Key("${_emailCredentialTileKey}_tile")), findsNothing);
 
   // Verify no activity logged
   await tester.tap(find.byKey(const Key("nav_button_activity")));
@@ -728,10 +708,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
-    attributes: [
-      ("Email", "other@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "other@example.com"), ("Domain", "example.com")],
   );
 
   // Back to activity list, then drill into the older removal
@@ -748,10 +725,7 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "Test Issuer",
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
 }
 
@@ -795,4 +769,3 @@ Future<void> navigateToLatestActivity(WidgetTester tester) async {
   );
   expect(find.byType(ActivityDetailsScreen), findsOneWidget);
 }
-

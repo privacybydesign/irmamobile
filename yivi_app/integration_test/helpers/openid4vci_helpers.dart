@@ -11,11 +11,7 @@ class OpenID4VCIOfferResponse {
   final String id;
   final String? txCode;
 
-  OpenID4VCIOfferResponse({
-    required this.uri,
-    required this.id,
-    this.txCode,
-  });
+  OpenID4VCIOfferResponse({required this.uri, required this.id, this.txCode});
 }
 
 /// Creates a credential offer via the Veramo issuer API using the

@@ -83,16 +83,14 @@ void main() {
       // OR disjunction across two cred types, two instances of each.
       testWidgets(
         "select-one-of-two-emails-and-two-phones",
-        (tester) =>
-            selectOneOfTwoEmailsAndTwoPhonesTest(tester, irmaBinding),
+        (tester) => selectOneOfTwoEmailsAndTwoPhonesTest(tester, irmaBinding),
       );
 
       // Email owned, phone missing. Backend hides the choices overview;
       // wallet shows IssueDuringDisclosureScreen with "Close" CTA.
       testWidgets(
         "partial-overlap-one-owned-one-missing",
-        (tester) =>
-            partialOverlapOneOwnedOneMissingTest(tester, irmaBinding),
+        (tester) => partialOverlapOneOwnedOneMissingTest(tester, irmaBinding),
       );
 
       // OR disjunction; both options owned. Default selection + change-choice.

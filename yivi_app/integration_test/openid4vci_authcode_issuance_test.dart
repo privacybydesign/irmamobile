@@ -59,9 +59,7 @@ void main() {
   // synthetic `HandleURLEvent` we dispatch from the test takes the place of
   // whatever the real browser would have done.
   UrlLauncherPlatform.instance = _NoOpUrlLauncherPlatform();
-  TestDefaultBinaryMessengerBinding
-      .instance
-      .defaultBinaryMessenger
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
         const MethodChannel("irma.app/iiab"),
         (call) async => null,
@@ -144,10 +142,7 @@ Future<void> testIssueEmailOpenId4VciAuthCode(
     find.byType(YiviCredentialCard).first,
     credentialName: "Email Credential (SD-JWT)",
     isExpired: false,
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
@@ -164,10 +159,7 @@ Future<void> testIssueEmailOpenId4VciAuthCode(
     credentialName: "Email Credential (SD-JWT)",
     issuerName: "AuthCode Issuer",
     isExpired: false,
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
 }
 
@@ -304,10 +296,7 @@ Future<void> testDismissOnPendingScreen(
 
   // Verify no credential stored
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  expect(
-    find.byKey(Key("${_emailCredentialTileKey}_tile")),
-    findsNothing,
-  );
+  expect(find.byKey(Key("${_emailCredentialTileKey}_tile")), findsNothing);
 
   // Verify no activity logged
   await tester.tap(find.byKey(const Key("nav_button_activity")));
@@ -355,10 +344,7 @@ Future<void> testDismissOnIssuancePermissionScreen(
 
   // Verify no credential stored
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-  expect(
-    find.byKey(Key("${_emailCredentialTileKey}_tile")),
-    findsNothing,
-  );
+  expect(find.byKey(Key("${_emailCredentialTileKey}_tile")), findsNothing);
 
   // Verify no activity logged
   await tester.tap(find.byKey(const Key("nav_button_activity")));
@@ -502,7 +488,8 @@ void dispatchAuthCallback(
 }) {
   repo.dispatch(
     HandleURLEvent(
-      url: "https://open.yivi.app/-/auth-callback?state=$walletState&code=$code",
+      url:
+          "https://open.yivi.app/-/auth-callback?state=$walletState&code=$code",
     ),
   );
 }

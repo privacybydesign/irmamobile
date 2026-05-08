@@ -37,7 +37,7 @@ class CredentialDescriptor {
     required this.issueURL,
     this.image,
   });
-  
+
   factory CredentialDescriptor.fromJson(Map<String, dynamic> json) =>
       _$CredentialDescriptorFromJson(json);
 

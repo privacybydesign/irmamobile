@@ -48,10 +48,7 @@ void main() {
 
     testWidgets("reach", (tester) => testReach(tester, irmaBinding));
 
-    testWidgets(
-      "empty-state",
-      (tester) => testEmptyState(tester, irmaBinding),
-    );
+    testWidgets("empty-state", (tester) => testEmptyState(tester, irmaBinding));
 
     testWidgets(
       "filled-state",
@@ -75,10 +72,8 @@ void main() {
 
     testWidgets(
       "multiple-notifications-and-per-card-navigation",
-      (tester) => testMultipleNotificationsAndPerCardNavigation(
-        tester,
-        irmaBinding,
-      ),
+      (tester) =>
+          testMultipleNotificationsAndPerCardNavigation(tester, irmaBinding),
     );
 
     testWidgets(
@@ -110,10 +105,8 @@ void main() {
 
     testWidgets(
       "expired-credential-shows-expiration-notification",
-      (tester) => testExpiredCredentialShowsExpirationNotification(
-        tester,
-        irmaBinding,
-      ),
+      (tester) =>
+          testExpiredCredentialShowsExpirationNotification(tester, irmaBinding),
     );
   });
 }

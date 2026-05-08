@@ -110,10 +110,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                     softWrap: true,
                   ),
                   if (issuerName != null)
-                    Text(
-                      issuerName!,
-                      style: _issuerLabelStyle(theme),
-                    ),
+                    Text(issuerName!, style: _issuerLabelStyle(theme)),
                 ],
               ),
             ),
@@ -132,11 +129,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
           padding: EdgeInsets.only(right: theme.mediumSpacing),
           child: mainColumn,
         ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: trailing!,
-        ),
+        Positioned(top: 0, right: 0, child: trailing!),
       ],
     );
   }

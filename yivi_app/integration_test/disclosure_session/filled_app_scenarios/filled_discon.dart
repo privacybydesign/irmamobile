@@ -55,7 +55,11 @@ Future<void> filledDisconTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
+    attributes: [
+      ("Street", "Meander"),
+      ("House number", "501"),
+      ("City", "Arnhem"),
+    ],
     style: IrmaCardStyle.normal,
   );
   await evaluateCredentialCard(
@@ -79,7 +83,11 @@ Future<void> filledDisconTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
+    attributes: [
+      ("Street", "Meander"),
+      ("House number", "501"),
+      ("City", "Arnhem"),
+    ],
     isSelected: true,
   );
 
@@ -133,7 +141,11 @@ Future<void> filledDisconTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
+    attributes: [
+      ("Street", "Meander"),
+      ("House number", "501"),
+      ("City", "Arnhem"),
+    ],
     isSelected: false,
   );
 

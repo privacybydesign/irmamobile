@@ -377,10 +377,12 @@ Future<void> evaluateCredentialCard(
   String? credentialName,
   String? issuerName,
   int? instancesRemaining,
+
   /// Expected card attributes in render order. The DFS preorder of this list
   /// must match, element-for-element, the rendered leaves and primitive-array
   /// rows on the card. See [AttrRow] for the supported value shapes.
   List<AttrRow>? attributes,
+
   /// Color-comparison check for disclosure cards. Each row's value is the
   /// expected value the verifier asked for; the matcher checks that the
   /// rendered text for that label is colored green if it matches, red
@@ -392,6 +394,7 @@ Future<void> evaluateCredentialCard(
   bool? isRevoked,
   bool? isExpired,
   bool? isExpiringSoon,
+
   /// Overrides the default Reobtain-button expectation. By default, the helper
   /// expects a Reobtain button when the cred is expired/revoked/expiring. Pass
   /// `false` for OID4VCI creds (no IssueURL → button never rendered, even when
@@ -688,6 +691,7 @@ List<_LabelValues> _flattenExpected(List<AttrRow> rows) {
       }
     }
   }
+
   walk(rows);
   return out;
 }
@@ -713,12 +717,14 @@ void _matchAttributes(
     expect(
       rendered[i].label,
       flat[i].label,
-      reason: "Row $i label mismatch.\n  expected: $flat\n  rendered: $rendered",
+      reason:
+          "Row $i label mismatch.\n  expected: $flat\n  rendered: $rendered",
     );
     expect(
       rendered[i].values,
       flat[i].values,
-      reason: "Row $i values mismatch for '${flat[i].label}'.\n"
+      reason:
+          "Row $i values mismatch for '${flat[i].label}'.\n"
           "  expected: $flat\n  rendered: $rendered",
     );
   }

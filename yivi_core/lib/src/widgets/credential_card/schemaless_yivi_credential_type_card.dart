@@ -39,7 +39,8 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
       logoImage: credentialImageBase64,
       logoPath: credentialImagePath,
       initials:
-          credentialImagePath == null && credentialImageBase64 == null &&
+          credentialImagePath == null &&
+              credentialImageBase64 == null &&
               getTranslation(context, credentialName).isNotEmpty
           ? getTranslation(context, credentialName)[0]
           : null,

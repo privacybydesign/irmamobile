@@ -31,16 +31,8 @@ Future<void> twoCredentialsTwoChoicesEachTest(
     email: "two@template.com",
     domain: "template.com",
   );
-  await issuePhoneViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    phoneNumber: "0612345678",
-  );
-  await issuePhoneViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    phoneNumber: "0687654321",
-  );
+  await issuePhoneViaOpenID4VCI(tester, irmaBinding, phoneNumber: "0612345678");
+  await issuePhoneViaOpenID4VCI(tester, irmaBinding, phoneNumber: "0687654321");
 
   final dcql = {
     "credentials": [
@@ -149,10 +141,7 @@ Future<void> twoCredentialsTwoChoicesEachTest(
       (
         credentialName: "Email Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [
-          ("Email", "one@example.com"),
-          ("Domain", "example.com"),
-        ],
+        attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
       ),
       (
         credentialName: "Phone Credential (SD-JWT)",

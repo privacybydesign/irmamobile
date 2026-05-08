@@ -187,8 +187,9 @@ _GroupNode _buildTree(
       if (p[i] is! int) continue;
       final itemPath = p.sublist(0, i + 1);
       final itemKey = _pathKey(itemPath);
-      final alreadyOpen =
-          stack.any((f) => f.isItem && _pathKey(f.path) == itemKey);
+      final alreadyOpen = stack.any(
+        (f) => f.isItem && _pathKey(f.path) == itemKey,
+      );
       if (alreadyOpen) continue;
 
       final arrayHeaderPath = p.sublist(0, i);
@@ -221,8 +222,7 @@ _GroupNode _buildTree(
       popToPrefix(p);
 
       final parentFrame = stack.last;
-      final group =
-          _GroupNode(label: e.displayName, path: p, children: []);
+      final group = _GroupNode(label: e.displayName, path: p, children: []);
       parentFrame.childrenArr.add(group);
       stack.add(
         _StackFrame(path: p, childrenArr: group.children, isItem: false),
@@ -252,11 +252,8 @@ _GroupNode _buildTree(
 
       primCollectors.putIfAbsent(
         parentKey,
-        () => _PrimCollector(
-          label: label,
-          values: [],
-          parent: frame.childrenArr,
-        ),
+        () =>
+            _PrimCollector(label: label, values: [], parent: frame.childrenArr),
       );
       primCollectors[parentKey]!.values.add(e.value!);
       continue;
@@ -555,11 +552,7 @@ class _LeafContent extends StatelessWidget {
         : theme.error;
   }
 
-  Widget _buildValue(
-    BuildContext context,
-    IrmaThemeData theme,
-    String lang,
-  ) {
+  Widget _buildValue(BuildContext context, IrmaThemeData theme, String lang) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
     return switch (val.type) {
@@ -575,8 +568,7 @@ class _LeafContent extends StatelessWidget {
         val.intValue?.toString() ?? "",
         style: _valueStyle(theme, _valueColor(val, theme)),
       ),
-      schemaless.AttributeType.image ||
-      schemaless.AttributeType.base64Image =>
+      schemaless.AttributeType.image || schemaless.AttributeType.base64Image =>
         _tappableImage(context, theme, lang),
     };
   }
@@ -665,9 +657,7 @@ class _PrimArrayContent extends StatelessWidget {
             ),
           ),
           SizedBox(width: theme.tinySpacing),
-          Expanded(
-            child: Text(_formatValue(v), style: valueStyle),
-          ),
+          Expanded(child: Text(_formatValue(v), style: valueStyle)),
         ],
       ),
     );
@@ -701,10 +691,7 @@ class _EyebrowContent extends StatelessWidget {
     // were rendered as labelled rows by the flatten step. Render as a plain
     // bodyMedium-like label.
     if (node.children.isEmpty) {
-      return Text(
-        node.label?.translate(lang) ?? "",
-        style: _labelStyle(theme),
-      );
+      return Text(node.label?.translate(lang) ?? "", style: _labelStyle(theme));
     }
     return Text(
       node.label!.translate(lang).toUpperCase(),

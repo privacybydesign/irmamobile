@@ -28,7 +28,9 @@ Future<void> disjunctionBothOptionsMissingTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"path": ["email"]},
+          {
+            "path": ["email"],
+          },
         ],
       },
       {
@@ -38,7 +40,9 @@ Future<void> disjunctionBothOptionsMissingTest(
           "vct_values": [veramoPhoneCredentialVct],
         },
         "claims": [
-          {"path": ["phone_number"]},
+          {
+            "path": ["phone_number"],
+          },
         ],
       },
     ],

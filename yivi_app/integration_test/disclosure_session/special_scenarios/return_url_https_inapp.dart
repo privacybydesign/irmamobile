@@ -20,7 +20,8 @@ Future<void> returnUrlHttpsInAppTest(
   await issueEmailAddress(tester, irmaBinding);
   await tester.tapAndSettle(find.text("OK"));
 
-  const sessionRequest = '''
+  const sessionRequest =
+      '''
        {
           "@context": "https://irma.app/ld/request/disclosure/v2",
           "disclose": [

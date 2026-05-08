@@ -136,7 +136,11 @@ Future<void> filledSpecificAttributeValuesMatchTest(
     cardsFinder.first,
     credentialName: "Demo Address",
     issuerName: "Demo Municipality",
-    attributes: [("Street", "Meander"), ("House number", "501"), ("City", "Arnhem")],
+    attributes: [
+      ("Street", "Meander"),
+      ("House number", "501"),
+      ("City", "Arnhem"),
+    ],
     style: IrmaCardStyle.normal,
   );
 

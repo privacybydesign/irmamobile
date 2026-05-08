@@ -63,7 +63,8 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                               for (final CredentialStoreItem(:credential, :faq)
                                   in items)
                                 SchemalessYiviCredentialTypeCard(
-                                  credentialImageBase64: credential.image?.getImageFromBase64(),
+                                  credentialImageBase64: credential.image
+                                      ?.getImageFromBase64(),
                                   credentialName: credential.name,
                                   credentialId: credential.credentialId,
                                   issuerName: credential.issuer.name,

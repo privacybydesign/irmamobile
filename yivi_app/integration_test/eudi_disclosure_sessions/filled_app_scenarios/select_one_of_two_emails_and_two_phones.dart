@@ -32,16 +32,8 @@ Future<void> selectOneOfTwoEmailsAndTwoPhonesTest(
     email: "two@template.com",
     domain: "template.com",
   );
-  await issuePhoneViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    phoneNumber: "0612345678",
-  );
-  await issuePhoneViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    phoneNumber: "0687654321",
-  );
+  await issuePhoneViaOpenID4VCI(tester, irmaBinding, phoneNumber: "0612345678");
+  await issuePhoneViaOpenID4VCI(tester, irmaBinding, phoneNumber: "0687654321");
 
   final dcql = {
     "credentials": [

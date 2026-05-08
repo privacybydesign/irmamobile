@@ -30,7 +30,9 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"path": ["email"]},
+          {
+            "path": ["email"],
+          },
         ],
       },
     ],

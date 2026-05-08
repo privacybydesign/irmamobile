@@ -31,7 +31,10 @@ Future<void> singleCredEmailOnlyTest(
           "vct_values": [veramoEmailCredentialVct],
         },
         "claims": [
-          {"id": "em", "path": ["email"]},
+          {
+            "id": "em",
+            "path": ["email"],
+          },
         ],
       },
     ],

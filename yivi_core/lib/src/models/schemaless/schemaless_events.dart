@@ -1,4 +1,3 @@
-
 import "dart:convert";
 
 import "package:flutter/material.dart";
@@ -113,12 +112,11 @@ class LogoImage {
   LogoImage({required this.base64, this.mimeType});
 
   Image getImageFromBase64() {
-    return Image.memory(
-      base64Decode(base64),
-    );
+    return Image.memory(base64Decode(base64));
   }
 
-  factory LogoImage.fromJson(Map<String, dynamic> json) => _$LogoImageFromJson(json);
+  factory LogoImage.fromJson(Map<String, dynamic> json) =>
+      _$LogoImageFromJson(json);
 
   Map<String, dynamic> toJson() => _$LogoImageToJson(this);
 }

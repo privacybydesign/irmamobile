@@ -37,8 +37,14 @@ class NotificationCard extends StatelessWidget {
     );
 
     if (notification is CredentialStatusNotification) {
-      final translatedCredName = getTranslation(context, notification.credentialName);
-      final translatedIssuerName = getTranslation(context, notification.issuerName);
+      final translatedCredName = getTranslation(
+        context,
+        notification.credentialName,
+      );
+      final translatedIssuerName = getTranslation(
+        context,
+        notification.issuerName,
+      );
 
       logo = notification.logoImage?.getImageFromBase64();
       final content = notification.content as InternalTranslatedContent;

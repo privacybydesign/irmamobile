@@ -22,11 +22,7 @@ void main() {
     testWidgets(
       "shows warning on rooted device, dismisses on accept, continues to enrollment",
       (tester) async {
-        await pumpYiviApp(
-          tester,
-          irmaBinding.repository,
-          isDeviceRooted: true,
-        );
+        await pumpYiviApp(tester, irmaBinding.repository, isDeviceRooted: true);
 
         // Warning is shown.
         final acceptButtonFinder = find.byKey(

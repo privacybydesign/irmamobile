@@ -67,7 +67,7 @@ class _CredentialsDetailsScreenState
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final name = c.name.translate(lang);
     final theme = IrmaTheme.of(context);
-    
+
     return IrmaAppBar(
       title: Row(
         mainAxisSize: .min,
@@ -248,11 +248,8 @@ class _CredentialsDetailsScreenState
     BuildContext context,
     schemaless.Credential credential,
   ) {
-    IrmaRepositoryProvider.of(context).openIssueURL(
+    IrmaRepositoryProvider.of(
       context,
-      credential.credentialId,
-      credential.issueUrl,
-      ref,
-    );
+    ).openIssueURL(context, credential.credentialId, credential.issueUrl, ref);
   }
 }

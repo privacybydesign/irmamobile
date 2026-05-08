@@ -16,16 +16,8 @@ Future<void> valueOptionsOnePresentOneNotTest(
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    email: "one@example.com",
-  );
-  await issueEmailViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    email: "two@example.com",
-  );
+  await issueEmailViaOpenID4VCI(tester, irmaBinding, email: "one@example.com");
+  await issueEmailViaOpenID4VCI(tester, irmaBinding, email: "two@example.com");
 
   final dcql = {
     "credentials": [
@@ -64,10 +56,7 @@ Future<void> valueOptionsOnePresentOneNotTest(
     cardsFinder,
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [
-      ("Email", "two@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "two@example.com"), ("Domain", "example.com")],
   );
 
   // With one owned option and no obtainable template, the overview hides
@@ -82,10 +71,7 @@ Future<void> valueOptionsOnePresentOneNotTest(
       (
         credentialName: "Email Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [
-          ("Email", "two@example.com"),
-          ("Domain", "example.com"),
-        ],
+        attributes: [("Email", "two@example.com"), ("Domain", "example.com")],
       ),
     ],
   );

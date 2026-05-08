@@ -38,9 +38,6 @@ Future<void> lowInstanceCountNoReobtainTest(
     expectReobtainButton: false,
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [
-      ("Email", "test@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "test@example.com"), ("Domain", "example.com")],
   );
 }

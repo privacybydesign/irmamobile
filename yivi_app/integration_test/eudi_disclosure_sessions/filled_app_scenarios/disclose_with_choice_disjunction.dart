@@ -27,11 +27,7 @@ Future<void> discloseWithChoiceDisjunctionTest(
     email: "test@example.com",
     domain: "example.com",
   );
-  await issuePhoneViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    phoneNumber: "0612345678",
-  );
+  await issuePhoneViaOpenID4VCI(tester, irmaBinding, phoneNumber: "0612345678");
 
   final dcql = {
     "credentials": [

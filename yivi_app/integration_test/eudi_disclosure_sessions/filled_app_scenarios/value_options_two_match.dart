@@ -19,16 +19,8 @@ Future<void> valueOptionsTwoMatchTest(
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-  await issueEmailViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    email: "one@example.com",
-  );
-  await issueEmailViaOpenID4VCI(
-    tester,
-    irmaBinding,
-    email: "two@example.com",
-  );
+  await issueEmailViaOpenID4VCI(tester, irmaBinding, email: "one@example.com");
+  await issueEmailViaOpenID4VCI(tester, irmaBinding, email: "two@example.com");
   await issueEmailViaOpenID4VCI(
     tester,
     irmaBinding,
@@ -72,10 +64,7 @@ Future<void> valueOptionsTwoMatchTest(
     cardsFinder,
     issuerName: "Test Issuer",
     credentialName: "Email Credential (SD-JWT)",
-    attributes: [
-      ("Email", "one@example.com"),
-      ("Domain", "example.com"),
-    ],
+    attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
   );
 
   await tapChangeChoicesButton(tester);
@@ -117,10 +106,7 @@ Future<void> valueOptionsTwoMatchTest(
       (
         credentialName: "Email Credential (SD-JWT)",
         issuerName: "Test Issuer",
-        attributes: [
-          ("Email", "one@example.com"),
-          ("Domain", "example.com"),
-        ],
+        attributes: [("Email", "one@example.com"), ("Domain", "example.com")],
       ),
     ],
   );

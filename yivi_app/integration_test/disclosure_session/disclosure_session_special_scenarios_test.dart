@@ -35,18 +35,15 @@ void main() {
     externalLaunches: externalLaunches,
     inAppLaunches: inAppLaunches,
   );
-  TestDefaultBinaryMessengerBinding
-      .instance
-      .defaultBinaryMessenger
-      .setMockMethodCallHandler(
-        const MethodChannel("irma.app/iiab"),
-        (call) async {
-          if (call.method == "open_browser") {
-            inAppLaunches.add(call.arguments as String);
-          }
-          return null;
-        },
-      );
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(const MethodChannel("irma.app/iiab"), (
+        call,
+      ) async {
+        if (call.method == "open_browser") {
+          inAppLaunches.add(call.arguments as String);
+        }
+        return null;
+      });
 
   group("disclosure-session", () {
     setUp(() async {

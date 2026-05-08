@@ -212,11 +212,7 @@ Future<void> shareAndFinishEudiDisclosure(WidgetTester tester) async {
 Future<void> verifyMostRecentActivityLog(
   WidgetTester tester, {
   required List<
-    ({
-      String credentialName,
-      String issuerName,
-      List<AttrRow> attributes,
-    })
+    ({String credentialName, String issuerName, List<AttrRow> attributes})
   >
   expectedCredentials,
 }) async {
@@ -261,15 +257,15 @@ Future<void> verifyEmptyActivityLog(WidgetTester tester) async {
 
 /// Taps the activity tab and asserts that exactly [expected] log entries
 /// exist (`ActivityCard`s on the activity tab).
-Future<void> verifyActivityLogCount(
-  WidgetTester tester,
-  int expected,
-) async {
+Future<void> verifyActivityLogCount(WidgetTester tester, int expected) async {
   await tester.tap(
     find.byKey(const Key("nav_button_activity"), skipOffstage: false),
   );
   await tester.pump(const Duration(seconds: 1));
-  expect(find.byType(ActivityCard, skipOffstage: false), findsNWidgets(expected));
+  expect(
+    find.byType(ActivityCard, skipOffstage: false),
+    findsNWidgets(expected),
+  );
 }
 
 /// Posts a DCQL query to the veramo-verifier and returns the wallet-facing
