@@ -107,6 +107,14 @@ void main() {
       "re-issue-clears-revoked-notification",
       (tester) => testReIssueClearsRevokedNotification(tester, irmaBinding),
     );
+
+    testWidgets(
+      "expired-credential-shows-expiration-notification",
+      (tester) => testExpiredCredentialShowsExpirationNotification(
+        tester,
+        irmaBinding,
+      ),
+    );
   });
 }
 
@@ -680,4 +688,62 @@ Future<void> testReIssueClearsRevokedNotification(
   await tester.pumpAndSettle();
 
   expect(find.byType(NotificationCard), findsNothing);
+}
+
+/// Issues an SD-JWT email credential with a short TTL via OpenID4VCI, waits
+/// for it to expire, then verifies that the notifications tab surfaces a
+/// "Data expired" notification for it and that tapping the notification opens
+/// the credential detail screen.
+Future<void> testExpiredCredentialShowsExpirationNotification(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  // Confirm a clean starting state so any card observed later is one we
+  // caused.
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
+  expect(find.byType(NotificationCard), findsNothing);
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+
+  // Issue with a short positive TTL — issuance verifies the JWT's `exp`, so
+  // it must still be in the future when the credential is fetched; we then
+  // wait for it to expire before refreshing notifications.
+  const ttlSeconds = 10;
+  final issuedAt = await _issueOid4vciEmailCredential(
+    tester,
+    irmaBinding,
+    ttlSeconds: ttlSeconds,
+  );
+
+  // Wait until the credential's exp has passed (with a safety margin large
+  // enough to cover client/server clock skew + create-offer HTTP latency).
+  final expiresAt = issuedAt.add(const Duration(seconds: ttlSeconds));
+  final remaining =
+      expiresAt.difference(DateTime.now()) + const Duration(seconds: 10);
+  if (!remaining.isNegative) {
+    await Future.delayed(remaining);
+  }
+
+  // Open the notifications tab and pull-to-refresh to drive the handler.
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
+
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+
+  final notificationCardFinder = find.byType(NotificationCard);
+  expect(notificationCardFinder, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder,
+    title: _expiredTitle,
+    content: _expiredContent,
+    read: false,
+  );
+
+  // Tapping the notification opens the credential detail screen.
+  await tester.tapAndSettle(notificationCardFinder);
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
 }
