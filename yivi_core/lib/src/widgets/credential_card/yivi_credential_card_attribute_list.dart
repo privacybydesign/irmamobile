@@ -725,7 +725,7 @@ class _ItemEyebrowContent extends StatelessWidget {
         node.parentLabel?.translate(lang).toUpperCase() ?? "ITEM";
     final text = node.totalItems > 1
         ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
-        : "$parentLabel ${node.itemIndex}";
+        : parentLabel;
     return Text(text, style: _eyebrowStyle(theme));
   }
 }
