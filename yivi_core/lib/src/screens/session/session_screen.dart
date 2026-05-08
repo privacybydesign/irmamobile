@@ -6,16 +6,19 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../data/irma_repository.dart";
 import "../../models/native_events.dart";
+import "../../models/return_url.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
+import "../../sentry/sentry.dart";
 import "../../util/language.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
+import "call_info_screen.dart";
 import "widgets/arrow_back_screen.dart";
 import "widgets/disclosure_choices_overview.dart";
 import "widgets/disclosure_feedback_screen.dart";
@@ -85,6 +88,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// equal to 1, we know the cause is a tx_code lockout and can show the
   /// dedicated screen instead of the generic error.
   int? _lastSeenRemainingTxCodeAttempts;
+
+  /// True after dispatching openURLExternally / openURLinAppBrowser, so
+  /// post-frame rebuilds of the success screen don't re-fire the side effect.
+  bool _returnUrlSideEffectFired = false;
+
+  /// Set when a return-URL launch threw. Renders the error screen until the
+  /// user closes it; the close handler then skips the silent reopen.
+  SessionError? _returnUrlError;
 
   @override
   void initState() {
@@ -414,6 +425,47 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return _buildLoadingScreen(session);
     }
 
+    final returnUrl = session.parsedClientReturnUrl;
+    if (returnUrl != null) {
+      if (returnUrl.isPhoneNumber) {
+        return CallInfoScreen(
+          otherParty: getTranslation(context, session.requestor.name),
+          onContinue: () => _openReturnUrl(
+            returnUrl,
+            alwaysExternal: true,
+            popOnSuccess: true,
+          ),
+          onCancel: _closeSession,
+        );
+      }
+      if (_returnUrlError != null) {
+        return _buildError(_returnUrlError!);
+      }
+      if (!_returnUrlSideEffectFired) {
+        _returnUrlSideEffectFired = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (returnUrl.isInApp) {
+            // Pop first so the in-app browser overlays home / underlying.
+            _popToUnderlyingOrHome();
+            await _openReturnUrl(
+              returnUrl,
+              alwaysExternal: false,
+              popOnSuccess: false,
+            );
+          } else {
+            // Open first; only pop if the launch succeeded so a failure can
+            // surface the error screen on top of the success screen.
+            await _openReturnUrl(
+              returnUrl,
+              alwaysExternal: true,
+              popOnSuccess: true,
+            );
+          }
+        });
+      }
+      return _buildLoadingScreen(session);
+    }
+
     // Multi-device session: result lives on the other device, so just confirm
     // success here.
     if (session.continueOnSecondDevice) {
@@ -448,11 +500,61 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     return _buildLoadingScreen(session);
   }
 
-  void _closeSession() {
+  Future<void> _closeSession() async {
+    final session = _lastSession?.value;
+    final returnUrl = session?.parsedClientReturnUrl;
+    final shouldSilentReopen =
+        returnUrl != null &&
+        !returnUrl.isPhoneNumber &&
+        session?.error?.errorType != "clientReturnUrl" &&
+        _returnUrlError?.errorType != "clientReturnUrl";
+
+    if (shouldSilentReopen) {
+      try {
+        await _repo.openURLExternally(returnUrl.toString());
+      } catch (e, st) {
+        // The user is on the way out — don't surface a second error screen.
+        reportError(e, st);
+      }
+    }
+
     if (mounted) {
       context.popToUnderlyingSessionOrHome(
         hasUnderlyingSession: widget.hasUnderlyingSession,
       );
+    }
+  }
+
+  void _popToUnderlyingOrHome() {
+    if (!mounted) return;
+    context.popToUnderlyingSessionOrHome(
+      hasUnderlyingSession: widget.hasUnderlyingSession,
+    );
+  }
+
+  Future<void> _openReturnUrl(
+    ReturnURL url, {
+    required bool alwaysExternal,
+    required bool popOnSuccess,
+  }) async {
+    try {
+      if (url.isInApp && !alwaysExternal) {
+        await _repo.openURLinAppBrowser(url.toString());
+      } else {
+        await _repo.openURLExternally(url.toString());
+      }
+      if (popOnSuccess) _popToUnderlyingOrHome();
+    } catch (e, st) {
+      reportError(e, st);
+      if (mounted) {
+        setState(() {
+          _returnUrlError = SessionError(
+            errorType: "clientReturnUrl",
+            info: "the clientReturnUrl could not be handled",
+            wrappedError: e.toString(),
+          );
+        });
+      }
     }
   }
 

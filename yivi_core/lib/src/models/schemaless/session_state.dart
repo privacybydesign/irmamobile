@@ -2,6 +2,7 @@ import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
 import "../log_entry.dart";
+import "../return_url.dart";
 import "../session.dart";
 import "../translated_value.dart";
 import "credential_store.dart";
@@ -81,6 +82,8 @@ class SessionState {
 
   factory SessionState.fromJson(Map<String, dynamic> json) =>
       _$SessionStateFromJson(json);
+
+  ReturnURL? get parsedClientReturnUrl => ReturnURL.parse(clientReturnUrl);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
