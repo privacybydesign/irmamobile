@@ -132,7 +132,6 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   issueUrl: TranslatedValue.fromJson(
     json['issue_url'] as Map<String, dynamic>?,
   ),
-  imagePath: json['image_path'] as String?,
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
@@ -142,7 +141,6 @@ Map<String, dynamic> _$CredentialToJson(Credential instance) =>
     <String, dynamic>{
       'credential_id': instance.credentialId,
       'hash': instance.hash,
-      'image_path': instance.imagePath,
       'image': instance.image,
       'name': instance.name,
       'issuer': instance.issuer,

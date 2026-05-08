@@ -1,69 +1,63 @@
 import "package:collection/collection.dart";
+import "package:flutter/foundation.dart";
 
 import "../../../data/irma_repository.dart";
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../widgets/credential_card/models/card_expiry_date.dart";
 import "../models/credential_status_notification.dart";
+import "../models/credential_status_notification_record.dart";
 import "../models/notification.dart";
 import "notification_handler.dart";
 
 class CredentialStatusNotificationsHandler extends NotificationHandler {
   @override
-  Future<List<Notification>> loadNotifications(
+  Future<HandlerResult> load(
     IrmaRepository repo,
-    List<Notification> notifications,
+    List<CredentialStatusNotificationRecord> records,
   ) async {
-    final List<Notification> updatedNotifications = notifications;
-
     final credentials = await repo.getSchemalessCredentials().first.timeout(
       const Duration(seconds: 5),
       onTimeout: () => [],
     );
-    if (credentials.isEmpty) return updatedNotifications;
+
+    final List<Notification> notifications = [];
+    final List<CredentialStatusNotificationRecord> updatedRecords = [];
 
     for (final cred in credentials) {
-      // Check if a notification should be shown for this credential, and if so which type
-      final notificationType = _getNotificationType(cred);
+      final type = _getNotificationType(cred);
+      if (type == null) continue;
 
-      // If a notification should be shown for this credential
-      if (notificationType != null) {
-        bool shouldAddNewNotification = true;
+      final existing = records.firstWhereOrNull(
+        (r) => r.credentialHash == cred.hash && r.type == type,
+      );
 
-        // Check if there is already a notification for this credential
-        final CredentialStatusNotification? existingNotification =
-            updatedNotifications.firstWhereOrNull((notification) {
-                  if (notification is CredentialStatusNotification) {
-                    return notification.credentialHash == cred.hash;
-                  }
-
-                  return false;
-                })
-                as CredentialStatusNotification?;
-
-        if (existingNotification != null) {
-          // If the existing has a different type, remove the old one and add a new one later
-          if (existingNotification.type != notificationType) {
-            updatedNotifications.remove(existingNotification);
-          } else {
-            // If the existing has the same type, don't add a new one
-            shouldAddNewNotification = false;
-          }
-        }
-
-        if (shouldAddNewNotification) {
-          updatedNotifications.add(
-            CredentialStatusNotification(
-              type: notificationType,
-              credentialHash: cred.hash,
-              credentialTypeId: cred.credentialId,
-              timestamp: DateTime.now(),
-            ),
+      final record =
+          existing ??
+          CredentialStatusNotificationRecord(
+            credentialHash: cred.hash,
+            type: type,
+            id: UniqueKey().toString(),
+            read: false,
+            softDeleted: false,
+            timestamp: DateTime.now(),
           );
-        }
-      }
+
+      updatedRecords.add(record);
+      notifications.add(
+        CredentialStatusNotification.fromRecord(
+          record: record,
+          credentialTypeId: cred.credentialId,
+          credentialName: cred.name,
+          issuerName: cred.issuer.name,
+          logoImage: cred.image,
+        ),
+      );
     }
 
-    return updatedNotifications;
+    return HandlerResult(
+      notifications: notifications,
+      updatedRecords: updatedRecords,
+    );
   }
 
   CredentialStatusNotificationType? _getNotificationType(
@@ -80,32 +74,5 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
       return CredentialStatusNotificationType.expiringSoon;
     }
     return null;
-  }
-
-  @override
-  Future<List<Notification>> cleanUp(
-    IrmaRepository repo,
-    List<Notification> notifications,
-  ) async {
-    final List<Notification> updatedNotifications = notifications;
-
-    final credentials = await repo.getSchemalessCredentials().first.timeout(
-      const Duration(seconds: 5),
-      onTimeout: () => [],
-    );
-    final credentialHashes = credentials.map((c) => c.hash).toSet();
-
-    // Check if there are any notifications that are soft deleted and have a credential hash that is not in the repo
-    // If so, remove them
-    updatedNotifications.removeWhere((notification) {
-      if (notification is CredentialStatusNotification &&
-          notification.softDeleted) {
-        return !credentialHashes.contains(notification.credentialHash);
-      }
-
-      return false;
-    });
-
-    return updatedNotifications;
   }
 }

@@ -18,13 +18,9 @@ import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_bottom_sheet.dart";
 
 class SchemalessCredentialsDetailsScreen extends ConsumerStatefulWidget {
-  final String categoryName;
   final String credentialTypeId;
 
-  const SchemalessCredentialsDetailsScreen({
-    required this.categoryName,
-    required this.credentialTypeId,
-  });
+  const SchemalessCredentialsDetailsScreen({required this.credentialTypeId});
 
   @override
   ConsumerState<SchemalessCredentialsDetailsScreen> createState() =>
