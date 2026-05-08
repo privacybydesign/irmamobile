@@ -1,22 +1,118 @@
 import "package:flutter/material.dart";
+// ignore: depend_on_referenced_packages
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
+import "package:yivi_core/src/screens/notifications/bloc/notifications_bloc.dart";
 import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
 import "helpers/helpers.dart";
+import "helpers/openid4vci_helpers.dart";
 import "irma_binding.dart";
 import "util.dart";
 
 const _revokableCredId = "irma-demo.MijnOverheid.root";
 const _revokableCredAttribute = "$_revokableCredId.BSN";
+const _revokedRevokedTitle = "Data revoked";
+const _revokedRevokedContent =
+    "Demo MijnOverheid.nl has revoked this data: Demo Root";
+const _expiringSoonTitle = "Data expiring soon";
+const _expiringSoonContent =
+    "This data is expiring soon: Email Credential (SD-JWT)";
+const _expiredTitle = "Data expired";
+const _expiredContent = "This data has expired: Email Credential (SD-JWT)";
+
+final _notificationsScreenFinder = find.byType(NotificationsTab);
+final _notificationBellFinder = find.byType(NotificationBell);
+
+void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
+  WidgetController.hitTestWarningShouldBeFatal = true;
+
+  group("notifications", () {
+    setUp(() => irmaBinding.setUp());
+    tearDown(() => irmaBinding.tearDown());
+
+    testWidgets("reach", (tester) => testReach(tester, irmaBinding));
+
+    testWidgets(
+      "empty-state",
+      (tester) => testEmptyState(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "filled-state",
+      (tester) => testFilledState(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "read-all-notifications",
+      (tester) => testReadAllNotifications(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "dismiss-notification",
+      (tester) => testDismissNotification(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "notification-action",
+      (tester) => testNotificationAction(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "multiple-notifications-and-per-card-navigation",
+      (tester) => testMultipleNotificationsAndPerCardNavigation(
+        tester,
+        irmaBinding,
+      ),
+    );
+
+    testWidgets(
+      "orphan-record-cleanup-on-credential-delete",
+      (tester) =>
+          testOrphanRecordCleanupOnCredentialDelete(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "lifecycle-resume-triggers-load-notifications",
+      (tester) =>
+          testLifecycleResumeTriggersLoadNotifications(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "cold-start-persists-dismissed-flag",
+      (tester) => testColdStartPersistsDismissedFlag(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "type-transition-expiringSoon-to-expired",
+      (tester) => testTypeTransitionExpiringSoonToExpired(tester, irmaBinding),
+    );
+
+    testWidgets(
+      "re-issue-clears-revoked-notification",
+      (tester) => testReIssueClearsRevokedNotification(tester, irmaBinding),
+    );
+  });
+}
+
+// =============================================================================
+// Helpers
+// =============================================================================
 
 /// Issues a revocable demo credential, revokes it server-side, then runs a
 /// disclosure session that performs the revocation check so the local cred
@@ -56,198 +152,532 @@ Future<void> _issueAndRevokeDemoCredential(
   await tester.tapAndSettle(find.text("Yes"));
 }
 
-void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
-  WidgetController.hitTestWarningShouldBeFatal = true;
+/// Issues an OID4VCI SD-JWT email credential with the given TTL via the
+/// pre-authorized code flow. Walks through `IssuancePermission` →
+/// `IssuanceSuccessScreen` → "OK". Returns the timestamp captured just before
+/// the offer call so callers can compute when the credential expires.
+Future<DateTime> _issueOid4vciEmailCredential(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  required int ttlSeconds,
+}) async {
+  final issuedAt = DateTime.now();
+  final offer = await startOpenID4VCISession(
+    credentialConfigId: "EmailCredentialSdJwt",
+    credentialData: {"email": "test@example.com", "domain": "example.com"},
+    ttlSeconds: ttlSeconds,
+  );
+  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  group("notifications", () {
-    setUp(() => irmaBinding.setUp());
-    tearDown(() => irmaBinding.tearDown());
+  await tester.waitFor(find.byType(IssuancePermission));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
-    final notificationsScreenFinder = find.byType(NotificationsTab);
-    final notificationBellFinder = find.byType(NotificationBell);
+  await tester.waitFor(find.byType(IssuanceSuccessScreen));
+  await tester.tapAndSettle(find.text("OK"));
+  return issuedAt;
+}
 
-    testWidgets("reach", (tester) async {
-      await pumpAndUnlockApp(tester, irmaBinding.repository);
-      expect(notificationBellFinder, findsOneWidget);
+Finder _cardWithContent(String content) => find.ancestor(
+  of: find.text(content),
+  matching: find.byType(NotificationCard),
+);
 
-      await tester.tapAndSettle(find.byKey(const Key("nav_button_activity")));
-      expect(notificationBellFinder, findsOneWidget);
+// =============================================================================
+// Test bodies
+// =============================================================================
 
-      await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
-      expect(notificationBellFinder, findsOneWidget);
+Future<void> testReach(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  expect(_notificationBellFinder, findsOneWidget);
 
-      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-      await tester.tapAndSettle(notificationBellFinder);
-      expect(notificationsScreenFinder, findsOneWidget);
-    });
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_activity")));
+  expect(_notificationBellFinder, findsOneWidget);
 
-    testWidgets("empty-state", (tester) async {
-      await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
+  expect(_notificationBellFinder, findsOneWidget);
 
-      await tester.tapAndSettle(notificationBellFinder);
-      expect(notificationsScreenFinder, findsOneWidget);
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
+}
 
-      final screenTitleFinder = find.descendant(
-        of: find.byType(IrmaAppBar),
-        matching: find.text("Notifications"),
-      );
-      expect(screenTitleFinder, findsOneWidget);
+Future<void> testEmptyState(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
 
-      final emptyStateMessageFinder = find.descendant(
-        of: notificationsScreenFinder,
-        matching: find.text("No notifications"),
-      );
-      expect(emptyStateMessageFinder, findsOneWidget);
-    });
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
 
-    testWidgets("filled-state", (tester) async {
-      await pumpAndUnlockApp(tester, irmaBinding.repository);
-      await _issueAndRevokeDemoCredential(tester, irmaBinding);
+  final screenTitleFinder = find.descendant(
+    of: find.byType(IrmaAppBar),
+    matching: find.text("Notifications"),
+  );
+  expect(screenTitleFinder, findsOneWidget);
 
-      await tester.tapAndSettle(notificationBellFinder);
-      expect(notificationsScreenFinder, findsOneWidget);
+  final emptyStateMessageFinder = find.descendant(
+    of: _notificationsScreenFinder,
+    matching: find.text("No notifications"),
+  );
+  expect(emptyStateMessageFinder, findsOneWidget);
+}
 
-      // Pull-to-refresh to drive LoadNotifications and surface the revocation.
-      await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
-      await tester.pumpAndSettle();
+Future<void> testFilledState(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
 
-      final notificationCardFinder = find.byType(NotificationCard);
-      expect(notificationCardFinder, findsOneWidget);
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
 
-      await evaluateNotificationCard(
-        tester,
-        notificationCardFinder,
-        title: "Data revoked",
-        content: "Demo MijnOverheid.nl has revoked this data: Demo Root",
-      );
-    });
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
 
-    testWidgets("read-all-notifications", (tester) async {
-      await pumpAndUnlockApp(tester, irmaBinding.repository);
-      await _issueAndRevokeDemoCredential(tester, irmaBinding);
+  final notificationCardFinder = find.byType(NotificationCard);
+  expect(notificationCardFinder, findsOneWidget);
 
-      await tester.tapAndSettle(notificationBellFinder);
-      expect(notificationsScreenFinder, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder,
+    title: _revokedRevokedTitle,
+    content: _revokedRevokedContent,
+  );
+}
 
-      // Pull-to-refresh to surface the revocation notification.
-      await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
-      await tester.pumpAndSettle();
+Future<void> testReadAllNotifications(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
 
-      // Bell should still indicate unread (we haven't left the tab yet).
-      final bellWhileOpen = tester.widget<NotificationBell>(
-        notificationBellFinder,
-      );
-      expect(bellWhileOpen.showIndicator, true);
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
 
-      final notificationCardFinder = find.byType(NotificationCard);
-      expect(notificationCardFinder, findsOneWidget);
-      await evaluateNotificationCard(
-        tester,
-        notificationCardFinder,
-        title: "Data revoked",
-        content: "Demo MijnOverheid.nl has revoked this data: Demo Root",
-        read: false,
-      );
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
 
-      // Leaving the tab fires MarkAllNotificationsAsRead in dispose.
-      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-      await tester.pumpAndSettle();
+  // Bell should still indicate unread (we haven't left the tab yet).
+  expect(
+    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    true,
+  );
 
-      final bellAfterClose = tester.widget<NotificationBell>(
-        notificationBellFinder,
-      );
-      expect(bellAfterClose.showIndicator, false);
+  final notificationCardFinder = find.byType(NotificationCard);
+  expect(notificationCardFinder, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder,
+    title: _revokedRevokedTitle,
+    content: _revokedRevokedContent,
+    read: false,
+  );
 
-      // Re-open and confirm the card is now marked read.
-      await tester.tapAndSettle(notificationBellFinder);
-      expect(notificationsScreenFinder, findsOneWidget);
+  // Leaving the tab fires MarkAllNotificationsAsRead in dispose.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await tester.pumpAndSettle();
 
-      final notificationCardFinder2 = find.byType(NotificationCard);
-      expect(notificationCardFinder2, findsOneWidget);
-      await evaluateNotificationCard(
-        tester,
-        notificationCardFinder2,
-        title: "Data revoked",
-        content: "Demo MijnOverheid.nl has revoked this data: Demo Root",
-        read: true,
-      );
-    });
+  expect(
+    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    false,
+  );
 
-    testWidgets("dismiss-notification", (tester) async {
-      await pumpAndUnlockApp(tester, irmaBinding.repository);
-      await _issueAndRevokeDemoCredential(tester, irmaBinding);
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
 
-      await tester.tapAndSettle(notificationBellFinder);
-      expect(notificationsScreenFinder, findsOneWidget);
+  final notificationCardFinder2 = find.byType(NotificationCard);
+  expect(notificationCardFinder2, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder2,
+    title: _revokedRevokedTitle,
+    content: _revokedRevokedContent,
+    read: true,
+  );
+}
 
-      await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
-      await tester.pumpAndSettle();
+Future<void> testDismissNotification(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
 
-      final notificationCardFinder = find.byType(NotificationCard);
-      expect(notificationCardFinder, findsOneWidget);
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
 
-      await tester.drag(notificationCardFinder, const Offset(-500, 0));
-      await tester.pumpAndSettle();
-      expect(notificationCardFinder, findsNothing);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
 
-      // Navigate away and back; dismissal must persist.
-      await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
-      await tester.tapAndSettle(notificationBellFinder);
-      expect(notificationCardFinder, findsNothing);
+  final notificationCardFinder = find.byType(NotificationCard);
+  expect(notificationCardFinder, findsOneWidget);
 
-      // A fresh LoadNotifications must respect the dismissed flag.
-      await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
-      await tester.pumpAndSettle();
-      expect(notificationCardFinder, findsNothing);
-    });
+  await tester.drag(notificationCardFinder, const Offset(-500, 0));
+  await tester.pumpAndSettle();
+  expect(notificationCardFinder, findsNothing);
 
-    testWidgets("notification-action", (tester) async {
-      await pumpAndUnlockApp(tester, irmaBinding.repository);
-      await _issueAndRevokeDemoCredential(tester, irmaBinding);
+  // Navigate away and back; dismissal must persist.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(notificationCardFinder, findsNothing);
 
-      await tester.tapAndSettle(notificationBellFinder);
-      expect(notificationsScreenFinder, findsOneWidget);
+  // A fresh LoadNotifications must respect the dismissed flag.
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+  expect(notificationCardFinder, findsNothing);
+}
 
-      await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
-      await tester.pumpAndSettle();
+Future<void> testNotificationAction(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
 
-      final notificationCardFinder = find.byType(NotificationCard);
-      expect(notificationCardFinder, findsOneWidget);
-      await evaluateNotificationCard(
-        tester,
-        notificationCardFinder,
-        title: "Data revoked",
-        content: "Demo MijnOverheid.nl has revoked this data: Demo Root",
-        read: false,
-      );
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
 
-      await tester.tapAndSettle(notificationCardFinder);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
 
-      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
-      final credentialCardFinder = find.byType(YiviCredentialCard);
-      await evaluateCredentialCard(
-        tester,
-        credentialCardFinder.first,
-        credentialName: "Demo Root",
-        issuerName: "Demo MijnOverheid.nl",
-        attributes: [("BSN", "12345")],
-        isRevoked: true,
-      );
+  final notificationCardFinder = find.byType(NotificationCard);
+  expect(notificationCardFinder, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder,
+    title: _revokedRevokedTitle,
+    content: _revokedRevokedContent,
+    read: false,
+  );
 
-      await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
-      expect(notificationsScreenFinder, findsOneWidget);
+  await tester.tapAndSettle(notificationCardFinder);
 
-      final notificationCardFinder2 = find.byType(NotificationCard);
-      expect(notificationCardFinder2, findsOneWidget);
-      await evaluateNotificationCard(
-        tester,
-        notificationCardFinder2,
-        title: "Data revoked",
-        content: "Demo MijnOverheid.nl has revoked this data: Demo Root",
-        read: true,
-      );
-    });
-  });
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+  final credentialCardFinder = find.byType(YiviCredentialCard);
+  await evaluateCredentialCard(
+    tester,
+    credentialCardFinder.first,
+    credentialName: "Demo Root",
+    issuerName: "Demo MijnOverheid.nl",
+    attributes: [("BSN", "12345")],
+    isRevoked: true,
+  );
+
+  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
+  expect(_notificationsScreenFinder, findsOneWidget);
+
+  final notificationCardFinder2 = find.byType(NotificationCard);
+  expect(notificationCardFinder2, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder2,
+    title: _revokedRevokedTitle,
+    content: _revokedRevokedContent,
+    read: true,
+  );
+}
+
+Future<void> testMultipleNotificationsAndPerCardNavigation(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
+  // 3-day TTL puts the SD-JWT cred squarely in the expiringSoon window
+  // (validDays <= 7) without needing to wait for it to expire.
+  await _issueOid4vciEmailCredential(
+    tester,
+    irmaBinding,
+    ttlSeconds: 86400 * 3,
+  );
+
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
+
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+
+  expect(find.byType(NotificationCard), findsExactly(2));
+  expect(_cardWithContent(_revokedRevokedContent), findsOneWidget);
+  expect(_cardWithContent(_expiringSoonContent), findsOneWidget);
+
+  await evaluateNotificationCard(
+    tester,
+    _cardWithContent(_revokedRevokedContent),
+    title: _revokedRevokedTitle,
+    read: false,
+  );
+  await evaluateNotificationCard(
+    tester,
+    _cardWithContent(_expiringSoonContent),
+    title: _expiringSoonTitle,
+    read: false,
+  );
+
+  // Tap the revoked card → MijnOverheid.root details. Back.
+  await tester.tapAndSettle(_cardWithContent(_revokedRevokedContent));
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Demo Root",
+  );
+  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
+  expect(_notificationsScreenFinder, findsOneWidget);
+
+  // Revoked card now read; expiring card still unread; bell still on.
+  await evaluateNotificationCard(
+    tester,
+    _cardWithContent(_revokedRevokedContent),
+    read: true,
+  );
+  await evaluateNotificationCard(
+    tester,
+    _cardWithContent(_expiringSoonContent),
+    read: false,
+  );
+  expect(
+    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    true,
+  );
+
+  // Tap the expiring card → SD-JWT email details. Back.
+  await tester.tapAndSettle(_cardWithContent(_expiringSoonContent));
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    find.byType(YiviCredentialCard).first,
+    credentialName: "Email Credential (SD-JWT)",
+  );
+  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
+  expect(_notificationsScreenFinder, findsOneWidget);
+
+  // Both cards read now.
+  await evaluateNotificationCard(
+    tester,
+    _cardWithContent(_revokedRevokedContent),
+    read: true,
+  );
+  await evaluateNotificationCard(
+    tester,
+    _cardWithContent(_expiringSoonContent),
+    read: true,
+  );
+
+  // Leave the tab once more; bell indicator should be off now.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await tester.pumpAndSettle();
+  expect(
+    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    false,
+  );
+}
+
+Future<void> testOrphanRecordCleanupOnCredentialDelete(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
+
+  await tester.tapAndSettle(_notificationBellFinder);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+  expect(find.byType(NotificationCard), findsOneWidget);
+
+  // Delete the credential from the data tab.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await navigateToCredentialDetailsPage(tester, _revokableCredId);
+
+  final credentialCardFinder = find.byType(YiviCredentialCard).first;
+  await tester.tapAndSettle(
+    find.descendant(
+      of: credentialCardFinder,
+      matching: find.byIcon(Icons.more_horiz_sharp),
+    ),
+  );
+  await tester.tapAndSettle(find.text("Delete data"));
+  expect(find.byType(DeleteCredentialConfirmationDialog), findsOneWidget);
+  await tester.tapAndSettle(find.text("Delete"));
+
+  // After deleting the last instance, the screen pops back to DataTab.
+  await tester.waitFor(find.byType(DataTab));
+
+  // Open notifications and refresh — the orphan record must be dropped.
+  await tester.tapAndSettle(_notificationBellFinder);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+  expect(find.byType(NotificationCard), findsNothing);
+}
+
+Future<void> testLifecycleResumeTriggersLoadNotifications(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
+
+  // Pre-condition: Initialize ran with 0 creds before issuance, and no event
+  // has retriggered LoadNotifications since. Bell is off.
+  expect(
+    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    false,
+  );
+
+  // Drive the lifecycle observer in app.dart that calls
+  // notificationsBloc.add(LoadNotifications()) on resume.
+  WidgetsBinding.instance.handleAppLifecycleStateChanged(
+    AppLifecycleState.resumed,
+  );
+  await tester.pumpAndSettle();
+
+  expect(
+    tester.widget<NotificationBell>(_notificationBellFinder).showIndicator,
+    true,
+  );
+
+  await tester.tapAndSettle(_notificationBellFinder);
+  expect(_notificationsScreenFinder, findsOneWidget);
+  final notificationCardFinder = find.byType(NotificationCard);
+  expect(notificationCardFinder, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder,
+    title: _revokedRevokedTitle,
+    content: _revokedRevokedContent,
+    read: false,
+  );
+}
+
+Future<void> testColdStartPersistsDismissedFlag(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
+
+  await tester.tapAndSettle(_notificationBellFinder);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+
+  final notificationCardFinder = find.byType(NotificationCard);
+  expect(notificationCardFinder, findsOneWidget);
+
+  // Dismiss within session.
+  await tester.drag(notificationCardFinder, const Offset(-500, 0));
+  await tester.pumpAndSettle();
+  expect(notificationCardFinder, findsNothing);
+
+  // Drive a fresh Initialize to exercise the same cold-start code path the
+  // bloc takes on real app launch: read serialized records from prefs, run
+  // each handler against the live credential store, derive runtime
+  // notifications, and yield NotificationsInitialized. The dismissed flag
+  // must survive the JSON round-trip.
+  final bloc = BlocProvider.of<NotificationsBloc>(
+    tester.element(find.byType(NotificationsTab)),
+  );
+  bloc.add(Initialize());
+  await tester.pumpAndSettle();
+
+  expect(find.byType(NotificationCard), findsNothing);
+}
+
+Future<void> testTypeTransitionExpiringSoonToExpired(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  // 30s gives ~25s headroom for issuance + first refresh while still expiring
+  // within a tractable test runtime.
+  const ttlSeconds = 30;
+  final issuedAt = await _issueOid4vciEmailCredential(
+    tester,
+    irmaBinding,
+    ttlSeconds: ttlSeconds,
+  );
+
+  await tester.tapAndSettle(_notificationBellFinder);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+
+  final expiringCardFinder = find.byType(NotificationCard);
+  expect(expiringCardFinder, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    expiringCardFinder,
+    title: _expiringSoonTitle,
+    content: _expiringSoonContent,
+    read: false,
+  );
+
+  // Leave the tab → MarkAllNotificationsAsRead fires; the existing
+  // (hash, expiringSoon) record now has read=true.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await tester.pumpAndSettle();
+
+  // Wait until the credential's exp has passed. The 10s safety margin covers
+  // clock skew between client and Veramo issuer plus HTTP latency on the
+  // create-offer call (server-side `exp = serverNow + ttl` can be a few
+  // seconds ahead of `issuedAt`, so a tight buffer can leave the cred still
+  // valid by the handler's clock check).
+  final expiresAt = issuedAt.add(const Duration(seconds: ttlSeconds));
+  final remaining =
+      expiresAt.difference(DateTime.now()) + const Duration(seconds: 10);
+  if (!remaining.isNegative) {
+    await Future.delayed(remaining);
+  }
+
+  await tester.tapAndSettle(_notificationBellFinder);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+
+  // The handler dropped the (hash, expiringSoon) record (no live cred matches
+  // that type anymore) and minted a fresh (hash, expired) record with
+  // read=false.
+  final expiredCardFinder = find.byType(NotificationCard);
+  expect(expiredCardFinder, findsOneWidget);
+  await evaluateNotificationCard(
+    tester,
+    expiredCardFinder,
+    title: _expiredTitle,
+    content: _expiredContent,
+    read: false,
+  );
+}
+
+Future<void> testReIssueClearsRevokedNotification(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+  await _issueAndRevokeDemoCredential(tester, irmaBinding);
+
+  await tester.tapAndSettle(_notificationBellFinder);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+  expect(find.byType(NotificationCard), findsOneWidget);
+
+  // Re-issue with a fresh revocation key. The new cred is born non-revoked;
+  // the old hash is replaced.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await issueCredentials(
+    tester,
+    irmaBinding,
+    {_revokableCredAttribute: "12345"},
+    revocationKeys: {_revokableCredId: generateRevocationKey()},
+  );
+  await tester.tapAndSettle(find.text("OK"));
+
+  await tester.tapAndSettle(_notificationBellFinder);
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+
+  expect(find.byType(NotificationCard), findsNothing);
 }
