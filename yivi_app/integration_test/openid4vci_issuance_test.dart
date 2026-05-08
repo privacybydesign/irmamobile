@@ -12,6 +12,9 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/error/error_screen.dart";
 import "package:yivi_core/src/screens/error/tx_code_lockout_screen.dart";
+import "package:yivi_core/src/screens/notifications/notifications_tab.dart";
+import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
+import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/oid4vci_preauth_txcode_screen.dart";
@@ -143,6 +146,18 @@ void main() {
       "remove-deduped-and-unique-credentials",
       (tester) =>
           testRemoveDedupedAndUniqueCredentials(tester, irmaBinding),
+    );
+
+    // =========================================================================
+    // Notification tests
+    // =========================================================================
+
+    testWidgets(
+      "expired-credential-shows-expiration-notification",
+      (tester) => testExpiredCredentialShowsExpirationNotification(
+        tester,
+        irmaBinding,
+      ),
     );
   });
 }
@@ -783,6 +798,85 @@ Future<void> _issueEmailCredViaPreAuth(
 }
 
 // =============================================================================
+// Notification test implementations
+// =============================================================================
+
+/// Issues an SD-JWT email credential with a short TTL via OpenID4VCI, waits
+/// for it to expire, then verifies that the notifications tab surfaces a
+/// "Data expired" notification for it and that tapping the notification opens
+/// the credential detail screen.
+///
+/// `LoadNotifications` is dispatched only on app lifecycle resume, on bloc
+/// initialization, and on pull-to-refresh in the notifications tab. The
+/// issuance flow does not dispatch it, so the notification is only surfaced
+/// after the explicit refresh below.
+Future<void> testExpiredCredentialShowsExpirationNotification(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  final notificationBellFinder = find.byType(NotificationBell);
+  final notificationsScreenFinder = find.byType(NotificationsTab);
+
+  // Confirm a clean starting state so any card observed later is one we
+  // caused.
+  await tester.tapAndSettle(notificationBellFinder);
+  expect(notificationsScreenFinder, findsOneWidget);
+  expect(find.byType(NotificationCard), findsNothing);
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+
+  // Issue with a short positive TTL — the Veramo agent computes `exp = now +
+  // ttl`. Issuance verifies the JWT's `exp`, so it must still be in the future
+  // when the credential is fetched; we then wait for it to expire before
+  // refreshing notifications. An already-expired credential cannot be issued.
+  const ttlSeconds = 10;
+  final issuedAt = DateTime.now();
+  final offer = await startOpenID4VCISession(
+    credentialConfigId: "EmailCredentialSdJwt",
+    credentialData: {"email": "test@example.com", "domain": "example.com"},
+    ttlSeconds: ttlSeconds,
+  );
+  irmaBinding.repository.startTestSessionFromUrl(offer.uri);
+
+  await tester.waitFor(find.byType(IssuancePermission));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+  await tester.waitFor(find.byType(IssuanceSuccessScreen));
+  await tester.tapAndSettle(find.text("OK"));
+
+  // Wait until the credential's exp has passed (with a small safety margin).
+  final expiresAt = issuedAt.add(const Duration(seconds: ttlSeconds));
+  final remaining =
+      expiresAt.difference(DateTime.now()) + const Duration(seconds: 2);
+  if (!remaining.isNegative) {
+    await Future.delayed(remaining);
+  }
+
+  // Open the notifications tab and pull-to-refresh to drive the handler.
+  await tester.tapAndSettle(notificationBellFinder);
+  expect(notificationsScreenFinder, findsOneWidget);
+
+  await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
+  await tester.pumpAndSettle();
+
+  final notificationCardFinder = find.byType(NotificationCard);
+  expect(notificationCardFinder, findsOneWidget);
+
+  await evaluateNotificationCard(
+    tester,
+    notificationCardFinder,
+    title: "Data expired",
+    content: "This data has expired: Email Credential (SD-JWT)",
+    read: false,
+  );
+
+  // Tapping the notification opens the credential detail screen.
+  await tester.tapAndSettle(notificationCardFinder);
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+}
+
+// =============================================================================
 // Helper functions
 // =============================================================================
 
@@ -817,11 +911,16 @@ class OpenID4VCIOfferResponse {
 
 /// Creates a credential offer via the Veramo issuer API using the
 /// pre-authorized code flow.
+///
+/// [ttlSeconds] controls the credential's `exp` claim. Defaults to one year.
+/// A negative value produces an already-expired credential at issuance time
+/// (the Veramo agent computes `exp = now + ttl`).
 Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
   required String credentialConfigId,
   required Map<String, dynamic> credentialData,
   String? txCodeInputMode,
   int? txCodeLength,
+  int ttlSeconds = 31536000,
 }) async {
   final grants = <String, dynamic>{
     "urn:ietf:params:oauth:grant-type:pre-authorized_code": {
@@ -834,10 +933,10 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
     },
   };
 
-  // Add a 1-year TTL so the issued credential has a valid exp claim.
-  // The _ttl field is consumed by the Veramo agent and not included in the credential.
+  // The _ttl field is consumed by the Veramo agent and not included in the
+  // credential.
   final dataWithTtl = Map<String, dynamic>.from(credentialData);
-  dataWithTtl["_ttl"] = "31536000";
+  dataWithTtl["_ttl"] = ttlSeconds.toString();
 
   final body = {
     "credentials": [credentialConfigId],

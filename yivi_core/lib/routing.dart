@@ -164,7 +164,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 state.uri.queryParameters,
               );
               return SchemalessCredentialsDetailsScreen(
-                categoryName: args.categoryName,
                 credentialTypeId: args.credentialTypeId,
               );
             },

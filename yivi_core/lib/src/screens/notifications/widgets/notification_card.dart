@@ -2,7 +2,6 @@ import "package:flutter/material.dart" hide Notification;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 
-import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
 import "../../../widgets/irma_avatar.dart";
@@ -19,13 +18,12 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     String title = "";
     String contentMessage = "";
-    String? logo;
+    Image? logo;
 
     final notification =
         this.notification; // To prevent the need for type casting.
@@ -39,18 +37,10 @@ class NotificationCard extends StatelessWidget {
     );
 
     if (notification is CredentialStatusNotification) {
-      final credType =
-          repo.irmaConfiguration.credentialTypes[notification.credentialTypeId];
-      final translatedCredName = getTranslation(context, credType!.name);
+      final translatedCredName = getTranslation(context, notification.credentialName);
+      final translatedIssuerName = getTranslation(context, notification.issuerName);
 
-      String translatedIssuerName = "";
-      if (notification.type == CredentialStatusNotificationType.revoked) {
-        // To display the revoked notification we also need the issuer name.
-        final issuer = repo.irmaConfiguration.issuers[credType.fullIssuerId];
-        translatedIssuerName = getTranslation(context, issuer!.name);
-      }
-
-      logo = credType.logo;
+      logo = notification.logoImage?.getImageFromBase64();
       final content = notification.content as InternalTranslatedContent;
 
       title = FlutterI18n.translate(
@@ -92,7 +82,7 @@ class NotificationCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    IrmaAvatar(size: 52, initials: "i", logoPath: logo),
+                    IrmaAvatar(size: 52, initials: "i", logoImage: logo),
                     SizedBox(width: theme.smallSpacing),
                     Flexible(
                       child: Column(

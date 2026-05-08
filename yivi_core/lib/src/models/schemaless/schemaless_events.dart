@@ -127,7 +127,6 @@ class LogoImage {
 class Credential {
   final String credentialId;
   final String hash;
-  final String? imagePath;
   final LogoImage? image;
   final TranslatedValue name;
   final TrustedParty issuer;
@@ -153,7 +152,6 @@ class Credential {
     required this.revoked,
     required this.revocationSupported,
     required this.issueUrl,
-    this.imagePath,
     this.image,
   });
 

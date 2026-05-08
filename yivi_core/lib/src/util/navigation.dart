@@ -263,26 +263,18 @@ extension RoutingHelpers on BuildContext {
 // =============================================================================================
 
 class CredentialsDetailsRouteParams {
-  final String categoryName;
   final String credentialTypeId;
 
-  CredentialsDetailsRouteParams({
-    required this.categoryName,
-    required this.credentialTypeId,
-  });
+  CredentialsDetailsRouteParams({required this.credentialTypeId});
 
   Map<String, String> toQueryParams() {
-    return {
-      "category_name": categoryName,
-      "credential_type_id": credentialTypeId,
-    };
+    return {"credential_type_id": credentialTypeId};
   }
 
   static CredentialsDetailsRouteParams fromQueryParams(
     Map<String, String> params,
   ) {
     return CredentialsDetailsRouteParams(
-      categoryName: params["category_name"]!,
       credentialTypeId: params["credential_type_id"]!,
     );
   }

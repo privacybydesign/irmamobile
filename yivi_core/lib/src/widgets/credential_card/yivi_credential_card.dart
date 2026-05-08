@@ -71,7 +71,6 @@ class YiviCredentialCard extends ConsumerWidget {
          key: key,
          credentialName: credential.name,
          issuerName: credential.issuer.name,
-         imagePath: credential.imagePath,
          image: credential.image?.getImageFromBase64(),
          attributes: credential.attributes,
          status: CredentialCardStatus(
