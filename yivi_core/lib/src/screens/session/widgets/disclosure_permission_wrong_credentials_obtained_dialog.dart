@@ -55,68 +55,70 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Flexible(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: [
-                      Semantics(
-                        namesRoute: !Platform.isIOS,
-                        label: FlutterI18n.translate(
-                          context,
-                          "accessibility.alert",
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Semantics(
+                          namesRoute: !Platform.isIOS,
+                          label: FlutterI18n.translate(
+                            context,
+                            "accessibility.alert",
+                          ),
+                          child: Text(
+                            FlutterI18n.translate(
+                              context,
+                              "disclosure_permission.wrong_credentials_added.title",
+                            ),
+                            style: theme.textTheme.displaySmall,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        child: Text(
+                        SizedBox(height: theme.mediumSpacing),
+                        Text(
                           FlutterI18n.translate(
                             context,
-                            "disclosure_permission.wrong_credentials_added.title",
+                            "disclosure_permission.wrong_credentials_added.explanation",
                           ),
-                          style: theme.textTheme.displaySmall,
-                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium,
+                          textAlign: TextAlign.left,
                         ),
-                      ),
-                      SizedBox(height: theme.mediumSpacing),
-                      Text(
-                        FlutterI18n.translate(
-                          context,
-                          "disclosure_permission.wrong_credentials_added.explanation",
-                        ),
-                        style: theme.textTheme.bodyMedium,
-                        textAlign: TextAlign.left,
-                      ),
-                      SizedBox(height: theme.defaultSpacing),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          FlutterI18n.translate(
-                            context,
-                            "disclosure_permission.wrong_credentials_added.you_issued",
+                        SizedBox(height: theme.defaultSpacing),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            FlutterI18n.translate(
+                              context,
+                              "disclosure_permission.wrong_credentials_added.you_issued",
+                            ),
+                            style: theme.themeData.textTheme.headlineMedium,
                           ),
-                          style: theme.themeData.textTheme.headlineMedium,
                         ),
-                      ),
-                      SizedBox(height: theme.smallSpacing),
-                      YiviCredentialCard.fromCredential(
-                        credential: wrongCredential,
-                        compact: true,
-                        hideFooter: true,
-                        compareTo: compareTo,
-                      ),
-                      SizedBox(height: theme.defaultSpacing),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          FlutterI18n.translate(
-                            context,
-                            "disclosure_permission.wrong_credentials_added.expected",
+                        SizedBox(height: theme.smallSpacing),
+                        YiviCredentialCard.fromCredential(
+                          credential: wrongCredential,
+                          compact: true,
+                          hideFooter: true,
+                          compareTo: compareTo,
+                        ),
+                        SizedBox(height: theme.defaultSpacing),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            FlutterI18n.translate(
+                              context,
+                              "disclosure_permission.wrong_credentials_added.expected",
+                            ),
+                            style: theme.themeData.textTheme.headlineMedium,
                           ),
-                          style: theme.themeData.textTheme.headlineMedium,
                         ),
-                      ),
-                      SizedBox(height: theme.smallSpacing),
-                      YiviCredentialCard.fromDescriptor(
-                        descriptor: template,
-                        compact: true,
-                      ),
-                    ],
+                        SizedBox(height: theme.smallSpacing),
+                        YiviCredentialCard.fromDescriptor(
+                          descriptor: template,
+                          compact: true,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: theme.defaultSpacing),
