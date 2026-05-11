@@ -6,13 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Update the enrollment 'from' emailaddress
+- Make data tab, credential details, activity, notifications and add-data screens schema-independent
 - Restructure session handling to use a schema-independent interface via irmago
 - Add support for issuing SD-JWT VC credentials over the OpenID4VCI protocol
-- Add support for Pre-Authorized code flow with tx_code
+- Add support for pre-Authorized code flow with optional tx_code
+- Add support for authorization code flow with `https://open.yivi.app/-/auth-callback` as the return url
+- Extended support for OpenID4VP disclosures with DIDs
 - Replace disclosure permission BLoC with Riverpod-based session state management
-- Make data tab, credential details, activity and add-data screens schema-independent
 - Add certificate management in developer mode
+- Redesigned credential card with support for nested claims
+- Update the enrollment 'from' emailaddress
+
+### Fixed
+- Rooted device detection/acceptance flow now works correctly` as the return url
+
+### Internal
+- Integration tests are now run in parallel on CI
 
 ## [7.13.5] - 2026-04-22
 ### Changed
