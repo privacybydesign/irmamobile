@@ -110,20 +110,26 @@ private_lane :android_build_app do |options|
   end
 end
 
-lane :android_build_integration_test do
+lane :android_build_integration_test do |options|
+  test_file = options[:test_file]
+  raise "test_file is required" unless test_file
+  test_name = File.basename(test_file, ".dart")
+
   update_schemes()
   Dir.chdir("../yivi_app") do
     sh(
       "flutter", "build", "apk",
       "--flavor", "alpha",
       "--debug",
-      "./integration_test/test_all.dart"
+      test_file
     )
     Dir.chdir("./android") do
       sh("./gradlew", "app:assembleAndroidTest")
     end
-    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ../fastlane/build/")
-    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ../fastlane/build/")
+    sh("cp ./build/app/outputs/apk/alpha/debug/app-alpha-debug.apk " \
+       "../fastlane/build/#{test_name}_app.apk")
+    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk " \
+       "../fastlane/build/#{test_name}_androidTest.apk")
   end
 end
 
@@ -206,6 +212,10 @@ lane :ios_build_app do |options|
 end
 
 lane :ios_build_integration_test do |options|
+  test_file = options[:test_file]
+  raise "test_file is required" unless test_file
+  test_name = File.basename(test_file, ".dart")
+
   update_schemes()
   set_provisioning_profile(
     provisioning_profile_path: options[:provisioning_profile_path],
@@ -214,49 +224,33 @@ lane :ios_build_integration_test do |options|
     code_signing_identity: options[:code_signing_identity]
   )
 
-  # Navigate to the Flutter project root directory
   Dir.chdir("../yivi_app") do
-    # Get a list of all Dart test files in the integration_test directory
-    test_files = Dir["integration_test/**/*_test.dart"]
+    sh(
+      "flutter", "build", "ios",
+      "--release",
+      "--config-only",
+      test_file
+    )
 
-    test_files.each do |test_file|
-      # Extract the base name of the test file to use for naming zip files
-      test_name = File.basename(test_file, ".dart")
-
-      # Run Flutter build for each test file
+    Dir.chdir("./ios") do
       sh(
-        "flutter", "build", "ios",
-        "--release",
-        "--config-only",
-        test_file
+        "xcodebuild",
+        "-workspace", "Runner.xcworkspace",
+        "-scheme", "Runner",
+        "-config", "Flutter/Release.xcconfig",
+        "-derivedDataPath", "../build/ios_integ",
+        "-sdk", "iphoneos",
+        "build-for-testing"
       )
+    end
 
-      # Navigate to the ios directory and run xcodebuild for each test
-      Dir.chdir("./ios") do
-        sh(
-          "xcodebuild",
-          "-workspace", "Runner.xcworkspace",
-          "-scheme", "Runner",
-          "-config", "Flutter/Release.xcconfig",
-          "-derivedDataPath", "../build/ios_integ",
-          "-sdk", "iphoneos",
-          "build-for-testing"
-        )
-      end
+    Dir.chdir("./build/ios_integ/Build/Products") do
+      # XCode does not clean left-over build artifacts created by earlier XCode versions.
+      # Therefore, we ensure only the xctestrun file for the latest iOS SDK is included.
+      test_run_name = sh("ls -r1 *.xctestrun | head -n 1").strip
 
-      # Create a zip for each test output
-      Dir.chdir("./build/ios_integ/Build/Products") do
-        # XCode does not clean left-over build artifacts created by earlier XCode versions.
-        # Therefore, we ensure only the xctestrun file for the latest iOS SDK is included.
-        # Get the latest .xctestrun file (assumes the latest file is the one just built)
-        test_run_name = sh("ls -r1 *.xctestrun | head -n 1").strip
-
-        # Remove any existing zip file with the same name
-        sh("rm -f ../../../../../fastlane/build/#{test_name}_ios_tests.zip")
-
-        # Zip the build artifacts for the current test file
-        sh("zip -r ../../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
-      end
+      sh("rm -f ../../../../../fastlane/build/#{test_name}_ios_tests.zip")
+      sh("zip -r ../../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
     end
   end
 end
