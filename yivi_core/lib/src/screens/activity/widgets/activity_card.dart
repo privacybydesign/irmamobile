@@ -29,8 +29,8 @@ class ActivityCard extends StatelessWidget {
       context,
       "credential.date_at_time",
       translationParams: {
-        "date": DateFormat.yMMMMd(lang).format(logEntry.time),
-        "time": DateFormat.jm(lang).format(logEntry.time),
+        "date": DateFormat.yMMMMd(lang).format(logEntry.time.toLocal()),
+        "time": DateFormat.jm(lang).format(logEntry.time.toLocal()),
       },
     );
 

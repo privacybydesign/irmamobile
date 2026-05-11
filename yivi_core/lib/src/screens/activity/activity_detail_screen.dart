@@ -60,8 +60,8 @@ class ActivityDetailsScreen extends StatelessWidget {
                     "credential.date_at_time",
                     key: const Key("activity_timestamp"),
                     translationParams: {
-                      "date": DateFormat.yMMMMd(lang).format(logEntry.time),
-                      "time": DateFormat.jm(lang).format(logEntry.time),
+                      "date": DateFormat.yMMMMd(lang).format(logEntry.time.toLocal()),
+                      "time": DateFormat.jm(lang).format(logEntry.time.toLocal()),
                     },
                     style: theme.themeData.textTheme.bodyMedium,
                   ),

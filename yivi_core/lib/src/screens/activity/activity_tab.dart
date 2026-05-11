@@ -115,7 +115,9 @@ class _ActivityTabState extends State<ActivityTab> {
       final logEntry = logEntries[index];
       final insertMonthSeparator =
           index == 0 ||
-          index > 0 && logEntries[index - 1].time.month != logEntry.time.month;
+          index > 0 &&
+              logEntries[index - 1].time.toLocal().month !=
+                  logEntry.time.toLocal().month;
       return [
         if (insertMonthSeparator)
           Padding(
@@ -129,7 +131,10 @@ class _ActivityTabState extends State<ActivityTab> {
             child: Semantics(
               header: true,
               child: Text(
-                DateFormat("MMMM", local).format(logEntry.time).toCapitalized(),
+                DateFormat(
+                  "MMMM",
+                  local,
+                ).format(logEntry.time.toLocal()).toCapitalized(),
                 style: theme.themeData.textTheme.displaySmall,
               ),
             ),

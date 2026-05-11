@@ -64,6 +64,8 @@ class LogInfo {
   });
 
   final LogType type;
+
+  /// UTC; call `.toLocal()` before display.
   final DateTime time;
   final IssuanceLog? issuanceLog;
   final DisclosureLog? disclosureLog;
