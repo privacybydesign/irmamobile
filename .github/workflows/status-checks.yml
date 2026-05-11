@@ -40,6 +40,8 @@ jobs:
           echo "Versions are in sync."
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
+      - name: Install sqlcipher
+        run: sudo apt-get update && sudo apt-get install -y libsqlcipher-dev
       - run: bundle exec fastlane lint
   unit-test:
     runs-on: ubuntu-latest
