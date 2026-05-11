@@ -11,7 +11,6 @@ import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
-import "../disclosure_helpers.dart";
 
 Future<void> combinedDisclosureIssuanceSessionTest(
   WidgetTester tester,
