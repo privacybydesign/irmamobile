@@ -47,14 +47,8 @@ lane :android_build do |options|
 end
 
 lane :android_build_irmagobridge do
-  Dir.chdir("../yivi_core") do
-    sh(
-      "gomobile", "bind",
-      "-target", "android",
-      "-androidapi", "26",
-      "-o", "android/irmagobridge/irmagobridge.aar",
-      "github.com/privacybydesign/irmamobile/irmagobridge"
-    )
+  Dir.chdir("..") do
+    sh("./bind_go.sh", "android")
   end
 end
 
@@ -146,14 +140,8 @@ lane :ios_build do |options|
 end
 
 lane :ios_build_irmagobridge do
-  Dir.chdir("../yivi_core") do
-    sh(
-      "gomobile", "bind",
-      "-target", "ios",
-      "-iosversion", "15.6",
-      "-o", "ios/Irmagobridge.xcframework",
-      "github.com/privacybydesign/irmamobile/irmagobridge"
-    )
+  Dir.chdir("..") do
+    sh("./bind_go.sh", "ios")
   end
 end
 

@@ -61,6 +61,10 @@ runs:
       if: runner.os == 'macOS'
       run: sudo xcode-select --switch /Applications/Xcode_26.1.app
       shell: bash
+    - name: Install sqlcipher (macOS)
+      if: runner.os == 'macOS'
+      run: brew install sqlcipher
+      shell: bash
     - name: Check Cocoapods cache
       id: cocoapods-cache
       if: runner.os == 'macOS'
