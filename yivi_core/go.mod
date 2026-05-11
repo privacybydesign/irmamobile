@@ -7,7 +7,7 @@ toolchain go1.24.7
 require (
 	github.com/go-errors/errors v1.4.2
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
-	github.com/privacybydesign/irmago v0.19.1
+	github.com/privacybydesign/irmago v0.19.3-0.20260511075746-551cb563c2d0
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/mobile v0.0.0-20260120165949-40bd9ace6ce4
 )
@@ -92,5 +92,3 @@ require (
 	gorm.io/driver/sqlserver v1.6.0 // indirect
 	gorm.io/gorm v1.31.1 // indirect
 )
-
-replace github.com/privacybydesign/irmago => ../../irmago
