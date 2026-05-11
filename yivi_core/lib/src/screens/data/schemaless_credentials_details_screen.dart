@@ -98,7 +98,7 @@ class _CredentialsDetailsScreenState
 
     ref.listen(provider, (_, creds) {
       // when there are no credentials (e.g. when they were all removed) we should go back to the previous page
-      if (creds case AsyncData(value: [])) {
+      if (creds case AsyncData(value: []) when context.canPop()) {
         context.pop();
       }
     });

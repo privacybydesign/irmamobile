@@ -38,17 +38,22 @@ void main() {
       );
 
       final firstCard = find.byType(SchemalessYiviCredentialTypeCard).first;
-      final gesture = await tester.startGesture(
-        tester.getCenter(firstCard),
-        kind: .touch,
-      );
+      final secondCard = find.byType(SchemalessYiviCredentialTypeCard).at(1);
+      final firstCenter = tester.getCenter(firstCard);
+      final dragDistance = tester.getCenter(secondCard).dy - firstCenter.dy;
+
+      final gesture = await tester.startGesture(firstCenter, kind: .touch);
 
       // long press
       await tester.pump(const Duration(milliseconds: 600));
-      // drag down
-      await gesture.moveBy(const Offset(0, 200));
-
-      await tester.pump();
+      // Drag down just past the second card's midpoint, in small increments so
+      // the ReorderableListView can track the drag across intermediate frames.
+      // A single large moveBy doesn't commit the reorder.
+      const dragSteps = 10;
+      for (var i = 0; i < dragSteps; i++) {
+        await gesture.moveBy(Offset(0, (dragDistance + 10) / dragSteps));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
 
       // release
       await gesture.up();
