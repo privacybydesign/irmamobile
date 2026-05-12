@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update the enrollment 'from' emailaddress
 
 ### Fixed
-- Rooted device detection/acceptance flow now works correctly` as the return url
+- Rooted device detection/acceptance flow now works correctly as the return url
 
 ### Internal
 - Integration tests are now run in parallel on CI
