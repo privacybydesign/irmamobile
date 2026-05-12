@@ -39,7 +39,7 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
   continueOnSecondDevice: json['continue_on_second_device'] as bool? ?? false,
   remainingPinAttempts: (json['remaining_pin_attempts'] as num?)?.toInt(),
   pinBlockedTimeSeconds: (json['pin_blocked_time_seconds'] as num?)?.toInt(),
-  oid4VciState: json['oid4_vci_state'] as String?,
+  openID4VCIState: json['openid4vci_state'] as String?,
   authorizationRequestUrl: json['authorization_request_url'] as String?,
   transactionCodeParameters: json['transaction_code_parameters'] == null
       ? null

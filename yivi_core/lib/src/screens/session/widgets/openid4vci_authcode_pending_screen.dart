@@ -8,12 +8,12 @@ import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
 import "session_scaffold.dart";
 
-class OpenId4VciAuthCodePendingScreen extends StatelessWidget {
+class OpenID4VCIAuthCodePendingScreen extends StatelessWidget {
   final TrustedParty issuer;
   final VoidCallback onOpenBrowser;
   final VoidCallback onDismiss;
 
-  const OpenId4VciAuthCodePendingScreen({
+  const OpenID4VCIAuthCodePendingScreen({
     super.key,
     required this.issuer,
     required this.onOpenBrowser,

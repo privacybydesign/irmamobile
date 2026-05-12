@@ -28,8 +28,8 @@ import "widgets/disclosure_permission_introduction_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
-import "widgets/oid4vci_authcode_pending_screen.dart";
-import "widgets/oid4vci_preauth_txcode_screen.dart";
+import "widgets/openid4vci_authcode_pending_screen.dart";
+import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
 import "widgets/session_pin_entry_screen.dart";
 import "widgets/session_scaffold.dart";
@@ -81,7 +81,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// True after the OID4VCI side effect (auto-grant or browser launch) has
   /// fired for the current session, so we don't fire it again on rebuilds or
   /// when the user returns from a cancelled browser flow.
-  bool _autoTriggeredForOpenId4Vci = false;
+  bool _autoTriggeredForOpenID4VCI = false;
 
   /// Tracks the most recent non-null `remainingTxCodeAttempts`. When the
   /// session subsequently transitions to [SessionStatus.error] with this
@@ -154,14 +154,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // returns from a cancelled browser session).
     ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
       final session = next.value;
-      if (session == null || _autoTriggeredForOpenId4Vci) return;
+      if (session == null || _autoTriggeredForOpenID4VCI) return;
 
       if (session.status == SessionStatus.requestPreAuthorizedCode &&
           session.transactionCodeParameters == null) {
-        _autoTriggeredForOpenId4Vci = true;
+        _autoTriggeredForOpenID4VCI = true;
         _grantPreAuthorizedCode(session, transactionCode: null);
       } else if (session.status == SessionStatus.requestAuthorizationCode) {
-        _autoTriggeredForOpenId4Vci = true;
+        _autoTriggeredForOpenID4VCI = true;
         _repo.openURLinAppBrowser(session.authorizationRequestUrl!);
       }
     });
@@ -309,7 +309,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Widget _buildOpenIdRequestPermission(SessionState session) {
     if (session.status == SessionStatus.requestPreAuthorizedCode) {
       if (session.transactionCodeParameters != null) {
-        return OpenId4VciPreAuthTxCodeScreen(
+        return OpenID4VCIPreAuthTxCodeScreen(
           sessionId: widget.sessionId,
           issuedCredentials: session.offeredCredentialTypes!,
           transactionCodeParameters: session.transactionCodeParameters!,
@@ -325,7 +325,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     // requestAuthorizationCode: browser auto-opened via ref.listen. This
     // screen is shown when the user returns to the app without completing.
-    return OpenId4VciAuthCodePendingScreen(
+    return OpenID4VCIAuthCodePendingScreen(
       issuer: session.offeredCredentialTypes!.first.issuer,
       onOpenBrowser: () =>
           _repo.openURLinAppBrowser(session.authorizationRequestUrl!),

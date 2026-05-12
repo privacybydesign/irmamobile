@@ -58,15 +58,15 @@ class SessionRepository {
   }
 
   /// Returns a stream of [SessionState] for the given session ID.
-  Stream<SessionState> getSessionStateByOpenId4VciState(String sessionState) {
+  Stream<SessionState> getSessionStateByOpenID4VCIState(String sessionState) {
     return _states
         .where(
           (map) =>
-              map.values.any((state) => state.oid4VciState == sessionState),
+              map.values.any((state) => state.openID4VCIState == sessionState),
         )
         .map(
           (map) => map.values.firstWhere(
-            (state) => state.oid4VciState == sessionState,
+            (state) => state.openID4VCIState == sessionState,
           ),
         );
   }

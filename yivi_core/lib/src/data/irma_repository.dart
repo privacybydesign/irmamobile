@@ -229,7 +229,7 @@ class IrmaRepository {
           }
 
           final sessionStream = _sessionRepository
-              .getSessionStateByOpenId4VciState(state);
+              .getSessionStateByOpenID4VCIState(state);
           if (await sessionStream.isEmpty) {
             throw MissingPointer(
               details: 'No session found for state value "$state"',
@@ -491,8 +491,8 @@ class IrmaRepository {
     return _sessionRepository.getSessionState(sessionId);
   }
 
-  Stream<SessionState> getSessionStateByOpenId4VciState(String sessionState) {
-    return _sessionRepository.getSessionStateByOpenId4VciState(sessionState);
+  Stream<SessionState> getSessionStateByOpenID4VCIState(String sessionState) {
+    return _sessionRepository.getSessionStateByOpenID4VCIState(sessionState);
   }
 
   /// Stream that emits session IDs when a new session is first seen.

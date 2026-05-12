@@ -12,14 +12,14 @@ import "../../../util/language.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "session_scaffold.dart";
 
-class OpenId4VciPreAuthTxCodeScreen extends ConsumerStatefulWidget {
+class OpenID4VCIPreAuthTxCodeScreen extends ConsumerStatefulWidget {
   final int sessionId;
   final List<schemaless.CredentialDescriptor> issuedCredentials;
   final PreAuthorizationCodeTransactionCodeParameters transactionCodeParameters;
   final void Function(String code) onSubmit;
   final VoidCallback onDismiss;
 
-  const OpenId4VciPreAuthTxCodeScreen({
+  const OpenID4VCIPreAuthTxCodeScreen({
     super.key,
     required this.sessionId,
     required this.issuedCredentials,
@@ -29,12 +29,12 @@ class OpenId4VciPreAuthTxCodeScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<OpenId4VciPreAuthTxCodeScreen> createState() =>
-      _OpenId4VciPreAuthTxCodeScreenState();
+  ConsumerState<OpenID4VCIPreAuthTxCodeScreen> createState() =>
+      _OpenID4VCIPreAuthTxCodeScreenState();
 }
 
-class _OpenId4VciPreAuthTxCodeScreenState
-    extends ConsumerState<OpenId4VciPreAuthTxCodeScreen> {
+class _OpenID4VCIPreAuthTxCodeScreenState
+    extends ConsumerState<OpenID4VCIPreAuthTxCodeScreen> {
   final _focusNode = FocusNode();
   final _textController = TextEditingController();
 
@@ -206,7 +206,7 @@ class _OpenId4VciPreAuthTxCodeScreenState
 
       return Pinput(
         controller: _textController,
-        key: const Key("oid4vci_tx_code_input_field"),
+        key: const Key("openid4vci_tx_code_input_field"),
         focusNode: _focusNode,
         autofocus: true,
         keyboardType: _keyboardType,
@@ -223,7 +223,7 @@ class _OpenId4VciPreAuthTxCodeScreenState
 
     return TextField(
       controller: _textController,
-      key: const Key("oid4vci_tx_code_input_field"),
+      key: const Key("openid4vci_tx_code_input_field"),
       focusNode: _focusNode,
       autocorrect: false,
       autofocus: true,

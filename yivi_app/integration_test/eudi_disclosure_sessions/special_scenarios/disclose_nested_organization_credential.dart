@@ -15,7 +15,7 @@ import "../../irma_binding.dart";
 /// top-level attributes.
 ///
 /// The exhaustive nested-rendering path is already covered by
-/// `openid4vci_issuance_test.dart::testIssueOrganizationOpenId4Vci`. This
+/// `openid4vci_issuance_test.dart::testIssueOrganizationOpenID4VCI`. This
 /// test confirms the same credential type works as a *disclosure* target.
 Future<void> discloseNestedOrganizationCredentialTest(
   WidgetTester tester,

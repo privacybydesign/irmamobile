@@ -52,7 +52,8 @@ class SessionState {
   final bool continueOnSecondDevice;
   final int? remainingPinAttempts;
   final int? pinBlockedTimeSeconds;
-  final String? oid4VciState;
+  @JsonKey(name: "openid4vci_state")
+  final String? openID4VCIState;
   final String? authorizationRequestUrl;
   final PreAuthorizationCodeTransactionCodeParameters?
   transactionCodeParameters;
@@ -74,7 +75,7 @@ class SessionState {
     this.continueOnSecondDevice = false,
     this.remainingPinAttempts,
     this.pinBlockedTimeSeconds,
-    this.oid4VciState,
+    this.openID4VCIState,
     this.authorizationRequestUrl,
     this.transactionCodeParameters,
     this.remainingTxCodeAttempts,

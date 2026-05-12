@@ -19,7 +19,7 @@ import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
-import "package:yivi_core/src/screens/session/widgets/oid4vci_authcode_pending_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/openid4vci_authcode_pending_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "helpers/helpers.dart";
@@ -75,12 +75,12 @@ void main() {
 
     testWidgets(
       "issue-email-openid4vci-authcode",
-      (tester) => testIssueEmailOpenId4VciAuthCode(tester, irmaBinding),
+      (tester) => testIssueEmailOpenID4VCIAuthCode(tester, irmaBinding),
     );
 
     testWidgets(
       "issue-organization-openid4vci-authcode",
-      (tester) => testIssueOrganizationOpenId4VciAuthCode(tester, irmaBinding),
+      (tester) => testIssueOrganizationOpenID4VCIAuthCode(tester, irmaBinding),
     );
 
     // =========================================================================
@@ -103,7 +103,7 @@ void main() {
 // Happy path test implementations
 // =============================================================================
 
-Future<void> testIssueEmailOpenId4VciAuthCode(
+Future<void> testIssueEmailOpenID4VCIAuthCode(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
@@ -119,12 +119,12 @@ Future<void> testIssueEmailOpenId4VciAuthCode(
   final sessionId = await newSessionFuture;
 
   // The wallet auto-launches the browser when the session enters
-  // requestAuthorizationCode. Wait for oid4VciState to be populated, then
+  // requestAuthorizationCode. Wait for openID4VCIState to be populated, then
   // dispatch the synthetic deep-link that mimics the browser redirect.
   final session = await irmaBinding.repository
       .getSessionState(sessionId)
-      .firstWhere((s) => s.oid4VciState != null);
-  final walletState = session.oid4VciState!;
+      .firstWhere((s) => s.openID4VCIState != null);
+  final walletState = session.openID4VCIState!;
   final code = await getAuthCodeFromMockAS(
     issuerState: offer.issuerState,
     walletState: walletState,
@@ -163,7 +163,7 @@ Future<void> testIssueEmailOpenId4VciAuthCode(
   );
 }
 
-Future<void> testIssueOrganizationOpenId4VciAuthCode(
+Future<void> testIssueOrganizationOpenID4VCIAuthCode(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
@@ -211,8 +211,8 @@ Future<void> testIssueOrganizationOpenId4VciAuthCode(
 
   final session = await irmaBinding.repository
       .getSessionState(sessionId)
-      .firstWhere((s) => s.oid4VciState != null);
-  final walletState = session.oid4VciState!;
+      .firstWhere((s) => s.openID4VCIState != null);
+  final walletState = session.openID4VCIState!;
   final code = await getAuthCodeFromMockAS(
     issuerState: offer.issuerState,
     walletState: walletState,
@@ -286,7 +286,7 @@ Future<void> testDismissOnPendingScreen(
 
   // The wallet auto-launches the browser. Without a synthetic redirect, the
   // session stays in requestAuthorizationCode and the pending screen renders.
-  await tester.waitFor(find.byType(OpenId4VciAuthCodePendingScreen));
+  await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
 
   // Tap "Cancel" to dismiss the session directly.
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_secondary")));
@@ -321,8 +321,8 @@ Future<void> testDismissOnIssuancePermissionScreen(
 
   final session = await irmaBinding.repository
       .getSessionState(sessionId)
-      .firstWhere((s) => s.oid4VciState != null);
-  final walletState = session.oid4VciState!;
+      .firstWhere((s) => s.openID4VCIState != null);
+  final walletState = session.openID4VCIState!;
   final code = await getAuthCodeFromMockAS(
     issuerState: offer.issuerState,
     walletState: walletState,
