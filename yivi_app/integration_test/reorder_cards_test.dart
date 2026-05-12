@@ -59,8 +59,10 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
 
-      // give it some time to update shared preferences
-      await Future.delayed(Duration(seconds: 1));
+      // let the reorder ghost/lift animation fully clear from the overlay
+      // and give shared preferences time to update
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
       final orderAfterDragOnDisk = irmaBinding.repository.preferences
           .getCredentialOrder();
@@ -121,9 +123,15 @@ void main() {
 }
 
 Future<void> deletePersonalDataCard(WidgetTester tester) async {
-  final cardFinder = find.byType(SchemalessYiviCredentialTypeCard).at(2);
+  final cardFinder = find.byKey(
+    const ValueKey("irma-demo.gemeente.personalData"),
+  );
   await tester.scrollUntilVisible(cardFinder, 100);
-  await tester.tapAndSettle(cardFinder);
+  // Tap on the left side of the card: in landscape, the central raised
+  // scanner FAB in the bottom nav covers the card's geometric center.
+  final cardRect = tester.getRect(cardFinder);
+  await tester.tapAt(Offset(cardRect.left + 100, cardRect.top + 30));
+  await tester.pumpAndSettle();
 
   // Open the bottom sheet
   final bottomSheetButtonFinder = find.byIcon(Icons.more_horiz_sharp);

@@ -446,6 +446,10 @@ Future<void> testClaimSetsPickFirstSatisfyingOption(
   // go back
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   await shareAndFinishDisclosureSession(tester);
+
+  // Drain any pending focus/animation work before teardown, otherwise a stray
+  // FocusManager.notifyListeners can fire after the binding is disposed.
+  await tester.pumpAndSettle();
 }
 
 Future<void> testClaimWithMultipleValueOptionsTwoMatch(

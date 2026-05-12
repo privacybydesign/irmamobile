@@ -509,6 +509,9 @@ Future<void> testOrphanRecordCleanupOnCredentialDelete(
 
   // After deleting the last instance, the screen pops back to DataTab.
   await tester.waitFor(find.byType(DataTab));
+  // Wait for the post-delete snackbar to disappear so it doesn't overlap
+  // the RefreshIndicator hit area on the notifications tab.
+  await tester.pumpAndSettle(const Duration(seconds: 5));
 
   // Open notifications and refresh — the orphan record must be dropped.
   await tester.tapAndSettle(_notificationBellFinder);
