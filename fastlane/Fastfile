@@ -47,8 +47,14 @@ lane :android_build do |options|
 end
 
 lane :android_build_irmagobridge do
-  Dir.chdir("..") do
-    sh("./bind_go.sh", "android")
+  Dir.chdir("../yivi_core") do
+    sh(
+      "gomobile", "bind",
+      "-target", "android",
+      "-androidapi", "26",
+      "-o", "android/irmagobridge/irmagobridge.aar",
+      "github.com/privacybydesign/irmamobile/irmagobridge"
+    )
   end
 end
 
@@ -110,32 +116,20 @@ private_lane :android_build_app do |options|
   end
 end
 
-# One-time setup before looping the per-test build lane. Pulls fresh
-# irma_configuration submodules. Run this once per shard, not per test, since
-# update_schemes does ~4 network git operations per call.
-lane :prepare_android_integration_test_build do
+lane :android_build_integration_test do
   update_schemes()
-end
-
-lane :android_build_integration_test do |options|
-  test_file = options[:test_file]
-  raise "test_file is required" unless test_file
-  test_name = File.basename(test_file, ".dart")
-
   Dir.chdir("../yivi_app") do
     sh(
       "flutter", "build", "apk",
       "--flavor", "alpha",
       "--debug",
-      test_file
+      "./integration_test/test_all.dart"
     )
     Dir.chdir("./android") do
       sh("./gradlew", "app:assembleAndroidTest")
     end
-    sh("cp ./build/app/outputs/apk/alpha/debug/app-alpha-debug.apk " \
-       "../fastlane/build/#{test_name}_app.apk")
-    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk " \
-       "../fastlane/build/#{test_name}_androidTest.apk")
+    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ../fastlane/build/")
+    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ../fastlane/build/")
   end
 end
 
@@ -152,8 +146,14 @@ lane :ios_build do |options|
 end
 
 lane :ios_build_irmagobridge do
-  Dir.chdir("..") do
-    sh("./bind_go.sh", "ios")
+  Dir.chdir("../yivi_core") do
+    sh(
+      "gomobile", "bind",
+      "-target", "ios",
+      "-iosversion", "15.6",
+      "-o", "ios/Irmagobridge.xcframework",
+      "github.com/privacybydesign/irmamobile/irmagobridge"
+    )
   end
 end
 
@@ -217,12 +217,7 @@ lane :ios_build_app do |options|
   end
 end
 
-# One-time setup before looping the per-test build lane. Pulls fresh
-# irma_configuration submodules and installs cert + provisioning profile into
-# the keychain. Run this once per shard, not per test, since both are
-# expensive (~4 network git ops + keychain mutation) and idempotent within the
-# runner.
-lane :prepare_ios_integration_test_build do |options|
+lane :ios_build_integration_test do |options|
   update_schemes()
   set_provisioning_profile(
     provisioning_profile_path: options[:provisioning_profile_path],
@@ -230,46 +225,50 @@ lane :prepare_ios_integration_test_build do |options|
     certificate_password: options[:certificate_password],
     code_signing_identity: options[:code_signing_identity]
   )
-end
 
-lane :ios_build_integration_test do |options|
-  test_file = options[:test_file]
-  raise "test_file is required" unless test_file
-  test_name = File.basename(test_file, ".dart")
-
+  # Navigate to the Flutter project root directory
   Dir.chdir("../yivi_app") do
-    sh(
-      "flutter", "build", "ios",
-      "--release",
-      "--config-only",
-      test_file
-    )
+    # Get a list of all Dart test files in the integration_test directory
+    test_files = Dir["integration_test/**/*_test.dart"]
 
-    Dir.chdir("./ios") do
-      # Pipe xcodebuild through xcpretty: raw xcodebuild emits the full
-      # compiler invocation for every source file (each ~1-2 KB of -I/-F/-D
-      # flags). A single shard's build job is ~14 MB of log, mostly noise.
-      # xcpretty collapses that to one line per file. `bash -o pipefail` is
-      # required so xcodebuild's non-zero exit isn't swallowed by xcpretty.
+    test_files.each do |test_file|
+      # Extract the base name of the test file to use for naming zip files
+      test_name = File.basename(test_file, ".dart")
+
+      # Run Flutter build for each test file
       sh(
-        "bash", "-o", "pipefail", "-c",
-        "xcodebuild " \
-        "-workspace Runner.xcworkspace " \
-        "-scheme Runner " \
-        "-config Flutter/Release.xcconfig " \
-        "-derivedDataPath ../build/ios_integ " \
-        "-sdk iphoneos " \
-        "build-for-testing 2>&1 | bundle exec xcpretty"
+        "flutter", "build", "ios",
+        "--release",
+        "--config-only",
+        test_file
       )
-    end
 
-    Dir.chdir("./build/ios_integ/Build/Products") do
-      # XCode does not clean left-over build artifacts created by earlier XCode versions.
-      # Therefore, we ensure only the xctestrun file for the latest iOS SDK is included.
-      test_run_name = sh("ls -r1 *.xctestrun | head -n 1").strip
+      # Navigate to the ios directory and run xcodebuild for each test
+      Dir.chdir("./ios") do
+        sh(
+          "xcodebuild",
+          "-workspace", "Runner.xcworkspace",
+          "-scheme", "Runner",
+          "-config", "Flutter/Release.xcconfig",
+          "-derivedDataPath", "../build/ios_integ",
+          "-sdk", "iphoneos",
+          "build-for-testing"
+        )
+      end
 
-      sh("rm -f ../../../../../fastlane/build/#{test_name}_ios_tests.zip")
-      sh("zip -r ../../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
+      # Create a zip for each test output
+      Dir.chdir("./build/ios_integ/Build/Products") do
+        # XCode does not clean left-over build artifacts created by earlier XCode versions.
+        # Therefore, we ensure only the xctestrun file for the latest iOS SDK is included.
+        # Get the latest .xctestrun file (assumes the latest file is the one just built)
+        test_run_name = sh("ls -r1 *.xctestrun | head -n 1").strip
+
+        # Remove any existing zip file with the same name
+        sh("rm -f ../../../../../fastlane/build/#{test_name}_ios_tests.zip")
+
+        # Zip the build artifacts for the current test file
+        sh("zip -r ../../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
+      end
     end
   end
 end

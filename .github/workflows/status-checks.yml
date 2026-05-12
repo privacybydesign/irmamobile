@@ -40,8 +40,6 @@ jobs:
           echo "Versions are in sync."
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
-      - name: Install sqlcipher
-        run: sudo apt-get update && sudo apt-get install -y libsqlcipher-dev
       - run: bundle exec fastlane lint
   unit-test:
     runs-on: ubuntu-latest
@@ -52,68 +50,6 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane unit_test
-  # Discovers every integration_test/*_test.dart and groups them into SHARDS
-  # round-robin buckets. Each bucket is one matrix entry consumed by the build
-  # and test jobs below.
-  #
-  # Why sharding instead of one CI job per test file:
-  # We have ~28 integration tests. One-job-per-test means ~28 build runners +
-  # ~28 test runners per platform, well above GitHub Actions' concurrent-runner
-  # cap. Jobs end up queued, and the wall-clock for the whole run is dominated
-  # by waiting, not by actual work. Bundling tests into SHARDS groups keeps the
-  # total job count manageable while preserving parallelism where it matters.
-  #
-  # Where parallelism is preserved vs given up:
-  # - Build side: each shard builds its tests SEQUENTIALLY on one runner. We
-  #   trade build parallelism for amortized per-runner setup cost (checkout,
-  #   Flutter install, irmagobridge download, iOS keychain provisioning are
-  #   each paid once per shard instead of once per test).
-  # - Test side: each shard fires off all its `gcloud firebase test ...` calls
-  #   IN PARALLEL via bash `& ... wait`. The GHA runner is just a thin
-  #   orchestrator; the actual device-time happens on Firebase Test Lab, so we
-  #   still get the same total simultaneous Firebase device runs as one-job-
-  #   per-test would, but on far fewer GHA runners.
-  #
-  # Why round-robin (and not contiguous slices):
-  # Test files in adjacent positions of the sorted list often belong to the
-  # same category (e.g. all 3 disclosure_session/* tests are adjacent), and
-  # within a category runtimes tend to be similar. Within a shard, test
-  # wall-clock is the MAX of its tests (parallel), so co-locating slow tests
-  # in one shard makes that shard the bottleneck. Round-robin spreads
-  # category-clustered tests across shards without needing per-test runtime
-  # data.
-  #
-  # Tuning SHARDS:
-  # Higher SHARDS = more wall-clock parallelism but more setup-tax
-  # duplication and more GHA-runner queue pressure. Lower SHARDS = less
-  # wall-clock parallelism but cheaper. 4 is the working balance for ~28
-  # tests; change here if either count shifts substantially.
-  discover-integration-tests:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Generate sharded matrix from integration_test files
-        id: set-matrix
-        working-directory: yivi_app
-        run: |
-          SHARDS=4
-          files=( $(find integration_test -name '*_test.dart' | sort) )
-          declare -a shard_files
-          for i in "${!files[@]}"; do
-            s=$(( i % SHARDS ))
-            shard_files[$s]+="${files[$i]} "
-          done
-          matrix='['
-          for s in $(seq 0 $((SHARDS-1))); do
-            fs="${shard_files[$s]% }"
-            matrix+="{\"shard\":$s,\"files\":\"$fs\"}"
-            [ $s -lt $((SHARDS-1)) ] && matrix+=","
-          done
-          matrix+=']'
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
   build-irmagobridge-ios:
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
     needs: lint
@@ -258,18 +194,11 @@ jobs:
         with:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
           path: ./fastlane/build/*
-  # One job per shard; each builds its ~7 test files sequentially and uploads
-  # a single per-shard artifact consumed by integration-test-ios below. See
-  # discover-integration-tests for the rationale behind sharding.
   build-integration-test-ios:
     runs-on: macos-15 # MacOS version is pinned, because it determines which XCode version is used.
-    needs:
-      - build-irmagobridge-ios
-      - discover-integration-tests
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.discover-integration-tests.outputs.matrix) }}
+    needs: build-irmagobridge-ios
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -290,61 +219,24 @@ jobs:
           mkdir -p ./fastlane/profiles
           echo $APPLE_DEVELOPMENT_CERTIFICATE | base64 --decode > ./fastlane/profiles/ios_development.p12
           echo $APPLE_DEVELOPMENT_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/development.mobileprovision
-      - name: Prepare integration test build
+      - name: Build
         run: >
-          bundle exec fastlane prepare_ios_integration_test_build
+          bundle exec fastlane ios_build_integration_test
           certificate_path:profiles/ios_development.p12
           certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
-      # Restore xcodebuild's derived data across CI runs so the first build in
-      # this shard becomes incremental rather than cold. The cache is keyed on
-      # the bits that change which native binaries get produced (Pods,
-      # pubspec deps, Xcode project structure) but NOT on yivi_app/lib or
-      # integration_test/, because xcodebuild's incremental compile handles
-      # Dart/source changes by rebuilding only what's affected. Single key is
-      # shared across all 4 shards since the Pods + Runner.app foundation is
-      # identical; only the Dart entry point differs per shard.
-      - name: Restore xcodebuild derived data
-        id: derived-data-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: yivi_app/build/ios_integ
-          key: ios-integ-${{ runner.os }}-${{ hashFiles('yivi_app/ios/Podfile.lock', 'yivi_app/pubspec.lock', 'yivi_app/ios/Runner.xcodeproj/project.pbxproj') }}
-          restore-keys: |
-            ios-integ-${{ runner.os }}-
-      - name: Build each test file in shard
-        run: |
-          for tf in ${{ matrix.files }}; do
-            echo "::group::Build $tf"
-            bundle exec fastlane ios_build_integration_test test_file:"$tf"
-            echo "::endgroup::"
-          done
-      # Only save on full shard success — a corrupt derived-data state from a
-      # mid-loop failure would poison the cache for every subsequent run.
-      # Skip save on an exact-key hit (no new info to add).
-      - name: Save xcodebuild derived data
-        if: success() && steps.derived-data-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: yivi_app/build/ios_integ
-          key: ${{ steps.derived-data-cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@v4
         with:
-          name: integration-test-ios-shard-${{ matrix.shard }}
-          path: ./fastlane/build/*_ios_tests.zip
-  # One job per shard; each builds its ~7 test files sequentially and uploads
-  # a single per-shard artifact consumed by integration-test-android below.
-  # See discover-integration-tests for the rationale behind sharding.
+          name: integration-test-ios
+          path: ./fastlane/build/*.zip
+      - name: Dynamically generate matrix for running integration tests
+        id: set-matrix
+        # This oneliner gets every test zip generated by Fastlane and writes this as output to GitHub. This is used for the matrix in the integration-test-ios job below.
+        run: echo "matrix=$(for file in $(ls ./fastlane/build/*.zip); do basename "$file"; done | jq -R . | jq -sc .)" >> $GITHUB_OUTPUT
   build-integration-test-android:
     runs-on: ubuntu-latest
-    needs:
-      - build-irmagobridge-android
-      - discover-integration-tests
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.discover-integration-tests.outputs.matrix) }}
+    needs: build-irmagobridge-android
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -366,15 +258,7 @@ jobs:
         with:
           name: irmagobridge-android
           path: yivi_core/android/irmagobridge/
-      - name: Prepare integration test build
-        run: bundle exec fastlane prepare_android_integration_test_build
-      - name: Build each test file in shard
-        run: |
-          for tf in ${{ matrix.files }}; do
-            echo "::group::Build $tf"
-            bundle exec fastlane android_build_integration_test test_file:"$tf"
-            echo "::endgroup::"
-          done
+      - run: bundle exec fastlane android_build_integration_test
       - name: Cleanup build caches
         if: always()
         run: |
@@ -386,32 +270,24 @@ jobs:
           df -h
       - uses: actions/upload-artifact@v4
         with:
-          name: integration-test-android-shard-${{ matrix.shard }}
-          path: |
-            ./fastlane/build/*_app.apk
-            ./fastlane/build/*_androidTest.apk
-  # One job per shard; each downloads its matching build artifact and fires
-  # off all ~7 `gcloud firebase test ios run` calls IN PARALLEL on a single
-  # runner (bash `& ... wait`). Firebase Test Lab does the device work, so
-  # the runner is just an orchestrator. See discover-integration-tests for
-  # why we shard.
+          name: integration-test-android
+          path: ./fastlane/build/*.apk
   integration-test-ios:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
     needs:
       - build-integration-test-ios
-      - discover-integration-tests
       - unit-test # To prevent that test resources are used when we already know there is an issue.
     strategy:
       matrix:
-        include: ${{ fromJson(needs.discover-integration-tests.outputs.matrix) }}
+        file_name: ${{ fromJson(needs.build-integration-test-ios.outputs.matrix) }}
       fail-fast: false # To prevent we have to re-run all tests when one run is flaky.
-    concurrency: integration-test-ios-shard-${{ matrix.shard }} # To prevent that we use too much test resources at the same time.
+    concurrency: integration-test-ios-${{ matrix.file_name }} # To prevent that we use too much test resources at the same time.
     steps:
-      - name: Download test artifact
+      - name: Download test artifacts
         uses: actions/download-artifact@v4
         with:
-          name: integration-test-ios-shard-${{ matrix.shard }}
+          name: integration-test-ios
           path: .
       - name: Authenticate to Firebase
         env:
@@ -420,73 +296,40 @@ jobs:
         shell: bash
       - name: Set Firebase project
         run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_NAME }}
-      - name: Run integration tests in parallel
-        shell: bash
+      - name: Run integration tests for each zip file
         run: |
-          pids=()
-          names=()
-          for tf in ${{ matrix.files }}; do
-            test_name=$(basename "$tf" .dart)
-            names+=("$test_name")
-            (
-              gcloud firebase test ios run \
-                --test "${test_name}_ios_tests.zip" \
-                --timeout 10m \
-                --device=model=iphone16pro,orientation=portrait,version=18.3 \
-                --device=model=iphone16pro,orientation=landscape,version=18.3 \
-                > "${test_name}.log" 2>&1
-            ) &
-            pids+=($!)
-          done
-          failed=0
-          for i in "${!pids[@]}"; do
-            if ! wait "${pids[i]}"; then failed=1; fi
-            echo "::group::Test ${names[i]}"
-            cat "${names[i]}.log"
-            echo "::endgroup::"
-          done
-          exit $failed
-  # this summary is needed to report a final result for the ios build+test matrices
-  # this job is added to the branch protection rules, so both matrices have to fully pass before merge
+          gcloud firebase test ios run \
+            --test ${{ matrix.file_name }} \
+            --timeout 10m \
+            --device=model=iphone16pro,orientation=portrait,version=18.3 \
+            --device=model=iphone16pro,orientation=landscape,version=18.3
+  # this summary is needed to report a final result for the ios test matrix
+  # this job is added to the branch protection rules, so the matrix has to fully pass before merge
   integration-test-ios-summary:
     runs-on: ubuntu-latest
-    needs:
-      - build-integration-test-ios
-      - integration-test-ios
+    needs: integration-test-ios # Wait for all matrix jobs
     if: ${{ always() }} # Run even if a matrix job fails
     steps:
-      - name: Check build+test matrix results
+      - name: Check integration test results
         run: |
-          for r in "${{ needs.build-integration-test-ios.result }}" \
-                   "${{ needs.integration-test-ios.result }}"; do
-            if [ "$r" != "success" ]; then
-              echo "One or more integration test stages failed: $r"
-              exit 1
-            fi
-          done
-          echo "All integration test stages passed."
-  # One job per shard; each downloads its matching build artifact and fires
-  # off all ~7 `gcloud firebase test android run` calls IN PARALLEL on a
-  # single runner (bash `& ... wait`). Firebase Test Lab does the device
-  # work, so the runner is just an orchestrator. See discover-integration-
-  # tests for why we shard.
+          if [ "${{ needs.integration-test-ios.result }}" == "failure" ] || [ "${{ needs.integration-test-ios.result }}" == "cancelled" ]; then
+            echo "One or more integration tests failed."
+            exit 1
+          else
+            echo "All integration tests passed."
+          fi
   integration-test-android:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
     needs:
       - build-integration-test-android
-      - discover-integration-tests
       - unit-test # To prevent that test resources are used when we already know there is an issue.
-    strategy:
-      matrix:
-        include: ${{ fromJson(needs.discover-integration-tests.outputs.matrix) }}
-      fail-fast: false # To prevent we have to re-run all tests when one run is flaky.
-    concurrency: integration-test-android-shard-${{ matrix.shard }} # To prevent that we use too much test resources at the same time.
+    concurrency: integration-test-android # To prevent that we use too much test resources at the same time.
     steps:
-      - name: Download test artifact
+      - name: Download test artifacts
         uses: actions/download-artifact@v4
         with:
-          name: integration-test-android-shard-${{ matrix.shard }}
+          name: integration-test-android
           path: .
       - name: Authenticate to Firebase
         env:
@@ -495,51 +338,6 @@ jobs:
         shell: bash
       - name: Set Firebase project
         run: gcloud config set project ${{ secrets.GCLOUD_PROJECT_NAME }}
-      - name: Run integration tests in parallel
+      - name: Run integration tests
         # komodo = Pixel 9 Pro XL
-        shell: bash
-        run: |
-          pids=()
-          names=()
-          for tf in ${{ matrix.files }}; do
-            test_name=$(basename "$tf" .dart)
-            names+=("$test_name")
-            (
-              gcloud firebase test android run \
-                --use-orchestrator \
-                --app "${test_name}_app.apk" \
-                --test "${test_name}_androidTest.apk" \
-                --timeout 15m \
-                --device=model=komodo,version=34,orientation=portrait \
-                --device=model=komodo,version=34,orientation=landscape \
-                > "${test_name}.log" 2>&1
-            ) &
-            pids+=($!)
-          done
-          failed=0
-          for i in "${!pids[@]}"; do
-            if ! wait "${pids[i]}"; then failed=1; fi
-            echo "::group::Test ${names[i]}"
-            cat "${names[i]}.log"
-            echo "::endgroup::"
-          done
-          exit $failed
-  # this summary is needed to report a final result for the android build+test matrices
-  # this job is added to the branch protection rules, so both matrices have to fully pass before merge
-  integration-test-android-summary:
-    runs-on: ubuntu-latest
-    needs:
-      - build-integration-test-android
-      - integration-test-android
-    if: ${{ always() }} # Run even if a matrix job fails
-    steps:
-      - name: Check build+test matrix results
-        run: |
-          for r in "${{ needs.build-integration-test-android.result }}" \
-                   "${{ needs.integration-test-android.result }}"; do
-            if [ "$r" != "success" ]; then
-              echo "One or more integration test stages failed: $r"
-              exit 1
-            fi
-          done
-          echo "All integration test stages passed."
+        run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 40m --device=model=komodo,version=34,orientation=portrait --device=model=komodo,version=34,orientation=landscape
