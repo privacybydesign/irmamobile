@@ -225,9 +225,13 @@ lane :ios_build_integration_test do |options|
   )
 
   Dir.chdir("../yivi_app") do
+    # Integration tests use --profile rather than --release: physical iOS
+    # devices forbid JIT so we still need AOT, but profile mode skips the
+    # heaviest optimization passes, cutting Dart compile time meaningfully.
+    # We're testing correctness here, not peak runtime performance.
     sh(
       "flutter", "build", "ios",
-      "--release",
+      "--profile",
       "--config-only",
       test_file
     )
@@ -237,7 +241,7 @@ lane :ios_build_integration_test do |options|
         "xcodebuild",
         "-workspace", "Runner.xcworkspace",
         "-scheme", "Runner",
-        "-config", "Flutter/Release.xcconfig",
+        "-config", "Flutter/Profile.xcconfig",
         "-derivedDataPath", "../build/ios_integ",
         "-sdk", "iphoneos",
         "build-for-testing"
@@ -250,7 +254,7 @@ lane :ios_build_integration_test do |options|
       test_run_name = sh("ls -r1 *.xctestrun | head -n 1").strip
 
       sh("rm -f ../../../../../fastlane/build/#{test_name}_ios_tests.zip")
-      sh("zip -r ../../../../../fastlane/build/#{test_name}_ios_tests.zip Release-iphoneos #{test_run_name}")
+      sh("zip -r ../../../../../fastlane/build/#{test_name}_ios_tests.zip Profile-iphoneos #{test_run_name}")
     end
   end
 end
