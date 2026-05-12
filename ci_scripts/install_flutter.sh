@@ -42,5 +42,7 @@ if ! [ -x "$(command -v "flutter")" ]; then
 fi
 
 flutter config --no-analytics
-flutter doctor -v
+# `flutter doctor -v` is purely diagnostic and on macOS spends ~2 minutes
+# enumerating every installed iOS Simulator runtime (the "Connected device"
+# check). Build failures already surface tool problems loudly enough; skip it.
 flutter precache

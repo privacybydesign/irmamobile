@@ -246,14 +246,20 @@ lane :ios_build_integration_test do |options|
     )
 
     Dir.chdir("./ios") do
+      # Pipe xcodebuild through xcpretty: raw xcodebuild emits the full
+      # compiler invocation for every source file (each ~1-2 KB of -I/-F/-D
+      # flags). A single shard's build job is ~14 MB of log, mostly noise.
+      # xcpretty collapses that to one line per file. `bash -o pipefail` is
+      # required so xcodebuild's non-zero exit isn't swallowed by xcpretty.
       sh(
-        "xcodebuild",
-        "-workspace", "Runner.xcworkspace",
-        "-scheme", "Runner",
-        "-config", "Flutter/Release.xcconfig",
-        "-derivedDataPath", "../build/ios_integ",
-        "-sdk", "iphoneos",
-        "build-for-testing"
+        "bash", "-o", "pipefail", "-c",
+        "xcodebuild " \
+        "-workspace Runner.xcworkspace " \
+        "-scheme Runner " \
+        "-config Flutter/Release.xcconfig " \
+        "-derivedDataPath ../build/ios_integ " \
+        "-sdk iphoneos " \
+        "build-for-testing 2>&1 | bundle exec xcpretty"
       )
     end
 

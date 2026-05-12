@@ -46,6 +46,7 @@ runs:
         path: |
           ${{ env.ANDROID_HOME }}
           ${{ env.FLUTTER_HOME }}
+          ~/go/bin
         key: ci_scripts-${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     - name: Ensure Android SDK is installed
       if: runner.os == 'Linux'
