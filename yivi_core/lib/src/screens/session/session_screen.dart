@@ -248,8 +248,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     final needsIssueBeforeDisclosure =
         !hasDisclosureChoices &&
-        plan?.issueDuringDislosure != null &&
-        plan!.issueDuringDislosure!.steps.isNotEmpty;
+        plan?.issueDuringDisclosure != null &&
+        plan!.issueDuringDisclosure!.steps.isNotEmpty;
 
     // Track that issuance-during-disclosure was shown.
     if (needsIssueBeforeDisclosure) {
@@ -295,7 +295,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
 
     // Pure disclosure or signature session where issuance is no longer required
-    final hadIssueDuringDisclosure = plan?.issueDuringDislosure != null;
+    final hadIssueDuringDisclosure = plan?.issueDuringDisclosure != null;
     return DisclosureChoicesOverview(
       sessionState: session,
       hasIssueDuringDisclosure: hadIssueDuringDisclosure,

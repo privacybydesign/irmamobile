@@ -88,29 +88,29 @@ class SessionState {
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
 class DisclosurePlan {
-  final IssueDuringDislosure? issueDuringDislosure;
+  final IssueDuringDisclosure? issueDuringDisclosure;
   final List<DisclosurePickOne>? disclosureChoicesOverview;
 
-  DisclosurePlan({this.issueDuringDislosure, this.disclosureChoicesOverview});
+  DisclosurePlan({this.issueDuringDisclosure, this.disclosureChoicesOverview});
 
   factory DisclosurePlan.fromJson(Map<String, dynamic> json) =>
       _$DisclosurePlanFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
-class IssueDuringDislosure {
+class IssueDuringDisclosure {
   final List<IssuanceStep> steps;
   final Map<String, dynamic>? issuedCredentialIds;
   final Credential? wrongCredentialIssued;
 
-  IssueDuringDislosure({
+  IssueDuringDisclosure({
     required this.steps,
     this.issuedCredentialIds,
     this.wrongCredentialIssued,
   });
 
-  factory IssueDuringDislosure.fromJson(Map<String, dynamic> json) =>
-      _$IssueDuringDislosureFromJson(json);
+  factory IssueDuringDisclosure.fromJson(Map<String, dynamic> json) =>
+      _$IssueDuringDisclosureFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

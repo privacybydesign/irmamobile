@@ -69,10 +69,10 @@ const _$SessionStatusEnumMap = {
 
 DisclosurePlan _$DisclosurePlanFromJson(Map<String, dynamic> json) =>
     DisclosurePlan(
-      issueDuringDislosure: json['issue_during_dislosure'] == null
+      issueDuringDisclosure: json['issue_during_disclosure'] == null
           ? null
-          : IssueDuringDislosure.fromJson(
-              json['issue_during_dislosure'] as Map<String, dynamic>,
+          : IssueDuringDisclosure.fromJson(
+              json['issue_during_disclosure'] as Map<String, dynamic>,
             ),
       disclosureChoicesOverview:
           (json['disclosure_choices_overview'] as List<dynamic>?)
@@ -82,9 +82,9 @@ DisclosurePlan _$DisclosurePlanFromJson(Map<String, dynamic> json) =>
               .toList(),
     );
 
-IssueDuringDislosure _$IssueDuringDislosureFromJson(
+IssueDuringDisclosure _$IssueDuringDisclosureFromJson(
   Map<String, dynamic> json,
-) => IssueDuringDislosure(
+) => IssueDuringDisclosure(
   steps: (json['steps'] as List<dynamic>)
       .map((e) => IssuanceStep.fromJson(e as Map<String, dynamic>))
       .toList(),

@@ -96,8 +96,8 @@ class IssueDuringDisclosureNotifier
     List<int> previousSelections,
     List<IssuanceStep> previousSteps,
   ) {
-    final issueDuring = session.disclosurePlan?.issueDuringDislosure;
-    // When issueDuringDislosure becomes null (all steps satisfied), retain
+    final issueDuring = session.disclosurePlan?.issueDuringDisclosure;
+    // When issueDuringDisclosure becomes null (all steps satisfied), retain
     // the previous steps so the completed state can still be displayed.
     final steps = issueDuring?.steps ?? previousSteps;
     final issued = issueDuring?.issuedCredentialIds;
@@ -107,7 +107,7 @@ class IssueDuringDisclosureNotifier
       (i) => i < previousSelections.length ? previousSelections[i] : 0,
     );
 
-    // If issueDuringDislosure is null but we have retained steps,
+    // If issueDuringDisclosure is null but we have retained steps,
     // all steps are completed (currentStepIndex = null).
     final currentStepIndex = issueDuring == null && previousSteps.isNotEmpty
         ? null

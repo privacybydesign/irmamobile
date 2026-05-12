@@ -15,7 +15,7 @@ import "../../util.dart";
 ///
 /// Backend (`irmago/internal/sessiontest/openid4vp_veramo_disclosure_test.go:
 /// testVeramoVerifierRequestingMissingCredentialSurfacesIt`) populates
-/// `IssueDuringDislosure.Steps[0].Options[0]` with `IssueURL == nil` and
+/// `IssueDuringDisclosure.Steps[0].Options[0]` with `IssueURL == nil` and
 /// the descriptor's `Name`/`Issuer.Name` from VCT type metadata, while
 /// leaving `DisclosureChoicesOverview` nil.
 ///
