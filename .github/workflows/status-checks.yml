@@ -297,6 +297,22 @@ jobs:
           certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
+      # Restore xcodebuild's derived data across CI runs so the first build in
+      # this shard becomes incremental rather than cold. The cache is keyed on
+      # the bits that change which native binaries get produced (Pods,
+      # pubspec deps, Xcode project structure) but NOT on yivi_app/lib or
+      # integration_test/, because xcodebuild's incremental compile handles
+      # Dart/source changes by rebuilding only what's affected. Single key is
+      # shared across all 4 shards since the Pods + Runner.app foundation is
+      # identical; only the Dart entry point differs per shard.
+      - name: Restore xcodebuild derived data
+        id: derived-data-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: yivi_app/build/ios_integ
+          key: ios-integ-${{ runner.os }}-${{ hashFiles('yivi_app/ios/Podfile.lock', 'yivi_app/pubspec.lock', 'yivi_app/ios/Runner.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            ios-integ-${{ runner.os }}-
       - name: Build each test file in shard
         run: |
           for tf in ${{ matrix.files }}; do
@@ -304,6 +320,15 @@ jobs:
             bundle exec fastlane ios_build_integration_test test_file:"$tf"
             echo "::endgroup::"
           done
+      # Only save on full shard success — a corrupt derived-data state from a
+      # mid-loop failure would poison the cache for every subsequent run.
+      # Skip save on an exact-key hit (no new info to add).
+      - name: Save xcodebuild derived data
+        if: success() && steps.derived-data-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: yivi_app/build/ios_integ
+          key: ${{ steps.derived-data-cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@v4
         with:
           name: integration-test-ios-shard-${{ matrix.shard }}
