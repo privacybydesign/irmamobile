@@ -110,12 +110,18 @@ private_lane :android_build_app do |options|
   end
 end
 
+# One-time setup before looping the per-test build lane. Pulls fresh
+# irma_configuration submodules. Run this once per shard, not per test, since
+# update_schemes does ~4 network git operations per call.
+lane :prepare_android_integration_test_build do
+  update_schemes()
+end
+
 lane :android_build_integration_test do |options|
   test_file = options[:test_file]
   raise "test_file is required" unless test_file
   test_name = File.basename(test_file, ".dart")
 
-  update_schemes()
   Dir.chdir("../yivi_app") do
     sh(
       "flutter", "build", "apk",
@@ -211,11 +217,12 @@ lane :ios_build_app do |options|
   end
 end
 
-lane :ios_build_integration_test do |options|
-  test_file = options[:test_file]
-  raise "test_file is required" unless test_file
-  test_name = File.basename(test_file, ".dart")
-
+# One-time setup before looping the per-test build lane. Pulls fresh
+# irma_configuration submodules and installs cert + provisioning profile into
+# the keychain. Run this once per shard, not per test, since both are
+# expensive (~4 network git ops + keychain mutation) and idempotent within the
+# runner.
+lane :prepare_ios_integration_test_build do |options|
   update_schemes()
   set_provisioning_profile(
     provisioning_profile_path: options[:provisioning_profile_path],
@@ -223,6 +230,12 @@ lane :ios_build_integration_test do |options|
     certificate_password: options[:certificate_password],
     code_signing_identity: options[:code_signing_identity]
   )
+end
+
+lane :ios_build_integration_test do |options|
+  test_file = options[:test_file]
+  raise "test_file is required" unless test_file
+  test_name = File.basename(test_file, ".dart")
 
   Dir.chdir("../yivi_app") do
     sh(
