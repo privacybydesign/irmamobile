@@ -7,7 +7,9 @@ import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
+import "package:yivi_core/src/widgets/credential_card/irma_empty_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "../disclosure_session/disclosure_helpers.dart";
 import "../irma_binding.dart";
@@ -20,6 +22,7 @@ const veramoBatch2IssuerBaseUrl =
     "https://veramo-issuer.openid4vc.staging.yivi.app/batch2-issuer";
 const veramoVerifierBaseUrl =
     "https://veramo-verifier.openid4vc.staging.yivi.app/test-verifier";
+const veramoVerifierDisplayName = "test-verifier";
 const veramoIssuerAdminToken = "veramo-issuer-admin-token";
 const veramoVerifierAdminToken = "veramo-verifier-admin-token";
 
@@ -242,6 +245,35 @@ Future<void> verifyMostRecentActivityLog(
       attributes: spec.attributes,
     );
   }
+}
+
+/// Opens the most recent activity entry and asserts it represents an empty
+/// disclosure: an [IrmaEmptyCredentialCard] is shown, and the [RequestorHeader]
+/// contains [expectedRequestorName] (i.e. the log records *who* the
+/// transaction was with, even though no data was shared).
+Future<void> verifyEmptyDisclosureActivityLog(
+  WidgetTester tester, {
+  required String expectedRequestorName,
+}) async {
+  await tester.tap(
+    find.byKey(const Key("nav_button_activity"), skipOffstage: false),
+  );
+  await tester.pump(const Duration(seconds: 1));
+  await tester.tapAndSettle(
+    find.byType(ActivityCard, skipOffstage: false).first,
+  );
+  expect(find.byType(ActivityDetailsScreen), findsOneWidget);
+  expect(find.byType(IrmaEmptyCredentialCard), findsOneWidget);
+
+  final requestorHeaderFinder = find.byType(RequestorHeader);
+  expect(requestorHeaderFinder, findsOneWidget);
+  expect(
+    find.descendant(
+      of: requestorHeaderFinder,
+      matching: find.text(expectedRequestorName),
+    ),
+    findsOneWidget,
+  );
 }
 
 /// Taps the activity tab and asserts no log entries exist (the empty-state

@@ -8,13 +8,10 @@ import "../../helpers/helpers.dart";
 import "../../irma_binding.dart";
 
 /// Verifier asks only for an optional credential; wallet empty. Because
-/// nothing is *required*, the user can submit an empty disclosure.
-///
-/// Open question per the plan: confirm during a real run that the wallet
-/// renders `DisclosureChoicesOverview` (not the issuance wizard) when only
-/// optional creds are missing. If the backend instead promotes the optional
-/// to a wizard step, this test should fall back to asserting the same
-/// "Close" UX as the other empty-app tests; document and adapt.
+/// nothing is *required*, the user can submit an empty disclosure. The
+/// resulting activity log entry should still record the transaction with
+/// the requestor, even though no data was shared — mirroring the IRMA
+/// `completely_optional` scenario.
 Future<void> completelyOptionalCanSubmitEmptyTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -62,8 +59,8 @@ Future<void> completelyOptionalCanSubmitEmptyTest(
   // Share button is enabled; submit empty disclosure and complete.
   await shareAndFinishEudiDisclosure(tester);
 
-  // The wallet does not write an activity entry for an empty OID4VCI
-  // disclosure (verified empirically against staging veramo) — confirm the
-  // log is still empty.
-  await verifyEmptyActivityLog(tester);
+  await verifyEmptyDisclosureActivityLog(
+    tester,
+    expectedRequestorName: veramoVerifierDisplayName,
+  );
 }
