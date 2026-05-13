@@ -8,7 +8,6 @@ import "../screens/name_changed/name_changed_screen.dart";
 import "../screens/pin/yivi_pin_screen.dart";
 import "../screens/required_update/required_update_screen.dart";
 import "../screens/rooted_warning/rooted_warning_screen.dart";
-import "../screens/session/disclosure/widgets/disclosure_permission_introduction_screen.dart";
 import "../screens/session/widgets/arrow_back_screen.dart";
 import "../screens/session/widgets/disclosure_feedback_screen.dart";
 import "../screens/session/widgets/pairing_required.dart";
@@ -247,14 +246,6 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(context, "Splash screen", const SplashScreen()),
           _buildTile(context, "Loading screen", LoadingScreen()),
-          _buildTile(
-            context,
-            "Disclosure permission introduction",
-            DisclosurePermissionIntroductionScreen(
-              onEvent: (_) {},
-              onDismiss: () {},
-            ),
-          ),
           _buildTile(
             context,
             "Name changed screen",

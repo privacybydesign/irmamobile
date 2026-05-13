@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-errors/errors"
-	irma "github.com/privacybydesign/irmago"
+	"github.com/privacybydesign/irmago/irma"
 )
 
 // DispatchFromNative receives events from the Android / iOS native side
@@ -19,7 +19,7 @@ func DispatchFromNative(eventName, payloadString string) {
 	if clientErr != nil {
 		// Error occurred during client initialization. If the app is ready, we can report it.
 		// If the client couldn't be started at all, we can't do anything sensible here, so then just return.
-		fatal := client == nil
+		fatal := yiviClient == nil
 		if eventName == "AppReadyEvent" {
 			reportError(clientErr, fatal)
 		}
@@ -53,27 +53,27 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.newSession(event)
 		}
-	case "RespondPermissionEvent":
-		event := &respondPermissionEvent{}
-		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.respondPermission(event)
+	case "SessionUserInteractionEvent":
+		event := &sessionUserInteractionEvent{}
+		if err = json.Unmarshal(payloadBytes, event); err != nil {
+			break
 		}
-	case "RespondPinEvent":
-		event := &respondPinEvent{}
-		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.respondPin(event)
-		}
+		// Run in a goroutine: the permission handler may block waiting for
+		// pin input (via the keyshare session), which requires dispatching
+		// events back to Dart on the main thread. Running synchronously
+		// would deadlock, because DispatchFromNative blocks the main thread.
+		go func() {
+			defer recoverFromPanic("Handling SessionUserInteractionEvent panicked")
+			if err := bridgeEventHandler.handleUserInteraction(event); err != nil {
+				reportError(errors.New(err), false)
+			}
+		}()
 	case "ClearAllDataEvent":
 		err = bridgeEventHandler.clearAllData()
 	case "DeleteCredentialEvent":
 		event := &deleteCredentialEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.deleteCredential(event)
-		}
-	case "DismissSessionEvent":
-		event := &dismissSessionEvent{}
-		if err = json.Unmarshal(payloadBytes, event); err == nil {
-			err = bridgeEventHandler.dismissSession(event)
 		}
 	case "UpdateSchemesEvent":
 		go func() {
@@ -97,11 +97,6 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.setPreferences(event)
 		}
-	case "GetIssueWizardContentsEvent":
-		event := &getIssueWizardContentsEvent{}
-		if err = json.Unmarshal(payloadBytes, &event); err == nil {
-			err = bridgeEventHandler.getIssueWizardContents(event)
-		}
 	case "InstallSchemeEvent":
 		event := &installSchemeEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
@@ -116,6 +111,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		event := &removeRequestorSchemeEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.removeRequestorScheme(event)
+		}
+	case "InstallCertificateEvent":
+		event := &installCertificateEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.installCertificate(event)
 		}
 	}
 

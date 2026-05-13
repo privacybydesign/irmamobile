@@ -179,9 +179,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         await _startIssuance(rawDocData);
       }
     } catch (e) {
-      setState(() {
-        issuanceError = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          issuanceError = e.toString();
+        });
+      }
     }
   }
 
@@ -205,15 +207,18 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       await handlePointer(
         context,
         SessionPointer(
+          protocol: .irma,
           u: sessionPtr.u,
           irmaqr: sessionPtr.irmaqr,
           continueOnSecondDevice: true,
         ),
       );
     } catch (e) {
-      setState(() {
-        issuanceError = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          issuanceError = e.toString();
+        });
+      }
       if (kDebugMode) {
         debugPrint("issuance error: $e");
       }

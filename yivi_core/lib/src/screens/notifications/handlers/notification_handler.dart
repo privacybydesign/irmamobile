@@ -1,15 +1,19 @@
 import "../../../data/irma_repository.dart";
+import "../models/credential_status_notification_record.dart";
 import "../models/notification.dart";
 
-// This is the base class for all notification handlers
-// It contains a method that takes in a list of notifications and returns a list of notifications with new notifications added
+class HandlerResult {
+  final List<Notification> notifications;
+  final List<CredentialStatusNotificationRecord> updatedRecords;
+
+  HandlerResult({required this.notifications, required this.updatedRecords});
+}
+
 abstract class NotificationHandler {
-  Future<List<Notification>> loadNotifications(
+  /// Builds the runtime notifications and the persisted records for this
+  /// handler. Records with no matching live data are dropped.
+  Future<HandlerResult> load(
     IrmaRepository repo,
-    List<Notification> notifications,
-  );
-  List<Notification> cleanUp(
-    IrmaRepository repo,
-    List<Notification> notifications,
+    List<CredentialStatusNotificationRecord> records,
   );
 }

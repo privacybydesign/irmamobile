@@ -124,7 +124,8 @@ class QRScannerState extends State<QRScanner>
     try {
       pointer = Pointer.fromString(qr);
     } catch (e) {
-      SemanticsService.announce(
+      SemanticsService.sendAnnouncement(
+        View.of(context),
         FlutterI18n.translate(context, "qr_scanner.error.semantic"),
         TextDirection.ltr,
       );
@@ -140,7 +141,8 @@ class QRScannerState extends State<QRScanner>
     }
 
     // Signal success after a small timeout
-    SemanticsService.announce(
+    SemanticsService.sendAnnouncement(
+      View.of(context),
       FlutterI18n.translate(context, "qr_scanner.success.semantic"),
       TextDirection.ltr,
     );

@@ -4,7 +4,6 @@ import "dart:math";
 
 import "package:collection/collection.dart";
 import "package:flutter/cupertino.dart";
-import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -13,9 +12,10 @@ import "package:yivi_core/app.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
-import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
+import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/util/test_detection.dart";
@@ -24,6 +24,7 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attri
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_header.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -32,6 +33,7 @@ import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
 import "../util.dart";
+import "fake_rooted_device_detector.dart";
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlockAndWaitForHome(WidgetTester tester) async {
@@ -55,15 +57,19 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
 
 Future<void> pumpYiviApp(
   WidgetTester tester,
-  IrmaRepository repo, [
+  IrmaRepository repo, {
   Locale? defaultLanguage,
   List<Override>? providerOverrides,
-]) async {
+  bool isDeviceRooted = false,
+}) async {
   await tester.pumpWidgetAndSettle(
     ProviderScope(
       overrides: [
         irmaRepositoryProvider.overrideWithValue(repo),
         preferencesProvider.overrideWithValue(repo.preferences),
+        rootedDeviceDetectorProvider.overrideWithValue(
+          FakeRootedDeviceDetector(rooted: isDeviceRooted),
+        ),
         ocrProcessorProvider.overrideWithValue(GoogleMLKitOcrProcessor()),
         if (providerOverrides != null) ...providerOverrides,
       ],
@@ -85,11 +91,18 @@ Future<void> pumpYiviApp(
 // Pump a new app and unlock it
 Future<void> pumpAndUnlockApp(
   WidgetTester tester,
-  IrmaRepository repo, [
-  Locale? locale,
+  IrmaRepository repo, {
+  Locale? defaultLanguage,
   List<Override>? providerOverrides,
-]) async {
-  await pumpYiviApp(tester, repo, locale, providerOverrides);
+  bool isDeviceRooted = false,
+}) async {
+  await pumpYiviApp(
+    tester,
+    repo,
+    defaultLanguage: defaultLanguage,
+    providerOverrides: providerOverrides,
+    isDeviceRooted: isDeviceRooted,
+  );
   await unlockAndWaitForHome(tester);
 }
 
@@ -244,7 +257,7 @@ Future<void> issueCredentials(
     }
   }
 
-  // Check whether all attributes are displayed in the right order.
+  // Check whether all credential type names are displayed.
   for (final credTypeId in groupedAttributes.keys) {
     final credType =
         irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
@@ -253,22 +266,40 @@ Future<void> issueCredentials(
       findsOneWidget,
     );
   }
+
+  // Check whether all attributes are displayed (order-independent).
   final attributeTexts = tester
       .getAllText(find.byType(YiviCredentialCardAttributeList))
       .toList();
-  final attributeEntries = attributes.entries.toList();
 
-  for (int i = 0; i < attributes.length; i++) {
+  // Build a map of displayed attribute name -> value pairs.
+  final displayedAttributes = <String, String>{};
+  for (var i = 0; i < attributeTexts.length; i += 2) {
+    displayedAttributes[attributeTexts[i]] = attributeTexts[i + 1];
+  }
+
+  // Build a map of expected attribute name -> value pairs.
+  final expectedAttributes = <String, String>{};
+  for (final entry in attributes.entries) {
+    final attrName = irmaBinding
+        .repository
+        .irmaConfiguration
+        .attributeTypes[entry.key]
+        ?.name
+        .translate(locale.languageCode);
+    if (attrName != null) {
+      expectedAttributes[attrName] = entry.value;
+    }
+  }
+
+  // Verify that all expected attributes are present in the displayed attributes.
+  for (final entry in expectedAttributes.entries) {
     expect(
-      attributeTexts[i * 2],
-      irmaBinding
-          .repository
-          .irmaConfiguration
-          .attributeTypes[attributeEntries[i].key]
-          ?.name
-          .translate(locale.languageCode),
+      displayedAttributes[entry.key],
+      entry.value,
+      reason:
+          "Attribute '${entry.key}' expected '${entry.value}' but got '${displayedAttributes[entry.key]}'",
     );
-    expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
   }
 
   final buttonFinder = find.byKey(
@@ -329,20 +360,45 @@ Future<void> evaluateRequestor(
   expect(nameFinder, findsOneWidget);
 }
 
+/// One label-value entry in an [attributes] list. The value is one of:
+/// - `String`: a leaf row (label + value)
+/// - `List<String>`: a primitive array, rendered as bullets
+/// - [Block] (`List<AttrRow>`): a nested group
+/// - `List<Block>`: an array of nested items
+typedef AttrRow = (String label, Object value);
+
+/// Ordered list of rows, used for nested groups and as item children.
+typedef Block = List<AttrRow>;
+
 Future<void> evaluateCredentialCard(
   WidgetTester tester,
   Finder credentialCardFinder, {
   String? credentialName,
   String? issuerName,
   int? instancesRemaining,
-  Map<String, String>? attributes,
-  Map<String, String>? attributesCompareTo,
+
+  /// Expected card attributes in render order. The DFS preorder of this list
+  /// must match, element-for-element, the rendered leaves and primitive-array
+  /// rows on the card. See [AttrRow] for the supported value shapes.
+  List<AttrRow>? attributes,
+
+  /// Color-comparison check for disclosure cards. Each row's value is the
+  /// expected value the verifier asked for; the matcher checks that the
+  /// rendered text for that label is colored green if it matches, red
+  /// otherwise. Flat-only — only `String` values are honored.
+  List<AttrRow>? attributesCompareTo,
   bool? isSelected,
   String? footerText,
   IrmaCardStyle? style,
   bool? isRevoked,
   bool? isExpired,
   bool? isExpiringSoon,
+
+  /// Overrides the default Reobtain-button expectation. By default, the helper
+  /// expects a Reobtain button when the cred is expired/revoked/expiring. Pass
+  /// `false` for OID4VCI creds (no IssueURL → button never rendered, even when
+  /// in a warning state).
+  bool? expectReobtainButton,
 }) async {
   expect(
     find.descendant(
@@ -387,8 +443,18 @@ Future<void> evaluateCredentialCard(
     );
     expect(cardHeaderFinder, findsOneWidget);
 
-    // Get the text from the header
-    var cardHeaderText = tester.getAllText(cardHeaderFinder);
+    // Get the text from the header, excluding the avatar's fallback initials
+    // text (rendered when no logo image is available).
+    final avatarFinder = find.descendant(
+      of: cardHeaderFinder,
+      matching: find.byType(IrmaAvatar),
+    );
+    final avatarTexts = avatarFinder.evaluate().isEmpty
+        ? const <String>{}
+        : tester.getAllText(avatarFinder).toSet();
+    var cardHeaderText = tester
+        .getAllText(cardHeaderFinder)
+        .where((t) => !avatarTexts.contains(t));
     final credentialStatusTexts = {
       "revoked": "Revoked",
       "expired": "Expired",
@@ -428,7 +494,7 @@ Future<void> evaluateCredentialCard(
 
       // Compare the issuer credential name
       if (issuerName != null) {
-        expect(cardHeaderText.elementAt(1), "by $issuerName");
+        expect(cardHeaderText.elementAt(1), issuerName);
       }
     }
   }
@@ -441,39 +507,40 @@ Future<void> evaluateCredentialCard(
     );
 
     if (attributes.isNotEmpty) {
-      final cardAttListText = tester.getAllText(cardAttList).toList();
-
-      var mappedCardList = <String, String>{};
-      for (var i = 0; i < cardAttListText.length; i = i + 2) {
-        final attName = cardAttListText[i];
-        final attVal = cardAttListText[i + 1];
-        mappedCardList[attName] = attVal;
-      }
-
-      // Mapped card list should match the provided attributes
-      expect(mapEquals(mappedCardList, attributes), true);
+      _matchAttributes(tester, cardAttList, attributes);
 
       if (attributesCompareTo != null) {
-        for (var compareAttEntry in attributesCompareTo.entries) {
-          // This key should be present in mappedCardList
-          expect(mappedCardList.containsKey(compareAttEntry.key), true);
-
-          // Expected the targeted attribute value to be in the list
+        final renderedMap = _renderedLabelValues(tester, cardAttList);
+        for (final (label, expected) in attributesCompareTo) {
+          if (expected is! String) {
+            throw ArgumentError(
+              "attributesCompareTo only supports String values; got ${expected.runtimeType} for '$label'",
+            );
+          }
+          final renderedValues = renderedMap[label];
+          expect(
+            renderedValues,
+            isNotNull,
+            reason: "attributesCompareTo: label '$label' not rendered",
+          );
+          expect(
+            renderedValues!.length,
+            1,
+            reason:
+                "attributesCompareTo: label '$label' must be a leaf, got ${renderedValues.length} values",
+          );
+          final renderedValue = renderedValues.single;
           final textFinder = find.descendant(
             of: cardAttList,
-            matching: find.text(mappedCardList[compareAttEntry.key]!),
+            matching: find.text(renderedValue),
           );
           expect(textFinder, findsOneWidget);
 
-          Color expectedTextColor;
-          if (mappedCardList[compareAttEntry.key] == null ||
-              mappedCardList[compareAttEntry.key]! != compareAttEntry.value) {
-            expectedTextColor = const Color(0xffbd1919);
-          } else {
-            expectedTextColor = const Color(0xff00973a);
-          }
+          final expectedTextColor = renderedValue == expected
+              ? const Color(0xff00973a)
+              : const Color(0xffbd1919);
           expect(
-            (textFinder.evaluate().first.widget as Text).style?.color!,
+            (textFinder.evaluate().first.widget as Text).style?.color,
             expectedTextColor,
           );
         }
@@ -503,9 +570,10 @@ Future<void> evaluateCredentialCard(
 
     if (shouldCheckCardStatus) {
       final isReobtainable =
-          (isExpired ?? false) ||
-          (isRevoked ?? false) ||
-          (isExpiringSoon ?? false);
+          expectReobtainButton ??
+          ((isExpired ?? false) ||
+              (isRevoked ?? false) ||
+              (isExpiringSoon ?? false));
 
       // Find reobtainable button
       final reobtainButtonFinder = find.descendant(
@@ -526,6 +594,148 @@ Future<void> evaluateCredentialCard(
       );
     }
   }
+}
+
+/// Walks the card's attribute list and pairs each label with its run of
+/// following values, recovering an ordered list of (label, [values]) entries.
+/// Classification keys off the font sizes used by the renderer
+/// (`yivi_credential_card_attribute_list.dart`):
+///   - 14: label (leaf or prim-array)
+///   - 16: leaf value or prim-array bullet
+///   - 12: eyebrow header (group/item) — closes the current run, ignored.
+List<_LabelValues> _renderedRows(WidgetTester tester, Finder cardAttList) {
+  final texts = tester
+      .widgetList<Text>(
+        find.descendant(of: cardAttList, matching: find.byType(Text)),
+      )
+      .toList();
+
+  final rendered = <_LabelValues>[];
+  String? pendingLabel;
+  List<String>? pendingValues;
+
+  void flush() {
+    if (pendingLabel != null) {
+      rendered.add(_LabelValues(pendingLabel!, pendingValues ?? const []));
+      pendingLabel = null;
+      pendingValues = null;
+    }
+  }
+
+  for (final t in texts) {
+    final size = t.style?.fontSize;
+    final data = t.data;
+    if (data == null) continue;
+    if (size == 14) {
+      flush();
+      pendingLabel = data;
+      pendingValues = [];
+    } else if (size == 16) {
+      if (pendingLabel == null) continue;
+      pendingValues!.add(data);
+    } else {
+      // Eyebrow (12) or unknown — closes the current label's value run.
+      flush();
+    }
+  }
+  flush();
+  return rendered;
+}
+
+/// Convenience wrapper around [_renderedRows] for callers that want a
+/// label-keyed lookup (used by [attributesCompareTo]). Asserts uniqueness.
+Map<String, List<String>> _renderedLabelValues(
+  WidgetTester tester,
+  Finder cardAttList,
+) {
+  final rows = _renderedRows(tester, cardAttList);
+  final map = <String, List<String>>{};
+  for (final r in rows) {
+    map[r.label] = r.values;
+  }
+  return map;
+}
+
+/// Flattens an ordered [List<AttrRow>] tree into a sequence of (label, [values])
+/// expectations in DFS preorder. Mirrors the renderer's flatten step
+/// (`yivi_credential_card_attribute_list.dart`): leaves emit one entry,
+/// primitive arrays emit one entry with all bullets, item arrays recurse
+/// into each item's children, and nested groups recurse into their children.
+List<_LabelValues> _flattenExpected(List<AttrRow> rows) {
+  final out = <_LabelValues>[];
+  void walk(List<AttrRow> rows) {
+    for (final (label, value) in rows) {
+      if (value is String) {
+        out.add(_LabelValues(label, [value]));
+      } else if (value is List) {
+        if (value.isEmpty) {
+          out.add(_LabelValues(label, const []));
+        } else if (value.every((v) => v is String)) {
+          out.add(_LabelValues(label, value.cast<String>()));
+        } else if (value.every((v) => v is List)) {
+          // List<Block>: array of items. Recurse into each item.
+          for (final item in value) {
+            walk((item as List).cast<AttrRow>());
+          }
+        } else {
+          throw ArgumentError(
+            "Mixed list at '$label': expected List<String>, "
+            "List<Block>, or List<AttrRow>; got $value",
+          );
+        }
+      } else {
+        throw ArgumentError(
+          "Unsupported value type at '$label': ${value.runtimeType}",
+        );
+      }
+    }
+  }
+
+  walk(rows);
+  return out;
+}
+
+/// Order-strict matcher: rendered and expected sequences must match
+/// element-for-element (label and value-list).
+void _matchAttributes(
+  WidgetTester tester,
+  Finder cardAttList,
+  List<AttrRow> expected,
+) {
+  final rendered = _renderedRows(tester, cardAttList);
+  final flat = _flattenExpected(expected);
+
+  if (rendered.length != flat.length) {
+    fail(
+      "Attribute row count mismatch.\n"
+      "  expected (${flat.length}): $flat\n"
+      "  rendered (${rendered.length}): $rendered",
+    );
+  }
+  for (var i = 0; i < flat.length; i++) {
+    expect(
+      rendered[i].label,
+      flat[i].label,
+      reason:
+          "Row $i label mismatch.\n  expected: $flat\n  rendered: $rendered",
+    );
+    expect(
+      rendered[i].values,
+      flat[i].values,
+      reason:
+          "Row $i values mismatch for '${flat[i].label}'.\n"
+          "  expected: $flat\n  rendered: $rendered",
+    );
+  }
+}
+
+class _LabelValues {
+  final String label;
+  final List<String> values;
+  const _LabelValues(this.label, this.values);
+
+  @override
+  String toString() => "($label → $values)";
 }
 
 Future<void> evaluateNotificationCard(
@@ -571,7 +781,7 @@ Future<void> navigateToCredentialDetailsPage(
   await tester.tapAndSettle(categoryTileFinder);
 
   // Expect detail page
-  expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
 }
 
 Future<void> openAddCredentialDetailsScreen(
@@ -583,8 +793,7 @@ Future<void> openAddCredentialDetailsScreen(
   await pumpAndUnlockApp(
     tester,
     binding.repository,
-    null,
-    overrides.isEmpty ? null : overrides,
+    providerOverrides: overrides.isEmpty ? null : overrides,
   );
 
   final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
@@ -598,5 +807,5 @@ Future<void> openAddCredentialDetailsScreen(
   );
   await tester.tapAndSettle(addCredentialTile);
 
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
+  await tester.waitFor(find.byType(SchemalessAddDataDetailsScreen));
 }

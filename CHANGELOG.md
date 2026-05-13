@@ -5,8 +5,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [7.14.0] - 2026-05-13
 ### Changed
+- Make data tab, credential details, activity, notifications and add-data screens schema-independent
+- Restructure session handling to use a schema-independent interface via irmago
+- Add support for issuing SD-JWT VC credentials over the OpenID4VCI protocol
+- Add support for pre-Authorized code flow with optional tx_code
+- Add support for authorization code flow with `https://open.yivi.app/-/auth-callback` as the return url
+- Extended support for OpenID4VP disclosures with DIDs
+- Replace disclosure permission BLoC with Riverpod-based session state management
+- Add certificate management in developer mode
+- Redesigned credential card with support for nested claims
 - Update the enrollment 'from' emailaddress
+
+### Fixed
+- Rooted device detection/acceptance flow now works correctly as the return url
+
+### Internal
+- Integration tests are now run in parallel on CI
 
 ## [7.13.5] - 2026-04-22
 ### Changed
@@ -604,6 +621,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[7.14.0]: https://github.com/privacybydesign/irmamobile/compare/v7.13.5...v7.14.0
 [7.13.5]: https://github.com/privacybydesign/irmamobile/compare/v7.13.4...v7.13.5
 [7.13.4]: https://github.com/privacybydesign/irmamobile/compare/v7.13.3...v7.13.4
 [7.13.3]: https://github.com/privacybydesign/irmamobile/compare/v7.13.2...v7.13.3

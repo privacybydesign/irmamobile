@@ -1,29 +1,28 @@
 import "package:flutter/material.dart";
 
-import "../models/credentials.dart";
+import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../theme/theme.dart";
 import "credential_card/yivi_credential_card.dart";
 
 class IssuingDetail extends StatelessWidget {
-  final List<MultiFormatCredential> credentials;
+  final List<schemaless.Credential> credentials;
 
   const IssuingDetail(this.credentials);
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: _buildCards(context));
-  }
-
-  List<Widget> _buildCards(BuildContext context) {
-    return credentials.map((credential) {
-      return Padding(
-        padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
-        child: YiviCredentialCard.fromMultiFormatCredential(
-          credential,
-          compact: false,
-          lowInstanceCountThreshold: 0,
-        ),
-      );
-    }).toList();
+    final theme = IrmaTheme.of(context);
+    return Column(
+      children: credentials.map((credential) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+          child: YiviCredentialCard.fromCredential(
+            credential: credential,
+            compact: false,
+            lowInstanceCountThreshold: 0,
+          ),
+        );
+      }).toList(),
+    );
   }
 }

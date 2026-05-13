@@ -200,7 +200,8 @@
     "issue_wizard": {
       "title": "Verzamel gegevens",
       "explanation_incomplete": "Haal stap voor stap mijn gegevens op en deel ze daarna met de partij die daarom vraagt.",
-      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd"
+      "explanation_incomplete_single": "Haal de benodigde gegevens op en deel ze daarna met de partij die daarom vraagt.",
+      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd."
     },
     "previously_added": {
       "title": "Controleer gegevens",
@@ -241,6 +242,8 @@
     "wrong_credentials_added": {
       "title": "Foutmelding",
       "explanation": "Gegevens zijn toegevoegd in de app, maar zijn niet de gevraagde gegevens. Haal de juiste gegevens op.",
+      "you_issued": "Ontvangen",
+      "expected": "Verwacht",
       "dismiss_action": "OK"
     },
     "call": {
@@ -417,6 +420,32 @@
     "success_feedback": {
       "header": "Gelukt",
       "text": "De gegevens zijn successvol aan Yivi toegevoegd."
+    },
+    "pre-authorized_code": {
+      "tx_code_screen": {
+        "title": "Gegevens toevoegen",
+        "header": "{issuer} vraagt een transactiecode",
+        "body": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {credential} te ontvangen.",
+        "body_multiple": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {count} gegevens te ontvangen.",
+        "continue": "Doorgaan",
+        "cancel": "Annuleren",
+        "invalid_code_error-0": "Onjuiste code. Nog {count} pogingen over.",
+        "invalid_code_error-1": "Onjuiste code. Nog {count} poging over.",
+        "invalid_code_error-2": "Onjuiste code. Nog {count} pogingen over."
+      },
+      "tx_code_lockout": {
+        "title": "Te veel onjuiste codes",
+        "body": "Je hebt de transactiecode te vaak verkeerd ingevoerd. Begin opnieuw om een nieuwe code te ontvangen."
+      }
+    },
+    "authorization_code": {
+      "pending": {
+        "title": "Gegevens toevoegen",
+        "header": "Ga verder in je browser",
+        "body": "We hebben de browser geopend zodat je de stappen bij {issuer} kunt voltooien. Als je klaar bent kom je automatisch terug.",
+        "open_browser": "Browser opnieuw openen",
+        "cancel": "Annuleren"
+      }
     }
   },
   "email_issuance": {
@@ -558,9 +587,9 @@
     },
     "invalid_title": "Pincode is onjuist",
     "invalid_pin": {
-      "attempts-0": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-1": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-2": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
+      "attempts-0": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-1": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-2": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
     },
     "invalid_close": "Opnieuw proberen",
     "blocked_title": "App geblokkeerd",
@@ -947,6 +976,19 @@
           "title": "Gegevens verwijderen",
           "content": "Weet je zeker dat je alle gegevens wilt verwijderen?"
         }
+      }
+    },
+    "cert_management": {
+      "title": "Certificaatbeheer",
+      "issuer_certs": "Issuer certificaten",
+      "verifier_certs": "Verifier certificaten",
+      "install_scheme_dialog": {
+        "title": "Certificaat installeren",
+        "content": "Voer de PEM gecodeerde inhoud van het certificaat in dat je wilt installeren:"
+      },
+      "warning_dialog": {
+        "title": "Pas op!",
+        "content": "Je staat op het punt om certificaten aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
       }
     }
   }

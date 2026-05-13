@@ -60,74 +60,89 @@ class IrmaActionCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: FlutterI18n.translate(context, titleKey),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        child: ExcludeSemantics(
-          child: Stack(
-            children: [
-              // Background
-              Positioned.fill(
-                child: isFancy
-                    ? SvgPicture.asset(
-                        yiviAsset("ui/btn-bg.svg"),
-                        alignment: Alignment.center,
-                        fit: BoxFit.fill,
-                      )
-                    : const IrmaCard(hasShadow: false),
+      child: Container(
+        decoration: isFancy
+            ? null
+            : BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade300,
+                    offset: const Offset(0.0, 1.0),
+                    blurRadius: 6.0,
+                  ),
+                ],
               ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          child: ExcludeSemantics(
+            child: Stack(
+              children: [
+                // Background
+                Positioned.fill(
+                  child: isFancy
+                      ? SvgPicture.asset(
+                          yiviAsset("ui/btn-bg.svg"),
+                          alignment: Alignment.center,
+                          fit: BoxFit.fill,
+                        )
+                      : const IrmaCard(hasShadow: false),
+                ),
 
-              // Content
-              Material(
-                type: MaterialType.transparency,
-                child: InkWell(
-                  onTap: onTap,
-                  child: Padding(
-                    padding: EdgeInsets.all(theme.defaultSpacing),
-                    child: centeredLayout
-                        // Layout where the text is centrally aligned with the icon
-                        ? Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
+                // Content
+                Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    onTap: onTap,
+                    child: Padding(
+                      padding: EdgeInsets.all(theme.defaultSpacing),
+                      child: centeredLayout
+                          // Layout where the text is centrally aligned with the icon
+                          ? Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      flexibleTitleTextWidget,
+                                      if (flexibleSubtitleTextWidget != null)
+                                        flexibleSubtitleTextWidget,
+                                    ],
+                                  ),
+                                ),
+                                iconWidget,
+                              ],
+                            )
+                          // Layout where the text and the icon stick to the top
+                          // and the subtitle can extend underneath the icon
+                          : Column(
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.max,
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     flexibleTitleTextWidget,
-                                    if (flexibleSubtitleTextWidget != null)
-                                      flexibleSubtitleTextWidget,
+                                    SizedBox(width: theme.smallSpacing),
+                                    iconWidget,
                                   ],
                                 ),
-                              ),
-                              iconWidget,
-                            ],
-                          )
-                        // Layout where the text and the icon stick to the top
-                        // and the subtitle can extend underneath the icon
-                        : Column(
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  flexibleTitleTextWidget,
-                                  SizedBox(width: theme.smallSpacing),
-                                  iconWidget,
+                                if (flexibleSubtitleTextWidget != null) ...[
+                                  SizedBox(height: theme.smallSpacing),
+                                  Row(children: [flexibleSubtitleTextWidget]),
                                 ],
-                              ),
-                              if (flexibleSubtitleTextWidget != null) ...[
-                                SizedBox(height: theme.smallSpacing),
-                                Row(children: [flexibleSubtitleTextWidget]),
                               ],
-                            ],
-                          ),
+                            ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

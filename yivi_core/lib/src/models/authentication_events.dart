@@ -7,12 +7,10 @@ part "authentication_events.g.dart";
 
 abstract class AuthenticationEvent extends Event {}
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class AuthenticateEvent extends AuthenticationEvent {
-  @JsonKey(name: "Pin")
   final String pin;
 
-  @JsonKey(name: "SchemeID")
   final String schemeId;
 
   AuthenticateEvent({required this.pin, required this.schemeId});
@@ -21,7 +19,7 @@ class AuthenticateEvent extends AuthenticationEvent {
   Map<String, dynamic> toJson() => _$AuthenticateEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class AuthenticationSuccessEvent extends AuthenticationEvent {
   AuthenticationSuccessEvent();
 
@@ -30,12 +28,10 @@ class AuthenticationSuccessEvent extends AuthenticationEvent {
   Map<String, dynamic> toJson() => _$AuthenticationSuccessEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class AuthenticationFailedEvent extends AuthenticationEvent {
-  @JsonKey(name: "RemainingAttempts")
   final int remainingAttempts;
 
-  @JsonKey(name: "BlockedDuration")
   final int blockedDuration;
 
   AuthenticationFailedEvent({
@@ -47,9 +43,8 @@ class AuthenticationFailedEvent extends AuthenticationEvent {
   Map<String, dynamic> toJson() => _$AuthenticationFailedEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class AuthenticationErrorEvent extends AuthenticationEvent {
-  @JsonKey(name: "Error")
   final SessionError error;
 
   AuthenticationErrorEvent({required this.error});

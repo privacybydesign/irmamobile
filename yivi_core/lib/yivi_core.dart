@@ -12,6 +12,7 @@ import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
+import "src/providers/schemaless_credentials_list_provider.dart";
 import "src/providers/sms_issuance_provider.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
@@ -103,6 +104,10 @@ class YiviApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final repository = ref.watch(irmaRepositoryProvider);
     final notificationsBloc = NotificationsBloc(repo: repository);
+
+    // Eagerly initialize the credential order controller so it starts
+    // tracking credential changes before the data tab is first mounted.
+    ref.read(schemalessCredentialOrderControllerProvider);
 
     return TransitionStyleProvider(
       child: IrmaRepositoryProvider(

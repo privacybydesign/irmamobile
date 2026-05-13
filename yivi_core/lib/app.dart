@@ -13,7 +13,6 @@ import "../../src/models/enrollment_status.dart";
 import "../../src/models/event.dart";
 import "../../src/models/session.dart";
 import "../../src/models/update_schemes_event.dart";
-import "../../src/screens/rooted_warning/repository.dart";
 import "../../src/theme/theme.dart";
 import "package_name.dart";
 import "src/providers/irma_repository_provider.dart";
@@ -34,8 +33,6 @@ class App extends ConsumerStatefulWidget {
 }
 
 class AppState extends ConsumerState<App> with WidgetsBindingObserver {
-  late final DetectRootedDeviceIrmaPrefsRepository _detectRootedDeviceRepo;
-
   StreamSubscription<Pointer?>? _pointerSubscription;
   StreamSubscription<Event>? _dataClearSubscription;
   StreamSubscription<bool>? _screenshotPrefSubscription;
@@ -132,14 +129,10 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // only init _detectRootedDeviceRepo once...
+    // only init the router once...
     try {
-      _detectRootedDeviceRepo;
+      _router;
     } catch (_) {
-      final repo = IrmaRepositoryProvider.of(context);
-      _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository(
-        preferences: repo.preferences,
-      );
       _router = createRouter(context, ref);
     }
   }

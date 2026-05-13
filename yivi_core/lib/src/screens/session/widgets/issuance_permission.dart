@@ -1,30 +1,35 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../../models/credentials.dart";
+import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/theme.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
-import "../../../widgets/issuing_detail.dart";
 import "session_scaffold.dart";
 
 class IssuancePermission extends StatelessWidget {
-  final Function()? onDismiss;
-  final Function()? onGivePermission;
-
-  final bool satisfiable;
-  final List<MultiFormatCredential> issuedCredentials;
+  final VoidCallback? onDismiss;
+  final VoidCallback? onGivePermission;
+  final List<schemaless.Credential> issuedCredentials;
 
   const IssuancePermission({
     super.key,
     this.onDismiss,
     this.onGivePermission,
-    this.satisfiable = false,
     required this.issuedCredentials,
   });
 
+  @override
+  Widget build(BuildContext context) => SessionScaffold(
+    appBarTitle: "issuance.title",
+    bottomNavigationBar: _buildNavigationBar(context),
+    body: _buildBody(context),
+    onDismiss: onDismiss,
+  );
+
   Widget _buildNavigationBar(BuildContext context) {
-    return satisfiable
+    return onGivePermission != null
         ? IrmaBottomBar(
             primaryButtonLabel: FlutterI18n.translate(context, "issuance.add"),
             onPrimaryPressed: () => onGivePermission?.call(),
@@ -43,7 +48,7 @@ class IssuancePermission extends StatelessWidget {
           );
   }
 
-  Widget _buildPermissionWidget(BuildContext context) {
+  Widget _buildBody(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     return ListView(
@@ -55,16 +60,17 @@ class IssuancePermission extends StatelessWidget {
             quote: FlutterI18n.translate(context, "issuance.description"),
           ),
         ),
-        IssuingDetail(issuedCredentials),
+        ...issuedCredentials.map(
+          (credential) => Padding(
+            padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+            child: YiviCredentialCard.fromCredential(
+              credential: credential,
+              compact: false,
+              lowInstanceCountThreshold: 0,
+            ),
+          ),
+        ),
       ],
     );
   }
-
-  @override
-  Widget build(BuildContext context) => SessionScaffold(
-    appBarTitle: "issuance.title",
-    bottomNavigationBar: _buildNavigationBar(context),
-    body: _buildPermissionWidget(context),
-    onDismiss: onDismiss,
-  );
 }

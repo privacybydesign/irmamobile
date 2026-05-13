@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
-import "package:yivi_core/src/screens/data/credentials_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
+import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/success_graphic.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
@@ -27,7 +27,11 @@ void main() {
       WidgetTester tester,
       Locale locale,
     ) async {
-      await pumpAndUnlockApp(tester, irmaBinding.repository, locale);
+      await pumpAndUnlockApp(
+        tester,
+        irmaBinding.repository,
+        defaultLanguage: locale,
+      );
 
       await issueMunicipalityPersonalData(tester, irmaBinding, locale: locale);
       await tester.pumpAndSettle();
@@ -58,7 +62,7 @@ void main() {
       await tester.tapAndSettle(categoryTileFinder);
 
       // Expect detail page
-      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
 
       // Expect to find a card
       final credentialCardFinder = find.byType(YiviCredentialCard);
@@ -118,7 +122,7 @@ void main() {
       await tester.tapAndSettle(emailTileFinder);
 
       // Expect the detail screen
-      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
 
       // Expect that it has one card.
       final credentialCardsFinder = find.byType(YiviCredentialCard);
@@ -132,10 +136,10 @@ void main() {
         credentialCardFinder,
         credentialName: "Demo Email address",
         issuerName: "Demo Privacy by Design Foundation via SIDN",
-        attributes: {
-          "Email address": "test@example.com",
-          "Email domain name": "example.com",
-        },
+        attributes: [
+          ("Email address", "test@example.com"),
+          ("Email domain name", "example.com"),
+        ],
       );
 
       await evaluateIssuedEmailAddressCard();
@@ -146,7 +150,7 @@ void main() {
 
       // Expect the detail screen with one card again
       await tester.tapAndSettle(emailTileFinder);
-      expect(find.byType(CredentialsDetailsScreen), findsOneWidget);
+      expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
       expect(credentialCardsFinder, findsOneWidget);
 
       // Expect the card to have the correct content again

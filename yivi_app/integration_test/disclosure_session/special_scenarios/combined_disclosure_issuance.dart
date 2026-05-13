@@ -11,7 +11,6 @@ import "../../helpers/helpers.dart";
 import "../../helpers/issuance_helpers.dart";
 import "../../irma_binding.dart";
 import "../../util.dart";
-import "../disclosure_helpers.dart";
 
 Future<void> combinedDisclosureIssuanceSessionTest(
   WidgetTester tester,
@@ -41,10 +40,12 @@ Future<void> combinedDisclosureIssuanceSessionTest(
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
-  await tester.tapAndSettle(find.text("Share data"));
-  await evaluateShareDialog(tester);
+  // Combined issuance+disclosure sessions skip the introduction screen
+  // and go straight to the disclosure choices overview.
+  // For issuance sessions, the button says "Next" instead of "Share data".
+  await tester.waitFor(find.text("Next"));
+  await tester.tapAndSettle(find.text("Next"));
 
   // Expect add data screen
   expect(find.byType(IssuancePermission), findsOneWidget);
@@ -56,7 +57,7 @@ Future<void> combinedDisclosureIssuanceSessionTest(
     cardsFinder.first,
     credentialName: "Demo Login data",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Login code": "1234", "Organization": "E-mail guild"},
+    attributes: [("Login code", "1234"), ("Organization", "E-mail guild")],
     style: IrmaCardStyle.normal,
   );
 

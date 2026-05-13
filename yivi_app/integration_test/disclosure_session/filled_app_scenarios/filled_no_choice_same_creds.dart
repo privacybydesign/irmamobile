@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
 import "../../helpers/helpers.dart";
@@ -57,7 +57,7 @@ Future<void> filledNoChoiceSameCredsTest(
     isSelected: true,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {"Email address": "first-email@example.com"},
+    attributes: [("Email address", "first-email@example.com")],
   );
 
   final secondCredentialCard = credentialCardsFinder.at(1);
@@ -67,7 +67,7 @@ Future<void> filledNoChoiceSameCredsTest(
     isSelected: false,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {"Email address": "second-email@example.com"},
+    attributes: [("Email address", "second-email@example.com")],
   );
 
   // Scroll to the second credential
@@ -84,7 +84,7 @@ Future<void> filledNoChoiceSameCredsTest(
   await tester.tapAndSettle(doneButterFinder);
 
   // Expect to be on the overview screen
-  final overviewScreenFinder = find.byType(DisclosurePermissionChoicesScreen);
+  final overviewScreenFinder = find.byType(DisclosureChoicesOverview);
   expect(overviewScreenFinder, findsOneWidget);
 
   // The only credential on the overview should be the second email
@@ -93,7 +93,7 @@ Future<void> filledNoChoiceSameCredsTest(
     credentialCardsFinder.first,
     credentialName: demoEmailCredentialName,
     issuerName: demoEmailIssuerName,
-    attributes: {"Email address": "second-email@example.com"},
+    attributes: [("Email address", "second-email@example.com")],
   );
 
   // Finish the flow

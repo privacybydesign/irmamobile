@@ -46,6 +46,7 @@ runs:
         path: |
           ${{ env.ANDROID_HOME }}
           ${{ env.FLUTTER_HOME }}
+          ~/go/bin
         key: ci_scripts-${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     - name: Ensure Android SDK is installed
       if: runner.os == 'Linux'
@@ -60,6 +61,14 @@ runs:
     - name: Use correct Xcode version
       if: runner.os == 'macOS'
       run: sudo xcode-select --switch /Applications/Xcode_26.1.app
+      shell: bash
+    - name: Install sqlcipher (macOS)
+      if: runner.os == 'macOS'
+      run: brew install sqlcipher
+      shell: bash
+    - name: Install sqlcipher (Linux)
+      if: runner.os == 'Linux'
+      run: sudo apt-get update && sudo apt-get install -y libsqlcipher-dev
       shell: bash
     - name: Check Cocoapods cache
       id: cocoapods-cache

@@ -75,10 +75,10 @@ Future<void> testIssuanceLowInstanceCountNoReobtainButtonDuringIssuance(
     find.byType(YiviCredentialCard),
     issuerName: "Demo Privacy by Design Foundation via SIDN",
     credentialName: "Demo Email address",
-    attributes: {
-      "Email address": "test@example.com",
-      "Email domain name": "example.com",
-    },
+    attributes: [
+      ("Email address", "test@example.com"),
+      ("Email domain name", "example.com"),
+    ],
     isRevoked: false,
     isExpired: false,
     instancesRemaining: 1,
@@ -116,7 +116,7 @@ Future<void> testIssuanceLowInstanceCountNoReobtainButtonDuringIssuance(
       .widgetList<YiviCredentialCard>(cardFinder)
       .toList();
   expect(credentialCards.length, equals(1));
-  expect(credentialCards[0].instanceCount, equals(credentialCount));
+  expect(credentialCards[0].status.instanceCount, equals(credentialCount));
 
   expect(
     find.text("$credentialCount times left", skipOffstage: false),
@@ -129,7 +129,11 @@ Future<void> testIssueEmailWithSdJwt(
   IntegrationTestIrmaBinding irmaBinding,
   Locale locale,
 ) async {
-  await pumpAndUnlockApp(tester, irmaBinding.repository, locale);
+  await pumpAndUnlockApp(
+    tester,
+    irmaBinding.repository,
+    defaultLanguage: locale,
+  );
 
   const credentialCount = 50;
 
@@ -164,7 +168,7 @@ Future<void> testIssueEmailWithSdJwt(
       .widgetList<YiviCredentialCard>(cardFinder)
       .toList();
   expect(credentialCards.length, equals(1));
-  expect(credentialCards[0].instanceCount, equals(credentialCount));
+  expect(credentialCards[0].status.instanceCount, equals(credentialCount));
 
   if (locale == Locale("nl", "NL")) {
     expect(

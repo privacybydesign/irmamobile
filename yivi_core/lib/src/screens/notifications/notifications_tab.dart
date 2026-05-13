@@ -1,8 +1,6 @@
 import "package:flutter/material.dart" hide Notification;
 import "package:flutter_bloc/flutter_bloc.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -36,19 +34,12 @@ class _NotificationsTabState extends State<NotificationsTab> {
 
   void _onNotificationTap(Notification notification) {
     final action = notification.action;
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     if (action != null && action is CredentialDetailNavigationAction) {
-      final repo = IrmaRepositoryProvider.of(context);
-      final credType =
-          repo.irmaConfiguration.credentialTypes[action.credentialTypeId]!;
-      final translatedAttributeType = credType.name.translate(lang);
-
       _notificationsBloc.add(MarkNotificationAsRead(notification.id));
 
       context.pushCredentialsDetailsScreen(
         CredentialsDetailsRouteParams(
-          categoryName: translatedAttributeType,
           credentialTypeId: action.credentialTypeId,
         ),
       );

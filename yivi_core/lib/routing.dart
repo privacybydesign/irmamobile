@@ -9,18 +9,18 @@ import "package:rxdart/rxdart.dart";
 
 import "src/data/irma_repository.dart";
 import "src/models/enrollment_status.dart";
-import "src/models/irma_configuration.dart";
 import "src/models/log_entry.dart";
 import "src/models/mrz.dart";
 import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
 import "src/providers/irma_repository_provider.dart";
+import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
-import "src/screens/add_data/add_data_details_screen.dart";
-import "src/screens/add_data/add_data_screen.dart";
+import "src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "src/screens/add_data/schemaless_add_data_screen.dart";
 import "src/screens/change_language/change_language_screen.dart";
 import "src/screens/change_pin/change_pin_screen.dart";
-import "src/screens/data/credentials_details_screen.dart";
+import "src/screens/data/schemaless_credentials_details_screen.dart";
 import "src/screens/debug/debug_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/driving_licence_mrz_manual_entry_screen.dart";
 import "src/screens/embedded_issuance_flows/documents/mrz_reader_screen.dart";
@@ -45,6 +45,7 @@ import "src/screens/pin/pin_screen.dart";
 import "src/screens/required_update/required_update_screen.dart";
 import "src/screens/reset_pin/reset_pin_screen.dart";
 import "src/screens/rooted_warning/repository.dart";
+import "src/screens/rooted_warning/rooted_device_detector.dart";
 import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/scanner/scanner_screen.dart";
 import "src/screens/session/session_screen.dart";
@@ -60,7 +61,8 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
-  final redirectionTriggers = RedirectionListenable(repo);
+  final rootedDeviceDetector = ref.read(rootedDeviceDetectorProvider);
+  final redirectionTriggers = RedirectionListenable(repo, rootedDeviceDetector);
 
   const whiteListedOnLocked = {
     "/reset_pin",
@@ -161,8 +163,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               final args = CredentialsDetailsRouteParams.fromQueryParams(
                 state.uri.queryParameters,
               );
-              return CredentialsDetailsScreen(
-                categoryName: args.categoryName,
+              return SchemalessCredentialsDetailsScreen(
                 credentialTypeId: args.credentialTypeId,
               );
             },
@@ -170,32 +171,32 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           GoRoute(
             path: "activity_details",
             builder: (context, state) {
-              final (logEntry, irmaConfiguration) =
-                  state.extra as (LogInfo, IrmaConfiguration);
+              final logEntry = state.extra as LogInfo;
               return ActivityDetailsScreen(
-                args: ActivityDetailsScreenArgs(
-                  logEntry: logEntry,
-                  irmaConfiguration: irmaConfiguration,
-                ),
+                args: ActivityDetailsScreenArgs(logEntry: logEntry),
               );
             },
           ),
           GoRoute(path: "help", builder: (context, state) => HelpScreen()),
           GoRoute(
             path: "add_data",
-            builder: (context, state) => AddDataScreen(),
+            builder: (context, state) => SchemalessAddDataScreen(),
             routes: [
               GoRoute(
                 path: "details",
                 builder: (context, state) {
-                  final credentialType = state.extra as CredentialType;
-                  return AddDataDetailsScreen(
-                    credentialType: credentialType,
+                  final params = AddDataDetailsRouteParams.fromQueryParams(
+                    state.uri.queryParameters,
+                  );
+
+                  return SchemalessAddDataDetailsScreen(
+                    credential: params.credential,
+                    faq: params.faq,
                     onCancel: context.pop,
                     onAdd: () {
                       IrmaRepositoryProvider.of(
                         context,
-                      ).openIssueURL(context, credentialType, ref);
+                      ).schemalessOpenIssueURL(context, params.credential, ref);
                     },
                   );
                 },
@@ -228,7 +229,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           final args = SessionRouteParams.fromQueryParams(
             state.uri.queryParameters,
           );
-          return SessionScreen(arguments: args);
+          return SessionScreen(
+            sessionId: args.sessionId,
+            hasUnderlyingSession: args.hasUnderlyingSession,
+          );
         },
       ),
       GoRoute(
@@ -270,6 +274,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
             onAcceptRiskButtonPressed: () {
               DetectRootedDeviceIrmaPrefsRepository(
                 preferences: repo.preferences,
+                detector: rootedDeviceDetector,
               ).setHasAcceptedRootedDeviceRisk();
             },
           );
@@ -667,11 +672,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
     ],
     redirect: (context, state) {
-      if (redirectionTriggers.value.enrollmentStatus == .unenrolled) {
-        return "/enrollment";
-      }
       if (redirectionTriggers.value.showDeviceRootedWarning) {
         return "/rooted_warning";
+      }
+      if (redirectionTriggers.value.enrollmentStatus == .unenrolled) {
+        return "/enrollment";
       }
       if (redirectionTriggers.value.showNameChangedMessage) {
         return "/name_changed";
@@ -710,9 +715,9 @@ class RouteNotFoundScreen extends StatelessWidget {
 class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
   late final Stream<RedirectionTriggers> _streamSubscription;
 
-  RedirectionListenable(IrmaRepository repo)
+  RedirectionListenable(IrmaRepository repo, RootedDeviceDetector detector)
     : super(RedirectionTriggers.withDefaults()) {
-    final warningStream = _displayDeviceIsRootedWarning(repo);
+    final warningStream = _displayDeviceIsRootedWarning(repo, detector);
     final lockedStream = repo.getLocked();
     final infoStream = repo
         .getVersionInformation()
@@ -822,9 +827,13 @@ class RedirectionTriggers {
   );
 }
 
-Stream<bool> _displayDeviceIsRootedWarning(IrmaRepository irmaRepo) {
+Stream<bool> _displayDeviceIsRootedWarning(
+  IrmaRepository irmaRepo,
+  RootedDeviceDetector detector,
+) {
   final repo = DetectRootedDeviceIrmaPrefsRepository(
     preferences: irmaRepo.preferences,
+    detector: detector,
   );
   final streamController = StreamController<bool>();
   repo.isDeviceRooted().then((isRooted) {

@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_close_dialog.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_close_dialog.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_permission_confirm_dialog.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "../../helpers/helpers.dart";

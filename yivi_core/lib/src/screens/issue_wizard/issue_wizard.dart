@@ -6,13 +6,12 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:visibility_detector/visibility_detector.dart";
 
-import "../../../package_name.dart";
 import "../../data/irma_repository.dart";
 import "../../models/irma_configuration.dart";
 import "../../models/issue_wizard.dart";
+import "../../models/protocol.dart";
+import "../../models/schemaless/session_state.dart";
 import "../../models/session.dart";
-import "../../models/session_events.dart";
-import "../../models/session_state.dart";
 import "../../models/translated_value.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../screens/issue_wizard/widgets/wizard_contents.dart";
@@ -46,7 +45,12 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
         AppLifecycleState.resumed == state) {
       _sessionSubscription = _repo
           .getSessionState(widget.arguments.sessionID!)
-          .firstWhere((event) => event.isFinished)
+          .firstWhere(
+            (s) =>
+                s.status == SessionStatus.success ||
+                s.status == SessionStatus.error ||
+                s.status == SessionStatus.dismissed,
+          )
           .asStream()
           .listen((event) {
             if (mounted) {
@@ -152,11 +156,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
       // then the only reasonable condition that we can use to consider the item to be completed is whenever the
       // session that it starts has finished successfully. So when the session starts, we save the session ID,
       // so that when the user returns to this screen, we can check if it completed.
-      _repo
-          .getEvents()
-          .where((event) => event is NewSessionEvent)
-          .first
-          .then((event) => _sessionID = (event as SessionEvent).sessionID);
+      _repo.getNewSessionIds().first.then((id) => _sessionID = id);
     }
 
     // Handle the different wizard item types
@@ -172,13 +172,17 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
             isSingleton: false,
             description: TranslatedValue.empty(),
           );
-          _repo.openIssueURL(context, type, ref);
+          _repo.openIssueURL(context, type.fullId, type.issueUrl, ref);
         }
         break;
       case "session":
         handlePointer(
           context,
-          SessionPointer(u: item?.sessionURL ?? "", irmaqr: "redirect"),
+          SessionPointer(
+            u: item?.sessionURL ?? "",
+            irmaqr: "redirect",
+            protocol: Protocol.irma,
+          ),
         );
         break;
       case "website":
@@ -223,7 +227,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
             : Image.asset(
-                yiviAsset("non-free/logo.png"),
+                "assets/non-free/logo.png",
                 excludeFromSemantics: true,
               );
 

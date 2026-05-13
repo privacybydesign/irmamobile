@@ -2,7 +2,7 @@ name: yivi
 description: "Yivi App"
 
 # A build number cannot be reused once a build is in use on Android.
-version: 7.13.5+4194503
+version: 7.14.0+4194504
 
 publish_to: none
 
@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  camera: ^0.10.0+4
   cupertino_icons: ^1.0.8
   sentry_flutter: ^9.4.0
   yivi_core:

@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:intl_phone_number_input/intl_phone_number_input.dart";
+// ignore: implementation_imports
 import "package:intl_phone_number_input/src/models/country_list.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";

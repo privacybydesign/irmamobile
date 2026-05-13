@@ -10,61 +10,6 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
 
   void _showSecurePinRules(EnterPinState state) {
     final theme = IrmaTheme.of(context);
-    final rules = <Widget>[
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                FlutterI18n.translate(context, "secure_pin.title"),
-                style: theme.textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.grey.shade300,
-                  child: const SizedBox.square(dimension: 32),
-                ),
-                IconButton(
-                  alignment: Alignment.center,
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(
-                    Icons.close_outlined,
-                    semanticLabel: FlutterI18n.translate(
-                      context,
-                      "accessibility.close",
-                    ),
-                    size: 18,
-                    color: Colors.grey.shade800,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      SizedBox(height: theme.screenPadding),
-      Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          FlutterI18n.translate(context, "secure_pin.subtitle"),
-          style: theme.textTheme.bodyMedium,
-        ),
-      ),
-      SizedBox(height: theme.screenPadding),
-      ..._listBuilder(context, state),
-      const SizedBox(height: 32),
-    ];
 
     // OrientationBuilder builds a widget tree that can depend on
     // the parent widget's orientation (distinct from the device orientation).
@@ -80,10 +25,23 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
     } else {
       showYiviBottomSheet(
         context: context,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: rules,
+        titleKey: "secure_pin.title",
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: theme.screenPadding),
+              Text(
+                FlutterI18n.translate(context, "secure_pin.subtitle"),
+                style: theme.textTheme.bodyMedium,
+              ),
+              SizedBox(height: theme.screenPadding),
+              ..._listBuilder(context, state),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       );
     }

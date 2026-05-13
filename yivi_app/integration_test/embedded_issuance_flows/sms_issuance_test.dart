@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/models/session.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 import "package:yivi_core/yivi_core.dart";
@@ -165,7 +165,7 @@ void main() {
       await tester.waitFor(find.byType(SmsIssuanceScreen));
 
       await tester.tapAndSettle(find.text("Cancel"));
-      expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+      expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
     });
 
     testWidgets(
@@ -174,7 +174,7 @@ void main() {
         await _goToVerifyCodeScreen(tester, irmaBinding);
 
         await tester.tapAndSettle(find.text("Cancel"));
-        expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+        expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
       },
     );
 

@@ -2,12 +2,9 @@ import "dart:async";
 
 import "package:flutter/material.dart";
 
-import "../../../models/irma_configuration.dart";
 import "../../../models/log_entry.dart";
-import "../../../models/session_events.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../util/combine.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
 import "../history_repository.dart";
@@ -37,13 +34,10 @@ class _RecentActivityState extends State<RecentActivity> {
     } catch (_) {
       _loadLogs();
       _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
-      _repoStateSubscription = IrmaRepositoryProvider.of(context)
-          .getEvents()
-          .listen((event) {
-            if (event is SuccessSessionEvent) {
-              _loadLogs();
-            }
-          });
+      // TODO: listen for session success to refresh logs
+      _repoStateSubscription = IrmaRepositoryProvider.of(
+        context,
+      ).getEvents().listen((event) {});
     }
   }
 
@@ -64,17 +58,13 @@ class _RecentActivityState extends State<RecentActivity> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
-      stream: combine2(
-        _historyRepo.repo.getIrmaConfiguration(),
-        _historyRepo.getHistoryState(),
-      ),
+    return StreamBuilder<HistoryState>(
+      stream: _historyRepo.getHistoryState(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container();
         }
-        final irmaConfiguration = snapshot.data!.a;
-        final historyState = snapshot.data!.b;
+        final historyState = snapshot.data!;
         final logEntries = historyState.logEntries;
 
         return Column(
@@ -115,10 +105,7 @@ class _RecentActivityState extends State<RecentActivity> {
                             padding: EdgeInsets.only(
                               bottom: theme.smallSpacing,
                             ),
-                            child: ActivityCard(
-                              logEntry: logEntry,
-                              irmaConfiguration: irmaConfiguration,
-                            ),
+                            child: ActivityCard(logEntry: logEntry),
                           ),
                         )
                         .toList(),

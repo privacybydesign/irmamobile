@@ -1,8 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart";
-import "package:yivi_core/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart";
+import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
+import "package:yivi_core/src/screens/session/widgets/disclosure_make_choice_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
@@ -40,7 +40,7 @@ Future<void> filledChoiceTest(
   await evaluateIntroduction(tester);
 
   // Expect the choices screen
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   // Expect one credential card to be present
   final cardFinder = find.byType(YiviCredentialCard);
@@ -52,7 +52,7 @@ Future<void> filledChoiceTest(
     cardFinder,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     style: IrmaCardStyle.normal,
   );
 
@@ -65,7 +65,7 @@ Future<void> filledChoiceTest(
   await tester.tapAndSettle(changeChoiceFinder);
 
   // Expect make choice screen
-  expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
 
   // This screen to have three options
   expect(cardFinder, findsNWidgets(3));
@@ -76,7 +76,7 @@ Future<void> filledChoiceTest(
     cardFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     isSelected: true,
   );
 
@@ -86,7 +86,7 @@ Future<void> filledChoiceTest(
     cardFinder.at(1),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -98,7 +98,7 @@ Future<void> filledChoiceTest(
     thirdCardFinder,
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
@@ -109,21 +109,40 @@ Future<void> filledChoiceTest(
   await evaluateCredentialCard(tester, thirdCardFinder, isSelected: true);
 
   await tester.tapAndSettle(find.text("Obtain data"));
-  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+  expect(find.byType(SchemalessAddDataDetailsScreen), findsOneWidget);
 
   await issueMunicipalityPersonalData(tester, irmaBinding);
   await issueMobileNumber(tester, irmaBinding);
 
+  // After issuance, we should be back on the overview with the newly
+  // issued mobile number auto-selected.
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
+  expect(cardFinder, findsOneWidget);
+  await evaluateCredentialCard(
+    tester,
+    cardFinder.first,
+    credentialName: "Demo Mobile phone number",
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+    attributes: [("Mobile phone number", "0612345678")],
+    style: IrmaCardStyle.normal,
+  );
+
+  // Tap "Change choice" to go to the make choice screen
+  final changeChoiceFinder2 = find.text("Change choice");
+  await tester.scrollUntilVisible(changeChoiceFinder2.hitTestable(), 50);
+  await tester.tapAndSettle(changeChoiceFinder2);
+  expect(find.byType(DisclosureMakeChoiceScreen), findsOneWidget);
+
   // Now four cards should be visible
   expect(cardFinder, findsNWidgets(4));
 
-  // Check if all cards display the correct
+  // Check if all cards display the correct data
   await evaluateCredentialCard(
     tester,
     cardFinder.first,
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Email address": "test@example.com"},
+    attributes: [("Email address", "test@example.com")],
     isSelected: false,
   );
   await evaluateCredentialCard(
@@ -131,7 +150,7 @@ Future<void> filledChoiceTest(
     cardFinder.at(1),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     isSelected: true,
   );
 
@@ -140,7 +159,7 @@ Future<void> filledChoiceTest(
     cardFinder.at(2),
     credentialName: "Demo Email address",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
   await evaluateCredentialCard(
@@ -148,13 +167,13 @@ Future<void> filledChoiceTest(
     cardFinder.at(3),
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {},
+    attributes: [],
     isSelected: false,
   );
 
   // Confirm choice
   await tester.tapAndSettle(find.text("Done"));
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
 
   final requestorHeaderFinder = find.byType(RequestorHeader);
   await evaluateRequestorHeader(
@@ -170,7 +189,7 @@ Future<void> filledChoiceTest(
     cardFinder.first,
     credentialName: "Demo Mobile phone number",
     issuerName: "Demo Privacy by Design Foundation via SIDN",
-    attributes: {"Mobile phone number": "0612345678"},
+    attributes: [("Mobile phone number", "0612345678")],
     style: IrmaCardStyle.normal,
   );
 

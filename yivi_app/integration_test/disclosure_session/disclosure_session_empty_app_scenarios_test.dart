@@ -16,8 +16,8 @@ void main() {
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   group("disclosure-session", () {
-    setUp(() async => irmaBinding.setUp());
-    tearDown(() => irmaBinding.tearDown());
+    setUp(() async => await irmaBinding.setUp());
+    tearDown(() async => await irmaBinding.tearDown());
 
     group("empty-app-scenarios", () {
       // Full name AND nationality
@@ -38,14 +38,6 @@ void main() {
         "choice-mixed",
         (tester) => choiceMixedTest(tester, irmaBinding),
       );
-
-      // TODO Fix this test
-      // // Student/employee id from university OR
-      // // Full name from municipality AND email address
-      // testWidgets(
-      //   'choice-mixed-sources',
-      //   (tester) => choiceMixedSourcesTest(tester, irmaBinding),
-      // );
 
       // Bank account number from iDeal. BIC has to be RABONL2U. AND
       // Initials, family name and city from iDIN. The city has to be Arnhem

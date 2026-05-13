@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
-import "package:yivi_core/src/widgets/credential_card/irma_credential_type_card.dart";
+import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -37,25 +37,32 @@ void main() {
         ]),
       );
 
-      final firstCard = find.byType(IrmaCredentialTypeCard).first;
-      final gesture = await tester.startGesture(
-        tester.getCenter(firstCard),
-        kind: .touch,
-      );
+      final firstCard = find.byType(SchemalessYiviCredentialTypeCard).first;
+      final secondCard = find.byType(SchemalessYiviCredentialTypeCard).at(1);
+      final firstCenter = tester.getCenter(firstCard);
+      final dragDistance = tester.getCenter(secondCard).dy - firstCenter.dy;
+
+      final gesture = await tester.startGesture(firstCenter, kind: .touch);
 
       // long press
       await tester.pump(const Duration(milliseconds: 600));
-      // drag down
-      await gesture.moveBy(const Offset(0, 200));
-
-      await tester.pump();
+      // Drag down just past the second card's midpoint, in small increments so
+      // the ReorderableListView can track the drag across intermediate frames.
+      // A single large moveBy doesn't commit the reorder.
+      const dragSteps = 10;
+      for (var i = 0; i < dragSteps; i++) {
+        await gesture.moveBy(Offset(0, (dragDistance + 10) / dragSteps));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
 
       // release
       await gesture.up();
       await tester.pumpAndSettle();
 
-      // give it some time to update shared preferences
-      await Future.delayed(Duration(seconds: 1));
+      // let the reorder ghost/lift animation fully clear from the overlay
+      // and give shared preferences time to update
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
       final orderAfterDragOnDisk = irmaBinding.repository.preferences
           .getCredentialOrder();
@@ -116,9 +123,15 @@ void main() {
 }
 
 Future<void> deletePersonalDataCard(WidgetTester tester) async {
-  final cardFinder = find.byType(IrmaCredentialTypeCard).at(2);
+  final cardFinder = find.byKey(
+    const ValueKey("irma-demo.gemeente.personalData"),
+  );
   await tester.scrollUntilVisible(cardFinder, 100);
-  await tester.tapAndSettle(cardFinder);
+  // Tap on the left side of the card: in landscape, the central raised
+  // scanner FAB in the bottom nav covers the card's geometric center.
+  final cardRect = tester.getRect(cardFinder);
+  await tester.tapAt(Offset(cardRect.left + 100, cardRect.top + 30));
+  await tester.pumpAndSettle();
 
   // Open the bottom sheet
   final bottomSheetButtonFinder = find.byIcon(Icons.more_horiz_sharp);
@@ -144,10 +157,10 @@ Future<void> deletePersonalDataCard(WidgetTester tester) async {
 
 List<String> getCredentialOrderOnScreen(WidgetTester tester) {
   return tester
-      .widgetList<IrmaCredentialTypeCard>(
-        find.byType(IrmaCredentialTypeCard, skipOffstage: false),
+      .widgetList<SchemalessYiviCredentialTypeCard>(
+        find.byType(SchemalessYiviCredentialTypeCard, skipOffstage: false),
       )
-      .map((c) => c.credType.fullId)
+      .map((c) => c.credentialId)
       .toList();
 }
 
@@ -155,7 +168,11 @@ Future<void> pumpFilledAppOnDataPage(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
-  await pumpAndUnlockApp(tester, irmaBinding.repository, Locale("en"));
+  await pumpAndUnlockApp(
+    tester,
+    irmaBinding.repository,
+    defaultLanguage: Locale("en"),
+  );
   await fillApp(tester, irmaBinding);
   await tester.tapAndSettle(find.byKey(const Key("ok_button")));
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
