@@ -396,6 +396,15 @@ class IrmaRepository {
     _blockedSubject.add(unblockTime);
   }
 
+  /// Bypass the local lock screen using platform-native biometric
+  /// authentication. This does NOT authenticate against the keyshare server;
+  /// any operation that talks to the keyshare server (issuance, disclosure)
+  /// will still trigger a session pin entry.
+  void unlockWithBiometrics() {
+    _lockedSubject.add(false);
+    _blockedSubject.add(null);
+  }
+
   void setDeveloperMode(bool enabled) {
     bridgedDispatch(
       ClientPreferencesEvent(

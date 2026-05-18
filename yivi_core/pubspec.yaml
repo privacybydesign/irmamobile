@@ -60,6 +60,9 @@ dependencies:
       ref: v3.8.0
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1
+  local_auth: ^2.3.0
+  local_auth_android: ^1.0.46
+  local_auth_darwin: ^1.4.2
   # Temporary forks because their original repos are not compatible with new android api's.
   # Should be reverted back to their published version when they're made compatible.
   native_device_orientation:

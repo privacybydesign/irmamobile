@@ -3,6 +3,7 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "../../../data/irma_repository.dart";
 import "../../../models/enrollment_events.dart";
 import "../../../models/session.dart";
+import "../../../util/biometric_auth.dart";
 import "../introduction/introduction_screen.dart";
 
 part "enrollment_event.dart";
@@ -11,12 +12,17 @@ part "enrollment_state.dart";
 class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
   final String language;
   final IrmaRepository repo;
+  final BiometricAuth biometricAuth;
 
   String? _email;
   String? _pin;
 
-  EnrollmentBloc({required this.language, required this.repo})
-    : super(EnrollmentIntroduction());
+  EnrollmentBloc({
+    required this.language,
+    required this.repo,
+    BiometricAuth? biometricAuth,
+  }) : biometricAuth = biometricAuth ?? BiometricAuth(),
+       super(EnrollmentIntroduction());
 
   Future<EnrollmentState> _enroll() async {
     var enrollment = await repo.enroll(
@@ -93,10 +99,28 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       }
       if (event is EnrollmentPinConfirmed) {
         if (_pin == event.pin) {
-          yield EnrollmentProvideEmail();
+          // Offer biometric unlock only on devices that actually support it,
+          // otherwise skip straight to the email step.
+          if (await biometricAuth.canAuthenticate()) {
+            yield EnrollmentBiometricSetup();
+          } else {
+            yield EnrollmentProvideEmail();
+          }
         } else {
           yield EnrollmentConfirmPin(confirmationFailed: true);
         }
+      } else if (event is EnrollmentPreviousPressed) {
+        yield EnrollmentChoosePin();
+      }
+    }
+    // Biometric unlock setup
+    else if (state is EnrollmentBiometricSetup) {
+      if (event is EnrollmentBiometricEnabled) {
+        await repo.preferences.setBiometricUnlockEnabled(true);
+        yield EnrollmentProvideEmail();
+      } else if (event is EnrollmentBiometricSkipped) {
+        await repo.preferences.setBiometricUnlockEnabled(false);
+        yield EnrollmentProvideEmail();
       } else if (event is EnrollmentPreviousPressed) {
         yield EnrollmentChoosePin();
       }
@@ -109,7 +133,13 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         yield await _enroll();
       }
       if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentChoosePin();
+        // Step back through the biometric prompt if the device supports it,
+        // otherwise jump to pin selection like before.
+        if (await biometricAuth.canAuthenticate()) {
+          yield EnrollmentBiometricSetup();
+        } else {
+          yield EnrollmentChoosePin();
+        }
       }
     } else if (state is EnrollmentEmailSent) {
       if (event is EnrollmentNextPressed) {
