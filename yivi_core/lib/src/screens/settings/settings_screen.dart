@@ -128,8 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ToggleTile(
                       key: const Key("biometric_unlock_toggle"),
                       labelTranslationKey: "settings.biometric_unlock",
-                      onChanged: (value) =>
-                          _onBiometricToggle(repo, value),
+                      onChanged: (value) => _onBiometricToggle(repo, value),
                       stream: repo.preferences.getBiometricUnlockEnabled(),
                     ),
                   ],
