@@ -2,10 +2,13 @@ import "dart:async";
 import "dart:io";
 
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
+import "../../data/irma_repository.dart";
 import "../../models/clear_all_data_event.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
+import "../../util/biometric_auth.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/translated_text.dart";
@@ -20,6 +23,8 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool showDeveloperModeToggle = false;
+  bool biometricSupported = false;
+  final BiometricAuth _biometricAuth = BiometricAuth();
 
   @override
   void initState() {
@@ -40,6 +45,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           showDeveloperModeToggle = true;
         });
       }
+    });
+    _biometricAuth.canAuthenticate().then((supported) {
+      if (!mounted) return;
+      setState(() => biometricSupported = supported);
     });
   }
 
@@ -112,6 +121,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 buildExplanationText("settings.enable_screenshots_explanation"),
                 spacerWidget,
               ],
+              if (biometricSupported) ...[
+                spacerWidget,
+                TilesCard(
+                  children: [
+                    ToggleTile(
+                      key: const Key("biometric_unlock_toggle"),
+                      labelTranslationKey: "settings.biometric_unlock",
+                      onChanged: (value) =>
+                          _onBiometricToggle(repo, value),
+                      stream: repo.preferences.getBiometricUnlockEnabled(),
+                    ),
+                  ],
+                ),
+                buildExplanationText("settings.biometric_unlock_explanation"),
+              ],
               if (showDeveloperModeToggle)
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
@@ -152,6 +176,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _onBiometricToggle(IrmaRepository repo, bool enable) async {
+    if (!enable) {
+      await repo.preferences.setBiometricUnlockEnabled(false);
+      return;
+    }
+    final reason = FlutterI18n.translate(
+      context,
+      "settings.biometric_unlock_prompt",
+    );
+    final signInTitle = FlutterI18n.translate(
+      context,
+      "settings.biometric_unlock",
+    );
+    final cancel = FlutterI18n.translate(context, "ui.cancel");
+    final lockOut = FlutterI18n.translate(context, "pin.biometric.lockout");
+    final result = await _biometricAuth.authenticate(
+      reason: reason,
+      androidSignInTitle: signInTitle,
+      androidCancelButton: cancel,
+      iosCancelButton: cancel,
+      iosLockoutMessage: lockOut,
+    );
+    if (!mounted) return;
+    if (result.success) {
+      await repo.preferences.setBiometricUnlockEnabled(true);
+    } else if (result.unsupported) {
+      setState(() => biometricSupported = false);
+    }
   }
 }
 

@@ -2,12 +2,26 @@ part of "yivi_pin_screen.dart";
 
 class _NumberPad extends StatelessWidget {
   final NumberCallback onEnterNumber;
-  const _NumberPad({required this.onEnterNumber});
+  final VoidCallback? onBiometricTap;
+  const _NumberPad({required this.onEnterNumber, this.onBiometricTap});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final Widget bottomLeftSlot = onBiometricTap != null
+            ? Semantics(
+                button: true,
+                label: FlutterI18n.translate(
+                  context,
+                  "pin.biometric.retry",
+                ),
+                child: _NumberPadIcon(
+                  icon: Icons.fingerprint,
+                  callback: onBiometricTap!,
+                ),
+              )
+            : SizedBox.fromSize(size: const Size.square(20));
         final keys = <Widget>[
           // The empty String keeps the number aligned with the rest
           _NumberPadKey(onEnterNumber, 1, ""),
@@ -19,7 +33,7 @@ class _NumberPad extends StatelessWidget {
           _NumberPadKey(onEnterNumber, 7, "PQRS"),
           _NumberPadKey(onEnterNumber, 8, "TUV"),
           _NumberPadKey(onEnterNumber, 9, "WXYZ"),
-          SizedBox.fromSize(size: const Size.square(20)),
+          bottomLeftSlot,
           _NumberPadKey(onEnterNumber, 0),
           Semantics(
             button: true,

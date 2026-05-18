@@ -278,6 +278,13 @@
     "confirm_pin": {
       "instruction": "Geben Sie Ihre PIN erneut ein"
     },
+    "biometric": {
+      "title": "Yivi mit Biometrie öffnen",
+      "explanation": "Sie können Face ID, Touch ID oder Ihren Fingerabdruck verwenden, um die Yivi-App zu öffnen, anstatt jedes Mal Ihre PIN einzugeben. Beim Teilen oder Empfangen von Nachweisen werden Sie weiterhin nach Ihrer PIN gefragt.",
+      "privacy": "Ihre biometrischen Daten bleiben auf diesem Gerät. Sie werden nicht an Yivi, nicht an Aussteller und nicht an die Parteien weitergegeben, mit denen Sie Nachweise teilen. Biometrie wird ausschließlich verwendet, um die Yivi-App auf Ihrem Telefon zu entsperren.",
+      "enable": "Biometrie verwenden",
+      "skip": "Nicht jetzt"
+    },
     "email": {
       "provide": {
         "title": "E-Mail-Adresse hinzufügen",
@@ -554,7 +561,13 @@
   "pin": {
     "subtitle": "Geben Sie Ihre PIN ein",
     "button_forgot": "PIN vergessen",
-    "button_block": "Yivi sperren"
+    "button_block": "Yivi sperren",
+    "biometric": {
+      "reason": "Yivi entsperren",
+      "android_title": "Scannen Sie Ihre Biometrie, um Yivi zu entsperren",
+      "lockout": "Biometrische Authentifizierung ist nicht verfügbar. Geben Sie stattdessen Ihre PIN ein.",
+      "retry": "Mit Biometrie entsperren"
+    }
   },
   "pin_accessibility": {
     "show_pin": "PIN anzeigen",
@@ -673,6 +686,9 @@
     "report_errors_explanation": "Durch die Aktivierung der Fehler- und App-Status-Berichterstattung helfen Sie uns, die Benutzererfahrung zu verbessern.",
     "enable_screenshots": "Screenshots aktivieren",
     "enable_screenshots_explanation": "Wenn aktiviert, wird die App im App-Umschalter nicht unscharf dargestellt.",
+    "biometric_unlock": "Mit Biometrie entsperren",
+    "biometric_unlock_explanation": "Verwenden Sie Face ID, Touch ID oder Ihren Fingerabdruck, um Yivi zu öffnen. Ihre PIN wird weiterhin benötigt, wenn Sie Nachweise teilen oder erhalten.",
+    "biometric_unlock_prompt": "Bestätigen Sie, um die biometrische Entsperrung zu aktivieren",
     "developer_mode": "Entwicklermodus",
     "other": "Sonstiges",
     "language": "Sprache",
