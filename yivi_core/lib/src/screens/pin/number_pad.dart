@@ -12,10 +12,7 @@ class _NumberPad extends StatelessWidget {
         final Widget bottomLeftSlot = onBiometricTap != null
             ? Semantics(
                 button: true,
-                label: FlutterI18n.translate(
-                  context,
-                  "pin.biometric.retry",
-                ),
+                label: FlutterI18n.translate(context, "pin.biometric.retry"),
                 child: _NumberPadIcon(
                   icon: Icons.fingerprint,
                   callback: onBiometricTap!,
