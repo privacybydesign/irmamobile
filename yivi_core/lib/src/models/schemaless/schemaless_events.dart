@@ -111,9 +111,13 @@ class LogoImage {
 
   LogoImage({required this.base64, this.mimeType});
 
-  Image getImageFromBase64() {
-    return Image.memory(base64Decode(base64));
-  }
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  late final Image _cachedImage = Image.memory(
+    base64Decode(base64),
+    gaplessPlayback: true,
+  );
+
+  Image getImageFromBase64() => _cachedImage;
 
   factory LogoImage.fromJson(Map<String, dynamic> json) =>
       _$LogoImageFromJson(json);
