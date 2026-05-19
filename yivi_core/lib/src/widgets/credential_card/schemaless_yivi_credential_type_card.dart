@@ -8,7 +8,7 @@ import "../irma_card.dart";
 
 class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   final String? credentialImagePath;
-  final Image? credentialImageBase64;
+  final Widget? credentialImageBase64;
   final TranslatedValue credentialName;
   final String credentialId;
   final TranslatedValue issuerName;

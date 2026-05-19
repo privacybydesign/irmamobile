@@ -6,6 +6,7 @@ import "../../models/schemaless/credential_store.dart";
 import "../../providers/schemaless_credential_store_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
+import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/translated_text.dart";
@@ -63,8 +64,12 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                               for (final CredentialStoreItem(:credential, :faq)
                                   in items)
                                 SchemalessYiviCredentialTypeCard(
-                                  credentialImageBase64: credential.image
-                                      ?.getImageFromBase64(),
+                                  credentialImageBase64:
+                                      credential.image != null
+                                      ? Base64Image(
+                                          base64: credential.image!.base64,
+                                        )
+                                      : null,
                                   credentialName: credential.name,
                                   credentialId: credential.credentialId,
                                   issuerName: credential.issuer.name,
