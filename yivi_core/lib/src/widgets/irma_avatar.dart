@@ -7,7 +7,7 @@ import "../theme/theme.dart";
 
 class IrmaAvatar extends StatelessWidget {
   final double size;
-  final Image? logoImage;
+  final Widget? logoImage;
   final String? logoPath;
   final String? logoSemanticsLabel;
   final String? initials;
@@ -31,7 +31,7 @@ class IrmaAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    Image? image = logoImage;
+    Widget? image = logoImage;
     if (logoPath != null) {
       final logoFile = File(logoPath!);
 

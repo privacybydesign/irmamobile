@@ -10,6 +10,7 @@ import "../../models/translated_value.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
+import "../base64_image.dart";
 import "../information_box.dart";
 import "../irma_card.dart";
 import "../irma_divider.dart";
@@ -27,7 +28,7 @@ class YiviCredentialCard extends ConsumerWidget {
   final bool compact;
 
   final String? imagePath;
-  final Image? image;
+  final Widget? image;
   final List<Attribute>? compareTo;
   final Function()? onTap;
   final IrmaCardStyle style;
@@ -71,7 +72,9 @@ class YiviCredentialCard extends ConsumerWidget {
          key: key,
          credentialName: credential.name,
          issuerName: credential.issuer.name,
-         image: credential.image?.getImageFromBase64(),
+         image: credential.image != null
+             ? Base64Image(base64: credential.image!.base64)
+             : null,
          attributes: credential.attributes,
          status: CredentialCardStatus(
            expiryDateUnix: credential.expiryDate,
@@ -107,7 +110,9 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: instance.name,
          issuerName: instance.issuer.name,
          imagePath: instance.imagePath,
-         image: instance.image?.getImageFromBase64(),
+         image: instance.image != null
+             ? Base64Image(base64: instance.image!.base64)
+             : null,
          attributes: instance.attributes,
          status: CredentialCardStatus(
            expiryDateUnix: instance.expiryDate,
@@ -140,7 +145,9 @@ class YiviCredentialCard extends ConsumerWidget {
          key: key,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
-         image: descriptor.image?.getImageFromBase64(),
+         image: descriptor.image != null
+             ? Base64Image(base64: descriptor.image!.base64)
+             : null,
          attributes: descriptor.attributes
              .where(
                (a) =>
@@ -198,7 +205,9 @@ class YiviCredentialCard extends ConsumerWidget {
          key: key,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
-         image: descriptor.image?.getImageFromBase64(),
+         image: descriptor.image != null
+             ? Base64Image(base64: descriptor.image!.base64)
+             : null,
          attributes: descriptor.attributes,
          status: CredentialCardStatus(
            revoked: false,
@@ -231,7 +240,9 @@ class YiviCredentialCard extends ConsumerWidget {
          key: key,
          credentialName: logCredential.name,
          issuerName: logCredential.issuer.name,
-         image: logCredential.image?.getImageFromBase64(),
+         image: logCredential.image != null
+             ? Base64Image(base64: logCredential.image!.base64)
+             : null,
          attributes: logCredential.attributes,
          status: CredentialCardStatus(
            revoked: logCredential.revoked,

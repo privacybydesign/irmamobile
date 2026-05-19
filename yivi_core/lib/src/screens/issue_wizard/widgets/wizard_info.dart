@@ -13,7 +13,7 @@ class IssueWizardInfo extends StatelessWidget {
   final GlobalKey scrollviewKey;
   final ScrollController controller;
   final IssueWizard wizardData;
-  final Image logo;
+  final Widget logo;
   final void Function() onNext;
   final void Function() onBack;
 

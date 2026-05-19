@@ -6,6 +6,7 @@ import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
 import "../../../util/navigation.dart";
 import "../../../util/string.dart";
+import "../../../widgets/base64_image.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/translated_text.dart";
@@ -23,7 +24,7 @@ class ActivityCard extends StatelessWidget {
     String title = "";
     String subtitleTranslationKey = "";
     String semanticLabel = "";
-    Image? logoImage;
+    Widget? logoImage;
 
     final localizedTimeStamp = FlutterI18n.translate(
       context,
@@ -44,13 +45,18 @@ class ActivityCard extends StatelessWidget {
         translationParams: {"issuerName": title, "date": localizedTimeStamp},
       );
 
-      logoImage = firstCred.image?.getImageFromBase64();
+      logoImage = firstCred.image != null
+          ? Base64Image(base64: firstCred.image!.base64)
+          : null;
     } else {
       if (logEntry.type == LogType.issuance) {
         final serverName =
             logEntry.issuanceLog!.issuer?.name.translate(lang) ?? "";
         title = serverName;
-        logoImage = logEntry.issuanceLog!.issuer?.image?.getImageFromBase64();
+        final issuerImage = logEntry.issuanceLog!.issuer?.image;
+        logoImage = issuerImage != null
+            ? Base64Image(base64: issuerImage.base64)
+            : null;
         subtitleTranslationKey = "activity.data_received";
         semanticLabel = FlutterI18n.translate(
           context,
@@ -61,8 +67,10 @@ class ActivityCard extends StatelessWidget {
         final serverName =
             logEntry.disclosureLog!.verifier?.name.translate(lang) ?? "";
         title = serverName;
-        logoImage = logEntry.disclosureLog!.verifier?.image
-            ?.getImageFromBase64();
+        final verifierImage = logEntry.disclosureLog!.verifier?.image;
+        logoImage = verifierImage != null
+            ? Base64Image(base64: verifierImage.base64)
+            : null;
 
         subtitleTranslationKey = "activity.data_shared";
         semanticLabel = FlutterI18n.translate(
@@ -74,8 +82,10 @@ class ActivityCard extends StatelessWidget {
         final serverName =
             logEntry.signedMessageLog!.verifier?.name.translate(lang) ?? "";
         title = serverName;
-        logoImage = logEntry.signedMessageLog!.verifier?.image
-            ?.getImageFromBase64();
+        final verifierImage = logEntry.signedMessageLog!.verifier?.image;
+        logoImage = verifierImage != null
+            ? Base64Image(base64: verifierImage.base64)
+            : null;
         subtitleTranslationKey = "activity.message_signed";
         semanticLabel = FlutterI18n.translate(
           context,

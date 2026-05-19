@@ -8,6 +8,7 @@ import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
+import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart";
 import "../../widgets/credential_card/yivi_credential_card.dart";
@@ -77,7 +78,9 @@ class _CredentialsDetailsScreenState
           Transform.translate(
             offset: Offset(0, 4),
             child: IrmaAvatar(
-              logoImage: c.image?.getImageFromBase64(),
+              logoImage: c.image != null
+                  ? Base64Image(base64: c.image!.base64)
+                  : null,
               initials: c.image == null && name.isNotEmpty ? name[0] : null,
               size: 20,
             ),
