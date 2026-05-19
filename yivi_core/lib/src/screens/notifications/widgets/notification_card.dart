@@ -4,6 +4,7 @@ import "package:intl/intl.dart";
 
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
+import "../../../widgets/base64_image.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_card.dart";
 import "../models/credential_status_notification.dart";
@@ -23,7 +24,7 @@ class NotificationCard extends StatelessWidget {
 
     String title = "";
     String contentMessage = "";
-    Image? logo;
+    Widget? logo;
 
     final notification =
         this.notification; // To prevent the need for type casting.
@@ -46,7 +47,9 @@ class NotificationCard extends StatelessWidget {
         notification.issuerName,
       );
 
-      logo = notification.logoImage?.getImageFromBase64();
+      logo = notification.logoImage != null
+          ? Base64Image(base64: notification.logoImage!.base64)
+          : null;
       final content = notification.content as InternalTranslatedContent;
 
       title = FlutterI18n.translate(

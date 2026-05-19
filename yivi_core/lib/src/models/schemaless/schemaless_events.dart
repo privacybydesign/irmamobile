@@ -1,6 +1,3 @@
-import "dart:convert";
-
-import "package:flutter/material.dart";
 import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
@@ -110,10 +107,6 @@ class LogoImage {
   final String? mimeType;
 
   LogoImage({required this.base64, this.mimeType});
-
-  Image getImageFromBase64() {
-    return Image.memory(base64Decode(base64));
-  }
 
   factory LogoImage.fromJson(Map<String, dynamic> json) =>
       _$LogoImageFromJson(json);

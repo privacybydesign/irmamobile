@@ -25,7 +25,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
   final bool compact;
   final String credentialName;
   final String? logoPath;
-  final Image? logoImage;
+  final Widget? logoImage;
   final String? issuerName;
   final Widget? trailing;
   final bool isExpired;

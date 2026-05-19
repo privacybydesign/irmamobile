@@ -13,6 +13,7 @@ import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
+import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_icon_button.dart";
@@ -298,7 +299,9 @@ class _CredentialsTypeList extends StatelessWidget {
               credentialId: c.credentialId,
               credentialName: c.name,
               issuerName: c.issuer.name,
-              credentialImageBase64: c.image?.getImageFromBase64(),
+              credentialImageBase64: c.image != null
+                  ? Base64Image(base64: c.image!.base64)
+                  : null,
               onTap: () => context.pushCredentialsDetailsScreen(
                 CredentialsDetailsRouteParams(credentialTypeId: c.credentialId),
               ),
@@ -391,7 +394,9 @@ class _ReorderableCredentialList extends ConsumerWidget {
                   credentialId: cred.credentialId,
                   credentialName: cred.name,
                   issuerName: cred.issuer.name,
-                  credentialImageBase64: cred.image?.getImageFromBase64(),
+                  credentialImageBase64: cred.image != null
+                      ? Base64Image(base64: cred.image!.base64)
+                      : null,
                   onTap: () => context.pushCredentialsDetailsScreen(
                     CredentialsDetailsRouteParams(
                       credentialTypeId: cred.credentialId,

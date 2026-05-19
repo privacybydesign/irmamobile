@@ -3,6 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
+import "base64_image.dart";
 import "irma_avatar.dart";
 import "irma_card.dart";
 import "irma_icon_indicator.dart";
@@ -12,7 +13,7 @@ import "yivi_bottom_sheet.dart";
 
 _buildRequestorAvatar({
   required String? title,
-  Image? image,
+  Widget? image,
   String? imagePath,
 }) {
   return IrmaAvatar(
@@ -54,7 +55,9 @@ class RequestorHeader extends StatelessWidget {
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,
-      image: requestor?.image?.getImageFromBase64(),
+      image: requestor?.image != null
+          ? Base64Image(base64: requestor!.image!.base64)
+          : null,
       imagePath: requestor?.imagePath,
     );
 
@@ -139,7 +142,7 @@ class RequestorHeader extends StatelessWidget {
 
 class IssueWizardRequestorHeader extends StatelessWidget {
   final String? title;
-  final Image? image;
+  final Widget? image;
   final Color? backgroundColor;
   final Color? textColor;
 
