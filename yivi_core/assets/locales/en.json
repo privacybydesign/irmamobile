@@ -278,13 +278,6 @@
     "confirm_pin": {
       "instruction": "Enter your PIN again"
     },
-    "biometric": {
-      "title": "Open Yivi with your biometrics",
-      "explanation": "You can use Face ID, Touch ID or your fingerprint to open the Yivi app instead of typing your PIN every time. You will still be asked for your PIN when you share or receive credentials.",
-      "privacy": "Your biometric information stays on this device. It is never shared with Yivi, with issuers, or with the parties you share credentials with. Biometrics are only used to unlock the Yivi app on your phone.",
-      "enable": "Use biometrics",
-      "skip": "Not now"
-    },
     "email": {
       "provide": {
         "title": "Add e-mail address",
@@ -330,6 +323,13 @@
     "submit": {
       "title": "Logging in",
       "progress_enrollment": "Welcome! Please wait a moment, we're signing you up."
+    },
+    "biometric": {
+      "title": "Open Yivi with biometrics",
+      "explanation": "Use Face ID, Touch ID or fingerprint to open Yivi. Your PIN is still required to share or receive credentials.",
+      "privacy": "Your biometrics stay on this device and are never shared with Yivi, issuers, or parties you share credentials with.",
+      "enable": "Use biometrics",
+      "skip": "Not now"
     }
   },
   "error": {
@@ -563,9 +563,9 @@
     "button_forgot": "I forgot my PIN",
     "button_block": "Block Yivi",
     "biometric": {
-      "reason": "Unlock Yivi",
+      "reason": "Open Yivi",
       "android_title": "Scan your biometrics to unlock Yivi",
-      "lockout": "Biometric authentication is unavailable. Enter your PIN instead.",
+      "lockout": "Biometric authentication unavailable. Enter your PIN.",
       "retry": "Unlock with biometrics"
     }
   },
@@ -686,9 +686,6 @@
     "report_errors_explanation": "By enabling error and app status reporting you are helping us improve the user experience.",
     "enable_screenshots": "Enable screenshots",
     "enable_screenshots_explanation": "When enabled, the app will not be blurred in the app switcher.",
-    "biometric_unlock": "Unlock with biometrics",
-    "biometric_unlock_explanation": "Use Face ID, Touch ID or your fingerprint to open Yivi. Your PIN is still required when sharing or receiving credentials.",
-    "biometric_unlock_prompt": "Confirm to enable biometric unlock",
     "developer_mode": "Developer mode",
     "other": "Other",
     "language": "Language",
@@ -700,7 +697,10 @@
       "explanation": "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
       "confirm": "Yes, delete everything",
       "deny": "Cancel"
-    }
+    },
+    "biometric_unlock": "Unlock with biometrics",
+    "biometric_unlock_explanation": "Use Face ID, Touch ID or fingerprint to open Yivi.",
+    "biometric_unlock_prompt": "Confirm to enable"
   },
   "ui": {
     "loading": "Loading…",
