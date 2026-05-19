@@ -276,13 +276,6 @@
     "confirm_pin": {
       "instruction": "Geben Sie Ihre PIN erneut ein"
     },
-    "biometric": {
-      "title": "Yivi mit Biometrie öffnen",
-      "explanation": "Sie können Face ID, Touch ID oder Ihren Fingerabdruck verwenden, um die Yivi-App zu öffnen, anstatt jedes Mal Ihre PIN einzugeben. Beim Teilen oder Empfangen von Nachweisen werden Sie weiterhin nach Ihrer PIN gefragt.",
-      "privacy": "Ihre biometrischen Daten bleiben auf diesem Gerät. Sie werden nicht an Yivi, nicht an Aussteller und nicht an die Parteien weitergegeben, mit denen Sie Nachweise teilen. Biometrie wird ausschließlich verwendet, um die Yivi-App auf Ihrem Telefon zu entsperren.",
-      "enable": "Biometrie verwenden",
-      "skip": "Nicht jetzt"
-    },
     "email": {
       "provide": {
         "title": "E-Mail-Adresse hinzufügen",
@@ -328,6 +321,13 @@
     "submit": {
       "title": "Anmeldung",
       "progress_enrollment": "Willkommen! Bitte warten Sie einen Moment, wir melden Sie an."
+    },
+    "biometric": {
+      "title": "Yivi mit Biometrie öffnen",
+      "explanation": "Verwenden Sie Face ID, Touch ID oder Fingerabdruck, um Yivi zu öffnen. Ihre PIN wird beim Teilen oder Empfangen weiterhin benötigt.",
+      "privacy": "Ihre biometrischen Daten bleiben auf diesem Gerät und werden nie an Yivi, Aussteller oder Parteien weitergegeben.",
+      "enable": "Biometrie verwenden",
+      "skip": "Nicht jetzt"
     }
   },
   "error": {
@@ -563,8 +563,8 @@
     "button_block": "Yivi sperren",
     "biometric": {
       "reason": "Yivi entsperren",
-      "android_title": "Scannen Sie Ihre Biometrie, um Yivi zu entsperren",
-      "lockout": "Biometrische Authentifizierung ist nicht verfügbar. Geben Sie stattdessen Ihre PIN ein.",
+      "android_title": "Biometrie scannen, um Yivi zu entsperren",
+      "lockout": "Biometrie nicht verfügbar. Geben Sie Ihre PIN ein.",
       "retry": "Mit Biometrie entsperren"
     }
   },
@@ -685,9 +685,6 @@
     "report_errors_explanation": "Durch die Aktivierung der Fehler- und App-Status-Berichterstattung helfen Sie uns, die Benutzererfahrung zu verbessern.",
     "enable_screenshots": "Screenshots aktivieren",
     "enable_screenshots_explanation": "Wenn aktiviert, wird die App im App-Umschalter nicht unscharf dargestellt.",
-    "biometric_unlock": "Mit Biometrie entsperren",
-    "biometric_unlock_explanation": "Verwenden Sie Face ID, Touch ID oder Ihren Fingerabdruck, um Yivi zu öffnen. Ihre PIN wird weiterhin benötigt, wenn Sie Nachweise teilen oder erhalten.",
-    "biometric_unlock_prompt": "Bestätigen Sie, um die biometrische Entsperrung zu aktivieren",
     "developer_mode": "Entwicklermodus",
     "other": "Sonstiges",
     "language": "Sprache",
@@ -699,7 +696,10 @@
       "explanation": "Wenn Sie fortfahren, werden alle Daten aus Ihrer Yivi-App gelöscht. Wenn Sie Yivi weiter nutzen möchten, müssen Sie die Daten neu laden.",
       "confirm": "Ja, alles löschen",
       "deny": "Abbrechen"
-    }
+    },
+    "biometric_unlock": "Mit Biometrie entsperren",
+    "biometric_unlock_explanation": "Verwenden Sie Face ID, Touch ID oder Fingerabdruck, um Yivi zu öffnen.",
+    "biometric_unlock_prompt": "Zum Aktivieren bestätigen"
   },
   "ui": {
     "loading": "Laden…",

@@ -276,13 +276,6 @@
     "confirm_pin": {
       "instruction": "Vul je pincode nog een keer in"
     },
-    "biometric": {
-      "title": "Open Yivi met je biometrie",
-      "explanation": "Je kunt Face ID, Touch ID of je vingerafdruk gebruiken om de Yivi-app te openen, zodat je niet steeds je pincode hoeft in te typen. Je pincode blijft wel nodig wanneer je kaartjes deelt of ontvangt.",
-      "privacy": "Je biometrische gegevens blijven op dit toestel. Ze worden niet gedeeld met Yivi, niet met uitgevers en ook niet met de partijen waarmee je gegevens deelt. Biometrie wordt alleen gebruikt om de Yivi-app op je telefoon te openen.",
-      "enable": "Gebruik biometrie",
-      "skip": "Niet nu"
-    },
     "email": {
       "provide": {
         "title": "E-mailadres toevoegen",
@@ -328,6 +321,13 @@
     "submit": {
       "title": "Aanmelden",
       "progress_enrollment": "Welkom! Even geduld, we melden je aan."
+    },
+    "biometric": {
+      "title": "Open Yivi met biometrie",
+      "explanation": "Gebruik Face ID, Touch ID of vingerafdruk om Yivi te openen. Je pincode blijft nodig bij delen of ontvangen.",
+      "privacy": "Je biometrie blijft op dit toestel en wordt nooit gedeeld met Yivi, uitgevers of partijen waarmee je gegevens deelt.",
+      "enable": "Gebruik biometrie",
+      "skip": "Niet nu"
     }
   },
   "error": {
@@ -562,9 +562,9 @@
     "button_forgot": "Pincode vergeten",
     "button_block": "Yivi blokkeren",
     "biometric": {
-      "reason": "Open Yivi reason",
-      "android_title": "Scan je biometrie om Yivi te openen",
-      "lockout": "Biometrische verificatie is niet beschikbaar. Voer je pincode in.",
+      "reason": "Open Yivi",
+      "android_title": "Scan biometrie om Yivi te openen",
+      "lockout": "Biometrie niet beschikbaar. Voer je pincode in.",
       "retry": "Open met biometrie"
     }
   },
@@ -685,9 +685,6 @@
     "report_errors_explanation": "Door deze informatie te delen help je ons de gebruikservaring te verbeteren.",
     "enable_screenshots": "Screenshots toestaan",
     "enable_screenshots_explanation": "Als dit is ingeschakeld, wordt de app niet vervaagd in de app-switcher.",
-    "biometric_unlock": "Openen met biometrie",
-    "biometric_unlock_explanation": "Gebruik Face ID, Touch ID of je vingerafdruk om Yivi te openen. Je pincode blijft nodig bij het delen of ontvangen van kaartjes.",
-    "biometric_unlock_prompt": "Bevestig om biometrisch openen in te schakelen",
     "developer_mode": "Developer modus",
     "other": "Overig",
     "language": "Taal",
@@ -699,7 +696,10 @@
       "explanation": "Als je doorgaat, verwijder je al je gegevens en je toegang tot de Yivi-app. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je gegevens opnieuw op.",
       "confirm": "Verwijder alles",
       "deny": "Annuleer"
-    }
+    },
+    "biometric_unlock": "Openen met biometrie",
+    "biometric_unlock_explanation": "Gebruik Face ID, Touch ID of vingerafdruk om Yivi te openen.",
+    "biometric_unlock_prompt": "Bevestig om in te schakelen"
   },
   "ui": {
     "loading": "Laden…",
