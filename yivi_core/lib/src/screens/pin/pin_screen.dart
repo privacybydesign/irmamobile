@@ -5,7 +5,9 @@ import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
+import "../../data/irma_repository.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../util/biometric_auth.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/pin_common/format_blocked_for.dart";
@@ -21,12 +23,19 @@ class PinScreen extends StatefulWidget {
   final PinEvent? initialEvent;
   final Function() onAuthenticated;
   final Widget? leading;
+  // When true the user can opt to unlock the app with platform biometrics
+  // instead of entering the pin. This bypass only flips the local lock flag,
+  // it does NOT authenticate against the keyshare server, so it must remain
+  // false for any pin entry that precedes a keyshare interaction
+  // (issuance / disclosure / explicit pre-session auth).
+  final bool allowBiometricBypass;
 
   const PinScreen({
     super.key,
     required this.onAuthenticated,
     this.initialEvent,
     this.leading,
+    this.allowBiometricBypass = false,
   });
 
   @override
@@ -37,6 +46,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   late final PinBloc _pinBloc;
 
   StreamSubscription? _pinBlocSubscription;
+  final BiometricAuth _biometricAuth = BiometricAuth();
+  bool _biometricAttempted = false;
+  bool _biometricAvailable = false;
 
   @override
   void initState() {
@@ -70,6 +82,10 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
       }
       _pinBloc.add(Blocked(blockedUntil));
     });
+
+    if (widget.allowBiometricBypass) {
+      _maybeStartBiometricUnlock(repo);
+    }
 
     _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
       if (pinState.authenticated) {
@@ -138,6 +154,57 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  Future<void> _maybeStartBiometricUnlock(IrmaRepository repo) async {
+    if (!repo.preferences.getBiometricUnlockEnabledSync()) {
+      return;
+    }
+    final canAuth = await _biometricAuth.canAuthenticate();
+    if (!mounted) return;
+    if (!canAuth) {
+      // Device no longer supports biometrics (e.g. user removed all enrolled
+      // biometrics). Silently fall back to manual pin entry. The user can
+      // toggle the setting off from settings to make this case go away.
+      setState(() => _biometricAvailable = false);
+      return;
+    }
+    setState(() => _biometricAvailable = true);
+    await _runBiometricPrompt();
+  }
+
+  Future<void> _runBiometricPrompt() async {
+    if (_biometricAttempted) return;
+    _biometricAttempted = true;
+    final reason = FlutterI18n.translate(context, "pin.biometric.reason");
+    final signInTitle = FlutterI18n.translate(
+      context,
+      "pin.biometric.android_title",
+    );
+    final cancelAndroid = FlutterI18n.translate(context, "ui.cancel");
+    final cancelIos = FlutterI18n.translate(context, "ui.cancel");
+    final lockOut = FlutterI18n.translate(context, "pin.biometric.lockout");
+    final result = await _biometricAuth.authenticate(
+      reason: reason,
+      androidSignInTitle: signInTitle,
+      androidCancelButton: cancelAndroid,
+      iosCancelButton: cancelIos,
+      iosLockoutMessage: lockOut,
+    );
+    if (!mounted) return;
+    if (result.success) {
+      IrmaRepositoryProvider.of(context).unlockWithBiometrics();
+      widget.onAuthenticated();
+    } else {
+      // Allow the user to retry biometric via the inline button after a
+      // failure / cancellation.
+      _biometricAttempted = false;
+      if (result.unsupported) {
+        setState(() => _biometricAvailable = false);
+      } else {
+        setState(() {});
+      }
+    }
   }
 
   @override
@@ -217,6 +284,10 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         );
                       }
 
+                      final showBiometric =
+                          widget.allowBiometricBypass &&
+                          _biometricAvailable &&
+                          enabled;
                       return Stack(
                         alignment: Alignment.center,
                         children: [
@@ -227,6 +298,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                             pinBloc: pinBloc,
                             enabled: enabled,
                             onForgotPin: context.pushResetPinScreen,
+                            onBiometricTap: showBiometric
+                                ? _runBiometricPrompt
+                                : null,
                             listener: (context, state) {
                               if (maxPinSize == shortPinSize &&
                                   state.pin.length == maxPinSize &&

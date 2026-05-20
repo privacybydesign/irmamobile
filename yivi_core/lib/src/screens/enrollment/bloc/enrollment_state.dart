@@ -16,6 +16,8 @@ class EnrollmentConfirmPin extends EnrollmentState {
   EnrollmentConfirmPin({this.confirmationFailed = false});
 }
 
+class EnrollmentBiometricSetup extends EnrollmentState {}
+
 class EnrollmentProvideEmail extends EnrollmentState {
   final String? email;
 

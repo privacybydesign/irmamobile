@@ -110,6 +110,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                 return TermsChangedListener(
                   child: PinScreen(
                     onAuthenticated: context.goHomeScreenWithoutTransition,
+                    allowBiometricBypass: true,
                     leading: YiviAppBarQrCodeButton(
                       onTap: () => openQrCodeScanner(
                         context,
