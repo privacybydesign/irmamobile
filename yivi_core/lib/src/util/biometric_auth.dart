@@ -1,6 +1,7 @@
 import "dart:async";
 import "dart:io";
 
+import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 import "package:local_auth/error_codes.dart" as auth_error;
 import "package:local_auth/local_auth.dart";
@@ -22,16 +23,33 @@ class BiometricAuthResult {
 }
 
 class BiometricAuth {
-  BiometricAuth({LocalAuthentication? auth})
+  // Test hook: when set, every default `BiometricAuth()` constructor call
+  // returns the factory result. Lets integration tests script biometric
+  // outcomes without touching screens that construct BiometricAuth inline.
+  @visibleForTesting
+  static BiometricAuth Function()? overrideFactory;
+
+  factory BiometricAuth({LocalAuthentication? auth}) {
+    final override = overrideFactory;
+    if (override != null) return override();
+    return BiometricAuth.real(auth: auth);
+  }
+
+  BiometricAuth.real({LocalAuthentication? auth})
     : _auth = auth ?? LocalAuthentication();
 
-  final LocalAuthentication _auth;
+  @visibleForTesting
+  BiometricAuth.forTesting() : _auth = null;
+
+  final LocalAuthentication? _auth;
 
   Future<bool> canAuthenticate() async {
+    final auth = _auth;
+    if (auth == null) return false;
     try {
-      final isSupported = await _auth.isDeviceSupported();
+      final isSupported = await auth.isDeviceSupported();
       if (!isSupported) return false;
-      return _auth.canCheckBiometrics;
+      return auth.canCheckBiometrics;
     } on PlatformException {
       return false;
     }
@@ -44,6 +62,10 @@ class BiometricAuth {
     required String iosCancelButton,
     required String iosLockoutMessage,
   }) async {
+    final auth = _auth;
+    if (auth == null) {
+      return const BiometricAuthResult(success: false, unsupported: true);
+    }
     try {
       // Android maps `localizedReason` to `BiometricPrompt.setDescription`,
       // which renders as a third line under title + subtitle. We already
@@ -54,7 +76,7 @@ class BiometricAuth {
       // On iOS `localizedReason` IS the main prompt text and must be
       // meaningful and non-empty, so we keep it there.
       final localizedReason = Platform.isAndroid ? " " : reason;
-      final ok = await _auth.authenticate(
+      final ok = await auth.authenticate(
         localizedReason: localizedReason,
         options: const AuthenticationOptions(
           stickyAuth: true,
