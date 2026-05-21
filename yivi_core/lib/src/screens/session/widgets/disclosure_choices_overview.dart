@@ -43,15 +43,14 @@ class _DisclosureChoicesOverviewState
     extends ConsumerState<DisclosureChoicesOverview> {
   int get _sessionId => widget.sessionState.id;
 
-  /// Returns the selected index for a discon, defaulting to 0.
+  /// Returns the selected bundle index for a discon, defaulting to 0.
   int _selectedIndexFor(int disconIndex) {
     final userChoices = ref
         .read(sessionUserChoicesProvider(_sessionId))
         .disclosureChoices;
     if (!userChoices.containsKey(disconIndex)) return 0;
 
-    // Find which owned option matches the stored credential
-    final stored = userChoices[disconIndex]!;
+    final storedHashes = userChoices[disconIndex]!.credentialHashes;
     final owned =
         widget
             .sessionState
@@ -60,7 +59,11 @@ class _DisclosureChoicesOverviewState
             .ownedOptions ??
         [];
     for (var i = 0; i < owned.length; i++) {
-      if (owned[i].hash == stored.credentialHash) return i;
+      final bundleHashes = owned[i].credentialHashes;
+      if (bundleHashes.length == storedHashes.length &&
+          bundleHashes.containsAll(storedHashes)) {
+        return i;
+      }
     }
     return 0;
   }
@@ -80,33 +83,31 @@ class _DisclosureChoicesOverviewState
         continue;
       }
 
-      final stored = userChoices[i];
-      if (stored != null) {
-        disclosureChoices.add(DisclosureDisconSelection(credentials: [stored]));
-      } else {
-        // Default to first owned option
-        final owned = choices[i].ownedOptions;
-        if (owned != null && owned.isNotEmpty) {
-          final selected = owned[0];
-          disclosureChoices.add(
-            DisclosureDisconSelection(
-              credentials: [
-                SelectedCredential(
-                  credentialId: selected.credentialId,
-                  credentialHash: selected.hash,
-                  attributePaths: selected.attributes
-                      .map((attr) => attr.claimPath)
-                      .toList(),
-                ),
-              ],
-            ),
-          );
-        } else {
-          disclosureChoices.add(DisclosureDisconSelection(credentials: []));
-        }
+      // Default to first owned bundle if nothing stored.
+      final bundle =
+          userChoices[i] ?? (choices[i].ownedOptions?.firstOrNull);
+      if (bundle == null) {
+        disclosureChoices.add(DisclosureDisconSelection(credentials: []));
+        continue;
       }
+
+      disclosureChoices.add(
+        DisclosureDisconSelection(credentials: _bundleToSelected(bundle)),
+      );
     }
     return disclosureChoices;
+  }
+
+  List<SelectedCredential> _bundleToSelected(DisclosureBundle bundle) {
+    return bundle.credentials
+        .map(
+          (c) => SelectedCredential(
+            credentialId: c.credentialId,
+            credentialHash: c.hash,
+            attributePaths: c.attributes.map((a) => a.claimPath).toList(),
+          ),
+        )
+        .toList();
   }
 
   void _onApprove() {
@@ -114,14 +115,16 @@ class _DisclosureChoicesOverviewState
     widget.onChoicesConfirmed(disclosureChoices);
   }
 
-  /// Returns true if any selected credential instance is expired or has zero
-  /// remaining instance count, meaning the disclosure cannot proceed.
+  /// Returns true if any credential in the selected bundle is expired, revoked,
+  /// or has zero remaining batch instances. Disclosing a bundle is atomic — if
+  /// any credential is unsharable, the whole bundle is.
   bool _hasUnsharableSelection() {
     final choices =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
     final userState = ref.read(sessionUserChoicesProvider(_sessionId));
     final addedOptional = userState.addedOptionalIndices;
 
+    final now = DateTime.now();
     for (var i = 0; i < choices.length; i++) {
       final pickOne = choices[i];
       // Skip optional choices that haven't been added
@@ -133,16 +136,16 @@ class _DisclosureChoicesOverviewState
       final selectedIndex = _selectedIndexFor(i);
       if (selectedIndex >= owned.length) continue;
 
-      final instance = owned[selectedIndex];
-      final now = DateTime.now();
-      final expiryDateTime = DateTime.fromMillisecondsSinceEpoch(
-        instance.expiryDate * 1000,
-      );
-      if (instance.revoked) return true;
-      if (expiryDateTime.isBefore(now)) return true;
-      if (instance.batchInstanceCountRemaining != null &&
-          instance.batchInstanceCountRemaining! <= 0) {
-        return true;
+      for (final instance in owned[selectedIndex].credentials) {
+        final expiryDateTime = DateTime.fromMillisecondsSinceEpoch(
+          instance.expiryDate * 1000,
+        );
+        if (instance.revoked) return true;
+        if (expiryDateTime.isBefore(now)) return true;
+        if (instance.batchInstanceCountRemaining != null &&
+            instance.batchInstanceCountRemaining! <= 0) {
+          return true;
+        }
       }
     }
     return false;
@@ -181,17 +184,7 @@ class _DisclosureChoicesOverviewState
                 ? currentChoices[disconIndex].ownedOptions
                 : null;
             if (owned != null && newIndex < owned.length) {
-              final selected = owned[newIndex];
-              notifier.setChoice(
-                disconIndex,
-                SelectedCredential(
-                  credentialId: selected.credentialId,
-                  credentialHash: selected.hash,
-                  attributePaths: selected.attributes
-                      .map((attr) => attr.claimPath)
-                      .toList(),
-                ),
-              );
+              notifier.setBundle(disconIndex, owned[newIndex]);
             }
           },
         ),
@@ -374,7 +367,8 @@ class _DisclosureChoiceEntry extends StatelessWidget {
     final owned = pickOne.ownedOptions;
 
     if (owned != null && owned.isNotEmpty) {
-      final selected = owned[selectedIndex];
+      final bundle = owned[selectedIndex];
+      final credentials = bundle.credentials;
 
       return Padding(
         padding: .only(bottom: theme.defaultSpacing),
@@ -401,20 +395,26 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                   ],
                 ),
               ),
-            YiviCredentialCard.fromSelectableInstance(
-              instance: selected,
-              compact: true,
-              hideFooter: true,
-              headerTrailing: optional && onRemove != null
-                  ? IrmaIconButton(
-                      key: const Key("remove_optional_data_button"),
-                      icon: Icons.close,
-                      size: 22,
-                      padding: .zero,
-                      onTap: onRemove!,
-                    )
-                  : null,
-            ),
+            for (var i = 0; i < credentials.length; i++)
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
+                ),
+                child: YiviCredentialCard.fromSelectableInstance(
+                  instance: credentials[i],
+                  compact: true,
+                  hideFooter: true,
+                  headerTrailing: i == 0 && optional && onRemove != null
+                      ? IrmaIconButton(
+                          key: const Key("remove_optional_data_button"),
+                          icon: Icons.close,
+                          size: 22,
+                          padding: .zero,
+                          onTap: onRemove!,
+                        )
+                      : null,
+                ),
+              ),
           ],
         ),
       );

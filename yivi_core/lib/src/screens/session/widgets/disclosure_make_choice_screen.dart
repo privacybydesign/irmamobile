@@ -3,7 +3,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
-import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
@@ -77,7 +76,9 @@ class _DisclosureMakeChoiceScreenState
       _selection = const _OwnedSelection(0);
     }
     _previousOwnedHashes = {
-      for (final owned in widget.pickOne.ownedOptions ?? []) owned.hash,
+      for (final bundle in widget.pickOne.ownedOptions ?? [])
+        for (final cred in bundle.credentials)
+          cred.hash,
     };
   }
 
@@ -125,14 +126,20 @@ class _DisclosureMakeChoiceScreenState
     final owned = pickOne.ownedOptions ?? [];
     final obtainable = pickOne.obtainableOptions ?? [];
 
-    // Detect newly obtained credentials and auto-select them.
+    // Detect bundles containing newly obtained credentials and auto-select them.
     if (livePickOne != null) {
       for (var i = 0; i < owned.length; i++) {
-        if (!_previousOwnedHashes.contains(owned[i].hash)) {
-          // A new credential appeared — update provider and select it.
-          _previousOwnedHashes = {for (final o in owned) o.hash};
+        final bundle = owned[i];
+        final hasNewCred = bundle.credentialHashes.any(
+          (h) => !_previousOwnedHashes.contains(h),
+        );
+        if (hasNewCred) {
+          _previousOwnedHashes = {
+            for (final b in owned)
+              for (final c in b.credentials)
+                c.hash,
+          };
 
-          final cred = owned[i];
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
             final notifier = ref.read(
@@ -141,16 +148,7 @@ class _DisclosureMakeChoiceScreenState
             if (widget.addOptional) {
               notifier.addOptional(widget.disconIndex);
             }
-            notifier.setChoice(
-              widget.disconIndex,
-              SelectedCredential(
-                credentialId: cred.credentialId,
-                credentialHash: cred.hash,
-                attributePaths: cred.attributes
-                    .map((attr) => attr.claimPath)
-                    .toList(),
-              ),
-            );
+            notifier.setBundle(widget.disconIndex, bundle);
             setState(() => _selection = _OwnedSelection(i));
           });
           break;
@@ -171,7 +169,7 @@ class _DisclosureMakeChoiceScreenState
             children: [
               // Owned options — selectable
               if (owned.isNotEmpty)
-                DisclosurePermissionChoice.fromInstances(
+                DisclosurePermissionChoice.fromBundles(
                   options: owned,
                   selectedIndex: _selection is _OwnedSelection
                       ? (_selection as _OwnedSelection).index

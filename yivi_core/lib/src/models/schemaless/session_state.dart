@@ -127,7 +127,7 @@ class IssuanceStep {
 @JsonSerializable(createToJson: false, fieldRename: .snake)
 class DisclosurePickOne {
   final bool optional;
-  final List<SelectableCredentialInstance>? ownedOptions;
+  final List<DisclosureBundle>? ownedOptions;
   final List<CredentialDescriptor>? obtainableOptions;
 
   DisclosurePickOne({
@@ -138,6 +138,18 @@ class DisclosurePickOne {
 
   factory DisclosurePickOne.fromJson(Map<String, dynamic> json) =>
       _$DisclosurePickOneFromJson(json);
+}
+
+@JsonSerializable(createToJson: false, fieldRename: .snake)
+class DisclosureBundle {
+  final List<SelectableCredentialInstance> credentials;
+
+  DisclosureBundle({required this.credentials});
+
+  factory DisclosureBundle.fromJson(Map<String, dynamic> json) =>
+      _$DisclosureBundleFromJson(json);
+
+  Set<String> get credentialHashes => credentials.map((c) => c.hash).toSet();
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

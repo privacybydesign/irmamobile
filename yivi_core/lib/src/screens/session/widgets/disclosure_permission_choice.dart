@@ -13,14 +13,16 @@ class DisclosurePermissionChoice extends StatelessWidget {
   final int optionCount;
   final int selectedIndex;
   final ValueChanged<int>? onChoiceUpdated;
-  final Widget Function(int index, bool isSelected) _cardBuilder;
+  final Widget Function(BuildContext context, int index, bool isSelected)
+  _cardBuilder;
 
   const DisclosurePermissionChoice({
     super.key,
     required this.optionCount,
     required this.selectedIndex,
     required this.onChoiceUpdated,
-    required Widget Function(int index, bool isSelected) cardBuilder,
+    required Widget Function(BuildContext context, int index, bool isSelected)
+    cardBuilder,
   }) : _cardBuilder = cardBuilder;
 
   /// Creates a choice widget for [CredentialDescriptor] options,
@@ -43,7 +45,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
               }
             }
           : null,
-      cardBuilder: (index, isSelected) {
+      cardBuilder: (context, index, isSelected) {
         final isObtainable = options[index].issueURL != null;
         return Opacity(
           opacity: isObtainable ? 1.0 : 0.5,
@@ -58,11 +60,13 @@ class DisclosurePermissionChoice extends StatelessWidget {
     );
   }
 
-  /// Creates a choice widget for [SelectableCredentialInstance] options,
-  /// typically used in the disclosure choices overview.
-  factory DisclosurePermissionChoice.fromInstances({
+  /// Creates a choice widget for [DisclosureBundle] options. A bundle with a
+  /// single credential renders as one card; a bundle with multiple credentials
+  /// renders as a column of cards (separated by `theme.smallSpacing`) with a
+  /// single radio on the first card and a shared highlight style.
+  factory DisclosurePermissionChoice.fromBundles({
     Key? key,
-    required List<SelectableCredentialInstance> options,
+    required List<DisclosureBundle> options,
     required int selectedIndex,
     required ValueChanged<int>? onChoiceUpdated,
   }) {
@@ -71,16 +75,44 @@ class DisclosurePermissionChoice extends StatelessWidget {
       optionCount: options.length,
       selectedIndex: selectedIndex,
       onChoiceUpdated: onChoiceUpdated,
-      cardBuilder: (index, isSelected) =>
-          YiviCredentialCard.fromSelectableInstance(
-            instance: options[index],
+      cardBuilder: (context, index, isSelected) {
+        final theme = IrmaTheme.of(context);
+        final credentials = options[index].credentials;
+        final style = isSelected
+            ? IrmaCardStyle.highlighted
+            : IrmaCardStyle.normal;
+
+        if (credentials.length == 1) {
+          return YiviCredentialCard.fromSelectableInstance(
+            instance: credentials[0],
             compact: true,
             hideFooter: true,
-            style: isSelected
-                ? IrmaCardStyle.highlighted
-                : IrmaCardStyle.normal,
+            style: style,
             headerTrailing: RadioIndicator(isSelected: isSelected),
-          ),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < credentials.length; i++)
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
+                ),
+                child: YiviCredentialCard.fromSelectableInstance(
+                  instance: credentials[i],
+                  compact: true,
+                  hideFooter: true,
+                  style: style,
+                  headerTrailing: i == 0
+                      ? RadioIndicator(isSelected: isSelected)
+                      : null,
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -100,7 +132,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                 onTap: onChoiceUpdated != null
                     ? () => onChoiceUpdated!(i)
                     : null,
-                child: _cardBuilder(i, i == selectedIndex),
+                child: _cardBuilder(context, i, i == selectedIndex),
               ),
             ),
         ],
