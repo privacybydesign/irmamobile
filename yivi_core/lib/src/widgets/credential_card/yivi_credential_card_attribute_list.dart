@@ -199,7 +199,7 @@ _GroupNode _buildTree(
           arrayFrame.childrenArr.whereType<_ItemNode>().length + 1;
       final parentHeader = headers[_pathKey(arrayHeaderPath)];
       final item = _ItemNode(
-        parentLabel: parentHeader?.displayName,
+        parentLabel: parentHeader?.effectiveDisplayName,
         itemIndex: itemIndex,
         path: itemPath,
         children: [],
@@ -222,7 +222,11 @@ _GroupNode _buildTree(
       popToPrefix(p);
 
       final parentFrame = stack.last;
-      final group = _GroupNode(label: e.displayName, path: p, children: []);
+      final group = _GroupNode(
+        label: e.effectiveDisplayName,
+        path: p,
+        children: [],
+      );
       parentFrame.childrenArr.add(group);
       stack.add(
         _StackFrame(path: p, childrenArr: group.children, isItem: false),
@@ -245,7 +249,7 @@ _GroupNode _buildTree(
     if (tail is int && !hasDisplayName) {
       // Primitive in array — collect under the parent header's label.
       final headerEntry = headers[parentKey];
-      final label = headerEntry?.displayName ?? e.displayName;
+      final label = headerEntry?.effectiveDisplayName ?? e.effectiveDisplayName;
 
       popToPrefix(parentArrPath);
       final frame = stack.last;
@@ -539,7 +543,10 @@ class _LeafContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(attribute.displayName.translate(lang), style: _labelStyle(theme)),
+        Text(
+          attribute.effectiveDisplayName.translate(lang),
+          style: _labelStyle(theme),
+        ),
         _buildValue(context, theme, lang),
       ],
     );
@@ -592,7 +599,7 @@ class _LeafContent extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => Scaffold(
               appBar: IrmaAppBar(
-                titleString: attribute.displayName.translate(
+                titleString: attribute.effectiveDisplayName.translate(
                   lang,
                   fallbackLang: "",
                 ),
