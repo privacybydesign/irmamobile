@@ -523,6 +523,14 @@ TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
   color: color,
 );
 
+String _formatBool(BuildContext context, bool? value) {
+  if (value == null) return "";
+  return FlutterI18n.translate(
+    context,
+    value ? "credential.boolean_yes" : "credential.boolean_no",
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Leaf content — label on top, value below (no padding/border, container
 // handles those).
@@ -568,7 +576,7 @@ class _LeafContent extends StatelessWidget {
         style: _valueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.boolean => Text(
-        val.boolValue == null ? "" : (val.boolValue! ? "Yes" : "No"),
+        _formatBool(context, val.boolValue),
         style: _valueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.integer => Text(
@@ -636,12 +644,16 @@ class _PrimArrayContent extends StatelessWidget {
       spacing: 0,
       children: [
         Text(node.label.translate(lang), style: _labelStyle(theme)),
-        for (final v in node.values) _bulletRow(theme, v),
+        for (final v in node.values) _bulletRow(context, theme, v),
       ],
     );
   }
 
-  Widget _bulletRow(IrmaThemeData theme, schemaless.AttributeValue v) {
+  Widget _bulletRow(
+    BuildContext context,
+    IrmaThemeData theme,
+    schemaless.AttributeValue v,
+  ) {
     final valueStyle = _valueStyle(theme, theme.dark).copyWith(height: 1.2);
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
@@ -664,18 +676,17 @@ class _PrimArrayContent extends StatelessWidget {
             ),
           ),
           SizedBox(width: theme.tinySpacing),
-          Expanded(child: Text(_formatValue(v), style: valueStyle)),
+          Expanded(child: Text(_formatValue(context, v), style: valueStyle)),
         ],
       ),
     );
   }
 
-  String _formatValue(schemaless.AttributeValue v) {
+  String _formatValue(BuildContext context, schemaless.AttributeValue v) {
     return switch (v.type) {
       schemaless.AttributeType.string => v.string ?? "",
       schemaless.AttributeType.integer => v.intValue?.toString() ?? "",
-      schemaless.AttributeType.boolean =>
-        v.boolValue == null ? "" : (v.boolValue! ? "Yes" : "No"),
+      schemaless.AttributeType.boolean => _formatBool(context, v.boolValue),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => v.string ?? "",
     };
