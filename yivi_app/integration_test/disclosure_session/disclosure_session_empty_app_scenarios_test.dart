@@ -5,6 +5,8 @@ import "../irma_binding.dart";
 import "empty_app_scenarios/choice.dart";
 import "empty_app_scenarios/choice_mixed.dart";
 import "empty_app_scenarios/completely_optional.dart";
+import "empty_app_scenarios/multi_cred_bundle.dart";
+import "empty_app_scenarios/multi_cred_bundle_partial.dart";
 import "empty_app_scenarios/no_choice.dart";
 import "empty_app_scenarios/no_choice_multiple_creds.dart";
 import "empty_app_scenarios/optionals.dart";
@@ -55,6 +57,23 @@ void main() {
         "completely-optional",
         (tester) => completelyOptionalTest(tester, irmaBinding),
       );
+
+      group("multi-cred-bundle", () {
+        // Condiscon with inner con spanning two singleton credentials
+        // (MijnOverheid.root + MijnOverheid.fullName) AND (email OR mobile).
+        // Nothing pre-issued; wizard issues everything.
+        testWidgets(
+          "issue-all",
+          (tester) => multiCredBundleTest(tester, irmaBinding),
+        );
+
+        // Same condiscon; root + email pre-issued; wizard issues fullName,
+        // completing the bundle via the auto-select-by-new-hash path.
+        testWidgets(
+          "partial",
+          (tester) => multiCredBundlePartialTest(tester, irmaBinding),
+        );
+      });
     });
   });
 }
