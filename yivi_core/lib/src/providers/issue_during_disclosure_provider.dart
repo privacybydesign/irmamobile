@@ -10,6 +10,11 @@ class IssueDuringDisclosureState {
   final List<int> selectedOptionPerStep;
   final int? currentStepIndex;
 
+  /// Credential ids that have been issued during this session and satisfy
+  /// some bundle descriptor in the current plan. Used by the stepper to
+  /// render per-card progress within a multi-credential bundle.
+  final Set<String> issuedCredentialIds;
+
   /// Non-null when the user just obtained a credential whose attribute values
   /// don't match the requested values. The UI should show a dialog and then
   /// call [IssueDuringDisclosureNotifier.dismissWrongCredentialDialog].
@@ -22,6 +27,7 @@ class IssueDuringDisclosureState {
     this.steps = const [],
     this.selectedOptionPerStep = const [],
     this.currentStepIndex,
+    this.issuedCredentialIds = const {},
     this.wrongCredentialIssued,
     this.wrongCredentialTemplate,
   });
@@ -71,6 +77,7 @@ class IssueDuringDisclosureNotifier
         steps: state.steps,
         selectedOptionPerStep: selections,
         currentStepIndex: state.currentStepIndex,
+        issuedCredentialIds: state.issuedCredentialIds,
       );
     }
   }
@@ -80,6 +87,7 @@ class IssueDuringDisclosureNotifier
       steps: state.steps,
       selectedOptionPerStep: state.selectedOptionPerStep,
       currentStepIndex: state.currentStepIndex,
+      issuedCredentialIds: state.issuedCredentialIds,
     );
   }
 
@@ -134,6 +142,7 @@ class IssueDuringDisclosureNotifier
       steps: steps,
       selectedOptionPerStep: selections,
       currentStepIndex: currentStepIndex,
+      issuedCredentialIds: (issued ?? const {}).keys.toSet(),
       wrongCredentialIssued: wrongCred,
       wrongCredentialTemplate: wrongTemplate,
     );

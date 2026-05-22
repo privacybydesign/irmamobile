@@ -13,10 +13,13 @@ import "disclosure_permission_choice.dart";
 ///
 /// Each step shows either a single credential card or a choice between
 /// multiple credentials with radio buttons via [DisclosurePermissionChoice].
+/// For multi-credential bundles, individual cards reflect per-credential
+/// progress (done / next-to-issue / waiting) using [issuedCredentialIds].
 class DisclosureDisconStepper extends StatelessWidget {
   final List<IssuanceStep> steps;
   final int? currentStepIndex;
   final List<int> selectedOptionPerStep;
+  final Set<String> issuedCredentialIds;
   final ValueChanged<({int stepIndex, int optionIndex})>? onChoiceUpdated;
 
   const DisclosureDisconStepper({
@@ -24,6 +27,7 @@ class DisclosureDisconStepper extends StatelessWidget {
     required this.steps,
     required this.currentStepIndex,
     required this.selectedOptionPerStep,
+    required this.issuedCredentialIds,
     this.onChoiceUpdated,
   });
 
@@ -37,6 +41,7 @@ class DisclosureDisconStepper extends StatelessWidget {
       steps: wizardState.steps,
       currentStepIndex: wizardState.currentStepIndex,
       selectedOptionPerStep: wizardState.selectedOptionPerStep,
+      issuedCredentialIds: wizardState.issuedCredentialIds,
       onChoiceUpdated: (choice) =>
           notifier.selectOption(choice.stepIndex, choice.optionIndex),
     );
@@ -58,7 +63,9 @@ class DisclosureDisconStepper extends StatelessWidget {
   Widget _buildStepContent(IrmaThemeData theme, IssuanceStep step, int index) {
     final isCurrent = index == currentStepIndex;
 
-    // Step with multiple options: show choice with radio buttons
+    // Step with multiple options: show choice with radio buttons.
+    // Make-choice screen does not get per-card progress treatment — selection
+    // is its concern, execution status is the stepper's.
     if (step.options.length > 1 && isCurrent) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,22 +91,33 @@ class DisclosureDisconStepper extends StatelessWidget {
       );
     }
 
-    // Single option (or non-current multi-option): show the selected bundle.
-    // Multi-credential bundles render as a column of cards; single-credential
-    // bundles render as one card (visually identical to the pre-bundle code).
+    // Single option (or non-current multi-option): render the selected bundle.
     final bundle = step.options[selectedOptionPerStep[index]];
-    final style = isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal;
 
+    // N=1 bundles render exactly like the pre-bundle code: a single card
+    // styled as highlighted iff this step is current.
     if (bundle.credentials.length == 1) {
       return Padding(
         padding: EdgeInsets.only(bottom: theme.smallSpacing),
         child: YiviCredentialCard.fromDescriptor(
           descriptor: bundle.credentials.first,
           compact: true,
-          style: style,
+          style: isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
         ),
       );
     }
+
+    // N>1 bundle: per-card progress styling.
+    // - next-to-issue (first non-done, only when this step is current):
+    //   highlighted
+    // - all others (done or waiting): normal
+    //
+    // The highlighted card moves down the column as credentials are issued,
+    // which is the progress signal. The IrmaStepper's step indicator
+    // conveys step-level completion separately.
+    final firstNonDoneIndex = bundle.credentials.indexWhere(
+      (c) => !issuedCredentialIds.contains(c.credentialId),
+    );
 
     return Padding(
       padding: EdgeInsets.only(bottom: theme.smallSpacing),
@@ -116,7 +134,9 @@ class DisclosureDisconStepper extends StatelessWidget {
               child: YiviCredentialCard.fromDescriptor(
                 descriptor: bundle.credentials[i],
                 compact: true,
-                style: style,
+                style: isCurrent && i == firstNonDoneIndex
+                    ? IrmaCardStyle.highlighted
+                    : IrmaCardStyle.normal,
               ),
             ),
         ],
