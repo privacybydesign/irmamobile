@@ -98,9 +98,16 @@ IssueDuringDisclosure _$IssueDuringDisclosureFromJson(
 
 IssuanceStep _$IssuanceStepFromJson(Map<String, dynamic> json) => IssuanceStep(
   options: (json['options'] as List<dynamic>)
-      .map((e) => CredentialDescriptor.fromJson(e as Map<String, dynamic>))
+      .map((e) => IssuanceBundle.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
+
+IssuanceBundle _$IssuanceBundleFromJson(Map<String, dynamic> json) =>
+    IssuanceBundle(
+      credentials: (json['credentials'] as List<dynamic>)
+          .map((e) => CredentialDescriptor.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
 
 DisclosurePickOne _$DisclosurePickOneFromJson(Map<String, dynamic> json) =>
     DisclosurePickOne(

@@ -165,9 +165,12 @@ Future<void> issueMijnOverheidRoot(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
   String bsn = "999999990",
-}) => issueCredentials(tester, irmaBinding, {
-  "irma-demo.MijnOverheid.root.BSN": bsn,
-});
+}) => issueCredentials(
+  tester,
+  irmaBinding,
+  {"irma-demo.MijnOverheid.root.BSN": bsn},
+  revocationKeys: {"irma-demo.MijnOverheid.root": generateRevocationKey()},
+);
 
 Future<void> issueMijnOverheidFullName(
   WidgetTester tester,

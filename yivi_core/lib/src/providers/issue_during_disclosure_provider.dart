@@ -117,14 +117,16 @@ class IssueDuringDisclosureNotifier
     final wrongCred = issueDuring?.wrongCredentialIssued;
     CredentialDescriptor? wrongTemplate;
     if (wrongCred != null) {
+      outer:
       for (final step in steps) {
-        for (final option in step.options) {
-          if (option.credentialId == wrongCred.credentialId) {
-            wrongTemplate = option;
-            break;
+        for (final bundle in step.options) {
+          for (final descriptor in bundle.credentials) {
+            if (descriptor.credentialId == wrongCred.credentialId) {
+              wrongTemplate = descriptor;
+              break outer;
+            }
           }
         }
-        if (wrongTemplate != null) break;
       }
     }
 
@@ -141,14 +143,17 @@ class IssueDuringDisclosureNotifier
     List<IssuanceStep> steps,
     Map<String, dynamic>? issued,
   ) {
-    for (var i = 0; i < steps.length; i++) {
-      if (issued == null ||
-          issued.isEmpty ||
-          !steps[i].options.any(
-            (opt) => issued.containsKey(opt.credentialId),
-          )) {
-        return i;
+    bool bundleFullySatisfied(IssuanceBundle bundle) {
+      if (issued == null || issued.isEmpty) return false;
+      for (final descriptor in bundle.credentials) {
+        if (!issued.containsKey(descriptor.credentialId)) return false;
       }
+      return true;
+    }
+
+    for (var i = 0; i < steps.length; i++) {
+      final satisfied = steps[i].options.any(bundleFullySatisfied);
+      if (!satisfied) return i;
     }
     return null;
   }

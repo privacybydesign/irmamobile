@@ -116,12 +116,22 @@ class IssueDuringDisclosure {
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
 class IssuanceStep {
-  final List<CredentialDescriptor> options;
+  final List<IssuanceBundle> options;
 
   IssuanceStep({required this.options});
 
   factory IssuanceStep.fromJson(Map<String, dynamic> json) =>
       _$IssuanceStepFromJson(json);
+}
+
+@JsonSerializable(createToJson: false, fieldRename: .snake)
+class IssuanceBundle {
+  final List<CredentialDescriptor> credentials;
+
+  IssuanceBundle({required this.credentials});
+
+  factory IssuanceBundle.fromJson(Map<String, dynamic> json) =>
+      _$IssuanceBundleFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

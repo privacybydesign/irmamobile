@@ -70,7 +70,7 @@ class DisclosureDisconStepper extends StatelessWidget {
               style: theme.themeData.textTheme.headlineMedium,
             ),
           ),
-          DisclosurePermissionChoice.fromDescriptors(
+          DisclosurePermissionChoice.fromIssuanceBundles(
             options: step.options,
             selectedIndex: selectedOptionPerStep[index],
             onChoiceUpdated: onChoiceUpdated != null
@@ -84,13 +84,42 @@ class DisclosureDisconStepper extends StatelessWidget {
       );
     }
 
-    // Single option (or non-current multi-option): show selected credential card
+    // Single option (or non-current multi-option): show the selected bundle.
+    // Multi-credential bundles render as a column of cards; single-credential
+    // bundles render as one card (visually identical to the pre-bundle code).
+    final bundle = step.options[selectedOptionPerStep[index]];
+    final style = isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal;
+
+    if (bundle.credentials.length == 1) {
+      return Padding(
+        padding: EdgeInsets.only(bottom: theme.smallSpacing),
+        child: YiviCredentialCard.fromDescriptor(
+          descriptor: bundle.credentials.first,
+          compact: true,
+          style: style,
+        ),
+      );
+    }
+
     return Padding(
       padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: YiviCredentialCard.fromDescriptor(
-        descriptor: step.options[selectedOptionPerStep[index]],
-        compact: true,
-        style: isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < bundle.credentials.length; i++)
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: i < bundle.credentials.length - 1
+                    ? theme.smallSpacing
+                    : 0,
+              ),
+              child: YiviCredentialCard.fromDescriptor(
+                descriptor: bundle.credentials[i],
+                compact: true,
+                style: style,
+              ),
+            ),
+        ],
       ),
     );
   }
