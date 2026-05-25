@@ -25,7 +25,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.3
   flutter_svg: ^2.0.7
-  flutter_i18n: ^0.36.2
+  flutter_i18n: ^0.37.1
   flutter_bloc: ^7.2.0
   equatable: ^2.0.3
   email_validator: ^3.0.0
@@ -38,7 +38,6 @@ dependencies:
   share_plus: 11.0.0
   intl: ^0.20.2
   flutter_markdown: ^0.7.4+1
-  shared_preferences: ^2.0.7
   async: ^2.11.0
   streaming_shared_preferences: ^2.0.0
   visibility_detector: ^0.4.0+2
