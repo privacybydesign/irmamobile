@@ -5,6 +5,8 @@ import "../irma_binding.dart";
 import "empty_app_scenarios/choice.dart";
 import "empty_app_scenarios/choice_mixed.dart";
 import "empty_app_scenarios/completely_optional.dart";
+import "empty_app_scenarios/multi_bundle_choice.dart";
+import "empty_app_scenarios/multi_bundle_choice_partial.dart";
 import "empty_app_scenarios/multi_cred_bundle.dart";
 import "empty_app_scenarios/multi_cred_bundle_partial.dart";
 import "empty_app_scenarios/no_choice.dart";
@@ -72,6 +74,23 @@ void main() {
         testWidgets(
           "partial",
           (tester) => multiCredBundlePartialTest(tester, irmaBinding),
+        );
+      });
+
+      group("multi-bundle-choice", () {
+        // Discon with two alternative multi-cred bundles:
+        // Bundle A (MijnOverheid root + fullName) OR Bundle B (idin + gemeente.address).
+        // Nothing pre-issued; default Bundle A; user issues its two creds in turn.
+        testWidgets(
+          "issue-all",
+          (tester) => multiBundleChoiceTest(tester, irmaBinding),
+        );
+
+        // Same discon; Bundle A's root pre-issued, fullName missing. Bundle
+        // filter removes root from the wizard so only fullName needs issuing.
+        testWidgets(
+          "partial",
+          (tester) => multiBundleChoicePartialTest(tester, irmaBinding),
         );
       });
     });
