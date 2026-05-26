@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 
+import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../theme/theme.dart";
@@ -11,10 +12,15 @@ import "disclosure_permission_choice.dart";
 
 /// A stepper widget that displays the issuance-during-disclosure steps.
 ///
-/// Each step shows either a single credential card or a choice between
-/// multiple credentials with radio buttons via [DisclosurePermissionChoice].
-/// For multi-credential bundles, individual cards reflect per-credential
-/// progress (done / next-to-issue / waiting) using [issuedCredentialIds].
+/// Each [IssuanceStep] is rendered as one or more *virtual* stepper items so
+/// the user sees one step per credential they have to obtain:
+///
+/// - **Single-option, single-cred bundle**: one stepper item (the card).
+/// - **Single-option, multi-cred bundle**: one stepper item *per credential*
+///   in the bundle — so the IrmaStepper's per-item progress indicator
+///   (filled / outlined / success) reflects per-credential progress.
+/// - **Multi-option step (the choice case)**: one stepper item, with the
+///   existing [DisclosurePermissionChoice] inside.
 class DisclosureDisconStepper extends StatelessWidget {
   final List<IssuanceStep> steps;
   final int? currentStepIndex;
@@ -50,97 +56,119 @@ class DisclosureDisconStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final virtualSteps = _buildVirtualSteps();
+    final currentVirtual = _findCurrentVirtualStepIndex(virtualSteps);
 
     return IrmaStepper(
-      currentIndex: currentStepIndex,
+      currentIndex: currentVirtual,
       children: [
-        for (final (index, step) in steps.indexed)
-          _buildStepContent(theme, step, index),
+        for (var i = 0; i < virtualSteps.length; i++)
+          _renderVirtualStep(theme, virtualSteps[i], i == currentVirtual),
       ],
     );
   }
 
-  Widget _buildStepContent(IrmaThemeData theme, IssuanceStep step, int index) {
-    final isCurrent = index == currentStepIndex;
-
-    // Step with multiple options: show choice with radio buttons.
-    // Make-choice screen does not get per-card progress treatment — selection
-    // is its concern, execution status is the stepper's.
-    if (step.options.length > 1 && isCurrent) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(theme.smallSpacing),
-            child: TranslatedText(
-              "disclosure_permission.choose",
-              style: theme.themeData.textTheme.headlineMedium,
-            ),
-          ),
-          DisclosurePermissionChoice.fromIssuanceBundles(
-            options: step.options,
-            selectedIndex: selectedOptionPerStep[index],
-            onChoiceUpdated: onChoiceUpdated != null
-                ? (optionIndex) => onChoiceUpdated!((
-                    stepIndex: index,
-                    optionIndex: optionIndex,
-                  ))
-                : null,
-          ),
-        ],
-      );
+  List<_VirtualStep> _buildVirtualSteps() {
+    final result = <_VirtualStep>[];
+    for (var i = 0; i < steps.length; i++) {
+      final step = steps[i];
+      if (step.options.length > 1) {
+        // Multi-option step: one virtual item with the choice screen.
+        result.add(_ChoiceVirtualStep(i, step));
+      } else {
+        // Single-option step: one virtual item per credential in the bundle.
+        final bundle = step.options[selectedOptionPerStep[i]];
+        for (final descriptor in bundle.credentials) {
+          result.add(_CredentialVirtualStep(i, descriptor));
+        }
+      }
     }
+    return result;
+  }
 
-    // Single option (or non-current multi-option): render the selected bundle.
-    final bundle = step.options[selectedOptionPerStep[index]];
+  /// Locate the first virtual step that belongs to the current
+  /// [IssuanceStep] and isn't already done.
+  int? _findCurrentVirtualStepIndex(List<_VirtualStep> virtualSteps) {
+    if (currentStepIndex == null) return null;
+    for (var i = 0; i < virtualSteps.length; i++) {
+      final vs = virtualSteps[i];
+      if (vs.issuanceStepIndex != currentStepIndex) continue;
+      switch (vs) {
+        case _ChoiceVirtualStep():
+          return i;
+        case _CredentialVirtualStep(:final descriptor):
+          if (!issuedCredentialIds.contains(descriptor.credentialId)) {
+            return i;
+          }
+      }
+    }
+    return null;
+  }
 
-    // N=1 bundles render exactly like the pre-bundle code: a single card
-    // styled as highlighted iff this step is current.
-    if (bundle.credentials.length == 1) {
-      return Padding(
-        padding: EdgeInsets.only(bottom: theme.smallSpacing),
-        child: YiviCredentialCard.fromDescriptor(
-          descriptor: bundle.credentials.first,
-          compact: true,
-          style: isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+  Widget _renderVirtualStep(
+    IrmaThemeData theme,
+    _VirtualStep vs,
+    bool isCurrent,
+  ) {
+    switch (vs) {
+      case _ChoiceVirtualStep(:final step, :final issuanceStepIndex):
+        return _renderChoice(theme, step, issuanceStepIndex);
+      case _CredentialVirtualStep(:final descriptor):
+        return Padding(
+          padding: EdgeInsets.only(bottom: theme.smallSpacing),
+          child: YiviCredentialCard.fromDescriptor(
+            descriptor: descriptor,
+            compact: true,
+            style: isCurrent
+                ? IrmaCardStyle.highlighted
+                : IrmaCardStyle.normal,
+          ),
+        );
+    }
+  }
+
+  Widget _renderChoice(
+    IrmaThemeData theme,
+    IssuanceStep step,
+    int issuanceStepIndex,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.all(theme.smallSpacing),
+          child: TranslatedText(
+            "disclosure_permission.choose",
+            style: theme.themeData.textTheme.headlineMedium,
+          ),
         ),
-      );
-    }
-
-    // N>1 bundle: per-card progress styling.
-    // - next-to-issue (first non-done, only when this step is current):
-    //   highlighted
-    // - all others (done or waiting): normal
-    //
-    // The highlighted card moves down the column as credentials are issued,
-    // which is the progress signal. The IrmaStepper's step indicator
-    // conveys step-level completion separately.
-    final firstNonDoneIndex = bundle.credentials.indexWhere(
-      (c) => !issuedCredentialIds.contains(c.credentialId),
-    );
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < bundle.credentials.length; i++)
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: i < bundle.credentials.length - 1
-                    ? theme.smallSpacing
-                    : 0,
-              ),
-              child: YiviCredentialCard.fromDescriptor(
-                descriptor: bundle.credentials[i],
-                compact: true,
-                style: isCurrent && i == firstNonDoneIndex
-                    ? IrmaCardStyle.highlighted
-                    : IrmaCardStyle.normal,
-              ),
-            ),
-        ],
-      ),
+        DisclosurePermissionChoice.fromIssuanceBundles(
+          options: step.options,
+          selectedIndex: selectedOptionPerStep[issuanceStepIndex],
+          onChoiceUpdated: onChoiceUpdated != null
+              ? (optionIndex) => onChoiceUpdated!((
+                  stepIndex: issuanceStepIndex,
+                  optionIndex: optionIndex,
+                ))
+              : null,
+        ),
+      ],
     );
   }
+}
+
+/// Tagged union of stepper items the [DisclosureDisconStepper] renders.
+sealed class _VirtualStep {
+  final int issuanceStepIndex;
+  const _VirtualStep(this.issuanceStepIndex);
+}
+
+class _ChoiceVirtualStep extends _VirtualStep {
+  final IssuanceStep step;
+  const _ChoiceVirtualStep(super.issuanceStepIndex, this.step);
+}
+
+class _CredentialVirtualStep extends _VirtualStep {
+  final CredentialDescriptor descriptor;
+  const _CredentialVirtualStep(super.issuanceStepIndex, this.descriptor);
 }
