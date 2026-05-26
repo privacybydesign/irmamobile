@@ -77,8 +77,7 @@ class _DisclosureMakeChoiceScreenState
     }
     _previousOwnedHashes = {
       for (final bundle in widget.pickOne.ownedOptions ?? [])
-        for (final cred in bundle.credentials)
-          cred.hash,
+        for (final cred in bundle.credentials) cred.hash,
     };
   }
 
@@ -136,8 +135,7 @@ class _DisclosureMakeChoiceScreenState
         if (hasNewCred) {
           _previousOwnedHashes = {
             for (final b in owned)
-              for (final c in b.credentials)
-                c.hash,
+              for (final c in b.credentials) c.hash,
           };
 
           WidgetsBinding.instance.addPostFrameCallback((_) {

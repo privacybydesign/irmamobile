@@ -137,9 +137,7 @@ class DisclosureDisconStepper extends StatelessWidget {
           child: YiviCredentialCard.fromDescriptor(
             descriptor: descriptor,
             compact: true,
-            style: isCurrent
-                ? IrmaCardStyle.highlighted
-                : IrmaCardStyle.normal,
+            style: isCurrent ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
           ),
         );
     }

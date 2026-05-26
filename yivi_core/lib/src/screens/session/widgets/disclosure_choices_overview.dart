@@ -84,8 +84,7 @@ class _DisclosureChoicesOverviewState
       }
 
       // Default to first owned bundle if nothing stored.
-      final bundle =
-          userChoices[i] ?? (choices[i].ownedOptions?.firstOrNull);
+      final bundle = userChoices[i] ?? (choices[i].ownedOptions?.firstOrNull);
       if (bundle == null) {
         disclosureChoices.add(DisclosureDisconSelection(credentials: []));
         continue;

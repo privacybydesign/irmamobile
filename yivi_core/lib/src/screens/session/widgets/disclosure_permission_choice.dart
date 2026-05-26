@@ -114,9 +114,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
               for (var i = 0; i < credentials.length; i++)
                 Padding(
                   padding: EdgeInsets.only(
-                    bottom: i < credentials.length - 1
-                        ? theme.smallSpacing
-                        : 0,
+                    bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
                   ),
                   child: card(i),
                 ),

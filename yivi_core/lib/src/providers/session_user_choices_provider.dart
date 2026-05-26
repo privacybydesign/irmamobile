@@ -105,8 +105,7 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
       for (var i = 0; i < choices.length; i++)
         i: {
           for (final bundle in choices[i].ownedOptions ?? [])
-            for (final cred in bundle.credentials)
-              cred.hash,
+            for (final cred in bundle.credentials) cred.hash,
         },
     };
   }
