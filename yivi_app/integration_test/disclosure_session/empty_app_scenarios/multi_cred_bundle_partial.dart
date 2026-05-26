@@ -72,10 +72,7 @@ Future<void> multiCredBundlePartialTest(
     cardsFinder.at(1),
     credentialName: "Demo Name",
     issuerName: "Demo MijnOverheid.nl",
-    attributes: [
-      ("First name", "Willeke"),
-      ("Family name", "Bruijn"),
-    ],
+    attributes: [("First name", "Willeke"), ("Family name", "Bruijn")],
     style: IrmaCardStyle.normal,
   );
 
