@@ -72,18 +72,36 @@ class DisclosureDisconStepper extends StatelessWidget {
     final result = <_VirtualStep>[];
     for (var i = 0; i < steps.length; i++) {
       final step = steps[i];
-      if (step.options.length > 1) {
-        // Multi-option step: one virtual item with the choice screen.
+      final isCurrent = i == currentStepIndex;
+      if (step.options.length > 1 && isCurrent) {
+        // Multi-option step that is current: render the choice.
         result.add(_ChoiceVirtualStep(i, step));
       } else {
-        // Single-option step: one virtual item per credential in the bundle.
-        final bundle = step.options[selectedOptionPerStep[i]];
+        // Single-option step, or a multi-option step that's already
+        // satisfied / still in the future. For satisfied multi-option steps
+        // prefer the bundle whose credentials are all issued, so the user
+        // sees what they actually obtained instead of the default selection.
+        final bundle = _bundleForNonChoiceStep(step, i);
         for (final descriptor in bundle.credentials) {
           result.add(_CredentialVirtualStep(i, descriptor));
         }
       }
     }
     return result;
+  }
+
+  IssuanceBundle _bundleForNonChoiceStep(IssuanceStep step, int stepIndex) {
+    if (step.options.length > 1) {
+      for (final bundle in step.options) {
+        if (bundle.credentials.isNotEmpty &&
+            bundle.credentials.every(
+              (d) => issuedCredentialIds.contains(d.credentialId),
+            )) {
+          return bundle;
+        }
+      }
+    }
+    return step.options[selectedOptionPerStep[stepIndex]];
   }
 
   /// Locate the first virtual step that belongs to the current
