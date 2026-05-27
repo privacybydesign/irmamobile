@@ -76,11 +76,12 @@ class Attribute {
   /// `["tags", 0]` fall back to "tags" rather than "0".
   TranslatedValue get effectiveDisplayName {
     if (displayName.isNotEmpty) return displayName;
+    if (claimPath.isEmpty) return displayName;
     for (var i = claimPath.length - 1; i >= 0; i--) {
       final seg = claimPath[i];
-      if (seg is! int) return TranslatedValue.fromString(seg.toString());
+      if (seg is String) return TranslatedValue.fromString(seg);
     }
-    return displayName;
+    return TranslatedValue.fromString(claimPath.join('.'));
   }
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>
