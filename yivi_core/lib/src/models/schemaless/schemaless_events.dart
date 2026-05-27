@@ -81,7 +81,7 @@ class Attribute {
       final seg = claimPath[i];
       if (seg is String) return TranslatedValue.fromString(seg);
     }
-    return TranslatedValue.fromString(claimPath.join('.'));
+    return TranslatedValue.fromString(claimPath.join("."));
   }
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>
