@@ -62,7 +62,6 @@ class DisclosureMakeChoiceScreen extends ConsumerStatefulWidget {
 class _DisclosureMakeChoiceScreenState
     extends ConsumerState<DisclosureMakeChoiceScreen> {
   late _Selection _selection;
-  late Set<String> _previousOwnedHashes;
 
   @override
   void initState() {
@@ -75,10 +74,6 @@ class _DisclosureMakeChoiceScreenState
     } else {
       _selection = const _OwnedSelection(0);
     }
-    _previousOwnedHashes = {
-      for (final bundle in widget.pickOne.ownedOptions ?? [])
-        for (final cred in bundle.credentials) cred.hash,
-    };
   }
 
   bool get _isOwnedSelected => _selection is _OwnedSelection;
@@ -108,35 +103,43 @@ class _DisclosureMakeChoiceScreenState
     Navigator.of(context).pop();
   }
 
-  /// Reacts to a fresh session state by auto-selecting any owned bundle that
-  /// just gained a new credential. Runs outside of `build()` so we never
-  /// mutate state during the render pass.
-  void _handleSessionUpdate(SessionState session) {
-    if (!mounted) return;
-    final choices = session.disclosurePlan?.disclosureChoicesOverview;
-    if (choices == null || widget.disconIndex >= choices.length) return;
-    final owned = choices[widget.disconIndex].ownedOptions ?? [];
-    if (owned.isEmpty) return;
+  /// Mirrors a provider-driven bundle change into the local radio selection.
+  /// The provider's auto-select (in [SessionUserChoicesNotifier]) is the sole
+  /// writer of `setBundle` on issuance; here we just sync the UI and honour
+  /// `addOptional`, which the provider does not handle.
+  void _syncFromProvider(
+    DisclosureBundle? previousBundle,
+    DisclosureBundle? nextBundle,
+  ) {
+    if (!mounted || nextBundle == null) return;
+
+    final nextHashes = nextBundle.credentialHashes;
+    final prevHashes = previousBundle?.credentialHashes;
+    if (prevHashes != null &&
+        prevHashes.length == nextHashes.length &&
+        prevHashes.containsAll(nextHashes)) {
+      return;
+    }
+
+    final overview = ref
+        .read(sessionStateProvider(widget.sessionId))
+        .value
+        ?.disclosurePlan
+        ?.disclosureChoicesOverview;
+    if (overview == null || widget.disconIndex >= overview.length) return;
+    final owned = overview[widget.disconIndex].ownedOptions ?? [];
 
     for (var i = 0; i < owned.length; i++) {
-      final bundle = owned[i];
-      final hasNewCred = bundle.credentialHashes.any(
-        (h) => !_previousOwnedHashes.contains(h),
-      );
-      if (!hasNewCred) continue;
-
-      _previousOwnedHashes = {
-        for (final b in owned)
-          for (final c in b.credentials) c.hash,
-      };
-
-      final notifier = ref.read(
-        sessionUserChoicesProvider(widget.sessionId).notifier,
-      );
-      if (widget.addOptional) {
-        notifier.addOptional(widget.disconIndex);
+      final bundleHashes = owned[i].credentialHashes;
+      if (bundleHashes.length != nextHashes.length ||
+          !bundleHashes.containsAll(nextHashes)) {
+        continue;
       }
-      notifier.setBundle(widget.disconIndex, bundle);
+      if (widget.addOptional) {
+        ref
+            .read(sessionUserChoicesProvider(widget.sessionId).notifier)
+            .addOptional(widget.disconIndex);
+      }
       setState(() => _selection = _OwnedSelection(i));
       return;
     }
@@ -144,12 +147,12 @@ class _DisclosureMakeChoiceScreenState
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<SessionState>>(
-      sessionStateProvider(widget.sessionId),
-      (previous, next) {
-        final session = next.value;
-        if (session != null) _handleSessionUpdate(session);
-      },
+    ref.listen<SessionUserChoices>(
+      sessionUserChoicesProvider(widget.sessionId),
+      (previous, next) => _syncFromProvider(
+        previous?.disclosureChoices[widget.disconIndex],
+        next.disclosureChoices[widget.disconIndex],
+      ),
     );
 
     // Watch session state to use live data for this discon.

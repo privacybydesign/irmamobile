@@ -16,9 +16,6 @@ import "../disclosure_helpers.dart";
 /// (the two singletons that together satisfy the first discon's inner con) plus
 /// email (to satisfy the second discon). Then the overview renders the 2-card
 /// bundle for the first discon and the email card for the second.
-///
-/// Note: depends on Go-side iterative issuance for multi-cred cons — see
-/// plan-multi-cred-bundle-integration-tests.md "Known risk" section.
 Future<void> multiCredBundleTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
