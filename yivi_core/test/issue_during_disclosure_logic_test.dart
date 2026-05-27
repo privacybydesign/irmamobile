@@ -212,14 +212,15 @@ void main() {
       );
     });
 
-    test("empty options list flags the step as current", () {
-      final steps = [_step(const [])];
-      expect(
-        IssueDuringDisclosureNotifier.findCurrentStepIndex(steps, const [
-          0,
-        ], const {}),
-        0,
-      );
+  });
+
+  group("IssuanceStep contract", () {
+    test("rejects empty options at the boundary", () {
+      // Empty options would cause a RangeError when call sites index
+      // steps[currentStepIndex].options[selectedIndex]. We catch this at
+      // the deserialization boundary instead, so a malformed backend
+      // response is surfaced clearly rather than crashing the UI.
+      expect(() => _step(const []), throwsArgumentError);
     });
   });
 }

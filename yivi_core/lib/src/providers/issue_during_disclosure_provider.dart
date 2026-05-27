@@ -188,7 +188,6 @@ class IssueDuringDisclosureNotifier
   ) {
     for (var i = 0; i < steps.length; i++) {
       final options = steps[i].options;
-      if (options.isEmpty) return i;
       final selectedIndex = i < selections.length ? selections[i] : 0;
       final safeIndex = (selectedIndex >= 0 && selectedIndex < options.length)
           ? selectedIndex

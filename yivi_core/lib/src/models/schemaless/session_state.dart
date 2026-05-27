@@ -118,7 +118,18 @@ class IssueDuringDisclosure {
 class IssuanceStep {
   final List<IssuanceBundle> options;
 
-  IssuanceStep({required this.options});
+  // A step with no bundles cannot be rendered or progressed. We reject it at
+  // the boundary so a malformed backend response surfaces here, instead of as
+  // a RangeError deep in the UI when `options[selectedIndex]` is indexed.
+  IssuanceStep({required this.options}) {
+    if (options.isEmpty) {
+      throw ArgumentError.value(
+        options,
+        "options",
+        "IssuanceStep.options must be non-empty",
+      );
+    }
+  }
 
   factory IssuanceStep.fromJson(Map<String, dynamic> json) =>
       _$IssuanceStepFromJson(json);
