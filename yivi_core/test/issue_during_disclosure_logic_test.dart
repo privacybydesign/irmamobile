@@ -211,7 +211,6 @@ void main() {
         null,
       );
     });
-
   });
 
   group("IssuanceStep contract", () {
