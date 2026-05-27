@@ -1,11 +1,10 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/schemaless/session_state.dart";
-import "../models/schemaless/session_user_interaction.dart";
 import "session_state_provider.dart";
 
 class SessionUserChoices {
-  final Map<int, SelectedCredential> disclosureChoices;
+  final Map<int, DisclosureBundle> disclosureChoices;
   final Set<int> addedOptionalIndices;
 
   const SessionUserChoices({
@@ -13,12 +12,9 @@ class SessionUserChoices {
     this.addedOptionalIndices = const {},
   });
 
-  SessionUserChoices withChoice(
-    int disconIndex,
-    SelectedCredential credential,
-  ) {
+  SessionUserChoices withBundle(int disconIndex, DisclosureBundle bundle) {
     return SessionUserChoices(
-      disclosureChoices: {...disclosureChoices, disconIndex: credential},
+      disclosureChoices: {...disclosureChoices, disconIndex: bundle},
       addedOptionalIndices: addedOptionalIndices,
     );
   }
@@ -41,15 +37,15 @@ class SessionUserChoices {
 class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
   final int sessionId;
 
-  /// Tracks which owned credential hashes existed per discon index,
-  /// so we can detect newly issued credentials and auto-select them.
+  /// Tracks which owned credential hashes existed per discon index (flattened
+  /// across bundles), so we can detect newly issued credentials and auto-select
+  /// the bundle containing them.
   Map<int, Set<String>> _previousOwnedHashes = {};
 
   SessionUserChoicesNotifier(this.sessionId);
 
   @override
   SessionUserChoices build() {
-    // Snapshot the initial owned hashes
     final session = ref.read(sessionStateProvider(sessionId)).value;
     if (session != null) {
       _previousOwnedHashes = _buildOwnedHashesMap(
@@ -57,7 +53,6 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
       );
     }
 
-    // Listen for session state changes to auto-select newly issued credentials
     ref.listen(sessionStateProvider(sessionId), (previous, next) {
       final session = next.value;
       if (session != null) {
@@ -68,8 +63,8 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
     return const SessionUserChoices();
   }
 
-  void setChoice(int disconIndex, SelectedCredential credential) {
-    state = state.withChoice(disconIndex, credential);
+  void setBundle(int disconIndex, DisclosureBundle bundle) {
+    state = state.withBundle(disconIndex, bundle);
   }
 
   void addOptional(int disconIndex) {
@@ -86,27 +81,36 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
 
     if (_previousOwnedHashes.isNotEmpty) {
       var updated = state;
+      var changed = false;
       for (var i = 0; i < choices.length; i++) {
-        final owned = choices[i].ownedOptions ?? [];
+        final bundles = choices[i].ownedOptions ?? [];
         final previousHashes = _previousOwnedHashes[i] ?? {};
 
-        for (final cred in owned) {
-          if (!previousHashes.contains(cred.hash)) {
-            updated = updated.withChoice(
-              i,
-              SelectedCredential(
-                credentialId: cred.credentialId,
-                credentialHash: cred.hash,
-                attributePaths: cred.attributes
-                    .map((attr) => attr.claimPath)
-                    .toList(),
-              ),
-            );
-            break;
+        bool hasNew(DisclosureBundle b) =>
+            b.credentialHashes.any((h) => !previousHashes.contains(h));
+
+        // Prefer the bundle the user already selected if it also contains a
+        // newly-issued credential. This avoids silently switching the user's
+        // choice when a credential is shared across bundles.
+        final existing = updated.disclosureChoices[i];
+        DisclosureBundle? target;
+        if (existing != null && hasNew(existing)) {
+          target = existing;
+        } else {
+          for (final bundle in bundles) {
+            if (hasNew(bundle)) {
+              target = bundle;
+              break;
+            }
           }
         }
+
+        if (target != null && target != existing) {
+          updated = updated.withBundle(i, target);
+          changed = true;
+        }
       }
-      state = updated;
+      if (changed) state = updated;
     }
 
     _previousOwnedHashes = currentHashes;
@@ -117,7 +121,10 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
   ) {
     return {
       for (var i = 0; i < choices.length; i++)
-        i: {for (final owned in choices[i].ownedOptions ?? []) owned.hash},
+        i: {
+          for (final bundle in choices[i].ownedOptions ?? [])
+            for (final cred in bundle.credentials) cred.hash,
+        },
     };
   }
 }

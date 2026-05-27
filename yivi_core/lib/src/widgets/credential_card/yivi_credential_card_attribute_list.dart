@@ -199,7 +199,7 @@ _GroupNode _buildTree(
           arrayFrame.childrenArr.whereType<_ItemNode>().length + 1;
       final parentHeader = headers[_pathKey(arrayHeaderPath)];
       final item = _ItemNode(
-        parentLabel: parentHeader?.displayName,
+        parentLabel: parentHeader?.effectiveDisplayName,
         itemIndex: itemIndex,
         path: itemPath,
         children: [],
@@ -222,7 +222,11 @@ _GroupNode _buildTree(
       popToPrefix(p);
 
       final parentFrame = stack.last;
-      final group = _GroupNode(label: e.displayName, path: p, children: []);
+      final group = _GroupNode(
+        label: e.effectiveDisplayName,
+        path: p,
+        children: [],
+      );
       parentFrame.childrenArr.add(group);
       stack.add(
         _StackFrame(path: p, childrenArr: group.children, isItem: false),
@@ -245,7 +249,7 @@ _GroupNode _buildTree(
     if (tail is int && !hasDisplayName) {
       // Primitive in array — collect under the parent header's label.
       final headerEntry = headers[parentKey];
-      final label = headerEntry?.displayName ?? e.displayName;
+      final label = headerEntry?.effectiveDisplayName ?? e.effectiveDisplayName;
 
       popToPrefix(parentArrPath);
       final frame = stack.last;
@@ -519,6 +523,14 @@ TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
   color: color,
 );
 
+String _formatBool(BuildContext context, bool? value) {
+  if (value == null) return "";
+  return FlutterI18n.translate(
+    context,
+    value ? "credential.boolean_yes" : "credential.boolean_no",
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Leaf content — label on top, value below (no padding/border, container
 // handles those).
@@ -539,7 +551,10 @@ class _LeafContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(attribute.displayName.translate(lang), style: _labelStyle(theme)),
+        Text(
+          attribute.effectiveDisplayName.translate(lang),
+          style: _labelStyle(theme),
+        ),
         _buildValue(context, theme, lang),
       ],
     );
@@ -561,7 +576,7 @@ class _LeafContent extends StatelessWidget {
         style: _valueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.boolean => Text(
-        val.boolValue == null ? "" : (val.boolValue! ? "Yes" : "No"),
+        _formatBool(context, val.boolValue),
         style: _valueStyle(theme, _valueColor(val, theme)),
       ),
       schemaless.AttributeType.integer => Text(
@@ -592,7 +607,7 @@ class _LeafContent extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => Scaffold(
               appBar: IrmaAppBar(
-                titleString: attribute.displayName.translate(
+                titleString: attribute.effectiveDisplayName.translate(
                   lang,
                   fallbackLang: "",
                 ),
@@ -629,12 +644,16 @@ class _PrimArrayContent extends StatelessWidget {
       spacing: 0,
       children: [
         Text(node.label.translate(lang), style: _labelStyle(theme)),
-        for (final v in node.values) _bulletRow(theme, v),
+        for (final v in node.values) _bulletRow(context, theme, v),
       ],
     );
   }
 
-  Widget _bulletRow(IrmaThemeData theme, schemaless.AttributeValue v) {
+  Widget _bulletRow(
+    BuildContext context,
+    IrmaThemeData theme,
+    schemaless.AttributeValue v,
+  ) {
     final valueStyle = _valueStyle(theme, theme.dark).copyWith(height: 1.2);
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
@@ -657,18 +676,17 @@ class _PrimArrayContent extends StatelessWidget {
             ),
           ),
           SizedBox(width: theme.tinySpacing),
-          Expanded(child: Text(_formatValue(v), style: valueStyle)),
+          Expanded(child: Text(_formatValue(context, v), style: valueStyle)),
         ],
       ),
     );
   }
 
-  String _formatValue(schemaless.AttributeValue v) {
+  String _formatValue(BuildContext context, schemaless.AttributeValue v) {
     return switch (v.type) {
       schemaless.AttributeType.string => v.string ?? "",
       schemaless.AttributeType.integer => v.intValue?.toString() ?? "",
-      schemaless.AttributeType.boolean =>
-        v.boolValue == null ? "" : (v.boolValue! ? "Yes" : "No"),
+      schemaless.AttributeType.boolean => _formatBool(context, v.boolValue),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => v.string ?? "",
     };

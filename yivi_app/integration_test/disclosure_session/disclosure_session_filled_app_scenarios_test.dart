@@ -5,6 +5,8 @@ import "../irma_binding.dart";
 import "filled_app_scenarios/filled_choice.dart";
 import "filled_app_scenarios/filled_choice_mixed.dart";
 import "filled_app_scenarios/filled_discon.dart";
+import "filled_app_scenarios/filled_multi_bundle_choice.dart";
+import "filled_app_scenarios/filled_multi_cred_bundle.dart";
 import "filled_app_scenarios/filled_no_choice_multiple_creds.dart";
 import "filled_app_scenarios/filled_no_choice_same_creds.dart";
 import "filled_app_scenarios/filled_optional_disjunction.dart";
@@ -78,6 +80,25 @@ void main() {
         "filled-optional-disjunction",
         (tester) => filledOptionalDisjunctionTest(tester, irmaBinding),
       );
+
+      group("multi-cred-bundle", () {
+        // Condiscon with inner con spanning two singleton credentials
+        // (MijnOverheid.root + MijnOverheid.fullName) AND (email OR mobile).
+        // All three pre-issued; straight to overview.
+        testWidgets(
+          "all-present",
+          (tester) => filledMultiCredBundleTest(tester, irmaBinding),
+        );
+      });
+
+      group("multi-bundle-choice", () {
+        // Discon with two alternative multi-cred bundles. Bundle A
+        // (MijnOverheid root + fullName) pre-issued; Bundle B obtainable.
+        testWidgets(
+          "all-present",
+          (tester) => filledMultiBundleChoiceTest(tester, irmaBinding),
+        );
+      });
     });
   });
 }

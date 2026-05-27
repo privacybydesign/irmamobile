@@ -116,18 +116,39 @@ class IssueDuringDisclosure {
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
 class IssuanceStep {
-  final List<CredentialDescriptor> options;
+  final List<IssuanceBundle> options;
 
-  IssuanceStep({required this.options});
+  // A step with no bundles cannot be rendered or progressed. We reject it at
+  // the boundary so a malformed backend response surfaces here, instead of as
+  // a RangeError deep in the UI when `options[selectedIndex]` is indexed.
+  IssuanceStep({required this.options}) {
+    if (options.isEmpty) {
+      throw ArgumentError.value(
+        options,
+        "options",
+        "IssuanceStep.options must be non-empty",
+      );
+    }
+  }
 
   factory IssuanceStep.fromJson(Map<String, dynamic> json) =>
       _$IssuanceStepFromJson(json);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
+class IssuanceBundle {
+  final List<CredentialDescriptor> credentials;
+
+  IssuanceBundle({required this.credentials});
+
+  factory IssuanceBundle.fromJson(Map<String, dynamic> json) =>
+      _$IssuanceBundleFromJson(json);
+}
+
+@JsonSerializable(createToJson: false, fieldRename: .snake)
 class DisclosurePickOne {
   final bool optional;
-  final List<SelectableCredentialInstance>? ownedOptions;
+  final List<DisclosureBundle>? ownedOptions;
   final List<CredentialDescriptor>? obtainableOptions;
 
   DisclosurePickOne({
@@ -138,6 +159,18 @@ class DisclosurePickOne {
 
   factory DisclosurePickOne.fromJson(Map<String, dynamic> json) =>
       _$DisclosurePickOneFromJson(json);
+}
+
+@JsonSerializable(createToJson: false, fieldRename: .snake)
+class DisclosureBundle {
+  final List<SelectableCredentialInstance> credentials;
+
+  DisclosureBundle({required this.credentials});
+
+  factory DisclosureBundle.fromJson(Map<String, dynamic> json) =>
+      _$DisclosureBundleFromJson(json);
+
+  Set<String> get credentialHashes => credentials.map((c) => c.hash).toSet();
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

@@ -3,7 +3,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
-import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
@@ -63,7 +62,6 @@ class DisclosureMakeChoiceScreen extends ConsumerStatefulWidget {
 class _DisclosureMakeChoiceScreenState
     extends ConsumerState<DisclosureMakeChoiceScreen> {
   late _Selection _selection;
-  late Set<String> _previousOwnedHashes;
 
   @override
   void initState() {
@@ -76,38 +74,87 @@ class _DisclosureMakeChoiceScreenState
     } else {
       _selection = const _OwnedSelection(0);
     }
-    _previousOwnedHashes = {
-      for (final owned in widget.pickOne.ownedOptions ?? []) owned.hash,
-    };
   }
 
   bool get _isOwnedSelected => _selection is _OwnedSelection;
 
   bool _selectedObtainableIsObtainable(List<CredentialDescriptor> obtainable) {
-    if (_selection is! _ObtainableSelection) return false;
-    final index = (_selection as _ObtainableSelection).index;
-    if (index >= obtainable.length) return false;
-    return obtainable[index].issueURL != null;
+    final sel = _selection;
+    if (sel is! _ObtainableSelection) return false;
+    if (sel.index >= obtainable.length) return false;
+    return obtainable[sel.index].issueURL != null;
   }
 
   void _onObtainData(List<CredentialDescriptor> obtainable) {
-    if (_selection is! _ObtainableSelection) return;
-    final index = (_selection as _ObtainableSelection).index;
-    if (index >= obtainable.length) return;
+    final sel = _selection;
+    if (sel is! _ObtainableSelection) return;
+    if (sel.index >= obtainable.length) return;
 
-    final cred = obtainable[index];
+    final cred = obtainable[sel.index];
     context.pushSchemalessDataDetailsScreen(
       AddDataDetailsRouteParams(credential: cred),
     );
   }
 
   void _onDone() {
-    widget.onChoiceMade((_selection as _OwnedSelection).index);
+    final sel = _selection;
+    if (sel is! _OwnedSelection) return;
+    widget.onChoiceMade(sel.index);
     Navigator.of(context).pop();
+  }
+
+  /// Mirrors a provider-driven bundle change into the local radio selection.
+  /// The provider's auto-select (in [SessionUserChoicesNotifier]) is the sole
+  /// writer of `setBundle` on issuance; here we just sync the UI and honour
+  /// `addOptional`, which the provider does not handle.
+  void _syncFromProvider(
+    DisclosureBundle? previousBundle,
+    DisclosureBundle? nextBundle,
+  ) {
+    if (!mounted || nextBundle == null) return;
+
+    final nextHashes = nextBundle.credentialHashes;
+    final prevHashes = previousBundle?.credentialHashes;
+    if (prevHashes != null &&
+        prevHashes.length == nextHashes.length &&
+        prevHashes.containsAll(nextHashes)) {
+      return;
+    }
+
+    final overview = ref
+        .read(sessionStateProvider(widget.sessionId))
+        .value
+        ?.disclosurePlan
+        ?.disclosureChoicesOverview;
+    if (overview == null || widget.disconIndex >= overview.length) return;
+    final owned = overview[widget.disconIndex].ownedOptions ?? [];
+
+    for (var i = 0; i < owned.length; i++) {
+      final bundleHashes = owned[i].credentialHashes;
+      if (bundleHashes.length != nextHashes.length ||
+          !bundleHashes.containsAll(nextHashes)) {
+        continue;
+      }
+      if (widget.addOptional) {
+        ref
+            .read(sessionUserChoicesProvider(widget.sessionId).notifier)
+            .addOptional(widget.disconIndex);
+      }
+      setState(() => _selection = _OwnedSelection(i));
+      return;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<SessionUserChoices>(
+      sessionUserChoicesProvider(widget.sessionId),
+      (previous, next) => _syncFromProvider(
+        previous?.disclosureChoices[widget.disconIndex],
+        next.disclosureChoices[widget.disconIndex],
+      ),
+    );
+
     // Watch session state to use live data for this discon.
     final sessionAsync = ref.watch(sessionStateProvider(widget.sessionId));
     final livePickOne = sessionAsync.whenOrNull(
@@ -125,40 +172,14 @@ class _DisclosureMakeChoiceScreenState
     final owned = pickOne.ownedOptions ?? [];
     final obtainable = pickOne.obtainableOptions ?? [];
 
-    // Detect newly obtained credentials and auto-select them.
-    if (livePickOne != null) {
-      for (var i = 0; i < owned.length; i++) {
-        if (!_previousOwnedHashes.contains(owned[i].hash)) {
-          // A new credential appeared — update provider and select it.
-          _previousOwnedHashes = {for (final o in owned) o.hash};
-
-          final cred = owned[i];
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            final notifier = ref.read(
-              sessionUserChoicesProvider(widget.sessionId).notifier,
-            );
-            if (widget.addOptional) {
-              notifier.addOptional(widget.disconIndex);
-            }
-            notifier.setChoice(
-              widget.disconIndex,
-              SelectedCredential(
-                credentialId: cred.credentialId,
-                credentialHash: cred.hash,
-                attributePaths: cred.attributes
-                    .map((attr) => attr.claimPath)
-                    .toList(),
-              ),
-            );
-            setState(() => _selection = _OwnedSelection(i));
-          });
-          break;
-        }
-      }
-    }
-
     final theme = IrmaTheme.of(context);
+    final selection = _selection;
+    final ownedSelectedIndex = switch (selection) {
+      _OwnedSelection(:final index) => index,
+      _ObtainableSelection() => -1,
+    };
+    bool isObtainableSelectedAt(int i) =>
+        selection is _ObtainableSelection && selection.index == i;
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.change_choice",
@@ -171,11 +192,9 @@ class _DisclosureMakeChoiceScreenState
             children: [
               // Owned options — selectable
               if (owned.isNotEmpty)
-                DisclosurePermissionChoice.fromInstances(
+                DisclosurePermissionChoice.fromBundles(
                   options: owned,
-                  selectedIndex: _selection is _OwnedSelection
-                      ? (_selection as _OwnedSelection).index
-                      : -1,
+                  selectedIndex: ownedSelectedIndex,
                   onChoiceUpdated: (i) =>
                       setState(() => _selection = _OwnedSelection(i)),
                 ),
@@ -208,16 +227,11 @@ class _DisclosureMakeChoiceScreenState
                         child: YiviCredentialCard.fromDescriptor(
                           descriptor: obtainable[i],
                           compact: true,
-                          style:
-                              _selection is _ObtainableSelection &&
-                                  (_selection as _ObtainableSelection).index ==
-                                      i
+                          style: isObtainableSelectedAt(i)
                               ? IrmaCardStyle.highlighted
                               : IrmaCardStyle.normal,
                           headerTrailing: RadioIndicator(
-                            isSelected:
-                                _selection is _ObtainableSelection &&
-                                (_selection as _ObtainableSelection).index == i,
+                            isSelected: isObtainableSelectedAt(i),
                           ),
                         ),
                       ),

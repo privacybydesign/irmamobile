@@ -106,7 +106,9 @@
     "about_to_expire": "About to expire",
     "expired": "Expired",
     "revoked": "Revoked",
-    "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data."
+    "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data.",
+    "boolean_yes": "Yes",
+    "boolean_no": "No"
   },
   "data": {
     "tab": {

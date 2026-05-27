@@ -106,7 +106,9 @@
     "about_to_expire": "Läuft bald ab",
     "expired": "Abgelaufen",
     "revoked": "Widerrufen",
-    "not_obtainable": "Diese Daten können nicht abgerufen werden. Bitte kontaktieren Sie {issuerName}, um diese Daten zu erhalten."
+    "not_obtainable": "Diese Daten können nicht abgerufen werden. Bitte kontaktieren Sie {issuerName}, um diese Daten zu erhalten.",
+    "boolean_yes": "Ja",
+    "boolean_no": "Nein"
   },
   "data": {
     "tab": {

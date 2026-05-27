@@ -106,7 +106,9 @@
     "about_to_expire": "Gaat verlopen",
     "expired": "Verlopen",
     "revoked": "Ingetrokken",
-    "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen."
+    "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen.",
+    "boolean_yes": "Ja",
+    "boolean_no": "Nee"
   },
   "data": {
     "tab": {

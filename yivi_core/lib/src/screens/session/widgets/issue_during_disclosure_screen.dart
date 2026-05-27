@@ -89,11 +89,23 @@ class _IssueDuringDisclosureScreenState
     final currentStepIndex = wizardState.currentStepIndex;
     final isCompleted = wizardState.isCompleted;
 
-    // Check if the currently selected credential can be obtained.
-    final currentCredential = currentStepIndex != null
-        ? steps[currentStepIndex].options[wizardState
-              .selectedOptionPerStep[currentStepIndex]]
-        : null;
+    // Determine the next credential the user must issue. For multi-credential
+    // bundles, walk the bundle and pick the first descriptor whose credential
+    // type isn't already issued during this session.
+    final issuedIds =
+        session?.disclosurePlan?.issueDuringDisclosure?.issuedCredentialIds ??
+        const {};
+    CredentialDescriptor? currentCredential;
+    if (currentStepIndex != null) {
+      final bundle = steps[currentStepIndex]
+          .options[wizardState.selectedOptionPerStep[currentStepIndex]];
+      for (final descriptor in bundle.credentials) {
+        if (!issuedIds.containsKey(descriptor.credentialId)) {
+          currentCredential = descriptor;
+          break;
+        }
+      }
+    }
     final currentIsObtainable = currentCredential?.issueURL != null;
 
     ref.listen(issueDuringDisclosureProvider(widget.sessionId), (prev, next) {

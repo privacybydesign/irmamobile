@@ -69,6 +69,21 @@ class Attribute {
     this.requestedValue,
   });
 
+  /// The display name to render in the UI. Falls back to the last non-int
+  /// segment of [claimPath] when the backend did not supply a display name,
+  /// so the UI shows the field identifier instead of an empty label. Int
+  /// segments (array indices) are skipped so positions like
+  /// `["tags", 0]` fall back to "tags" rather than "0".
+  TranslatedValue get effectiveDisplayName {
+    if (displayName.isNotEmpty) return displayName;
+    if (claimPath.isEmpty) return displayName;
+    for (var i = claimPath.length - 1; i >= 0; i--) {
+      final seg = claimPath[i];
+      if (seg is String) return TranslatedValue.fromString(seg);
+    }
+    return TranslatedValue.fromString(claimPath.join("."));
+  }
+
   factory Attribute.fromJson(Map<String, dynamic> json) =>
       _$AttributeFromJson(json);
 

@@ -26,13 +26,24 @@ attaching data to signed statements. These data can be relevant properties, such
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard at the point where the user is collecting data" />&nbsp;
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard screen at the point where the user is about to share the collected data" />&nbsp;
 
+## Repository layout
+
+The repository is organized as three Flutter packages plus a Go bridge:
+
+* `yivi_core` — shared business logic, the Dart bindings for `irmagobridge`, and the Go bridge build outputs (`android/irmagobridge/irmagobridge.aar` and `ios/Irmagobridge.xcframework`).
+* `yivi_app` — the main Play Store / App Store application. Integration tests live here under `integration_test/`.
+* `yivi_fdroid` — the F-Droid build variant of the app.
+* `irmagobridge/` and the `irma_configuration` submodule sit at the repository root.
+
+Most commands below should be run from one of these subdirectories. The [`just`](#using-just) recipes take care of `cd`-ing into the right place for you.
+
 ## Development setup
 
 * Clone the project
 
       git clone --recursive git@github.com:privacybydesign/irmamobile.git
 
-* If your forgot to include `--recursive` in your `git clone`, make sure to init and update the submodules:
+* If you forgot to include `--recursive` in your `git clone`, make sure to init and update the submodules:
 
       cd irmamobile
       git submodule init
@@ -48,8 +59,8 @@ attaching data to signed statements. These data can be relevant properties, such
       flutter config --jdk-dir /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
-  Make sure to install the build-tools and platform for Android >= 28. In addition
-  to the SDK platform, the following SDK tools need to be installed:
+  The app currently targets `compileSdk` 36 and `minSdk` 26, so make sure to install matching
+  build-tools and platforms. In addition to the SDK platform, the following SDK tools need to be installed:
   * Android SDK Command-line Tools
   * Android SDK Build-Tools
   * Android SDK Platform-Tools
@@ -80,18 +91,26 @@ attaching data to signed statements. These data can be relevant properties, such
 * Run `go install golang.org/x/mobile/cmd/gomobile` to install gomobile.
 
 * Run `gomobile init` to initialize gomobile.
+  (Alternatively, run `./ci_scripts/install_gomobile.sh` which installs the version pinned in `yivi_core/go.mod` and runs `gomobile init` for you.)
 
-* Create the irmagobridge: `./bind_go.sh`.
+* Create the irmagobridge: `./bind_go.sh`. The script accepts an optional argument to limit which
+  targets are built — useful during local development:
 
-* Start an emulator or connect a device via USB and run the flutter project: `flutter run` (iOS) or
-  `flutter run --flavor alpha` (Android). You can also use Android Studio or Visual Studio Code for this step.
+      ./bind_go.sh                 # build all platforms (Android + iOS)
+      ./bind_go.sh android         # build all Android ABIs
+      ./bind_go.sh ios             # build iOS only
+      ./bind_go.sh android/arm64   # build a single Android ABI (fastest)
+
+* Start an emulator or connect a device via USB and run the flutter project from the `yivi_app` directory:
+  `flutter run` (iOS) or `flutter run --flavor alpha` (Android). You can also use `just run` from the
+  repository root, or run the project via Android Studio or Visual Studio Code.
   The alpha flavor on Android does not open universal links. If you need to test these, you need to build
   the beta flavor (`flutter run --flavor beta`). In order to install a beta flavor build, you need to uninstall
   the Play Store version of the Yivi app. Therefore, it is practical to only do this in a simulator or a dedicated
   test device. In case you run the flutter project via Android Studio, you can specify the build flavor in the
   run configuration. On iOS, no custom flavor should be specified.
 
-* You can use `flutter run -t` to run different app configurations, for example run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.
+* You can use `flutter run -t` to run different app configurations, for example run `flutter run -t lib/main_prototypes.dart` (from `yivi_app`) to start the app in the prototypes menu.
 
 * On Android emulators, App Links do not work by default, as they are verified against the signature in the assetlinks.json on `https://open.yivi.app`, which does not match on custom builds.
 In order to make this work on emulators, you need to run the app using `flutter run` once, then close the app and go to `System settings`. In the `Apps` section, find the Yivi app and go to `Open by default`. In this screen, you will see `0 verified links`. Click `Add link` and select all available links (for now, `open.yivi.app` and `irma.app`). Also, make sure `In the app` is selected to open these domains in the app, rather than a browser.
@@ -109,7 +128,8 @@ For example to run the Flutter app you can type:
 
 ## JSON serialization code
 
-This project uses json_serializer. To re-generate serialization code, run `./codegen.sh`
+This project uses json_serializer. To re-generate serialization code, run `./codegen.sh` (or `just gen`).
+The generator runs against `yivi_core`; the script additionally formats the Dart sources in each package.
 
 ## Integration tests
 _The integration tests are in development, so not all use cases are covered yet._
@@ -197,6 +217,7 @@ rm -rf ./cache
 flutter doctor
 flutter precache --ios
 popd
+cd yivi_app
 flutter pub get
 cd ./ios && pod install
 ```
