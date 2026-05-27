@@ -46,10 +46,7 @@ void main() {
         isFalse,
       );
       expect(
-        IssueDuringDisclosureNotifier.isBundleFullySatisfied(
-          bundle,
-          const {},
-        ),
+        IssueDuringDisclosureNotifier.isBundleFullySatisfied(bundle, const {}),
         isFalse,
       );
     });
@@ -84,11 +81,10 @@ void main() {
         ]),
       ];
       expect(
-        IssueDuringDisclosureNotifier.findCurrentStepIndex(
-          steps,
-          const [0, 0],
-          null,
-        ),
+        IssueDuringDisclosureNotifier.findCurrentStepIndex(steps, const [
+          0,
+          0,
+        ], null),
         0,
       );
     });
@@ -219,11 +215,9 @@ void main() {
     test("empty options list flags the step as current", () {
       final steps = [_step(const [])];
       expect(
-        IssueDuringDisclosureNotifier.findCurrentStepIndex(
-          steps,
-          const [0],
-          const {},
-        ),
+        IssueDuringDisclosureNotifier.findCurrentStepIndex(steps, const [
+          0,
+        ], const {}),
         0,
       );
     });

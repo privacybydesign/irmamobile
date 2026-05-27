@@ -53,9 +53,7 @@ class _DisclosureChoicesOverviewState
   int _selectedIndexFor(int disconIndex) {
     final overview =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview;
-    if (overview == null ||
-        disconIndex < 0 ||
-        disconIndex >= overview.length) {
+    if (overview == null || disconIndex < 0 || disconIndex >= overview.length) {
       return 0;
     }
     final userChoices = ref
