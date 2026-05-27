@@ -84,30 +84,74 @@ class _DisclosureMakeChoiceScreenState
   bool get _isOwnedSelected => _selection is _OwnedSelection;
 
   bool _selectedObtainableIsObtainable(List<CredentialDescriptor> obtainable) {
-    if (_selection is! _ObtainableSelection) return false;
-    final index = (_selection as _ObtainableSelection).index;
-    if (index >= obtainable.length) return false;
-    return obtainable[index].issueURL != null;
+    final sel = _selection;
+    if (sel is! _ObtainableSelection) return false;
+    if (sel.index >= obtainable.length) return false;
+    return obtainable[sel.index].issueURL != null;
   }
 
   void _onObtainData(List<CredentialDescriptor> obtainable) {
-    if (_selection is! _ObtainableSelection) return;
-    final index = (_selection as _ObtainableSelection).index;
-    if (index >= obtainable.length) return;
+    final sel = _selection;
+    if (sel is! _ObtainableSelection) return;
+    if (sel.index >= obtainable.length) return;
 
-    final cred = obtainable[index];
+    final cred = obtainable[sel.index];
     context.pushSchemalessDataDetailsScreen(
       AddDataDetailsRouteParams(credential: cred),
     );
   }
 
   void _onDone() {
-    widget.onChoiceMade((_selection as _OwnedSelection).index);
+    final sel = _selection;
+    if (sel is! _OwnedSelection) return;
+    widget.onChoiceMade(sel.index);
     Navigator.of(context).pop();
+  }
+
+  /// Reacts to a fresh session state by auto-selecting any owned bundle that
+  /// just gained a new credential. Runs outside of `build()` so we never
+  /// mutate state during the render pass.
+  void _handleSessionUpdate(SessionState session) {
+    if (!mounted) return;
+    final choices = session.disclosurePlan?.disclosureChoicesOverview;
+    if (choices == null || widget.disconIndex >= choices.length) return;
+    final owned = choices[widget.disconIndex].ownedOptions ?? [];
+    if (owned.isEmpty) return;
+
+    for (var i = 0; i < owned.length; i++) {
+      final bundle = owned[i];
+      final hasNewCred = bundle.credentialHashes.any(
+        (h) => !_previousOwnedHashes.contains(h),
+      );
+      if (!hasNewCred) continue;
+
+      _previousOwnedHashes = {
+        for (final b in owned)
+          for (final c in b.credentials) c.hash,
+      };
+
+      final notifier = ref.read(
+        sessionUserChoicesProvider(widget.sessionId).notifier,
+      );
+      if (widget.addOptional) {
+        notifier.addOptional(widget.disconIndex);
+      }
+      notifier.setBundle(widget.disconIndex, bundle);
+      setState(() => _selection = _OwnedSelection(i));
+      return;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AsyncValue<SessionState>>(
+      sessionStateProvider(widget.sessionId),
+      (previous, next) {
+        final session = next.value;
+        if (session != null) _handleSessionUpdate(session);
+      },
+    );
+
     // Watch session state to use live data for this discon.
     final sessionAsync = ref.watch(sessionStateProvider(widget.sessionId));
     final livePickOne = sessionAsync.whenOrNull(
@@ -125,36 +169,14 @@ class _DisclosureMakeChoiceScreenState
     final owned = pickOne.ownedOptions ?? [];
     final obtainable = pickOne.obtainableOptions ?? [];
 
-    // Detect bundles containing newly obtained credentials and auto-select them.
-    if (livePickOne != null) {
-      for (var i = 0; i < owned.length; i++) {
-        final bundle = owned[i];
-        final hasNewCred = bundle.credentialHashes.any(
-          (h) => !_previousOwnedHashes.contains(h),
-        );
-        if (hasNewCred) {
-          _previousOwnedHashes = {
-            for (final b in owned)
-              for (final c in b.credentials) c.hash,
-          };
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            final notifier = ref.read(
-              sessionUserChoicesProvider(widget.sessionId).notifier,
-            );
-            if (widget.addOptional) {
-              notifier.addOptional(widget.disconIndex);
-            }
-            notifier.setBundle(widget.disconIndex, bundle);
-            setState(() => _selection = _OwnedSelection(i));
-          });
-          break;
-        }
-      }
-    }
-
     final theme = IrmaTheme.of(context);
+    final selection = _selection;
+    final ownedSelectedIndex = switch (selection) {
+      _OwnedSelection(:final index) => index,
+      _ObtainableSelection() => -1,
+    };
+    bool isObtainableSelectedAt(int i) =>
+        selection is _ObtainableSelection && selection.index == i;
 
     return SessionScaffold(
       appBarTitle: "disclosure_permission.change_choice",
@@ -169,9 +191,7 @@ class _DisclosureMakeChoiceScreenState
               if (owned.isNotEmpty)
                 DisclosurePermissionChoice.fromBundles(
                   options: owned,
-                  selectedIndex: _selection is _OwnedSelection
-                      ? (_selection as _OwnedSelection).index
-                      : -1,
+                  selectedIndex: ownedSelectedIndex,
                   onChoiceUpdated: (i) =>
                       setState(() => _selection = _OwnedSelection(i)),
                 ),
@@ -204,16 +224,11 @@ class _DisclosureMakeChoiceScreenState
                         child: YiviCredentialCard.fromDescriptor(
                           descriptor: obtainable[i],
                           compact: true,
-                          style:
-                              _selection is _ObtainableSelection &&
-                                  (_selection as _ObtainableSelection).index ==
-                                      i
+                          style: isObtainableSelectedAt(i)
                               ? IrmaCardStyle.highlighted
                               : IrmaCardStyle.normal,
                           headerTrailing: RadioIndicator(
-                            isSelected:
-                                _selection is _ObtainableSelection &&
-                                (_selection as _ObtainableSelection).index == i,
+                            isSelected: isObtainableSelectedAt(i),
                           ),
                         ),
                       ),

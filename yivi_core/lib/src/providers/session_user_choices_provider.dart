@@ -81,18 +81,36 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
 
     if (_previousOwnedHashes.isNotEmpty) {
       var updated = state;
+      var changed = false;
       for (var i = 0; i < choices.length; i++) {
         final bundles = choices[i].ownedOptions ?? [];
         final previousHashes = _previousOwnedHashes[i] ?? {};
 
-        for (final bundle in bundles) {
-          if (bundle.credentialHashes.any((h) => !previousHashes.contains(h))) {
-            updated = updated.withBundle(i, bundle);
-            break;
+        bool hasNew(DisclosureBundle b) =>
+            b.credentialHashes.any((h) => !previousHashes.contains(h));
+
+        // Prefer the bundle the user already selected if it also contains a
+        // newly-issued credential. This avoids silently switching the user's
+        // choice when a credential is shared across bundles.
+        final existing = updated.disclosureChoices[i];
+        DisclosureBundle? target;
+        if (existing != null && hasNew(existing)) {
+          target = existing;
+        } else {
+          for (final bundle in bundles) {
+            if (hasNew(bundle)) {
+              target = bundle;
+              break;
+            }
           }
         }
+
+        if (target != null && target != existing) {
+          updated = updated.withBundle(i, target);
+          changed = true;
+        }
       }
-      state = updated;
+      if (changed) state = updated;
     }
 
     _previousOwnedHashes = currentHashes;

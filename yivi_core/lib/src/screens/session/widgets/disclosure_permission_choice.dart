@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 
-import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
@@ -25,41 +24,6 @@ class DisclosurePermissionChoice extends StatelessWidget {
     cardBuilder,
   }) : _cardBuilder = cardBuilder;
 
-  /// Creates a choice widget for [CredentialDescriptor] options,
-  /// typically used in the issue-during-disclosure stepper.
-  factory DisclosurePermissionChoice.fromDescriptors({
-    Key? key,
-    required List<CredentialDescriptor> options,
-    required int selectedIndex,
-    required ValueChanged<int>? onChoiceUpdated,
-  }) {
-    return DisclosurePermissionChoice(
-      key: key,
-      optionCount: options.length,
-      selectedIndex: selectedIndex,
-      onChoiceUpdated: onChoiceUpdated != null
-          ? (index) {
-              // Only allow selecting obtainable options.
-              if (options[index].issueURL != null) {
-                onChoiceUpdated(index);
-              }
-            }
-          : null,
-      cardBuilder: (context, index, isSelected) {
-        final isObtainable = options[index].issueURL != null;
-        return Opacity(
-          opacity: isObtainable ? 1.0 : 0.5,
-          child: YiviCredentialCard.fromDescriptor(
-            descriptor: options[index],
-            compact: true,
-            style: IrmaCardStyle.highlighted,
-            headerTrailing: RadioIndicator(isSelected: isSelected),
-          ),
-        );
-      },
-    );
-  }
-
   /// Creates a choice widget for [IssuanceBundle] options. A single-credential
   /// bundle renders as one card; a multi-credential bundle renders as a column
   /// of cards (separated by `theme.smallSpacing`) with a single radio on the
@@ -71,7 +35,10 @@ class DisclosurePermissionChoice extends StatelessWidget {
     required int selectedIndex,
     required ValueChanged<int>? onChoiceUpdated,
   }) {
+    // A bundle without credentials cannot be obtained — guard explicitly so an
+    // empty `credentials` list doesn't satisfy `.every(...)` vacuously.
     bool isObtainable(IssuanceBundle bundle) =>
+        bundle.credentials.isNotEmpty &&
         bundle.credentials.every((c) => c.issueURL != null);
 
     return DisclosurePermissionChoice(

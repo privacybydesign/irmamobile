@@ -44,20 +44,27 @@ class _DisclosureChoicesOverviewState
   int get _sessionId => widget.sessionState.id;
 
   /// Returns the selected bundle index for a discon, defaulting to 0.
+  ///
+  /// Bundle identity is determined by *set equality* over credential hashes.
+  /// Two distinct bundles whose credentials hash to the same set would map to
+  /// the same index here — acceptable because in that case the disclosed
+  /// payload is identical. Falls back to 0 (silently) when no bundle matches,
+  /// e.g. after a credential was re-issued with a new hash.
   int _selectedIndexFor(int disconIndex) {
+    final overview =
+        widget.sessionState.disclosurePlan?.disclosureChoicesOverview;
+    if (overview == null ||
+        disconIndex < 0 ||
+        disconIndex >= overview.length) {
+      return 0;
+    }
     final userChoices = ref
         .read(sessionUserChoicesProvider(_sessionId))
         .disclosureChoices;
     if (!userChoices.containsKey(disconIndex)) return 0;
 
     final storedHashes = userChoices[disconIndex]!.credentialHashes;
-    final owned =
-        widget
-            .sessionState
-            .disclosurePlan
-            ?.disclosureChoicesOverview?[disconIndex]
-            .ownedOptions ??
-        [];
+    final owned = overview[disconIndex].ownedOptions ?? [];
     for (var i = 0; i < owned.length; i++) {
       final bundleHashes = owned[i].credentialHashes;
       if (bundleHashes.length == storedHashes.length &&

@@ -91,17 +91,35 @@ class DisclosureDisconStepper extends StatelessWidget {
   }
 
   IssuanceBundle _bundleForNonChoiceStep(IssuanceStep step, int stepIndex) {
+    bool isSatisfied(IssuanceBundle bundle) =>
+        bundle.credentials.isNotEmpty &&
+        bundle.credentials.every(
+          (d) => issuedCredentialIds.contains(d.credentialId),
+        );
+
+    // Clamp the selected index defensively so a stale selection cannot blow
+    // up. _buildFromSession already clamps, but the stepper may render with an
+    // index from a previous frame during transitions.
+    final rawSelected = stepIndex < selectedOptionPerStep.length
+        ? selectedOptionPerStep[stepIndex]
+        : 0;
+    final selectedIndex =
+        (rawSelected >= 0 && rawSelected < step.options.length)
+        ? rawSelected
+        : 0;
+
+    // Prefer the user-selected bundle. Only fall back to *some* satisfied
+    // bundle when the user has not made an explicit choice (or it isn't yet
+    // satisfied) — this still shows what the user has obtained when the step
+    // is in the past, without overriding the user's intent.
     if (step.options.length > 1) {
+      final selectedBundle = step.options[selectedIndex];
+      if (isSatisfied(selectedBundle)) return selectedBundle;
       for (final bundle in step.options) {
-        if (bundle.credentials.isNotEmpty &&
-            bundle.credentials.every(
-              (d) => issuedCredentialIds.contains(d.credentialId),
-            )) {
-          return bundle;
-        }
+        if (isSatisfied(bundle)) return bundle;
       }
     }
-    return step.options[selectedOptionPerStep[stepIndex]];
+    return step.options[selectedIndex];
   }
 
   /// Locate the first virtual step that belongs to the current
@@ -143,6 +161,14 @@ class DisclosureDisconStepper extends StatelessWidget {
     }
   }
 
+  int _clampedSelectedIndex(int stepIndex, IssuanceStep step) {
+    if (step.options.isEmpty) return 0;
+    final raw = stepIndex < selectedOptionPerStep.length
+        ? selectedOptionPerStep[stepIndex]
+        : 0;
+    return (raw >= 0 && raw < step.options.length) ? raw : 0;
+  }
+
   Widget _renderChoice(
     IrmaThemeData theme,
     IssuanceStep step,
@@ -160,7 +186,7 @@ class DisclosureDisconStepper extends StatelessWidget {
         ),
         DisclosurePermissionChoice.fromIssuanceBundles(
           options: step.options,
-          selectedIndex: selectedOptionPerStep[issuanceStepIndex],
+          selectedIndex: _clampedSelectedIndex(issuanceStepIndex, step),
           onChoiceUpdated: onChoiceUpdated != null
               ? (optionIndex) => onChoiceUpdated!((
                   stepIndex: issuanceStepIndex,

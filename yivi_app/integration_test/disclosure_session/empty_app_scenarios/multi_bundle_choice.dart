@@ -65,11 +65,13 @@ Future<void> multiBundleChoiceTest(
   );
   expect(choiceFinder, findsOneWidget);
 
-  // Bundle A's first card (Demo Root) is selected by default.
+  // Bundle A's first card (Demo Root) is selected by default. Both bundles
+  // are rendered side-by-side: Bundle A has 2 cards, Bundle B has 2 cards.
   final choiceCardsFinder = find.descendant(
     of: choiceFinder,
     matching: find.byType(YiviCredentialCard),
   );
+  expect(choiceCardsFinder, findsNWidgets(4));
   await evaluateCredentialCard(
     tester,
     choiceCardsFinder.first,
