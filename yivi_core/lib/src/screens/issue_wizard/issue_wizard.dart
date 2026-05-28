@@ -93,10 +93,7 @@ class _IssueWizardScreenState extends ConsumerState<IssueWizardScreen>
   }
 
   Future<void> _finish(IssueWizardEvent wizard) async {
-    final activeSessions = await _repo.hasActiveSessions();
-    if (!mounted) {
-      return; // can't do anything if our context vanished while awaiting
-    }
+    final activeSessions = _repo.hasActiveSessions();
 
     final navigator = Navigator.of(context);
     if (activeSessions) {

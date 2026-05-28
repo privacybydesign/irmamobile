@@ -112,13 +112,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   @override
   void dispose() {
-    // If the screen is being disposed while the session is still active, dismiss it.
+    // Dismiss unless we've already observed a terminal state. A null
+    // `_lastSession?.value` means Go hasn't emitted any state yet — that
+    // window exists because SessionScreen is now pushed before the first
+    // SessionStateEvent — and backing out during it must still dismiss the
+    // Go-side session.
     // We use cached values because ref is unsafe to use during dispose.
-    final session = _lastSession?.value;
-    if (session != null &&
-        session.status != SessionStatus.success &&
-        session.status != SessionStatus.error &&
-        session.status != SessionStatus.dismissed) {
+    final status = _lastSession?.value?.status;
+    final isTerminal =
+        status == SessionStatus.success ||
+        status == SessionStatus.error ||
+        status == SessionStatus.dismissed;
+    if (!isTerminal) {
       _repo.bridgedDispatch(
         SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
       );

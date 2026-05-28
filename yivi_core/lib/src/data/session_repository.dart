@@ -54,7 +54,9 @@ class SessionRepository {
       _newSessionIdsSubject.add(state.id);
     }
 
-    // Any new state for this session resolves a pending interaction.
+    // Any new state for this session resolves a pending interaction. Terminal
+    // statuses (success/error/dismissed) are also state events, so the entry
+    // is cleared on normal session completion as well.
     if (_awaitingInteraction.value.contains(state.id)) {
       final next = Set<int>.from(_awaitingInteraction.value)..remove(state.id);
       _awaitingInteraction.add(next);
@@ -112,7 +114,7 @@ class SessionRepository {
 
   /// Returns whether any session is currently in the requestPermission state.
   /// Optionally excludes a specific session ID from the check.
-  Future<bool> hasActiveSessions({int? excludeSessionId}) async {
+  bool hasActiveSessions({int? excludeSessionId}) {
     final states = _states.value;
     return states.entries.any(
       (e) => e.key != excludeSessionId && e.value.status == .requestPermission,

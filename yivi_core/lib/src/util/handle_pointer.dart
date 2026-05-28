@@ -42,14 +42,13 @@ void _startSession(
   BuildContext context,
   SessionPointer sessionPointer, {
   bool pushReplacement = false,
-}) async {
+}) {
   final repo = IrmaRepositoryProvider.of(context);
 
   final sessionId = repo.allocateSessionId();
   // Any session active at this moment is "underlying" — ours does not exist on
   // the Go side yet, so we don't need to exclude it.
-  final hasUnderlying = await repo.hasActiveSessions();
-  if (!context.mounted) return;
+  final hasUnderlying = repo.hasActiveSessions();
 
   repo.bridgedDispatch(
     NewSessionEvent(sessionId: sessionId, request: sessionPointer),

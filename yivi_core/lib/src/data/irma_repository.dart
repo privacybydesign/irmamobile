@@ -507,6 +507,10 @@ class IrmaRepository {
     return _sessionRepository.newSessionIds;
   }
 
+  // Resets to 0 on Flutter hot-restart while Go still holds prior ids.
+  // `sessionManager.NewSession` evicts the old entry but its goroutines may
+  // linger until they observe the eviction. Dev-only nuisance, not a
+  // production concern (production app starts from a clean Go state too).
   int _nextSessionId = 0;
 
   /// Allocates a session id for an outgoing [NewSessionEvent]. Dart owns id
@@ -514,7 +518,7 @@ class IrmaRepository {
   /// emitted the first session state.
   int allocateSessionId() => ++_nextSessionId;
 
-  Future<bool> hasActiveSessions({int? excludeSessionId}) {
+  bool hasActiveSessions({int? excludeSessionId}) {
     return _sessionRepository.hasActiveSessions(
       excludeSessionId: excludeSessionId,
     );
