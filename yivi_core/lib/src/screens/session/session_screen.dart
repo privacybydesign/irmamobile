@@ -36,10 +36,12 @@ import "widgets/session_scaffold.dart";
 
 /// Displays the current [SessionState] for a given session ID.
 ///
-/// This widget is purely presentational — it does not modify the session state.
-/// Navigation is driven externally: the [SchemalessSessionListener] pushes this
-/// screen when a new session appears, and this screen pops itself when the
-/// session status becomes [SessionStatus.dismissed].
+/// Pushed by [handlePointer] immediately after dispatching `NewSessionEvent`,
+/// with a Dart-allocated session id. While Go has not yet emitted the first
+/// state, the existing `asyncSession.isLoading` branch renders the loading
+/// screen — this is the spinner during the QR-scan → first-state window.
+/// The screen pops itself when the session status becomes
+/// [SessionStatus.dismissed].
 class SessionScreen extends ConsumerStatefulWidget {
   final int sessionId;
   final bool hasUnderlyingSession;

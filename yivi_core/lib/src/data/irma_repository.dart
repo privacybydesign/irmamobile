@@ -500,6 +500,13 @@ class IrmaRepository {
     return _sessionRepository.newSessionIds;
   }
 
+  int _nextSessionId = 0;
+
+  /// Allocates a session id for an outgoing [NewSessionEvent]. Dart owns id
+  /// allocation so [SessionScreen] can be pushed synchronously, before Go has
+  /// emitted the first session state.
+  int allocateSessionId() => ++_nextSessionId;
+
   Future<bool> hasActiveSessions({int? excludeSessionId}) {
     return _sessionRepository.hasActiveSessions(
       excludeSessionId: excludeSessionId,
