@@ -4,6 +4,7 @@ import "package:rxdart/rxdart.dart";
 
 import "../models/event.dart";
 import "../models/schemaless/session_state.dart";
+import "../models/schemaless/session_user_interaction.dart";
 import "irma_repository.dart";
 
 /// SessionRepository manages session states.
@@ -23,6 +24,10 @@ class SessionRepository {
   /// Emits session IDs the first time a [SessionStateEvent] is received for them.
   final _newSessionIdsSubject = PublishSubject<int>();
 
+  /// Session IDs whose last user interaction has been dispatched to Go but
+  /// for which no follow-up [SessionStateEvent] has yet arrived.
+  final _awaitingInteraction = BehaviorSubject<Set<int>>.seeded({});
+
   SessionRepository({required this.repo, required Stream<Event> eventStream}) {
     eventStream.listen(_handleEvent);
   }
@@ -30,6 +35,9 @@ class SessionRepository {
   void _handleEvent(Event event) {
     if (event is SessionStateEvent) {
       _handleSessionStateEvent(event);
+    } else if (event is SessionUserInteractionEvent &&
+        event.type != UserInteractionType.dismiss) {
+      _markAwaitingInteraction(event.sessionId);
     }
   }
 
@@ -45,7 +53,25 @@ class SessionRepository {
     if (isNew) {
       _newSessionIdsSubject.add(state.id);
     }
+
+    // Any new state for this session resolves a pending interaction.
+    if (_awaitingInteraction.value.contains(state.id)) {
+      final next = Set<int>.from(_awaitingInteraction.value)..remove(state.id);
+      _awaitingInteraction.add(next);
+    }
   }
+
+  void _markAwaitingInteraction(int sessionId) {
+    if (_awaitingInteraction.value.contains(sessionId)) return;
+    final next = Set<int>.from(_awaitingInteraction.value)..add(sessionId);
+    _awaitingInteraction.add(next);
+  }
+
+  /// Stream of whether [sessionId] is currently waiting for the next state.
+  Stream<bool> isAwaitingInteraction(int sessionId) => _awaitingInteraction
+      .stream
+      .map((set) => set.contains(sessionId))
+      .distinct();
 
   /// Stream that emits session IDs when a new session is first seen.
   Stream<int> get newSessionIds => _newSessionIdsSubject.stream;
@@ -94,6 +120,10 @@ class SessionRepository {
   }
 
   Future<void> close() async {
-    await Future.wait([_states.close(), _newSessionIdsSubject.close()]);
+    await Future.wait([
+      _states.close(),
+      _newSessionIdsSubject.close(),
+      _awaitingInteraction.close(),
+    ]);
   }
 }

@@ -65,9 +65,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// the issuance confirmation screen.
   List<DisclosureDisconSelection>? _pendingDisclosureChoices;
 
-  /// True after dispatching a user interaction (PIN, permission grant, etc.)
-  /// until the next [SessionState] arrives from the backend.
-  bool _awaitingStateUpdate = false;
   bool _hasLongPin = false;
 
   /// Whether the disclosure introduction screen should be shown.
@@ -132,14 +129,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   @override
   Widget build(BuildContext context) {
     final asyncSession = ref.watch(sessionStateProvider(widget.sessionId));
+    final isAwaiting =
+        ref.watch(sessionAwaitingInteractionProvider(widget.sessionId)).value ??
+        false;
     _lastSession = asyncSession;
-
-    // Reset the awaiting flag when a new session state arrives.
-    ref.listen(sessionStateProvider(widget.sessionId), (prev, next) {
-      if (_awaitingStateUpdate && next.hasValue) {
-        setState(() => _awaitingStateUpdate = false);
-      }
-    });
 
     // Track the latest non-null remainingTxCodeAttempts so that, if the
     // session subsequently errors out, we can detect the tx_code-lockout
@@ -171,7 +164,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // Show loading while waiting for a state update after user interaction,
     // except when on the PIN screen — it handles its own loading overlay
     // and must stay mounted so didUpdateWidget can detect wrong PIN attempts.
-    if (_awaitingStateUpdate && asyncSession.value?.status != .requestPin) {
+    if (isAwaiting && asyncSession.value?.status != .requestPin) {
       return _buildLoadingScreen(asyncSession.value);
     }
 
@@ -211,7 +204,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             title: _getAppBarTitle(session),
             remainingAttempts: session.remainingPinAttempts,
             blockedTimeSeconds: session.pinBlockedTimeSeconds,
-            submitting: _awaitingStateUpdate,
+            submitting: isAwaiting,
             maxPinSize: _hasLongPin ? 16 : 5,
             onPinEntered: (pin) => _submitPin(pin),
             onCancel: _dismissSession,
@@ -336,7 +329,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _submitPin(String pin) {
-    setState(() => _awaitingStateUpdate = true);
     _repo.bridgedDispatch(
       SessionUserInteractionEvent.pin(
         sessionId: widget.sessionId,
@@ -398,7 +390,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   void _grantPermission(List<DisclosureDisconSelection> disclosureChoices) {
-    setState(() => _awaitingStateUpdate = true);
     final repo = ref.read(irmaRepositoryProvider);
     repo.bridgedDispatch(
       SessionUserInteractionEvent.permission(
@@ -569,7 +560,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     SessionState session, {
     required String? transactionCode,
   }) {
-    setState(() => _awaitingStateUpdate = true);
     _repo.bridgedDispatch(
       SessionUserInteractionEvent.preAuthorizedCodePermission(
         sessionId: session.id,

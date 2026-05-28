@@ -491,6 +491,13 @@ class IrmaRepository {
     return _sessionRepository.getSessionState(sessionId);
   }
 
+  /// Whether [sessionId] has a user interaction dispatched to Go that's still
+  /// waiting on a response state event. Cleared automatically when the next
+  /// state arrives.
+  Stream<bool> isSessionAwaitingInteraction(int sessionId) {
+    return _sessionRepository.isAwaitingInteraction(sessionId);
+  }
+
   Stream<SessionState> getSessionStateByOpenID4VCIState(String sessionState) {
     return _sessionRepository.getSessionStateByOpenID4VCIState(sessionState);
   }
