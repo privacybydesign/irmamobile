@@ -22,6 +22,11 @@ dependencies:
   camera: ^0.10.0+4
   smart_auth: ^3.2.0
   pinput: ^6.0.1
+  # Used only by `lib/credential_card_previews.dart` to pre-load Alexandria /
+  # Open Sans for widget previews. Loaded at runtime from Google's CDN so the
+  # previews don't depend on bundled-font asset resolution, which is flaky
+  # under `flutter widget-preview`.
+  google_fonts: ^8.1.0
 
 dev_dependencies:
   integration_test:
