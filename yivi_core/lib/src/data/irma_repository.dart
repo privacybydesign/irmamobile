@@ -7,6 +7,7 @@ import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_web_auth_2/flutter_web_auth_2.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
@@ -209,47 +210,10 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
-        // --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
-        if (event.url.startsWith("https://open.yivi.app/-/auth-callback")) {
-          final uri = Uri.parse(event.url);
-          final state = uri.queryParameters["state"];
-          if (state == null) {
-            throw MissingPointer(
-              details:
-                  'expected "state" to be present in query parameters, but wasn\'t',
-            );
-          }
-
-          final code = uri.queryParameters["code"];
-          if (code == null) {
-            throw MissingPointer(
-              details:
-                  'expected "code" to be present in query parameters, but wasn\'t',
-            );
-          }
-
-          final sessionStream = _sessionRepository
-              .getSessionStateByOpenID4VCIState(state);
-          if (await sessionStream.isEmpty) {
-            throw MissingPointer(
-              details: 'No session found for state value "$state"',
-            );
-          }
-
-          final session = await sessionStream.first;
-          bridgedDispatch(
-            SessionUserInteractionEvent.authCallback(
-              sessionId: session.id,
-              code: code,
-              proceed: true,
-            ),
-          );
-
-          // TODO: check if Success/Failure will pop to the correct screen
-          closeInAppWebView();
+        if (event.url.startsWith("app.yivi.open://callback")) {
+          await handleOpenID4VCIAuthCallback(event.url);
           return;
         }
-        // --- END TODO
 
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
@@ -898,6 +862,57 @@ class IrmaRepository {
     if (!hasOpened) {
       throw Exception("url could not be opened: $url");
     }
+  }
+
+  /// Drive an OpenID4VCI authorization-code flow through an
+  /// `ASWebAuthenticationSession` (iOS) / Chrome Custom Tab + activity callback
+  /// (Android). The session is dismissed automatically when the issuer
+  /// redirects to `app.yivi.open://callback`, and the resulting URL is
+  /// handed off to [handleOpenID4VCIAuthCallback].
+  Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async {
+    _resumedFromBrowserSubject.add(true);
+    final result = await FlutterWebAuth2.authenticate(
+      url: authorizationRequestUrl,
+      callbackUrlScheme: "app.yivi.open",
+    );
+    await handleOpenID4VCIAuthCallback(result);
+  }
+
+  Future<void> handleOpenID4VCIAuthCallback(String url) async {
+    final uri = Uri.parse(url);
+    final state = uri.queryParameters["state"];
+    if (state == null) {
+      throw MissingPointer(
+        details:
+            'expected "state" to be present in query parameters, but wasn\'t',
+      );
+    }
+
+    final code = uri.queryParameters["code"];
+    if (code == null) {
+      throw MissingPointer(
+        details:
+            'expected "code" to be present in query parameters, but wasn\'t',
+      );
+    }
+
+    final sessionStream = _sessionRepository.getSessionStateByOpenID4VCIState(
+      state,
+    );
+    if (await sessionStream.isEmpty) {
+      throw MissingPointer(
+        details: 'No session found for state value "$state"',
+      );
+    }
+
+    final session = await sessionStream.first;
+    bridgedDispatch(
+      SessionUserInteractionEvent.authCallback(
+        sessionId: session.id,
+        code: code,
+        proceed: true,
+      ),
+    );
   }
 
   void startTestSessionFromUrl(String url) {

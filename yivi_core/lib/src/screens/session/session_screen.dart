@@ -162,7 +162,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         _grantPreAuthorizedCode(session, transactionCode: null);
       } else if (session.status == SessionStatus.requestAuthorizationCode) {
         _autoTriggeredForOpenID4VCI = true;
-        _repo.openURLinAppBrowser(session.authorizationRequestUrl!);
+        _repo.authenticateOpenID4VCI(session.authorizationRequestUrl!);
       }
     });
 
@@ -328,7 +328,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     return OpenID4VCIAuthCodePendingScreen(
       issuer: session.offeredCredentialTypes!.first.issuer,
       onOpenBrowser: () =>
-          _repo.openURLinAppBrowser(session.authorizationRequestUrl!),
+          _repo.authenticateOpenID4VCI(session.authorizationRequestUrl!),
       onDismiss: _dismissSession,
     );
   }

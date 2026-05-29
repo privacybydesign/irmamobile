@@ -45,6 +45,7 @@
 	  <string>eudi-openid4vp</string>
 	  <string>openid4vp</string>
 	  <string>openid-credential-offer</string>
+	  <string>app.yivi.open</string>
 	</array>
       </dict>
     </array>
