@@ -31,6 +31,19 @@ abstract class Pointer {
   });
 
   factory Pointer.fromString(String content) {
+    const universalLinkHosts = {"open.yivi.app", "open.staging.yivi.app"};
+    final parsed = Uri.tryParse(content);
+    if (parsed != null &&
+        parsed.scheme == "https" &&
+        universalLinkHosts.contains(parsed.host)) {
+      if (parsed.path == "/-/openid4vp" || parsed.path == "/-/openid4vp/") {
+        content = "openid4vp://?${parsed.query}";
+      } else if (parsed.path == "/-/openid-credential-offer" ||
+          parsed.path == "/-/openid-credential-offer/") {
+        content = "openid-credential-offer://?${parsed.query}";
+      }
+    }
+
     if (content.startsWith("eudi-openid4vp://") ||
         content.startsWith("openid4vp://")) {
       final uri = Uri.parse(content);
