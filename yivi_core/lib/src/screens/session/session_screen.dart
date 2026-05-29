@@ -134,9 +134,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   @override
   Widget build(BuildContext context) {
     final asyncSession = ref.watch(sessionStateProvider(widget.sessionId));
-    final isAwaiting =
-        ref.watch(sessionAwaitingInteractionProvider(widget.sessionId)).value ??
-        false;
+    final isAwaiting = ref.watch(
+      sessionAwaitingInteractionProvider(widget.sessionId),
+    );
     _lastSession = asyncSession;
 
     // Track the latest non-null remainingTxCodeAttempts so that, if the

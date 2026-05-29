@@ -498,6 +498,13 @@ class IrmaRepository {
     return _sessionRepository.isAwaitingInteraction(sessionId);
   }
 
+  /// Synchronous companion to [isSessionAwaitingInteraction]. Useful in the
+  /// first build of a freshly-mounted screen, before the stream provider has
+  /// delivered its seed value.
+  bool isSessionAwaitingInteractionNow(int sessionId) {
+    return _sessionRepository.isAwaitingInteractionNow(sessionId);
+  }
+
   Stream<SessionState> getSessionStateByOpenID4VCIState(String sessionState) {
     return _sessionRepository.getSessionStateByOpenID4VCIState(sessionState);
   }
@@ -525,8 +532,8 @@ class IrmaRepository {
   }
 
   /// Dismisses all sessions that are currently in the requestPermission state.
-  Future<void> dismissAllActiveSessions() async {
-    final activeSessionIds = await _sessionRepository.getActiveSessionIds();
+  void dismissAllActiveSessions() {
+    final activeSessionIds = _sessionRepository.getActiveSessionIds();
     for (final sessionId in activeSessionIds) {
       bridgedDispatch(
         SessionUserInteractionEvent.dismiss(sessionId: sessionId),

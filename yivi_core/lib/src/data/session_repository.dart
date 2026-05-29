@@ -75,6 +75,12 @@ class SessionRepository {
       .map((set) => set.contains(sessionId))
       .distinct();
 
+  /// Synchronous read of the current awaiting-interaction state. Used as a
+  /// fallback for the first build after a SessionScreen remounts, before the
+  /// stream subscription has delivered its seed value.
+  bool isAwaitingInteractionNow(int sessionId) =>
+      _awaitingInteraction.value.contains(sessionId);
+
   /// Stream that emits session IDs when a new session is first seen.
   Stream<int> get newSessionIds => _newSessionIdsSubject.stream;
 
@@ -105,7 +111,7 @@ class SessionRepository {
   }
 
   /// Returns the IDs of all sessions currently in the requestPermission state.
-  Future<List<int>> getActiveSessionIds() async {
+  List<int> getActiveSessionIds() {
     return _states.value.entries
         .where((e) => e.value.status == .requestPermission)
         .map((e) => e.key)
