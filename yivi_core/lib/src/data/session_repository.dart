@@ -69,8 +69,7 @@ class SessionRepository {
     // terminal emission. Prevents `_states` from growing unboundedly across
     // the app lifetime.
     if (_isTerminalStatus(state.status)) {
-      final cleaned = Map<int, SessionState>.from(nextStates)
-        ..remove(state.id);
+      final cleaned = Map<int, SessionState>.from(nextStates)..remove(state.id);
       _states.add(UnmodifiableMapView(cleaned));
     }
   }

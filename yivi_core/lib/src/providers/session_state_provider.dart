@@ -37,8 +37,6 @@ class SessionAwaitingInteractionNotifier extends Notifier<bool> {
 }
 
 final sessionAwaitingInteractionProvider =
-    NotifierProvider.family<
-      SessionAwaitingInteractionNotifier,
-      bool,
-      int
-    >((sessionId) => SessionAwaitingInteractionNotifier(sessionId));
+    NotifierProvider.family<SessionAwaitingInteractionNotifier, bool, int>(
+      (sessionId) => SessionAwaitingInteractionNotifier(sessionId),
+    );
