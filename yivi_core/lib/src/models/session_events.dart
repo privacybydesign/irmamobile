@@ -12,7 +12,12 @@ abstract class SessionEvent extends Event {
 
 @JsonSerializable(createFactory: false, fieldRename: .snake)
 class NewSessionEvent extends SessionEvent {
-  NewSessionEvent({required this.request});
+  NewSessionEvent({required this.sessionId, required this.request});
+
+  /// Caller-supplied id (allocated by [IrmaRepository.allocateSessionId]).
+  /// The Go side uses this as the session's identifier so the mobile UI can
+  /// mount [SessionScreen] synchronously without waiting for the first state.
+  final int sessionId;
 
   final SessionPointer request;
 

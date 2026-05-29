@@ -491,6 +491,20 @@ class IrmaRepository {
     return _sessionRepository.getSessionState(sessionId);
   }
 
+  /// Whether [sessionId] has a user interaction dispatched to Go that's still
+  /// waiting on a response state event. Cleared automatically when the next
+  /// state arrives.
+  Stream<bool> isSessionAwaitingInteraction(int sessionId) {
+    return _sessionRepository.isAwaitingInteraction(sessionId);
+  }
+
+  /// Synchronous companion to [isSessionAwaitingInteraction]. Useful in the
+  /// first build of a freshly-mounted screen, before the stream provider has
+  /// delivered its seed value.
+  bool isSessionAwaitingInteractionNow(int sessionId) {
+    return _sessionRepository.isAwaitingInteractionNow(sessionId);
+  }
+
   Stream<SessionState> getSessionStateByOpenID4VCIState(String sessionState) {
     return _sessionRepository.getSessionStateByOpenID4VCIState(sessionState);
   }
@@ -500,15 +514,26 @@ class IrmaRepository {
     return _sessionRepository.newSessionIds;
   }
 
-  Future<bool> hasActiveSessions({int? excludeSessionId}) {
+  // Resets to 0 on Flutter hot-restart while Go still holds prior ids.
+  // `sessionManager.NewSession` evicts the old entry but its goroutines may
+  // linger until they observe the eviction. Dev-only nuisance, not a
+  // production concern (production app starts from a clean Go state too).
+  int _nextSessionId = 0;
+
+  /// Allocates a session id for an outgoing [NewSessionEvent]. Dart owns id
+  /// allocation so [SessionScreen] can be pushed synchronously, before Go has
+  /// emitted the first session state.
+  int allocateSessionId() => ++_nextSessionId;
+
+  bool hasActiveSessions({int? excludeSessionId}) {
     return _sessionRepository.hasActiveSessions(
       excludeSessionId: excludeSessionId,
     );
   }
 
   /// Dismisses all sessions that are currently in the requestPermission state.
-  Future<void> dismissAllActiveSessions() async {
-    final activeSessionIds = await _sessionRepository.getActiveSessionIds();
+  void dismissAllActiveSessions() {
+    final activeSessionIds = _sessionRepository.getActiveSessionIds();
     for (final sessionId in activeSessionIds) {
       bridgedDispatch(
         SessionUserInteractionEvent.dismiss(sessionId: sessionId),

@@ -30,6 +30,12 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
 
+  # Used only by `lib/credential_card_previews.dart` to pre-load Alexandria /
+  # Open Sans for widget previews. Loaded at runtime from Google's CDN so the
+  # previews don't depend on bundled-font asset resolution, which is flaky
+  # under `flutter widget-preview`.
+  google_fonts: ^8.1.0
+
   # the following packages are required by the integration tests
   vcmrtd:
     git:

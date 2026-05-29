@@ -95,7 +95,7 @@ func (ah *eventHandler) changePin(event *changePinEvent) (err error) {
 
 // Start a new IRMA session
 func (ah *eventHandler) newSession(event *newSessionEvent) (err error) {
-	yiviClient.NewSession(string(event.Request))
+	yiviClient.NewSession(event.SessionId, string(event.Request))
 	return nil
 }
 

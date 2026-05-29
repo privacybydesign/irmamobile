@@ -7,7 +7,10 @@ part of 'session_events.dart';
 // **************************************************************************
 
 Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) =>
-    <String, dynamic>{'request': instance.request};
+    <String, dynamic>{
+      'session_id': instance.sessionId,
+      'request': instance.request,
+    };
 
 RespondPreAuthorizedCodeFlowPermissionEvent
 _$RespondPreAuthorizedCodeFlowPermissionEventFromJson(

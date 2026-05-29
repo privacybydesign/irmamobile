@@ -34,31 +34,33 @@ Future<void> handlePointer(
   }
 }
 
-/// Dispatches a NewSessionEvent to Go and pushes the session screen
-/// when Go responds with a [SessionStateEvent] containing the session ID.
+/// Dispatches a NewSessionEvent to Go and pushes [SessionScreen] synchronously.
+/// The session id is allocated Dart-side so the screen can mount immediately
+/// and render its existing "no state yet" loading branch while Go contacts
+/// the relying party.
 void _startSession(
   BuildContext context,
   SessionPointer sessionPointer, {
   bool pushReplacement = false,
 }) {
   final repo = IrmaRepositoryProvider.of(context);
-  repo.bridgedDispatch(NewSessionEvent(request: sessionPointer));
 
-  // Listen for the next new session ID and push the session screen.
-  repo.getNewSessionIds().first.then((sessionId) async {
-    if (!context.mounted) return;
-    final hasUnderlying = await repo.hasActiveSessions(
-      excludeSessionId: sessionId,
-    );
-    if (!context.mounted) return;
-    final params = SessionRouteParams(
-      sessionId: sessionId,
-      hasUnderlyingSession: hasUnderlying,
-    );
-    if (pushReplacement) {
-      context.pushReplacementSessionScreen(params);
-    } else {
-      context.pushSessionScreen(params);
-    }
-  });
+  final sessionId = repo.allocateSessionId();
+  // Any session active at this moment is "underlying" — ours does not exist on
+  // the Go side yet, so we don't need to exclude it.
+  final hasUnderlying = repo.hasActiveSessions();
+
+  repo.bridgedDispatch(
+    NewSessionEvent(sessionId: sessionId, request: sessionPointer),
+  );
+
+  final params = SessionRouteParams(
+    sessionId: sessionId,
+    hasUnderlyingSession: hasUnderlying,
+  );
+  if (pushReplacement) {
+    context.pushReplacementSessionScreen(params);
+  } else {
+    context.pushSessionScreen(params);
+  }
 }

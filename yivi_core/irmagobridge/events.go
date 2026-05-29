@@ -30,7 +30,8 @@ type changePinEvent struct {
 }
 
 type newSessionEvent struct {
-	Request json.RawMessage `json:"request"`
+	SessionId int             `json:"session_id"`
+	Request   json.RawMessage `json:"request"`
 }
 
 type sessionUserInteractionEvent struct {
