@@ -61,7 +61,24 @@ class SessionRepository {
       final next = Set<int>.from(_awaitingInteraction.value)..remove(state.id);
       _awaitingInteraction.add(next);
     }
+
+    // Mirror Go's session eviction on terminal status: emit the terminal state
+    // first so consumers (SessionScreen, integration tests) observe it, then
+    // drop the entry from the map. The second emit is filtered out by
+    // [getSessionState]'s `containsKey` guard, so subscribers see exactly one
+    // terminal emission. Prevents `_states` from growing unboundedly across
+    // the app lifetime.
+    if (_isTerminalStatus(state.status)) {
+      final cleaned = Map<int, SessionState>.from(nextStates)
+        ..remove(state.id);
+      _states.add(UnmodifiableMapView(cleaned));
+    }
   }
+
+  static bool _isTerminalStatus(SessionStatus status) =>
+      status == SessionStatus.success ||
+      status == SessionStatus.error ||
+      status == SessionStatus.dismissed;
 
   void _markAwaitingInteraction(int sessionId) {
     if (_awaitingInteraction.value.contains(sessionId)) return;
