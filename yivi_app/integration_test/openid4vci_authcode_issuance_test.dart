@@ -66,14 +66,13 @@ void main() {
   // Capture the auth-code flow's ASWebAuthenticationSession call so the test
   // can deliver the issuer's redirect URL on demand via [dispatchAuthCallback].
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(
-        const MethodChannel("flutter_web_auth_2"),
-        (call) async {
-          final completer = Completer<String>();
-          _pendingAuthCompleter = completer;
-          return completer.future;
-        },
-      );
+      .setMockMethodCallHandler(const MethodChannel("flutter_web_auth_2"), (
+        call,
+      ) async {
+        final completer = Completer<String>();
+        _pendingAuthCompleter = completer;
+        return completer.future;
+      });
 
   group("openid4vci-authcode-issuance", () {
     setUp(() => irmaBinding.setUp());
