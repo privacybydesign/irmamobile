@@ -470,8 +470,10 @@ class IrmaRepository {
     return _sessionRepository.isAwaitingInteractionNow(sessionId);
   }
 
-  Stream<SessionState> getSessionStateByOpenID4VCIState(String sessionState) {
-    return _sessionRepository.getSessionStateByOpenID4VCIState(sessionState);
+  SessionState? getCurrentSessionStateByOpenID4VCIState(String sessionState) {
+    return _sessionRepository.getCurrentSessionStateByOpenID4VCIState(
+      sessionState,
+    );
   }
 
   /// Stream that emits session IDs when a new session is first seen.
@@ -874,10 +876,19 @@ class IrmaRepository {
   /// is then handed off to [handleOpenID4VCIAuthCallback].
   Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async {
     _resumedFromBrowserSubject.add(true);
-    final result = await FlutterWebAuth2.authenticate(
-      url: authorizationRequestUrl,
-      callbackUrlScheme: "app.yivi.open",
-    );
+    final String result;
+    try {
+      result = await FlutterWebAuth2.authenticate(
+        url: authorizationRequestUrl,
+        callbackUrlScheme: "app.yivi.open",
+      );
+    } on PlatformException catch (e) {
+      // User dismissed the browser sheet. The session stays in
+      // `requestAuthorizationCode`; the pending screen lets them retry or
+      // dismiss. Anything else (e.g. the browser couldn't open) bubbles up.
+      if (e.code == "CANCELED") return;
+      rethrow;
+    }
     await handleOpenID4VCIAuthCallback(result);
   }
 
@@ -899,16 +910,15 @@ class IrmaRepository {
       );
     }
 
-    final sessionStream = _sessionRepository.getSessionStateByOpenID4VCIState(
+    final session = _sessionRepository.getCurrentSessionStateByOpenID4VCIState(
       state,
     );
-    if (await sessionStream.isEmpty) {
+    if (session == null) {
       throw MissingPointer(
         details: 'No session found for state value "$state"',
       );
     }
 
-    final session = await sessionStream.first;
     bridgedDispatch(
       SessionUserInteractionEvent.authCallback(
         sessionId: session.id,
