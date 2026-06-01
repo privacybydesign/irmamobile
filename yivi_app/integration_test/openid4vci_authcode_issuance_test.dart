@@ -13,6 +13,7 @@ import "package:url_launcher_platform_interface/link.dart";
 // ignore: depend_on_referenced_packages
 import "package:url_launcher_platform_interface/url_launcher_platform_interface.dart";
 import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
@@ -63,16 +64,17 @@ void main() {
         (call) async => null,
       );
 
-  // Capture the auth-code flow's ASWebAuthenticationSession call so the test
-  // can deliver the issuer's redirect URL on demand via [dispatchAuthCallback].
+  // Stub the auth-code flow's ASWebAuthenticationSession call so it never
+  // resolves. The test drives the callback via a synthetic HandleURLEvent
+  // dispatched in [dispatchAuthCallback]; the wallet's `HandleURLEvent`
+  // matcher routes that through the same `handleOpenID4VCIAuthCallback` the
+  // live AS path would have called. The pending auth future just dangles
+  // (fire-and-forget) until the test tears down.
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(const MethodChannel("flutter_web_auth_2"), (
-        call,
-      ) async {
-        final completer = Completer<String>();
-        _pendingAuthCompleter = completer;
-        return completer.future;
-      });
+      .setMockMethodCallHandler(
+        const MethodChannel("flutter_web_auth_2"),
+        (call) => Completer<String>().future,
+      );
 
   group("openid4vci-authcode-issuance", () {
     setUp(() => irmaBinding.setUp());
@@ -138,7 +140,7 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
     issuerState: offer.issuerState,
     walletState: walletState,
   );
-  await dispatchAuthCallback(
+  dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,
     code: code,
@@ -228,7 +230,7 @@ Future<void> testIssueOrganizationOpenID4VCIAuthCode(
   );
 
   // Wallet auto-launched the browser; dispatch the synthetic redirect.
-  await dispatchAuthCallback(
+  dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,
     code: code,
@@ -338,7 +340,7 @@ Future<void> testDismissOnIssuancePermissionScreen(
   );
 
   // Browser auto-launched; dispatch the synthetic redirect to advance state.
-  await dispatchAuthCallback(
+  dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,
     code: code,
@@ -487,30 +489,22 @@ Future<String> getAuthCodeFromMockAS({
   return code;
 }
 
-/// Most-recently captured auth-session completer, set by the
-/// `flutter_web_auth_2` method-channel mock and resolved by
-/// [dispatchAuthCallback].
-Completer<String>? _pendingAuthCompleter;
-
-/// Mimics the issuer's authorization endpoint redirecting to the bounce page
-/// at `https://open.yivi.app/-/auth-callback?...`, which JS-redirects to
-/// `app.yivi.open://auth-callback?...` and is captured by
-/// `ASWebAuthenticationSession`. The wallet's `authenticateOpenID4VCI` call
-/// then runs its `handleOpenID4VCIAuthCallback` path, which looks up the
-/// in-flight session by `walletState` and dispatches a
-/// [SessionUserInteractionEvent.authCallback].
-Future<void> dispatchAuthCallback(
+/// Mimics the OS delivering the `https://open.yivi.app/-/auth-callback` deep
+/// link after the user returns from the browser. The repository's
+/// `HandleURLEvent` matcher looks up the in-flight session by `walletState`
+/// and dispatches a [SessionUserInteractionEvent.authCallback] through
+/// `handleOpenID4VCIAuthCallback` — the same handler the production AS path
+/// (`authenticateOpenID4VCI` → `FlutterWebAuth2.authenticate`) would feed.
+void dispatchAuthCallback(
   IrmaRepository repo, {
   required String walletState,
   required String code,
-}) async {
-  while (_pendingAuthCompleter == null) {
-    await Future<void>.delayed(const Duration(milliseconds: 20));
-  }
-  final completer = _pendingAuthCompleter!;
-  _pendingAuthCompleter = null;
-  completer.complete(
-    "app.yivi.open://auth-callback?state=$walletState&code=$code",
+}) {
+  repo.dispatch(
+    HandleURLEvent(
+      url:
+          "https://open.yivi.app/-/auth-callback?state=$walletState&code=$code",
+    ),
   );
 }
 
