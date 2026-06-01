@@ -4,6 +4,8 @@ PODS:
   - Flutter (1.0.0)
   - flutter_nfc_kit (3.6.0):
     - Flutter
+  - flutter_web_auth_2 (3.0.0):
+    - Flutter
   - google_mlkit_commons (0.11.0):
     - Flutter
     - MLKitVision
@@ -107,6 +109,7 @@ DEPENDENCIES:
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Flutter (from `Flutter`)
   - flutter_nfc_kit (from `.symlinks/plugins/flutter_nfc_kit/ios`)
+  - flutter_web_auth_2 (from `.symlinks/plugins/flutter_web_auth_2/ios`)
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
@@ -149,6 +152,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_nfc_kit:
     :path: ".symlinks/plugins/flutter_nfc_kit/ios"
+  flutter_web_auth_2:
+    :path: ".symlinks/plugins/flutter_web_auth_2/ios"
   google_mlkit_commons:
     :path: ".symlinks/plugins/google_mlkit_commons/ios"
   google_mlkit_text_recognition:
@@ -184,6 +189,7 @@ SPEC CHECKSUMS:
   camera_avfoundation: 5675ca25298b6f81fa0a325188e7df62cc217741
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_nfc_kit: e1b71583eafd2c9650bc86844a7f2d185fb414f6
+  flutter_web_auth_2: 5c8d9dcd7848b5a9efb086d24e7a9adcae979c80
   google_mlkit_commons: 2abe6a70e1824e431d16a51085cb475b672c8aab
   google_mlkit_text_recognition: ec2122ec89bfe0d7200763336a6e4ef44810674c
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7

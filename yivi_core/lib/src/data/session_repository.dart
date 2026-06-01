@@ -107,18 +107,15 @@ class SessionRepository {
         .map((map) => map[sessionId]!);
   }
 
-  /// Returns a stream of [SessionState] for the given session ID.
-  Stream<SessionState> getSessionStateByOpenID4VCIState(String sessionState) {
-    return _states
-        .where(
-          (map) =>
-              map.values.any((state) => state.openID4VCIState == sessionState),
-        )
-        .map(
-          (map) => map.values.firstWhere(
-            (state) => state.openID4VCIState == sessionState,
-          ),
-        );
+  /// Synchronous lookup of a [SessionState] by its OpenID4VCI `state` value
+  /// (the OAuth `state` parameter we minted when starting the auth-code flow).
+  /// Returns `null` if no matching in-flight session exists — e.g. the wallet
+  /// was restarted between launching the browser and the callback firing.
+  SessionState? getCurrentSessionStateByOpenID4VCIState(String sessionState) {
+    for (final state in _states.value.values) {
+      if (state.openID4VCIState == sessionState) return state;
+    }
+    return null;
   }
 
   /// Returns the current [SessionState] for the given session ID, if available.

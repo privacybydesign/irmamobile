@@ -21,6 +21,7 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
     irmaqr: json['irmaqr'] as String,
     protocol: _protocolFromJsonAlwaysIrma(json['protocol'] as String?),
     continueOnSecondDevice: json['continue_on_second_device'] as bool? ?? false,
+    openid4vciRedirectUri: json['openid4vci_redirect_uri'] as String?,
   );
 }
 
@@ -30,6 +31,7 @@ Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) =>
       'irmaqr': instance.irmaqr,
       'protocol': protocolToString(instance.protocol),
       'continue_on_second_device': instance.continueOnSecondDevice,
+      'openid4vci_redirect_uri': ?instance.openid4vciRedirectUri,
     };
 
 SessionError _$SessionErrorFromJson(Map<String, dynamic> json) => SessionError(

@@ -30,6 +30,7 @@ dependencies:
   equatable: ^2.0.3
   email_validator: ^3.0.0
   url_launcher: ^6.0.10
+  flutter_web_auth_2: ^4.1.0
   json_annotation: ^4.9.0
   rxdart: ^0.28.0
   package_info_plus: ^9.0.0

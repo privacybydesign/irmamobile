@@ -32,10 +32,19 @@ abstract class Pointer {
 
   factory Pointer.fromString(String content) {
     const universalLinkHosts = {"open.yivi.app", "open.staging.yivi.app"};
+
+    // OAuth `redirect_uri` for OpenID4VCI auth-code / pre-auth-code flows.
+    // Default to production; if the inbound URL is a universal link on a
+    // recognized host (notably the staging host), derive the callback URI
+    // from that host so staging issuers redirect back to the staging
+    // bounce page. The wallet ships this to the Go core per-session.
+    String openid4vciRedirectUri = "https://open.yivi.app/-/auth-callback";
+
     final parsed = Uri.tryParse(content);
     if (parsed != null &&
         parsed.scheme == "https" &&
         universalLinkHosts.contains(parsed.host)) {
+      openid4vciRedirectUri = "https://${parsed.host}/-/auth-callback";
       if (parsed.path == "/-/openid4vp" || parsed.path == "/-/openid4vp/") {
         content = "openid4vp://?${parsed.query}";
       } else if (parsed.path == "/-/openid-credential-offer" ||
@@ -82,6 +91,7 @@ abstract class Pointer {
         u: content,
         irmaqr: "issuing",
         protocol: Protocol.openid4vci,
+        openid4vciRedirectUri: openid4vciRedirectUri,
       );
     }
 
@@ -212,11 +222,20 @@ class SessionPointer implements Pointer {
   /// To make sure we can override its value if necessary, the field is not final fow now.
   bool continueOnSecondDevice;
 
+  /// OAuth `redirect_uri` for OpenID4VCI auth-code / pre-auth-code flows.
+  /// Populated only for [Protocol.openid4vci] pointers; derived from the
+  /// inbound universal link's host so staging-host offers redirect to the
+  /// staging bounce page (`https://open.staging.yivi.app/-/auth-callback`).
+  /// Forwarded as `openid4vci_redirect_uri` to the Go core's session request.
+  @JsonKey(name: "openid4vci_redirect_uri", includeIfNull: false)
+  final String? openid4vciRedirectUri;
+
   SessionPointer({
     required this.u,
     required this.irmaqr,
     required this.protocol,
     this.continueOnSecondDevice = false,
+    this.openid4vciRedirectUri,
   });
 
   factory SessionPointer.fromJson(Map<String, dynamic> json) =>
@@ -261,6 +280,9 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   @override
   Protocol get protocol => _sessionPointer.protocol;
+
+  @override
+  String? get openid4vciRedirectUri => _sessionPointer.openid4vciRedirectUri;
 
   @override
   Map<String, dynamic> toJson() => {

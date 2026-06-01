@@ -7,6 +7,7 @@ import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_web_auth_2/flutter_web_auth_2.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
@@ -209,47 +210,11 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
-        // --- TODO: extract to a separate URL handler class, and move the yivi-app callback handling there as well
-        if (event.url.startsWith("https://open.yivi.app/-/auth-callback")) {
-          final uri = Uri.parse(event.url);
-          final state = uri.queryParameters["state"];
-          if (state == null) {
-            throw MissingPointer(
-              details:
-                  'expected "state" to be present in query parameters, but wasn\'t',
-            );
-          }
-
-          final code = uri.queryParameters["code"];
-          if (code == null) {
-            throw MissingPointer(
-              details:
-                  'expected "code" to be present in query parameters, but wasn\'t',
-            );
-          }
-
-          final sessionStream = _sessionRepository
-              .getSessionStateByOpenID4VCIState(state);
-          if (await sessionStream.isEmpty) {
-            throw MissingPointer(
-              details: 'No session found for state value "$state"',
-            );
-          }
-
-          final session = await sessionStream.first;
-          bridgedDispatch(
-            SessionUserInteractionEvent.authCallback(
-              sessionId: session.id,
-              code: code,
-              proceed: true,
-            ),
-          );
-
-          // TODO: check if Success/Failure will pop to the correct screen
-          closeInAppWebView();
+        if (event.url.startsWith("app.yivi.open://auth-callback") ||
+            event.url.startsWith("https://open.yivi.app/-/auth-callback")) {
+          await handleOpenID4VCIAuthCallback(event.url);
           return;
         }
-        // --- END TODO
 
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
@@ -505,8 +470,10 @@ class IrmaRepository {
     return _sessionRepository.isAwaitingInteractionNow(sessionId);
   }
 
-  Stream<SessionState> getSessionStateByOpenID4VCIState(String sessionState) {
-    return _sessionRepository.getSessionStateByOpenID4VCIState(sessionState);
+  SessionState? getCurrentSessionStateByOpenID4VCIState(String sessionState) {
+    return _sessionRepository.getCurrentSessionStateByOpenID4VCIState(
+      sessionState,
+    );
   }
 
   /// Stream that emits session IDs when a new session is first seen.
@@ -898,6 +865,67 @@ class IrmaRepository {
     if (!hasOpened) {
       throw Exception("url could not be opened: $url");
     }
+  }
+
+  /// Drive an OpenID4VCI authorization-code flow through an
+  /// `ASWebAuthenticationSession` (iOS) / Chrome Custom Tab + activity callback
+  /// (Android). The OAuth `redirect_uri` is the universal link
+  /// `https://open.yivi.app/-/auth-callback` (set in irmago). A bounce page
+  /// at that URL JS-redirects to `app.yivi.open://auth-callback?...`, which
+  /// the auth session intercepts via `callbackUrlScheme`. The resulting URL
+  /// is then handed off to [handleOpenID4VCIAuthCallback].
+  Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async {
+    _resumedFromBrowserSubject.add(true);
+    final String result;
+    try {
+      result = await FlutterWebAuth2.authenticate(
+        url: authorizationRequestUrl,
+        callbackUrlScheme: "app.yivi.open",
+      );
+    } on PlatformException catch (e) {
+      // User dismissed the browser sheet. The session stays in
+      // `requestAuthorizationCode`; the pending screen lets them retry or
+      // dismiss. Anything else (e.g. the browser couldn't open) bubbles up.
+      if (e.code == "CANCELED") return;
+      rethrow;
+    }
+    await handleOpenID4VCIAuthCallback(result);
+  }
+
+  Future<void> handleOpenID4VCIAuthCallback(String url) async {
+    final uri = Uri.parse(url);
+    final state = uri.queryParameters["state"];
+    if (state == null) {
+      throw MissingPointer(
+        details:
+            'expected "state" to be present in query parameters, but wasn\'t',
+      );
+    }
+
+    final code = uri.queryParameters["code"];
+    if (code == null) {
+      throw MissingPointer(
+        details:
+            'expected "code" to be present in query parameters, but wasn\'t',
+      );
+    }
+
+    final session = _sessionRepository.getCurrentSessionStateByOpenID4VCIState(
+      state,
+    );
+    if (session == null) {
+      throw MissingPointer(
+        details: 'No session found for state value "$state"',
+      );
+    }
+
+    bridgedDispatch(
+      SessionUserInteractionEvent.authCallback(
+        sessionId: session.id,
+        code: code,
+        proceed: true,
+      ),
+    );
   }
 
   void startTestSessionFromUrl(String url) {

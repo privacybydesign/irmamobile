@@ -1,3 +1,4 @@
+import "dart:async";
 import "dart:convert";
 import "dart:io";
 
@@ -55,14 +56,24 @@ void main() {
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   // Replace the real url_launcher / in-app-browser plumbing with no-ops so the
-  // wallet's `openURLinAppBrowser` call does not throw on the simulator. The
-  // synthetic `HandleURLEvent` we dispatch from the test takes the place of
-  // whatever the real browser would have done.
+  // wallet's url-launching calls do not throw on the simulator.
   UrlLauncherPlatform.instance = _NoOpUrlLauncherPlatform();
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
         const MethodChannel("irma.app/iiab"),
         (call) async => null,
+      );
+
+  // Stub the auth-code flow's ASWebAuthenticationSession call so it never
+  // resolves. The test drives the callback via a synthetic HandleURLEvent
+  // dispatched in [dispatchAuthCallback]; the wallet's `HandleURLEvent`
+  // matcher routes that through the same `handleOpenID4VCIAuthCallback` the
+  // live AS path would have called. The pending auth future just dangles
+  // (fire-and-forget) until the test tears down.
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+        const MethodChannel("flutter_web_auth_2"),
+        (call) => Completer<String>().future,
       );
 
   group("openid4vci-authcode-issuance", () {
@@ -478,9 +489,12 @@ Future<String> getAuthCodeFromMockAS({
   return code;
 }
 
-/// Mimics the OS delivering the `https://open.yivi.app/-/auth-callback` deep link after the
-/// user returns from the browser. The repository looks up the in-flight session
-/// by `walletState` and dispatches a [SessionUserInteractionEvent.authCallback].
+/// Mimics the OS delivering the `https://open.yivi.app/-/auth-callback` deep
+/// link after the user returns from the browser. The repository's
+/// `HandleURLEvent` matcher looks up the in-flight session by `walletState`
+/// and dispatches a [SessionUserInteractionEvent.authCallback] through
+/// `handleOpenID4VCIAuthCallback` — the same handler the production AS path
+/// (`authenticateOpenID4VCI` → `FlutterWebAuth2.authenticate`) would feed.
 void dispatchAuthCallback(
   IrmaRepository repo, {
   required String walletState,

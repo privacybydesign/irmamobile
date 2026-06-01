@@ -71,6 +71,16 @@
               <data android:scheme="openid-credential-offer" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
+            android:exported="true">
+            <intent-filter android:label="flutter_web_auth_2">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="app.yivi.open" />
+            </intent-filter>
+        </activity>
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
