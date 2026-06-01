@@ -493,8 +493,9 @@ Future<String> getAuthCodeFromMockAS({
 /// [dispatchAuthCallback].
 Completer<String>? _pendingAuthCompleter;
 
-/// Mimics the issuer's authorization endpoint redirecting to
-/// `app.yivi.wallet://callback?...` and that redirect being captured by
+/// Mimics the issuer's authorization endpoint redirecting to the bounce page
+/// at `https://open.yivi.app/-/auth-callback?...`, which JS-redirects to
+/// `app.yivi.open://auth-callback?...` and is captured by
 /// `ASWebAuthenticationSession`. The wallet's `authenticateOpenID4VCI` call
 /// then runs its `handleOpenID4VCIAuthCallback` path, which looks up the
 /// in-flight session by `walletState` and dispatches a
@@ -510,7 +511,7 @@ Future<void> dispatchAuthCallback(
   final completer = _pendingAuthCompleter!;
   _pendingAuthCompleter = null;
   completer.complete(
-    "app.yivi.wallet://callback?state=$walletState&code=$code",
+    "app.yivi.open://auth-callback?state=$walletState&code=$code",
   );
 }
 

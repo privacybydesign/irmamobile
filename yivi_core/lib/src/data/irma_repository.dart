@@ -210,7 +210,8 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
-        if (event.url.startsWith("app.yivi.open://callback")) {
+        if (event.url.startsWith("app.yivi.open://auth-callback") ||
+            event.url.startsWith("https://open.yivi.app/-/auth-callback")) {
           await handleOpenID4VCIAuthCallback(event.url);
           return;
         }
@@ -866,9 +867,11 @@ class IrmaRepository {
 
   /// Drive an OpenID4VCI authorization-code flow through an
   /// `ASWebAuthenticationSession` (iOS) / Chrome Custom Tab + activity callback
-  /// (Android). The session is dismissed automatically when the issuer
-  /// redirects to `app.yivi.open://callback`, and the resulting URL is
-  /// handed off to [handleOpenID4VCIAuthCallback].
+  /// (Android). The OAuth `redirect_uri` is the universal link
+  /// `https://open.yivi.app/-/auth-callback` (set in irmago). A bounce page
+  /// at that URL JS-redirects to `app.yivi.open://auth-callback?...`, which
+  /// the auth session intercepts via `callbackUrlScheme`. The resulting URL
+  /// is then handed off to [handleOpenID4VCIAuthCallback].
   Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async {
     _resumedFromBrowserSubject.add(true);
     final result = await FlutterWebAuth2.authenticate(
