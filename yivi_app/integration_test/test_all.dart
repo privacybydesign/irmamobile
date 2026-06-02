@@ -14,6 +14,7 @@ import "enroll_test.dart" as enroll_test;
 import "eudi_disclosure_sessions/eudi_disclosure_sessions_test_all.dart"
     as eudi_disclosure_sessions;
 import "external_browser_credtypes_test.dart" as external_browser_test;
+import "idle_lock_test.dart" as idle_lock_test;
 import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
 // import "issue_wizard_test.dart" as issue_wizard_test;
@@ -43,6 +44,7 @@ void main() {
   qr_on_pin_screen_test.main();
   rooted_warning_test.main();
   enroll_test.main();
+  idle_lock_test.main();
   login_test.main();
   settings_test.main();
   issuance_test.main();

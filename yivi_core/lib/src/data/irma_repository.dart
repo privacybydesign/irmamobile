@@ -121,7 +121,6 @@ class IrmaRepository {
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
   final _blockedSubject = BehaviorSubject<DateTime?>();
-  final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
   final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _credentialObtainState = BehaviorSubject<_CredentialObtainState>();
@@ -152,7 +151,6 @@ class IrmaRepository {
       _changePinEventSubject.close(),
       _lockedSubject.close(),
       _blockedSubject.close(),
-      _lastActiveTimeSubject.close(),
       _pendingPointerSubject.close(),
       _preferencesSubject.close(),
       _credentialObtainState.close(),
@@ -233,7 +231,6 @@ class IrmaRepository {
       preferences.clearAll();
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
-        _lastActiveTimeSubject.add(DateTime.now());
         _resumedWithURLSubject.add(false);
       }
     } else if (event is ClientPreferencesEvent) {
@@ -526,11 +523,6 @@ class IrmaRepository {
 
   Stream<Pointer?> getPendingPointer() {
     return _pendingPointerSubject.stream;
-  }
-
-  // -- lastActiveTime
-  Stream<DateTime> getLastActiveTime() {
-    return _lastActiveTimeSubject.stream;
   }
 
   Stream<bool> getDeveloperMode() {

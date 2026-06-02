@@ -18,6 +18,7 @@ import "package_name.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
+import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
 
 const schemeUpdateIntervalHours = 3;
@@ -25,8 +26,14 @@ const schemeUpdateIntervalHours = 3;
 class App extends ConsumerStatefulWidget {
   final Locale? forcedLocale;
   final NotificationsBloc notificationsBloc;
+  final Duration? idleLockThreshold;
 
-  const App({super.key, required this.notificationsBloc, this.forcedLocale});
+  const App({
+    super.key,
+    required this.notificationsBloc,
+    this.forcedLocale,
+    this.idleLockThreshold,
+  });
 
   @override
   ConsumerState<App> createState() => AppState();
@@ -43,13 +50,6 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
   // router, as that will automatically preserve its state during rebuilds.
   // This method is kind of a workaround for now.
   late final GoRouter _router;
-
-  // We keep track of the last two life cycle states
-  // to be able to determine the flow
-  List<AppLifecycleState> prevLifeCycleStates = List.filled(
-    2,
-    AppLifecycleState.detached,
-  );
 
   AppState();
 
@@ -142,45 +142,10 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     final repo = ref.read(irmaRepositoryProvider);
     repo.dispatch(AppLifecycleChangedEvent(state));
 
-    // Resumed = when the app regains focus after being inactive or paused in the background
     if (state == AppLifecycleState.resumed) {
       _handleUpdateSchemes();
       widget.notificationsBloc.add(LoadNotifications());
     }
-
-    // We check the transition goes from paused -> inactive -> resumed
-    // because the transition inactive -> resumed can also happen
-    // in scenarios where the app is not closed. Like an apple pay
-    // authentication request or a phone call that interrupts
-    // the app but doesn't pause it. In those cases we don't open
-    // the QR scanner.
-    // Note: on some phones, the events arrive in the other order
-    // (inactive -> paused), so we just check that both of them are
-    // present in prevLifeCycleStates (which is of size 2).
-    if (prevLifeCycleStates.contains(AppLifecycleState.paused) &&
-        prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
-        state == AppLifecycleState.resumed) {
-      final status = await repo.getEnrollmentStatus().firstWhere(
-        (status) => status != EnrollmentStatus.undetermined,
-      );
-      // First check whether we should redo pin verification
-      final lastActive = await repo.getLastActiveTime().first;
-      final locked = await repo.getLocked().first;
-
-      if (status == EnrollmentStatus.enrolled) {
-        if (!locked &&
-            lastActive.isBefore(
-              DateTime.now().subtract(const Duration(minutes: 5)),
-            )) {
-          repo.lock();
-        }
-      }
-    }
-
-    // TODO: Use this detection also to reset the _showSplash and _removeSplash
-    // variables.
-    prevLifeCycleStates[0] = prevLifeCycleStates[1];
-    prevLifeCycleStates[1] = state;
   }
 
   void _listenScreenshotPref() {
@@ -209,16 +174,19 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     ]);
     return IrmaTheme(
       builder: (BuildContext context) {
-        return MaterialApp.router(
-          key: const Key("app"),
-          title: "Yivi",
-          theme: IrmaTheme.of(context).themeData,
-          localizationsDelegates: defaultLocalizationsDelegates(
-            widget.forcedLocale,
+        return IdleLockObserver(
+          idleThreshold: widget.idleLockThreshold ?? const Duration(minutes: 5),
+          child: MaterialApp.router(
+            key: const Key("app"),
+            title: "Yivi",
+            theme: IrmaTheme.of(context).themeData,
+            localizationsDelegates: defaultLocalizationsDelegates(
+              widget.forcedLocale,
+            ),
+            supportedLocales: defaultSupportedLocales(),
+            showSemanticsDebugger: false,
+            routerConfig: _router,
           ),
-          supportedLocales: defaultSupportedLocales(),
-          showSemanticsDebugger: false,
-          routerConfig: _router,
         );
       },
     );

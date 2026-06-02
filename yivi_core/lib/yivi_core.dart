@@ -97,8 +97,9 @@ Future<void> runYiviApp({
 
 class YiviApp extends ConsumerWidget {
   final Locale? defaultLanguage;
+  final Duration? idleLockThreshold;
 
-  const YiviApp({super.key, this.defaultLanguage});
+  const YiviApp({super.key, this.defaultLanguage, this.idleLockThreshold});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,6 +139,7 @@ class YiviApp extends ConsumerWidget {
               return App(
                 forcedLocale: appLocale,
                 notificationsBloc: notificationsBloc,
+                idleLockThreshold: idleLockThreshold,
               );
             },
           ),

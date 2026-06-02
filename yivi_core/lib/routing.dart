@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:mrz_parser/mrz_parser.dart";
@@ -35,6 +36,7 @@ import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
 import "src/screens/help/help_screen.dart";
 import "src/screens/home/home_screen.dart";
+import "src/screens/home/widgets/irma_nav_bar.dart";
 import "src/screens/home/widgets/irma_qr_scan_button.dart";
 import "src/screens/issue_wizard/issue_wizard.dart";
 import "src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart";
@@ -109,7 +111,13 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               builder: (context) {
                 return TermsChangedListener(
                   child: PinScreen(
-                    onAuthenticated: context.goHomeScreenWithoutTransition,
+                    onAuthenticated: () {
+                      // Reset the bottom-tab selection so a fresh unlock
+                      // always lands on the data tab, regardless of which
+                      // tab the user was on when the app locked.
+                      context.read<HomeTabState>().add(IrmaNavBarTab.data);
+                      context.goHomeScreenWithoutTransition();
+                    },
                     leading: YiviAppBarQrCodeButton(
                       onTap: () => openQrCodeScanner(
                         context,
