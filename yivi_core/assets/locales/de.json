@@ -444,10 +444,14 @@
       "pending": {
         "title": "Daten hinzufügen",
         "header": "Im Browser fortfahren",
-        "body": "Wir haben den Browser geöffnet, damit Sie die Schritte bei {issuer} abschließen können. Wenn Sie fertig sind, kehren Sie automatisch hierher zurück.",
-        "open_browser": "Browser erneut öffnen",
+        "body": "Um die folgenden Daten zu Ihrer Brieftasche hinzuzufügen, fahren Sie im Browser fort. Wenn Sie fertig sind, kehren Sie automatisch hierher zurück.",
+        "open_browser": "Browser öffnen",
         "cancel": "Abbrechen"
       }
+    },
+    "requestor_verification": {
+      "verified_suffix": "möchte Daten zu Ihrer Brieftasche hinzufügen. Dies ist eine bekannte Partei, die sich bei Yivi registriert hat.",
+      "unverified_suffix": "möchte Daten zu Ihrer Brieftasche hinzufügen. Warnung: Diese Partei ist Yivi nicht bekannt."
     }
   },
   "email_issuance": {

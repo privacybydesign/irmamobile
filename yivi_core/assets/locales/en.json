@@ -444,10 +444,14 @@
       "pending": {
         "title": "Add data",
         "header": "Continue in your browser",
-        "body": "We've opened the browser so you can complete the steps at {issuer}. When you're done, you'll return here automatically.",
-        "open_browser": "Open browser again",
+        "body": "To add the following data to your wallet, continue in the browser. You'll return here automatically when you're done.",
+        "open_browser": "Open browser",
         "cancel": "Cancel"
       }
+    },
+    "requestor_verification": {
+      "verified_suffix": "wants to add data to your wallet. This is a known party that has registered itself with Yivi.",
+      "unverified_suffix": "wants to add data to your wallet. Warning: this party is not known by Yivi."
     }
   },
   "email_issuance": {

@@ -48,6 +48,10 @@ class ActivityDetailIssuance extends StatelessWidget {
           RequestorHeader(
             requestor: requestor,
             isVerified: requestor?.verified,
+            verifiedSuffixKey:
+                "issuance.requestor_verification.verified_suffix",
+            unverifiedSuffixKey:
+                "issuance.requestor_verification.unverified_suffix",
           ),
           SizedBox(height: theme.defaultSpacing),
         ],

@@ -28,8 +28,15 @@ _buildRequestorAvatar({
 class RequestorHeader extends StatelessWidget {
   final TrustedParty? requestor;
   final bool? isVerified;
+  final String verifiedSuffixKey;
+  final String unverifiedSuffixKey;
 
-  const RequestorHeader({this.requestor, this.isVerified});
+  const RequestorHeader({
+    this.requestor,
+    this.isVerified,
+    required this.verifiedSuffixKey,
+    required this.unverifiedSuffixKey,
+  });
 
   _showCredentialOptionsBottomSheet(BuildContext context) {
     return showYiviBottomSheet(
@@ -82,12 +89,10 @@ class RequestorHeader extends StatelessWidget {
 
       if (isVerified!) {
         backgroundColorOverride = theme.success.withAlpha(opacity);
-        mainTextSuffixTranslationKey =
-            "disclosure_permission.overview.requestor_verification.verified_suffix";
+        mainTextSuffixTranslationKey = verifiedSuffixKey;
       } else {
         backgroundColorOverride = theme.error.withAlpha(opacity);
-        mainTextSuffixTranslationKey =
-            "disclosure_permission.overview.requestor_verification.unverified_suffix";
+        mainTextSuffixTranslationKey = unverifiedSuffixKey;
       }
 
       // Wrap the avatar in a Stack and position the verification status indicator

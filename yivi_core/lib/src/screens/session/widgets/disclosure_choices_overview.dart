@@ -252,6 +252,10 @@ class _DisclosureChoicesOverviewState
               RequestorHeader(
                 requestor: session.requestor,
                 isVerified: session.requestor.verified,
+                verifiedSuffixKey:
+                    "disclosure_permission.overview.requestor_verification.verified_suffix",
+                unverifiedSuffixKey:
+                    "disclosure_permission.overview.requestor_verification.unverified_suffix",
               ),
 
               if (widget.hasIssueDuringDisclosure)
