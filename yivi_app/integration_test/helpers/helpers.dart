@@ -61,6 +61,7 @@ Future<void> pumpYiviApp(
   Locale? defaultLanguage,
   List<Override>? providerOverrides,
   bool isDeviceRooted = false,
+  Duration? idleLockThreshold,
 }) async {
   await tester.pumpWidgetAndSettle(
     ProviderScope(
@@ -76,6 +77,7 @@ Future<void> pumpYiviApp(
       child: TestContext(
         child: YiviApp(
           defaultLanguage: defaultLanguage ?? const Locale("en", "EN"),
+          idleLockThreshold: idleLockThreshold,
         ),
       ),
     ),
@@ -95,6 +97,7 @@ Future<void> pumpAndUnlockApp(
   Locale? defaultLanguage,
   List<Override>? providerOverrides,
   bool isDeviceRooted = false,
+  Duration? idleLockThreshold,
 }) async {
   await pumpYiviApp(
     tester,
@@ -102,6 +105,7 @@ Future<void> pumpAndUnlockApp(
     defaultLanguage: defaultLanguage,
     providerOverrides: providerOverrides,
     isDeviceRooted: isDeviceRooted,
+    idleLockThreshold: idleLockThreshold,
   );
   await unlockAndWaitForHome(tester);
 }
