@@ -323,7 +323,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // screen to launch the issuer flow. Shown on first entry and whenever
     // the user returns to the app without completing the browser flow.
     return OpenID4VCIAuthCodePendingScreen(
-      requestor: session.requestor,
       offeredCredentialTypes: session.offeredCredentialTypes!,
       onOpenBrowser: () =>
           _repo.authenticateOpenID4VCI(session.authorizationRequestUrl!),

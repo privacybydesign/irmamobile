@@ -451,7 +451,11 @@
     },
     "requestor_verification": {
       "verified_suffix": "möchte Daten zu Ihrer Brieftasche hinzufügen. Dies ist eine bekannte Partei, die sich bei Yivi registriert hat.",
-      "unverified_suffix": "möchte Daten zu Ihrer Brieftasche hinzufügen. Warnung: Diese Partei ist Yivi nicht bekannt."
+      "unverified_suffix": "möchte Daten zu Ihrer Brieftasche hinzufügen. Warnung: Diese Partei ist Yivi nicht bekannt.",
+      "multi_issuer_verified_bold": "Mehrere Parteien",
+      "multi_issuer_verified_suffix": " möchten Daten zu Ihrer Brieftasche hinzufügen. Alle sind Yivi bekannt.",
+      "multi_issuer_unverified_bold": "Mehrere Parteien",
+      "multi_issuer_unverified_suffix": " möchten Daten zu Ihrer Brieftasche hinzufügen. Warnung: Nicht alle sind Yivi bekannt."
     }
   },
   "email_issuance": {

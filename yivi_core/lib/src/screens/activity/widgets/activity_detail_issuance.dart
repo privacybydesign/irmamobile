@@ -16,7 +16,6 @@ class ActivityDetailIssuance extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     final issuanceLog = logEntry.issuanceLog!;
-    final requestor = issuanceLog.issuer;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,14 +44,10 @@ class ActivityDetailIssuance extends StatelessWidget {
             isHeader: true,
           ),
           SizedBox(height: theme.smallSpacing),
-          RequestorHeader(
-            requestor: requestor,
-            isVerified: requestor?.verified,
-            verifiedSuffixKey:
-                "issuance.requestor_verification.verified_suffix",
-            unverifiedSuffixKey:
-                "issuance.requestor_verification.unverified_suffix",
-          ),
+          if (issuanceLog.credentials.isNotEmpty)
+            IssuersHeader(
+              issuers: issuanceLog.credentials.map((c) => c.issuer).toList(),
+            ),
           SizedBox(height: theme.defaultSpacing),
         ],
         TranslatedText(

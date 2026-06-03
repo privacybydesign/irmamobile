@@ -22,7 +22,6 @@ import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/openid4vci_authcode_pending_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
-import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "helpers/helpers.dart";
 import "irma_binding.dart";
@@ -143,14 +142,12 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
   );
 
   // Pending confirmation screen: the user must tap "Open browser" before the
-  // browser is launched. Verify the RequestorHeader is on screen and that the
-  // credential name + issuer name appear so the user knows what they're about
-  // to consent to. The issuer name renders in both the header and the card,
-  // hence findsAtLeast(1).
+  // browser is launched. Verify the RequestorHeader is on screen, reports
+  // unverified (VCI issuers are always unverified), and that the credential
+  // name appears so the user knows what they're about to consent to.
   await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
-  expect(find.byType(RequestorHeader), findsOneWidget);
+  expectRequestorHeader(tester, verified: false, issuerName: "AuthCode Issuer");
   expect(find.text("Email Credential (SD-JWT)"), findsOneWidget);
-  expect(find.text("AuthCode Issuer"), findsAtLeast(1));
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   dispatchAuthCallback(
@@ -159,8 +156,10 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
     code: code,
   );
 
-  // Permission screen: IssuancePermission with filled values
+  // Permission screen: IssuancePermission with filled values. The
+  // RequestorHeader continues to report unverified for the VCI issuer.
   await tester.waitFor(find.byType(IssuancePermission));
+  expectRequestorHeader(tester, verified: false, issuerName: "AuthCode Issuer");
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard).first,

@@ -451,7 +451,11 @@
     },
     "requestor_verification": {
       "verified_suffix": "wil gegevens aan je wallet toevoegen. Dit is een bekende partij die zich bij Yivi heeft geregistreerd.",
-      "unverified_suffix": "wil gegevens aan je wallet toevoegen. Waarschuwing: deze partij is niet bekend bij Yivi."
+      "unverified_suffix": "wil gegevens aan je wallet toevoegen. Waarschuwing: deze partij is niet bekend bij Yivi.",
+      "multi_issuer_verified_bold": "Meerdere partijen",
+      "multi_issuer_verified_suffix": " willen gegevens aan je wallet toevoegen. Allemaal zijn ze bekend bij Yivi.",
+      "multi_issuer_unverified_bold": "Meerdere partijen",
+      "multi_issuer_unverified_suffix": " willen gegevens aan je wallet toevoegen. Waarschuwing: niet allemaal zijn ze bekend bij Yivi."
     }
   },
   "email_issuance": {

@@ -68,6 +68,14 @@ Future<void> testIssuanceLowInstanceCountNoReobtainButtonDuringIssuance(
   var issuancePageFinder = find.byType(IssuancePermission);
   await tester.waitFor(issuancePageFinder);
 
+  // IRMA-scheme requestors land at verified=true via
+  // requestorInfoToTrustedParty in irmago client/session_handler.go.
+  expectRequestorHeader(
+    tester,
+    verified: true,
+    issuerName: "Demo Privacy by Design Foundation via SIDN",
+  );
+
   // Make sure it's not shown as nearly expired even though the instance count is low.
   // We don't want to show a re-obtain button during issuance...
   await evaluateCredentialCard(

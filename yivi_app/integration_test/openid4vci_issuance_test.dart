@@ -165,8 +165,10 @@ Future<void> testIssueEmailOpenID4VCI(
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
   // No tx code: the wallet auto-grants and lands directly on IssuancePermission
-  // with filled values.
+  // with filled values. The header reports unverified because VCI issuers are
+  // always unverified by irmago (see eudi/openid4vci/client.go convertToTrustedParty).
   await tester.waitFor(find.byType(IssuancePermission));
+  expectRequestorHeader(tester, verified: false, issuerName: "Test Issuer");
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard).first,

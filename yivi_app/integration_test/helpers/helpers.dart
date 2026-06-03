@@ -26,6 +26,7 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_heade
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/irma_icon_indicator.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -241,6 +242,10 @@ Future<void> issueCredentials(
   var issuancePageFinder = find.byType(IssuancePermission);
   await tester.waitFor(issuancePageFinder);
 
+  // IRMA-scheme requestors land at verified=true via
+  // requestorInfoToTrustedParty in irmago client/session_handler.go.
+  expectRequestorHeader(tester, verified: true, locale: locale);
+
   // Check whether all credentials are displayed.
   expect(
     find.byType(YiviCredentialCard),
@@ -362,6 +367,75 @@ Future<void> evaluateRequestor(
     matching: find.text(expectedName),
   );
   expect(nameFinder, findsOneWidget);
+}
+
+/// Asserts that a RequestorHeader is on screen on an issuance flow and
+/// reports the expected verification state via its IrmaStatusIndicator.
+/// When [issuerName] is supplied, asserts the exact concatenated text
+/// `[issuerName] [suffix]` inside the header's RichText. When omitted,
+/// only asserts the suffix substring (useful from shared helpers where the
+/// requestor's display name depends on backend setup). The suffix strings
+/// mirror `issuance.requestor_verification.{verified,unverified}_suffix` —
+/// bump them here if the i18n is reworded. Pass [locale] when asserting on
+/// non-English flows so the right translation is checked.
+void expectRequestorHeader(
+  WidgetTester tester, {
+  required bool verified,
+  String? issuerName,
+  Locale locale = const Locale("en", "EN"),
+}) {
+  expect(find.byType(RequestorHeader), findsOneWidget);
+  final indicator = tester.widget<IrmaStatusIndicator>(
+    find.byType(IrmaStatusIndicator),
+  );
+  expect(indicator.success, verified);
+
+  const suffixesByLanguage = {
+    "en": (
+      verified:
+          "wants to add data to your wallet. "
+          "This is a known party that has registered itself with Yivi.",
+      unverified:
+          "wants to add data to your wallet. "
+          "Warning: this party is not known by Yivi.",
+    ),
+    "nl": (
+      verified:
+          "wil gegevens aan je wallet toevoegen. "
+          "Dit is een bekende partij die zich bij Yivi heeft geregistreerd.",
+      unverified:
+          "wil gegevens aan je wallet toevoegen. "
+          "Waarschuwing: deze partij is niet bekend bij Yivi.",
+    ),
+    "de": (
+      verified:
+          "möchte Daten zu Ihrer Brieftasche hinzufügen. "
+          "Dies ist eine bekannte Partei, die sich bei Yivi registriert hat.",
+      unverified:
+          "möchte Daten zu Ihrer Brieftasche hinzufügen. "
+          "Warnung: Diese Partei ist Yivi nicht bekannt.",
+    ),
+  };
+  final pair = suffixesByLanguage[locale.languageCode];
+  if (pair == null) {
+    fail(
+      "expectRequestorHeader has no suffix strings for locale "
+      "'${locale.languageCode}'. Add them to suffixesByLanguage.",
+    );
+  }
+  final suffix = verified ? pair.verified : pair.unverified;
+
+  if (issuerName != null) {
+    expect(
+      find.text("$issuerName $suffix", findRichText: true),
+      findsOneWidget,
+    );
+  } else {
+    expect(
+      find.textContaining(suffix, findRichText: true),
+      findsAtLeast(1),
+    );
+  }
 }
 
 /// One label-value entry in an [attributes] list. The value is one of:

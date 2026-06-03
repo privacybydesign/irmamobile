@@ -451,7 +451,11 @@
     },
     "requestor_verification": {
       "verified_suffix": "wants to add data to your wallet. This is a known party that has registered itself with Yivi.",
-      "unverified_suffix": "wants to add data to your wallet. Warning: this party is not known by Yivi."
+      "unverified_suffix": "wants to add data to your wallet. Warning: this party is not known by Yivi.",
+      "multi_issuer_verified_bold": "Multiple parties",
+      "multi_issuer_verified_suffix": " want to add data to your wallet. All of them are known by Yivi.",
+      "multi_issuer_unverified_bold": "Multiple parties",
+      "multi_issuer_unverified_suffix": " want to add data to your wallet. Warning: not all of them are known by Yivi."
     }
   },
   "email_issuance": {
