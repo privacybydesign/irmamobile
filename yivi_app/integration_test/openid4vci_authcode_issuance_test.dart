@@ -140,14 +140,26 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
     issuerState: offer.issuerState,
     walletState: walletState,
   );
+
+  // Pending confirmation screen: the user must tap "Open browser" before the
+  // browser is launched. Verify the RequestorHeader is on screen, reports
+  // unverified (VCI issuers are always unverified), and that the credential
+  // name appears so the user knows what they're about to consent to.
+  await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
+  expectRequestorHeader(tester, verified: false, issuerName: "AuthCode Issuer");
+  expect(find.text("Email Credential (SD-JWT)"), findsOneWidget);
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
   dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,
     code: code,
   );
 
-  // Permission screen: IssuancePermission with filled values
+  // Permission screen: IssuancePermission with filled values. The
+  // RequestorHeader continues to report unverified for the VCI issuer.
   await tester.waitFor(find.byType(IssuancePermission));
+  expectRequestorHeader(tester, verified: false, issuerName: "AuthCode Issuer");
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard).first,
@@ -229,7 +241,10 @@ Future<void> testIssueOrganizationOpenID4VCIAuthCode(
     walletState: walletState,
   );
 
-  // Wallet auto-launched the browser; dispatch the synthetic redirect.
+  // Confirm and launch via the pending screen, then dispatch the synthetic
+  // redirect to mimic the browser callback.
+  await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,
@@ -295,8 +310,9 @@ Future<void> testDismissOnPendingScreen(
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
-  // The wallet auto-launches the browser. Without a synthetic redirect, the
-  // session stays in requestAuthorizationCode and the pending screen renders.
+  // When the session enters requestAuthorizationCode, the pending screen is
+  // rendered awaiting the user to tap "Open browser". Without that tap, no
+  // browser launch happens and the session stays put.
   await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
 
   // Tap "Cancel" to dismiss the session directly.
@@ -339,7 +355,10 @@ Future<void> testDismissOnIssuancePermissionScreen(
     walletState: walletState,
   );
 
-  // Browser auto-launched; dispatch the synthetic redirect to advance state.
+  // Confirm and launch via the pending screen, then dispatch the synthetic
+  // redirect to advance state.
+  await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
+  await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
   dispatchAuthCallback(
     irmaBinding.repository,
     walletState: walletState,

@@ -157,6 +157,10 @@ class _IssueDuringDisclosureScreenState
                       RequestorHeader(
                         requestor: requestor,
                         isVerified: requestor.verified,
+                        verifiedSuffixKey:
+                            "disclosure_permission.overview.requestor_verification.verified_suffix",
+                        unverifiedSuffixKey:
+                            "disclosure_permission.overview.requestor_verification.unverified_suffix",
                       ),
                     SessionProgressIndicator(
                       step: 1,

@@ -77,9 +77,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// Whether the user has acknowledged the issuance-during-disclosure completion.
   bool _issueDuringDisclosureAcknowledged = false;
 
-  /// True after the OID4VCI side effect (auto-grant or browser launch) has
-  /// fired for the current session, so we don't fire it again on rebuilds or
-  /// when the user returns from a cancelled browser flow.
+  /// True after the OID4VCI pre-auth auto-grant has fired for the current
+  /// session, so we don't fire it again on rebuilds.
   bool _autoTriggeredForOpenID4VCI = false;
 
   /// Tracks the most recent non-null `remainingTxCodeAttempts`. When the
@@ -160,9 +159,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           session.transactionCodeParameters == null) {
         _autoTriggeredForOpenID4VCI = true;
         _grantPreAuthorizedCode(session, transactionCode: null);
-      } else if (session.status == SessionStatus.requestAuthorizationCode) {
-        _autoTriggeredForOpenID4VCI = true;
-        _repo.authenticateOpenID4VCI(session.authorizationRequestUrl!);
       }
     });
 
@@ -323,10 +319,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return _buildLoadingScreen(session);
     }
 
-    // requestAuthorizationCode: browser auto-opened via ref.listen. This
-    // screen is shown when the user returns to the app without completing.
+    // requestAuthorizationCode: the user must tap "Open browser" on this
+    // screen to launch the issuer flow. Shown on first entry and whenever
+    // the user returns to the app without completing the browser flow.
     return OpenID4VCIAuthCodePendingScreen(
-      issuer: session.offeredCredentialTypes!.first.issuer,
+      offeredCredentialTypes: session.offeredCredentialTypes!,
       onOpenBrowser: () =>
           _repo.authenticateOpenID4VCI(session.authorizationRequestUrl!),
       onDismiss: _dismissSession,

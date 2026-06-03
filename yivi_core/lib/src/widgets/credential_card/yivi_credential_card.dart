@@ -141,6 +141,7 @@ class YiviCredentialCard extends ConsumerWidget {
     Widget? headerTrailing,
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
+    bool hideNotObtainable = false,
   }) : this(
          key: key,
          credentialName: descriptor.name,
@@ -191,6 +192,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: true,
+         hideNotObtainable: hideNotObtainable,
        );
 
   YiviCredentialCard.fromDescriptorWithEmptyAttributeValues({

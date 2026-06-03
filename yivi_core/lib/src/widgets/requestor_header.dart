@@ -25,20 +25,27 @@ _buildRequestorAvatar({
   );
 }
 
+void _showRequestorVerificationBottomSheet(BuildContext context) {
+  showYiviBottomSheet(
+    context: context,
+    titleKey:
+        "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
+    child: RequestorVerificationExplanationBottomSheet(),
+  );
+}
+
 class RequestorHeader extends StatelessWidget {
   final TrustedParty? requestor;
   final bool? isVerified;
+  final String verifiedSuffixKey;
+  final String unverifiedSuffixKey;
 
-  const RequestorHeader({this.requestor, this.isVerified});
-
-  _showCredentialOptionsBottomSheet(BuildContext context) {
-    return showYiviBottomSheet(
-      context: context,
-      titleKey:
-          "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
-      child: RequestorVerificationExplanationBottomSheet(),
-    );
-  }
+  const RequestorHeader({
+    this.requestor,
+    this.isVerified,
+    required this.verifiedSuffixKey,
+    required this.unverifiedSuffixKey,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +77,7 @@ class RequestorHeader extends StatelessWidget {
       subtitleTextWidget = Padding(
         padding: EdgeInsets.only(top: theme.defaultSpacing),
         child: GestureDetector(
-          onTap: () => _showCredentialOptionsBottomSheet(context),
+          onTap: () => _showRequestorVerificationBottomSheet(context),
           child: TranslatedText(
             "disclosure_permission.overview.requestor_verification.explanation",
             style: theme.hyperlinkTextStyle.copyWith(
@@ -82,12 +89,10 @@ class RequestorHeader extends StatelessWidget {
 
       if (isVerified!) {
         backgroundColorOverride = theme.success.withAlpha(opacity);
-        mainTextSuffixTranslationKey =
-            "disclosure_permission.overview.requestor_verification.verified_suffix";
+        mainTextSuffixTranslationKey = verifiedSuffixKey;
       } else {
         backgroundColorOverride = theme.error.withAlpha(opacity);
-        mainTextSuffixTranslationKey =
-            "disclosure_permission.overview.requestor_verification.unverified_suffix";
+        mainTextSuffixTranslationKey = unverifiedSuffixKey;
       }
 
       // Wrap the avatar in a Stack and position the verification status indicator
@@ -136,6 +141,95 @@ class RequestorHeader extends StatelessWidget {
       mainText: mainTextWidget,
       subtitleText: subtitleTextWidget,
       backgroundColor: backgroundColorOverride,
+    );
+  }
+}
+
+/// Header for issuance-context screens. Picks between a single
+/// [RequestorHeader] when every issuer in [issuers] shares the same id, and a
+/// [MultiIssuerBanner] when more than one distinct issuer is offering
+/// credentials. Multiple distinct issuers can only occur in IRMA sessions —
+/// OpenID4VCI sessions are always single-issuer.
+class IssuersHeader extends StatelessWidget {
+  final List<TrustedParty> issuers;
+
+  const IssuersHeader({super.key, required this.issuers})
+    : assert(issuers.length > 0, "IssuersHeader requires at least one issuer");
+
+  @override
+  Widget build(BuildContext context) {
+    final allSameId = issuers.map((i) => i.id).toSet().length == 1;
+    if (allSameId) {
+      final issuer = issuers.first;
+      return RequestorHeader(
+        requestor: issuer,
+        isVerified: issuer.verified,
+        verifiedSuffixKey: "issuance.requestor_verification.verified_suffix",
+        unverifiedSuffixKey:
+            "issuance.requestor_verification.unverified_suffix",
+      );
+    }
+    return MultiIssuerBanner(
+      isAllVerified: issuers.every((i) => i.verified),
+    );
+  }
+}
+
+/// Card shown when several distinct issuers are offering credentials in a
+/// single IRMA issuance session. Mirrors [RequestorHeader]'s card/color style
+/// but uses a collective icon instead of a single avatar, since there is no
+/// single party to attribute the request to.
+class MultiIssuerBanner extends StatelessWidget {
+  final bool isAllVerified;
+
+  const MultiIssuerBanner({super.key, required this.isAllVerified});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    final mainTextDefaultStyle = theme.themeData.textTheme.bodyMedium!;
+    const int opacity = 40;
+
+    final boldKey = isAllVerified
+        ? "issuance.requestor_verification.multi_issuer_verified_bold"
+        : "issuance.requestor_verification.multi_issuer_unverified_bold";
+    final suffixKey = isAllVerified
+        ? "issuance.requestor_verification.multi_issuer_verified_suffix"
+        : "issuance.requestor_verification.multi_issuer_unverified_suffix";
+
+    final backgroundColor = (isAllVerified ? theme.success : theme.error)
+        .withAlpha(opacity);
+
+    return _RequestorHeaderBase(
+      backgroundColor: backgroundColor,
+      avatar: Icon(Icons.groups, size: 48, color: theme.neutralExtraDark),
+      mainText: RichText(
+        key: const Key("multi_issuer_banner_main_text"),
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: FlutterI18n.translate(context, boldKey),
+              style: mainTextDefaultStyle.copyWith(fontWeight: FontWeight.bold),
+            ),
+            TextSpan(
+              text: FlutterI18n.translate(context, suffixKey),
+              style: mainTextDefaultStyle,
+            ),
+          ],
+        ),
+      ),
+      subtitleText: Padding(
+        padding: EdgeInsets.only(top: theme.defaultSpacing),
+        child: GestureDetector(
+          onTap: () => _showRequestorVerificationBottomSheet(context),
+          child: TranslatedText(
+            "disclosure_permission.overview.requestor_verification.explanation",
+            style: theme.hyperlinkTextStyle.copyWith(
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

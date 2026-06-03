@@ -1,21 +1,22 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../../../models/schemaless/schemaless_events.dart";
+import "../../../models/schemaless/credential_store.dart";
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
+import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/irma_quote.dart";
+import "../../../widgets/requestor_header.dart";
 import "session_scaffold.dart";
 
 class OpenID4VCIAuthCodePendingScreen extends StatelessWidget {
-  final TrustedParty issuer;
+  final List<CredentialDescriptor> offeredCredentialTypes;
   final VoidCallback onOpenBrowser;
   final VoidCallback onDismiss;
 
   const OpenID4VCIAuthCodePendingScreen({
     super.key,
-    required this.issuer,
+    required this.offeredCredentialTypes,
     required this.onOpenBrowser,
     required this.onDismiss,
   });
@@ -23,7 +24,6 @@ class OpenID4VCIAuthCodePendingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final issuerName = getTranslation(context, issuer.name);
 
     return SessionScaffold(
       appBarTitle: "issuance.authorization_code.pending.title",
@@ -40,28 +40,36 @@ class OpenID4VCIAuthCodePendingScreen extends StatelessWidget {
         ),
         onSecondaryPressed: onDismiss,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: theme.defaultSpacing),
-              TranslatedText(
-                "issuance.authorization_code.pending.header",
-                isHeader: true,
-                style: theme.textTheme.bodyLarge!.copyWith(
-                  color: theme.neutralExtraDark,
-                ),
-              ),
-              SizedBox(height: theme.defaultSpacing),
-              TranslatedText(
-                "issuance.authorization_code.pending.body",
-                translationParams: {"issuer": issuerName},
-              ),
-            ],
-          ),
+      body: ListView(
+        padding: EdgeInsets.only(
+          left: theme.defaultSpacing,
+          right: theme.defaultSpacing,
+          top: theme.smallSpacing,
         ),
+        children: [
+          IssuersHeader(
+            issuers: offeredCredentialTypes.map((d) => d.issuer).toList(),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+            child: IrmaQuote(
+              quote: FlutterI18n.translate(
+                context,
+                "issuance.authorization_code.pending.body",
+              ),
+            ),
+          ),
+          ...offeredCredentialTypes.map(
+            (descriptor) => Padding(
+              padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+              child: YiviCredentialCard.fromDescriptor(
+                descriptor: descriptor,
+                compact: false,
+                hideNotObtainable: true,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

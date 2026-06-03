@@ -60,7 +60,13 @@ class ActivityDetailDisclosure extends StatelessWidget {
           isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
-        RequestorHeader(requestor: logEntry.requestor),
+        RequestorHeader(
+          requestor: logEntry.requestor,
+          verifiedSuffixKey:
+              "disclosure_permission.overview.requestor_verification.verified_suffix",
+          unverifiedSuffixKey:
+              "disclosure_permission.overview.requestor_verification.unverified_suffix",
+        ),
       ],
     );
   }

@@ -5,7 +5,7 @@ import "../../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_quote.dart";
+import "../../../widgets/requestor_header.dart";
 import "session_scaffold.dart";
 
 class IssuancePermission extends StatelessWidget {
@@ -52,14 +52,16 @@ class IssuancePermission extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return ListView(
-      padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+      padding: EdgeInsets.only(
+        left: theme.defaultSpacing,
+        right: theme.defaultSpacing,
+        top: theme.smallSpacing,
+      ),
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-          child: IrmaQuote(
-            quote: FlutterI18n.translate(context, "issuance.description"),
-          ),
+        IssuersHeader(
+          issuers: issuedCredentials.map((c) => c.issuer).toList(),
         ),
+        SizedBox(height: theme.smallSpacing),
         ...issuedCredentials.map(
           (credential) => Padding(
             padding: EdgeInsets.only(bottom: theme.defaultSpacing),
