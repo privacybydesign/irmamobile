@@ -10,10 +10,10 @@ import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
 import "session_scaffold.dart";
 
-class OpenID4VCIAuthCodePendingScreen extends StatelessWidget {
+class OpenID4VCIAuthCodePendingScreen extends StatefulWidget {
   final TrustedParty requestor;
   final List<CredentialDescriptor> offeredCredentialTypes;
-  final VoidCallback onOpenBrowser;
+  final Future<void> Function() onOpenBrowser;
   final VoidCallback onDismiss;
 
   const OpenID4VCIAuthCodePendingScreen({
@@ -25,9 +25,28 @@ class OpenID4VCIAuthCodePendingScreen extends StatelessWidget {
   });
 
   @override
+  State<OpenID4VCIAuthCodePendingScreen> createState() =>
+      _OpenID4VCIAuthCodePendingScreenState();
+}
+
+class _OpenID4VCIAuthCodePendingScreenState
+    extends State<OpenID4VCIAuthCodePendingScreen> {
+  bool _launching = false;
+
+  Future<void> _handleOpenBrowser() async {
+    if (_launching) return;
+    setState(() => _launching = true);
+    try {
+      await widget.onOpenBrowser();
+    } finally {
+      if (mounted) setState(() => _launching = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final issuerName = getTranslation(context, requestor.name);
+    final issuerName = getTranslation(context, widget.requestor.name);
     final buttonLabel = FlutterI18n.translate(
       context,
       "issuance.authorization_code.pending.open_browser",
@@ -35,15 +54,15 @@ class OpenID4VCIAuthCodePendingScreen extends StatelessWidget {
 
     return SessionScaffold(
       appBarTitle: "issuance.authorization_code.pending.title",
-      onDismiss: onDismiss,
+      onDismiss: widget.onDismiss,
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,
-        onPrimaryPressed: onOpenBrowser,
+        onPrimaryPressed: _launching ? null : _handleOpenBrowser,
         secondaryButtonLabel: FlutterI18n.translate(
           context,
           "issuance.authorization_code.pending.cancel",
         ),
-        onSecondaryPressed: onDismiss,
+        onSecondaryPressed: widget.onDismiss,
       ),
       body: ListView(
         padding: EdgeInsets.only(
@@ -65,7 +84,7 @@ class OpenID4VCIAuthCodePendingScreen extends StatelessWidget {
               ),
             ),
           ),
-          ...offeredCredentialTypes.map(
+          ...widget.offeredCredentialTypes.map(
             (descriptor) => Padding(
               padding: EdgeInsets.only(bottom: theme.defaultSpacing),
               child: YiviCredentialCard.fromDescriptor(

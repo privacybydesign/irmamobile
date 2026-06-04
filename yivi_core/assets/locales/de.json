@@ -443,7 +443,7 @@
     "authorization_code": {
       "pending": {
         "title": "Daten hinzufügen",
-        "body": "{issuer} muss einige Angaben in Ihrem Browser bestätigen. Tippen Sie auf {button}, um fortzufahren. Sie kehren automatisch hierher zurück, sobald Sie fertig sind.",
+        "body": "{issuer} muss einige Angaben in Ihrem Browser bestätigen. Tippen Sie auf '{button}', um fortzufahren. Sie kehren automatisch hierher zurück, sobald Sie fertig sind.",
         "open_browser": "Browser öffnen",
         "cancel": "Abbrechen"
       }
