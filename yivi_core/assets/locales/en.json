@@ -443,9 +443,8 @@
     "authorization_code": {
       "pending": {
         "title": "Add data",
-        "header": "Continue in your browser",
-        "body": "We've opened the browser so you can complete the steps at {issuer}. When you're done, you'll return here automatically.",
-        "open_browser": "Open browser again",
+        "body": "{issuer} needs to verify some details in your browser. Tap '{button}' to continue. You'll return here automatically when you're done.",
+        "open_browser": "Open browser",
         "cancel": "Cancel"
       }
     }

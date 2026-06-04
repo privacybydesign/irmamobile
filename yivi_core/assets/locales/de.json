@@ -443,9 +443,8 @@
     "authorization_code": {
       "pending": {
         "title": "Daten hinzufügen",
-        "header": "Im Browser fortfahren",
-        "body": "Wir haben den Browser geöffnet, damit Sie die Schritte bei {issuer} abschließen können. Wenn Sie fertig sind, kehren Sie automatisch hierher zurück.",
-        "open_browser": "Browser erneut öffnen",
+        "body": "{issuer} muss einige Angaben in Ihrem Browser bestätigen. Tippen Sie auf '{button}', um fortzufahren. Sie kehren automatisch hierher zurück, sobald Sie fertig sind.",
+        "open_browser": "Browser öffnen",
         "cancel": "Abbrechen"
       }
     }

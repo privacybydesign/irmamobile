@@ -443,9 +443,8 @@
     "authorization_code": {
       "pending": {
         "title": "Gegevens toevoegen",
-        "header": "Ga verder in je browser",
-        "body": "We hebben de browser geopend zodat je de stappen bij {issuer} kunt voltooien. Als je klaar bent kom je automatisch terug.",
-        "open_browser": "Browser opnieuw openen",
+        "body": "{issuer} moet enkele gegevens in je browser bevestigen. Druk op '{button}' om door te gaan. Je komt vanzelf terug als je klaar bent.",
+        "open_browser": "Browser openen",
         "cancel": "Annuleren"
       }
     }

@@ -141,6 +141,7 @@ class YiviCredentialCard extends ConsumerWidget {
     Widget? headerTrailing,
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
+    bool hideNotObtainable = false,
   }) : this(
          key: key,
          credentialName: descriptor.name,
@@ -191,6 +192,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: true,
+         hideNotObtainable: hideNotObtainable,
        );
 
   YiviCredentialCard.fromDescriptorWithEmptyAttributeValues({
@@ -263,6 +265,12 @@ class YiviCredentialCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
+    final displayName = credentialName.isNotEmpty
+        ? getTranslation(context, credentialName)
+        : (status.credentialId ?? "");
+    final displayIssuerName = issuerName.isNotEmpty
+        ? getTranslation(context, issuerName)
+        : FlutterI18n.translate(context, "ui.unknown");
 
     return IrmaCard(
       style: status.isExpired || status.revoked ? IrmaCardStyle.danger : style,
@@ -274,8 +282,8 @@ class YiviCredentialCard extends ConsumerWidget {
         children: [
           YiviCredentialCardHeader(
             compact: compact,
-            credentialName: getTranslation(context, credentialName),
-            issuerName: getTranslation(context, issuerName),
+            credentialName: displayName,
+            issuerName: displayIssuerName,
             logoPath: imagePath,
             logoImage: image,
             trailing: headerTrailing,
@@ -334,9 +342,7 @@ class YiviCredentialCard extends ConsumerWidget {
                 message: FlutterI18n.translate(
                   context,
                   "credential.not_obtainable",
-                  translationParams: {
-                    "issuerName": getTranslation(context, issuerName),
-                  },
+                  translationParams: {"issuerName": displayIssuerName},
                 ),
               ),
             ),
