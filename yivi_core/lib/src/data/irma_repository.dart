@@ -885,20 +885,16 @@ class IrmaRepository {
   }
 
   Future<void> handleOpenID4VCIAuthCallback(String url) async {
+    // We only parse `state` here, used to route the callback to the right
+    // session. The library parses the rest of the URL on the Go side —
+    // including the OAuth error case (`?state=X&error=access_denied`), which
+    // has no `code` — so we forward the URL even when it carries a failure.
     final uri = Uri.parse(url);
     final state = uri.queryParameters["state"];
     if (state == null) {
       throw MissingPointer(
         details:
             'expected "state" to be present in query parameters, but wasn\'t',
-      );
-    }
-
-    final code = uri.queryParameters["code"];
-    if (code == null) {
-      throw MissingPointer(
-        details:
-            'expected "code" to be present in query parameters, but wasn\'t',
       );
     }
 
@@ -914,7 +910,7 @@ class IrmaRepository {
     bridgedDispatch(
       SessionUserInteractionEvent.authCallback(
         sessionId: session.id,
-        code: code,
+        callbackUrl: url,
         proceed: true,
       ),
     );

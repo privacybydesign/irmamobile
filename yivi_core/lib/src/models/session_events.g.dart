@@ -29,22 +29,6 @@ Map<String, dynamic> _$RespondPreAuthorizedCodeFlowPermissionEventToJson(
   'transaction_code': instance.transactionCode,
 };
 
-RespondAuthorizationCodeEvent _$RespondAuthorizationCodeEventFromJson(
-  Map<String, dynamic> json,
-) => RespondAuthorizationCodeEvent(
-  sessionId: (json['session_id'] as num).toInt(),
-  proceed: json['proceed'] as bool,
-  code: json['code'] as String,
-);
-
-Map<String, dynamic> _$RespondAuthorizationCodeEventToJson(
-  RespondAuthorizationCodeEvent instance,
-) => <String, dynamic>{
-  'session_id': instance.sessionId,
-  'proceed': instance.proceed,
-  'code': instance.code,
-};
-
 RespondTokenEvent _$RespondTokenEventFromJson(Map<String, dynamic> json) =>
     RespondTokenEvent(
       sessionId: (json['session_id'] as num).toInt(),
