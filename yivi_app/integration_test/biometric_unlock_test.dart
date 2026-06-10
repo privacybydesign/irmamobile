@@ -101,21 +101,20 @@ void main() {
       expect(find.byKey(const Key("biometric_unlock_toggle")), findsNothing);
     });
 
-    testWidgets(
-      "toggle visible and defaults off when supported",
-      (tester) async {
-        await openSettings(tester);
-        final toggle = find.byKey(const Key("biometric_unlock_toggle"));
-        await tester.scrollUntilVisible(toggle.hitTestable(), 50);
-        expect(switchOf(toggle).value, false);
-        expect(
-          await irmaBinding.repository.preferences
-              .getBiometricUnlockEnabled()
-              .first,
-          false,
-        );
-      },
-    );
+    testWidgets("toggle visible and defaults off when supported", (
+      tester,
+    ) async {
+      await openSettings(tester);
+      final toggle = find.byKey(const Key("biometric_unlock_toggle"));
+      await tester.scrollUntilVisible(toggle.hitTestable(), 50);
+      expect(switchOf(toggle).value, false);
+      expect(
+        await irmaBinding.repository.preferences
+            .getBiometricUnlockEnabled()
+            .first,
+        false,
+      );
+    });
 
     testWidgets("enabling toggle requires a successful biometric prompt", (
       tester,
@@ -307,16 +306,15 @@ void main() {
       );
     });
 
-    testWidgets(
-      "unsupported device skips biometric setup entirely",
-      (tester) async {
-        fakeBiometric.supported = false;
-        await goThroughPinConfirm(tester);
+    testWidgets("unsupported device skips biometric setup entirely", (
+      tester,
+    ) async {
+      fakeBiometric.supported = false;
+      await goThroughPinConfirm(tester);
 
-        expect(find.byType(BiometricSetupScreen), findsNothing);
-        expect(find.byType(ProvideEmailScreen), findsOneWidget);
-      },
-    );
+      expect(find.byType(BiometricSetupScreen), findsNothing);
+      expect(find.byType(ProvideEmailScreen), findsOneWidget);
+    });
   });
 
   // ===========================================================================
@@ -385,31 +383,30 @@ void main() {
       await unlockAndWaitForHome(tester);
     });
 
-    testWidgets(
-      "tapping the fingerprint key retries the biometric prompt",
-      (tester) async {
-        final repo = irmaBinding.repository;
-        await repo.preferences.setBiometricUnlockEnabled(true);
-        repo.lock();
-        // First attempt is cancelled, second succeeds.
-        fakeBiometric.nextResult = const BiometricAuthResult(
-          success: false,
-          cancelled: true,
-        );
+    testWidgets("tapping the fingerprint key retries the biometric prompt", (
+      tester,
+    ) async {
+      final repo = irmaBinding.repository;
+      await repo.preferences.setBiometricUnlockEnabled(true);
+      repo.lock();
+      // First attempt is cancelled, second succeeds.
+      fakeBiometric.nextResult = const BiometricAuthResult(
+        success: false,
+        cancelled: true,
+      );
 
-        await pumpYiviApp(tester, repo);
-        await tester.waitFor(find.byKey(const Key("pin_screen")));
-        await tester.pumpAndSettle();
-        expect(fakeBiometric.authenticateCalls, 1);
+      await pumpYiviApp(tester, repo);
+      await tester.waitFor(find.byKey(const Key("pin_screen")));
+      await tester.pumpAndSettle();
+      expect(fakeBiometric.authenticateCalls, 1);
 
-        // Tap the retry fingerprint key with a successful outcome this time.
-        fakeBiometric.nextResult = const BiometricAuthResult(success: true);
-        await tester.tapAndSettle(find.byIcon(Icons.fingerprint));
+      // Tap the retry fingerprint key with a successful outcome this time.
+      fakeBiometric.nextResult = const BiometricAuthResult(success: true);
+      await tester.tapAndSettle(find.byIcon(Icons.fingerprint));
 
-        await tester.waitFor(find.byType(HomeScreen));
-        expect(fakeBiometric.authenticateCalls, 2);
-        expect(await repo.getLocked().first, false);
-      },
-    );
+      await tester.waitFor(find.byType(HomeScreen));
+      expect(fakeBiometric.authenticateCalls, 2);
+      expect(await repo.getLocked().first, false);
+    });
   });
 }

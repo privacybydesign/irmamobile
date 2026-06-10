@@ -14,11 +14,9 @@ class FakeBiometricAuth extends BiometricAuth {
   int authenticateCalls = 0;
   int canAuthenticateCalls = 0;
 
-  FakeBiometricAuth({
-    this.supported = true,
-    BiometricAuthResult? result,
-  }) : nextResult = result ?? const BiometricAuthResult(success: true),
-       super.forTesting();
+  FakeBiometricAuth({this.supported = true, BiometricAuthResult? result})
+    : nextResult = result ?? const BiometricAuthResult(success: true),
+      super.forTesting();
 
   /// Install this fake as the global `BiometricAuth()` factory override.
   /// Returns the fake so tests can reconfigure it mid-test.
