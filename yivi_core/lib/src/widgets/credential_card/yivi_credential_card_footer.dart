@@ -60,7 +60,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                       ),
                       (expiryDate == null || expiryDate?.dateTime == null)
                           ? TranslatedText(
-                              "credential.unlimited_validity",
+                              "credential.indefinite_validity",
                               style: theme.textTheme.bodyLarge!.copyWith(
                                 fontSize: 14,
                                 color: theme.dark,

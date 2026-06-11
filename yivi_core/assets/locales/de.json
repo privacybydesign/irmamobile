@@ -89,7 +89,7 @@
   "credential": {
     "no_data": "Keine Daten vorhanden",
     "valid_until": "Gültig bis",
-    "unlimited_validity": "Unbegrenzt",
+    "indefinite_validity": "Unbestimmt",
     "expires_on": "Läuft ab am {date}",
     "expired_on": "Abgelaufen am {date}",
     "date_at_time": "{date} um {time}",
