@@ -3,7 +3,6 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "../../../data/irma_repository.dart";
 import "../../../models/enrollment_events.dart";
 import "../../../models/session.dart";
-import "../introduction/introduction_screen.dart";
 
 part "enrollment_event.dart";
 part "enrollment_state.dart";
@@ -16,7 +15,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
   String? _pin;
 
   EnrollmentBloc({required this.language, required this.repo})
-    : super(EnrollmentIntroduction());
+    : super(EnrollmentAcceptTerms());
 
   Future<EnrollmentState> _enroll() async {
     var enrollment = await repo.enroll(
@@ -42,24 +41,6 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       yield await _enroll();
     }
     // Introduction
-    else if (state is EnrollmentIntroduction) {
-      if (event is EnrollmentNextPressed) {
-        if (state.currentStepIndex <
-            IntroductionScreen.introductionSteps.length - 1) {
-          yield EnrollmentIntroduction(
-            currentStepIndex: state.currentStepIndex + 1,
-          );
-        } else {
-          yield EnrollmentAcceptTerms();
-        }
-      } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentIntroduction(
-          currentStepIndex: state.currentStepIndex > 0
-              ? state.currentStepIndex - 1
-              : 0,
-        );
-      }
-    }
     // Accept terms
     else if (state is EnrollmentAcceptTerms) {
       if (event is EnrollmentNextPressed) {
@@ -67,12 +48,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
           throw ("Continuing without accepting the terms is not possible");
         }
         yield EnrollmentChoosePin();
-      } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentIntroduction(
-          currentStepIndex: IntroductionScreen.introductionSteps.length - 1,
-        );
-      }
-      // Terms are toggled
+      } // Terms are toggled
       else if (event is EnrollmentTermsUpdated) {
         yield EnrollmentAcceptTerms(isAccepted: event.isAccepted);
       }
