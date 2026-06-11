@@ -142,10 +142,10 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
   attributes: (json['attributes'] as List<dynamic>)
       .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
       .toList(),
-  issuanceDate: (json['issuance_date'] as num).toInt(),
-  expiryDate: (json['expiry_date'] as num).toInt(),
   revoked: json['revoked'] as bool,
   revocationSupported: json['revocation_supported'] as bool,
+  issuanceDate: (json['issuance_date'] as num?)?.toInt(),
+  expiryDate: (json['expiry_date'] as num?)?.toInt(),
   imagePath: json['image_path'] as String?,
   image: json['image'] == null
       ? null

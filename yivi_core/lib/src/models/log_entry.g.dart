@@ -99,10 +99,10 @@ LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
       attributes: (json['attributes'] as List<dynamic>)
           .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
           .toList(),
-      issuanceDate: (json['issuance_date'] as num).toInt(),
-      expiryDate: (json['expiry_date'] as num).toInt(),
       revoked: json['revoked'] as bool,
       revocationSupported: json['revocation_supported'] as bool,
+      issuanceDate: (json['issuance_date'] as num?)?.toInt(),
+      expiryDate: (json['expiry_date'] as num?)?.toInt(),
       issueUrl: json['issue_url'] == null
           ? null
           : TranslatedValue.fromJson(

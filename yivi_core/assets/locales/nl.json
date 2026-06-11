@@ -89,6 +89,7 @@
   "credential": {
     "no_data": "Geen gegevens",
     "valid_until": "Geldig tot",
+    "unlimited_validity": "Onbeperkt",
     "expires_on": "Verloopt op: {date}",
     "expired_on": "Verlopen op {date}",
     "date_at_time": "{date} om {time}",

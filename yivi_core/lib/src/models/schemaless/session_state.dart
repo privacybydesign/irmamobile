@@ -184,8 +184,8 @@ class SelectableCredentialInstance {
   final CredentialFormat format;
   final int? batchInstanceCountRemaining;
   final List<Attribute> attributes;
-  final int issuanceDate;
-  final int expiryDate;
+  final int? issuanceDate;
+  final int? expiryDate;
   final bool revoked;
   final bool revocationSupported;
   final TranslatedValue? issueUrl;
@@ -197,10 +197,10 @@ class SelectableCredentialInstance {
     required this.issuer,
     required this.format,
     required this.attributes,
-    required this.issuanceDate,
-    required this.expiryDate,
     required this.revoked,
     required this.revocationSupported,
+    this.issuanceDate,
+    this.expiryDate,
     this.imagePath,
     this.image,
     this.batchInstanceCountRemaining,

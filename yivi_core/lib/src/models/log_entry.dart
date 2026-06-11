@@ -158,10 +158,10 @@ class LogCredential {
     required this.name,
     required this.issuer,
     required this.attributes,
-    required this.issuanceDate,
-    required this.expiryDate,
     required this.revoked,
     required this.revocationSupported,
+    this.issuanceDate,
+    this.expiryDate,
     this.issueUrl,
     this.image,
   });
@@ -178,9 +178,9 @@ class LogCredential {
 
   final List<Attribute> attributes;
 
-  final int issuanceDate;
+  final int? issuanceDate;
 
-  final int expiryDate;
+  final int? expiryDate;
 
   final bool revoked;
 

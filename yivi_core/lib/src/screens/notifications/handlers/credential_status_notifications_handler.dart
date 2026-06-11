@@ -66,12 +66,15 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
     if (cred.revoked) {
       return CredentialStatusNotificationType.revoked;
     }
-    final expiryDate = CardExpiryDate.fromUnix(cred.expiryDate);
-    if (expiryDate.expired) {
-      return CredentialStatusNotificationType.expired;
-    }
-    if (expiryDate.expiresSoon) {
-      return CredentialStatusNotificationType.expiringSoon;
+    
+    if (cred.expiryDate != null) {
+      final expiryDate = CardExpiryDate.fromUnix(cred.expiryDate!);
+      if (expiryDate.expired) {
+        return CredentialStatusNotificationType.expired;
+      }
+      if (expiryDate.expiresSoon) {
+        return CredentialStatusNotificationType.expiringSoon;
+      }
     }
     return null;
   }

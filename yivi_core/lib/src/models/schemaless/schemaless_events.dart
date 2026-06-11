@@ -139,8 +139,8 @@ class Credential {
   final Map<CredentialFormat, String> credentialInstanceIds;
   final Map<CredentialFormat, int?> batchInstanceCountsRemaining;
   final List<Attribute> attributes;
-  final int issuanceDate;
-  final int expiryDate;
+  final int? issuanceDate;
+  final int? expiryDate;
   final bool revoked;
   final bool revocationSupported;
   final TranslatedValue issueUrl;
@@ -153,12 +153,12 @@ class Credential {
     required this.credentialInstanceIds,
     required this.batchInstanceCountsRemaining,
     required this.attributes,
-    required this.issuanceDate,
-    required this.expiryDate,
     required this.revoked,
     required this.revocationSupported,
     required this.issueUrl,
     this.image,
+    this.issuanceDate,
+    this.expiryDate,
   });
 
   factory Credential.fromJson(Map<String, dynamic> json) =>
