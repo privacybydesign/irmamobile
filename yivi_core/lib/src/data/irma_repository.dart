@@ -46,13 +46,14 @@ import "irma_preferences.dart";
 import "session_repository.dart";
 
 class _CredentialObtainState {
-  // List containing the ids of the credentials
-  // that the user tried to obtain via the credential store
-  // or by refreshing credentials on the data.
-  final Set<String> previouslyLaunchedCredentials;
+  // Credential type IDs the user kicked off an in-app launch for (via
+  // openIssueURL or authenticateOpenID4VCI), pending a session finish.
+  // Used at finish time to decide whether to keep the user inside Yivi
+  // or hand them off to clientReturnUrl / ArrowBack / send-to-background.
+  final Set<String> inAppLaunchedCredentialTypes;
 
   _CredentialObtainState({
-    this.previouslyLaunchedCredentials = const <String>{},
+    this.inAppLaunchedCredentialTypes = const <String>{},
   });
 }
 
@@ -251,17 +252,52 @@ class IrmaRepository {
     _bridge.dispatch(event);
   }
 
-  void removeLaunchedCredentials(Iterable<String> credentialTypeIds) {
+  void removeInAppLaunched(Iterable<String> credentialTypeIds) {
     final state = _credentialObtainState.value;
-    final updatedLaunchedCredentials = state.previouslyLaunchedCredentials
+    final updated = state.inAppLaunchedCredentialTypes
         .where((credTypeId) => !credentialTypeIds.contains(credTypeId))
         .toSet();
 
     _credentialObtainState.add(
+      _CredentialObtainState(inAppLaunchedCredentialTypes: updated),
+    );
+  }
+
+  void markInAppLaunched(Iterable<String> credentialTypeIds) {
+    final current = _credentialObtainState.value.inAppLaunchedCredentialTypes;
+    _credentialObtainState.add(
       _CredentialObtainState(
-        previouslyLaunchedCredentials: updatedLaunchedCredentials,
+        inAppLaunchedCredentialTypes: {...current, ...credentialTypeIds},
       ),
     );
+  }
+
+  void clearInAppLaunches() {
+    _credentialObtainState.add(_CredentialObtainState());
+  }
+
+  /// True when [session] is an issuance session that issued at least one
+  /// credential the user launched in-app (via [openIssueURL] or
+  /// [authenticateOpenID4VCI]). Used to keep in-app launches inside Yivi
+  /// on finish instead of chasing `clientReturnUrl` or falling through
+  /// to ArrowBack / send-to-background.
+  ///
+  /// Checks both [SessionState.offeredCredentialTypes] (populated for
+  /// OpenID4VCI sessions before the issuance instances exist) and
+  /// [SessionState.offeredCredentials] (populated for classic IRMA
+  /// sessions, with the actual issued credentials).
+  bool didIssueInAppLaunchedCredential(SessionState session) {
+    if (session.type != SessionType.issuance) return false;
+    final launched = _credentialObtainState.value.inAppLaunchedCredentialTypes;
+    if (launched.isEmpty) return false;
+    final fromTypes = session.offeredCredentialTypes?.any(
+      (c) => launched.contains(c.credentialId),
+    );
+    if (fromTypes == true) return true;
+    final fromCredentials = session.offeredCredentials?.any(
+      (c) => launched.contains(c.credentialId),
+    );
+    return fromCredentials == true;
   }
 
   // -- Scheme manager, cert manager, issuer, credential and attribute definitions
@@ -617,9 +653,9 @@ class IrmaRepository {
 
   static const _iiabchannel = MethodChannel("irma.app/iiab");
 
-  Future<Set<String>> getPreviouslyLaunchedCredentials() {
+  Future<Set<String>> getInAppLaunchedCredentialTypes() {
     return _credentialObtainState.first.then(
-      (state) => state.previouslyLaunchedCredentials,
+      (state) => state.inAppLaunchedCredentialTypes,
     );
   }
 
@@ -729,52 +765,39 @@ class IrmaRepository {
     }
   }
 
-  Future<void> schemalessOpenIssueURL(
-    BuildContext context,
-    CredentialDescriptor credential,
-    WidgetRef ref,
-  ) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = credential.issueURL?.translate(lang);
-    if (url == null || url.isEmpty) {
-      throw UnsupportedError(
-        "Credential type ${credential.credentialId} does not have a suitable issue url for $lang",
-      );
-    }
-
-    // handle some embedded issuance flows
-    if (const {
-      "pbdf",
-      "pbdf-staging",
-    }.any((id) => credential.credentialId.startsWith(id))) {
-      final embeddedFlows = {
-        "passport": _startPassportIssuance,
-        "drivinglicence": _startDrivingLicenceIssuance,
-        "idcard": _startIdCardIssuance,
-        "mobilenumber": _startMobileNumberIssuance,
-        "email": _startEmailIssuance,
-      };
-
-      final splitId = credential.credentialId.split(".");
-
-      final flow = embeddedFlows[splitId.last];
-
-      if (flow != null) {
-        return flow(context, url, ref);
-      }
-    }
-
-    return openURL(url);
-  }
-
+  /// Unified entry point for "user tapped Get / Reobtain inside the app
+  /// and we need to take them to the issuer to obtain a credential".
+  ///
+  /// Called from add-data details, credential details (reobtain), the
+  /// credential card's reobtain button, and the issue wizard.
+  ///
+  /// Behaviour:
+  /// - For known embedded scheme credentials (pbdf/pbdf-staging passport,
+  ///   drivinglicence, idcard, mobilenumber, email), dispatch to the
+  ///   in-app embedded flow and return — without marking the credential
+  ///   as launched (the embedded flows don't go out to a browser and
+  ///   back, so the finish-time pop-to-success logic doesn't apply).
+  /// - Otherwise, mark the credential as launched in-app (so the
+  ///   resulting issuance session's finish lands on
+  ///   `IssuanceSuccessScreen` instead of `clientReturnUrl` / ArrowBack /
+  ///   send-to-background) and open the URL. Universal-link credential
+  ///   types go through `openURLExternally` so the OS can dispatch the
+  ///   link to a registered native app (UZI register, Belastingdienst);
+  ///   everything else goes through `openURL` (in-app browser, falling
+  ///   back to external for opted-in URLs).
   Future<void> openIssueURL(
     BuildContext context,
     String credentialId,
-    TranslatedValue? issueUrl,
+    TranslatedValue? issueURL,
     WidgetRef ref,
   ) async {
-    // handle some embedded issuance flows
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final url = issueURL?.translate(lang);
+    if (url == null || url.isEmpty) {
+      throw UnsupportedError(
+        "Credential type $credentialId does not have a suitable issue url for $lang",
+      );
+    }
 
     final embeddedFlows = {
       //----------- production
@@ -792,27 +815,23 @@ class IrmaRepository {
     };
     final flow = embeddedFlows[credentialId];
     if (flow != null) {
-      return flow(context, issueUrl!.translate(lang), ref);
+      return flow(context, url, ref);
     }
 
-    final irmaConfig = await _irmaConfigurationSubject.first;
-    final cred = irmaConfig.credentialTypes[credentialId];
+    markInAppLaunched([credentialId]);
 
-    if (cred == null) {
-      throw UnsupportedError(
-        "Credential type $credentialId not found in irma config",
-      );
-    }
-
-    final url = cred.issueUrl.translate(lang, fallback: "");
-    if (url.isEmpty) {
-      throw UnsupportedError(
-        "Credential type $credentialId does not have a suitable issue url for $lang",
-      );
-    }
-
-    // If the issue URL is a universal link, then we ask the OS to open the appropriate application.
-    if (cred.isULIssueUrl) {
+    // TODO: surface `isULIssueUrl` on the schemaless credential models
+    // (CredentialDescriptor / Credential) so we can drop the legacy
+    // `_irmaConfigurationSubject` lookup here. Today there's no other
+    // place that information lives on the wallet side. Affected
+    // credentials (none overlap with the embedded flows above):
+    //   pbdf.minvws-cibg.pilot-2, pbdf.bzkpilot.personalData/.address,
+    //   plus several irma-demo demo creds (digidproef.*, uzipoc-cibg.*).
+    // Schemaless credentials that aren't in legacy irmaConfiguration are
+    // treated as non-universal-link.
+    final cred = _irmaConfigurationSubject.valueOrNull
+        ?.credentialTypes[credentialId];
+    if (cred?.isULIssueUrl ?? false) {
       return openURLExternally(url, suppressQrScanner: true);
     }
 
@@ -866,8 +885,12 @@ class IrmaRepository {
   /// at that URL JS-redirects to `app.yivi.open://auth-callback?...`, which
   /// the auth session intercepts via `callbackUrlScheme`. The resulting URL
   /// is then handed off to [handleOpenID4VCIAuthCallback].
-  Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async {
+  Future<void> authenticateOpenID4VCI(
+    String authorizationRequestUrl,
+    Iterable<String> credentialIds,
+  ) async {
     _resumedFromBrowserSubject.add(true);
+    markInAppLaunched(credentialIds);
     final String result;
     try {
       result = await FlutterWebAuth2.authenticate(
