@@ -829,8 +829,8 @@ class IrmaRepository {
     //   plus several irma-demo demo creds (digidproef.*, uzipoc-cibg.*).
     // Schemaless credentials that aren't in legacy irmaConfiguration are
     // treated as non-universal-link.
-    final cred = _irmaConfigurationSubject.valueOrNull
-        ?.credentialTypes[credentialId];
+    final cred =
+        _irmaConfigurationSubject.valueOrNull?.credentialTypes[credentialId];
     if (cred?.isULIssueUrl ?? false) {
       return openURLExternally(url, suppressQrScanner: true);
     }
