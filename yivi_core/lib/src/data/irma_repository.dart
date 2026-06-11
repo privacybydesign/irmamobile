@@ -46,13 +46,14 @@ import "irma_preferences.dart";
 import "session_repository.dart";
 
 class _CredentialObtainState {
-  // List containing the ids of the credentials
-  // that the user tried to obtain via the credential store
-  // or by refreshing credentials on the data.
-  final Set<String> previouslyLaunchedCredentials;
+  // Credential type IDs the user kicked off an in-app launch for (via
+  // openIssueURL or authenticateOpenID4VCI), pending a session finish.
+  // Used at finish time to decide whether to keep the user inside Yivi
+  // or hand them off to clientReturnUrl / ArrowBack / send-to-background.
+  final Set<String> inAppLaunchedCredentialTypes;
 
   _CredentialObtainState({
-    this.previouslyLaunchedCredentials = const <String>{},
+    this.inAppLaunchedCredentialTypes = const <String>{},
   });
 }
 
@@ -251,17 +252,52 @@ class IrmaRepository {
     _bridge.dispatch(event);
   }
 
-  void removeLaunchedCredentials(Iterable<String> credentialTypeIds) {
+  void removeInAppLaunched(Iterable<String> credentialTypeIds) {
     final state = _credentialObtainState.value;
-    final updatedLaunchedCredentials = state.previouslyLaunchedCredentials
+    final updated = state.inAppLaunchedCredentialTypes
         .where((credTypeId) => !credentialTypeIds.contains(credTypeId))
         .toSet();
 
     _credentialObtainState.add(
+      _CredentialObtainState(inAppLaunchedCredentialTypes: updated),
+    );
+  }
+
+  void markInAppLaunched(Iterable<String> credentialTypeIds) {
+    final current = _credentialObtainState.value.inAppLaunchedCredentialTypes;
+    _credentialObtainState.add(
       _CredentialObtainState(
-        previouslyLaunchedCredentials: updatedLaunchedCredentials,
+        inAppLaunchedCredentialTypes: {...current, ...credentialTypeIds},
       ),
     );
+  }
+
+  void clearInAppLaunches() {
+    _credentialObtainState.add(_CredentialObtainState());
+  }
+
+  /// True when [session] is an issuance session that issued at least one
+  /// credential the user launched in-app (via [openIssueURL] or
+  /// [authenticateOpenID4VCI]). Used to keep in-app launches inside Yivi
+  /// on finish instead of chasing `clientReturnUrl` or falling through
+  /// to ArrowBack / send-to-background.
+  ///
+  /// Checks both [SessionState.offeredCredentialTypes] (populated for
+  /// OpenID4VCI sessions before the issuance instances exist) and
+  /// [SessionState.offeredCredentials] (populated for classic IRMA
+  /// sessions, with the actual issued credentials).
+  bool didIssueInAppLaunchedCredential(SessionState session) {
+    if (session.type != SessionType.issuance) return false;
+    final launched = _credentialObtainState.value.inAppLaunchedCredentialTypes;
+    if (launched.isEmpty) return false;
+    final fromTypes = session.offeredCredentialTypes?.any(
+      (c) => launched.contains(c.credentialId),
+    );
+    if (fromTypes == true) return true;
+    final fromCredentials = session.offeredCredentials?.any(
+      (c) => launched.contains(c.credentialId),
+    );
+    return fromCredentials == true;
   }
 
   // -- Scheme manager, cert manager, issuer, credential and attribute definitions
@@ -617,9 +653,9 @@ class IrmaRepository {
 
   static const _iiabchannel = MethodChannel("irma.app/iiab");
 
-  Future<Set<String>> getPreviouslyLaunchedCredentials() {
+  Future<Set<String>> getInAppLaunchedCredentialTypes() {
     return _credentialObtainState.first.then(
-      (state) => state.previouslyLaunchedCredentials,
+      (state) => state.inAppLaunchedCredentialTypes,
     );
   }
 
@@ -764,6 +800,8 @@ class IrmaRepository {
       }
     }
 
+    markInAppLaunched([credential.credentialId]);
+
     return openURL(url);
   }
 
@@ -810,6 +848,8 @@ class IrmaRepository {
         "Credential type $credentialId does not have a suitable issue url for $lang",
       );
     }
+
+    markInAppLaunched([credentialId]);
 
     // If the issue URL is a universal link, then we ask the OS to open the appropriate application.
     if (cred.isULIssueUrl) {
@@ -866,8 +906,12 @@ class IrmaRepository {
   /// at that URL JS-redirects to `app.yivi.open://auth-callback?...`, which
   /// the auth session intercepts via `callbackUrlScheme`. The resulting URL
   /// is then handed off to [handleOpenID4VCIAuthCallback].
-  Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async {
+  Future<void> authenticateOpenID4VCI(
+    String authorizationRequestUrl,
+    Iterable<String> credentialIds,
+  ) async {
     _resumedFromBrowserSubject.add(true);
+    markInAppLaunched(credentialIds);
     final String result;
     try {
       result = await FlutterWebAuth2.authenticate(
