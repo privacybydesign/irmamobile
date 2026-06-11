@@ -7,7 +7,7 @@ toolchain go1.24.7
 require (
 	github.com/go-errors/errors v1.4.2
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
-	github.com/privacybydesign/irmago v0.19.3-0.20260611134740-29da98995fe7
+	github.com/privacybydesign/irmago v0.19.3-0.20260611151813-d4fd04b0e4c5
 	github.com/sirupsen/logrus v1.9.0
 	golang.org/x/mobile v0.0.0-20260120165949-40bd9ace6ce4
 )
