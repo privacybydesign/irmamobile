@@ -9,6 +9,7 @@ import "../../util/navigation.dart";
 import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "../../widgets/irma_app_bar.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 
 class SchemalessAddDataScreen extends ConsumerWidget {
@@ -51,13 +52,7 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                         crossAxisAlignment: .start,
                         spacing: theme.smallSpacing,
                         children: [
-                          Semantics(
-                            header: true,
-                            child: Text(
-                              category.translate(lang),
-                              style: theme.textTheme.headlineMedium,
-                            ),
-                          ),
+                          SectionHeader.text(category.translate(lang)),
                           Column(
                             spacing: theme.smallSpacing,
                             children: [

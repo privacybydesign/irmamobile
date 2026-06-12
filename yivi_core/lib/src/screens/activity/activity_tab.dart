@@ -13,6 +13,7 @@ import "../../util/string.dart";
 import "../../widgets/end_of_list_indicator.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/loading_indicator.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 import "history_repository.dart";
 import "widgets/activity_card.dart";
@@ -124,19 +125,15 @@ class _ActivityTabState extends State<ActivityTab> {
             padding: EdgeInsets.only(
               // If is not first add padding to top.
               top: index > 0 ? theme.defaultSpacing : 0,
-              left: theme.tinySpacing,
               right: theme.tinySpacing,
               bottom: theme.tinySpacing,
             ),
-            child: Semantics(
-              header: true,
-              child: Text(
-                DateFormat(
-                  "MMMM",
-                  local,
-                ).format(logEntry.time.toLocal()).toCapitalized(),
-                style: theme.themeData.textTheme.displaySmall,
-              ),
+            child: SectionHeader.text(
+              DateFormat(
+                "MMMM",
+                local,
+              ).format(logEntry.time.toLocal()).toCapitalized(),
+              style: theme.themeData.textTheme.displaySmall,
             ),
           ),
         Padding(

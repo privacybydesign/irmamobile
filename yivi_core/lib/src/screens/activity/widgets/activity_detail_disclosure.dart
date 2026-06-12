@@ -6,7 +6,7 @@ import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/section_header.dart";
 
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogInfo logEntry;
@@ -20,11 +20,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TranslatedText(
-          "activity.data_shared",
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
+        SectionHeader("activity.data_shared"),
         SizedBox(height: theme.smallSpacing),
         // If all disclosed attributes are empty render one empty data card
         if (noDisclosedCredentials(logEntry))
@@ -45,20 +41,12 @@ class ActivityDetailDisclosure extends StatelessWidget {
         if (logEntry.type == LogType.signature) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-            child: TranslatedText(
-              "activity.signed_message",
-              style: theme.themeData.textTheme.headlineMedium,
-              isHeader: true,
-            ),
+            child: SectionHeader("activity.signed_message"),
           ),
           IrmaQuote(quote: logEntry.signedMessageLog!.message),
         ],
         SizedBox(height: theme.smallSpacing),
-        TranslatedText(
-          "activity.shared_with",
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
+        SectionHeader("activity.shared_with"),
         SizedBox(height: theme.smallSpacing),
         RequestorHeader(requestor: logEntry.requestor),
       ],

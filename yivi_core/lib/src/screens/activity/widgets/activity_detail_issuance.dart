@@ -4,7 +4,7 @@ import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/requestor_header.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/section_header.dart";
 
 class ActivityDetailIssuance extends StatelessWidget {
   final LogInfo logEntry;
@@ -23,11 +23,7 @@ class ActivityDetailIssuance extends StatelessWidget {
       children: [
         //If is this issuance also has disclosed attributes
         if (issuanceLog.disclosedCredentials.isNotEmpty) ...[
-          TranslatedText(
-            "activity.data_shared",
-            style: theme.themeData.textTheme.headlineMedium,
-            isHeader: true,
-          ),
+          SectionHeader("activity.data_shared"),
           SizedBox(height: theme.smallSpacing),
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
@@ -39,11 +35,7 @@ class ActivityDetailIssuance extends StatelessWidget {
               ),
             ),
           SizedBox(height: theme.smallSpacing),
-          TranslatedText(
-            "activity.shared_with",
-            style: theme.themeData.textTheme.headlineMedium,
-            isHeader: true,
-          ),
+          SectionHeader("activity.shared_with"),
           SizedBox(height: theme.smallSpacing),
           RequestorHeader(
             requestor: requestor,
@@ -51,11 +43,7 @@ class ActivityDetailIssuance extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
         ],
-        TranslatedText(
-          "activity.received_data",
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
+        SectionHeader("activity.received_data"),
         SizedBox(height: theme.smallSpacing),
         for (var rawCredential in issuanceLog.credentials)
           Padding(
@@ -67,11 +55,7 @@ class ActivityDetailIssuance extends StatelessWidget {
             ),
           ),
         SizedBox(height: theme.smallSpacing),
-        TranslatedText(
-          "activity.received_from",
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
+        SectionHeader("activity.received_from"),
         SizedBox(height: theme.smallSpacing),
         RequestorHeader(requestor: requestor),
       ],

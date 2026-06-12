@@ -7,7 +7,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/translated_text.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/yivi_themed_button.dart";
 import "../home/widgets/irma_nav_bar.dart";
 import "widgets/tiles.dart";
@@ -55,9 +55,8 @@ class _MoreTabState extends State<MoreTab> {
 
     Widget buildHeaderText(String translationKey) => Padding(
       padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: TranslatedText(
+      child: SectionHeader(
         translationKey,
-        isHeader: true,
         style: theme.textTheme.bodyLarge!.copyWith(
           color: theme.neutralExtraDark,
         ),

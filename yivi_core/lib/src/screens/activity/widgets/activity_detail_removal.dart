@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/section_header.dart";
 
 class ActivityDetailRemoval extends StatelessWidget {
   final LogInfo logEntry;
@@ -19,11 +19,7 @@ class ActivityDetailRemoval extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TranslatedText(
-          "activity.deleted_data",
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
+        SectionHeader("activity.deleted_data"),
         SizedBox(height: theme.smallSpacing),
         for (var removedCredential in removedCredentials)
           Padding(
