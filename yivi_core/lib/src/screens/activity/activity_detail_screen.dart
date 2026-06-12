@@ -41,7 +41,9 @@ class ActivityDetailsScreen extends StatelessWidget {
         title: Text(
           dateAtTime,
           style: theme.themeData.textTheme.displaySmall?.copyWith(
+            fontSize: 16,
             fontWeight: FontWeight.w500,
+            color: theme.dark,
           ),
         ),
       ),
