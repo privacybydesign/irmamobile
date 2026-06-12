@@ -39,13 +39,12 @@ class ActivityDetailDisclosure extends StatelessWidget {
               ),
             ),
         if (logEntry.type == LogType.signature) ...[
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-            child: SectionHeader("activity.signed_message"),
-          ),
+          SizedBox(height: theme.defaultSpacing),
+          SectionHeader("activity.signed_message"),
+          SizedBox(height: theme.smallSpacing),
           IrmaQuote(quote: logEntry.signedMessageLog!.message),
         ],
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: theme.defaultSpacing),
         SectionHeader("activity.shared_with"),
         SizedBox(height: theme.smallSpacing),
         RequestorHeader(requestor: logEntry.requestor),

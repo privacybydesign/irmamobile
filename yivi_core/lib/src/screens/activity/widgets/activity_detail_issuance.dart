@@ -34,7 +34,7 @@ class ActivityDetailIssuance extends StatelessWidget {
                 hideFooter: true,
               ),
             ),
-          SizedBox(height: theme.smallSpacing),
+          SizedBox(height: theme.defaultSpacing),
           SectionHeader("activity.shared_with"),
           SizedBox(height: theme.smallSpacing),
           RequestorHeader(
@@ -54,7 +54,7 @@ class ActivityDetailIssuance extends StatelessWidget {
               hideFooter: true,
             ),
           ),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: theme.defaultSpacing),
         SectionHeader("activity.received_from"),
         SizedBox(height: theme.smallSpacing),
         RequestorHeader(requestor: requestor),
