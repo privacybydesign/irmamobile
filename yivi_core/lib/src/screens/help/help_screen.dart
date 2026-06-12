@@ -20,12 +20,7 @@ class _HelpScreenState extends State<HelpScreen> {
   final ScrollController _controller = ScrollController();
 
   Widget _buildHeader(IrmaThemeData theme, String translationKey) =>
-      SectionHeader(
-        translationKey,
-        style: theme.textTheme.bodyLarge!.copyWith(
-          color: theme.neutralExtraDark,
-        ),
-      );
+      SectionHeader(translationKey);
 
   @override
   Widget build(BuildContext context) {

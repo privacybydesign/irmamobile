@@ -55,12 +55,7 @@ class _MoreTabState extends State<MoreTab> {
 
     Widget buildHeaderText(String translationKey) => Padding(
       padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: SectionHeader(
-        translationKey,
-        style: theme.textTheme.bodyLarge!.copyWith(
-          color: theme.neutralExtraDark,
-        ),
-      ),
+      child: SectionHeader(translationKey),
     );
 
     return Scaffold(

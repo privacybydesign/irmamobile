@@ -133,7 +133,6 @@ class _ActivityTabState extends State<ActivityTab> {
                 "MMMM",
                 local,
               ).format(logEntry.time.toLocal()).toCapitalized(),
-              style: theme.themeData.textTheme.displaySmall,
             ),
           ),
         Padding(
