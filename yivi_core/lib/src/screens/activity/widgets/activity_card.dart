@@ -7,6 +7,7 @@ import "../../../theme/theme.dart";
 import "../../../util/navigation.dart";
 import "../../../util/string.dart";
 import "../../../widgets/base64_image.dart";
+import "../../../widgets/chevron.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/translated_text.dart";
@@ -151,7 +152,7 @@ class ActivityCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: theme.tinySpacing),
-                    Icon(Icons.chevron_right, color: Colors.grey.shade700),
+                    const Chevron(),
                   ],
                 ),
               ),

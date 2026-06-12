@@ -6,6 +6,7 @@ import "package:share_plus/share_plus.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
+import "../../../widgets/chevron.dart";
 import "../../../widgets/irma_dialog.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
@@ -218,15 +219,23 @@ class Tile extends StatelessWidget {
         child: ListTile(
           onTap: onTap,
           minLeadingWidth: theme.mediumSpacing,
+          contentPadding: EdgeInsets.fromLTRB(
+            theme.defaultSpacing,
+            0,
+            theme.smallSpacing,
+            0,
+          ),
           leading: iconData != null
               ? Icon(iconData, size: 28, color: iconColor)
               : null,
           title: TranslatedText(
             labelTranslationKey,
-            style: theme.textButtonTextStyle,
+            style: theme.textButtonTextStyle.copyWith(
+              fontWeight: FontWeight.w400,
+              color: theme.dark,
+            ),
           ),
-          trailing:
-              trailing ?? Icon(Icons.chevron_right, size: 28, color: iconColor),
+          trailing: trailing ?? const Chevron(),
         ),
       ),
     );

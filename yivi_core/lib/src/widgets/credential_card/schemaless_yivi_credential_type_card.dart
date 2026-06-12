@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
+import "../chevron.dart";
 import "../irma_avatar.dart";
 import "../irma_card.dart";
 
@@ -103,11 +104,10 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: theme.smallSpacing),
-                Icon(
-                  trailingIcon ?? Icons.chevron_right,
-                  size: 24,
-                  color: theme.neutralExtraDark,
-                ),
+                if (trailingIcon != null)
+                  Icon(trailingIcon, size: 24, color: theme.neutralExtraDark)
+                else
+                  const Chevron(),
               ],
             ),
           ),
