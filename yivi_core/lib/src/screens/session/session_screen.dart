@@ -95,6 +95,12 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// user closes it; the close handler then skips the silent reopen.
   SessionError? _returnUrlError;
 
+  /// Latched on the first `_buildSuccess` call for this session: true iff
+  /// the finished issuance includes a credential the user launched
+  /// in-app. We capture once and clear the launched set immediately so
+  /// rebuilds keep returning the same decision.
+  bool? _inAppLaunchedSuccess;
+
   @override
   void initState() {
     super.initState();
@@ -175,8 +181,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           _buildError(SessionError(errorType: "unknown", info: err.toString())),
       data: (session) {
         // Auto-pop when dismissed — pop back to the previous screen
-        // (scanner, home, or underlying session).
+        // (scanner, home, or underlying session). Clear so an abandoned
+        // in-app launch doesn't leak into the next session.
         if (session.status == .dismissed) {
+          _repo.clearInAppLaunches();
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               if (widget.hasUnderlyingSession) {
@@ -404,6 +412,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildSuccess(SessionState session) {
+    // Latch the in-app-launched decision on first build, then clear the
+    // launched set so abandoned launches don't leak into a future session.
+    // Build runs multiple times; without latching, the cleared set would
+    // flip the decision on subsequent builds.
+    if (_inAppLaunchedSuccess == null) {
+      _inAppLaunchedSuccess = _repo.didIssueInAppLaunchedCredential(session);
+      _repo.clearInAppLaunches();
+    }
+
     void pop() {
       if (mounted) {
         context.popToUnderlyingSessionOrHome(
@@ -419,6 +436,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         if (mounted) context.popToUnderlyingSession();
       });
       return _buildLoadingScreen(session);
+    }
+
+    // The user originated this issuance from inside the app (add-data tap
+    // or OpenID4VCI launch). Keep them in-app on finish — skip any return
+    // URL the issuer set, and skip the iOS ArrowBack / Android background
+    // fallbacks.
+    if (_inAppLaunchedSuccess!) {
+      return IssuanceSuccessScreen(onDismiss: (_) => pop());
     }
 
     final returnUrl = session.parsedClientReturnUrl;
@@ -499,11 +524,17 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   Future<void> _closeSession() async {
     final session = _lastSession?.value;
     final returnUrl = session?.parsedClientReturnUrl;
+    // Don't silently reopen the issuer's return URL when the user
+    // originated this issuance from inside the app — they expect to land
+    // back in Yivi, not bounced back to a browser.
+    final wasInAppLaunched =
+        session != null && _repo.didIssueInAppLaunchedCredential(session);
     final shouldSilentReopen =
         returnUrl != null &&
         !returnUrl.isPhoneNumber &&
         session?.error?.errorType != "clientReturnUrl" &&
-        _returnUrlError?.errorType != "clientReturnUrl";
+        _returnUrlError?.errorType != "clientReturnUrl" &&
+        !wasInAppLaunched;
 
     if (shouldSilentReopen) {
       try {
@@ -513,6 +544,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         reportError(e, st);
       }
     }
+
+    // Clear so an abandoned in-app launch doesn't leak into the next
+    // session. Safe to call even when nothing was launched.
+    _repo.clearInAppLaunches();
 
     if (mounted) {
       context.popToUnderlyingSessionOrHome(

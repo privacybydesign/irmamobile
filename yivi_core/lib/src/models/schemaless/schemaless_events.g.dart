@@ -125,8 +125,6 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   attributes: (json['attributes'] as List<dynamic>)
       .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
       .toList(),
-  issuanceDate: (json['issuance_date'] as num).toInt(),
-  expiryDate: (json['expiry_date'] as num).toInt(),
   revoked: json['revoked'] as bool,
   revocationSupported: json['revocation_supported'] as bool,
   issueUrl: TranslatedValue.fromJson(
@@ -135,6 +133,8 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
+  issuanceDate: (json['issuance_date'] as num?)?.toInt(),
+  expiryDate: (json['expiry_date'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$CredentialToJson(Credential instance) =>

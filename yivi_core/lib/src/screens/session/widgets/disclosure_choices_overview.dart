@@ -141,11 +141,14 @@ class _DisclosureChoicesOverviewState
       if (selectedIndex >= owned.length) continue;
 
       for (final instance in owned[selectedIndex].credentials) {
-        final expiryDateTime = DateTime.fromMillisecondsSinceEpoch(
-          instance.expiryDate * 1000,
-        );
+        if (instance.expiryDate != null) {
+          final expiryDateTime = DateTime.fromMillisecondsSinceEpoch(
+            instance.expiryDate! * 1000,
+          );
+          if (expiryDateTime.isBefore(now)) return true;
+        }
+
         if (instance.revoked) return true;
-        if (expiryDateTime.isBefore(now)) return true;
         if (instance.batchInstanceCountRemaining != null &&
             instance.batchInstanceCountRemaining! <= 0) {
           return true;

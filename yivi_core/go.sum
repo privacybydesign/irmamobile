@@ -221,8 +221,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750 h1:3RuYOQTlArQ6Uw2TgySusmZGluP+18WdQL56YSfkM3Q=
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750/go.mod h1:QZI8hX8Ff2GfZ7UJuxyWw3nAGgt2s5+U4hxY6rmwQvs=
-github.com/privacybydesign/irmago v0.19.3-0.20260608130548-6b14ee5127f0 h1:ipdaSqfUrHQ80lDQVu8/Bd2EWfnDapgnHlKI8D7Wqf4=
-github.com/privacybydesign/irmago v0.19.3-0.20260608130548-6b14ee5127f0/go.mod h1:xNTXPHsMwU200yBGr+FSkUCUYtf2C0Egc/nUu2XNUNg=
+github.com/privacybydesign/irmago v0.19.3-0.20260611151813-d4fd04b0e4c5 h1:rugGMZJwb5yOCUPn7Y8MJLY6aocf8p6kebAlBtSatw8=
+github.com/privacybydesign/irmago v0.19.3-0.20260611151813-d4fd04b0e4c5/go.mod h1:xNTXPHsMwU200yBGr+FSkUCUYtf2C0Egc/nUu2XNUNg=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=

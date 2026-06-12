@@ -202,9 +202,12 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                     faq: params.faq,
                     onCancel: context.pop,
                     onAdd: () {
-                      IrmaRepositoryProvider.of(
+                      IrmaRepositoryProvider.of(context).openIssueURL(
                         context,
-                      ).schemalessOpenIssueURL(context, params.credential, ref);
+                        params.credential.credentialId,
+                        params.credential.issueURL,
+                        ref,
+                      );
                     },
                   );
                 },

@@ -25,7 +25,7 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
   required Map<String, dynamic> credentialData,
   String? txCodeInputMode,
   int? txCodeLength,
-  int ttlSeconds = 31536000,
+  int? ttlSeconds = 31536000,
 }) async {
   final grants = <String, dynamic>{
     "urn:ietf:params:oauth:grant-type:pre-authorized_code": {
@@ -41,7 +41,9 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
   // The _ttl field is consumed by the Veramo agent and not included in the
   // credential.
   final dataWithTtl = Map<String, dynamic>.from(credentialData);
-  dataWithTtl["_ttl"] = ttlSeconds.toString();
+  if (ttlSeconds != null) {
+    dataWithTtl["_ttl"] = ttlSeconds.toString();
+  }
 
   final body = {
     "credentials": [credentialConfigId],

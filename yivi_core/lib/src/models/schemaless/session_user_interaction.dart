@@ -80,12 +80,12 @@ class SessionUserInteractionEvent extends SessionEvent {
 
   factory SessionUserInteractionEvent.authCallback({
     required int sessionId,
-    required String code,
+    required String callbackUrl,
     required bool proceed,
   }) => SessionUserInteractionEvent._(
     sessionId: sessionId,
     type: UserInteractionType.authorizationCode,
-    payload: {"code": code, "proceed": proceed},
+    payload: {"callback_url": callbackUrl, "proceed": proceed},
   );
 
   factory SessionUserInteractionEvent.preAuthorizedCodePermission({

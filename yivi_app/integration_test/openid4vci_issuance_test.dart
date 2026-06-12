@@ -15,6 +15,7 @@ import "package:yivi_core/src/screens/session/widgets/openid4vci_preauth_txcode_
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
+import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 
 import "helpers/helpers.dart";
@@ -144,6 +145,18 @@ void main() {
     testWidgets(
       "remove-deduped-and-unique-credentials",
       (tester) => testRemoveDedupedAndUniqueCredentials(tester, irmaBinding),
+    );
+
+    // =========================================================================
+    // Credential card tests
+    // =========================================================================
+
+    testWidgets(
+      "issue-nonexpiring-credential-shows-unlimited-validity",
+      (tester) => testIssueNonExpiringCredentialShowsUnlimitedValidity(
+        tester,
+        irmaBinding,
+      ),
     );
   });
 }
@@ -729,16 +742,102 @@ Future<void> testRemoveDedupedAndUniqueCredentials(
   );
 }
 
+// =============================================================================
+// Credential card test implementations
+// =============================================================================
+
+Future<void> testIssueNonExpiringCredentialShowsUnlimitedValidity(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  await _issueEmailCredViaPreAuth(
+    tester,
+    irmaBinding,
+    email: "test@example.com",
+    ttlSeconds: null,
+  );
+
+  // Open the email category details screen. We tap the only credential type
+  // card on the data tab rather than a key built from a guessed credential ID.
+  await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
+  await tester.waitFor(find.byType(SchemalessYiviCredentialTypeCard));
+  final emailTypeCard = find.byType(SchemalessYiviCredentialTypeCard);
+  expect(emailTypeCard, findsOneWidget);
+  await tester.tapAndSettle(emailTypeCard);
+  expect(find.byType(SchemalessCredentialsDetailsScreen), findsOneWidget);
+
+  // Expect one card: with "Valid indefinitely" or similar wording, not a date.
+  expect(find.byType(YiviCredentialCard), findsExactly(1));
+
+  final card = find.ancestor(
+    of: find.text("test@example.com"),
+    matching: find.byType(YiviCredentialCard),
+  );
+  expect(card, findsOneWidget);
+  await tester.tapAndSettle(
+    find.descendant(of: card, matching: find.byIcon(Icons.more_horiz_sharp)),
+  );
+
+  // Assert the validity text contains "indefinite" or similar wording, not a date.
+  final footer = find.descendant(
+    of: card,
+    matching: find.byType(YiviCredentialCardFooter),
+  );
+
+  // In the footer, the left side contains the validity text.
+  final validityText = find.descendant(
+    of: footer,
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is Text &&
+          widget.data != null &&
+          widget.data!.toLowerCase().contains("valid until"),
+    ),
+  );
+
+  // Find the parent and assert it contains a text box with "indefinite" or similar wording.
+  final validityContainer = find.ancestor(
+    of: validityText,
+    matching: find.byWidgetPredicate(
+      (widget) =>
+          widget is Row &&
+          find
+              .descendant(
+                of: find.byWidget(widget),
+                matching: find.byWidgetPredicate(
+                  (child) =>
+                      child is Text &&
+                      child.data != null &&
+                      child.data!.toLowerCase().contains("indefinite"),
+                ),
+              )
+              .evaluate()
+              .isNotEmpty,
+    ),
+  );
+
+  // Only the unique card remains
+  expect(validityContainer, findsOneWidget);
+}
+
+// =============================================================================
+// Helper functions
+// =============================================================================
+
 /// Issues a single EmailCredentialSdJwt via the pre-authorized code flow with
 /// the wallet at home. Returns to home after success.
 Future<void> _issueEmailCredViaPreAuth(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
   required String email,
+  int? ttlSeconds = 31536000,
 }) async {
   final offer = await startOpenID4VCISession(
     credentialConfigId: "EmailCredentialSdJwt",
     credentialData: {"email": email, "domain": "example.com"},
+    ttlSeconds: ttlSeconds,
   );
   irmaBinding.repository.startTestSessionFromUrl(offer.uri);
 
@@ -749,10 +848,6 @@ Future<void> _issueEmailCredViaPreAuth(
   await tester.waitFor(find.byType(IssuanceSuccessScreen));
   await tester.tapAndSettle(find.text("OK"));
 }
-
-// =============================================================================
-// Helper functions
-// =============================================================================
 
 /// Navigates to the Activity tab and opens the most recent activity entry.
 Future<void> navigateToLatestActivity(WidgetTester tester) async {

@@ -46,24 +46,6 @@ class RespondPreAuthorizedCodeFlowPermissionEvent extends SessionEvent {
 }
 
 @JsonSerializable(fieldRename: .snake)
-class RespondAuthorizationCodeEvent extends SessionEvent {
-  RespondAuthorizationCodeEvent({
-    required this.sessionId,
-    required this.proceed,
-    required this.code,
-  });
-
-  final int sessionId;
-  final bool proceed;
-
-  final String code;
-
-  factory RespondAuthorizationCodeEvent.fromJson(Map<String, dynamic> json) =>
-      _$RespondAuthorizationCodeEventFromJson(json);
-  Map<String, dynamic> toJson() => _$RespondAuthorizationCodeEventToJson(this);
-}
-
-@JsonSerializable(fieldRename: .snake)
 class RespondTokenEvent extends SessionEvent {
   RespondTokenEvent({
     required this.sessionId,

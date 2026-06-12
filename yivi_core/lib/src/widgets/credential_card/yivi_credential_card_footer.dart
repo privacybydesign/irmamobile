@@ -35,11 +35,6 @@ class YiviCredentialCardFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-
-    if (expiryDate == null || expiryDate?.dateTime == null) {
-      return Container();
-    }
-
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Padding(
@@ -63,16 +58,24 @@ class YiviCredentialCardFooter extends StatelessWidget {
                           color: theme.neutralExtraDark,
                         ),
                       ),
-                      Text(
-                        printableDate(expiryDate!.dateTime!, lang),
-                        style: theme.textTheme.bodyLarge!.copyWith(
-                          fontSize: 14,
-                          color: _getTextColorForExpireState(
-                            timeBasedExpireState,
-                            theme,
-                          ),
-                        ),
-                      ),
+                      (expiryDate == null || expiryDate?.dateTime == null)
+                          ? TranslatedText(
+                              "credential.indefinite_validity",
+                              style: theme.textTheme.bodyLarge!.copyWith(
+                                fontSize: 14,
+                                color: theme.dark,
+                              ),
+                            )
+                          : Text(
+                              printableDate(expiryDate!.dateTime!, lang),
+                              style: theme.textTheme.bodyLarge!.copyWith(
+                                fontSize: 14,
+                                color: _getTextColorForExpireState(
+                                  timeBasedExpireState,
+                                  theme,
+                                ),
+                              ),
+                            ),
                     ],
                   ),
                 ),
