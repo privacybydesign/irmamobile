@@ -16,7 +16,7 @@ TextStyle credentialNameStyle(IrmaThemeData theme, double fontSize) =>
     TextStyle(
       fontFamily: theme.primaryFontFamily,
       fontSize: fontSize,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
       color: theme.dark,
       height: 26 / 19,
     );
