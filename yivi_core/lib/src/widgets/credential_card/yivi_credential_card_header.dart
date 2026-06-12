@@ -4,7 +4,7 @@ import "../../theme/theme.dart";
 import "../irma_avatar.dart";
 import "../translated_text.dart";
 
-TextStyle _issuerLabelStyle(IrmaThemeData theme) => TextStyle(
+TextStyle issuerLabelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
   fontSize: 14,
   fontWeight: FontWeight.w400,
@@ -111,7 +111,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                   ),
                   if (issuerName != null) ...[
                     SizedBox(height: 1),
-                    Text(issuerName!, style: _issuerLabelStyle(theme)),
+                    Text(issuerName!, style: issuerLabelStyle(theme)),
                   ],
                 ],
               ),

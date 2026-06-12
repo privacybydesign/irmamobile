@@ -5,6 +5,7 @@ import "../../theme/theme.dart";
 import "../../util/language.dart";
 import "../irma_avatar.dart";
 import "../irma_card.dart";
+import "yivi_credential_card_header.dart";
 
 class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   final String? credentialImagePath;
@@ -79,16 +80,12 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                     children: [
                       Text(
                         getTranslation(context, credentialName),
-                        style: theme.textTheme.headlineMedium!.copyWith(
-                          color: theme.dark,
-                        ),
+                        style: credentialNameStyle(theme, 19),
                       ),
-                      SizedBox(height: theme.tinySpacing),
+                      SizedBox(height: 1),
                       Text(
                         getTranslation(context, issuerName),
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          fontSize: 14,
-                        ),
+                        style: issuerLabelStyle(theme),
                       ),
                     ],
                   ),
