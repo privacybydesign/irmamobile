@@ -48,7 +48,7 @@ class IrmaThemeData {
   final Color danger = const Color(0xffEABEBE);
 
   // Fonts
-  final String primaryFontFamily = "Alexandria";
+  final String primaryFontFamily = "Open Sans";
   final String secondaryFontFamily = "Open Sans";
 
   // Borders

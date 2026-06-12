@@ -7,6 +7,7 @@ import "../../../theme/theme.dart";
 import "../../../util/navigation.dart";
 import "../../../util/string.dart";
 import "../../../widgets/base64_image.dart";
+import "../../../widgets/chevron.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/translated_text.dart";
@@ -26,13 +27,10 @@ class ActivityCard extends StatelessWidget {
     String semanticLabel = "";
     Widget? logoImage;
 
-    final localizedTimeStamp = FlutterI18n.translate(
+    final localizedTimeStamp = _formatActivityTimestamp(
       context,
-      "credential.date_at_time",
-      translationParams: {
-        "date": DateFormat.yMMMMd(lang).format(logEntry.time.toLocal()),
-        "time": DateFormat.jm(lang).format(logEntry.time.toLocal()),
-      },
+      logEntry.time.toLocal(),
+      lang,
     );
 
     if (logEntry.type == LogType.removal) {
@@ -108,48 +106,53 @@ class ActivityCard extends StatelessWidget {
             child: Semantics(
               excludeSemantics: true,
               child: Padding(
-                padding: EdgeInsets.all(theme.defaultSpacing),
+                padding: EdgeInsets.fromLTRB(
+                  theme.defaultSpacing,
+                  theme.defaultSpacing,
+                  theme.smallSpacing,
+                  theme.defaultSpacing,
+                ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Flexible(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                    IrmaAvatar(
+                      size: 52,
+                      logoImage: logoImage,
+                      initials: title != "" ? title[0] : null,
+                    ),
+                    SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IrmaAvatar(
-                            size: 52,
-                            logoImage: logoImage,
-                            initials: title != "" ? title[0] : null,
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.themeData.textTheme.headlineMedium!
+                                .copyWith(fontSize: 16, color: theme.dark),
                           ),
-                          SizedBox(width: theme.smallSpacing),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TranslatedText(localizedTimeStamp),
-                                Text(
-                                  title,
-                                  style: theme
-                                      .themeData
-                                      .textTheme
-                                      .headlineMedium!
-                                      .copyWith(color: theme.dark),
+                          TranslatedText(
+                            subtitleTranslationKey,
+                            style: theme.themeData.textTheme.bodyMedium!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: theme.neutralExtraDark,
                                 ),
-                                TranslatedText(
-                                  subtitleTranslationKey,
-                                  style: theme.themeData.textTheme.bodyMedium!
-                                      .copyWith(
-                                        fontSize: 14,
-                                        color: theme.dark,
-                                      ),
-                                ),
-                              ],
-                            ),
                           ),
                         ],
                       ),
                     ),
-                    Icon(Icons.chevron_right, color: Colors.grey.shade700),
+                    SizedBox(width: theme.smallSpacing),
+                    TranslatedText(
+                      localizedTimeStamp,
+                      style: theme.themeData.textTheme.bodyMedium!.copyWith(
+                        fontSize: 14,
+                        color: theme.neutralExtraDark,
+                      ),
+                    ),
+                    SizedBox(width: theme.tinySpacing),
+                    const Chevron(),
                   ],
                 ),
               ),
@@ -159,4 +162,19 @@ class ActivityCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatActivityTimestamp(
+  BuildContext context,
+  DateTime time,
+  String lang,
+) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final entryDay = DateTime(time.year, time.month, time.day);
+  final daysAgo = today.difference(entryDay).inDays;
+
+  if (daysAgo == 0) return DateFormat.jm(lang).format(time);
+  if (daysAgo == 1) return FlutterI18n.translate(context, "activity.yesterday");
+  return DateFormat.yMMMMd(lang).format(time);
 }

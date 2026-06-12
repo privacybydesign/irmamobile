@@ -71,9 +71,11 @@ class _VersionButtonState extends State<VersionButton> {
           Expanded(
             child: InkWell(
               onTap: onTap,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: Padding(
+                padding: EdgeInsets.only(left: theme.defaultSpacing),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   StreamBuilder<Credentials>(
                     stream: repo.getCredentials(),
                     builder: (context, credentials) {
@@ -110,6 +112,7 @@ class _VersionButtonState extends State<VersionButton> {
                         ),
                   ),
                 ],
+                ),
               ),
             ),
           ),

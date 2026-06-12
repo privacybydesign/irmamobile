@@ -33,7 +33,12 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.fromLTRB(
+        theme.defaultSpacing,
+        0,
+        theme.defaultSpacing,
+        theme.defaultSpacing,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

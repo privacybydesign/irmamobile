@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
 import "../../util/language.dart";
+import "../chevron.dart";
 import "../irma_avatar.dart";
 import "../irma_card.dart";
 
@@ -68,7 +69,17 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
           key: Key("${credentialId}_tile"),
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
+            // Tighter right padding when showing the default chevron so it
+            // sits closer to the card edge. Action icons (e.g. the `+` on the
+            // add-data screen) keep the standard padding.
+            padding: trailingIcon == null
+                ? EdgeInsets.fromLTRB(
+                    theme.defaultSpacing,
+                    theme.defaultSpacing,
+                    theme.smallSpacing,
+                    theme.defaultSpacing,
+                  )
+                : EdgeInsets.all(theme.defaultSpacing),
             child: Row(
               children: [
                 ExcludeSemantics(child: avatar),
@@ -79,26 +90,24 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                     children: [
                       Text(
                         getTranslation(context, credentialName),
-                        style: theme.textTheme.headlineMedium!.copyWith(
-                          color: theme.dark,
-                        ),
+                        style: theme.themeData.textTheme.headlineMedium!
+                            .copyWith(fontSize: 16, color: theme.dark),
                       ),
-                      SizedBox(height: theme.tinySpacing),
                       Text(
                         getTranslation(context, issuerName),
-                        style: theme.textTheme.bodyMedium!.copyWith(
+                        style: theme.themeData.textTheme.bodyMedium!.copyWith(
                           fontSize: 14,
+                          color: theme.neutralExtraDark,
                         ),
                       ),
                     ],
                   ),
                 ),
                 SizedBox(width: theme.smallSpacing),
-                Icon(
-                  trailingIcon ?? Icons.chevron_right,
-                  size: 24,
-                  color: theme.neutralExtraDark,
-                ),
+                if (trailingIcon != null)
+                  Icon(trailingIcon, size: 24, color: theme.neutralExtraDark)
+                else
+                  const Chevron(),
               ],
             ),
           ),

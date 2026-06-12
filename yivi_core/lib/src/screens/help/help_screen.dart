@@ -6,6 +6,7 @@ import "../../theme/theme.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_markdown.dart";
 import "../../widgets/link.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 import "widgets/help_item.dart";
 import "widgets/help_item_carousel.dart";
@@ -19,13 +20,7 @@ class _HelpScreenState extends State<HelpScreen> {
   final ScrollController _controller = ScrollController();
 
   Widget _buildHeader(IrmaThemeData theme, String translationKey) =>
-      TranslatedText(
-        translationKey,
-        isHeader: true,
-        style: theme.textTheme.bodyLarge!.copyWith(
-          color: theme.neutralExtraDark,
-        ),
-      );
+      SectionHeader(translationKey);
 
   @override
   Widget build(BuildContext context) {

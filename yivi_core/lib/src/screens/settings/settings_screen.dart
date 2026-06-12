@@ -8,6 +8,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 import "../more/widgets/tiles.dart";
 import "../more/widgets/tiles_card.dart";
@@ -50,13 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     Widget buildHeaderText(String translationKey) => Padding(
       padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: Semantics(
-        header: true,
-        child: TranslatedText(
-          translationKey,
-          style: theme.textTheme.headlineMedium,
-        ),
-      ),
+      child: SectionHeader(translationKey),
     );
 
     Widget buildExplanationText(String translationKey) => Padding(
@@ -68,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         translationKey,
         style: theme.textTheme.bodyMedium!.copyWith(
           fontSize: 14,
-          color: theme.neutral,
+          color: theme.neutralDark,
         ),
       ),
     );

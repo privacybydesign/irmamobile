@@ -4,11 +4,11 @@ import "../../theme/theme.dart";
 import "../irma_avatar.dart";
 import "../translated_text.dart";
 
-TextStyle _issuerLabelStyle(IrmaThemeData theme) => TextStyle(
+TextStyle issuerLabelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 13,
-  fontWeight: FontWeight.w600,
-  color: theme.neutralDark,
+  fontSize: 14,
+  fontWeight: FontWeight.w400,
+  color: theme.neutralExtraDark,
   height: 1.4,
 );
 
@@ -16,7 +16,7 @@ TextStyle credentialNameStyle(IrmaThemeData theme, double fontSize) =>
     TextStyle(
       fontFamily: theme.primaryFontFamily,
       fontSize: fontSize,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
       color: theme.dark,
       height: 26 / 19,
     );
@@ -72,7 +72,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
     return null;
   }
 
-  static const _compactLogoSize = 48.0;
+  static const _compactLogoSize = 52.0;
 
   @override
   Widget build(BuildContext context) {
@@ -81,55 +81,55 @@ class YiviCredentialCardHeader extends StatelessWidget {
 
     // Always use the compact layout for now — the expanded variant has
     // been retired while we align the header style with the design.
-    final mainColumn = Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (status != null) ...[status, SizedBox(height: theme.smallSpacing)],
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ExcludeSemantics(
-              child: IrmaAvatar(
-                logoPath: logoPath,
-                logoImage: logoImage,
-                initials: logoPath == null && logoImage == null
-                    ? credentialName[0]
-                    : null,
-                size: _compactLogoSize,
-              ),
-            ),
-            SizedBox(width: theme.smallSpacing + theme.tinySpacing),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    credentialName,
-                    style: credentialNameStyle(theme, 19),
-                    softWrap: true,
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                widthFactor: 1,
+                child: ExcludeSemantics(
+                  child: IrmaAvatar(
+                    logoPath: logoPath,
+                    logoImage: logoImage,
+                    initials: logoPath == null && logoImage == null
+                        ? credentialName[0]
+                        : null,
+                    size: _compactLogoSize,
                   ),
-                  if (issuerName != null)
-                    Text(issuerName!, style: _issuerLabelStyle(theme)),
-                ],
+                ),
               ),
-            ),
-          ],
+              SizedBox(width: theme.smallSpacing + theme.tinySpacing),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        credentialName,
+                        style: credentialNameStyle(theme, 19),
+                        softWrap: true,
+                      ),
+                      if (issuerName != null) ...[
+                        SizedBox(height: 1),
+                        Text(issuerName!, style: issuerLabelStyle(theme)),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              if (trailing != null) ...[
+                SizedBox(width: theme.smallSpacing),
+                Align(alignment: Alignment.topCenter, child: trailing!),
+              ],
+            ],
+          ),
         ),
-      ],
-    );
-
-    if (trailing == null) return mainColumn;
-
-    return Stack(
-      children: [
-        // Reserve space on the right so the credential name doesn't run
-        // under the trailing button in narrow layouts.
-        Padding(
-          padding: EdgeInsets.only(right: theme.mediumSpacing),
-          child: mainColumn,
-        ),
-        Positioned(top: 0, right: 0, child: trailing!),
       ],
     );
   }

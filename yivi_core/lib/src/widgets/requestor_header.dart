@@ -9,6 +9,7 @@ import "irma_card.dart";
 import "irma_icon_indicator.dart";
 import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
+import "credential_card/yivi_credential_card_header.dart";
 import "yivi_bottom_sheet.dart";
 
 _buildRequestorAvatar({
@@ -32,10 +33,15 @@ class RequestorHeader extends StatelessWidget {
   const RequestorHeader({this.requestor, this.isVerified});
 
   _showCredentialOptionsBottomSheet(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return showYiviBottomSheet(
       context: context,
       titleKey:
           "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
+      titleStyle: credentialNameStyle(
+        theme,
+        18,
+      ).copyWith(fontWeight: FontWeight.w500),
       child: RequestorVerificationExplanationBottomSheet(),
     );
   }
@@ -127,7 +133,10 @@ class RequestorHeader extends StatelessWidget {
     } else {
       mainTextWidget = Text(
         localizedRequestorName,
-        style: theme.themeData.textTheme.headlineMedium,
+        style: credentialNameStyle(
+          theme,
+          16,
+        ).copyWith(fontWeight: FontWeight.w500),
       );
     }
 
@@ -189,7 +198,6 @@ class _RequestorHeaderBase extends StatelessWidget {
 
     return IrmaCard(
       color: backgroundColor,
-      hasShadow: false,
       padding: EdgeInsets.zero,
       margin: EdgeInsets.all(theme.defaultSpacing),
       child: Row(
