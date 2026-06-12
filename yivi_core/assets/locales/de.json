@@ -41,7 +41,8 @@
     "shared_data": "Geteilte Daten",
     "received_data": "Empfangene Daten",
     "deleted_data": "Gelöschte Daten",
-    "empty_placeholder": "Es gibt noch keine gespeicherten Aktivitäten"
+    "empty_placeholder": "Es gibt noch keine gespeicherten Aktivitäten",
+    "yesterday": "Gestern"
   },
   "arrow_back": {
     "no_success": "Abgebrochen",

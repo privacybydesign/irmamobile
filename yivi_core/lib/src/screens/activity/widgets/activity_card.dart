@@ -26,13 +26,10 @@ class ActivityCard extends StatelessWidget {
     String semanticLabel = "";
     Widget? logoImage;
 
-    final localizedTimeStamp = FlutterI18n.translate(
+    final localizedTimeStamp = _formatActivityTimestamp(
       context,
-      "credential.date_at_time",
-      translationParams: {
-        "date": DateFormat.yMMMMd(lang).format(logEntry.time.toLocal()),
-        "time": DateFormat.jm(lang).format(logEntry.time.toLocal()),
-      },
+      logEntry.time.toLocal(),
+      lang,
     );
 
     if (logEntry.type == LogType.removal) {
@@ -110,45 +107,43 @@ class ActivityCard extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.all(theme.defaultSpacing),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Flexible(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                    IrmaAvatar(
+                      size: 52,
+                      logoImage: logoImage,
+                      initials: title != "" ? title[0] : null,
+                    ),
+                    SizedBox(width: theme.smallSpacing),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IrmaAvatar(
-                            size: 52,
-                            logoImage: logoImage,
-                            initials: title != "" ? title[0] : null,
+                          Text(
+                            title,
+                            style: theme.themeData.textTheme.headlineMedium!
+                                .copyWith(fontSize: 18, color: theme.dark),
                           ),
-                          SizedBox(width: theme.smallSpacing),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TranslatedText(localizedTimeStamp),
-                                Text(
-                                  title,
-                                  style: theme
-                                      .themeData
-                                      .textTheme
-                                      .headlineMedium!
-                                      .copyWith(color: theme.dark),
+                          TranslatedText(
+                            subtitleTranslationKey,
+                            style: theme.themeData.textTheme.bodyMedium!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: theme.neutralExtraDark,
                                 ),
-                                TranslatedText(
-                                  subtitleTranslationKey,
-                                  style: theme.themeData.textTheme.bodyMedium!
-                                      .copyWith(
-                                        fontSize: 14,
-                                        color: theme.dark,
-                                      ),
-                                ),
-                              ],
-                            ),
                           ),
                         ],
                       ),
                     ),
+                    SizedBox(width: theme.smallSpacing),
+                    TranslatedText(
+                      localizedTimeStamp,
+                      style: theme.themeData.textTheme.bodyMedium!.copyWith(
+                        fontSize: 14,
+                        color: theme.neutralExtraDark,
+                      ),
+                    ),
+                    SizedBox(width: theme.tinySpacing),
                     Icon(Icons.chevron_right, color: Colors.grey.shade700),
                   ],
                 ),
@@ -159,4 +154,19 @@ class ActivityCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatActivityTimestamp(
+  BuildContext context,
+  DateTime time,
+  String lang,
+) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final entryDay = DateTime(time.year, time.month, time.day);
+  final daysAgo = today.difference(entryDay).inDays;
+
+  if (daysAgo == 0) return DateFormat.jm(lang).format(time);
+  if (daysAgo == 1) return FlutterI18n.translate(context, "activity.yesterday");
+  return DateFormat.yMMMMd(lang).format(time);
 }
