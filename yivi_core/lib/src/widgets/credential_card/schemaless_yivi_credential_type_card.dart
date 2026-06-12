@@ -68,7 +68,17 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
           key: Key("${credentialId}_tile"),
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
+            // Tighter right padding when showing the default chevron so it
+            // sits closer to the card edge. Action icons (e.g. the `+` on the
+            // add-data screen) keep the standard padding.
+            padding: trailingIcon == null
+                ? EdgeInsets.fromLTRB(
+                    theme.defaultSpacing,
+                    theme.defaultSpacing,
+                    theme.smallSpacing,
+                    theme.defaultSpacing,
+                  )
+                : EdgeInsets.all(theme.defaultSpacing),
             child: Row(
               children: [
                 ExcludeSemantics(child: avatar),

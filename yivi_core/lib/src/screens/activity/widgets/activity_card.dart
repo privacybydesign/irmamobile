@@ -105,7 +105,12 @@ class ActivityCard extends StatelessWidget {
             child: Semantics(
               excludeSemantics: true,
               child: Padding(
-                padding: EdgeInsets.all(theme.defaultSpacing),
+                padding: EdgeInsets.fromLTRB(
+                  theme.defaultSpacing,
+                  theme.defaultSpacing,
+                  theme.smallSpacing,
+                  theme.defaultSpacing,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
