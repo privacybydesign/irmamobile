@@ -331,10 +331,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     return OpenID4VCIAuthCodePendingScreen(
       requestor: session.requestor,
       offeredCredentialTypes: session.offeredCredentialTypes!,
-      onOpenBrowser: () => _repo.authenticateOpenID4VCI(
-        session.authorizationRequestUrl!,
-        session.offeredCredentialTypes!.map((c) => c.credentialId),
-      ),
+      onOpenBrowser: () =>
+          _repo.authenticateOpenID4VCI(session.authorizationRequestUrl!),
       onDismiss: _dismissSession,
     );
   }

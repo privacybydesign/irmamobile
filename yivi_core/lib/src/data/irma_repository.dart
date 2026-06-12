@@ -47,9 +47,9 @@ import "session_repository.dart";
 
 class _CredentialObtainState {
   // Credential type IDs the user kicked off an in-app launch for (via
-  // openIssueURL or authenticateOpenID4VCI), pending a session finish.
-  // Used at finish time to decide whether to keep the user inside Yivi
-  // or hand them off to clientReturnUrl / ArrowBack / send-to-background.
+  // openIssueURL), pending a session finish. Used at finish time to decide
+  // whether to keep the user inside Yivi or hand them off to
+  // clientReturnUrl / ArrowBack / send-to-background.
   final Set<String> inAppLaunchedCredentialTypes;
 
   _CredentialObtainState({
@@ -277,10 +277,9 @@ class IrmaRepository {
   }
 
   /// True when [session] is an issuance session that issued at least one
-  /// credential the user launched in-app (via [openIssueURL] or
-  /// [authenticateOpenID4VCI]). Used to keep in-app launches inside Yivi
-  /// on finish instead of chasing `clientReturnUrl` or falling through
-  /// to ArrowBack / send-to-background.
+  /// credential the user launched in-app (via [openIssueURL]). Used to keep
+  /// in-app launches inside Yivi on finish instead of chasing
+  /// `clientReturnUrl` or falling through to ArrowBack / send-to-background.
   ///
   /// Checks both [SessionState.offeredCredentialTypes] (populated for
   /// OpenID4VCI sessions before the issuance instances exist) and
@@ -885,12 +884,8 @@ class IrmaRepository {
   /// at that URL JS-redirects to `app.yivi.open://auth-callback?...`, which
   /// the auth session intercepts via `callbackUrlScheme`. The resulting URL
   /// is then handed off to [handleOpenID4VCIAuthCallback].
-  Future<void> authenticateOpenID4VCI(
-    String authorizationRequestUrl,
-    Iterable<String> credentialIds,
-  ) async {
+  Future<void> authenticateOpenID4VCI(String authorizationRequestUrl) async {
     _resumedFromBrowserSubject.add(true);
-    markInAppLaunched(credentialIds);
     final String result;
     try {
       result = await FlutterWebAuth2.authenticate(
