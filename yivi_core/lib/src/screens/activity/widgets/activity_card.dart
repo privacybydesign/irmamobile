@@ -120,7 +120,7 @@ class ActivityCard extends StatelessWidget {
                       logoImage: logoImage,
                       initials: title != "" ? title[0] : null,
                     ),
-                    SizedBox(width: theme.smallSpacing),
+                    SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
