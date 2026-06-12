@@ -9,6 +9,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "accept_terms/accept_terms_screen.dart";
+import "biometric_setup/biometric_setup_screen.dart";
 import "bloc/enrollment_bloc.dart";
 import "choose_pin/choose_pin_screen.dart";
 import "confirm_pin/confirm_pin_screen.dart";
@@ -110,6 +111,13 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
                   ),
                 );
               },
+            );
+          }
+          if (state is EnrollmentBiometricSetup) {
+            return BiometricSetupScreen(
+              onEnable: () => addEvent(EnrollmentBiometricEnabled()),
+              onSkip: () => addEvent(EnrollmentBiometricSkipped()),
+              onPrevious: addOnPreviousPressed,
             );
           }
           if (state is EnrollmentProvideEmail) {

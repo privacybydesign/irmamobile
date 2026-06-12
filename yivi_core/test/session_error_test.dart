@@ -32,13 +32,27 @@ class TestWidget extends StatelessWidget {
   );
 }
 
+/// Mount [widget] and wait for the async FlutterI18nDelegate file loader to
+/// complete. `pumpAndSettle` runs under the test framework's fake clock and
+/// does not drive the real-time IO that `rootBundle.loadString` uses, so the
+/// translation Future never resolves and the home widget never builds. Wrap
+/// the initial pump in `runAsync` so the file load actually runs, then settle.
+Future<void> _pumpWithI18n(WidgetTester tester, Widget widget) async {
+  await tester.runAsync(() async {
+    await tester.pumpWidget(widget);
+    // Give the FileTranslationLoader a chance to read both the active and
+    // fallback locale files before we hand control back to fake time.
+    await Future<void>.delayed(Duration.zero);
+  });
+  await tester.pumpAndSettle();
+}
+
 void main() {
   const errorScreenKey = ValueKey("error_screen");
   testWidgets("errorType = transport", (WidgetTester tester) async {
     final error = SessionError(errorType: "transport", info: "info");
 
-    await tester.pumpWidget(TestWidget(error));
-    await tester.pumpAndSettle();
+    await _pumpWithI18n(tester, TestWidget(error));
 
     expect(find.byKey(const ValueKey("no_internet_screen")), findsOneWidget);
   });
@@ -46,8 +60,7 @@ void main() {
   testWidgets("errorType = pairingRejected", (WidgetTester tester) async {
     final error = SessionError(errorType: "pairingRejected", info: "info");
 
-    await tester.pumpWidget(TestWidget(error));
-    await tester.pumpAndSettle();
+    await _pumpWithI18n(tester, TestWidget(error));
     expect(find.byKey(errorScreenKey), findsOneWidget);
   });
 
@@ -58,8 +71,7 @@ void main() {
       remoteError: RemoteError(errorName: "USER_NOT_FOUND"),
     );
 
-    await tester.pumpWidget(TestWidget(error));
-    await tester.pumpAndSettle();
+    await _pumpWithI18n(tester, TestWidget(error));
     expect(find.byType(BlockedScreen), findsOneWidget);
   });
 
@@ -70,8 +82,7 @@ void main() {
       remoteError: RemoteError(errorName: "SESSION_UNKNOWN"),
     );
 
-    await tester.pumpWidget(TestWidget(error));
-    await tester.pumpAndSettle();
+    await _pumpWithI18n(tester, TestWidget(error));
     expect(find.byKey(errorScreenKey), findsOneWidget);
   });
 
@@ -82,8 +93,7 @@ void main() {
       remoteError: RemoteError(errorName: "UNEXPECTED_REQUEST"),
     );
 
-    await tester.pumpWidget(TestWidget(error));
-    await tester.pumpAndSettle();
+    await _pumpWithI18n(tester, TestWidget(error));
     expect(find.byKey(errorScreenKey), findsOneWidget);
   });
 
@@ -94,8 +104,7 @@ void main() {
       remoteError: RemoteError(errorName: ""),
     );
 
-    await tester.pumpWidget(TestWidget(error));
-    await tester.pumpAndSettle();
+    await _pumpWithI18n(tester, TestWidget(error));
     expect(find.byKey(errorScreenKey), findsOneWidget);
   });
 }

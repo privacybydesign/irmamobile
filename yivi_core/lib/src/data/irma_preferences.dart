@@ -54,6 +54,10 @@ class IrmaPreferences {
        _credentialOrder = preferences.getStringList(
          _credentialOrderKey,
          defaultValue: [],
+       ),
+       _biometricUnlockEnabled = preferences.getBool(
+         _biometricUnlockEnabledKey,
+         defaultValue: false,
        ) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
@@ -126,6 +130,10 @@ class IrmaPreferences {
   // list of credential ids stored as json string
   final Preference<List<String>> _credentialOrder;
 
+  static const String _biometricUnlockEnabledKey =
+      "preference.biometric_unlock_enabled";
+  final Preference<bool> _biometricUnlockEnabled;
+
   // =============================================================================
 
   Stream<bool> getScreenshotsEnabled() => _screenshotsEnabled;
@@ -189,6 +197,13 @@ class IrmaPreferences {
 
   Future<bool> setCredentialOrder(List<String> order) =>
       _credentialOrder.setValue(order);
+
+  Stream<bool> getBiometricUnlockEnabled() => _biometricUnlockEnabled;
+
+  bool getBiometricUnlockEnabledSync() => _biometricUnlockEnabled.getValue();
+
+  Future<bool> setBiometricUnlockEnabled(bool value) =>
+      _biometricUnlockEnabled.setValue(value);
 
   Future<void> clearAll() {
     // Reset all preferences to their default values

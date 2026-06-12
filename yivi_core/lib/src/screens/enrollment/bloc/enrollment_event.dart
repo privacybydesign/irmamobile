@@ -28,6 +28,10 @@ class EnrollmentEmailProvided implements EnrollmentBlocEvent {
 
 class EnrollmentEmailSkipped implements EnrollmentBlocEvent {}
 
+class EnrollmentBiometricEnabled implements EnrollmentBlocEvent {}
+
+class EnrollmentBiometricSkipped implements EnrollmentBlocEvent {}
+
 class EnrollmentNextPressed implements EnrollmentBlocEvent {}
 
 class EnrollmentPreviousPressed implements EnrollmentBlocEvent {}

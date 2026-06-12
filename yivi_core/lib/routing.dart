@@ -118,6 +118,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                       context.read<HomeTabState>().add(IrmaNavBarTab.data);
                       context.goHomeScreenWithoutTransition();
                     },
+                    allowBiometricBypass: true,
                     leading: YiviAppBarQrCodeButton(
                       onTap: () => openQrCodeScanner(
                         context,

@@ -73,6 +73,9 @@ class YiviPinScreen extends StatelessWidget {
   final void Function(BuildContext, EnterPinState)? listener;
   final WidgetVisibility Function(BuildContext, EnterPinState)?
   submitButtonVisibilityListener;
+  // Optional biometric unlock action. When non-null, a fingerprint key
+  // replaces the empty slot in the bottom-left of the number pad (under the 7).
+  final VoidCallback? onBiometricTap;
 
   YiviPinScreen({
     Key key = const Key("pin_screen"),
@@ -89,6 +92,7 @@ class YiviPinScreen extends StatelessWidget {
     this.enabled = true,
     this.listener,
     this.submitButtonVisibilityListener,
+    this.onBiometricTap,
   }) : assert(
          instructionKey != null && instruction == null ||
              instruction != null && instructionKey == null,
@@ -178,7 +182,12 @@ class YiviPinScreen extends StatelessWidget {
             },
           ),
         ),
-        Expanded(child: _NumberPad(onEnterNumber: pinBloc.add)),
+        Expanded(
+          child: _NumberPad(
+            onEnterNumber: pinBloc.add,
+            onBiometricTap: onBiometricTap,
+          ),
+        ),
       ],
     );
   }
@@ -246,7 +255,12 @@ class YiviPinScreen extends StatelessWidget {
             },
           ),
         ),
-        Expanded(child: _NumberPad(onEnterNumber: pinBloc.add)),
+        Expanded(
+          child: _NumberPad(
+            onEnterNumber: pinBloc.add,
+            onBiometricTap: onBiometricTap,
+          ),
+        ),
         if (maxPinSize != shortPinSize)
           Padding(
             padding: EdgeInsets.only(top: theme.screenPadding),
