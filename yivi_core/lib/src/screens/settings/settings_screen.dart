@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         translationKey,
         style: theme.textTheme.bodyMedium!.copyWith(
           fontSize: 14,
-          color: theme.neutral,
+          color: theme.neutralDark,
         ),
       ),
     );

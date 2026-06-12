@@ -10,7 +10,6 @@ import "../../widgets/base64_image.dart";
 import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/section_header.dart";
-import "../../widgets/translated_text.dart";
 
 class SchemalessAddDataScreen extends ConsumerWidget {
   @override
@@ -29,11 +28,6 @@ class SchemalessAddDataScreen extends ConsumerWidget {
             spacing: theme.smallSpacing,
             crossAxisAlignment: .start,
             children: [
-              TranslatedText(
-                "data.add.choose",
-                style: theme.textTheme.bodyMedium,
-              ),
-              SizedBox(height: theme.defaultSpacing),
               switch (storeItems) {
                 AsyncLoading() => Center(child: CircularProgressIndicator()),
                 AsyncError(error: final error) => Center(
