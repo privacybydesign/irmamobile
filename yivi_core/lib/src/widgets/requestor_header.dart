@@ -133,7 +133,10 @@ class RequestorHeader extends StatelessWidget {
     } else {
       mainTextWidget = Text(
         localizedRequestorName,
-        style: theme.themeData.textTheme.headlineMedium,
+        style: credentialNameStyle(
+          theme,
+          16,
+        ).copyWith(fontWeight: FontWeight.w500),
       );
     }
 

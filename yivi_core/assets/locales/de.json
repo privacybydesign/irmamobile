@@ -38,6 +38,7 @@
     "message_signed": "Nachricht signiert",
     "signed_message_semantics": "Nachricht von {otherParty} am {date} signiert",
     "shared_with": "Geteilt mit",
+    "received_from": "Empfangen von",
     "shared_data": "Geteilte Daten",
     "received_data": "Empfangene Daten",
     "deleted_data": "Gelöschte Daten",

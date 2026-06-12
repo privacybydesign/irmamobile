@@ -90,7 +90,7 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                       Text(
                         getTranslation(context, credentialName),
                         style: theme.themeData.textTheme.headlineMedium!
-                            .copyWith(fontSize: 18, color: theme.dark),
+                            .copyWith(fontSize: 16, color: theme.dark),
                       ),
                       Text(
                         getTranslation(context, issuerName),

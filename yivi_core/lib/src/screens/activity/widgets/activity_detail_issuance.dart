@@ -66,6 +66,14 @@ class ActivityDetailIssuance extends StatelessWidget {
               hideFooter: true,
             ),
           ),
+        SizedBox(height: theme.smallSpacing),
+        TranslatedText(
+          "activity.received_from",
+          style: theme.themeData.textTheme.headlineMedium,
+          isHeader: true,
+        ),
+        SizedBox(height: theme.smallSpacing),
+        RequestorHeader(requestor: requestor),
       ],
     );
   }
