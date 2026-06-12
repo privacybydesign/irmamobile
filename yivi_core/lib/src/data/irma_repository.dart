@@ -252,17 +252,6 @@ class IrmaRepository {
     _bridge.dispatch(event);
   }
 
-  void removeInAppLaunched(Iterable<String> credentialTypeIds) {
-    final state = _credentialObtainState.value;
-    final updated = state.inAppLaunchedCredentialTypes
-        .where((credTypeId) => !credentialTypeIds.contains(credTypeId))
-        .toSet();
-
-    _credentialObtainState.add(
-      _CredentialObtainState(inAppLaunchedCredentialTypes: updated),
-    );
-  }
-
   void markInAppLaunched(Iterable<String> credentialTypeIds) {
     final current = _credentialObtainState.value.inAppLaunchedCredentialTypes;
     _credentialObtainState.add(
@@ -642,12 +631,6 @@ class IrmaRepository {
   }
 
   static const _iiabchannel = MethodChannel("irma.app/iiab");
-
-  Future<Set<String>> getInAppLaunchedCredentialTypes() {
-    return _credentialObtainState.first.then(
-      (state) => state.inAppLaunchedCredentialTypes,
-    );
-  }
 
   // Passport issuance is a special case where we use the scanner built into the app as the issuer
   void _startPassportIssuance(BuildContext context, String url, WidgetRef ref) {
