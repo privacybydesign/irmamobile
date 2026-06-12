@@ -198,7 +198,6 @@ class _RequestorHeaderBase extends StatelessWidget {
 
     return IrmaCard(
       color: backgroundColor,
-      hasShadow: false,
       padding: EdgeInsets.zero,
       margin: EdgeInsets.all(theme.defaultSpacing),
       child: Row(
