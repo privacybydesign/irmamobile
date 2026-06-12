@@ -186,6 +186,7 @@ class _CredentialsDetailsScreenState
     showYiviBottomSheet(
       context: context,
       titleKey: "credential.options.title",
+      minHeightFraction: 1 / 2,
       child: IrmaCredentialCardOptionsBottomSheet(
         onDelete: cred.credentialInstanceIds.isEmpty
             ? null

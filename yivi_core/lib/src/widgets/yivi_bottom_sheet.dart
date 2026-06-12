@@ -18,6 +18,7 @@ Future<void> showYiviBottomSheet({
   required BuildContext context,
   required String titleKey,
   required Widget child,
+  double minHeightFraction = 1 / 3,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -27,15 +28,24 @@ Future<void> showYiviBottomSheet({
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(_topRadius)),
     ),
-    builder: (context) => _YiviBottomSheet(titleKey: titleKey, child: child),
+    builder: (context) => _YiviBottomSheet(
+      titleKey: titleKey,
+      minHeightFraction: minHeightFraction,
+      child: child,
+    ),
   );
 }
 
 class _YiviBottomSheet extends StatefulWidget {
   final String titleKey;
   final Widget child;
+  final double minHeightFraction;
 
-  const _YiviBottomSheet({required this.titleKey, required this.child});
+  const _YiviBottomSheet({
+    required this.titleKey,
+    required this.child,
+    required this.minHeightFraction,
+  });
 
   @override
   State<_YiviBottomSheet> createState() => _YiviBottomSheetState();
@@ -68,7 +78,8 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final minHeight = MediaQuery.sizeOf(context).height / 3;
+    final minHeight =
+        MediaQuery.sizeOf(context).height * widget.minHeightFraction;
 
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight),
