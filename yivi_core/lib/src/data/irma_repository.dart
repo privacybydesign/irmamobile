@@ -280,23 +280,14 @@ class IrmaRepository {
   /// credential the user launched in-app (via [openIssueURL]). Used to keep
   /// in-app launches inside Yivi on finish instead of chasing
   /// `clientReturnUrl` or falling through to ArrowBack / send-to-background.
-  ///
-  /// Checks both [SessionState.offeredCredentialTypes] (populated for
-  /// OpenID4VCI sessions before the issuance instances exist) and
-  /// [SessionState.offeredCredentials] (populated for classic IRMA
-  /// sessions, with the actual issued credentials).
   bool didIssueInAppLaunchedCredential(SessionState session) {
     if (session.type != SessionType.issuance) return false;
     final launched = _credentialObtainState.value.inAppLaunchedCredentialTypes;
     if (launched.isEmpty) return false;
-    final fromTypes = session.offeredCredentialTypes?.any(
-      (c) => launched.contains(c.credentialId),
-    );
-    if (fromTypes == true) return true;
-    final fromCredentials = session.offeredCredentials?.any(
-      (c) => launched.contains(c.credentialId),
-    );
-    return fromCredentials == true;
+    return session.offeredCredentials?.any(
+          (c) => launched.contains(c.credentialId),
+        ) ??
+        false;
   }
 
   // -- Scheme manager, cert manager, issuer, credential and attribute definitions
