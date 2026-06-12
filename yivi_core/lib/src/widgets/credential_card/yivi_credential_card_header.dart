@@ -6,9 +6,9 @@ import "../translated_text.dart";
 
 TextStyle _issuerLabelStyle(IrmaThemeData theme) => TextStyle(
   fontFamily: theme.secondaryFontFamily,
-  fontSize: 13,
-  fontWeight: FontWeight.w600,
-  color: theme.neutralDark,
+  fontSize: 14,
+  fontWeight: FontWeight.w400,
+  color: theme.neutralExtraDark,
   height: 1.4,
 );
 
@@ -72,7 +72,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
     return null;
   }
 
-  static const _compactLogoSize = 48.0;
+  static const _compactLogoSize = 52.0;
 
   @override
   Widget build(BuildContext context) {
@@ -109,8 +109,10 @@ class YiviCredentialCardHeader extends StatelessWidget {
                     style: credentialNameStyle(theme, 19),
                     softWrap: true,
                   ),
-                  if (issuerName != null)
+                  if (issuerName != null) ...[
+                    SizedBox(height: 1),
                     Text(issuerName!, style: _issuerLabelStyle(theme)),
+                  ],
                 ],
               ),
             ),
