@@ -85,7 +85,10 @@ class _CredentialsDetailsScreenState
               size: 20,
             ),
           ),
-          Text(name, style: theme.textTheme.displaySmall),
+          Text(
+            name,
+            style: theme.textTheme.displaySmall?.copyWith(color: theme.dark),
+          ),
         ],
       ),
     );
