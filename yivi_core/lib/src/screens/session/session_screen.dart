@@ -181,8 +181,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           _buildError(SessionError(errorType: "unknown", info: err.toString())),
       data: (session) {
         // Auto-pop when dismissed — pop back to the previous screen
-        // (scanner, home, or underlying session).
+        // (scanner, home, or underlying session). Clear so an abandoned
+        // in-app launch doesn't leak into the next session.
         if (session.status == .dismissed) {
+          _repo.clearInAppLaunches();
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               if (widget.hasUnderlyingSession) {
