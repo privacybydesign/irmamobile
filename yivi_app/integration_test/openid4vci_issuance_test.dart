@@ -153,7 +153,10 @@ void main() {
 
     testWidgets(
       "issue-nonexpiring-credential-shows-unlimited-validity",
-      (tester) => testIssueNonExpiringCredentialShowsUnlimitedValidity(tester, irmaBinding),
+      (tester) => testIssueNonExpiringCredentialShowsUnlimitedValidity(
+        tester,
+        irmaBinding,
+      ),
     );
   });
 }
@@ -774,12 +777,9 @@ Future<void> testIssueNonExpiringCredentialShowsUnlimitedValidity(
   );
   expect(card, findsOneWidget);
   await tester.tapAndSettle(
-    find.descendant(
-      of: card,
-      matching: find.byIcon(Icons.more_horiz_sharp),
-    ),
+    find.descendant(of: card, matching: find.byIcon(Icons.more_horiz_sharp)),
   );
-  
+
   // Assert the validity text contains "indefinite" or similar wording, not a date.
   final footer = find.descendant(
     of: card,
@@ -803,22 +803,24 @@ Future<void> testIssueNonExpiringCredentialShowsUnlimitedValidity(
     matching: find.byWidgetPredicate(
       (widget) =>
           widget is Row &&
-          find.descendant(
-            of: find.byWidget(widget),
-            matching: find.byWidgetPredicate(
-              (child) =>
-                  child is Text &&
-                  child.data != null &&
-                  child.data!.toLowerCase().contains("indefinite"),
-            ),
-          ).evaluate().isNotEmpty,
+          find
+              .descendant(
+                of: find.byWidget(widget),
+                matching: find.byWidgetPredicate(
+                  (child) =>
+                      child is Text &&
+                      child.data != null &&
+                      child.data!.toLowerCase().contains("indefinite"),
+                ),
+              )
+              .evaluate()
+              .isNotEmpty,
     ),
   );
-  
+
   // Only the unique card remains
   expect(validityContainer, findsOneWidget);
 }
-
 
 // =============================================================================
 // Helper functions
