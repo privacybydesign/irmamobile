@@ -42,8 +42,10 @@ class IrmaThemeData {
 
   // Communicating colors
   final Color error = const Color(0xFFBD1919);
+  final Color errorSurface = const Color(0xFFF5DBDB);
   final Color warning = const Color(0xFFEBA73B);
   final Color success = const Color(0xFF00973A);
+  final Color successSurface = const Color(0xFFD7EFE0);
   final Color link = const Color(0xFF1D4E89);
   final Color danger = const Color(0xffEABEBE);
 
