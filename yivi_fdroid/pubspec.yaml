@@ -16,6 +16,7 @@ dependencies:
   camera: ^0.10.0+4
   cupertino_icons: ^1.0.8
   sentry_flutter: ^9.4.0
+  flutter_zxing: ^2.2.1
   yivi_core:
     path: ../yivi_core
 
