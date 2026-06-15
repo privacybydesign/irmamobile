@@ -76,42 +76,43 @@ class _VersionButtonState extends State<VersionButton> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  StreamBuilder<Credentials>(
-                    stream: repo.getCredentials(),
-                    builder: (context, credentials) {
-                      String? appId;
-                      if (credentials.hasData) {
-                        final keyShareCred = credentials.data?.values
-                            .firstWhereOrNull(
-                              (cred) =>
-                                  cred.isKeyshareCredential &&
-                                  cred.schemeManager.id ==
-                                      repo.defaultKeyshareScheme,
-                            );
-                        appId = keyShareCred?.attributes.firstOrNull?.value.raw;
-                      }
-                      return TranslatedText(
-                        "more_tab.app_id",
-                        style: textStyle,
-                        translationParams: {"id": appId ?? ""},
-                      );
-                    },
-                  ),
-                  FutureBuilder<PackageInfo>(
-                    future: PackageInfo.fromPlatform(),
-                    builder:
-                        (
-                          BuildContext context,
-                          AsyncSnapshot<PackageInfo> info,
-                        ) => TranslatedText(
-                          "more_tab.version",
-                          translationParams: {
-                            "version": _buildVersionString(info),
-                          },
+                    StreamBuilder<Credentials>(
+                      stream: repo.getCredentials(),
+                      builder: (context, credentials) {
+                        String? appId;
+                        if (credentials.hasData) {
+                          final keyShareCred = credentials.data?.values
+                              .firstWhereOrNull(
+                                (cred) =>
+                                    cred.isKeyshareCredential &&
+                                    cred.schemeManager.id ==
+                                        repo.defaultKeyshareScheme,
+                              );
+                          appId =
+                              keyShareCred?.attributes.firstOrNull?.value.raw;
+                        }
+                        return TranslatedText(
+                          "more_tab.app_id",
                           style: textStyle,
-                        ),
-                  ),
-                ],
+                          translationParams: {"id": appId ?? ""},
+                        );
+                      },
+                    ),
+                    FutureBuilder<PackageInfo>(
+                      future: PackageInfo.fromPlatform(),
+                      builder:
+                          (
+                            BuildContext context,
+                            AsyncSnapshot<PackageInfo> info,
+                          ) => TranslatedText(
+                            "more_tab.version",
+                            translationParams: {
+                              "version": _buildVersionString(info),
+                            },
+                            style: textStyle,
+                          ),
+                    ),
+                  ],
                 ),
               ),
             ),
