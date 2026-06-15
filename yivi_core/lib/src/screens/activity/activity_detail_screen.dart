@@ -5,7 +5,6 @@ import "package:intl/intl.dart";
 import "../../models/log_entry.dart";
 import "../../theme/theme.dart";
 import "../../widgets/irma_app_bar.dart";
-import "../../widgets/translated_text.dart";
 import "widgets/activity_detail_disclosure.dart";
 import "widgets/activity_detail_issuance.dart";
 import "widgets/activity_detail_removal.dart";
@@ -26,10 +25,28 @@ class ActivityDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final localTime = logEntry.time.toLocal();
+    final dateAtTime = FlutterI18n.translate(
+      context,
+      "credential.date_at_time",
+      translationParams: {
+        "date": DateFormat.yMMMMd(lang).format(localTime),
+        "time": DateFormat.jm(lang).format(localTime),
+      },
+    );
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,
-      appBar: IrmaAppBar(titleTranslationKey: "home.nav_bar.activity"),
+      appBar: IrmaAppBar(
+        title: Text(
+          dateAtTime,
+          style: theme.themeData.textTheme.displaySmall?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: theme.dark,
+          ),
+        ),
+      ),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
@@ -52,23 +69,6 @@ class ActivityDetailsScreen extends StatelessWidget {
                       ),
                     };
                   },
-                ),
-                //Always add the timestamp of the activity on the bottom
-                SizedBox(height: theme.smallSpacing),
-                Center(
-                  child: TranslatedText(
-                    "credential.date_at_time",
-                    key: const Key("activity_timestamp"),
-                    translationParams: {
-                      "date": DateFormat.yMMMMd(
-                        lang,
-                      ).format(logEntry.time.toLocal()),
-                      "time": DateFormat.jm(
-                        lang,
-                      ).format(logEntry.time.toLocal()),
-                    },
-                    style: theme.themeData.textTheme.bodyMedium,
-                  ),
                 ),
               ],
             ),

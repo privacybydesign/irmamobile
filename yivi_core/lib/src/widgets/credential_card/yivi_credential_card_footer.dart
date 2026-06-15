@@ -63,6 +63,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                               "credential.indefinite_validity",
                               style: theme.textTheme.bodyLarge!.copyWith(
                                 fontSize: 14,
+                                fontWeight: FontWeight.w600,
                                 color: theme.dark,
                               ),
                             )
@@ -70,6 +71,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                               printableDate(expiryDate!.dateTime!, lang),
                               style: theme.textTheme.bodyLarge!.copyWith(
                                 fontSize: 14,
+                                fontWeight: FontWeight.w600,
                                 color: _getTextColorForExpireState(
                                   timeBasedExpireState,
                                   theme,
@@ -98,6 +100,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                           translationParams: {"count": "${instanceCount!}"},
                           style: theme.textTheme.bodyLarge!.copyWith(
                             fontSize: 14,
+                            fontWeight: FontWeight.w600,
                             color: _getTextColorForExpireState(
                               instanceBasedExpireState,
                               theme,
@@ -109,6 +112,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                           "credential.sharable_unlimited",
                           style: theme.textTheme.bodyLarge!.copyWith(
                             fontSize: 14,
+                            fontWeight: FontWeight.w600,
                             color: theme.dark,
                           ),
                         ),

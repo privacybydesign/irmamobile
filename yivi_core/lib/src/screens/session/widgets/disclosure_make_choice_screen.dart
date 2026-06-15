@@ -11,7 +11,7 @@ import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/radio_indicator.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/section_header.dart";
 import "disclosure_permission_choice.dart";
 import "session_scaffold.dart";
 
@@ -204,14 +204,9 @@ class _DisclosureMakeChoiceScreenState
                 Padding(
                   padding: EdgeInsets.only(
                     bottom: theme.smallSpacing,
-                    left: theme.smallSpacing,
                     top: theme.mediumSpacing,
                   ),
-                  child: TranslatedText(
-                    "disclosure_permission.obtain_new",
-                    style: theme.themeData.textTheme.headlineMedium,
-                    isHeader: true,
-                  ),
+                  child: SectionHeader("disclosure_permission.obtain_new"),
                 ),
                 for (var i = 0; i < obtainable.length; i++)
                   Padding(

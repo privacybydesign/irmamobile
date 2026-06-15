@@ -519,7 +519,7 @@ TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
 TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
   fontFamily: theme.primaryFontFamily,
   fontSize: 16,
-  fontWeight: FontWeight.w700,
+  fontWeight: FontWeight.w600,
   color: color,
 );
 

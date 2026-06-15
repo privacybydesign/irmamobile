@@ -38,10 +38,12 @@
     "message_signed": "Message signed",
     "signed_message_semantics": "Message signed from {otherParty} on {date}",
     "shared_with": "Shared with",
+    "received_from": "Received from",
     "shared_data": "Shared data",
     "received_data": "Received data",
     "deleted_data": "Deleted data",
-    "empty_placeholder": "There are no logged activities yet"
+    "empty_placeholder": "There are no logged activities yet",
+    "yesterday": "Yesterday"
   },
   "arrow_back": {
     "no_success": "Cancelled",

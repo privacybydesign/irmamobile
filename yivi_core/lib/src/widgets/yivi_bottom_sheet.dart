@@ -18,24 +18,39 @@ Future<void> showYiviBottomSheet({
   required BuildContext context,
   required String titleKey,
   required Widget child,
+  double minHeightFraction = 1 / 3,
+  TextStyle? titleStyle,
 }) {
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     enableDrag: true,
     backgroundColor: Colors.transparent,
+    elevation: 16,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(_topRadius)),
     ),
-    builder: (context) => _YiviBottomSheet(titleKey: titleKey, child: child),
+    builder: (context) => _YiviBottomSheet(
+      titleKey: titleKey,
+      minHeightFraction: minHeightFraction,
+      titleStyle: titleStyle,
+      child: child,
+    ),
   );
 }
 
 class _YiviBottomSheet extends StatefulWidget {
   final String titleKey;
   final Widget child;
+  final double minHeightFraction;
+  final TextStyle? titleStyle;
 
-  const _YiviBottomSheet({required this.titleKey, required this.child});
+  const _YiviBottomSheet({
+    required this.titleKey,
+    required this.child,
+    required this.minHeightFraction,
+    required this.titleStyle,
+  });
 
   @override
   State<_YiviBottomSheet> createState() => _YiviBottomSheetState();
@@ -68,7 +83,8 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final minHeight = MediaQuery.sizeOf(context).height / 3;
+    final minHeight =
+        MediaQuery.sizeOf(context).height * widget.minHeightFraction;
 
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight),
@@ -83,7 +99,11 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _Header(titleKey: widget.titleKey, scrolled: _scrolledDown),
+            _Header(
+              titleKey: widget.titleKey,
+              titleStyle: widget.titleStyle,
+              scrolled: _scrolledDown,
+            ),
             Flexible(
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -100,9 +120,14 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
 
 class _Header extends StatelessWidget {
   final String titleKey;
+  final TextStyle? titleStyle;
   final bool scrolled;
 
-  const _Header({required this.titleKey, required this.scrolled});
+  const _Header({
+    required this.titleKey,
+    required this.titleStyle,
+    required this.scrolled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -137,10 +162,12 @@ class _Header extends StatelessWidget {
                   ),
                   child: TranslatedText(
                     titleKey,
-                    style: credentialNameStyle(
-                      theme,
-                      19,
-                    ).copyWith(fontWeight: FontWeight.w600),
+                    style:
+                        titleStyle ??
+                        credentialNameStyle(
+                          theme,
+                          19,
+                        ).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
                 const Positioned(

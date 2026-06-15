@@ -82,7 +82,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
           title ??
           TranslatedText(
             titleTranslationKey ?? (titleString ?? ""),
-            style: theme.textTheme.displaySmall,
+            style: theme.textTheme.displaySmall?.copyWith(color: theme.dark),
           ),
       actions: actions,
       automaticallyImplyLeading: false,

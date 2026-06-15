@@ -30,63 +30,66 @@ class SchemalessCredentialsDetailsScreen extends ConsumerStatefulWidget {
 
 class _CredentialsDetailsScreenState
     extends ConsumerState<SchemalessCredentialsDetailsScreen> {
-  static const _scrollUnderThreshold = 200.0;
+  static const _scrollUnderThreshold = 100.0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _scrollController = ScrollController();
-  bool _scrollUnder = false;
-
-  void _scrollListener() {
-    if (_scrollController.offset > _scrollUnderThreshold) {
-      if (!_scrollUnder) {
-        setState(() {
-          _scrollUnder = true;
-        });
-      }
-    } else {
-      if (_scrollUnder) {
-        setState(() {
-          _scrollUnder = false;
-        });
-      }
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_scrollListener);
-  }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     super.dispose();
-    _scrollController.removeListener(_scrollListener);
   }
 
-  IrmaAppBar _createTitle(schemaless.Credential c) {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final name = c.name.translate(lang);
+  IrmaAppBar _buildAppBar(schemaless.Credential? credential) {
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final name = credential?.name.translate(lang) ?? "";
 
-    return IrmaAppBar(
-      title: Row(
-        mainAxisSize: .min,
-        mainAxisAlignment: .center,
-        spacing: theme.smallSpacing,
-        children: [
+    // Drive the title's opacity directly from the scroll controller via
+    // AnimatedBuilder, so updates stay scoped to the AppBar title and the
+    // body's scroll view doesn't rebuild mid-drag (which would interrupt
+    // the gesture and snap the scroll back).
+    final titleContent = Row(
+      mainAxisSize: .min,
+      mainAxisAlignment: .center,
+      spacing: theme.smallSpacing,
+      children: [
+        if (credential != null)
           Transform.translate(
             offset: Offset(0, 4),
             child: IrmaAvatar(
-              logoImage: c.image != null
-                  ? Base64Image(base64: c.image!.base64)
+              logoImage: credential.image != null
+                  ? Base64Image(base64: credential.image!.base64)
                   : null,
-              initials: c.image == null && name.isNotEmpty ? name[0] : null,
+              initials: credential.image == null && name.isNotEmpty
+                  ? name[0]
+                  : null,
               size: 20,
             ),
           ),
-          Text(name, style: theme.textTheme.displaySmall),
-        ],
+        Text(
+          name,
+          style: theme.textTheme.displaySmall?.copyWith(color: theme.dark),
+        ),
+      ],
+    );
+
+    return IrmaAppBar(
+      title: AnimatedBuilder(
+        animation: _scrollController,
+        builder: (context, child) {
+          final pastThreshold =
+              credential != null &&
+              _scrollController.hasClients &&
+              _scrollController.position.pixels > _scrollUnderThreshold;
+          return AnimatedOpacity(
+            opacity: pastThreshold ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 200),
+            child: child,
+          );
+        },
+        child: titleContent,
       ),
     );
   }
@@ -106,18 +109,15 @@ class _CredentialsDetailsScreenState
       }
     });
 
-    final IrmaAppBar? appBar = switch (credentials) {
-      AsyncData(:final value) =>
-        value.firstOrNull != null && _scrollUnder
-            ? _createTitle(value.first)
-            : null,
+    final credential = switch (credentials) {
+      AsyncData(:final value) => value.firstOrNull,
       _ => null,
     };
 
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: theme.backgroundTertiary,
-      appBar: appBar ?? IrmaAppBar(title: Container()),
+      appBar: _buildAppBar(credential),
       body: switch (credentials) {
         AsyncData(:final value) => _buildCredentialsList(value),
         AsyncError(:final error) => Center(child: Text(error.toString())),
@@ -186,6 +186,7 @@ class _CredentialsDetailsScreenState
     showYiviBottomSheet(
       context: context,
       titleKey: "credential.options.title",
+      minHeightFraction: 1 / 2,
       child: IrmaCredentialCardOptionsBottomSheet(
         onDelete: cred.credentialInstanceIds.isEmpty
             ? null
