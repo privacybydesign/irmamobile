@@ -35,6 +35,12 @@ class _CredentialsDetailsScreenState
 
   final _scrollController = ScrollController();
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   IrmaAppBar _buildAppBar(schemaless.Credential? credential) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;

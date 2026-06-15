@@ -144,7 +144,7 @@ class ActivityCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: theme.smallSpacing),
-                    TranslatedText(
+                    Text(
                       localizedTimeStamp,
                       style: theme.themeData.textTheme.bodyMedium!.copyWith(
                         fontSize: 14,
