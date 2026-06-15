@@ -45,8 +45,15 @@ void main() {
       expect(find.byType(ActivityDetailsScreen), findsOneWidget);
       expect(find.byType(ActivityDetailIssuance), findsOneWidget);
 
-      // Expect headers
-      expect(find.text("Activity"), findsOneWidget);
+      // Expect headers: the app bar title is the activity timestamp formatted
+      // as "<month> <day>, <year> at <h>:<mm> <AM/PM>", e.g.
+      // "April 10, 2026 at 1:23 PM".
+      expect(
+        find.textContaining(
+          RegExp(r"^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} (AM|PM)$"),
+        ),
+        findsOneWidget,
+      );
       expect(find.text("Received data"), findsOneWidget);
 
       // Find the activity card and check the content
@@ -77,17 +84,6 @@ void main() {
           ("Assurance level", "Substantieel"),
         ],
       );
-      // Find the activity timestamp
-      final timestampFinder = find.byKey(const Key("activity_timestamp"));
-      await tester.scrollUntilVisible(
-        timestampFinder,
-        150,
-        maxScrolls: 20,
-        duration: const Duration(
-          milliseconds: 500,
-        ), // Wait for scrollbar to flex back at the end of the list on iOS.
-      );
-      expect(timestampFinder, findsOneWidget);
     });
   });
 }
