@@ -4,12 +4,12 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
 import "base64_image.dart";
+import "credential_card/yivi_credential_card_header.dart";
 import "irma_avatar.dart";
 import "irma_card.dart";
 import "irma_icon_indicator.dart";
 import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
-import "credential_card/yivi_credential_card_header.dart";
 import "yivi_bottom_sheet.dart";
 
 _buildRequestorAvatar({
