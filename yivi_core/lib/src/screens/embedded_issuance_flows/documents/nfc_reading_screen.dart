@@ -108,6 +108,21 @@ class NfcReadingScreen extends ConsumerStatefulWidget {
 class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     with RouteAware {
   String? issuanceError;
+  bool _isFaceVerifying = false; // Face Verification on or off
+
+  // After a passed face verification we go straight to issuance. While that
+  // starts, suppress the NFC success/confirmation UI so the user doesn't see it
+  // flash between the verification screen and the add-document screen.
+  bool _gatedIssuanceInProgress = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // When issuance gating is on, NFC scanning takes long enough that models
+    // will be ready before the verification screen needs to open.
+    final fv = ref.read(faceVerifierProvider);
+    if (fv?.requiresIssuanceGating == true) fv!.warmup();
+  }
 
   Widget _getAnimation() {
     return switch (widget.mrz) {
@@ -134,6 +149,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   @override
   void didPopNext() {
+    // Don't reset while face verification is in progress — the pop came from
+    // the face verification screen, not from a user-initiated back navigation.
+    if (_isFaceVerifying) return;
     if (_readDocumentReaderState() is! DocumentReaderFailed) {
       if (mounted) {
         _getDocumentReader().reset();
@@ -152,6 +170,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   @override
   void dispose() {
+    // Release any face-verification models warmed up in initState but never
+    // used (e.g. the user cancelled before reaching verification).
+    ref.read(faceVerifierProvider)?.discardWarmup();
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -159,6 +180,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   void _startScanning() async {
     setState(() {
       issuanceError = null;
+      _gatedIssuanceInProgress = false;
     });
     try {
       final passportIssuer = ref.read(passportIssuerProvider);
@@ -175,8 +197,44 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       );
 
       if (result != null) {
-        final (pdr, rawDocData) = result;
-        await _startIssuance(rawDocData);
+        final (docData, rawDocData) = result;
+
+        // When issuance gating is enabled, run face verification against the
+        // high-quality NFC portrait before issuing the credential.
+        // this only good way to do this, else passfoto quality is too low to verify against the live image.
+        // would still work but will give more false negatives and false positives, so better to use the NFC image directly.
+        final faceVerifier = ref.read(faceVerifierProvider);
+        if (faceVerifier != null &&
+            faceVerifier.requiresIssuanceGating &&
+            mounted) {
+          final photoBytes = switch (docData) {
+            PassportData(:final photoImageData) => photoImageData,
+            DrivingLicenceData(:final photoImageData) => photoImageData,
+            _ => null,
+          };
+          final issueDate = switch (docData) {
+            PassportData(:final dateOfIssue) => dateOfIssue,
+            DrivingLicenceData(:final dateOfIssue) => DateTime.tryParse(
+              dateOfIssue,
+            ),
+            _ => null,
+          };
+          _isFaceVerifying = true;
+          final livenessType = await faceVerifier.verify(
+            context,
+            photoBytes,
+            issueDate,
+          );
+          _isFaceVerifying = false;
+          if (!mounted || livenessType == null) return;
+          // Verification passed: hide the NFC success/confirmation screen while
+          // issuance starts, so the user goes straight to the add-document screen.
+          setState(() => _gatedIssuanceInProgress = true);
+        }
+
+        if (mounted) {
+          await _startIssuance(rawDocData);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -242,6 +300,17 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           progress: 0,
         ),
         issuanceError!,
+      );
+    }
+
+    // After a passed face verification, show a neutral loading view instead of
+    // the NFC success/confirmation screen while issuance starts.
+    if (_gatedIssuanceInProgress) {
+      return _NfcScaffold(
+        titleTranslationKey: widget.translationKeys.title,
+        instruction: const Center(child: CircularProgressIndicator()),
+        illustration: const SizedBox.shrink(),
+        bottomNavigationBar: const SizedBox.shrink(),
       );
     }
 

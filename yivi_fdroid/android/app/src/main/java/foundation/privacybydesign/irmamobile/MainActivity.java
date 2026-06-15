@@ -20,5 +20,7 @@ public class MainActivity extends FlutterActivity {
         super.configureFlutterEngine(flutterEngine);
         // Register the new Tesseract OCR Plugin
         flutterEngine.getPlugins().add(new TesseractOcrPlugin());
+        // Register image_channel for JP2 decoding (passport/eID chip photo, DG2)
+        ImageDecodeChannel.register(flutterEngine, getApplicationContext());
     }
 }

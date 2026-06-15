@@ -121,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
+  code_assets:
+    dependency: transitive
+    description:
+      name: code_assets
+      sha256: "83ccdaa064c980b5596c35dd64a8d3ecc68620174ab9b90b6343b753aa721687"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   collection:
     dependency: transitive
     description:
@@ -217,6 +225,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.1"
+  face_verification:
+    dependency: "direct main"
+    description:
+      path: face_verification
+      ref: master
+      resolved-ref: "0790b000bc27ab966c16113654cfc497ea21c5ac"
+      url: "https://github.com/privacybydesign/vcmrtd.git"
+    source: git
+    version: "1.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -229,10 +246,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: "289279317b4b16eb2bb7e271abccd4bf84ec9bdcbe999e278a94b804f5630418"
+      sha256: "6d7fd89431262d8f3125e81b50d3847a091d846eafcd4fdb88dd06f36d705a45"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.4"
+    version: "2.2.0"
   file:
     dependency: transitive
     description:
@@ -278,6 +295,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
+  flutter_litert:
+    dependency: transitive
+    description:
+      name: flutter_litert
+      sha256: e114b391ee8c600fe6d7489d0a0d6610166ec7982e5bf5eae6b968c0c1c18462
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.8.3"
   flutter_localizations:
     dependency: transitive
     description: flutter
@@ -374,6 +399,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "16.3.0"
+  hooks:
+    dependency: transitive
+    description:
+      name: hooks
+      sha256: "025f060e86d2d4c3c47b56e33caf7f93bf9283340f26d23424ebcfccf34f621e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   http:
     dependency: transitive
     description:
@@ -398,6 +431,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  image:
+    dependency: transitive
+    description:
+      name: image
+      sha256: f9881ff4998044947ec38d098bc7c8316ae1186fa786eddffdb867b9bc94dfce
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.8.0"
   intl:
     dependency: transitive
     description:
@@ -576,6 +617,14 @@ packages:
       url: "https://github.com/privacybydesign/flutter_native_device_orientation"
     source: git
     version: "2.0.3"
+  native_toolchain_c:
+    dependency: transitive
+    description:
+      name: native_toolchain_c
+      sha256: "8aaead321425bd3f03bd5894aa27c8ea6993eab95531da7e59f5d39c6e5708ec"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.18.0"
   ndef:
     dependency: transitive
     description:
@@ -841,6 +890,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.2"
+  record_use:
+    dependency: transitive
+    description:
+      name: record_use
+      sha256: "2551bd8eecfe95d14ae75f6021ad0248be5c27f138c2ec12fcb52b500b3ba1ed"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   riverpod:
     dependency: transitive
     description:

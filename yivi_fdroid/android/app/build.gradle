@@ -31,6 +31,19 @@ android {
         disable 'InvalidPackage'
     }
 
+    // Java and Kotlin must target the same JVM version. The app now has Kotlin
+    // sources (ImageDecodeChannel/ImageUtil for the JP2 image_channel), so the
+    // Kotlin compile task actually runs and its target must match Java's.
+    // Same config as the vcmrtd example app.
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     defaultConfig {
         applicationId "org.irmacard.cardemu"
         minSdkVersion 26
@@ -109,4 +122,9 @@ dependencies {
 
     implementation 'cz.adaptech.tesseract4android:tesseract4android:4.9.0'
     implementation 'org.opencv:opencv:4.9.0'
+
+    // Gemalto JP2 Decoder: decodes JPEG 2000 passport/eID chip photos (DG2)
+    // that the Dart `image` package can't handle. Used by ImageDecodeChannel.
+    // https://mvnrepository.com/artifact/com.gemalto.jp2/jp2-android
+    implementation 'com.gemalto.jp2:jp2-android:1.0.3'
 }

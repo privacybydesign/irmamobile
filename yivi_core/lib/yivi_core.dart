@@ -8,6 +8,7 @@ import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
+import "src/providers/face_verifier_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
@@ -24,6 +25,7 @@ import "src/widgets/preferred_language_builder.dart";
 export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
 export "src/providers/email_issuance_provider.dart";
+export "src/providers/face_verifier_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/sms_issuance_provider.dart";
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
@@ -32,6 +34,7 @@ export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 Future<void> runYiviApp({
   OcrProcessor? ocrProcessor,
   SmsRetriever? smsRetriever,
+  FaceVerifier? faceVerifier,
 }) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
@@ -80,6 +83,10 @@ Future<void> runYiviApp({
 
           // passed in from the outside so apps are not required to depend on non-FOSS implementations
           smsRetrieverProvider.overrideWithValue(smsRetriever),
+
+          // only the F-Droid build passes a FaceVerifier; every other app leaves this null
+          // so the NFC issuance flow skips face verification entirely
+          faceVerifierProvider.overrideWithValue(faceVerifier),
 
           // can pass an environment variable to test with errors on passport issuance
           if (passportIssuanceError.isNotEmpty)

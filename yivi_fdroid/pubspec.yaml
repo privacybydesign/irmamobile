@@ -19,6 +19,12 @@ dependencies:
   yivi_core:
     path: ../yivi_core
 
+  face_verification:
+    git:
+      url: https://github.com/privacybydesign/vcmrtd.git
+      ref: master
+      path: face_verification
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

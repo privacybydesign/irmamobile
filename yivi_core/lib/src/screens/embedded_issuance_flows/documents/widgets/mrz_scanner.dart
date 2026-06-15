@@ -140,42 +140,30 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   }
 
   Widget _liveFeedBody() {
-    if (_controller?.value.isInitialized == false ||
-        _controller?.value.isInitialized == null) {
-      return Container();
+    final ctrl = _controller;
+    if (ctrl == null || ctrl.value.isInitialized == false) {
+      return const ColoredBox(color: Colors.black);
     }
 
-    final mediaQuery = MediaQuery.of(context);
-    // calculate scale depending on screen and camera ratios
-    // this is actually size.aspectRatio / (1 / camera.aspectRatio)
-    // because camera preview size is received as landscape
-    // but we're calculating for portrait orientation
-    var scale = mediaQuery.size.aspectRatio * _controller!.value.aspectRatio;
-
-    if (mediaQuery.orientation == .landscape) {
-      scale = 1;
-    } else {
-      // to prevent scaling down, invert the value
-      if (scale < 1) scale = 1 / scale;
+    final preview = ctrl.value.previewSize;
+    if (preview == null) {
+      return ColoredBox(color: Colors.black, child: CameraPreview(ctrl));
     }
 
-    return Container(
+    // Camera reports dimensions in landscape; swap to get portrait size.
+    return ColoredBox(
       color: Colors.black,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Transform.scale(
-            scale: scale,
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: mediaQuery.orientation == .portrait
-                    ? 9 / 16
-                    : 16 / 9,
-                child: CameraPreview(_controller!),
-              ),
+      child: ClipRect(
+        child: SizedBox.expand(
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width: preview.height,
+              height: preview.width,
+              child: CameraPreview(ctrl),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
