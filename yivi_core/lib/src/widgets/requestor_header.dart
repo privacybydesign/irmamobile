@@ -70,7 +70,6 @@ class RequestorHeader extends StatelessWidget {
     if (isVerified != null) {
       final mainTextDefaultStyle = theme.themeData.textTheme.bodyMedium;
       String mainTextSuffixTranslationKey;
-      const int opacity = 40;
 
       // Set the subtitleTextWidget to a link
       subtitleTextWidget = Padding(
@@ -87,11 +86,11 @@ class RequestorHeader extends StatelessWidget {
       );
 
       if (isVerified!) {
-        backgroundColorOverride = theme.success.withAlpha(opacity);
+        backgroundColorOverride = theme.successSurface;
         mainTextSuffixTranslationKey =
             "disclosure_permission.overview.requestor_verification.verified_suffix";
       } else {
-        backgroundColorOverride = theme.error.withAlpha(opacity);
+        backgroundColorOverride = theme.errorSurface;
         mainTextSuffixTranslationKey =
             "disclosure_permission.overview.requestor_verification.unverified_suffix";
       }
