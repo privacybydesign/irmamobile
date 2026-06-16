@@ -125,15 +125,16 @@ class _CollapsibleState extends State<Collapsible> {
                 left: context.yivi.spacing.base,
                 right: context.yivi.spacing.base,
               ),
-              child: Text(widget.header, style: context.text.headlineSmall),
+              child: Text(widget.header, style: context.text.bodyLarge),
             ),
           ),
         ),
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: context.yivi.spacing.small,
-              horizontal: context.yivi.spacing.base,
+            padding: EdgeInsets.only(
+              bottom: context.yivi.spacing.small,
+              left: context.yivi.spacing.base,
+              right: context.yivi.spacing.base,
             ),
             child: ExcludeSemantics(
               excluding: !_isExpanded,
