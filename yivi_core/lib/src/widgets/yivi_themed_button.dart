@@ -103,7 +103,7 @@ class YiviThemedButton extends StatelessWidget {
                   border: Border.all(
                     width: 1.7,
                     style: BorderStyle.solid,
-                    color: context.colors.onSurfaceVariant,
+                    color: context.colors.onSurface,
                   ),
                 ),
           child: child,
@@ -123,7 +123,7 @@ class YiviThemedButton extends StatelessWidget {
     }
 
     final textColor = style == YiviButtonStyle.outlined
-        ? context.colors.onSurfaceVariant
+        ? context.colors.onSurface
         : Colors.white;
     final labelStyle = size == YiviButtonSize.small
         ? context.text.labelMedium?.copyWith(color: textColor)
