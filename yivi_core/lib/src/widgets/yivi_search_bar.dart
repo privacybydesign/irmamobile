@@ -21,19 +21,17 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Container(
       decoration: BoxDecoration(
-        color: theme.backgroundPrimary,
-        border: Border(bottom: BorderSide(color: theme.tertiary)),
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: context.colors.tertiary)),
       ),
       child: SafeArea(
         child: Container(
           height: preferredSize.height,
           padding: EdgeInsets.only(
-            left: theme.defaultSpacing,
-            right: theme.smallSpacing,
+            left: context.yivi.defaultSpacing,
+            right: context.yivi.smallSpacing,
           ),
           child: Row(
             children: [
@@ -49,10 +47,7 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
                 onPressed: onCancel,
                 child: TranslatedText(
                   "search.cancel",
-                  style: theme.textButtonTextStyle.copyWith(
-                    fontWeight: FontWeight.normal,
-                    color: theme.link,
-                  ),
+                  style: context.yivi.button.searchCancel,
                 ),
               ),
             ],

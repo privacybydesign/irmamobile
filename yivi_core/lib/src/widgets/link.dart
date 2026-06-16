@@ -66,9 +66,9 @@ class Link extends StatelessWidget {
         child: TranslatedText(
           textAlign: textAlign,
           label,
-          style: IrmaTheme.of(
-            context,
-          ).hyperlinkTextStyle.copyWith(decoration: TextDecoration.underline),
+          style: context.yivi.hyperlinkTextStyle.copyWith(
+            decoration: TextDecoration.underline,
+          ),
         ),
       ),
     );

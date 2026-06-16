@@ -139,14 +139,14 @@ Widget yiviCardPreviewWrapper(Widget child) {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale("en", "US")],
-      home: IrmaTheme(
+      theme: IrmaThemeData().themeData,
+      home: Builder(
         builder: (context) {
-          final theme = IrmaTheme.of(context);
           return Scaffold(
-            backgroundColor: theme.light,
+            backgroundColor: Colors.white,
             body: SafeArea(
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(theme.defaultSpacing),
+                padding: EdgeInsets.all(context.yivi.defaultSpacing),
                 // Hold rendering until the yivi fonts are registered so the
                 // card doesn't briefly flash in the system font.
                 child: FutureBuilder<_FontLoadReport>(

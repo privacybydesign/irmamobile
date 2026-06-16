@@ -28,8 +28,6 @@ class IrmaConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final confirmButton = YiviThemedButton(
       key: const Key("dialog_confirm_button"),
       onPressed: onConfirmPressed ?? () => Navigator.of(context).pop(true),
@@ -44,7 +42,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
       style: nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 
-    final spacerWidget = SizedBox(height: theme.smallSpacing);
+    final spacerWidget = SizedBox(height: context.yivi.smallSpacing);
 
     var buttonWidgets = [confirmButton, spacerWidget, cancelButton];
 

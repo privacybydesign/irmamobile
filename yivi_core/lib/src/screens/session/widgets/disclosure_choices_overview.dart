@@ -214,7 +214,6 @@ class _DisclosureChoicesOverviewState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final session = widget.sessionState;
     final choices = session.disclosurePlan?.disclosureChoicesOverview ?? [];
@@ -247,7 +246,7 @@ class _DisclosureChoicesOverviewState
       appBarTitle: "disclosure_permission.overview.title",
       onDismiss: widget.onDismiss,
       body: SingleChildScrollView(
-        padding: .all(theme.defaultSpacing),
+        padding: .all(context.yivi.defaultSpacing),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: .start,
@@ -266,18 +265,18 @@ class _DisclosureChoicesOverviewState
                   contentTranslationParams: {"requestorName": requestorName},
                 )
               else
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
 
               if (isSignature && session.messageToSign != null) ...[
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
                 TranslatedText(
                   "disclosure_permission.overview.sign",
-                  style: theme.themeData.textTheme.headlineMedium,
+                  style: context.text.headlineMedium,
                 ),
                 Padding(
                   padding: .only(
-                    top: theme.smallSpacing,
-                    bottom: theme.defaultSpacing,
+                    top: context.yivi.smallSpacing,
+                    bottom: context.yivi.defaultSpacing,
                   ),
                   child: IrmaQuote(
                     key: const Key("signature_message"),
@@ -297,12 +296,12 @@ class _DisclosureChoicesOverviewState
 
               // Added optional choices
               if (addedOptionalChoices.isNotEmpty) ...[
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
                 TranslatedText(
                   "disclosure_permission.optional_data",
-                  style: theme.themeData.textTheme.headlineMedium,
+                  style: context.text.headlineMedium,
                 ),
-                SizedBox(height: theme.smallSpacing),
+                SizedBox(height: context.yivi.smallSpacing),
                 for (final (index, pickOne) in addedOptionalChoices)
                   _DisclosureChoiceEntry(
                     pickOne: pickOne,
@@ -318,12 +317,12 @@ class _DisclosureChoicesOverviewState
                   (requiredChoices.isEmpty && addedOptionalChoices.isEmpty))
                 TranslatedText(
                   "disclosure_permission.no_data_selected",
-                  style: theme.themeData.textTheme.headlineMedium,
+                  style: context.text.headlineMedium,
                 ),
 
               // Add optional data button
               if (hasUnaddedOptional) ...[
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
                 IrmaActionCard(
                   titleKey: "disclosure_permission.add_optional_data",
                   icon: Icons.add_circle,
@@ -370,7 +369,6 @@ class _DisclosureChoiceEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final owned = pickOne.ownedOptions;
 
     if (owned != null && owned.isNotEmpty) {
@@ -378,14 +376,14 @@ class _DisclosureChoiceEntry extends StatelessWidget {
       final credentials = bundle.credentials;
 
       return Padding(
-        padding: .only(bottom: theme.defaultSpacing),
+        padding: .only(bottom: context.yivi.defaultSpacing),
         child: Column(
           children: [
             if (changeable && !optional)
               Padding(
                 padding: .only(
-                  bottom: theme.smallSpacing,
-                  top: theme.smallSpacing,
+                  bottom: context.yivi.smallSpacing,
+                  top: context.yivi.smallSpacing,
                 ),
                 child: Row(
                   mainAxisAlignment: .end,
@@ -405,7 +403,9 @@ class _DisclosureChoiceEntry extends StatelessWidget {
             for (var i = 0; i < credentials.length; i++)
               Padding(
                 padding: EdgeInsets.only(
-                  bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
+                  bottom: i < credentials.length - 1
+                      ? context.yivi.smallSpacing
+                      : 0,
                 ),
                 child: YiviCredentialCard.fromSelectableInstance(
                   instance: credentials[i],
@@ -431,25 +431,25 @@ class _DisclosureChoiceEntry extends StatelessWidget {
     final obtainable = pickOne.obtainableOptions;
     if (obtainable != null && obtainable.isNotEmpty) {
       return Card(
-        margin: .only(bottom: theme.smallSpacing),
+        margin: .only(bottom: context.yivi.smallSpacing),
         child: Padding(
-          padding: .all(theme.defaultSpacing),
+          padding: .all(context.yivi.defaultSpacing),
           child: Column(
             crossAxisAlignment: .start,
             children: [
               Text(
                 FlutterI18n.translate(context, "disclosure.missing_credential"),
-                style: theme.themeData.textTheme.titleMedium?.copyWith(
-                  color: theme.error,
+                style: context.text.titleMedium?.copyWith(
+                  color: context.colors.error,
                 ),
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               for (final cred in obtainable)
                 Padding(
-                  padding: .symmetric(vertical: theme.tinySpacing),
+                  padding: .symmetric(vertical: context.yivi.tinySpacing),
                   child: Text(
                     getTranslation(context, cred.name),
-                    style: theme.themeData.textTheme.bodyLarge,
+                    style: context.text.bodyLarge,
                   ),
                 ),
             ],

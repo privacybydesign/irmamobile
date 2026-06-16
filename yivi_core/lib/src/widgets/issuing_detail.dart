@@ -11,11 +11,10 @@ class IssuingDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Column(
       children: credentials.map((credential) {
         return Padding(
-          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+          padding: EdgeInsets.only(bottom: context.yivi.defaultSpacing),
           child: YiviCredentialCard.fromCredential(
             credential: credential,
             compact: false,

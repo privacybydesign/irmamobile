@@ -33,7 +33,6 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Scaffold(
       appBar: IrmaAppBar(
         titleString: requestorScheme.id,
@@ -45,7 +44,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.screenPadding),
+        padding: EdgeInsets.all(context.yivi.screenPadding),
         child: Column(
           children: [
             ListTile(

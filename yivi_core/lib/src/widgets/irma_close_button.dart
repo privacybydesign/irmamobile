@@ -22,7 +22,6 @@ class IrmaCloseButton extends StatelessWidget {
       );
     }
 
-    final theme = IrmaTheme.of(context);
     final effectiveOnTap = onTap ?? Navigator.of(context).pop;
     const size = 44.0;
 
@@ -41,7 +40,7 @@ class IrmaCloseButton extends StatelessWidget {
           ],
         ),
         child: Material(
-          color: theme.light,
+          color: Colors.white,
           shape: const CircleBorder(),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -49,7 +48,11 @@ class IrmaCloseButton extends StatelessWidget {
             customBorder: const CircleBorder(),
             child: SizedBox.square(
               dimension: size,
-              child: Icon(Icons.close, size: 24, color: theme.dark),
+              child: Icon(
+                Icons.close,
+                size: 24,
+                color: context.colors.onSurface,
+              ),
             ),
           ),
         ),

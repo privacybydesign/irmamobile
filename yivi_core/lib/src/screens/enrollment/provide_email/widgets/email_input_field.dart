@@ -12,15 +12,14 @@ class EmailInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final baseTextStyle = theme.textTheme.bodyMedium;
+    final baseTextStyle = context.text.bodyMedium;
 
     return TextFormField(
       key: const Key("email_input_field"),
       controller: controller,
       keyboardType: TextInputType.emailAddress,
       autofillHints: const [AutofillHints.email],
-      cursorColor: theme.themeData.colorScheme.secondary,
+      cursorColor: context.colors.secondary,
       style: baseTextStyle,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.only(top: -10.0),

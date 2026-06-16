@@ -118,19 +118,16 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
       );
     }
 
-    final theme = IrmaTheme.of(context);
     final codeInvalid = state.error is SmsIssuanceInvalidCodeError;
 
     final defaultPinTheme = PinTheme(
       width: 50,
       height: 50,
-      textStyle: TextStyle(
-        fontSize: 25,
-        color: Color.fromRGBO(30, 60, 87, 1),
-        fontWeight: FontWeight.w600,
-      ),
+      textStyle: context.yivi.verification.codeChar,
       decoration: BoxDecoration(
-        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
+        color: codeInvalid
+            ? context.colors.error.withAlpha(40)
+            : context.colors.surfaceContainerHigh,
         borderRadius: .circular(10),
       ),
     );
@@ -139,8 +136,12 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
       width: 54,
       height: 54,
       decoration: BoxDecoration(
-        color: codeInvalid ? theme.error.withAlpha(40) : theme.surfaceSecondary,
-        border: .all(color: codeInvalid ? theme.error : theme.link),
+        color: codeInvalid
+            ? context.colors.error.withAlpha(40)
+            : context.colors.surfaceContainerHigh,
+        border: .all(
+          color: codeInvalid ? context.colors.error : context.yivi.brand.link,
+        ),
         borderRadius: .circular(10),
       ),
     );
@@ -171,23 +172,21 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
               child: SingleChildScrollView(
                 controller: _scrollController,
                 child: Padding(
-                  padding: .all(theme.defaultSpacing),
+                  padding: .all(context.yivi.defaultSpacing),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
-                      SizedBox(height: theme.defaultSpacing),
+                      SizedBox(height: context.yivi.defaultSpacing),
                       TranslatedText(
                         "sms_issuance.verify_code.header",
-                        style: theme.textTheme.bodyLarge!.copyWith(
-                          color: theme.neutralExtraDark,
-                        ),
+                        style: context.yivi.form.header,
                       ),
-                      SizedBox(height: theme.defaultSpacing),
+                      SizedBox(height: context.yivi.defaultSpacing),
                       TranslatedText(
                         "sms_issuance.verify_code.body",
                         translationParams: {"phone": state.phoneNumber},
                       ),
-                      SizedBox(height: theme.largeSpacing),
+                      SizedBox(height: context.yivi.largeSpacing),
                       Container(
                         key: _codeFieldPositionKey,
                         child: Pinput(
@@ -210,9 +209,9 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
                       if (state.error is SmsIssuanceInvalidCodeError)
                         TranslatedText(
                           "sms_issuance.verify_code.invalid_code_error",
-                          style: TextStyle(color: theme.error),
+                          style: context.yivi.form.errorMessage,
                         ),
-                      SizedBox(height: theme.largeSpacing),
+                      SizedBox(height: context.yivi.largeSpacing),
                       Row(
                         mainAxisAlignment: .start,
                         mainAxisSize: .max,

@@ -19,7 +19,6 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     String title = "";
@@ -80,7 +79,7 @@ class NotificationCard extends StatelessWidget {
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: theme.primary,
+                  color: context.colors.primary,
                 ),
               ),
             ),
@@ -92,21 +91,16 @@ class NotificationCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     IrmaAvatar(size: 52, initials: "i", logoImage: logo),
-                    SizedBox(width: theme.smallSpacing),
+                    SizedBox(width: context.yivi.smallSpacing),
                     Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(localizedTimeStamp),
-                          Text(
-                            title,
-                            style: theme.themeData.textTheme.headlineMedium!
-                                .copyWith(color: theme.dark),
-                          ),
+                          Text(title, style: context.yivi.activity.cardTitle),
                           Text(
                             contentMessage,
-                            style: theme.themeData.textTheme.bodyMedium!
-                                .copyWith(fontSize: 14, color: theme.dark),
+                            style: context.yivi.card.notificationBody,
                           ),
                         ],
                       ),

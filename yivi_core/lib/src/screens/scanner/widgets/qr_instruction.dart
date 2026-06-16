@@ -14,30 +14,28 @@ class QRInstruction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     var screen = "instruction";
-    var color = theme.surfaceSecondary;
-    var textColor = theme.dark;
-    var borderColor = theme.tertiary;
+    var color = context.colors.surfaceContainerHigh;
+    var textColor = context.colors.onSurface;
+    var borderColor = context.colors.tertiary;
 
     if (error) {
       screen = "error";
-      color = theme.error;
-      borderColor = theme.error;
-      textColor = theme.light;
+      color = context.colors.error;
+      borderColor = context.colors.error;
+      textColor = Colors.white;
     } else if (found) {
       screen = "success";
-      color = theme.success;
-      borderColor = theme.success;
-      textColor = theme.light;
+      color = context.yivi.brand.success;
+      borderColor = context.yivi.brand.success;
+      textColor = Colors.white;
     }
 
     return Center(
       child: Container(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.defaultSpacing),
         decoration: BoxDecoration(
-          borderRadius: theme.borderRadius,
+          borderRadius: context.yivi.borderRadius,
           color: color,
           border: Border.all(color: borderColor),
         ),
@@ -46,13 +44,13 @@ class QRInstruction extends StatelessWidget {
           children: [
             TranslatedText(
               "qr_scanner.$screen.title",
-              style: theme.textTheme.displaySmall?.copyWith(color: textColor),
+              style: context.text.displaySmall?.copyWith(color: textColor),
               textAlign: TextAlign.center,
             ),
             Flexible(
               child: TranslatedText(
                 "qr_scanner.$screen.message",
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: context.text.bodyMedium?.copyWith(
                   height: 1.5,
                   color: textColor,
                 ),

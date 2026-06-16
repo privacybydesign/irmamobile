@@ -31,8 +31,6 @@ class IssueWizardInfo extends StatelessWidget {
     String lang,
     IssueWizard wizardData,
   ) {
-    final theme = IrmaTheme.of(context);
-
     final collapsableKeys = List<GlobalKey>.generate(
       wizardData.faq.length,
       (int index) => GlobalKey(),
@@ -57,12 +55,13 @@ class IssueWizardInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         IrmaMarkdown(wizardData.info.translate(lang)),
-        SizedBox(height: theme.mediumSpacing),
+        SizedBox(height: context.yivi.mediumSpacing),
         ListView.separated(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: (context, i) => items.elementAt(i),
-          separatorBuilder: (_, i) => SizedBox(height: theme.smallSpacing),
+          separatorBuilder: (_, i) =>
+              SizedBox(height: context.yivi.smallSpacing),
           itemCount: items.length,
         ),
       ],

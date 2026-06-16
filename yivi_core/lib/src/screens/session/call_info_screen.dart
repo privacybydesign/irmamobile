@@ -25,8 +25,6 @@ class CallInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, popResult) {
@@ -42,7 +40,7 @@ class CallInfoScreen extends StatelessWidget {
           onPrimaryPressed: () => onContinue?.call(),
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.defaultSpacing),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -53,31 +51,31 @@ class CallInfoScreen extends StatelessWidget {
                   translationParams: {"otherParty": otherParty},
                 ),
               ),
-              SizedBox(height: theme.defaultSpacing),
+              SizedBox(height: context.yivi.defaultSpacing),
               TranslatedText(
                 _appendPlatformToTranslationKey(
                   "disclosure_permission.call.explanation_header",
                 ),
-                style: theme.themeData.textTheme.headlineMedium,
+                style: context.text.headlineMedium,
               ),
-              SizedBox(height: theme.tinySpacing),
+              SizedBox(height: context.yivi.tinySpacing),
               TranslatedText(
                 _appendPlatformToTranslationKey(
                   "disclosure_permission.call.explanation",
                 ),
-                style: theme.themeData.textTheme.bodySmall,
+                style: context.text.bodySmall,
               ),
               // Android requires an extra step
               if (Platform.isAndroid) ...[
-                SizedBox(height: theme.mediumSpacing),
+                SizedBox(height: context.yivi.mediumSpacing),
                 TranslatedText(
                   "disclosure_permission.call.extra_explanation_header_android",
-                  style: theme.themeData.textTheme.headlineMedium,
+                  style: context.text.headlineMedium,
                 ),
-                SizedBox(height: theme.tinySpacing),
+                SizedBox(height: context.yivi.tinySpacing),
                 TranslatedText(
                   "disclosure_permission.call.extra_explanation_android",
-                  style: theme.themeData.textTheme.bodySmall,
+                  style: context.text.bodySmall,
                 ),
               ],
             ],

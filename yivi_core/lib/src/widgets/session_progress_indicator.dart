@@ -27,14 +27,13 @@ class SessionProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final showProgress = step != null && stepCount != null && stepCount != 1;
 
     return IrmaCard(
       hasShadow: false,
-      padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+      padding: EdgeInsets.symmetric(vertical: context.yivi.defaultSpacing),
       style: IrmaCardStyle.highlighted,
-      margin: EdgeInsets.all(theme.defaultSpacing),
+      margin: EdgeInsets.all(context.yivi.defaultSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -45,13 +44,12 @@ class SessionProgressIndicator extends StatelessWidget {
                 "i": step.toString(),
                 "n": stepCount.toString(),
               },
-              style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                fontSize: 14,
-                color: theme.neutralExtraDark,
-              ),
+              style: context.text.bodySmall,
             ),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+              padding: EdgeInsets.symmetric(
+                vertical: context.yivi.smallSpacing,
+              ),
               child: IrmaLinearProgressIndicator(
                 filledPercentage: step! / stepCount! * 100,
               ),
@@ -64,8 +62,8 @@ class SessionProgressIndicator extends StatelessWidget {
                   child: TranslatedText(
                     contentTranslationKey!,
                     translationParams: contentTranslationParams,
-                    style: theme.themeData.textTheme.headlineMedium!.copyWith(
-                      color: theme.dark,
+                    style: context.text.headlineMedium!.copyWith(
+                      color: context.colors.onSurface,
                     ),
                   ),
                 ),

@@ -172,23 +172,20 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    return IrmaTheme(
-      builder: (BuildContext context) {
-        return IdleLockObserver(
-          idleThreshold: widget.idleLockThreshold ?? const Duration(minutes: 5),
-          child: MaterialApp.router(
-            key: const Key("app"),
-            title: "Yivi",
-            theme: IrmaTheme.of(context).themeData,
-            localizationsDelegates: defaultLocalizationsDelegates(
-              widget.forcedLocale,
-            ),
-            supportedLocales: defaultSupportedLocales(),
-            showSemanticsDebugger: false,
-            routerConfig: _router,
-          ),
-        );
-      },
+    final yiviTheme = IrmaThemeData().themeData;
+    return IdleLockObserver(
+      idleThreshold: widget.idleLockThreshold ?? const Duration(minutes: 5),
+      child: MaterialApp.router(
+        key: const Key("app"),
+        title: "Yivi",
+        theme: yiviTheme,
+        localizationsDelegates: defaultLocalizationsDelegates(
+          widget.forcedLocale,
+        ),
+        supportedLocales: defaultSupportedLocales(),
+        showSemanticsDebugger: false,
+        routerConfig: _router,
+      ),
     );
   }
 }

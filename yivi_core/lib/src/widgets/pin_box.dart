@@ -21,10 +21,10 @@ class PinBox extends StatelessWidget {
     this.highlightBorder = false,
   }) : filled = char.isNotEmpty;
 
-  Color getBorderColor(IrmaThemeData theme) {
+  Color getBorderColor(BuildContext context) {
     if (highlightBorder) {
       // the box that is currently highlighted
-      return theme.secondary;
+      return context.colors.secondary;
     } else if (filled) {
       return Colors.grey.shade300; // filled boxes
     } else {
@@ -35,28 +35,22 @@ class PinBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       width: height / 4 * 3,
       height: height,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
+        borderRadius: BorderRadius.all(
+          Radius.circular(context.yivi.tinySpacing),
+        ),
         border: Border.all(
-          color: getBorderColor(theme),
+          color: getBorderColor(context),
           width: highlightBorder ? 2 : 1,
         ),
         color: disabled ? Colors.grey : Colors.white,
       ),
-      child: Text(
-        char,
-        style: Theme.of(context).textTheme.displaySmall?.copyWith(
-          fontSize: height / 2 + 4,
-          height: 22.0 / 18.0,
-          color: completed ? theme.secondary : Colors.grey,
-        ),
-      ),
+      child: Text(char, style: context.yivi.pin.box(height, completed)),
     );
   }
 }

@@ -46,38 +46,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final repo = IrmaRepositoryProvider.of(context);
 
     Widget buildHeaderText(String translationKey) => Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
+      padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
       child: SectionHeader(translationKey),
     );
 
     Widget buildExplanationText(String translationKey) => Padding(
       padding: EdgeInsets.symmetric(
-        vertical: theme.smallSpacing,
-        horizontal: theme.defaultSpacing,
+        vertical: context.yivi.smallSpacing,
+        horizontal: context.yivi.defaultSpacing,
       ),
       child: TranslatedText(
         translationKey,
-        style: theme.textTheme.bodyMedium!.copyWith(
-          fontSize: 14,
-          color: theme.neutralDark,
-        ),
+        style: context.yivi.form.explanation,
       ),
     );
 
-    final spacerWidget = SizedBox(height: theme.defaultSpacing);
+    final spacerWidget = SizedBox(height: context.yivi.defaultSpacing);
 
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(titleTranslationKey: "settings.title"),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.defaultSpacing),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -109,7 +105,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
               if (showDeveloperModeToggle)
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+                  padding: EdgeInsets.symmetric(
+                    vertical: context.yivi.defaultSpacing,
+                  ),
                   child: TilesCard(
                     children: [
                       ToggleTile(

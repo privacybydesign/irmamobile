@@ -6,7 +6,7 @@ import "../../../../widgets/bullet_list.dart";
 class TermsBulletList extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BulletList(
-    leading: Icon(Icons.check, color: IrmaTheme.of(context).success),
+    leading: Icon(Icons.check, color: context.yivi.brand.success),
     translationKeys: const [
       "enrollment.terms_and_conditions.point_1",
       "enrollment.terms_and_conditions.point_2",

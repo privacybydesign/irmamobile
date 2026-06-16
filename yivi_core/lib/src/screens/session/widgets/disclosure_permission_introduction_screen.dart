@@ -20,8 +20,6 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return SessionScaffold(
       appBarTitle: "disclosure_permission.introduction.title",
       onDismiss: onDismiss,
@@ -31,14 +29,14 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
           children: [
             TranslatedText(
               "disclosure_permission.introduction.header",
-              style: theme.themeData.textTheme.displaySmall!.copyWith(
-                color: theme.dark,
+              style: context.text.displaySmall!.copyWith(
+                color: context.colors.onSurface,
               ),
             ),
-            SizedBox(height: theme.tinySpacing),
+            SizedBox(height: context.yivi.tinySpacing),
             TranslatedText(
               "disclosure_permission.introduction.explanation",
-              style: theme.themeData.textTheme.bodyMedium,
+              style: context.text.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],

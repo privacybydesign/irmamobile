@@ -9,12 +9,11 @@ class _YiviProgressIndicatorElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     const double size = 8;
 
     return Container(
       decoration: BoxDecoration(
-        color: isActive ? theme.primary : theme.tertiary,
+        color: isActive ? context.colors.primary : context.colors.tertiary,
         borderRadius: BorderRadius.circular(20),
       ),
       height: size,

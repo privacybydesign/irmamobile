@@ -16,16 +16,14 @@ class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return LayoutBuilder(
       builder: (_, c) {
         final overlayRect = _calculateOverlaySize(
           Size(c.maxWidth, c.maxHeight),
         );
         final numChars = maxLtApprox(
-          overlayRect.width - theme.defaultSpacing,
-          theme.mrzLabel,
+          overlayRect.width - context.yivi.defaultSpacing,
+          context.yivi.mrzLabel,
         );
         final guidelines = "<" * numChars;
         return Stack(
@@ -42,8 +40,8 @@ class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
             if (success) ...[
               _ColoredBoxOverlay(
                 rect: overlayRect,
-                borderColor: theme.success,
-                color: theme.success.withAlpha(150),
+                borderColor: context.yivi.brand.success,
+                color: context.yivi.brand.success.withAlpha(150),
               ),
               Center(child: Icon(Icons.check, color: Colors.white, size: 200)),
             ] else ...[
@@ -69,7 +67,7 @@ class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
                   padding: .only(
                     bottom: c.maxHeight - overlayRect.bottom + 30,
                   ), // 20px above the bottom
-                  child: Text(guidelines, style: theme.mrzLabel),
+                  child: Text(guidelines, style: context.yivi.mrzLabel),
                 ),
               ),
             ],

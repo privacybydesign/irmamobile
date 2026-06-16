@@ -9,18 +9,17 @@ class InformationBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Container(
       decoration: BoxDecoration(
-        borderRadius: theme.borderRadius,
-        border: Border.all(color: theme.neutralLight, width: 1),
+        borderRadius: context.yivi.borderRadius,
+        border: Border.all(color: context.colors.outlineVariant, width: 1),
       ),
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.defaultSpacing),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline, color: theme.primary),
-          SizedBox(width: theme.smallSpacing),
+          Icon(Icons.info_outline, color: context.colors.primary),
+          SizedBox(width: context.yivi.smallSpacing),
           Expanded(
             child: Text(
               message,

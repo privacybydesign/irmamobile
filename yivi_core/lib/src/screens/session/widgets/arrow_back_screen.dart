@@ -53,8 +53,6 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final String infoText;
     switch (widget.type) {
       case ArrowBackType.issuance:
@@ -104,7 +102,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
               physics: isNativeLandscape
                   ? const NeverScrollableScrollPhysics()
                   : null,
-              padding: EdgeInsets.all(theme.defaultSpacing),
+              padding: EdgeInsets.all(context.yivi.defaultSpacing),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +111,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                     yiviAsset("arrow_back/pointing_up.svg"),
                     width: 250,
                   ),
-                  SizedBox(height: theme.hugeSpacing),
+                  SizedBox(height: context.yivi.hugeSpacing),
                   RotatedBox(
                     quarterTurns: quarterTurns,
                     child: SizedBox(
@@ -125,15 +123,15 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                           Flexible(
                             child: TranslatedText(
                               infoText,
-                              style: theme.textTheme.displayLarge,
+                              style: context.text.displayLarge,
                               textAlign: TextAlign.center,
                             ),
                           ),
-                          SizedBox(height: theme.mediumSpacing),
+                          SizedBox(height: context.yivi.mediumSpacing),
                           Flexible(
                             child: TranslatedText(
                               "arrow_back.safari",
-                              style: theme.textTheme.bodyMedium,
+                              style: context.text.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
                           ),

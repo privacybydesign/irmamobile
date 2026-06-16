@@ -42,7 +42,6 @@ class _CredentialsDetailsScreenState
   }
 
   IrmaAppBar _buildAppBar(schemaless.Credential? credential) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final name = credential?.name.translate(lang) ?? "";
 
@@ -53,7 +52,7 @@ class _CredentialsDetailsScreenState
     final titleContent = Row(
       mainAxisSize: .min,
       mainAxisAlignment: .center,
-      spacing: theme.smallSpacing,
+      spacing: context.yivi.smallSpacing,
       children: [
         if (credential != null)
           Transform.translate(
@@ -70,7 +69,9 @@ class _CredentialsDetailsScreenState
           ),
         Text(
           name,
-          style: theme.textTheme.displaySmall?.copyWith(color: theme.dark),
+          style: context.text.displaySmall?.copyWith(
+            color: context.colors.onSurface,
+          ),
         ),
       ],
     );
@@ -96,7 +97,6 @@ class _CredentialsDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final provider = schemalessCredentialsWithIdProvider(
       widget.credentialTypeId,
     );
@@ -116,7 +116,7 @@ class _CredentialsDetailsScreenState
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: _buildAppBar(credential),
       body: switch (credentials) {
         AsyncData(:final value) => _buildCredentialsList(value),
@@ -127,19 +127,18 @@ class _CredentialsDetailsScreenState
   }
 
   SizedBox _buildCredentialsList(List<schemaless.Credential> credentials) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: .symmetric(horizontal: theme.defaultSpacing),
+        padding: .symmetric(horizontal: context.yivi.defaultSpacing),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              SizedBox(height: theme.defaultSpacing),
+              SizedBox(height: context.yivi.defaultSpacing),
               ...credentials.map((cred) {
                 final isDeletable = cred.credentialInstanceIds.isNotEmpty;
                 final isReobtainable = cred.issueUrl
@@ -147,7 +146,7 @@ class _CredentialsDetailsScreenState
                     .isNotEmpty;
 
                 return Padding(
-                  padding: .only(bottom: theme.defaultSpacing),
+                  padding: .only(bottom: context.yivi.defaultSpacing),
                   child: YiviCredentialCard.fromCredential(
                     credential: cred,
                     compact: false,
@@ -166,7 +165,7 @@ class _CredentialsDetailsScreenState
                   ),
                 );
               }),
-              SizedBox(height: theme.largeSpacing),
+              SizedBox(height: context.yivi.largeSpacing),
             ],
           ),
         ),
@@ -233,18 +232,8 @@ class _CredentialsDetailsScreenState
   }
 
   void _showDeletedSnackbar() {
-    final theme = IrmaTheme.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: TranslatedText(
-          "credential.options.delete_success",
-          style: theme.themeData.textTheme.bodyMedium!.copyWith(
-            color: theme.light,
-          ),
-        ),
-        behavior: .floating,
-        backgroundColor: theme.themeData.colorScheme.secondary,
-      ),
+      SnackBar(content: TranslatedText("credential.options.delete_success")),
     );
   }
 

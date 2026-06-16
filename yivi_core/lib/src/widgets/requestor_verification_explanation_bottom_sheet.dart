@@ -7,13 +7,11 @@ import "irma_markdown.dart";
 class RequestorVerificationExplanationBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Padding(
       padding: EdgeInsets.only(
-        left: theme.defaultSpacing,
-        right: theme.defaultSpacing,
-        top: theme.defaultSpacing,
+        left: context.yivi.defaultSpacing,
+        right: context.yivi.defaultSpacing,
+        top: context.yivi.defaultSpacing,
         bottom: 100,
       ),
       child: IrmaMarkdown(

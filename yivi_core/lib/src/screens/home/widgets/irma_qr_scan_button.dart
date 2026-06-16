@@ -30,8 +30,6 @@ class IrmaQrScanButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Container(
       margin: EdgeInsets.only(
         top: MediaQuery.of(context).size.height > 450 ? 52 : 42,
@@ -62,7 +60,7 @@ class IrmaQrScanButton extends StatelessWidget {
                           onTap: () => openQrCodeScanner(context),
                           child: Icon(
                             Icons.qr_code_scanner_rounded,
-                            color: theme.light,
+                            color: Colors.white,
                             size: 42,
                           ),
                         ),
@@ -73,12 +71,12 @@ class IrmaQrScanButton extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: theme.tinySpacing),
+          SizedBox(height: context.yivi.tinySpacing),
           ExcludeSemantics(
             child: TranslatedText(
               "home.nav_bar.scan_qr",
               textAlign: TextAlign.center,
-              style: theme.themeData.textTheme.titleLarge,
+              style: context.text.titleLarge,
             ),
           ),
         ],

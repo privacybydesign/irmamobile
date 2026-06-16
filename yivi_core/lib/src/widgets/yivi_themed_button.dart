@@ -83,18 +83,18 @@ class YiviThemedButton extends StatelessWidget {
 
   Widget _buildNormalButton(
     Widget child,
-    IrmaThemeData theme,
+    BuildContext context,
     BorderRadiusGeometry borderRadius,
   ) {
     return Material(
-      color: isTransparent ? Colors.transparent : theme.light,
+      color: isTransparent ? Colors.transparent : Colors.white,
       child: InkWell(
         onTap: onPressed,
         child: Ink(
           decoration: style == YiviButtonStyle.filled
               // Filled button
               ? BoxDecoration(
-                  color: isTransparent ? null : theme.secondary,
+                  color: isTransparent ? null : context.colors.secondary,
                   borderRadius: borderRadius,
                 )
               // Outlined button
@@ -103,7 +103,7 @@ class YiviThemedButton extends StatelessWidget {
                   border: Border.all(
                     width: 1.7,
                     style: BorderStyle.solid,
-                    color: theme.neutralExtraDark,
+                    color: context.colors.onSurfaceVariant,
                   ),
                 ),
           child: child,
@@ -114,8 +114,6 @@ class YiviThemedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     const borderRadius = BorderRadius.all(Radius.circular(8));
 
     double buttonHeight = size.value;
@@ -124,23 +122,18 @@ class YiviThemedButton extends StatelessWidget {
       buttonWidth = size.value * 4;
     }
 
-    TextStyle baseTextStyle = theme.textTheme.labelLarge!;
-    if (size == YiviButtonSize.small) {
-      baseTextStyle = baseTextStyle.copyWith(
-        fontFamily: theme.secondaryFontFamily,
-        fontSize: 14,
-      );
-    }
+    final textColor = style == YiviButtonStyle.outlined
+        ? context.colors.onSurfaceVariant
+        : Colors.white;
+    final labelStyle = size == YiviButtonSize.small
+        ? context.yivi.button.smallLabel(textColor)
+        : context.yivi.button.label(textColor);
 
     final centeredTextWidget = Center(
       child: TranslatedText(
         label,
         textAlign: TextAlign.center,
-        style: baseTextStyle.copyWith(
-          color: style == YiviButtonStyle.outlined
-              ? theme.neutralExtraDark
-              : theme.light,
-        ),
+        style: labelStyle,
       ),
     );
 
@@ -153,7 +146,7 @@ class YiviThemedButton extends StatelessWidget {
           borderRadius: borderRadius,
           child: style == YiviButtonStyle.fancy
               ? _buildFancyButton(centeredTextWidget)
-              : _buildNormalButton(centeredTextWidget, theme, borderRadius),
+              : _buildNormalButton(centeredTextWidget, context, borderRadius),
         ),
       ),
     );

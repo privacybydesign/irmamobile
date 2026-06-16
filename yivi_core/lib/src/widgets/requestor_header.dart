@@ -4,7 +4,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
 import "base64_image.dart";
-import "credential_card/yivi_credential_card_header.dart";
 import "irma_avatar.dart";
 import "irma_card.dart";
 import "irma_icon_indicator.dart";
@@ -33,15 +32,11 @@ class RequestorHeader extends StatelessWidget {
   const RequestorHeader({this.requestor, this.isVerified});
 
   _showCredentialOptionsBottomSheet(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return showYiviBottomSheet(
       context: context,
       titleKey:
           "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
-      titleStyle: credentialNameStyle(
-        theme,
-        18,
-      ).copyWith(fontWeight: FontWeight.w500),
+      titleStyle: context.yivi.bottomSheet.title,
       child: RequestorVerificationExplanationBottomSheet(),
     );
   }
@@ -49,7 +44,6 @@ class RequestorHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final theme = IrmaTheme.of(context);
 
     Widget mainTextWidget;
     Widget? subtitleTextWidget;
@@ -68,17 +62,17 @@ class RequestorHeader extends StatelessWidget {
     );
 
     if (isVerified != null) {
-      final mainTextDefaultStyle = theme.themeData.textTheme.bodyMedium;
+      final mainTextDefaultStyle = context.text.bodyMedium;
       String mainTextSuffixTranslationKey;
 
       // Set the subtitleTextWidget to a link
       subtitleTextWidget = Padding(
-        padding: EdgeInsets.only(top: theme.defaultSpacing),
+        padding: EdgeInsets.only(top: context.yivi.defaultSpacing),
         child: GestureDetector(
           onTap: () => _showCredentialOptionsBottomSheet(context),
           child: TranslatedText(
             "disclosure_permission.overview.requestor_verification.explanation",
-            style: theme.hyperlinkTextStyle.copyWith(
+            style: context.yivi.hyperlinkTextStyle.copyWith(
               fontWeight: FontWeight.normal,
             ),
           ),
@@ -86,11 +80,11 @@ class RequestorHeader extends StatelessWidget {
       );
 
       if (isVerified!) {
-        backgroundColorOverride = theme.successSurface;
+        backgroundColorOverride = context.yivi.brand.successSurface;
         mainTextSuffixTranslationKey =
             "disclosure_permission.overview.requestor_verification.verified_suffix";
       } else {
-        backgroundColorOverride = theme.errorSurface;
+        backgroundColorOverride = context.colors.errorContainer;
         mainTextSuffixTranslationKey =
             "disclosure_permission.overview.requestor_verification.unverified_suffix";
       }
@@ -132,10 +126,7 @@ class RequestorHeader extends StatelessWidget {
     } else {
       mainTextWidget = Text(
         localizedRequestorName,
-        style: credentialNameStyle(
-          theme,
-          16,
-        ).copyWith(fontWeight: FontWeight.w500),
+        style: context.yivi.requestor.name,
       );
     }
 
@@ -167,10 +158,7 @@ class IssueWizardRequestorHeader extends StatelessWidget {
       textColor: textColor,
       backgroundColor: backgroundColor,
       avatar: _buildRequestorAvatar(title: title, image: image),
-      mainText: Text(
-        title ?? "",
-        style: IrmaTheme.of(context).themeData.textTheme.headlineMedium,
-      ),
+      mainText: Text(title ?? "", style: context.text.headlineMedium),
     );
   }
 }
@@ -193,12 +181,10 @@ class _RequestorHeaderBase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return IrmaCard(
       color: backgroundColor,
       padding: EdgeInsets.zero,
-      margin: EdgeInsets.all(theme.defaultSpacing),
+      margin: EdgeInsets.all(context.yivi.defaultSpacing),
       child: Row(
         crossAxisAlignment: subtitleText != null
             ? CrossAxisAlignment.start
@@ -206,10 +192,10 @@ class _RequestorHeaderBase extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(right: theme.tinySpacing),
+            padding: EdgeInsets.only(right: context.yivi.tinySpacing),
             child: avatar,
           ),
-          SizedBox(width: theme.smallSpacing),
+          SizedBox(width: context.yivi.smallSpacing),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

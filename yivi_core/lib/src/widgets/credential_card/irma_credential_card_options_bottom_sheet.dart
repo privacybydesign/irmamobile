@@ -16,35 +16,33 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
   ListTile _buildOptionTile({
     required IconData icon,
     required String translationKey,
-    required IrmaThemeData theme,
+    required BuildContext context,
     Function()? onTap,
   }) {
     return ListTile(
       onTap: onTap,
       contentPadding: EdgeInsets.zero,
       minLeadingWidth: 0,
-      leading: Icon(icon, color: theme.themeData.colorScheme.secondary),
-      title: TranslatedText(translationKey, style: theme.textTheme.bodyMedium),
+      leading: Icon(icon, color: context.colors.secondary),
+      title: TranslatedText(translationKey, style: context.text.bodyMedium),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        theme.defaultSpacing,
+        context.yivi.defaultSpacing,
         0,
-        theme.defaultSpacing,
-        theme.defaultSpacing,
+        context.yivi.defaultSpacing,
+        context.yivi.defaultSpacing,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (onReobtain != null)
             _buildOptionTile(
-              theme: theme,
+              context: context,
               icon: Icons.cached,
               translationKey: "credential.options.reobtain",
               onTap: onReobtain,
@@ -52,7 +50,7 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
           if (onReobtain != null && onDelete != null) const IrmaDivider(),
           if (onDelete != null)
             _buildOptionTile(
-              theme: theme,
+              context: context,
               icon: Icons.delete,
               translationKey: "credential.options.delete",
               onTap: onDelete,

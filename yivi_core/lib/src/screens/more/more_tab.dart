@@ -49,24 +49,22 @@ class _MoreTabState extends State<MoreTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    final spacerWidget = SizedBox(height: theme.mediumSpacing);
+    final spacerWidget = SizedBox(height: context.yivi.mediumSpacing);
 
     Widget buildHeaderText(String translationKey) => Padding(
-      padding: EdgeInsets.only(bottom: theme.smallSpacing),
+      padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
       child: SectionHeader(translationKey),
     );
 
     return Scaffold(
-      backgroundColor: IrmaTheme.of(context).backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(
         titleTranslationKey: "home.nav_bar.more",
         leading: null,
       ),
       body: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

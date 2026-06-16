@@ -12,22 +12,20 @@ class IrmaMarkdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return MarkdownBody(
       data: data,
       // Effectively disable image rendering (to prevent remote image loading)
       sizedImageBuilder: (config) => Container(),
       // Define small style sheet, and merge in any passed styleSheet
-      styleSheet: MarkdownStyleSheet.fromTheme(theme.themeData)
+      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
           .merge(
             MarkdownStyleSheet(
-              h1: theme.textTheme.displayLarge,
-              h2: theme.textTheme.displayMedium,
-              h3: theme.textTheme.displaySmall,
-              h4: theme.textTheme.headlineMedium,
-              strong: theme.textTheme.bodyLarge,
-              a: theme.hyperlinkTextStyle,
+              h1: context.text.displayLarge,
+              h2: context.text.displayMedium,
+              h3: context.text.displaySmall,
+              h4: context.text.headlineMedium,
+              strong: context.text.bodyLarge,
+              a: context.yivi.hyperlinkTextStyle,
               textScaler: MediaQuery.textScalerOf(context),
             ),
           )

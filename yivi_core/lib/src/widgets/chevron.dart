@@ -11,11 +11,10 @@ class Chevron extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Icon(
       Icons.chevron_right,
       size: size,
-      color: color ?? theme.neutralDark,
+      color: color ?? context.colors.outline,
     );
   }
 }

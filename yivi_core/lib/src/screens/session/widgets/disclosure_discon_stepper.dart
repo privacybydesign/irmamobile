@@ -55,7 +55,6 @@ class DisclosureDisconStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final virtualSteps = _buildVirtualSteps();
     final currentVirtual = _findCurrentVirtualStepIndex(virtualSteps);
 
@@ -63,7 +62,7 @@ class DisclosureDisconStepper extends StatelessWidget {
       currentIndex: currentVirtual,
       children: [
         for (var i = 0; i < virtualSteps.length; i++)
-          _renderVirtualStep(theme, virtualSteps[i], i == currentVirtual),
+          _renderVirtualStep(context, virtualSteps[i], i == currentVirtual),
       ],
     );
   }
@@ -142,16 +141,16 @@ class DisclosureDisconStepper extends StatelessWidget {
   }
 
   Widget _renderVirtualStep(
-    IrmaThemeData theme,
+    BuildContext context,
     _VirtualStep vs,
     bool isCurrent,
   ) {
     switch (vs) {
       case _ChoiceVirtualStep(:final step, :final issuanceStepIndex):
-        return _renderChoice(theme, step, issuanceStepIndex);
+        return _renderChoice(context, step, issuanceStepIndex);
       case _CredentialVirtualStep(:final descriptor):
         return Padding(
-          padding: EdgeInsets.only(bottom: theme.smallSpacing),
+          padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
           child: YiviCredentialCard.fromDescriptor(
             descriptor: descriptor,
             compact: true,
@@ -170,7 +169,7 @@ class DisclosureDisconStepper extends StatelessWidget {
   }
 
   Widget _renderChoice(
-    IrmaThemeData theme,
+    BuildContext context,
     IssuanceStep step,
     int issuanceStepIndex,
   ) {
@@ -178,10 +177,10 @@ class DisclosureDisconStepper extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.all(theme.smallSpacing),
+          padding: EdgeInsets.all(context.yivi.smallSpacing),
           child: TranslatedText(
             "disclosure_permission.choose",
-            style: theme.themeData.textTheme.headlineMedium,
+            style: context.text.headlineMedium,
           ),
         ),
         DisclosurePermissionChoice.fromIssuanceBundles(

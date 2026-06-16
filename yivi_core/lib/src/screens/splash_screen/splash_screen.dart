@@ -38,7 +38,7 @@ class SplashScreen extends StatelessWidget {
             if (isLoading)
               Container(
                 margin: EdgeInsets.only(
-                  top: logoHeight + IrmaTheme.of(context).defaultSpacing,
+                  top: logoHeight + context.yivi.defaultSpacing,
                 ),
                 child: LoadingIndicator(),
               ),

@@ -201,7 +201,6 @@ class CertManagerDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
-    final theme = IrmaTheme.of(context);
 
     return StreamBuilder<
       CombinedState2<EnrollmentStatusEvent, IrmaConfiguration>
@@ -264,7 +263,7 @@ class CertManagerDetailScreen extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
-            padding: EdgeInsets.all(theme.screenPadding),
+            padding: EdgeInsets.all(context.yivi.screenPadding),
             child: Column(
               children: [
                 // These values are not translated because they are the same in English and Dutch.

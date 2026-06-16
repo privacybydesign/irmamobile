@@ -11,20 +11,21 @@ class BulletList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final textStyle = theme.textTheme.bodyLarge;
+    final textStyle = context.text.bodyLarge;
 
     return Column(
       children: translationKeys
           .map(
             (translationKey) => Padding(
-              padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+              padding: EdgeInsets.symmetric(
+                vertical: context.yivi.smallSpacing,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   leading != null ? leading! : Text("•  ", style: textStyle),
-                  SizedBox(width: theme.smallSpacing),
+                  SizedBox(width: context.yivi.smallSpacing),
                   Expanded(
                     child: TranslatedText(translationKey, style: textStyle),
                   ),

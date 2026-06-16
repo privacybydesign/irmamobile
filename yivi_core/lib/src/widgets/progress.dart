@@ -8,7 +8,6 @@ import "translated_text.dart";
 class IrmaProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Container(
       alignment: Alignment.center,
       child: Column(
@@ -16,10 +15,10 @@ class IrmaProgress extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           LoadingIndicator(),
-          SizedBox(height: theme.defaultSpacing),
+          SizedBox(height: context.yivi.defaultSpacing),
           TranslatedText(
             "ui.loading",
-            style: theme.textTheme.displaySmall,
+            style: context.text.displaySmall,
             textAlign: TextAlign.center,
           ),
         ],

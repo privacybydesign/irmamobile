@@ -14,7 +14,7 @@ class PairingRequired extends StatelessWidget {
 
   const PairingRequired({required this.pairingCode, required this.onDismiss});
 
-  Widget _buildPinBoxes(BuildContext context, IrmaThemeData theme) {
+  Widget _buildPinBoxes(BuildContext context) {
     final boxes = List<Widget>.generate(
       pairingCode.length,
       (i) => PinBox(
@@ -28,7 +28,7 @@ class PairingRequired extends StatelessWidget {
 
     return Wrap(
       alignment: WrapAlignment.center,
-      spacing: theme.mediumSpacing,
+      spacing: context.yivi.mediumSpacing,
       children: boxes,
     );
   }
@@ -45,13 +45,12 @@ class PairingRequired extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return SessionScaffold(
       appBarTitle: "session.pairing.title",
       bottomNavigationBar: _buildNavigationBar(context),
       onDismiss: onDismiss,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -64,10 +63,10 @@ class PairingRequired extends StatelessWidget {
             SizedBox(
               height:
                   MediaQuery.of(context).orientation == Orientation.landscape
-                  ? theme.mediumSpacing
-                  : theme.hugeSpacing,
+                  ? context.yivi.mediumSpacing
+                  : context.yivi.hugeSpacing,
             ),
-            _buildPinBoxes(context, theme),
+            _buildPinBoxes(context),
           ],
         ),
       ),

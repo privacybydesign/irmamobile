@@ -13,7 +13,6 @@ class NameChangedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
@@ -29,20 +28,20 @@ class NameChangedScreen extends StatelessWidget {
 
     final titleTextWidget = TranslatedText(
       "name_changed.title",
-      style: theme.themeData.textTheme.displaySmall!.copyWith(
-        color: theme.dark,
+      style: context.text.displaySmall!.copyWith(
+        color: context.colors.onSurface,
       ),
     );
 
     final headerTextWidget = TranslatedText(
       "name_changed.header",
-      style: theme.themeData.textTheme.bodyMedium,
+      style: context.text.bodyMedium,
       textAlign: TextAlign.center,
     );
 
     final explanationTextWidget = TranslatedText(
       "name_changed.explanation",
-      style: theme.themeData.textTheme.bodyMedium,
+      style: context.text.bodyMedium,
       textAlign: TextAlign.center,
     );
 
@@ -51,9 +50,9 @@ class NameChangedScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         oldLogoWidget,
-        SizedBox(height: theme.largeSpacing),
+        SizedBox(height: context.yivi.largeSpacing),
         titleTextWidget,
-        SizedBox(height: theme.tinySpacing),
+        SizedBox(height: context.yivi.tinySpacing),
         headerTextWidget,
         Lottie.asset(
           yiviAsset("non-free/yivi_name_change.json"),
@@ -71,19 +70,19 @@ class NameChangedScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [oldLogoWidget, newLogoWidget],
         ),
-        SizedBox(width: theme.largeSpacing),
+        SizedBox(width: context.yivi.largeSpacing),
         Flexible(
           flex: 2,
           child: Column(
             children: [
               titleTextWidget,
-              SizedBox(height: theme.tinySpacing),
+              SizedBox(height: context.yivi.tinySpacing),
               TranslatedText(
                 "name_changed.header",
-                style: theme.themeData.textTheme.bodyMedium,
+                style: context.text.bodyMedium,
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: theme.tinySpacing),
+              SizedBox(height: context.yivi.tinySpacing),
               explanationTextWidget,
             ],
           ),
@@ -95,7 +94,7 @@ class NameChangedScreen extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(theme.screenPadding),
+            padding: EdgeInsets.all(context.yivi.screenPadding),
             child: isLandscape ? buildLandscape() : buildPortrait(),
           ),
         ),

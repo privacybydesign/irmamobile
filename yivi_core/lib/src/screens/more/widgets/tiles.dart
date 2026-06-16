@@ -159,8 +159,6 @@ class ToggleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return StreamBuilder(
       stream: stream,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
@@ -183,7 +181,7 @@ class ToggleTile extends StatelessWidget {
             trailing: CupertinoSwitch(
               value: value,
               onChanged: null, // We use the onTap on the Tile
-              activeTrackColor: theme.success,
+              activeTrackColor: context.yivi.brand.success,
             ),
           ),
         );
@@ -210,19 +208,18 @@ class Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final iconColor = theme.secondary;
+    final iconColor = context.colors.secondary;
 
     return Semantics(
       link: isLink,
       child: Material(
         child: ListTile(
           onTap: onTap,
-          minLeadingWidth: theme.mediumSpacing,
+          minLeadingWidth: context.yivi.mediumSpacing,
           contentPadding: EdgeInsets.fromLTRB(
-            theme.defaultSpacing,
+            context.yivi.defaultSpacing,
             0,
-            theme.smallSpacing,
+            context.yivi.smallSpacing,
             0,
           ),
           leading: iconData != null
@@ -230,10 +227,7 @@ class Tile extends StatelessWidget {
               : null,
           title: TranslatedText(
             labelTranslationKey,
-            style: theme.textButtonTextStyle.copyWith(
-              fontWeight: FontWeight.w400,
-              color: theme.dark,
-            ),
+            style: context.yivi.card.tileLabel,
           ),
           trailing: trailing ?? const Chevron(),
         ),

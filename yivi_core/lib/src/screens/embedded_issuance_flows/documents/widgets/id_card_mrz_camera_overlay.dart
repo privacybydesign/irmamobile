@@ -16,16 +16,14 @@ class IdCardMrzCameraOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return LayoutBuilder(
       builder: (_, c) {
         final overlayRect = _calculateOverlaySize(
           Size(c.maxWidth, c.maxHeight),
         );
         final numChars = maxLtApprox(
-          overlayRect.width - theme.defaultSpacing,
-          theme.mrzLabel,
+          overlayRect.width - context.yivi.defaultSpacing,
+          context.yivi.mrzLabel,
         );
         final guidelines = "<" * numChars;
         return Stack(
@@ -42,8 +40,8 @@ class IdCardMrzCameraOverlay extends StatelessWidget {
             if (success) ...[
               _ColoredBoxOverlay(
                 rect: overlayRect,
-                borderColor: theme.success,
-                color: theme.success.withAlpha(150),
+                borderColor: context.yivi.brand.success,
+                color: context.yivi.brand.success.withAlpha(150),
               ),
               Center(child: Icon(Icons.check, color: Colors.white, size: 200)),
             ] else ...[
@@ -62,11 +60,11 @@ class IdCardMrzCameraOverlay extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(guidelines, style: theme.mrzLabel),
-                      SizedBox(height: theme.tinySpacing),
-                      Text(guidelines, style: theme.mrzLabel),
-                      SizedBox(height: theme.tinySpacing),
-                      Text(guidelines, style: theme.mrzLabel),
+                      Text(guidelines, style: context.yivi.mrzLabel),
+                      SizedBox(height: context.yivi.tinySpacing),
+                      Text(guidelines, style: context.yivi.mrzLabel),
+                      SizedBox(height: context.yivi.tinySpacing),
+                      Text(guidelines, style: context.yivi.mrzLabel),
                     ],
                   ),
                 ),

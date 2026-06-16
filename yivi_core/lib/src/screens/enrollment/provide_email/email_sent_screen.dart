@@ -19,10 +19,8 @@ class EmailSentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: context.colors.surfaceContainerLow,
       key: const Key("email_sent_screen"),
       appBar: IrmaAppBar(
         titleTranslationKey: "enrollment.email.confirm.title",
@@ -35,8 +33,8 @@ class EmailSentScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: theme.defaultSpacing,
-            vertical: theme.defaultSpacing,
+            horizontal: context.yivi.defaultSpacing,
+            vertical: context.yivi.defaultSpacing,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,7 +42,7 @@ class EmailSentScreen extends StatelessWidget {
               const IrmaQuote(
                 quote: "enrollment.email.confirm.explanation_extra_markdown",
               ),
-              SizedBox(height: theme.defaultSpacing),
+              SizedBox(height: context.yivi.defaultSpacing),
               Text.rich(
                 TextSpan(
                   children: [
@@ -52,11 +50,11 @@ class EmailSentScreen extends StatelessWidget {
                       text:
                           '${FlutterI18n.translate(context, 'enrollment.email.confirm.header')} ',
                     ),
-                    TextSpan(text: "$email ", style: theme.textTheme.bodyLarge),
+                    TextSpan(text: "$email ", style: context.text.bodyLarge),
                   ],
                 ),
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               const TranslatedText("enrollment.email.confirm.explanation"),
             ],
           ),

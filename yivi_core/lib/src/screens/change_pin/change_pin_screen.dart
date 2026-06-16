@@ -5,7 +5,6 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "../../data/irma_repository.dart";
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
-import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../../widgets/translated_text.dart";
@@ -53,7 +52,6 @@ class ProvidedChangePinScreen extends StatefulWidget {
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  IrmaThemeData get theme => IrmaTheme.of(context);
   final newPin = ValueNotifier<String>("");
 
   Map<String, WidgetBuilder> _routeBuilders() {
@@ -115,18 +113,9 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   }
 
   void _onSuccessShowFloatingSnackbar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: TranslatedText(
-          "change_pin.toast",
-          style: theme.themeData.textTheme.bodySmall!.copyWith(
-            color: theme.light,
-          ),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: theme.themeData.colorScheme.secondary,
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: TranslatedText("change_pin.toast")));
   }
 
   void _handleResetPinSuccess() {

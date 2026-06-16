@@ -6,13 +6,11 @@ import "../../../../widgets/translated_text.dart";
 class ErrorReportingInfoBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.defaultSpacing),
       child: TranslatedText(
         "enrollment.error_reporting.dialog.explanation",
-        style: theme.textTheme.bodyMedium,
+        style: context.text.bodyMedium,
       ),
     );
   }

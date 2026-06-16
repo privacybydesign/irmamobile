@@ -50,12 +50,12 @@ class _NotificationsTabState extends State<NotificationsTab> {
     _notificationsBloc.add(SoftDeleteNotification(notification.id));
   }
 
-  Widget _emptyListIndicator(IrmaThemeData theme) =>
+  Widget _emptyListIndicator() =>
       // It needs to be wrapped in a ListView because of the RefreshIndicator
       ListView(
         children: [
           Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.defaultSpacing),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -77,12 +77,10 @@ class _NotificationsTabState extends State<NotificationsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return BlocProvider.value(
       value: BlocProvider.of<NotificationsBloc>(context),
       child: Scaffold(
-        backgroundColor: theme.backgroundTertiary,
+        backgroundColor: context.colors.surfaceContainerHigh,
         appBar: IrmaAppBar(
           titleTranslationKey: "notifications.title",
           leading: null,
@@ -98,16 +96,16 @@ class _NotificationsTabState extends State<NotificationsTab> {
                 return RefreshIndicator(
                   onRefresh: () => Future.sync(_onRefresh),
                   child: notifications.isEmpty
-                      ? _emptyListIndicator(theme)
+                      ? _emptyListIndicator()
                       : ListView.builder(
-                          padding: EdgeInsets.all(theme.defaultSpacing),
+                          padding: EdgeInsets.all(context.yivi.defaultSpacing),
                           itemCount: state.notifications.length,
                           itemBuilder: (context, index) {
                             final notification = notifications[index];
 
                             return Padding(
                               padding: EdgeInsets.only(
-                                bottom: theme.smallSpacing,
+                                bottom: context.yivi.smallSpacing,
                               ),
                               child: IrmaDismissible(
                                 key: Key(notification.id),

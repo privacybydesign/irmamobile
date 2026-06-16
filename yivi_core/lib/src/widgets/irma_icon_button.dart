@@ -21,7 +21,6 @@ class IrmaIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final borderRadius = BorderRadius.circular(25.0);
 
     return Semantics(
@@ -37,7 +36,11 @@ class IrmaIconButton extends StatelessWidget {
           borderRadius: borderRadius,
           child: Padding(
             padding: padding ?? const EdgeInsets.all(12),
-            child: Icon(icon, size: size, color: theme.neutralExtraDark),
+            child: Icon(
+              icon,
+              size: size,
+              color: context.colors.onSurfaceVariant,
+            ),
           ),
         ),
       ),

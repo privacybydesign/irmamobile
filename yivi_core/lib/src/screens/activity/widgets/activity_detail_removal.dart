@@ -12,18 +12,16 @@ class ActivityDetailRemoval extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final removedCredentials = logEntry.removalLog?.credentials ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeader("activity.deleted_data"),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: context.yivi.smallSpacing),
         for (var removedCredential in removedCredentials)
           Padding(
-            padding: EdgeInsets.only(top: theme.smallSpacing),
+            padding: EdgeInsets.only(top: context.yivi.smallSpacing),
             child: YiviCredentialCard.fromLogCredential(
               logCredential: removedCredential,
               compact: true,

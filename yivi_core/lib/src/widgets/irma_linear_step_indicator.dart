@@ -16,10 +16,8 @@ class IrmaLinearStepIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.defaultSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -29,12 +27,9 @@ class IrmaLinearStepIndicator extends StatelessWidget {
               "i": step.toString(),
               "n": stepCount.toString(),
             },
-            style: TextStyle(
-              fontSize: 12,
-              color: theme.themeData.colorScheme.secondary,
-            ),
+            style: context.yivi.indicator.linearStep,
           ),
-          SizedBox(height: theme.smallSpacing),
+          SizedBox(height: context.yivi.smallSpacing),
           IrmaLinearProgressIndicator(filledPercentage: step / stepCount * 100),
         ],
       ),

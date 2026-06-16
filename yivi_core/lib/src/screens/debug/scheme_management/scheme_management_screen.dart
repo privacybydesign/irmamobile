@@ -177,7 +177,6 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
-    final theme = IrmaTheme.of(context);
 
     return Scaffold(
       appBar: IrmaAppBar(
@@ -203,7 +202,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                 final irmaConfiguration = snapshot.data!.b;
 
                 return ListView(
-                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  padding: EdgeInsets.all(context.yivi.defaultSpacing),
                   children: [
                     const TranslatedText(
                       "debug.scheme_management.issuer_schemes",
@@ -218,7 +217,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                             : null,
                         onTap: () => _onSchemeManagerTileTap(schemeManager.id),
                       ),
-                    SizedBox(height: theme.defaultSpacing),
+                    SizedBox(height: context.yivi.defaultSpacing),
                     const TranslatedText(
                       "debug.scheme_management.requestor_schemes",
                     ),

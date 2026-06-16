@@ -211,7 +211,7 @@ class _SessionPinScreenState extends State<SessionPinScreen>
                                 if (state.authenticateInProgress)
                                   Padding(
                                     padding: EdgeInsets.all(
-                                      IrmaTheme.of(context).defaultSpacing,
+                                      context.yivi.defaultSpacing,
                                     ),
                                     child: const CircularProgressIndicator(),
                                   ),

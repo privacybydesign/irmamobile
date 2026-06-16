@@ -25,7 +25,6 @@ class EnrollmentInstruction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
@@ -33,25 +32,27 @@ class EnrollmentInstruction extends StatelessWidget {
       children: [
         // Instruction content
         SingleChildScrollView(
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.defaultSpacing),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (isLandscape) SizedBox(height: theme.defaultSpacing),
+              if (isLandscape) SizedBox(height: context.yivi.defaultSpacing),
               if (stepIndex != null && stepCount != null)
                 YiviProgressIndicator(
                   stepCount: stepCount!,
                   stepIndex: stepIndex!,
                 ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               TranslatedText(
                 titleTranslationKey,
-                style: theme.textTheme.displayLarge,
+                style: context.text.displayLarge,
               ),
-              SizedBox(height: theme.defaultSpacing),
+              SizedBox(height: context.yivi.defaultSpacing),
               TranslatedText(explanationTranslationKey),
               // Extra white space so the content above always stays visible
-              SizedBox(height: theme.defaultSpacing + theme.hugeSpacing),
+              SizedBox(
+                height: context.yivi.defaultSpacing + context.yivi.hugeSpacing,
+              ),
             ],
           ),
         ),

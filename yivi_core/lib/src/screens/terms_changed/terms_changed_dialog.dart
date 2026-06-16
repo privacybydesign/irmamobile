@@ -85,8 +85,6 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
         ? prefs.mostRecentTermsUrlNl
         : prefs.mostRecentTermsUrlEn;
 
-    final theme = IrmaTheme.of(context);
-
     return YiviDialog(
       key: const Key("terms_changed_dialog"),
       child: Column(
@@ -97,7 +95,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
             leading: null,
           ),
           SingleChildScrollView(
-            padding: EdgeInsets.all(theme.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.defaultSpacing),
             child: TranslatedText(
               "new_terms_and_conditions.explanation_markdown",
               translationParams: {"terms_url": termsUrl},

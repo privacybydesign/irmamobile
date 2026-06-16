@@ -9,8 +9,9 @@ class ActiveIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final color = isActive ? theme.success : theme.primary;
+    final color = isActive
+        ? context.yivi.brand.success
+        : context.colors.primary;
 
     return Container(
       width: 8,

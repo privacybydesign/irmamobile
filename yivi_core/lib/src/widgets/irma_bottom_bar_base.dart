@@ -9,13 +9,12 @@ class IrmaBottomBarBase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final mediaQuery = MediaQuery.of(context);
 
     return Container(
       width: mediaQuery.size.width,
       decoration: BoxDecoration(
-        color: theme.surfacePrimary,
+        color: Colors.white,
         border: const Border(top: BorderSide(color: Colors.white, width: 2.0)),
         boxShadow: [
           BoxShadow(
@@ -28,10 +27,10 @@ class IrmaBottomBarBase extends StatelessWidget {
       ),
       child: Padding(
         padding: .only(
-          left: theme.defaultSpacing + mediaQuery.padding.left,
-          right: theme.defaultSpacing + mediaQuery.padding.right,
-          top: theme.smallSpacing,
-          bottom: theme.smallSpacing + mediaQuery.padding.bottom,
+          left: context.yivi.defaultSpacing + mediaQuery.padding.left,
+          right: context.yivi.defaultSpacing + mediaQuery.padding.right,
+          top: context.yivi.smallSpacing,
+          bottom: context.yivi.smallSpacing + mediaQuery.padding.bottom,
         ),
         child: child,
       ),

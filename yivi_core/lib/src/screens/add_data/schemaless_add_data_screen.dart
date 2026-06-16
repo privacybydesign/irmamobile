@@ -14,18 +14,17 @@ import "../../widgets/section_header.dart";
 class SchemalessAddDataScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
     final storeItems = ref.watch(groupedCredentialStoreProvider);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(titleTranslationKey: "data.add.title"),
       body: SingleChildScrollView(
-        padding: .all(theme.defaultSpacing),
+        padding: .all(context.yivi.defaultSpacing),
         child: SafeArea(
           child: Column(
-            spacing: theme.smallSpacing,
+            spacing: context.yivi.smallSpacing,
             crossAxisAlignment: .start,
             children: [
               switch (storeItems) {
@@ -33,22 +32,22 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                 AsyncError(error: final error) => Center(
                   child: Text(
                     error.toString(),
-                    style: TextStyle(color: theme.error),
+                    style: context.yivi.form.errorMessage,
                   ),
                 ),
                 AsyncData(value: final value) => Column(
                   crossAxisAlignment: .start,
-                  spacing: theme.largeSpacing,
+                  spacing: context.yivi.largeSpacing,
                   children: [
                     for (final CredentialStoreCategory(:category, :items)
                         in value)
                       Column(
                         crossAxisAlignment: .start,
-                        spacing: theme.smallSpacing,
+                        spacing: context.yivi.smallSpacing,
                         children: [
                           SectionHeader.text(category.translate(lang)),
                           Column(
-                            spacing: theme.smallSpacing,
+                            spacing: context.yivi.smallSpacing,
                             children: [
                               for (final CredentialStoreItem(:credential, :faq)
                                   in items)

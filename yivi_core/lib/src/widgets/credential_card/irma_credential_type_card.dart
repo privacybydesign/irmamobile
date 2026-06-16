@@ -23,7 +23,6 @@ class IrmaCredentialTypeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final repo = IrmaRepositoryProvider.of(context);
 
     const logoContainerSize = 52.0;
@@ -41,7 +40,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
           avatar,
           Icon(
             Icons.check_circle,
-            color: theme.success,
+            color: context.yivi.brand.success,
             size: logoContainerSize * 0.3,
           ),
         ],
@@ -55,22 +54,22 @@ class IrmaCredentialTypeCard extends StatelessWidget {
           key: Key("${credType.fullId}_tile"),
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.defaultSpacing),
             child: Row(
               children: [
                 ExcludeSemantics(child: avatar),
-                SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+                SizedBox(
+                  width: context.yivi.defaultSpacing - context.yivi.tinySpacing,
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         getTranslation(context, credType.name),
-                        style: theme.textTheme.headlineMedium!.copyWith(
-                          color: theme.dark,
-                        ),
+                        style: context.yivi.activity.cardTitle,
                       ),
-                      SizedBox(height: theme.tinySpacing),
+                      SizedBox(height: context.yivi.tinySpacing),
                       Text(
                         getTranslation(
                           context,
@@ -79,16 +78,18 @@ class IrmaCredentialTypeCard extends StatelessWidget {
                               .issuers[credType.fullIssuerId]!
                               .name,
                         ),
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          fontSize: 14,
-                        ),
+                        style: context.text.bodySmall,
                       ),
                     ],
                   ),
                 ),
-                SizedBox(width: theme.smallSpacing),
+                SizedBox(width: context.yivi.smallSpacing),
                 if (trailingIcon != null)
-                  Icon(trailingIcon, size: 24, color: theme.neutralExtraDark)
+                  Icon(
+                    trailingIcon,
+                    size: 24,
+                    color: context.colors.onSurfaceVariant,
+                  )
                 else
                   const Chevron(),
               ],

@@ -29,8 +29,6 @@ class ActionFeedback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return PopScope(
       canPop: false,
       child: SessionScaffold(
@@ -48,15 +46,15 @@ class ActionFeedback extends StatelessWidget {
             children: [
               TranslatedText(
                 titleTranslationKey,
-                style: theme.themeData.textTheme.displaySmall!.copyWith(
-                  color: theme.dark,
+                style: context.text.displaySmall!.copyWith(
+                  color: context.colors.onSurface,
                 ),
               ),
-              SizedBox(height: theme.tinySpacing),
+              SizedBox(height: context.yivi.tinySpacing),
               TranslatedText(
                 explanationTranslationKey,
                 translationParams: explanationTranslationParams,
-                style: theme.themeData.textTheme.bodyMedium,
+                style: context.text.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             ],

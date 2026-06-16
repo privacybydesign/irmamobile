@@ -10,8 +10,6 @@ class IrmaStatusIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Stack(
       children: [
         // Add a white background to the icon to make the check mark or cross more visible
@@ -23,7 +21,7 @@ class IrmaStatusIndicator extends StatelessWidget {
         ),
         Icon(
           success ? Icons.check_circle : Icons.cancel,
-          color: success ? theme.success : theme.error,
+          color: success ? context.yivi.brand.success : context.colors.error,
           size: size,
         ),
       ],

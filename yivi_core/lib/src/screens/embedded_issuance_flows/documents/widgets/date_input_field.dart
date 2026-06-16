@@ -55,8 +55,7 @@ class _DateInputFieldState extends State<DateInputField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final baseTextStyle = theme.textTheme.bodyMedium;
+    final baseTextStyle = context.text.bodyMedium;
 
     return TextFormField(
       key: widget.fieldKey ?? const Key("date_input_field"),
@@ -64,7 +63,7 @@ class _DateInputFieldState extends State<DateInputField> {
       readOnly: false,
       keyboardType: .number,
       textInputAction: .next,
-      cursorColor: theme.themeData.colorScheme.secondary,
+      cursorColor: context.colors.secondary,
       style: baseTextStyle,
       inputFormatters: [_dateMask],
       decoration: InputDecoration(

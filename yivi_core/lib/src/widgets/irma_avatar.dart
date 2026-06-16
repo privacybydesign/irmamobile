@@ -29,8 +29,6 @@ class IrmaAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     Widget? image = logoImage;
     if (logoPath != null) {
       final logoFile = File(logoPath!);
@@ -52,14 +50,14 @@ class IrmaAvatar extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(size / 2),
         child: Container(
-          color: theme.neutralExtraLight,
+          color: context.yivi.brand.neutralExtraLight,
           height: size,
           width: size,
           child:
               image ??
               Container(
                 height: size / 2,
-                padding: EdgeInsets.all(theme.smallSpacing),
+                padding: EdgeInsets.all(context.yivi.smallSpacing),
                 child: FittedBox(
                   fit: BoxFit.fitHeight,
                   child: Text(
@@ -68,10 +66,7 @@ class IrmaAvatar extends StatelessWidget {
                     textHeightBehavior: const TextHeightBehavior(
                       applyHeightToFirstAscent: false,
                     ),
-                    style: TextStyle(
-                      color: theme.neutral,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: context.yivi.misc.avatarInitials,
                   ),
                 ),
               ),

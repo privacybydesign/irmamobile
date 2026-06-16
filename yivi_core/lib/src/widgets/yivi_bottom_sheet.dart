@@ -1,7 +1,6 @@
 import "package:flutter/material.dart";
 
 import "../theme/theme.dart";
-import "credential_card/yivi_credential_card_header.dart";
 import "irma_close_button.dart";
 import "irma_divider.dart";
 import "translated_text.dart";
@@ -25,7 +24,9 @@ Future<void> showYiviBottomSheet({
     context: context,
     isScrollControlled: true,
     enableDrag: true,
-    backgroundColor: Colors.transparent,
+    // backgroundColor inherits from themeData.bottomSheetTheme. elevation and
+    // shape are intentionally local: the 38px top radius is computed from the
+    // close button inset (see _topRadius), not a brand-wide token.
     elevation: 16,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(_topRadius)),
@@ -82,7 +83,6 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final minHeight =
         MediaQuery.sizeOf(context).height * widget.minHeightFraction;
 
@@ -90,7 +90,7 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
       constraints: BoxConstraints(minHeight: minHeight),
       child: Container(
         decoration: BoxDecoration(
-          color: theme.backgroundSecondary,
+          color: context.colors.surfaceContainerLow,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(_topRadius),
           ),
@@ -131,11 +131,9 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Container(
       decoration: BoxDecoration(
-        color: theme.backgroundSecondary,
+        color: context.colors.surfaceContainerLow,
         boxShadow: scrolled
             ? [
                 BoxShadow(
@@ -155,19 +153,14 @@ class _Header extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(
-                    theme.defaultSpacing,
-                    theme.mediumSpacing,
+                    context.yivi.defaultSpacing,
+                    context.yivi.mediumSpacing,
                     _titleRightReservation,
-                    theme.mediumSpacing,
+                    context.yivi.mediumSpacing,
                   ),
                   child: TranslatedText(
                     titleKey,
-                    style:
-                        titleStyle ??
-                        credentialNameStyle(
-                          theme,
-                          19,
-                        ).copyWith(fontWeight: FontWeight.w600),
+                    style: titleStyle ?? context.yivi.credential.name,
                   ),
                 ),
                 const Positioned(

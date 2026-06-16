@@ -14,13 +14,12 @@ class EnrollmentHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     return SafeArea(
       minimum: isLandscape
-          ? EdgeInsets.symmetric(vertical: theme.defaultSpacing)
+          ? EdgeInsets.symmetric(vertical: context.yivi.defaultSpacing)
           : EdgeInsets.zero,
       child: imagePath.endsWith("json")
           ? Lottie.asset(imagePath, frameRate: FrameRate(60))

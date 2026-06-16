@@ -74,7 +74,6 @@ class _IssueDuringDisclosureScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final wizardState = ref.watch(
       issueDuringDisclosureProvider(widget.sessionId),
     );
@@ -148,7 +147,7 @@ class _IssueDuringDisclosureScreenState
               onSecondaryPressed: widget.onDismiss,
             ),
             body: SingleChildScrollView(
-              padding: EdgeInsets.all(theme.defaultSpacing),
+              padding: EdgeInsets.all(context.yivi.defaultSpacing),
               child: SafeArea(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

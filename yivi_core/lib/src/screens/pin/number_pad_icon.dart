@@ -7,7 +7,6 @@ class _NumberPadIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -20,7 +19,7 @@ class _NumberPadIcon extends StatelessWidget {
               fit: BoxFit.fitHeight,
               child: Container(
                 alignment: Alignment.center,
-                child: Icon(icon, color: theme.secondary),
+                child: Icon(icon, color: context.colors.secondary),
               ),
             ),
           ),

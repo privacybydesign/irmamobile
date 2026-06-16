@@ -5,8 +5,7 @@ import "../../../theme/theme.dart";
 class NotificationIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final color = theme.primary;
+    final color = context.colors.primary;
 
     return Container(
       width: 8,

@@ -24,7 +24,6 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return YiviDialog(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -69,7 +68,7 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
                       ),
                     );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Copied to clipboard!")),
+                      const SnackBar(content: Text("Copied to clipboard!")),
                     );
                   },
                   icon: Icon(Icons.copy),
@@ -79,7 +78,7 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
             Flexible(
               fit: .loose,
               child: SingleChildScrollView(
-                padding: .all(theme.defaultSpacing),
+                padding: .all(context.yivi.defaultSpacing),
                 child: Text(
                   _showSensitiveLogs ? widget.sensitiveLogs! : widget.logs,
                 ),

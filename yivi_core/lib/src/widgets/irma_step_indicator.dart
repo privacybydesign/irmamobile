@@ -16,23 +16,21 @@ class IrmaStepIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         // If style is success background is green.
         color: style == IrmaStepIndicatorStyle.success
-            ? theme.success
+            ? context.yivi.brand.success
             // If style is outlined background is secondary.
             : style == IrmaStepIndicatorStyle.filled
-            ? theme.themeData.colorScheme.secondary
+            ? context.colors.secondary
             // Else background is white.
             : Colors.white,
         border: Border.all(
           color: style == IrmaStepIndicatorStyle.success
-              ? theme.success
-              : theme.themeData.colorScheme.secondary,
+              ? context.yivi.brand.success
+              : context.colors.secondary,
           width: 1,
         ),
       ),
@@ -43,12 +41,8 @@ class IrmaStepIndicator extends StatelessWidget {
             : Text(
                 step.toString(),
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall!.copyWith(
-                  height: 1.2,
-                  fontWeight: FontWeight.bold,
-                  color: style == IrmaStepIndicatorStyle.outlined
-                      ? theme.themeData.colorScheme.secondary
-                      : Colors.white,
+                style: context.yivi.indicator.circularStep(
+                  style == IrmaStepIndicatorStyle.outlined,
                 ),
               ),
       ),

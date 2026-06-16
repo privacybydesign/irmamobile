@@ -65,7 +65,8 @@ class QRScannerState extends State<QRScanner>
             painter: QROverlay(
               found: found,
               error: error,
-              theme: IrmaTheme.of(context),
+              successColor: context.yivi.brand.success,
+              errorColor: context.colors.error,
               topOffsetFactor: isLandscape
                   ? _qrInstructionHeightFactor + 0.07
                   : _qrInstructionHeightFactor,

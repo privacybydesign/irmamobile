@@ -28,9 +28,7 @@ class IrmaThemedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    final Color baseColor = color ?? theme.themeData.colorScheme.secondary;
+    final Color baseColor = color ?? context.colors.secondary;
 
     final Color textColor;
     final Color backgroundColor;
@@ -39,33 +37,29 @@ class IrmaThemedButton extends StatelessWidget {
     if (!isSecondary) {
       if (onPressed != null) {
         // Primary button colors
-        textColor = theme.light;
+        textColor = Colors.white;
         backgroundColor = baseColor;
       } else {
         // Disabled Primary button colors
-        textColor = theme.light;
+        textColor = Colors.white;
         backgroundColor = baseColor.withAlpha(128);
       }
     } else {
       if (onPressed != null) {
         //  Secondary button colors
         textColor = baseColor;
-        backgroundColor = theme.light;
+        backgroundColor = Colors.white;
         borderColor = baseColor;
       } else {
         //  Disabled Secondary button colors
-        textColor = theme.light;
-        backgroundColor = theme.neutralLight;
+        textColor = Colors.white;
+        backgroundColor = context.colors.outlineVariant;
       }
     }
 
     final textWidget = Text(
       FlutterI18n.translate(context, label),
-      style:
-          textStyle ??
-          IrmaTheme.of(
-            context,
-          ).textTheme.labelLarge!.copyWith(color: textColor),
+      style: textStyle ?? context.text.labelLarge!.copyWith(color: textColor),
     );
 
     final fixedHeight = size != null

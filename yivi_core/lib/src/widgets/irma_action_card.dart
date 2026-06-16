@@ -26,18 +26,21 @@ class IrmaActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final isLandscape = MediaQuery.of(context).size.width > 450;
 
     final centeredLayout = subtitleKey == null || isLandscape;
-    final contentColor = isFancy ? theme.light : theme.neutralExtraDark;
+    final contentColor = isFancy
+        ? Colors.white
+        : context.colors.onSurfaceVariant;
 
     Widget flexibleTitleTextWidget = Flexible(
       child: TranslatedText(
         titleKey,
         style: isFancy
-            ? theme.textTheme.displayMedium!.copyWith(color: contentColor)
-            : theme.textTheme.headlineMedium!.copyWith(color: theme.dark),
+            ? context.text.displayMedium!.copyWith(color: contentColor)
+            : context.text.headlineMedium!.copyWith(
+                color: context.colors.onSurface,
+              ),
       ),
     );
 
@@ -46,11 +49,7 @@ class IrmaActionCard extends StatelessWidget {
       flexibleSubtitleTextWidget = Flexible(
         child: TranslatedText(
           subtitleKey!,
-          style: theme.textTheme.bodyMedium!.copyWith(
-            fontSize: 14,
-            color: contentColor,
-            fontWeight: FontWeight.w600,
-          ),
+          style: context.yivi.card.actionBody(contentColor),
         ),
       );
     }
@@ -95,7 +94,7 @@ class IrmaActionCard extends StatelessWidget {
                   child: InkWell(
                     onTap: onTap,
                     child: Padding(
-                      padding: EdgeInsets.all(theme.defaultSpacing),
+                      padding: EdgeInsets.all(context.yivi.defaultSpacing),
                       child: centeredLayout
                           // Layout where the text is centrally aligned with the icon
                           ? Row(
@@ -128,12 +127,12 @@ class IrmaActionCard extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     flexibleTitleTextWidget,
-                                    SizedBox(width: theme.smallSpacing),
+                                    SizedBox(width: context.yivi.smallSpacing),
                                     iconWidget,
                                   ],
                                 ),
                                 if (flexibleSubtitleTextWidget != null) ...[
-                                  SizedBox(height: theme.smallSpacing),
+                                  SizedBox(height: context.yivi.smallSpacing),
                                   Row(children: [flexibleSubtitleTextWidget]),
                                 ],
                               ],

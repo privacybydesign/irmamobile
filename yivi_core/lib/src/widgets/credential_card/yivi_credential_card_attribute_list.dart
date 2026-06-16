@@ -408,10 +408,9 @@ class _RenderItemView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final node = item.node;
     final drawDivider = showDivider && !item.isLast && _rowDrawsBorder(node);
-    final indentLeft = item.depth * theme.defaultSpacing;
+    final indentLeft = item.depth * context.yivi.defaultSpacing;
     final isEyebrow = _isEyebrow(node);
     final isFirstAtDepth =
         item.previousDepth >= 0 && item.depth > item.previousDepth;
@@ -421,13 +420,13 @@ class _RenderItemView extends StatelessWidget {
     // tinySpacing from the row top).
     final double topPad;
     if (isEyebrow) {
-      topPad = theme.smallSpacing;
+      topPad = context.yivi.smallSpacing;
     } else if (isFirstAtDepth) {
       topPad = 0;
     } else {
-      topPad = theme.tinySpacing;
+      topPad = context.yivi.tinySpacing;
     }
-    final bottomPad = theme.tinySpacing;
+    final bottomPad = context.yivi.tinySpacing;
     // Inset from the Stack bottom up to the bottom of the value content (i.e.,
     // skipping the row's bottom padding and the divider, if any). Used as the
     // `bottom` for guide-line segments that end in this row.
@@ -445,11 +444,11 @@ class _RenderItemView extends StatelessWidget {
         // last attribute.
         for (var i = 0; i < item.depth; i++)
           Positioned(
-            left: i * theme.defaultSpacing,
-            top: i >= item.previousDepth ? theme.tinySpacing : 0,
+            left: i * context.yivi.defaultSpacing,
+            top: i >= item.previousDepth ? context.yivi.tinySpacing : 0,
             bottom: i >= nextDepth ? endingLineBottom : 0,
             width: 1,
-            child: Container(color: theme.neutralExtraLight),
+            child: Container(color: context.yivi.brand.neutralExtraLight),
           ),
         Column(
           mainAxisSize: .min,
@@ -465,7 +464,7 @@ class _RenderItemView extends StatelessWidget {
             if (drawDivider)
               Padding(
                 padding: EdgeInsets.only(left: indentLeft),
-                child: Container(height: 1, color: theme.neutralExtraLight),
+                child: Container(height: 1, color: context.yivi.brand.neutralExtraLight),
               ),
           ],
         ),
@@ -508,21 +507,6 @@ class _RowContent extends StatelessWidget {
   }
 }
 
-// Shared label / value text styles.
-TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
-  fontFamily: theme.secondaryFontFamily,
-  fontSize: 14,
-  fontWeight: FontWeight.w400,
-  color: theme.neutralExtraDark,
-);
-
-TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
-  fontFamily: theme.primaryFontFamily,
-  fontSize: 16,
-  fontWeight: FontWeight.w600,
-  color: color,
-);
-
 String _formatBool(BuildContext context, bool? value) {
   if (value == null) return "";
   return FlutterI18n.translate(
@@ -542,7 +526,6 @@ class _LeafContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final attribute = node.attribute;
 
@@ -553,46 +536,48 @@ class _LeafContent extends StatelessWidget {
       children: [
         Text(
           attribute.effectiveDisplayName.translate(lang),
-          style: _labelStyle(theme),
+          style: context.text.bodySmall,
         ),
-        _buildValue(context, theme, lang),
+        _buildValue(context, lang),
       ],
     );
   }
 
-  Color _valueColor(schemaless.AttributeValue? val, IrmaThemeData theme) {
-    if (!node.hasCompareTo) return theme.dark;
+  Color _valueColor(schemaless.AttributeValue? val, BuildContext context) {
+    if (!node.hasCompareTo) return context.colors.onSurface;
     return val?.string == node.compareToValue?.string
-        ? theme.success
-        : theme.error;
+        ? context.yivi.brand.success
+        : context.colors.error;
   }
 
-  Widget _buildValue(BuildContext context, IrmaThemeData theme, String lang) {
+  Widget _buildValue(BuildContext context, String lang) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: context.yivi.credential.attributeValue(
+          _valueColor(val, context),
+        ),
       ),
       schemaless.AttributeType.boolean => Text(
         _formatBool(context, val.boolValue),
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: context.yivi.credential.attributeValue(
+          _valueColor(val, context),
+        ),
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: context.yivi.credential.attributeValue(
+          _valueColor(val, context),
+        ),
       ),
-      schemaless.AttributeType.image || schemaless.AttributeType.base64Image =>
-        _tappableImage(context, theme, lang),
+      schemaless.AttributeType.image ||
+      schemaless.AttributeType.base64Image => _tappableImage(context, lang),
     };
   }
 
-  Widget _tappableImage(
-    BuildContext context,
-    IrmaThemeData theme,
-    String lang,
-  ) {
+  Widget _tappableImage(BuildContext context, String lang) {
     final attribute = node.attribute;
     final val = attribute.value;
     final raw = val?.imagePath ?? val?.base64Image ?? "";
@@ -635,7 +620,6 @@ class _PrimArrayContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Column(
@@ -643,21 +627,17 @@ class _PrimArrayContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(node.label.translate(lang), style: _labelStyle(theme)),
-        for (final v in node.values) _bulletRow(context, theme, v),
+        Text(node.label.translate(lang), style: context.text.bodySmall),
+        for (final v in node.values) _bulletRow(context, v),
       ],
     );
   }
 
-  Widget _bulletRow(
-    BuildContext context,
-    IrmaThemeData theme,
-    schemaless.AttributeValue v,
-  ) {
-    final valueStyle = _valueStyle(theme, theme.dark).copyWith(height: 1.2);
+  Widget _bulletRow(BuildContext context, schemaless.AttributeValue v) {
+    final valueStyle = context.yivi.credential.attributeBulletValue;
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
-      padding: EdgeInsets.only(top: theme.tinySpacing / 2),
+      padding: EdgeInsets.only(top: context.yivi.tinySpacing / 2),
       child: Row(
         crossAxisAlignment: .start,
         children: [
@@ -669,13 +649,13 @@ class _PrimArrayContent extends StatelessWidget {
                 width: 4,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: theme.neutral,
+                  color: context.yivi.brand.neutral,
                   shape: BoxShape.circle,
                 ),
               ),
             ),
           ),
-          SizedBox(width: theme.tinySpacing),
+          SizedBox(width: context.yivi.tinySpacing),
           Expanded(child: Text(_formatValue(context, v), style: valueStyle)),
         ],
       ),
@@ -703,17 +683,19 @@ class _EyebrowContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     // Empty groups (header without descendants) fall through here when they
     // were rendered as labelled rows by the flatten step. Render as a plain
     // bodyMedium-like label.
     if (node.children.isEmpty) {
-      return Text(node.label?.translate(lang) ?? "", style: _labelStyle(theme));
+      return Text(
+        node.label?.translate(lang) ?? "",
+        style: context.text.bodySmall,
+      );
     }
     return Text(
       node.label!.translate(lang).toUpperCase(),
-      style: _eyebrowStyle(theme),
+      style: context.yivi.credential.attributeEyebrow,
     );
   }
 }
@@ -724,25 +706,12 @@ class _ItemEyebrowContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final parentLabel =
         node.parentLabel?.translate(lang).toUpperCase() ?? "ITEM";
     final text = node.totalItems > 1
         ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
         : parentLabel;
-    return Text(text, style: _eyebrowStyle(theme));
+    return Text(text, style: context.yivi.credential.attributeEyebrow);
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Eyebrow text style — small uppercase Open Sans label.
-// ─────────────────────────────────────────────────────────────────────────────
-
-TextStyle _eyebrowStyle(IrmaThemeData theme) => TextStyle(
-  fontFamily: theme.secondaryFontFamily,
-  fontSize: 12,
-  fontWeight: FontWeight.w700,
-  color: theme.neutralDark,
-  letterSpacing: 0.96, // 0.08em × 12px
-);

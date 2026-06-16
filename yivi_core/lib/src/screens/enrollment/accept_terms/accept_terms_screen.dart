@@ -23,8 +23,6 @@ class AcceptTermsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -34,25 +32,25 @@ class AcceptTermsScreen extends StatelessWidget {
                 constraints: BoxConstraints(minHeight: constraint.maxHeight),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: EdgeInsets.all(theme.mediumSpacing),
+                    padding: EdgeInsets.all(context.yivi.mediumSpacing),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Title
-                        SizedBox(height: theme.mediumSpacing),
+                        SizedBox(height: context.yivi.mediumSpacing),
                         TranslatedText(
                           "enrollment.terms_and_conditions.title",
-                          style: theme.textTheme.displayLarge,
+                          style: context.text.displayLarge,
                           textAlign: TextAlign.start,
                         ),
-                        SizedBox(height: theme.mediumSpacing),
+                        SizedBox(height: context.yivi.mediumSpacing),
 
                         // Explanation
                         const TranslatedText(
                           "enrollment.terms_and_conditions.explanation",
                           textAlign: TextAlign.start,
                         ),
-                        SizedBox(height: theme.mediumSpacing),
+                        SizedBox(height: context.yivi.mediumSpacing),
 
                         TermsBulletList(),
                         const Spacer(),
@@ -65,7 +63,7 @@ class AcceptTermsScreen extends StatelessWidget {
                         // If not in landscape mode, add some spacing
                         if (MediaQuery.of(context).orientation ==
                             Orientation.portrait)
-                          SizedBox(height: theme.defaultSpacing),
+                          SizedBox(height: context.yivi.defaultSpacing),
 
                         ErrorReportingCheckBox(),
                       ],

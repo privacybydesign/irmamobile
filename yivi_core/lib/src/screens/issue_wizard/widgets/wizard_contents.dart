@@ -39,7 +39,6 @@ class IssueWizardContents extends StatelessWidget {
     IssueWizardEvent wizard,
   ) {
     final intro = wizard.wizardData.intro;
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final firstIncomplete = wizard.wizardContents.indexWhere(
       (el) => !el.completed,
@@ -52,7 +51,7 @@ class IssueWizardContents extends StatelessWidget {
         children: [
           if (intro.isNotEmpty) ...[
             IrmaMarkdown(intro.translate(lang)),
-            SizedBox(height: theme.defaultSpacing),
+            SizedBox(height: context.yivi.defaultSpacing),
           ],
           IrmaStepper(
             currentIndex: wizard.activeItemIndex >= 0
@@ -69,11 +68,11 @@ class IssueWizardContents extends StatelessWidget {
                       children: [
                         Text(
                           item.header.translate(lang),
-                          style: theme.textTheme.bodyLarge,
+                          style: context.text.bodyLarge,
                         ),
                         Text(
                           item.text.translate(lang),
-                          style: theme.textTheme.bodyMedium,
+                          style: context.text.bodyMedium,
                         ),
                       ],
                     ),
@@ -88,7 +87,6 @@ class IssueWizardContents extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
@@ -128,7 +126,7 @@ class IssueWizardContents extends StatelessWidget {
               step: wizard.activeItemIndex + 1,
               stepCount: wizardContentSize,
             ),
-          SizedBox(height: theme.smallSpacing),
+          SizedBox(height: context.yivi.smallSpacing),
           _buildWizard(context, lang, wizard),
         ],
       ),

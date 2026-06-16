@@ -15,19 +15,17 @@ class IrmaDismissible extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final dismissedText = TranslatedText(
       "ui.delete",
-      style: theme.textTheme.bodyLarge!.copyWith(color: theme.light),
+      style: context.text.bodyLarge!.copyWith(color: Colors.white),
     );
 
     final background = Container(
       decoration: BoxDecoration(
-        color: theme.error,
-        borderRadius: theme.borderRadius,
+        color: context.colors.error,
+        borderRadius: context.yivi.borderRadius,
       ),
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.defaultSpacing),
       alignment: Alignment.centerRight,
       child: dismissedText,
     );

@@ -20,7 +20,6 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
   Widget build(BuildContext context) {
     var certType = "issuer";
 
-    final theme = IrmaTheme.of(context);
     final navigator = Navigator.of(context);
 
     final translatedTitle = FlutterI18n.translate(
@@ -36,7 +35,7 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
       title: translatedTitle,
       content: translatedContent,
       child: Wrap(
-        runSpacing: theme.defaultSpacing,
+        runSpacing: context.yivi.defaultSpacing,
         alignment: WrapAlignment.center,
         children: [
           DropdownMenu(

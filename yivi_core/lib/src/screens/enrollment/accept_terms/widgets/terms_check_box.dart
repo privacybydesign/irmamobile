@@ -17,8 +17,6 @@ class TermsCheckBox extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
-
     final preferences = ref.watch(preferencesProvider);
 
     final termsUrl =
@@ -33,10 +31,10 @@ class TermsCheckBox extends ConsumerWidget {
         Checkbox(
           key: const Key("accept_terms_checkbox"),
           value: isAccepted,
-          activeColor: theme.themeData.colorScheme.secondary,
+          activeColor: context.colors.secondary,
           onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
         ),
-        SizedBox(width: theme.smallSpacing),
+        SizedBox(width: context.yivi.smallSpacing),
         Flexible(
           child: TranslatedText(
             "enrollment.terms_and_conditions.accept_markdown",

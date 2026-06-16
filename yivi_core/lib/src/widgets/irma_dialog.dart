@@ -11,14 +11,15 @@ class YiviDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final dialogTheme = Theme.of(context).dialogTheme;
+    final shape = dialogTheme.shape as RoundedRectangleBorder?;
 
     return AnimatedPadding(
       padding:
           MediaQuery.of(context).viewInsets +
           EdgeInsets.symmetric(
-            horizontal: theme.mediumSpacing,
-            vertical: theme.defaultSpacing,
+            horizontal: context.yivi.mediumSpacing,
+            vertical: context.yivi.defaultSpacing,
           ),
       duration: const Duration(milliseconds: 100),
       curve: Curves.decelerate,
@@ -36,14 +37,14 @@ class YiviDialog extends StatelessWidget {
                 scopesRoute: true,
                 explicitChildNodes: true,
                 child: Material(
-                  color: theme.surfacePrimary,
-                  elevation: 24.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(theme.smallSpacing),
-                  ),
+                  color: dialogTheme.backgroundColor,
+                  elevation: dialogTheme.elevation!,
+                  shape: dialogTheme.shape,
                   type: MaterialType.card,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(theme.smallSpacing),
+                    borderRadius:
+                        shape?.borderRadius as BorderRadius? ??
+                        BorderRadius.zero,
                     child: child,
                   ),
                 ),
@@ -71,14 +72,14 @@ class IrmaDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
+    final dialogTheme = Theme.of(context).dialogTheme;
 
     return AnimatedPadding(
       padding:
           MediaQuery.of(context).viewInsets +
           EdgeInsets.symmetric(
-            horizontal: theme.mediumSpacing,
-            vertical: theme.defaultSpacing,
+            horizontal: context.yivi.mediumSpacing,
+            vertical: context.yivi.defaultSpacing,
           ),
       duration: const Duration(milliseconds: 100),
       curve: Curves.decelerate,
@@ -95,16 +96,14 @@ class IrmaDialog extends StatelessWidget {
               scopesRoute: true,
               explicitChildNodes: true,
               child: Material(
-                color: theme.surfacePrimary,
-                elevation: 24.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(theme.smallSpacing),
-                ),
+                color: dialogTheme.backgroundColor,
+                elevation: dialogTheme.elevation ?? 24.0,
+                shape: dialogTheme.shape,
                 type: MaterialType.card,
                 child: Stack(
                   children: [
                     Container(
-                      margin: EdgeInsets.all(theme.defaultSpacing),
+                      margin: EdgeInsets.all(context.yivi.defaultSpacing),
                       key: const Key("irma_dialog"),
                       child: ListView(
                         shrinkWrap: true,
@@ -112,7 +111,7 @@ class IrmaDialog extends StatelessWidget {
                         children: [
                           Padding(
                             padding: EdgeInsets.only(
-                              bottom: theme.defaultSpacing,
+                              bottom: context.yivi.defaultSpacing,
                             ),
                             child: Column(
                               children: [
@@ -126,19 +125,19 @@ class IrmaDialog extends StatelessWidget {
                                   child: Text(
                                     title,
                                     key: const Key("irma_dialog_title"),
-                                    style: theme.textTheme.displaySmall,
+                                    style: dialogTheme.titleTextStyle,
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                SizedBox(height: theme.mediumSpacing),
+                                SizedBox(height: context.yivi.mediumSpacing),
                                 Text(
                                   content,
                                   key: const Key("irma_dialog_content"),
-                                  style: theme.textTheme.bodyMedium,
+                                  style: dialogTheme.contentTextStyle,
                                   textAlign: TextAlign.center,
                                 ),
                                 if (image != null) ...[
-                                  SizedBox(height: theme.defaultSpacing),
+                                  SizedBox(height: context.yivi.defaultSpacing),
                                   Center(
                                     child: Image.asset(image!, width: 240),
                                   ),

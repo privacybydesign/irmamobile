@@ -110,7 +110,6 @@ class _ActivityTabState extends State<ActivityTab> {
   ) {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
-    final theme = IrmaTheme.of(context);
 
     final groupedItems = List.generate(logEntries.length, (index) {
       final logEntry = logEntries[index];
@@ -124,9 +123,9 @@ class _ActivityTabState extends State<ActivityTab> {
           Padding(
             padding: EdgeInsets.only(
               // If is not first add padding to top.
-              top: index > 0 ? theme.defaultSpacing : 0,
-              right: theme.tinySpacing,
-              bottom: theme.tinySpacing,
+              top: index > 0 ? context.yivi.defaultSpacing : 0,
+              right: context.yivi.tinySpacing,
+              bottom: context.yivi.tinySpacing,
             ),
             child: SectionHeader.text(
               DateFormat(
@@ -136,7 +135,7 @@ class _ActivityTabState extends State<ActivityTab> {
             ),
           ),
         Padding(
-          padding: EdgeInsets.only(bottom: theme.smallSpacing),
+          padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
           child: ActivityCard(logEntry: logEntry),
         ),
       ];
@@ -147,8 +146,8 @@ class _ActivityTabState extends State<ActivityTab> {
         physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         padding: EdgeInsets.symmetric(
-          vertical: theme.smallSpacing,
-          horizontal: theme.defaultSpacing,
+          vertical: context.yivi.smallSpacing,
+          horizontal: context.yivi.defaultSpacing,
         ),
         children: [
           if (groupedItems.isEmpty)
@@ -157,8 +156,8 @@ class _ActivityTabState extends State<ActivityTab> {
             ...groupedItems,
             Padding(
               padding: EdgeInsets.only(
-                top: theme.defaultSpacing,
-                bottom: theme.hugeSpacing,
+                top: context.yivi.defaultSpacing,
+                bottom: context.yivi.hugeSpacing,
               ),
               child: EndOfListIndicator(isLoading: moreLogsAvailable),
             ),
@@ -172,7 +171,7 @@ class _ActivityTabState extends State<ActivityTab> {
   Widget build(BuildContext context) {
     _scrollController.addListener(_listenToScroll);
     return Scaffold(
-      backgroundColor: IrmaTheme.of(context).backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(
         titleTranslationKey: "home.nav_bar.activity",
         leading: null,

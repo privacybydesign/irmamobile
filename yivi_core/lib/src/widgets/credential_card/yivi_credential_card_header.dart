@@ -4,23 +4,6 @@ import "../../theme/theme.dart";
 import "../irma_avatar.dart";
 import "../translated_text.dart";
 
-TextStyle issuerLabelStyle(IrmaThemeData theme) => TextStyle(
-  fontFamily: theme.secondaryFontFamily,
-  fontSize: 14,
-  fontWeight: FontWeight.w400,
-  color: theme.neutralExtraDark,
-  height: 1.4,
-);
-
-TextStyle credentialNameStyle(IrmaThemeData theme, double fontSize) =>
-    TextStyle(
-      fontFamily: theme.primaryFontFamily,
-      fontSize: fontSize,
-      fontWeight: FontWeight.w600,
-      color: theme.dark,
-      height: 26 / 19,
-    );
-
 class YiviCredentialCardHeader extends StatelessWidget {
   final bool compact;
   final String credentialName;
@@ -44,29 +27,23 @@ class YiviCredentialCardHeader extends StatelessWidget {
     this.isRevoked = false,
   });
 
-  Widget? statusText(IrmaThemeData theme) {
+  Widget? statusText(BuildContext context) {
     if (isRevoked) {
       return TranslatedText(
         "credential.revoked",
-        style: theme.themeData.textTheme.headlineMedium!.copyWith(
-          color: theme.error,
-        ),
+        style: context.yivi.credential.statusText(context.colors.error),
       );
     }
     if (isExpired) {
       return TranslatedText(
         "credential.expired",
-        style: theme.themeData.textTheme.headlineMedium!.copyWith(
-          color: theme.error,
-        ),
+        style: context.yivi.credential.statusText(context.colors.error),
       );
     }
     if (isExpiringSoon) {
       return TranslatedText(
         "credential.about_to_expire",
-        style: theme.themeData.textTheme.headlineMedium!.copyWith(
-          color: theme.warning,
-        ),
+        style: context.yivi.credential.statusText(context.yivi.brand.warning),
       );
     }
     return null;
@@ -76,15 +53,17 @@ class YiviCredentialCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final status = statusText(theme);
+    final status = statusText(context);
 
     // Always use the compact layout for now — the expanded variant has
     // been retired while we align the header style with the design.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (status != null) ...[status, SizedBox(height: theme.smallSpacing)],
+        if (status != null) ...[
+          status,
+          SizedBox(height: context.yivi.smallSpacing),
+        ],
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -102,7 +81,9 @@ class YiviCredentialCardHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: theme.smallSpacing + theme.tinySpacing),
+              SizedBox(
+                width: context.yivi.smallSpacing + context.yivi.tinySpacing,
+              ),
               Expanded(
                 child: Align(
                   alignment: Alignment.centerLeft,
@@ -112,19 +93,19 @@ class YiviCredentialCardHeader extends StatelessWidget {
                     children: [
                       Text(
                         credentialName,
-                        style: credentialNameStyle(theme, 19),
+                        style: context.yivi.credential.name,
                         softWrap: true,
                       ),
                       if (issuerName != null) ...[
                         SizedBox(height: 1),
-                        Text(issuerName!, style: issuerLabelStyle(theme)),
+                        Text(issuerName!, style: context.text.bodySmall),
                       ],
                     ],
                   ),
                 ),
               ),
               if (trailing != null) ...[
-                SizedBox(width: theme.smallSpacing),
+                SizedBox(width: context.yivi.smallSpacing),
                 Align(alignment: Alignment.topCenter, child: trailing!),
               ],
             ],

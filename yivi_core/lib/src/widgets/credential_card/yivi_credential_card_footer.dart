@@ -24,17 +24,16 @@ class YiviCredentialCardFooter extends StatelessWidget {
     this.instanceCount,
   });
 
-  Color _getTextColorForExpireState(ExpireState state, IrmaThemeData theme) {
+  Color _getTextColorForExpireState(ExpireState state, BuildContext context) {
     return switch (state) {
-      ExpireState.notExpired => theme.dark,
-      ExpireState.almostExpired => theme.warning,
-      ExpireState.expired => theme.error,
+      ExpireState.notExpired => context.colors.onSurface,
+      ExpireState.almostExpired => context.yivi.brand.warning,
+      ExpireState.expired => context.colors.error,
     };
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Padding(
@@ -49,32 +48,25 @@ class YiviCredentialCardFooter extends StatelessWidget {
                 SizedBox(
                   width: fortyFivePercent,
                   child: Column(
-                    spacing: theme.tinySpacing,
+                    spacing: context.yivi.tinySpacing,
                     children: [
                       TranslatedText(
                         "credential.valid_until",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.neutralExtraDark,
-                        ),
+                        style: context.text.bodySmall,
                       ),
                       (expiryDate == null || expiryDate?.dateTime == null)
                           ? TranslatedText(
                               "credential.indefinite_validity",
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: theme.dark,
+                              style: context.yivi.credential.expiryNote(
+                                context.colors.onSurface,
                               ),
                             )
                           : Text(
                               printableDate(expiryDate!.dateTime!, lang),
-                              style: theme.textTheme.bodyLarge!.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: _getTextColorForExpireState(
+                              style: context.yivi.credential.expiryNote(
+                                _getTextColorForExpireState(
                                   timeBasedExpireState,
-                                  theme,
+                                  context,
                                 ),
                               ),
                             ),
@@ -85,35 +77,28 @@ class YiviCredentialCardFooter extends StatelessWidget {
                 SizedBox(
                   width: fortyFivePercent,
                   child: Column(
-                    spacing: theme.tinySpacing,
+                    spacing: context.yivi.tinySpacing,
                     children: [
                       TranslatedText(
                         "credential.sharable",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: theme.neutralExtraDark,
-                        ),
+                        style: context.text.bodySmall,
                       ),
                       if (instanceCount != null)
                         TranslatedText(
                           "credential.sharable_count",
                           translationParams: {"count": "${instanceCount!}"},
-                          style: theme.textTheme.bodyLarge!.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: _getTextColorForExpireState(
+                          style: context.yivi.credential.expiryNote(
+                            _getTextColorForExpireState(
                               instanceBasedExpireState,
-                              theme,
+                              context,
                             ),
                           ),
                         )
                       else
                         TranslatedText(
                           "credential.sharable_unlimited",
-                          style: theme.textTheme.bodyLarge!.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: theme.dark,
+                          style: context.yivi.credential.expiryNote(
+                            context.colors.onSurface,
                           ),
                         ),
                     ],

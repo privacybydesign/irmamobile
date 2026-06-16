@@ -14,12 +14,12 @@ class DynamicLayout extends StatelessWidget {
     required this.actions,
   });
 
-  Row _buildButtonsRow(IrmaThemeData theme, List<Widget> actions) {
+  Row _buildButtonsRow(BuildContext context, List<Widget> actions) {
     final List<Widget> rowChildren = [];
     for (var action in actions) {
       rowChildren.add(Expanded(child: action));
       if (action != actions.last) {
-        rowChildren.add(SizedBox(width: theme.smallSpacing));
+        rowChildren.add(SizedBox(width: context.yivi.smallSpacing));
       }
     }
     return Row(
@@ -29,20 +29,20 @@ class DynamicLayout extends StatelessWidget {
   }
 
   Padding _buildLandscapeLayout(
-    IrmaThemeData theme,
+    BuildContext context,
     BoxConstraints constraints,
     bool isSmallScreen,
   ) {
     final actions = this.actions;
 
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.defaultSpacing),
       child: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(child: hero),
-            SizedBox(width: theme.smallSpacing),
+            SizedBox(width: context.yivi.smallSpacing),
             Expanded(
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -59,9 +59,9 @@ class DynamicLayout extends StatelessWidget {
                           alignment: Alignment.bottomCenter,
                           child: Container(
                             padding: EdgeInsets.only(
-                              bottom: theme.defaultSpacing,
+                              bottom: context.yivi.defaultSpacing,
                             ),
-                            child: _buildButtonsRow(theme, actions),
+                            child: _buildButtonsRow(context, actions),
                           ),
                         ),
                     ],
@@ -76,7 +76,7 @@ class DynamicLayout extends StatelessWidget {
   }
 
   ConstrainedBox _buildPortraitLayout(
-    IrmaThemeData theme,
+    BuildContext context,
     Size screenSize,
     BoxConstraints constraints,
     bool isSmallScreen,
@@ -90,13 +90,15 @@ class DynamicLayout extends StatelessWidget {
           children: [
             SingleChildScrollView(
               padding: EdgeInsets.all(
-                isSmallScreen ? theme.defaultSpacing : theme.largeSpacing,
+                isSmallScreen
+                    ? context.yivi.defaultSpacing
+                    : context.yivi.largeSpacing,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   hero,
-                  SizedBox(height: theme.mediumSpacing),
+                  SizedBox(height: context.yivi.mediumSpacing),
                   Row(children: [Expanded(child: content)]),
                   if (actions != null) const SizedBox(height: 100),
                 ],
@@ -106,7 +108,7 @@ class DynamicLayout extends StatelessWidget {
               Align(
                 alignment: Alignment.bottomCenter,
                 child: IrmaBottomBarBase(
-                  child: _buildButtonsRow(theme, actions),
+                  child: _buildButtonsRow(context, actions),
                 ),
               ),
           ],
@@ -117,16 +119,15 @@ class DynamicLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final mediaQuery = MediaQuery.of(context);
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
     final isSmallScreen = mediaQuery.size.height < 670;
 
     return LayoutBuilder(
       builder: ((context, constraints) => isLandscape
-          ? _buildLandscapeLayout(theme, constraints, isSmallScreen)
+          ? _buildLandscapeLayout(context, constraints, isSmallScreen)
           : _buildPortraitLayout(
-              theme,
+              context,
               mediaQuery.size,
               constraints,
               isSmallScreen,

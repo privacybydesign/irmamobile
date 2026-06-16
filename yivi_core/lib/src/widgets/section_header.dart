@@ -25,15 +25,12 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final style = theme.themeData.textTheme.headlineMedium?.copyWith(
-      color: theme.neutralExtraDark,
-    );
+    final style = context.yivi.section.header;
     final Widget content = _translationKey != null
         ? TranslatedText(_translationKey, isHeader: true, style: style)
         : Semantics(header: true, child: Text(_text!, style: style));
     return Padding(
-      padding: EdgeInsets.only(left: theme.defaultSpacing),
+      padding: EdgeInsets.only(left: context.yivi.defaultSpacing),
       child: content,
     );
   }

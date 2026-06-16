@@ -264,7 +264,6 @@ class YiviCredentialCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = IrmaTheme.of(context);
     final displayName = credentialName.isNotEmpty
         ? getTranslation(context, credentialName)
         : (status.credentialId ?? "");
@@ -293,10 +292,10 @@ class YiviCredentialCard extends ConsumerWidget {
           ),
           if (attributes.isNotEmpty) ...[
             IrmaDivider(
-              color: status.isExpired ? theme.danger : null,
+              color: status.isExpired ? context.yivi.brand.danger : null,
               padding: EdgeInsets.only(
-                top: theme.defaultSpacing,
-                bottom: theme.smallSpacing,
+                top: context.yivi.defaultSpacing,
+                bottom: context.yivi.smallSpacing,
               ),
             ),
             YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
@@ -306,9 +305,9 @@ class YiviCredentialCard extends ConsumerWidget {
               children: [
                 if (attributes.isNotEmpty)
                   IrmaDivider(
-                    color: status.isExpired ? theme.danger : null,
+                    color: status.isExpired ? context.yivi.brand.danger : null,
                     padding: EdgeInsets.symmetric(
-                      vertical: theme.defaultSpacing,
+                      vertical: context.yivi.defaultSpacing,
                     ),
                   ),
                 YiviCredentialCardFooter(
@@ -321,7 +320,7 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
           if (status.showReobtain)
             Padding(
-              padding: EdgeInsets.only(top: theme.defaultSpacing),
+              padding: EdgeInsets.only(top: context.yivi.defaultSpacing),
               child: YiviThemedButton(
                 label: "credential.options.reobtain",
                 style: YiviButtonStyle.filled,
@@ -337,7 +336,7 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
           if (status.showNotObtainable && !hideNotObtainable)
             Padding(
-              padding: EdgeInsets.only(top: theme.defaultSpacing),
+              padding: EdgeInsets.only(top: context.yivi.defaultSpacing),
               child: InformationBox(
                 message: FlutterI18n.translate(
                   context,

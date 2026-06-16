@@ -17,7 +17,6 @@ class ErrorReportingCheckBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final repo = IrmaRepositoryProvider.of(context);
 
     return Row(
@@ -36,24 +35,22 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   repo.preferences.setReportErrors(isAccepted);
                 }
               },
-              activeColor: theme.themeData.colorScheme.secondary,
+              activeColor: context.colors.secondary,
             );
           },
         ),
-        SizedBox(width: theme.smallSpacing),
+        SizedBox(width: context.yivi.smallSpacing),
         Flexible(
           child: Text.rich(
             TextSpan(
               children: [
                 TextSpan(
-                  style: theme.textTheme.bodyMedium!.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: context.text.bodyLarge,
                   text:
                       '${FlutterI18n.translate(context, 'enrollment.error_reporting.accept.optional')}: ',
                 ),
                 TextSpan(
-                  style: theme.hyperlinkTextStyle,
+                  style: context.yivi.hyperlinkTextStyle,
                   recognizer: TapGestureRecognizer()
                     ..onTap = () => _showErrorReportingInfoBottomSheet(context),
                   text: FlutterI18n.translate(
@@ -62,7 +59,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  style: theme.textTheme.bodyMedium,
+                  style: context.text.bodyMedium,
                   text:
                       ' ${FlutterI18n.translate(context, 'enrollment.error_reporting.accept.with_yivi')}',
                 ),

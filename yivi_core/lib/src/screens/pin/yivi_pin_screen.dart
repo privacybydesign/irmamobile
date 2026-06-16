@@ -187,12 +187,11 @@ class YiviPinScreen extends StatelessWidget {
     BuildContext context, {
     required bool showSecurePinText,
   }) {
-    final theme = IrmaTheme.of(context);
     return Column(
       children: [
         if (maxPinSize == shortPinSize)
           Padding(
-            padding: EdgeInsets.only(top: theme.screenPadding),
+            padding: EdgeInsets.only(top: context.yivi.screenPadding),
             child: _buildNextButton(),
           ),
         Expanded(
@@ -249,7 +248,7 @@ class YiviPinScreen extends StatelessWidget {
         Expanded(child: _NumberPad(onEnterNumber: pinBloc.add)),
         if (maxPinSize != shortPinSize)
           Padding(
-            padding: EdgeInsets.only(top: theme.screenPadding),
+            padding: EdgeInsets.only(top: context.yivi.screenPadding),
             child: _buildNextButton(),
           ),
       ],
@@ -257,7 +256,6 @@ class YiviPinScreen extends StatelessWidget {
   }
 
   Widget _buildDecoratedPinDots(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final pinDots = _buildPinDots();
 
     return Column(
@@ -282,7 +280,7 @@ class YiviPinScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Divider(height: 1.0, color: theme.secondary),
+                Divider(height: 1.0, color: context.colors.secondary),
                 if (displayPinLength)
                   Align(
                     alignment: Alignment.bottomRight,
@@ -290,10 +288,10 @@ class YiviPinScreen extends StatelessWidget {
                       bloc: pinBloc,
                       builder: (context, state) => Text(
                         "${state.pin.length}/$maxPinSize",
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        style: context.text.bodySmall?.copyWith(
                           fontWeight: FontWeight.w300,
                           color: state.pin.isNotEmpty
-                              ? theme.secondary
+                              ? context.colors.secondary
                               : Colors.transparent,
                         ),
                       ),
@@ -339,8 +337,6 @@ class YiviPinScreen extends StatelessWidget {
     String semanticLabelKey,
     VoidCallback fn,
   ) {
-    final theme = IrmaTheme.of(context);
-
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(28),
@@ -356,7 +352,7 @@ class YiviPinScreen extends StatelessWidget {
             child: Icon(
               icon,
               size: 24,
-              color: theme.secondary,
+              color: context.colors.secondary,
               semanticLabel: FlutterI18n.translate(context, semanticLabelKey),
             ),
           ),
@@ -407,14 +403,13 @@ class YiviPinScreen extends StatelessWidget {
   }
 
   Widget _buildInstructionText(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Center(
       child: Semantics(
         header: true,
         child: Text(
           instruction ?? FlutterI18n.translate(context, instructionKey!),
           textAlign: TextAlign.center,
-          style: theme.textTheme.displaySmall,
+          style: context.text.displaySmall,
         ),
       ),
     );

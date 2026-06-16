@@ -21,13 +21,13 @@ class _PinIndicator extends StatelessWidget {
   }
 
   Widget _togglePinIndicators(BuildContext context, bool isPinVisible) {
-    final theme = IrmaTheme.of(context);
-
-    final textColor = isPinVisible ? theme.secondary : Colors.transparent;
+    final textColor = isPinVisible
+        ? context.colors.secondary
+        : Colors.transparent;
 
     final style = maxPinSize != shortPinSize
-        ? theme.textTheme.headlineSmall?.copyWith(color: textColor)
-        : theme.textTheme.displayMedium?.copyWith(color: textColor);
+        ? context.text.headlineSmall?.copyWith(color: textColor)
+        : context.text.displayMedium?.copyWith(color: textColor);
 
     final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
 
@@ -37,7 +37,7 @@ class _PinIndicator extends StatelessWidget {
     final scaledEdgeSize = edgeSize.scaleToDesignSize(context);
 
     final circleFilledDecoration = BoxDecoration(
-      color: isPinVisible ? Colors.transparent : theme.secondary,
+      color: isPinVisible ? Colors.transparent : context.colors.secondary,
       shape: BoxShape.circle,
 
       // prevent unnecessary resize
@@ -47,7 +47,7 @@ class _PinIndicator extends StatelessWidget {
     final circleOutlinedDecoration = BoxDecoration(
       color: Colors.transparent, // border color
       shape: BoxShape.circle,
-      border: Border.all(color: theme.secondary, width: 2.0),
+      border: Border.all(color: context.colors.secondary, width: 2.0),
     );
 
     final pinSize = pinState.pin.length;

@@ -26,8 +26,6 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final compareTo = template.attributes
         .where(
           (a) => a.requestedValue != null && a.requestedValue!.hasConcreteValue,
@@ -48,9 +46,9 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
           maxHeight: MediaQuery.of(context).size.height * 0.8,
         ),
         child: ColoredBox(
-          color: theme.backgroundTertiary,
+          color: context.colors.surfaceContainerHigh,
           child: Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.defaultSpacing),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -70,20 +68,20 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                               context,
                               "disclosure_permission.wrong_credentials_added.title",
                             ),
-                            style: theme.textTheme.displaySmall,
+                            style: context.text.displaySmall,
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        SizedBox(height: theme.mediumSpacing),
+                        SizedBox(height: context.yivi.mediumSpacing),
                         Text(
                           FlutterI18n.translate(
                             context,
                             "disclosure_permission.wrong_credentials_added.explanation",
                           ),
-                          style: theme.textTheme.bodyMedium,
+                          style: context.text.bodyMedium,
                           textAlign: TextAlign.left,
                         ),
-                        SizedBox(height: theme.defaultSpacing),
+                        SizedBox(height: context.yivi.defaultSpacing),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -91,17 +89,17 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                               context,
                               "disclosure_permission.wrong_credentials_added.you_issued",
                             ),
-                            style: theme.themeData.textTheme.headlineMedium,
+                            style: context.text.headlineMedium,
                           ),
                         ),
-                        SizedBox(height: theme.smallSpacing),
+                        SizedBox(height: context.yivi.smallSpacing),
                         YiviCredentialCard.fromCredential(
                           credential: wrongCredential,
                           compact: true,
                           hideFooter: true,
                           compareTo: compareTo,
                         ),
-                        SizedBox(height: theme.defaultSpacing),
+                        SizedBox(height: context.yivi.defaultSpacing),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -109,10 +107,10 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                               context,
                               "disclosure_permission.wrong_credentials_added.expected",
                             ),
-                            style: theme.themeData.textTheme.headlineMedium,
+                            style: context.text.headlineMedium,
                           ),
                         ),
-                        SizedBox(height: theme.smallSpacing),
+                        SizedBox(height: context.yivi.smallSpacing),
                         YiviCredentialCard.fromDescriptor(
                           descriptor: template,
                           compact: true,
@@ -121,7 +119,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
                 YiviThemedButton(
                   label:
                       "disclosure_permission.wrong_credentials_added.dismiss_action",

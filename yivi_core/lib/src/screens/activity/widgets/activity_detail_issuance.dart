@@ -13,8 +13,6 @@ class ActivityDetailIssuance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final issuanceLog = logEntry.issuanceLog!;
     final requestor = issuanceLog.issuer;
 
@@ -24,39 +22,39 @@ class ActivityDetailIssuance extends StatelessWidget {
         //If is this issuance also has disclosed attributes
         if (issuanceLog.disclosedCredentials.isNotEmpty) ...[
           SectionHeader("activity.data_shared"),
-          SizedBox(height: theme.smallSpacing),
+          SizedBox(height: context.yivi.smallSpacing),
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
               child: YiviCredentialCard.fromLogCredential(
                 logCredential: cred,
                 compact: true,
                 hideFooter: true,
               ),
             ),
-          SizedBox(height: theme.defaultSpacing),
+          SizedBox(height: context.yivi.defaultSpacing),
           SectionHeader("activity.shared_with"),
-          SizedBox(height: theme.smallSpacing),
+          SizedBox(height: context.yivi.smallSpacing),
           RequestorHeader(
             requestor: requestor,
             isVerified: requestor?.verified,
           ),
-          SizedBox(height: theme.defaultSpacing),
+          SizedBox(height: context.yivi.defaultSpacing),
         ],
         SectionHeader("activity.received_data"),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: context.yivi.smallSpacing),
         for (var rawCredential in issuanceLog.credentials)
           Padding(
-            padding: EdgeInsets.only(bottom: theme.smallSpacing),
+            padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
             child: YiviCredentialCard.fromLogCredential(
               logCredential: rawCredential,
               compact: true,
               hideFooter: true,
             ),
           ),
-        SizedBox(height: theme.defaultSpacing),
+        SizedBox(height: context.yivi.defaultSpacing),
         SectionHeader("activity.received_from"),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: context.yivi.smallSpacing),
         RequestorHeader(requestor: requestor),
       ],
     );

@@ -45,7 +45,6 @@ class _OpenID4VCIAuthCodePendingScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final issuerName = getTranslation(context, widget.requestor.name);
     final buttonLabel = FlutterI18n.translate(
       context,
@@ -66,13 +65,13 @@ class _OpenID4VCIAuthCodePendingScreenState
       ),
       body: ListView(
         padding: EdgeInsets.only(
-          left: theme.defaultSpacing,
-          right: theme.defaultSpacing,
-          top: theme.smallSpacing,
+          left: context.yivi.defaultSpacing,
+          right: context.yivi.defaultSpacing,
+          top: context.yivi.smallSpacing,
         ),
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+            padding: EdgeInsets.symmetric(vertical: context.yivi.smallSpacing),
             child: IrmaQuote(
               quote: FlutterI18n.translate(
                 context,
@@ -86,7 +85,7 @@ class _OpenID4VCIAuthCodePendingScreenState
           ),
           ...widget.offeredCredentialTypes.map(
             (descriptor) => Padding(
-              padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.defaultSpacing),
               child: YiviCredentialCard.fromDescriptor(
                 descriptor: descriptor,
                 compact: false,

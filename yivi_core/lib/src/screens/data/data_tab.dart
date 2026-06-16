@@ -37,12 +37,10 @@ class _DataTabState extends ConsumerState<DataTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     if (_searchActive) {
       return Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: theme.backgroundTertiary,
+        backgroundColor: context.colors.surfaceContainerHigh,
         appBar: YiviSearchBar(
           focusNode: _focusNode,
           onCancel: _closeSearch,
@@ -54,7 +52,7 @@ class _DataTabState extends ConsumerState<DataTab> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(
         titleTranslationKey: "home.nav_bar.data",
         leading: null,
@@ -190,9 +188,8 @@ class _NoCredentialsYet extends StatelessWidget {
   }
 
   Padding _buildLandscapeOrientation(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Padding(
-      padding: EdgeInsets.all(theme.screenPadding),
+      padding: EdgeInsets.all(context.yivi.screenPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -205,10 +202,10 @@ class _NoCredentialsYet extends StatelessWidget {
               children: [
                 TranslatedText(
                   "data_tab.empty.title",
-                  style: theme.textTheme.displayLarge,
+                  style: context.text.displayLarge,
                   textAlign: TextAlign.start,
                 ),
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
                 TranslatedText(
                   "data_tab.empty.subtitle",
                   textAlign: TextAlign.start,
@@ -223,26 +220,25 @@ class _NoCredentialsYet extends StatelessWidget {
   }
 
   Padding _buildPortraitOrientation(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.defaultSpacing),
       child: Align(
         alignment: Alignment.topCenter,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: theme.defaultSpacing),
+            SizedBox(height: context.yivi.defaultSpacing),
             _ToAddDataButtonPointingImage(addDataButtonKey: addDataButtonKey),
-            SizedBox(height: theme.largeSpacing),
+            SizedBox(height: context.yivi.largeSpacing),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TranslatedText(
                   "data_tab.empty.title",
-                  style: theme.textTheme.displayLarge,
+                  style: context.text.displayLarge,
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
                 TranslatedText(
                   "data_tab.empty.subtitle",
                   textAlign: TextAlign.center,
@@ -283,17 +279,16 @@ class _CredentialsTypeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return ListView(
       key: const Key("credentials_type_list"),
-      padding: EdgeInsets.only(top: theme.defaultSpacing),
+      padding: EdgeInsets.only(top: context.yivi.defaultSpacing),
       children: [
         ...credentials.map((c) {
           return Padding(
             padding: EdgeInsets.only(
-              bottom: theme.smallSpacing,
-              left: theme.defaultSpacing,
-              right: theme.defaultSpacing,
+              bottom: context.yivi.smallSpacing,
+              left: context.yivi.defaultSpacing,
+              right: context.yivi.defaultSpacing,
             ),
             child: SchemalessYiviCredentialTypeCard(
               credentialId: c.credentialId,
@@ -315,10 +310,9 @@ class _CredentialsTypeList extends StatelessWidget {
 
 class _CredentialsSearchResults extends ConsumerWidget {
   Center _buildNoCredentialsFound(BuildContext context, String query) {
-    final theme = IrmaTheme.of(context);
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.defaultSpacing),
         child: TranslatedText(
           "data.search.no_results",
           translationParams: {"query": query},
@@ -359,8 +353,6 @@ class _ReorderableCredentialList extends ConsumerWidget {
       schemalessCredentialOrderControllerProvider.notifier,
     );
 
-    final theme = IrmaTheme.of(context);
-
     return credentials.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text("Error: $e")),
@@ -378,7 +370,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
             // It will show a shadow around the padded area, which looks weird. Therefore we remove the shadow altogether.
             return Material(type: .transparency, child: child);
           },
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.defaultSpacing),
           itemCount: items.length,
           buildDefaultDragHandles: false,
           footer: SizedBox(height: 50),
@@ -387,7 +379,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
 
             return Padding(
               key: ValueKey(cred.credentialId),
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
               child: ReorderableDelayedDragStartListener(
                 index: i,
                 child: SchemalessYiviCredentialTypeCard(

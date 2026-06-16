@@ -36,19 +36,18 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final paddingText = EdgeInsets.fromLTRB(
-      theme.defaultSpacing,
-      theme.tinySpacing,
-      theme.defaultSpacing,
+      context.yivi.defaultSpacing,
+      context.yivi.tinySpacing,
+      context.yivi.defaultSpacing,
       0,
     );
     final paddingQuestions = EdgeInsets.fromLTRB(
-      theme.smallSpacing,
-      theme.mediumSpacing,
-      theme.smallSpacing,
+      context.yivi.smallSpacing,
+      context.yivi.mediumSpacing,
+      context.yivi.smallSpacing,
       0,
     );
 
@@ -65,7 +64,7 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
         : getTranslation(context, widget.faq!.intro).replaceAll("\\n", "\n");
 
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(
         titleTranslationKey: "data.add.details.title",
         leading: YiviBackButton(
@@ -74,7 +73,7 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
         actions: [
           if (widget.onDismiss != null)
             Padding(
-              padding: .only(right: theme.defaultSpacing),
+              padding: .only(right: context.yivi.defaultSpacing),
               child: IrmaCloseButton(onTap: widget.onDismiss),
             ),
         ],
@@ -85,8 +84,8 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           controller: _controller,
           padding: .symmetric(
-            vertical: theme.defaultSpacing,
-            horizontal: theme.smallSpacing,
+            vertical: context.yivi.defaultSpacing,
+            horizontal: context.yivi.smallSpacing,
           ),
           child: SafeArea(
             child: Column(
@@ -95,7 +94,7 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
               children: [
                 Padding(
                   padding: paddingText,
-                  child: Text(text, style: theme.textTheme.bodyMedium),
+                  child: Text(text, style: context.text.bodyMedium),
                 ),
                 if (widget.faq != null)
                   Padding(

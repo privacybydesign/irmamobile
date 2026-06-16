@@ -20,12 +20,10 @@ class IrmaNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Container(
       padding: EdgeInsets.only(
-        left: theme.tinySpacing,
-        right: theme.tinySpacing,
+        left: context.yivi.tinySpacing,
+        right: context.yivi.tinySpacing,
         bottom: 4,
         top: 4,
       ),
@@ -33,7 +31,7 @@ class IrmaNavBar extends StatelessWidget {
       height: 64,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: theme.tertiary)),
+        border: Border(top: BorderSide(color: context.colors.tertiary)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

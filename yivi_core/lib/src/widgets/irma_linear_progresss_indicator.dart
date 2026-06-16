@@ -16,7 +16,7 @@ class IrmaLinearProgressIndicator extends StatelessWidget {
         Expanded(
           child: LinearProgressIndicator(
             value: filledPercentage / 100,
-            color: IrmaTheme.of(context).success,
+            color: context.yivi.brand.success,
             backgroundColor: Colors.grey.shade300,
           ),
         ),

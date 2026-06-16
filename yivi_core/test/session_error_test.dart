@@ -14,21 +14,20 @@ class TestWidget extends StatelessWidget {
   const TestWidget(this.error);
 
   @override
-  Widget build(BuildContext context) => IrmaTheme(
-    builder: (_) => MaterialApp(
-      localizationsDelegates: [
-        FlutterI18nDelegate(
-          translationLoader: FileTranslationLoader(
-            basePath: "assets/locales",
-            forcedLocale: const Locale("nl", "NL"),
-          ),
+  Widget build(BuildContext context) => MaterialApp(
+    theme: IrmaThemeData().themeData,
+    localizationsDelegates: [
+      FlutterI18nDelegate(
+        translationLoader: FileTranslationLoader(
+          basePath: "assets/locales",
+          forcedLocale: const Locale("nl", "NL"),
         ),
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: SessionErrorScreen(error: error, onTapClose: () {}),
-    ),
+      ),
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    home: SessionErrorScreen(error: error, onTapClose: () {}),
   );
 }
 

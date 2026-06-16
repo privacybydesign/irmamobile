@@ -56,8 +56,6 @@ class _RecentActivityState extends State<RecentActivity> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return StreamBuilder<HistoryState>(
       stream: _historyRepo.getHistoryState(),
       builder: (context, snapshot) {
@@ -79,7 +77,7 @@ class _RecentActivityState extends State<RecentActivity> {
                     header: true,
                     child: TranslatedText(
                       "home_tab.recent_activity",
-                      style: theme.textTheme.headlineMedium,
+                      style: context.text.headlineMedium,
                     ),
                   ),
                 ),
@@ -94,7 +92,7 @@ class _RecentActivityState extends State<RecentActivity> {
                 ),
               ],
             ),
-            SizedBox(height: theme.defaultSpacing),
+            SizedBox(height: context.yivi.defaultSpacing),
             logEntries.isEmpty
                 ? const TranslatedText("activity.empty_placeholder")
                 : Column(
@@ -103,7 +101,7 @@ class _RecentActivityState extends State<RecentActivity> {
                         .map(
                           (logEntry) => Padding(
                             padding: EdgeInsets.only(
-                              bottom: theme.smallSpacing,
+                              bottom: context.yivi.smallSpacing,
                             ),
                             child: ActivityCard(logEntry: logEntry),
                           ),

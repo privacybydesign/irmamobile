@@ -26,8 +26,6 @@ class SchemalessAddDataQuestions extends StatelessWidget {
     bool initiallyExpanded = false,
     bool showDisclosureInfo = false,
   }) {
-    final theme = IrmaTheme.of(context);
-
     String markdown = "";
     if (showDisclosureInfo) {
       markdown =
@@ -37,7 +35,7 @@ class SchemalessAddDataQuestions extends StatelessWidget {
         markdown + getTranslation(context, bodyText).replaceAll("\\n", "\n\n");
 
     return Padding(
-      padding: .symmetric(vertical: theme.tinySpacing),
+      padding: .symmetric(vertical: context.yivi.tinySpacing),
       child: Collapsible(
         initiallyExpanded: initiallyExpanded,
         header: FlutterI18n.translate(context, headerTranslationKey),

@@ -114,12 +114,10 @@ class _PassportMrzManualEntryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: theme.backgroundTertiary,
+        backgroundColor: context.colors.surfaceContainerHigh,
         appBar: IrmaAppBar(titleTranslationKey: widget.translationKeys.title),
         body: SizedBox(
           height: .infinity,
@@ -132,12 +130,12 @@ class _PassportMrzManualEntryScreenState
               },
               child: SafeArea(
                 child: Padding(
-                  padding: .all(theme.defaultSpacing),
+                  padding: .all(context.yivi.defaultSpacing),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
                       TranslatedText(widget.translationKeys.explanation),
-                      SizedBox(height: theme.mediumSpacing),
+                      SizedBox(height: context.yivi.mediumSpacing),
                       DocumentNrInputField(
                         controller: _documentNrCtrl,
                         labelText: FlutterI18n.translate(
@@ -153,7 +151,7 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.documentNumberInvalid,
                         ),
                       ),
-                      SizedBox(height: theme.mediumSpacing),
+                      SizedBox(height: context.yivi.mediumSpacing),
                       DateInputField(
                         controller: _dateOfBirthCtrl,
                         fieldKey: const Key("passport_dob_field"),
@@ -170,7 +168,7 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.dateInvalid,
                         ),
                       ),
-                      SizedBox(height: theme.mediumSpacing),
+                      SizedBox(height: context.yivi.mediumSpacing),
                       DateInputField(
                         controller: _expiryDateCtrl,
                         fieldKey: const Key("passport_expiry_date_field"),
@@ -187,7 +185,7 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.dateOfExpiryRequired,
                         ),
                       ),
-                      SizedBox(height: theme.largeSpacing),
+                      SizedBox(height: context.yivi.largeSpacing),
                     ],
                   ),
                 ),

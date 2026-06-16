@@ -58,11 +58,9 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.largeSpacing),
+        padding: EdgeInsets.all(context.yivi.largeSpacing),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -70,32 +68,32 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
               if (icon != null)
                 Icon(
                   icon,
-                  color: iconColor ?? theme.themeData.colorScheme.secondary,
+                  color: iconColor ?? context.colors.secondary,
                   size: 125,
                 ),
               if (imagePath != null)
                 (imagePath!.endsWith("svg"))
                     ? SvgPicture.asset(imagePath!)
                     : Image.asset(imagePath!),
-              SizedBox(height: theme.mediumSpacing),
+              SizedBox(height: context.yivi.mediumSpacing),
             ],
             TranslatedText(
               titleTranslationKey,
               translationParams: titleTranslationParams,
-              style: theme.textTheme.displayLarge,
+              style: context.text.displayLarge,
               textAlign: TextAlign.center,
             ),
             if (bodyTranslationKey != null) ...[
-              SizedBox(height: theme.mediumSpacing),
+              SizedBox(height: context.yivi.mediumSpacing),
               TranslatedText(
                 bodyTranslationKey!,
                 translationParams: bodyTranslationParams,
-                style: theme.textTheme.bodyMedium,
+                style: context.text.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             ],
             if (linkTranslationKey != null) ...[
-              SizedBox(height: theme.mediumSpacing),
+              SizedBox(height: context.yivi.mediumSpacing),
               GestureDetector(
                 onTap: () {
                   _showIrmaDialog(context);
@@ -103,9 +101,9 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                 },
                 child: TranslatedText(
                   linkTranslationKey!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: context.text.bodyMedium?.copyWith(
                     decoration: TextDecoration.underline,
-                    color: theme.link,
+                    color: context.yivi.brand.link,
                   ),
                   textAlign: TextAlign.center,
                 ),

@@ -26,7 +26,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   /// Creates a choice widget for [IssuanceBundle] options. A single-credential
   /// bundle renders as one card; a multi-credential bundle renders as a column
-  /// of cards (separated by `theme.smallSpacing`) with a single radio on the
+  /// of cards (separated by `context.yivi.smallSpacing`) with a single radio on the
   /// first card and a shared highlight style. Mirrors the disclosure-side
   /// bundle layout for visual consistency.
   factory DisclosurePermissionChoice.fromIssuanceBundles({
@@ -53,7 +53,6 @@ class DisclosurePermissionChoice extends StatelessWidget {
             }
           : null,
       cardBuilder: (context, index, isSelected) {
-        final theme = IrmaTheme.of(context);
         final credentials = options[index].credentials;
         final style = isSelected
             ? IrmaCardStyle.highlighted
@@ -81,7 +80,9 @@ class DisclosurePermissionChoice extends StatelessWidget {
               for (var i = 0; i < credentials.length; i++)
                 Padding(
                   padding: EdgeInsets.only(
-                    bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
+                    bottom: i < credentials.length - 1
+                        ? context.yivi.smallSpacing
+                        : 0,
                   ),
                   child: card(i),
                 ),
@@ -94,7 +95,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   /// Creates a choice widget for [DisclosureBundle] options. A bundle with a
   /// single credential renders as one card; a bundle with multiple credentials
-  /// renders as a column of cards (separated by `theme.smallSpacing`) with a
+  /// renders as a column of cards (separated by `context.yivi.smallSpacing`) with a
   /// single radio on the first card and a shared highlight style.
   factory DisclosurePermissionChoice.fromBundles({
     Key? key,
@@ -108,7 +109,6 @@ class DisclosurePermissionChoice extends StatelessWidget {
       selectedIndex: selectedIndex,
       onChoiceUpdated: onChoiceUpdated,
       cardBuilder: (context, index, isSelected) {
-        final theme = IrmaTheme.of(context);
         final credentials = options[index].credentials;
         final style = isSelected
             ? IrmaCardStyle.highlighted
@@ -130,7 +130,9 @@ class DisclosurePermissionChoice extends StatelessWidget {
             for (var i = 0; i < credentials.length; i++)
               Padding(
                 padding: EdgeInsets.only(
-                  bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
+                  bottom: i < credentials.length - 1
+                      ? context.yivi.smallSpacing
+                      : 0,
                 ),
                 child: YiviCredentialCard.fromSelectableInstance(
                   instance: credentials[i],
@@ -150,8 +152,6 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Semantics(
       button: true,
       child: Column(
@@ -159,7 +159,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
         children: [
           for (var i = 0; i < optionCount; i++)
             Padding(
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
               child: GestureDetector(
                 onTap: onChoiceUpdated != null
                     ? () => onChoiceUpdated!(i)

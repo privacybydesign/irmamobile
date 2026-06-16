@@ -11,9 +11,8 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final topPadding = theme.defaultSpacing;
-    final leftPadding = theme.defaultSpacing;
+    final topPadding = context.yivi.defaultSpacing;
+    final leftPadding = context.yivi.defaultSpacing;
 
     return IrmaIconButton(
       padding: EdgeInsets.only(left: leftPadding, top: topPadding),
@@ -68,22 +67,14 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return AppBar(
       key: const Key("irma_app_bar"),
-      backgroundColor: theme.light,
       shape: hasBorder
-          ? Border(bottom: BorderSide(color: theme.tertiary))
+          ? Border(bottom: BorderSide(color: context.colors.tertiary))
           : null,
-      centerTitle: true,
       leading: leading,
       title:
-          title ??
-          TranslatedText(
-            titleTranslationKey ?? (titleString ?? ""),
-            style: theme.textTheme.displaySmall?.copyWith(color: theme.dark),
-          ),
+          title ?? TranslatedText(titleTranslationKey ?? (titleString ?? "")),
       actions: actions,
       automaticallyImplyLeading: false,
     );

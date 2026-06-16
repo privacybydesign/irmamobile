@@ -27,39 +27,34 @@ class IrmaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     BoxDecoration boxDecoration;
     switch (style) {
       case IrmaCardStyle.normal:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
+          borderRadius: context.yivi.borderRadius,
           border: Border.all(width: 0, color: Colors.transparent),
-          color: theme.light,
+          color: Colors.white,
         );
         break;
       case IrmaCardStyle.outlined:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
-          border: Border.all(
-            color: theme.themeData.colorScheme.secondary,
-            width: 1,
-          ),
+          borderRadius: context.yivi.borderRadius,
+          border: Border.all(color: context.colors.secondary, width: 1),
           color: Colors.white,
         );
         break;
       case IrmaCardStyle.highlighted:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
-          border: Border.all(color: theme.tertiary, width: 1),
-          color: theme.surfaceSecondary,
+          borderRadius: context.yivi.borderRadius,
+          border: Border.all(color: context.colors.tertiary, width: 1),
+          color: context.colors.surfaceContainerHigh,
         );
         break;
       case IrmaCardStyle.danger:
         boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
-          border: Border.all(color: theme.danger, width: 1),
-          color: theme.surfaceTertiary,
+          borderRadius: context.yivi.borderRadius,
+          border: Border.all(color: context.yivi.brand.danger, width: 1),
+          color: context.colors.surfaceContainerHighest,
         );
         break;
     }
@@ -86,13 +81,13 @@ class IrmaCard extends StatelessWidget {
       child: Container(
         decoration: boxDecoration,
         child: ClipRRect(
-          borderRadius: theme.borderRadius,
+          borderRadius: context.yivi.borderRadius,
           child: InkWell(
-            borderRadius: theme.borderRadius,
+            borderRadius: context.yivi.borderRadius,
             onTap: onTap,
             child: Container(
               // In this context the "margin" is set on the container padding.
-              padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
+              padding: margin ?? EdgeInsets.all(context.yivi.defaultSpacing),
               child: child,
             ),
           ),

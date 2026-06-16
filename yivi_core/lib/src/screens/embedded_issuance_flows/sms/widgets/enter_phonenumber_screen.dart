@@ -145,7 +145,6 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
       );
     }
 
-    final theme = IrmaTheme.of(context);
     final media = MediaQuery.of(context);
     final onScreenKeyboardShown = media.viewInsets.bottom > 0;
 
@@ -167,20 +166,18 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Padding(
-                padding: .all(theme.defaultSpacing),
+                padding: .all(context.yivi.defaultSpacing),
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [
-                    SizedBox(height: theme.defaultSpacing),
+                    SizedBox(height: context.yivi.defaultSpacing),
                     TranslatedText(
                       "sms_issuance.enter_phone.header",
-                      style: theme.textTheme.bodyLarge!.copyWith(
-                        color: theme.neutralExtraDark,
-                      ),
+                      style: context.yivi.form.header,
                     ),
-                    SizedBox(height: theme.defaultSpacing),
+                    SizedBox(height: context.yivi.defaultSpacing),
                     TranslatedText("sms_issuance.enter_phone.body"),
-                    SizedBox(height: theme.largeSpacing),
+                    SizedBox(height: context.yivi.largeSpacing),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -191,12 +188,12 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                             child: InternationalPhoneNumberInput(
                               key: const Key("phone_number_input_field"),
                               spaceBetweenSelectorAndTextField:
-                                  theme.smallSpacing,
+                                  context.yivi.smallSpacing,
                               focusNode: _focusNode,
                               inputDecoration: InputDecoration(
                                 hint: TranslatedText(
                                   "sms_issuance.enter_phone.phone_hint",
-                                  style: TextStyle(color: Colors.grey),
+                                  style: context.yivi.form.inputHint,
                                 ),
                               ),
                               searchBoxDecoration: InputDecoration(
@@ -250,8 +247,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         floatingActionButton: onScreenKeyboardShown
             ? Padding(
                 padding: .only(
-                  left: theme.defaultSpacing + media.padding.left,
-                  right: theme.defaultSpacing + media.padding.right,
+                  left: context.yivi.defaultSpacing + media.padding.left,
+                  right: context.yivi.defaultSpacing + media.padding.right,
                 ),
                 child: YiviThemedButton(
                   label: "sms_issuance.enter_phone.next_button",

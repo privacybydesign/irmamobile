@@ -21,10 +21,8 @@ class SessionScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: context.colors.surfaceContainerLow,
       bottomNavigationBar: bottomNavigationBar,
       body: body,
       appBar: IrmaAppBar(
@@ -33,7 +31,7 @@ class SessionScaffold extends StatelessWidget {
         actions: [
           if (onDismiss != null)
             Padding(
-              padding: EdgeInsets.only(right: theme.defaultSpacing),
+              padding: EdgeInsets.only(right: context.yivi.defaultSpacing),
               child: IrmaCloseButton(onTap: onDismiss),
             ),
         ],

@@ -29,16 +29,15 @@ class WizardScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: context.colors.surfaceContainerLow,
       appBar: IrmaAppBar(
         titleTranslationKey: "issue_wizard.add_cards",
         leading: YiviBackButton(onTap: onBack),
       ),
       bottomNavigationBar: bottomBar,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.defaultSpacing),
         controller: controller,
         key: scrollviewKey,
         child: SafeArea(
@@ -50,7 +49,7 @@ class WizardScaffold extends StatelessWidget {
                 textColor: headerTextColor,
                 backgroundColor: headerBackgroundColor,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               body,
             ],
           ),

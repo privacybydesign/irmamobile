@@ -10,8 +10,6 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
@@ -27,7 +25,7 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
           Expanded(
             child: Text(
               FlutterI18n.translate(context, descriptionKey),
-              style: theme.textTheme.bodyMedium,
+              style: context.text.bodyMedium,
             ),
           ),
         ],

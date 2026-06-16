@@ -50,8 +50,6 @@ class _IllustratorState extends State<Illustrator>
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Semantics(
       excludeSemantics: true,
       container: true,
@@ -105,7 +103,7 @@ class _IllustratorState extends State<Illustrator>
               ),
             ),
           ),
-          SizedBox(height: theme.defaultSpacing),
+          SizedBox(height: context.yivi.defaultSpacing),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             child: SizedBox(
@@ -118,7 +116,7 @@ class _IllustratorState extends State<Illustrator>
             ),
           ),
           if (widget.imageSet.length > 1) ...[
-            SizedBox(height: theme.defaultSpacing),
+            SizedBox(height: context.yivi.defaultSpacing),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -129,7 +127,7 @@ class _IllustratorState extends State<Illustrator>
               ],
             ),
           ],
-          SizedBox(height: theme.smallSpacing),
+          SizedBox(height: context.yivi.smallSpacing),
         ],
       ),
     );

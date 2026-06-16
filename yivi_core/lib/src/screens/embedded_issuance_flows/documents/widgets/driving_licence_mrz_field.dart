@@ -32,8 +32,7 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final baseTextStyle = theme.textTheme.bodyMedium;
+    final baseTextStyle = context.text.bodyMedium;
 
     return TextFormField(
       key: const Key("driving_licence_mrz_input_field"),
@@ -41,7 +40,7 @@ class DrivingLicenceMrzInputField extends StatelessWidget {
       keyboardType: .text,
       textCapitalization: .characters,
       autofillHints: const [AutofillHints.creditCardNumber],
-      cursorColor: theme.themeData.colorScheme.secondary,
+      cursorColor: context.colors.secondary,
       style: baseTextStyle,
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r"[A-Za-z0-9]")),

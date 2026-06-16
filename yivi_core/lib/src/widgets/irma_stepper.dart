@@ -10,7 +10,7 @@ class IrmaStepper extends StatelessWidget {
 
   const IrmaStepper({required this.children, this.currentIndex});
 
-  Widget _buildItem(IrmaThemeData theme, int index) => TimelineTile(
+  Widget _buildItem(BuildContext context, int index) => TimelineTile(
     isFirst: index == 0,
     isLast: index == children.length - 1,
     indicatorStyle: IndicatorStyle(
@@ -29,25 +29,20 @@ class IrmaStepper extends StatelessWidget {
             : IrmaStepIndicatorStyle.success,
       ),
       padding: EdgeInsets.only(
-        right: theme.smallSpacing,
-        top: theme.tinySpacing,
-        bottom: theme.tinySpacing,
+        right: context.yivi.smallSpacing,
+        top: context.yivi.tinySpacing,
+        bottom: context.yivi.tinySpacing,
       ),
     ),
     endChild: children[index],
-    beforeLineStyle: LineStyle(
-      thickness: 1,
-      color: theme.themeData.colorScheme.secondary,
-    ),
+    beforeLineStyle: LineStyle(thickness: 1, color: context.colors.secondary),
   );
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Column(
       children: [
-        for (int i = 0; i < children.length; i++) _buildItem(theme, i),
+        for (int i = 0; i < children.length; i++) _buildItem(context, i),
       ],
     );
   }

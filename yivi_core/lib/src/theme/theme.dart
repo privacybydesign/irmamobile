@@ -1,6 +1,11 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
+import "text_styles.dart";
+import "yivi_theme_extension.dart";
+
+export "yivi_theme_extension.dart" show YiviThemeExtension, YiviThemeContext;
+
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
   @Deprecated(
@@ -14,40 +19,25 @@ class IrmaThemeData {
   final double largeSpacing = _spaceBase * 2; // 32
   final double hugeSpacing = _spaceBase * 4; // 64
 
-  // Main colors
-  final Color primary = const Color(0xFFBA3354);
-  Color get secondary => neutralExtraDark; // Used for buttons and headlines
-  final Color tertiary = const Color(0xFFCFE4EF);
+  // Colors still referenced by call sites (helper methods that take an
+  // IrmaThemeData parameter, or contexts where Phase 3b's substitution couldn't
+  // safely run). The rest live as constructor-local constants below and reach
+  // the outside world through colorScheme.X or context.yivi.brand.X.
+  Color get secondary => neutralExtraDark;
+  Color get backgroundPrimary => light; // scaffolds
+  Color get surfacePrimary => light; // cards
 
-  // Background / contrast colors
-  Color get backgroundPrimary => light; //Used on scaffolds
-  final Color backgroundSecondary = const Color(0xFFFAFAFA);
-  Color backgroundTertiary = const Color(0xFFEAF3F9);
-
-  Color get surfacePrimary =>
-      light; // Used on cards etc, to contrast with the background
-  final Color surfaceSecondary = const Color(
-    0xFFEAF3F9,
-  ); // Used on cards that are active etc.
-  Color surfaceTertiary = const Color(0xffF0DEDE); // Used on cards that expired
-
-  // Grey swatch
   final Color dark = Colors.black;
   final Color neutralExtraDark = const Color(0xFF484747);
   final Color neutralDark = const Color(0xFF757375);
   final Color neutral = const Color(0xFF9F9A9A);
-  final Color neutralLight = const Color(0xFFD7D2CD);
   final Color neutralExtraLight = const Color(0xFFEAE5E2);
   final Color light = Colors.white;
 
-  // Communicating colors
   final Color error = const Color(0xFFBD1919);
-  final Color errorSurface = const Color(0xFFF5DBDB);
   final Color warning = const Color(0xFFEBA73B);
   final Color success = const Color(0xFF00973A);
-  final Color successSurface = const Color(0xFFD7EFE0);
   final Color link = const Color(0xFF1D4E89);
-  final Color danger = const Color(0xffEABEBE);
 
   // Fonts
   final String primaryFontFamily = "Open Sans";
@@ -70,21 +60,48 @@ class IrmaThemeData {
   late final TextStyle textButtonTextStyle;
   late final TextStyle hyperlinkTextStyle;
   late final TextStyle mrzLabel;
-  late final TextStyle boldBody;
-  late final TextStyle highlightedTextStyle;
 
   IrmaThemeData() {
-    //Init color scheme
+    // Internal palette — consumed only by the ColorScheme + YiviBrandColors
+    // setup below. Outside callers reach these values via colorScheme.X or
+    // context.yivi.brand.X.
+    const primary = Color(0xFFBA3354);
+    const tertiary = Color(0xFFCFE4EF);
+    const backgroundSecondary = Color(0xFFFAFAFA);
+    // backgroundTertiary == surfaceSecondary in the legacy palette — both
+    // #EAF3F9. MD3 collapses them onto a single elevation tier.
+    const backgroundTertiary = Color(0xFFEAF3F9);
+    const surfaceTertiary = Color(0xffF0DEDE);
+    const neutralLight = Color(0xFFD7D2CD);
+    const errorSurface = Color(0xFFF5DBDB);
+    const successSurface = Color(0xFFD7EFE0);
+    const danger = Color(0xffEABEBE);
+
+    //Init color scheme — MD3 slots mapped from Yivi brand colors. See
+    // plan-theming-architecture.md §4 Phase 3 for the mapping rationale.
+    // Slots without a clear Yivi mapping (primaryContainer, secondaryContainer,
+    // tertiaryContainer) are left to Flutter's defaults until Phase 6 picks
+    // them up alongside the dark scheme.
     final colorScheme = ColorScheme(
       brightness: Brightness.light,
       primary: primary,
       onPrimary: light,
       secondary: secondary,
       onSecondary: light,
+      tertiary: tertiary,
+      onTertiary: dark,
       error: error,
       onError: light,
+      errorContainer: errorSurface,
+      onErrorContainer: dark,
       surface: surfacePrimary,
       onSurface: dark,
+      onSurfaceVariant: neutralExtraDark,
+      surfaceContainerLow: backgroundSecondary,
+      surfaceContainerHigh: backgroundTertiary,
+      surfaceContainerHighest: surfaceTertiary,
+      outline: neutralDark,
+      outlineVariant: neutralLight,
     );
 
     //Init spacing
@@ -158,17 +175,12 @@ class IrmaThemeData {
         fontWeight: FontWeight.normal,
         color: dark,
       ),
-      titleSmall: TextStyle(
-        fontSize: 16.0,
-        height: 22.0 / 16.0,
-        fontWeight: FontWeight.w500,
-        color: dark,
-      ),
       bodySmall: TextStyle(
+        fontFamily: secondaryFontFamily,
         fontSize: 14.0,
-        height: 24.0 / 14.0,
-        fontWeight: FontWeight.normal,
-        color: dark,
+        height: 1.4,
+        fontWeight: FontWeight.w400,
+        color: neutralExtraDark,
       ),
       labelLarge: TextStyle(
         fontFamily: primaryFontFamily,
@@ -199,10 +211,12 @@ class IrmaThemeData {
 
     //Init App Bar Theme
     final appBarTheme = AppBarTheme(
+      backgroundColor: light,
+      centerTitle: true,
       elevation: 0,
       iconTheme: IconThemeData(color: dark),
       toolbarTextStyle: textTheme.bodyMedium,
-      titleTextStyle: textTheme.titleLarge,
+      titleTextStyle: textTheme.displaySmall?.copyWith(color: dark),
       systemOverlayStyle: const SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
@@ -232,18 +246,67 @@ class IrmaThemeData {
       letterSpacing: 2,
     );
 
-    boldBody = TextStyle(
-      fontSize: 16.0,
-      height: 24.0 / 16.0,
-      fontWeight: FontWeight.w600,
-      color: dark,
+    // Domain-named text style groups, exposed via Theme.of(context).extension
+    // (context.yivi.*). Built after textTheme and legacy named styles since
+    // some groups derive from them.
+    final yiviExtension = YiviThemeExtension(
+      credential: YiviCredentialStyles.fromTheme(this),
+      activity: YiviActivityStyles.fromTheme(this),
+      pin: YiviPinStyles.fromTheme(this),
+      verification: YiviVerificationStyles.fromTheme(this),
+      nfc: YiviNfcStyles.fromTheme(this),
+      form: YiviFormStyles.fromTheme(this),
+      indicator: YiviIndicatorStyles.fromTheme(this),
+      card: YiviCardStyles.fromTheme(this),
+      button: YiviButtonStyles.fromTheme(this),
+      section: YiviSectionStyles.fromTheme(this),
+      requestor: YiviRequestorStyles.fromTheme(this),
+      bottomSheet: YiviBottomSheetStyles.fromTheme(this),
+      misc: YiviMiscStyles.fromTheme(this),
+      brand: YiviBrandColors(
+        success: success,
+        successSurface: successSurface,
+        warning: warning,
+        link: link,
+        danger: danger,
+        neutral: neutral,
+        neutralExtraLight: neutralExtraLight,
+      ),
+      tinySpacing: tinySpacing,
+      smallSpacing: smallSpacing,
+      defaultSpacing: defaultSpacing,
+      mediumSpacing: mediumSpacing,
+      largeSpacing: largeSpacing,
+      hugeSpacing: hugeSpacing,
+      screenPadding: screenPadding,
+      borderRadius: borderRadius,
+      textButtonTextStyle: textButtonTextStyle,
+      hyperlinkTextStyle: hyperlinkTextStyle,
+      mrzLabel: mrzLabel,
+      primaryFontFamily: primaryFontFamily,
+      secondaryFontFamily: secondaryFontFamily,
     );
 
-    highlightedTextStyle = TextStyle(
-      fontSize: 16.0,
-      height: 19.0 / 16.0,
-      fontWeight: FontWeight.w600,
-      color: primary,
+    // Toast / snackbar default — neutral dark-grey background, light text.
+    // Call sites should not override these unless the toast needs to carry a
+    // different status (e.g. an error toast, when we have one).
+    final snackBarTheme = SnackBarThemeData(
+      backgroundColor: secondary,
+      contentTextStyle: textTheme.bodySmall!.copyWith(color: light),
+      behavior: SnackBarBehavior.floating,
+    );
+
+    // Dialog default — surface-coloured card, large elevation, rounded
+    // corners. Title and content styles are picked up by IrmaDialog and by
+    // any future AlertDialog/SimpleDialog call site.
+    final dialogTheme = DialogThemeData(
+      backgroundColor: surfacePrimary,
+      elevation: 24.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(smallSpacing),
+      ),
+      titleTextStyle: textTheme.displaySmall,
+      contentTextStyle: textTheme.bodyMedium,
     );
 
     // Init final ThemeData composed of all theme components.
@@ -257,23 +320,9 @@ class IrmaThemeData {
       textTheme: textTheme,
       appBarTheme: appBarTheme,
       inputDecorationTheme: inputDecorationTheme,
+      snackBarTheme: snackBarTheme,
+      dialogTheme: dialogTheme,
+      extensions: [yiviExtension],
     );
-  }
-}
-
-class IrmaTheme extends InheritedWidget {
-  final IrmaThemeData data = IrmaThemeData();
-  // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
-  // must be wrapped in a Builder.
-  IrmaTheme({super.key, required WidgetBuilder builder})
-    : super(child: Builder(builder: builder));
-
-  @override
-  bool updateShouldNotify(InheritedWidget oldWidget) {
-    return (oldWidget as IrmaTheme).data != data;
-  }
-
-  static IrmaThemeData of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<IrmaTheme>()!.data;
   }
 }

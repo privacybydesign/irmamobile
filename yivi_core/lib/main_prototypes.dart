@@ -38,19 +38,15 @@ class PrototypesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => IrmaRepositoryProvider(
     repository: repository,
-    child: IrmaTheme(
-      builder: (context) {
-        return MaterialApp(
-          key: const Key("app"),
-          title: "Yivi",
-          theme: IrmaTheme.of(context).themeData,
-          localizationsDelegates: AppState.defaultLocalizationsDelegates(),
-          supportedLocales: AppState.defaultSupportedLocales(),
-          locale: const Locale("nl", "NL"),
-          initialRoute: PrototypesScreen.routeName,
-          routes: routes,
-        );
-      },
+    child: MaterialApp(
+      key: const Key("app"),
+      title: "Yivi",
+      theme: IrmaThemeData().themeData,
+      localizationsDelegates: AppState.defaultLocalizationsDelegates(),
+      supportedLocales: AppState.defaultSupportedLocales(),
+      locale: const Locale("nl", "NL"),
+      initialRoute: PrototypesScreen.routeName,
+      routes: routes,
     ),
   );
 }

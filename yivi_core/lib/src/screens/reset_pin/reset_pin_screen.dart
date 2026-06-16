@@ -14,7 +14,6 @@ import "../settings/settings_screen.dart";
 class ResetPinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final isSmallScreen = MediaQuery.of(context).size.height < 670;
 
     return Scaffold(
@@ -28,14 +27,14 @@ class ResetPinScreen extends StatelessWidget {
           children: [
             TranslatedText(
               "reset_pin.header",
-              style: theme.themeData.textTheme.displaySmall!.copyWith(
-                color: theme.dark,
+              style: context.text.displaySmall!.copyWith(
+                color: context.colors.onSurface,
               ),
             ),
-            SizedBox(height: theme.tinySpacing),
+            SizedBox(height: context.yivi.tinySpacing),
             TranslatedText(
               "reset_pin.explanation",
-              style: theme.themeData.textTheme.bodyMedium,
+              style: context.text.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],

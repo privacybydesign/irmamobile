@@ -284,7 +284,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     String logs, {
     String? sensitiveLogs,
   }) {
-    final theme = IrmaTheme.of(context);
     final isPortrait = MediaQuery.orientationOf(context) == .portrait;
 
     return _NfcScaffold(
@@ -296,11 +295,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         children: [
           _OrientationAwareTranslatedText(
             uiState.stateKey,
-            style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+            style: context.yivi.nfc.statusTitle,
           ),
-          SizedBox(height: theme.defaultSpacing),
+          SizedBox(height: context.yivi.defaultSpacing),
           _OrientationAwareTranslatedText(uiState.tipKey),
-          SizedBox(height: theme.defaultSpacing),
+          SizedBox(height: context.yivi.defaultSpacing),
           GestureDetector(
             onTap: () {
               _showLogsDialog(
@@ -311,16 +310,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             },
             child: _OrientationAwareTranslatedText(
               "error.button_show_error",
-              style: theme.textTheme.bodyMedium?.copyWith(
-                decoration: .underline,
-                color: theme.link,
-              ),
+              style: context.yivi.hyperlinkTextStyle,
             ),
           ),
         ],
       ),
       illustration: Padding(
-        padding: .all(theme.defaultSpacing),
+        padding: .all(context.yivi.defaultSpacing),
         child: SvgPicture.asset(
           yiviAsset("error/general_error_illustration.svg"),
         ),
@@ -335,7 +331,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   Widget _buildCancelled(BuildContext context, _UiState uiState) {
-    final theme = IrmaTheme.of(context);
     return _NfcScaffold(
       titleTranslationKey: widget.translationKeys.title,
       instruction: _TitleAndBody(
@@ -343,7 +338,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         bodyKey: uiState.tipKey,
       ),
       illustration: Padding(
-        padding: .all(theme.defaultSpacing),
+        padding: .all(context.yivi.defaultSpacing),
         child: SvgPicture.asset(
           yiviAsset("error/general_error_illustration.svg"),
         ),
@@ -362,13 +357,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     EdgeInsets padding, {
     bool disabled = false,
   }) {
-    final theme = IrmaTheme.of(context);
-
     return Container(
       decoration: BoxDecoration(
-        color: theme.backgroundTertiary,
+        color: context.colors.surfaceContainerHigh,
         borderRadius: .circular(20),
-        border: .all(color: theme.tertiary),
+        border: .all(color: context.colors.tertiary),
       ),
       child: Padding(
         padding: padding,
@@ -379,10 +372,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               child: Icon(
                 Icons.nfc,
                 size: 100,
-                color: disabled ? theme.error : theme.link,
+                color: disabled
+                    ? context.colors.error
+                    : context.yivi.brand.link,
               ),
             ),
-            SizedBox(height: theme.mediumSpacing),
+            SizedBox(height: context.yivi.mediumSpacing),
             Row(
               mainAxisSize: .min,
               crossAxisAlignment: .center,
@@ -390,7 +385,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: disabled ? theme.error : theme.success,
+                    color: disabled
+                        ? context.colors.error
+                        : context.yivi.brand.success,
                     shape: .circle,
                   ),
                   width: 40,
@@ -417,11 +414,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   Widget _buildStatus(BuildContext context, _UiState uiState) {
-    final theme = IrmaTheme.of(context);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
       child: Padding(
-        padding: .all(theme.defaultSpacing),
+        padding: .all(context.yivi.defaultSpacing),
         child: _ScanningContent(
           tipKey: uiState.tipKey,
           progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
@@ -449,17 +445,16 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   }
 
   Widget _buildNfcUnavailableScreen(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return _NfcScaffold(
       titleTranslationKey: widget.translationKeys.title,
       instruction: _OrientationAwareTranslatedText(
         widget.translationKeys.nfcDisabledExplanation,
       ),
       illustration: Padding(
-        padding: .all(theme.defaultSpacing),
+        padding: .all(context.yivi.defaultSpacing),
         child: _buildNfcSection(
           context,
-          .symmetric(horizontal: theme.largeSpacing),
+          .symmetric(horizontal: context.yivi.largeSpacing),
           disabled: true,
         ),
       ),
@@ -614,7 +609,6 @@ class _TitleAndBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final isPortrait = MediaQuery.orientationOf(context) == .portrait;
     return Column(
       crossAxisAlignment: isPortrait ? .center : .start,
@@ -623,9 +617,9 @@ class _TitleAndBody extends StatelessWidget {
       children: [
         _OrientationAwareTranslatedText(
           titleKey,
-          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+          style: context.yivi.nfc.statusTitle,
         ),
-        SizedBox(height: theme.defaultSpacing),
+        SizedBox(height: context.yivi.defaultSpacing),
         _OrientationAwareTranslatedText(bodyKey),
       ],
     );
@@ -647,9 +641,8 @@ class _NfcScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: context.colors.surfaceContainerLow,
       appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
       body: SafeArea(
         child: Center(
@@ -671,7 +664,7 @@ class _NfcScaffold extends StatelessWidget {
                 mainAxisSize: .max,
                 children: [
                   Flexible(child: illustration),
-                  SizedBox(height: theme.largeSpacing),
+                  SizedBox(height: context.yivi.largeSpacing),
                   Flexible(child: instruction),
                 ],
               );
@@ -693,11 +686,10 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPortrait = MediaQuery.orientationOf(context) == .portrait;
-    final theme = IrmaTheme.of(context);
 
     return Padding(
       padding: isPortrait
-          ? .symmetric(horizontal: theme.defaultSpacing)
+          ? .symmetric(horizontal: context.yivi.defaultSpacing)
           : .zero,
       child: TranslatedText(
         translationKey,
@@ -745,7 +737,6 @@ class _ScanningContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final isLandscape = MediaQuery.orientationOf(context) == .landscape;
 
     final textAlign = isLandscape ? TextAlign.start : TextAlign.center;
@@ -757,10 +748,10 @@ class _ScanningContent extends StatelessWidget {
       children: [
         TranslatedText(
           statusKey,
-          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+          style: context.yivi.nfc.statusTitle,
           textAlign: textAlign,
         ),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: context.yivi.smallSpacing),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 350),
           transitionBuilder: (child, anim) =>
@@ -770,19 +761,14 @@ class _ScanningContent extends StatelessWidget {
             key: ValueKey(tipKey),
             textAlign: textAlign,
             maxLines: 3,
-            style: TextStyle(
-              color: theme.secondary,
-              fontSize: 16,
-              height: 1.4,
-              overflow: .visible,
-            ),
+            style: context.yivi.nfc.progressTip,
           ),
         ),
-        SizedBox(height: theme.largeSpacing),
+        SizedBox(height: context.yivi.largeSpacing),
         Padding(
           padding: isLandscape
               ? .zero
-              : .symmetric(horizontal: theme.defaultSpacing),
+              : .symmetric(horizontal: context.yivi.defaultSpacing),
           child: IrmaLinearProgressIndicator(filledPercentage: progressPercent),
         ),
       ],

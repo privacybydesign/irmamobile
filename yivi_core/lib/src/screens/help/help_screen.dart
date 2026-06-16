@@ -19,31 +19,28 @@ class HelpScreen extends StatefulWidget {
 class _HelpScreenState extends State<HelpScreen> {
   final ScrollController _controller = ScrollController();
 
-  Widget _buildHeader(IrmaThemeData theme, String translationKey) =>
-      SectionHeader(translationKey);
+  Widget _buildHeader(String translationKey) => SectionHeader(translationKey);
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(titleTranslationKey: "help.faq"),
       body: SingleChildScrollView(
         controller: _controller,
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.defaultSpacing),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(theme, "help.about_irma"),
-              SizedBox(height: theme.smallSpacing),
+              _buildHeader("help.about_irma"),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_1",
                 body: const TranslatedText("help.answer_1_markdown"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_2",
                 body: IrmaMarkdown(
@@ -51,15 +48,15 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_3",
                 body: const TranslatedText("help.answer_3_markdown"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, "help.login"),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.defaultSpacing),
+              _buildHeader("help.login"),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_4",
                 body: HelpCarousel(
@@ -84,7 +81,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_5",
                 body: HelpCarousel(
@@ -113,41 +110,41 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, "help.device"),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.defaultSpacing),
+              _buildHeader("help.device"),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_6",
                 body: const TranslatedText("help.answer_6_markdown"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_7",
                 body: const TranslatedText("help.answer_7"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, "help.security_and_privacy"),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.defaultSpacing),
+              _buildHeader("help.security_and_privacy"),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_8",
                 body: const TranslatedText("help.answer_8"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_9",
                 body: const TranslatedText("help.answer_9"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_10",
                 body: const TranslatedText("help.answer_10"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               HelpItem(
                 headerTranslationKey: "help.question_11",
                 body: IrmaMarkdown(
@@ -155,12 +152,14 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: theme.defaultSpacing),
-              _buildHeader(theme, "help.ask"),
-              SizedBox(height: theme.defaultSpacing),
-              TranslatedText("help.send", style: theme.textTheme.bodyMedium),
+              SizedBox(height: context.yivi.defaultSpacing),
+              _buildHeader("help.ask"),
+              SizedBox(height: context.yivi.defaultSpacing),
+              TranslatedText("help.send", style: context.text.bodyMedium),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+                padding: EdgeInsets.symmetric(
+                  vertical: context.yivi.smallSpacing,
+                ),
                 child: const ContactLink(translationKey: "help.email"),
               ),
             ],

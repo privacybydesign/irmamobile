@@ -23,7 +23,6 @@ class ActivityDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final localTime = logEntry.time.toLocal();
     final dateAtTime = FlutterI18n.translate(
@@ -36,22 +35,15 @@ class ActivityDetailsScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(
-        title: Text(
-          dateAtTime,
-          style: theme.themeData.textTheme.displaySmall?.copyWith(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: theme.dark,
-          ),
-        ),
+        title: Text(dateAtTime, style: context.yivi.activity.detailDate),
       ),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.defaultSpacing),
           child: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

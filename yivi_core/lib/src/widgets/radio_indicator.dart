@@ -17,8 +17,7 @@ class RadioIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final color = theme.neutralExtraDark;
+    final color = context.colors.onSurfaceVariant;
 
     return Container(
       height: size,
@@ -33,7 +32,7 @@ class RadioIndicator extends StatelessWidget {
             ),
       child: Center(
         child: isSelected
-            ? _buildInnerCircle(color: theme.light, size: size * 0.45)
+            ? _buildInnerCircle(color: Colors.white, size: size * 0.45)
             : null,
       ),
     );

@@ -9,22 +9,20 @@ import "widgets/system_language_toggle.dart";
 class ChangeLanguageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.backgroundTertiary,
+      backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(titleTranslationKey: "settings.language"),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(theme.screenPadding),
+          padding: EdgeInsets.all(context.yivi.screenPadding),
           child: SafeArea(
             child: PreferredLocaleBuilder(
               builder: (context, preferredLocale) => Column(
                 children: [
                   UseSystemLanguageToggle(),
-                  SizedBox(height: theme.defaultSpacing),
+                  SizedBox(height: context.yivi.defaultSpacing),
                   if (preferredLocale != null) ChangeLanguageRadio(),
                 ],
               ),

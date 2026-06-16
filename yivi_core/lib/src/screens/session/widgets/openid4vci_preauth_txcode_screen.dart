@@ -118,7 +118,6 @@ class _OpenID4VCIPreAuthTxCodeScreenState
               : "issuance.pre-authorized_code.tx_code_screen.body",
         );
 
-    final theme = IrmaTheme.of(context);
     final length = widget.transactionCodeParameters.length;
     final remainingAttempts = ref
         .watch(sessionStateProvider(widget.sessionId))
@@ -133,26 +132,24 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.defaultSpacing),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
                 Semantics(
                   header: true,
                   child: Text(
                     _getTextReplacements(headerTemplate, context),
-                    style: theme.textTheme.bodyLarge!.copyWith(
-                      color: theme.neutralExtraDark,
-                    ),
+                    style: context.yivi.form.header,
                   ),
                 ),
-                SizedBox(height: theme.defaultSpacing),
+                SizedBox(height: context.yivi.defaultSpacing),
                 Text(
                   _getTextReplacements(bodyTemplate, context),
-                  style: theme.textTheme.bodyMedium,
+                  style: context.text.bodyMedium,
                 ),
-                SizedBox(height: theme.largeSpacing),
+                SizedBox(height: context.yivi.largeSpacing),
                 _buildInput(context, length, codeInvalid),
                 if (codeInvalid)
                   Text(
@@ -161,9 +158,9 @@ class _OpenID4VCIPreAuthTxCodeScreenState
                       "issuance.pre-authorized_code.tx_code_screen.invalid_code_error",
                       remainingAttempts,
                     ),
-                    style: TextStyle(color: theme.error),
+                    style: context.yivi.form.errorMessage,
                   ),
-                SizedBox(height: theme.largeSpacing),
+                SizedBox(height: context.yivi.largeSpacing),
               ],
             ),
           ),
@@ -173,21 +170,15 @@ class _OpenID4VCIPreAuthTxCodeScreenState
   }
 
   Widget _buildInput(BuildContext context, int? length, bool codeInvalid) {
-    final theme = IrmaTheme.of(context);
-
     if (length != null) {
       final defaultPinTheme = PinTheme(
         width: 50,
         height: 50,
-        textStyle: TextStyle(
-          fontSize: 25,
-          color: Color.fromRGBO(30, 60, 87, 1),
-          fontWeight: FontWeight.w600,
-        ),
+        textStyle: context.yivi.verification.codeChar,
         decoration: BoxDecoration(
           color: codeInvalid
-              ? theme.error.withAlpha(40)
-              : theme.surfaceSecondary,
+              ? context.colors.error.withAlpha(40)
+              : context.colors.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(10),
         ),
       );
@@ -197,9 +188,11 @@ class _OpenID4VCIPreAuthTxCodeScreenState
         height: 54,
         decoration: BoxDecoration(
           color: codeInvalid
-              ? theme.error.withAlpha(40)
-              : theme.surfaceSecondary,
-          border: Border.all(color: codeInvalid ? theme.error : theme.link),
+              ? context.colors.error.withAlpha(40)
+              : context.colors.surfaceContainerHigh,
+          border: Border.all(
+            color: codeInvalid ? context.colors.error : context.yivi.brand.link,
+          ),
           borderRadius: BorderRadius.circular(10),
         ),
       );
@@ -232,10 +225,14 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       inputFormatters: _inputFormatters,
       decoration: InputDecoration(
         enabledBorder: codeInvalid
-            ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(color: context.colors.error),
+              )
             : null,
         focusedBorder: codeInvalid
-            ? UnderlineInputBorder(borderSide: BorderSide(color: theme.error))
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(color: context.colors.error),
+              )
             : null,
       ),
       onChanged: (_) => setState(() {}),

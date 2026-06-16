@@ -172,7 +172,6 @@ class _DisclosureMakeChoiceScreenState
     final owned = pickOne.ownedOptions ?? [];
     final obtainable = pickOne.obtainableOptions ?? [];
 
-    final theme = IrmaTheme.of(context);
     final selection = _selection;
     final ownedSelectedIndex = switch (selection) {
       _OwnedSelection(:final index) => index,
@@ -185,7 +184,7 @@ class _DisclosureMakeChoiceScreenState
       appBarTitle: "disclosure_permission.change_choice",
       onPrevious: () => Navigator.of(context).pop(),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(theme.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.defaultSpacing),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,14 +202,14 @@ class _DisclosureMakeChoiceScreenState
               if (obtainable.isNotEmpty) ...[
                 Padding(
                   padding: EdgeInsets.only(
-                    bottom: theme.smallSpacing,
-                    top: theme.mediumSpacing,
+                    bottom: context.yivi.smallSpacing,
+                    top: context.yivi.mediumSpacing,
                   ),
                   child: SectionHeader("disclosure_permission.obtain_new"),
                 ),
                 for (var i = 0; i < obtainable.length; i++)
                   Padding(
-                    padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                    padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
                     child: GestureDetector(
                       onTap: obtainable[i].issueURL != null
                           ? () => setState(

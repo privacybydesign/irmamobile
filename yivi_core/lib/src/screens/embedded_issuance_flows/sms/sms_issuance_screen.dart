@@ -31,11 +31,10 @@ class _WaitingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Scaffold(
       appBar: IrmaAppBar(titleTranslationKey: "sms_issuance.enter_phone.title"),
       body: Padding(
-        padding: .all(theme.defaultSpacing),
+        padding: .all(context.yivi.defaultSpacing),
         child: Center(child: CircularProgressIndicator()),
       ),
       bottomNavigationBar: IrmaBottomBar(

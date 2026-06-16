@@ -1,7 +1,5 @@
 import "package:flutter/material.dart";
 
-import "../../../theme/theme.dart";
-
 class QROverlay extends CustomPainter {
   // the width of the view box as a ratio of the screen width
   static const _widthFactor = 0.9;
@@ -12,8 +10,10 @@ class QROverlay extends CustomPainter {
   // offset to the top of the screen as a ratio of the total height
   final double topOffsetFactor;
 
-  // the irma theme
-  final IrmaThemeData theme;
+  // success / error colors — CustomPainter can't reach Theme.of(context),
+  // so call sites pass these in.
+  final Color successColor;
+  final Color errorColor;
 
   // QR code found
   final bool found;
@@ -24,7 +24,8 @@ class QROverlay extends CustomPainter {
   QROverlay({
     required this.found,
     required this.error,
-    required this.theme,
+    required this.successColor,
+    required this.errorColor,
     required this.topOffsetFactor,
   });
 
@@ -45,9 +46,8 @@ class QROverlay extends CustomPainter {
     final bottom = top + windowSize;
     final cornerSize = windowSize * 0.15;
 
-    // colors
-    final Color green = theme.success;
-    final Color red = theme.error;
+    final Color green = successColor;
+    final Color red = errorColor;
 
     Color overlayColor = Colors.grey.shade800;
     Color cornerColor = Colors.white;

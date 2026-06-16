@@ -6,7 +6,6 @@ class _UnsecurePinFullScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return YiviPinScaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: "secure_pin.title",
@@ -17,9 +16,7 @@ class _UnsecurePinFullScreen extends StatelessWidget {
         children: [
           Text(
             FlutterI18n.translate(context, "secure_pin.subtitle"),
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: context.yivi.pin.warningHeading,
           ),
           const Divider(),
           ..._listBuilder(context, state),

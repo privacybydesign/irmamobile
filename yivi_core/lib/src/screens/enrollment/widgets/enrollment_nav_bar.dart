@@ -11,15 +11,13 @@ class EnrollmentNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return SafeArea(
       child: Semantics(
         button: true,
         child: Container(
           height: 100,
-          color: theme.themeData.colorScheme.surface,
-          padding: EdgeInsets.all(theme.mediumSpacing),
+          color: context.colors.surface,
+          padding: EdgeInsets.all(context.yivi.mediumSpacing),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -30,7 +28,9 @@ class EnrollmentNavBar extends StatelessWidget {
                 child: onPrevious == null
                     ? Container()
                     : Padding(
-                        padding: EdgeInsets.only(right: theme.smallSpacing),
+                        padding: EdgeInsets.only(
+                          right: context.yivi.smallSpacing,
+                        ),
                         child: YiviThemedButton(
                           key: const Key("enrollment_previous_button"),
                           style: YiviButtonStyle.outlined,

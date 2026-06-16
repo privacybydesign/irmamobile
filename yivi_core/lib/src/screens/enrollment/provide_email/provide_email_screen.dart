@@ -62,13 +62,12 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final mediaQuery = MediaQuery.of(context);
     final keyboardIsActive = mediaQuery.viewInsets.bottom > 0;
     final isLandscape = mediaQuery.size.width > 450;
 
     return Scaffold(
-      backgroundColor: theme.backgroundSecondary,
+      backgroundColor: context.colors.surfaceContainerLow,
       appBar: IrmaAppBar(
         titleTranslationKey: "enrollment.email.provide.title",
         leading: YiviBackButton(onTap: widget.onPrevious),
@@ -87,20 +86,20 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(theme.defaultSpacing),
+                      padding: EdgeInsets.all(context.yivi.defaultSpacing),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           TranslatedText(
                             "enrollment.email.provide.header",
-                            style: theme.textTheme.displaySmall,
+                            style: context.text.displaySmall,
                           ),
-                          SizedBox(height: theme.defaultSpacing),
+                          SizedBox(height: context.yivi.defaultSpacing),
                           const TranslatedText(
                             "enrollment.email.provide.explanation",
                           ),
-                          SizedBox(height: theme.mediumSpacing),
+                          SizedBox(height: context.yivi.mediumSpacing),
                           EmailInputField(controller: _emailController),
                         ],
                       ),

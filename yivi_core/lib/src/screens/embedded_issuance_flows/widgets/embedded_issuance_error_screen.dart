@@ -27,13 +27,12 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Scaffold(
       appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
-            padding: .all(theme.defaultSpacing),
+            padding: .all(context.yivi.defaultSpacing),
             child: SizedBox(
               width: .infinity,
               child: Builder(
@@ -53,7 +52,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                                 contentTranslationKey,
                                 textAlign: .start,
                               ),
-                              SizedBox(height: theme.largeSpacing),
+                              SizedBox(height: context.yivi.largeSpacing),
                               YiviLinkButton(
                                 textAlign: .start,
                                 labelTranslationKey: "error.button_show_error",
@@ -64,7 +63,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(width: theme.largeSpacing),
+                        SizedBox(width: context.yivi.largeSpacing),
                         Flexible(
                           child: SvgPicture.asset(
                             height: 200,
@@ -80,13 +79,13 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                     mainAxisAlignment: .center,
                     crossAxisAlignment: .center,
                     children: [
-                      SizedBox(height: theme.largeSpacing),
+                      SizedBox(height: context.yivi.largeSpacing),
                       SvgPicture.asset(
                         yiviAsset("error/general_error_illustration.svg"),
                       ),
-                      SizedBox(height: theme.largeSpacing),
+                      SizedBox(height: context.yivi.largeSpacing),
                       TranslatedText(contentTranslationKey, textAlign: .center),
-                      SizedBox(height: theme.largeSpacing),
+                      SizedBox(height: context.yivi.largeSpacing),
                       YiviLinkButton(
                         textAlign: .center,
                         labelTranslationKey: "error.button_show_error",

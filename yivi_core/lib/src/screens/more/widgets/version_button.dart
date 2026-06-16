@@ -33,18 +33,14 @@ class _VersionButtonState extends State<VersionButton> {
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
-    final theme = IrmaTheme.of(context);
 
-    final textStyle = theme.textTheme.titleLarge!.copyWith(
-      fontWeight: FontWeight.w600,
-    );
+    final textStyle = context.yivi.misc.versionLabel;
 
     void showSnackbar(String translationKey) =>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: theme.success,
+            backgroundColor: context.yivi.brand.success,
             content: TranslatedText(translationKey),
-            behavior: SnackBarBehavior.floating,
           ),
         );
 
@@ -72,7 +68,7 @@ class _VersionButtonState extends State<VersionButton> {
             child: InkWell(
               onTap: onTap,
               child: Padding(
-                padding: EdgeInsets.only(left: theme.defaultSpacing),
+                padding: EdgeInsets.only(left: context.yivi.defaultSpacing),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

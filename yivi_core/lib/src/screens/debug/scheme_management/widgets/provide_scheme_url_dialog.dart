@@ -17,7 +17,6 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final navigator = Navigator.of(context);
 
     final translatedTitle = FlutterI18n.translate(
@@ -33,7 +32,7 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
       title: translatedTitle,
       content: translatedContent,
       child: Wrap(
-        runSpacing: theme.defaultSpacing,
+        runSpacing: context.yivi.defaultSpacing,
         alignment: WrapAlignment.center,
         children: [
           TextField(

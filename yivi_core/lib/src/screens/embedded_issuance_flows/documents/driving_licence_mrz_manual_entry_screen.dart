@@ -76,12 +76,10 @@ class _DrivingLicencetMrzManualEntryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: theme.backgroundTertiary,
+        backgroundColor: context.colors.surfaceContainerHigh,
         appBar: IrmaAppBar(titleTranslationKey: "driving_licence.manual.title"),
         body: SizedBox(
           height: .infinity,
@@ -92,16 +90,16 @@ class _DrivingLicencetMrzManualEntryScreenState
               onChanged: _recomputeCanContinue,
               child: SafeArea(
                 child: Padding(
-                  padding: .all(theme.defaultSpacing),
+                  padding: .all(context.yivi.defaultSpacing),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
                       const TranslatedText(
                         "driving_licence.manual.explanation",
                       ),
-                      SizedBox(height: theme.mediumSpacing),
+                      SizedBox(height: context.yivi.mediumSpacing),
                       DrivingLicenceMrzInputField(controller: _documentNrCtrl),
-                      SizedBox(height: theme.largeSpacing),
+                      SizedBox(height: context.yivi.largeSpacing),
                     ],
                   ),
                 ),

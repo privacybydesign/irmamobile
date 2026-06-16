@@ -20,7 +20,6 @@ class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final theme = IrmaTheme.of(context);
 
     String title = "";
     String subtitleTranslationKey = "";
@@ -107,10 +106,10 @@ class ActivityCard extends StatelessWidget {
               excludeSemantics: true,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
-                  theme.defaultSpacing,
-                  theme.defaultSpacing,
-                  theme.smallSpacing,
-                  theme.defaultSpacing,
+                  context.yivi.defaultSpacing,
+                  context.yivi.defaultSpacing,
+                  context.yivi.smallSpacing,
+                  context.yivi.defaultSpacing,
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -120,7 +119,11 @@ class ActivityCard extends StatelessWidget {
                       logoImage: logoImage,
                       initials: title != "" ? title[0] : null,
                     ),
-                    SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+                    SizedBox(
+                      width:
+                          context.yivi.defaultSpacing -
+                          context.yivi.tinySpacing,
+                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,29 +132,18 @@ class ActivityCard extends StatelessWidget {
                             title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: theme.themeData.textTheme.headlineMedium!
-                                .copyWith(fontSize: 16, color: theme.dark),
+                            style: context.yivi.activity.cardTitle,
                           ),
                           TranslatedText(
                             subtitleTranslationKey,
-                            style: theme.themeData.textTheme.bodyMedium!
-                                .copyWith(
-                                  fontSize: 14,
-                                  color: theme.neutralExtraDark,
-                                ),
+                            style: context.text.bodySmall,
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(width: theme.smallSpacing),
-                    Text(
-                      localizedTimeStamp,
-                      style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                        fontSize: 14,
-                        color: theme.neutralExtraDark,
-                      ),
-                    ),
-                    SizedBox(width: theme.tinySpacing),
+                    SizedBox(width: context.yivi.smallSpacing),
+                    Text(localizedTimeStamp, style: context.text.bodySmall),
+                    SizedBox(width: context.yivi.tinySpacing),
                     const Chevron(),
                   ],
                 ),

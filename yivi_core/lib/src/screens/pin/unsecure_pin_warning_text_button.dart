@@ -9,8 +9,6 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
     : context = scaffoldKey.currentContext!;
 
   void _showSecurePinRules(EnterPinState state) {
-    final theme = IrmaTheme.of(context);
-
     // OrientationBuilder builds a widget tree that can depend on
     // the parent widget's orientation (distinct from the device orientation).
     // In this case, OrientationBuilder gives false results. Hence MediaQuery.
@@ -27,17 +25,19 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
         context: context,
         titleKey: "secure_pin.title",
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.yivi.defaultSpacing,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: theme.screenPadding),
+              SizedBox(height: context.yivi.screenPadding),
               Text(
                 FlutterI18n.translate(context, "secure_pin.subtitle"),
-                style: theme.textTheme.bodyMedium,
+                style: context.text.bodyMedium,
               ),
-              SizedBox(height: theme.screenPadding),
+              SizedBox(height: context.yivi.screenPadding),
               ..._listBuilder(context, state),
               const SizedBox(height: 32),
             ],
@@ -49,8 +49,6 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return BlocBuilder<EnterPinStateBloc, EnterPinState>(
       bloc: bloc,
       builder: (context, state) {
@@ -63,13 +61,10 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
               children: [
                 Text(
                   FlutterI18n.translate(context, "secure_pin.info_button"),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.warning,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: context.yivi.pin.warningButton,
                 ),
                 const SizedBox(width: 2.0),
-                Icon(Icons.info_outlined, color: theme.warning),
+                Icon(Icons.info_outlined, color: context.yivi.brand.warning),
               ],
             ),
           ),

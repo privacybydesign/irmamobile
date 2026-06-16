@@ -140,8 +140,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final paddingSize = theme.screenPadding;
+    final paddingSize = context.yivi.screenPadding;
 
     return Scaffold(
       appBar: IrmaAppBar(
@@ -149,7 +148,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         leading: const SizedBox.shrink(),
         actions: [IrmaCloseButton(onTap: widget.onCancel)],
       ),
-      backgroundColor: theme.backgroundPrimary,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Container(
           alignment: Alignment.center,
@@ -173,7 +172,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
                 ),
                 if (widget.submitting)
                   Padding(
-                    padding: EdgeInsets.all(theme.defaultSpacing),
+                    padding: EdgeInsets.all(context.yivi.defaultSpacing),
                     child: const CircularProgressIndicator(),
                   ),
               ],
@@ -200,13 +199,12 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   }
 
   Widget _buildPortrait(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Column(
       children: [
         // For short pin: invisible next button at top (maintains layout space)
         if (!_isLongPin)
           Padding(
-            padding: EdgeInsets.only(top: theme.screenPadding),
+            padding: EdgeInsets.only(top: context.yivi.screenPadding),
             child: _buildNextButton(visibility: _WidgetVisibility.invisible),
           ),
         Expanded(
@@ -244,7 +242,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         // For long pin: visible next button at bottom
         if (_isLongPin)
           Padding(
-            padding: EdgeInsets.only(top: theme.screenPadding),
+            padding: EdgeInsets.only(top: context.yivi.screenPadding),
             child: _buildNextButton(visibility: _WidgetVisibility.visible),
           ),
       ],
@@ -301,22 +299,19 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   }
 
   Widget _buildInstructionText(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Center(
       child: Semantics(
         header: true,
         child: Text(
           FlutterI18n.translate(context, "session_pin.subtitle"),
           textAlign: TextAlign.center,
-          style: theme.textTheme.displaySmall,
+          style: context.text.displaySmall,
         ),
       ),
     );
   }
 
   Widget _buildDecoratedPinDots(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -346,15 +341,15 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Divider(height: 1.0, color: theme.secondary),
+                Divider(height: 1.0, color: context.colors.secondary),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Text(
                     "${_pin.length}/$_longPinSize",
-                    style: theme.textTheme.bodySmall?.copyWith(
+                    style: context.text.bodySmall?.copyWith(
                       fontWeight: FontWeight.w300,
                       color: _pin.isNotEmpty
-                          ? theme.secondary
+                          ? context.colors.secondary
                           : Colors.transparent,
                     ),
                   ),
@@ -367,7 +362,6 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
   }
 
   Widget _buildPinVisibilityButton(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final icon = _pinVisible
         ? Icons.visibility_off_outlined
         : Icons.visibility_outlined;
@@ -389,7 +383,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
             child: Icon(
               icon,
               size: 24,
-              color: theme.secondary,
+              color: context.colors.secondary,
               semanticLabel: FlutterI18n.translate(context, semanticKey),
             ),
           ),
@@ -450,15 +444,16 @@ class _SessionPinIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final textColor = pinVisible ? theme.secondary : Colors.transparent;
-    final style = theme.textTheme.displayMedium?.copyWith(color: textColor);
+    final textColor = pinVisible
+        ? context.colors.secondary
+        : Colors.transparent;
+    final style = context.text.displayMedium?.copyWith(color: textColor);
 
     const double edgeSize = 12;
     final scaledEdgeSize = edgeSize.scaleToDesignSize(context);
 
     final circleFilledDecoration = BoxDecoration(
-      color: pinVisible ? Colors.transparent : theme.secondary,
+      color: pinVisible ? Colors.transparent : context.colors.secondary,
       shape: BoxShape.circle,
       border: Border.all(color: Colors.transparent, width: 2.0),
     );
@@ -466,7 +461,7 @@ class _SessionPinIndicator extends StatelessWidget {
     final circleOutlinedDecoration = BoxDecoration(
       color: Colors.transparent,
       shape: BoxShape.circle,
-      border: Border.all(color: theme.secondary, width: 2.0),
+      border: Border.all(color: context.colors.secondary, width: 2.0),
     );
 
     final constraints = BoxConstraints.tightFor(
@@ -604,12 +599,10 @@ class _SessionNumberPadKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     const heightFactor = 0.825;
     final bigNumberTextStyle = TextStyle(
-      fontFamily: theme.secondaryFontFamily,
-      color: theme.secondary,
+      fontFamily: context.yivi.secondaryFontFamily,
+      color: context.colors.secondary,
       fontSize: 32,
       height: 32 / 40,
       fontWeight: FontWeight.w600,
@@ -641,8 +634,8 @@ class _SessionNumberPadKey extends StatelessWidget {
                       subtitle!,
                       heightFactor: 1.1 - heightFactor,
                       textStyle: TextStyle(
-                        fontFamily: theme.secondaryFontFamily,
-                        color: theme.secondary,
+                        fontFamily: context.yivi.secondaryFontFamily,
+                        color: context.colors.secondary,
                         fontWeight: FontWeight.w400,
                         height: 14.0 / 24.0,
                       ),
@@ -665,7 +658,6 @@ class _SessionNumberPadIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -678,7 +670,7 @@ class _SessionNumberPadIcon extends StatelessWidget {
               fit: BoxFit.fitHeight,
               child: Container(
                 alignment: Alignment.center,
-                child: Icon(icon, color: theme.secondary),
+                child: Icon(icon, color: context.colors.secondary),
               ),
             ),
           ),

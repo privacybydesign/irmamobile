@@ -76,8 +76,6 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final body = switch (_cameraPermissionStatus) {
       .granted => MrzScanner(
         controller: controller,
@@ -87,28 +85,28 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
       ),
       _ => SingleChildScrollView(
         child: Padding(
-          padding: .all(theme.defaultSpacing),
+          padding: .all(context.yivi.defaultSpacing),
           child: Column(
             mainAxisAlignment: .center,
             crossAxisAlignment: .center,
             children: [
               TranslatedText(
                 "mrz_camera_permissions.title",
-                style: theme.textTheme.displaySmall,
+                style: context.text.displaySmall,
                 textAlign: .center,
               ),
-              SizedBox(height: theme.smallSpacing),
+              SizedBox(height: context.yivi.smallSpacing),
               TranslatedText(
                 "mrz_camera_permissions.content",
                 textAlign: .center,
               ),
-              SizedBox(height: theme.largeSpacing),
+              SizedBox(height: context.yivi.largeSpacing),
               TextButton(
                 child: TranslatedText(
                   "mrz_camera_permissions.open_settings",
-                  style: theme.textButtonTextStyle.copyWith(
+                  style: context.yivi.textButtonTextStyle.copyWith(
                     fontWeight: .normal,
-                    color: theme.link,
+                    color: context.yivi.brand.link,
                   ),
                 ),
                 onPressed: () async {
@@ -128,7 +126,7 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
       builder: (context, orientation) {
         if (orientation == .portrait) {
           return Scaffold(
-            backgroundColor: theme.backgroundTertiary,
+            backgroundColor: context.colors.surfaceContainerHigh,
             appBar: IrmaAppBar(
               titleTranslationKey: widget.translationKeys.title,
             ),
@@ -144,7 +142,7 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
         }
 
         return Scaffold(
-          backgroundColor: theme.backgroundTertiary,
+          backgroundColor: context.colors.surfaceContainerHigh,
           appBar: IrmaAppBar(
             titleTranslationKey: widget.translationKeys.title,
             leading: YiviBackButton(
@@ -179,8 +177,6 @@ class _ManualEntryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return SizedBox(
       height: 72,
       width: 72,
@@ -198,7 +194,7 @@ class _ManualEntryButton extends StatelessWidget {
                   label: label,
                   child: InkWell(
                     onTap: onTap,
-                    child: Icon(Icons.edit, color: theme.light, size: 42),
+                    child: Icon(Icons.edit, color: Colors.white, size: 42),
                   ),
                 ),
               ),

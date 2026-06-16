@@ -97,8 +97,6 @@ class _CollapsibleState extends State<Collapsible> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return IrmaCard(
       padding: EdgeInsets.zero,
       margin: EdgeInsets.zero,
@@ -106,8 +104,11 @@ class _CollapsibleState extends State<Collapsible> {
         initiallyExpanded: widget.initiallyExpanded,
         onExpansionChanged: _onExpansionChanged,
         animatedWidgetFollowingHeader: Padding(
-          padding: EdgeInsets.all(theme.tinySpacing),
-          child: Icon(Icons.expand_more, color: theme.neutralExtraDark),
+          padding: EdgeInsets.all(context.yivi.tinySpacing),
+          child: Icon(
+            Icons.expand_more,
+            color: context.colors.onSurfaceVariant,
+          ),
         ),
         header: Expanded(
           child: Semantics(
@@ -119,20 +120,20 @@ class _CollapsibleState extends State<Collapsible> {
                 : FlutterI18n.translate(context, "accessibility.collapsed"),
             child: Padding(
               padding: EdgeInsets.only(
-                top: theme.tinySpacing * 3,
-                bottom: theme.tinySpacing * 3,
-                left: theme.defaultSpacing,
-                right: theme.defaultSpacing,
+                top: context.yivi.tinySpacing * 3,
+                bottom: context.yivi.tinySpacing * 3,
+                left: context.yivi.defaultSpacing,
+                right: context.yivi.defaultSpacing,
               ),
-              child: Text(widget.header, style: theme.textTheme.headlineSmall),
+              child: Text(widget.header, style: context.text.headlineSmall),
             ),
           ),
         ),
         children: [
           Padding(
             padding: EdgeInsets.symmetric(
-              vertical: theme.smallSpacing,
-              horizontal: theme.defaultSpacing,
+              vertical: context.yivi.smallSpacing,
+              horizontal: context.yivi.defaultSpacing,
             ),
             child: ExcludeSemantics(
               excluding: !_isExpanded,

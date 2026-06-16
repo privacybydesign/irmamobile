@@ -22,19 +22,17 @@ class CredentialCategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: theme.defaultSpacing),
+        SizedBox(height: context.yivi.defaultSpacing),
         SectionHeader.text(categoryName),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: context.yivi.smallSpacing),
         ...credentialTypes.map(
           (credType) => Semantics(
             button: true,
             child: Padding(
-              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
               child: IrmaCredentialTypeCard(
                 credType: credType,
                 checked: obtainedCredentialTypes?.contains(credType) ?? false,

@@ -12,23 +12,24 @@ class EndOfListIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     final expandedDividerWidget = Expanded(
-      child: IrmaDivider(color: theme.tertiary),
+      child: IrmaDivider(color: context.colors.tertiary),
     );
 
     final statusIndicatorWidget = Padding(
-      padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+      padding: EdgeInsets.symmetric(horizontal: context.yivi.defaultSpacing),
       child: Container(
         width: 24,
         height: 24,
         decoration: isLoading
             ? null
-            : BoxDecoration(shape: BoxShape.circle, color: theme.success),
+            : BoxDecoration(
+                shape: BoxShape.circle,
+                color: context.yivi.brand.success,
+              ),
         child: isLoading
             ? LoadingIndicator()
-            : Icon(Icons.check, size: 18, color: theme.light),
+            : Icon(Icons.check, size: 18, color: Colors.white),
       ),
     );
 
@@ -41,17 +42,13 @@ class EndOfListIndicator extends StatelessWidget {
             expandedDividerWidget,
           ],
         ),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: context.yivi.smallSpacing),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.hugeSpacing),
+          padding: EdgeInsets.symmetric(horizontal: context.yivi.hugeSpacing),
           child: TranslatedText(
             isLoading ? "ui.loading" : "ui.end_of_list",
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium!.copyWith(
-              color: theme.neutralExtraDark,
-              fontSize: 12,
-              height: 18 / 12,
-            ),
+            style: context.yivi.indicator.endOfList,
           ),
         ),
       ],

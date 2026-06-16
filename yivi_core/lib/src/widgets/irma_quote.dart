@@ -22,8 +22,6 @@ class IrmaQuote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return IrmaCard(
       padding: EdgeInsets.zero,
       hasShadow: false,
@@ -37,10 +35,7 @@ class IrmaQuote extends StatelessWidget {
                     styleSheet: MarkdownStyleSheet.fromTheme(
                       ThemeData(
                         textTheme: TextTheme(
-                          bodyMedium: theme.textTheme.bodyMedium!.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                          ),
+                          bodyMedium: context.yivi.card.quoteBody,
                         ),
                       ),
                     ),
