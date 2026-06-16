@@ -25,9 +25,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
         context: context,
         titleKey: "secure_pin.title",
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: context.yivi.spacing.base,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: context.yivi.spacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

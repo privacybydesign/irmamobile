@@ -121,8 +121,7 @@ class ActivityCard extends StatelessWidget {
                     ),
                     SizedBox(
                       width:
-                          context.yivi.spacing.base -
-                          context.yivi.spacing.tiny,
+                          context.yivi.spacing.base - context.yivi.spacing.tiny,
                     ),
                     Expanded(
                       child: Column(

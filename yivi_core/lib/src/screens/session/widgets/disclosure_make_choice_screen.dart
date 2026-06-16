@@ -209,7 +209,9 @@ class _DisclosureMakeChoiceScreenState
                 ),
                 for (var i = 0; i < obtainable.length; i++)
                   Padding(
-                    padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
+                    padding: EdgeInsets.only(
+                      bottom: context.yivi.spacing.small,
+                    ),
                     child: GestureDetector(
                       onTap: obtainable[i].issueURL != null
                           ? () => setState(

@@ -49,15 +49,21 @@ class _CredentialsDetailsScreenState
     // AnimatedBuilder, so updates stay scoped to the AppBar title and the
     // body's scroll view doesn't rebuild mid-drag (which would interrupt
     // the gesture and snap the scroll back).
-    final titleContent = Row(
-      mainAxisSize: .min,
-      mainAxisAlignment: .center,
-      spacing: context.yivi.spacing.small,
-      children: [
-        if (credential != null)
-          Transform.translate(
-            offset: Offset(0, 4),
-            child: IrmaAvatar(
+    //
+    // The Transform shifts the whole title down ~4px so it sits at the
+    // same baseline as the default AppBar title (which renders its glyph
+    // at the centre of an inflated 36px text box). Transform.translate is
+    // layout-invisible — Padding wouldn't work here because AppBar would
+    // re-centre the taller widget.
+    final titleContent = Transform.translate(
+      offset: const Offset(0, 4),
+      child: Row(
+        mainAxisSize: .min,
+        mainAxisAlignment: .center,
+        spacing: context.yivi.spacing.small,
+        children: [
+          if (credential != null)
+            IrmaAvatar(
               logoImage: credential.image != null
                   ? Base64Image(base64: credential.image!.base64)
                   : null,
@@ -66,14 +72,19 @@ class _CredentialsDetailsScreenState
                   : null,
               size: 20,
             ),
+          Text(
+            name,
+            // Tighten the text box to the glyph extents so Row's default
+            // centering lines the avatar up with the visual centre of the
+            // text instead of the centre of the (much taller) line-height
+            // box.
+            textHeightBehavior: const TextHeightBehavior(
+              applyHeightToFirstAscent: false,
+              applyHeightToLastDescent: false,
+            ),
           ),
-        Text(
-          name,
-          style: context.text.displaySmall?.copyWith(
-            color: context.colors.onSurface,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
 
     return IrmaAppBar(
