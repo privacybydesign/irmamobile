@@ -29,9 +29,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
           children: [
             TranslatedText(
               "disclosure_permission.introduction.header",
-              style: context.text.headlineSmall!.copyWith(
-                color: context.colors.onSurface,
-              ),
+              style: context.text.headlineSmall,
             ),
             SizedBox(height: context.yivi.spacing.tiny),
             TranslatedText(

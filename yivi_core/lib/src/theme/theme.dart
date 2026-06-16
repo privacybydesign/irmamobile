@@ -131,7 +131,7 @@ ThemeData buildYiviThemeData() {
       fontSize: 18,
       height: 36 / 18,
       fontWeight: FontWeight.w600,
-      color: neutralExtraDark,
+      color: dark,
     ),
     titleLarge: TextStyle(
       fontFamily: font,
@@ -362,7 +362,7 @@ ThemeData buildYiviThemeData() {
     elevation: 0,
     iconTheme: const IconThemeData(color: dark),
     toolbarTextStyle: textTheme.bodyMedium,
-    titleTextStyle: textTheme.headlineSmall?.copyWith(color: dark),
+    titleTextStyle: textTheme.headlineSmall,
     systemOverlayStyle: const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,

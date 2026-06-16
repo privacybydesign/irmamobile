@@ -27,9 +27,7 @@ class ResetPinScreen extends StatelessWidget {
           children: [
             TranslatedText(
               "reset_pin.header",
-              style: context.text.headlineSmall!.copyWith(
-                color: context.colors.onSurface,
-              ),
+              style: context.text.headlineSmall,
             ),
             SizedBox(height: context.yivi.spacing.tiny),
             TranslatedText(

@@ -28,9 +28,7 @@ class NameChangedScreen extends StatelessWidget {
 
     final titleTextWidget = TranslatedText(
       "name_changed.title",
-      style: context.text.headlineSmall!.copyWith(
-        color: context.colors.onSurface,
-      ),
+      style: context.text.headlineSmall,
     );
 
     final headerTextWidget = TranslatedText(
