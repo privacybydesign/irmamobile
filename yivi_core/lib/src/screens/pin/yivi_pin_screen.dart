@@ -4,6 +4,7 @@ import "dart:async";
 import "dart:math";
 
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
@@ -23,6 +24,7 @@ part "number_pad.dart";
 part "number_pad_icon.dart";
 part "number_pad_key.dart";
 part "pin_indicator.dart";
+part "pin_keyboard_input.dart";
 part "scalable_text.dart";
 part "secure_pin.dart";
 part "unsecure_pin_description_tile.dart";
@@ -266,6 +268,16 @@ class YiviPinScreen extends StatelessWidget {
         Stack(
           alignment: Alignment.center,
           children: [
+            // Invisible password text field behind the dots. Focusing it (by
+            // tapping the indicator) enables physical-keyboard typing, paste
+            // and password-manager autofill, while the dots stay the visible
+            // representation. See [_PinKeyboardInput].
+            Positioned.fill(
+              child: _PinKeyboardInput(
+                pinBloc: pinBloc,
+                maxPinSize: maxPinSize,
+              ),
+            ),
             FractionallySizedBox(widthFactor: .72, child: pinDots),
             Align(
               alignment: Alignment.topRight,
