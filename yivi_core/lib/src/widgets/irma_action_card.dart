@@ -71,7 +71,7 @@ class IrmaActionCard extends StatelessWidget {
         decoration: isFancy
             ? null
             : BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                borderRadius: context.yivi.borderRadius,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.shade300,
@@ -81,7 +81,7 @@ class IrmaActionCard extends StatelessWidget {
                 ],
               ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          borderRadius: context.yivi.borderRadius,
           child: ExcludeSemantics(
             child: Stack(
               children: [

@@ -384,9 +384,7 @@ ThemeData buildYiviThemeData() {
   final dialogTheme = DialogThemeData(
     backgroundColor: light,
     elevation: 24.0,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(smallSpacing),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: borderRadius),
     titleTextStyle: textTheme.headlineSmall,
     contentTextStyle: textTheme.bodyMedium,
   );
