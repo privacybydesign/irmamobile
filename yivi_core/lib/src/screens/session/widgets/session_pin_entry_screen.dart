@@ -601,7 +601,7 @@ class _SessionNumberPadKey extends StatelessWidget {
   Widget build(BuildContext context) {
     const heightFactor = 0.825;
     final bigNumberTextStyle = TextStyle(
-      fontFamily: context.yivi.secondaryFontFamily,
+      fontFamily: context.yivi.font,
       color: context.colors.secondary,
       fontSize: 32,
       height: 32 / 40,
@@ -634,7 +634,7 @@ class _SessionNumberPadKey extends StatelessWidget {
                       subtitle!,
                       heightFactor: 1.1 - heightFactor,
                       textStyle: TextStyle(
-                        fontFamily: context.yivi.secondaryFontFamily,
+                        fontFamily: context.yivi.font,
                         color: context.colors.secondary,
                         fontWeight: FontWeight.w400,
                         height: 14.0 / 24.0,

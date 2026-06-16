@@ -1,9 +1,4 @@
-import "package:flutter/material.dart";
-
-import "brand_colors.dart";
-import "text_styles.dart";
-
-export "brand_colors.dart" show YiviBrandColors;
+part of "theme.dart";
 
 // Yivi-specific theme tokens that don't fit Material's standard ThemeData
 // shape — domain text styles, brand-only colors, spacing tokens, etc.
@@ -51,10 +46,7 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
   final TextStyle hyperlinkTextStyle;
   final TextStyle mrzLabel;
 
-  // Font families — currently identical ("Open Sans") but separated by role
-  // so a future swap can split them without touching call sites.
-  final String primaryFontFamily;
-  final String secondaryFontFamily;
+  final String font;
 
   YiviThemeExtension({
     required this.credential,
@@ -82,8 +74,7 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
     required this.textButtonTextStyle,
     required this.hyperlinkTextStyle,
     required this.mrzLabel,
-    required this.primaryFontFamily,
-    required this.secondaryFontFamily,
+    required this.font,
   });
 
   @override

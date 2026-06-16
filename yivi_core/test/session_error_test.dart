@@ -15,7 +15,7 @@ class TestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-    theme: IrmaThemeData().themeData,
+    theme: buildYiviThemeData(),
     localizationsDelegates: [
       FlutterI18nDelegate(
         translationLoader: FileTranslationLoader(

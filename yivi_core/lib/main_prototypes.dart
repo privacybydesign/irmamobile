@@ -41,7 +41,7 @@ class PrototypesApp extends StatelessWidget {
     child: MaterialApp(
       key: const Key("app"),
       title: "Yivi",
-      theme: IrmaThemeData().themeData,
+      theme: buildYiviThemeData(),
       localizationsDelegates: AppState.defaultLocalizationsDelegates(),
       supportedLocales: AppState.defaultSupportedLocales(),
       locale: const Locale("nl", "NL"),

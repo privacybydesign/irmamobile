@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+part of "theme.dart";
 
 // Yivi brand colours that don't fit Material 3's ColorScheme slots. MD3 has
 // `primary`, `secondary`, `tertiary`, `error` containers but no semantic slots

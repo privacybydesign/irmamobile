@@ -139,7 +139,7 @@ Widget yiviCardPreviewWrapper(Widget child) {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale("en", "US")],
-      theme: IrmaThemeData().themeData,
+      theme: buildYiviThemeData(),
       home: Builder(
         builder: (context) {
           return Scaffold(

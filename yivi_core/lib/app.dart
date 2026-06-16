@@ -172,7 +172,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    final yiviTheme = IrmaThemeData().themeData;
+    final yiviTheme = buildYiviThemeData();
     return IdleLockObserver(
       idleThreshold: widget.idleLockThreshold ?? const Duration(minutes: 5),
       child: MaterialApp.router(

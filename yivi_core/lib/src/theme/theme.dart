@@ -1,328 +1,513 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
-import "text_styles.dart";
-import "yivi_theme_extension.dart";
+part "brand_colors.dart";
+part "text_styles.dart";
+part "yivi_theme_extension.dart";
 
-export "yivi_theme_extension.dart" show YiviThemeExtension, YiviThemeContext;
+/// Build the Yivi-themed [ThemeData] — wires up colors, text theme, component
+/// themes, and the [YiviThemeExtension] that carries domain styles and brand
+/// tokens. Call once per [MaterialApp] (e.g. `theme: buildYiviThemeData()`).
+ThemeData buildYiviThemeData() {
+  // ──────────────────────────────────────────────────────────────────────
+  // Palette — brand colors, neutrals, and the few state/affordance colors
+  // that don't fit a Material 3 ColorScheme slot. The "no MD3 slot" ones
+  // flow into YiviBrandColors at the bottom of this function.
+  // ──────────────────────────────────────────────────────────────────────
+  const primary = Color(0xFFBA3354);
+  const tertiary = Color(0xFFCFE4EF);
+  const dark = Colors.black;
+  const light = Colors.white;
+  const neutralExtraDark = Color(0xFF484747);
+  const neutralDark = Color(0xFF757375);
+  const neutral = Color(0xFF9F9A9A);
+  const neutralLight = Color(0xFFD7D2CD);
+  const neutralExtraLight = Color(0xFFEAE5E2);
+  const backgroundSecondary = Color(0xFFFAFAFA);
+  // backgroundTertiary == surfaceSecondary in the legacy palette — both
+  // #EAF3F9. MD3 collapses them onto a single elevation tier.
+  const backgroundTertiary = Color(0xFFEAF3F9);
+  const surfaceTertiary = Color(0xffF0DEDE);
+  const error = Color(0xFFBD1919);
+  const errorSurface = Color(0xFFF5DBDB);
+  const warning = Color(0xFFEBA73B);
+  const success = Color(0xFF00973A);
+  const successSurface = Color(0xFFD7EFE0);
+  const link = Color(0xFF1D4E89);
+  const danger = Color(0xffEABEBE);
+  // `secondary` is an alias for neutralExtraDark in the current palette —
+  // used for buttons and headlines that should read as "dark UI surface
+  // foreground" rather than as the brand red.
+  const secondary = neutralExtraDark;
 
-class IrmaThemeData {
-  static const double _spaceBase = 16.0;
-  @Deprecated(
-    "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications",
-  )
-  final double spacing = _spaceBase;
-  final double tinySpacing = _spaceBase / 4; // 4
-  final double smallSpacing = _spaceBase / 2; // 8
-  final double defaultSpacing = _spaceBase; // 16
-  final double mediumSpacing = _spaceBase * 1.5; // 24
-  final double largeSpacing = _spaceBase * 2; // 32
-  final double hugeSpacing = _spaceBase * 4; // 64
+  const font = "Open Sans";
 
-  // Colors still referenced by call sites (helper methods that take an
-  // IrmaThemeData parameter, or contexts where Phase 3b's substitution couldn't
-  // safely run). The rest live as constructor-local constants below and reach
-  // the outside world through colorScheme.X or context.yivi.brand.X.
-  Color get secondary => neutralExtraDark;
-  Color get backgroundPrimary => light; // scaffolds
-  Color get surfacePrimary => light; // cards
+  // ──────────────────────────────────────────────────────────────────────
+  // Spacing tokens, border radius.
+  // ──────────────────────────────────────────────────────────────────────
+  const spaceBase = 16.0;
+  const tinySpacing = spaceBase / 4; // 4
+  const smallSpacing = spaceBase / 2; // 8
+  const defaultSpacing = spaceBase; // 16
+  const mediumSpacing = spaceBase * 1.5; // 24
+  const largeSpacing = spaceBase * 2; // 32
+  const hugeSpacing = spaceBase * 4; // 64
+  const screenPadding = defaultSpacing;
+  final borderRadius = BorderRadius.circular(8);
 
-  final Color dark = Colors.black;
-  final Color neutralExtraDark = const Color(0xFF484747);
-  final Color neutralDark = const Color(0xFF757375);
-  final Color neutral = const Color(0xFF9F9A9A);
-  final Color neutralExtraLight = const Color(0xFFEAE5E2);
-  final Color light = Colors.white;
+  // ──────────────────────────────────────────────────────────────────────
+  // ColorScheme — MD3 slots mapped from the Yivi palette above. Slots with
+  // no clean Yivi mapping (primaryContainer, secondaryContainer,
+  // tertiaryContainer) are left to Flutter's defaults until Phase 6 picks
+  // them up alongside the dark scheme. See plan-theming-architecture.md
+  // §4 Phase 3 for the mapping rationale.
+  // ──────────────────────────────────────────────────────────────────────
+  const colorScheme = ColorScheme(
+    brightness: Brightness.light,
+    primary: primary,
+    onPrimary: light,
+    secondary: secondary,
+    onSecondary: light,
+    tertiary: tertiary,
+    onTertiary: dark,
+    error: error,
+    onError: light,
+    errorContainer: errorSurface,
+    onErrorContainer: dark,
+    surface: light,
+    onSurface: dark,
+    onSurfaceVariant: neutralExtraDark,
+    surfaceContainerLow: backgroundSecondary,
+    surfaceContainerHigh: backgroundTertiary,
+    surfaceContainerHighest: surfaceTertiary,
+    outline: neutralDark,
+    outlineVariant: neutralLight,
+  );
 
-  final Color error = const Color(0xFFBD1919);
-  final Color warning = const Color(0xFFEBA73B);
-  final Color success = const Color(0xFF00973A);
-  final Color link = const Color(0xFF1D4E89);
-
-  // Fonts
-  final String primaryFontFamily = "Open Sans";
-  final String secondaryFontFamily = "Open Sans";
-
-  // Borders
-  final BorderRadius borderRadius = BorderRadius.circular(8);
-
-  //TODO: The values below are marked late and have to be initialized in the constructor body.
-  //In the future these values should be phased out and be move into ThemeData.colorScheme.
-
-  // Spacing etc.
-  late final double screenPadding;
-
-  // Main theme components
-  late final TextTheme textTheme;
-  late final ThemeData themeData;
-
-  // Other textstyles that cannot be included in TextTheme
-  late final TextStyle textButtonTextStyle;
-  late final TextStyle hyperlinkTextStyle;
-  late final TextStyle mrzLabel;
-
-  IrmaThemeData() {
-    // Internal palette — consumed only by the ColorScheme + YiviBrandColors
-    // setup below. Outside callers reach these values via colorScheme.X or
-    // context.yivi.brand.X.
-    const primary = Color(0xFFBA3354);
-    const tertiary = Color(0xFFCFE4EF);
-    const backgroundSecondary = Color(0xFFFAFAFA);
-    // backgroundTertiary == surfaceSecondary in the legacy palette — both
-    // #EAF3F9. MD3 collapses them onto a single elevation tier.
-    const backgroundTertiary = Color(0xFFEAF3F9);
-    const surfaceTertiary = Color(0xffF0DEDE);
-    const neutralLight = Color(0xFFD7D2CD);
-    const errorSurface = Color(0xFFF5DBDB);
-    const successSurface = Color(0xFFD7EFE0);
-    const danger = Color(0xffEABEBE);
-
-    //Init color scheme — MD3 slots mapped from Yivi brand colors. See
-    // plan-theming-architecture.md §4 Phase 3 for the mapping rationale.
-    // Slots without a clear Yivi mapping (primaryContainer, secondaryContainer,
-    // tertiaryContainer) are left to Flutter's defaults until Phase 6 picks
-    // them up alongside the dark scheme.
-    final colorScheme = ColorScheme(
-      brightness: Brightness.light,
-      primary: primary,
-      onPrimary: light,
-      secondary: secondary,
-      onSecondary: light,
-      tertiary: tertiary,
-      onTertiary: dark,
-      error: error,
-      onError: light,
-      errorContainer: errorSurface,
-      onErrorContainer: dark,
-      surface: surfacePrimary,
-      onSurface: dark,
-      onSurfaceVariant: neutralExtraDark,
-      surfaceContainerLow: backgroundSecondary,
-      surfaceContainerHigh: backgroundTertiary,
-      surfaceContainerHighest: surfaceTertiary,
-      outline: neutralDark,
-      outlineVariant: neutralLight,
-    );
-
-    //Init spacing
-    screenPadding = defaultSpacing;
-
-    //Init Text theme
-    textTheme = TextTheme(
-      displayLarge: TextStyle(
-        fontFamily: primaryFontFamily,
-        fontSize: 26,
-        height: 36 / 26,
-        fontWeight: FontWeight.w700,
-        color: neutralExtraDark,
-      ),
-      displayMedium: TextStyle(
-        fontFamily: primaryFontFamily,
-        fontSize: 24,
-        height: 30 / 24,
-        fontWeight: FontWeight.w700,
-        color: neutralExtraDark,
-      ),
-      displaySmall: TextStyle(
-        fontFamily: primaryFontFamily,
-        fontSize: 18,
-        height: 36 / 18,
-        fontWeight: FontWeight.w600,
-        color: neutralExtraDark,
-      ),
-      headlineMedium: TextStyle(
-        fontFamily: primaryFontFamily,
-        fontSize: 16.0,
-        height: 24 / 16,
-        fontWeight: FontWeight.w600,
-        color: neutralExtraDark,
-      ),
-      headlineSmall: TextStyle(
-        fontFamily: primaryFontFamily,
-        fontSize: 16.0,
-        height: 24 / 16,
-        fontWeight: FontWeight.w400,
-        color: neutralExtraDark,
-      ),
-      titleLarge: TextStyle(
-        fontSize: 10,
-        height: 16 / 10,
-        fontWeight: FontWeight.w500,
-        color: neutralExtraDark,
-      ),
-      bodyLarge: TextStyle(
-        fontFamily: secondaryFontFamily,
-        fontSize: 16.0,
-        fontWeight: FontWeight.bold,
-        color: dark,
-      ),
-      bodyMedium: TextStyle(
-        fontFamily: secondaryFontFamily,
-        fontSize: 16.0,
-        height: 24.0 / 16.0,
-        fontWeight: FontWeight.w400,
-        color: dark,
-      ),
-      labelSmall: TextStyle(
-        fontSize: 12.0,
-        height: 16.0 / 12.0,
-        fontWeight: FontWeight.w600,
-        color: dark,
-      ),
-      titleMedium: TextStyle(
-        fontSize: 16.0,
-        height: 22.0 / 18.0,
-        fontWeight: FontWeight.normal,
-        color: dark,
-      ),
-      bodySmall: TextStyle(
-        fontFamily: secondaryFontFamily,
-        fontSize: 14.0,
-        height: 1.4,
-        fontWeight: FontWeight.w400,
-        color: neutralExtraDark,
-      ),
-      labelLarge: TextStyle(
-        fontFamily: primaryFontFamily,
-        fontSize: 16,
-        height: 24 / 16,
-        fontWeight: FontWeight.w700,
-        color: light,
-      ),
-    );
-
-    //Init Input Decoration Theme
-    final inputDecorationTheme = InputDecorationTheme(
-      labelStyle: textTheme.labelSmall,
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
-      ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: secondary, width: 2.0),
-      ),
-      errorBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: error, width: 2.0),
-      ),
-      disabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
-      ),
-      errorStyle: textTheme.bodyMedium?.copyWith(color: error),
-    );
-
-    //Init App Bar Theme
-    final appBarTheme = AppBarTheme(
-      backgroundColor: light,
-      centerTitle: true,
-      elevation: 0,
-      iconTheme: IconThemeData(color: dark),
-      toolbarTextStyle: textTheme.bodyMedium,
-      titleTextStyle: textTheme.displaySmall?.copyWith(color: dark),
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-
-    //Init extra textstyles
-    textButtonTextStyle = TextStyle(
-      fontSize: 16.0,
-      height: 19.0 / 16.0,
+  // ──────────────────────────────────────────────────────────────────────
+  // TextTheme.
+  // ──────────────────────────────────────────────────────────────────────
+  final textTheme = TextTheme(
+    displayLarge: TextStyle(
+      fontFamily: font,
+      fontSize: 26,
+      height: 36 / 26,
+      fontWeight: FontWeight.w700,
+      color: neutralExtraDark,
+    ),
+    displayMedium: TextStyle(
+      fontFamily: font,
+      fontSize: 24,
+      height: 30 / 24,
+      fontWeight: FontWeight.w700,
+      color: neutralExtraDark,
+    ),
+    displaySmall: TextStyle(
+      fontFamily: font,
+      fontSize: 18,
+      height: 36 / 18,
       fontWeight: FontWeight.w600,
-      color: secondary,
-    );
-    hyperlinkTextStyle = TextStyle(
-      fontFamily: secondaryFontFamily,
+      color: neutralExtraDark,
+    ),
+    headlineMedium: TextStyle(
+      fontFamily: font,
+      fontSize: 16.0,
+      height: 24 / 16,
+      fontWeight: FontWeight.w600,
+      color: neutralExtraDark,
+    ),
+    headlineSmall: TextStyle(
+      fontFamily: font,
+      fontSize: 16.0,
+      height: 24 / 16,
+      fontWeight: FontWeight.w400,
+      color: neutralExtraDark,
+    ),
+    titleLarge: TextStyle(
+      fontSize: 10,
+      height: 16 / 10,
+      fontWeight: FontWeight.w500,
+      color: neutralExtraDark,
+    ),
+    bodyLarge: TextStyle(
+      fontFamily: font,
+      fontSize: 16.0,
+      fontWeight: FontWeight.bold,
+      color: dark,
+    ),
+    bodyMedium: TextStyle(
+      fontFamily: font,
       fontSize: 16.0,
       height: 24.0 / 16.0,
+      fontWeight: FontWeight.w400,
+      color: dark,
+    ),
+    labelSmall: TextStyle(
+      fontSize: 12.0,
+      height: 16.0 / 12.0,
+      fontWeight: FontWeight.w600,
+      color: dark,
+    ),
+    titleMedium: TextStyle(
+      fontSize: 16.0,
+      height: 22.0 / 18.0,
+      fontWeight: FontWeight.normal,
+      color: dark,
+    ),
+    bodySmall: TextStyle(
+      fontFamily: font,
+      fontSize: 14.0,
+      height: 1.4,
+      fontWeight: FontWeight.w400,
+      color: neutralExtraDark,
+    ),
+    labelLarge: TextStyle(
+      fontFamily: font,
+      fontSize: 16,
+      height: 24 / 16,
       fontWeight: FontWeight.w700,
-      color: link,
-      decoration: TextDecoration.underline,
-    );
-
-    mrzLabel = TextStyle(
-      fontFamily: "monospace",
-      fontSize: 14,
       color: light,
-      letterSpacing: 2,
-    );
+    ),
+  );
 
-    // Domain-named text style groups, exposed via Theme.of(context).extension
-    // (context.yivi.*). Built after textTheme and legacy named styles since
-    // some groups derive from them.
-    final yiviExtension = YiviThemeExtension(
-      credential: YiviCredentialStyles.fromTheme(this),
-      activity: YiviActivityStyles.fromTheme(this),
-      pin: YiviPinStyles.fromTheme(this),
-      verification: YiviVerificationStyles.fromTheme(this),
-      nfc: YiviNfcStyles.fromTheme(this),
-      form: YiviFormStyles.fromTheme(this),
-      indicator: YiviIndicatorStyles.fromTheme(this),
-      card: YiviCardStyles.fromTheme(this),
-      button: YiviButtonStyles.fromTheme(this),
-      section: YiviSectionStyles.fromTheme(this),
-      requestor: YiviRequestorStyles.fromTheme(this),
-      bottomSheet: YiviBottomSheetStyles.fromTheme(this),
-      misc: YiviMiscStyles.fromTheme(this),
-      brand: YiviBrandColors(
-        success: success,
-        successSurface: successSurface,
-        warning: warning,
-        link: link,
-        danger: danger,
-        neutral: neutral,
-        neutralExtraLight: neutralExtraLight,
-      ),
-      tinySpacing: tinySpacing,
-      smallSpacing: smallSpacing,
-      defaultSpacing: defaultSpacing,
-      mediumSpacing: mediumSpacing,
-      largeSpacing: largeSpacing,
-      hugeSpacing: hugeSpacing,
-      screenPadding: screenPadding,
-      borderRadius: borderRadius,
-      textButtonTextStyle: textButtonTextStyle,
-      hyperlinkTextStyle: hyperlinkTextStyle,
-      mrzLabel: mrzLabel,
-      primaryFontFamily: primaryFontFamily,
-      secondaryFontFamily: secondaryFontFamily,
-    );
+  // ──────────────────────────────────────────────────────────────────────
+  // Legacy named text styles. Pre-date the domain-style groups and don't
+  // fit a TextTheme slot or a domain group.
+  // ──────────────────────────────────────────────────────────────────────
+  const textButtonTextStyle = TextStyle(
+    fontSize: 16.0,
+    height: 19.0 / 16.0,
+    fontWeight: FontWeight.w600,
+    color: secondary,
+  );
+  const hyperlinkTextStyle = TextStyle(
+    fontFamily: font,
+    fontSize: 16.0,
+    height: 24.0 / 16.0,
+    fontWeight: FontWeight.w700,
+    color: link,
+    decoration: TextDecoration.underline,
+  );
+  const mrzLabel = TextStyle(
+    fontFamily: "monospace",
+    fontSize: 14,
+    color: light,
+    letterSpacing: 2,
+  );
 
-    // Toast / snackbar default — neutral dark-grey background, light text.
-    // Call sites should not override these unless the toast needs to carry a
-    // different status (e.g. an error toast, when we have one).
-    final snackBarTheme = SnackBarThemeData(
-      backgroundColor: secondary,
-      contentTextStyle: textTheme.bodySmall!.copyWith(color: light),
-      behavior: SnackBarBehavior.floating,
-    );
+  // ──────────────────────────────────────────────────────────────────────
+  // Domain text-style groups. Each group bundles the text styles for one
+  // usage area (credential card, PIN entry, NFC reading, etc.). Variable
+  // colour or shape variants are encoded as builder methods on the group.
+  // ──────────────────────────────────────────────────────────────────────
+  final credential = YiviCredentialStyles(
+    // TODO Phase 2: snap to 18 or extend scale to include 19.
+    name: const TextStyle(
+      fontFamily: font,
+      fontSize: 19,
+      fontWeight: FontWeight.w600,
+      color: dark,
+      height: 26 / 19,
+    ),
+    attributeEyebrow: const TextStyle(
+      fontFamily: font,
+      fontSize: 12,
+      fontWeight: FontWeight.w700,
+      color: neutralDark,
+      letterSpacing: 0.96,
+    ),
+    // Tighter line height for stacked list items (bullets) so successive
+    // values don't drift apart vertically.
+    attributeBulletValue: const TextStyle(
+      fontFamily: font,
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      color: dark,
+      height: 1.2,
+    ),
+    attributeValue: (color) => TextStyle(
+      fontFamily: font,
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      color: color,
+    ),
+    expiryNote: (color) => textTheme.bodyLarge!.copyWith(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: color,
+    ),
+    // "Revoked" / "Expired" / "About to expire" status text above a
+    // credential card header. Color is state-driven (error / warning).
+    statusText: (color) =>
+        textTheme.headlineMedium!.copyWith(color: color),
+  );
 
-    // Dialog default — surface-coloured card, large elevation, rounded
-    // corners. Title and content styles are picked up by IrmaDialog and by
-    // any future AlertDialog/SimpleDialog call site.
-    final dialogTheme = DialogThemeData(
-      backgroundColor: surfacePrimary,
-      elevation: 24.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(smallSpacing),
-      ),
-      titleTextStyle: textTheme.displaySmall,
-      contentTextStyle: textTheme.bodyMedium,
-    );
+  final activity = YiviActivityStyles(
+    cardTitle: textTheme.headlineMedium!.copyWith(
+      fontSize: 16,
+      color: dark,
+    ),
+    detailDate: textTheme.displaySmall!.copyWith(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: dark,
+    ),
+  );
 
-    // Init final ThemeData composed of all theme components.
-    themeData = ThemeData(
-      fontFamily: primaryFontFamily,
-      scaffoldBackgroundColor: backgroundPrimary,
-      bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: Colors.transparent,
-      ),
-      colorScheme: colorScheme,
-      textTheme: textTheme,
-      appBarTheme: appBarTheme,
-      inputDecorationTheme: inputDecorationTheme,
-      snackBarTheme: snackBarTheme,
-      dialogTheme: dialogTheme,
-      extensions: [yiviExtension],
-    );
-  }
+  final pin = YiviPinStyles(
+    keypadDigit: const TextStyle(
+      fontFamily: font,
+      fontSize: 32,
+      height: 32 / 40,
+      fontWeight: FontWeight.w600,
+      color: secondary,
+    ),
+    keypadSubtitle: const TextStyle(
+      fontFamily: font,
+      height: 14 / 24,
+      fontWeight: FontWeight.w400,
+      color: secondary,
+    ),
+    warningHeading: textTheme.headlineSmall!.copyWith(
+      fontWeight: FontWeight.w700,
+    ),
+    warningButton: textTheme.bodySmall!.copyWith(
+      fontWeight: FontWeight.w700,
+      color: warning,
+    ),
+    counter: (visible) => textTheme.bodySmall!.copyWith(
+      fontWeight: FontWeight.w300,
+      color: visible ? secondary : Colors.transparent,
+    ),
+    // `boxHeight` is the box's outer height in logical pixels — the digit's
+    // fontSize scales from it so the glyph sits proportionally inside.
+    box: (boxHeight, completed) => textTheme.displaySmall!.copyWith(
+      fontSize: boxHeight / 2 + 4,
+      height: 22.0 / 18.0,
+      color: completed ? secondary : Colors.grey,
+    ),
+  );
+
+  final verification = YiviVerificationStyles(
+    codeChar: const TextStyle(
+      fontSize: 25,
+      fontWeight: FontWeight.w600,
+      color: Color.fromRGBO(30, 60, 87, 1),
+    ),
+  );
+
+  final nfc = YiviNfcStyles(
+    statusTitle: textTheme.bodyLarge!.copyWith(fontSize: 20),
+    progressTip: const TextStyle(
+      fontSize: 16,
+      color: secondary,
+      height: 1.4,
+      overflow: TextOverflow.visible,
+    ),
+  );
+
+  final form = YiviFormStyles(
+    errorMessage: const TextStyle(color: error),
+    inputHint: const TextStyle(color: Colors.grey),
+    explanation: textTheme.bodyMedium!.copyWith(
+      fontSize: 14,
+      color: neutralDark,
+    ),
+    // Color matches colorScheme.onSurfaceVariant.
+    header: textTheme.bodyLarge!.copyWith(color: neutralExtraDark),
+  );
+
+  final indicator = YiviIndicatorStyles(
+    endOfList: textTheme.bodyMedium!.copyWith(
+      fontSize: 12,
+      height: 18 / 12,
+      color: neutralExtraDark,
+    ),
+    linearStep: const TextStyle(fontSize: 12, color: secondary),
+    // `outlined` flips the text to the secondary colour so the digit reads
+    // against a transparent (outlined) background; otherwise the digit is
+    // white over a filled/success background.
+    circularStep: (outlined) => textTheme.bodySmall!.copyWith(
+      height: 1.2,
+      fontWeight: FontWeight.bold,
+      color: outlined ? secondary : Colors.white,
+    ),
+  );
+
+  final card = YiviCardStyles(
+    notificationBody: textTheme.bodyMedium!.copyWith(
+      fontSize: 14,
+      color: dark,
+    ),
+    quoteBody: textTheme.bodyMedium!.copyWith(
+      fontSize: 14,
+      fontWeight: FontWeight.normal,
+    ),
+    tileLabel: textButtonTextStyle.copyWith(
+      fontWeight: FontWeight.w400,
+      color: dark,
+    ),
+    actionBody: (color) => textTheme.bodyMedium!.copyWith(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: color,
+    ),
+  );
+
+  final button = YiviButtonStyles(
+    searchCancel: textButtonTextStyle.copyWith(
+      fontWeight: FontWeight.normal,
+      color: link,
+    ),
+    label: (color) => textTheme.labelLarge!.copyWith(color: color),
+    smallLabel: (color) => textTheme.labelLarge!.copyWith(
+      fontFamily: font,
+      fontSize: 14,
+      color: color,
+    ),
+  );
+
+  final section = YiviSectionStyles(
+    header: textTheme.headlineMedium!.copyWith(color: neutralExtraDark),
+  );
+
+  final requestor = YiviRequestorStyles(
+    name: const TextStyle(
+      fontFamily: font,
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: dark,
+      height: 26 / 19,
+    ),
+  );
+
+  final bottomSheet = YiviBottomSheetStyles(
+    title: const TextStyle(
+      fontFamily: font,
+      fontSize: 18,
+      fontWeight: FontWeight.w500,
+      color: dark,
+      height: 26 / 19,
+    ),
+  );
+
+  final misc = YiviMiscStyles(
+    avatarInitials: const TextStyle(
+      fontWeight: FontWeight.bold,
+      color: neutral,
+    ),
+    versionLabel: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600),
+  );
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Component themes — set defaults so widgets pick them up via Theme.of.
+  // ──────────────────────────────────────────────────────────────────────
+  final inputDecorationTheme = InputDecorationTheme(
+    labelStyle: textTheme.labelSmall,
+    enabledBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(color: Colors.grey),
+    ),
+    focusedBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(color: secondary, width: 2.0),
+    ),
+    errorBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(color: error, width: 2.0),
+    ),
+    disabledBorder: const UnderlineInputBorder(
+      borderSide: BorderSide(color: Colors.grey),
+    ),
+    errorStyle: textTheme.bodyMedium?.copyWith(color: error),
+  );
+
+  final appBarTheme = AppBarTheme(
+    backgroundColor: light,
+    centerTitle: true,
+    elevation: 0,
+    iconTheme: const IconThemeData(color: dark),
+    toolbarTextStyle: textTheme.bodyMedium,
+    titleTextStyle: textTheme.displaySmall?.copyWith(color: dark),
+    systemOverlayStyle: const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  // Toast / snackbar default — neutral dark-grey background, light text.
+  // Call sites should not override these unless the toast needs to carry a
+  // different status (e.g. an error toast, when we have one).
+  final snackBarTheme = SnackBarThemeData(
+    backgroundColor: secondary,
+    contentTextStyle: textTheme.bodySmall!.copyWith(color: light),
+    behavior: SnackBarBehavior.floating,
+  );
+
+  // Dialog default — surface-coloured card, large elevation, rounded
+  // corners. Title and content styles are picked up by IrmaDialog and by
+  // any future AlertDialog/SimpleDialog call site.
+  final dialogTheme = DialogThemeData(
+    backgroundColor: light,
+    elevation: 24.0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(smallSpacing),
+    ),
+    titleTextStyle: textTheme.displaySmall,
+    contentTextStyle: textTheme.bodyMedium,
+  );
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Yivi-specific tokens that don't fit Material's standard ThemeData
+  // shape — exposed via Theme.of(context).extension<YiviThemeExtension>()
+  // (or the `context.yivi` getter).
+  // ──────────────────────────────────────────────────────────────────────
+  final yiviExtension = YiviThemeExtension(
+    credential: credential,
+    activity: activity,
+    pin: pin,
+    verification: verification,
+    nfc: nfc,
+    form: form,
+    indicator: indicator,
+    card: card,
+    button: button,
+    section: section,
+    requestor: requestor,
+    bottomSheet: bottomSheet,
+    misc: misc,
+    brand: const YiviBrandColors(
+      success: success,
+      successSurface: successSurface,
+      warning: warning,
+      link: link,
+      danger: danger,
+      neutral: neutral,
+      neutralExtraLight: neutralExtraLight,
+    ),
+    tinySpacing: tinySpacing,
+    smallSpacing: smallSpacing,
+    defaultSpacing: defaultSpacing,
+    mediumSpacing: mediumSpacing,
+    largeSpacing: largeSpacing,
+    hugeSpacing: hugeSpacing,
+    screenPadding: screenPadding,
+    borderRadius: borderRadius,
+    textButtonTextStyle: textButtonTextStyle,
+    hyperlinkTextStyle: hyperlinkTextStyle,
+    mrzLabel: mrzLabel,
+    font: font,
+  );
+
+  return ThemeData(
+    fontFamily: font,
+    scaffoldBackgroundColor: light,
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Colors.transparent,
+    ),
+    colorScheme: colorScheme,
+    textTheme: textTheme,
+    appBarTheme: appBarTheme,
+    inputDecorationTheme: inputDecorationTheme,
+    snackBarTheme: snackBarTheme,
+    dialogTheme: dialogTheme,
+    extensions: [yiviExtension],
+  );
 }
