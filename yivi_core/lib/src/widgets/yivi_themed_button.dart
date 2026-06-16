@@ -114,7 +114,7 @@ class YiviThemedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const borderRadius = BorderRadius.all(Radius.circular(8));
+    final borderRadius = context.yivi.borderRadius;
 
     double buttonHeight = size.value;
     double? buttonWidth;
