@@ -29,7 +29,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
           children: [
             TranslatedText(
               "disclosure_permission.introduction.header",
-              style: context.text.displaySmall!.copyWith(
+              style: context.text.headlineSmall!.copyWith(
                 color: context.colors.onSurface,
               ),
             ),

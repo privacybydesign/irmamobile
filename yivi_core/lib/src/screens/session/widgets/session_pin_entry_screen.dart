@@ -305,7 +305,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         child: Text(
           FlutterI18n.translate(context, "session_pin.subtitle"),
           textAlign: TextAlign.center,
-          style: context.text.displaySmall,
+          style: context.text.headlineSmall,
         ),
       ),
     );

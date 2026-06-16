@@ -9,12 +9,7 @@ class IrmaEmptyCredentialCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return IrmaCard(
       child: Center(
-        child: TranslatedText(
-          "credential.no_data",
-          style: context.text.headlineMedium!.copyWith(
-            color: context.colors.onSurface,
-          ),
-        ),
+        child: TranslatedText("credential.no_data", style: context.text.bodyMedium),
       ),
     );
   }

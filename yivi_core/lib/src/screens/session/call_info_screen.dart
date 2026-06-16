@@ -56,7 +56,7 @@ class CallInfoScreen extends StatelessWidget {
                 _appendPlatformToTranslationKey(
                   "disclosure_permission.call.explanation_header",
                 ),
-                style: context.text.headlineMedium,
+                style: context.text.titleMedium,
               ),
               SizedBox(height: context.yivi.spacing.tiny),
               TranslatedText(
@@ -70,7 +70,7 @@ class CallInfoScreen extends StatelessWidget {
                 SizedBox(height: context.yivi.spacing.medium),
                 TranslatedText(
                   "disclosure_permission.call.extra_explanation_header_android",
-                  style: context.text.headlineMedium,
+                  style: context.text.titleMedium,
                 ),
                 SizedBox(height: context.yivi.spacing.tiny),
                 TranslatedText(

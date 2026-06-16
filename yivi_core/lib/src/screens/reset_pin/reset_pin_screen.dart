@@ -27,7 +27,7 @@ class ResetPinScreen extends StatelessWidget {
           children: [
             TranslatedText(
               "reset_pin.header",
-              style: context.text.displaySmall!.copyWith(
+              style: context.text.headlineSmall!.copyWith(
                 color: context.colors.onSurface,
               ),
             ),

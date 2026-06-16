@@ -133,7 +133,7 @@ class RequestorHeader extends StatelessWidget {
     } else {
       mainTextWidget = Text(
         localizedRequestorName,
-        style: context.text.titleSmall,
+        style: context.text.bodyMedium,
       );
     }
 

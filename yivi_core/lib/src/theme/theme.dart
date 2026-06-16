@@ -127,19 +127,11 @@ ThemeData buildYiviThemeData() {
     ),
     // headline — screen-level lead text.
     // headlineLarge: full-screen info/error scaffold title.
-    // headlineMedium: feature-prominent action card title (the "fancy" variant).
-    // headlineSmall: dialog and modal sheet titles.
+    // headlineSmall: dialog, modal sheet, and screen-leading content titles.
     headlineLarge: TextStyle(
       fontFamily: font,
       fontSize: 26,
       height: 36 / 26,
-      fontWeight: FontWeight.w700,
-      color: neutralExtraDark,
-    ),
-    headlineMedium: TextStyle(
-      fontFamily: font,
-      fontSize: 24,
-      height: 30 / 24,
       fontWeight: FontWeight.w700,
       color: neutralExtraDark,
     ),
@@ -157,7 +149,6 @@ ThemeData buildYiviThemeData() {
     //   later whether to snap to 18sp.
     // titleMedium: section headers, status badges, plain card titles,
     //   IssueWizard requestor row.
-    // titleSmall: smaller component label (RequestorHeader main text).
     titleLarge: TextStyle(
       fontFamily: font,
       fontSize: 19,
@@ -171,13 +162,6 @@ ThemeData buildYiviThemeData() {
       height: 24 / 16,
       fontWeight: FontWeight.w600,
       color: neutralExtraDark,
-    ),
-    titleSmall: TextStyle(
-      fontFamily: font,
-      fontSize: 16,
-      height: 26 / 19,
-      fontWeight: FontWeight.w500,
-      color: dark,
     ),
     // body — content. bodyLarge is the "bold body" slot (note: M3 spec is
     // regular; Yivi has historically used a bold variant here).

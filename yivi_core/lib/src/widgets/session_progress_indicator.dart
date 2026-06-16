@@ -62,9 +62,9 @@ class SessionProgressIndicator extends StatelessWidget {
                   child: TranslatedText(
                     contentTranslationKey!,
                     translationParams: contentTranslationParams,
-                    style: context.text.headlineMedium!.copyWith(
-                      color: context.colors.onSurface,
-                    ),
+                    // bodyLarge — this is the card's primary content text,
+                    // not a title or subsection label.
+                    style: context.text.bodyLarge,
                   ),
                 ),
               ],

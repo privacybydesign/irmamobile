@@ -92,7 +92,7 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
             children: [
               TranslatedText(
                 "mrz_camera_permissions.title",
-                style: context.text.displaySmall,
+                style: context.text.headlineSmall,
                 textAlign: .center,
               ),
               SizedBox(height: context.yivi.spacing.small),

@@ -409,7 +409,7 @@ class YiviPinScreen extends StatelessWidget {
         child: Text(
           instruction ?? FlutterI18n.translate(context, instructionKey!),
           textAlign: TextAlign.center,
-          style: context.text.displaySmall,
+          style: context.text.headlineSmall,
         ),
       ),
     );

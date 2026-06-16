@@ -14,6 +14,7 @@ import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
+import "../../../widgets/section_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
@@ -271,7 +272,7 @@ class _DisclosureChoicesOverviewState
                 SizedBox(height: context.yivi.spacing.base),
                 TranslatedText(
                   "disclosure_permission.overview.sign",
-                  style: context.text.headlineMedium,
+                  style: context.text.titleMedium,
                 ),
                 Padding(
                   padding: .only(
@@ -299,7 +300,7 @@ class _DisclosureChoicesOverviewState
                 SizedBox(height: context.yivi.spacing.base),
                 TranslatedText(
                   "disclosure_permission.optional_data",
-                  style: context.text.headlineMedium,
+                  style: context.text.titleMedium,
                 ),
                 SizedBox(height: context.yivi.spacing.small),
                 for (final (index, pickOne) in addedOptionalChoices)
@@ -314,15 +315,15 @@ class _DisclosureChoicesOverviewState
               ],
 
               if (choices.isEmpty ||
-                  (requiredChoices.isEmpty && addedOptionalChoices.isEmpty))
-                TranslatedText(
-                  "disclosure_permission.no_data_selected",
-                  style: context.text.headlineMedium,
-                ),
+                  (requiredChoices.isEmpty &&
+                      addedOptionalChoices.isEmpty)) ...[
+                SizedBox(height: context.yivi.spacing.base),
+                const SectionHeader("disclosure_permission.no_data_selected"),
+              ],
 
               // Add optional data button
               if (hasUnaddedOptional) ...[
-                SizedBox(height: context.yivi.spacing.base),
+                SizedBox(height: context.yivi.spacing.small),
                 IrmaActionCard(
                   titleKey: "disclosure_permission.add_optional_data",
                   icon: Icons.add_circle,

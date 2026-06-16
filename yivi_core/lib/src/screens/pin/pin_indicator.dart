@@ -25,8 +25,10 @@ class _PinIndicator extends StatelessWidget {
         ? context.colors.secondary
         : Colors.transparent;
 
+    // Long PIN digits render at the bodyMedium tuple (16sp w400) and short
+    // PIN digits at displayMedium (24sp w700) — not headers, just glyphs.
     final style = maxPinSize != shortPinSize
-        ? context.text.headlineSmall?.copyWith(color: textColor)
+        ? context.text.bodyMedium?.copyWith(color: textColor)
         : context.text.displayMedium?.copyWith(color: textColor);
 
     final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;

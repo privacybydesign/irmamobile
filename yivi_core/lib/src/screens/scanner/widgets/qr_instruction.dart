@@ -44,7 +44,7 @@ class QRInstruction extends StatelessWidget {
           children: [
             TranslatedText(
               "qr_scanner.$screen.title",
-              style: context.text.displaySmall?.copyWith(color: textColor),
+              style: context.text.headlineSmall?.copyWith(color: textColor),
               textAlign: TextAlign.center,
             ),
             Flexible(

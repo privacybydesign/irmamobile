@@ -180,7 +180,7 @@ class DisclosureDisconStepper extends StatelessWidget {
           padding: EdgeInsets.all(context.yivi.spacing.small),
           child: TranslatedText(
             "disclosure_permission.choose",
-            style: context.text.headlineMedium,
+            style: context.text.titleMedium,
           ),
         ),
         DisclosurePermissionChoice.fromIssuanceBundles(

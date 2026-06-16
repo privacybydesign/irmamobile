@@ -18,7 +18,7 @@ class IrmaProgress extends StatelessWidget {
           SizedBox(height: context.yivi.spacing.base),
           TranslatedText(
             "ui.loading",
-            style: context.text.displaySmall,
+            style: context.text.headlineSmall,
             textAlign: TextAlign.center,
           ),
         ],

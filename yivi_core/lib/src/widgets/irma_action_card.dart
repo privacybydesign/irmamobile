@@ -33,14 +33,19 @@ class IrmaActionCard extends StatelessWidget {
         ? Colors.white
         : context.colors.onSurfaceVariant;
 
+    // The fancy variant is a primary action button — labelLarge with a
+    // hero-scale 24sp size override. The plain variant reads more like a
+    // tappable list-item row than a button-chip, so it uses bodyMedium
+    // (M3's primary list-item content slot), matching the More page tiles.
     Widget flexibleTitleTextWidget = Flexible(
       child: TranslatedText(
         titleKey,
         style: isFancy
-            ? context.text.headlineMedium!.copyWith(color: contentColor)
-            : context.text.titleMedium!.copyWith(
-                color: context.colors.onSurface,
-              ),
+            ? context.text.labelLarge!.copyWith(
+                fontSize: 24,
+                color: contentColor,
+              )
+            : context.text.bodyMedium,
       ),
     );
 

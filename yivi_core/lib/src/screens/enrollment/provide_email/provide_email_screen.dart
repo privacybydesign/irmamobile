@@ -93,7 +93,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                         children: [
                           TranslatedText(
                             "enrollment.email.provide.header",
-                            style: context.text.displaySmall,
+                            style: context.text.headlineSmall,
                           ),
                           SizedBox(height: context.yivi.spacing.base),
                           const TranslatedText(
