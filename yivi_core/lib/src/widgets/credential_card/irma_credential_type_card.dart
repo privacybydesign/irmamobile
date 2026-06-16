@@ -67,7 +67,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
                     children: [
                       Text(
                         getTranslation(context, credType.name),
-                        style: context.yivi.activity.cardTitle,
+                        style: context.text.titleMedium,
                       ),
                       SizedBox(height: context.yivi.spacing.tiny),
                       Text(
@@ -78,7 +78,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
                               .issuers[credType.fullIssuerId]!
                               .name,
                         ),
-                        style: context.text.bodySmall,
+                        style: context.text.bodyMedium,
                       ),
                     ],
                   ),

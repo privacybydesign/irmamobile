@@ -131,11 +131,11 @@ class ActivityCard extends StatelessWidget {
                             title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: context.yivi.activity.cardTitle,
+                            style: context.text.titleMedium,
                           ),
                           TranslatedText(
                             subtitleTranslationKey,
-                            style: context.text.bodySmall,
+                            style: context.text.bodyMedium,
                           ),
                         ],
                       ),

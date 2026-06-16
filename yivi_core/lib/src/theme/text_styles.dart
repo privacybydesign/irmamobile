@@ -10,13 +10,6 @@ part of "theme.dart";
 // These classes are pure data shapes — the values are constructed in
 // `buildYiviThemeData()` in theme.dart.
 
-class YiviActivityStyles {
-  final TextStyle cardTitle;
-  final TextStyle detailDate;
-
-  const YiviActivityStyles({required this.cardTitle, required this.detailDate});
-}
-
 class YiviPinStyles {
   final TextStyle keypadDigit;
   final TextStyle keypadSubtitle;

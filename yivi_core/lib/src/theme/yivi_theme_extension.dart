@@ -11,7 +11,6 @@ part of "theme.dart";
 // interpolate across themes, and partial overrides aren't currently used.
 // Both can be filled in if dark-mode animation requires it (Phase 6).
 class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
-  final YiviActivityStyles activity;
   final YiviPinStyles pin;
   final YiviVerificationStyles verification;
   final YiviNfcStyles nfc;
@@ -39,7 +38,6 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
   final String font;
 
   YiviThemeExtension({
-    required this.activity,
     required this.pin,
     required this.verification,
     required this.nfc,

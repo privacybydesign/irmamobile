@@ -37,7 +37,7 @@ class ActivityDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(
-        title: Text(dateAtTime, style: context.yivi.activity.detailDate),
+        title: Text(dateAtTime, style: context.text.titleMedium),
       ),
       body: SizedBox(
         height: double.infinity,

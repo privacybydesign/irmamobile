@@ -90,11 +90,11 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                     children: [
                       Text(
                         getTranslation(context, credentialName),
-                        style: context.yivi.activity.cardTitle,
+                        style: context.text.titleMedium,
                       ),
                       Text(
                         getTranslation(context, issuerName),
-                        style: context.text.bodySmall,
+                        style: context.text.bodyMedium,
                       ),
                     ],
                   ),

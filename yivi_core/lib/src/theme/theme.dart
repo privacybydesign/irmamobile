@@ -86,24 +86,18 @@ ThemeData buildYiviThemeData() {
   );
 
   // ──────────────────────────────────────────────────────────────────────
-  // TextTheme — slot semantics follow Material 3 (display > headline >
-  // title > body / label). Values are Yivi-flavoured: most slots preserve
-  // the visual tuples used today, but the *role* each slot plays has been
-  // tightened so call sites can pick a slot by intent rather than by
-  // copyWith-able size. See docs/material-text-styles*.md for the rationale.
+  // TextTheme — body* sizes/weights follow the Material 3 type-scale spec
+  // (https://m3.material.io/styles/typography/type-scale-tokens). The
+  // display/headline/title/label families keep Yivi-flavoured values from
+  // the existing brand scale.
   //
-  //   display* — hero, expressive, one-off. Currently no in-app consumers;
-  //     reserved for future hero moments.
-  //   headline* — screen-level lead content (info/error scaffold title,
-  //     feature-prominent card title, dialog/sheet title).
-  //   title*   — component-level labels (AppBar, card titles, section
-  //     headers, status badges, requestor row).
-  //   body*    — content the user reads (paragraphs, dialog content,
-  //     credential attribute values, supporting text).
-  //   label*   — interactive / glanceable text (buttons, input labels).
+  //   display*  — hero / expressive text (rare; markdown h1–h3)
+  //   headline* — screen-level lead content (info/error scaffolds, dialogs)
+  //   title*    — component-level labels (cards, app bar, sections)
+  //   body*     — content the user reads (M3-aligned)
+  //   label*    — interactive / glanceable text (buttons, nav destinations)
   // ──────────────────────────────────────────────────────────────────────
   final textTheme = TextTheme(
-    // display — reserved for hero moments; no consumers today.
     displayLarge: TextStyle(
       fontFamily: font,
       fontSize: 26,
@@ -125,9 +119,6 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.w600,
       color: neutralExtraDark,
     ),
-    // headline — screen-level lead text.
-    // headlineLarge: full-screen info/error scaffold title.
-    // headlineSmall: dialog, modal sheet, and screen-leading content titles.
     headlineLarge: TextStyle(
       fontFamily: font,
       fontSize: 26,
@@ -142,13 +133,6 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.w600,
       color: neutralExtraDark,
     ),
-    // title — component-level labels.
-    // titleLarge: most prominent component label (credential card name,
-    //   bottom sheet default). 19sp matches the off-scale `credential.name`
-    //   we preserved during the text-styles migration — designer to decide
-    //   later whether to snap to 18sp.
-    // titleMedium: section headers, status badges, plain card titles,
-    //   IssueWizard requestor row.
     titleLarge: TextStyle(
       fontFamily: font,
       fontSize: 19,
@@ -161,38 +145,30 @@ ThemeData buildYiviThemeData() {
       fontSize: 16,
       height: 24 / 16,
       fontWeight: FontWeight.w600,
-      color: neutralExtraDark,
+      color: dark,
     ),
-    // body — content. bodyLarge is the "bold body" slot (note: M3 spec is
-    // regular; Yivi has historically used a bold variant here).
+    // body — M3 spec.
     bodyLarge: TextStyle(
       fontFamily: font,
-      fontSize: 16.0,
-      fontWeight: FontWeight.bold,
+      fontSize: 16,
+      height: 24 / 16,
+      fontWeight: FontWeight.w400,
       color: dark,
     ),
     bodyMedium: TextStyle(
       fontFamily: font,
-      fontSize: 16.0,
-      height: 24.0 / 16.0,
+      fontSize: 14,
+      height: 20 / 14,
       fontWeight: FontWeight.w400,
       color: dark,
     ),
     bodySmall: TextStyle(
       fontFamily: font,
-      fontSize: 14.0,
-      height: 1.4,
+      fontSize: 12,
+      height: 16 / 12,
       fontWeight: FontWeight.w400,
       color: neutralExtraDark,
     ),
-    // label — interactive / glanceable.
-    // labelLarge: buttons (medium/large) — applied via copyWith(color) so
-    //   filled/outlined variants render correctly.
-    // labelMedium: small button label.
-    // labelSmall: bottom-nav destination labels (IrmaNavButton, IrmaQrScanButton).
-    //   M3 designates labelSmall for unselected nav destinations; Yivi's 10sp
-    //   is smaller than M3's 11sp default. Input decoration labels (which used
-    //   to live on this slot) are now inlined on the inputDecorationTheme.
     labelLarge: TextStyle(
       fontFamily: font,
       fontSize: 16,
@@ -208,6 +184,7 @@ ThemeData buildYiviThemeData() {
       color: light,
     ),
     labelSmall: TextStyle(
+      fontFamily: font,
       fontSize: 10,
       height: 16 / 10,
       fontWeight: FontWeight.w500,
@@ -242,24 +219,6 @@ ThemeData buildYiviThemeData() {
   // direct TextTheme slots — see the migration notes in
   // docs/material-text-styles-application.md.
   // ──────────────────────────────────────────────────────────────────────
-
-  final activity = YiviActivityStyles(
-    // Pinned to direct values rather than derived from textTheme.headlineMedium
-    // because that slot now hosts the prominent 24sp/w700 hero-card heading.
-    // Activity card titles are at the "section label" weight (16/w600/dark).
-    cardTitle: const TextStyle(
-      fontFamily: font,
-      fontSize: 16,
-      height: 24 / 16,
-      fontWeight: FontWeight.w600,
-      color: dark,
-    ),
-    detailDate: textTheme.displaySmall!.copyWith(
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      color: dark,
-    ),
-  );
 
   final pin = YiviPinStyles(
     keypadDigit: const TextStyle(
@@ -448,7 +407,6 @@ ThemeData buildYiviThemeData() {
   );
 
   final yiviExtension = YiviThemeExtension(
-    activity: activity,
     pin: pin,
     verification: verification,
     nfc: nfc,

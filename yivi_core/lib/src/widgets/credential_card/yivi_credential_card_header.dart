@@ -100,7 +100,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                       ),
                       if (issuerName != null) ...[
                         SizedBox(height: 1),
-                        Text(issuerName!, style: context.text.bodySmall),
+                        Text(issuerName!, style: context.text.bodyMedium),
                       ],
                     ],
                   ),

@@ -25,7 +25,12 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = context.text.titleMedium;
+    // Section headers use the lighter onSurfaceVariant (= neutralExtraDark)
+    // rather than titleMedium's default dark — they should feel secondary
+    // to the card content beneath them.
+    final style = context.text.titleMedium?.copyWith(
+      color: context.colors.onSurfaceVariant,
+    );
     final Widget content = _translationKey != null
         ? TranslatedText(_translationKey, isHeader: true, style: style)
         : Semantics(header: true, child: Text(_text!, style: style));

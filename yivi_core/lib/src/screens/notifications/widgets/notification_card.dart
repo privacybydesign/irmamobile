@@ -97,7 +97,7 @@ class NotificationCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(localizedTimeStamp),
-                          Text(title, style: context.yivi.activity.cardTitle),
+                          Text(title, style: context.text.titleMedium),
                           Text(
                             contentMessage,
                             style: context.yivi.card.notificationBody,
