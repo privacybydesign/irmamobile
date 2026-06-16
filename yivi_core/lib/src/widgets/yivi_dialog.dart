@@ -154,7 +154,7 @@ class _StructuredBody extends StatelessWidget {
         addSemanticIndexes: false,
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: context.yivi.spacing.base),
+            padding: EdgeInsets.only(bottom: context.yivi.spacing.large),
             child: Column(
               children: [
                 Semantics(
@@ -168,7 +168,7 @@ class _StructuredBody extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                SizedBox(height: context.yivi.spacing.medium),
+                SizedBox(height: context.yivi.spacing.tiny),
                 Text(
                   content,
                   key: const Key("irma_dialog_content"),
