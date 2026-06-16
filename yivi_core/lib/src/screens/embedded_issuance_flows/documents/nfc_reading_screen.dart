@@ -310,7 +310,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             },
             child: _OrientationAwareTranslatedText(
               "error.button_show_error",
-              style: context.yivi.hyperlinkTextStyle,
+              style: context.text.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: context.yivi.brand.link,
+                decoration: TextDecoration.underline,
+              ),
             ),
           ),
         ],

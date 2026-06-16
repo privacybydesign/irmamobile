@@ -160,7 +160,7 @@ class _Header extends StatelessWidget {
                   ),
                   child: TranslatedText(
                     titleKey,
-                    style: titleStyle ?? context.yivi.credential.name,
+                    style: titleStyle ?? context.text.titleLarge,
                   ),
                 ),
                 const Positioned(

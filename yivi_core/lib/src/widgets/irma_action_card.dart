@@ -37,8 +37,8 @@ class IrmaActionCard extends StatelessWidget {
       child: TranslatedText(
         titleKey,
         style: isFancy
-            ? context.text.displayMedium!.copyWith(color: contentColor)
-            : context.text.headlineMedium!.copyWith(
+            ? context.text.headlineMedium!.copyWith(color: contentColor)
+            : context.text.titleMedium!.copyWith(
                 color: context.colors.onSurface,
               ),
       ),
@@ -49,7 +49,10 @@ class IrmaActionCard extends StatelessWidget {
       flexibleSubtitleTextWidget = Flexible(
         child: TranslatedText(
           subtitleKey!,
-          style: context.yivi.card.actionBody(contentColor),
+          style: context.text.bodySmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: contentColor,
+          ),
         ),
       );
     }

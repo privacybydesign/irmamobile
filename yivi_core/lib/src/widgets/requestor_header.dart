@@ -36,7 +36,13 @@ class RequestorHeader extends StatelessWidget {
       context: context,
       titleKey:
           "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
-      titleStyle: context.yivi.bottomSheet.title,
+      // One-off lighter weight (w500 instead of titleLarge's w600) for this
+      // sheet — kept inline rather than promoted to a TextTheme slot since
+      // no other caller uses this specific tuple.
+      titleStyle: context.text.titleLarge?.copyWith(
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+      ),
       child: RequestorVerificationExplanationBottomSheet(),
     );
   }
@@ -72,8 +78,9 @@ class RequestorHeader extends StatelessWidget {
           onTap: () => _showCredentialOptionsBottomSheet(context),
           child: TranslatedText(
             "disclosure_permission.overview.requestor_verification.explanation",
-            style: context.yivi.hyperlinkTextStyle.copyWith(
-              fontWeight: FontWeight.normal,
+            style: context.text.bodyMedium?.copyWith(
+              color: context.yivi.brand.link,
+              decoration: TextDecoration.underline,
             ),
           ),
         ),
@@ -126,7 +133,7 @@ class RequestorHeader extends StatelessWidget {
     } else {
       mainTextWidget = Text(
         localizedRequestorName,
-        style: context.yivi.requestor.name,
+        style: context.text.titleSmall,
       );
     }
 
@@ -158,7 +165,7 @@ class IssueWizardRequestorHeader extends StatelessWidget {
       textColor: textColor,
       backgroundColor: backgroundColor,
       avatar: _buildRequestorAvatar(title: title, image: image),
-      mainText: Text(title ?? "", style: context.text.headlineMedium),
+      mainText: Text(title ?? "", style: context.text.titleMedium),
     );
   }
 }

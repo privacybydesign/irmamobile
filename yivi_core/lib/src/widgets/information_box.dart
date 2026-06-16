@@ -23,6 +23,7 @@ class InformationBox extends StatelessWidget {
           Expanded(
             child: Text(
               message,
+              style: context.text.bodyMedium,
               textHeightBehavior: const TextHeightBehavior(
                 applyHeightToFirstAscent: false,
               ),

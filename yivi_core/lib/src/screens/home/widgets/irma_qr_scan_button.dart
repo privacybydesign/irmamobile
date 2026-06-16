@@ -76,7 +76,7 @@ class IrmaQrScanButton extends StatelessWidget {
             child: TranslatedText(
               "home.nav_bar.scan_qr",
               textAlign: TextAlign.center,
-              style: context.text.titleLarge,
+              style: context.text.labelSmall,
             ),
           ),
         ],

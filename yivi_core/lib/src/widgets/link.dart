@@ -66,7 +66,9 @@ class Link extends StatelessWidget {
         child: TranslatedText(
           textAlign: textAlign,
           label,
-          style: context.yivi.hyperlinkTextStyle.copyWith(
+          style: context.text.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: context.yivi.brand.link,
             decoration: TextDecoration.underline,
           ),
         ),

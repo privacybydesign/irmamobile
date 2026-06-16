@@ -80,7 +80,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
             TranslatedText(
               titleTranslationKey,
               translationParams: titleTranslationParams,
-              style: context.text.displayLarge,
+              style: context.text.headlineLarge,
               textAlign: TextAlign.center,
             ),
             if (bodyTranslationKey != null) ...[

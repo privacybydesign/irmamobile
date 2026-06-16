@@ -25,7 +25,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = context.yivi.section.header;
+    final style = context.text.titleMedium;
     final Widget content = _translationKey != null
         ? TranslatedText(_translationKey, isHeader: true, style: style)
         : Semantics(header: true, child: Text(_text!, style: style));

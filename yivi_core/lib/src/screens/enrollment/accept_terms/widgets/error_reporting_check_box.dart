@@ -50,7 +50,11 @@ class ErrorReportingCheckBox extends StatelessWidget {
                       '${FlutterI18n.translate(context, 'enrollment.error_reporting.accept.optional')}: ',
                 ),
                 TextSpan(
-                  style: context.yivi.hyperlinkTextStyle,
+                  style: context.text.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: context.yivi.brand.link,
+                    decoration: TextDecoration.underline,
+                  ),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () => _showErrorReportingInfoBottomSheet(context),
                   text: FlutterI18n.translate(

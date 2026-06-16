@@ -464,7 +464,10 @@ class _RenderItemView extends StatelessWidget {
             if (drawDivider)
               Padding(
                 padding: EdgeInsets.only(left: indentLeft),
-                child: Container(height: 1, color: context.yivi.brand.neutralExtraLight),
+                child: Container(
+                  height: 1,
+                  color: context.yivi.brand.neutralExtraLight,
+                ),
               ),
           ],
         ),
@@ -553,24 +556,19 @@ class _LeafContent extends StatelessWidget {
   Widget _buildValue(BuildContext context, String lang) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
+    final valueStyle = _attributeValueStyle(context, _valueColor(val, context));
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: context.yivi.credential.attributeValue(
-          _valueColor(val, context),
-        ),
+        style: valueStyle,
       ),
       schemaless.AttributeType.boolean => Text(
         _formatBool(context, val.boolValue),
-        style: context.yivi.credential.attributeValue(
-          _valueColor(val, context),
-        ),
+        style: valueStyle,
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: context.yivi.credential.attributeValue(
-          _valueColor(val, context),
-        ),
+        style: valueStyle,
       ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => _tappableImage(context, lang),
@@ -634,7 +632,10 @@ class _PrimArrayContent extends StatelessWidget {
   }
 
   Widget _bulletRow(BuildContext context, schemaless.AttributeValue v) {
-    final valueStyle = context.yivi.credential.attributeBulletValue;
+    final valueStyle = context.text.bodyLarge!.copyWith(
+      fontWeight: FontWeight.w600,
+      height: 1.2,
+    );
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
       padding: EdgeInsets.only(top: context.yivi.tinySpacing / 2),
@@ -695,7 +696,7 @@ class _EyebrowContent extends StatelessWidget {
     }
     return Text(
       node.label!.translate(lang).toUpperCase(),
-      style: context.yivi.credential.attributeEyebrow,
+      style: _eyebrowStyle(context),
     );
   }
 }
@@ -712,6 +713,22 @@ class _ItemEyebrowContent extends StatelessWidget {
     final text = node.totalItems > 1
         ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
         : parentLabel;
-    return Text(text, style: context.yivi.credential.attributeEyebrow);
+    return Text(text, style: _eyebrowStyle(context));
   }
 }
+
+// Uppercase eyebrow above grouped attributes / item rows. Inlined rather
+// than derived from labelSmall — labelSmall now hosts the 10sp bottom-nav
+// tuple, but the eyebrow needs 12sp with extra letter-spacing.
+TextStyle _eyebrowStyle(BuildContext context) => TextStyle(
+  fontSize: 12,
+  fontWeight: FontWeight.w700,
+  color: context.colors.outline,
+  letterSpacing: 0.96,
+);
+
+// Leaf attribute value style. bodyLarge currently hosts the (16, w700, dark)
+// "bold body" — copyWith drops the weight to w600 and applies the row's
+// state-derived color (match / mismatch / default).
+TextStyle _attributeValueStyle(BuildContext context, Color color) =>
+    context.text.bodyLarge!.copyWith(fontWeight: FontWeight.w600, color: color);

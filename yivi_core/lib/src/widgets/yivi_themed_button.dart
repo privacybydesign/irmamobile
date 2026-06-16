@@ -126,8 +126,8 @@ class YiviThemedButton extends StatelessWidget {
         ? context.colors.onSurfaceVariant
         : Colors.white;
     final labelStyle = size == YiviButtonSize.small
-        ? context.yivi.button.smallLabel(textColor)
-        : context.yivi.button.label(textColor);
+        ? context.text.labelMedium?.copyWith(color: textColor)
+        : context.text.labelLarge?.copyWith(color: textColor);
 
     final centeredTextWidget = Center(
       child: TranslatedText(

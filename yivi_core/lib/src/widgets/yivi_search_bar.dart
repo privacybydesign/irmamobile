@@ -47,7 +47,9 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
                 onPressed: onCancel,
                 child: TranslatedText(
                   "search.cancel",
-                  style: context.yivi.button.searchCancel,
+                  style: context.text.bodyMedium?.copyWith(
+                    color: context.yivi.brand.link,
+                  ),
                 ),
               ),
             ],

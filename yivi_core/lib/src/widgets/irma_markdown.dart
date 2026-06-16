@@ -23,9 +23,13 @@ class IrmaMarkdown extends StatelessWidget {
               h1: context.text.displayLarge,
               h2: context.text.displayMedium,
               h3: context.text.displaySmall,
-              h4: context.text.headlineMedium,
+              h4: context.text.titleMedium,
               strong: context.text.bodyLarge,
-              a: context.yivi.hyperlinkTextStyle,
+              a: context.text.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: context.yivi.brand.link,
+                decoration: TextDecoration.underline,
+              ),
               textScaler: MediaQuery.textScalerOf(context),
             ),
           )

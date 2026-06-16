@@ -31,19 +31,21 @@ class YiviCredentialCardHeader extends StatelessWidget {
     if (isRevoked) {
       return TranslatedText(
         "credential.revoked",
-        style: context.yivi.credential.statusText(context.colors.error),
+        style: context.text.titleMedium?.copyWith(color: context.colors.error),
       );
     }
     if (isExpired) {
       return TranslatedText(
         "credential.expired",
-        style: context.yivi.credential.statusText(context.colors.error),
+        style: context.text.titleMedium?.copyWith(color: context.colors.error),
       );
     }
     if (isExpiringSoon) {
       return TranslatedText(
         "credential.about_to_expire",
-        style: context.yivi.credential.statusText(context.yivi.brand.warning),
+        style: context.text.titleMedium?.copyWith(
+          color: context.yivi.brand.warning,
+        ),
       );
     }
     return null;
@@ -93,7 +95,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                     children: [
                       Text(
                         credentialName,
-                        style: context.yivi.credential.name,
+                        style: context.text.titleLarge,
                         softWrap: true,
                       ),
                       if (issuerName != null) ...[

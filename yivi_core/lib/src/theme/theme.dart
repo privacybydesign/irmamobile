@@ -85,9 +85,24 @@ ThemeData buildYiviThemeData() {
   );
 
   // ──────────────────────────────────────────────────────────────────────
-  // TextTheme.
+  // TextTheme — slot semantics follow Material 3 (display > headline >
+  // title > body / label). Values are Yivi-flavoured: most slots preserve
+  // the visual tuples used today, but the *role* each slot plays has been
+  // tightened so call sites can pick a slot by intent rather than by
+  // copyWith-able size. See docs/material-text-styles*.md for the rationale.
+  //
+  //   display* — hero, expressive, one-off. Currently no in-app consumers;
+  //     reserved for future hero moments.
+  //   headline* — screen-level lead content (info/error scaffold title,
+  //     feature-prominent card title, dialog/sheet title).
+  //   title*   — component-level labels (AppBar, card titles, section
+  //     headers, status badges, requestor row).
+  //   body*    — content the user reads (paragraphs, dialog content,
+  //     credential attribute values, supporting text).
+  //   label*   — interactive / glanceable text (buttons, input labels).
   // ──────────────────────────────────────────────────────────────────────
   final textTheme = TextTheme(
+    // display — reserved for hero moments; no consumers today.
     displayLarge: TextStyle(
       fontFamily: font,
       fontSize: 26,
@@ -109,26 +124,62 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.w600,
       color: neutralExtraDark,
     ),
+    // headline — screen-level lead text.
+    // headlineLarge: full-screen info/error scaffold title.
+    // headlineMedium: feature-prominent action card title (the "fancy" variant).
+    // headlineSmall: dialog and modal sheet titles.
+    headlineLarge: TextStyle(
+      fontFamily: font,
+      fontSize: 26,
+      height: 36 / 26,
+      fontWeight: FontWeight.w700,
+      color: neutralExtraDark,
+    ),
     headlineMedium: TextStyle(
       fontFamily: font,
-      fontSize: 16.0,
-      height: 24 / 16,
-      fontWeight: FontWeight.w600,
+      fontSize: 24,
+      height: 30 / 24,
+      fontWeight: FontWeight.w700,
       color: neutralExtraDark,
     ),
     headlineSmall: TextStyle(
       fontFamily: font,
-      fontSize: 16.0,
-      height: 24 / 16,
-      fontWeight: FontWeight.w400,
+      fontSize: 18,
+      height: 36 / 18,
+      fontWeight: FontWeight.w600,
       color: neutralExtraDark,
     ),
+    // title — component-level labels.
+    // titleLarge: most prominent component label (credential card name,
+    //   bottom sheet default). 19sp matches the off-scale `credential.name`
+    //   we preserved during the text-styles migration — designer to decide
+    //   later whether to snap to 18sp.
+    // titleMedium: section headers, status badges, plain card titles,
+    //   IssueWizard requestor row.
+    // titleSmall: smaller component label (RequestorHeader main text).
     titleLarge: TextStyle(
-      fontSize: 10,
-      height: 16 / 10,
-      fontWeight: FontWeight.w500,
+      fontFamily: font,
+      fontSize: 19,
+      height: 26 / 19,
+      fontWeight: FontWeight.w600,
+      color: dark,
+    ),
+    titleMedium: TextStyle(
+      fontFamily: font,
+      fontSize: 16,
+      height: 24 / 16,
+      fontWeight: FontWeight.w600,
       color: neutralExtraDark,
     ),
+    titleSmall: TextStyle(
+      fontFamily: font,
+      fontSize: 16,
+      height: 26 / 19,
+      fontWeight: FontWeight.w500,
+      color: dark,
+    ),
+    // body — content. bodyLarge is the "bold body" slot (note: M3 spec is
+    // regular; Yivi has historically used a bold variant here).
     bodyLarge: TextStyle(
       fontFamily: font,
       fontSize: 16.0,
@@ -142,18 +193,6 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.w400,
       color: dark,
     ),
-    labelSmall: TextStyle(
-      fontSize: 12.0,
-      height: 16.0 / 12.0,
-      fontWeight: FontWeight.w600,
-      color: dark,
-    ),
-    titleMedium: TextStyle(
-      fontSize: 16.0,
-      height: 22.0 / 18.0,
-      fontWeight: FontWeight.normal,
-      color: dark,
-    ),
     bodySmall: TextStyle(
       fontFamily: font,
       fontSize: 14.0,
@@ -161,12 +200,33 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.w400,
       color: neutralExtraDark,
     ),
+    // label — interactive / glanceable.
+    // labelLarge: buttons (medium/large) — applied via copyWith(color) so
+    //   filled/outlined variants render correctly.
+    // labelMedium: small button label.
+    // labelSmall: bottom-nav destination labels (IrmaNavButton, IrmaQrScanButton).
+    //   M3 designates labelSmall for unselected nav destinations; Yivi's 10sp
+    //   is smaller than M3's 11sp default. Input decoration labels (which used
+    //   to live on this slot) are now inlined on the inputDecorationTheme.
     labelLarge: TextStyle(
       fontFamily: font,
       fontSize: 16,
       height: 24 / 16,
       fontWeight: FontWeight.w700,
       color: light,
+    ),
+    labelMedium: TextStyle(
+      fontFamily: font,
+      fontSize: 14,
+      height: 20 / 14,
+      fontWeight: FontWeight.w700,
+      color: light,
+    ),
+    labelSmall: TextStyle(
+      fontSize: 10,
+      height: 16 / 10,
+      fontWeight: FontWeight.w500,
+      color: neutralExtraDark,
     ),
   );
 
@@ -180,14 +240,6 @@ ThemeData buildYiviThemeData() {
     fontWeight: FontWeight.w600,
     color: secondary,
   );
-  const hyperlinkTextStyle = TextStyle(
-    fontFamily: font,
-    fontSize: 16.0,
-    height: 24.0 / 16.0,
-    fontWeight: FontWeight.w700,
-    color: link,
-    decoration: TextDecoration.underline,
-  );
   const mrzLabel = TextStyle(
     fontFamily: "monospace",
     fontSize: 14,
@@ -197,54 +249,24 @@ ThemeData buildYiviThemeData() {
 
   // ──────────────────────────────────────────────────────────────────────
   // Domain text-style groups. Each group bundles the text styles for one
-  // usage area (credential card, PIN entry, NFC reading, etc.). Variable
-  // colour or shape variants are encoded as builder methods on the group.
+  // usage area (PIN entry, NFC reading, activity, etc.). Variable colour
+  // or shape variants are encoded as builder methods on the group.
+  //
+  // Several groups that used to live here (credential card, buttons,
+  // sections, requestor, bottom sheets) have been retired in favour of
+  // direct TextTheme slots — see the migration notes in
+  // docs/material-text-styles-application.md.
   // ──────────────────────────────────────────────────────────────────────
-  final credential = YiviCredentialStyles(
-    // TODO Phase 2: snap to 18 or extend scale to include 19.
-    name: const TextStyle(
-      fontFamily: font,
-      fontSize: 19,
-      fontWeight: FontWeight.w600,
-      color: dark,
-      height: 26 / 19,
-    ),
-    attributeEyebrow: const TextStyle(
-      fontFamily: font,
-      fontSize: 12,
-      fontWeight: FontWeight.w700,
-      color: neutralDark,
-      letterSpacing: 0.96,
-    ),
-    // Tighter line height for stacked list items (bullets) so successive
-    // values don't drift apart vertically.
-    attributeBulletValue: const TextStyle(
-      fontFamily: font,
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      color: dark,
-      height: 1.2,
-    ),
-    attributeValue: (color) => TextStyle(
-      fontFamily: font,
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      color: color,
-    ),
-    expiryNote: (color) => textTheme.bodyLarge!.copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-      color: color,
-    ),
-    // "Revoked" / "Expired" / "About to expire" status text above a
-    // credential card header. Color is state-driven (error / warning).
-    statusText: (color) =>
-        textTheme.headlineMedium!.copyWith(color: color),
-  );
 
   final activity = YiviActivityStyles(
-    cardTitle: textTheme.headlineMedium!.copyWith(
+    // Pinned to direct values rather than derived from textTheme.headlineMedium
+    // because that slot now hosts the prominent 24sp/w700 hero-card heading.
+    // Activity card titles are at the "section label" weight (16/w600/dark).
+    cardTitle: const TextStyle(
+      fontFamily: font,
       fontSize: 16,
+      height: 24 / 16,
+      fontWeight: FontWeight.w600,
       color: dark,
     ),
     detailDate: textTheme.displaySmall!.copyWith(
@@ -268,8 +290,15 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.w400,
       color: secondary,
     ),
-    warningHeading: textTheme.headlineSmall!.copyWith(
+    // Pinned to direct values rather than derived from textTheme.headlineSmall —
+    // headlineSmall is now 18sp w600 for dialog/sheet titles, but the unsecure-
+    // PIN warning heading is 16sp w700 neutralExtraDark.
+    warningHeading: const TextStyle(
+      fontFamily: font,
+      fontSize: 16,
+      height: 24 / 16,
       fontWeight: FontWeight.w700,
+      color: neutralExtraDark,
     ),
     warningButton: textTheme.bodySmall!.copyWith(
       fontWeight: FontWeight.w700,
@@ -335,10 +364,7 @@ ThemeData buildYiviThemeData() {
   );
 
   final card = YiviCardStyles(
-    notificationBody: textTheme.bodyMedium!.copyWith(
-      fontSize: 14,
-      color: dark,
-    ),
+    notificationBody: textTheme.bodyMedium!.copyWith(fontSize: 14, color: dark),
     quoteBody: textTheme.bodyMedium!.copyWith(
       fontSize: 14,
       fontWeight: FontWeight.normal,
@@ -347,48 +373,6 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.w400,
       color: dark,
     ),
-    actionBody: (color) => textTheme.bodyMedium!.copyWith(
-      fontSize: 14,
-      fontWeight: FontWeight.w600,
-      color: color,
-    ),
-  );
-
-  final button = YiviButtonStyles(
-    searchCancel: textButtonTextStyle.copyWith(
-      fontWeight: FontWeight.normal,
-      color: link,
-    ),
-    label: (color) => textTheme.labelLarge!.copyWith(color: color),
-    smallLabel: (color) => textTheme.labelLarge!.copyWith(
-      fontFamily: font,
-      fontSize: 14,
-      color: color,
-    ),
-  );
-
-  final section = YiviSectionStyles(
-    header: textTheme.headlineMedium!.copyWith(color: neutralExtraDark),
-  );
-
-  final requestor = YiviRequestorStyles(
-    name: const TextStyle(
-      fontFamily: font,
-      fontSize: 16,
-      fontWeight: FontWeight.w500,
-      color: dark,
-      height: 26 / 19,
-    ),
-  );
-
-  final bottomSheet = YiviBottomSheetStyles(
-    title: const TextStyle(
-      fontFamily: font,
-      fontSize: 18,
-      fontWeight: FontWeight.w500,
-      color: dark,
-      height: 26 / 19,
-    ),
   );
 
   final misc = YiviMiscStyles(
@@ -396,14 +380,23 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.bold,
       color: neutral,
     ),
-    versionLabel: textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w600),
+    // Pinned to direct values — the old derivation pointed at
+    // textTheme.titleLarge, which now hosts the 19sp credential-card title.
+    // The "version label" in the More tab is intentionally tiny (10sp).
+    versionLabel: const TextStyle(
+      fontSize: 10,
+      height: 16 / 10,
+      fontWeight: FontWeight.w600,
+      color: neutralExtraDark,
+    ),
   );
 
   // ──────────────────────────────────────────────────────────────────────
   // Component themes — set defaults so widgets pick them up via Theme.of.
   // ──────────────────────────────────────────────────────────────────────
   final inputDecorationTheme = InputDecorationTheme(
-    labelStyle: textTheme.labelSmall,
+    // labelStyle left unset — Flutter falls back to textTheme.bodyLarge for
+    // input decoration labels by default.
     enabledBorder: const UnderlineInputBorder(
       borderSide: BorderSide(color: Colors.grey),
     ),
@@ -425,7 +418,7 @@ ThemeData buildYiviThemeData() {
     elevation: 0,
     iconTheme: const IconThemeData(color: dark),
     toolbarTextStyle: textTheme.bodyMedium,
-    titleTextStyle: textTheme.displaySmall?.copyWith(color: dark),
+    titleTextStyle: textTheme.headlineSmall?.copyWith(color: dark),
     systemOverlayStyle: const SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,
@@ -450,7 +443,7 @@ ThemeData buildYiviThemeData() {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(smallSpacing),
     ),
-    titleTextStyle: textTheme.displaySmall,
+    titleTextStyle: textTheme.headlineSmall,
     contentTextStyle: textTheme.bodyMedium,
   );
 
@@ -460,7 +453,6 @@ ThemeData buildYiviThemeData() {
   // (or the `context.yivi` getter).
   // ──────────────────────────────────────────────────────────────────────
   final yiviExtension = YiviThemeExtension(
-    credential: credential,
     activity: activity,
     pin: pin,
     verification: verification,
@@ -468,10 +460,6 @@ ThemeData buildYiviThemeData() {
     form: form,
     indicator: indicator,
     card: card,
-    button: button,
-    section: section,
-    requestor: requestor,
-    bottomSheet: bottomSheet,
     misc: misc,
     brand: const YiviBrandColors(
       success: success,
@@ -491,7 +479,6 @@ ThemeData buildYiviThemeData() {
     screenPadding: screenPadding,
     borderRadius: borderRadius,
     textButtonTextStyle: textButtonTextStyle,
-    hyperlinkTextStyle: hyperlinkTextStyle,
     mrzLabel: mrzLabel,
     font: font,
   );

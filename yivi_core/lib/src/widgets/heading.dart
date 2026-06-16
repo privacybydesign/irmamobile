@@ -18,7 +18,10 @@ class Heading extends StatelessWidget {
       header: true,
       child: Text(
         title,
-        style: style ?? Theme.of(context).textTheme.displaySmall,
+        // headlineSmall is the M3 slot for screen-leading headers
+        // (dialog/sheet/section intro). Callers can override `style` for
+        // smaller in-content headings.
+        style: style ?? Theme.of(context).textTheme.headlineSmall,
         textAlign: textAlign ?? TextAlign.left,
       ),
     );

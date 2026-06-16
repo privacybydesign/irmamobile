@@ -11,7 +11,6 @@ part of "theme.dart";
 // interpolate across themes, and partial overrides aren't currently used.
 // Both can be filled in if dark-mode animation requires it (Phase 6).
 class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
-  final YiviCredentialStyles credential;
   final YiviActivityStyles activity;
   final YiviPinStyles pin;
   final YiviVerificationStyles verification;
@@ -19,10 +18,6 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
   final YiviFormStyles form;
   final YiviIndicatorStyles indicator;
   final YiviCardStyles card;
-  final YiviButtonStyles button;
-  final YiviSectionStyles section;
-  final YiviRequestorStyles requestor;
-  final YiviBottomSheetStyles bottomSheet;
   final YiviMiscStyles misc;
   // Brand colours that have no clean Material 3 ColorScheme slot
   // (success/warning/link/danger). Lives here so dark mode in Phase 6 can
@@ -43,13 +38,11 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
   // because their call sites are non-trivial and they don't fit a TextTheme
   // slot or a domain group.
   final TextStyle textButtonTextStyle;
-  final TextStyle hyperlinkTextStyle;
   final TextStyle mrzLabel;
 
   final String font;
 
   YiviThemeExtension({
-    required this.credential,
     required this.activity,
     required this.pin,
     required this.verification,
@@ -57,10 +50,6 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
     required this.form,
     required this.indicator,
     required this.card,
-    required this.button,
-    required this.section,
-    required this.requestor,
-    required this.bottomSheet,
     required this.misc,
     required this.brand,
     required this.tinySpacing,
@@ -72,7 +61,6 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
     required this.screenPadding,
     required this.borderRadius,
     required this.textButtonTextStyle,
-    required this.hyperlinkTextStyle,
     required this.mrzLabel,
     required this.font,
   });

@@ -57,14 +57,16 @@ class YiviCredentialCardFooter extends StatelessWidget {
                       (expiryDate == null || expiryDate?.dateTime == null)
                           ? TranslatedText(
                               "credential.indefinite_validity",
-                              style: context.yivi.credential.expiryNote(
-                                context.colors.onSurface,
+                              style: context.text.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.onSurface,
                               ),
                             )
                           : Text(
                               printableDate(expiryDate!.dateTime!, lang),
-                              style: context.yivi.credential.expiryNote(
-                                _getTextColorForExpireState(
+                              style: context.text.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: _getTextColorForExpireState(
                                   timeBasedExpireState,
                                   context,
                                 ),
@@ -87,8 +89,9 @@ class YiviCredentialCardFooter extends StatelessWidget {
                         TranslatedText(
                           "credential.sharable_count",
                           translationParams: {"count": "${instanceCount!}"},
-                          style: context.yivi.credential.expiryNote(
-                            _getTextColorForExpireState(
+                          style: context.text.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: _getTextColorForExpireState(
                               instanceBasedExpireState,
                               context,
                             ),
@@ -97,8 +100,9 @@ class YiviCredentialCardFooter extends StatelessWidget {
                       else
                         TranslatedText(
                           "credential.sharable_unlimited",
-                          style: context.yivi.credential.expiryNote(
-                            context.colors.onSurface,
+                          style: context.text.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.onSurface,
                           ),
                         ),
                     ],
