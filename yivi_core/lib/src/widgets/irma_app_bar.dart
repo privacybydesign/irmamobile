@@ -11,8 +11,8 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = context.yivi.defaultSpacing;
-    final leftPadding = context.yivi.defaultSpacing;
+    final topPadding = context.yivi.spacing.base;
+    final leftPadding = context.yivi.spacing.base;
 
     return IrmaIconButton(
       padding: EdgeInsets.only(left: leftPadding, top: topPadding),

@@ -132,11 +132,11 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(context.yivi.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.spacing.base),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 Semantics(
                   header: true,
                   child: Text(
@@ -144,12 +144,12 @@ class _OpenID4VCIPreAuthTxCodeScreenState
                     style: context.yivi.form.header,
                   ),
                 ),
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 Text(
                   _getTextReplacements(bodyTemplate, context),
                   style: context.text.bodyMedium,
                 ),
-                SizedBox(height: context.yivi.largeSpacing),
+                SizedBox(height: context.yivi.spacing.large),
                 _buildInput(context, length, codeInvalid),
                 if (codeInvalid)
                   Text(
@@ -160,7 +160,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
                     ),
                     style: context.yivi.form.errorMessage,
                   ),
-                SizedBox(height: context.yivi.largeSpacing),
+                SizedBox(height: context.yivi.spacing.large),
               ],
             ),
           ),

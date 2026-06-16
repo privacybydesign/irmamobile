@@ -19,7 +19,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeader("activity.data_shared"),
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         // If all disclosed attributes are empty render one empty data card
         if (noDisclosedCredentials(logEntry))
           IrmaEmptyCredentialCard()
@@ -29,7 +29,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
                   ? logEntry.disclosureLog!.credentials
                   : logEntry.signedMessageLog!.credentials)
             Padding(
-              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
               child: YiviCredentialCard.fromLogCredential(
                 logCredential: credential,
                 compact: true,
@@ -37,14 +37,14 @@ class ActivityDetailDisclosure extends StatelessWidget {
               ),
             ),
         if (logEntry.type == LogType.signature) ...[
-          SizedBox(height: context.yivi.defaultSpacing),
+          SizedBox(height: context.yivi.spacing.base),
           SectionHeader("activity.signed_message"),
-          SizedBox(height: context.yivi.smallSpacing),
+          SizedBox(height: context.yivi.spacing.small),
           IrmaQuote(quote: logEntry.signedMessageLog!.message),
         ],
-        SizedBox(height: context.yivi.defaultSpacing),
+        SizedBox(height: context.yivi.spacing.base),
         SectionHeader("activity.shared_with"),
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         RequestorHeader(requestor: logEntry.requestor),
       ],
     );

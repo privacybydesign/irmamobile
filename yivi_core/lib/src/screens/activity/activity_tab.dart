@@ -123,9 +123,9 @@ class _ActivityTabState extends State<ActivityTab> {
           Padding(
             padding: EdgeInsets.only(
               // If is not first add padding to top.
-              top: index > 0 ? context.yivi.defaultSpacing : 0,
-              right: context.yivi.tinySpacing,
-              bottom: context.yivi.tinySpacing,
+              top: index > 0 ? context.yivi.spacing.base : 0,
+              right: context.yivi.spacing.tiny,
+              bottom: context.yivi.spacing.tiny,
             ),
             child: SectionHeader.text(
               DateFormat(
@@ -135,7 +135,7 @@ class _ActivityTabState extends State<ActivityTab> {
             ),
           ),
         Padding(
-          padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+          padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
           child: ActivityCard(logEntry: logEntry),
         ),
       ];
@@ -146,8 +146,8 @@ class _ActivityTabState extends State<ActivityTab> {
         physics: const AlwaysScrollableScrollPhysics(),
         controller: _scrollController,
         padding: EdgeInsets.symmetric(
-          vertical: context.yivi.smallSpacing,
-          horizontal: context.yivi.defaultSpacing,
+          vertical: context.yivi.spacing.small,
+          horizontal: context.yivi.spacing.base,
         ),
         children: [
           if (groupedItems.isEmpty)
@@ -156,8 +156,8 @@ class _ActivityTabState extends State<ActivityTab> {
             ...groupedItems,
             Padding(
               padding: EdgeInsets.only(
-                top: context.yivi.defaultSpacing,
-                bottom: context.yivi.hugeSpacing,
+                top: context.yivi.spacing.base,
+                bottom: context.yivi.spacing.huge,
               ),
               child: EndOfListIndicator(isLoading: moreLogsAvailable),
             ),

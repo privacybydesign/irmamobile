@@ -68,7 +68,7 @@ class _VersionButtonState extends State<VersionButton> {
             child: InkWell(
               onTap: onTap,
               child: Padding(
-                padding: EdgeInsets.only(left: context.yivi.defaultSpacing),
+                padding: EdgeInsets.only(left: context.yivi.spacing.base),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

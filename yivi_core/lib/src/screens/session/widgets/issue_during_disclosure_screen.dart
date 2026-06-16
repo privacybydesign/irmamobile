@@ -147,7 +147,7 @@ class _IssueDuringDisclosureScreenState
               onSecondaryPressed: widget.onDismiss,
             ),
             body: SingleChildScrollView(
-              padding: EdgeInsets.all(context.yivi.defaultSpacing),
+              padding: EdgeInsets.all(context.yivi.spacing.base),
               child: SafeArea(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

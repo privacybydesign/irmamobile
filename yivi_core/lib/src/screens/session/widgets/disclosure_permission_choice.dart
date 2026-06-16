@@ -26,7 +26,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   /// Creates a choice widget for [IssuanceBundle] options. A single-credential
   /// bundle renders as one card; a multi-credential bundle renders as a column
-  /// of cards (separated by `context.yivi.smallSpacing`) with a single radio on the
+  /// of cards (separated by `context.yivi.spacing.small`) with a single radio on the
   /// first card and a shared highlight style. Mirrors the disclosure-side
   /// bundle layout for visual consistency.
   factory DisclosurePermissionChoice.fromIssuanceBundles({
@@ -81,7 +81,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(
                     bottom: i < credentials.length - 1
-                        ? context.yivi.smallSpacing
+                        ? context.yivi.spacing.small
                         : 0,
                   ),
                   child: card(i),
@@ -95,7 +95,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
   /// Creates a choice widget for [DisclosureBundle] options. A bundle with a
   /// single credential renders as one card; a bundle with multiple credentials
-  /// renders as a column of cards (separated by `context.yivi.smallSpacing`) with a
+  /// renders as a column of cards (separated by `context.yivi.spacing.small`) with a
   /// single radio on the first card and a shared highlight style.
   factory DisclosurePermissionChoice.fromBundles({
     Key? key,
@@ -131,7 +131,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(
                   bottom: i < credentials.length - 1
-                      ? context.yivi.smallSpacing
+                      ? context.yivi.spacing.small
                       : 0,
                 ),
                 child: YiviCredentialCard.fromSelectableInstance(
@@ -159,7 +159,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
         children: [
           for (var i = 0; i < optionCount; i++)
             Padding(
-              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
               child: GestureDetector(
                 onTap: onChoiceUpdated != null
                     ? () => onChoiceUpdated!(i)

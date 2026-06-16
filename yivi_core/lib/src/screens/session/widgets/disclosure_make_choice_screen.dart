@@ -184,7 +184,7 @@ class _DisclosureMakeChoiceScreenState
       appBarTitle: "disclosure_permission.change_choice",
       onPrevious: () => Navigator.of(context).pop(),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(context.yivi.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.spacing.base),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,14 +202,14 @@ class _DisclosureMakeChoiceScreenState
               if (obtainable.isNotEmpty) ...[
                 Padding(
                   padding: EdgeInsets.only(
-                    bottom: context.yivi.smallSpacing,
-                    top: context.yivi.mediumSpacing,
+                    bottom: context.yivi.spacing.small,
+                    top: context.yivi.spacing.medium,
                   ),
                   child: SectionHeader("disclosure_permission.obtain_new"),
                 ),
                 for (var i = 0; i < obtainable.length; i++)
                   Padding(
-                    padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+                    padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
                     child: GestureDetector(
                       onTap: obtainable[i].issueURL != null
                           ? () => setState(

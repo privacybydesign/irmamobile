@@ -25,7 +25,7 @@ class IrmaDismissible extends StatelessWidget {
         color: context.colors.error,
         borderRadius: context.yivi.borderRadius,
       ),
-      padding: EdgeInsets.all(context.yivi.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.spacing.base),
       alignment: Alignment.centerRight,
       child: dismissedText,
     );

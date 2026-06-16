@@ -22,39 +22,39 @@ class ActivityDetailIssuance extends StatelessWidget {
         //If is this issuance also has disclosed attributes
         if (issuanceLog.disclosedCredentials.isNotEmpty) ...[
           SectionHeader("activity.data_shared"),
-          SizedBox(height: context.yivi.smallSpacing),
+          SizedBox(height: context.yivi.spacing.small),
           for (final cred in issuanceLog.disclosedCredentials)
             Padding(
-              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
               child: YiviCredentialCard.fromLogCredential(
                 logCredential: cred,
                 compact: true,
                 hideFooter: true,
               ),
             ),
-          SizedBox(height: context.yivi.defaultSpacing),
+          SizedBox(height: context.yivi.spacing.base),
           SectionHeader("activity.shared_with"),
-          SizedBox(height: context.yivi.smallSpacing),
+          SizedBox(height: context.yivi.spacing.small),
           RequestorHeader(
             requestor: requestor,
             isVerified: requestor?.verified,
           ),
-          SizedBox(height: context.yivi.defaultSpacing),
+          SizedBox(height: context.yivi.spacing.base),
         ],
         SectionHeader("activity.received_data"),
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         for (var rawCredential in issuanceLog.credentials)
           Padding(
-            padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+            padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
             child: YiviCredentialCard.fromLogCredential(
               logCredential: rawCredential,
               compact: true,
               hideFooter: true,
             ),
           ),
-        SizedBox(height: context.yivi.defaultSpacing),
+        SizedBox(height: context.yivi.spacing.base),
         SectionHeader("activity.received_from"),
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         RequestorHeader(requestor: requestor),
       ],
     );

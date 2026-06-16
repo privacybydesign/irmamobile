@@ -72,17 +72,17 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
             // add-data screen) keep the standard padding.
             padding: trailingIcon == null
                 ? EdgeInsets.fromLTRB(
-                    context.yivi.defaultSpacing,
-                    context.yivi.defaultSpacing,
-                    context.yivi.smallSpacing,
-                    context.yivi.defaultSpacing,
+                    context.yivi.spacing.base,
+                    context.yivi.spacing.base,
+                    context.yivi.spacing.small,
+                    context.yivi.spacing.base,
                   )
-                : EdgeInsets.all(context.yivi.defaultSpacing),
+                : EdgeInsets.all(context.yivi.spacing.base),
             child: Row(
               children: [
                 ExcludeSemantics(child: avatar),
                 SizedBox(
-                  width: context.yivi.defaultSpacing - context.yivi.tinySpacing,
+                  width: context.yivi.spacing.base - context.yivi.spacing.tiny,
                 ),
                 Expanded(
                   child: Column(
@@ -99,7 +99,7 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(width: context.yivi.smallSpacing),
+                SizedBox(width: context.yivi.spacing.small),
                 if (trailingIcon != null)
                   Icon(
                     trailingIcon,

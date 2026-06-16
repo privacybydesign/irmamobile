@@ -110,7 +110,7 @@ class _CertificateManagementScreenState
             final configuration = snapshot.data!;
 
             return ListView(
-              padding: EdgeInsets.all(context.yivi.defaultSpacing),
+              padding: EdgeInsets.all(context.yivi.spacing.base),
               children: [
                 const TranslatedText("debug.cert_management.issuer_certs"),
                 if (configuration.issuerCertificates != null)
@@ -119,7 +119,7 @@ class _CertificateManagementScreenState
                       cert: cert,
                       onTap: () => _onCertificateTileTap(cert.thumbprint),
                     ),
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 const TranslatedText("debug.cert_management.verifier_certs"),
                 if (configuration.verifierCertificates != null)
                   for (final cert in configuration.verifierCertificates!)

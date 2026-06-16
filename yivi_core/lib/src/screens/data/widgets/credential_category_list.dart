@@ -25,14 +25,14 @@ class CredentialCategoryList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: context.yivi.defaultSpacing),
+        SizedBox(height: context.yivi.spacing.base),
         SectionHeader.text(categoryName),
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         ...credentialTypes.map(
           (credType) => Semantics(
             button: true,
             child: Padding(
-              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
               child: IrmaCredentialTypeCard(
                 credType: credType,
                 checked: obtainedCredentialTypes?.contains(credType) ?? false,

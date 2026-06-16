@@ -410,7 +410,7 @@ class _RenderItemView extends StatelessWidget {
   Widget build(BuildContext context) {
     final node = item.node;
     final drawDivider = showDivider && !item.isLast && _rowDrawsBorder(node);
-    final indentLeft = item.depth * context.yivi.defaultSpacing;
+    final indentLeft = item.depth * context.yivi.spacing.base;
     final isEyebrow = _isEyebrow(node);
     final isFirstAtDepth =
         item.previousDepth >= 0 && item.depth > item.previousDepth;
@@ -420,13 +420,13 @@ class _RenderItemView extends StatelessWidget {
     // tinySpacing from the row top).
     final double topPad;
     if (isEyebrow) {
-      topPad = context.yivi.smallSpacing;
+      topPad = context.yivi.spacing.small;
     } else if (isFirstAtDepth) {
       topPad = 0;
     } else {
-      topPad = context.yivi.tinySpacing;
+      topPad = context.yivi.spacing.tiny;
     }
-    final bottomPad = context.yivi.tinySpacing;
+    final bottomPad = context.yivi.spacing.tiny;
     // Inset from the Stack bottom up to the bottom of the value content (i.e.,
     // skipping the row's bottom padding and the divider, if any). Used as the
     // `bottom` for guide-line segments that end in this row.
@@ -444,8 +444,8 @@ class _RenderItemView extends StatelessWidget {
         // last attribute.
         for (var i = 0; i < item.depth; i++)
           Positioned(
-            left: i * context.yivi.defaultSpacing,
-            top: i >= item.previousDepth ? context.yivi.tinySpacing : 0,
+            left: i * context.yivi.spacing.base,
+            top: i >= item.previousDepth ? context.yivi.spacing.tiny : 0,
             bottom: i >= nextDepth ? endingLineBottom : 0,
             width: 1,
             child: Container(color: context.yivi.brand.neutralExtraLight),
@@ -638,7 +638,7 @@ class _PrimArrayContent extends StatelessWidget {
     );
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
-      padding: EdgeInsets.only(top: context.yivi.tinySpacing / 2),
+      padding: EdgeInsets.only(top: context.yivi.spacing.tiny / 2),
       child: Row(
         crossAxisAlignment: .start,
         children: [
@@ -656,7 +656,7 @@ class _PrimArrayContent extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: context.yivi.tinySpacing),
+          SizedBox(width: context.yivi.spacing.tiny),
           Expanded(child: Text(_formatValue(context, v), style: valueStyle)),
         ],
       ),

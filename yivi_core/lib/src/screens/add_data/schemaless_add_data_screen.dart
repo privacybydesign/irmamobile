@@ -21,10 +21,10 @@ class SchemalessAddDataScreen extends ConsumerWidget {
       backgroundColor: context.colors.surfaceContainerHigh,
       appBar: IrmaAppBar(titleTranslationKey: "data.add.title"),
       body: SingleChildScrollView(
-        padding: .all(context.yivi.defaultSpacing),
+        padding: .all(context.yivi.spacing.base),
         child: SafeArea(
           child: Column(
-            spacing: context.yivi.smallSpacing,
+            spacing: context.yivi.spacing.small,
             crossAxisAlignment: .start,
             children: [
               switch (storeItems) {
@@ -37,17 +37,17 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                 ),
                 AsyncData(value: final value) => Column(
                   crossAxisAlignment: .start,
-                  spacing: context.yivi.largeSpacing,
+                  spacing: context.yivi.spacing.large,
                   children: [
                     for (final CredentialStoreCategory(:category, :items)
                         in value)
                       Column(
                         crossAxisAlignment: .start,
-                        spacing: context.yivi.smallSpacing,
+                        spacing: context.yivi.spacing.small,
                         children: [
                           SectionHeader.text(category.translate(lang)),
                           Column(
-                            spacing: context.yivi.smallSpacing,
+                            spacing: context.yivi.spacing.small,
                             children: [
                               for (final CredentialStoreItem(:credential, :faq)
                                   in items)

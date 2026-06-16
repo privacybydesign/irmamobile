@@ -27,10 +27,10 @@ class IrmaBottomBarBase extends StatelessWidget {
       ),
       child: Padding(
         padding: .only(
-          left: context.yivi.defaultSpacing + mediaQuery.padding.left,
-          right: context.yivi.defaultSpacing + mediaQuery.padding.right,
-          top: context.yivi.smallSpacing,
-          bottom: context.yivi.smallSpacing + mediaQuery.padding.bottom,
+          left: context.yivi.spacing.base + mediaQuery.padding.left,
+          right: context.yivi.spacing.base + mediaQuery.padding.right,
+          top: context.yivi.spacing.small,
+          bottom: context.yivi.spacing.small + mediaQuery.padding.bottom,
         ),
         child: child,
       ),

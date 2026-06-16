@@ -150,18 +150,18 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Padding(
-                padding: .all(context.yivi.defaultSpacing),
+                padding: .all(context.yivi.spacing.base),
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [
-                    SizedBox(height: context.yivi.defaultSpacing),
+                    SizedBox(height: context.yivi.spacing.base),
                     TranslatedText(
                       "email_issuance.enter_email.header",
                       style: context.yivi.form.header,
                     ),
-                    SizedBox(height: context.yivi.defaultSpacing),
+                    SizedBox(height: context.yivi.spacing.base),
                     TranslatedText("email_issuance.enter_email.body"),
-                    SizedBox(height: context.yivi.largeSpacing),
+                    SizedBox(height: context.yivi.spacing.large),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -233,8 +233,8 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
         floatingActionButton: onScreenKeyboardShown
             ? Padding(
                 padding: .only(
-                  left: context.yivi.defaultSpacing + media.padding.left,
-                  right: context.yivi.defaultSpacing + media.padding.right,
+                  left: context.yivi.spacing.base + media.padding.left,
+                  right: context.yivi.spacing.base + media.padding.right,
                 ),
                 child: YiviThemedButton(
                   label: "email_issuance.enter_email.next_button",

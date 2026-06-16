@@ -50,7 +50,7 @@ class ActionFeedback extends StatelessWidget {
                   color: context.colors.onSurface,
                 ),
               ),
-              SizedBox(height: context.yivi.tinySpacing),
+              SizedBox(height: context.yivi.spacing.tiny),
               TranslatedText(
                 explanationTranslationKey,
                 translationParams: explanationTranslationParams,

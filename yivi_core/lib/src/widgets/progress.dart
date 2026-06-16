@@ -15,7 +15,7 @@ class IrmaProgress extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           LoadingIndicator(),
-          SizedBox(height: context.yivi.defaultSpacing),
+          SizedBox(height: context.yivi.spacing.base),
           TranslatedText(
             "ui.loading",
             style: context.text.displaySmall,

@@ -64,7 +64,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
       children: [
         if (status != null) ...[
           status,
-          SizedBox(height: context.yivi.smallSpacing),
+          SizedBox(height: context.yivi.spacing.small),
         ],
         IntrinsicHeight(
           child: Row(
@@ -84,7 +84,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: context.yivi.smallSpacing + context.yivi.tinySpacing,
+                width: context.yivi.spacing.small + context.yivi.spacing.tiny,
               ),
               Expanded(
                 child: Align(
@@ -107,7 +107,7 @@ class YiviCredentialCardHeader extends StatelessWidget {
                 ),
               ),
               if (trailing != null) ...[
-                SizedBox(width: context.yivi.smallSpacing),
+                SizedBox(width: context.yivi.spacing.small),
                 Align(alignment: Alignment.topCenter, child: trailing!),
               ],
             ],

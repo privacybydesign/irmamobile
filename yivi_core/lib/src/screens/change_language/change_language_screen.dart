@@ -16,13 +16,13 @@ class ChangeLanguageScreen extends StatelessWidget {
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(context.yivi.screenPadding),
+          padding: EdgeInsets.all(context.yivi.spacing.screenPadding),
           child: SafeArea(
             child: PreferredLocaleBuilder(
               builder: (context, preferredLocale) => Column(
                 children: [
                   UseSystemLanguageToggle(),
-                  SizedBox(height: context.yivi.defaultSpacing),
+                  SizedBox(height: context.yivi.spacing.base),
                   if (preferredLocale != null) ChangeLanguageRadio(),
                 ],
               ),

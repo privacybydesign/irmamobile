@@ -87,7 +87,7 @@ class IrmaCard extends StatelessWidget {
             onTap: onTap,
             child: Container(
               // In this context the "margin" is set on the container padding.
-              padding: margin ?? EdgeInsets.all(context.yivi.defaultSpacing),
+              padding: margin ?? EdgeInsets.all(context.yivi.spacing.base),
               child: child,
             ),
           ),

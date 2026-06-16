@@ -166,18 +166,18 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Padding(
-                padding: .all(context.yivi.defaultSpacing),
+                padding: .all(context.yivi.spacing.base),
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [
-                    SizedBox(height: context.yivi.defaultSpacing),
+                    SizedBox(height: context.yivi.spacing.base),
                     TranslatedText(
                       "sms_issuance.enter_phone.header",
                       style: context.yivi.form.header,
                     ),
-                    SizedBox(height: context.yivi.defaultSpacing),
+                    SizedBox(height: context.yivi.spacing.base),
                     TranslatedText("sms_issuance.enter_phone.body"),
-                    SizedBox(height: context.yivi.largeSpacing),
+                    SizedBox(height: context.yivi.spacing.large),
                     Form(
                       key: _formKey,
                       child: Column(
@@ -188,7 +188,7 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                             child: InternationalPhoneNumberInput(
                               key: const Key("phone_number_input_field"),
                               spaceBetweenSelectorAndTextField:
-                                  context.yivi.smallSpacing,
+                                  context.yivi.spacing.small,
                               focusNode: _focusNode,
                               inputDecoration: InputDecoration(
                                 hint: TranslatedText(
@@ -247,8 +247,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
         floatingActionButton: onScreenKeyboardShown
             ? Padding(
                 padding: .only(
-                  left: context.yivi.defaultSpacing + media.padding.left,
-                  right: context.yivi.defaultSpacing + media.padding.right,
+                  left: context.yivi.spacing.base + media.padding.left,
+                  right: context.yivi.spacing.base + media.padding.right,
                 ),
                 child: YiviThemedButton(
                   label: "sms_issuance.enter_phone.next_button",

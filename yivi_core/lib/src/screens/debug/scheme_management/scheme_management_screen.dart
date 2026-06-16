@@ -202,7 +202,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                 final irmaConfiguration = snapshot.data!.b;
 
                 return ListView(
-                  padding: EdgeInsets.all(context.yivi.defaultSpacing),
+                  padding: EdgeInsets.all(context.yivi.spacing.base),
                   children: [
                     const TranslatedText(
                       "debug.scheme_management.issuer_schemes",
@@ -217,7 +217,7 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
                             : null,
                         onTap: () => _onSchemeManagerTileTap(schemeManager.id),
                       ),
-                    SizedBox(height: context.yivi.defaultSpacing),
+                    SizedBox(height: context.yivi.spacing.base),
                     const TranslatedText(
                       "debug.scheme_management.requestor_schemes",
                     ),

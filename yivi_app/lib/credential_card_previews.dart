@@ -146,7 +146,7 @@ Widget yiviCardPreviewWrapper(Widget child) {
             backgroundColor: Colors.white,
             body: SafeArea(
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(context.yivi.defaultSpacing),
+                padding: EdgeInsets.all(context.yivi.spacing.base),
                 // Hold rendering until the yivi fonts are registered so the
                 // card doesn't briefly flash in the system font.
                 child: FutureBuilder<_FontLoadReport>(

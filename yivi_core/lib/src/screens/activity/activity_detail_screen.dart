@@ -43,7 +43,7 @@ class ActivityDetailsScreen extends StatelessWidget {
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(context.yivi.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.spacing.base),
           child: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

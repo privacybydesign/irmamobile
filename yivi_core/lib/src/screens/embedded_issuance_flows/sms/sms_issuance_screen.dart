@@ -34,7 +34,7 @@ class _WaitingScreen extends StatelessWidget {
     return Scaffold(
       appBar: IrmaAppBar(titleTranslationKey: "sms_issuance.enter_phone.title"),
       body: Padding(
-        padding: .all(context.yivi.defaultSpacing),
+        padding: .all(context.yivi.spacing.base),
         child: Center(child: CircularProgressIndicator()),
       ),
       bottomNavigationBar: IrmaBottomBar(

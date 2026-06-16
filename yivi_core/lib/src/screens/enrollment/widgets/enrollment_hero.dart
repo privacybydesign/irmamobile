@@ -19,7 +19,7 @@ class EnrollmentHero extends StatelessWidget {
 
     return SafeArea(
       minimum: isLandscape
-          ? EdgeInsets.symmetric(vertical: context.yivi.defaultSpacing)
+          ? EdgeInsets.symmetric(vertical: context.yivi.spacing.base)
           : EdgeInsets.zero,
       child: imagePath.endsWith("json")
           ? Lottie.asset(imagePath, frameRate: FrameRate(60))

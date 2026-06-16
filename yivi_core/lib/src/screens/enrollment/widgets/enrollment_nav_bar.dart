@@ -17,7 +17,7 @@ class EnrollmentNavBar extends StatelessWidget {
         child: Container(
           height: 100,
           color: context.colors.surface,
-          padding: EdgeInsets.all(context.yivi.mediumSpacing),
+          padding: EdgeInsets.all(context.yivi.spacing.medium),
           child: Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -29,7 +29,7 @@ class EnrollmentNavBar extends StatelessWidget {
                     ? Container()
                     : Padding(
                         padding: EdgeInsets.only(
-                          right: context.yivi.smallSpacing,
+                          right: context.yivi.spacing.small,
                         ),
                         child: YiviThemedButton(
                           key: const Key("enrollment_previous_button"),

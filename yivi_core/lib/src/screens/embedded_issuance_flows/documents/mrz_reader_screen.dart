@@ -85,7 +85,7 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
       ),
       _ => SingleChildScrollView(
         child: Padding(
-          padding: .all(context.yivi.defaultSpacing),
+          padding: .all(context.yivi.spacing.base),
           child: Column(
             mainAxisAlignment: .center,
             crossAxisAlignment: .center,
@@ -95,12 +95,12 @@ class MrzReaderScreenState extends State<MrzReaderScreen> {
                 style: context.text.displaySmall,
                 textAlign: .center,
               ),
-              SizedBox(height: context.yivi.smallSpacing),
+              SizedBox(height: context.yivi.spacing.small),
               TranslatedText(
                 "mrz_camera_permissions.content",
                 textAlign: .center,
               ),
-              SizedBox(height: context.yivi.largeSpacing),
+              SizedBox(height: context.yivi.spacing.large),
               TextButton(
                 child: TranslatedText(
                   "mrz_camera_permissions.open_settings",

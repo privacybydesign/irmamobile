@@ -130,12 +130,12 @@ class _PassportMrzManualEntryScreenState
               },
               child: SafeArea(
                 child: Padding(
-                  padding: .all(context.yivi.defaultSpacing),
+                  padding: .all(context.yivi.spacing.base),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
                       TranslatedText(widget.translationKeys.explanation),
-                      SizedBox(height: context.yivi.mediumSpacing),
+                      SizedBox(height: context.yivi.spacing.medium),
                       DocumentNrInputField(
                         controller: _documentNrCtrl,
                         labelText: FlutterI18n.translate(
@@ -151,7 +151,7 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.documentNumberInvalid,
                         ),
                       ),
-                      SizedBox(height: context.yivi.mediumSpacing),
+                      SizedBox(height: context.yivi.spacing.medium),
                       DateInputField(
                         controller: _dateOfBirthCtrl,
                         fieldKey: const Key("passport_dob_field"),
@@ -168,7 +168,7 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.dateInvalid,
                         ),
                       ),
-                      SizedBox(height: context.yivi.mediumSpacing),
+                      SizedBox(height: context.yivi.spacing.medium),
                       DateInputField(
                         controller: _expiryDateCtrl,
                         fieldKey: const Key("passport_expiry_date_field"),
@@ -185,7 +185,7 @@ class _PassportMrzManualEntryScreenState
                           widget.translationKeys.dateOfExpiryRequired,
                         ),
                       ),
-                      SizedBox(height: context.yivi.largeSpacing),
+                      SizedBox(height: context.yivi.spacing.large),
                     ],
                   ),
                 ),

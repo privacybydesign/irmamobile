@@ -106,10 +106,10 @@ class ActivityCard extends StatelessWidget {
               excludeSemantics: true,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
-                  context.yivi.defaultSpacing,
-                  context.yivi.defaultSpacing,
-                  context.yivi.smallSpacing,
-                  context.yivi.defaultSpacing,
+                  context.yivi.spacing.base,
+                  context.yivi.spacing.base,
+                  context.yivi.spacing.small,
+                  context.yivi.spacing.base,
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -121,8 +121,8 @@ class ActivityCard extends StatelessWidget {
                     ),
                     SizedBox(
                       width:
-                          context.yivi.defaultSpacing -
-                          context.yivi.tinySpacing,
+                          context.yivi.spacing.base -
+                          context.yivi.spacing.tiny,
                     ),
                     Expanded(
                       child: Column(
@@ -141,9 +141,9 @@ class ActivityCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(width: context.yivi.smallSpacing),
+                    SizedBox(width: context.yivi.spacing.small),
                     Text(localizedTimeStamp, style: context.text.bodySmall),
-                    SizedBox(width: context.yivi.tinySpacing),
+                    SizedBox(width: context.yivi.spacing.tiny),
                     const Chevron(),
                   ],
                 ),

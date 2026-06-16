@@ -246,7 +246,7 @@ class _DisclosureChoicesOverviewState
       appBarTitle: "disclosure_permission.overview.title",
       onDismiss: widget.onDismiss,
       body: SingleChildScrollView(
-        padding: .all(context.yivi.defaultSpacing),
+        padding: .all(context.yivi.spacing.base),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: .start,
@@ -265,18 +265,18 @@ class _DisclosureChoicesOverviewState
                   contentTranslationParams: {"requestorName": requestorName},
                 )
               else
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
 
               if (isSignature && session.messageToSign != null) ...[
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 TranslatedText(
                   "disclosure_permission.overview.sign",
                   style: context.text.headlineMedium,
                 ),
                 Padding(
                   padding: .only(
-                    top: context.yivi.smallSpacing,
-                    bottom: context.yivi.defaultSpacing,
+                    top: context.yivi.spacing.small,
+                    bottom: context.yivi.spacing.base,
                   ),
                   child: IrmaQuote(
                     key: const Key("signature_message"),
@@ -296,12 +296,12 @@ class _DisclosureChoicesOverviewState
 
               // Added optional choices
               if (addedOptionalChoices.isNotEmpty) ...[
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 TranslatedText(
                   "disclosure_permission.optional_data",
                   style: context.text.headlineMedium,
                 ),
-                SizedBox(height: context.yivi.smallSpacing),
+                SizedBox(height: context.yivi.spacing.small),
                 for (final (index, pickOne) in addedOptionalChoices)
                   _DisclosureChoiceEntry(
                     pickOne: pickOne,
@@ -322,7 +322,7 @@ class _DisclosureChoicesOverviewState
 
               // Add optional data button
               if (hasUnaddedOptional) ...[
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 IrmaActionCard(
                   titleKey: "disclosure_permission.add_optional_data",
                   icon: Icons.add_circle,
@@ -376,14 +376,14 @@ class _DisclosureChoiceEntry extends StatelessWidget {
       final credentials = bundle.credentials;
 
       return Padding(
-        padding: .only(bottom: context.yivi.defaultSpacing),
+        padding: .only(bottom: context.yivi.spacing.base),
         child: Column(
           children: [
             if (changeable && !optional)
               Padding(
                 padding: .only(
-                  bottom: context.yivi.smallSpacing,
-                  top: context.yivi.smallSpacing,
+                  bottom: context.yivi.spacing.small,
+                  top: context.yivi.spacing.small,
                 ),
                 child: Row(
                   mainAxisAlignment: .end,
@@ -404,7 +404,7 @@ class _DisclosureChoiceEntry extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(
                   bottom: i < credentials.length - 1
-                      ? context.yivi.smallSpacing
+                      ? context.yivi.spacing.small
                       : 0,
                 ),
                 child: YiviCredentialCard.fromSelectableInstance(
@@ -431,9 +431,9 @@ class _DisclosureChoiceEntry extends StatelessWidget {
     final obtainable = pickOne.obtainableOptions;
     if (obtainable != null && obtainable.isNotEmpty) {
       return Card(
-        margin: .only(bottom: context.yivi.smallSpacing),
+        margin: .only(bottom: context.yivi.spacing.small),
         child: Padding(
-          padding: .all(context.yivi.defaultSpacing),
+          padding: .all(context.yivi.spacing.base),
           child: Column(
             crossAxisAlignment: .start,
             children: [
@@ -443,10 +443,10 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                   color: context.colors.error,
                 ),
               ),
-              SizedBox(height: context.yivi.smallSpacing),
+              SizedBox(height: context.yivi.spacing.small),
               for (final cred in obtainable)
                 Padding(
-                  padding: .symmetric(vertical: context.yivi.tinySpacing),
+                  padding: .symmetric(vertical: context.yivi.spacing.tiny),
                   child: Text(
                     getTranslation(context, cred.name),
                     style: context.text.bodyLarge,

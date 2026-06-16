@@ -294,8 +294,8 @@ class YiviCredentialCard extends ConsumerWidget {
             IrmaDivider(
               color: status.isExpired ? context.yivi.brand.danger : null,
               padding: EdgeInsets.only(
-                top: context.yivi.defaultSpacing,
-                bottom: context.yivi.smallSpacing,
+                top: context.yivi.spacing.base,
+                bottom: context.yivi.spacing.small,
               ),
             ),
             YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
@@ -307,7 +307,7 @@ class YiviCredentialCard extends ConsumerWidget {
                   IrmaDivider(
                     color: status.isExpired ? context.yivi.brand.danger : null,
                     padding: EdgeInsets.symmetric(
-                      vertical: context.yivi.defaultSpacing,
+                      vertical: context.yivi.spacing.base,
                     ),
                   ),
                 YiviCredentialCardFooter(
@@ -320,7 +320,7 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
           if (status.showReobtain)
             Padding(
-              padding: EdgeInsets.only(top: context.yivi.defaultSpacing),
+              padding: EdgeInsets.only(top: context.yivi.spacing.base),
               child: YiviThemedButton(
                 label: "credential.options.reobtain",
                 style: YiviButtonStyle.filled,
@@ -336,7 +336,7 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
           if (status.showNotObtainable && !hideNotObtainable)
             Padding(
-              padding: EdgeInsets.only(top: context.yivi.defaultSpacing),
+              padding: EdgeInsets.only(top: context.yivi.spacing.base),
               child: InformationBox(
                 message: FlutterI18n.translate(
                   context,

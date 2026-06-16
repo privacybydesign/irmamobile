@@ -263,7 +263,7 @@ class CertManagerDetailScreen extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
-            padding: EdgeInsets.all(context.yivi.screenPadding),
+            padding: EdgeInsets.all(context.yivi.spacing.screenPadding),
             child: Column(
               children: [
                 // These values are not translated because they are the same in English and Dutch.

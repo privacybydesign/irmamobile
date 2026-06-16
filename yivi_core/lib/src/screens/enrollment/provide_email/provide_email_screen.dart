@@ -86,7 +86,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                 child: Column(
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(context.yivi.defaultSpacing),
+                      padding: EdgeInsets.all(context.yivi.spacing.base),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
@@ -95,11 +95,11 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                             "enrollment.email.provide.header",
                             style: context.text.displaySmall,
                           ),
-                          SizedBox(height: context.yivi.defaultSpacing),
+                          SizedBox(height: context.yivi.spacing.base),
                           const TranslatedText(
                             "enrollment.email.provide.explanation",
                           ),
-                          SizedBox(height: context.yivi.mediumSpacing),
+                          SizedBox(height: context.yivi.spacing.medium),
                           EmailInputField(controller: _emailController),
                         ],
                       ),

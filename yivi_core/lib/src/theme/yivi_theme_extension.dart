@@ -23,15 +23,11 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
   // (success/warning/link/danger). Lives here so dark mode in Phase 6 can
   // override it via copyWith/lerp.
   final YiviBrandColors brand;
+  // Spacing scale + screen gutter — accessed via `context.yivi.spacing.X`.
+  final YiviSpacing spacing;
 
-  // Spacing tokens — Material 3 has no canonical home for these.
-  final double tinySpacing;
-  final double smallSpacing;
-  final double defaultSpacing;
-  final double mediumSpacing;
-  final double largeSpacing;
-  final double hugeSpacing;
-  final double screenPadding;
+  // Default border radius for cards / containers. Lives at the top of the
+  // extension rather than under `spacing` because it isn't a length token.
   final BorderRadius borderRadius;
 
   // Legacy named text styles that pre-date the domain-style groups. Kept
@@ -52,13 +48,7 @@ class YiviThemeExtension extends ThemeExtension<YiviThemeExtension> {
     required this.card,
     required this.misc,
     required this.brand,
-    required this.tinySpacing,
-    required this.smallSpacing,
-    required this.defaultSpacing,
-    required this.mediumSpacing,
-    required this.largeSpacing,
-    required this.hugeSpacing,
-    required this.screenPadding,
+    required this.spacing,
     required this.borderRadius,
     required this.textButtonTextStyle,
     required this.mrzLabel,

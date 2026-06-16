@@ -103,7 +103,7 @@ class _IllustratorState extends State<Illustrator>
               ),
             ),
           ),
-          SizedBox(height: context.yivi.defaultSpacing),
+          SizedBox(height: context.yivi.spacing.base),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             child: SizedBox(
@@ -116,7 +116,7 @@ class _IllustratorState extends State<Illustrator>
             ),
           ),
           if (widget.imageSet.length > 1) ...[
-            SizedBox(height: context.yivi.defaultSpacing),
+            SizedBox(height: context.yivi.spacing.base),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -127,7 +127,7 @@ class _IllustratorState extends State<Illustrator>
               ],
             ),
           ],
-          SizedBox(height: context.yivi.smallSpacing),
+          SizedBox(height: context.yivi.spacing.small),
         ],
       ),
     );

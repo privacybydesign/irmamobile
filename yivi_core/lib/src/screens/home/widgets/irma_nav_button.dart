@@ -63,7 +63,7 @@ class IrmaNavButton extends StatelessWidget {
                   size: 28,
                   color: isSelected ? activeColor : inactiveColor,
                 ),
-              SizedBox(height: context.yivi.tinySpacing),
+              SizedBox(height: context.yivi.spacing.tiny),
               TranslatedText(
                 _navBarTabTranslationKeys[tab]!,
                 style: context.text.labelSmall!.copyWith(

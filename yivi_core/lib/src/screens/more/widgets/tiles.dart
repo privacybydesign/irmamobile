@@ -215,11 +215,11 @@ class Tile extends StatelessWidget {
       child: Material(
         child: ListTile(
           onTap: onTap,
-          minLeadingWidth: context.yivi.mediumSpacing,
+          minLeadingWidth: context.yivi.spacing.medium,
           contentPadding: EdgeInsets.fromLTRB(
-            context.yivi.defaultSpacing,
+            context.yivi.spacing.base,
             0,
-            context.yivi.smallSpacing,
+            context.yivi.spacing.small,
             0,
           ),
           leading: iconData != null

@@ -51,7 +51,7 @@ class IssueWizardContents extends StatelessWidget {
         children: [
           if (intro.isNotEmpty) ...[
             IrmaMarkdown(intro.translate(lang)),
-            SizedBox(height: context.yivi.defaultSpacing),
+            SizedBox(height: context.yivi.spacing.base),
           ],
           IrmaStepper(
             currentIndex: wizard.activeItemIndex >= 0
@@ -126,7 +126,7 @@ class IssueWizardContents extends StatelessWidget {
               step: wizard.activeItemIndex + 1,
               stepCount: wizardContentSize,
             ),
-          SizedBox(height: context.yivi.smallSpacing),
+          SizedBox(height: context.yivi.spacing.small),
           _buildWizard(context, lang, wizard),
         ],
       ),

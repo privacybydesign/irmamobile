@@ -33,8 +33,8 @@ class EmailSentScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: context.yivi.defaultSpacing,
-            vertical: context.yivi.defaultSpacing,
+            horizontal: context.yivi.spacing.base,
+            vertical: context.yivi.spacing.base,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,7 +42,7 @@ class EmailSentScreen extends StatelessWidget {
               const IrmaQuote(
                 quote: "enrollment.email.confirm.explanation_extra_markdown",
               ),
-              SizedBox(height: context.yivi.defaultSpacing),
+              SizedBox(height: context.yivi.spacing.base),
               Text.rich(
                 TextSpan(
                   children: [
@@ -54,7 +54,7 @@ class EmailSentScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: context.yivi.smallSpacing),
+              SizedBox(height: context.yivi.spacing.small),
               const TranslatedText("enrollment.email.confirm.explanation"),
             ],
           ),

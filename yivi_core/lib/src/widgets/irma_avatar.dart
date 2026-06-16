@@ -57,7 +57,7 @@ class IrmaAvatar extends StatelessWidget {
               image ??
               Container(
                 height: size / 2,
-                padding: EdgeInsets.all(context.yivi.smallSpacing),
+                padding: EdgeInsets.all(context.yivi.spacing.small),
                 child: FittedBox(
                   fit: BoxFit.fitHeight,
                   child: Text(

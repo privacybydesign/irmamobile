@@ -3,6 +3,7 @@ import "package:flutter/services.dart";
 
 part "brand_colors.dart";
 part "text_styles.dart";
+part "yivi_spacing.dart";
 part "yivi_theme_extension.dart";
 
 /// Build the Yivi-themed [ThemeData] — wires up colors, text theme, component
@@ -452,6 +453,16 @@ ThemeData buildYiviThemeData() {
   // shape — exposed via Theme.of(context).extension<YiviThemeExtension>()
   // (or the `context.yivi` getter).
   // ──────────────────────────────────────────────────────────────────────
+  final spacing = YiviSpacing(
+    tiny: tinySpacing,
+    small: smallSpacing,
+    base: defaultSpacing,
+    medium: mediumSpacing,
+    large: largeSpacing,
+    huge: hugeSpacing,
+    screenPadding: screenPadding,
+  );
+
   final yiviExtension = YiviThemeExtension(
     activity: activity,
     pin: pin,
@@ -470,13 +481,7 @@ ThemeData buildYiviThemeData() {
       neutral: neutral,
       neutralExtraLight: neutralExtraLight,
     ),
-    tinySpacing: tinySpacing,
-    smallSpacing: smallSpacing,
-    defaultSpacing: defaultSpacing,
-    mediumSpacing: mediumSpacing,
-    largeSpacing: largeSpacing,
-    hugeSpacing: hugeSpacing,
-    screenPadding: screenPadding,
+    spacing: spacing,
     borderRadius: borderRadius,
     textButtonTextStyle: textButtonTextStyle,
     mrzLabel: mrzLabel,

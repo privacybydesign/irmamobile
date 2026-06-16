@@ -32,7 +32,7 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
       title: translatedTitle,
       content: translatedContent,
       child: Wrap(
-        runSpacing: context.yivi.defaultSpacing,
+        runSpacing: context.yivi.spacing.base,
         alignment: WrapAlignment.center,
         children: [
           TextField(

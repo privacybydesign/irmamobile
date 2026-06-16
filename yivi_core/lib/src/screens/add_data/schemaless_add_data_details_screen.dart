@@ -39,15 +39,15 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final paddingText = EdgeInsets.fromLTRB(
-      context.yivi.defaultSpacing,
-      context.yivi.tinySpacing,
-      context.yivi.defaultSpacing,
+      context.yivi.spacing.base,
+      context.yivi.spacing.tiny,
+      context.yivi.spacing.base,
       0,
     );
     final paddingQuestions = EdgeInsets.fromLTRB(
-      context.yivi.smallSpacing,
-      context.yivi.mediumSpacing,
-      context.yivi.smallSpacing,
+      context.yivi.spacing.small,
+      context.yivi.spacing.medium,
+      context.yivi.spacing.small,
       0,
     );
 
@@ -73,7 +73,7 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
         actions: [
           if (widget.onDismiss != null)
             Padding(
-              padding: .only(right: context.yivi.defaultSpacing),
+              padding: .only(right: context.yivi.spacing.base),
               child: IrmaCloseButton(onTap: widget.onDismiss),
             ),
         ],
@@ -84,8 +84,8 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           controller: _controller,
           padding: .symmetric(
-            vertical: context.yivi.defaultSpacing,
-            horizontal: context.yivi.smallSpacing,
+            vertical: context.yivi.spacing.base,
+            horizontal: context.yivi.spacing.small,
           ),
           child: SafeArea(
             child: Column(

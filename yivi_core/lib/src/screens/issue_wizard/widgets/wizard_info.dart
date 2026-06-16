@@ -55,13 +55,13 @@ class IssueWizardInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         IrmaMarkdown(wizardData.info.translate(lang)),
-        SizedBox(height: context.yivi.mediumSpacing),
+        SizedBox(height: context.yivi.spacing.medium),
         ListView.separated(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: (context, i) => items.elementAt(i),
           separatorBuilder: (_, i) =>
-              SizedBox(height: context.yivi.smallSpacing),
+              SizedBox(height: context.yivi.spacing.small),
           itemCount: items.length,
         ),
       ],

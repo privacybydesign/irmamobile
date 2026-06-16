@@ -140,7 +140,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final paddingSize = context.yivi.screenPadding;
+    final paddingSize = context.yivi.spacing.screenPadding;
 
     return Scaffold(
       appBar: IrmaAppBar(
@@ -172,7 +172,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
                 ),
                 if (widget.submitting)
                   Padding(
-                    padding: EdgeInsets.all(context.yivi.defaultSpacing),
+                    padding: EdgeInsets.all(context.yivi.spacing.base),
                     child: const CircularProgressIndicator(),
                   ),
               ],
@@ -204,7 +204,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         // For short pin: invisible next button at top (maintains layout space)
         if (!_isLongPin)
           Padding(
-            padding: EdgeInsets.only(top: context.yivi.screenPadding),
+            padding: EdgeInsets.only(top: context.yivi.spacing.screenPadding),
             child: _buildNextButton(visibility: _WidgetVisibility.invisible),
           ),
         Expanded(
@@ -242,7 +242,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
         // For long pin: visible next button at bottom
         if (_isLongPin)
           Padding(
-            padding: EdgeInsets.only(top: context.yivi.screenPadding),
+            padding: EdgeInsets.only(top: context.yivi.spacing.screenPadding),
             child: _buildNextButton(visibility: _WidgetVisibility.visible),
           ),
       ],

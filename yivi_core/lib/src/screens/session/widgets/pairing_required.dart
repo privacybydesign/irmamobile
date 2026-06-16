@@ -28,7 +28,7 @@ class PairingRequired extends StatelessWidget {
 
     return Wrap(
       alignment: WrapAlignment.center,
-      spacing: context.yivi.mediumSpacing,
+      spacing: context.yivi.spacing.medium,
       children: boxes,
     );
   }
@@ -50,7 +50,7 @@ class PairingRequired extends StatelessWidget {
       bottomNavigationBar: _buildNavigationBar(context),
       onDismiss: onDismiss,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(context.yivi.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.spacing.base),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -63,8 +63,8 @@ class PairingRequired extends StatelessWidget {
             SizedBox(
               height:
                   MediaQuery.of(context).orientation == Orientation.landscape
-                  ? context.yivi.mediumSpacing
-                  : context.yivi.hugeSpacing,
+                  ? context.yivi.spacing.medium
+                  : context.yivi.spacing.huge,
             ),
             _buildPinBoxes(context),
           ],

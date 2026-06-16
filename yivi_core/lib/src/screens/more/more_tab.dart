@@ -49,10 +49,10 @@ class _MoreTabState extends State<MoreTab> {
 
   @override
   Widget build(BuildContext context) {
-    final spacerWidget = SizedBox(height: context.yivi.mediumSpacing);
+    final spacerWidget = SizedBox(height: context.yivi.spacing.medium);
 
     Widget buildHeaderText(String translationKey) => Padding(
-      padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+      padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
       child: SectionHeader(translationKey),
     );
 
@@ -64,7 +64,7 @@ class _MoreTabState extends State<MoreTab> {
       ),
       body: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.all(context.yivi.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.spacing.base),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

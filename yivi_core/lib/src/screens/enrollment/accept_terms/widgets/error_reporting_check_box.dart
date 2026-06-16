@@ -39,7 +39,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
             );
           },
         ),
-        SizedBox(width: context.yivi.smallSpacing),
+        SizedBox(width: context.yivi.spacing.small),
         Flexible(
           child: Text.rich(
             TextSpan(

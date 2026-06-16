@@ -104,7 +104,7 @@ class _CollapsibleState extends State<Collapsible> {
         initiallyExpanded: widget.initiallyExpanded,
         onExpansionChanged: _onExpansionChanged,
         animatedWidgetFollowingHeader: Padding(
-          padding: EdgeInsets.all(context.yivi.tinySpacing),
+          padding: EdgeInsets.all(context.yivi.spacing.tiny),
           child: Icon(
             Icons.expand_more,
             color: context.colors.onSurfaceVariant,
@@ -120,10 +120,10 @@ class _CollapsibleState extends State<Collapsible> {
                 : FlutterI18n.translate(context, "accessibility.collapsed"),
             child: Padding(
               padding: EdgeInsets.only(
-                top: context.yivi.tinySpacing * 3,
-                bottom: context.yivi.tinySpacing * 3,
-                left: context.yivi.defaultSpacing,
-                right: context.yivi.defaultSpacing,
+                top: context.yivi.spacing.tiny * 3,
+                bottom: context.yivi.spacing.tiny * 3,
+                left: context.yivi.spacing.base,
+                right: context.yivi.spacing.base,
               ),
               child: Text(widget.header, style: context.text.headlineSmall),
             ),
@@ -132,8 +132,8 @@ class _CollapsibleState extends State<Collapsible> {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(
-              vertical: context.yivi.smallSpacing,
-              horizontal: context.yivi.defaultSpacing,
+              vertical: context.yivi.spacing.small,
+              horizontal: context.yivi.spacing.base,
             ),
             child: ExcludeSemantics(
               excluding: !_isExpanded,

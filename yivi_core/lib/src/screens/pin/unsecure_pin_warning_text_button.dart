@@ -26,18 +26,18 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
         titleKey: "secure_pin.title",
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: context.yivi.defaultSpacing,
+            horizontal: context.yivi.spacing.base,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: context.yivi.screenPadding),
+              SizedBox(height: context.yivi.spacing.screenPadding),
               Text(
                 FlutterI18n.translate(context, "secure_pin.subtitle"),
                 style: context.text.bodyMedium,
               ),
-              SizedBox(height: context.yivi.screenPadding),
+              SizedBox(height: context.yivi.spacing.screenPadding),
               ..._listBuilder(context, state),
               const SizedBox(height: 32),
             ],

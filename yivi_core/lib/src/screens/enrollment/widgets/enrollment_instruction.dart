@@ -32,26 +32,26 @@ class EnrollmentInstruction extends StatelessWidget {
       children: [
         // Instruction content
         SingleChildScrollView(
-          padding: EdgeInsets.all(context.yivi.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.spacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (isLandscape) SizedBox(height: context.yivi.defaultSpacing),
+              if (isLandscape) SizedBox(height: context.yivi.spacing.base),
               if (stepIndex != null && stepCount != null)
                 YiviProgressIndicator(
                   stepCount: stepCount!,
                   stepIndex: stepIndex!,
                 ),
-              SizedBox(height: context.yivi.smallSpacing),
+              SizedBox(height: context.yivi.spacing.small),
               TranslatedText(
                 titleTranslationKey,
                 style: context.text.displayLarge,
               ),
-              SizedBox(height: context.yivi.defaultSpacing),
+              SizedBox(height: context.yivi.spacing.base),
               TranslatedText(explanationTranslationKey),
               // Extra white space so the content above always stays visible
               SizedBox(
-                height: context.yivi.defaultSpacing + context.yivi.hugeSpacing,
+                height: context.yivi.spacing.base + context.yivi.spacing.huge,
               ),
             ],
           ),

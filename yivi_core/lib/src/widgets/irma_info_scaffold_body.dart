@@ -60,7 +60,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(context.yivi.largeSpacing),
+        padding: EdgeInsets.all(context.yivi.spacing.large),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -75,7 +75,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                 (imagePath!.endsWith("svg"))
                     ? SvgPicture.asset(imagePath!)
                     : Image.asset(imagePath!),
-              SizedBox(height: context.yivi.mediumSpacing),
+              SizedBox(height: context.yivi.spacing.medium),
             ],
             TranslatedText(
               titleTranslationKey,
@@ -84,7 +84,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             if (bodyTranslationKey != null) ...[
-              SizedBox(height: context.yivi.mediumSpacing),
+              SizedBox(height: context.yivi.spacing.medium),
               TranslatedText(
                 bodyTranslationKey!,
                 translationParams: bodyTranslationParams,
@@ -93,7 +93,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
               ),
             ],
             if (linkTranslationKey != null) ...[
-              SizedBox(height: context.yivi.mediumSpacing),
+              SizedBox(height: context.yivi.spacing.medium),
               GestureDetector(
                 onTap: () {
                   _showIrmaDialog(context);

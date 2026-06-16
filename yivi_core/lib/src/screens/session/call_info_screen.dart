@@ -40,7 +40,7 @@ class CallInfoScreen extends StatelessWidget {
           onPrimaryPressed: () => onContinue?.call(),
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.all(context.yivi.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.spacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -51,14 +51,14 @@ class CallInfoScreen extends StatelessWidget {
                   translationParams: {"otherParty": otherParty},
                 ),
               ),
-              SizedBox(height: context.yivi.defaultSpacing),
+              SizedBox(height: context.yivi.spacing.base),
               TranslatedText(
                 _appendPlatformToTranslationKey(
                   "disclosure_permission.call.explanation_header",
                 ),
                 style: context.text.headlineMedium,
               ),
-              SizedBox(height: context.yivi.tinySpacing),
+              SizedBox(height: context.yivi.spacing.tiny),
               TranslatedText(
                 _appendPlatformToTranslationKey(
                   "disclosure_permission.call.explanation",
@@ -67,12 +67,12 @@ class CallInfoScreen extends StatelessWidget {
               ),
               // Android requires an extra step
               if (Platform.isAndroid) ...[
-                SizedBox(height: context.yivi.mediumSpacing),
+                SizedBox(height: context.yivi.spacing.medium),
                 TranslatedText(
                   "disclosure_permission.call.extra_explanation_header_android",
                   style: context.text.headlineMedium,
                 ),
-                SizedBox(height: context.yivi.tinySpacing),
+                SizedBox(height: context.yivi.spacing.tiny),
                 TranslatedText(
                   "disclosure_permission.call.extra_explanation_android",
                   style: context.text.bodySmall,

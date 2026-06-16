@@ -17,7 +17,7 @@ class EndOfListIndicator extends StatelessWidget {
     );
 
     final statusIndicatorWidget = Padding(
-      padding: EdgeInsets.symmetric(horizontal: context.yivi.defaultSpacing),
+      padding: EdgeInsets.symmetric(horizontal: context.yivi.spacing.base),
       child: Container(
         width: 24,
         height: 24,
@@ -42,9 +42,9 @@ class EndOfListIndicator extends StatelessWidget {
             expandedDividerWidget,
           ],
         ),
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: context.yivi.hugeSpacing),
+          padding: EdgeInsets.symmetric(horizontal: context.yivi.spacing.huge),
           child: TranslatedText(
             isLoading ? "ui.loading" : "ui.end_of_list",
             textAlign: TextAlign.center,

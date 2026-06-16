@@ -35,7 +35,7 @@ class AddDataQuestions extends StatelessWidget {
         markdown + getTranslation(context, bodyText).replaceAll("\\n", "\n\n");
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: context.yivi.tinySpacing),
+      padding: EdgeInsets.symmetric(vertical: context.yivi.spacing.tiny),
       child: Collapsible(
         initiallyExpanded: initiallyExpanded,
         header: FlutterI18n.translate(context, headerTranslationKey),

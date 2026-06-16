@@ -27,7 +27,7 @@ class IrmaBottomBar extends StatelessWidget {
   Widget _buildPrimaryButton(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: context.yivi.tinySpacing),
+        padding: EdgeInsets.symmetric(vertical: context.yivi.spacing.tiny),
         child: YiviThemedButton(
           key: const Key("bottom_bar_primary"),
           onPressed: onPrimaryPressed,
@@ -64,7 +64,7 @@ class IrmaBottomBar extends StatelessWidget {
                 if (primaryButtonLabel != null)
                   Row(children: [_buildPrimaryButton(context)]),
                 if (secondaryButtonLabel != null) ...[
-                  SizedBox(height: context.yivi.tinySpacing),
+                  SizedBox(height: context.yivi.spacing.tiny),
                   Row(children: [_buildSecondaryButton(context)]),
                 ],
               ],
@@ -74,7 +74,7 @@ class IrmaBottomBar extends StatelessWidget {
               children: [
                 if (secondaryButtonLabel != null) ...[
                   _buildSecondaryButton(context),
-                  SizedBox(width: context.yivi.tinySpacing),
+                  SizedBox(width: context.yivi.spacing.tiny),
                 ],
                 if (primaryButtonLabel != null) _buildPrimaryButton(context),
               ],

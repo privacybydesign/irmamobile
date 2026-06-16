@@ -18,14 +18,14 @@ class BulletList extends StatelessWidget {
           .map(
             (translationKey) => Padding(
               padding: EdgeInsets.symmetric(
-                vertical: context.yivi.smallSpacing,
+                vertical: context.yivi.spacing.small,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   leading != null ? leading! : Text("•  ", style: textStyle),
-                  SizedBox(width: context.yivi.smallSpacing),
+                  SizedBox(width: context.yivi.spacing.small),
                   Expanded(
                     child: TranslatedText(translationKey, style: textStyle),
                   ),

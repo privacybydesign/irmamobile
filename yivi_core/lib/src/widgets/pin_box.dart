@@ -42,7 +42,7 @@ class PinBox extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(
-          Radius.circular(context.yivi.tinySpacing),
+          Radius.circular(context.yivi.spacing.tiny),
         ),
         border: Border.all(
           color: getBorderColor(context),

@@ -33,7 +33,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
                 color: context.colors.onSurface,
               ),
             ),
-            SizedBox(height: context.yivi.tinySpacing),
+            SizedBox(height: context.yivi.spacing.tiny),
             TranslatedText(
               "disclosure_permission.introduction.explanation",
               style: context.text.bodyMedium,

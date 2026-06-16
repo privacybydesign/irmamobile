@@ -22,7 +22,7 @@ class DrivingLicenceMrzCameraOverlay extends StatelessWidget {
           Size(c.maxWidth, c.maxHeight),
         );
         final numChars = maxLtApprox(
-          overlayRect.width - context.yivi.defaultSpacing,
+          overlayRect.width - context.yivi.spacing.base,
           context.yivi.mrzLabel,
         );
         final guidelines = "<" * numChars;

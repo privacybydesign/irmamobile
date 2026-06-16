@@ -48,7 +48,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                 SizedBox(
                   width: fortyFivePercent,
                   child: Column(
-                    spacing: context.yivi.tinySpacing,
+                    spacing: context.yivi.spacing.tiny,
                     children: [
                       TranslatedText(
                         "credential.valid_until",
@@ -79,7 +79,7 @@ class YiviCredentialCardFooter extends StatelessWidget {
                 SizedBox(
                   width: fortyFivePercent,
                   child: Column(
-                    spacing: context.yivi.tinySpacing,
+                    spacing: context.yivi.spacing.tiny,
                     children: [
                       TranslatedText(
                         "credential.sharable",

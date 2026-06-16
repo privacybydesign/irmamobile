@@ -189,7 +189,7 @@ class _NoCredentialsYet extends StatelessWidget {
 
   Padding _buildLandscapeOrientation(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(context.yivi.screenPadding),
+      padding: EdgeInsets.all(context.yivi.spacing.screenPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -205,7 +205,7 @@ class _NoCredentialsYet extends StatelessWidget {
                   style: context.text.displayLarge,
                   textAlign: TextAlign.start,
                 ),
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 TranslatedText(
                   "data_tab.empty.subtitle",
                   textAlign: TextAlign.start,
@@ -221,15 +221,15 @@ class _NoCredentialsYet extends StatelessWidget {
 
   Padding _buildPortraitOrientation(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(context.yivi.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.spacing.base),
       child: Align(
         alignment: Alignment.topCenter,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: context.yivi.defaultSpacing),
+            SizedBox(height: context.yivi.spacing.base),
             _ToAddDataButtonPointingImage(addDataButtonKey: addDataButtonKey),
-            SizedBox(height: context.yivi.largeSpacing),
+            SizedBox(height: context.yivi.spacing.large),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -238,7 +238,7 @@ class _NoCredentialsYet extends StatelessWidget {
                   style: context.text.displayLarge,
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 TranslatedText(
                   "data_tab.empty.subtitle",
                   textAlign: TextAlign.center,
@@ -281,14 +281,14 @@ class _CredentialsTypeList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       key: const Key("credentials_type_list"),
-      padding: EdgeInsets.only(top: context.yivi.defaultSpacing),
+      padding: EdgeInsets.only(top: context.yivi.spacing.base),
       children: [
         ...credentials.map((c) {
           return Padding(
             padding: EdgeInsets.only(
-              bottom: context.yivi.smallSpacing,
-              left: context.yivi.defaultSpacing,
-              right: context.yivi.defaultSpacing,
+              bottom: context.yivi.spacing.small,
+              left: context.yivi.spacing.base,
+              right: context.yivi.spacing.base,
             ),
             child: SchemalessYiviCredentialTypeCard(
               credentialId: c.credentialId,
@@ -312,7 +312,7 @@ class _CredentialsSearchResults extends ConsumerWidget {
   Center _buildNoCredentialsFound(BuildContext context, String query) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(context.yivi.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.spacing.base),
         child: TranslatedText(
           "data.search.no_results",
           translationParams: {"query": query},
@@ -370,7 +370,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
             // It will show a shadow around the padded area, which looks weird. Therefore we remove the shadow altogether.
             return Material(type: .transparency, child: child);
           },
-          padding: EdgeInsets.all(context.yivi.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.spacing.base),
           itemCount: items.length,
           buildDefaultDragHandles: false,
           footer: SizedBox(height: 50),
@@ -379,7 +379,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
 
             return Padding(
               key: ValueKey(cred.credentialId),
-              padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
               child: ReorderableDelayedDragStartListener(
                 index: i,
                 child: SchemalessYiviCredentialTypeCard(

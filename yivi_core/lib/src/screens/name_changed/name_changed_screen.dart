@@ -50,9 +50,9 @@ class NameChangedScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         oldLogoWidget,
-        SizedBox(height: context.yivi.largeSpacing),
+        SizedBox(height: context.yivi.spacing.large),
         titleTextWidget,
-        SizedBox(height: context.yivi.tinySpacing),
+        SizedBox(height: context.yivi.spacing.tiny),
         headerTextWidget,
         Lottie.asset(
           yiviAsset("non-free/yivi_name_change.json"),
@@ -70,19 +70,19 @@ class NameChangedScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [oldLogoWidget, newLogoWidget],
         ),
-        SizedBox(width: context.yivi.largeSpacing),
+        SizedBox(width: context.yivi.spacing.large),
         Flexible(
           flex: 2,
           child: Column(
             children: [
               titleTextWidget,
-              SizedBox(height: context.yivi.tinySpacing),
+              SizedBox(height: context.yivi.spacing.tiny),
               TranslatedText(
                 "name_changed.header",
                 style: context.text.bodyMedium,
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: context.yivi.tinySpacing),
+              SizedBox(height: context.yivi.spacing.tiny),
               explanationTextWidget,
             ],
           ),
@@ -94,7 +94,7 @@ class NameChangedScreen extends StatelessWidget {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(context.yivi.screenPadding),
+            padding: EdgeInsets.all(context.yivi.spacing.screenPadding),
             child: isLandscape ? buildLandscape() : buildPortrait(),
           ),
         ),

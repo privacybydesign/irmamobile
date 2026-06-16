@@ -35,7 +35,7 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
       title: translatedTitle,
       content: translatedContent,
       child: Wrap(
-        runSpacing: context.yivi.defaultSpacing,
+        runSpacing: context.yivi.spacing.base,
         alignment: WrapAlignment.center,
         children: [
           DropdownMenu(

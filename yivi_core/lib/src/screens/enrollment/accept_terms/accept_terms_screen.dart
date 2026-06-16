@@ -32,25 +32,25 @@ class AcceptTermsScreen extends StatelessWidget {
                 constraints: BoxConstraints(minHeight: constraint.maxHeight),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: EdgeInsets.all(context.yivi.mediumSpacing),
+                    padding: EdgeInsets.all(context.yivi.spacing.medium),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Title
-                        SizedBox(height: context.yivi.mediumSpacing),
+                        SizedBox(height: context.yivi.spacing.medium),
                         TranslatedText(
                           "enrollment.terms_and_conditions.title",
                           style: context.text.displayLarge,
                           textAlign: TextAlign.start,
                         ),
-                        SizedBox(height: context.yivi.mediumSpacing),
+                        SizedBox(height: context.yivi.spacing.medium),
 
                         // Explanation
                         const TranslatedText(
                           "enrollment.terms_and_conditions.explanation",
                           textAlign: TextAlign.start,
                         ),
-                        SizedBox(height: context.yivi.mediumSpacing),
+                        SizedBox(height: context.yivi.spacing.medium),
 
                         TermsBulletList(),
                         const Spacer(),
@@ -63,7 +63,7 @@ class AcceptTermsScreen extends StatelessWidget {
                         // If not in landscape mode, add some spacing
                         if (MediaQuery.of(context).orientation ==
                             Orientation.portrait)
-                          SizedBox(height: context.yivi.defaultSpacing),
+                          SizedBox(height: context.yivi.spacing.base),
 
                         ErrorReportingCheckBox(),
                       ],

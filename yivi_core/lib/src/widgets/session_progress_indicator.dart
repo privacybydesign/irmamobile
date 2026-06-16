@@ -31,9 +31,9 @@ class SessionProgressIndicator extends StatelessWidget {
 
     return IrmaCard(
       hasShadow: false,
-      padding: EdgeInsets.symmetric(vertical: context.yivi.defaultSpacing),
+      padding: EdgeInsets.symmetric(vertical: context.yivi.spacing.base),
       style: IrmaCardStyle.highlighted,
-      margin: EdgeInsets.all(context.yivi.defaultSpacing),
+      margin: EdgeInsets.all(context.yivi.spacing.base),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -48,7 +48,7 @@ class SessionProgressIndicator extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.symmetric(
-                vertical: context.yivi.smallSpacing,
+                vertical: context.yivi.spacing.small,
               ),
               child: IrmaLinearProgressIndicator(
                 filledPercentage: step! / stepCount! * 100,

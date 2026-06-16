@@ -150,7 +150,7 @@ class DisclosureDisconStepper extends StatelessWidget {
         return _renderChoice(context, step, issuanceStepIndex);
       case _CredentialVirtualStep(:final descriptor):
         return Padding(
-          padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+          padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
           child: YiviCredentialCard.fromDescriptor(
             descriptor: descriptor,
             compact: true,
@@ -177,7 +177,7 @@ class DisclosureDisconStepper extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.all(context.yivi.smallSpacing),
+          padding: EdgeInsets.all(context.yivi.spacing.small),
           child: TranslatedText(
             "disclosure_permission.choose",
             style: context.text.headlineMedium,

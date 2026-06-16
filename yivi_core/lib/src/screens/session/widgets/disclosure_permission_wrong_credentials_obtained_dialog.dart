@@ -48,7 +48,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
         child: ColoredBox(
           color: context.colors.surfaceContainerHigh,
           child: Padding(
-            padding: EdgeInsets.all(context.yivi.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.spacing.base),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -72,7 +72,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        SizedBox(height: context.yivi.mediumSpacing),
+                        SizedBox(height: context.yivi.spacing.medium),
                         Text(
                           FlutterI18n.translate(
                             context,
@@ -81,7 +81,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                           style: context.text.bodyMedium,
                           textAlign: TextAlign.left,
                         ),
-                        SizedBox(height: context.yivi.defaultSpacing),
+                        SizedBox(height: context.yivi.spacing.base),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -92,14 +92,14 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                             style: context.text.headlineMedium,
                           ),
                         ),
-                        SizedBox(height: context.yivi.smallSpacing),
+                        SizedBox(height: context.yivi.spacing.small),
                         YiviCredentialCard.fromCredential(
                           credential: wrongCredential,
                           compact: true,
                           hideFooter: true,
                           compareTo: compareTo,
                         ),
-                        SizedBox(height: context.yivi.defaultSpacing),
+                        SizedBox(height: context.yivi.spacing.base),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -110,7 +110,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                             style: context.text.headlineMedium,
                           ),
                         ),
-                        SizedBox(height: context.yivi.smallSpacing),
+                        SizedBox(height: context.yivi.spacing.small),
                         YiviCredentialCard.fromDescriptor(
                           descriptor: template,
                           compact: true,
@@ -119,7 +119,7 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: context.yivi.defaultSpacing),
+                SizedBox(height: context.yivi.spacing.base),
                 YiviThemedButton(
                   label:
                       "disclosure_permission.wrong_credentials_added.dismiss_action",

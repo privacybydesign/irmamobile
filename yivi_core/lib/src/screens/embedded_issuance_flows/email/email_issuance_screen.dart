@@ -36,7 +36,7 @@ class _WaitingScreen extends StatelessWidget {
         titleTranslationKey: "email_issuance.enter_email.title",
       ),
       body: Padding(
-        padding: .all(context.yivi.defaultSpacing),
+        padding: .all(context.yivi.spacing.base),
         child: Center(child: CircularProgressIndicator()),
       ),
       bottomNavigationBar: IrmaBottomBar(

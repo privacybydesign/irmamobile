@@ -19,7 +19,7 @@ class DynamicLayout extends StatelessWidget {
     for (var action in actions) {
       rowChildren.add(Expanded(child: action));
       if (action != actions.last) {
-        rowChildren.add(SizedBox(width: context.yivi.smallSpacing));
+        rowChildren.add(SizedBox(width: context.yivi.spacing.small));
       }
     }
     return Row(
@@ -36,13 +36,13 @@ class DynamicLayout extends StatelessWidget {
     final actions = this.actions;
 
     return Padding(
-      padding: EdgeInsets.all(context.yivi.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.spacing.base),
       child: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(child: hero),
-            SizedBox(width: context.yivi.smallSpacing),
+            SizedBox(width: context.yivi.spacing.small),
             Expanded(
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -59,7 +59,7 @@ class DynamicLayout extends StatelessWidget {
                           alignment: Alignment.bottomCenter,
                           child: Container(
                             padding: EdgeInsets.only(
-                              bottom: context.yivi.defaultSpacing,
+                              bottom: context.yivi.spacing.base,
                             ),
                             child: _buildButtonsRow(context, actions),
                           ),
@@ -91,14 +91,14 @@ class DynamicLayout extends StatelessWidget {
             SingleChildScrollView(
               padding: EdgeInsets.all(
                 isSmallScreen
-                    ? context.yivi.defaultSpacing
-                    : context.yivi.largeSpacing,
+                    ? context.yivi.spacing.base
+                    : context.yivi.spacing.large,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   hero,
-                  SizedBox(height: context.yivi.mediumSpacing),
+                  SizedBox(height: context.yivi.spacing.medium),
                   Row(children: [Expanded(child: content)]),
                   if (actions != null) const SizedBox(height: 100),
                 ],

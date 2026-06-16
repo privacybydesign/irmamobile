@@ -18,10 +18,10 @@ class ActivityDetailRemoval extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeader("activity.deleted_data"),
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         for (var removedCredential in removedCredentials)
           Padding(
-            padding: EdgeInsets.only(top: context.yivi.smallSpacing),
+            padding: EdgeInsets.only(top: context.yivi.spacing.small),
             child: YiviCredentialCard.fromLogCredential(
               logCredential: removedCredential,
               compact: true,

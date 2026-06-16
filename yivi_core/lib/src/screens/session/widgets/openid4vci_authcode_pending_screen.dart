@@ -65,13 +65,13 @@ class _OpenID4VCIAuthCodePendingScreenState
       ),
       body: ListView(
         padding: EdgeInsets.only(
-          left: context.yivi.defaultSpacing,
-          right: context.yivi.defaultSpacing,
-          top: context.yivi.smallSpacing,
+          left: context.yivi.spacing.base,
+          right: context.yivi.spacing.base,
+          top: context.yivi.spacing.small,
         ),
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(vertical: context.yivi.smallSpacing),
+            padding: EdgeInsets.symmetric(vertical: context.yivi.spacing.small),
             child: IrmaQuote(
               quote: FlutterI18n.translate(
                 context,
@@ -85,7 +85,7 @@ class _OpenID4VCIAuthCodePendingScreenState
           ),
           ...widget.offeredCredentialTypes.map(
             (descriptor) => Padding(
-              padding: EdgeInsets.only(bottom: context.yivi.defaultSpacing),
+              padding: EdgeInsets.only(bottom: context.yivi.spacing.base),
               child: YiviCredentialCard.fromDescriptor(
                 descriptor: descriptor,
                 compact: false,

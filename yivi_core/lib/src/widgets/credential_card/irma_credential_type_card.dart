@@ -54,12 +54,12 @@ class IrmaCredentialTypeCard extends StatelessWidget {
           key: Key("${credType.fullId}_tile"),
           onTap: onTap,
           child: Padding(
-            padding: EdgeInsets.all(context.yivi.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.spacing.base),
             child: Row(
               children: [
                 ExcludeSemantics(child: avatar),
                 SizedBox(
-                  width: context.yivi.defaultSpacing - context.yivi.tinySpacing,
+                  width: context.yivi.spacing.base - context.yivi.spacing.tiny,
                 ),
                 Expanded(
                   child: Column(
@@ -69,7 +69,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
                         getTranslation(context, credType.name),
                         style: context.yivi.activity.cardTitle,
                       ),
-                      SizedBox(height: context.yivi.tinySpacing),
+                      SizedBox(height: context.yivi.spacing.tiny),
                       Text(
                         getTranslation(
                           context,
@@ -83,7 +83,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(width: context.yivi.smallSpacing),
+                SizedBox(width: context.yivi.spacing.small),
                 if (trailingIcon != null)
                   Icon(
                     trailingIcon,

@@ -32,7 +32,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
-            padding: .all(context.yivi.defaultSpacing),
+            padding: .all(context.yivi.spacing.base),
             child: SizedBox(
               width: .infinity,
               child: Builder(
@@ -52,7 +52,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                                 contentTranslationKey,
                                 textAlign: .start,
                               ),
-                              SizedBox(height: context.yivi.largeSpacing),
+                              SizedBox(height: context.yivi.spacing.large),
                               YiviLinkButton(
                                 textAlign: .start,
                                 labelTranslationKey: "error.button_show_error",
@@ -63,7 +63,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        SizedBox(width: context.yivi.largeSpacing),
+                        SizedBox(width: context.yivi.spacing.large),
                         Flexible(
                           child: SvgPicture.asset(
                             height: 200,
@@ -79,13 +79,13 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                     mainAxisAlignment: .center,
                     crossAxisAlignment: .center,
                     children: [
-                      SizedBox(height: context.yivi.largeSpacing),
+                      SizedBox(height: context.yivi.spacing.large),
                       SvgPicture.asset(
                         yiviAsset("error/general_error_illustration.svg"),
                       ),
-                      SizedBox(height: context.yivi.largeSpacing),
+                      SizedBox(height: context.yivi.spacing.large),
                       TranslatedText(contentTranslationKey, textAlign: .center),
-                      SizedBox(height: context.yivi.largeSpacing),
+                      SizedBox(height: context.yivi.spacing.large),
                       YiviLinkButton(
                         textAlign: .center,
                         labelTranslationKey: "error.button_show_error",

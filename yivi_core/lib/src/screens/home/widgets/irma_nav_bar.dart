@@ -22,8 +22,8 @@ class IrmaNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
-        left: context.yivi.tinySpacing,
-        right: context.yivi.tinySpacing,
+        left: context.yivi.spacing.tiny,
+        right: context.yivi.spacing.tiny,
         bottom: 4,
         top: 4,
       ),

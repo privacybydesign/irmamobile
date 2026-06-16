@@ -91,7 +91,7 @@ class NotificationCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     IrmaAvatar(size: 52, initials: "i", logoImage: logo),
-                    SizedBox(width: context.yivi.smallSpacing),
+                    SizedBox(width: context.yivi.spacing.small),
                     Flexible(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

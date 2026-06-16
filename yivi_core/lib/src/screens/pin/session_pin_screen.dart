@@ -211,7 +211,7 @@ class _SessionPinScreenState extends State<SessionPinScreen>
                                 if (state.authenticateInProgress)
                                   Padding(
                                     padding: EdgeInsets.all(
-                                      context.yivi.defaultSpacing,
+                                      context.yivi.spacing.base,
                                     ),
                                     child: const CircularProgressIndicator(),
                                   ),

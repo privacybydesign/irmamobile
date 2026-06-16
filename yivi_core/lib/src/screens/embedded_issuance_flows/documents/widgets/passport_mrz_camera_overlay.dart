@@ -22,7 +22,7 @@ class PassportMrzCameraOverlay extends StatelessWidget {
           Size(c.maxWidth, c.maxHeight),
         );
         final numChars = maxLtApprox(
-          overlayRect.width - context.yivi.defaultSpacing,
+          overlayRect.width - context.yivi.spacing.base,
           context.yivi.mrzLabel,
         );
         final guidelines = "<" * numChars;
@@ -72,7 +72,7 @@ class PassportMrzCameraOverlay extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(guidelines, style: context.yivi.mrzLabel),
-                      SizedBox(height: context.yivi.tinySpacing),
+                      SizedBox(height: context.yivi.spacing.tiny),
                       Text(guidelines, style: context.yivi.mrzLabel),
                     ],
                   ),

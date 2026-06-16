@@ -38,7 +38,7 @@ class SplashScreen extends StatelessWidget {
             if (isLoading)
               Container(
                 margin: EdgeInsets.only(
-                  top: logoHeight + context.yivi.defaultSpacing,
+                  top: logoHeight + context.yivi.spacing.base,
                 ),
                 child: LoadingIndicator(),
               ),

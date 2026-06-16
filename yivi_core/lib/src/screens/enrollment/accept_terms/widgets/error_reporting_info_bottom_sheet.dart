@@ -7,7 +7,7 @@ class ErrorReportingInfoBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(context.yivi.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.spacing.base),
       child: TranslatedText(
         "enrollment.error_reporting.dialog.explanation",
         style: context.text.bodyMedium,

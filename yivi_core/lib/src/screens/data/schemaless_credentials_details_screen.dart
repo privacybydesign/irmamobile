@@ -52,7 +52,7 @@ class _CredentialsDetailsScreenState
     final titleContent = Row(
       mainAxisSize: .min,
       mainAxisAlignment: .center,
-      spacing: context.yivi.smallSpacing,
+      spacing: context.yivi.spacing.small,
       children: [
         if (credential != null)
           Transform.translate(
@@ -133,12 +133,12 @@ class _CredentialsDetailsScreenState
       child: SingleChildScrollView(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: .symmetric(horizontal: context.yivi.defaultSpacing),
+        padding: .symmetric(horizontal: context.yivi.spacing.base),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              SizedBox(height: context.yivi.defaultSpacing),
+              SizedBox(height: context.yivi.spacing.base),
               ...credentials.map((cred) {
                 final isDeletable = cred.credentialInstanceIds.isNotEmpty;
                 final isReobtainable = cred.issueUrl
@@ -146,7 +146,7 @@ class _CredentialsDetailsScreenState
                     .isNotEmpty;
 
                 return Padding(
-                  padding: .only(bottom: context.yivi.defaultSpacing),
+                  padding: .only(bottom: context.yivi.spacing.base),
                   child: YiviCredentialCard.fromCredential(
                     credential: cred,
                     compact: false,
@@ -165,7 +165,7 @@ class _CredentialsDetailsScreenState
                   ),
                 );
               }),
-              SizedBox(height: context.yivi.largeSpacing),
+              SizedBox(height: context.yivi.spacing.large),
             ],
           ),
         ),

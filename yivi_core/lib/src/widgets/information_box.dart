@@ -14,12 +14,12 @@ class InformationBox extends StatelessWidget {
         borderRadius: context.yivi.borderRadius,
         border: Border.all(color: context.colors.outlineVariant, width: 1),
       ),
-      padding: EdgeInsets.all(context.yivi.defaultSpacing),
+      padding: EdgeInsets.all(context.yivi.spacing.base),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline, color: context.colors.primary),
-          SizedBox(width: context.yivi.smallSpacing),
+          SizedBox(width: context.yivi.spacing.small),
           Expanded(
             child: Text(
               message,

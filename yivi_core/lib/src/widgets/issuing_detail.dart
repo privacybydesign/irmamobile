@@ -14,7 +14,7 @@ class IssuingDetail extends StatelessWidget {
     return Column(
       children: credentials.map((credential) {
         return Padding(
-          padding: EdgeInsets.only(bottom: context.yivi.defaultSpacing),
+          padding: EdgeInsets.only(bottom: context.yivi.spacing.base),
           child: YiviCredentialCard.fromCredential(
             credential: credential,
             compact: false,

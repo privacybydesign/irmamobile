@@ -27,7 +27,7 @@ class YiviPinScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paddingSize = context.yivi.screenPadding;
+    final paddingSize = context.yivi.spacing.screenPadding;
 
     return Scaffold(
       appBar: appBar,

@@ -18,8 +18,8 @@ class YiviDialog extends StatelessWidget {
       padding:
           MediaQuery.of(context).viewInsets +
           EdgeInsets.symmetric(
-            horizontal: context.yivi.mediumSpacing,
-            vertical: context.yivi.defaultSpacing,
+            horizontal: context.yivi.spacing.medium,
+            vertical: context.yivi.spacing.base,
           ),
       duration: const Duration(milliseconds: 100),
       curve: Curves.decelerate,
@@ -78,8 +78,8 @@ class IrmaDialog extends StatelessWidget {
       padding:
           MediaQuery.of(context).viewInsets +
           EdgeInsets.symmetric(
-            horizontal: context.yivi.mediumSpacing,
-            vertical: context.yivi.defaultSpacing,
+            horizontal: context.yivi.spacing.medium,
+            vertical: context.yivi.spacing.base,
           ),
       duration: const Duration(milliseconds: 100),
       curve: Curves.decelerate,
@@ -103,7 +103,7 @@ class IrmaDialog extends StatelessWidget {
                 child: Stack(
                   children: [
                     Container(
-                      margin: EdgeInsets.all(context.yivi.defaultSpacing),
+                      margin: EdgeInsets.all(context.yivi.spacing.base),
                       key: const Key("irma_dialog"),
                       child: ListView(
                         shrinkWrap: true,
@@ -111,7 +111,7 @@ class IrmaDialog extends StatelessWidget {
                         children: [
                           Padding(
                             padding: EdgeInsets.only(
-                              bottom: context.yivi.defaultSpacing,
+                              bottom: context.yivi.spacing.base,
                             ),
                             child: Column(
                               children: [
@@ -129,7 +129,7 @@ class IrmaDialog extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                SizedBox(height: context.yivi.mediumSpacing),
+                                SizedBox(height: context.yivi.spacing.medium),
                                 Text(
                                   content,
                                   key: const Key("irma_dialog_content"),
@@ -137,7 +137,7 @@ class IrmaDialog extends StatelessWidget {
                                   textAlign: TextAlign.center,
                                 ),
                                 if (image != null) ...[
-                                  SizedBox(height: context.yivi.defaultSpacing),
+                                  SizedBox(height: context.yivi.spacing.base),
                                   Center(
                                     child: Image.asset(image!, width: 240),
                                   ),

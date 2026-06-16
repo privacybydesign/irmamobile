@@ -49,14 +49,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     Widget buildHeaderText(String translationKey) => Padding(
-      padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+      padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
       child: SectionHeader(translationKey),
     );
 
     Widget buildExplanationText(String translationKey) => Padding(
       padding: EdgeInsets.symmetric(
-        vertical: context.yivi.smallSpacing,
-        horizontal: context.yivi.defaultSpacing,
+        vertical: context.yivi.spacing.small,
+        horizontal: context.yivi.spacing.base,
       ),
       child: TranslatedText(
         translationKey,
@@ -64,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
 
-    final spacerWidget = SizedBox(height: context.yivi.defaultSpacing);
+    final spacerWidget = SizedBox(height: context.yivi.spacing.base);
 
     return Scaffold(
       backgroundColor: context.colors.surfaceContainerHigh,
@@ -73,7 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         height: double.infinity,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(context.yivi.defaultSpacing),
+          padding: EdgeInsets.all(context.yivi.spacing.base),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -106,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (showDeveloperModeToggle)
                 Padding(
                   padding: EdgeInsets.symmetric(
-                    vertical: context.yivi.defaultSpacing,
+                    vertical: context.yivi.spacing.base,
                   ),
                   child: TilesCard(
                     children: [

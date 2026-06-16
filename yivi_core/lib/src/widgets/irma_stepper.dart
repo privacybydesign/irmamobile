@@ -29,9 +29,9 @@ class IrmaStepper extends StatelessWidget {
             : IrmaStepIndicatorStyle.success,
       ),
       padding: EdgeInsets.only(
-        right: context.yivi.smallSpacing,
-        top: context.yivi.tinySpacing,
-        bottom: context.yivi.tinySpacing,
+        right: context.yivi.spacing.small,
+        top: context.yivi.spacing.tiny,
+        bottom: context.yivi.spacing.tiny,
       ),
     ),
     endChild: children[index],

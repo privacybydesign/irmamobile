@@ -34,7 +34,7 @@ class TermsCheckBox extends ConsumerWidget {
           activeColor: context.colors.secondary,
           onChanged: (isAccepted) => onToggleAccepted(isAccepted ?? false),
         ),
-        SizedBox(width: context.yivi.smallSpacing),
+        SizedBox(width: context.yivi.spacing.small),
         Flexible(
           child: TranslatedText(
             "enrollment.terms_and_conditions.accept_markdown",

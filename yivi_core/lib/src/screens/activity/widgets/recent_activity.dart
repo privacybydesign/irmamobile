@@ -92,7 +92,7 @@ class _RecentActivityState extends State<RecentActivity> {
                 ),
               ],
             ),
-            SizedBox(height: context.yivi.defaultSpacing),
+            SizedBox(height: context.yivi.spacing.base),
             logEntries.isEmpty
                 ? const TranslatedText("activity.empty_placeholder")
                 : Column(
@@ -101,7 +101,7 @@ class _RecentActivityState extends State<RecentActivity> {
                         .map(
                           (logEntry) => Padding(
                             padding: EdgeInsets.only(
-                              bottom: context.yivi.smallSpacing,
+                              bottom: context.yivi.spacing.small,
                             ),
                             child: ActivityCard(logEntry: logEntry),
                           ),

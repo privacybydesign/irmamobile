@@ -50,17 +50,17 @@ class IssuancePermission extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     return ListView(
-      padding: EdgeInsets.symmetric(horizontal: context.yivi.defaultSpacing),
+      padding: EdgeInsets.symmetric(horizontal: context.yivi.spacing.base),
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(vertical: context.yivi.smallSpacing),
+          padding: EdgeInsets.symmetric(vertical: context.yivi.spacing.small),
           child: IrmaQuote(
             quote: FlutterI18n.translate(context, "issuance.description"),
           ),
         ),
         ...issuedCredentials.map(
           (credential) => Padding(
-            padding: EdgeInsets.only(bottom: context.yivi.smallSpacing),
+            padding: EdgeInsets.only(bottom: context.yivi.spacing.small),
             child: YiviCredentialCard.fromCredential(
               credential: credential,
               compact: false,

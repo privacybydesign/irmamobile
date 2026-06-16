@@ -55,7 +55,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
       ListView(
         children: [
           Padding(
-            padding: EdgeInsets.all(context.yivi.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.spacing.base),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -98,14 +98,14 @@ class _NotificationsTabState extends State<NotificationsTab> {
                   child: notifications.isEmpty
                       ? _emptyListIndicator()
                       : ListView.builder(
-                          padding: EdgeInsets.all(context.yivi.defaultSpacing),
+                          padding: EdgeInsets.all(context.yivi.spacing.base),
                           itemCount: state.notifications.length,
                           itemBuilder: (context, index) {
                             final notification = notifications[index];
 
                             return Padding(
                               padding: EdgeInsets.only(
-                                bottom: context.yivi.smallSpacing,
+                                bottom: context.yivi.spacing.small,
                               ),
                               child: IrmaDismissible(
                                 key: Key(notification.id),

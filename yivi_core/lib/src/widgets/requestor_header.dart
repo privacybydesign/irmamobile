@@ -73,7 +73,7 @@ class RequestorHeader extends StatelessWidget {
 
       // Set the subtitleTextWidget to a link
       subtitleTextWidget = Padding(
-        padding: EdgeInsets.only(top: context.yivi.defaultSpacing),
+        padding: EdgeInsets.only(top: context.yivi.spacing.base),
         child: GestureDetector(
           onTap: () => _showCredentialOptionsBottomSheet(context),
           child: TranslatedText(
@@ -191,7 +191,7 @@ class _RequestorHeaderBase extends StatelessWidget {
     return IrmaCard(
       color: backgroundColor,
       padding: EdgeInsets.zero,
-      margin: EdgeInsets.all(context.yivi.defaultSpacing),
+      margin: EdgeInsets.all(context.yivi.spacing.base),
       child: Row(
         crossAxisAlignment: subtitleText != null
             ? CrossAxisAlignment.start
@@ -199,10 +199,10 @@ class _RequestorHeaderBase extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(right: context.yivi.tinySpacing),
+            padding: EdgeInsets.only(right: context.yivi.spacing.tiny),
             child: avatar,
           ),
-          SizedBox(width: context.yivi.smallSpacing),
+          SizedBox(width: context.yivi.spacing.small),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

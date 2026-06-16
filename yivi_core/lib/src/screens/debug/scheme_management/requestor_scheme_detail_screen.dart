@@ -44,7 +44,7 @@ class RequestorSchemeDetailScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(context.yivi.screenPadding),
+        padding: EdgeInsets.all(context.yivi.spacing.screenPadding),
         child: Column(
           children: [
             ListTile(

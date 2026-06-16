@@ -21,7 +21,7 @@ class _HelpCarouselState extends State<HelpCarousel> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         Illustrator(
           imageSet: [
             for (var item in widget.items)

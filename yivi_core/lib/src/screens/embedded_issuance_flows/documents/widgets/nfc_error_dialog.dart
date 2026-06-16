@@ -78,7 +78,7 @@ class _NfcErrorDialogState extends State<NfcErrorDialog> {
             Flexible(
               fit: .loose,
               child: SingleChildScrollView(
-                padding: .all(context.yivi.defaultSpacing),
+                padding: .all(context.yivi.spacing.base),
                 child: Text(
                   _showSensitiveLogs ? widget.sensitiveLogs! : widget.logs,
                 ),

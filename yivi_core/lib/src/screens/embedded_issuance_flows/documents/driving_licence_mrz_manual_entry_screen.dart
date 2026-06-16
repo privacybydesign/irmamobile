@@ -90,16 +90,16 @@ class _DrivingLicencetMrzManualEntryScreenState
               onChanged: _recomputeCanContinue,
               child: SafeArea(
                 child: Padding(
-                  padding: .all(context.yivi.defaultSpacing),
+                  padding: .all(context.yivi.spacing.base),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
                       const TranslatedText(
                         "driving_licence.manual.explanation",
                       ),
-                      SizedBox(height: context.yivi.mediumSpacing),
+                      SizedBox(height: context.yivi.spacing.medium),
                       DrivingLicenceMrzInputField(controller: _documentNrCtrl),
-                      SizedBox(height: context.yivi.largeSpacing),
+                      SizedBox(height: context.yivi.spacing.large),
                     ],
                   ),
                 ),

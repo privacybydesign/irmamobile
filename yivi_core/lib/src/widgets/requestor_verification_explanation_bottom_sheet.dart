@@ -9,9 +9,9 @@ class RequestorVerificationExplanationBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: context.yivi.defaultSpacing,
-        right: context.yivi.defaultSpacing,
-        top: context.yivi.defaultSpacing,
+        left: context.yivi.spacing.base,
+        right: context.yivi.spacing.base,
+        top: context.yivi.spacing.base,
         bottom: 100,
       ),
       child: IrmaMarkdown(

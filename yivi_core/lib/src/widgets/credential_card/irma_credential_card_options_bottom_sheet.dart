@@ -32,10 +32,10 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        context.yivi.defaultSpacing,
+        context.yivi.spacing.base,
         0,
-        context.yivi.defaultSpacing,
-        context.yivi.defaultSpacing,
+        context.yivi.spacing.base,
+        context.yivi.spacing.base,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

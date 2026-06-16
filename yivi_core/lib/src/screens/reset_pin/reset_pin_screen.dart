@@ -31,7 +31,7 @@ class ResetPinScreen extends StatelessWidget {
                 color: context.colors.onSurface,
               ),
             ),
-            SizedBox(height: context.yivi.tinySpacing),
+            SizedBox(height: context.yivi.spacing.tiny),
             TranslatedText(
               "reset_pin.explanation",
               style: context.text.bodyMedium,

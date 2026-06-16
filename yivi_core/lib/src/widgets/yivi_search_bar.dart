@@ -30,8 +30,8 @@ class YiviSearchBar extends StatelessWidget implements PreferredSizeWidget {
         child: Container(
           height: preferredSize.height,
           padding: EdgeInsets.only(
-            left: context.yivi.defaultSpacing,
-            right: context.yivi.smallSpacing,
+            left: context.yivi.spacing.base,
+            right: context.yivi.spacing.small,
           ),
           child: Row(
             children: [

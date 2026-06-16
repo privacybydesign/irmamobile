@@ -97,7 +97,7 @@ class IrmaActionCard extends StatelessWidget {
                   child: InkWell(
                     onTap: onTap,
                     child: Padding(
-                      padding: EdgeInsets.all(context.yivi.defaultSpacing),
+                      padding: EdgeInsets.all(context.yivi.spacing.base),
                       child: centeredLayout
                           // Layout where the text is centrally aligned with the icon
                           ? Row(
@@ -130,12 +130,12 @@ class IrmaActionCard extends StatelessWidget {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     flexibleTitleTextWidget,
-                                    SizedBox(width: context.yivi.smallSpacing),
+                                    SizedBox(width: context.yivi.spacing.small),
                                     iconWidget,
                                   ],
                                 ),
                                 if (flexibleSubtitleTextWidget != null) ...[
-                                  SizedBox(height: context.yivi.smallSpacing),
+                                  SizedBox(height: context.yivi.spacing.small),
                                   Row(children: [flexibleSubtitleTextWidget]),
                                 ],
                               ],

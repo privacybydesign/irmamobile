@@ -33,7 +33,7 @@ class QRInstruction extends StatelessWidget {
 
     return Center(
       child: Container(
-        padding: EdgeInsets.all(context.yivi.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.spacing.base),
         decoration: BoxDecoration(
           borderRadius: context.yivi.borderRadius,
           color: color,

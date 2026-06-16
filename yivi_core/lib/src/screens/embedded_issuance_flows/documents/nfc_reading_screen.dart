@@ -297,9 +297,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             uiState.stateKey,
             style: context.yivi.nfc.statusTitle,
           ),
-          SizedBox(height: context.yivi.defaultSpacing),
+          SizedBox(height: context.yivi.spacing.base),
           _OrientationAwareTranslatedText(uiState.tipKey),
-          SizedBox(height: context.yivi.defaultSpacing),
+          SizedBox(height: context.yivi.spacing.base),
           GestureDetector(
             onTap: () {
               _showLogsDialog(
@@ -320,7 +320,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ],
       ),
       illustration: Padding(
-        padding: .all(context.yivi.defaultSpacing),
+        padding: .all(context.yivi.spacing.base),
         child: SvgPicture.asset(
           yiviAsset("error/general_error_illustration.svg"),
         ),
@@ -342,7 +342,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         bodyKey: uiState.tipKey,
       ),
       illustration: Padding(
-        padding: .all(context.yivi.defaultSpacing),
+        padding: .all(context.yivi.spacing.base),
         child: SvgPicture.asset(
           yiviAsset("error/general_error_illustration.svg"),
         ),
@@ -381,7 +381,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
                     : context.yivi.brand.link,
               ),
             ),
-            SizedBox(height: context.yivi.mediumSpacing),
+            SizedBox(height: context.yivi.spacing.medium),
             Row(
               mainAxisSize: .min,
               crossAxisAlignment: .center,
@@ -421,7 +421,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
       child: Padding(
-        padding: .all(context.yivi.defaultSpacing),
+        padding: .all(context.yivi.spacing.base),
         child: _ScanningContent(
           tipKey: uiState.tipKey,
           progressPercent: (uiState.progress * 100).clamp(0, 100).toDouble(),
@@ -455,10 +455,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         widget.translationKeys.nfcDisabledExplanation,
       ),
       illustration: Padding(
-        padding: .all(context.yivi.defaultSpacing),
+        padding: .all(context.yivi.spacing.base),
         child: _buildNfcSection(
           context,
-          .symmetric(horizontal: context.yivi.largeSpacing),
+          .symmetric(horizontal: context.yivi.spacing.large),
           disabled: true,
         ),
       ),
@@ -623,7 +623,7 @@ class _TitleAndBody extends StatelessWidget {
           titleKey,
           style: context.yivi.nfc.statusTitle,
         ),
-        SizedBox(height: context.yivi.defaultSpacing),
+        SizedBox(height: context.yivi.spacing.base),
         _OrientationAwareTranslatedText(bodyKey),
       ],
     );
@@ -668,7 +668,7 @@ class _NfcScaffold extends StatelessWidget {
                 mainAxisSize: .max,
                 children: [
                   Flexible(child: illustration),
-                  SizedBox(height: context.yivi.largeSpacing),
+                  SizedBox(height: context.yivi.spacing.large),
                   Flexible(child: instruction),
                 ],
               );
@@ -693,7 +693,7 @@ class _OrientationAwareTranslatedText extends StatelessWidget {
 
     return Padding(
       padding: isPortrait
-          ? .symmetric(horizontal: context.yivi.defaultSpacing)
+          ? .symmetric(horizontal: context.yivi.spacing.base)
           : .zero,
       child: TranslatedText(
         translationKey,
@@ -755,7 +755,7 @@ class _ScanningContent extends StatelessWidget {
           style: context.yivi.nfc.statusTitle,
           textAlign: textAlign,
         ),
-        SizedBox(height: context.yivi.smallSpacing),
+        SizedBox(height: context.yivi.spacing.small),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 350),
           transitionBuilder: (child, anim) =>
@@ -768,11 +768,11 @@ class _ScanningContent extends StatelessWidget {
             style: context.yivi.nfc.progressTip,
           ),
         ),
-        SizedBox(height: context.yivi.largeSpacing),
+        SizedBox(height: context.yivi.spacing.large),
         Padding(
           padding: isLandscape
               ? .zero
-              : .symmetric(horizontal: context.yivi.defaultSpacing),
+              : .symmetric(horizontal: context.yivi.spacing.base),
           child: IrmaLinearProgressIndicator(filledPercentage: progressPercent),
         ),
       ],

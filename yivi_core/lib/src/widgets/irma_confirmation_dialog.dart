@@ -42,7 +42,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
       style: nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 
-    final spacerWidget = SizedBox(height: context.yivi.smallSpacing);
+    final spacerWidget = SizedBox(height: context.yivi.spacing.small);
 
     var buttonWidgets = [confirmButton, spacerWidget, cancelButton];
 

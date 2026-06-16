@@ -30,7 +30,7 @@ class SectionHeader extends StatelessWidget {
         ? TranslatedText(_translationKey, isHeader: true, style: style)
         : Semantics(header: true, child: Text(_text!, style: style));
     return Padding(
-      padding: EdgeInsets.only(left: context.yivi.defaultSpacing),
+      padding: EdgeInsets.only(left: context.yivi.spacing.base),
       child: content,
     );
   }

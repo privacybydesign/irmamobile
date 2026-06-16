@@ -153,10 +153,10 @@ class _Header extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(
-                    context.yivi.defaultSpacing,
-                    context.yivi.mediumSpacing,
+                    context.yivi.spacing.base,
+                    context.yivi.spacing.medium,
                     _titleRightReservation,
-                    context.yivi.mediumSpacing,
+                    context.yivi.spacing.medium,
                   ),
                   child: TranslatedText(
                     titleKey,

@@ -191,7 +191,7 @@ class YiviPinScreen extends StatelessWidget {
       children: [
         if (maxPinSize == shortPinSize)
           Padding(
-            padding: EdgeInsets.only(top: context.yivi.screenPadding),
+            padding: EdgeInsets.only(top: context.yivi.spacing.screenPadding),
             child: _buildNextButton(),
           ),
         Expanded(
@@ -248,7 +248,7 @@ class YiviPinScreen extends StatelessWidget {
         Expanded(child: _NumberPad(onEnterNumber: pinBloc.add)),
         if (maxPinSize != shortPinSize)
           Padding(
-            padding: EdgeInsets.only(top: context.yivi.screenPadding),
+            padding: EdgeInsets.only(top: context.yivi.spacing.screenPadding),
             child: _buildNextButton(),
           ),
       ],

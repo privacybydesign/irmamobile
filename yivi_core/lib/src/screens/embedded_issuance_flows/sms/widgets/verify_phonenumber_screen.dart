@@ -172,21 +172,21 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
               child: SingleChildScrollView(
                 controller: _scrollController,
                 child: Padding(
-                  padding: .all(context.yivi.defaultSpacing),
+                  padding: .all(context.yivi.spacing.base),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
-                      SizedBox(height: context.yivi.defaultSpacing),
+                      SizedBox(height: context.yivi.spacing.base),
                       TranslatedText(
                         "sms_issuance.verify_code.header",
                         style: context.yivi.form.header,
                       ),
-                      SizedBox(height: context.yivi.defaultSpacing),
+                      SizedBox(height: context.yivi.spacing.base),
                       TranslatedText(
                         "sms_issuance.verify_code.body",
                         translationParams: {"phone": state.phoneNumber},
                       ),
-                      SizedBox(height: context.yivi.largeSpacing),
+                      SizedBox(height: context.yivi.spacing.large),
                       Container(
                         key: _codeFieldPositionKey,
                         child: Pinput(
@@ -211,7 +211,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyPhoneScreen>
                           "sms_issuance.verify_code.invalid_code_error",
                           style: context.yivi.form.errorMessage,
                         ),
-                      SizedBox(height: context.yivi.largeSpacing),
+                      SizedBox(height: context.yivi.spacing.large),
                       Row(
                         mainAxisAlignment: .start,
                         mainAxisSize: .max,

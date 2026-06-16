@@ -37,7 +37,7 @@ class WizardScaffold extends StatelessWidget {
       ),
       bottomNavigationBar: bottomBar,
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(context.yivi.defaultSpacing),
+        padding: EdgeInsets.all(context.yivi.spacing.base),
         controller: controller,
         key: scrollviewKey,
         child: SafeArea(
@@ -49,7 +49,7 @@ class WizardScaffold extends StatelessWidget {
                 textColor: headerTextColor,
                 backgroundColor: headerBackgroundColor,
               ),
-              SizedBox(height: context.yivi.smallSpacing),
+              SizedBox(height: context.yivi.spacing.small),
               body,
             ],
           ),

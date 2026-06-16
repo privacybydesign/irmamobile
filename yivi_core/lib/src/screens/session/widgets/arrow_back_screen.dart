@@ -102,7 +102,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
               physics: isNativeLandscape
                   ? const NeverScrollableScrollPhysics()
                   : null,
-              padding: EdgeInsets.all(context.yivi.defaultSpacing),
+              padding: EdgeInsets.all(context.yivi.spacing.base),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -111,7 +111,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                     yiviAsset("arrow_back/pointing_up.svg"),
                     width: 250,
                   ),
-                  SizedBox(height: context.yivi.hugeSpacing),
+                  SizedBox(height: context.yivi.spacing.huge),
                   RotatedBox(
                     quarterTurns: quarterTurns,
                     child: SizedBox(
@@ -127,7 +127,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                               textAlign: TextAlign.center,
                             ),
                           ),
-                          SizedBox(height: context.yivi.mediumSpacing),
+                          SizedBox(height: context.yivi.spacing.medium),
                           Flexible(
                             child: TranslatedText(
                               "arrow_back.safari",

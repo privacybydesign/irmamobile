@@ -71,7 +71,7 @@ class IrmaQrScanButton extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: context.yivi.tinySpacing),
+          SizedBox(height: context.yivi.spacing.tiny),
           ExcludeSemantics(
             child: TranslatedText(
               "home.nav_bar.scan_qr",

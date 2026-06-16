@@ -95,7 +95,7 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
             leading: null,
           ),
           SingleChildScrollView(
-            padding: EdgeInsets.all(context.yivi.defaultSpacing),
+            padding: EdgeInsets.all(context.yivi.spacing.base),
             child: TranslatedText(
               "new_terms_and_conditions.explanation_markdown",
               translationParams: {"terms_url": termsUrl},

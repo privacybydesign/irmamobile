@@ -31,7 +31,7 @@ class SessionScaffold extends StatelessWidget {
         actions: [
           if (onDismiss != null)
             Padding(
-              padding: EdgeInsets.only(right: context.yivi.defaultSpacing),
+              padding: EdgeInsets.only(right: context.yivi.spacing.base),
               child: IrmaCloseButton(onTap: onDismiss),
             ),
         ],
