@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../../theme/theme.dart";
-import "../../../../widgets/irma_dialog.dart";
+import "../../../../widgets/yivi_dialog.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 
 class ProvideSchemeUrlDialog extends StatefulWidget {
@@ -28,7 +28,7 @@ class _ProvideSchemeUrlDialogState extends State<ProvideSchemeUrlDialog> {
       "debug.scheme_management.install_scheme_dialog.content",
     );
 
-    return IrmaDialog(
+    return YiviDialog.structured(
       title: translatedTitle,
       content: translatedContent,
       child: Wrap(

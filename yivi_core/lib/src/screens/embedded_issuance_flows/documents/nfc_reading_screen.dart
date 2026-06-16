@@ -17,9 +17,9 @@ import "../../../theme/theme.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/irma_linear_progresss_indicator.dart";
 import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_dialog.dart";
 import "widgets/driving_licence_nfc_scanning_animation.dart";
 import "widgets/id_card_nfc_scanning_animation.dart";
 import "widgets/nfc_error_dialog.dart";
@@ -714,7 +714,7 @@ Future<bool> _showCancelDialog(
   return await showDialog(
         context: context,
         builder: (context) {
-          return IrmaConfirmationDialog(
+          return YiviDialog.confirmation(
             titleTranslationKey: titleTranslationKey,
             contentTranslationKey: contentTranslationKey,
             cancelTranslationKey: cancelTranslationKey,

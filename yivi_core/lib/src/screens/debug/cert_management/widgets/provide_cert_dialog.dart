@@ -3,7 +3,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../../models/eudi_configuration.dart";
 import "../../../../theme/theme.dart";
-import "../../../../widgets/irma_dialog.dart";
+import "../../../../widgets/yivi_dialog.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 
 class ProvideCertDialog extends StatefulWidget {
@@ -31,7 +31,7 @@ class _ProvideCertDialogState extends State<ProvideCertDialog> {
       "debug.cert_management.install_cert_dialog.content",
     );
 
-    return IrmaDialog(
+    return YiviDialog.structured(
       title: translatedTitle,
       content: translatedContent,
       child: Wrap(

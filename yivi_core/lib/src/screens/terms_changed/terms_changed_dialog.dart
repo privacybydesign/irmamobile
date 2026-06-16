@@ -9,8 +9,8 @@ import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
-import "../../widgets/irma_dialog.dart";
 import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_dialog.dart";
 
 class TermsChangedListener extends ConsumerStatefulWidget {
   const TermsChangedListener({required this.child});

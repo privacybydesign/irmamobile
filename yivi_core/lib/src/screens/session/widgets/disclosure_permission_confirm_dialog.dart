@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
-import "../../../widgets/irma_confirmation_dialog.dart";
+import "../../../widgets/yivi_dialog.dart";
 
 class DisclosurePermissionConfirmDialog extends StatelessWidget {
   final TrustedParty requestor;
@@ -17,7 +17,7 @@ class DisclosurePermissionConfirmDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
-    return IrmaConfirmationDialog(
+    return YiviDialog.confirmation(
       titleTranslationKey:
           'disclosure_permission.confirm_dialog.${isSignatureSession ? 'title_signature' : 'title'}',
       contentTranslationKey:

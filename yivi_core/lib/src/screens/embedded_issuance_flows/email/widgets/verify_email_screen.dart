@@ -10,9 +10,9 @@ import "../../../../theme/theme.dart";
 import "../../../../util/handle_pointer.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
-import "../../../../widgets/irma_confirmation_dialog.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
 import "../../../../widgets/translated_text.dart";
+import "../../../../widgets/yivi_dialog.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
@@ -252,7 +252,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   Future<void> _goBack() async {
     final result = await showDialog(
       context: context,
-      builder: (context) => IrmaConfirmationDialog(
+      builder: (context) => YiviDialog.confirmation(
         titleTranslationKey: "email_issuance.verify_code.back_dialog.title",
         contentTranslationKey: "email_issuance.verify_code.back_dialog.body",
         confirmTranslationKey: "email_issuance.verify_code.back_dialog.confirm",
@@ -271,7 +271,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
         await showDialog(
           context: context,
           builder: (context) {
-            return IrmaConfirmationDialog(
+            return YiviDialog.confirmation(
               titleTranslationKey:
                   "email_issuance.verify_code.resend_dialog.title",
               contentTranslationKey:

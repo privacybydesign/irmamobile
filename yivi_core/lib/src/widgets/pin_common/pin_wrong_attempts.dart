@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../irma_dialog.dart";
+import "../yivi_dialog.dart";
 import "../yivi_themed_button.dart";
 
 class PinWrongAttemptsDialog extends StatelessWidget {
@@ -15,7 +15,7 @@ class PinWrongAttemptsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IrmaDialog(
+    return YiviDialog.structured(
       title: FlutterI18n.translate(context, "pin_common.invalid_title"),
       content: FlutterI18n.plural(
         context,

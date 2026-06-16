@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
-import "../irma_dialog.dart";
+import "../yivi_dialog.dart";
 import "../yivi_themed_button.dart";
 import "format_blocked_for.dart";
 
@@ -16,7 +16,7 @@ class PinWrongBlockedDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final blockedForStr = formatBlockedFor(context, Duration(seconds: blocked));
 
-    return IrmaDialog(
+    return YiviDialog.structured(
       title: FlutterI18n.translate(context, "pin_common.blocked_title"),
       content: FlutterI18n.translate(
         context,

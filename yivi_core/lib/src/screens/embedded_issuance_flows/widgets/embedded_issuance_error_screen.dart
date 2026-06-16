@@ -7,8 +7,8 @@ import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
-import "../../../widgets/irma_dialog.dart";
 import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_dialog.dart";
 import "../../../widgets/yivi_themed_button.dart";
 
 class EmbeddedIssuanceErrorScreen extends StatelessWidget {
@@ -57,7 +57,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                                 textAlign: .start,
                                 labelTranslationKey: "error.button_show_error",
                                 onTap: () {
-                                  _showIrmaDialog(context, errorMessage);
+                                  _showDialog(context, errorMessage);
                                 },
                               ),
                             ],
@@ -90,7 +90,7 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
                         textAlign: .center,
                         labelTranslationKey: "error.button_show_error",
                         onTap: () {
-                          _showIrmaDialog(context, errorMessage);
+                          _showDialog(context, errorMessage);
                         },
                       ),
                     ],
@@ -110,11 +110,11 @@ class EmbeddedIssuanceErrorScreen extends StatelessWidget {
     );
   }
 
-  Future _showIrmaDialog(BuildContext context, String content) async {
+  Future _showDialog(BuildContext context, String content) async {
     await showDialog(
       context: context,
       builder: (context) {
-        return IrmaDialog(
+        return YiviDialog.structured(
           title: FlutterI18n.translate(context, "error.details_title"),
           content: content,
           child: YiviThemedButton(

@@ -1,10 +1,10 @@
 import "package:flutter/widgets.dart";
 
-import "../../../widgets/irma_confirmation_dialog.dart";
+import "../../../widgets/yivi_dialog.dart";
 
 class DeleteDataConfirmationDialog extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => const IrmaConfirmationDialog(
+  Widget build(BuildContext context) => YiviDialog.confirmation(
     titleTranslationKey: "settings.confirm_delete_dialog.title",
     contentTranslationKey: "settings.confirm_delete_dialog.explanation",
     confirmTranslationKey: "settings.confirm_delete_dialog.confirm",

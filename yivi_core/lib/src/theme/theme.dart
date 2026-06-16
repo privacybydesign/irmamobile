@@ -420,8 +420,8 @@ ThemeData buildYiviThemeData() {
   );
 
   // Dialog default — surface-coloured card, large elevation, rounded
-  // corners. Title and content styles are picked up by IrmaDialog and by
-  // any future AlertDialog/SimpleDialog call site.
+  // corners. Title and content styles are picked up by YiviDialog.structured
+  // and by any future AlertDialog/SimpleDialog call site.
   final dialogTheme = DialogThemeData(
     backgroundColor: light,
     elevation: 24.0,

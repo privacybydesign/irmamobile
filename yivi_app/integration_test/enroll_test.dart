@@ -14,7 +14,7 @@ import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
 import "package:yivi_core/src/screens/enrollment/widgets/enrollment_instruction.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/widgets/irma_close_button.dart";
-import "package:yivi_core/src/widgets/irma_dialog.dart";
+import "package:yivi_core/src/widgets/yivi_dialog.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "helpers/helpers.dart";
@@ -152,7 +152,7 @@ void main() {
       await enterPin(tester, falsePin);
 
       // Expect false pin dialog
-      var dialogFinder = find.byType(IrmaDialog);
+      var dialogFinder = find.byType(YiviDialog);
       expect(dialogFinder, findsOneWidget);
       var expectedDialogText = [
         "PIN entered incorrectly",
@@ -293,7 +293,7 @@ void main() {
       await tester.tapAndSettle(find.text("Skip"));
 
       // Expect confirm skip email dialog
-      var dialogFinder = find.byType(IrmaDialog);
+      var dialogFinder = find.byType(YiviDialog);
       expect(dialogFinder, findsOneWidget);
       const expectedDialogText = [
         "Are you sure?",

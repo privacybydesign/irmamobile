@@ -3,8 +3,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 
 import "../theme/theme.dart";
-import "irma_dialog.dart";
 import "translated_text.dart";
+import "yivi_dialog.dart";
 import "yivi_themed_button.dart";
 
 class IrmaInfoScaffoldBody extends StatelessWidget {
@@ -42,10 +42,10 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
          "You cannot provide both an icon and an image path",
        );
 
-  Future _showIrmaDialog(BuildContext context) async => showDialog(
+  Future _showDialog(BuildContext context) async => showDialog(
     context: context,
     builder: (context) {
-      return IrmaDialog(
+      return YiviDialog.structured(
         title: FlutterI18n.translate(context, "error.details_title"),
         content: linkDialogText!,
         child: YiviThemedButton(
@@ -96,7 +96,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
               SizedBox(height: context.yivi.spacing.medium),
               GestureDetector(
                 onTap: () {
-                  _showIrmaDialog(context);
+                  _showDialog(context);
                   Feedback.forTap(context);
                 },
                 child: TranslatedText(

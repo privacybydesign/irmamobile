@@ -7,7 +7,7 @@ import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/irma_dialog.dart";
+import "../../../widgets/yivi_dialog.dart";
 import "../../../widgets/yivi_themed_button.dart";
 
 /// Dialog shown when the user obtains credentials that don't match

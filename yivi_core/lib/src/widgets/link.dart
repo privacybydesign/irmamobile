@@ -3,8 +3,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../providers/irma_repository_provider.dart";
 import "../theme/theme.dart";
-import "irma_dialog.dart";
 import "translated_text.dart";
+import "yivi_dialog.dart";
 import "yivi_themed_button.dart";
 
 class ContactLink extends StatelessWidget {
@@ -29,7 +29,7 @@ class ContactLink extends StatelessWidget {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return IrmaDialog(
+                return YiviDialog.structured(
                   title: FlutterI18n.translate(
                     context,
                     "help.mail_error_title",

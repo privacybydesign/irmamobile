@@ -7,8 +7,8 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/chevron.dart";
-import "../../../widgets/irma_dialog.dart";
 import "../../../widgets/translated_text.dart";
+import "../../../widgets/yivi_dialog.dart";
 import "../../../widgets/yivi_themed_button.dart";
 
 class ContactLinkTile extends StatelessWidget {
@@ -39,7 +39,7 @@ class ContactLinkTile extends StatelessWidget {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return IrmaDialog(
+                return YiviDialog.structured(
                   title: FlutterI18n.translate(
                     context,
                     "help.mail_error_title",
