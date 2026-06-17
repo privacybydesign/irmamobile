@@ -32,6 +32,20 @@ lane :unit_test do
   Dir.chdir("../yivi_core") do
     sh("flutter", "test")
   end
+
+  # Android native (JVM) unit tests, including the deep-link session-replay
+  # regression test (#568). The yivi_core plugin module compiles against the
+  # irmagobridge AAR, so build it first, then run the unit tests through the host
+  # app's Gradle project (which is where Flutter generates the Gradle wrapper and
+  # registers the :yivi_core plugin module).
+  aar = File.expand_path("../yivi_core/android/irmagobridge/irmagobridge.aar", __dir__)
+  android_build_irmagobridge() unless File.exist?(aar)
+  Dir.chdir("../yivi_app") do
+    sh("flutter", "pub", "get")
+    Dir.chdir("./android") do
+      sh("./gradlew", ":yivi_core:testDebugUnitTest")
+    end
+  end
 end
 
 lane :android_build do |options|
