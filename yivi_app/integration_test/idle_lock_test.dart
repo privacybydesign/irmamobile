@@ -48,6 +48,12 @@ void main() {
       (tester) =>
           testInProgressSessionClearedAfterIdleLock(tester, irmaBinding),
     );
+
+    testWidgets(
+      "session arriving during resume window survives auto-lock",
+      (tester) =>
+          testUniversalLinkDuringResumeSurvivesAutoLock(tester, irmaBinding),
+    );
   });
 }
 
@@ -161,6 +167,85 @@ Future<void> testInProgressSessionClearedAfterIdleLock(
   expect(find.byType(IssuancePermission), findsNothing);
   expect(find.byType(SessionScreen), findsNothing);
   expect(find.byType(PinScreen), findsNothing);
+}
+
+/// When a universal link lands in the same resume window as the
+/// auto-lock decision, the URL should be queued through the lock and
+/// the session picked up after PIN unlock — not killed by the
+/// redirect → dispose → dismiss cascade.
+///
+/// Distinct from [testInProgressSessionClearedAfterIdleLock]: there
+/// the user had been on the session before walking away; here the URL
+/// arrives fresh during resume.
+Future<void> testUniversalLinkDuringResumeSurvivesAutoLock(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) async {
+  const threshold = Duration(milliseconds: 50);
+  await pumpAndUnlockApp(
+    tester,
+    irmaBinding.repository,
+    idleLockThreshold: threshold,
+  );
+
+  // No session is in progress yet — user is sitting on the data tab.
+  expect(find.byType(DataTab), findsOneWidget);
+
+  // Drive the iOS lifecycle going to background and sleep past the
+  // threshold so the upcoming resume will trigger an auto-lock.
+  WidgetsBinding.instance.handleAppLifecycleStateChanged(
+    AppLifecycleState.inactive,
+  );
+  WidgetsBinding.instance.handleAppLifecycleStateChanged(
+    AppLifecycleState.hidden,
+  );
+  WidgetsBinding.instance.handleAppLifecycleStateChanged(
+    AppLifecycleState.paused,
+  );
+  await Future<void>.delayed(threshold * 4);
+
+  // Simulate the universal link landing in the same resume window:
+  // the pending pointer is set just before the lifecycle resumes, the
+  // same way native delivers a deep link to the bridge while the app
+  // is coming back to the foreground.
+  await startIssuanceSession(
+    irmaBinding,
+    groupAttributes(
+      createMunicipalityPersonalDataAttributes(const Locale("en", "EN")),
+    ),
+  );
+
+  WidgetsBinding.instance.handleAppLifecycleStateChanged(
+    AppLifecycleState.hidden,
+  );
+  WidgetsBinding.instance.handleAppLifecycleStateChanged(
+    AppLifecycleState.inactive,
+  );
+  WidgetsBinding.instance.handleAppLifecycleStateChanged(
+    AppLifecycleState.resumed,
+  );
+  await tester.pumpAndSettle();
+
+  // Auto-lock fired. User sees PIN.
+  expect(find.byType(PinScreen), findsOneWidget);
+
+  await unlock(tester);
+  await tester.pumpAndSettle();
+
+  // Desired behavior: the URL the user tapped is picked up after
+  // unlock and the session UI appears.
+  await tester.waitFor(
+    find.byType(IssuancePermission),
+    timeout: const Duration(seconds: 10),
+  );
+  expect(
+    find.byType(IssuancePermission),
+    findsOneWidget,
+    reason:
+        "universal-link-initiated session was lost across the auto-lock "
+        "cascade; after PIN unlock the user should see the session "
+        "they just tapped, not the data tab",
+  );
 }
 
 Future<void> testPausedResumedBelowThresholdDoesNotLock(
