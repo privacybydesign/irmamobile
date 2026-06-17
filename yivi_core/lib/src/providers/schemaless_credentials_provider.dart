@@ -99,7 +99,11 @@ List<_SearchEntry> _search(List<_SearchEntry> candidates, String query) {
           _scoreForSearchEntry(credential, strippedQuery),
         ),
       )
-      .where((entry) => entry.value >= 0.2)
+      // Floor raised from 0.2 to 0.3 alongside tokenisation. Bigram similarity
+      // between unrelated words like "overheid" ↔ "verified" lands around 0.29
+      // (shared "ve"/"er"); 0.3 cuts those off while keeping realistic typos
+      // (e.g. "paspot" ↔ "paspoort" ≈ 0.67).
+      .where((entry) => entry.value >= 0.3)
       .sorted((a, b) => b.value.compareTo(a.value))
       .map((entry) => entry.key)
       .toList(growable: false);
@@ -108,19 +112,34 @@ List<_SearchEntry> _search(List<_SearchEntry> candidates, String query) {
 }
 
 double _scoreForSearchEntry(_SearchEntry credential, String query) {
-  // sometimes a string may start with or contain the query but the threshold for similarity is not reached
-  // we filter these cases out so they still show up in the search results with high priority
-  if (credential.credentialType.startsWith(query)) {
-    return 1;
-  }
-  if (credential.credentialType.contains(query)) {
-    return 0.9;
-  }
-  final credentialSimilarity = query.similarityTo(credential.credentialType);
-  final issuerSimilarity = query.similarityTo(credential.issuerName);
+  final credentialScore = _maxTokenScore(query, credential.credentialType);
+  final issuerScore = _maxTokenScore(query, credential.issuerName);
 
-  // we weight the credential and issuer similarities so the credential is more important in the search results
-  return credentialSimilarity * 0.7 + issuerSimilarity * 0.3;
+  // Credential type weighted higher than issuer name in the final score.
+  return credentialScore * 0.7 + issuerScore * 0.3;
+}
+
+// Score the query against each whitespace-separated token of [target] and
+// return the best match. Tokenisation matters because Dice's-coefficient
+// similarity over a whole string accumulates incidental shared bigrams across
+// word boundaries — e.g. "overheid" against "verified email" picks up "ve"
+// and "er" from "verified" plus nothing from "email", yet the longer combined
+// string makes the overall similarity look meaningful when it isn't.
+double _maxTokenScore(String query, String target) {
+  double best = 0;
+  for (final token in target.split(" ")) {
+    if (token.isEmpty) continue;
+    // Prefix and contains hits short-circuit fuzzy: a literal substring match
+    // is always more relevant than a coincidental bigram overlap.
+    if (token.startsWith(query)) return 1;
+    if (token.contains(query)) {
+      if (0.9 > best) best = 0.9;
+      continue;
+    }
+    final fuzzy = query.similarityTo(token);
+    if (fuzzy > best) best = fuzzy;
+  }
+  return best;
 }
 
 List<_SearchEntry> _credentialsToSearchEntries(
