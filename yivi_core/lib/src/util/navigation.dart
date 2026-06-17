@@ -83,10 +83,6 @@ extension RoutingHelpers on BuildContext {
     go("/home");
   }
 
-  void goPinScreen() {
-    go("/pin");
-  }
-
   void goSettingsScreen() {
     go("/home/settings");
   }

@@ -2,7 +2,6 @@ import "dart:async";
 
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:mrz_parser/mrz_parser.dart";
@@ -36,8 +35,6 @@ import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
 import "src/screens/help/help_screen.dart";
 import "src/screens/home/home_screen.dart";
-import "src/screens/home/widgets/irma_nav_bar.dart";
-import "src/screens/home/widgets/irma_qr_scan_button.dart";
 import "src/screens/issue_wizard/issue_wizard.dart";
 import "src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart";
 import "src/screens/loading/loading_screen.dart";
@@ -53,7 +50,6 @@ import "src/screens/scanner/scanner_screen.dart";
 import "src/screens/session/session_screen.dart";
 import "src/screens/session/unknown_session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
-import "src/screens/terms_changed/terms_changed_dialog.dart";
 import "src/util/navigation.dart";
 import "src/widgets/irma_app_bar.dart";
 
@@ -65,14 +61,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final rootedDeviceDetector = ref.read(rootedDeviceDetectorProvider);
   final redirectionTriggers = RedirectionListenable(repo, rootedDeviceDetector);
-
-  const whiteListedOnLocked = {
-    "/reset_pin",
-    "/loading",
-    "/enrollment",
-    "/scanner",
-    "/modal_pin",
-  };
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
@@ -101,35 +89,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: "/loading",
         pageBuilder: (context, state) =>
             NoTransitionPage(name: "/loading", child: LoadingScreen()),
-      ),
-      GoRoute(
-        path: "/pin",
-        pageBuilder: (context, state) {
-          return NoTransitionPage(
-            name: "/pin",
-            child: Builder(
-              builder: (context) {
-                return TermsChangedListener(
-                  child: PinScreen(
-                    onAuthenticated: () {
-                      // Reset the bottom-tab selection so a fresh unlock
-                      // always lands on the data tab, regardless of which
-                      // tab the user was on when the app locked.
-                      context.read<HomeTabState>().add(IrmaNavBarTab.data);
-                      context.goHomeScreenWithoutTransition();
-                    },
-                    leading: YiviAppBarQrCodeButton(
-                      onTap: () => openQrCodeScanner(
-                        context,
-                        requireAuthBeforeSession: true,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
       ),
       GoRoute(
         path: "/modal_pin",
@@ -696,10 +655,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
           redirectionTriggers.value.versionInformation!.updateRequired()) {
         return "/update_required";
       }
-      if (redirectionTriggers.value.appLocked &&
-          !whiteListedOnLocked.contains(state.fullPath)) {
-        return "/pin";
-      }
       return null;
     },
   );
@@ -729,7 +684,6 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
   RedirectionListenable(IrmaRepository repo, RootedDeviceDetector detector)
     : super(RedirectionTriggers.withDefaults()) {
     final warningStream = _displayDeviceIsRootedWarning(repo, detector);
-    final lockedStream = repo.getLocked();
     final infoStream = repo
         .getVersionInformation()
         .map<VersionInformation?>((version) => version)
@@ -738,21 +692,13 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
     final enrollmentStream = repo.getEnrollmentStatus();
 
     // combine the streams into one
-    _streamSubscription = Rx.combineLatest5(
+    _streamSubscription = Rx.combineLatest4(
       warningStream,
-      lockedStream,
       infoStream,
       nameChangedStream,
       enrollmentStream,
-      (
-        deviceRootedWarning,
-        locked,
-        versionInfo,
-        nameChangedWarning,
-        enrollment,
-      ) {
+      (deviceRootedWarning, versionInfo, nameChangedWarning, enrollment) {
         return RedirectionTriggers(
-          appLocked: locked,
           showDeviceRootedWarning: deviceRootedWarning,
           showNameChangedMessage: nameChangedWarning,
           versionInformation: versionInfo,
@@ -771,14 +717,12 @@ class RedirectionListenable extends ValueNotifier<RedirectionTriggers> {
 }
 
 class RedirectionTriggers {
-  final bool appLocked;
   final bool showDeviceRootedWarning;
   final bool showNameChangedMessage;
   final VersionInformation? versionInformation;
   final EnrollmentStatus enrollmentStatus;
 
   RedirectionTriggers({
-    required this.appLocked,
     required this.showDeviceRootedWarning,
     required this.showNameChangedMessage,
     required this.versionInformation,
@@ -787,20 +731,17 @@ class RedirectionTriggers {
 
   RedirectionTriggers.withDefaults()
     : enrollmentStatus = .undetermined,
-      appLocked = true,
       showDeviceRootedWarning = false,
       showNameChangedMessage = false,
       versionInformation = null;
 
   RedirectionTriggers copyWith({
-    bool? appLocked,
     bool? showDeviceRootedWarning,
     bool? showNameChangedMessage,
     VersionInformation? versionInformation,
     EnrollmentStatus? enrollmentStatus,
   }) {
     return RedirectionTriggers(
-      appLocked: appLocked ?? this.appLocked,
       showDeviceRootedWarning:
           showDeviceRootedWarning ?? this.showDeviceRootedWarning,
       showNameChangedMessage:
@@ -816,7 +757,6 @@ class RedirectionTriggers {
       return true;
     }
     return other is RedirectionTriggers &&
-        appLocked == other.appLocked &&
         showDeviceRootedWarning == other.showDeviceRootedWarning &&
         showNameChangedMessage == other.showNameChangedMessage &&
         versionInformation == other.versionInformation &&
@@ -825,12 +765,11 @@ class RedirectionTriggers {
 
   @override
   String toString() {
-    return "lock: $appLocked, enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation";
+    return "enroll: $enrollmentStatus, rooted: $showDeviceRootedWarning, name: $showNameChangedMessage, version: $versionInformation";
   }
 
   @override
   int get hashCode => Object.hash(
-    appLocked,
     showNameChangedMessage,
     showDeviceRootedWarning,
     versionInformation,

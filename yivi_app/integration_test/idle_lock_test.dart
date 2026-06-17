@@ -1,7 +1,8 @@
 // Verifies the idle-lock behavior introduced by IdleLockObserver:
-// a paused → idle → resumed cycle (longer than the idle threshold) must
-// lock the app and reset the navigation stack to /home, so the user never
-// returns to a stale screen left behind from before they walked away.
+// a paused → idle → resumed cycle (longer than the idle threshold)
+// must lock the app. Locking now overlays `PinScreen` on top of the
+// currently mounted route (`LockGate`); the route stays mounted and
+// resumes when the user enters their PIN.
 
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -28,11 +29,9 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     testWidgets(
-      "paused → idle → resumed locks and resets nav to home",
-      (tester) => testPausedIdleResumedLocksAndResetsToHome(
-        tester,
-        irmaBinding.repository,
-      ),
+      "paused → idle → resumed shows lock overlay over current route",
+      (tester) =>
+          testPausedIdleResumedShowsLockOverlay(tester, irmaBinding.repository),
     );
 
     testWidgets(
@@ -44,9 +43,9 @@ void main() {
     );
 
     testWidgets(
-      "in-progress session is cleared after idle lock",
+      "in-progress session survives idle lock",
       (tester) =>
-          testInProgressSessionClearedAfterIdleLock(tester, irmaBinding),
+          testInProgressSessionPreservedAcrossIdleLock(tester, irmaBinding),
     );
 
     testWidgets(
@@ -57,22 +56,22 @@ void main() {
   });
 }
 
-Future<void> testPausedIdleResumedLocksAndResetsToHome(
+Future<void> testPausedIdleResumedShowsLockOverlay(
   WidgetTester tester,
   IrmaRepository repo,
 ) async {
   const threshold = Duration(milliseconds: 50);
   await pumpAndUnlockApp(tester, repo, idleLockThreshold: threshold);
 
-  // Navigate to a deep non-home route so we can prove the stack is reset.
+  // Navigate to a deep non-home route. With the overlay design the
+  // route stays mounted across lock/unlock — the user emerges back
+  // where they were, behind the PIN prompt.
   await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
   await tester.tapAndSettle(
     find.byKey(const Key("open_settings_screen_button")),
   );
   expect(find.byType(SettingsScreen), findsOneWidget);
 
-  // Drive the full iOS lifecycle sequence going to background, sleep past
-  // the threshold, then drive the sequence coming back to foreground.
   WidgetsBinding.instance.handleAppLifecycleStateChanged(
     AppLifecycleState.inactive,
   );
@@ -96,19 +95,19 @@ Future<void> testPausedIdleResumedLocksAndResetsToHome(
   );
   await tester.pumpAndSettle();
 
-  // App must be locked; user sees PIN, not the settings screen.
+  // Lock overlay is up. The settings route is still in the tree
+  // (covered by the overlay, not popped).
   expect(find.byType(PinScreen), findsOneWidget);
-  expect(find.byType(SettingsScreen), findsNothing);
 
-  // After unlock the user lands on the data tab specifically (not on the
-  // more tab they were on before locking, and not back on SettingsScreen).
+  // After unlock the overlay drops and the user is back on the
+  // settings screen they left behind — same route, no nav reset.
   await unlock(tester);
-  await tester.waitFor(find.byType(DataTab).hitTestable());
-  expect(find.byType(SettingsScreen), findsNothing);
+  await tester.pumpAndSettle();
   expect(find.byType(PinScreen), findsNothing);
+  expect(find.byType(SettingsScreen), findsOneWidget);
 }
 
-Future<void> testInProgressSessionClearedAfterIdleLock(
+Future<void> testInProgressSessionPreservedAcrossIdleLock(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
 ) async {
@@ -119,10 +118,9 @@ Future<void> testInProgressSessionClearedAfterIdleLock(
     idleLockThreshold: threshold,
   );
 
-  // Start an issuance session and pause once the user is sitting on
-  // IssuancePermission. We deliberately do NOT continue the session — this
-  // simulates the user walking away mid-flow, which is the scenario that
-  // produced the original "stale screen after hours" complaint.
+  // Start an issuance session and wait until the user is on
+  // IssuancePermission. Then simulate walking away (lifecycle paused
+  // for longer than the idle threshold).
   await startIssuanceSession(
     irmaBinding,
     groupAttributes(
@@ -130,7 +128,6 @@ Future<void> testInProgressSessionClearedAfterIdleLock(
     ),
   );
   await tester.waitFor(find.byType(IssuancePermission));
-  expect(find.byType(IssuancePermission), findsOneWidget);
 
   WidgetsBinding.instance.handleAppLifecycleStateChanged(
     AppLifecycleState.inactive,
@@ -155,18 +152,17 @@ Future<void> testInProgressSessionClearedAfterIdleLock(
   );
   await tester.pumpAndSettle();
 
-  // App must be locked: PIN screen on top, session UI already torn down.
+  // Lock overlay is up. The session route stays mounted underneath —
+  // no dispose, no dismiss to Go, no orphaned state.
   expect(find.byType(PinScreen), findsOneWidget);
-  expect(find.byType(IssuancePermission), findsNothing);
-  expect(find.byType(SessionScreen), findsNothing);
+  expect(find.byType(SessionScreen), findsOneWidget);
 
-  // After unlock the user lands on the data tab, NOT back on the unfinished
-  // session — this is the exact regression we are guarding against.
+  // After unlock the overlay drops and the user is back on the
+  // session, ready to finish what they started.
   await unlock(tester);
-  await tester.waitFor(find.byType(DataTab).hitTestable());
-  expect(find.byType(IssuancePermission), findsNothing);
-  expect(find.byType(SessionScreen), findsNothing);
+  await tester.pumpAndSettle();
   expect(find.byType(PinScreen), findsNothing);
+  expect(find.byType(IssuancePermission), findsOneWidget);
 }
 
 /// When a universal link lands in the same resume window as the
