@@ -3,6 +3,7 @@ import "dart:ui";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/schemaless/schemaless_events.dart" as schemaless;
+import "../models/translated_value.dart";
 import "./provider_helpers.dart" as helpers;
 import "credentials_search.dart";
 import "irma_repository_provider.dart";
@@ -70,26 +71,29 @@ final schemalessCredentialsSearchResultsProvider =
           .toList(growable: false);
     });
 
+// Index across every supported language so a query in any of them matches
+// (a Dutch-speaking user searching "passport" still finds "paspoort", and
+// vice versa).
+const _searchLocales = ["nl", "en", "de"];
+
 List<SearchEntry> _credentialsToSearchEntries(
   List<schemaless.Credential> credentials,
   Locale locale,
 ) {
+  String multilingual(TranslatedValue translated) {
+    final variants = _searchLocales
+        .map((lang) => translated.translate(lang))
+        .where((s) => s.isNotEmpty)
+        .toSet();
+    return variants.map(normaliseForSearch).join(" ");
+  }
+
   return credentials
       .map((credential) {
-        final credentialName = credential.name
-            .translate(locale.languageCode)
-            .toLowerCase()
-            .replaceAll("-", "");
-
-        final issuer = credential.issuer.name
-            .translate(locale.languageCode)
-            .toLowerCase()
-            .replaceAll("-", "");
-
         return SearchEntry(
           hash: credential.hash,
-          credentialType: credentialName,
-          issuerName: issuer,
+          credentialType: multilingual(credential.name),
+          issuerName: multilingual(credential.issuer.name),
         );
       })
       .toList(growable: false);

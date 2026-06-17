@@ -75,21 +75,11 @@ void main() {
       ], "rivin");
       expect(_hashes(results), ["driving licence"]);
     });
-
-    test("query spanning two tokens does NOT match", () {
-      // "ng lic" crosses a word boundary; no single token contains it.
-      // Bigram similarity also stays low.
-      final results = searchCredentials([
-        _entry("driving licence"),
-      ], "ng lic");
-      expect(results, isEmpty);
-    });
   });
 
-  group("searchCredentials — fuzzy matching (Dice's coefficient)", () {
+  group("searchCredentials — fuzzy matching (edit distance)", () {
     test("single-letter typo still matches", () {
-      // "paspot" vs "paspoort": Dice = 4·2 / (5+7) = 0.67 → credential
-      // score 0.67·0.7 = 0.47, comfortably above the 0.3 floor.
+      // "paspot" vs "paspoort" is a 2-edit distance (delete two chars).
       final results = searchCredentials([
         _entry("paspoort"),
         _entry("rijbewijs"),
@@ -98,7 +88,7 @@ void main() {
     });
 
     test("realistic mid-word typo passes", () {
-      // "rijbewjs" missing one char from "rijbewijs". Dice ≈ 0.86 → passes.
+      // 1-edit: missing one char.
       final results = searchCredentials([
         _entry("rijbewijs"),
       ], "rijbewjs");
@@ -106,12 +96,10 @@ void main() {
     });
 
     test(
-      "unrelated query that only shares common bigrams falls below floor",
+      "unrelated long query is rejected once distance exceeds 2",
       () {
-        // The regression case: "overheid" and "verified" share only "ve"
-        // and "er" (very common latin bigrams), giving 4/14 ≈ 0.29. Below
-        // the 0.3 floor even on a one-token credential, and "verified email"
-        // adds the unrelated "email" token diluting it further.
+        // "overheid" ↔ "verified" is 5 edits. Beyond the 2-edit cutoff
+        // there's no fuzzy contribution at all.
         final results = searchCredentials([
           _entry("verified email"),
           _entry("paspoort"),
@@ -121,11 +109,58 @@ void main() {
     );
 
     test("aggressively scrambled query is rejected", () {
-      // "xxyyzz" vs "paspoort" → zero shared bigrams.
       final results = searchCredentials([
         _entry("paspoort"),
       ], "xxyyzz");
       expect(results, isEmpty);
+    });
+
+    test("adjacent transposition counts as a single edit", () {
+      // Damerau-Levenshtein treats "paspoort" ↔ "papsoort" as distance 1
+      // (one transposition), not 2 (two substitutions).
+      final results = searchCredentials([
+        _entry("paspoort"),
+      ], "papsoort");
+      expect(_hashes(results), ["paspoort"]);
+    });
+
+    test("three typos are rejected (hard 2-edit cap)", () {
+      // "xxxpoort" is 3 substitutions from "paspoort" — over the cap.
+      final results = searchCredentials([
+        _entry("paspoort"),
+      ], "xxxpoort");
+      expect(results, isEmpty);
+    });
+  });
+
+  group("searchCredentials — diacritic folding", () {
+    test("query without accents matches accented credential", () {
+      final results = searchCredentials([
+        SearchEntry(
+          hash: "x",
+          credentialType: normaliseForSearch("café passe"),
+          issuerName: "yivi",
+        ),
+      ], "cafe");
+      expect(_hashes(results), ["x"]);
+    });
+
+    test("ß folds to ss so a German credential matches plain ascii", () {
+      final results = searchCredentials([
+        SearchEntry(
+          hash: "x",
+          credentialType: normaliseForSearch("straße"),
+          issuerName: "yivi",
+        ),
+      ], "strasse");
+      expect(_hashes(results), ["x"]);
+    });
+
+    test("normaliseForSearch is idempotent", () {
+      expect(
+        normaliseForSearch(normaliseForSearch("Café")),
+        normaliseForSearch("Café"),
+      );
     });
   });
 
@@ -179,13 +214,15 @@ void main() {
     });
 
     test("multiple fuzzy candidates sort by descending similarity", () {
-      // None hit prefix or contains — all fall through to fuzzy.
+      // Edit distances: paspoot(1), paspot(2), paspor(2 — sub one char and
+      // delete one). All within the 2-edit limit; closest match wins.
       final results = searchCredentials([
-        _entry("paspoortennn"),
-        _entry("paspoort"),
-        _entry("paspoorten"),
-      ], "paspot");
-      expect(_hashes(results), ["paspoort", "paspoorten", "paspoortennn"]);
+        _entry("paspot"),
+        _entry("paspoot"),
+        _entry("paspor"),
+      ], "paspoort");
+      expect(results.first.hash, "paspoot");
+      expect(results.length, 3);
     });
 
     test("combined match (cred + issuer) wins; weakest passing match last", () {
@@ -272,46 +309,45 @@ void main() {
     });
 
     test(
-      "tokenisation degrades for very short tokens",
+      "very short tokens don't match unrelated long queries",
       () {
-        // A pitfall worth documenting rather than papering over: Dice's
-        // coefficient on bigrams favours short strings, because shared
-        // bigrams loom larger in the denominator. Per-token max therefore
-        // gives a HIGHER score for a contrived name like "ver" (2 bigrams,
-        // both shared with "overheid") than for a realistic name like
-        // "verified" (7 bigrams, same 2 shared). In practice credential
-        // names are full words, so this edge case doesn't bite — but the
-        // test pins the behaviour so a future tweak to the floor doesn't
-        // surprise us.
-        // "ver" vs "overheid": Dice = 2·2/(2+7) = 0.444 → 0.444·0.7 = 0.311,
-        // just over the 0.3 floor.
+        // Under Dice's coefficient, "overheid" used to spuriously match a
+        // contrived token like "ver" because short strings inflate the
+        // similarity. Edit distance has no such quirk: dist > 2, no match.
         final results = searchCredentials([
           _entry("ver"),
         ], "overheid");
-        expect(_hashes(results), ["ver"]);
+        expect(results, isEmpty);
       },
     );
   });
 
   group("searchCredentials — issuer name interactions", () {
     test(
-      "issuer-only contains hit (0.9 × 0.3 = 0.27) is below the floor",
+      "issuer-only contains hit (0.9 × 0.3 = 0.27) passes the 0.25 floor",
       () {
-        // "mijn overheid" issuer: "overheid".contains("ver") is true
-        // (positions 1–3), but neither token starts with "ver". Issuer
-        // score 0.9, weighted to 0.27 — under the 0.3 floor. Picked "ver"
-        // specifically because its bigrams ("ve","er") share nothing with
-        // "paspoort" (so credential side contributes a clean 0), otherwise
-        // small bigram leaks would inflate the combined score over the floor.
         final results = searchCredentials([
           _entry("paspoort", "mijn overheid"),
         ], "ver");
-        expect(results, isEmpty);
+        expect(_hashes(results), ["paspoort"]);
       },
     );
 
     test(
-      "issuer-only prefix hit (1.0 × 0.3 = 0.3) lands exactly at the floor",
+      "query that's a substring of an issuer token surfaces the credential",
+      () {
+        // Reported bug: "overheid" should find "Demo MijnOverheid". Token
+        // "mijnoverheid" contains "overheid" → 0.9 × 0.3 = 0.27, which
+        // passes the 0.25 floor.
+        final results = searchCredentials([
+          _entry("paspoort", "demo mijnoverheid"),
+        ], "overheid");
+        expect(_hashes(results), ["paspoort"]);
+      },
+    );
+
+    test(
+      "issuer-only prefix hit (1.0 × 0.3 = 0.3) passes the floor",
       () {
         // The query doesn't touch the credential name at all; the issuer
         // prefix is what carries the candidate over the bar.
@@ -357,29 +393,29 @@ void main() {
     );
 
     test(
-      "borderline credential fuzzy + borderline issuer fuzzy can combine over the floor",
+      "issuer-only 2-edit fuzzy is filtered (weighted below the floor)",
       () {
-        // Pinning a real edge of the algorithm: a credential token's
-        // sub-floor fuzzy score (0.286 for "overheid" ↔ "verified", weighted
-        // to 0.2) plus an issuer token's also-sub-floor fuzzy score (0.375
-        // for "overheid" ↔ "government", weighted to ≈0.11) sums to ≈0.31
-        // — just over 0.3. If we want this case filtered, the floor needs
-        // to rise further, but at the cost of typo tolerance elsewhere.
-        final results = searchCredentials([
-          _entry("verified email", "government"),
-        ], "overheid");
-        expect(_hashes(results), ["verified email"]);
+        // "rdww" ↔ "rdw" is a 1-edit match (insertion) on the issuer →
+        // 0.9 × 0.3 = 0.27, passes. Going to 2 edits ("rdwww") gives
+        // 0.7 × 0.3 = 0.21, just under the 0.25 floor.
+        final pass = searchCredentials([
+          _entry("paspoort", "rdw"),
+        ], "rdww");
+        expect(_hashes(pass), ["paspoort"]);
+
+        final fail = searchCredentials([
+          _entry("paspoort", "rdw"),
+        ], "rdwww");
+        expect(fail, isEmpty);
       },
     );
 
     test("weak issuer-only fuzzy match is rejected", () {
-      // "yvi" ↔ "yivi" Dice = 2 / (2+3) = 0.40 — would pass on its own
-      // (above the 0.3 floor) only if it weren't downweighted to 0.3 of the
-      // total. Weighted contribution: 0.4 × 0.3 = 0.12. Credential side
-      // contributes 0. Combined: 0.12, filtered.
+      // "wivx" ↔ "yivi" is two substitutions (distance 2). Weighted
+      // contribution: 0.7 × 0.3 = 0.21, below the 0.25 floor.
       final results = searchCredentials([
         _entry("paspoort", "yivi"),
-      ], "yvi");
+      ], "wivx");
       expect(results, isEmpty);
     });
 
