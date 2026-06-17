@@ -108,7 +108,16 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
     private void maybeCreateBridge() {
         if (bridge == null && channel != null && activity != null && applicationContext != null) {
-            bridge = new IrmaMobileBridge(applicationContext, activity, channel, activity.getIntent().getData());
+            Intent launchIntent = activity.getIntent();
+            Uri data = launchIntent.getData();
+            // When the user relaunches the app from the recents list — or Android
+            // restores the task after a process kill — the original launching intent
+            // is replayed with FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY set. Drop the deep
+            // link in that case so a stale session URL isn't re-fired as a new session.
+            if ((launchIntent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) {
+                data = null;
+            }
+            bridge = new IrmaMobileBridge(applicationContext, activity, channel, data);
             channel.setMethodCallHandler(bridge);
         }
     }
