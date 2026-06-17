@@ -18,9 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add certificate management in developer mode
 - Redesigned credential card with support for nested claims
 - Update the enrollment 'from' emailaddress
+- Improved credential search algorithm
 
 ### Fixed
 - Rooted device detection/acceptance flow now works correctly as the return url
+- Bug that could cause session replay on Android
 
 ### Internal
 - Integration tests are now run in parallel on CI
