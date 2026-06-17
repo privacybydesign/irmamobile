@@ -32,6 +32,26 @@ lane :unit_test do
   Dir.chdir("../yivi_core") do
     sh("flutter", "test")
   end
+
+  # Android native (JVM) unit tests, including the deep-link session-replay
+  # regression test (#568). The yivi_core plugin module compiles against the
+  # irmagobridge AAR, so build it first, then run the unit tests through the host
+  # app's Gradle project (which is where Flutter registers the :yivi_core plugin
+  # module).
+  #
+  # The Gradle wrapper (gradlew + gradle-wrapper.jar) is gitignored, so it does not
+  # exist on a clean checkout — only a Flutter Android build injects it. `flutter
+  # build apk --config-only` runs Flutter's gradle-wrapper injection (and a pub get)
+  # without doing a full compile, so it is enough to materialise ./gradlew. A flavor
+  # is required because the app declares product flavors with no default.
+  aar = File.expand_path("../yivi_core/android/irmagobridge/irmagobridge.aar", __dir__)
+  android_build_irmagobridge() unless File.exist?(aar)
+  Dir.chdir("../yivi_app") do
+    sh("flutter", "build", "apk", "--config-only", "--flavor", "alpha")
+    Dir.chdir("./android") do
+      sh("./gradlew", ":yivi_core:testDebugUnitTest")
+    end
+  end
 end
 
 lane :android_build do |options|
