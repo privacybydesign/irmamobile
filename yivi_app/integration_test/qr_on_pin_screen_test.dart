@@ -91,15 +91,11 @@ Future<void> testCancelIssuanceAfterPinEntered(
   // press the cancel button
   await tester.tapAndSettle(buttonFinder);
 
-  // we expect to go back to the QR scanner
-  expect(find.byType(ScannerScreen), findsOneWidget);
-
-  // back to the pin screen
-  final backButton = find.byType(YiviBackButton);
-  await tester.tapAndSettle(backButton);
-
-  // unlock and wait so the test doesn't fail after completing
-  await unlockAndWaitForHome(tester);
+  // With the lock-screen QR scanner now shown as a modal on
+  // LockGate's local Navigator (rather than the `/scanner` route),
+  // canceling the issuance no longer has a scanner page underneath
+  // to fall back to — the user simply ends up on the home screen.
+  await tester.waitFor(find.byType(DataTab).hitTestable());
 }
 
 Future<void> testBackFromQrScanner(
@@ -110,12 +106,15 @@ Future<void> testBackFromQrScanner(
   await pumpYiviApp(tester, repo, defaultLanguage: locale);
   await tapQrScannerButton(tester);
 
+  // Scanner is now a bottom-sheet modal, not a `/scanner` route.
   final qrScreen = find.byType(ScannerScreen);
   expect(qrScreen, findsOneWidget);
 
-  final backButton = find.byType(YiviBackButton);
-  await tester.tapAndSettle(backButton);
+  // Sheet has a close button in the top-right (not a back button).
+  final closeButton = find.byKey(const Key("irma_app_bar_close"));
+  await tester.tapAndSettle(closeButton);
 
+  // After dismissing the sheet we're back on LockGate's PinScreen.
   final pinScreen = find.byType(PinScreen);
   expect(pinScreen, findsOneWidget);
 

@@ -38,19 +38,10 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
   const _ProvidedEnrollmentScreen({required this.repo});
 
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
-    // we have to await the locked setting, because it could come after the enrollment status,
-    // causing us to be automatically redirected to the pin screen when we're already unlocked...
-    final locked = await repo.getLocked().first;
-
-    if (!context.mounted) {
-      return;
-    }
-
-    if (locked) {
-      context.goPinScreen();
-    } else {
-      context.goHomeScreen();
-    }
+    if (!context.mounted) return;
+    // LockGate handles displaying the PIN overlay if the app is still
+    // locked after enrollment.
+    context.goHomeScreen();
   }
 
   @override

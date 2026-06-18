@@ -1,14 +1,13 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:go_router/go_router.dart";
 
-import "../../routing.dart";
 import "../models/enrollment_status.dart";
 import "../providers/irma_repository_provider.dart";
 
 /// Locks the app when it has been backgrounded for longer than
-/// [idleThreshold] and resets navigation to `/home`, so the user emerges to a
-/// fresh stack on unlock instead of to whatever screen they left behind.
+/// [idleThreshold]. The `LockGate` widget reacts to the locked state
+/// stream and overlays `PinScreen` on top of whatever route is mounted
+/// — no navigation is needed here.
 ///
 /// Tracks `paused` and `resumed` lifecycle events. `inactive` and `hidden` are
 /// intentionally ignored: only a real backgrounding sets `_lastPausedAt`, so
@@ -68,7 +67,6 @@ class _IdleLockObserverState extends ConsumerState<IdleLockObserver>
     if (!mounted) return;
 
     repo.lock();
-    rootNavigatorKey.currentContext?.go("/home");
   }
 
   @override
