@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/scheduler.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
@@ -19,7 +20,6 @@ const _unlockedPathPrefixes = {
   "/loading",
   "/enrollment",
   "/reset_pin",
-  "/scanner",
   "/modal_pin",
   "/rooted_warning",
   "/update_required",
@@ -48,18 +48,26 @@ class _LockGateState extends ConsumerState<LockGate> {
   @override
   void initState() {
     super.initState();
-    // Defensive: in case `MaterialApp.router`'s builder doesn't always
-    // rebuild this widget on a route change, ask for a rebuild
-    // ourselves. The post-frame defer avoids `setState during build`
-    // on the initial route configuration, where the delegate notifies
-    // synchronously during Router's first build.
     widget.router.routerDelegate.addListener(_scheduleRebuild);
   }
 
   void _scheduleRebuild() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) setState(() {});
-    });
+    if (!mounted) return;
+    // Notifications fired DURING build (initial route configuration
+    // by the Router; some GoRouterDelegate paths) can't call setState
+    // directly without throwing. Defer those to the post-frame; for
+    // anything fired while idle (user navigation, test-driven
+    // pushes), rebuild now so the overlay state matches the new
+    // route on the same frame.
+    final phase = SchedulerBinding.instance.schedulerPhase;
+    if (phase == SchedulerPhase.idle ||
+        phase == SchedulerPhase.postFrameCallbacks) {
+      setState(() {});
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
   }
 
   @override
@@ -71,10 +79,6 @@ class _LockGateState extends ConsumerState<LockGate> {
   @override
   Widget build(BuildContext context) {
     final locked = ref.watch(appLockedProvider);
-    // Read the path live so a rebuild triggered by a parent (e.g. the
-    // router swapping `widget.child` for the new route) sees the new
-    // path immediately — no one-frame flicker of unlocked content
-    // before the overlay catches up.
     final path = widget.router.routerDelegate.currentConfiguration.uri.path;
     final isUnlockedRoute = _unlockedPathPrefixes.any(
       (prefix) => path == prefix || path.startsWith("$prefix/"),
@@ -85,18 +89,29 @@ class _LockGateState extends ConsumerState<LockGate> {
       children: [
         widget.child,
         if (showOverlay)
+          // Local Navigator so widgets inside the overlay can use the
+          // usual Navigator operations (showDialog, modal sheets, pop
+          // dialogs) — `Navigator.of(context)` resolves to THIS nav,
+          // which is what we want for overlay-internal interactions.
           Positioned.fill(
-            child: TermsChangedListener(
-              child: PinScreen(
-                onAuthenticated: () {
-                  if (context.mounted) {
-                    context.read<HomeTabState>().add(IrmaNavBarTab.data);
-                  }
-                },
-                leading: YiviAppBarQrCodeButton(
-                  onTap: () => openQrCodeScanner(
-                    context,
-                    requireAuthBeforeSession: true,
+            child: Navigator(
+              onGenerateRoute: (_) => MaterialPageRoute<void>(
+                builder: (innerCtx) => TermsChangedListener(
+                  child: PinScreen(
+                    onAuthenticated: () {
+                      if (context.mounted) {
+                        context.read<HomeTabState>().add(IrmaNavBarTab.data);
+                      }
+                    },
+                    leading: YiviAppBarQrCodeButton(
+                      // Same sheet entry point as the home-screen QR
+                      // button — the modal opens on this local
+                      // Navigator (since `innerCtx` is below it), sits
+                      // on top of PinScreen, and the scanner queues
+                      // the pointer for `PendingPointerListener` to
+                      // pick up after PIN unlock.
+                      onTap: () => openQrCodeScanner(innerCtx),
+                    ),
                   ),
                 ),
               ),

@@ -10,16 +10,6 @@ import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
 
 extension RoutingHelpers on BuildContext {
-  void pushScannerScreen({required bool requireAuthBeforeSession}) {
-    final uri = Uri(
-      path: "/scanner",
-      queryParameters: {
-        "require_auth_before_session": requireAuthBeforeSession.toString(),
-      },
-    );
-    push(uri.toString());
-  }
-
   void pushErrorScreen({required String message}) {
     push("/error", extra: message);
   }
@@ -30,10 +20,6 @@ extension RoutingHelpers on BuildContext {
 
   Future<bool?> pushModalPin() async {
     return await push("/modal_pin");
-  }
-
-  bool isScannerTopRoute() {
-    return GoRouter.of(this).state.uri.path == "/scanner";
   }
 
   void pushAddDataScreen() {

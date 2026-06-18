@@ -46,7 +46,6 @@ import "src/screens/reset_pin/reset_pin_screen.dart";
 import "src/screens/rooted_warning/repository.dart";
 import "src/screens/rooted_warning/rooted_device_detector.dart";
 import "src/screens/rooted_warning/rooted_warning_screen.dart";
-import "src/screens/scanner/scanner_screen.dart";
 import "src/screens/session/session_screen.dart";
 import "src/screens/session/unknown_session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
@@ -69,15 +68,6 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
     refreshListenable: redirectionTriggers,
     errorBuilder: (context, state) => RouteNotFoundScreen(),
     routes: [
-      GoRoute(
-        path: "/scanner",
-        builder: (context, state) {
-          final requireAuth = bool.parse(
-            state.uri.queryParameters["require_auth_before_session"]!,
-          );
-          return ScannerScreen(requireAuthBeforeSession: requireAuth);
-        },
-      ),
       GoRoute(
         path: "/error",
         builder: (context, state) => ErrorScreen(
