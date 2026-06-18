@@ -45,42 +45,39 @@ class LockGate extends ConsumerStatefulWidget {
 }
 
 class _LockGateState extends ConsumerState<LockGate> {
-  late String _path;
-
   @override
   void initState() {
     super.initState();
-    _path = _currentPath();
-    widget.router.routerDelegate.addListener(_onRouteChanged);
+    // Defensive: in case `MaterialApp.router`'s builder doesn't always
+    // rebuild this widget on a route change, ask for a rebuild
+    // ourselves. The post-frame defer avoids `setState during build`
+    // on the initial route configuration, where the delegate notifies
+    // synchronously during Router's first build.
+    widget.router.routerDelegate.addListener(_scheduleRebuild);
   }
 
-  String _currentPath() =>
-      widget.router.routerDelegate.currentConfiguration.uri.path;
-
-  void _onRouteChanged() {
-    // GoRouterDelegate notifies during the build phase on initial
-    // route configuration, so defer the setState to the next frame
-    // to avoid `setState during build`.
+  void _scheduleRebuild() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final newPath = _currentPath();
-      if (newPath != _path) {
-        setState(() => _path = newPath);
-      }
+      if (mounted) setState(() {});
     });
   }
 
   @override
   void dispose() {
-    widget.router.routerDelegate.removeListener(_onRouteChanged);
+    widget.router.routerDelegate.removeListener(_scheduleRebuild);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final locked = ref.watch(appLockedProvider);
+    // Read the path live so a rebuild triggered by a parent (e.g. the
+    // router swapping `widget.child` for the new route) sees the new
+    // path immediately — no one-frame flicker of unlocked content
+    // before the overlay catches up.
+    final path = widget.router.routerDelegate.currentConfiguration.uri.path;
     final isUnlockedRoute = _unlockedPathPrefixes.any(
-      (prefix) => _path == prefix || _path.startsWith("$prefix/"),
+      (prefix) => path == prefix || path.startsWith("$prefix/"),
     );
     final showOverlay = locked && !isUnlockedRoute;
 
