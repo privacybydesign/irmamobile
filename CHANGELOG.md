@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [8.0.0] - 2026-06-17
+## [8.0.0] - 2026-06-18
 ### Changed
 - Make data tab, credential details, activity, notifications and add-data screens schema-independent
 - Restructure session handling to use a schema-independent interface via irmago
@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Redesigned credential card with support for nested claims
 - Update the enrollment 'from' emailaddress
 - Improved credential search algorithm
+- QR code scanner is now a modal sheet
 
 ### Fixed
 - Rooted device detection/acceptance flow now works correctly as the return url
