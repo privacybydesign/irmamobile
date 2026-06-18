@@ -113,9 +113,7 @@ class _LockGateState extends ConsumerState<LockGate> {
                     // and the GoRouter redirect handles the rest
                     // (unenrolled → /enrollment).
                     onForgotPin: () => Navigator.of(innerCtx).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => ResetPinScreen(),
-                      ),
+                      MaterialPageRoute<void>(builder: (_) => ResetPinScreen()),
                     ),
                     leading: YiviAppBarQrCodeButton(
                       // Same sheet entry point as the home-screen QR
