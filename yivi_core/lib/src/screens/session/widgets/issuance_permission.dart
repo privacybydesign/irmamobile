@@ -1,14 +1,16 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../providers/face_credential_content_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
 import "session_scaffold.dart";
 
-class IssuancePermission extends StatelessWidget {
+class IssuancePermission extends ConsumerWidget {
   final VoidCallback? onDismiss;
   final VoidCallback? onGivePermission;
   final List<schemaless.Credential> issuedCredentials;
@@ -21,10 +23,10 @@ class IssuancePermission extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SessionScaffold(
+  Widget build(BuildContext context, WidgetRef ref) => SessionScaffold(
     appBarTitle: "issuance.title",
     bottomNavigationBar: _buildNavigationBar(context),
-    body: _buildBody(context),
+    body: _buildBody(context, ref),
     onDismiss: onDismiss,
   );
 
@@ -48,8 +50,12 @@ class IssuancePermission extends StatelessWidget {
           );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
+    // F-Droid injects this to show the face-verification assurance on the card;
+    // it is null in every other build. Showing it here mirrors what appears on
+    // the stored credential after adding, so the preview matches the result.
+    final faceContent = ref.watch(faceCredentialContentProvider);
 
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
@@ -67,6 +73,10 @@ class IssuancePermission extends StatelessWidget {
               credential: credential,
               compact: false,
               lowInstanceCountThreshold: 0,
+              faceContentBuilder: faceContent == null
+                  ? null
+                  : (ctx) =>
+                        faceContent(ctx, credential) ?? const SizedBox.shrink(),
             ),
           ),
         ),

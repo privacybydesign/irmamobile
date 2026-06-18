@@ -5,6 +5,7 @@ import "package:go_router/go_router.dart";
 
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/face_credential_content_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
@@ -129,6 +130,9 @@ class _CredentialsDetailsScreenState
   SizedBox _buildCredentialsList(List<schemaless.Credential> credentials) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    // F-Droid injects this to show the face-verification assurance level on the
+    // card; it is null in every other build.
+    final faceContent = ref.watch(faceCredentialContentProvider);
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
@@ -151,6 +155,10 @@ class _CredentialsDetailsScreenState
                   child: YiviCredentialCard.fromCredential(
                     credential: cred,
                     compact: false,
+                    faceContentBuilder: faceContent == null
+                        ? null
+                        : (ctx) =>
+                              faceContent(ctx, cred) ?? const SizedBox.shrink(),
                     headerTrailing: isDeletable || isReobtainable
                         ? IconButton(
                             onPressed: () => _showCredentialOptionsBottomSheet(

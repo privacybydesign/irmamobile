@@ -24,7 +24,7 @@ class YiviCredentialCard extends ConsumerWidget {
   final TranslatedValue credentialName;
   final TranslatedValue issuerName;
   final List<Attribute> attributes;
-  final CredentialCardStatus status;
+  final CredentialCardStatus status; 
   final bool compact;
 
   final String? imagePath;
@@ -36,6 +36,8 @@ class YiviCredentialCard extends ConsumerWidget {
   final EdgeInsetsGeometry? padding;
   final bool hideFooter;
   final bool hideNotObtainable;
+
+  final Widget Function(BuildContext)? faceContentBuilder;
 
   const YiviCredentialCard({
     super.key,
@@ -53,6 +55,7 @@ class YiviCredentialCard extends ConsumerWidget {
     this.padding,
     this.hideFooter = false,
     this.hideNotObtainable = false,
+    this.faceContentBuilder,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -68,19 +71,17 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: credential.name,
          issuerName: credential.issuer.name,
-         image: credential.image != null
-             ? Base64Image(base64: credential.image!.base64)
-             : null,
+         image: credential.image != null ? Base64Image(base64: credential.image!.base64) : null,
          attributes: credential.attributes,
          status: CredentialCardStatus(
            expiryDateUnix: credential.expiryDate,
            revoked: credential.revoked,
-           batchInstanceCountsRemaining:
-               credential.batchInstanceCountsRemaining,
+           batchInstanceCountsRemaining: credential.batchInstanceCountsRemaining,
            lowInstanceCountThreshold: lowInstanceCountThreshold,
            credentialId: credential.credentialId,
            issueUrl: credential.issueUrl,
@@ -92,6 +93,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         faceContentBuilder: faceContentBuilder,
        );
 
   YiviCredentialCard.fromSelectableInstance({
@@ -105,21 +107,18 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: instance.name,
          issuerName: instance.issuer.name,
          imagePath: instance.imagePath,
-         image: instance.image != null
-             ? Base64Image(base64: instance.image!.base64)
-             : null,
+         image: instance.image != null ? Base64Image(base64: instance.image!.base64) : null,
          attributes: instance.attributes,
          status: CredentialCardStatus(
            expiryDateUnix: instance.expiryDate,
            revoked: instance.revoked,
-           batchInstanceCountsRemaining: {
-             instance.format: instance.batchInstanceCountRemaining,
-           },
+           batchInstanceCountsRemaining: {instance.format: instance.batchInstanceCountRemaining},
            lowInstanceCountThreshold: lowInstanceCountThreshold,
            credentialId: instance.credentialId,
            issueUrl: instance.issueUrl,
@@ -131,6 +130,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         faceContentBuilder: faceContentBuilder,
        );
 
   YiviCredentialCard.fromDescriptor({
@@ -141,19 +141,14 @@ class YiviCredentialCard extends ConsumerWidget {
     Widget? headerTrailing,
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
+    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
-         image: descriptor.image != null
-             ? Base64Image(base64: descriptor.image!.base64)
-             : null,
+         image: descriptor.image != null ? Base64Image(base64: descriptor.image!.base64) : null,
          attributes: descriptor.attributes
-             .where(
-               (a) =>
-                   a.requestedValue != null &&
-                   a.requestedValue!.hasConcreteValue,
-             )
+             .where((a) => a.requestedValue != null && a.requestedValue!.hasConcreteValue)
              .map(
                (a) => Attribute(
                  claimPath: a.claimPath,
@@ -164,11 +159,7 @@ class YiviCredentialCard extends ConsumerWidget {
              )
              .toList(),
          compareTo: descriptor.attributes
-             .where(
-               (a) =>
-                   a.requestedValue != null &&
-                   a.requestedValue!.hasConcreteValue,
-             )
+             .where((a) => a.requestedValue != null && a.requestedValue!.hasConcreteValue)
              .map(
                (a) => Attribute(
                  claimPath: a.claimPath,
@@ -191,6 +182,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: true,
+         faceContentBuilder: faceContentBuilder,
        );
 
   YiviCredentialCard.fromDescriptorWithEmptyAttributeValues({
@@ -201,13 +193,12 @@ class YiviCredentialCard extends ConsumerWidget {
     Widget? headerTrailing,
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
+    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
-         image: descriptor.image != null
-             ? Base64Image(base64: descriptor.image!.base64)
-             : null,
+         image: descriptor.image != null ? Base64Image(base64: descriptor.image!.base64) : null,
          attributes: descriptor.attributes,
          status: CredentialCardStatus(
            revoked: false,
@@ -223,6 +214,7 @@ class YiviCredentialCard extends ConsumerWidget {
          padding: padding,
          hideFooter: true,
          hideNotObtainable: true,
+         faceContentBuilder: faceContentBuilder,
        );
 
   YiviCredentialCard.fromLogCredential({
@@ -236,13 +228,12 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
+    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: logCredential.name,
          issuerName: logCredential.issuer.name,
-         image: logCredential.image != null
-             ? Base64Image(base64: logCredential.image!.base64)
-             : null,
+         image: logCredential.image != null ? Base64Image(base64: logCredential.image!.base64) : null,
          attributes: logCredential.attributes,
          status: CredentialCardStatus(
            revoked: logCredential.revoked,
@@ -258,6 +249,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         faceContentBuilder: faceContentBuilder,
        );
 
   @override
@@ -286,10 +278,7 @@ class YiviCredentialCard extends ConsumerWidget {
           if (attributes.isNotEmpty) ...[
             IrmaDivider(
               color: status.isExpired ? theme.danger : null,
-              padding: EdgeInsets.only(
-                top: theme.defaultSpacing,
-                bottom: theme.smallSpacing,
-              ),
+              padding: EdgeInsets.only(top: theme.defaultSpacing, bottom: theme.smallSpacing),
             ),
             YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
           ],
@@ -299,9 +288,7 @@ class YiviCredentialCard extends ConsumerWidget {
                 if (attributes.isNotEmpty)
                   IrmaDivider(
                     color: status.isExpired ? theme.danger : null,
-                    padding: EdgeInsets.symmetric(
-                      vertical: theme.defaultSpacing,
-                    ),
+                    padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
                   ),
                 YiviCredentialCardFooter(
                   instanceBasedExpireState: status.instanceExpireState,
@@ -317,14 +304,8 @@ class YiviCredentialCard extends ConsumerWidget {
               child: YiviThemedButton(
                 label: "credential.options.reobtain",
                 style: YiviButtonStyle.filled,
-                onPressed: () => ref
-                    .read(irmaRepositoryProvider)
-                    .openIssueURL(
-                      context,
-                      status.credentialId!,
-                      status.issueUrl,
-                      ref,
-                    ),
+                onPressed: () =>
+                    ref.read(irmaRepositoryProvider).openIssueURL(context, status.credentialId!, status.issueUrl, ref),
               ),
             ),
           if (status.showNotObtainable && !hideNotObtainable)
@@ -334,12 +315,11 @@ class YiviCredentialCard extends ConsumerWidget {
                 message: FlutterI18n.translate(
                   context,
                   "credential.not_obtainable",
-                  translationParams: {
-                    "issuerName": getTranslation(context, issuerName),
-                  },
+                  translationParams: {"issuerName": getTranslation(context, issuerName)},
                 ),
               ),
             ),
+          if (faceContentBuilder != null) ...[faceContentBuilder!(context)],
         ],
       ),
     );

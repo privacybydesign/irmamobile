@@ -30,5 +30,15 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
 
+  # required by the integration tests (integration_test/)
+  integration_test:
+    sdk: flutter
+  flutter_riverpod: ^3.2.0
+  rxdart: ^0.28.0
+  mrz_parser:
+    git:
+      url: https://github.com/privacybydesign/mrz_parser
+      ref: v3.0.0
+
 flutter:
   uses-material-design: true

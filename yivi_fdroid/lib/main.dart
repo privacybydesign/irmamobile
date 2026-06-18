@@ -1,5 +1,6 @@
 import "package:yivi_core/yivi_core.dart";
 
+import "face_assurance.dart";
 import "face_verifier.dart";
 import "ocr_processor.dart";
 
@@ -13,5 +14,6 @@ void main() {
   runYiviApp(
     ocrProcessor: TesseractOcrProcessor(),
     faceVerifier: enableFaceVerification ? FdroidFaceVerifier() : null,
+    faceCredentialContent: enableFaceVerification ? faceAssuranceContentBuilder : null,
   );
 }

@@ -8,22 +8,13 @@ import "package:yivi_core/yivi_core.dart";
 import "screens/face_verification_entery_screen.dart";
 
 class FdroidFaceVerifier implements FaceVerifier {
-  /// Set from the `enableFaceVerification` const in `main.dart`. When `false`,
-  /// the NFC issuance flow skips verification entirely.
-  final bool enabled;
-
-  FdroidFaceVerifier({this.enabled = true});
-
   FaceVerificationEngine? _warmEngine;
 
   Future<void>? _warmReady;
 
   @override
-  bool get requiresIssuanceGating => enabled;
-
-  @override
   void warmup() {
-    if (!enabled || _warmEngine != null) return;
+    if (_warmEngine != null) return;
     final engine = FaceVerificationEngine();
     final ready = engine.initialize();
     _warmEngine = engine;
@@ -41,27 +32,44 @@ class FdroidFaceVerifier implements FaceVerifier {
   }
 
   @override
-  Future<bool?> verify(
-    BuildContext context,
-    Uint8List? nfcPhotoBytes,
-    DateTime? photoIssueDate,
-  ) {
+  void startVerification(
+    BuildContext context, {
+    required Uint8List? photoBytes,
+    required DateTime? photoIssueDate,
+    required Future<void> Function(BuildContext context) onVerified,
+    required void Function() onCancelled,
+  }) {
     final warmEngine = _warmEngine;
     final warmReady = _warmReady;
     _warmEngine = null;
     _warmReady = null;
 
-    return Navigator.of(context).push<bool>(
-      MaterialPageRoute<bool>(
+    Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
         builder: (routeContext) => FaceVerificationEntryScreen(
-          nfcImageBytes: nfcPhotoBytes,
+          nfcImageBytes: photoBytes,
           photoIssueDate: photoIssueDate,
           warmEngine: warmEngine,
           warmEngineReady: warmReady,
-          onBackPressed: () => Navigator.of(routeContext).pop(),
-          onVerified: () => Navigator.of(routeContext).pop(true),
+          onBackPressed: () {
+            // Drop this overlay, then let the caller navigate away.
+            Navigator.of(routeContext).pop();
+            onCancelled();
+          },
+          onVerified: () => unawaited(_completeVerified(routeContext, onVerified)),
         ),
       ),
     );
+  }
+
+  // Let the caller navigate onward first — it replaces the screen *beneath*
+  // this overlay (e.g. with the issuance screen) — then remove the overlay so
+  // it reveals that destination instead of the screen we launched from.
+  Future<void> _completeVerified(
+    BuildContext routeContext,
+    Future<void> Function(BuildContext context) onVerified,
+  ) async {
+    await onVerified(routeContext);
+    if (routeContext.mounted) Navigator.of(routeContext).pop();
   }
 }

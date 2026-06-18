@@ -40,6 +40,12 @@ extension RoutingHelpers on BuildContext {
     push("/home/add_data");
   }
 
+  /// Navigates back to the document selection screen, rebuilding the stack as
+  /// home → add_data. Used to leave the NFC flow after a gated issuance ends.
+  void goAddDataScreen() {
+    go("/home/add_data");
+  }
+
   void pushResetPinScreen() {
     push("/reset_pin");
   }
