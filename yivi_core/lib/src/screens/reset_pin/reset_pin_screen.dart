@@ -1,7 +1,6 @@
 import "package:flutter/material.dart";
 
 import "package:flutter_svg/svg.dart";
-import "package:go_router/go_router.dart";
 
 import "../../../package_name.dart";
 import "../../theme/theme.dart";
@@ -44,7 +43,11 @@ class ResetPinScreen extends StatelessWidget {
           YiviThemedButton(
             style: YiviButtonStyle.outlined,
             label: "ui.cancel",
-            onPressed: context.pop,
+            // `Navigator.of(context).pop` (not GoRouter's
+            // `context.pop`) so this screen works whether it was
+            // pushed via the GoRouter `/reset_pin` route or onto the
+            // LockGate overlay's local Navigator.
+            onPressed: () => Navigator.of(context).pop(),
           ),
           YiviThemedButton(
             label: "reset_pin.reset",
