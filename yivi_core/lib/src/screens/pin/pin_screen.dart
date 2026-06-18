@@ -22,11 +22,19 @@ class PinScreen extends StatefulWidget {
   final Function() onAuthenticated;
   final Widget? leading;
 
+  /// Optional override for the "Forgot PIN?" link. The default uses
+  /// `context.pushResetPinScreen()`, which goes via GoRouter. Hosts
+  /// that mount `PinScreen` outside the GoRouter scope (e.g. the
+  /// `LockGate` overlay's local Navigator) should pass a callback
+  /// that navigates through the GoRouter instance directly.
+  final void Function()? onForgotPin;
+
   const PinScreen({
     super.key,
     required this.onAuthenticated,
     this.initialEvent,
     this.leading,
+    this.onForgotPin,
   });
 
   @override
@@ -226,7 +234,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                             onSubmit: enabled ? submit : (_) {},
                             pinBloc: pinBloc,
                             enabled: enabled,
-                            onForgotPin: context.pushResetPinScreen,
+                            onForgotPin:
+                                widget.onForgotPin ??
+                                context.pushResetPinScreen,
                             listener: (context, state) {
                               if (maxPinSize == shortPinSize &&
                                   state.pin.length == maxPinSize &&

@@ -9,6 +9,7 @@ import "../screens/home/home_screen.dart";
 import "../screens/home/widgets/irma_nav_bar.dart";
 import "../screens/home/widgets/irma_qr_scan_button.dart";
 import "../screens/pin/pin_screen.dart";
+import "../screens/reset_pin/reset_pin_screen.dart";
 import "../screens/terms_changed/terms_changed_dialog.dart";
 import "../widgets/irma_app_bar.dart";
 
@@ -103,6 +104,19 @@ class _LockGateState extends ConsumerState<LockGate> {
                         context.read<HomeTabState>().add(IrmaNavBarTab.data);
                       }
                     },
+                    // Push ResetPinScreen onto the overlay's local
+                    // Navigator. Keeps the forgot-pin flow contained
+                    // in the lock overlay — no GoRouter bridge
+                    // needed. ResetPinScreen dispatches
+                    // ClearAllDataEvent on reset, which flips
+                    // `appLocked=false`; LockGate drops the overlay
+                    // and the GoRouter redirect handles the rest
+                    // (unenrolled → /enrollment).
+                    onForgotPin: () => Navigator.of(innerCtx).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ResetPinScreen(),
+                      ),
+                    ),
                     leading: YiviAppBarQrCodeButton(
                       // Same sheet entry point as the home-screen QR
                       // button — the modal opens on this local
