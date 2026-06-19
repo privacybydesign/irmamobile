@@ -10,14 +10,8 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
   final _textRecognizer = TextRecognizer();
 
   @override
-  Future<List<String>?> processImage({
-    required CameraImage inputImage,
-    required int imageRotation,
-  }) async {
-    final image = _inputImageFromCameraImage(
-      image: inputImage,
-      imageRotation: imageRotation,
-    );
+  Future<List<String>?> processImage({required CameraImage inputImage, required int imageRotation}) async {
+    final image = _inputImageFromCameraImage(image: inputImage, imageRotation: imageRotation);
     final recognizedText = await _textRecognizer.processImage(image!);
     String fullText = recognizedText.text;
     // Terminate as quickly as possible.
@@ -37,17 +31,12 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
     return _getFinalListToParse([...ableToScanText]);
   }
 
-  InputImage? _inputImageFromCameraImage({
-    required CameraImage image,
-    required int imageRotation,
-  }) {
+  InputImage? _inputImageFromCameraImage({required CameraImage image, required int imageRotation}) {
     // get image rotation
     // it is used in android to convert the InputImage from Dart to Java: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/android/src/main/java/com/google_mlkit_commons/InputImageConverter.java
     // `rotation` is not used in iOS to convert the InputImage from Dart to Obj-C: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/google_mlkit_commons/ios/Classes/MLKVisionImage%2BFlutterPlugin.m
     // in both platforms `rotation` and `camera.lensDirection` can be used to compensate `x` and `y` coordinates on a canvas: https://github.com/flutter-ml/google_ml_kit_flutter/blob/master/packages/example/lib/vision_detector_views/painters/coordinates_translator.dart
-    InputImageRotation? rotation = InputImageRotationValue.fromRawValue(
-      imageRotation,
-    );
+    InputImageRotation? rotation = InputImageRotationValue.fromRawValue(imageRotation);
     if (rotation == null) {
       return null;
     }
@@ -110,11 +99,7 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
       // to make sure that all lines are the same in length
     }
     List<String> firstLineChars = ableToScanTextList.first.split("");
-    List<String> supportedDocTypes = [
-      "P",
-      "V",
-      "I",
-    ]; // you can add more doc types like A,C,I are also supported
+    List<String> supportedDocTypes = ["P", "V", "I"]; // you can add more doc types like A,C,I are also supported
     String fChar = firstLineChars[0];
     if (supportedDocTypes.contains(fChar)) {
       debugPrint("Passport or Visa MRZ detected");
@@ -137,8 +122,7 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
         list[i] = list[i].toUpperCase();
         // to ensure that every letter is uppercase
       }
-      if (double.tryParse(list[i]) == null &&
-          !(RegExp(r"^[A-Za-z0-9_.]+$").hasMatch(list[i]))) {
+      if (double.tryParse(list[i]) == null && !(RegExp(r"^[A-Za-z0-9_.]+$").hasMatch(list[i]))) {
         list[i] = "<";
         // sometimes < sign not recognized well
       }

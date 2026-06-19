@@ -122,7 +122,7 @@ packages:
     source: hosted
     version: "1.1.2"
   collection:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: collection
       sha256: "2f5709ae4d3d59dd8f7cd309b4e023046b57d8a6c82130785d2b0e5868084e76"
@@ -314,7 +314,7 @@ packages:
     source: hosted
     version: "2.0.32"
   flutter_riverpod:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: flutter_riverpod
       sha256: a3cd0547353c1990bf5ad64f73143e5ce7a780409639559ad83a743ff3b945e4
@@ -598,7 +598,7 @@ packages:
     source: hosted
     version: "2.0.0"
   mrz_parser:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       path: "."
       ref: "v3.0.0"
@@ -656,7 +656,7 @@ packages:
     source: hosted
     version: "2.2.0"
   package_info_plus:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: package_info_plus
       sha256: f69da0d3189a4b4ceaeb1a3defb0f329b3b352517f52bed4290f83d4f06bc08d
@@ -897,7 +897,7 @@ packages:
     source: hosted
     version: "3.2.0"
   rxdart:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: rxdart
       sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
@@ -1270,7 +1270,7 @@ packages:
     source: hosted
     version: "4.5.2"
   vcmrtd:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       path: "."
       ref: "v3.8.0"

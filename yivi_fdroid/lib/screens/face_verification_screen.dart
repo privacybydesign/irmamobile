@@ -4,6 +4,7 @@ import "dart:math" as math;
 
 import "package:camera/camera.dart";
 import "package:face_verification/face_verification.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
@@ -50,6 +51,14 @@ class FlutterFaceVerificationScreen extends StatefulWidget {
   final FaceVerificationEngine? warmEngine;
   final Future<void>? warmEngineReady;
 
+  /// Test-only selfie/probe image.
+  ///
+  /// When this is not null, the screen does not open the camera and does not
+  /// initialize the real [FaceVerificationEngine]. It simulates the final
+  /// comparison result by comparing [nfcImageBytes] with [testSelfieImageBytes].
+  @visibleForTesting
+  final Uint8List? testSelfieImageBytes;
+
   const FlutterFaceVerificationScreen({
     super.key,
     required this.nfcImageBytes,
@@ -58,7 +67,7 @@ class FlutterFaceVerificationScreen extends StatefulWidget {
     this.photoIssueDate,
     this.warmEngine,
     this.warmEngineReady,
-  });
+  }) : testSelfieImageBytes = null;
 
   const FlutterFaceVerificationScreen.withEngine({
     super.key,
@@ -68,6 +77,17 @@ class FlutterFaceVerificationScreen extends StatefulWidget {
     this.onVerified,
     this.photoIssueDate,
   }) : warmEngine = engine,
+       warmEngineReady = null,
+       testSelfieImageBytes = null;
+
+  const FlutterFaceVerificationScreen.withImageTest({
+    super.key,
+    required this.nfcImageBytes,
+    required this.testSelfieImageBytes,
+    required this.onBackPressed,
+    this.onVerified,
+    this.photoIssueDate,
+  }) : warmEngine = null,
        warmEngineReady = null;
 
   @override
@@ -84,7 +104,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     DeviceOrientation.landscapeRight: 270,
   };
 
-  late final FaceVerificationEngine _engine;
+  FaceVerificationEngine? _engine;
   CameraController? _cameraController;
   CameraDescription? _activeCamera;
   StreamSubscription<Map<String, dynamic>>? _eventSub;
@@ -116,12 +136,16 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   int _frameToken = 0;
   int _flowToken = 0;
 
+  bool get _imageTestMode => widget.testSelfieImageBytes != null;
+
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
-    _engine = widget.warmEngine ?? FaceVerificationEngine();
+    if (!_imageTestMode) {
+      _engine = widget.warmEngine ?? FaceVerificationEngine();
+    }
     WidgetsBinding.instance.addObserver(this);
     _bootstrap();
   }
@@ -136,7 +160,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_isDisposed) return;
+    if (_isDisposed || _imageTestMode) return;
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
       _previewMode = false;
       _previewAligned = false;
@@ -166,25 +190,38 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       if (mounted) setState(() => _state = VerificationState.failed);
       return;
     }
+
+    if (_imageTestMode) {
+      if (!mounted) return;
+      setState(() => _engineReady = true);
+      unawaited(_runImageTestVerification(nfcImage));
+      return;
+    }
+
     // Open camera first so the live feed is visible while models load.
     await _openCamera();
     if (!mounted) return;
     try {
+      final engine = _engine;
+      if (engine == null) {
+        throw StateError("Face verification engine was not created");
+      }
+
       if (widget.warmEngine != null) {
         // Models were already loaded in parallel with NFC reading (see
         // FdroidFaceVerifier.warmup). Just wait for that to finish — usually
         // already done by the time this screen opens.
         await (widget.warmEngineReady ?? Future<void>.value());
       } else {
-        await _engine.initialize(); // load models (cold path: no warmup)
+        await engine.initialize(); // load models (cold path: no warmup)
       }
       if (!mounted) return;
-      _eventSub = _engine.events.listen(_onLivenessEvent);
+      _eventSub = engine.events.listen(_onLivenessEvent);
       setState(() => _engineReady = true);
 
       // Start NFC decode + detection + embedding in background so it"s ready
       // before the user taps Start — eliminates the delay on first tap.
-      unawaited(_engine.prepareNfcFaceEagerly(nfcImage).catchError((_) {}));
+      unawaited(engine.prepareNfcFaceEagerly(nfcImage).catchError((_) {}));
 
       // Begin the alignment preview so the Start button can light up as soon as
       // the user's face is centered in the oval.
@@ -202,13 +239,41 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     }
   }
 
+  Future<void> _runImageTestVerification(Uint8List nfcImage) async {
+    final selfieImage = widget.testSelfieImageBytes;
+    if (selfieImage == null || selfieImage.isEmpty) {
+      if (mounted) setState(() => _state = VerificationState.failed);
+      return;
+    }
+
+    if (!mounted || _isDisposed) return;
+
+    setState(() {
+      _state = VerificationState.processing;
+      _errorMessage = null;
+    });
+
+    // Let the processing screen render once so the integration test exercises
+    // the same visual transition as the real flow.
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+
+    if (!mounted || _isDisposed) return;
+
+    final sameImage = listEquals(nfcImage, selfieImage);
+
+    _onComplete(VerificationResult(matchScore: sameImage ? 0.95 : 0.10, isLive: true));
+  }
+
   Future<void> _disposeEverything() async {
+    if (_imageTestMode) return;
     await _stopActiveFlow(disposeCamera: true);
     await _eventSub?.cancel();
-    await _engine.dispose();
+    await _engine?.dispose();
   }
 
   Future<void> _stopActiveFlow({required bool disposeCamera}) {
+    if (_imageTestMode) return Future<void>.value();
+
     _flowToken++;
     final runningStop = _stopActiveFlowFuture;
     if (runningStop != null) {
@@ -228,7 +293,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     _flowStopping = true;
     try {
       _invalidateFramePipeline();
-      await _engine.stop();
+      await _engine?.stop();
       final ctrl = _cameraController;
       if (ctrl != null) await _disposeCameraController(ctrl, disposeCamera: disposeCamera);
     } finally {
@@ -239,7 +304,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   // ── Camera ────────────────────────────────────────────────────────────────
 
   Future<void> _openCamera() async {
-    if (_isDisposed || _cameraOpening || _cameraClosing) return;
+    if (_isDisposed || _imageTestMode || _cameraOpening || _cameraClosing) return;
     if (_cameraController?.value.isInitialized == true) return;
     _cameraOpening = true;
     try {
@@ -354,7 +419,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
         _pendingImage = null;
         final rotation = _cameraFrameRotation();
         if (rotation == null) continue;
-        await _engine.processFrame(image, rotation);
+        await _engine?.processFrame(image, rotation);
       }
     } catch (e) {
       if (!_isDisposed && mounted) {
@@ -415,7 +480,10 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
 
   Future<void> _doStartLiveness(CameraController ctrl, Uint8List nfcImage) async {
     final flowToken = _flowToken;
-    await _engine.start(nfcImage, mode: LivenessMode.passive);
+    final engine = _engine;
+    if (engine == null) return;
+
+    await engine.start(nfcImage, mode: LivenessMode.passive);
     if (flowToken != _flowToken || !mounted || _isDisposed) return;
     setState(() {
       _state = VerificationState.verifying;
@@ -432,6 +500,8 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     if (_state != VerificationState.verifying) return;
     final ctrl = _cameraController;
     final nfcImage = widget.nfcImageBytes;
+    final engine = _engine;
+    if (engine == null) return;
     if (ctrl == null || !ctrl.value.isInitialized) return;
     if (nfcImage == null || nfcImage.isEmpty) return;
 
@@ -446,10 +516,10 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     final flowToken = _flowToken;
     try {
       _invalidateFramePipeline();
-      await _engine.stop();
+      await engine.stop();
       if (_isDisposed || !mounted || flowToken != _flowToken) return;
       if (_state != VerificationState.verifying) return;
-      await _engine.start(nfcImage, mode: LivenessMode.passive);
+      await engine.start(nfcImage, mode: LivenessMode.passive);
       if (_isDisposed || !mounted || flowToken != _flowToken) return;
       if (!ctrl.value.isStreamingImages) {
         await ctrl.startImageStream(_onCameraFrame);
@@ -480,10 +550,13 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   // ── Alignment preview ─────────────────────────────────────────────────────
 
   Future<void> _startPreview() async {
+    if (_imageTestMode) return;
     if (_isDisposed || _previewMode || _startingLiveness) return;
     if (!_engineReady || _state != VerificationState.idle) return;
     final ctrl = _cameraController;
     final nfcImage = widget.nfcImageBytes;
+    final engine = _engine;
+    if (engine == null) return;
     if (ctrl == null || !ctrl.value.isInitialized) return;
     if (nfcImage == null || nfcImage.isEmpty) return;
     _previewMode = true;
@@ -494,7 +567,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       });
     }
     try {
-      await _engine.start(nfcImage, mode: LivenessMode.passive);
+      await engine.start(nfcImage, mode: LivenessMode.passive);
       if (_isDisposed || !mounted || !_previewMode) return;
       if (!ctrl.value.isStreamingImages) {
         await ctrl.startImageStream(_onCameraFrame);
@@ -509,7 +582,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     _previewMode = false;
     if (mounted) setState(() => _previewAligned = false);
     _invalidateFramePipeline();
-    await _engine.stop();
+    await _engine?.stop();
   }
 
   Future<void> _restartPreview() async {
@@ -517,11 +590,13 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     _previewRestarting = true;
     try {
       _invalidateFramePipeline();
-      await _engine.stop();
+      await _engine?.stop();
       if (_isDisposed || !mounted || !_previewMode) return;
       final nfcImage = widget.nfcImageBytes;
+      final engine = _engine;
+      if (engine == null) return;
       if (nfcImage == null || nfcImage.isEmpty) return;
-      await _engine.start(nfcImage, mode: LivenessMode.passive);
+      await engine.start(nfcImage, mode: LivenessMode.passive);
       if (_isDisposed || !mounted || !_previewMode) return;
     } catch (_) {
       // Ignore: a transient restart failure just pauses gating briefly.
@@ -643,7 +718,9 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       _state = VerificationState.result;
       _passed = passed;
     });
-    unawaited(_stopActiveFlow(disposeCamera: false));
+    if (!_imageTestMode) {
+      unawaited(_stopActiveFlow(disposeCamera: false));
+    }
     // Briefly show the green check / red cross (like MRZ), then move on:
     // on success straight to the add screen, on failure to the retry screen.
     Future<void>.delayed(const Duration(seconds: 1), () {
@@ -660,6 +737,15 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
 
   Future<void> _retry() async {
     _previewMode = false;
+
+    if (_imageTestMode) {
+      final nfcImage = widget.nfcImageBytes;
+      if (nfcImage == null || nfcImage.isEmpty) return;
+      _resetForRetry();
+      unawaited(_runImageTestVerification(nfcImage));
+      return;
+    }
+
     await _stopActiveFlow(disposeCamera: true);
     if (_isDisposed || !mounted) return;
     _resetForRetry();
@@ -682,7 +768,9 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
 
   void _handleBack() {
     _previewMode = false;
-    unawaited(_stopActiveFlow(disposeCamera: true));
+    if (!_imageTestMode) {
+      unawaited(_stopActiveFlow(disposeCamera: true));
+    }
     widget.onBackPressed();
   }
 
@@ -699,7 +787,8 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     );
   }
 
-  bool get _isReady => _debugReadyOverride || (_engineReady && _cameraController?.value.isInitialized == true);
+  bool get _isReady =>
+      _debugReadyOverride || _imageTestMode || (_engineReady && _cameraController?.value.isInitialized == true);
 
   Widget _buildBody() {
     if (_errorMessage != null) return _buildErrorScreen();
@@ -886,6 +975,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   // After the countdown the camera is no longer needed: showing a plain loading
   // screen makes clear the user no longer has to hold still while we verify.
   Widget _buildProcessingScreen() => Center(
+    key: const Key("face_verification_processing_screen"),
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -925,10 +1015,12 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     final color = passed ? Colors.green : Colors.red;
     // No camera here either — just the green check / red cross on a clean screen.
     return Center(
+      key: const Key("face_verification_result_screen"),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
+            key: Key(passed ? "face_verification_result_passed" : "face_verification_result_rejected"),
             width: 140,
             height: 140,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
@@ -948,6 +1040,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   }
 
   Widget _buildFailedScreen() => Center(
+    key: const Key("face_verification_failed_screen"),
     child: Padding(
       padding: const EdgeInsets.all(24),
       child: Column(

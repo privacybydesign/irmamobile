@@ -19,6 +19,14 @@ class FaceVerificationEntryScreen extends StatefulWidget {
 
   final FaceVerificationEngine? testEngine;
 
+  /// Test-only selfie image used by the F-Droid integration test.
+  ///
+  /// When this is set, the verification screen does not open the camera.
+  /// Instead, it compares [nfcImageBytes] with [testSelfieImageBytes]:
+  /// - same bytes => high match score => pass
+  /// - different bytes => low match score => fail
+  final Uint8List? testSelfieImageBytes;
+
   const FaceVerificationEntryScreen({
     super.key,
     required this.nfcImageBytes,
@@ -27,7 +35,8 @@ class FaceVerificationEntryScreen extends StatefulWidget {
     this.photoIssueDate,
     this.warmEngine,
     this.warmEngineReady,
-  }) : testEngine = null;
+  }) : testEngine = null,
+       testSelfieImageBytes = null;
 
   const FaceVerificationEntryScreen.withEngine({
     super.key,
@@ -38,7 +47,20 @@ class FaceVerificationEntryScreen extends StatefulWidget {
     this.photoIssueDate,
   }) : testEngine = engine,
        warmEngine = null,
-       warmEngineReady = null;
+       warmEngineReady = null,
+       testSelfieImageBytes = null;
+
+  const FaceVerificationEntryScreen.withImageTest({
+    super.key,
+    required this.nfcImageBytes,
+    required Uint8List selfieImageBytes,
+    required this.onBackPressed,
+    this.onVerified,
+    this.photoIssueDate,
+  }) : testEngine = null,
+       warmEngine = null,
+       warmEngineReady = null,
+       testSelfieImageBytes = selfieImageBytes;
 
   @override
   State<FaceVerificationEntryScreen> createState() => _FaceVerificationEntryScreenState();
@@ -61,6 +83,17 @@ class _FaceVerificationEntryScreenState extends State<FaceVerificationEntryScree
   void _onContinue() => setState(() => _started = true);
 
   Widget _buildVerificationScreen() {
+    final testSelfieImageBytes = widget.testSelfieImageBytes;
+    if (testSelfieImageBytes != null) {
+      return FlutterFaceVerificationScreen.withImageTest(
+        nfcImageBytes: widget.nfcImageBytes,
+        testSelfieImageBytes: testSelfieImageBytes,
+        onBackPressed: widget.onBackPressed,
+        onVerified: widget.onVerified,
+        photoIssueDate: widget.photoIssueDate,
+      );
+    }
+
     final testEngine = widget.testEngine;
     if (testEngine != null) {
       return FlutterFaceVerificationScreen.withEngine(
@@ -71,6 +104,7 @@ class _FaceVerificationEntryScreenState extends State<FaceVerificationEntryScree
         photoIssueDate: widget.photoIssueDate,
       );
     }
+
     return FlutterFaceVerificationScreen(
       nfcImageBytes: widget.nfcImageBytes,
       onBackPressed: widget.onBackPressed,
@@ -160,6 +194,7 @@ class _FaceVerificationEntryScreenState extends State<FaceVerificationEntryScree
               ),
               const SizedBox(height: 8),
               SizedBox(
+                key: const Key("face_verification_continue_button"),
                 width: double.infinity,
                 child: YiviThemedButton(
                   label: FlutterI18n.translate(context, "face_verification.continue_button"),

@@ -67,11 +67,14 @@ dependencies:
     git:
       url: https://github.com/privacybydesign/flutter_native_device_orientation
 
-dev_dependencies:
+  # Shared integration test scenarios live under lib/src/testing so the app
+  # variants can import them.
   flutter_test:
     sdk: flutter
   integration_test:
     sdk: flutter
+
+dev_dependencies:
   json_serializable: ^6.11.0
   flutter_lints: ^5.0.0
   flutter_native_splash: ^2.4.6
