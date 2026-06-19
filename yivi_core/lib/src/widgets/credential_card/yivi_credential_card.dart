@@ -37,8 +37,6 @@ class YiviCredentialCard extends ConsumerWidget {
   final bool hideFooter;
   final bool hideNotObtainable;
 
-  final Widget Function(BuildContext)? faceContentBuilder;
-
   const YiviCredentialCard({
     super.key,
     required this.credentialName,
@@ -55,7 +53,6 @@ class YiviCredentialCard extends ConsumerWidget {
     this.padding,
     this.hideFooter = false,
     this.hideNotObtainable = false,
-    this.faceContentBuilder,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -71,7 +68,6 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
-    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: credential.name,
@@ -93,7 +89,6 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
-         faceContentBuilder: faceContentBuilder,
        );
 
   YiviCredentialCard.fromSelectableInstance({
@@ -107,7 +102,6 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
-    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: instance.name,
@@ -130,7 +124,6 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
-         faceContentBuilder: faceContentBuilder,
        );
 
   YiviCredentialCard.fromDescriptor({
@@ -141,7 +134,6 @@ class YiviCredentialCard extends ConsumerWidget {
     Widget? headerTrailing,
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
-    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: descriptor.name,
@@ -182,7 +174,6 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: true,
-         faceContentBuilder: faceContentBuilder,
        );
 
   YiviCredentialCard.fromDescriptorWithEmptyAttributeValues({
@@ -193,7 +184,6 @@ class YiviCredentialCard extends ConsumerWidget {
     Widget? headerTrailing,
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
-    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: descriptor.name,
@@ -214,7 +204,6 @@ class YiviCredentialCard extends ConsumerWidget {
          padding: padding,
          hideFooter: true,
          hideNotObtainable: true,
-         faceContentBuilder: faceContentBuilder,
        );
 
   YiviCredentialCard.fromLogCredential({
@@ -228,7 +217,6 @@ class YiviCredentialCard extends ConsumerWidget {
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
-    Widget Function(BuildContext)? faceContentBuilder,
   }) : this(
          key: key,
          credentialName: logCredential.name,
@@ -249,7 +237,6 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
-         faceContentBuilder: faceContentBuilder,
        );
 
   @override
@@ -319,7 +306,6 @@ class YiviCredentialCard extends ConsumerWidget {
                 ),
               ),
             ),
-          if (faceContentBuilder != null) ...[faceContentBuilder!(context)],
         ],
       ),
     );

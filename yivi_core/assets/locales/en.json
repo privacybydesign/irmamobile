@@ -993,5 +993,64 @@
         "content": "Are you sure you want to delete all credentials?"
       }
     }
+  },
+  "face_verification": {
+    "title": "Face verification",
+    "continue_button": "Continue",
+    "how_it_works": {
+      "title": "How it works ?",
+      "intro": "We compare your face with the photo on your document to confirm you are the rightful owner. Follow these steps for a smooth experience.",
+      "step1_title": "Center your face",
+      "step1_text": "Hold the phone at eye level and place your face in the oval.",
+      "step2_title": "Clear view of your face",
+      "step2_text": "Make sure there is good lighting and remove your glasses if your document photo was without glasses.",
+      "step3_title": "Starts automatically",
+      "step3_text": "As soon as your face is centered in the oval, verification starts automatically.",
+      "step4_title": "Follow the instructions",
+      "step4_text": "Stay still and follow the on screen instructions until it is done."
+    },
+    "preview": {
+      "preparing": "Preparing face verification…",
+      "aligned": "Face aligned, hold still…",
+      "place_face": "Place your face in the oval",
+      "camera_opening": "Opening camera…"
+    },
+    "tips": {
+      "no_face": "Place your face in the oval",
+      "center_face": "Move your face into the oval",
+      "too_far": "Move a little closer to the camera",
+      "too_close": "Move a little further from the camera",
+      "look_straight": "Look straight into the camera",
+      "open_eyes": "Keep your eyes open",
+      "close_mouth": "Close your mouth",
+      "relax_face": "Relax your face"
+    },
+    "countdown": {
+      "hold_still": "Hold still",
+      "seconds_left": "{seconds}s left",
+      "almost_done": "Almost done…"
+    },
+    "verifying": "Verifying…",
+    "timeout_hint": "Take your time and keep your face still in the oval",
+    "result": {
+      "verified": "Verified",
+      "not_verified": "Not verified"
+    },
+    "failed": {
+      "title": "Verification failed",
+      "body": "We couldn't verify your identity. Please try again."
+    },
+    "errors": {
+      "could_not_start": "Could not start face verification: {error}",
+      "no_camera": "No camera available",
+      "could_not_open_camera": "Could not open the camera: {error}",
+      "missing_photo": "Document photo is missing",
+      "could_not_start_verification": "Could not start verification: {error}",
+      "processing_image": "Error processing image: {error}"
+    },
+    "buttons": {
+      "retry": "Try again",
+      "back": "Back"
+    }
   }
 }

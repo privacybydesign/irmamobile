@@ -1,12 +1,12 @@
 import "dart:async";
 import "dart:io" show Platform;
 import "dart:math" as math;
-import "dart:ui" as ui;
 
 import "package:camera/camera.dart";
 import "package:face_verification/face_verification.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:yivi_core/yivi_core.dart";
 
 // ── Enums & helpers ────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ class FlutterFaceVerificationScreen extends StatefulWidget {
     required this.onBackPressed,
     this.onVerified,
     this.photoIssueDate,
-  }) : warmEngine = null,
+  }) : warmEngine = engine,
        warmEngineReady = null;
 
   @override
@@ -109,7 +109,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   String? _alignTip;
   _PassiveProgress? _passive;
   DateTime? _passiveAt;
-  Timer? _passiveTicker;
+
   Future<void>? _stopActiveFlowFuture;
   CameraImage? _pendingImage;
   bool _isSending = false;
@@ -129,8 +129,6 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   @override
   void dispose() {
     _isDisposed = true;
-    _passiveTicker?.cancel();
-    _passiveTicker = null;
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_disposeEverything());
     super.dispose();
@@ -192,7 +190,15 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       // the user's face is centered in the oval.
       unawaited(_startPreview());
     } catch (e) {
-      if (mounted) setState(() => _errorMessage = "Kon gezichtsverificatie niet starten: $e");
+      if (mounted) {
+        setState(
+          () => _errorMessage = FlutterI18n.translate(
+            context,
+            "face_verification.errors.could_not_start",
+            translationParams: {"error": "$e"},
+          ),
+        );
+      }
     }
   }
 
@@ -240,7 +246,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       final cameras = await availableCameras();
       if (!mounted || _isDisposed) return;
       if (cameras.isEmpty) {
-        setState(() => _errorMessage = "Geen camera beschikbaar");
+        setState(() => _errorMessage = FlutterI18n.translate(context, "face_verification.errors.no_camera"));
         return;
       }
       final front = cameras.firstWhere(
@@ -264,7 +270,15 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
         _errorMessage = null;
       });
     } catch (e) {
-      if (mounted && !_isDisposed) setState(() => _errorMessage = "Kon camera niet openen: $e");
+      if (mounted && !_isDisposed) {
+        setState(
+          () => _errorMessage = FlutterI18n.translate(
+            context,
+            "face_verification.errors.could_not_open_camera",
+            translationParams: {"error": "$e"},
+          ),
+        );
+      }
     } finally {
       _cameraOpening = false;
     }
@@ -349,7 +363,11 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
         _invalidateFramePipeline();
         setState(() {
           _state = VerificationState.idle;
-          _errorMessage = "Fout bij verwerken van beeld: $e";
+          _errorMessage = FlutterI18n.translate(
+            context,
+            "face_verification.errors.processing_image",
+            translationParams: {"error": "$e"},
+          );
         });
       }
     } finally {
@@ -366,7 +384,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     final nfcImage = widget.nfcImageBytes;
     if (_isDisposed || ctrl == null || !ctrl.value.isInitialized) return;
     if (nfcImage == null || nfcImage.isEmpty) {
-      setState(() => _errorMessage = "Documentfoto ontbreekt");
+      setState(() => _errorMessage = FlutterI18n.translate(context, "face_verification.errors.missing_photo"));
       return;
     }
     setState(() {
@@ -375,14 +393,18 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       _passive = null;
       _passiveAt = null;
     });
-    _passiveTicker?.cancel();
-    _passiveTicker = null;
     final flowToken = _flowToken;
     try {
       await _doStartLiveness(ctrl, nfcImage);
     } catch (e) {
       if (flowToken == _flowToken && mounted && !_isDisposed) {
-        setState(() => _errorMessage = "Kon verificatie niet starten: $e");
+        setState(
+          () => _errorMessage = FlutterI18n.translate(
+            context,
+            "face_verification.errors.could_not_start_verification",
+            translationParams: {"error": "$e"},
+          ),
+        );
       }
     } finally {
       if (flowToken == _flowToken && mounted && !_isDisposed) {
@@ -414,7 +436,6 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     if (nfcImage == null || nfcImage.isEmpty) return;
 
     _verificationRestarting = true;
-    _cancelPassiveTicker();
     if (mounted) {
       setState(() {
         _passive = null;
@@ -474,7 +495,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     }
     try {
       await _engine.start(nfcImage, mode: LivenessMode.passive);
-      if (_isDisposed || !_previewMode) return;
+      if (_isDisposed || !mounted || !_previewMode) return;
       if (!ctrl.value.isStreamingImages) {
         await ctrl.startImageStream(_onCameraFrame);
       }
@@ -497,10 +518,11 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     try {
       _invalidateFramePipeline();
       await _engine.stop();
-      if (_isDisposed || !_previewMode) return;
+      if (_isDisposed || !mounted || !_previewMode) return;
       final nfcImage = widget.nfcImageBytes;
       if (nfcImage == null || nfcImage.isEmpty) return;
       await _engine.start(nfcImage, mode: LivenessMode.passive);
+      if (_isDisposed || !mounted || !_previewMode) return;
     } catch (_) {
       // Ignore: a transient restart failure just pauses gating briefly.
     } finally {
@@ -520,11 +542,15 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
             _previewAligned = aligned;
           });
         }
+        // No Start button anymore: once the face is aligned in the oval the real
+        // verification begins automatically. _startRealVerification guards against
+        // re-entry, so repeated aligned frames are harmless.
+        if (aligned) unawaited(_startRealVerification());
         break;
       case "passiveProgress":
         if (map["started"] == true) {
           if (!_previewAligned) setState(() => _previewAligned = true);
-          unawaited(_restartPreview());
+          unawaited(_startRealVerification());
         }
         break;
       case "processing":
@@ -562,7 +588,6 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       case "passiveProgress":
         return _handlePassiveProgressEvent(map);
       case "processing":
-        _cancelPassiveTicker();
         setState(() => _state = VerificationState.processing);
         return true;
       case "timeout":
@@ -583,22 +608,15 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       _passive = progress;
       _passiveAt = DateTime.now();
     });
-    // Once the countdown has started, interpolate between frames so the
-    // timer ticks down smoothly. It runs to completion (never pauses).
-    if (progress.started) {
-      _passiveTicker ??= Timer.periodic(const Duration(milliseconds: 200), (_) {
-        if (mounted) setState(() {});
-      });
-    }
     return true;
   }
 
   bool _handleTimeoutEvent(Map<String, dynamic> map) {
     if (!mounted) return true;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Neem rustig de tijd en houd uw gezicht stil in de ovaal"),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text(FlutterI18n.translate(context, "face_verification.timeout_hint")),
+        duration: const Duration(seconds: 2),
         backgroundColor: Colors.orange,
       ),
     );
@@ -607,7 +625,6 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
 
   bool _handleErrorEvent(Map<String, dynamic> map) {
     final message = map["message"]?.toString() ?? "Unknown error";
-    _cancelPassiveTicker();
     _invalidateFramePipeline();
     setState(() {
       _state = VerificationState.idle;
@@ -615,11 +632,6 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     });
 
     return true;
-  }
-
-  void _cancelPassiveTicker() {
-    _passiveTicker?.cancel();
-    _passiveTicker = null;
   }
 
   void _onComplete(VerificationResult result) {
@@ -650,8 +662,6 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     _previewMode = false;
     await _stopActiveFlow(disposeCamera: true);
     if (_isDisposed || !mounted) return;
-    _passiveTicker?.cancel();
-    _passiveTicker = null;
     _resetForRetry();
     await _openCamera();
     if (_isDisposed || !mounted) return;
@@ -670,10 +680,9 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     });
   }
 
-  Future<void> _handleBack() async {
+  void _handleBack() {
     _previewMode = false;
-    await _stopActiveFlow(disposeCamera: true);
-    if (_isDisposed) return;
+    unawaited(_stopActiveFlow(disposeCamera: true));
     widget.onBackPressed();
   }
 
@@ -683,7 +692,7 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        titleString: "Gezichtsverificatie",
+        titleString: FlutterI18n.translate(context, "face_verification.title"),
         leading: YiviBackButton(onTap: _handleBack),
       ),
       body: SafeArea(child: _buildBody()),
@@ -706,65 +715,24 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   Widget? _buildPassiveProgressCard() {
     final p = _passive;
     if (p == null || !p.started) return null;
-    // Fixed countdown: interpolate elapsed against wall-clock so the timer ticks
-    // down smoothly between camera frames.
-    var elapsedMs = p.elapsedMs;
-    if (_passiveAt != null) {
-      elapsedMs += DateTime.now().difference(_passiveAt!).inMilliseconds;
-    }
-    elapsedMs = elapsedMs.clamp(0, p.targetMs);
-    final remainingMs = (p.targetMs - elapsedMs).clamp(0, p.targetMs);
-    // Bar represents time LEFT: starts full, depletes to empty in sync with the
-    // seconds countdown.
-    final progress = p.targetMs == 0 ? 0.0 : (remainingMs / p.targetMs).clamp(0.0, 1.0);
-    final secondsLeft = (remainingMs / 1000).ceil().clamp(0, 99);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  secondsLeft <= 0 ? "Bijna klaar…" : "Houd stil",
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-              ),
-              Text(
-                "${secondsLeft}s",
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: Colors.white24,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.green[400]!),
-            ),
-          ),
-        ],
-      ),
-    );
+    return _PassiveCountdownCard(passive: p, passiveAt: _passiveAt);
   }
 
   Widget _buildCameraPreview() {
     final ctrl = _cameraController;
     if (ctrl == null || !ctrl.value.isInitialized) {
-      return const ColoredBox(
+      return ColoredBox(
         color: Colors.black,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(color: Colors.white),
-              SizedBox(height: 12),
-              Text("Camera openen...", style: TextStyle(color: Colors.white70)),
+              const CircularProgressIndicator(color: Colors.white),
+              const SizedBox(height: 12),
+              Text(
+                FlutterI18n.translate(context, "face_verification.preview.camera_opening"),
+                style: const TextStyle(color: Colors.white70),
+              ),
             ],
           ),
         ),
@@ -791,24 +759,23 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   // top. The ring turns green once the face is aligned, giving clear feedback.
   Widget _buildOvalOverlay({bool aligned = false}) {
     return Positioned.fill(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final size = Size(constraints.maxWidth, constraints.maxHeight);
-          final ovalRect = faceOvalRect(size);
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              ClipPath(
-                clipper: _OvalCutoutClipper(ovalRect),
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+      child: RepaintBoundary(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final size = Size(constraints.maxWidth, constraints.maxHeight);
+            final ovalRect = faceOvalRect(size);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                ClipPath(
+                  clipper: _OvalCutoutClipper(ovalRect),
                   child: ColoredBox(color: Colors.black.withValues(alpha: 0.55)),
                 ),
-              ),
-              CustomPaint(painter: _FaceOvalPainter(ovalRect, aligned: aligned)),
-            ],
-          );
-        },
+                CustomPaint(painter: _FaceOvalPainter(ovalRect, aligned: aligned)),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -820,19 +787,9 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
       children: [
         _buildCameraPreview(),
         _buildOvalOverlay(aligned: aligned),
-        // Status pill: tells the user how to line up, or confirms alignment.
+        // Status pill: tells the user how to line up. Verification starts on its
+        // own once aligned — there is no Start button anymore.
         Positioned(top: 16, left: 16, right: 16, child: _buildPreviewStatus(aligned)),
-        // Start button: visible and tappable only once the face is aligned.
-        Positioned(
-          bottom: 24,
-          left: 20,
-          right: 20,
-          child: AnimatedOpacity(
-            opacity: aligned ? 1 : 0,
-            duration: const Duration(milliseconds: 220),
-            child: IgnorePointer(ignoring: !aligned, child: _buildStartButton()),
-          ),
-        ),
       ],
     );
   }
@@ -857,20 +814,11 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   }
 
   String _previewStatusMessage(bool aligned) {
-    if (!_isReady) return "Gezichtsverificatie voorbereiden…";
-    if (aligned) return "Gezicht uitgelijnd, tik op start om te beginnen";
+    if (!_isReady) return FlutterI18n.translate(context, "face_verification.preview.preparing");
+    if (aligned) return FlutterI18n.translate(context, "face_verification.preview.aligned");
     final tip = _alignTip;
-    return (tip != null ? _alignTipMessage(tip) : null) ?? "Plaats uw gezicht in de ovaal";
-  }
-
-  Widget _buildStartButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: YiviThemedButton(
-        label: _startingLiveness ? "Voorbereiden…" : "Start gezichtsverificatie",
-        onPressed: (_previewAligned && !_startingLiveness) ? _startRealVerification : null,
-      ),
-    );
+    return (tip != null ? _alignTipMessage(tip) : null) ??
+        FlutterI18n.translate(context, "face_verification.preview.place_face");
   }
 
   Widget? _buildTipCard() {
@@ -894,28 +842,21 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   }
 
   String? _alignTipMessage(String tip) {
-    switch (tip) {
-      case "noFace":
-        return "Plaats uw gezicht in de ovaal";
-      case "centerFace":
-        return "Beweeg uw gezicht in de ovaal";
-      case "tooFar":
-        return "Kom iets dichter bij de camera";
-      case "tooClose":
-        return "Ga iets verder van de camera";
-      case "lookStraight":
-        return "Kijk recht in de camera";
-      case "openEyes":
-        return "Houd uw ogen open";
-      case "closeMouth":
-        return "Sluit uw mond";
-      case "relaxFace":
-        return "Ontspan uw gezicht";
-      case "holdStill":
-        return "Houd stil…";
-      default:
-        return null;
-    }
+    final key = switch (tip) {
+      "noFace" => "no_face",
+      "centerFace" => "center_face",
+      "tooFar" => "too_far",
+      "tooClose" => "too_close",
+      "lookStraight" => "look_straight",
+      "openEyes" => "open_eyes",
+      "closeMouth" => "close_mouth",
+      "relaxFace" => "relax_face",
+      // Intentionally no message for "holdStill": while holding still the countdown
+      // card is the only feedback, so a separate tip would just duplicate it.
+      _ => null,
+    };
+    if (key == null) return null;
+    return FlutterI18n.translate(context, "face_verification.tips.$key");
   }
 
   Widget _buildVerifyingScreen() {
@@ -942,23 +883,17 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
     );
   }
 
-  Widget _buildProcessingScreen() => Stack(
-    fit: StackFit.expand,
-    children: [
-      _buildCameraPreview(),
-      _buildOvalOverlay(),
-      Container(color: Colors.black.withValues(alpha: 0.35)),
-      const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(height: 24),
-            Text("Identiteit verifiëren...", style: TextStyle(color: Colors.white, fontSize: 16)),
-          ],
-        ),
-      ),
-    ],
+  // After the countdown the camera is no longer needed: showing a plain loading
+  // screen makes clear the user no longer has to hold still while we verify.
+  Widget _buildProcessingScreen() => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const CircularProgressIndicator(),
+        const SizedBox(height: 24),
+        Text(FlutterI18n.translate(context, "face_verification.verifying"), style: const TextStyle(fontSize: 16)),
+      ],
+    ),
   );
 
   Widget _buildErrorScreen() => Center(
@@ -971,9 +906,15 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
           const SizedBox(height: 16),
           Text(_errorMessage!, textAlign: TextAlign.center),
           const SizedBox(height: 24),
-          ElevatedButton(onPressed: _handleBack, child: const Text("Terug")),
+          ElevatedButton(
+            onPressed: _handleBack,
+            child: Text(FlutterI18n.translate(context, "face_verification.buttons.back")),
+          ),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: _retry, child: const Text("Opnieuw proberen")),
+          OutlinedButton(
+            onPressed: _retry,
+            child: Text(FlutterI18n.translate(context, "face_verification.buttons.retry")),
+          ),
         ],
       ),
     ),
@@ -982,21 +923,27 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
   Widget _buildResultScreen() {
     final passed = _passed;
     final color = passed ? Colors.green : Colors.red;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _buildCameraPreview(),
-        _buildOvalOverlay(aligned: passed),
-        Container(color: color.withValues(alpha: 0.35)),
-        Center(
-          child: Container(
+    // No camera here either — just the green check / red cross on a clean screen.
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
             width: 140,
             height: 140,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             child: Icon(passed ? Icons.check : Icons.close, color: Colors.white, size: 96),
           ),
-        ),
-      ],
+          const SizedBox(height: 24),
+          Text(
+            FlutterI18n.translate(
+              context,
+              passed ? "face_verification.result.verified" : "face_verification.result.not_verified",
+            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1008,20 +955,26 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
         children: [
           const Icon(Icons.cancel, size: 80, color: Colors.red),
           const SizedBox(height: 16),
-          const Text(
-            "Verificatie mislukt",
+          Text(
+            FlutterI18n.translate(context, "face_verification.failed.title"),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text("We konden uw identiteit niet verifiëren. Probeer het opnieuw.", textAlign: TextAlign.center),
+          Text(FlutterI18n.translate(context, "face_verification.failed.body"), textAlign: TextAlign.center),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: YiviThemedButton(label: "Opnieuw proberen", onPressed: _retry),
+            child: YiviThemedButton(
+              label: FlutterI18n.translate(context, "face_verification.buttons.retry"),
+              onPressed: _retry,
+            ),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: _handleBack, child: const Text("Terug")),
+          OutlinedButton(
+            onPressed: _handleBack,
+            child: Text(FlutterI18n.translate(context, "face_verification.buttons.back")),
+          ),
         ],
       ),
     ),
@@ -1029,6 +982,102 @@ class FlutterFaceVerificationScreenState extends State<FlutterFaceVerificationSc
 }
 
 // ── Supporting widgets ─────────────────────────────────────────────────────
+
+class _PassiveCountdownCard extends StatefulWidget {
+  const _PassiveCountdownCard({required this.passive, required this.passiveAt});
+
+  final _PassiveProgress passive;
+  final DateTime? passiveAt;
+
+  @override
+  State<_PassiveCountdownCard> createState() => _PassiveCountdownCardState();
+}
+
+class _PassiveCountdownCardState extends State<_PassiveCountdownCard> {
+  Timer? _ticker;
+  int _lastSecond = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(milliseconds: 200), (_) {
+      final s = _currentSecondsLeft();
+      if (s != _lastSecond && mounted) setState(() => _lastSecond = s);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  int _currentSecondsLeft() => _computeSecondsLeft(DateTime.now());
+
+  int _computeSecondsLeft(DateTime now) {
+    final p = widget.passive;
+    var elapsedMs = p.elapsedMs;
+    if (widget.passiveAt != null) {
+      elapsedMs += now.difference(widget.passiveAt!).inMilliseconds;
+    }
+    elapsedMs = elapsedMs.clamp(0, p.targetMs);
+    return ((p.targetMs - elapsedMs) / 1000).ceil().clamp(0, 99);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final p = widget.passive;
+    final secondsLeft = _computeSecondsLeft(now);
+    var elapsedMs = p.elapsedMs;
+    if (widget.passiveAt != null) {
+      elapsedMs += now.difference(widget.passiveAt!).inMilliseconds;
+    }
+    elapsedMs = elapsedMs.clamp(0, p.targetMs);
+    final remainingMs = (p.targetMs - elapsedMs).clamp(0, p.targetMs);
+    final progress = p.targetMs == 0 ? 0.0 : (remainingMs / p.targetMs).clamp(0.0, 1.0);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                FlutterI18n.translate(context, "face_verification.countdown.hold_still"),
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                secondsLeft <= 0
+                    ? FlutterI18n.translate(context, "face_verification.countdown.almost_done")
+                    : FlutterI18n.translate(
+                        context,
+                        "face_verification.countdown.seconds_left",
+                        translationParams: {"seconds": "$secondsLeft"},
+                      ),
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: Colors.white24,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.green[400]!),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 Rect faceOvalRect(Size size) {
   final ovalWidth = math.min(size.width * 0.80, size.height * 0.90 * (3 / 4));

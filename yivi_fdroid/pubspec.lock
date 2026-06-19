@@ -285,7 +285,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_i18n:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_i18n
       sha256: fe2bd740fe522d9dd791850baa6cba492f00c283f3c0b0012995d538ce66570c

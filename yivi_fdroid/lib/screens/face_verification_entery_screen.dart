@@ -3,6 +3,7 @@ import "dart:typed_data";
 
 import "package:face_verification/face_verification.dart";
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "face_verification_screen.dart";
@@ -89,7 +90,7 @@ class _FaceVerificationEntryScreenState extends State<FaceVerificationEntryScree
 
     return Scaffold(
       appBar: IrmaAppBar(
-        titleString: "Gezichtsverificatie",
+        titleString: FlutterI18n.translate(context, "face_verification.title"),
         leading: YiviBackButton(onTap: widget.onBackPressed),
       ),
       body: SafeArea(
@@ -112,45 +113,45 @@ class _FaceVerificationEntryScreenState extends State<FaceVerificationEntryScree
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "Hoe het werkt ?",
+                        FlutterI18n.translate(context, "face_verification.how_it_works.title"),
                         textAlign: TextAlign.center,
                         style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "We vergelijken uw gezicht met de foto op uw document om te bevestigen dat u de rechtmatige eigenaar bent. Volg deze stappen voor een soepele ervaring.",
+                        FlutterI18n.translate(context, "face_verification.how_it_works.intro"),
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                         ),
                       ),
                       const SizedBox(height: 28),
-                      const _InstructionStep(
+                      _InstructionStep(
                         number: "1",
                         icon: Icons.center_focus_strong,
-                        title: "Centreer uw gezicht",
-                        text: "Houd de telefoon op ooghoogte en plaats uw gezicht in de ovaal.",
+                        title: FlutterI18n.translate(context, "face_verification.how_it_works.step1_title"),
+                        text: FlutterI18n.translate(context, "face_verification.how_it_works.step1_text"),
                       ),
                       const SizedBox(height: 16),
-                      const _InstructionStep(
+                      _InstructionStep(
                         number: "2",
                         icon: Icons.visibility,
-                        title: "Duidelijk zicht op uw gezicht",
-                        text: "Zorg voor goede verlichting en verwijder uw bril als uw documentfoto zonder bril was.",
+                        title: FlutterI18n.translate(context, "face_verification.how_it_works.step2_title"),
+                        text: FlutterI18n.translate(context, "face_verification.how_it_works.step2_text"),
                       ),
                       const SizedBox(height: 16),
-                      const _InstructionStep(
+                      _InstructionStep(
                         number: "3",
-                        icon: Icons.touch_app,
-                        title: "Start wanneer uitgelijnd",
-                        text: "De startknop verschijnt zodra uw gezicht gecentreerd is in de ovaal.",
+                        icon: Icons.center_focus_weak,
+                        title: FlutterI18n.translate(context, "face_verification.how_it_works.step3_title"),
+                        text: FlutterI18n.translate(context, "face_verification.how_it_works.step3_text"),
                       ),
                       const SizedBox(height: 16),
-                      const _InstructionStep(
+                      _InstructionStep(
                         number: "4",
                         icon: Icons.checklist,
-                        title: "Volg de instructies",
-                        text: "Blijf stil en volg de instructies op het scherm totdat het klaar is.",
+                        title: FlutterI18n.translate(context, "face_verification.how_it_works.step4_title"),
+                        text: FlutterI18n.translate(context, "face_verification.how_it_works.step4_text"),
                       ),
                       const SizedBox(height: 24),
                     ],
@@ -160,7 +161,10 @@ class _FaceVerificationEntryScreenState extends State<FaceVerificationEntryScree
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
-                child: YiviThemedButton(label: "Doorgaan", onPressed: _onContinue),
+                child: YiviThemedButton(
+                  label: FlutterI18n.translate(context, "face_verification.continue_button"),
+                  onPressed: _onContinue,
+                ),
               ),
               const SizedBox(height: 12),
             ],

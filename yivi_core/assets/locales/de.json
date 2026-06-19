@@ -980,5 +980,64 @@
         "content": "Sind Sie sicher, dass Sie alle Daten löschen möchten?"
       }
     }
+  },
+  "face_verification": {
+    "title": "Gesichtsverifizierung",
+    "continue_button": "Weiter",
+    "how_it_works": {
+      "title": "Wie funktioniert es ?",
+      "intro": "Wir vergleichen Ihr Gesicht mit dem Foto auf Ihrem Dokument, um zu bestätigen, dass Sie der rechtmäßige Inhaber sind. Befolgen Sie diese Schritte für eine reibungslose Erfahrung.",
+      "step1_title": "Gesicht zentrieren",
+      "step1_text": "Halten Sie das Telefon auf Augenhöhe und platzieren Sie Ihr Gesicht in der Ellipse.",
+      "step2_title": "Klare Sicht auf Ihr Gesicht",
+      "step2_text": "Sorgen Sie für gute Beleuchtung und nehmen Sie Ihre Brille ab, wenn Ihr Dokumentfoto ohne Brille aufgenommen wurde.",
+      "step3_title": "Startet automatisch",
+      "step3_text": "Sobald Ihr Gesicht in der Ellipse zentriert ist, beginnt die Verifizierung automatisch.",
+      "step4_title": "Anweisungen befolgen",
+      "step4_text": "Bleiben Sie ruhig und befolgen Sie die Anweisungen auf dem Bildschirm, bis der Vorgang abgeschlossen ist."
+    },
+    "preview": {
+      "preparing": "Gesichtsverifizierung wird vorbereitet…",
+      "aligned": "Gesicht ausgerichtet, bitte stillhalten…",
+      "place_face": "Platzieren Sie Ihr Gesicht in der Ellipse",
+      "camera_opening": "Kamera wird geöffnet…"
+    },
+    "tips": {
+      "no_face": "Platzieren Sie Ihr Gesicht in der Ellipse",
+      "center_face": "Bewegen Sie Ihr Gesicht in die Ellipse",
+      "too_far": "Gehen Sie etwas näher an die Kamera",
+      "too_close": "Gehen Sie etwas weiter von der Kamera weg",
+      "look_straight": "Schauen Sie direkt in die Kamera",
+      "open_eyes": "Halten Sie Ihre Augen offen",
+      "close_mouth": "Schließen Sie Ihren Mund",
+      "relax_face": "Entspannen Sie Ihr Gesicht"
+    },
+    "countdown": {
+      "hold_still": "Stillhalten",
+      "seconds_left": "Noch {seconds}s",
+      "almost_done": "Fast fertig…"
+    },
+    "verifying": "Wird überprüft…",
+    "timeout_hint": "Nehmen Sie sich Zeit und halten Sie Ihr Gesicht ruhig in der Ellipse",
+    "result": {
+      "verified": "Verifiziert",
+      "not_verified": "Nicht verifiziert"
+    },
+    "failed": {
+      "title": "Verifizierung fehlgeschlagen",
+      "body": "Wir konnten Ihre Identität nicht verifizieren. Bitte versuchen Sie es erneut."
+    },
+    "errors": {
+      "could_not_start": "Gesichtsverifizierung konnte nicht gestartet werden: {error}",
+      "no_camera": "Keine Kamera verfügbar",
+      "could_not_open_camera": "Kamera konnte nicht geöffnet werden: {error}",
+      "missing_photo": "Dokumentfoto fehlt",
+      "could_not_start_verification": "Verifizierung konnte nicht gestartet werden: {error}",
+      "processing_image": "Fehler beim Verarbeiten des Bildes: {error}"
+    },
+    "buttons": {
+      "retry": "Erneut versuchen",
+      "back": "Zurück"
+    }
   }
 }

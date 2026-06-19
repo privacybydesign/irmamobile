@@ -993,5 +993,64 @@
         "content": "Je staat op het punt om certificaten aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
       }
     }
+  },
+  "face_verification": {
+    "title": "Gezichtsverificatie",
+    "continue_button": "Doorgaan",
+    "how_it_works": {
+      "title": "Hoe het werkt ?",
+      "intro": "We vergelijken uw gezicht met de foto op uw document om te bevestigen dat u de rechtmatige eigenaar bent. Volg deze stappen voor een soepele ervaring.",
+      "step1_title": "Centreer uw gezicht",
+      "step1_text": "Houd de telefoon op ooghoogte en plaats uw gezicht in de ovaal.",
+      "step2_title": "Duidelijk zicht op uw gezicht",
+      "step2_text": "Zorg voor goede verlichting en verwijder uw bril als uw documentfoto zonder bril was.",
+      "step3_title": "Start gaat vanzelf",
+      "step3_text": "Zodra uw gezicht gecentreerd is in de ovaal, begint de verificatie automatisch.",
+      "step4_title": "Volg de instructies",
+      "step4_text": "Blijf stil en volg de instructies op het scherm totdat het klaar is."
+    },
+    "preview": {
+      "preparing": "Gezichtsverificatie voorbereiden…",
+      "aligned": "Gezicht uitgelijnd, blijf stil…",
+      "place_face": "Plaats uw gezicht in de ovaal",
+      "camera_opening": "Camera openen…"
+    },
+    "tips": {
+      "no_face": "Plaats uw gezicht in de ovaal",
+      "center_face": "Beweeg uw gezicht in de ovaal",
+      "too_far": "Kom iets dichter bij de camera",
+      "too_close": "Ga iets verder van de camera",
+      "look_straight": "Kijk recht in de camera",
+      "open_eyes": "Houd uw ogen open",
+      "close_mouth": "Sluit uw mond",
+      "relax_face": "Ontspan uw gezicht"
+    },
+    "countdown": {
+      "hold_still": "Houd stil",
+      "seconds_left": "Nog {seconds}s",
+      "almost_done": "Bijna klaar…"
+    },
+    "verifying": "Verifiëren…",
+    "timeout_hint": "Neem rustig de tijd en houd uw gezicht stil in de ovaal",
+    "result": {
+      "verified": "Geverifieerd",
+      "not_verified": "Niet geverifieerd"
+    },
+    "failed": {
+      "title": "Verificatie mislukt",
+      "body": "We konden uw identiteit niet verifiëren. Probeer het opnieuw."
+    },
+    "errors": {
+      "could_not_start": "Kon gezichtsverificatie niet starten: {error}",
+      "no_camera": "Geen camera beschikbaar",
+      "could_not_open_camera": "Kon camera niet openen: {error}",
+      "missing_photo": "Documentfoto ontbreekt",
+      "could_not_start_verification": "Kon verificatie niet starten: {error}",
+      "processing_image": "Fout bij verwerken van beeld: {error}"
+    },
+    "buttons": {
+      "retry": "Opnieuw proberen",
+      "back": "Terug"
+    }
   }
 }
