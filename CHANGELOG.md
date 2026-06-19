@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [8.0.0] - 2026-06-18
+## [8.0.0] - 2026-06-22
 ### Changed
 - Make data tab, credential details, activity, notifications and add-data screens schema-independent
 - Restructure session handling to use a schema-independent interface via irmago
