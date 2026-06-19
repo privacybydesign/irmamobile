@@ -21,10 +21,10 @@ attaching data to signed statements. These data can be relevant properties, such
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/org.irmacard.cardemu/)
 
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="200" alt="Screenshot of the Yivi app on Android, showing the introduction screen at the start of the onboarding process" />&nbsp;
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200" alt="Screenshot of the Yivi app on Android, showing the home screen with recent activities" />&nbsp;
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard at the point where the user is collecting data" />&nbsp;
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard screen at the point where the user is about to share the collected data" />&nbsp;
+<img src="docs/screenshots/en/1.png" width="175" alt="Screenshot of the Yivi app showing the data overview with the user's stored cards" />&nbsp;
+<img src="docs/screenshots/en/2.png" width="175" alt="Screenshot of the Yivi app showing a successfully scanned QR code" />&nbsp;
+<img src="docs/screenshots/en/5.png" width="175" alt="Screenshot of the Yivi app showing the user about to share the collected data with the requesting party" />&nbsp;
+<img src="docs/screenshots/en/6.png" width="175" alt="Screenshot of the Yivi app showing a success screen confirming the data was added" />&nbsp;
 
 ## Repository layout
 
