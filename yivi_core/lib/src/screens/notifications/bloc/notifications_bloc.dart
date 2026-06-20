@@ -109,9 +109,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
     _records = _records
         .map(
-          (r) => r.id == event.notificationId
-              ? r.copyWith(softDeleted: true)
-              : r,
+          (r) =>
+              r.id == event.notificationId ? r.copyWith(softDeleted: true) : r,
         )
         .toList();
     _notifications = _buildNotifications(_records);
