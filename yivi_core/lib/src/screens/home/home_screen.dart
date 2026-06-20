@@ -15,11 +15,10 @@ import "widgets/pending_pointer_listener.dart";
 /// In order to keep the selected tab state across these instances, we move
 /// the state outside of the HomeScreen widget and into this Bloc.
 class HomeTabState extends Bloc<IrmaNavBarTab, IrmaNavBarTab> {
-  HomeTabState() : super(.data);
-
-  @override
-  Stream<IrmaNavBarTab> mapEventToState(IrmaNavBarTab event) async* {
-    yield event;
+  HomeTabState() : super(.data) {
+    on<IrmaNavBarTab>((event, emit) {
+      emit(event);
+    });
   }
 }
 

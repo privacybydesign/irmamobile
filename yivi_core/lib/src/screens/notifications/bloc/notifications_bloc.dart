@@ -5,6 +5,7 @@ import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../../data/irma_repository.dart";
 import "../../../sentry/sentry.dart";
+import "../../../util/bloc_event_transformer.dart";
 import "../handlers/credential_status_notifications_handler.dart";
 import "../handlers/notification_handler.dart";
 import "../models/credential_status_notification_record.dart";
@@ -24,27 +25,34 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
   NotificationsBloc({required IrmaRepository repo})
     : _repo = repo,
-      super((NotificationsInitial()));
-
-  @override
-  Stream<NotificationsState> mapEventToState(NotificationsEvent event) async* {
-    if (event is Initialize) {
-      yield* _mapInitToState();
-    } else if (event is LoadNotifications) {
-      yield* _mapLoadNotificationsToState();
-    } else if (event is MarkAllNotificationsAsRead) {
-      yield* _mapMarkAllNotificationsAsReadToState();
-    } else if (event is MarkNotificationAsRead) {
-      yield* _mapMarkNotificationAsReadToState(event.notificationId);
-    } else if (event is SoftDeleteNotification) {
-      yield* _mapSoftDeleteNotificationToState(event.notificationId);
-    } else {
-      throw UnimplementedError();
-    }
+      super((NotificationsInitial())) {
+    // A single handler with a sequential transformer is used (instead of one
+    // `on<T>` per event type) so that all events are processed one at a time,
+    // matching the original `mapEventToState` ordering. This is required
+    // because the handlers mutate shared fields (`_records`, `_notifications`)
+    // across `await`s; concurrent processing would corrupt that state.
+    on<NotificationsEvent>((event, emit) async {
+      if (event is Initialize) {
+        await _onInitialize(event, emit);
+      } else if (event is LoadNotifications) {
+        await _onLoadNotifications(event, emit);
+      } else if (event is MarkAllNotificationsAsRead) {
+        await _onMarkAllNotificationsAsRead(event, emit);
+      } else if (event is MarkNotificationAsRead) {
+        await _onMarkNotificationAsRead(event, emit);
+      } else if (event is SoftDeleteNotification) {
+        await _onSoftDeleteNotification(event, emit);
+      } else {
+        throw UnimplementedError();
+      }
+    }, transformer: sequentialTransformer());
   }
 
-  Stream<NotificationsState> _mapInitToState() async* {
-    yield NotificationsLoading();
+  Future<void> _onInitialize(
+    Initialize event,
+    Emitter<NotificationsState> emit,
+  ) async {
+    emit(NotificationsLoading());
 
     final serializedRecords = await _repo.preferences
         .getSerializedNotifications()
@@ -53,51 +61,63 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
 
     await _refresh();
 
-    yield NotificationsInitialized(_visibleNotifications());
+    emit(NotificationsInitialized(_visibleNotifications()));
   }
 
-  Stream<NotificationsState> _mapLoadNotificationsToState() async* {
-    yield NotificationsLoading();
+  Future<void> _onLoadNotifications(
+    LoadNotifications event,
+    Emitter<NotificationsState> emit,
+  ) async {
+    emit(NotificationsLoading());
     await _refresh();
-    yield NotificationsInitialized(_visibleNotifications());
+    emit(NotificationsInitialized(_visibleNotifications()));
   }
 
-  Stream<NotificationsState> _mapMarkAllNotificationsAsReadToState() async* {
-    yield NotificationsLoading();
+  Future<void> _onMarkAllNotificationsAsRead(
+    MarkAllNotificationsAsRead event,
+    Emitter<NotificationsState> emit,
+  ) async {
+    emit(NotificationsLoading());
 
     _records = _records.map((r) => r.copyWith(read: true)).toList();
     _notifications = _buildNotifications(_records);
     await _persistRecords();
 
-    yield NotificationsLoaded(_visibleNotifications());
+    emit(NotificationsLoaded(_visibleNotifications()));
   }
 
-  Stream<NotificationsState> _mapMarkNotificationAsReadToState(
-    String notificationId,
-  ) async* {
-    yield NotificationsLoading();
+  Future<void> _onMarkNotificationAsRead(
+    MarkNotificationAsRead event,
+    Emitter<NotificationsState> emit,
+  ) async {
+    emit(NotificationsLoading());
 
     _records = _records
-        .map((r) => r.id == notificationId ? r.copyWith(read: true) : r)
+        .map((r) => r.id == event.notificationId ? r.copyWith(read: true) : r)
         .toList();
     _notifications = _buildNotifications(_records);
     await _persistRecords();
 
-    yield NotificationsLoaded(_visibleNotifications());
+    emit(NotificationsLoaded(_visibleNotifications()));
   }
 
-  Stream<NotificationsState> _mapSoftDeleteNotificationToState(
-    String notificationId,
-  ) async* {
-    yield NotificationsLoading();
+  Future<void> _onSoftDeleteNotification(
+    SoftDeleteNotification event,
+    Emitter<NotificationsState> emit,
+  ) async {
+    emit(NotificationsLoading());
 
     _records = _records
-        .map((r) => r.id == notificationId ? r.copyWith(softDeleted: true) : r)
+        .map(
+          (r) => r.id == event.notificationId
+              ? r.copyWith(softDeleted: true)
+              : r,
+        )
         .toList();
     _notifications = _buildNotifications(_records);
     await _persistRecords();
 
-    yield NotificationsLoaded(_visibleNotifications());
+    emit(NotificationsLoaded(_visibleNotifications()));
   }
 
   /// Re-derives runtime notifications and updated records from each handler,
