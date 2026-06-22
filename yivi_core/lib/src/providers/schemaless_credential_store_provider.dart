@@ -14,7 +14,17 @@ final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
   // Hide credentials that require onboard NFC issuance (passport, ID card,
   // driving licence) on devices without NFC hardware, so users aren't led into
   // a scanning flow they cannot complete (e.g. iPads).
-  final nfcAvailable = await ref.watch(nfcAvailableProvider.future);
+  //
+  // Default to NFC-available when the check can't be resolved: filtering only
+  // ever *removes* credentials, so a failed NFC check must never blank the
+  // whole credential store — better to show an NFC credential the user can't
+  // complete than to hide every credential on the device.
+  bool nfcAvailable;
+  try {
+    nfcAvailable = await ref.watch(nfcAvailableProvider.future);
+  } catch (_) {
+    nfcAvailable = true;
+  }
 
   await for (final credentials in repo.getCredentialStoreItems()) {
     yield filterNfcRequiringCredentials(
