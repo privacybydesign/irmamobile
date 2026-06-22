@@ -560,6 +560,7 @@
     "button_block": "Block Yivi",
     "biometric_button": "Unlock with biometrics",
     "biometric_reason": "Unlock the Yivi app",
+    "biometric_confirm_reason": "Confirm to enable biometric unlock",
     "biometric_prompt": {
       "title": "Unlock with biometrics?",
       "body": "Use your fingerprint or face to unlock the app. You'll still need to enter your PIN for sessions.",

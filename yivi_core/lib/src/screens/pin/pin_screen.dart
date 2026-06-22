@@ -13,6 +13,7 @@ import "../../widgets/pin_common/pin_wrong_blocked.dart";
 import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
+import "widgets/biometric_opt_in_dialog.dart";
 import "yivi_pin_screen.dart";
 
 class PinScreen extends ConsumerStatefulWidget {
@@ -115,37 +116,10 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     final dismissed = ref.read(biometricPromptDismissedProvider).value ?? false;
     if (!available || enabled || dismissed) return;
 
-    final service = ref.read(biometricServiceProvider);
-    // showDialog roots on the root navigator, so it survives the lock overlay
-    // being removed when appLocked flips to false.
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(FlutterI18n.translate(ctx, "pin.biometric_prompt.title")),
-        content: Text(FlutterI18n.translate(ctx, "pin.biometric_prompt.body")),
-        actions: [
-          TextButton(
-            onPressed: () {
-              service.dismissPrompt();
-              Navigator.of(ctx).pop();
-            },
-            child: Text(
-              FlutterI18n.translate(ctx, "pin.biometric_prompt.not_now"),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              service.setEnabled(true);
-              service.dismissPrompt();
-              Navigator.of(ctx).pop();
-            },
-            child: Text(
-              FlutterI18n.translate(ctx, "pin.biometric_prompt.enable"),
-            ),
-          ),
-        ],
-      ),
-    );
+    // Shared Yivi-styled dialog (also used by enrollment). Roots on the root
+    // navigator, so it survives the lock overlay being removed when appLocked
+    // flips to false.
+    showBiometricOptInDialog(context);
   }
 
   @override

@@ -560,6 +560,7 @@
     "button_block": "Yivi blokkeren",
     "biometric_button": "Ontgrendelen met biometrie",
     "biometric_reason": "Ontgrendel de Yivi-app",
+    "biometric_confirm_reason": "Bevestig om biometrische ontgrendeling in te schakelen",
     "biometric_prompt": {
       "title": "Ontgrendelen met biometrie?",
       "body": "Gebruik je vingerafdruk of gezicht om de app te ontgrendelen. Voor sessies moet je nog steeds je pincode invoeren.",

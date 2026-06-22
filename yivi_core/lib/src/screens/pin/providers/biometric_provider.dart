@@ -44,26 +44,35 @@ class BiometricService {
   BiometricService(this._ref);
   final Ref _ref;
 
-  /// Shows the OS biometric prompt. On success unlocks the app shell locally
-  /// and returns `true`; on failure/cancel returns `false` and the user stays
-  /// on the PIN screen. [localizedReason] is shown in the OS prompt.
-  Future<bool> authenticateAndUnlock({required String localizedReason}) async {
+  /// Shows the OS biometric prompt and returns whether it succeeded. No side
+  /// effects — used to confirm the user can authenticate before persisting
+  /// `enabled = true` (enrollment, the opt-in dialog, the Settings toggle).
+  /// [localizedReason] is shown in the OS prompt.
+  Future<bool> authenticate({required String localizedReason}) async {
     final auth = _ref.read(localAuthProvider);
     try {
-      final didAuthenticate = await auth.authenticate(
+      return await auth.authenticate(
         localizedReason: localizedReason,
         options: const AuthenticationOptions(
           biometricOnly: true,
           stickyAuth: true,
         ),
       );
-      if (didAuthenticate) {
-        _ref.read(irmaRepositoryProvider).unlockAppLocally();
-      }
-      return didAuthenticate;
     } catch (_) {
       return false;
     }
+  }
+
+  /// Lock-screen biometric button: authenticate and, on success, unlock the
+  /// app shell locally (no keyshare — sessions still require the PIN).
+  Future<bool> authenticateAndUnlock({required String localizedReason}) async {
+    final didAuthenticate = await authenticate(
+      localizedReason: localizedReason,
+    );
+    if (didAuthenticate) {
+      _ref.read(irmaRepositoryProvider).unlockAppLocally();
+    }
+    return didAuthenticate;
   }
 
   Future<void> setEnabled(bool value) =>

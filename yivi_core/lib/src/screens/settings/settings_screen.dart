@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:io";
 
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../models/clear_all_data_event.dart";
@@ -140,7 +141,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ToggleTile(
                               key: const Key("biometric_toggle"),
                               labelTranslationKey: "settings.biometric_unlock",
-                              onChanged: repo.preferences.setBiometricEnabled,
+                              // Enabling requires a successful biometric
+                              // prompt; on failure the pref stays false and the
+                              // switch (driven by the stream) reverts.
+                              // Disabling needs no auth.
+                              onChanged: (value) async {
+                                if (!value) {
+                                  await repo.preferences.setBiometricEnabled(
+                                    false,
+                                  );
+                                  return;
+                                }
+                                final ok = await ref
+                                    .read(biometricServiceProvider)
+                                    .authenticate(
+                                      localizedReason: FlutterI18n.translate(
+                                        context,
+                                        "pin.biometric_confirm_reason",
+                                      ),
+                                    );
+                                if (ok) {
+                                  await repo.preferences.setBiometricEnabled(
+                                    true,
+                                  );
+                                }
+                              },
                               stream: repo.preferences.getBiometricEnabled(),
                             ),
                           ],
