@@ -31,6 +31,14 @@ class IrmaPreferences {
          _acceptedRootedRiskKey,
          defaultValue: false,
        ),
+       _biometricEnabled = preferences.getBool(
+         _biometricEnabledKey,
+         defaultValue: false,
+       ),
+       _biometricPromptDismissed = preferences.getBool(
+         _biometricPromptDismissedKey,
+         defaultValue: false,
+       ),
        _completedDisclosurePermissionIntro = preferences.getBool(
          _completedDisclosurePermissionIntroKey,
          defaultValue: false,
@@ -88,6 +96,16 @@ class IrmaPreferences {
   static const String _acceptedRootedRiskKey =
       "preference.accepted_rooted_risk";
   final Preference<bool> _acceptedRootedRisk;
+
+  /// Whether the user opted in to biometric app-unlock. Default off (opt-in).
+  static const String _biometricEnabledKey = "preference.biometric_enabled";
+  final Preference<bool> _biometricEnabled;
+
+  /// Whether the one-time biometric opt-in prompt has been answered/dismissed,
+  /// so it isn't shown again.
+  static const String _biometricPromptDismissedKey =
+      "preference.biometric_prompt_dismissed";
+  final Preference<bool> _biometricPromptDismissed;
 
   /// Originates from the notification that  IRMA is ABOUT TO change to Yivi, only used for cleanup-purposes
   static const String _showNameChangeNotificationKey =
@@ -150,6 +168,16 @@ class IrmaPreferences {
 
   Future<bool> setAcceptedRootedRisk(bool value) =>
       _acceptedRootedRisk.setValue(value);
+
+  Stream<bool> getBiometricEnabled() => _biometricEnabled;
+
+  Future<bool> setBiometricEnabled(bool value) =>
+      _biometricEnabled.setValue(value);
+
+  Stream<bool> getBiometricPromptDismissed() => _biometricPromptDismissed;
+
+  Future<bool> setBiometricPromptDismissed(bool value) =>
+      _biometricPromptDismissed.setValue(value);
 
   Stream<bool> getCompletedDisclosurePermissionIntro() =>
       _completedDisclosurePermissionIntro;

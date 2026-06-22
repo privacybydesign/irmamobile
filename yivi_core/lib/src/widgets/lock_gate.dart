@@ -99,6 +99,7 @@ class _LockGateState extends ConsumerState<LockGate> {
               onGenerateRoute: (_) => MaterialPageRoute<void>(
                 builder: (innerCtx) => TermsChangedListener(
                   child: PinScreen(
+                    allowBiometric: true,
                     onAuthenticated: () {
                       if (context.mounted) {
                         context.read<HomeTabState>().add(IrmaNavBarTab.data);

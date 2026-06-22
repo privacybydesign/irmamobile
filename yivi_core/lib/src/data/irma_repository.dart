@@ -373,6 +373,14 @@ class IrmaRepository {
     _blockedSubject.add(unblockTime);
   }
 
+  /// Unlocks the app shell locally (e.g. after biometric authentication)
+  /// WITHOUT authenticating against the keyshare server. Unlike [unlock] this
+  /// does not refresh the keyshare session token, so the first session started
+  /// afterwards still hits `SessionStatus.requestPin` and requires the PIN.
+  void unlockAppLocally() {
+    _lockedSubject.add(false);
+  }
+
   void setDeveloperMode(bool enabled) {
     bridgedDispatch(
       ClientPreferencesEvent(

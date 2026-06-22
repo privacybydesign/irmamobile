@@ -59,6 +59,11 @@ class YiviPinScreen extends StatelessWidget {
   final EnterPinStateBloc pinBloc;
   final pinVisibilityValue = ValueNotifier(false);
   final VoidCallback? onForgotPin;
+
+  /// When non-null, a biometric-unlock button is shown below the forgot-PIN
+  /// link. Only the app-unlock flow passes this; enrollment/change-pin leave
+  /// it null so no button renders.
+  final VoidCallback? onBiometricUnlock;
   final VoidCallback? onTogglePinSize;
   final bool displayPinLength;
   final bool checkSecurePin;
@@ -78,6 +83,7 @@ class YiviPinScreen extends StatelessWidget {
     required this.maxPinSize,
     required this.onSubmit,
     this.onForgotPin,
+    this.onBiometricUnlock,
     this.displayPinLength = false,
     this.onTogglePinSize,
     this.checkSecurePin = false,
@@ -141,6 +147,7 @@ class YiviPinScreen extends StatelessWidget {
             label: FlutterI18n.translate(context, "pin.button_forgot"),
           ),
         ),
+      if (onBiometricUnlock != null) _buildBiometricButton(context),
       _buildNextButton(),
     ];
 
@@ -232,6 +239,8 @@ class YiviPinScreen extends StatelessWidget {
                                     "pin.button_forgot",
                                   ),
                                 ),
+                              if (onBiometricUnlock != null)
+                                _buildBiometricButton(context),
                             ],
                           ),
                         ),
@@ -402,6 +411,17 @@ class YiviPinScreen extends StatelessWidget {
               defaultSubmitButtonVisibility(context, maxPinSize),
         );
       },
+    );
+  }
+
+  Widget _buildBiometricButton(BuildContext context) {
+    return Center(
+      child: TextButton.icon(
+        key: const Key("pin_biometric_button"),
+        onPressed: onBiometricUnlock,
+        icon: const Icon(Icons.fingerprint),
+        label: Text(FlutterI18n.translate(context, "pin.biometric_button")),
+      ),
     );
   }
 

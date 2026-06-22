@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:io";
 
 import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../models/clear_all_data_event.dart";
 import "../../providers/irma_repository_provider.dart";
@@ -12,6 +13,7 @@ import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 import "../more/widgets/tiles.dart";
 import "../more/widgets/tiles_card.dart";
+import "../pin/providers/biometric_provider.dart";
 import "widgets/delete_data_confirmation_dialog.dart";
 
 class SettingsScreen extends StatefulWidget {
@@ -121,6 +123,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+              // Biometric unlock — only when the device has biometrics
+              // enrolled. The toggle reflects/sets the opt-in preference.
+              Consumer(
+                builder: (context, ref, _) {
+                  final available =
+                      ref.watch(biometricAvailableProvider).value ?? false;
+                  if (!available) return const SizedBox.shrink();
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TilesCard(
+                          children: [
+                            ToggleTile(
+                              key: const Key("biometric_toggle"),
+                              labelTranslationKey: "settings.biometric_unlock",
+                              onChanged: repo.preferences.setBiometricEnabled,
+                              stream: repo.preferences.getBiometricEnabled(),
+                            ),
+                          ],
+                        ),
+                        buildExplanationText(
+                          "settings.biometric_unlock_explanation",
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               buildHeaderText("settings.other"),
               TilesCard(
                 children: [
