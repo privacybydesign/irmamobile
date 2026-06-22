@@ -108,19 +108,23 @@ class EnterPinState {
 
 class EnterPinStateBloc extends Bloc<int, EnterPinState> {
   final int maxPinSize;
-  EnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty());
 
-  @override
-  Stream<EnterPinState> mapEventToState(int event) async* {
-    Pin pin = Pin.from(state.pin);
+  // Handles each digit synchronously against the current state. The previous
+  // `mapEventToState` async-generator opened an async gap per event, so digits
+  // typed in rapid succession could be computed against a stale `state` and
+  // dropped (#481). A synchronous `on<int>` handler closes that gap.
+  EnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty()) {
+    on<int>((event, emit) {
+      final pin = Pin.from(state.pin);
 
-    if (event >= 0 && event < 10 && state.pin.length < maxPinSize) {
-      pin.add(event);
-    } else if (event.isNegative && state.pin.isNotEmpty) {
-      pin.removeLast();
-    }
+      if (event >= 0 && event < 10 && state.pin.length < maxPinSize) {
+        pin.add(event);
+      } else if (event.isNegative && state.pin.isNotEmpty) {
+        pin.removeLast();
+      }
 
-    yield EnterPinState.createFrom(pin: pin);
+      emit(EnterPinState.createFrom(pin: pin));
+    });
   }
 }
 
@@ -128,15 +132,12 @@ class EnterPinStateBloc extends Bloc<int, EnterPinState> {
 class TestEnterPinStateBloc extends Bloc<Pin, EnterPinState> {
   final int maxPinSize;
 
-  TestEnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty());
+  TestEnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty()) {
+    on<Pin>((event, emit) => emit(EnterPinState.createFrom(pin: event)));
+  }
 
   @override
   void add(Pin event) {
     super.add(event.length > maxPinSize ? event.sublist(0, maxPinSize) : event);
-  }
-
-  @override
-  Stream<EnterPinState> mapEventToState(Pin event) async* {
-    yield EnterPinState.createFrom(pin: event);
   }
 }

@@ -1,24 +1,20 @@
-import "dart:async";
-
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "../../providers/irma_repository_provider.dart";
+import "../../models/session.dart";
+import "../../providers/preferences_provider.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/pin_common/format_blocked_for.dart";
 import "../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../../widgets/pin_common/pin_wrong_blocked.dart";
 import "../error/session_error_screen.dart";
-import "bloc/pin_bloc.dart";
-import "bloc/pin_event.dart";
-import "bloc/pin_state.dart";
+import "providers/pin_unlock_provider.dart";
 import "yivi_pin_screen.dart";
 
-class PinScreen extends StatefulWidget {
-  final PinEvent? initialEvent;
+class PinScreen extends ConsumerStatefulWidget {
   final Function() onAuthenticated;
   final Widget? leading;
 
@@ -32,229 +28,146 @@ class PinScreen extends StatefulWidget {
   const PinScreen({
     super.key,
     required this.onAuthenticated,
-    this.initialEvent,
     this.leading,
     this.onForgotPin,
   });
 
   @override
-  State<PinScreen> createState() => _PinScreenState();
+  ConsumerState<PinScreen> createState() => _PinScreenState();
 }
 
-class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
-  late final PinBloc _pinBloc;
+class _PinScreenState extends ConsumerState<PinScreen> {
+  // The digit buffer is held here, not built inside the body, so stream
+  // emissions (auth state, blocked countdown) no longer recreate it and wipe
+  // the dots mid-entry (#508). It survives rebuilds and is only swapped when
+  // the user's PIN-length preference actually flips.
+  int? _maxPinSize;
+  EnterPinStateBloc? _entryBloc;
 
-  StreamSubscription? _pinBlocSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
+  EnterPinStateBloc _entryBlocFor(int maxPinSize) {
+    if (_entryBloc == null || _maxPinSize != maxPinSize) {
+      _entryBloc?.close();
+      _maxPinSize = maxPinSize;
+      _entryBloc = EnterPinStateBloc(maxPinSize);
+    }
+    return _entryBloc!;
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // we only want to execute the code below once, so we have to perform this hacky workaround
-    // in the future we would need to figure out a better way
-    try {
-      _pinBloc;
-      // return because the init already happened
-      return;
-    } catch (_) {
-      // intentionally kept empty...
-    }
-    final repo = IrmaRepositoryProvider.of(context);
-    _pinBloc = PinBloc(repo);
-
-    if (widget.initialEvent != null) {
-      _pinBloc.add(widget.initialEvent!);
-    }
-
-    repo.getBlockTime().first.then((blockedUntil) {
-      if (blockedUntil == null) {
-        return;
-      }
-      _pinBloc.add(Blocked(blockedUntil));
-    });
-
-    _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
-      if (pinState.authenticated) {
-        _pinBlocSubscription?.cancel();
-      } else if (pinState.pinInvalid) {
-        final secondsBlocked =
-            pinState.blockedUntil?.difference(DateTime.now()).inSeconds ?? 0;
-        if (pinState.remainingAttempts != null &&
-            pinState.remainingAttempts! > 0) {
-          _showWrongAttemptsDialog(pinState);
-        } else if (secondsBlocked > 0) {
-          _showBlockedDialog(secondsBlocked);
-        }
-      } else if (pinState.error != null) {
-        _goToSessionErrorScreen(pinState);
-      }
-      if (!pinState.authenticated) {
-        HapticFeedback.heavyImpact();
-      } else {
-        HapticFeedback.mediumImpact();
-      }
-
-      // navigate to home when the the user is authenticated
-      if (pinState.authenticated) {
-        widget.onAuthenticated();
-      }
-    });
+  void dispose() {
+    _entryBloc?.close();
+    super.dispose();
   }
 
-  void _showWrongAttemptsDialog(PinState pinState) {
-    if (!mounted) {
-      return;
-    }
+  void _showWrongAttemptsDialog(int attemptsRemaining) {
+    if (!mounted) return;
     showDialog(
       context: context,
-      builder: (context) {
-        return PinWrongAttemptsDialog(
-          attemptsRemaining: pinState.remainingAttempts!,
-          onClose: Navigator.of(context).pop,
-        );
-      },
+      builder: (context) => PinWrongAttemptsDialog(
+        attemptsRemaining: attemptsRemaining,
+        onClose: Navigator.of(context).pop,
+      ),
     );
   }
 
   void _showBlockedDialog(int secondsBlocked) {
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (context) => PinWrongBlockedDialog(blocked: secondsBlocked),
     );
   }
 
-  void _goToSessionErrorScreen(PinState pinState) {
-    if (!mounted) {
-      return;
-    }
+  void _goToSessionErrorScreen(SessionError? error) {
+    if (!mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => SessionErrorScreen(
-          error: pinState.error,
-          onTapClose: () {
-            Navigator.of(context).pop();
-          },
+          error: error,
+          onTapClose: Navigator.of(context).pop,
         ),
       ),
     );
   }
 
-  @override
-  void dispose() {
-    _pinBloc.close();
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      FocusScope.of(context).unfocus();
-    } else if (state == AppLifecycleState.resumed) {
-      if (_pinBloc.state.pinInvalid ||
-          _pinBloc.state.authenticateInProgress ||
-          _pinBloc.state.error != null) {
-        return;
+  void _handleStateChange(PinUnlockState state) {
+    if (state.authenticated) {
+      HapticFeedback.mediumImpact();
+      widget.onAuthenticated();
+      return;
+    }
+    if (state.pinInvalid) {
+      HapticFeedback.heavyImpact();
+      final secondsBlocked =
+          state.blockedUntil?.difference(DateTime.now()).inSeconds ?? 0;
+      if (state.remainingAttempts != null && state.remainingAttempts! > 0) {
+        _showWrongAttemptsDialog(state.remainingAttempts!);
+      } else if (secondsBlocked > 0) {
+        _showBlockedDialog(secondsBlocked);
       }
+    } else if (state.error != null) {
+      HapticFeedback.heavyImpact();
+      _goToSessionErrorScreen(state.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final prefs = IrmaRepositoryProvider.of(context).preferences;
-    return BlocBuilder(
-      bloc: _pinBloc,
-      builder: (context, PinState state) {
-        // Hide pin screen once authenticated
-        if (state.authenticated == true) {
-          return Container();
-        }
+    ref.listen<PinUnlockState>(
+      pinUnlockProvider,
+      (_, next) => _handleStateChange(next),
+    );
 
-        return YiviPinScaffold(
-          appBar: IrmaAppBar(
-            titleString: "",
-            hasBorder: false,
-            leading: widget.leading,
+    final state = ref.watch(pinUnlockProvider);
+
+    // Hide pin screen once authenticated.
+    if (state.authenticated) return Container();
+
+    final maxPinSize = (ref.watch(longPinProvider).value ?? false)
+        ? longPinSize
+        : shortPinSize;
+    final entryBloc = _entryBlocFor(maxPinSize);
+
+    final blockedFor =
+        ref.watch(pinBlockedForProvider).value ?? Duration.zero;
+    final enabled =
+        blockedFor.inSeconds <= 0 && !state.authenticateInProgress;
+
+    var subtitle = FlutterI18n.translate(context, "pin.subtitle");
+    if (blockedFor.inSeconds > 0) {
+      final blockedText = FlutterI18n.translate(context, "pin_common.blocked_for");
+      subtitle = "$blockedText ${formatBlockedFor(context, blockedFor)}";
+    }
+
+    void submit(String pin) => ref.read(pinUnlockProvider.notifier).unlock(pin);
+
+    return YiviPinScaffold(
+      appBar: IrmaAppBar(
+        titleString: "",
+        hasBorder: false,
+        leading: widget.leading,
+      ),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          YiviPinScreen(
+            instruction: subtitle,
+            maxPinSize: maxPinSize,
+            onSubmit: enabled ? submit : (_) {},
+            pinBloc: entryBloc,
+            enabled: enabled,
+            onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
+            listener: (context, pinState) {
+              if (maxPinSize == shortPinSize &&
+                  pinState.pin.length == maxPinSize &&
+                  enabled) {
+                submit(pinState.toString());
+              }
+            },
           ),
-          body: StreamBuilder(
-            stream: _pinBloc.getPinBlockedFor(),
-            builder:
-                (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
-                  var subtitle = FlutterI18n.translate(context, "pin.subtitle");
-                  if (blockedFor.hasData &&
-                      (blockedFor.data?.inSeconds ?? 0) > 0) {
-                    final blockedText = FlutterI18n.translate(
-                      context,
-                      "pin_common.blocked_for",
-                    );
-                    final blockedForTime = formatBlockedFor(
-                      context,
-                      blockedFor.data!,
-                    );
-                    subtitle = "$blockedText $blockedForTime";
-                  }
-
-                  return StreamBuilder<bool>(
-                    stream: prefs.getLongPin(),
-                    builder: (context, snapshot) {
-                      final maxPinSize = (snapshot.data ?? false)
-                          ? longPinSize
-                          : shortPinSize;
-
-                      final pinBloc = EnterPinStateBloc(maxPinSize);
-
-                      final enabled =
-                          (blockedFor.data ?? Duration.zero).inSeconds <= 0 &&
-                          !state.authenticateInProgress;
-
-                      void submit(String pin) {
-                        _pinBloc.add(
-                          Unlock(
-                            pin: pin,
-                            repo: IrmaRepositoryProvider.of(context),
-                          ),
-                        );
-                      }
-
-                      return Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          YiviPinScreen(
-                            instruction: subtitle,
-                            maxPinSize: maxPinSize,
-                            onSubmit: enabled ? submit : (_) {},
-                            pinBloc: pinBloc,
-                            enabled: enabled,
-                            onForgotPin:
-                                widget.onForgotPin ??
-                                context.pushResetPinScreen,
-                            listener: (context, state) {
-                              if (maxPinSize == shortPinSize &&
-                                  state.pin.length == maxPinSize &&
-                                  enabled) {
-                                submit(state.toString());
-                              }
-                            },
-                          ),
-                          if (state.authenticateInProgress)
-                            const CircularProgressIndicator(),
-                        ],
-                      );
-                    },
-                  );
-                },
-          ),
-        );
-      },
+          if (state.authenticateInProgress) const CircularProgressIndicator(),
+        ],
+      ),
     );
   }
 }
