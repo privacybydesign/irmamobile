@@ -3,15 +3,24 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../models/schemaless/credential_store.dart";
 
 import "../models/translated_value.dart";
+import "../util/nfc_credentials.dart";
 import "irma_repository_provider.dart";
+import "nfc_availability_provider.dart";
 
 final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
   ref,
 ) async* {
   final repo = ref.watch(irmaRepositoryProvider);
+  // Hide credentials that require onboard NFC issuance (passport, ID card,
+  // driving licence) on devices without NFC hardware, so users aren't led into
+  // a scanning flow they cannot complete (e.g. iPads).
+  final nfcAvailable = await ref.watch(nfcAvailableProvider.future);
 
   await for (final credentials in repo.getCredentialStoreItems()) {
-    yield credentials;
+    yield filterNfcRequiringCredentials(
+      credentials,
+      nfcAvailable: nfcAvailable,
+    );
   }
 });
 
