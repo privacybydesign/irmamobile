@@ -4,7 +4,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
-import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/language.dart";
@@ -18,6 +17,7 @@ import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
 import "disclosure_make_choice_screen.dart";
+import "disclosure_selection.dart";
 import "session_scaffold.dart";
 
 class DisclosureChoicesOverview extends ConsumerStatefulWidget {
@@ -63,14 +63,7 @@ class _DisclosureChoicesOverviewState
 
     final storedHashes = userChoices[disconIndex]!.credentialHashes;
     final owned = overview[disconIndex].ownedOptions ?? [];
-    for (var i = 0; i < owned.length; i++) {
-      final bundleHashes = owned[i].credentialHashes;
-      if (bundleHashes.length == storedHashes.length &&
-          bundleHashes.containsAll(storedHashes)) {
-        return i;
-      }
-    }
-    return 0;
+    return selectedBundleIndex(owned, storedHashes) ?? 0;
   }
 
   List<DisclosureDisconSelection> _buildDisclosureChoices() {
@@ -88,8 +81,19 @@ class _DisclosureChoicesOverviewState
         continue;
       }
 
-      // Default to first owned bundle if nothing stored.
-      final bundle = userChoices[i] ?? (choices[i].ownedOptions?.firstOrNull);
+      // Re-resolve the stored selection against the current owned options by
+      // its credential-hash identity. This keeps the disclosed bundle in sync
+      // with what the overview displays (via _selectedIndexFor) even when the
+      // owned list shifted — e.g. a credential was deleted mid-session (#520).
+      // Falls back to the first owned bundle when nothing is stored or the
+      // stored selection no longer exists.
+      final owned = choices[i].ownedOptions ?? [];
+      final stored = userChoices[i];
+      final bundle =
+          (stored != null
+              ? resolveSelectedBundle(owned, stored.credentialHashes)
+              : null) ??
+          owned.firstOrNull;
       if (bundle == null) {
         disclosureChoices.add(DisclosureDisconSelection(credentials: []));
         continue;
@@ -171,28 +175,17 @@ class _DisclosureChoicesOverviewState
           sessionId: _sessionId,
           disconIndex: disconIndex,
           addOptional: addOptional,
-          onChoiceMade: (newIndex) {
+          onChoiceMade: (bundle) {
             final notifier = ref.read(
               sessionUserChoicesProvider(_sessionId).notifier,
             );
             if (addOptional) {
               notifier.addOptional(disconIndex);
             }
-            // Read the current session state to get up-to-date owned options,
-            // since new credentials may have been obtained.
-            final currentChoices =
-                ref
-                    .read(sessionStateProvider(_sessionId))
-                    .value
-                    ?.disclosurePlan
-                    ?.disclosureChoicesOverview ??
-                [];
-            final owned = disconIndex < currentChoices.length
-                ? currentChoices[disconIndex].ownedOptions
-                : null;
-            if (owned != null && newIndex < owned.length) {
-              notifier.setBundle(disconIndex, owned[newIndex]);
-            }
+            // The make-choice screen resolves the selected bundle by its stable
+            // credential-hash identity, so we can store it directly without
+            // re-indexing a (possibly shifted) owned-options list. See #520.
+            notifier.setBundle(disconIndex, bundle);
           },
         ),
       ),

@@ -13,16 +13,23 @@ import "../../../widgets/irma_card.dart";
 import "../../../widgets/radio_indicator.dart";
 import "../../../widgets/section_header.dart";
 import "disclosure_permission_choice.dart";
+import "disclosure_selection.dart";
 import "session_scaffold.dart";
 
-/// Selection type: either an owned credential (by index) or an obtainable one.
+/// Selection type: either an owned credential or an obtainable one.
+///
+/// An owned selection is keyed on the *stable identity* (credential hashes) of
+/// the chosen bundle rather than its list index, so it keeps pointing at the
+/// same credential when the owned-options list changes underneath us — e.g.
+/// after a credential is deleted mid-session (issue #520). Obtainable options
+/// are never disclosed, so a transient index is fine for them.
 sealed class _Selection {
   const _Selection();
 }
 
 class _OwnedSelection extends _Selection {
-  final int index;
-  const _OwnedSelection(this.index);
+  final Set<String> hashes;
+  const _OwnedSelection(this.hashes);
 }
 
 class _ObtainableSelection extends _Selection {
@@ -39,7 +46,7 @@ class _ObtainableSelection extends _Selection {
 class DisclosureMakeChoiceScreen extends ConsumerStatefulWidget {
   final DisclosurePickOne pickOne;
   final int initialSelectedIndex;
-  final ValueChanged<int> onChoiceMade;
+  final ValueChanged<DisclosureBundle> onChoiceMade;
   final int sessionId;
   final int disconIndex;
   final bool addOptional;
@@ -66,13 +73,18 @@ class _DisclosureMakeChoiceScreenState
   @override
   void initState() {
     super.initState();
-    final hasOwned = (widget.pickOne.ownedOptions ?? []).isNotEmpty;
-    if (hasOwned) {
-      _selection = _OwnedSelection(widget.initialSelectedIndex);
+    final owned = widget.pickOne.ownedOptions ?? [];
+    if (owned.isNotEmpty) {
+      final initial =
+          widget.initialSelectedIndex >= 0 &&
+              widget.initialSelectedIndex < owned.length
+          ? widget.initialSelectedIndex
+          : 0;
+      _selection = _OwnedSelection(owned[initial].credentialHashes);
     } else if ((widget.pickOne.obtainableOptions ?? []).isNotEmpty) {
       _selection = const _ObtainableSelection(0);
     } else {
-      _selection = const _OwnedSelection(0);
+      _selection = const _OwnedSelection(<String>{});
     }
   }
 
@@ -99,8 +111,33 @@ class _DisclosureMakeChoiceScreenState
   void _onDone() {
     final sel = _selection;
     if (sel is! _OwnedSelection) return;
-    widget.onChoiceMade(sel.index);
+
+    // Resolve the selected bundle against the *live* owned list by its stable
+    // identity, so we hand back the bundle the user actually picked even if the
+    // list shifted (e.g. a credential was deleted mid-session). Index-based
+    // resolution against a re-read list would map the stale index onto the
+    // wrong credential — see issue #520.
+    final owned = _liveOwnedOptions();
+    final bundle = resolveSelectedBundle(owned, sel.hashes);
+    if (bundle == null) return;
+
+    widget.onChoiceMade(bundle);
     Navigator.of(context).pop();
+  }
+
+  /// The owned options for this discon from live session state, falling back to
+  /// the initial snapshot. Mirrors the resolution used in [build].
+  List<DisclosureBundle> _liveOwnedOptions() {
+    final overview = ref
+        .read(sessionStateProvider(widget.sessionId))
+        .value
+        ?.disclosurePlan
+        ?.disclosureChoicesOverview;
+    final livePickOne =
+        (overview != null && widget.disconIndex < overview.length)
+        ? overview[widget.disconIndex]
+        : null;
+    return (livePickOne ?? widget.pickOne).ownedOptions ?? [];
   }
 
   /// Mirrors a provider-driven bundle change into the local radio selection.
@@ -121,28 +158,15 @@ class _DisclosureMakeChoiceScreenState
       return;
     }
 
-    final overview = ref
-        .read(sessionStateProvider(widget.sessionId))
-        .value
-        ?.disclosurePlan
-        ?.disclosureChoicesOverview;
-    if (overview == null || widget.disconIndex >= overview.length) return;
-    final owned = overview[widget.disconIndex].ownedOptions ?? [];
+    final owned = _liveOwnedOptions();
+    if (selectedBundleIndex(owned, nextHashes) == null) return;
 
-    for (var i = 0; i < owned.length; i++) {
-      final bundleHashes = owned[i].credentialHashes;
-      if (bundleHashes.length != nextHashes.length ||
-          !bundleHashes.containsAll(nextHashes)) {
-        continue;
-      }
-      if (widget.addOptional) {
-        ref
-            .read(sessionUserChoicesProvider(widget.sessionId).notifier)
-            .addOptional(widget.disconIndex);
-      }
-      setState(() => _selection = _OwnedSelection(i));
-      return;
+    if (widget.addOptional) {
+      ref
+          .read(sessionUserChoicesProvider(widget.sessionId).notifier)
+          .addOptional(widget.disconIndex);
     }
+    setState(() => _selection = _OwnedSelection(nextHashes));
   }
 
   @override
@@ -174,8 +198,12 @@ class _DisclosureMakeChoiceScreenState
 
     final theme = IrmaTheme.of(context);
     final selection = _selection;
+    // Re-resolve the owned radio index from the selected identity against the
+    // current list, so the highlighted card follows the chosen credential even
+    // if the list shifted (-1 selects nothing, e.g. after a deletion).
     final ownedSelectedIndex = switch (selection) {
-      _OwnedSelection(:final index) => index,
+      _OwnedSelection(:final hashes) =>
+        selectedBundleIndex(owned, hashes) ?? -1,
       _ObtainableSelection() => -1,
     };
     bool isObtainableSelectedAt(int i) =>
@@ -195,8 +223,10 @@ class _DisclosureMakeChoiceScreenState
                 DisclosurePermissionChoice.fromBundles(
                   options: owned,
                   selectedIndex: ownedSelectedIndex,
-                  onChoiceUpdated: (i) =>
-                      setState(() => _selection = _OwnedSelection(i)),
+                  onChoiceUpdated: (i) => setState(
+                    () =>
+                        _selection = _OwnedSelection(owned[i].credentialHashes),
+                  ),
                 ),
 
               // Obtainable options section
