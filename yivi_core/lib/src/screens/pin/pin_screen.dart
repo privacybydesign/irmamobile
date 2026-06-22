@@ -13,7 +13,6 @@ import "../../widgets/pin_common/pin_wrong_blocked.dart";
 import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
-import "widgets/biometric_opt_in_dialog.dart";
 import "yivi_pin_screen.dart";
 
 class PinScreen extends ConsumerStatefulWidget {
@@ -79,7 +78,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
   void _handleStateChange(PinUnlockState state) {
     if (state.authenticated) {
       HapticFeedback.mediumImpact();
-      _maybeShowBiometricPrompt();
       widget.onAuthenticated();
       return;
     }
@@ -107,21 +105,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         .authenticateAndUnlock(localizedReason: reason);
   }
 
-  /// One-time opt-in shown on the first successful PIN unlock when biometric is
-  /// available but not yet enabled or declined.
-  void _maybeShowBiometricPrompt() {
-    if (!widget.allowBiometric || !mounted) return;
-    final available = ref.read(biometricAvailableProvider).value ?? false;
-    final enabled = ref.read(biometricEnabledProvider).value ?? false;
-    final dismissed = ref.read(biometricPromptDismissedProvider).value ?? false;
-    if (!available || enabled || dismissed) return;
-
-    // Shared Yivi-styled dialog (also used by enrollment). Roots on the root
-    // navigator, so it survives the lock overlay being removed when appLocked
-    // flips to false.
-    showBiometricOptInDialog(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.listen<PinUnlockState>(
@@ -144,8 +127,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     final biometricAvailable =
         ref.watch(biometricAvailableProvider).value ?? false;
     final biometricEnabled = ref.watch(biometricEnabledProvider).value ?? false;
-    // Warm the dismissed flag so _maybeShowBiometricPrompt can read it.
-    ref.watch(biometricPromptDismissedProvider);
     final showBiometric =
         widget.allowBiometric && biometricAvailable && biometricEnabled;
 

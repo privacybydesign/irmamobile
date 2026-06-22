@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -41,8 +43,10 @@ class _BiometricOptInDialogState extends ConsumerState<_BiometricOptInDialog> {
       ),
     );
     if (ok) {
-      await service.setEnabled(true);
-      await service.dismissPrompt();
+      // Persist in the background (the pref's in-memory value updates
+      // synchronously); closing the dialog shouldn't block on disk I/O.
+      unawaited(service.setEnabled(true));
+      unawaited(service.dismissPrompt());
     }
     // Success or failure, the question is answered for now: close. On failure
     // `dismissed` stays unset, so the prompt can re-appear at the next lock.

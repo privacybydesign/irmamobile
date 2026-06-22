@@ -7,6 +7,7 @@ import "package:flutter/cupertino.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:local_auth/local_auth.dart";
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/models/session.dart";
@@ -17,6 +18,7 @@ import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_scree
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
+import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/util/test_detection.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
@@ -33,6 +35,7 @@ import "package:yivi_core/yivi_core.dart";
 
 import "../irma_binding.dart";
 import "../util.dart";
+import "fake_local_auth.dart";
 import "fake_rooted_device_detector.dart";
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
@@ -62,6 +65,10 @@ Future<void> pumpYiviApp(
   List<Override>? providerOverrides,
   bool isDeviceRooted = false,
   Duration? idleLockThreshold,
+  // Biometric is off by default in tests (unavailable fake), so the opt-in
+  // prompt / button never appear and don't interfere. Biometric tests pass an
+  // available fake to opt in.
+  LocalAuthentication? localAuth,
 }) async {
   await tester.pumpWidgetAndSettle(
     ProviderScope(
@@ -72,6 +79,9 @@ Future<void> pumpYiviApp(
           FakeRootedDeviceDetector(rooted: isDeviceRooted),
         ),
         ocrProcessorProvider.overrideWithValue(GoogleMLKitOcrProcessor()),
+        localAuthProvider.overrideWithValue(
+          localAuth ?? FakeLocalAuthentication(available: false),
+        ),
         if (providerOverrides != null) ...providerOverrides,
       ],
       child: TestContext(
@@ -98,6 +108,7 @@ Future<void> pumpAndUnlockApp(
   List<Override>? providerOverrides,
   bool isDeviceRooted = false,
   Duration? idleLockThreshold,
+  LocalAuthentication? localAuth,
 }) async {
   await pumpYiviApp(
     tester,
@@ -106,6 +117,7 @@ Future<void> pumpAndUnlockApp(
     providerOverrides: providerOverrides,
     isDeviceRooted: isDeviceRooted,
     idleLockThreshold: idleLockThreshold,
+    localAuth: localAuth,
   );
   await unlockAndWaitForHome(tester);
 }

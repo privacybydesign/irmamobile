@@ -44,11 +44,20 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
     ref.onDispose(sub.cancel);
 
     // Seed blocked-until if the keyshare server already has us blocked.
-    repo.getBlockTime().first.then((blockedUntil) {
+    // A cancel-on-dispose subscription (cancelled after the first value),
+    // not a fire-and-forget `.first`: getBlockTime() is an unseeded subject
+    // that never emits during enrollment, so a pending `.first` throws
+    // "Bad state: No element" when the repo is closed (test teardown) before
+    // any block arrives.
+    StreamSubscription<DateTime?>? blockSub;
+    blockSub = repo.getBlockTime().listen((blockedUntil) {
+      blockSub?.cancel();
+      blockSub = null;
       if (blockedUntil != null) {
         state = PinUnlockState(blockedUntil: blockedUntil);
       }
     });
+    ref.onDispose(() => blockSub?.cancel());
 
     return const PinUnlockState();
   }

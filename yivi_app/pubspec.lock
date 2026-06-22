@@ -526,7 +526,7 @@ packages:
     source: hosted
     version: "5.1.1"
   local_auth:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: local_auth
       sha256: "434d854cf478f17f12ab29a76a02b3067f86a63a6d6c4eb8fbfdcfe4879c1b7b"
