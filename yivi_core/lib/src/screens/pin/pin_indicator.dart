@@ -1,5 +1,21 @@
 part of "yivi_pin_screen.dart";
 
+/// A "back" ease-out with a bigger overshoot than [Curves.easeOutBack] (~10%):
+/// the filled dot jumps ~58% past its size before settling, so the fill reads
+/// as a pop. `s` is the overshoot strength.
+class _DotPopCurve extends Curve {
+  const _DotPopCurve();
+
+  @override
+  double transformInternal(double t) {
+    const s = 5.5;
+    final u = t - 1.0;
+    return u * u * ((s + 1) * u + s) + 1.0;
+  }
+}
+
+const _dotPop = _DotPopCurve();
+
 class _PinIndicator extends StatelessWidget {
   final int maxPinSize;
   final ValueNotifier<bool> pinVisibilityValue;
@@ -98,15 +114,30 @@ class _PinIndicator extends StatelessWidget {
                         : style,
                   ),
                 ),
-                if (i < pinSize)
-                  Container(
-                    constraints: constraints,
-                    decoration: circleFilledDecoration,
-                  ),
-                if (isMaxPin5 && i >= pinSize)
+                // Short PIN: a static ring sits under every slot; the solid
+                // dot grows in over it (and shrinks back out on backspace).
+                // Long PIN: no ring, and each dot just pops in on its own
+                // mount — backspace unmounts it, so no exit animation there.
+                if (isMaxPin5)
                   Container(
                     constraints: constraints,
                     decoration: circleOutlinedDecoration,
+                  ),
+                if (isMaxPin5 || i < pinSize)
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: i < pinSize ? 1.0 : 0.0),
+                    duration: const Duration(milliseconds: 420),
+                    curve: _dotPop,
+                    // Clamp at 0: the pop overshoots past the dot's size on the
+                    // way in, but on backspace the same overshoot would dip
+                    // below 0 (a mirror-flip) — clamp keeps the exit a clean
+                    // shrink.
+                    builder: (_, scale, child) =>
+                        Transform.scale(scale: max(0.0, scale), child: child),
+                    child: Container(
+                      constraints: constraints,
+                      decoration: circleFilledDecoration,
+                    ),
                   ),
               ],
             ),

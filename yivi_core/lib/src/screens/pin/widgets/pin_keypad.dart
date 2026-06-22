@@ -120,38 +120,34 @@ class _PinKeypadKey extends StatelessWidget {
     return Semantics(
       label: number.toString(),
       button: true,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: (() => onEnterNumber(number)).haptic,
-          child: ExcludeSemantics(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
+      child: _PressableCircle(
+        onTap: () => onEnterNumber(number),
+        child: ExcludeSemantics(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: _PinKeypadScalableText(
+                  "$number",
+                  heightFactor: (subtitle != null) ? heightFactor : .45,
+                  textStyle: bigNumberTextStyle,
+                ),
+              ),
+              if (subtitle != null)
                 Flexible(
                   child: _PinKeypadScalableText(
-                    "$number",
-                    heightFactor: (subtitle != null) ? heightFactor : .45,
-                    textStyle: bigNumberTextStyle,
-                  ),
-                ),
-                if (subtitle != null)
-                  Flexible(
-                    child: _PinKeypadScalableText(
-                      subtitle!,
-                      heightFactor: 1.1 - heightFactor,
-                      textStyle: TextStyle(
-                        fontFamily: theme.secondaryFontFamily,
-                        color: theme.secondary,
-                        fontWeight: FontWeight.w400,
-                        height: 14.0 / 24.0,
-                      ),
+                    subtitle!,
+                    heightFactor: 1.1 - heightFactor,
+                    textStyle: TextStyle(
+                      fontFamily: theme.secondaryFontFamily,
+                      color: theme.secondary,
+                      fontWeight: FontWeight.w400,
+                      height: 14.0 / 24.0,
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
       ),
@@ -176,20 +172,118 @@ class _PinKeypadIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: callback.haptic,
-        child: IgnorePointer(
-          child: FractionallySizedBox(
-            heightFactor: heightFactor,
-            child: FittedBox(
-              fit: BoxFit.fitHeight,
-              child: Container(alignment: Alignment.center, child: child),
-            ),
+    return _PressableCircle(
+      onTap: callback,
+      child: IgnorePointer(
+        child: FractionallySizedBox(
+          heightFactor: heightFactor,
+          child: FittedBox(
+            fit: BoxFit.fitHeight,
+            child: Container(alignment: Alignment.center, child: child),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Circular tap target with iPhone-keypad feedback: the key grows and its
+/// background circle lights up on press, then settles back. The grow always
+/// runs to its peak before reversing — even a quick tap (down+up in a few ms)
+/// plays the full pop, where tying the animation to hold-duration would only
+/// show a stub. Every keypad key routes through this, so the feel is uniform
+/// and the haptic fires in one place.
+class _PressableCircle extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _PressableCircle({required this.child, required this.onTap});
+
+  @override
+  State<_PressableCircle> createState() => _PressableCircleState();
+}
+
+class _PressableCircleState extends State<_PressableCircle>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _press = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 130), // grow + light up
+    reverseDuration: const Duration(milliseconds: 260), // settle back
+  )..addStatusListener(_onStatus);
+
+  bool _held = false;
+
+  void _onStatus(AnimationStatus status) {
+    // Reached full grow: settle back unless the finger is still down (hold).
+    if (status == AnimationStatus.completed && !_held) _press.reverse();
+  }
+
+  void _down() {
+    _held = true;
+    _press.forward();
+  }
+
+  void _release() {
+    _held = false;
+    // If we're already at the peak, settle now; otherwise _onStatus does it
+    // once the grow finishes — so the pop is never cut short.
+    if (_press.status == AnimationStatus.completed) _press.reverse();
+  }
+
+  @override
+  void dispose() {
+    _press.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => _down(),
+      onTapUp: (_) => _release(),
+      onTapCancel: _release,
+      onTap: widget.onTap.haptic,
+      child: LayoutBuilder(
+        builder: (context, c) {
+          // Circle big enough to sit behind the digit AND the letters under
+          // it (a circle inscribed in the cell height narrows at top/bottom
+          // and clips them). Allowed to spill into the inter-row gaps via the
+          // OverflowBox, but capped at the key width so it never bleeds into
+          // the neighbouring keys.
+          final diameter = (c.maxHeight * 1.3).clamp(0.0, c.maxWidth);
+          return AnimatedBuilder(
+            animation: _press,
+            child: widget.child,
+            builder: (context, child) {
+              final t = Curves.easeOut.transform(_press.value);
+              return Transform.scale(
+                scale: 1 + 0.18 * t, // grow ~18%
+                child: Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip.none,
+                  children: [
+                    OverflowBox(
+                      maxWidth: double.infinity,
+                      maxHeight: double.infinity,
+                      child: Container(
+                        width: diameter,
+                        height: diameter,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          // up to ~28%
+                          color: theme.secondary.withAlpha((72 * t).round()),
+                        ),
+                      ),
+                    ),
+                    child!,
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
