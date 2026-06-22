@@ -13,7 +13,22 @@ import "../../../util/haptics.dart";
 class PinKeypad extends StatelessWidget {
   final void Function(int) onEnterNumber;
 
-  const PinKeypad({super.key, required this.onEnterNumber});
+  /// When non-null, the bottom-left slot (otherwise empty) becomes a biometric
+  /// unlock button. Only the app-unlock flow passes this; session/enrollment
+  /// leave it null so the slot stays empty.
+  final VoidCallback? onBiometricUnlock;
+
+  /// Icon for that biometric button — fingerprint or face, chosen by the host
+  /// from the device's enrolled biometric types. Ignored when
+  /// [onBiometricUnlock] is null.
+  final IconData biometricIcon;
+
+  const PinKeypad({
+    super.key,
+    required this.onEnterNumber,
+    this.onBiometricUnlock,
+    this.biometricIcon = Icons.fingerprint,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +37,18 @@ class PinKeypad extends StatelessWidget {
       [_key(4, "GHI"), _key(5, "JKL"), _key(6, "MNO")],
       [_key(7, "PQRS"), _key(8, "TUV"), _key(9, "WXYZ")],
       [
-        const SizedBox.shrink(),
+        if (onBiometricUnlock == null)
+          const SizedBox.shrink()
+        else
+          Semantics(
+            button: true,
+            label: FlutterI18n.translate(context, "pin.biometric_button"),
+            child: _PinKeypadIcon(
+              key: const Key("pin_biometric_button"),
+              icon: biometricIcon,
+              callback: onBiometricUnlock!,
+            ),
+          ),
         _key(0),
         Semantics(
           button: true,
@@ -135,7 +161,7 @@ class _PinKeypadIcon extends StatelessWidget {
   final IconData icon;
   final VoidCallback callback;
 
-  const _PinKeypadIcon({required this.icon, required this.callback});
+  const _PinKeypadIcon({super.key, required this.icon, required this.callback});
 
   @override
   Widget build(BuildContext context) {

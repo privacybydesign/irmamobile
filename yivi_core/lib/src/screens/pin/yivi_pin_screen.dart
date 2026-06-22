@@ -62,10 +62,15 @@ class YiviPinScreen extends StatefulWidget {
   final StringCallback onSubmit;
   final VoidCallback? onForgotPin;
 
-  /// When non-null, a biometric-unlock button is shown below the forgot-PIN
-  /// link. Only the app-unlock flow passes this; enrollment/change-pin leave
-  /// it null so no button renders.
+  /// When non-null, a biometric-unlock button fills the keypad's bottom-left
+  /// slot. Only the app-unlock flow passes this; enrollment/change-pin leave
+  /// it null so the slot stays empty.
   final VoidCallback? onBiometricUnlock;
+
+  /// Icon for the biometric button (fingerprint vs face), chosen by the host
+  /// from the device's enrolled biometric types. Ignored when
+  /// [onBiometricUnlock] is null.
+  final IconData biometricIcon;
   final VoidCallback? onTogglePinSize;
   final bool displayPinLength;
   final bool checkSecurePin;
@@ -85,6 +90,7 @@ class YiviPinScreen extends StatefulWidget {
     required this.onSubmit,
     this.onForgotPin,
     this.onBiometricUnlock,
+    this.biometricIcon = Icons.fingerprint,
     this.displayPinLength = false,
     this.onTogglePinSize,
     this.checkSecurePin = false,
@@ -181,7 +187,6 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
             label: FlutterI18n.translate(context, "pin.button_forgot"),
           ),
         ),
-      if (widget.onBiometricUnlock != null) _buildBiometricButton(context),
       _buildNextButton(),
     ];
 
@@ -217,6 +222,8 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
         Expanded(
           child: PinKeypad(
             onEnterNumber: widget.enabled ? _enterNumber : (_) {},
+            onBiometricUnlock: widget.onBiometricUnlock,
+            biometricIcon: widget.biometricIcon,
           ),
         ),
       ],
@@ -275,8 +282,6 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
                                     "pin.button_forgot",
                                   ),
                                 ),
-                              if (widget.onBiometricUnlock != null)
-                                _buildBiometricButton(context),
                             ],
                           ),
                         ),
@@ -291,6 +296,8 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
         Expanded(
           child: PinKeypad(
             onEnterNumber: widget.enabled ? _enterNumber : (_) {},
+            onBiometricUnlock: widget.onBiometricUnlock,
+            biometricIcon: widget.biometricIcon,
           ),
         ),
         if (widget.maxPinSize != shortPinSize)
@@ -435,17 +442,6 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
       _state.pin.length >= (shortPinSize == widget.maxPinSize ? 5 : 6),
       widget.submitButtonVisibilityListener?.call(context, _state) ??
           defaultSubmitButtonVisibility(context, widget.maxPinSize),
-    );
-  }
-
-  Widget _buildBiometricButton(BuildContext context) {
-    return Center(
-      child: TextButton.icon(
-        key: const Key("pin_biometric_button"),
-        onPressed: widget.onBiometricUnlock,
-        icon: const Icon(Icons.fingerprint),
-        label: Text(FlutterI18n.translate(context, "pin.biometric_button")),
-      ),
     );
   }
 

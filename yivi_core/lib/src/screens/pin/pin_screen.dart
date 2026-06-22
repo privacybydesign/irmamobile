@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:local_auth/local_auth.dart";
 
 import "../../models/session.dart";
 import "../../providers/preferences_provider.dart";
@@ -14,6 +15,11 @@ import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
 import "yivi_pin_screen.dart";
+
+/// Maps the device's biometric type to the keypad button icon; fingerprint is
+/// the fallback (Touch ID, fingerprint sensors, unknown/null).
+IconData _iconForBiometric(BiometricType? type) =>
+    type == BiometricType.face ? Icons.face : Icons.fingerprint;
 
 class PinScreen extends ConsumerStatefulWidget {
   final Function() onAuthenticated;
@@ -129,6 +135,9 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     final biometricEnabled = ref.watch(biometricEnabledProvider).value ?? false;
     final showBiometric =
         widget.allowBiometric && biometricAvailable && biometricEnabled;
+    final biometricIcon = _iconForBiometric(
+      ref.watch(biometricTypeProvider).value,
+    );
 
     var subtitle = FlutterI18n.translate(context, "pin.subtitle");
     if (blockedFor.inSeconds > 0) {
@@ -157,6 +166,7 @@ class _PinScreenState extends ConsumerState<PinScreen> {
             enabled: enabled,
             onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
             onBiometricUnlock: showBiometric ? _biometricUnlock : null,
+            biometricIcon: biometricIcon,
             listener: (context, pinState) {
               if (maxPinSize == shortPinSize &&
                   pinState.pin.length == maxPinSize &&

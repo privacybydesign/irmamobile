@@ -25,6 +25,23 @@ final biometricAvailableProvider = FutureProvider<bool>((ref) async {
   }
 });
 
+/// The device's primary enrolled biometric type — face for Face ID / face
+/// unlock, fingerprint for Touch ID and fingerprint sensors, null if none or
+/// only Android's generic strong/weak (where the OS hides the sensor). The UI
+/// maps this to an icon. Differs per platform for free — iOS reports `face`
+/// for Face ID and `fingerprint` for Touch ID.
+final biometricTypeProvider = FutureProvider<BiometricType?>((ref) async {
+  final auth = ref.watch(localAuthProvider);
+  try {
+    final enrolled = await auth.getAvailableBiometrics();
+    if (enrolled.contains(BiometricType.face)) return BiometricType.face;
+    if (enrolled.contains(BiometricType.fingerprint)) {
+      return BiometricType.fingerprint;
+    }
+  } catch (_) {}
+  return null;
+});
+
 /// Whether the user opted in to biometric unlock (pref-backed, default off).
 final biometricEnabledProvider = StreamProvider<bool>(
   (ref) => ref.watch(preferencesProvider).getBiometricEnabled(),
