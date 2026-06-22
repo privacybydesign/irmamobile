@@ -2,10 +2,13 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_svg/flutter_svg.dart";
 import "package:local_auth/local_auth.dart";
 
+import "../../../package_name.dart";
 import "../../models/session.dart";
 import "../../providers/preferences_provider.dart";
+import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/pin_common/format_blocked_for.dart";
@@ -16,10 +19,19 @@ import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
 import "yivi_pin_screen.dart";
 
-/// Maps the device's biometric type to the keypad button icon; fingerprint is
-/// the fallback (Touch ID, fingerprint sensors, unknown/null).
-IconData _iconForBiometric(BiometricType? type) =>
-    type == BiometricType.face ? Icons.face : Icons.fingerprint;
+/// Builds the biometric button glyph for [type], tinted to the keypad colour:
+/// the Face ID asset for face unlock, the Material fingerprint icon otherwise
+/// (Touch ID, fingerprint sensors, unknown/null).
+Widget _biometricGlyph(BuildContext context, BiometricType? type) {
+  final color = IrmaTheme.of(context).secondary;
+  if (type == BiometricType.face) {
+    return SvgPicture.asset(
+      yiviAsset("ui/face_id.svg"),
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+    );
+  }
+  return Icon(Icons.fingerprint, color: color);
+}
 
 class PinScreen extends ConsumerStatefulWidget {
   final Function() onAuthenticated;
@@ -135,9 +147,7 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     final biometricEnabled = ref.watch(biometricEnabledProvider).value ?? false;
     final showBiometric =
         widget.allowBiometric && biometricAvailable && biometricEnabled;
-    final biometricIcon = _iconForBiometric(
-      ref.watch(biometricTypeProvider).value,
-    );
+    final biometricType = ref.watch(biometricTypeProvider).value;
 
     var subtitle = FlutterI18n.translate(context, "pin.subtitle");
     if (blockedFor.inSeconds > 0) {
@@ -166,7 +176,9 @@ class _PinScreenState extends ConsumerState<PinScreen> {
             enabled: enabled,
             onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
             onBiometricUnlock: showBiometric ? _biometricUnlock : null,
-            biometricIcon: biometricIcon,
+            biometricGlyph: showBiometric
+                ? _biometricGlyph(context, biometricType)
+                : null,
             listener: (context, pinState) {
               if (maxPinSize == shortPinSize &&
                   pinState.pin.length == maxPinSize &&

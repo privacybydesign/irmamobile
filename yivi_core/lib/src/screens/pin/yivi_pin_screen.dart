@@ -67,10 +67,10 @@ class YiviPinScreen extends StatefulWidget {
   /// it null so the slot stays empty.
   final VoidCallback? onBiometricUnlock;
 
-  /// Icon for the biometric button (fingerprint vs face), chosen by the host
-  /// from the device's enrolled biometric types. Ignored when
+  /// Glyph for the biometric button (fingerprint icon vs Face ID asset), built
+  /// by the host from the device's enrolled biometric types. Ignored when
   /// [onBiometricUnlock] is null.
-  final IconData biometricIcon;
+  final Widget? biometricGlyph;
   final VoidCallback? onTogglePinSize;
   final bool displayPinLength;
   final bool checkSecurePin;
@@ -90,7 +90,7 @@ class YiviPinScreen extends StatefulWidget {
     required this.onSubmit,
     this.onForgotPin,
     this.onBiometricUnlock,
-    this.biometricIcon = Icons.fingerprint,
+    this.biometricGlyph,
     this.displayPinLength = false,
     this.onTogglePinSize,
     this.checkSecurePin = false,
@@ -223,7 +223,7 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
           child: PinKeypad(
             onEnterNumber: widget.enabled ? _enterNumber : (_) {},
             onBiometricUnlock: widget.onBiometricUnlock,
-            biometricIcon: widget.biometricIcon,
+            biometricGlyph: widget.biometricGlyph,
           ),
         ),
       ],
@@ -297,7 +297,7 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
           child: PinKeypad(
             onEnterNumber: widget.enabled ? _enterNumber : (_) {},
             onBiometricUnlock: widget.onBiometricUnlock,
-            biometricIcon: widget.biometricIcon,
+            biometricGlyph: widget.biometricGlyph,
           ),
         ),
         if (widget.maxPinSize != shortPinSize)

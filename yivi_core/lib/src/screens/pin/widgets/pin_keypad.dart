@@ -18,26 +18,27 @@ class PinKeypad extends StatelessWidget {
   /// leave it null so the slot stays empty.
   final VoidCallback? onBiometricUnlock;
 
-  /// Icon for that biometric button — fingerprint or face, chosen by the host
-  /// from the device's enrolled biometric types. Ignored when
-  /// [onBiometricUnlock] is null.
-  final IconData biometricIcon;
+  /// Glyph shown inside that biometric button (a fingerprint icon or the
+  /// Face ID asset), built and themed by the host. Rendered only alongside
+  /// [onBiometricUnlock].
+  final Widget? biometricGlyph;
 
   const PinKeypad({
     super.key,
     required this.onEnterNumber,
     this.onBiometricUnlock,
-    this.biometricIcon = Icons.fingerprint,
+    this.biometricGlyph,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     final rows = <List<Widget>>[
       [_key(1, ""), _key(2, "ABC"), _key(3, "DEF")],
       [_key(4, "GHI"), _key(5, "JKL"), _key(6, "MNO")],
       [_key(7, "PQRS"), _key(8, "TUV"), _key(9, "WXYZ")],
       [
-        if (onBiometricUnlock == null)
+        if (onBiometricUnlock == null || biometricGlyph == null)
           const SizedBox.shrink()
         else
           Semantics(
@@ -45,8 +46,9 @@ class PinKeypad extends StatelessWidget {
             label: FlutterI18n.translate(context, "pin.biometric_button"),
             child: _PinKeypadIcon(
               key: const Key("pin_biometric_button"),
-              icon: biometricIcon,
               callback: onBiometricUnlock!,
+              heightFactor: .6,
+              child: biometricGlyph!,
             ),
           ),
         _key(0),
@@ -54,8 +56,8 @@ class PinKeypad extends StatelessWidget {
           button: true,
           label: FlutterI18n.translate(context, "pin_accessibility.backspace"),
           child: _PinKeypadIcon(
-            icon: Icons.backspace_outlined,
             callback: () => onEnterNumber(-1),
+            child: Icon(Icons.backspace_outlined, color: theme.secondary),
           ),
         ),
       ],
@@ -158,14 +160,22 @@ class _PinKeypadKey extends StatelessWidget {
 }
 
 class _PinKeypadIcon extends StatelessWidget {
-  final IconData icon;
+  final Widget child;
   final VoidCallback callback;
 
-  const _PinKeypadIcon({super.key, required this.icon, required this.callback});
+  /// Fraction of the cell height the glyph fills. Backspace uses the default;
+  /// the biometric button overrides it larger.
+  final double heightFactor;
+
+  const _PinKeypadIcon({
+    super.key,
+    required this.child,
+    required this.callback,
+    this.heightFactor = .5,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -173,13 +183,10 @@ class _PinKeypadIcon extends StatelessWidget {
         onTap: callback.haptic,
         child: IgnorePointer(
           child: FractionallySizedBox(
-            heightFactor: .5,
+            heightFactor: heightFactor,
             child: FittedBox(
               fit: BoxFit.fitHeight,
-              child: Container(
-                alignment: Alignment.center,
-                child: Icon(icon, color: theme.secondary),
-              ),
+              child: Container(alignment: Alignment.center, child: child),
             ),
           ),
         ),
