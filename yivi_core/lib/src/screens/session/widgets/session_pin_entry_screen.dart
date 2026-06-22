@@ -15,6 +15,7 @@ import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../../../widgets/pin_common/pin_wrong_blocked.dart";
+import "../../pin/widgets/pin_hardware_keyboard_listener.dart";
 import "../../pin/widgets/pin_keypad.dart";
 
 const _shortPinSize = 5;
@@ -160,23 +161,30 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
           ),
           child: _applyTabletSupport(
             context,
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                OrientationBuilder(
-                  builder: (context, orientation) {
-                    if (orientation == Orientation.landscape) {
-                      return _buildLandscape(context);
-                    }
-                    return _buildPortrait(context);
-                  },
-                ),
-                if (widget.submitting)
-                  Padding(
-                    padding: EdgeInsets.all(theme.defaultSpacing),
-                    child: const CircularProgressIndicator(),
+            PinHardwareKeyboardListener(
+              onEnterNumber: _onNumberEntered,
+              onSubmit: () {
+                // Enter submits the 16-digit PIN; short PINs auto-submit.
+                if (_canSubmitLongPin && _enabled) _submit();
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  OrientationBuilder(
+                    builder: (context, orientation) {
+                      if (orientation == Orientation.landscape) {
+                        return _buildLandscape(context);
+                      }
+                      return _buildPortrait(context);
+                    },
                   ),
-              ],
+                  if (widget.submitting)
+                    Padding(
+                      padding: EdgeInsets.all(theme.defaultSpacing),
+                      child: const CircularProgressIndicator(),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
