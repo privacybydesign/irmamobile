@@ -13,7 +13,6 @@ import "../../widgets/pin_common/pin_wrong_blocked.dart";
 import "../error/session_error_screen.dart";
 import "providers/biometric_provider.dart";
 import "providers/pin_unlock_provider.dart";
-import "widgets/pin_hardware_keyboard_listener.dart";
 import "yivi_pin_screen.dart";
 
 class PinScreen extends ConsumerStatefulWidget {
@@ -45,28 +44,6 @@ class PinScreen extends ConsumerStatefulWidget {
 }
 
 class _PinScreenState extends ConsumerState<PinScreen> {
-  // The digit buffer is held here, not built inside the body, so stream
-  // emissions (auth state, blocked countdown) no longer recreate it and wipe
-  // the dots mid-entry (#508). It survives rebuilds and is only swapped when
-  // the user's PIN-length preference actually flips.
-  int? _maxPinSize;
-  EnterPinStateBloc? _entryBloc;
-
-  EnterPinStateBloc _entryBlocFor(int maxPinSize) {
-    if (_entryBloc == null || _maxPinSize != maxPinSize) {
-      _entryBloc?.close();
-      _maxPinSize = maxPinSize;
-      _entryBloc = EnterPinStateBloc(maxPinSize);
-    }
-    return _entryBloc!;
-  }
-
-  @override
-  void dispose() {
-    _entryBloc?.close();
-    super.dispose();
-  }
-
   void _showWrongAttemptsDialog(int attemptsRemaining) {
     if (!mounted) return;
     showDialog(
@@ -186,7 +163,6 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     final maxPinSize = (ref.watch(longPinProvider).value ?? false)
         ? longPinSize
         : shortPinSize;
-    final entryBloc = _entryBlocFor(maxPinSize);
 
     final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
     final enabled = blockedFor.inSeconds <= 0 && !state.authenticateInProgress;
@@ -216,39 +192,26 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         hasBorder: false,
         leading: widget.leading,
       ),
-      body: PinHardwareKeyboardListener(
-        onEnterNumber: enabled ? entryBloc.add : (_) {},
-        onSubmit: () {
-          // Enter submits the 16-digit PIN (short PINs auto-submit on the
-          // last digit). Mirrors the submit-button enablement.
-          if (enabled &&
-              maxPinSize == longPinSize &&
-              entryBloc.state.pin.length >= 6) {
-            submit(entryBloc.state.toString());
-          }
-        },
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            YiviPinScreen(
-              instruction: subtitle,
-              maxPinSize: maxPinSize,
-              onSubmit: enabled ? submit : (_) {},
-              pinBloc: entryBloc,
-              enabled: enabled,
-              onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
-              onBiometricUnlock: showBiometric ? _biometricUnlock : null,
-              listener: (context, pinState) {
-                if (maxPinSize == shortPinSize &&
-                    pinState.pin.length == maxPinSize &&
-                    enabled) {
-                  submit(pinState.toString());
-                }
-              },
-            ),
-            if (state.authenticateInProgress) const CircularProgressIndicator(),
-          ],
-        ),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          YiviPinScreen(
+            instruction: subtitle,
+            maxPinSize: maxPinSize,
+            onSubmit: enabled ? submit : (_) {},
+            enabled: enabled,
+            onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
+            onBiometricUnlock: showBiometric ? _biometricUnlock : null,
+            listener: (context, pinState) {
+              if (maxPinSize == shortPinSize &&
+                  pinState.pin.length == maxPinSize &&
+                  enabled) {
+                submit(pinState.toString());
+              }
+            },
+          ),
+          if (state.authenticateInProgress) const CircularProgressIndicator(),
+        ],
       ),
     );
   }

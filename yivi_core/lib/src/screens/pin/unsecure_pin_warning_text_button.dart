@@ -1,12 +1,14 @@
 part of "yivi_pin_screen.dart";
 
 class _UnsecurePinWarningTextButton extends StatelessWidget {
-  final EnterPinStateBloc bloc;
+  final EnterPinState state;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final BuildContext context;
 
-  _UnsecurePinWarningTextButton({required this.scaffoldKey, required this.bloc})
-    : context = scaffoldKey.currentContext!;
+  _UnsecurePinWarningTextButton({
+    required this.scaffoldKey,
+    required this.state,
+  }) : context = scaffoldKey.currentContext!;
 
   void _showSecurePinRules(EnterPinState state) {
     final theme = IrmaTheme.of(context);
@@ -51,30 +53,25 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return BlocBuilder<EnterPinStateBloc, EnterPinState>(
-      bloc: bloc,
-      builder: (context, state) {
-        return Center(
-          child: TextButton(
-            onPressed: () => _showSecurePinRules(state),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  FlutterI18n.translate(context, "secure_pin.info_button"),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.warning,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(width: 2.0),
-                Icon(Icons.info_outlined, color: theme.warning),
-              ],
+    return Center(
+      child: TextButton(
+        onPressed: () => _showSecurePinRules(state),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              FlutterI18n.translate(context, "secure_pin.info_button"),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.warning,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-        );
-      },
+            const SizedBox(width: 2.0),
+            Icon(Icons.info_outlined, color: theme.warning),
+          ],
+        ),
+      ),
     );
   }
 }

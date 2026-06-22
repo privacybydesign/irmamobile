@@ -43,13 +43,11 @@ class YiviBasicPinScaffold extends StatelessWidget {
           final maxPinSize = (snapshot.data ?? false)
               ? longPinSize
               : shortPinSize;
-          final pinBloc = EnterPinStateBloc(maxPinSize);
 
           return YiviPinScreen(
             instructionKey: instructionKey,
             maxPinSize: maxPinSize,
             onSubmit: submit,
-            pinBloc: pinBloc,
             listener: (context, state) {
               if (maxPinSize == shortPinSize &&
                   state.pin.length == maxPinSize) {

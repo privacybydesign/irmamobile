@@ -63,7 +63,10 @@ class PinUnlockNotifier extends Notifier<PinUnlockState> {
     state = switch (event) {
       AuthenticationSuccessEvent() => const PinUnlockState(authenticated: true),
       // To have some timing slack we add some time to the blocked duration.
-      AuthenticationFailedEvent(:final remainingAttempts, :final blockedDuration)
+      AuthenticationFailedEvent(
+        :final remainingAttempts,
+        :final blockedDuration,
+      )
           when blockedDuration > 0 =>
         PinUnlockState(
           pinInvalid: true,
@@ -89,7 +92,9 @@ final pinUnlockProvider = NotifierProvider<PinUnlockNotifier, PinUnlockState>(
 /// Seconds remaining until the PIN can be tried again, ticking down once a
 /// second. Derived from [PinUnlockState.blockedUntil] — recomputed (and the
 /// old ticker cancelled) whenever the block changes.
-final pinBlockedForProvider = StreamProvider.autoDispose<Duration>((ref) async* {
+final pinBlockedForProvider = StreamProvider.autoDispose<Duration>((
+  ref,
+) async* {
   final blockedUntil = ref.watch(
     pinUnlockProvider.select((s) => s.blockedUntil),
   );
