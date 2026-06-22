@@ -995,5 +995,9 @@
         "content": "Je staat op het punt om certificaten aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
       }
     }
+  },
+  "signature": {
+    "show_full": "Toon volledig bericht",
+    "show_less": "Toon minder"
   }
 }

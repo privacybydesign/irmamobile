@@ -982,5 +982,9 @@
         "content": "Sind Sie sicher, dass Sie alle Daten löschen möchten?"
       }
     }
+  },
+  "signature": {
+    "show_full": "Vollständige Nachricht anzeigen",
+    "show_less": "Weniger anzeigen"
   }
 }
