@@ -3,12 +3,13 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/session.dart";
+import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/theme.dart";
 import "qr_instruction.dart";
 import "qr_overlay.dart";
-import "qr_view_container.dart";
 
 class QRScanner extends StatefulWidget {
   final void Function(Pointer) onFound;
@@ -58,7 +59,10 @@ class QRScannerState extends State<QRScanner>
 
     return Stack(
       children: [
-        QRViewContainer(onFound: (qr) => _foundQR(qr)),
+        Consumer(
+          builder: (context, ref, _) =>
+              ref.watch(qrScannerFactoryProvider).build(onCodeFound: _foundQR),
+        ),
         Container(
           constraints: const BoxConstraints.expand(),
           child: CustomPaint(

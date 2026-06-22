@@ -60,6 +60,16 @@ class QROverlay extends CustomPainter {
       cornerColor = green;
     }
 
+    // Punch the scan window out of the dimming overlay using BlendMode.clear.
+    // This must happen inside its own offscreen layer: BlendMode.clear writes
+    // fully-transparent pixels into the layer it draws into, so without
+    // saveLayer it would clear against the opaque root surface and the hole
+    // would render as solid black (the camera preview is a sibling Flutter
+    // texture drawn below this painter, not a platform view behind the
+    // surface). saveLayer gives us a real RGBA buffer whose transparent hole
+    // composites correctly over the camera texture.
+    canvas.saveLayer(Offset.zero & size, Paint());
+
     // transparent overlay
     final paint = Paint()
       ..color = overlayColor.withAlpha(128)
@@ -84,6 +94,8 @@ class QROverlay extends CustomPainter {
     hole.lineTo(left, bottom);
     hole.close();
     canvas.drawPath(hole, clearPaint);
+
+    canvas.restore();
 
     // add decorative corners to the hole
     final cornerPaint = Paint()
