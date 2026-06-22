@@ -7,7 +7,6 @@ import "package:flutter_svg/flutter_svg.dart";
 
 import "../../../../package_name.dart";
 import "../../../theme/theme.dart";
-import "../../../util/haptics.dart";
 import "../../../util/navigation.dart";
 import "../../../util/scale.dart";
 import "../../../util/tablet.dart";
@@ -16,6 +15,7 @@ import "../../../widgets/irma_close_button.dart";
 import "../../../widgets/link.dart";
 import "../../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../../../widgets/pin_common/pin_wrong_blocked.dart";
+import "../../pin/widgets/pin_keypad.dart";
 
 const _shortPinSize = 5;
 const _longPinSize = 16;
@@ -240,7 +240,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
             },
           ),
         ),
-        Expanded(child: _SessionNumberPad(onEnterNumber: _onNumberEntered)),
+        Expanded(child: PinKeypad(onEnterNumber: _onNumberEntered)),
         // For long pin: visible next button at bottom
         if (_isLongPin)
           Padding(
@@ -286,7 +286,7 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
             },
           ),
         ),
-        Expanded(child: _SessionNumberPad(onEnterNumber: _onNumberEntered)),
+        Expanded(child: PinKeypad(onEnterNumber: _onNumberEntered)),
       ],
     );
   }
@@ -523,191 +523,6 @@ class _SessionPinIndicator extends StatelessWidget {
             ),
             growable: false,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Number pad
-// ---------------------------------------------------------------------------
-
-class _SessionNumberPad extends StatelessWidget {
-  final void Function(int) onEnterNumber;
-
-  const _SessionNumberPad({required this.onEnterNumber});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final keys = <Widget>[
-          _SessionNumberPadKey(onEnterNumber, 1, ""),
-          _SessionNumberPadKey(onEnterNumber, 2, "ABC"),
-          _SessionNumberPadKey(onEnterNumber, 3, "DEF"),
-          _SessionNumberPadKey(onEnterNumber, 4, "GHI"),
-          _SessionNumberPadKey(onEnterNumber, 5, "JKL"),
-          _SessionNumberPadKey(onEnterNumber, 6, "MNO"),
-          _SessionNumberPadKey(onEnterNumber, 7, "PQRS"),
-          _SessionNumberPadKey(onEnterNumber, 8, "TUV"),
-          _SessionNumberPadKey(onEnterNumber, 9, "WXYZ"),
-          SizedBox.fromSize(size: const Size.square(20)),
-          _SessionNumberPadKey(onEnterNumber, 0),
-          Semantics(
-            button: true,
-            label: FlutterI18n.translate(
-              context,
-              "pin_accessibility.backspace",
-            ),
-            child: _SessionNumberPadIcon(
-              icon: Icons.backspace_outlined,
-              callback: () => onEnterNumber(-1),
-            ),
-          ),
-        ];
-
-        final keyWidth = constraints.maxWidth / 3.0;
-        final keyHeight = constraints.maxHeight / 4.0;
-        final resizedKeyHeight = keyHeight * 0.8;
-
-        return Wrap(
-          alignment: WrapAlignment.center,
-          children: keys
-              .map(
-                (e) => Container(
-                  alignment: Alignment.topCenter,
-                  width: keyWidth,
-                  height: keyHeight,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints.tight(
-                      Size(keyWidth, resizedKeyHeight),
-                    ),
-                    child: e,
-                  ),
-                ),
-              )
-              .toList(),
-        );
-      },
-    );
-  }
-}
-
-class _SessionNumberPadKey extends StatelessWidget {
-  final int number;
-  final String? subtitle;
-  final void Function(int) onEnterNumber;
-
-  _SessionNumberPadKey(this.onEnterNumber, this.number, [this.subtitle])
-    : super(key: Key("session_number_pad_key_${number.toString()}"));
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    const heightFactor = 0.825;
-    final bigNumberTextStyle = TextStyle(
-      fontFamily: theme.secondaryFontFamily,
-      color: theme.secondary,
-      fontSize: 32,
-      height: 32 / 40,
-      fontWeight: FontWeight.w600,
-    );
-
-    return Semantics(
-      label: number.toString(),
-      button: true,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: (() => onEnterNumber(number)).haptic,
-          child: ExcludeSemantics(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: _ScalableText(
-                    "$number",
-                    heightFactor: (subtitle != null) ? heightFactor : .45,
-                    textStyle: bigNumberTextStyle,
-                  ),
-                ),
-                if (subtitle != null)
-                  Flexible(
-                    child: _ScalableText(
-                      subtitle!,
-                      heightFactor: 1.1 - heightFactor,
-                      textStyle: TextStyle(
-                        fontFamily: theme.secondaryFontFamily,
-                        color: theme.secondary,
-                        fontWeight: FontWeight.w400,
-                        height: 14.0 / 24.0,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SessionNumberPadIcon extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback callback;
-
-  const _SessionNumberPadIcon({required this.icon, required this.callback});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: callback.haptic,
-        child: IgnorePointer(
-          child: FractionallySizedBox(
-            heightFactor: .5,
-            child: FittedBox(
-              fit: BoxFit.fitHeight,
-              child: Container(
-                alignment: Alignment.center,
-                child: Icon(icon, color: theme.secondary),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ScalableText extends StatelessWidget {
-  final String string;
-  final TextStyle textStyle;
-  final double heightFactor;
-
-  const _ScalableText(
-    this.string, {
-    required this.heightFactor,
-    required this.textStyle,
-  }) : assert(heightFactor < 1.0);
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) => SizedBox(
-        height: constraints.maxHeight * heightFactor,
-        width: constraints.maxWidth,
-        child: FittedBox(
-          fit: BoxFit.fitHeight,
-          child: Text(string, textAlign: TextAlign.center, style: textStyle),
         ),
       ),
     );

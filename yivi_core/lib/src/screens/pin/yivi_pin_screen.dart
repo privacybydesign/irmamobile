@@ -9,20 +9,16 @@ import "package:flutter_svg/flutter_svg.dart";
 
 import "../../../package_name.dart";
 import "../../theme/theme.dart";
-import "../../util/haptics.dart";
 import "../../util/scale.dart";
 import "../../util/tablet.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/link.dart";
 import "../../widgets/yivi_bottom_sheet.dart";
 import "../../widgets/yivi_themed_button.dart";
+import "widgets/pin_keypad.dart";
 
 part "bloc/enter_pin_state.dart";
-part "number_pad.dart";
-part "number_pad_icon.dart";
-part "number_pad_key.dart";
 part "pin_indicator.dart";
-part "scalable_text.dart";
 part "secure_pin.dart";
 part "unsecure_pin_description_tile.dart";
 part "unsecure_pin_full_screen.dart";
@@ -178,7 +174,7 @@ class YiviPinScreen extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: _NumberPad(onEnterNumber: enabled ? pinBloc.add : (_) {}),
+          child: PinKeypad(onEnterNumber: enabled ? pinBloc.add : (_) {}),
         ),
       ],
     );
@@ -248,7 +244,7 @@ class YiviPinScreen extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: _NumberPad(onEnterNumber: enabled ? pinBloc.add : (_) {}),
+          child: PinKeypad(onEnterNumber: enabled ? pinBloc.add : (_) {}),
         ),
         if (maxPinSize != shortPinSize)
           Padding(
