@@ -7,7 +7,13 @@ import "package:yivi_core/src/screens/pin/widgets/pin_keypad.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
 void main() {
-  testWidgets("pressing a key animates the press feedback", (tester) async {
+  Future<void> pumpKeypad(
+    WidgetTester tester, {
+    void Function(int)? onDigitPressed,
+    VoidCallback? onDigitReleased,
+    VoidCallback? onDigitCancelled,
+    VoidCallback? onBackspace,
+  }) async {
     await tester.pumpWidget(
       IrmaTheme(
         builder: (_) => MaterialApp(
@@ -26,13 +32,22 @@ void main() {
             body: SizedBox(
               width: 300,
               height: 400,
-              child: PinKeypad(onEnterNumber: (_) {}),
+              child: PinKeypad(
+                onDigitPressed: onDigitPressed ?? (_) {},
+                onDigitReleased: onDigitReleased ?? () {},
+                onDigitCancelled: onDigitCancelled ?? () {},
+                onBackspace: onBackspace ?? () {},
+              ),
             ),
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
+  }
+
+  testWidgets("pressing a key animates the press feedback", (tester) async {
+    await pumpKeypad(tester);
 
     final key1 = find.byKey(const Key("number_pad_key_1"));
     expect(key1, findsOneWidget);
@@ -60,5 +75,52 @@ void main() {
     expect(before, closeTo(1.0, 0.001));
     expect(peak, greaterThan(1.1)); // visibly grew even on a quick tap
     expect(after, closeTo(1.0, 0.001)); // settled back
+  });
+
+  testWidgets("digit fires pressed on down and released on up", (tester) async {
+    final pressed = <int>[];
+    var released = 0;
+    var cancelled = 0;
+    await pumpKeypad(
+      tester,
+      onDigitPressed: pressed.add,
+      onDigitReleased: () => released++,
+      onDigitCancelled: () => cancelled++,
+    );
+
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byKey(const Key("number_pad_key_7"))),
+    );
+    await tester.pump();
+    expect(pressed, [7]); // dot shows on press-down
+    expect(released, 0); // not committed yet
+
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(released, 1); // committed on release
+    expect(cancelled, 0);
+  });
+
+  testWidgets("a cancelled press undoes the digit", (tester) async {
+    final pressed = <int>[];
+    var released = 0;
+    var cancelled = 0;
+    await pumpKeypad(
+      tester,
+      onDigitPressed: pressed.add,
+      onDigitReleased: () => released++,
+      onDigitCancelled: () => cancelled++,
+    );
+
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.byKey(const Key("number_pad_key_3"))),
+    );
+    await tester.pump();
+    expect(pressed, [3]);
+
+    await gesture.cancel(); // finger slides off / arena lost
+    await tester.pumpAndSettle();
+    expect(cancelled, 1); // dot removed
+    expect(released, 0); // never committed
   });
 }

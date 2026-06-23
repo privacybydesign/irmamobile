@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../theme/theme.dart";
@@ -6,12 +7,22 @@ import "../../../util/haptics.dart";
 
 /// The shared PIN number pad: digits 0-9 plus a backspace key.
 ///
-/// [onEnterNumber] is called with 0-9 for a digit and -1 for backspace — the
-/// same contract the unlock (`YiviPinScreen`) and session
-/// (`SessionPinEntryScreen`) flows already used, so both render this one
-/// widget instead of their own byte-identical copies.
+/// Digit keys report their full press lifecycle: [onDigitPressed] on press-down
+/// (show the dot + haptic), [onDigitReleased] on release (commit — the final
+/// digit submits here), and [onDigitCancelled] if the press is cancelled (undo
+/// the dot). Backspace is a plain tap ([onBackspace]).
 class PinKeypad extends StatelessWidget {
-  final void Function(int) onEnterNumber;
+  /// A digit (0-9) was pressed down.
+  final void Function(int) onDigitPressed;
+
+  /// The held digit key was released — commit it.
+  final VoidCallback onDigitReleased;
+
+  /// The held digit key's press was cancelled — undo it.
+  final VoidCallback onDigitCancelled;
+
+  /// Backspace key tapped.
+  final VoidCallback onBackspace;
 
   /// When non-null, the bottom-left slot (otherwise empty) becomes a biometric
   /// unlock button. Only the app-unlock flow passes this; session/enrollment
@@ -25,7 +36,10 @@ class PinKeypad extends StatelessWidget {
 
   const PinKeypad({
     super.key,
-    required this.onEnterNumber,
+    required this.onDigitPressed,
+    required this.onDigitReleased,
+    required this.onDigitCancelled,
+    required this.onBackspace,
     this.onBiometricUnlock,
     this.biometricGlyph,
   });
@@ -56,7 +70,7 @@ class PinKeypad extends StatelessWidget {
           button: true,
           label: FlutterI18n.translate(context, "pin_accessibility.backspace"),
           child: _PinKeypadIcon(
-            callback: () => onEnterNumber(-1),
+            callback: onBackspace,
             child: Icon(Icons.backspace_outlined, color: theme.secondary),
           ),
         ),
@@ -89,17 +103,29 @@ class PinKeypad extends StatelessWidget {
     );
   }
 
-  Widget _key(int number, [String? subtitle]) =>
-      _PinKeypadKey(onEnterNumber, number, subtitle);
+  Widget _key(int number, [String? subtitle]) => _PinKeypadKey(
+    onDigitPressed: onDigitPressed,
+    onDigitReleased: onDigitReleased,
+    onDigitCancelled: onDigitCancelled,
+    number: number,
+    subtitle: subtitle,
+  );
 }
 
 class _PinKeypadKey extends StatelessWidget {
   final int number;
   final String? subtitle;
-  final void Function(int) onEnterNumber;
+  final void Function(int) onDigitPressed;
+  final VoidCallback onDigitReleased;
+  final VoidCallback onDigitCancelled;
 
-  _PinKeypadKey(this.onEnterNumber, this.number, [this.subtitle])
-    : super(key: Key("number_pad_key_${number.toString()}"));
+  _PinKeypadKey({
+    required this.onDigitPressed,
+    required this.onDigitReleased,
+    required this.onDigitCancelled,
+    required this.number,
+    this.subtitle,
+  }) : super(key: Key("number_pad_key_${number.toString()}"));
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +147,10 @@ class _PinKeypadKey extends StatelessWidget {
       label: number.toString(),
       button: true,
       child: _PressableCircle(
-        onTap: () => onEnterNumber(number),
+        hapticOnDown: true,
+        onPressDown: () => onDigitPressed(number),
+        onPressCancel: onDigitCancelled,
+        onTap: onDigitReleased,
         child: ExcludeSemantics(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -191,13 +220,25 @@ class _PinKeypadIcon extends StatelessWidget {
 /// background circle lights up on press, then settles back. The grow always
 /// runs to its peak before reversing — even a quick tap (down+up in a few ms)
 /// plays the full pop, where tying the animation to hold-duration would only
-/// show a stub. Every keypad key routes through this, so the feel is uniform
-/// and the haptic fires in one place.
+/// show a stub. Every keypad key routes through this, so the feel is uniform.
+///
+/// Digit keys set [hapticOnDown] (haptic + [onPressDown] fire on press-down,
+/// [onTap] commits on release, [onPressCancel] undoes a cancelled press).
+/// Backspace/biometric leave it false: haptic + [onTap] fire on release.
 class _PressableCircle extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
+  final VoidCallback? onPressDown;
+  final VoidCallback? onPressCancel;
+  final bool hapticOnDown;
 
-  const _PressableCircle({required this.child, required this.onTap});
+  const _PressableCircle({
+    required this.child,
+    required this.onTap,
+    this.onPressDown,
+    this.onPressCancel,
+    this.hapticOnDown = false,
+  });
 
   @override
   State<_PressableCircle> createState() => _PressableCircleState();
@@ -221,6 +262,8 @@ class _PressableCircleState extends State<_PressableCircle>
   void _down() {
     _held = true;
     _press.forward();
+    if (widget.hapticOnDown) HapticFeedback.lightImpact();
+    widget.onPressDown?.call();
   }
 
   void _release() {
@@ -228,6 +271,11 @@ class _PressableCircleState extends State<_PressableCircle>
     // If we're already at the peak, settle now; otherwise _onStatus does it
     // once the grow finishes — so the pop is never cut short.
     if (_press.status == AnimationStatus.completed) _press.reverse();
+  }
+
+  void _cancel() {
+    _release();
+    widget.onPressCancel?.call();
   }
 
   @override
@@ -243,8 +291,8 @@ class _PressableCircleState extends State<_PressableCircle>
       behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _down(),
       onTapUp: (_) => _release(),
-      onTapCancel: _release,
-      onTap: widget.onTap.haptic,
+      onTapCancel: _cancel,
+      onTap: widget.hapticOnDown ? widget.onTap : widget.onTap.haptic,
       child: LayoutBuilder(
         builder: (context, c) {
           // Circle big enough to sit behind the digit AND the letters under

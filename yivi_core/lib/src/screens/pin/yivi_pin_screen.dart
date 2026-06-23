@@ -136,20 +136,44 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     super.dispose();
   }
 
-  /// Handles a digit (0-9) or backspace (-1) from either the number pad or the
-  /// hardware keyboard. Synchronous: each event is applied to the current
-  /// state, so fast input can't drop digits (#481).
-  void _enterNumber(int event) {
+  /// Applies a digit (0-9) or backspace (-1) to the buffer and returns whether
+  /// it changed anything. Synchronous: each event is applied to the current
+  /// state, so fast input can't drop digits (#481). Does NOT notify the
+  /// listener — callers decide when the change is committed.
+  bool _applyNumber(int event) {
     final pin = Pin.from(_state.pin);
     if (event >= 0 && event < 10 && _state.pin.length < widget.maxPinSize) {
       pin.add(event);
     } else if (event.isNegative && _state.pin.isNotEmpty) {
       pin.removeLast();
     } else {
-      return;
+      return false;
     }
     setState(() => _state = EnterPinState.createFrom(pin: pin));
-    widget.listener?.call(context, _state);
+    return true;
+  }
+
+  /// Backspace and hardware-keyboard digits: apply and commit at once (no
+  /// press-and-cancel lifecycle).
+  void _enterNumber(int event) {
+    if (_applyNumber(event)) widget.listener?.call(context, _state);
+  }
+
+  // A keypad digit shows its dot on press-down and is only committed once the
+  // tap is released; a cancelled press (finger slides off) removes the dot
+  // again. So the final digit submits only on a real release, never a cancel.
+  bool _pressAddedDigit = false;
+
+  void _digitDown(int number) => _pressAddedDigit = _applyNumber(number);
+
+  void _digitUp() {
+    if (_pressAddedDigit) widget.listener?.call(context, _state);
+    _pressAddedDigit = false;
+  }
+
+  void _digitCancel() {
+    if (_pressAddedDigit) _applyNumber(-1);
+    _pressAddedDigit = false;
   }
 
   /// Enter key: submit when enough digits are present (short PINs auto-submit
@@ -202,11 +226,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           ),
         ),
         Expanded(
-          child: PinKeypad(
-            onEnterNumber: widget.enabled ? _enterNumber : (_) {},
-            onBiometricUnlock: widget.onBiometricUnlock,
-            biometricGlyph: widget.biometricGlyph,
-          ),
+          child: _buildKeypad(),
         ),
       ],
     );
@@ -221,17 +241,25 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       children: [
         Expanded(child: _buildTopColumn(context, showSecurePinText)),
         Expanded(
-          child: PinKeypad(
-            onEnterNumber: widget.enabled ? _enterNumber : (_) {},
-            onBiometricUnlock: widget.onBiometricUnlock,
-            biometricGlyph: widget.biometricGlyph,
-          ),
+          child: _buildKeypad(),
         ),
         Padding(
           padding: EdgeInsets.only(top: theme.screenPadding),
           child: _buildNextButton(),
         ),
       ],
+    );
+  }
+
+  Widget _buildKeypad() {
+    final enabled = widget.enabled;
+    return PinKeypad(
+      onDigitPressed: enabled ? _digitDown : (_) {},
+      onDigitReleased: enabled ? _digitUp : () {},
+      onDigitCancelled: enabled ? _digitCancel : () {},
+      onBackspace: enabled ? () => _enterNumber(-1) : () {},
+      onBiometricUnlock: widget.onBiometricUnlock,
+      biometricGlyph: widget.biometricGlyph,
     );
   }
 
