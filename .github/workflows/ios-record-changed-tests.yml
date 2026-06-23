@@ -72,6 +72,11 @@ jobs:
       PR_NUMBER: ${{ inputs.pr || github.event.pull_request.number }}
       BASE_REF: ${{ inputs.base || github.event.pull_request.base.ref }}
       TESTS_DIR: ${{ inputs.tests_dir || 'integration_test' }}
+      # Quiet the `brew install` steps below: skip auto-update, and silence the
+      # "untrusted tap" notice the runner's preinstalled taps (aws/tap, azure/bicep)
+      # emit — we only install from the core tap, so it's noise here.
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_REQUIRE_TAP_TRUST: "1"
 
     steps:
       - name: Check out PR head with full history + submodules
@@ -178,37 +183,56 @@ jobs:
             rel="${f#"${APP_DIR}"/}"
             slug=$(printf '%s' "$rel" | tr '/' '_' | sed 's/\.dart$//')
             out="../videos/${slug}.mov"
+            log="/tmp/${slug}.log"
+            rcf="/tmp/${slug}.rc"
             echo "::group::record $rel"
 
-            xcrun simctl io "$UDID" recordVideo --codec=h264 "$out" &
-            rec=$!
+            # `flutter test -d <sim>` does a multi-minute cold Xcode build BEFORE
+            # the app launches. We deliberately DON'T record that: it would bloat
+            # the video with an idle simulator, and — worse — the build saturates
+            # the CPU, which on this runner's software-rendered simulator tanks the
+            # capture frame rate. So: run the test in the background, wait for the
+            # "Xcode build done" marker, and only THEN start recording — from there
+            # the app installs, launches and runs the test, which is all we want on
+            # screen, with the CPU free so the simulator renders at a usable rate.
+            # -k 30: if the test ignores SIGTERM at the timeout, escalate to KILL.
+            : > "$log"
+            ( gtimeout -k 30 1200 flutter test "$rel" -d "$UDID" > "$log" 2>&1; echo $? > "$rcf" ) &
+            test_pid=$!
+            tail -f "$log" 2>/dev/null & tail_pid=$!
 
-            # A failing test must NOT abort the loop or the workflow — the whole
-            # point is to capture the video even (especially) when it fails, so a
-            # human can see what the bot's change actually does on screen.
-            # NOTE: this still includes the (slow) cold iOS build; a follow-up
-            # will split build (unrecorded) from the recorded test run.
-            # -k 30: if the test ignores SIGTERM, escalate to SIGKILL after 30s.
-            status="pass"
-            gtimeout -k 30 1200 flutter test "$rel" -d "$UDID" || status="fail"
+            rec=""
+            while kill -0 "$test_pid" 2>/dev/null; do
+              if grep -q "Xcode build done" "$log" 2>/dev/null; then
+                xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out" &
+                rec=$!
+                break
+              fi
+              sleep 2
+            done
+
+            # Wait for the test to finish; derive pass/fail from its exit code.
+            # A failure must NOT abort the loop — we want the video either way.
+            wait "$test_pid" 2>/dev/null || true
+            status="pass"; [ "$(cat "$rcf" 2>/dev/null || echo 1)" = "0" ] || status="fail"
             printf '%s\t%s\n' "$status" "$f" >> /tmp/results.tsv
 
             # Stop the recorder. SIGINT lets simctl flush the moov atom (SIGKILL
-            # would corrupt the file). By now the test has run for minutes, so the
-            # recorder is definitely up and will honour the signal. Wait a bounded
-            # time for the flush, then force-kill so a stuck recorder can never
-            # hang the step (the previous bug: an unbounded `wait`).
-            kill -INT "$rec" 2>/dev/null || true
-            for _ in $(seq 1 15); do
-              kill -0 "$rec" 2>/dev/null || break
-              sleep 1
-            done
-            kill -KILL "$rec" 2>/dev/null || true
-            wait "$rec" 2>/dev/null || true
+            # would corrupt the file). Bounded wait for the flush, then force-kill
+            # so a stuck recorder can never hang the step.
+            if [ -n "$rec" ]; then
+              kill -INT "$rec" 2>/dev/null || true
+              for _ in $(seq 1 15); do kill -0 "$rec" 2>/dev/null || break; sleep 1; done
+              kill -KILL "$rec" 2>/dev/null || true
+              wait "$rec" 2>/dev/null || true
+            else
+              echo "::warning::No 'Xcode build done' seen for $rel — build may have failed; no video recorded."
+            fi
+            kill "$tail_pid" 2>/dev/null || true
             echo "::endgroup::"
           done < /tmp/files.txt
 
-      - name: Compress .mov -> .mp4 (CRF 28) for sane file sizes
+      - name: Compress .mov -> .mp4 for sane file sizes
         if: always() && steps.tests.outputs.count != '0'
         shell: bash
         run: |
@@ -217,8 +241,14 @@ jobs:
           shopt -s nullglob
           for v in videos/*.mov; do
             out="${v%.mov}.mp4"
+            # CRF 20 keeps UI text crisp (readability matters for review); the clip
+            # is short now, so the file stays small. yuv420p = broad player support.
+            # fps=30 normalises simctl's variable frame rate to a steady cadence so
+            # playback isn't sped-up/janky. (True smoothness is capped by the CI
+            # simulator's render rate; add a minterpolate filter here if needed.)
             ffmpeg -y -loglevel error -i "$v" \
-              -vcodec libx264 -crf 28 -preset veryfast \
+              -vf "fps=30" -pix_fmt yuv420p \
+              -vcodec libx264 -crf 20 -preset veryfast \
               -movflags +faststart "$out" && rm "$v" || echo "::warning::compress failed for $v; keeping .mov"
           done
           ls -lh videos/ || true
