@@ -556,6 +556,7 @@
   },
   "pin": {
     "subtitle": "Voer je pincode in",
+    "unlock": "Ontgrendelen",
     "button_forgot": "Pincode vergeten",
     "button_block": "Yivi blokkeren",
     "biometric_button": "Ontgrendelen met biometrie",

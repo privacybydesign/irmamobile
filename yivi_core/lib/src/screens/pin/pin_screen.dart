@@ -186,6 +186,7 @@ class _PinScreenState extends ConsumerState<PinScreen> {
             child: YiviPinScreen(
               instruction: subtitle,
               maxPinSize: maxPinSize,
+              submitLabel: "pin.unlock",
               onSubmit: enabled ? submit : (_) {},
               enabled: enabled,
               onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,

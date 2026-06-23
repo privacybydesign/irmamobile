@@ -556,6 +556,7 @@
   },
   "pin": {
     "subtitle": "Geben Sie Ihre PIN ein",
+    "unlock": "Entsperren",
     "button_forgot": "PIN vergessen",
     "button_block": "Yivi sperren"
   },

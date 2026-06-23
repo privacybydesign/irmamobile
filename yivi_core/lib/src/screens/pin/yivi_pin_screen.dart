@@ -81,6 +81,10 @@ class YiviPinScreen extends StatefulWidget {
   final bool checkSecurePin;
   final String? instructionKey;
   final String? instruction;
+
+  /// Translation key for the submit button (only shown for long PIN). Defaults
+  /// to "Next"; the unlock flow overrides it since "Next" makes no sense there.
+  final String submitLabel;
   final bool enabled;
   final void Function(BuildContext, EnterPinState)? listener;
   final WidgetVisibility Function(BuildContext, EnterPinState)?
@@ -99,6 +103,7 @@ class YiviPinScreen extends StatefulWidget {
     this.displayPinLength = false,
     this.onTogglePinSize,
     this.checkSecurePin = false,
+    this.submitLabel = "choose_pin.next",
     this.enabled = true,
     this.listener,
     this.submitButtonVisibilityListener,
@@ -466,7 +471,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
       height: _nextButtonHeight,
       child: YiviThemedButton(
         key: const Key("pin_next"),
-        label: "choose_pin.next",
+        label: widget.submitLabel,
         onPressed: activate && widget.enabled
             ? () => widget.onSubmit(_state.toString())
             : null,

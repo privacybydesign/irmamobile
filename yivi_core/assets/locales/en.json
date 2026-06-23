@@ -556,6 +556,7 @@
   },
   "pin": {
     "subtitle": "Enter your PIN",
+    "unlock": "Unlock",
     "button_forgot": "I forgot my PIN",
     "button_block": "Block Yivi",
     "biometric_button": "Unlock with biometrics",
