@@ -691,7 +691,7 @@
     "use_system_language": "Gebruik systeemtaal",
     "change_pin": "Pincode veranderen",
     "biometric_unlock": "Ontgrendelen met biometrie",
-    "biometric_unlock_explanation": "Gebruik je vingerafdruk of gezicht om de app te ontgrendelen. Voor sessies heb je nog steeds je pincode nodig.",
+    "biometric_unlock_explanation": "Gebruik je vingerafdruk of gezicht om de app te ontgrendelen. Voor het ophalen of delen van gegevens heb je nog steeds je pincode nodig.",
     "delete": "Verwijder gegevens",
     "confirm_delete_dialog": {
       "title": "Gegevens verwijderen",

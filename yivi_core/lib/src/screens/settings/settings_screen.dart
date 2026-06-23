@@ -84,48 +84,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TilesCard(
-                children: [
-                  ToggleTile(
-                    key: const Key("report_toggle"),
-                    labelTranslationKey: "settings.report_errors",
-                    onChanged: repo.preferences.setReportErrors,
-                    stream: repo.preferences.getReportErrors(),
-                  ),
-                ],
-              ),
-              buildExplanationText("settings.report_errors_explanation"),
-              if (Platform.isAndroid) ...[
-                spacerWidget,
-                TilesCard(
-                  children: [
-                    ToggleTile(
-                      key: const Key("screenshot_toggle"),
-                      labelTranslationKey: "settings.enable_screenshots",
-                      onChanged: repo.preferences.setScreenshotsEnabled,
-                      stream: repo.preferences.getScreenshotsEnabled(),
-                    ),
-                  ],
-                ),
-                buildExplanationText("settings.enable_screenshots_explanation"),
-                spacerWidget,
-              ],
-              if (showDeveloperModeToggle)
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-                  child: TilesCard(
-                    children: [
-                      ToggleTile(
-                        key: const Key("dev_mode_toggle"),
-                        labelTranslationKey: "settings.developer_mode",
-                        onChanged: repo.setDeveloperMode,
-                        stream: repo.getDeveloperMode(),
-                      ),
-                    ],
-                  ),
-                ),
-              // Biometric unlock — only when the device has biometrics
-              // enrolled. The toggle reflects/sets the opt-in preference.
+              // Biometric unlock — first option, but only when the device has
+              // biometrics enrolled. The toggle reflects/sets the opt-in pref.
               Consumer(
                 builder: (context, ref, _) {
                   final available =
@@ -178,6 +138,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
+              TilesCard(
+                children: [
+                  ToggleTile(
+                    key: const Key("report_toggle"),
+                    labelTranslationKey: "settings.report_errors",
+                    onChanged: repo.preferences.setReportErrors,
+                    stream: repo.preferences.getReportErrors(),
+                  ),
+                ],
+              ),
+              buildExplanationText("settings.report_errors_explanation"),
+              if (Platform.isAndroid) ...[
+                spacerWidget,
+                TilesCard(
+                  children: [
+                    ToggleTile(
+                      key: const Key("screenshot_toggle"),
+                      labelTranslationKey: "settings.enable_screenshots",
+                      onChanged: repo.preferences.setScreenshotsEnabled,
+                      stream: repo.preferences.getScreenshotsEnabled(),
+                    ),
+                  ],
+                ),
+                buildExplanationText("settings.enable_screenshots_explanation"),
+                spacerWidget,
+              ],
+              if (showDeveloperModeToggle)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+                  child: TilesCard(
+                    children: [
+                      ToggleTile(
+                        key: const Key("dev_mode_toggle"),
+                        labelTranslationKey: "settings.developer_mode",
+                        onChanged: repo.setDeveloperMode,
+                        stream: repo.getDeveloperMode(),
+                      ),
+                    ],
+                  ),
+                ),
               buildHeaderText("settings.other"),
               TilesCard(
                 children: [

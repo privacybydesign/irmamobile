@@ -691,7 +691,7 @@
     "use_system_language": "Use system language",
     "change_pin": "Change PIN",
     "biometric_unlock": "Unlock with biometrics",
-    "biometric_unlock_explanation": "Use your fingerprint or face to unlock the app. You'll still need your PIN for sessions.",
+    "biometric_unlock_explanation": "Use your fingerprint or face to unlock the app. You'll still need your PIN to receive or share data.",
     "delete": "Delete data",
     "confirm_delete_dialog": {
       "title": "Delete data",
