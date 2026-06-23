@@ -108,12 +108,26 @@ class YiviPinScreen extends StatefulWidget {
   State<YiviPinScreen> createState() => _YiviPinScreenState();
 }
 
-class _YiviPinScreenState extends State<YiviPinScreen> {
+class _YiviPinScreenState extends State<YiviPinScreen>
+    with SingleTickerProviderStateMixin {
   final pinVisibilityValue = ValueNotifier(false);
   EnterPinState _state = EnterPinState.empty();
 
+  // One-shot pop for the show/hide-pin button when tapped — same overshoot
+  // curve and duration as the PIN dots ([_dotPop]).
+  late final _jumpController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+    value: 1, // idle at full size; forward(from: 0) replays the pop
+  );
+  late final Animation<double> _jumpScale = CurvedAnimation(
+    parent: _jumpController,
+    curve: _dotPop,
+  );
+
   @override
   void dispose() {
+    _jumpController.dispose();
     pinVisibilityValue.dispose();
     super.dispose();
   }
@@ -364,11 +378,19 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
     return ValueListenableBuilder<bool>(
       valueListenable: pinVisibilityValue,
       builder: (context, visible, _) {
-        return _buildPinVisibilityButton(
-          context,
-          visible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-          'pin_accessibility.${visible ? 'hide' : 'show'}_pin',
-          () => pinVisibilityValue.value = !visible,
+        return ScaleTransition(
+          scale: _jumpScale,
+          child: _buildPinVisibilityButton(
+            context,
+            visible
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            'pin_accessibility.${visible ? 'hide' : 'show'}_pin',
+            () {
+              pinVisibilityValue.value = !visible;
+              _jumpController.forward(from: 0);
+            },
+          ),
         );
       },
     );
