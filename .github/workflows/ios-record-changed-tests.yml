@@ -1,10 +1,10 @@
-name: dobby-ios-record-changed-tests
+name: Record changed integration tests (iOS)
 
 # Records an iOS-simulator video of ONLY the integration tests added or modified
 # in a PR (vs. its base branch), uploads them as a workflow artifact, and posts
-# a PR comment with the link. Designed to be invoked by Dobby via:
+# a PR comment with the link. Invoke manually or from automation via:
 #
-#   gh workflow run dobby-ios-record.yml \
+#   gh workflow run ios-record-changed-tests.yml \
 #     -R privacybydesign/irmamobile \
 #     -f pr=578 \
 #     -f base=master
@@ -192,7 +192,7 @@ jobs:
         if: always() && steps.tests.outputs.count != '0'
         uses: actions/upload-artifact@v4
         with:
-          name: dobby-ios-record-pr-${{ inputs.pr }}
+          name: ios-test-recordings-pr-${{ inputs.pr }}
           path: videos/
           if-no-files-found: error
           retention-days: 14
