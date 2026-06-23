@@ -248,7 +248,7 @@ class _PressableCircleState extends State<_PressableCircle>
     with SingleTickerProviderStateMixin {
   late final AnimationController _press = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 90), // grow + light up
+    duration: const Duration(milliseconds: 10), // grow + light up
     reverseDuration: const Duration(milliseconds: 180), // settle back
   )..addStatusListener(_onStatus);
 
