@@ -165,6 +165,9 @@ jobs:
           UDID: ${{ steps.sim.outputs.udid }}
         run: |
           set -uo pipefail
+          # macOS has no GNU `timeout`; coreutils provides `gtimeout`. (Usually
+          # already present on the runner, so this is normally a no-op.)
+          command -v gtimeout >/dev/null 2>&1 || brew install coreutils
           mkdir -p ../videos
           # results.tsv: <status>\t<repo-relative-path> — consumed by the comment step.
           : > /tmp/results.tsv
@@ -183,16 +186,24 @@ jobs:
             # A failing test must NOT abort the loop or the workflow — the whole
             # point is to capture the video even (especially) when it fails, so a
             # human can see what the bot's change actually does on screen.
+            # NOTE: this still includes the (slow) cold iOS build; a follow-up
+            # will split build (unrecorded) from the recorded test run.
+            # -k 30: if the test ignores SIGTERM, escalate to SIGKILL after 30s.
             status="pass"
-            timeout 900 flutter test "$rel" -d "$UDID" || status="fail"
+            gtimeout -k 30 1200 flutter test "$rel" -d "$UDID" || status="fail"
             printf '%s\t%s\n' "$status" "$f" >> /tmp/results.tsv
 
-            # SIGINT lets simctl flush the moov atom; SIGKILL would corrupt the file.
+            # Stop the recorder. SIGINT lets simctl flush the moov atom (SIGKILL
+            # would corrupt the file). By now the test has run for minutes, so the
+            # recorder is definitely up and will honour the signal. Wait a bounded
+            # time for the flush, then force-kill so a stuck recorder can never
+            # hang the step (the previous bug: an unbounded `wait`).
             kill -INT "$rec" 2>/dev/null || true
-            for _ in 1 2 3 4 5; do
+            for _ in $(seq 1 15); do
               kill -0 "$rec" 2>/dev/null || break
               sleep 1
             done
+            kill -KILL "$rec" 2>/dev/null || true
             wait "$rec" 2>/dev/null || true
             echo "::endgroup::"
           done < /tmp/files.txt
