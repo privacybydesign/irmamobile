@@ -62,6 +62,11 @@ class PinScreen extends ConsumerStatefulWidget {
 }
 
 class _PinScreenState extends ConsumerState<PinScreen> {
+  // Bumped on a wrong/blocked attempt to remount YiviPinScreen with an empty
+  // buffer — clears the entered digits and their dots. Same pattern as
+  // SessionPinEntryScreen.
+  int _resetNonce = 0;
+
   void _showWrongAttemptsDialog(int attemptsRemaining) {
     if (!mounted) return;
     showDialog(
@@ -101,6 +106,7 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     }
     if (state.pinInvalid) {
       HapticFeedback.heavyImpact();
+      if (mounted) setState(() => _resetNonce++);
       final secondsBlocked =
           state.blockedUntil?.difference(DateTime.now()).inSeconds ?? 0;
       if (state.remainingAttempts != null && state.remainingAttempts! > 0) {
@@ -169,23 +175,26 @@ class _PinScreenState extends ConsumerState<PinScreen> {
       body: Stack(
         alignment: Alignment.center,
         children: [
-          YiviPinScreen(
-            instruction: subtitle,
-            maxPinSize: maxPinSize,
-            onSubmit: enabled ? submit : (_) {},
-            enabled: enabled,
-            onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
-            onBiometricUnlock: showBiometric ? _biometricUnlock : null,
-            biometricGlyph: showBiometric
-                ? _biometricGlyph(context, biometricType)
-                : null,
-            listener: (context, pinState) {
-              if (maxPinSize == shortPinSize &&
-                  pinState.pin.length == maxPinSize &&
-                  enabled) {
-                submit(pinState.toString());
-              }
-            },
+          KeyedSubtree(
+            key: ValueKey(_resetNonce),
+            child: YiviPinScreen(
+              instruction: subtitle,
+              maxPinSize: maxPinSize,
+              onSubmit: enabled ? submit : (_) {},
+              enabled: enabled,
+              onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
+              onBiometricUnlock: showBiometric ? _biometricUnlock : null,
+              biometricGlyph: showBiometric
+                  ? _biometricGlyph(context, biometricType)
+                  : null,
+              listener: (context, pinState) {
+                if (maxPinSize == shortPinSize &&
+                    pinState.pin.length == maxPinSize &&
+                    enabled) {
+                  submit(pinState.toString());
+                }
+              },
+            ),
           ),
           if (state.authenticateInProgress) const CircularProgressIndicator(),
         ],

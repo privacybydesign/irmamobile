@@ -16,6 +16,61 @@ class _DotPopCurve extends Curve {
 
 const _dotPop = _DotPopCurve();
 
+/// A single PIN dot. Pops in with [_dotPop]'s overshoot when [filled] turns
+/// true and shrinks cleanly back out when it turns false (digit removed).
+/// Controller-driven so the two directions can use different curves and
+/// durations — `TweenAnimationBuilder` only allows one. A dot that mounts
+/// already filled (a freshly typed long-PIN digit) pops in on mount; a long-PIN
+/// dot is simply unmounted on backspace, so only the short PIN (fixed slots)
+/// plays the shrink.
+class _PinDot extends StatefulWidget {
+  final bool filled;
+  final Widget child;
+
+  const _PinDot({required this.filled, required this.child});
+
+  @override
+  State<_PinDot> createState() => _PinDotState();
+}
+
+class _PinDotState extends State<_PinDot> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420), // pop in
+    reverseDuration: const Duration(milliseconds: 200), // shrink out
+  );
+
+  late final Animation<double> _scale = CurvedAnimation(
+    parent: _controller,
+    curve: _dotPop,
+    reverseCurve: Curves.easeIn,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.filled) _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(_PinDot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.filled != oldWidget.filled) {
+      widget.filled ? _controller.forward() : _controller.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      ScaleTransition(scale: _scale, child: widget.child);
+}
+
 class _PinIndicator extends StatelessWidget {
   final int maxPinSize;
   final ValueNotifier<bool> pinVisibilityValue;
@@ -100,6 +155,7 @@ class _PinIndicator extends StatelessWidget {
           children: List.generate(
             isMaxPin5 ? shortPinSize : pinSize,
             (i) => Stack(
+              key: ValueKey("pin_dot_$i"),
               alignment: Alignment.center,
               children: [
                 // SizedBox ensures that all the relevant
@@ -124,16 +180,8 @@ class _PinIndicator extends StatelessWidget {
                     decoration: circleOutlinedDecoration,
                   ),
                 if (isMaxPin5 || i < pinSize)
-                  TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.0, end: i < pinSize ? 1.0 : 0.0),
-                    duration: const Duration(milliseconds: 420),
-                    curve: _dotPop,
-                    // Clamp at 0: the pop overshoots past the dot's size on the
-                    // way in, but on backspace the same overshoot would dip
-                    // below 0 (a mirror-flip) — clamp keeps the exit a clean
-                    // shrink.
-                    builder: (_, scale, child) =>
-                        Transform.scale(scale: max(0.0, scale), child: child),
+                  _PinDot(
+                    filled: i < pinSize,
                     child: Container(
                       constraints: constraints,
                       decoration: circleFilledDecoration,
