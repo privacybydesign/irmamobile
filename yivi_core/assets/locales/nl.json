@@ -134,6 +134,10 @@
         "get_button": "Voeg toe",
         "disclosure_info_markdown": "**Let op:** Je haalt alle beschikbare gegevens op maar je deelt alleen de gegevens die nodig zijn.",
         "obtain": "Voeg {credential} toe aan mijn Yivi-app"
+      },
+      "nfc_unsupported": {
+        "title": "NFC niet ondersteund",
+        "body": "Dit apparaat ondersteunt geen NFC en kan deze kaart daarom niet laden. NFC is nodig om je document te lezen."
       }
     },
     "search": {

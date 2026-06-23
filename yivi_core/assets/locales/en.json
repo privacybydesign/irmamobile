@@ -134,6 +134,10 @@
         "get_button": "Add",
         "disclosure_info_markdown": "**Note:** You will retrieve all available data, but you will only share the data needed in the request.",
         "obtain": "Add {credential} to my Yivi-app"
+      },
+      "nfc_unsupported": {
+        "title": "NFC not supported",
+        "body": "This device does not support NFC, so it is not able to load this credential. NFC is required to read your document."
       }
     },
     "search": {

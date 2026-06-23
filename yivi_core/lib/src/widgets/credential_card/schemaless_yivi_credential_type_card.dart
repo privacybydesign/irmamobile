@@ -18,10 +18,16 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   final bool checked;
   final IconData? trailingIcon;
 
+  /// Whether the credential is shown greyed out (e.g. it requires onboard NFC
+  /// but the device has no NFC hardware). The card stays tappable so [onTap]
+  /// can explain why it is unavailable.
+  final bool disabled;
+
   const SchemalessYiviCredentialTypeCard({
     this.onTap,
     this.checked = false,
     this.trailingIcon,
+    this.disabled = false,
     this.credentialImagePath,
     this.credentialImageBase64,
     required this.credentialName,
@@ -68,47 +74,52 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
         child: InkWell(
           key: Key("${credentialId}_tile"),
           onTap: onTap,
-          child: Padding(
-            // Tighter right padding when showing the default chevron so it
-            // sits closer to the card edge. Action icons (e.g. the `+` on the
-            // add-data screen) keep the standard padding.
-            padding: trailingIcon == null
-                ? EdgeInsets.fromLTRB(
-                    theme.defaultSpacing,
-                    theme.defaultSpacing,
-                    theme.smallSpacing,
-                    theme.defaultSpacing,
-                  )
-                : EdgeInsets.all(theme.defaultSpacing),
-            child: Row(
-              children: [
-                ExcludeSemantics(child: avatar),
-                SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        getTranslation(context, credentialName),
-                        style: theme.themeData.textTheme.headlineMedium!
-                            .copyWith(fontSize: 16, color: theme.dark),
-                      ),
-                      Text(
-                        getTranslation(context, issuerName),
-                        style: theme.themeData.textTheme.bodyMedium!.copyWith(
-                          fontSize: 14,
-                          color: theme.neutralExtraDark,
+          // Greyed-out credentials stay tappable (so onTap can explain why they
+          // are unavailable) but are visually dimmed.
+          child: Opacity(
+            opacity: disabled ? 0.4 : 1.0,
+            child: Padding(
+              // Tighter right padding when showing the default chevron so it
+              // sits closer to the card edge. Action icons (e.g. the `+` on the
+              // add-data screen) keep the standard padding.
+              padding: trailingIcon == null
+                  ? EdgeInsets.fromLTRB(
+                      theme.defaultSpacing,
+                      theme.defaultSpacing,
+                      theme.smallSpacing,
+                      theme.defaultSpacing,
+                    )
+                  : EdgeInsets.all(theme.defaultSpacing),
+              child: Row(
+                children: [
+                  ExcludeSemantics(child: avatar),
+                  SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          getTranslation(context, credentialName),
+                          style: theme.themeData.textTheme.headlineMedium!
+                              .copyWith(fontSize: 16, color: theme.dark),
                         ),
-                      ),
-                    ],
+                        Text(
+                          getTranslation(context, issuerName),
+                          style: theme.themeData.textTheme.bodyMedium!.copyWith(
+                            fontSize: 14,
+                            color: theme.neutralExtraDark,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: theme.smallSpacing),
-                if (trailingIcon != null)
-                  Icon(trailingIcon, size: 24, color: theme.neutralExtraDark)
-                else
-                  const Chevron(),
-              ],
+                  SizedBox(width: theme.smallSpacing),
+                  if (trailingIcon != null)
+                    Icon(trailingIcon, size: 24, color: theme.neutralExtraDark)
+                  else
+                    const Chevron(),
+                ],
+              ),
             ),
           ),
         ),
