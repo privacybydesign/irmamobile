@@ -984,7 +984,7 @@
     }
   },
   "signature": {
-    "show_full": "Vollständige Nachricht anzeigen",
-    "show_less": "Weniger anzeigen"
+    "read_more": "Mehr lesen",
+    "read_less": "Weniger lesen"
   }
 }

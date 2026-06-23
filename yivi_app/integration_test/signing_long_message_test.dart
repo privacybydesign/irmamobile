@@ -5,7 +5,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
 import "package:yivi_core/src/util/signature_message_text.dart";
-import "package:yivi_core/src/widgets/irma_quote.dart";
 
 import "disclosure_session/disclosure_helpers.dart";
 import "helpers/helpers.dart";
@@ -19,8 +18,9 @@ import "util.dart";
 // very large and may contain a long run of characters with no break
 // opportunities (e.g. thousands of digits with no spaces). Rendering such a
 // message directly used to freeze the UI thread. The fix truncates the message
-// to an inline preview with a "Show full message" toggle and inserts invisible
-// soft-break opportunities so the layout engine never blocks.
+// to an inline preview ending in an ellipsis with an inline, tappable
+// "Read more" link (chat-app style) and inserts invisible soft-break
+// opportunities so the layout engine never blocks.
 //
 // This test drives that screen with exactly such a message, so the iOS
 // recording shows the signing screen rendering responsively, the truncation
@@ -71,34 +71,41 @@ void main() {
       expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
       expect(find.text("This is the message you're signing:"), findsOneWidget);
 
-      // The message is shown truncated, with a toggle to reveal the full text.
-      final quoteFinder = find.byKey(const Key("signature_message"));
+      // The message is shown truncated to a few lines with an ellipsis, plus a
+      // bold, tappable "Read more" link to reveal the full text (chat-app
+      // style, à la WhatsApp).
+      expect(find.byKey(const Key("signature_message")), findsOneWidget);
+      final textFinder = find.byKey(const Key("signature_message_text"));
       final toggleFinder = find.byKey(const Key("signature_message_toggle"));
-      expect(quoteFinder, findsOneWidget);
+      expect(textFinder, findsOneWidget);
       expect(toggleFinder, findsOneWidget);
-      expect(find.text("Show full message"), findsOneWidget);
+      expect(find.text("Read more"), findsOneWidget);
+      expect(find.text("Read less"), findsNothing);
 
-      // The inline preview is shorter than the full message.
-      final previewQuote =
-          (quoteFinder.evaluate().first.widget as IrmaQuote).quote!;
-      expect(previewQuote.runes.length, lessThan(message.runes.length));
+      // The collapsed text is clamped to a few lines and overflows with an
+      // ellipsis, and shows less than the full (much longer) message.
+      final collapsedText = textFinder.evaluate().first.widget as Text;
+      expect(collapsedText.maxLines, isNotNull);
+      expect(collapsedText.overflow, TextOverflow.ellipsis);
+      expect(collapsedText.data!.runes.length, lessThan(message.runes.length));
 
-      // Expanding reveals the full (pathological) message — the case that used
-      // to freeze — and renders responsively.
+      // Tapping the "Read more" link reveals the full (pathological) message —
+      // the case that used to freeze — and renders responsively.
       await tester.ensureVisible(toggleFinder);
       await tester.tapAndSettle(toggleFinder);
-      expect(find.text("Show less"), findsOneWidget);
-      final expandedQuote =
-          (quoteFinder.evaluate().first.widget as IrmaQuote).quote!;
+      expect(find.text("Read less"), findsOneWidget);
+      expect(find.text("Read more"), findsNothing);
+      final expandedText = textFinder.evaluate().first.widget as Text;
       expect(
-        expandedQuote.runes.length,
-        greaterThan(previewQuote.runes.length),
+        expandedText.data!.runes.length,
+        greaterThan(collapsedText.data!.runes.length),
       );
 
-      // Collapse again.
+      // Tapping "Read less" collapses it again.
       await tester.ensureVisible(toggleFinder);
       await tester.tapAndSettle(toggleFinder);
-      expect(find.text("Show full message"), findsOneWidget);
+      expect(find.text("Read more"), findsOneWidget);
+      expect(find.text("Read less"), findsNothing);
 
       // The long message is still signable end-to-end. "Sign and share" lives
       // in the fixed bottom bar, so no scrolling is needed to reach it.

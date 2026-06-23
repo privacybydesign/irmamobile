@@ -997,7 +997,7 @@
     }
   },
   "signature": {
-    "show_full": "Toon volledig bericht",
-    "show_less": "Toon minder"
+    "read_more": "Meer lezen",
+    "read_less": "Minder lezen"
   }
 }

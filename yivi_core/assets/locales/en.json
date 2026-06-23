@@ -997,7 +997,7 @@
     }
   },
   "signature": {
-    "show_full": "Show full message",
-    "show_less": "Show less"
+    "read_more": "Read more",
+    "read_less": "Read less"
   }
 }
