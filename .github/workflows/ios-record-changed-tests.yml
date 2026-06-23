@@ -195,9 +195,13 @@ jobs:
             # "Xcode build done" marker, and only THEN start recording — from there
             # the app installs, launches and runs the test, which is all we want on
             # screen, with the CPU free so the simulator renders at a usable rate.
+            # --ignore-timeouts: flutter's own test timeout counts the (slow,
+            # variable) cold build, and a >12-min build would abort the test
+            # before it even runs. This flag is purpose-built for integration
+            # tests with long compiles; gtimeout is then the only bound.
             # -k 30: if the test ignores SIGTERM at the timeout, escalate to KILL.
             : > "$log"
-            ( gtimeout -k 30 1200 flutter test "$rel" -d "$UDID" > "$log" 2>&1; echo $? > "$rcf" ) &
+            ( gtimeout -k 30 1800 flutter test "$rel" -d "$UDID" --ignore-timeouts > "$log" 2>&1; echo $? > "$rcf" ) &
             test_pid=$!
             tail -f "$log" 2>/dev/null & tail_pid=$!
 
