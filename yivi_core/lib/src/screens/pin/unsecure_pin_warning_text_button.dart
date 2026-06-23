@@ -2,15 +2,17 @@ part of "yivi_pin_screen.dart";
 
 class _UnsecurePinWarningTextButton extends StatelessWidget {
   final EnterPinState state;
-  final GlobalKey<ScaffoldState> scaffoldKey;
-  final BuildContext context;
 
-  _UnsecurePinWarningTextButton({
+  /// Null on pin screens that only reserve this slot's height (confirm/unlock);
+  /// there the button is never shown, so no scaffold context is needed.
+  final GlobalKey<ScaffoldState>? scaffoldKey;
+
+  const _UnsecurePinWarningTextButton({
     required this.scaffoldKey,
     required this.state,
-  }) : context = scaffoldKey.currentContext!;
+  });
 
-  void _showSecurePinRules(EnterPinState state) {
+  void _showSecurePinRules(BuildContext context, EnterPinState state) {
     final theme = IrmaTheme.of(context);
 
     // OrientationBuilder builds a widget tree that can depend on
@@ -53,9 +55,16 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
+    // Use the scaffold's context (not this subtree's): the OrientationBuilder
+    // above reports a misleading orientation. Disabled when there's no key,
+    // i.e. the slot is only reserving height and never visible.
+    final scaffoldContext = scaffoldKey?.currentContext;
+
     return Center(
       child: TextButton(
-        onPressed: () => _showSecurePinRules(state),
+        onPressed: scaffoldContext == null
+            ? null
+            : () => _showSecurePinRules(scaffoldContext, state),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

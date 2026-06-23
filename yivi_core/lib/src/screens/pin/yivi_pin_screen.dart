@@ -165,21 +165,9 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
     final leftColumnChildren = [
       _buildInstructionText(context),
       _buildDecoratedPinDots(context),
-      if (widget.checkSecurePin && showSecurePinText)
-        _UnsecurePinWarningTextButton(
-          scaffoldKey: widget.scaffoldKey!,
-          state: _state,
-        ),
-      if (widget.onTogglePinSize != null)
-        Center(
-          child: Link(
-            onTap: widget.onTogglePinSize!,
-            label: FlutterI18n.translate(
-              context,
-              _getTogglePinSizeSemanticKey(),
-            ),
-          ),
-        ),
+      if (widget.checkSecurePin)
+        _buildSecurePinWarningSlot(showSecurePinText),
+      _buildTogglePinSizeSlot(),
       if (widget.onForgotPin != null)
         Center(
           child: Link(
@@ -237,11 +225,6 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
     final theme = IrmaTheme.of(context);
     return Column(
       children: [
-        if (widget.maxPinSize == shortPinSize)
-          Padding(
-            padding: EdgeInsets.only(top: theme.screenPadding),
-            child: _buildNextButton(),
-          ),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -253,38 +236,23 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
                   ),
                   child: IntrinsicHeight(
                     child: Column(
+                      mainAxisAlignment: .center,
+                      spacing: theme.defaultSpacing.scaleToDesignSize(context),
                       children: [
                         _buildScaledLogo(context),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildInstructionText(context),
-                              _buildDecoratedPinDots(context),
-                              if (widget.checkSecurePin && showSecurePinText)
-                                _UnsecurePinWarningTextButton(
-                                  scaffoldKey: widget.scaffoldKey!,
-                                  state: _state,
-                                ),
-                              if (widget.onTogglePinSize != null)
-                                Link(
-                                  onTap: widget.onTogglePinSize!,
-                                  label: FlutterI18n.translate(
-                                    context,
-                                    _getTogglePinSizeSemanticKey(),
-                                  ),
-                                ),
-                              if (widget.onForgotPin != null)
-                                Link(
-                                  onTap: widget.onForgotPin!,
-                                  label: FlutterI18n.translate(
-                                    context,
-                                    "pin.button_forgot",
-                                  ),
-                                ),
-                            ],
+                        SizedBox(height: theme.defaultSpacing),
+                        _buildInstructionText(context),
+                        _buildDecoratedPinDots(context),
+                        _buildTogglePinSizeSlot(),
+                        if (widget.onForgotPin != null)
+                          Link(
+                            onTap: widget.onForgotPin!,
+                            label: FlutterI18n.translate(
+                              context,
+                              "pin.button_forgot",
+                            ),
                           ),
-                        ),
+                        _buildSecurePinWarningSlot(showSecurePinText),
                       ],
                     ),
                   ),
@@ -300,12 +268,50 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
             biometricGlyph: widget.biometricGlyph,
           ),
         ),
-        if (widget.maxPinSize != shortPinSize)
-          Padding(
-            padding: EdgeInsets.only(top: theme.screenPadding),
-            child: _buildNextButton(),
-          ),
+        Padding(
+          padding: EdgeInsets.only(top: theme.screenPadding),
+          child: _buildNextButton(),
+        ),
       ],
+    );
+  }
+
+  /// Always present so the warning's height is reserved even when hidden, and
+  /// even on pin screens that never check the PIN (confirm/unlock) — keeps the
+  /// logo/text/dots at the same height across screens. Reserves its height
+  /// like the Next button.
+  Widget _buildSecurePinWarningSlot(bool show) {
+    return Visibility(
+      visible: widget.checkSecurePin && show,
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      // Nudge the text up within its reserved box — doesn't affect layout, so
+      // nothing else moves.
+      child: Transform.translate(
+        offset: const Offset(0, -8),
+        child: _UnsecurePinWarningTextButton(
+          scaffoldKey: widget.scaffoldKey,
+          state: _state,
+        ),
+      ),
+    );
+  }
+
+  /// Always present so the toggle link's height is reserved even on pin
+  /// screens that don't offer it (confirm/unlock) — keeps the logo, text and
+  /// dots at the same height across screens. Mirrors the warning slot.
+  Widget _buildTogglePinSizeSlot() {
+    return Visibility(
+      visible: widget.onTogglePinSize != null,
+      maintainSize: true,
+      maintainAnimation: true,
+      maintainState: true,
+      child: Link(
+        onTap: widget.onTogglePinSize ?? () {},
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+        label: FlutterI18n.translate(context, _getTogglePinSizeSemanticKey()),
+      ),
     );
   }
 
@@ -454,7 +460,13 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
           widget.instruction ??
               FlutterI18n.translate(context, widget.instructionKey!),
           textAlign: TextAlign.center,
-          style: theme.textTheme.displaySmall,
+          style: theme.textTheme.displaySmall?.copyWith(
+            // Smaller than displaySmall's 18, scaled down further on small
+            // screens, and without its 2.0 line-height so the block stays
+            // clear of the keypad.
+            fontSize: 16.scaleToDesignSize(context),
+            height: 1.3,
+          ),
         ),
       ),
     );
