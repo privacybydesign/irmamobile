@@ -102,15 +102,15 @@ jobs:
           # Copied / Modified / Renamed (skip pure deletions). We diff the whole
           # tests dir and filter to *_test.dart, which also catches tests in
           # subdirectories (disclosure_session/, embedded_issuance_flows/, ...).
-          mapfile -t FILES < <(
-            git diff --name-only --diff-filter=ACMR "origin/${BASE}...HEAD" -- "${DIR}" \
-              | grep -E '_test\.dart$' \
-              | sort -u
-          )
+          # macOS runners ship Bash 3.2 (no `mapfile`/`readarray`), so write the
+          # match list straight to a file. grep exits 1 when nothing matches,
+          # which is expected here, so shield it from `pipefail` + `set -e`.
+          git diff --name-only --diff-filter=ACMR "origin/${BASE}...HEAD" -- "${DIR}" \
+            | { grep -E '_test\.dart$' || true; } \
+            | sort -u > /tmp/files.txt
 
-          printf '%s\n' "${FILES[@]}" > /tmp/files.txt
-          # mapfile on empty input yields one empty element; normalise the count.
           COUNT=$(grep -c . /tmp/files.txt || true)
+          COUNT=${COUNT:-0}
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           echo "Changed integration-test files: $COUNT"
           grep . /tmp/files.txt | sed 's/^/  /' || true
