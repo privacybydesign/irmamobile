@@ -66,7 +66,7 @@ void main() {
     final gesture = await tester.startGesture(tester.getCenter(key1));
     await tester.pump(); // pointer down
     await gesture.up(); // released right away
-    await tester.pump(const Duration(milliseconds: 130)); // grow runs to peak
+    await tester.pump(const Duration(milliseconds: 90)); // grow runs to peak
     final peak = scaleOf(key1);
 
     await tester.pumpAndSettle();

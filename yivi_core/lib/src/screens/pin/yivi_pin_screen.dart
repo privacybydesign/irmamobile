@@ -131,6 +131,16 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   );
 
   @override
+  void didUpdateWidget(covariant YiviPinScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Switching between short and long PIN starts a fresh entry.
+    if (widget.maxPinSize != oldWidget.maxPinSize) {
+      _state = EnterPinState.empty();
+      _pressAddedDigit = false;
+    }
+  }
+
+  @override
   void dispose() {
     _jumpController.dispose();
     pinVisibilityValue.dispose();
