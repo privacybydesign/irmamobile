@@ -162,49 +162,25 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
   }
 
   Row bodyLandscape(BuildContext context, {required bool showSecurePinText}) {
-    final leftColumnChildren = [
-      _buildInstructionText(context),
-      _buildDecoratedPinDots(context),
-      if (widget.checkSecurePin)
-        _buildSecurePinWarningSlot(showSecurePinText),
-      _buildTogglePinSizeSlot(),
-      if (widget.onForgotPin != null)
-        Center(
-          child: Link(
-            onTap: widget.onForgotPin!,
-            label: FlutterI18n.translate(context, "pin.button_forgot"),
-          ),
-        ),
-      _buildNextButton(),
-    ];
-
-    final lt5Children = leftColumnChildren.length < 5;
-
-    final separatedChildren = Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (lt5Children) _buildScaledLogo(context),
-        ...leftColumnChildren,
-      ],
-    );
-
+    final theme = IrmaTheme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                    minWidth: constraints.maxWidth,
-                  ),
-                  child: IntrinsicHeight(child: separatedChildren),
+          child: Column(
+            children: [
+              Expanded(
+                child: _buildTopColumn(
+                  context,
+                  showSecurePinText,
+                  isLandscape: true,
                 ),
-              );
-            },
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: theme.screenPadding),
+                child: _buildNextButton(),
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -225,42 +201,7 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
     final theme = IrmaTheme.of(context);
     return Column(
       children: [
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight,
-                    minWidth: constraints.maxWidth,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      mainAxisAlignment: .center,
-                      spacing: theme.defaultSpacing.scaleToDesignSize(context),
-                      children: [
-                        _buildScaledLogo(context),
-                        SizedBox(height: theme.defaultSpacing),
-                        _buildInstructionText(context),
-                        _buildDecoratedPinDots(context),
-                        _buildTogglePinSizeSlot(),
-                        if (widget.onForgotPin != null)
-                          Link(
-                            onTap: widget.onForgotPin!,
-                            label: FlutterI18n.translate(
-                              context,
-                              "pin.button_forgot",
-                            ),
-                          ),
-                        _buildSecurePinWarningSlot(showSecurePinText),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+        Expanded(child: _buildTopColumn(context, showSecurePinText)),
         Expanded(
           child: PinKeypad(
             onEnterNumber: widget.enabled ? _enterNumber : (_) {},
@@ -273,6 +214,56 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
           child: _buildNextButton(),
         ),
       ],
+    );
+  }
+
+  /// The logo/instruction/dots/toggle/warning stack, shared by portrait (top)
+  /// and landscape (left) so both have identical layout.
+  Widget _buildTopColumn(
+    BuildContext context,
+    bool showSecurePinText, {
+    bool isLandscape = false,
+  }) {
+    final theme = IrmaTheme.of(context);
+    // Landscape is short: reclaim the logo's space when the Next button shows.
+    final hideLogo =
+        isLandscape &&
+        _nextButtonVisibility(context) == WidgetVisibility.visible;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+              minWidth: constraints.maxWidth,
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: theme.defaultSpacing.scaleToDesignSize(context),
+                children: [
+                  if (!hideLogo) ...[
+                    _buildScaledLogo(context),
+                    SizedBox(height: theme.defaultSpacing),
+                  ],
+                  _buildInstructionText(context),
+                  _buildDecoratedPinDots(context),
+                  _buildTogglePinSizeSlot(),
+                  if (widget.onForgotPin != null)
+                    Link(
+                      onTap: widget.onForgotPin!,
+                      label: FlutterI18n.translate(
+                        context,
+                        "pin.button_forgot",
+                      ),
+                    ),
+                  _buildSecurePinWarningSlot(showSecurePinText),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -443,11 +434,14 @@ class _YiviPinScreenState extends State<YiviPinScreen> {
     }
   }
 
+  WidgetVisibility _nextButtonVisibility(BuildContext context) =>
+      widget.submitButtonVisibilityListener?.call(context, _state) ??
+      defaultSubmitButtonVisibility(context, widget.maxPinSize);
+
   Widget _buildNextButton() {
     return _buildActivateNextButton(
       _state.pin.length >= (shortPinSize == widget.maxPinSize ? 5 : 6),
-      widget.submitButtonVisibilityListener?.call(context, _state) ??
-          defaultSubmitButtonVisibility(context, widget.maxPinSize),
+      _nextButtonVisibility(context),
     );
   }
 
