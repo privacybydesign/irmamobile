@@ -2,12 +2,19 @@ name: Record changed integration tests (iOS)
 
 # Records an iOS-simulator video of ONLY the integration tests added or modified
 # in a PR (vs. its base branch), uploads them as a workflow artifact, and posts
-# a PR comment with the link. Invoke manually or from automation via:
+# a PR comment with the link.
+#
+# It runs automatically on any pull_request that changes an integration-test
+# file (see the paths filter below), and can also be invoked manually against
+# any PR via:
 #
 #   gh workflow run ios-record-changed-tests.yml \
 #     -R privacybydesign/irmamobile \
 #     -f pr=578 \
 #     -f base=master
+#
+# pr/base are taken from the workflow_dispatch inputs when dispatched manually,
+# and derived from the pull_request event otherwise.
 #
 # The "changed-files only" filter is what keeps this practical for a ~30-test
 # repo: a PR that touches 1 file produces 1 video, not 30.
@@ -34,10 +41,22 @@ on:
         description: Directory containing integration tests (relative to yivi_app)
         required: false
         default: integration_test
+  pull_request:
+    # Only spin up when an integration test actually changes. Two patterns so
+    # both top-level (foo_test.dart) and nested (disclosure_session/foo_test.dart)
+    # tests are matched regardless of glob semantics.
+    paths:
+      - "yivi_app/integration_test/**/*_test.dart"
+      - "yivi_app/integration_test/*_test.dart"
 
 permissions:
   contents: read
   pull-requests: write
+
+# One recording run per PR; a new push cancels an in-flight recording.
+concurrency:
+  group: ios-record-${{ github.event.pull_request.number || inputs.pr }}
+  cancel-in-progress: true
 
 jobs:
   record:
@@ -48,12 +67,17 @@ jobs:
       # since the simulator catalog depends on the pinned Xcode version.
       SIM_NAME: iPhone 16 Pro
       APP_DIR: yivi_app
+      # Resolve the target PR/base for both triggers: workflow_dispatch provides
+      # inputs.*, while pull_request provides github.event.pull_request.*.
+      PR_NUMBER: ${{ inputs.pr || github.event.pull_request.number }}
+      BASE_REF: ${{ inputs.base || github.event.pull_request.base.ref }}
+      TESTS_DIR: ${{ inputs.tests_dir || 'integration_test' }}
 
     steps:
       - name: Check out PR head with full history + submodules
         uses: actions/checkout@v4
         with:
-          ref: refs/pull/${{ inputs.pr }}/head
+          ref: refs/pull/${{ inputs.pr || github.event.pull_request.number }}/head
           # fetch-depth: 0 is required so the merge-base with $base is reachable
           # (three-dot diff below); a shallow clone would silently miss it.
           fetch-depth: 0
@@ -65,8 +89,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          BASE="${{ inputs.base }}"
-          DIR="${APP_DIR}/${{ inputs.tests_dir }}"
+          BASE="${BASE_REF}"
+          DIR="${APP_DIR}/${TESTS_DIR}"
 
           # Ensure the base ref exists as a remote-tracking branch for the
           # three-dot diff (checkout fetched the PR ref, not necessarily $BASE).
@@ -192,7 +216,7 @@ jobs:
         if: always() && steps.tests.outputs.count != '0'
         uses: actions/upload-artifact@v4
         with:
-          name: ios-test-recordings-pr-${{ inputs.pr }}
+          name: ios-test-recordings-pr-${{ env.PR_NUMBER }}
           path: videos/
           if-no-files-found: error
           retention-days: 14
@@ -218,4 +242,4 @@ jobs:
             echo
             echo "Download the videos from the **Artifacts** section of the run: ${RUN_URL}"
           } > /tmp/comment.md
-          gh pr comment "${{ inputs.pr }}" --body-file /tmp/comment.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/comment.md
