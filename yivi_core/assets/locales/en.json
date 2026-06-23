@@ -137,7 +137,8 @@
       },
       "nfc_unsupported": {
         "title": "NFC not supported",
-        "body": "This device does not support NFC, so it is not able to load this credential. NFC is required to read your document."
+        "body": "This device does not support NFC, so it is not able to load this credential. NFC is required to read your document.",
+        "hint": "Requires NFC, which this device does not support. This credential cannot be loaded."
       }
     },
     "search": {

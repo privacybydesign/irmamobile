@@ -99,6 +99,12 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                                     issuerName: credential.issuer.name,
                                     trailingIcon: Icons.add_circle_sharp,
                                     disabled: nfcBlocked,
+                                    disabledHint: nfcBlocked
+                                        ? FlutterI18n.translate(
+                                            context,
+                                            "data.add.nfc_unsupported.hint",
+                                          )
+                                        : null,
                                     onTap: nfcBlocked
                                         ? () =>
                                               _showNfcUnsupportedDialog(context)

@@ -137,7 +137,8 @@
       },
       "nfc_unsupported": {
         "title": "NFC nicht unterstützt",
-        "body": "Dieses Gerät unterstützt kein NFC und kann diese Karte daher nicht laden. NFC wird benötigt, um Ihr Dokument zu lesen."
+        "body": "Dieses Gerät unterstützt kein NFC und kann diese Karte daher nicht laden. NFC wird benötigt, um Ihr Dokument zu lesen.",
+        "hint": "Erfordert NFC, das dieses Gerät nicht unterstützt. Diese Karte kann nicht geladen werden."
       }
     },
     "search": {

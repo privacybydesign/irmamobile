@@ -23,11 +23,18 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   /// can explain why it is unavailable.
   final bool disabled;
 
+  /// Localised explanation announced by assistive technology when [disabled] is
+  /// set (e.g. "requires NFC, which this device does not support"). Conveying
+  /// the reason this way means the unavailable state is not communicated by the
+  /// dimmed appearance alone.
+  final String? disabledHint;
+
   const SchemalessYiviCredentialTypeCard({
     this.onTap,
     this.checked = false,
     this.trailingIcon,
     this.disabled = false,
+    this.disabledHint,
     this.credentialImagePath,
     this.credentialImageBase64,
     required this.credentialName,
@@ -68,16 +75,32 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
       );
     }
 
-    return IrmaCard(
-      margin: EdgeInsets.zero,
-      child: Material(
-        child: InkWell(
-          key: Key("${credentialId}_tile"),
-          onTap: onTap,
-          // Greyed-out credentials stay tappable (so onTap can explain why they
-          // are unavailable) but are visually dimmed.
-          child: Opacity(
-            opacity: disabled ? 0.4 : 1.0,
+    // Greyed-out credentials dim the avatar and trailing icon for a clear
+    // "unavailable" look, while the title/issuer text keeps an AA-compliant
+    // muted colour (not a blanket opacity, which would drop the text below the
+    // 4.5:1 contrast minimum on a still-interactive control).
+    if (disabled) {
+      avatar = Opacity(opacity: 0.4, child: avatar);
+    }
+    final Color titleColor = disabled ? theme.neutralDark : theme.dark;
+    final Color issuerColor = disabled
+        ? theme.neutralDark
+        : theme.neutralExtraDark;
+    final Color trailingColor = disabled
+        ? theme.neutral
+        : theme.neutralExtraDark;
+
+    return Semantics(
+      enabled: !disabled,
+      hint: disabled ? disabledHint : null,
+      child: IrmaCard(
+        margin: EdgeInsets.zero,
+        child: Material(
+          child: InkWell(
+            key: Key("${credentialId}_tile"),
+            onTap: onTap,
+            // Greyed-out credentials stay tappable so onTap can explain why they
+            // are unavailable.
             child: Padding(
               // Tighter right padding when showing the default chevron so it
               // sits closer to the card edge. Action icons (e.g. the `+` on the
@@ -101,13 +124,13 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                         Text(
                           getTranslation(context, credentialName),
                           style: theme.themeData.textTheme.headlineMedium!
-                              .copyWith(fontSize: 16, color: theme.dark),
+                              .copyWith(fontSize: 16, color: titleColor),
                         ),
                         Text(
                           getTranslation(context, issuerName),
                           style: theme.themeData.textTheme.bodyMedium!.copyWith(
                             fontSize: 14,
-                            color: theme.neutralExtraDark,
+                            color: issuerColor,
                           ),
                         ),
                       ],
@@ -115,7 +138,7 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                   ),
                   SizedBox(width: theme.smallSpacing),
                   if (trailingIcon != null)
-                    Icon(trailingIcon, size: 24, color: theme.neutralExtraDark)
+                    Icon(trailingIcon, size: 24, color: trailingColor)
                   else
                     const Chevron(),
                 ],
