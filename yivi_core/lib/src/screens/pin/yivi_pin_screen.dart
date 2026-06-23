@@ -33,6 +33,10 @@ typedef StringCallback = void Function(String);
 
 const _nextButtonHeight = 48.0;
 
+/// Height of the PIN entry field, taken from the short PIN's dot size. Both
+/// PIN modes are pinned to this so long PIN is never taller or shorter.
+const _pinFieldHeight = 36.0;
+
 const shortPinSize = 5;
 const longPinSize = 16;
 
@@ -243,41 +247,19 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     final hideLogo =
         isLandscape &&
         _nextButtonVisibility(context) == WidgetVisibility.visible;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-              minWidth: constraints.maxWidth,
-            ),
-            child: IntrinsicHeight(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: theme.defaultSpacing.scaleToDesignSize(context),
-                children: [
-                  if (!hideLogo) ...[
-                    _buildScaledLogo(context),
-                    SizedBox(height: theme.defaultSpacing),
-                  ],
-                  _buildInstructionText(context),
-                  _buildDecoratedPinDots(context),
-                  _buildTogglePinSizeSlot(),
-                  if (widget.onForgotPin != null)
-                    Link(
-                      onTap: widget.onForgotPin!,
-                      label: FlutterI18n.translate(
-                        context,
-                        "pin.button_forgot",
-                      ),
-                    ),
-                  _buildSecurePinWarningSlot(showSecurePinText),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: theme.defaultSpacing.scaleToDesignSize(context),
+      children: [
+        if (!hideLogo) ...[
+          _buildScaledLogo(context),
+          SizedBox(height: theme.defaultSpacing),
+        ],
+        _buildInstructionText(context),
+        _buildDecoratedPinDots(context),
+        _buildActionLinkSlot(),
+        _buildSecurePinWarningSlot(showSecurePinText),
+      ],
     );
   }
 
@@ -303,52 +285,60 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     );
   }
 
-  /// Always present so the toggle link's height is reserved even on pin
-  /// screens that don't offer it (confirm/unlock) — keeps the logo, text and
-  /// dots at the same height across screens. Mirrors the warning slot.
-  Widget _buildTogglePinSizeSlot() {
+  /// The toggle-PIN-size and forgot-PIN links are mutually exclusive across
+  /// flows; render whichever is set in one always-present, same-styled
+  /// maintainSize slot so they reserve identical space — and screens with
+  /// neither still keep the logo/text/dots aligned. Mirrors the warning slot.
+  Widget _buildActionLinkSlot() {
+    final isToggle = widget.onTogglePinSize != null;
     return Visibility(
-      visible: widget.onTogglePinSize != null,
+      visible: isToggle || widget.onForgotPin != null,
       maintainSize: true,
       maintainAnimation: true,
       maintainState: true,
       child: Link(
-        onTap: widget.onTogglePinSize ?? () {},
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-        label: FlutterI18n.translate(context, _getTogglePinSizeSemanticKey()),
+        onTap: widget.onTogglePinSize ?? widget.onForgotPin ?? () {},
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+        label: FlutterI18n.translate(
+          context,
+          isToggle ? _getTogglePinSizeSemanticKey() : "pin.button_forgot",
+        ),
       ),
     );
   }
 
   Widget _buildDecoratedPinDots(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final isLong = widget.maxPinSize != shortPinSize;
+    final fieldWidthFactor = isLong ? .55 : .72;
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            FractionallySizedBox(widthFactor: .72, child: _buildPinDots()),
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: _buildListeningPinVisibilityButton(),
+    // Both modes share the short PIN's height so neither is taller.
+    return SizedBox(
+      height: _pinFieldHeight,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              FractionallySizedBox(
+                widthFactor: fieldWidthFactor,
+                child: _buildPinDots(),
               ),
-            ),
-          ],
-        ),
-        if (widget.maxPinSize != shortPinSize)
-          FractionallySizedBox(
-            widthFactor: .72,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Divider(height: 1.0, color: theme.secondary),
-                if (widget.displayPinLength)
-                  Align(
-                    alignment: Alignment.bottomRight,
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: _buildListeningPinVisibilityButton(),
+                ),
+              ),
+              // Counter beside the field rather than below, so long PIN isn't
+              // taller than short. Right-padded to clear the visibility button.
+              if (isLong && widget.displayPinLength)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 44),
                     child: Text(
                       "${_state.pin.length}/${widget.maxPinSize}",
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -359,10 +349,16 @@ class _YiviPinScreenState extends State<YiviPinScreen>
                       ),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
-      ],
+          if (isLong)
+            FractionallySizedBox(
+              widthFactor: fieldWidthFactor,
+              child: Divider(height: 1.0, color: theme.secondary),
+            ),
+        ],
+      ),
     );
   }
 
@@ -382,9 +378,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           scale: _jumpScale,
           child: _buildPinVisibilityButton(
             context,
-            visible
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
+            visible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
             'pin_accessibility.${visible ? 'hide' : 'show'}_pin',
             () {
               pinVisibilityValue.value = !visible;

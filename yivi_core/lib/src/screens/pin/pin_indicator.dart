@@ -162,7 +162,7 @@ class _PinIndicator extends StatelessWidget {
                 // glyphs have a uniform size, that prevents realignment
                 SizedBox(
                   width: isMaxPin5 ? 14 : 9,
-                  height: isMaxPin5 ? 36 : 21,
+                  height: isMaxPin5 ? _pinFieldHeight : 21,
                   child: Text(
                     '${i < pinSize ? pinState.pin.elementAt(i) : ''}',
                     style: i >= pinSize
