@@ -8,6 +8,7 @@ import "package:flutter_svg/flutter_svg.dart";
 
 import "../../../package_name.dart";
 import "../../theme/theme.dart";
+import "../../util/haptics.dart";
 import "../../util/scale.dart";
 import "../../util/tablet.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -411,7 +412,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             () {
               pinVisibilityValue.value = !visible;
               _jumpController.forward(from: 0);
-            },
+            }.haptic,
           ),
         );
       },
