@@ -174,7 +174,9 @@ class _PinIndicator extends StatelessWidget {
                 // dot grows in over it (and shrinks back out on backspace).
                 // Long PIN: no ring, and each dot just pops in on its own
                 // mount — backspace unmounts it, so no exit animation there.
-                if (isMaxPin5)
+                // Skip the empty-slot ring under a revealed digit — otherwise
+                // the ring overlaps the number and it's hard to read.
+                if (isMaxPin5 && !(isPinVisible && i < pinSize))
                   Container(
                     constraints: constraints,
                     decoration: circleOutlinedDecoration,
