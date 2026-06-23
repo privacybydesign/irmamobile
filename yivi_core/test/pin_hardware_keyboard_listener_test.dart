@@ -51,11 +51,7 @@ void main() {
   testWidgets("non-digit keys are ignored", (tester) async {
     final entered = <int>[];
     var submitted = 0;
-    await pump(
-      tester,
-      onEnterNumber: entered.add,
-      onSubmit: () => submitted++,
-    );
+    await pump(tester, onEnterNumber: entered.add, onSubmit: () => submitted++);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.keyA, character: "a");
 

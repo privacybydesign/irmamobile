@@ -23,13 +23,14 @@ class VerifyOldPinNotifier extends Notifier<OldPinVerificationState> {
       AuthenticationSuccessEvent() => const OldPinVerificationState(
         validationState: ValidationState.valid,
       ),
-      AuthenticationFailedEvent(:final remainingAttempts, :final blockedDuration) =>
+      AuthenticationFailedEvent(
+        :final remainingAttempts,
+        :final blockedDuration,
+      ) =>
         OldPinVerificationState(
           validationState: ValidationState.invalid,
           attemptsRemaining: remainingAttempts,
-          blockedUntil: DateTime.now().add(
-            Duration(seconds: blockedDuration),
-          ),
+          blockedUntil: DateTime.now().add(Duration(seconds: blockedDuration)),
         ),
       AuthenticationErrorEvent(:final error) => OldPinVerificationState(
         validationState: ValidationState.error,

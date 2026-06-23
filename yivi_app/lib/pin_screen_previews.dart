@@ -102,8 +102,7 @@ Widget pinPreviewWrapper(Widget child) => MaterialApp(
       data: const MediaQueryData(size: pinPreviewSize),
       child: FutureBuilder<void>(
         future: _fontsReady,
-        builder: (context, snap) =>
-            snap.connectionState == ConnectionState.done
+        builder: (context, snap) => snap.connectionState == ConnectionState.done
             ? child
             : const SizedBox.shrink(),
       ),
@@ -154,13 +153,14 @@ Widget _pin({
       displayPinLength: checkSecurePin,
       onForgotPin: forgot ? () {} : null,
       onBiometricUnlock: biometric ? () {} : null,
-      biometricGlyph: biometric ? const Icon(Icons.fingerprint, size: 28) : null,
+      biometricGlyph: biometric
+          ? const Icon(Icons.fingerprint, size: 28)
+          : null,
       onTogglePinSize: toggle ? () {} : null,
       // Mirrors YiviChoosePinScaffold: keep the slot reserved (invisible) while
       // typing a short PIN, then reveal "Next" once it's long enough / insecure.
       submitButtonVisibilityListener: checkSecurePin
-          ? (context, state) =>
-                (!isLong && state.pin.length < shortPinSize)
+          ? (context, state) => (!isLong && state.pin.length < shortPinSize)
                 ? defaultSubmitButtonVisibility(context, maxPinSize)
                 : WidgetVisibility.visible
           : null,

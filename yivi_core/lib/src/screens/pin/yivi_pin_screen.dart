@@ -256,9 +256,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             ],
           ),
         ),
-        Expanded(
-          child: _buildKeypad(),
-        ),
+        Expanded(child: _buildKeypad()),
       ],
     );
   }
@@ -271,9 +269,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     return Column(
       children: [
         Expanded(child: _buildTopColumn(context, showSecurePinText)),
-        Expanded(
-          child: _buildKeypad(),
-        ),
+        Expanded(child: _buildKeypad()),
         Padding(
           padding: EdgeInsets.only(top: theme.screenPadding),
           child: _buildNextButton(),
