@@ -729,7 +729,12 @@ class IrmaRepository {
     }
   }
 
-  void _startEmailIssuance(BuildContext context, String url, WidgetRef ref) {
+  void _startEmailIssuance(
+    BuildContext context,
+    String url,
+    WidgetRef ref, {
+    String? prefillEmail,
+  }) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -742,7 +747,10 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(emailIssuerUrlProvider.notifier).set(baseUri.toString());
 
-      context.pushEmailIssuanceScreen();
+      // When the verifier requested a specific email address, pre-fill it on
+      // the email-loading screen so the user does not have to retype the
+      // address they were just shown on the disclosure screen.
+      context.pushEmailIssuanceScreen(prefillEmail: prefillEmail);
     }
   }
 
@@ -766,12 +774,18 @@ class IrmaRepository {
   ///   link to a registered native app (UZI register, Belastingdienst);
   ///   everything else goes through `openURL` (in-app browser, falling
   ///   back to external for opted-in URLs).
+  ///
+  /// When the credential is being obtained to satisfy a disclosure request for
+  /// a specific value (e.g. an email address the verifier asked for),
+  /// [prefillValue] carries that value so the embedded flow can pre-fill its
+  /// input field. Currently only the email flow uses it.
   Future<void> openIssueURL(
     BuildContext context,
     String credentialId,
     TranslatedValue? issueURL,
-    WidgetRef ref,
-  ) async {
+    WidgetRef ref, {
+    String? prefillValue,
+  }) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final url = issueURL?.translate(lang);
     if (url == null || url.isEmpty) {
@@ -796,6 +810,12 @@ class IrmaRepository {
     };
     final flow = embeddedFlows[credentialId];
     if (flow != null) {
+      // The email flow can pre-fill the address the verifier requested; the
+      // other embedded flows take no pre-fill value.
+      if (flow == _startEmailIssuance) {
+        _startEmailIssuance(context, url, ref, prefillEmail: prefillValue);
+        return;
+      }
       return flow(context, url, ref);
     }
 

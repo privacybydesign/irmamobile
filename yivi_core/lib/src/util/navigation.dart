@@ -34,8 +34,15 @@ extension RoutingHelpers on BuildContext {
     push("/issue_mobilenumber");
   }
 
-  void pushEmailIssuanceScreen() {
-    push("/issue_email");
+  void pushEmailIssuanceScreen({String? prefillEmail}) {
+    final uri = Uri(
+      path: "/issue_email",
+      queryParameters: {
+        if (prefillEmail != null && prefillEmail.isNotEmpty)
+          "prefill_email": prefillEmail,
+      },
+    );
+    push(uri.toString());
   }
 
   void popToWizardScreen() {
