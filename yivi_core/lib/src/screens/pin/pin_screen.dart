@@ -146,13 +146,19 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         : shortPinSize;
 
     final blockedFor = ref.watch(pinBlockedForProvider).value ?? Duration.zero;
-    final enabled = blockedFor.inSeconds <= 0 && !state.authenticateInProgress;
+    final blocked = blockedFor.inSeconds > 0;
+    final enabled = !blocked && !state.authenticateInProgress;
 
     final biometricAvailable =
         ref.watch(biometricAvailableProvider).value ?? false;
     final biometricEnabled = ref.watch(biometricEnabledProvider).value ?? false;
+    // Hide biometric while blocked — otherwise it would bypass the temporary
+    // lockout that the wrong-PIN rate limiter just imposed.
     final showBiometric =
-        widget.allowBiometric && biometricAvailable && biometricEnabled;
+        widget.allowBiometric &&
+        biometricAvailable &&
+        biometricEnabled &&
+        !blocked;
     final biometricType = ref.watch(biometricTypeProvider).value;
 
     var subtitle = FlutterI18n.translate(context, "pin.subtitle");

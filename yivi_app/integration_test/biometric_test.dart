@@ -4,6 +4,7 @@ import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/models/enrollment_status.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
+import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "helpers/fake_local_auth.dart";
 import "helpers/helpers.dart";
@@ -191,6 +192,44 @@ void main() {
       await tester.tapAndSettle(lockScreenBiometricButton);
 
       // Still on the PIN screen (number pad present), not home.
+      expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
+      expect(homeTab, findsNothing);
+    });
+
+    testWidgets("biometric is unavailable while the PIN is blocked", (
+      tester,
+    ) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await pumpYiviApp(
+        tester,
+        irmaBinding.repository,
+        localAuth: FakeLocalAuthentication(
+          available: true,
+          authenticateResult: true,
+        ),
+      );
+
+      // Biometric is offered on the lock screen to begin with.
+      await tester.waitFor(lockScreenBiometricButton);
+
+      // Three wrong PINs trip the temporary block. Each wrong attempt shows a
+      // dialog that we dismiss before the next one.
+      final dialogFinder = find.byKey(const Key("irma_dialog"));
+      for (var attempt = 0; attempt < 3; attempt++) {
+        await enterPin(tester, "54321");
+        await tester.waitFor(dialogFinder);
+        await tester.tapAndSettle(
+          find.descendant(
+            of: dialogFinder,
+            matching: find.byType(YiviThemedButton),
+          ),
+        );
+      }
+
+      // Blocked: the biometric button is gone (so it can't bypass the
+      // lockout), and the app stays locked even though the fake would
+      // authenticate successfully.
+      expect(lockScreenBiometricButton, findsNothing);
       expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
       expect(homeTab, findsNothing);
     });
