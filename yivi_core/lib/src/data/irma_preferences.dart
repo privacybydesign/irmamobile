@@ -19,6 +19,7 @@ class IrmaPreferences {
        // Please don't arbitrarily change this value, this could hinder the upgrade flow
        // For users before the pin size >5 was introduced.
        _longPin = preferences.getBool(_longPinKey, defaultValue: true),
+       _pinVisible = preferences.getBool(_pinVisibleKey, defaultValue: false),
        _reportErrors = preferences.getBool(
          _reportErrorsKey,
          defaultValue: false,
@@ -85,6 +86,10 @@ class IrmaPreferences {
 
   static const String _longPinKey = "preference.long_pin";
   final Preference<bool> _longPin;
+
+  /// Whether entered PIN digits are revealed (the eye toggle on the PIN screen).
+  static const String _pinVisibleKey = "preference.pin_visible";
+  final Preference<bool> _pinVisible;
 
   static const String _reportErrorsKey = "preference.report_errors";
   final Preference<bool> _reportErrors;
@@ -154,6 +159,10 @@ class IrmaPreferences {
   Stream<bool> getLongPin() => _longPin;
 
   Future<bool> setLongPin(bool value) => _longPin.setValue(value);
+
+  bool getPinVisible() => _pinVisible.getValue();
+
+  Future<bool> setPinVisible(bool value) => _pinVisible.setValue(value);
 
   Stream<bool> getReportErrors() => _reportErrors;
 

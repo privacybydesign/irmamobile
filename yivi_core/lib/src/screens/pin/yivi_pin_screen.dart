@@ -7,6 +7,8 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/flutter_svg.dart";
 
 import "../../../package_name.dart";
+import "../../data/irma_preferences.dart";
+import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/haptics.dart";
 import "../../util/scale.dart";
@@ -123,6 +125,9 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   final pinVisibilityValue = ValueNotifier(false);
   EnterPinState _state = EnterPinState.empty();
 
+  // Reveal-PIN toggle is persisted so it carries across every PIN screen.
+  IrmaPreferences? _prefs;
+
   // One-shot pop for the show/hide-pin button when tapped — same overshoot
   // curve and duration as the PIN dots ([_dotPop]).
   late final _jumpController = AnimationController(
@@ -134,6 +139,16 @@ class _YiviPinScreenState extends State<YiviPinScreen>
     parent: _jumpController,
     curve: _dotPop,
   );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final prefs = IrmaRepositoryProvider.of(context).preferences;
+    // Seed the toggle from the saved value the first time only — don't clobber
+    // an in-session change on later dependency updates (e.g. theme change).
+    if (_prefs == null) pinVisibilityValue.value = prefs.getPinVisible();
+    _prefs = prefs;
+  }
 
   @override
   void didUpdateWidget(covariant YiviPinScreen oldWidget) {
@@ -426,6 +441,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             'pin_accessibility.${visible ? 'hide' : 'show'}_pin',
             () {
               pinVisibilityValue.value = !visible;
+              _prefs?.setPinVisible(!visible);
               _jumpController.forward(from: 0);
             }.haptic,
           ),
