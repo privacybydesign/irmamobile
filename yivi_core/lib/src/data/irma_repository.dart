@@ -18,6 +18,7 @@ import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credentials.dart";
+import "../models/delete_keyshare_tokens_event.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
@@ -368,7 +369,10 @@ class IrmaRepository {
 
   // -- Authentication
   void lock({DateTime? unblockTime}) {
-    // TODO: This should actually lock irmago up
+    // Drop irmago's in-memory keyshare token so the next session must
+    // re-authenticate with the PIN. A biometric unlock alone won't restore it
+    // (only KeyshareVerifyPin does), closing the biometric-bypass window.
+    bridgedDispatch(DeleteKeyshareTokensEvent());
     _lockedSubject.add(true);
     _blockedSubject.add(unblockTime);
   }
