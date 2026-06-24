@@ -368,7 +368,24 @@ class IrmaRepository {
       _enrollmentStatusEventSubject.stream;
 
   // -- Authentication
-  void lock({DateTime? unblockTime}) {
+
+  // Set when the user explicitly locks (e.g. "Log out" on the More tab), so the
+  // next lock screen shows the PIN pad instead of auto-firing biometrics. A
+  // one-shot consumed by the lock screen — an idle-timeout lock leaves it false
+  // and still auto-scans.
+  bool _biometricAutoUnlockSuppressed = false;
+
+  /// Returns whether the next biometric auto-unlock should be skipped, clearing
+  /// the flag so only the lock appearance that directly follows an explicit
+  /// logout is suppressed.
+  bool consumeBiometricAutoUnlockSuppressed() {
+    final suppressed = _biometricAutoUnlockSuppressed;
+    _biometricAutoUnlockSuppressed = false;
+    return suppressed;
+  }
+
+  void lock({DateTime? unblockTime, bool userInitiated = false}) {
+    if (userInitiated) _biometricAutoUnlockSuppressed = true;
     // Drop irmago's in-memory keyshare token so the next session must
     // re-authenticate with the PIN. A biometric unlock alone won't restore it
     // (only KeyshareVerifyPin does), closing the biometric-bypass window.

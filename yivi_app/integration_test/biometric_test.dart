@@ -159,6 +159,8 @@ void main() {
 
     testWidgets("lock-screen button unlocks the app", (tester) async {
       await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      // Disable auto-scan: this test drives the manual button.
+      await irmaBinding.repository.preferences.setBiometricImmediate(false);
       await pumpYiviApp(
         tester,
         irmaBinding.repository,
@@ -179,6 +181,8 @@ void main() {
       tester,
     ) async {
       await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      // Disable auto-scan: this test drives the manual button.
+      await irmaBinding.repository.preferences.setBiometricImmediate(false);
       await pumpYiviApp(
         tester,
         irmaBinding.repository,
@@ -196,10 +200,160 @@ void main() {
       expect(homeTab, findsNothing);
     });
 
+    // "Scan on launch" — auto-fires the biometric prompt when the lock screen
+    // appears (immediate pref defaults on).
+    testWidgets("immediate biometric auto-scans and unlocks on launch", (
+      tester,
+    ) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      // immediate pref left at its default (on).
+      await pumpYiviApp(
+        tester,
+        irmaBinding.repository,
+        localAuth: FakeLocalAuthentication(
+          available: true,
+          authenticateResult: true,
+        ),
+      );
+
+      // No tap: the auto-scan fires and reaches home on its own.
+      await tester.waitFor(homeTab);
+    });
+
+    testWidgets("immediate biometric cancel falls back to PIN, fires once", (
+      tester,
+    ) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      final fakeAuth = FakeLocalAuthentication(
+        available: true,
+        authenticateResult: false,
+      );
+      await pumpYiviApp(tester, irmaBinding.repository, localAuth: fakeAuth);
+
+      // Auto-scan fired, failed, and we're back on the PIN pad with the manual
+      // button still available — and it fired exactly once (no re-prompt loop).
+      await tester.waitFor(lockScreenBiometricButton);
+      expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
+      expect(homeTab, findsNothing);
+      expect(fakeAuth.authenticateCalls, 1);
+    });
+
+    testWidgets("immediate off: no auto-scan, app stays locked", (
+      tester,
+    ) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      await irmaBinding.repository.preferences.setBiometricImmediate(false);
+      final fakeAuth = FakeLocalAuthentication(
+        available: true,
+        authenticateResult: true,
+      );
+      await pumpYiviApp(tester, irmaBinding.repository, localAuth: fakeAuth);
+
+      // The button is offered but nothing auto-fires; the app stays locked.
+      await tester.waitFor(lockScreenBiometricButton);
+      expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
+      expect(homeTab, findsNothing);
+      expect(fakeAuth.authenticateCalls, 0);
+    });
+
+    testWidgets("explicit logout suppresses the next auto-scan", (tester) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      final fakeAuth = FakeLocalAuthentication(
+        available: true,
+        authenticateResult: true,
+      );
+      await pumpYiviApp(tester, irmaBinding.repository, localAuth: fakeAuth);
+
+      // Auto-scan unlocks on launch (one authenticate call).
+      await tester.waitFor(homeTab);
+      expect(fakeAuth.authenticateCalls, 1);
+
+      // Log out from the More tab.
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
+      await tester.tapAndSettle(find.byKey(const Key("log_out_button")));
+
+      // The lock screen returns but does NOT auto-scan: still locked, and no
+      // second authenticate call. The manual button is still offered.
+      await tester.waitFor(lockScreenBiometricButton);
+      expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
+      expect(homeTab, findsNothing);
+      expect(fakeAuth.authenticateCalls, 1);
+    });
+
+    testWidgets("re-opening after logout resumes the auto-scan", (
+      tester,
+    ) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      final fakeAuth = FakeLocalAuthentication(
+        available: true,
+        authenticateResult: true,
+      );
+      await pumpYiviApp(tester, irmaBinding.repository, localAuth: fakeAuth);
+
+      // Launch auto-scan unlocks (call 1).
+      await tester.waitFor(homeTab);
+      expect(fakeAuth.authenticateCalls, 1);
+
+      // Log out — the lock screen returns but the scan is suppressed.
+      await tester.tapAndSettle(find.byKey(const Key("nav_button_more")));
+      await tester.tapAndSettle(find.byKey(const Key("log_out_button")));
+      await tester.waitFor(lockScreenBiometricButton);
+      expect(fakeAuth.authenticateCalls, 1);
+
+      // Background then re-open: the logout suppression is dropped, so the scan
+      // resumes and unlocks (call 2).
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.inactive,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.paused,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.resumed,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.waitFor(homeTab);
+      expect(fakeAuth.authenticateCalls, 2);
+    });
+
+    testWidgets("re-opening the app re-fires the auto-scan", (tester) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      // authenticateResult:false keeps us on the lock screen, so a second scan
+      // on re-open is observable via the call counter.
+      final fakeAuth = FakeLocalAuthentication(
+        available: true,
+        authenticateResult: false,
+      );
+      await pumpYiviApp(tester, irmaBinding.repository, localAuth: fakeAuth);
+
+      // Auto-scan fired once on launch and failed; still on the lock screen.
+      await tester.waitFor(lockScreenBiometricButton);
+      expect(fakeAuth.authenticateCalls, 1);
+
+      // Background then foreground the app.
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.inactive,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.paused,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.resumed,
+      );
+      await tester.pumpAndSettle();
+
+      // Re-open re-armed the guard, so the scan fired again.
+      expect(fakeAuth.authenticateCalls, 2);
+    });
+
     testWidgets("biometric is unavailable while the PIN is blocked", (
       tester,
     ) async {
       await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      // Disable auto-scan: a successful auto-scan would unlock before this test
+      // can enter its wrong PINs.
+      await irmaBinding.repository.preferences.setBiometricImmediate(false);
       await pumpYiviApp(
         tester,
         irmaBinding.repository,

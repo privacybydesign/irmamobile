@@ -50,6 +50,12 @@ final biometricEnabledProvider = StreamProvider<bool>(
   (ref) => ref.watch(preferencesProvider).getBiometricEnabled(),
 );
 
+/// Whether the biometric scan fires automatically when the lock screen appears
+/// (pref-backed, default on). Only matters while [biometricEnabledProvider].
+final biometricImmediateProvider = StreamProvider<bool>(
+  (ref) => ref.watch(preferencesProvider).getBiometricImmediate(),
+);
+
 /// Whether the one-time opt-in prompt has already been answered/dismissed.
 final biometricPromptDismissedProvider = StreamProvider<bool>(
   (ref) => ref.watch(preferencesProvider).getBiometricPromptDismissed(),

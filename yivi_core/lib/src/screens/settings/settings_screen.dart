@@ -91,6 +91,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   final available =
                       ref.watch(biometricAvailableProvider).value ?? false;
                   if (!available) return const SizedBox.shrink();
+                  final biometricEnabled =
+                      ref.watch(biometricEnabledProvider).value ?? false;
                   return Padding(
                     padding: EdgeInsets.only(bottom: theme.defaultSpacing),
                     child: Column(
@@ -132,6 +134,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         buildExplanationText(
                           "settings.biometric_unlock_explanation",
+                        ),
+                        // "Scan on launch": stays visible but greyed out and
+                        // non-interactive while biometric unlock is off — the
+                        // pref is ignored until biometric is re-enabled.
+                        SizedBox(height: theme.defaultSpacing),
+                        IgnorePointer(
+                          ignoring: !biometricEnabled,
+                          child: Opacity(
+                            opacity: biometricEnabled ? 1.0 : 0.5,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TilesCard(
+                                  children: [
+                                    ToggleTile(
+                                      key: const Key(
+                                        "biometric_immediate_toggle",
+                                      ),
+                                      labelTranslationKey:
+                                          "settings.biometric_immediate",
+                                      // No auth to flip — it only changes whether
+                                      // an already-enabled biometric fires
+                                      // automatically.
+                                      onChanged: repo
+                                          .preferences
+                                          .setBiometricImmediate,
+                                      stream: repo.preferences
+                                          .getBiometricImmediate(),
+                                    ),
+                                  ],
+                                ),
+                                buildExplanationText(
+                                  "settings.biometric_immediate_explanation",
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),

@@ -699,6 +699,8 @@
     "change_pin": "Change PIN",
     "biometric_unlock": "Unlock with biometrics",
     "biometric_unlock_explanation": "Use your fingerprint or face to unlock the app. You'll still need your PIN to receive or share data.",
+    "biometric_immediate": "Unlock automatically",
+    "biometric_immediate_explanation": "Unlock with biometrics automatically when you open the app, instead of tapping the button.",
     "delete": "Delete data",
     "confirm_delete_dialog": {
       "title": "Delete data",

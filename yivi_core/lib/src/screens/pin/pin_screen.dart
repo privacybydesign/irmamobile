@@ -71,11 +71,56 @@ class PinScreen extends ConsumerStatefulWidget {
   ConsumerState<PinScreen> createState() => _PinScreenState();
 }
 
-class _PinScreenState extends ConsumerState<PinScreen> {
+class _PinScreenState extends ConsumerState<PinScreen>
+    with WidgetsBindingObserver {
   // Bumped on a wrong/blocked attempt to remount YiviPinScreen with an empty
   // buffer — clears the entered digits and their dots. Same pattern as
   // SessionPinEntryScreen.
   int _resetNonce = 0;
+
+  // "Scan on launch": guards the one auto-fire of the biometric prompt per
+  // foreground. Set true once fired; stays true after a cancel/fail so we don't
+  // re-prompt in a loop within the same foreground. Re-armed (set false) when
+  // the app is backgrounded (see [didChangeAppLifecycleState]) so re-opening
+  // the app scans again, and reset for free whenever LockGate remounts a fresh
+  // PinScreen on a new lock appearance.
+  bool _autoTriggered = false;
+
+  // True while a biometric prompt is on screen. On some platforms the prompt
+  // itself backgrounds the app; this stops the lifecycle re-arm below from
+  // firing a second scan while one is already running (which would loop on
+  // cancel).
+  bool _scanInProgress = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!mounted) return;
+    // Re-arm on a real backgrounding (`paused`) — not the transient `inactive`
+    // the biometric prompt causes, and not while a scan is already running.
+    // On `resumed`, rebuild so the auto-trigger guard in build() re-evaluates
+    // and fires the scan for the re-opened app.
+    if (state == AppLifecycleState.paused && !_scanInProgress) {
+      _autoTriggered = false;
+      // A re-open is fresh intent to use the app, so drop the logout
+      // suppression too: it only covers the lock screen shown directly after an
+      // explicit logout, not a later re-open. No-op if already consumed.
+      ref.read(irmaRepositoryProvider).consumeBiometricAutoUnlockSuppressed();
+    } else if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
+  }
 
   void _showWrongAttemptsDialog(int attemptsRemaining) {
     if (!mounted) return;
@@ -134,9 +179,14 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     final reason = FlutterI18n.translate(context, "pin.biometric_reason");
     // On success the service flips appLocked locally (no keyshare), which
     // drops the lock overlay; sessions still require the PIN.
-    await ref
-        .read(biometricServiceProvider)
-        .authenticateAndUnlock(localizedReason: reason);
+    _scanInProgress = true;
+    try {
+      await ref
+          .read(biometricServiceProvider)
+          .authenticateAndUnlock(localizedReason: reason);
+    } finally {
+      _scanInProgress = false;
+    }
   }
 
   // Cancel a pending session from the lock screen: confirm, then clear the
@@ -195,6 +245,26 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         !blocked &&
         !hasPendingSession;
     final biometricType = ref.watch(biometricTypeProvider).value;
+
+    // "Scan on launch": fire the biometric prompt automatically the first time
+    // the lock screen is shown with biometric allowed. `.value ?? false` means
+    // it waits for the providers to resolve on cold start rather than firing
+    // early. Reuses `showBiometric`, so blocked/pending-session/unavailable are
+    // already excluded. On cancel/fail nothing happens and `_autoTriggered`
+    // stays true — the user falls back to the PIN pad or the manual button.
+    final biometricImmediate =
+        ref.watch(biometricImmediateProvider).value ?? false;
+    if (showBiometric && biometricImmediate && !_autoTriggered) {
+      _autoTriggered = true;
+      final repo = ref.read(irmaRepositoryProvider);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        // Skip the auto-scan if this lock followed an explicit logout; the
+        // one-shot flag is consumed so a later idle-lock auto-scans normally.
+        if (repo.consumeBiometricAutoUnlockSuppressed()) return;
+        _biometricUnlock();
+      });
+    }
 
     var subtitle = FlutterI18n.translate(context, "pin.subtitle");
     if (blockedFor.inSeconds > 0) {

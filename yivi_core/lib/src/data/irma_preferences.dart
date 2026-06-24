@@ -36,6 +36,10 @@ class IrmaPreferences {
          _biometricEnabledKey,
          defaultValue: false,
        ),
+       _biometricImmediate = preferences.getBool(
+         _biometricImmediateKey,
+         defaultValue: true,
+       ),
        _biometricPromptDismissed = preferences.getBool(
          _biometricPromptDismissedKey,
          defaultValue: false,
@@ -105,6 +109,12 @@ class IrmaPreferences {
   /// Whether the user opted in to biometric app-unlock. Default off (opt-in).
   static const String _biometricEnabledKey = "preference.biometric_enabled";
   final Preference<bool> _biometricEnabled;
+
+  /// Whether the biometric scan fires automatically when the lock screen
+  /// appears, instead of waiting for a button tap. Default on; only has an
+  /// effect while [_biometricEnabled] is true.
+  static const String _biometricImmediateKey = "preference.biometric_immediate";
+  final Preference<bool> _biometricImmediate;
 
   /// Whether the one-time biometric opt-in prompt has been answered/dismissed,
   /// so it isn't shown again.
@@ -182,6 +192,11 @@ class IrmaPreferences {
 
   Future<bool> setBiometricEnabled(bool value) =>
       _biometricEnabled.setValue(value);
+
+  Stream<bool> getBiometricImmediate() => _biometricImmediate;
+
+  Future<bool> setBiometricImmediate(bool value) =>
+      _biometricImmediate.setValue(value);
 
   Stream<bool> getBiometricPromptDismissed() => _biometricPromptDismissed;
 

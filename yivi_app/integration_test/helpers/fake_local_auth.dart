@@ -14,6 +14,10 @@ class FakeLocalAuthentication implements LocalAuthentication {
   final bool available;
   final bool authenticateResult;
 
+  /// Number of times `authenticate()` was invoked — lets tests assert the
+  /// auto-scan fires exactly once (no re-prompt loop).
+  int authenticateCalls = 0;
+
   @override
   Future<bool> isDeviceSupported() async => available;
 
@@ -27,6 +31,7 @@ class FakeLocalAuthentication implements LocalAuthentication {
   @override
   dynamic noSuchMethod(Invocation invocation) {
     if (invocation.memberName == #authenticate) {
+      authenticateCalls++;
       return Future<bool>.value(authenticateResult);
     }
     return super.noSuchMethod(invocation);

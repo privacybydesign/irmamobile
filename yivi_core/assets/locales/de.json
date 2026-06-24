@@ -688,6 +688,10 @@
     "language": "Sprache",
     "use_system_language": "Systemsprache verwenden",
     "change_pin": "PIN ändern",
+    "biometric_unlock": "Mit Biometrie entsperren",
+    "biometric_unlock_explanation": "Verwende deinen Fingerabdruck oder dein Gesicht, um die App zu entsperren. Zum Empfangen oder Teilen von Daten benötigst du weiterhin deine PIN.",
+    "biometric_immediate": "Automatisch entsperren",
+    "biometric_immediate_explanation": "Entsperre die App beim Öffnen automatisch mit Biometrie, anstatt auf die Schaltfläche zu tippen.",
     "delete": "Daten löschen",
     "confirm_delete_dialog": {
       "title": "Daten löschen",
