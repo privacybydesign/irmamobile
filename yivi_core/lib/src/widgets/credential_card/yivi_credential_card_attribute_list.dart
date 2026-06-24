@@ -424,9 +424,15 @@ class _RenderItemView extends StatelessWidget {
     } else if (isFirstAtDepth) {
       topPad = 0;
     } else {
-      topPad = context.yivi.spacing.tiny;
+      topPad = context.yivi.spacing.small;
     }
-    final bottomPad = context.yivi.spacing.tiny;
+    // When the next row is shallower, this row closes a nested array/object
+    // block (object-array items, nested objects) — give it extra room below so
+    // the block reads as a finished section before the next claim.
+    final closesNesting = nextDepth >= 0 && nextDepth < item.depth;
+    final bottomPad = closesNesting
+        ? context.yivi.spacing.small
+        : context.yivi.spacing.tiny;
     // Inset from the Stack bottom up to the bottom of the value content (i.e.,
     // skipping the row's bottom padding and the divider, if any). Used as the
     // `bottom` for guide-line segments that end in this row.
@@ -539,7 +545,7 @@ class _LeafContent extends StatelessWidget {
       children: [
         Text(
           attribute.effectiveDisplayName.translate(lang),
-          style: context.text.bodySmall,
+          style: context.text.bodySmall?.copyWith(fontSize: 14),
         ),
         _buildValue(context, lang),
       ],
@@ -625,15 +631,16 @@ class _PrimArrayContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(node.label.translate(lang), style: context.text.bodySmall),
+        Text(node.label.translate(lang), style: context.text.bodySmall?.copyWith(fontSize: 14)),
         for (final v in node.values) _bulletRow(context, v),
       ],
     );
   }
 
   Widget _bulletRow(BuildContext context, schemaless.AttributeValue v) {
-    final valueStyle = context.text.bodyLarge!.copyWith(
+    final valueStyle = context.text.bodyMedium!.copyWith(
       fontWeight: FontWeight.w600,
+      fontSize: 16,
       height: 1.2,
     );
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
@@ -691,7 +698,7 @@ class _EyebrowContent extends StatelessWidget {
     if (node.children.isEmpty) {
       return Text(
         node.label?.translate(lang) ?? "",
-        style: context.text.bodySmall,
+        style: context.text.bodySmall?.copyWith(fontSize: 14),
       );
     }
     return Text(
@@ -727,8 +734,12 @@ TextStyle _eyebrowStyle(BuildContext context) => TextStyle(
   letterSpacing: 0.96,
 );
 
-// Leaf attribute value style. bodyLarge currently hosts the (16, w700, dark)
-// "bold body" — copyWith drops the weight to w600 and applies the row's
-// state-derived color (match / mismatch / default).
+// Leaf attribute value style — 16 / Semibold (the master credential-card value
+// size), so the value clearly outweighs the smaller grey claim label above it.
+// Only the row's state-derived colour (match / mismatch / default) is overlaid.
 TextStyle _attributeValueStyle(BuildContext context, Color color) =>
-    context.text.bodyLarge!.copyWith(fontWeight: FontWeight.w600, color: color);
+    context.text.bodyMedium!.copyWith(
+      fontWeight: FontWeight.w600,
+      fontSize: 16,
+      color: color,
+    );
