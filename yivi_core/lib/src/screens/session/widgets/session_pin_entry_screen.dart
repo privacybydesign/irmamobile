@@ -136,6 +136,8 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
                   displayPinLength: true,
                   onSubmit: _submit,
                   onForgotPin: context.pushResetPinScreen,
+                  submitButtonVisibilityListener: (context, _) =>
+                      autoSubmitButtonVisibility(widget.maxPinSize),
                   listener: (context, state) {
                     if (widget.maxPinSize == shortPinSize &&
                         state.pin.length == widget.maxPinSize) {
