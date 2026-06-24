@@ -1,10 +1,21 @@
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
+import "package:flutter_i18n/loaders/translation_loader.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/pin/widgets/pin_keypad.dart";
 import "package:yivi_core/src/theme/theme.dart";
+
+/// Stub loader that resolves immediately with an empty map. The production
+/// FileTranslationLoader reads JSON via rootBundle.loadString — real-time IO
+/// that the test framework's fake clock doesn't drive, so pumpAndSettle
+/// returns before Localizations rebuilds and every `find.byKey` sees 0
+/// widgets. The keypad only uses translations for accessibility labels, not
+/// for anything these tests assert on.
+class _NoopTranslationLoader extends TranslationLoader {
+  @override
+  Future<Map> load() async => <String, dynamic>{};
+}
 
 void main() {
   Future<void> pumpKeypad(
@@ -18,12 +29,7 @@ void main() {
       IrmaTheme(
         builder: (_) => MaterialApp(
           localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: "assets/locales",
-                forcedLocale: const Locale("nl", "NL"),
-              ),
-            ),
+            FlutterI18nDelegate(translationLoader: _NoopTranslationLoader()),
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
