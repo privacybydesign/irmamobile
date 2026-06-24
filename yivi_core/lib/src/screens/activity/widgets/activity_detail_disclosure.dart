@@ -37,7 +37,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
               ),
             ),
         if (logEntry.type == LogType.signature) ...[
-          SizedBox(height: context.yivi.spacing.base),
+          SizedBox(height: context.yivi.spacing.large),
           SectionHeader("activity.signed_message"),
           SizedBox(height: context.yivi.spacing.small),
           SignatureMessage(message: logEntry.signedMessageLog!.message),

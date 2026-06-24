@@ -203,7 +203,7 @@ class _DisclosureMakeChoiceScreenState
                 Padding(
                   padding: EdgeInsets.only(
                     bottom: context.yivi.spacing.small,
-                    top: context.yivi.spacing.medium,
+                    top: context.yivi.spacing.large,
                   ),
                   child: SectionHeader("disclosure_permission.obtain_new"),
                 ),

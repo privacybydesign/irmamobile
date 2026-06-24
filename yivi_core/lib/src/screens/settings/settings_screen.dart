@@ -215,6 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                 ),
+              SizedBox(height: context.yivi.spacing.medium),
               buildHeaderText("settings.other"),
               TilesCard(
                 children: [

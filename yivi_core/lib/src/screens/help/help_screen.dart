@@ -54,7 +54,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 body: const TranslatedText("help.answer_3_markdown"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: context.yivi.spacing.base),
+              SizedBox(height: context.yivi.spacing.large),
               _buildHeader("help.login"),
               SizedBox(height: context.yivi.spacing.small),
               HelpItem(
@@ -110,7 +110,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: context.yivi.spacing.base),
+              SizedBox(height: context.yivi.spacing.large),
               _buildHeader("help.device"),
               SizedBox(height: context.yivi.spacing.small),
               HelpItem(
@@ -124,7 +124,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 body: const TranslatedText("help.answer_7"),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: context.yivi.spacing.base),
+              SizedBox(height: context.yivi.spacing.large),
               _buildHeader("help.security_and_privacy"),
               SizedBox(height: context.yivi.spacing.small),
               HelpItem(
@@ -152,7 +152,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
                 parentScrollController: _controller,
               ),
-              SizedBox(height: context.yivi.spacing.base),
+              SizedBox(height: context.yivi.spacing.large),
               _buildHeader("help.ask"),
               SizedBox(height: context.yivi.spacing.base),
               TranslatedText("help.send", style: context.text.bodyMedium),

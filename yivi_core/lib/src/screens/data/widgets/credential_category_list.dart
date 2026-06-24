@@ -25,7 +25,7 @@ class CredentialCategoryList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: context.yivi.spacing.base),
+        SizedBox(height: context.yivi.spacing.large),
         SectionHeader.text(categoryName),
         SizedBox(height: context.yivi.spacing.small),
         ...credentialTypes.map(

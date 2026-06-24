@@ -314,7 +314,7 @@ class _DisclosureChoicesOverviewState
               if (choices.isEmpty ||
                   (requiredChoices.isEmpty &&
                       addedOptionalChoices.isEmpty)) ...[
-                SizedBox(height: context.yivi.spacing.base),
+                SizedBox(height: context.yivi.spacing.large),
                 const SectionHeader("disclosure_permission.no_data_selected"),
               ],
 

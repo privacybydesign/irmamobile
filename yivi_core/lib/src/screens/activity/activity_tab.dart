@@ -123,7 +123,7 @@ class _ActivityTabState extends State<ActivityTab> {
           Padding(
             padding: EdgeInsets.only(
               // If is not first add padding to top.
-              top: index > 0 ? context.yivi.spacing.base : 0,
+              top: index > 0 ? context.yivi.spacing.large : 0,
               right: context.yivi.spacing.tiny,
               bottom: context.yivi.spacing.tiny,
             ),
