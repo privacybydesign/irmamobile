@@ -35,6 +35,22 @@ class _Host extends StatelessWidget {
   );
 }
 
+/// Mount [widget] and wait for FlutterI18nDelegate to finish loading the
+/// locale + fallback JSON. The loader reads via rootBundle.loadString —
+/// real-time IO that the test framework's fake clock doesn't drive, so
+/// pumpAndSettle returns before translations are in place and `find.text`
+/// for translated strings (e.g. "Meer lezen") sees 0 widgets. `runAsync`
+/// drives real time so the file reads actually complete.
+Future<void> _pumpWithTranslations(WidgetTester tester, Widget widget) async {
+  await tester.runAsync(() async {
+    await tester.pumpWidget(widget);
+    // Dutch loads two files (nl.json + en.json fallback). 500ms is well
+    // above the observed real-IO time and only paid once per test.
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  });
+  await tester.pumpAndSettle();
+}
+
 void main() {
   final textFinder = find.byKey(const Key("signature_message_text"));
   final toggleFinder = find.byKey(const Key("signature_message_toggle"));
@@ -48,8 +64,7 @@ void main() {
   testWidgets("short message renders in full without a Read more link", (
     tester,
   ) async {
-    await tester.pumpWidget(const _Host("A short message to sign"));
-    await tester.pumpAndSettle();
+    await _pumpWithTranslations(tester, const _Host("A short message to sign"));
 
     expect(find.byKey(const Key("signature_message")), findsOneWidget);
     expect(toggleFinder, findsNothing);
@@ -63,8 +78,7 @@ void main() {
   testWidgets(
     "long message truncates to a few lines with an ellipsis and a Read more link",
     (tester) async {
-      await tester.pumpWidget(_Host(longMessage));
-      await tester.pumpAndSettle();
+      await _pumpWithTranslations(tester, _Host(longMessage));
 
       expect(find.text("Read more"), findsOneWidget);
       expect(find.text("Read less"), findsNothing);
@@ -79,8 +93,7 @@ void main() {
   testWidgets("tapping Read more expands and Read less collapses again", (
     tester,
   ) async {
-    await tester.pumpWidget(_Host(longMessage));
-    await tester.pumpAndSettle();
+    await _pumpWithTranslations(tester, _Host(longMessage));
 
     final collapsedLength = shownText(tester).data!.runes.length;
 
@@ -111,10 +124,10 @@ void main() {
   });
 
   testWidgets("Read more link is localized to Dutch", (tester) async {
-    await tester.pumpWidget(
+    await _pumpWithTranslations(
+      tester,
       _Host(longMessage, locale: const Locale("nl", "NL")),
     );
-    await tester.pumpAndSettle();
 
     expect(find.text("Meer lezen"), findsOneWidget);
 
