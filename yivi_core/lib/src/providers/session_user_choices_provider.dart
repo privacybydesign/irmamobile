@@ -84,26 +84,12 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
       var changed = false;
       for (var i = 0; i < choices.length; i++) {
         final bundles = choices[i].ownedOptions ?? [];
-        final previousHashes = _previousOwnedHashes[i] ?? {};
-
-        bool hasNew(DisclosureBundle b) =>
-            b.credentialHashes.any((h) => !previousHashes.contains(h));
-
-        // Prefer the bundle the user already selected if it also contains a
-        // newly-issued credential. This avoids silently switching the user's
-        // choice when a credential is shared across bundles.
         final existing = updated.disclosureChoices[i];
-        DisclosureBundle? target;
-        if (existing != null && hasNew(existing)) {
-          target = existing;
-        } else {
-          for (final bundle in bundles) {
-            if (hasNew(bundle)) {
-              target = bundle;
-              break;
-            }
-          }
-        }
+        final target = newlyIssuedBundleToSelect(
+          ownedOptions: bundles,
+          previousHashes: _previousOwnedHashes[i] ?? {},
+          currentSelection: existing,
+        );
 
         if (target != null && target != existing) {
           updated = updated.withBundle(i, target);
@@ -114,6 +100,43 @@ class SessionUserChoicesNotifier extends Notifier<SessionUserChoices> {
     }
 
     _previousOwnedHashes = currentHashes;
+  }
+
+  /// Picks the owned bundle that should become selected for a discon after a
+  /// disclosure-session state update, or `null` if the selection should not
+  /// change.
+  ///
+  /// A credential counts as newly issued when its hash is absent from
+  /// [previousHashes] (the owned hashes seen in the previous state). The
+  /// selection moves to the **bottom-most** owned bundle that contains a
+  /// newly-issued credential. Newly obtained credentials are appended to the
+  /// end of `ownedOptions`, so the bottom-most match is the freshly obtained
+  /// option — matching the requirement that a newly obtained attribute lands
+  /// at the bottom of the list and becomes selected (issue #298). Selecting
+  /// the *last* match (rather than the first) keeps that guarantee even when
+  /// more than one bundle contains a newly-issued credential.
+  ///
+  /// If the user's [currentSelection] already contains a newly-issued
+  /// credential it is kept, so a credential shared across bundles does not
+  /// silently switch the user's existing choice.
+  static DisclosureBundle? newlyIssuedBundleToSelect({
+    required List<DisclosureBundle> ownedOptions,
+    required Set<String> previousHashes,
+    DisclosureBundle? currentSelection,
+  }) {
+    bool hasNew(DisclosureBundle b) =>
+        b.credentialHashes.any((h) => !previousHashes.contains(h));
+
+    if (currentSelection != null && hasNew(currentSelection)) {
+      return currentSelection;
+    }
+
+    DisclosureBundle? target;
+    for (final bundle in ownedOptions) {
+      // Keep the last match so the bottom-most newly-issued bundle wins.
+      if (hasNew(bundle)) target = bundle;
+    }
+    return target;
   }
 
   static Map<int, Set<String>> _buildOwnedHashesMap(
