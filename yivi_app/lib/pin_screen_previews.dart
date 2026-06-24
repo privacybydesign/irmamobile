@@ -37,8 +37,10 @@ import "package:flutter/widget_previews.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_i18n/loaders/decoders/json_decode_strategy.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
+import "package:flutter_svg/flutter_svg.dart";
 import "package:google_fonts/google_fonts.dart";
 
+import "package:yivi_core/package_name.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
@@ -123,6 +125,8 @@ final _keys = {
     "chooseLong",
     "unlockShort",
     "unlockLong",
+    "unlockFaceIos",
+    "unlockFaceAndroid",
     "session",
     "changeShort",
     "changeLong",
@@ -136,6 +140,7 @@ Widget _pin({
   required String instructionKey,
   bool checkSecurePin = false,
   bool biometric = false,
+  Widget? biometricGlyph,
   bool forgot = false,
   bool toggle = false,
 }) {
@@ -154,7 +159,7 @@ Widget _pin({
       onForgotPin: forgot ? () {} : null,
       onBiometricUnlock: biometric ? () {} : null,
       biometricGlyph: biometric
-          ? const Icon(Icons.fingerprint, size: 28)
+          ? (biometricGlyph ?? const Icon(Icons.fingerprint, size: 28))
           : null,
       onTogglePinSize: toggle ? () {} : null,
       // Mirrors YiviChoosePinScaffold: keep the slot reserved (invisible) while
@@ -229,6 +234,54 @@ Widget previewUnlockLong() => _pin(
   maxPinSize: longPinSize,
   instructionKey: "pin.subtitle",
   biometric: true,
+  forgot: true,
+);
+
+/// The production face-unlock glyphs (see `_biometricGlyph` in `pin_screen`):
+/// iOS shows the branded Face ID asset, Android the regular Material face icon.
+/// Both are tinted to the keypad colour; the keypad sizes them.
+Widget _faceIdGlyph() => Builder(
+  builder: (context) => SvgPicture.asset(
+    yiviAsset("ui/face_id.svg"),
+    colorFilter: ColorFilter.mode(
+      IrmaTheme.of(context).secondary,
+      BlendMode.srcIn,
+    ),
+  ),
+);
+
+Widget _faceMaterialGlyph() => Builder(
+  builder: (context) =>
+      Icon(Icons.face, color: IrmaTheme.of(context).secondary),
+);
+
+@Preview(
+  group: "Unlock",
+  name: "short (5) + Face ID (iOS)",
+  wrapper: pinPreviewWrapper,
+  size: pinPreviewSize,
+)
+Widget previewUnlockFaceIos() => _pin(
+  keyId: "unlockFaceIos",
+  maxPinSize: shortPinSize,
+  instructionKey: "pin.subtitle",
+  biometric: true,
+  biometricGlyph: _faceIdGlyph(),
+  forgot: true,
+);
+
+@Preview(
+  group: "Unlock",
+  name: "short (5) + face (Android)",
+  wrapper: pinPreviewWrapper,
+  size: pinPreviewSize,
+)
+Widget previewUnlockFaceAndroid() => _pin(
+  keyId: "unlockFaceAndroid",
+  maxPinSize: shortPinSize,
+  instructionKey: "pin.subtitle",
+  biometric: true,
+  biometricGlyph: _faceMaterialGlyph(),
   forgot: true,
 );
 

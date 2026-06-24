@@ -1,3 +1,5 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
@@ -24,15 +26,19 @@ import "providers/pin_unlock_provider.dart";
 import "yivi_pin_screen.dart";
 
 /// Builds the biometric button glyph for [type], tinted to the keypad colour:
-/// the Face ID asset for face unlock, the Material fingerprint icon otherwise
-/// (Touch ID, fingerprint sensors, unknown/null).
+/// the Face ID asset for face unlock on iOS, the Material face icon for face
+/// unlock on Android, and the Material fingerprint icon otherwise (Touch ID,
+/// fingerprint sensors, unknown/null).
 Widget _biometricGlyph(BuildContext context, BiometricType? type) {
   final color = IrmaTheme.of(context).secondary;
   if (type == BiometricType.face) {
-    return SvgPicture.asset(
-      yiviAsset("ui/face_id.svg"),
-      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-    );
+    // Face ID's branded glyph is Apple-specific — only use it on iOS.
+    return Platform.isIOS
+        ? SvgPicture.asset(
+            yiviAsset("ui/face_id.svg"),
+            colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+          )
+        : Icon(Icons.face, color: color);
   }
   return Icon(Icons.fingerprint, color: color);
 }

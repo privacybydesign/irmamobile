@@ -154,10 +154,14 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final prefs = IrmaRepositoryProvider.of(context).preferences;
+    // No repository in scope (e.g. widget previews) — keep the default toggle
+    // state and skip persistence; the eye toggle's write is already null-safe.
+    final prefs = IrmaRepositoryProvider.maybeOf(context)?.preferences;
     // Seed the toggle from the saved value the first time only — don't clobber
     // an in-session change on later dependency updates (e.g. theme change).
-    if (_prefs == null) pinVisibilityValue.value = prefs.getPinVisible();
+    if (_prefs == null && prefs != null) {
+      pinVisibilityValue.value = prefs.getPinVisible();
+    }
     _prefs = prefs;
   }
 
