@@ -9,6 +9,7 @@ import "filled_app_scenarios/filled_multi_bundle_choice.dart";
 import "filled_app_scenarios/filled_multi_cred_bundle.dart";
 import "filled_app_scenarios/filled_no_choice_multiple_creds.dart";
 import "filled_app_scenarios/filled_no_choice_same_creds.dart";
+import "filled_app_scenarios/filled_obtain_new_attribute_selected_at_bottom.dart";
 import "filled_app_scenarios/filled_optional_disjunction.dart";
 import "filled_app_scenarios/filled_specific_attribute_values_match.dart";
 import "filled_app_scenarios/filled_specific_attribute_values_no_match.dart";
@@ -44,6 +45,15 @@ void main() {
       testWidgets(
         "filled-no-choice-same-creds",
         (tester) => filledNoChoiceSameCredsTest(tester, irmaBinding),
+      );
+
+      // Requests only the email address; the app has one email and the user
+      // obtains a second one during the session. The newly obtained email is
+      // appended at the bottom and auto-selected (issue #298).
+      testWidgets(
+        "filled-obtain-new-attribute-selected-at-bottom",
+        (tester) =>
+            filledObtainNewAttributeSelectedAtBottomTest(tester, irmaBinding),
       );
 
       // Address from municipality OR
