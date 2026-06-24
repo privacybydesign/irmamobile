@@ -995,5 +995,9 @@
         "content": "Are you sure you want to delete all credentials?"
       }
     }
+  },
+  "signature": {
+    "read_more": "Read more",
+    "read_less": "Read less"
   }
 }

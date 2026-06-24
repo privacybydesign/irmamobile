@@ -4,9 +4,9 @@ import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/section_header.dart";
+import "../../../widgets/signature_message.dart";
 
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogInfo logEntry;
@@ -42,7 +42,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           SizedBox(height: theme.defaultSpacing),
           SectionHeader("activity.signed_message"),
           SizedBox(height: theme.smallSpacing),
-          IrmaQuote(quote: logEntry.signedMessageLog!.message),
+          SignatureMessage(message: logEntry.signedMessageLog!.message),
         ],
         SizedBox(height: theme.defaultSpacing),
         SectionHeader("activity.shared_with"),
