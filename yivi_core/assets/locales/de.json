@@ -993,5 +993,9 @@
         "content": "Sind Sie sicher, dass Sie alle Daten löschen möchten?"
       }
     }
+  },
+  "signature": {
+    "read_more": "Mehr lesen",
+    "read_less": "Weniger lesen"
   }
 }

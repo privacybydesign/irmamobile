@@ -1,0 +1,290 @@
+name: Record changed integration tests (iOS)
+
+# Records an iOS-simulator video of ONLY the integration tests added or modified
+# in a PR (vs. its base branch), uploads them as a workflow artifact, and posts
+# a PR comment with the link.
+#
+# It runs automatically on any pull_request that changes an integration-test
+# file (see the paths filter below), and can also be invoked manually against
+# any PR via:
+#
+#   gh workflow run ios-record-changed-tests.yml \
+#     -R privacybydesign/irmamobile \
+#     -f pr=578 \
+#     -f base=master
+#
+# pr/base are taken from the workflow_dispatch inputs when dispatched manually,
+# and derived from the pull_request event otherwise.
+#
+# The "changed-files only" filter is what keeps this practical for a ~30-test
+# repo: a PR that touches 1 file produces 1 video, not 30.
+#
+# NOTE: this is NOT a vanilla Flutter app. The iOS app links a native Go bridge
+# (Irmagobridge.xcframework, built by ./bind_go.sh via gomobile) and needs the
+# full toolchain set up by .github/actions/setup-build-environment. The
+# integration tests drive the real app UI via IntegrationTestWidgetsFlutterBinding
+# and already enable screen recording (see integration_test/irma_binding.dart),
+# so simctl recordVideo captures meaningful UI. Tests fetch the `pbdf-staging`
+# scheme and run sessions against *.staging.yivi.app, so the runner needs network.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: PR number to record
+        required: true
+      base:
+        description: Base branch to diff against
+        required: false
+        default: master
+      tests_dir:
+        description: Directory containing integration tests (relative to yivi_app)
+        required: false
+        default: integration_test
+  pull_request:
+    # Only spin up when an integration test actually changes. Two patterns so
+    # both top-level (foo_test.dart) and nested (disclosure_session/foo_test.dart)
+    # tests are matched regardless of glob semantics.
+    paths:
+      - "yivi_app/integration_test/**/*_test.dart"
+      - "yivi_app/integration_test/*_test.dart"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+# One recording run per PR; a new push cancels an in-flight recording.
+concurrency:
+  group: ios-record-${{ github.event.pull_request.number || inputs.pr }}
+  cancel-in-progress: true
+
+jobs:
+  record:
+    runs-on: macos-15 # Pinned: determines the Xcode version (set to 26.1 by setup action).
+    timeout-minutes: 90
+    env:
+      # Preferred simulator; we fall back to any available iPhone if absent,
+      # since the simulator catalog depends on the pinned Xcode version.
+      SIM_NAME: iPhone 16 Pro
+      APP_DIR: yivi_app
+      # Resolve the target PR/base for both triggers: workflow_dispatch provides
+      # inputs.*, while pull_request provides github.event.pull_request.*.
+      PR_NUMBER: ${{ inputs.pr || github.event.pull_request.number }}
+      BASE_REF: ${{ inputs.base || github.event.pull_request.base.ref }}
+      TESTS_DIR: ${{ inputs.tests_dir || 'integration_test' }}
+      # Quiet the `brew install` steps below: skip auto-update, and silence the
+      # "untrusted tap" notice the runner's preinstalled taps (aws/tap, azure/bicep)
+      # emit — we only install from the core tap, so it's noise here.
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_REQUIRE_TAP_TRUST: "1"
+
+    steps:
+      - name: Check out PR head with full history + submodules
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ inputs.pr || github.event.pull_request.number }}/head
+          # fetch-depth: 0 is required so the merge-base with $base is reachable
+          # (three-dot diff below); a shallow clone would silently miss it.
+          fetch-depth: 0
+          # irma_configuration/* are submodules the tests/schemes depend on.
+          submodules: true
+
+      - name: List integration tests changed vs base
+        id: tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${BASE_REF}"
+          DIR="${APP_DIR}/${TESTS_DIR}"
+
+          # Ensure the base ref exists as a remote-tracking branch for the
+          # three-dot diff (checkout fetched the PR ref, not necessarily $BASE).
+          git fetch --no-tags --depth=0 origin "+refs/heads/${BASE}:refs/remotes/origin/${BASE}" 2>/dev/null \
+            || git fetch --no-tags origin "+refs/heads/${BASE}:refs/remotes/origin/${BASE}"
+
+          # Three-dot diff = changes the PR introduces vs the merge-base, which
+          # matches what GitHub itself shows as the PR diff. ACMR = Added /
+          # Copied / Modified / Renamed (skip pure deletions). We diff the whole
+          # tests dir and filter to *_test.dart, which also catches tests in
+          # subdirectories (disclosure_session/, embedded_issuance_flows/, ...).
+          # macOS runners ship Bash 3.2 (no `mapfile`/`readarray`), so write the
+          # match list straight to a file. grep exits 1 when nothing matches,
+          # which is expected here, so shield it from `pipefail` + `set -e`.
+          git diff --name-only --diff-filter=ACMR "origin/${BASE}...HEAD" -- "${DIR}" \
+            | { grep -E '_test\.dart$' || true; } \
+            | sort -u > /tmp/files.txt
+
+          COUNT=$(grep -c . /tmp/files.txt || true)
+          COUNT=${COUNT:-0}
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "Changed integration-test files: $COUNT"
+          grep . /tmp/files.txt | sed 's/^/  /' || true
+
+      - name: Short-circuit — nothing changed
+        if: steps.tests.outputs.count == '0'
+        run: echo "::notice::No new/changed integration tests in this PR; skipping iOS recording."
+
+      - name: Setup build environment (Flutter, Go+gomobile, Ruby, sqlcipher, Xcode, Pods)
+        if: steps.tests.outputs.count != '0'
+        uses: ./.github/actions/setup-build-environment
+
+      - name: Build the Go bridge (Irmagobridge.xcframework)
+        if: steps.tests.outputs.count != '0'
+        # Produces yivi_core/ios/Irmagobridge.xcframework (device + simulator
+        # slices) which the app links via yivi_core.podspec vendored_frameworks.
+        run: bundle exec fastlane ios_build_irmagobridge
+
+      - name: flutter pub get
+        if: steps.tests.outputs.count != '0'
+        working-directory: ${{ env.APP_DIR }}
+        run: flutter pub get
+
+      - name: Boot iOS simulator
+        if: steps.tests.outputs.count != '0'
+        id: sim
+        shell: bash
+        run: |
+          set -euo pipefail
+          LIST=$(xcrun simctl list devices available -j)
+          # Prefer SIM_NAME; otherwise fall back to the first available iPhone.
+          UDID=$(printf '%s' "$LIST" | jq -r --arg n "$SIM_NAME" '
+            [ .devices[][] | select(.isAvailable == true) ] as $all
+            | ( ($all | map(select(.name == $n)))
+              + ($all | map(select(.name | startswith("iPhone")))) )
+            | .[0].udid // empty')
+          if [ -z "$UDID" ]; then
+            echo "::error::No available iPhone simulator on this runner."
+            xcrun simctl list devices available
+            exit 1
+          fi
+          echo "Using simulator UDID=$UDID"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+
+      - name: Record each changed test
+        if: steps.tests.outputs.count != '0'
+        working-directory: ${{ env.APP_DIR }}
+        shell: bash
+        env:
+          UDID: ${{ steps.sim.outputs.udid }}
+        run: |
+          set -uo pipefail
+          # macOS has no GNU `timeout`; coreutils provides `gtimeout`. (Usually
+          # already present on the runner, so this is normally a no-op.)
+          command -v gtimeout >/dev/null 2>&1 || brew install coreutils
+          mkdir -p ../videos
+          # results.tsv: <status>\t<repo-relative-path> — consumed by the comment step.
+          : > /tmp/results.tsv
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            # Paths from git are repo-relative (yivi_app/...); flutter runs from
+            # yivi_app, so strip that prefix for the test argument.
+            rel="${f#"${APP_DIR}"/}"
+            slug=$(printf '%s' "$rel" | tr '/' '_' | sed 's/\.dart$//')
+            out="../videos/${slug}.mov"
+            log="/tmp/${slug}.log"
+            rcf="/tmp/${slug}.rc"
+            echo "::group::record $rel"
+
+            # `flutter test -d <sim>` does a multi-minute cold Xcode build BEFORE
+            # the app launches. We deliberately DON'T record that: it would bloat
+            # the video with an idle simulator, and — worse — the build saturates
+            # the CPU, which on this runner's software-rendered simulator tanks the
+            # capture frame rate. So: run the test in the background, wait for the
+            # "Xcode build done" marker, and only THEN start recording — from there
+            # the app installs, launches and runs the test, which is all we want on
+            # screen, with the CPU free so the simulator renders at a usable rate.
+            # --ignore-timeouts: flutter's own test timeout counts the (slow,
+            # variable) cold build, and a >12-min build would abort the test
+            # before it even runs. This flag is purpose-built for integration
+            # tests with long compiles; gtimeout is then the only bound.
+            # -k 30: if the test ignores SIGTERM at the timeout, escalate to KILL.
+            : > "$log"
+            ( gtimeout -k 30 1800 flutter test "$rel" -d "$UDID" --ignore-timeouts > "$log" 2>&1; echo $? > "$rcf" ) &
+            test_pid=$!
+            tail -f "$log" 2>/dev/null & tail_pid=$!
+
+            rec=""
+            while kill -0 "$test_pid" 2>/dev/null; do
+              if grep -q "Xcode build done" "$log" 2>/dev/null; then
+                xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out" &
+                rec=$!
+                break
+              fi
+              sleep 2
+            done
+
+            # Wait for the test to finish; derive pass/fail from its exit code.
+            # A failure must NOT abort the loop — we want the video either way.
+            wait "$test_pid" 2>/dev/null || true
+            status="pass"; [ "$(cat "$rcf" 2>/dev/null || echo 1)" = "0" ] || status="fail"
+            printf '%s\t%s\n' "$status" "$f" >> /tmp/results.tsv
+
+            # Stop the recorder. SIGINT lets simctl flush the moov atom (SIGKILL
+            # would corrupt the file). Bounded wait for the flush, then force-kill
+            # so a stuck recorder can never hang the step.
+            if [ -n "$rec" ]; then
+              kill -INT "$rec" 2>/dev/null || true
+              for _ in $(seq 1 15); do kill -0 "$rec" 2>/dev/null || break; sleep 1; done
+              kill -KILL "$rec" 2>/dev/null || true
+              wait "$rec" 2>/dev/null || true
+            else
+              echo "::warning::No 'Xcode build done' seen for $rel — build may have failed; no video recorded."
+            fi
+            kill "$tail_pid" 2>/dev/null || true
+            echo "::endgroup::"
+          done < /tmp/files.txt
+
+      - name: Compress .mov -> .mp4 for sane file sizes
+        if: always() && steps.tests.outputs.count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v ffmpeg >/dev/null 2>&1 || brew install ffmpeg
+          shopt -s nullglob
+          for v in videos/*.mov; do
+            out="${v%.mov}.mp4"
+            # CRF 20 keeps UI text crisp (readability matters for review); the clip
+            # is short now, so the file stays small. yuv420p = broad player support.
+            # fps=30 normalises simctl's variable frame rate to a steady cadence so
+            # playback isn't sped-up/janky. (True smoothness is capped by the CI
+            # simulator's render rate; add a minterpolate filter here if needed.)
+            ffmpeg -y -loglevel error -i "$v" \
+              -vf "fps=30" -pix_fmt yuv420p \
+              -vcodec libx264 -crf 20 -preset veryfast \
+              -movflags +faststart "$out" && rm "$v" || echo "::warning::compress failed for $v; keeping .mov"
+          done
+          ls -lh videos/ || true
+
+      - name: Upload as artifact
+        if: always() && steps.tests.outputs.count != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-recordings-pr-${{ env.PR_NUMBER }}
+          path: videos/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Comment on PR with artifact link
+        if: always() && steps.tests.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COUNT=$(grep -c . /tmp/results.tsv 2>/dev/null || echo 0)
+          {
+            echo ":clapper: Recorded ${COUNT} changed integration test(s) on iOS simulator (\`${SIM_NAME}\` or nearest available):"
+            echo
+            # ✅/❌ reflect whether the test passed; the video is attached either way.
+            while IFS=$'\t' read -r status path; do
+              [ -z "${path:-}" ] && continue
+              icon=":white_check_mark:"; [ "$status" = "fail" ] && icon=":x:"
+              echo "- ${icon} \`${path}\`"
+            done < /tmp/results.tsv
+            echo
+            echo "Download the videos from the **Artifacts** section of the run: ${RUN_URL}"
+          } > /tmp/comment.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/comment.md
