@@ -7,6 +7,7 @@ import "package:local_auth/local_auth.dart";
 
 import "../../../package_name.dart";
 import "../../models/session.dart";
+import "../../providers/pending_pointer_provider.dart";
 import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
@@ -152,13 +153,18 @@ class _PinScreenState extends ConsumerState<PinScreen> {
     final biometricAvailable =
         ref.watch(biometricAvailableProvider).value ?? false;
     final biometricEnabled = ref.watch(biometricEnabledProvider).value ?? false;
+    // Hide biometric when a session is pending: biometric unlock doesn't refresh
+    // the keyshare token, so the session would still demand the PIN — a second
+    // prompt. Entering the PIN here refreshes the token and the session proceeds.
+    final hasPendingSession = ref.watch(pendingPointerProvider) != null;
     // Hide biometric while blocked — otherwise it would bypass the temporary
     // lockout that the wrong-PIN rate limiter just imposed.
     final showBiometric =
         widget.allowBiometric &&
         biometricAvailable &&
         biometricEnabled &&
-        !blocked;
+        !blocked &&
+        !hasPendingSession;
     final biometricType = ref.watch(biometricTypeProvider).value;
 
     var subtitle = FlutterI18n.translate(context, "pin.subtitle");
