@@ -558,7 +558,13 @@
     "subtitle": "Geben Sie Ihre PIN ein",
     "unlock": "Entsperren",
     "button_forgot": "PIN vergessen",
-    "button_block": "Yivi sperren"
+    "button_block": "Yivi sperren",
+    "cancel_session_dialog": {
+      "title": "Diese Anfrage abbrechen?",
+      "explanation": "Sie kehren zum Sperrbildschirm zurück.",
+      "confirm": "Ja",
+      "decline": "Nein"
+    }
   },
   "pin_accessibility": {
     "show_pin": "PIN anzeigen",

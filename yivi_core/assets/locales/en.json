@@ -567,6 +567,12 @@
       "body": "Use your fingerprint or face to unlock the app. You'll still need to enter your PIN for sessions.",
       "enable": "Enable",
       "not_now": "Not now"
+    },
+    "cancel_session_dialog": {
+      "title": "Cancel this request?",
+      "explanation": "You'll return to the lock screen.",
+      "confirm": "Yes",
+      "decline": "No"
     }
   },
   "pin_accessibility": {

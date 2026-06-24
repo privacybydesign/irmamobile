@@ -7,11 +7,14 @@ import "package:local_auth/local_auth.dart";
 
 import "../../../package_name.dart";
 import "../../models/session.dart";
+import "../../providers/irma_repository_provider.dart";
 import "../../providers/pending_pointer_provider.dart";
 import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_close_button.dart";
+import "../../widgets/irma_confirmation_dialog.dart";
 import "../../widgets/pin_common/format_blocked_for.dart";
 import "../../widgets/pin_common/pin_wrong_attempts.dart";
 import "../../widgets/pin_common/pin_wrong_blocked.dart";
@@ -130,6 +133,26 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         .authenticateAndUnlock(localizedReason: reason);
   }
 
+  // Cancel a pending session from the lock screen: confirm, then clear the
+  // queued pointer. Nothing started server-side yet, so this is a local clear —
+  // the screen reverts to normal unlock and the user can re-scan.
+  Future<void> _confirmCancelPending(BuildContext context) async {
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (_) => const IrmaConfirmationDialog(
+            titleTranslationKey: "pin.cancel_session_dialog.title",
+            contentTranslationKey: "pin.cancel_session_dialog.explanation",
+            confirmTranslationKey: "pin.cancel_session_dialog.confirm",
+            cancelTranslationKey: "pin.cancel_session_dialog.decline",
+          ),
+        ) ??
+        false;
+    if (confirmed && mounted) {
+      ref.read(irmaRepositoryProvider).setPendingPointer(null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen<PinUnlockState>(
@@ -186,6 +209,22 @@ class _PinScreenState extends ConsumerState<PinScreen> {
         // is pending — scanning another is pointless; the user should just enter
         // their PIN.
         leading: hasPendingSession ? null : widget.leading,
+        // When a session is pending, offer a trailing ✕ to cancel it and return
+        // to the normal unlock screen.
+        // ponytail: ✕ is the only cancel path for a pending session; wire a
+        // PopScope here if hardware-back parity is ever requested.
+        actions: hasPendingSession
+            ? [
+                Padding(
+                  padding: EdgeInsets.only(
+                    right: IrmaTheme.of(context).defaultSpacing,
+                  ),
+                  child: IrmaCloseButton(
+                    onTap: () => _confirmCancelPending(context),
+                  ),
+                ),
+              ]
+            : const [],
       ),
       body: Stack(
         alignment: Alignment.center,

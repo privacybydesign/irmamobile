@@ -555,8 +555,9 @@ class IrmaRepository {
   /// Queue a pointer for [PendingPointerListener] to pick up. Used by
   /// the lock-screen QR scanner sheet: it dismisses with the scanned
   /// pointer queued, and the listener (mounted on `/home`) processes
-  /// it once the app is unlocked.
-  void setPendingPointer(Pointer pointer) {
+  /// it once the app is unlocked. Pass `null` to clear a queued pointer
+  /// (e.g. the user cancels a pending session from the lock screen).
+  void setPendingPointer(Pointer? pointer) {
     _pendingPointerSubject.add(pointer);
   }
 
