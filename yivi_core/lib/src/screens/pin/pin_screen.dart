@@ -182,7 +182,10 @@ class _PinScreenState extends ConsumerState<PinScreen> {
       appBar: IrmaAppBar(
         titleString: "",
         hasBorder: false,
-        leading: widget.leading,
+        // Hide the leading button (the lock screen's QR scanner) while a session
+        // is pending — scanning another is pointless; the user should just enter
+        // their PIN.
+        leading: hasPendingSession ? null : widget.leading,
       ),
       body: Stack(
         alignment: Alignment.center,
