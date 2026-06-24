@@ -149,39 +149,43 @@ class _StructuredBody extends StatelessWidget {
     return Container(
       margin: EdgeInsets.all(context.yivi.spacing.base),
       key: const Key("irma_dialog"),
-      child: ListView(
-        shrinkWrap: true,
-        addSemanticIndexes: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: EdgeInsets.only(bottom: context.yivi.spacing.large),
-            child: Column(
-              children: [
-                Semantics(
-                  // false on iOS to prevent double read
-                  namesRoute: !Platform.isIOS,
-                  label: FlutterI18n.translate(context, "accessibility.alert"),
-                  child: Text(
-                    title,
-                    key: const Key("irma_dialog_title"),
-                    style: dialogTheme.titleTextStyle,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: context.yivi.spacing.tiny),
-                Text(
-                  content,
-                  key: const Key("irma_dialog_content"),
-                  style: dialogTheme.contentTextStyle,
-                  textAlign: TextAlign.center,
-                ),
-                if (image != null) ...[
-                  SizedBox(height: context.yivi.spacing.base),
-                  Center(child: Image.asset(image!, width: 240)),
-                ],
-              ],
+          // Title — fixed.
+          Semantics(
+            // false on iOS to prevent double read
+            namesRoute: !Platform.isIOS,
+            label: FlutterI18n.translate(context, "accessibility.alert"),
+            child: Text(
+              title,
+              key: const Key("irma_dialog_title"),
+              style: dialogTheme.titleTextStyle,
+              textAlign: TextAlign.center,
             ),
           ),
+          SizedBox(height: context.yivi.spacing.tiny),
+          // Only the content scrolls, and only when it can't fit — the title
+          // and the action buttons stay put instead of the whole dialog moving.
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Text(
+                    content,
+                    key: const Key("irma_dialog_content"),
+                    style: dialogTheme.contentTextStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                  if (image != null) ...[
+                    SizedBox(height: context.yivi.spacing.base),
+                    Center(child: Image.asset(image!, width: 240)),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: context.yivi.spacing.large),
           actions,
         ],
       ),
