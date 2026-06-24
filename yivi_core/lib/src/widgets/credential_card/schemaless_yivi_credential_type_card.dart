@@ -94,7 +94,9 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                       ),
                       Text(
                         getTranslation(context, issuerName),
-                        style: context.text.bodyMedium,
+                        style: context.text.bodyMedium?.copyWith(
+                          color: context.colors.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),

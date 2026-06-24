@@ -86,82 +86,95 @@ ThemeData buildYiviThemeData() {
   );
 
   // ──────────────────────────────────────────────────────────────────────
-  // TextTheme — body* sizes/weights follow the Material 3 type-scale spec
-  // (https://m3.material.io/styles/typography/type-scale-tokens). The
-  // display/headline/title/label families keep Yivi-flavoured values from
-  // the existing brand scale.
+  // TextTheme — sizes/weights/line-heights follow Apple's Human Interface
+  // Guidelines type scale (the iOS Dynamic Type "Large" baseline). Flutter
+  // scales these up/down with the OS text-size setting automatically. Apple
+  // uses Regular weight throughout; only the Headline class and buttons are
+  // Semibold. Colours are unchanged Yivi brand values. Each slot is annotated
+  // with the Apple style it maps to.
   //
   //   display*  — hero / expressive text (rare; markdown h1–h3)
   //   headline* — screen-level lead content (info/error scaffolds, dialogs)
   //   title*    — component-level labels (cards, app bar, sections)
-  //   body*     — content the user reads (M3-aligned)
+  //   body*     — content the user reads
   //   label*    — interactive / glanceable text (buttons, nav destinations)
   // ──────────────────────────────────────────────────────────────────────
   final textTheme = TextTheme(
+    // Apple: Title 1 — 28 / Regular / 34.
     displayLarge: TextStyle(
       fontFamily: font,
-      fontSize: 26,
-      height: 36 / 26,
-      fontWeight: FontWeight.w700,
+      fontSize: 28,
+      height: 34 / 28,
+      fontWeight: FontWeight.w400,
       color: neutralExtraDark,
     ),
+    // Apple: Title 2 — 22 / Regular / 28.
     displayMedium: TextStyle(
       fontFamily: font,
-      fontSize: 24,
-      height: 30 / 24,
-      fontWeight: FontWeight.w700,
+      fontSize: 22,
+      height: 28 / 22,
+      fontWeight: FontWeight.w400,
       color: neutralExtraDark,
     ),
+    // Apple: Title 3 — 20 / Regular / 25.
     displaySmall: TextStyle(
       fontFamily: font,
-      fontSize: 18,
-      height: 36 / 18,
-      fontWeight: FontWeight.w600,
+      fontSize: 20,
+      height: 25 / 20,
+      fontWeight: FontWeight.w400,
       color: neutralExtraDark,
     ),
+    // Apple: Title 1 — 28 / Regular / 34.
     headlineLarge: TextStyle(
       fontFamily: font,
-      fontSize: 26,
-      height: 36 / 26,
-      fontWeight: FontWeight.w700,
+      fontSize: 28,
+      height: 34 / 28,
+      fontWeight: FontWeight.w400,
       color: neutralExtraDark,
     ),
+    // Apple: Headline — 17 / Semibold / 22.
     headlineSmall: TextStyle(
       fontFamily: font,
-      fontSize: 18,
-      height: 36 / 18,
+      fontSize: 17,
+      height: 22 / 17,
       fontWeight: FontWeight.w600,
       color: dark,
     ),
+    // Apple: Headline — 17 / Semibold / 22.
     titleLarge: TextStyle(
       fontFamily: font,
-      fontSize: 19,
-      height: 26 / 19,
+      fontSize: 17,
+      height: 22 / 17,
       fontWeight: FontWeight.w600,
       color: dark,
     ),
+    // Apple: Subheadline Emphasised — 15 / Semibold / 20. Title slots use the
+    // emphasised weight so component titles stand out from body text (e.g. a
+    // card title above its Regular-weight bodyMedium subtitle).
     titleMedium: TextStyle(
       fontFamily: font,
-      fontSize: 16,
-      height: 24 / 16,
+      fontSize: 15,
+      height: 20 / 15,
       fontWeight: FontWeight.w600,
       color: dark,
     ),
-    // body — M3 spec.
+    // Apple: Body — 17 / Regular / 22.
     bodyLarge: TextStyle(
       fontFamily: font,
-      fontSize: 16,
-      height: 24 / 16,
+      fontSize: 17,
+      height: 22 / 17,
       fontWeight: FontWeight.w400,
       color: dark,
     ),
+    // Apple: Subheadline — 15 / Regular / 20.
     bodyMedium: TextStyle(
       fontFamily: font,
-      fontSize: 14,
-      height: 20 / 14,
+      fontSize: 15,
+      height: 20 / 15,
       fontWeight: FontWeight.w400,
       color: dark,
     ),
+    // Apple: Caption 1 — 12 / Regular / 16.
     bodySmall: TextStyle(
       fontFamily: font,
       fontSize: 12,
@@ -169,25 +182,28 @@ ThemeData buildYiviThemeData() {
       fontWeight: FontWeight.w400,
       color: neutralExtraDark,
     ),
+    // Apple: Body (emphasised) — buttons are 17 / Semibold / 22.
     labelLarge: TextStyle(
       fontFamily: font,
-      fontSize: 16,
-      height: 24 / 16,
-      fontWeight: FontWeight.w700,
+      fontSize: 17,
+      height: 22 / 17,
+      fontWeight: FontWeight.w600,
       color: light,
     ),
+    // Apple: Footnote (emphasised) — 13 / Semibold / 18.
     labelMedium: TextStyle(
       fontFamily: font,
-      fontSize: 14,
-      height: 20 / 14,
-      fontWeight: FontWeight.w700,
+      fontSize: 13,
+      height: 18 / 13,
+      fontWeight: FontWeight.w600,
       color: light,
     ),
+    // Apple: Caption 2 — 11 / Regular / 13.
     labelSmall: TextStyle(
       fontFamily: font,
-      fontSize: 10,
-      height: 16 / 10,
-      fontWeight: FontWeight.w500,
+      fontSize: 11,
+      height: 13 / 11,
+      fontWeight: FontWeight.w400,
       color: neutralExtraDark,
     ),
   );
@@ -196,9 +212,10 @@ ThemeData buildYiviThemeData() {
   // Legacy named text styles. Pre-date the domain-style groups and don't
   // fit a TextTheme slot or a domain group.
   // ──────────────────────────────────────────────────────────────────────
+  // Apple: Body (emphasised) — text buttons are 17 / Semibold / 22.
   const textButtonTextStyle = TextStyle(
-    fontSize: 16.0,
-    height: 19.0 / 16.0,
+    fontSize: 17.0,
+    height: 22.0 / 17.0,
     fontWeight: FontWeight.w600,
     color: secondary,
   );
@@ -235,8 +252,8 @@ ThemeData buildYiviThemeData() {
       color: secondary,
     ),
     // Pinned to direct values rather than derived from textTheme.headlineSmall —
-    // headlineSmall is now 18sp w600 for dialog/sheet titles, but the unsecure-
-    // PIN warning heading is 16sp w700 neutralExtraDark.
+    // headlineSmall is now 17sp w600 (Apple Headline) for dialog/sheet titles,
+    // but the unsecure-PIN warning heading is 16sp w700 neutralExtraDark.
     warningHeading: const TextStyle(
       fontFamily: font,
       fontSize: 16,
@@ -308,7 +325,11 @@ ThemeData buildYiviThemeData() {
   );
 
   final card = YiviCardStyles(
-    notificationBody: textTheme.bodyMedium!.copyWith(fontSize: 14, color: dark),
+    // Dimmed (onSurfaceVariant) so the message reads as a subtitle under the title.
+    notificationBody: textTheme.bodyMedium!.copyWith(
+      fontSize: 14,
+      color: neutralExtraDark,
+    ),
     quoteBody: textTheme.bodyMedium!.copyWith(
       fontSize: 14,
       fontWeight: FontWeight.normal,
@@ -325,7 +346,7 @@ ThemeData buildYiviThemeData() {
       color: neutral,
     ),
     // Pinned to direct values — the old derivation pointed at
-    // textTheme.titleLarge, which now hosts the 19sp credential-card title.
+    // textTheme.titleLarge, which now hosts the 17sp credential-card title.
     // The "version label" in the More tab is intentionally tiny (10sp).
     versionLabel: const TextStyle(
       fontSize: 10,

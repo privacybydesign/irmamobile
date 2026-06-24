@@ -135,7 +135,9 @@ class ActivityCard extends StatelessWidget {
                           ),
                           TranslatedText(
                             subtitleTranslationKey,
-                            style: context.text.bodyMedium,
+                            style: context.text.bodyMedium?.copyWith(
+                              color: context.colors.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),

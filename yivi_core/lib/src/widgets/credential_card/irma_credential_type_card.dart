@@ -78,7 +78,9 @@ class IrmaCredentialTypeCard extends StatelessWidget {
                               .issuers[credType.fullIssuerId]!
                               .name,
                         ),
-                        style: context.text.bodyMedium,
+                        style: context.text.bodyMedium?.copyWith(
+                          color: context.colors.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
