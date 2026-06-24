@@ -305,30 +305,33 @@ class _PinScreenState extends ConsumerState<PinScreen>
       body: Stack(
         alignment: Alignment.center,
         children: [
-          KeyedSubtree(
-            key: ValueKey(_resetNonce),
-            child: YiviPinScreen(
-              instruction: subtitle,
-              maxPinSize: maxPinSize,
-              submitLabel: "pin.unlock",
-              onSubmit: enabled ? submit : (_) {},
-              enabled: enabled,
-              onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
-              onBiometricUnlock: showBiometric ? _biometricUnlock : null,
-              biometricGlyph: showBiometric
-                  ? _biometricGlyph(context, biometricType)
-                  : null,
-              listener: (context, pinState) {
-                if (maxPinSize == shortPinSize &&
-                    pinState.pin.length == maxPinSize &&
-                    enabled) {
-                  submit(pinState.toString());
-                }
-              },
-              submitButtonVisibilityListener: (context, _) =>
-                  autoSubmitButtonVisibility(maxPinSize),
+          // Hide the keypad/dots while the PIN is being verified — only the
+          // spinner shows. Comes back (with a fresh buffer) if the PIN was wrong.
+          if (!state.authenticateInProgress)
+            KeyedSubtree(
+              key: ValueKey(_resetNonce),
+              child: YiviPinScreen(
+                instruction: subtitle,
+                maxPinSize: maxPinSize,
+                submitLabel: "pin.unlock",
+                onSubmit: enabled ? submit : (_) {},
+                enabled: enabled,
+                onForgotPin: widget.onForgotPin ?? context.pushResetPinScreen,
+                onBiometricUnlock: showBiometric ? _biometricUnlock : null,
+                biometricGlyph: showBiometric
+                    ? _biometricGlyph(context, biometricType)
+                    : null,
+                listener: (context, pinState) {
+                  if (maxPinSize == shortPinSize &&
+                      pinState.pin.length == maxPinSize &&
+                      enabled) {
+                    submit(pinState.toString());
+                  }
+                },
+                submitButtonVisibilityListener: (context, _) =>
+                    autoSubmitButtonVisibility(maxPinSize),
+              ),
             ),
-          ),
           if (state.authenticateInProgress) const CircularProgressIndicator(),
         ],
       ),

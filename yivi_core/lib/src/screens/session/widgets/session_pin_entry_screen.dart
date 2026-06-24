@@ -128,23 +128,27 @@ class _SessionPinEntryScreenState extends State<SessionPinEntryScreen> {
             Stack(
               alignment: Alignment.center,
               children: [
-                YiviPinScreen(
-                  key: ValueKey(_resetNonce),
-                  instructionKey: "session_pin.subtitle",
-                  maxPinSize: widget.maxPinSize,
-                  enabled: !widget.submitting,
-                  displayPinLength: true,
-                  onSubmit: _submit,
-                  onForgotPin: context.pushResetPinScreen,
-                  submitButtonVisibilityListener: (context, _) =>
-                      autoSubmitButtonVisibility(widget.maxPinSize),
-                  listener: (context, state) {
-                    if (widget.maxPinSize == shortPinSize &&
-                        state.pin.length == widget.maxPinSize) {
-                      _submit(state.toString());
-                    }
-                  },
-                ),
+                // Hide the keypad/dots while the PIN is being verified — only
+                // the spinner shows. Comes back (with a fresh buffer) if the
+                // PIN was wrong.
+                if (!widget.submitting)
+                  YiviPinScreen(
+                    key: ValueKey(_resetNonce),
+                    instructionKey: "session_pin.subtitle",
+                    maxPinSize: widget.maxPinSize,
+                    enabled: !widget.submitting,
+                    displayPinLength: true,
+                    onSubmit: _submit,
+                    onForgotPin: context.pushResetPinScreen,
+                    submitButtonVisibilityListener: (context, _) =>
+                        autoSubmitButtonVisibility(widget.maxPinSize),
+                    listener: (context, state) {
+                      if (widget.maxPinSize == shortPinSize &&
+                          state.pin.length == widget.maxPinSize) {
+                        _submit(state.toString());
+                      }
+                    },
+                  ),
                 if (widget.submitting)
                   Padding(
                     padding: EdgeInsets.all(theme.defaultSpacing),
