@@ -682,7 +682,7 @@ class _PrimArrayContent extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Eyebrow content — uppercase group/item heading.
+// Section-header content — title-case group/item heading (iOS grouped-list style).
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _EyebrowContent extends StatelessWidget {
@@ -702,7 +702,7 @@ class _EyebrowContent extends StatelessWidget {
       );
     }
     return Text(
-      node.label!.translate(lang).toUpperCase(),
+      node.label!.translate(lang),
       style: _eyebrowStyle(context),
     );
   }
@@ -715,8 +715,7 @@ class _ItemEyebrowContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final parentLabel =
-        node.parentLabel?.translate(lang).toUpperCase() ?? "ITEM";
+    final parentLabel = node.parentLabel?.translate(lang) ?? "Item";
     final text = node.totalItems > 1
         ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
         : parentLabel;
@@ -724,14 +723,13 @@ class _ItemEyebrowContent extends StatelessWidget {
   }
 }
 
-// Uppercase eyebrow above grouped attributes / item rows. Inlined rather
-// than derived from labelSmall — labelSmall now hosts the 10sp bottom-nav
-// tuple, but the eyebrow needs 12sp with extra letter-spacing.
+// Section header above grouped attributes / item rows. iOS-style grouped-list
+// header: title-case (not the old uppercase eyebrow), Footnote-sized, Semibold,
+// muted grey, no extra tracking.
 TextStyle _eyebrowStyle(BuildContext context) => TextStyle(
-  fontSize: 12,
-  fontWeight: FontWeight.w700,
-  color: context.colors.outline,
-  letterSpacing: 0.96,
+  fontSize: 13,
+  fontWeight: FontWeight.w600,
+  color: context.colors.onSurfaceVariant,
 );
 
 // Leaf attribute value style — 16 / Semibold (the master credential-card value
