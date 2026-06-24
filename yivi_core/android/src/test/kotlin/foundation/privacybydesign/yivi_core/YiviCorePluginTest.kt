@@ -1,27 +1,73 @@
 package foundation.privacybydesign.yivi_core
 
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
+import android.content.Intent
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito
-import kotlin.test.Test
 
-/*
- * This demonstrates a simple unit test of the Kotlin portion of this plugin's implementation.
+/**
+ * Regression test for the Android deep-link session-replay bug (#568).
  *
- * Once you have built the plugin's example app, you can run these tests from the command
- * line by running `./gradlew testDebugUnitTest` in the `example/android/` directory, or
- * you can run them directly from IDEs that support JUnit such as Android Studio.
+ * Before the fix, the launching intent's deep link was replayed on every bridge
+ * (re)creation. When Android relaunches the app from recents — or restores the task
+ * after a process kill — it replays the original intent with
+ * [Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY] set, which made a stale (already
+ * consumed) session URL fire again as a brand new session.
+ *
+ * [YiviCorePlugin.shouldDropDeepLink] is the guard that prevents this. These tests
+ * pin both branches.
  */
-
 internal class YiviCorePluginTest {
+    private fun intentWithFlags(flags: Int): Intent {
+        val intent = Mockito.mock(Intent::class.java)
+        Mockito.`when`(intent.flags).thenReturn(flags)
+        return intent
+    }
+
     @Test
-    fun onMethodCall_getPlatformVersion_returnsExpectedValue() {
-        val plugin = YiviCorePlugin()
+    fun shouldDropDeepLink_dropsLinkWhenLaunchedFromHistory() {
+        val intent = intentWithFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY)
 
-        val call = MethodCall("getPlatformVersion", null)
-        val mockResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-        plugin.onMethodCall(call, mockResult)
+        assertTrue(
+            YiviCorePlugin.shouldDropDeepLink(intent),
+            "A deep link replayed from recents/history must be dropped to avoid a stale session replay",
+        )
+    }
 
-        Mockito.verify(mockResult).success("Android " + android.os.Build.VERSION.RELEASE)
+    @Test
+    fun shouldDropDeepLink_dropsLinkWhenHistoryFlagCombinedWithOtherFlags() {
+        val intent = intentWithFlags(
+            Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY or
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_SINGLE_TOP,
+        )
+
+        assertTrue(
+            YiviCorePlugin.shouldDropDeepLink(intent),
+            "The history flag must be detected even when other intent flags are set",
+        )
+    }
+
+    @Test
+    fun shouldDropDeepLink_keepsLinkForFreshLaunch() {
+        val intent = intentWithFlags(0)
+
+        assertFalse(
+            YiviCorePlugin.shouldDropDeepLink(intent),
+            "A genuine deep-link launch (no history flag) must be kept",
+        )
+    }
+
+    @Test
+    fun shouldDropDeepLink_keepsLinkForOtherFlagsWithoutHistory() {
+        val intent = intentWithFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP,
+        )
+
+        assertFalse(
+            YiviCorePlugin.shouldDropDeepLink(intent),
+            "Unrelated intent flags must not be mistaken for a replay from history",
+        )
     }
 }

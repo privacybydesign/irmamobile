@@ -556,8 +556,15 @@
   },
   "pin": {
     "subtitle": "Geben Sie Ihre PIN ein",
+    "unlock": "Entsperren",
     "button_forgot": "PIN vergessen",
-    "button_block": "Yivi sperren"
+    "button_block": "Yivi sperren",
+    "cancel_session_dialog": {
+      "title": "Diese Anfrage abbrechen?",
+      "explanation": "Sie kehren zum Sperrbildschirm zurück.",
+      "confirm": "Ja",
+      "decline": "Nein"
+    }
   },
   "pin_accessibility": {
     "show_pin": "PIN anzeigen",
@@ -681,6 +688,10 @@
     "language": "Sprache",
     "use_system_language": "Systemsprache verwenden",
     "change_pin": "PIN ändern",
+    "biometric_unlock": "Mit Biometrie entsperren",
+    "biometric_unlock_explanation": "Verwende deinen Fingerabdruck oder dein Gesicht, um die App zu entsperren. Zum Empfangen oder Teilen von Daten benötigst du weiterhin deine PIN.",
+    "biometric_immediate": "Automatisch entsperren",
+    "biometric_immediate_explanation": "Entsperre die App beim Öffnen automatisch mit Biometrie, anstatt auf die Schaltfläche zu tippen.",
     "delete": "Daten löschen",
     "confirm_delete_dialog": {
       "title": "Daten löschen",
@@ -982,5 +993,9 @@
         "content": "Sind Sie sicher, dass Sie alle Daten löschen möchten?"
       }
     }
+  },
+  "signature": {
+    "read_more": "Mehr lesen",
+    "read_less": "Weniger lesen"
   }
 }

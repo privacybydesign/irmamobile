@@ -20,6 +20,7 @@ import "src/providers/preferences_provider.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/util/idle_lock_observer.dart";
 import "src/util/privacy_screen.dart";
+import "src/widgets/lock_gate.dart";
 
 const schemeUpdateIntervalHours = 3;
 
@@ -185,6 +186,8 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
         supportedLocales: defaultSupportedLocales(),
         showSemanticsDebugger: false,
         routerConfig: _router,
+        builder: (context, child) =>
+            LockGate(router: _router, child: child ?? const SizedBox.shrink()),
       ),
     );
   }

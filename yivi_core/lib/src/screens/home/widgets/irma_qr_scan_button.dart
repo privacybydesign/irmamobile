@@ -4,25 +4,37 @@ import "package:flutter_svg/svg.dart";
 import "../../../../package_name.dart";
 
 import "../../../theme/theme.dart";
-import "../../../util/navigation.dart";
 import "../../../util/test_detection.dart";
 import "../../../widgets/translated_text.dart";
+import "../../scanner/scanner_screen.dart";
 import "../../scanner/util/handle_camera_permission.dart";
 
-Future<void> openQrCodeScanner(
-  BuildContext context, {
-  bool requireAuthBeforeSession = false,
-}) async {
+/// Opens the QR scanner as a modal bottom sheet on whichever
+/// Navigator owns [context]. The scanner dismisses itself on scan
+/// and queues the pointer via the repo, so the same call site works
+/// whether the app is locked (overlay's local Navigator owns the
+/// sheet) or unlocked (GoRouter's main Navigator owns it).
+Future<void> openQrCodeScanner(BuildContext context) async {
   // during tests we'll just pretend like we have permission, because it won't open the camera
   final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
   final hasCameraPermission =
       isIntegrationTest || await handleCameraPermission(context);
 
-  if (hasCameraPermission && context.mounted) {
-    context.pushScannerScreen(
-      requireAuthBeforeSession: requireAuthBeforeSession,
-    );
-  }
+  if (!hasCameraPermission || !context.mounted) return;
+
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    clipBehavior: Clip.antiAlias,
+    builder: (sheetCtx) => SizedBox(
+      height: MediaQuery.of(sheetCtx).size.height * 0.9,
+      child: const ScannerScreen(),
+    ),
+  );
 }
 
 class IrmaQrScanButton extends StatelessWidget {

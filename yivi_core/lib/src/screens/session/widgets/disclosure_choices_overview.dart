@@ -12,10 +12,10 @@ import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
-import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
 import "../../../widgets/section_header.dart";
 import "../../../widgets/session_progress_indicator.dart";
+import "../../../widgets/signature_message.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
 import "disclosure_make_choice_screen.dart";
@@ -279,10 +279,7 @@ class _DisclosureChoicesOverviewState
                     top: context.yivi.spacing.small,
                     bottom: context.yivi.spacing.base,
                   ),
-                  child: IrmaQuote(
-                    key: const Key("signature_message"),
-                    quote: session.messageToSign!,
-                  ),
+                  child: SignatureMessage(message: session.messageToSign!),
                 ),
               ],
 

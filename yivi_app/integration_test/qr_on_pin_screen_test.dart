@@ -10,6 +10,7 @@ import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/scanner/scanner_screen.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/irma_close_button.dart";
 
 import "helpers/helpers.dart";
 import "helpers/issuance_helpers.dart";
@@ -70,7 +71,53 @@ void main() {
         irmaBinding.repository,
       ),
     );
+
+    testWidgets(
+      "cancel-pending-session-en",
+      (tester) => testCancelPendingSession(
+        tester,
+        Locale("en", "EN"),
+        irmaBinding.repository,
+      ),
+    );
+    testWidgets(
+      "cancel-pending-session-nl",
+      (tester) => testCancelPendingSession(
+        tester,
+        Locale("nl", "NL"),
+        irmaBinding.repository,
+      ),
+    );
   });
+}
+
+// Scanning queues a pending pointer; the pin screen then shows a trailing ✕.
+// Tapping it and confirming clears the pointer, reverting to normal unlock
+// (QR button returns) without ever starting the session.
+Future<void> testCancelPendingSession(
+  WidgetTester tester,
+  Locale locale,
+  IrmaRepository repo,
+) async {
+  await pumpYiviApp(tester, repo, defaultLanguage: locale);
+  await tapQrScannerButton(tester);
+  await pretendToScanIssuanceQrCode(tester, locale);
+
+  // Pending state: QR button hidden, cancel ✕ shown.
+  expect(find.byType(YiviAppBarQrCodeButton), findsNothing);
+  expect(find.byType(IrmaCloseButton), findsOneWidget);
+
+  // Cancel and confirm the dialog.
+  await tester.tapAndSettle(find.byType(IrmaCloseButton));
+  await tester.tapAndSettle(find.byKey(const Key("dialog_confirm_button")));
+
+  // Back to normal unlock: still on PinScreen, QR button back, ✕ gone.
+  expect(find.byType(PinScreen), findsOneWidget);
+  expect(find.byType(YiviAppBarQrCodeButton), findsOneWidget);
+  expect(find.byType(IrmaCloseButton), findsNothing);
+
+  // Leave the app unlocked so teardown is happy.
+  await unlockAndWaitForHome(tester);
 }
 
 Future<void> testCancelIssuanceAfterPinEntered(
@@ -91,15 +138,11 @@ Future<void> testCancelIssuanceAfterPinEntered(
   // press the cancel button
   await tester.tapAndSettle(buttonFinder);
 
-  // we expect to go back to the QR scanner
-  expect(find.byType(ScannerScreen), findsOneWidget);
-
-  // back to the pin screen
-  final backButton = find.byType(YiviBackButton);
-  await tester.tapAndSettle(backButton);
-
-  // unlock and wait so the test doesn't fail after completing
-  await unlockAndWaitForHome(tester);
+  // With the lock-screen QR scanner now shown as a modal on
+  // LockGate's local Navigator (rather than the `/scanner` route),
+  // canceling the issuance no longer has a scanner page underneath
+  // to fall back to — the user simply ends up on the home screen.
+  await tester.waitFor(find.byType(DataTab).hitTestable());
 }
 
 Future<void> testBackFromQrScanner(
@@ -110,12 +153,15 @@ Future<void> testBackFromQrScanner(
   await pumpYiviApp(tester, repo, defaultLanguage: locale);
   await tapQrScannerButton(tester);
 
+  // Scanner is now a bottom-sheet modal, not a `/scanner` route.
   final qrScreen = find.byType(ScannerScreen);
   expect(qrScreen, findsOneWidget);
 
-  final backButton = find.byType(YiviBackButton);
-  await tester.tapAndSettle(backButton);
+  // Sheet has a close button in the top-right (not a back button).
+  final closeButton = find.byKey(const Key("irma_app_bar_close"));
+  await tester.tapAndSettle(closeButton);
 
+  // After dismissing the sheet we're back on LockGate's PinScreen.
   final pinScreen = find.byType(PinScreen);
   expect(pinScreen, findsOneWidget);
 

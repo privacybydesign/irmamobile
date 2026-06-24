@@ -6,7 +6,6 @@ import "../widgets/irma_app_bar.dart";
 class SecurePinScreenTest extends StatelessWidget {
   final int maxPinSize;
 
-  final EnterPinStateBloc pinBloc;
   final String instructionKey;
 
   final VoidCallback? onTogglePinSize;
@@ -20,7 +19,6 @@ class SecurePinScreenTest extends StatelessWidget {
     required this.maxPinSize,
     required this.onTogglePinSize,
     required this.instructionKey,
-    required this.pinBloc,
   });
 
   @override
@@ -33,7 +31,6 @@ class SecurePinScreenTest extends StatelessWidget {
         instructionKey: instructionKey,
         maxPinSize: maxPinSize,
         onSubmit: (_) => Navigator.pop(context),
-        pinBloc: pinBloc,
         onTogglePinSize: onTogglePinSize,
         checkSecurePin: true,
         listener: (context, state) {
@@ -50,13 +47,8 @@ class SecurePinScreenTest extends StatelessWidget {
 class PinScreenTest extends StatefulWidget {
   final int maxPinSize;
   final VoidCallback? onTogglePinSize;
-  final EnterPinStateBloc pinBloc;
 
-  const PinScreenTest({
-    required this.maxPinSize,
-    this.onTogglePinSize,
-    required this.pinBloc,
-  });
+  const PinScreenTest({required this.maxPinSize, this.onTogglePinSize});
 
   @override
   State<StatefulWidget> createState() => _PinScreen();
@@ -74,7 +66,6 @@ class _PinScreen extends State<PinScreenTest> {
         instructionKey: "pin.title",
         maxPinSize: widget.maxPinSize,
         onSubmit: (_) => Navigator.pop(context),
-        pinBloc: widget.pinBloc,
         onForgotPin: () => Navigator.pop(context),
         onTogglePinSize: widget.onTogglePinSize,
         listener: (context, state) {

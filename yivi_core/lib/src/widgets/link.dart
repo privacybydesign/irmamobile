@@ -54,7 +54,16 @@ class Link extends StatelessWidget {
   final VoidCallback onTap;
   final TextAlign? textAlign;
 
-  const Link({required this.label, required this.onTap, this.textAlign});
+  /// Merged onto the hyperlink style — pass e.g. a smaller `fontSize` while
+  /// keeping the link's color, weight and underline.
+  final TextStyle? style;
+
+  const Link({
+    required this.label,
+    required this.onTap,
+    this.textAlign,
+    this.style,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -66,11 +75,13 @@ class Link extends StatelessWidget {
         child: TranslatedText(
           textAlign: textAlign,
           label,
-          style: context.text.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: context.yivi.brand.link,
-            decoration: TextDecoration.underline,
-          ),
+          style: context.text.bodyMedium
+              ?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: context.yivi.brand.link,
+                decoration: TextDecoration.underline,
+              )
+              .merge(style),
         ),
       ),
     );

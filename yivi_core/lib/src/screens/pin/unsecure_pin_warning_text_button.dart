@@ -1,14 +1,18 @@
 part of "yivi_pin_screen.dart";
 
 class _UnsecurePinWarningTextButton extends StatelessWidget {
-  final EnterPinStateBloc bloc;
-  final GlobalKey<ScaffoldState> scaffoldKey;
-  final BuildContext context;
+  final EnterPinState state;
 
-  _UnsecurePinWarningTextButton({required this.scaffoldKey, required this.bloc})
-    : context = scaffoldKey.currentContext!;
+  /// Null on pin screens that only reserve this slot's height (confirm/unlock);
+  /// there the button is never shown, so no scaffold context is needed.
+  final GlobalKey<ScaffoldState>? scaffoldKey;
 
-  void _showSecurePinRules(EnterPinState state) {
+  const _UnsecurePinWarningTextButton({
+    required this.scaffoldKey,
+    required this.state,
+  });
+
+  void _showSecurePinRules(BuildContext context, EnterPinState state) {
     // OrientationBuilder builds a widget tree that can depend on
     // the parent widget's orientation (distinct from the device orientation).
     // In this case, OrientationBuilder gives false results. Hence MediaQuery.
@@ -47,27 +51,29 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EnterPinStateBloc, EnterPinState>(
-      bloc: bloc,
-      builder: (context, state) {
-        return Center(
-          child: TextButton(
-            onPressed: () => _showSecurePinRules(state),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  FlutterI18n.translate(context, "secure_pin.info_button"),
-                  style: context.yivi.pin.warningButton,
-                ),
-                const SizedBox(width: 2.0),
-                Icon(Icons.info_outlined, color: context.yivi.brand.warning),
-              ],
+    // Use the scaffold's context (not this subtree's): the OrientationBuilder
+    // above reports a misleading orientation. Disabled when there's no key,
+    // i.e. the slot is only reserving height and never visible.
+    final scaffoldContext = scaffoldKey?.currentContext;
+
+    return Center(
+      child: TextButton(
+        onPressed: scaffoldContext == null
+            ? null
+            : () => _showSecurePinRules(scaffoldContext, state),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              FlutterI18n.translate(context, "secure_pin.info_button"),
+              style: context.yivi.pin.warningButton,
             ),
-          ),
-        );
-      },
+            const SizedBox(width: 2.0),
+            Icon(Icons.info_outlined, color: context.yivi.brand.warning),
+          ],
+        ),
+      ),
     );
   }
 }

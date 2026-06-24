@@ -5,8 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Improved QR-code scanner on Android (both Play Store and F-Droid versions)
+- Add biometrics support for app unlock (not for session authentication)
+- Add support for hardware input for the pin
+- Improved visual feedback when entering pin
 
-## [8.0.0] - 2026-06-15
+### Fix
+- Race condition in pin entering that caused double entry
+- Glitch where "next" button would appear at the top of the pin screen
+
+## [8.0.0] - 2026-06-22
 ### Changed
 - Make data tab, credential details, activity, notifications and add-data screens schema-independent
 - Restructure session handling to use a schema-independent interface via irmago
@@ -18,9 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add certificate management in developer mode
 - Redesigned credential card with support for nested claims
 - Update the enrollment 'from' emailaddress
+- Improved credential search algorithm
+- QR code scanner is now a modal sheet
 
 ### Fixed
 - Rooted device detection/acceptance flow now works correctly as the return url
+- Bug that could cause session replay on Android
 
 ### Internal
 - Integration tests are now run in parallel on CI

@@ -1,5 +1,76 @@
 part of "yivi_pin_screen.dart";
 
+/// A "back" ease-out with a bigger overshoot than [Curves.easeOutBack] (~10%):
+/// the filled dot jumps ~58% past its size before settling, so the fill reads
+/// as a pop. `s` is the overshoot strength.
+class _DotPopCurve extends Curve {
+  const _DotPopCurve();
+
+  @override
+  double transformInternal(double t) {
+    const s = 5.5;
+    final u = t - 1.0;
+    return u * u * ((s + 1) * u + s) + 1.0;
+  }
+}
+
+const _dotPop = _DotPopCurve();
+
+/// A single PIN dot. Pops in with [_dotPop]'s overshoot when [filled] turns
+/// true and shrinks cleanly back out when it turns false (digit removed).
+/// Controller-driven so the two directions can use different curves and
+/// durations — `TweenAnimationBuilder` only allows one. A dot that mounts
+/// already filled (a freshly typed long-PIN digit) pops in on mount; a long-PIN
+/// dot is simply unmounted on backspace, so only the short PIN (fixed slots)
+/// plays the shrink.
+class _PinDot extends StatefulWidget {
+  final bool filled;
+  final Widget child;
+
+  const _PinDot({required this.filled, required this.child});
+
+  @override
+  State<_PinDot> createState() => _PinDotState();
+}
+
+class _PinDotState extends State<_PinDot> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420), // pop in
+    reverseDuration: const Duration(milliseconds: 200), // shrink out
+  );
+
+  late final Animation<double> _scale = CurvedAnimation(
+    parent: _controller,
+    curve: _dotPop,
+    reverseCurve: Curves.easeIn,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.filled) _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(_PinDot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.filled != oldWidget.filled) {
+      widget.filled ? _controller.forward() : _controller.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      ScaleTransition(scale: _scale, child: widget.child);
+}
+
 class _PinIndicator extends StatelessWidget {
   final int maxPinSize;
   final ValueNotifier<bool> pinVisibilityValue;
@@ -25,11 +96,20 @@ class _PinIndicator extends StatelessWidget {
         ? context.colors.secondary
         : Colors.transparent;
 
-    // Long PIN digits render at the bodyMedium tuple (16sp w400) and short
-    // PIN digits at displayMedium (24sp w700) — not headers, just glyphs.
-    final style = maxPinSize != shortPinSize
-        ? context.text.bodyMedium?.copyWith(color: textColor)
-        : context.text.displayMedium?.copyWith(color: textColor);
+    final isMaxPin5 = maxPinSize == shortPinSize;
+    final pinSize = pinState.pin.length;
+
+    // Long PIN shrinks as it fills, so a full 16-digit PIN lands at 12px while
+    // shorter entries stay ~20px. Short PIN is a fixed 24px.
+    final fontSize = isMaxPin5
+        ? 24.0
+        : 20 - (pinSize - 1).clamp(0, 15) / 15 * 8;
+    final style = context.text.displayMedium?.copyWith(
+      color: textColor,
+      fontSize: fontSize,
+    );
+    // Each digit's box tracks the glyph size so the row fits without clipping.
+    final boxWidth = isMaxPin5 ? 14.0 : fontSize * 0.8;
 
     final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
 
@@ -52,8 +132,6 @@ class _PinIndicator extends StatelessWidget {
       border: Border.all(color: context.colors.secondary, width: 2.0),
     );
 
-    final pinSize = pinState.pin.length;
-
     // prevent the row from collapsing
     if (pinSize == 0 && maxPinSize != shortPinSize) {
       return SizedBox(width: 0, height: 19.scaleToDesignSize(context));
@@ -64,8 +142,56 @@ class _PinIndicator extends StatelessWidget {
       height: scaledEdgeSize,
     );
 
-    final isMaxPin5 = maxPinSize == shortPinSize;
     final joinedPin = pinState.pin.join();
+
+    final row = Row(
+      mainAxisSize: isMaxPin5 ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisAlignment: isMaxPin5
+          ? MainAxisAlignment.spaceEvenly
+          : MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: List.generate(
+        isMaxPin5 ? shortPinSize : pinSize,
+        (i) => Stack(
+          key: ValueKey("pin_dot_$i"),
+          alignment: Alignment.center,
+          children: [
+            // SizedBox ensures that all the relevant
+            // glyphs have a uniform size, that prevents realignment
+            SizedBox(
+              width: boxWidth,
+              height: isMaxPin5 ? _pinFieldHeight : 30,
+              child: Text(
+                '${i < pinSize ? pinState.pin.elementAt(i) : ''}',
+                style: i >= pinSize
+                    ? style?.copyWith(color: Colors.transparent)
+                    : style,
+              ),
+            ),
+            // Short PIN: a static ring sits under every slot; the solid
+            // dot grows in over it (and shrinks back out on backspace).
+            // Long PIN: no ring, and each dot just pops in on its own
+            // mount — backspace unmounts it, so no exit animation there.
+            // Skip the empty-slot ring under a revealed digit — otherwise
+            // the ring overlaps the number and it's hard to read.
+            if (isMaxPin5 && !(isPinVisible && i < pinSize))
+              Container(
+                constraints: constraints,
+                decoration: circleOutlinedDecoration,
+              ),
+            if (isMaxPin5 || i < pinSize)
+              _PinDot(
+                filled: i < pinSize,
+                child: Container(
+                  constraints: constraints,
+                  decoration: circleFilledDecoration,
+                ),
+              ),
+          ],
+        ),
+        growable: false,
+      ),
+    );
 
     return Semantics(
       label: joinedPin.isEmpty
@@ -78,43 +204,10 @@ class _PinIndicator extends StatelessWidget {
               pinState.pin.length,
             ),
       child: ExcludeSemantics(
-        child: Row(
-          mainAxisAlignment: isMaxPin5
-              ? MainAxisAlignment.spaceEvenly
-              : MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: List.generate(
-            isMaxPin5 ? shortPinSize : pinSize,
-            (i) => Stack(
-              alignment: Alignment.center,
-              children: [
-                // SizedBox ensures that all the relevant
-                // glyphs have a uniform size, that prevents realignment
-                SizedBox(
-                  width: isMaxPin5 ? 14 : 9,
-                  height: isMaxPin5 ? 36 : 21,
-                  child: Text(
-                    '${i < pinSize ? pinState.pin.elementAt(i) : ''}',
-                    style: i >= pinSize
-                        ? style?.copyWith(color: Colors.transparent)
-                        : style,
-                  ),
-                ),
-                if (i < pinSize)
-                  Container(
-                    constraints: constraints,
-                    decoration: circleFilledDecoration,
-                  ),
-                if (isMaxPin5 && i >= pinSize)
-                  Container(
-                    constraints: constraints,
-                    decoration: circleOutlinedDecoration,
-                  ),
-              ],
-            ),
-            growable: false,
-          ),
-        ),
+        // Long PIN can hold up to 16 entries: scale the row down to fit the
+        // field width instead of overflowing. Short PIN's fixed 5 dots already
+        // fill the width (spaceEvenly), so it isn't fitted.
+        child: isMaxPin5 ? row : FittedBox(fit: BoxFit.scaleDown, child: row),
       ),
     );
   }

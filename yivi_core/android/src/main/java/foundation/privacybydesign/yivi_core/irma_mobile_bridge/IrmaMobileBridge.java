@@ -83,6 +83,10 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
         if (initialURL != null) {
           channel.invokeMethod("HandleURLEvent",
             String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
+          initialURL = null;
+          // Drop the launching intent's data so a later maybeCreateBridge() — e.g.,
+          // after a configuration change — doesn't read the same URL and replay it.
+          activity.setIntent(new Intent());
         }
 
         break;

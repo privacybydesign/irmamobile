@@ -3,12 +3,13 @@ import "dart:async";
 import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/session.dart";
+import "../../../providers/qr_scanner_factory_provider.dart";
 import "../../../theme/theme.dart";
 import "qr_instruction.dart";
 import "qr_overlay.dart";
-import "qr_view_container.dart";
 
 class QRScanner extends StatefulWidget {
   final void Function(Pointer) onFound;
@@ -58,7 +59,10 @@ class QRScannerState extends State<QRScanner>
 
     return Stack(
       children: [
-        QRViewContainer(onFound: (qr) => _foundQR(qr)),
+        Consumer(
+          builder: (context, ref, _) =>
+              ref.watch(qrScannerFactoryProvider).build(onCodeFound: _foundQR),
+        ),
         Container(
           constraints: const BoxConstraints.expand(),
           child: CustomPaint(
@@ -82,21 +86,18 @@ class QRScannerState extends State<QRScanner>
         if (isLandscape)
           SafeArea(
             child: Align(
-              alignment: Alignment.topLeft,
+              alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: CircleAvatar(
                   backgroundColor: Colors.grey.shade300,
                   radius: 24,
                   child: IconButton(
-                    tooltip: FlutterI18n.translate(
-                      context,
-                      "accessibility.back",
-                    ),
+                    tooltip: FlutterI18n.translate(context, "ui.close"),
                     padding: EdgeInsets.zero,
                     onPressed: Navigator.of(context).pop,
                     icon: Icon(
-                      Icons.chevron_left,
+                      Icons.close,
                       size: 24,
                       color: Colors.grey.shade800,
                     ),
