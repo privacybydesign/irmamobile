@@ -64,7 +64,7 @@ FlutterI18nDelegate _buildI18nDelegate() => FlutterI18nDelegate(
   ),
 );
 
-/// `IrmaTheme` uses the unqualified family names `Alexandria` / `Open Sans`;
+/// `IrmaTheme` uses the unqualified family names `Alexandria` / `Inter`;
 /// the widget-preview scaffold doesn't reliably resolve the bundled fonts, so
 /// we register them via Google Fonts (CDN) under those exact names. Failures
 /// are swallowed so the previews still render (in the system font) when offline.
@@ -74,7 +74,7 @@ Future<void> _loadYiviFonts() async {
   try {
     await GoogleFonts.pendingFonts([
       GoogleFonts.alexandria(),
-      GoogleFonts.openSans(),
+      GoogleFonts.inter(),
     ]);
   } catch (_) {
     // Offline / CDN unavailable — fall back to the system font.

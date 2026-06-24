@@ -59,7 +59,7 @@ final _previewProviderContainer = ProviderContainer();
 ///
 /// The font files are accessible at runtime via these `packages/yivi_core/...`
 /// paths because yivi_core's pubspec declares `fonts/alexandria/`,
-/// `fonts/open-sans/`, and `fonts/irma-icons/` in its `assets:` section.
+/// `fonts/inter/`, and `fonts/irma-icons/` in its `assets:` section.
 /// Result of the font registration pass. Reported on-screen so we don't have
 /// to chase terminal output.
 class _FontLoadReport {
@@ -67,8 +67,8 @@ class _FontLoadReport {
   final List<String> failed = [];
 }
 
-/// Loads Alexandria + Open Sans from Google Fonts (CDN) at runtime. Internally,
-/// `google_fonts` calls `FontLoader` with `Alexandria` / `Open Sans` as the
+/// Loads Alexandria + Inter from Google Fonts (CDN) at runtime. Internally,
+/// `google_fonts` calls `FontLoader` with `Alexandria` / `Inter` as the
 /// family names, which is exactly what `IrmaTheme` looks up. The bundled-font
 /// path under `flutter widget-preview` doesn't reliably resolve, so we go via
 /// the CDN here.
@@ -82,7 +82,7 @@ Future<_FontLoadReport> _loadYiviFonts() async {
   final report = _FontLoadReport();
   final loads = <String, Future<void>>{
     "Alexandria": GoogleFonts.pendingFonts([GoogleFonts.alexandria()]),
-    "Open Sans": GoogleFonts.pendingFonts([GoogleFonts.openSans()]),
+    "Inter": GoogleFonts.pendingFonts([GoogleFonts.inter()]),
   };
   for (final entry in loads.entries) {
     try {

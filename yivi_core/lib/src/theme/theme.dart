@@ -41,7 +41,7 @@ ThemeData buildYiviThemeData() {
   // foreground" rather than as the brand red.
   const secondary = neutralExtraDark;
 
-  const font = "Open Sans";
+  const font = "Inter";
 
   // ──────────────────────────────────────────────────────────────────────
   // Spacing tokens, border radius.
