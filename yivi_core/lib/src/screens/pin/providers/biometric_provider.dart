@@ -1,8 +1,11 @@
+import "dart:io";
+
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:local_auth/local_auth.dart";
 
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/preferences_provider.dart";
+import "../../../util/privacy_screen.dart";
 
 /// The local_auth entry point, behind a provider so tests can override it.
 final localAuthProvider = Provider<LocalAuthentication>(
@@ -67,7 +70,17 @@ class BiometricService {
   /// [localizedReason] is shown in the OS prompt.
   Future<bool> authenticate({required String localizedReason}) async {
     final auth = _ref.read(localAuthProvider);
+    // The OS biometric prompt makes the app resign-active. On iOS that fires
+    // the privacy-screen blur, which then covers the whole screen for the full
+    // duration of the Face ID scan (it's only removed once the app becomes
+    // active again) — making Face ID look slow behind a lingering blur.
+    // Suppress it around the prompt and restore the user's screenshot/privacy
+    // preference afterwards. iOS-only: Android's privacy screen is FLAG_SECURE
+    // (no visible blur), so there's nothing to suppress and clearing it would
+    // needlessly drop the flag mid-prompt.
+    final suppressPrivacyScreen = Platform.isIOS;
     try {
+      if (suppressPrivacyScreen) await PrivacyScreen.disablePrivacyScreen();
       return await auth.authenticate(
         localizedReason: localizedReason,
         options: const AuthenticationOptions(
@@ -77,7 +90,20 @@ class BiometricService {
       );
     } catch (_) {
       return false;
+    } finally {
+      if (suppressPrivacyScreen) await _restorePrivacyScreen();
     }
+  }
+
+  /// Re-enable the privacy-screen blur unless the user has screenshots enabled.
+  /// Mirrors the app-level screenshot-pref listener so we end up in whatever
+  /// state the user configured, regardless of how the prompt resolved.
+  Future<void> _restorePrivacyScreen() async {
+    final screenshotsEnabled = await _ref
+        .read(preferencesProvider)
+        .getScreenshotsEnabled()
+        .first;
+    if (!screenshotsEnabled) await PrivacyScreen.enablePrivacyScreen();
   }
 
   /// Lock-screen biometric button: authenticate and, on success, unlock the
