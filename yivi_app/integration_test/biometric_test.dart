@@ -256,7 +256,9 @@ void main() {
       expect(fakeAuth.authenticateCalls, 0);
     });
 
-    testWidgets("explicit logout suppresses the next auto-scan", (tester) async {
+    testWidgets("explicit logout suppresses the next auto-scan", (
+      tester,
+    ) async {
       await irmaBinding.repository.preferences.setBiometricEnabled(true);
       final fakeAuth = FakeLocalAuthentication(
         available: true,
