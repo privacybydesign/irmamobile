@@ -30,7 +30,7 @@ import "yivi_pin_screen.dart";
 /// unlock on Android, and the Material fingerprint icon otherwise (Touch ID,
 /// fingerprint sensors, unknown/null).
 Widget _biometricGlyph(BuildContext context, BiometricType? type) {
-  final color = context.colors.secondary;
+  final color = Colors.black;
   if (type == BiometricType.face) {
     // Face ID's branded glyph is Apple-specific — only use it on iOS.
     return Platform.isIOS

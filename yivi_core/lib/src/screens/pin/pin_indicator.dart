@@ -93,7 +93,7 @@ class _PinIndicator extends StatelessWidget {
 
   Widget _togglePinIndicators(BuildContext context, bool isPinVisible) {
     final textColor = isPinVisible
-        ? context.colors.secondary
+        ? Colors.black
         : Colors.transparent;
 
     final isMaxPin5 = maxPinSize == shortPinSize;
@@ -119,7 +119,7 @@ class _PinIndicator extends StatelessWidget {
     final scaledEdgeSize = edgeSize.scaleToDesignSize(context);
 
     final circleFilledDecoration = BoxDecoration(
-      color: isPinVisible ? Colors.transparent : context.colors.secondary,
+      color: isPinVisible ? Colors.transparent : Colors.black,
       shape: BoxShape.circle,
 
       // prevent unnecessary resize
@@ -129,7 +129,7 @@ class _PinIndicator extends StatelessWidget {
     final circleOutlinedDecoration = BoxDecoration(
       color: Colors.transparent, // border color
       shape: BoxShape.circle,
-      border: Border.all(color: context.colors.secondary, width: 2.0),
+      border: Border.all(color: Colors.black, width: 2.0),
     );
 
     // prevent the row from collapsing

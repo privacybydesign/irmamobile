@@ -73,7 +73,7 @@ class PinKeypad extends StatelessWidget {
             callback: onBackspace,
             child: Icon(
               Icons.backspace_outlined,
-              color: context.colors.secondary,
+              color: Colors.black,
             ),
           ),
         ),

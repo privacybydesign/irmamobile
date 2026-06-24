@@ -243,13 +243,13 @@ ThemeData buildYiviThemeData() {
       fontSize: 32,
       height: 32 / 40,
       fontWeight: FontWeight.w600,
-      color: secondary,
+      color: Colors.black,
     ),
     keypadSubtitle: const TextStyle(
       fontFamily: font,
       height: 14 / 24,
       fontWeight: FontWeight.w400,
-      color: secondary,
+      color: Colors.black,
     ),
     // Pinned to direct values rather than derived from textTheme.headlineSmall —
     // headlineSmall is now 17sp w600 (Apple Headline) for dialog/sheet titles,

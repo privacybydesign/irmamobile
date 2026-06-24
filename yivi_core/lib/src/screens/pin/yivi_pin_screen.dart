@@ -475,7 +475,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
             child: Icon(
               icon,
               size: 24,
-              color: context.colors.secondary,
+              color: Colors.black,
               semanticLabel: FlutterI18n.translate(context, semanticLabelKey),
             ),
           ),
@@ -524,6 +524,7 @@ class _YiviPinScreenState extends State<YiviPinScreen>
   }
 
   Widget _buildInstructionText(BuildContext context) {
+    final style = context.text.displaySmall;
     return Center(
       child: Semantics(
         header: true,
@@ -531,11 +532,11 @@ class _YiviPinScreenState extends State<YiviPinScreen>
           widget.instruction ??
               FlutterI18n.translate(context, widget.instructionKey!),
           textAlign: TextAlign.center,
-          style: context.text.displaySmall?.copyWith(
-            // Smaller than displaySmall's 18, scaled down further on small
-            // screens, and without its 2.0 line-height so the block stays
-            // clear of the keypad.
-            fontSize: 16.scaleToDesignSize(context),
+          style: style?.copyWith(
+            // displaySmall (20sp), scaled down on small screens so the block
+            // stays clear of the keypad, with a tighter line-height than the
+            // theme default.
+            fontSize: style.fontSize?.scaleToDesignSize(context),
             height: 1.3,
           ),
         ),
