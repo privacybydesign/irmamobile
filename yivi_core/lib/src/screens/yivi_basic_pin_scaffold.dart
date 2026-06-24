@@ -54,6 +54,10 @@ class YiviBasicPinScaffold extends StatelessWidget {
                 submit(state.toString());
               }
             },
+            // Same as the unlock screen: short PIN auto-submits, so don't
+            // reserve space for a Next button that never shows.
+            submitButtonVisibilityListener: (context, _) =>
+                autoSubmitButtonVisibility(maxPinSize),
           );
         },
       ),

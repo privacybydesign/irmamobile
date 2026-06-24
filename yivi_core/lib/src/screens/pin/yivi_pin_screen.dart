@@ -58,6 +58,17 @@ WidgetVisibility defaultSubmitButtonVisibility(
   }
 }
 
+/// Submit-button visibility for "enter an existing PIN" flows (unlock and
+/// change-pin's enter-current-PIN): a short PIN auto-submits on its last digit,
+/// so the Next button never appears — don't reserve its space (`gone`), unlike
+/// [defaultSubmitButtonVisibility] which reserves it (`invisible`) for flows
+/// where the button can still show. Long PIN has no auto-submit, so it keeps a
+/// visible submit button.
+WidgetVisibility autoSubmitButtonVisibility(int maxPinSize) =>
+    maxPinSize == longPinSize
+    ? WidgetVisibility.visible
+    : WidgetVisibility.gone;
+
 /// The shared PIN entry widget: number pad + hardware-keyboard input + dots +
 /// optional secure-PIN/toggle/biometric controls. Owns the entered digits as
 /// local state ([EnterPinState]) — no bloc, no provider, since the buffer is

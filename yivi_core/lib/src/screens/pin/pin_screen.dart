@@ -210,6 +210,8 @@ class _PinScreenState extends ConsumerState<PinScreen> {
                   submit(pinState.toString());
                 }
               },
+              submitButtonVisibilityListener: (context, _) =>
+                  autoSubmitButtonVisibility(maxPinSize),
             ),
           ),
           if (state.authenticateInProgress) const CircularProgressIndicator(),
