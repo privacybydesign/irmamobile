@@ -10,7 +10,8 @@ import "../../../util/haptics.dart";
 /// Digit keys report their full press lifecycle: [onDigitPressed] on press-down
 /// (show the dot + haptic), [onDigitReleased] on release (commit — the final
 /// digit submits here), and [onDigitCancelled] if the press is cancelled (undo
-/// the dot). Backspace is a plain tap ([onBackspace]).
+/// the dot). Backspace ([onBackspace]) and the biometric key act on release but
+/// share the digits' press-down haptic.
 class PinKeypad extends StatelessWidget {
   /// A digit (0-9) was pressed down.
   final void Function(int) onDigitPressed;
@@ -202,6 +203,9 @@ class _PinKeypadIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _PressableCircle(
+      // Haptic on press-down, same as the digit keys. The action still fires
+      // on release ([onTap]) — only the feedback edge matches the digits.
+      hapticOnDown: true,
       onTap: callback,
       child: IgnorePointer(
         child: FractionallySizedBox(
@@ -222,9 +226,10 @@ class _PinKeypadIcon extends StatelessWidget {
 /// plays the full pop, where tying the animation to hold-duration would only
 /// show a stub. Every keypad key routes through this, so the feel is uniform.
 ///
-/// Digit keys set [hapticOnDown] (haptic + [onPressDown] fire on press-down,
-/// [onTap] commits on release, [onPressCancel] undoes a cancelled press).
-/// Backspace/biometric leave it false: haptic + [onTap] fire on release.
+/// All keys set [hapticOnDown], so the haptic fires on press-down. Digit keys
+/// additionally use [onPressDown]/[onPressCancel] for the dot lifecycle and
+/// commit via [onTap] on release; backspace/biometric have no press-down
+/// callback and just act on [onTap] (release).
 class _PressableCircle extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
