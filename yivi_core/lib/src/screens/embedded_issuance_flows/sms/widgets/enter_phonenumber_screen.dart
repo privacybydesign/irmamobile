@@ -16,7 +16,12 @@ import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
 class EnterPhoneScreen extends ConsumerStatefulWidget {
-  const EnterPhoneScreen();
+  /// When the verifier requested a specific phone number, it is passed here so
+  /// the input field starts pre-filled with that number. The number was just
+  /// shown to the user on the disclosure screen, so retyping it is avoidable.
+  final String? prefillPhoneNumber;
+
+  const EnterPhoneScreen({this.prefillPhoneNumber});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -55,10 +60,14 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
 
-      final phone = ref.read(smsIssuanceProvider).phoneNumber;
+      // Use the previously entered phone number (when coming back from the
+      // code verification page); otherwise fall back to the number the verifier
+      // requested so the field is pre-filled instead of empty.
+      final enteredPhone = ref.read(smsIssuanceProvider).phoneNumber;
+      final phone = enteredPhone.isNotEmpty
+          ? enteredPhone
+          : (widget.prefillPhoneNumber ?? "");
 
-      // Prefill the phone number box with the phone number for when we're coming back from
-      // the code verification page
       if (phone.isNotEmpty) {
         _currentPhone = await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
 
