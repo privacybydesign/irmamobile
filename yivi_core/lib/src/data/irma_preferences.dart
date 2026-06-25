@@ -19,6 +19,7 @@ class IrmaPreferences {
        // Please don't arbitrarily change this value, this could hinder the upgrade flow
        // For users before the pin size >5 was introduced.
        _longPin = preferences.getBool(_longPinKey, defaultValue: true),
+       _pinVisible = preferences.getBool(_pinVisibleKey, defaultValue: false),
        _reportErrors = preferences.getBool(
          _reportErrorsKey,
          defaultValue: false,
@@ -29,6 +30,18 @@ class IrmaPreferences {
        ),
        _acceptedRootedRisk = preferences.getBool(
          _acceptedRootedRiskKey,
+         defaultValue: false,
+       ),
+       _biometricEnabled = preferences.getBool(
+         _biometricEnabledKey,
+         defaultValue: false,
+       ),
+       _biometricImmediate = preferences.getBool(
+         _biometricImmediateKey,
+         defaultValue: true,
+       ),
+       _biometricPromptDismissed = preferences.getBool(
+         _biometricPromptDismissedKey,
          defaultValue: false,
        ),
        _completedDisclosurePermissionIntro = preferences.getBool(
@@ -78,6 +91,10 @@ class IrmaPreferences {
   static const String _longPinKey = "preference.long_pin";
   final Preference<bool> _longPin;
 
+  /// Whether entered PIN digits are revealed (the eye toggle on the PIN screen).
+  static const String _pinVisibleKey = "preference.pin_visible";
+  final Preference<bool> _pinVisible;
+
   static const String _reportErrorsKey = "preference.report_errors";
   final Preference<bool> _reportErrors;
 
@@ -88,6 +105,22 @@ class IrmaPreferences {
   static const String _acceptedRootedRiskKey =
       "preference.accepted_rooted_risk";
   final Preference<bool> _acceptedRootedRisk;
+
+  /// Whether the user opted in to biometric app-unlock. Default off (opt-in).
+  static const String _biometricEnabledKey = "preference.biometric_enabled";
+  final Preference<bool> _biometricEnabled;
+
+  /// Whether the biometric scan fires automatically when the lock screen
+  /// appears, instead of waiting for a button tap. Default on; only has an
+  /// effect while [_biometricEnabled] is true.
+  static const String _biometricImmediateKey = "preference.biometric_immediate";
+  final Preference<bool> _biometricImmediate;
+
+  /// Whether the one-time biometric opt-in prompt has been answered/dismissed,
+  /// so it isn't shown again.
+  static const String _biometricPromptDismissedKey =
+      "preference.biometric_prompt_dismissed";
+  final Preference<bool> _biometricPromptDismissed;
 
   /// Originates from the notification that  IRMA is ABOUT TO change to Yivi, only used for cleanup-purposes
   static const String _showNameChangeNotificationKey =
@@ -137,6 +170,10 @@ class IrmaPreferences {
 
   Future<bool> setLongPin(bool value) => _longPin.setValue(value);
 
+  bool getPinVisible() => _pinVisible.getValue();
+
+  Future<bool> setPinVisible(bool value) => _pinVisible.setValue(value);
+
   Stream<bool> getReportErrors() => _reportErrors;
 
   Future<bool> setReportErrors(bool value) => _reportErrors.setValue(value);
@@ -150,6 +187,21 @@ class IrmaPreferences {
 
   Future<bool> setAcceptedRootedRisk(bool value) =>
       _acceptedRootedRisk.setValue(value);
+
+  Stream<bool> getBiometricEnabled() => _biometricEnabled;
+
+  Future<bool> setBiometricEnabled(bool value) =>
+      _biometricEnabled.setValue(value);
+
+  Stream<bool> getBiometricImmediate() => _biometricImmediate;
+
+  Future<bool> setBiometricImmediate(bool value) =>
+      _biometricImmediate.setValue(value);
+
+  Stream<bool> getBiometricPromptDismissed() => _biometricPromptDismissed;
+
+  Future<bool> setBiometricPromptDismissed(bool value) =>
+      _biometricPromptDismissed.setValue(value);
 
   Stream<bool> getCompletedDisclosurePermissionIntro() =>
       _completedDisclosurePermissionIntro;

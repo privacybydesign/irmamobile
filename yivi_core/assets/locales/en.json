@@ -556,8 +556,24 @@
   },
   "pin": {
     "subtitle": "Enter your PIN",
+    "unlock": "Unlock",
     "button_forgot": "I forgot my PIN",
-    "button_block": "Block Yivi"
+    "button_block": "Block Yivi",
+    "biometric_button": "Unlock with biometrics",
+    "biometric_reason": "Unlock the Yivi app",
+    "biometric_confirm_reason": "Confirm to enable biometric unlock",
+    "biometric_prompt": {
+      "title": "Unlock with biometrics?",
+      "body": "Use your fingerprint or face to unlock the app. You'll still need to enter your PIN for sessions.",
+      "enable": "Enable",
+      "not_now": "Not now"
+    },
+    "cancel_session_dialog": {
+      "title": "Cancel this request?",
+      "explanation": "You'll return to the lock screen.",
+      "confirm": "Yes",
+      "decline": "No"
+    }
   },
   "pin_accessibility": {
     "show_pin": "Show PIN",
@@ -681,6 +697,10 @@
     "language": "Language",
     "use_system_language": "Use system language",
     "change_pin": "Change PIN",
+    "biometric_unlock": "Unlock with biometrics",
+    "biometric_unlock_explanation": "Use your fingerprint or face to unlock the app. You'll still need your PIN to receive or share data.",
+    "biometric_immediate": "Unlock automatically",
+    "biometric_immediate_explanation": "Unlock with biometrics automatically when you open the app, instead of tapping the button.",
     "delete": "Delete data",
     "confirm_delete_dialog": {
       "title": "Delete data",

@@ -1,4 +1,5 @@
 import "activity_test.dart" as activity_test;
+import "biometric_test.dart" as biometric_test;
 import "data_search_test.dart" as search_test;
 import "disclose_sdjwt_over_openid4vp_test.dart" as openid4vp_test;
 import "disclosure_session/disclosure_session_test_all.dart"
@@ -44,6 +45,7 @@ void main() {
   qr_on_pin_screen_test.main();
   rooted_warning_test.main();
   enroll_test.main();
+  biometric_test.main();
   idle_lock_test.main();
   login_test.main();
   settings_test.main();

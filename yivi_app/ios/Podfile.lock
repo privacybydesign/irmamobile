@@ -42,6 +42,9 @@ PODS:
   - jailbreak_root_detection (1.0.1):
     - Flutter
     - IOSSecuritySuite (~> 1.9.10)
+  - local_auth_darwin (0.0.1):
+    - Flutter
+    - FlutterMacOS
   - MLImage (1.0.0-beta6)
   - MLKitCommon (12.0.0):
     - GoogleDataTransport (~> 10.0)
@@ -113,6 +116,7 @@ DEPENDENCIES:
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - jailbreak_root_detection (from `.symlinks/plugins/jailbreak_root_detection/ios`)
+  - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
   - native_device_orientation (from `.symlinks/plugins/native_device_orientation/ios`)
   - objective_c (from `.symlinks/plugins/objective_c/ios`)
@@ -160,6 +164,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
   jailbreak_root_detection:
     :path: ".symlinks/plugins/jailbreak_root_detection/ios"
+  local_auth_darwin:
+    :path: ".symlinks/plugins/local_auth_darwin/darwin"
   mobile_scanner:
     :path: ".symlinks/plugins/mobile_scanner/darwin"
   native_device_orientation:
@@ -198,6 +204,7 @@ SPEC CHECKSUMS:
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   IOSSecuritySuite: b51056d5411aee567153ca86ce7f6edfdc5d2654
   jailbreak_root_detection: 9201e1dfd51dc23069cbfb8d4f4a2d18305170bf
+  local_auth_darwin: c3ee6cce0a8d56be34c8ccb66ba31f7f180aaebb
   MLImage: 0ad1c5f50edd027672d8b26b0fee78a8b4a0fc56
   MLKitCommon: 07c2c33ae5640e5380beaaa6e4b9c249a205542d
   MLKitTextRecognition: 3b41f3ff084a79afb214408d25d2068d77ab322c

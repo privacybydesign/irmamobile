@@ -43,19 +43,21 @@ class YiviBasicPinScaffold extends StatelessWidget {
           final maxPinSize = (snapshot.data ?? false)
               ? longPinSize
               : shortPinSize;
-          final pinBloc = EnterPinStateBloc(maxPinSize);
 
           return YiviPinScreen(
             instructionKey: instructionKey,
             maxPinSize: maxPinSize,
             onSubmit: submit,
-            pinBloc: pinBloc,
             listener: (context, state) {
               if (maxPinSize == shortPinSize &&
                   state.pin.length == maxPinSize) {
                 submit(state.toString());
               }
             },
+            // Same as the unlock screen: short PIN auto-submits, so don't
+            // reserve space for a Next button that never shows.
+            submitButtonVisibilityListener: (context, _) =>
+                autoSubmitButtonVisibility(maxPinSize),
           );
         },
       ),
