@@ -2,6 +2,8 @@ import "dart:async";
 import "dart:io";
 
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../models/clear_all_data_event.dart";
 import "../../providers/irma_repository_provider.dart";
@@ -12,6 +14,7 @@ import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 import "../more/widgets/tiles.dart";
 import "../more/widgets/tiles_card.dart";
+import "../pin/providers/biometric_provider.dart";
 import "widgets/delete_data_confirmation_dialog.dart";
 
 class SettingsScreen extends StatefulWidget {
@@ -81,6 +84,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Biometric unlock — first option, but only when the device has
+              // biometrics enrolled. The toggle reflects/sets the opt-in pref.
+              Consumer(
+                builder: (context, ref, _) {
+                  final available =
+                      ref.watch(biometricAvailableProvider).value ?? false;
+                  if (!available) return const SizedBox.shrink();
+                  final biometricEnabled =
+                      ref.watch(biometricEnabledProvider).value ?? false;
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TilesCard(
+                          children: [
+                            ToggleTile(
+                              key: const Key("biometric_toggle"),
+                              labelTranslationKey: "settings.biometric_unlock",
+                              // Enabling requires a successful biometric
+                              // prompt; on failure the pref stays false and the
+                              // switch (driven by the stream) reverts.
+                              // Disabling needs no auth.
+                              onChanged: (value) async {
+                                if (!value) {
+                                  await repo.preferences.setBiometricEnabled(
+                                    false,
+                                  );
+                                  return;
+                                }
+                                final ok = await ref
+                                    .read(biometricServiceProvider)
+                                    .authenticate(
+                                      localizedReason: FlutterI18n.translate(
+                                        context,
+                                        "pin.biometric_confirm_reason",
+                                      ),
+                                    );
+                                if (ok) {
+                                  await repo.preferences.setBiometricEnabled(
+                                    true,
+                                  );
+                                }
+                              },
+                              stream: repo.preferences.getBiometricEnabled(),
+                            ),
+                          ],
+                        ),
+                        buildExplanationText(
+                          "settings.biometric_unlock_explanation",
+                        ),
+                        // "Scan on launch": stays visible but greyed out and
+                        // non-interactive while biometric unlock is off — the
+                        // pref is ignored until biometric is re-enabled.
+                        SizedBox(height: theme.defaultSpacing),
+                        IgnorePointer(
+                          ignoring: !biometricEnabled,
+                          child: Opacity(
+                            opacity: biometricEnabled ? 1.0 : 0.5,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TilesCard(
+                                  children: [
+                                    ToggleTile(
+                                      key: const Key(
+                                        "biometric_immediate_toggle",
+                                      ),
+                                      labelTranslationKey:
+                                          "settings.biometric_immediate",
+                                      // No auth to flip — it only changes whether
+                                      // an already-enabled biometric fires
+                                      // automatically.
+                                      onChanged: repo
+                                          .preferences
+                                          .setBiometricImmediate,
+                                      stream: repo.preferences
+                                          .getBiometricImmediate(),
+                                    ),
+                                  ],
+                                ),
+                                buildExplanationText(
+                                  "settings.biometric_immediate_explanation",
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               TilesCard(
                 children: [
                   ToggleTile(
@@ -142,6 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 200),
             ],
           ),
         ),

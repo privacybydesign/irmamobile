@@ -70,6 +70,8 @@ func DispatchFromNative(eventName, payloadString string) {
 		}()
 	case "ClearAllDataEvent":
 		err = bridgeEventHandler.clearAllData()
+	case "DeleteKeyshareTokensEvent":
+		err = bridgeEventHandler.deleteKeyshareTokens()
 	case "DeleteCredentialEvent":
 		event := &deleteCredentialEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err == nil {

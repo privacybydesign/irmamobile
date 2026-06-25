@@ -18,6 +18,7 @@ import "../models/change_pin_events.dart";
 import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credentials.dart";
+import "../models/delete_keyshare_tokens_event.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
@@ -367,10 +368,38 @@ class IrmaRepository {
       _enrollmentStatusEventSubject.stream;
 
   // -- Authentication
-  void lock({DateTime? unblockTime}) {
-    // TODO: This should actually lock irmago up
+
+  // Set when the user explicitly locks (e.g. "Log out" on the More tab), so the
+  // next lock screen shows the PIN pad instead of auto-firing biometrics. A
+  // one-shot consumed by the lock screen — an idle-timeout lock leaves it false
+  // and still auto-scans.
+  bool _biometricAutoUnlockSuppressed = false;
+
+  /// Returns whether the next biometric auto-unlock should be skipped, clearing
+  /// the flag so only the lock appearance that directly follows an explicit
+  /// logout is suppressed.
+  bool consumeBiometricAutoUnlockSuppressed() {
+    final suppressed = _biometricAutoUnlockSuppressed;
+    _biometricAutoUnlockSuppressed = false;
+    return suppressed;
+  }
+
+  void lock({DateTime? unblockTime, bool userInitiated = false}) {
+    if (userInitiated) _biometricAutoUnlockSuppressed = true;
+    // Drop irmago's in-memory keyshare token so the next session must
+    // re-authenticate with the PIN. A biometric unlock alone won't restore it
+    // (only KeyshareVerifyPin does), closing the biometric-bypass window.
+    bridgedDispatch(DeleteKeyshareTokensEvent());
     _lockedSubject.add(true);
     _blockedSubject.add(unblockTime);
+  }
+
+  /// Unlocks the app shell locally (e.g. after biometric authentication)
+  /// WITHOUT authenticating against the keyshare server. Unlike [unlock] this
+  /// does not refresh the keyshare session token, so the first session started
+  /// afterwards still hits `SessionStatus.requestPin` and requires the PIN.
+  void unlockAppLocally() {
+    _lockedSubject.add(false);
   }
 
   void setDeveloperMode(bool enabled) {
@@ -543,8 +572,9 @@ class IrmaRepository {
   /// Queue a pointer for [PendingPointerListener] to pick up. Used by
   /// the lock-screen QR scanner sheet: it dismisses with the scanned
   /// pointer queued, and the listener (mounted on `/home`) processes
-  /// it once the app is unlocked.
-  void setPendingPointer(Pointer pointer) {
+  /// it once the app is unlocked. Pass `null` to clear a queued pointer
+  /// (e.g. the user cancels a pending session from the lock screen).
+  void setPendingPointer(Pointer? pointer) {
     _pendingPointerSubject.add(pointer);
   }
 

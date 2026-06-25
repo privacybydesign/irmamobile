@@ -12,14 +12,23 @@ class YiviAppBarQrCodeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final topPadding = theme.defaultSpacing;
-    final leftPadding = theme.defaultSpacing;
 
-    return IrmaIconButton(
-      padding: EdgeInsets.only(left: leftPadding, top: topPadding),
-      icon: Icons.qr_code_scanner_rounded,
-      size: 32,
-      onTap: onTap ?? () {},
+    // The old left/top-only padding sat inside the ink area, cramming the ripple
+    // against the icon's right/bottom. Split that offset: half outside the
+    // button (positioning, doesn't touch the ripple) and half as symmetric
+    // padding inside (so the highlight is centred on the icon). The two halves
+    // sum to the original offset, so the icon stays where it was.
+    return Padding(
+      padding: EdgeInsets.only(
+        left: theme.smallSpacing,
+        top: theme.smallSpacing,
+      ),
+      child: IrmaIconButton(
+        padding: EdgeInsets.all(theme.smallSpacing),
+        icon: Icons.qr_code_scanner_rounded,
+        size: 32,
+        onTap: onTap ?? () {},
+      ),
     );
   }
 }

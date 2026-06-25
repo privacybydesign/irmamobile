@@ -44,7 +44,6 @@ class YiviChoosePinScaffold extends StatelessWidget {
             valueListenable: toggleValue,
             builder: (context, longPin, _) {
               final maxPinSize = longPin ? longPinSize : shortPinSize;
-              final pinBloc = EnterPinStateBloc(maxPinSize);
               final instructionKey =
                   'choose_pin.instruction.${longPin ? 'long' : 'short'}';
               return YiviPinScreen(
@@ -52,7 +51,6 @@ class YiviChoosePinScaffold extends StatelessWidget {
                 instructionKey: instructionKey,
                 maxPinSize: maxPinSize,
                 onSubmit: _submit,
-                pinBloc: pinBloc,
                 onTogglePinSize: () => toggleValue.value = !toggleValue.value,
                 displayPinLength: true,
                 checkSecurePin: true,

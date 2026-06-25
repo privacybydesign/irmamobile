@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Improved QR-code scanner on Android (both Play Store and F-Droid versions)
+- Add biometrics support for app unlock (not for session authentication)
+- Add support for hardware input for the pin
+- Improved visual feedback when entering pin
+
+### Fix
+- Race condition in pin entering that caused double entry
+- Glitch where "next" button would appear at the top of the pin screen
 
 ## [8.0.0] - 2026-06-22
 ### Changed

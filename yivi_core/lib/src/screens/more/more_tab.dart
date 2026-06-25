@@ -132,7 +132,9 @@ class _MoreTabState extends State<MoreTab> {
               style: YiviButtonStyle.filled,
               label: "more_tab.log_out",
               onPressed: () {
-                IrmaRepositoryProvider.of(context).lock();
+                // userInitiated: skip the "scan on launch" auto-biometric on
+                // the lock screen that follows an explicit logout.
+                IrmaRepositoryProvider.of(context).lock(userInitiated: true);
                 widget.onChangeTab(IrmaNavBarTab.data);
               },
             ),
