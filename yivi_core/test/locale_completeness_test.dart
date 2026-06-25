@@ -26,10 +26,8 @@ Set<String> _loadKeys(String locale) {
 
 void main() {
   // English is the reference locale: every other locale must define the same keys.
-  // Only German (de) is enforced here; nl.json has pre-existing structural gaps
-  // that are out of scope for this change.
   const referenceLocale = "en";
-  const otherLocales = ["de"];
+  const otherLocales = ["de", "nl"];
 
   final referenceKeys = _loadKeys(referenceLocale);
 
