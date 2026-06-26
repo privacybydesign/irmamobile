@@ -20,7 +20,7 @@ dependencies:
   google_mlkit_text_recognition: ^0.15.0
   google_mlkit_commons: ^0.11.0
   mobile_scanner: ^7.2.0
-  camera: ^0.10.0+4
+  camera: ^0.12.0+1
   smart_auth: ^3.2.0
   pinput: ^6.0.1
 
@@ -29,7 +29,7 @@ dev_dependencies:
     sdk: flutter
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
   # Used only by `lib/credential_card_previews.dart` to pre-load Alexandria /
   # Open Sans for widget previews. Loaded at runtime from Google's CDN so the
@@ -42,14 +42,14 @@ dev_dependencies:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
       ref: v3.8.0
-  package_info_plus: ^9.0.0
+  package_info_plus: ^10.1.0
   collection: ^1.18.0
   flutter_riverpod: ^3.2.0
   rxdart: ^0.28.0
   # Integration tests inject a fake LocalAuthentication (see
   # integration_test/helpers/fake_local_auth.dart) to drive biometric flows
   # without the real OS prompt. local_auth itself comes via yivi_core.
-  local_auth: ^2.3.0
+  local_auth: ^3.0.1
   mrz_parser:
     git:
       url: https://github.com/privacybydesign/mrz_parser

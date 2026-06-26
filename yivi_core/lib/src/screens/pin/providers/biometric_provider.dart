@@ -89,10 +89,8 @@ class BiometricService {
       if (suppressPrivacyScreen) await PrivacyScreen.disablePrivacyScreen();
       return await auth.authenticate(
         localizedReason: localizedReason,
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          stickyAuth: true,
-        ),
+        biometricOnly: true,
+        persistAcrossBackgrounding: true, // was stickyAuth in local_auth <3
       );
     } catch (_) {
       return false;
