@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.1.0] - 2026-06-26
+### Changed
+- Improved QR-code scanner on Android (both Play Store and F-Droid versions)
+- Add biometrics support for app unlock (not for session authentication)
+- Add support for hardware input for the pin
+- Improved visual feedback when entering pin
+
+### Fix
+- Race condition in pin entering that caused double entry
+- Glitch where "next" button would appear at the top of the pin screen
+
+### Internal
+- Upgrade Flutter to 3.44.4 and upgrade all dependencies
+
 ## [8.0.0] - 2026-06-22
 ### Changed
 - Make data tab, credential details, activity, notifications and add-data screens schema-independent
@@ -624,6 +638,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.1.0]: https://github.com/privacybydesign/irmamobile/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/privacybydesign/irmamobile/compare/v7.13.5...v8.0.0
 [7.13.5]: https://github.com/privacybydesign/irmamobile/compare/v7.13.4...v7.13.5
 [7.13.4]: https://github.com/privacybydesign/irmamobile/compare/v7.13.3...v7.13.4

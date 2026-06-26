@@ -1,5 +1,6 @@
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:share_plus/share_plus.dart";
 
@@ -179,7 +180,10 @@ class ToggleTile extends StatelessWidget {
             isLink: false,
             iconData: iconData,
             labelTranslationKey: labelTranslationKey,
-            onTap: () => onChanged(!value),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onChanged(!value);
+            },
             trailing: CupertinoSwitch(
               value: value,
               onChanged: null, // We use the onTap on the Tile

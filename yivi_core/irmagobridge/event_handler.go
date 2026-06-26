@@ -148,6 +148,13 @@ func (ah *eventHandler) clearAllData() (err error) {
 	return nil
 }
 
+// Drop the in-memory keyshare session tokens (no unenrollment), forcing the
+// next session to re-authenticate with the PIN.
+func (ah *eventHandler) deleteKeyshareTokens() error {
+	yiviClient.DeleteKeyshareTokens()
+	return nil
+}
+
 // Delete an individual credential
 func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
 	if err := yiviClient.RemoveCredentialsByHash(event.HashByFormat); err != nil {

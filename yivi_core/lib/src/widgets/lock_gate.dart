@@ -4,11 +4,14 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
+import "../../routing.dart";
 import "../providers/app_locked_provider.dart";
 import "../screens/home/home_screen.dart";
 import "../screens/home/widgets/irma_nav_bar.dart";
 import "../screens/home/widgets/irma_qr_scan_button.dart";
 import "../screens/pin/pin_screen.dart";
+import "../screens/pin/providers/biometric_provider.dart";
+import "../screens/pin/widgets/biometric_opt_in_dialog.dart";
 import "../screens/reset_pin/reset_pin_screen.dart";
 import "../screens/terms_changed/terms_changed_dialog.dart";
 import "../widgets/irma_app_bar.dart";
@@ -46,6 +49,10 @@ class LockGate extends ConsumerStatefulWidget {
 }
 
 class _LockGateState extends ConsumerState<LockGate> {
+  // Whether the lock overlay was showing on the previous build, so we can
+  // detect the unlock transition (overlay dismissed) and offer biometric.
+  bool _overlayShown = false;
+
   @override
   void initState() {
     super.initState();
@@ -77,14 +84,43 @@ class _LockGateState extends ConsumerState<LockGate> {
     super.dispose();
   }
 
+  /// One-time biometric opt-in, offered right after the lock overlay is
+  /// dismissed by a successful unlock. Triggered from here — a host that
+  /// survives the unlock — rather than from PinScreen, which the unlock tears
+  /// down. Shown on the root navigator so it sits above the now-visible app.
+  void _maybeOfferBiometricUnlock() {
+    final available = ref.read(biometricAvailableProvider).value ?? false;
+    final enabled = ref.read(biometricEnabledProvider).value ?? false;
+    final dismissed = ref.read(biometricPromptDismissedProvider).value ?? false;
+    if (!available || enabled || dismissed) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = rootNavigatorKey.currentContext;
+      if (ctx != null) showBiometricOptInDialog(ctx);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final locked = ref.watch(appLockedProvider);
+    // Warm the biometric availability/prefs so they're resolved by the time
+    // the overlay is dismissed and we offer the opt-in.
+    ref.watch(biometricAvailableProvider);
+    ref.watch(biometricEnabledProvider);
+    ref.watch(biometricPromptDismissedProvider);
     final path = widget.router.routerDelegate.currentConfiguration.uri.path;
     final isUnlockedRoute = _unlockedPathPrefixes.any(
       (prefix) => path == prefix || path.startsWith("$prefix/"),
     );
     final showOverlay = locked && !isUnlockedRoute;
+
+    // Offer biometric only on a genuine unlock: the overlay was showing and we
+    // are now unlocked on a normal in-app route. The !isUnlockedRoute guard
+    // skips the transient startup→/enrollment route flicker, which would
+    // otherwise pop the dialog over the enrollment screen.
+    if (_overlayShown && !locked && !isUnlockedRoute) {
+      _maybeOfferBiometricUnlock();
+    }
+    _overlayShown = showOverlay;
 
     return Stack(
       children: [
@@ -99,6 +135,7 @@ class _LockGateState extends ConsumerState<LockGate> {
               onGenerateRoute: (_) => MaterialPageRoute<void>(
                 builder: (innerCtx) => TermsChangedListener(
                   child: PinScreen(
+                    allowBiometric: true,
                     onAuthenticated: () {
                       if (context.mounted) {
                         context.read<HomeTabState>().add(IrmaNavBarTab.data);

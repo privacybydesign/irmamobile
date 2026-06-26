@@ -21,6 +21,12 @@ class IrmaRepositoryProvider extends InheritedWidget {
     return result!.repository;
   }
 
+  /// Like [of] but returns null instead of asserting when no provider is in
+  /// scope (e.g. widget previews that render a PIN screen standalone).
+  static IrmaRepository? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<IrmaRepositoryProvider>()
+      ?.repository;
+
   @override
   bool updateShouldNotify(IrmaRepositoryProvider oldWidget) =>
       oldWidget.repository != repository;

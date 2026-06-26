@@ -42,7 +42,6 @@ class SchemeManagerDetailScreen extends StatelessWidget {
           appBar: IrmaAppBar(titleString: title, hasBorder: false),
           body: YiviPinScreen(
             instruction: instruction,
-            pinBloc: EnterPinStateBloc(maxPinSize),
             maxPinSize: maxPinSize,
             onSubmit: (pin) => navigator.pop(pin),
             listener: (context, state) {

@@ -27,7 +27,6 @@ class YiviConfirmPinScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxPinSize = longPin ? longPinSize : shortPinSize;
-    final pinBloc = EnterPinStateBloc(maxPinSize);
 
     return YiviPinScaffold(
       key: _scaffoldKey,
@@ -41,7 +40,6 @@ class YiviConfirmPinScaffold extends StatelessWidget {
         instructionKey: instructionKey,
         maxPinSize: maxPinSize,
         onSubmit: _comparePins,
-        pinBloc: pinBloc,
         listener: (context, state) {
           if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
             _comparePins(state.toString());
