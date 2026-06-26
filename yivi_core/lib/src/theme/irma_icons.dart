@@ -3,8 +3,6 @@ import "package:flutter/widgets.dart";
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: non_constant_identifier_names
 // ignore_for_file: constant_identifier_names
-// ponytail: composes IconData instead of extending it — IconData became a
-// final class in Flutter 3.41+. Use `.icon` where an IconData is needed.
 @immutable
 class _IrmaIconsData {
   const _IrmaIconsData(this.codePoint, this.name);
