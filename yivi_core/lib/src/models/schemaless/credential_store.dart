@@ -42,6 +42,23 @@ class CredentialDescriptor {
       _$CredentialDescriptorFromJson(json);
 
   Map<String, dynamic> toJson() => _$CredentialDescriptorToJson(this);
+
+  /// The concrete value the verifier requested for one of this credential's
+  /// attributes, if any. This is the value shown to the user on the disclosure
+  /// screen (see [YiviCredentialCard.fromDescriptor]); it is used to pre-fill
+  /// the obtain flow (e.g. the email-loading screen) so the user does not have
+  /// to retype a value they were just told to use. Returns `null` when the
+  /// verifier did not request a specific value.
+  String? get requestedValueString {
+    for (final attribute in attributes) {
+      final requested = attribute.requestedValue;
+      final value = requested?.string;
+      if (value != null && value.isNotEmpty) {
+        return value;
+      }
+    }
+    return null;
+  }
 }
 
 @JsonSerializable(fieldRename: .snake)

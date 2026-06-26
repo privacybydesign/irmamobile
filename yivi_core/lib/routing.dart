@@ -156,6 +156,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                         params.credential.credentialId,
                         params.credential.issueURL,
                         ref,
+                        // Pre-fill the email-loading screen with the value the
+                        // verifier requested (shown on the disclosure screen),
+                        // so the user does not have to retype it.
+                        prefillValue: params.credential.requestedValueString,
                       );
                     },
                   );
@@ -259,7 +263,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       GoRoute(
         path: "/issue_email",
-        builder: (context, state) => EmailIssuanceScreen(),
+        builder: (context, state) => EmailIssuanceScreen(
+          prefillEmail: state.uri.queryParameters["prefill_email"],
+        ),
       ),
       GoRoute(
         path: "/mrz",

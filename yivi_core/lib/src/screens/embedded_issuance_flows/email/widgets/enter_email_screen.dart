@@ -20,7 +20,12 @@ bool isValidEmail(String value) {
 }
 
 class EnterEmailScreen extends ConsumerStatefulWidget {
-  const EnterEmailScreen();
+  /// When the verifier requested a specific email address, it is passed here so
+  /// the input field starts pre-filled with that address. The address was just
+  /// shown to the user on the disclosure screen, so retyping it is avoidable.
+  final String? prefillEmail;
+
+  const EnterEmailScreen({this.prefillEmail});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -54,8 +59,13 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       _focusNode.addListener(_handleFocusChange);
       _focusNode.requestFocus();
 
-      // set text to previously entered email (for when coming back from verification screen)
-      final email = ref.read(emailIssuanceProvider).email;
+      // Use the previously entered email (when coming back from the
+      // verification screen); otherwise fall back to the value the verifier
+      // requested so the field is pre-filled instead of empty.
+      final enteredEmail = ref.read(emailIssuanceProvider).email;
+      final email = enteredEmail.isNotEmpty
+          ? enteredEmail
+          : (widget.prefillEmail ?? "");
       _textController.text = email;
       if (isValidEmail(email)) {
         setState(() {
