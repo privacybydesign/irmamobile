@@ -12,6 +12,7 @@ import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
@@ -82,6 +83,10 @@ Future<void> pumpYiviApp(
         localAuthProvider.overrideWithValue(
           localAuth ?? FakeLocalAuthentication(available: false),
         ),
+        // Sims (and CI devices) have no NFC chip, so the real provider reports
+        // notSupported and greys out passport/idcard/drivinglicence. Fake it
+        // available; a test that wants the no-NFC case overrides it back.
+        nfcAvailableProvider.overrideWith((ref) => Future.value(true)),
         if (providerOverrides != null) ...providerOverrides,
       ],
       child: TestContext(
