@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add biometrics support for app unlock (not for session authentication)
 - Add support for hardware input for the pin
 - Improved visual feedback when entering pin
+- MRTD credentials are greyed out on devices that don't have NFC
 
 ### Fix
 - Race condition in pin entering that caused double entry
