@@ -12,14 +12,21 @@ import "widgets/verify_phonenumber_screen.dart";
 // ==========================================================
 
 class SmsIssuanceScreen extends ConsumerWidget {
-  const SmsIssuanceScreen({super.key});
+  /// The phone number the verifier requested, used to pre-fill the input on the
+  /// enter-phone screen. `null` when the user opened this flow without a known
+  /// required value (e.g. obtaining the mobile-number credential manually).
+  final String? prefillPhoneNumber;
+
+  const SmsIssuanceScreen({super.key, this.prefillPhoneNumber});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(smsIssuanceProvider);
 
     return switch (state.stage) {
-      .enteringPhoneNumber => EnterPhoneScreen(),
+      .enteringPhoneNumber => EnterPhoneScreen(
+        prefillPhoneNumber: prefillPhoneNumber,
+      ),
       .enteringVerificationCode => VerifyPhoneScreen(),
       .waiting => _WaitingScreen(),
     };

@@ -30,8 +30,15 @@ extension RoutingHelpers on BuildContext {
     push("/reset_pin");
   }
 
-  void pushSmsIssuanceScreen() {
-    push("/issue_mobilenumber");
+  void pushSmsIssuanceScreen({String? prefillPhoneNumber}) {
+    final uri = Uri(
+      path: "/issue_mobilenumber",
+      queryParameters: {
+        if (prefillPhoneNumber != null && prefillPhoneNumber.isNotEmpty)
+          "prefill_phonenumber": prefillPhoneNumber,
+      },
+    );
+    push(uri.toString());
   }
 
   void pushEmailIssuanceScreen({String? prefillEmail}) {

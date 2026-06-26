@@ -259,7 +259,9 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       GoRoute(
         path: "/issue_mobilenumber",
-        builder: (context, state) => SmsIssuanceScreen(),
+        builder: (context, state) => SmsIssuanceScreen(
+          prefillPhoneNumber: state.uri.queryParameters["prefill_phonenumber"],
+        ),
       ),
       GoRoute(
         path: "/issue_email",

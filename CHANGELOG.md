@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add biometrics support for app unlock (not for session authentication)
 - Add support for hardware input for the pin
 - Improved visual feedback when entering pin
+- Pre-fill the phone number input in sms issuance with the number requested by the verifier
 
 ### Fix
 - Race condition in pin entering that caused double entry
