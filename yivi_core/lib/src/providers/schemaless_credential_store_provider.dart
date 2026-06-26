@@ -3,35 +3,19 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../models/schemaless/credential_store.dart";
 
 import "../models/translated_value.dart";
-import "../util/nfc_credentials.dart";
 import "irma_repository_provider.dart";
-import "nfc_availability_provider.dart";
 
 final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
   ref,
 ) async* {
   final repo = ref.watch(irmaRepositoryProvider);
-  // Hide credentials that require onboard NFC issuance (passport, ID card,
-  // driving licence) on devices without NFC hardware, so users aren't led into
-  // a scanning flow they cannot complete (e.g. iPads).
-  //
-  // Default to NFC-available when the check can't be resolved: filtering only
-  // ever *removes* credentials, so a failed NFC check must never blank the
-  // whole credential store — better to show an NFC credential the user can't
-  // complete than to hide every credential on the device.
-  bool nfcAvailable;
-  try {
-    nfcAvailable = await ref.watch(nfcAvailableProvider.future);
-  } catch (_) {
-    nfcAvailable = true;
-  }
 
-  await for (final credentials in repo.getCredentialStoreItems()) {
-    yield filterNfcRequiringCredentials(
-      credentials,
-      nfcAvailable: nfcAvailable,
-    );
-  }
+  // Credentials that require onboard NFC issuance (passport, ID card, driving
+  // licence) stay in the store on devices without NFC hardware (e.g. iPads).
+  // The add-data screen greys them out and explains, on tap, that the device
+  // cannot load them without NFC — see `SchemalessAddDataScreen` and
+  // `nfcAvailableProvider`.
+  yield* repo.getCredentialStoreItems();
 });
 
 class CredentialStoreCategory {
