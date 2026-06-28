@@ -54,6 +54,26 @@ class _RecentActivityState extends State<RecentActivity> {
     ).bridgedDispatch(LoadLogsEvent(max: widget.amountOfLogs));
   }
 
+  /// Returns at most [count] entries, newest first and de-duplicated. The
+  /// underlying [HistoryState] can hold a varying number of (possibly
+  /// repeated) entries because [HistoryRepository] accumulates every
+  /// [LogsEvent] from the shared event bus, so we bound and order the list
+  /// here to keep the displayed count stable across navigation.
+  static List<LogInfo> _mostRecentEntries(List<LogInfo> entries, int count) {
+    final seen = <DateTime>{};
+    final deduplicated = <LogInfo>[];
+    for (final entry in entries) {
+      // Log entries are timestamped with microsecond precision, so the time
+      // uniquely identifies an entry; this drops duplicates introduced by
+      // accumulating overlapping LogsEvent batches.
+      if (seen.add(entry.time)) {
+        deduplicated.add(entry);
+      }
+    }
+    deduplicated.sort((a, b) => b.time.compareTo(a.time));
+    return deduplicated.take(count).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -65,7 +85,18 @@ class _RecentActivityState extends State<RecentActivity> {
           return Container();
         }
         final historyState = snapshot.data!;
-        final logEntries = historyState.logEntries;
+        // The HistoryRepository accumulates every LogsEvent it observes on the
+        // app-wide event bus (see HistoryRepository.scan), and that bus is
+        // shared with other consumers such as the Activity tab. Depending on
+        // navigation timing, more (or fewer) entries than requested can end up
+        // in the state, which made Recent Activity show an inconsistent count
+        // (e.g. 4 on a fresh launch but 2 after navigating away and back).
+        // Always derive a deterministic, bounded view here so the widget shows
+        // the same number of items regardless of what lands on the bus. See #126.
+        final logEntries = _mostRecentEntries(
+          historyState.logEntries,
+          widget.amountOfLogs,
+        );
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
