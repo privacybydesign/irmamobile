@@ -69,6 +69,7 @@ class _DataTabState extends ConsumerState<DataTab> {
             key: _addDataButtonKey,
             icon: CupertinoIcons.add_circled_solid,
             size: 28,
+            semanticsLabelKey: "accessibility.add_data",
             onTap: context.pushAddDataScreen,
           ),
         ],

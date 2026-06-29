@@ -16,7 +16,8 @@
     "expand": "Uitklappen",
     "expand_hint": "Klik dubbel om open te vouwen",
     "collapse_hint": "Klik dubbel om dicht te vouwen",
-    "refresh": "Verversen"
+    "refresh": "Verversen",
+    "add_data": "Plus, voeg toe"
   },
   "new_terms_and_conditions": {
     "title": "Nieuwe voorwaarden",
