@@ -20,6 +20,9 @@ class EmailInputField extends StatelessWidget {
       controller: controller,
       keyboardType: TextInputType.emailAddress,
       autofillHints: const [AutofillHints.email],
+      autocorrect: false,
+      enableSuggestions: false,
+      textCapitalization: TextCapitalization.none,
       cursorColor: theme.themeData.colorScheme.secondary,
       style: baseTextStyle,
       decoration: InputDecoration(
