@@ -110,6 +110,10 @@
     "expired": "Abgelaufen",
     "revoked": "Widerrufen",
     "not_obtainable": "Diese Daten können nicht abgerufen werden. Bitte kontaktieren Sie {issuerName}, um diese Daten zu erhalten.",
+    "unavailable": {
+      "title": "Diese Daten sind nicht mehr verfügbar",
+      "body": "Diese Daten können nicht mehr abgerufen werden, da der Aussteller nicht mehr verfügbar ist."
+    },
     "boolean_yes": "Ja",
     "boolean_no": "Nein"
   },
@@ -732,7 +736,8 @@
     "unknown": "Unbekannt",
     "go_back": "Zurück",
     "add": "Hinzufügen",
-    "activate": "Aktivieren"
+    "activate": "Aktivieren",
+    "ok": "OK"
   },
   "search": {
     "cancel": "Abbrechen"
