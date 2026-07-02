@@ -578,6 +578,10 @@
       "explanation": "Sie kehren zum Sperrbildschirm zurück.",
       "confirm": "Ja",
       "decline": "Nein"
+    },
+    "offline": {
+      "title": "Keine Internetverbindung",
+      "explanation": "Zum Anmelden ist eine Internetverbindung erforderlich. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
     }
   },
   "pin_accessibility": {
