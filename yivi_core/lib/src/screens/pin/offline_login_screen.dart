@@ -22,7 +22,16 @@ class OfflineLoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(titleString: "", hasBorder: false),
+      // No leading widget: OfflineGate renders this screen as a sibling of the
+      // lock overlay's Navigator (not inside it), so IrmaAppBar's default
+      // YiviBackButton would pop the root/GoRouter navigator and let the user
+      // escape the lock screen while still locked. The PIN screen this replaces
+      // deliberately has no back button either.
+      appBar: IrmaAppBar(
+        titleString: "",
+        hasBorder: false,
+        leading: const SizedBox.shrink(),
+      ),
       body: IrmaInfoScaffoldBody(
         imagePath: yiviAsset("error/no_connection_illustration.svg"),
         titleTranslationKey: "pin.offline.title",

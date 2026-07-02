@@ -67,6 +67,20 @@ void main() {
     expect(find.byKey(offlineKey), findsOneWidget);
   });
 
+  testWidgets("OfflineLoginScreen has no back button (cannot escape the lock)", (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _wrap(const OfflineLoginScreen(), _FakeConnectivityService(false)),
+    );
+    await tester.pumpAndSettle();
+
+    // A default IrmaAppBar renders a YiviBackButton keyed "irma_app_bar_leading"
+    // whose pop() would escape the lock overlay (see #618 review). The offline
+    // screen must pass an empty leading so no back button exists.
+    expect(find.byKey(const Key("irma_app_bar_leading")), findsNothing);
+  });
+
   testWidgets("OfflineGate shows the offline screen when offline", (
     tester,
   ) async {
