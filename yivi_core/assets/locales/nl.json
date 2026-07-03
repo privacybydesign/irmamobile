@@ -198,8 +198,8 @@
     "next_step": "Volgende stap",
     "obtain_data": "Gegevens ophalen",
     "close": "Sluiten",
-    "optional_data": "Optionele gegevens",
-    "add_optional_data": "Voeg optionele gegevens toe",
+    "optional_data": "Niet-verplichte gegevens",
+    "add_optional_data": "Voeg niet-verplichte gegevens toe",
     "no_data_selected": "Geen gegevens geselecteerd",
     "introduction": {
       "continue": "Aan de slag",
@@ -321,7 +321,7 @@
       "accept": {
         "share_errors": "Foutmeldingen en app status delen",
         "with_yivi": "met Yivi",
-        "optional": "Optioneel"
+        "optional": "Niet verplicht"
       },
       "dialog": {
         "title": "Foutmeldingen en app status delen",
