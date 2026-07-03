@@ -42,7 +42,9 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
     required String phoneNumber,
     required String language,
   }) async {
-    debugPrint("Sending sms for: $phoneNumber");
+    if (kDebugMode) {
+      debugPrint("Sending sms for: $phoneNumber");
+    }
     final payload = jsonEncode({"phone": phoneNumber, "language": language});
     final url = "$host/api/embedded/send";
     final response = await http.post(
