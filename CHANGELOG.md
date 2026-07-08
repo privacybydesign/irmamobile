@@ -17,9 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fix
 - Race condition in pin entering that caused double entry
 - Glitch where "next" button would appear at the top of the pin screen
+- Problem with Android system UI overlay colors
 
 ### Internal
 - Upgrade Flutter to 3.44.4 and upgrade all dependencies
+- Upgrade irmago to 1.1.0
 
 ## [8.0.0] - 2026-06-22
 ### Changed
