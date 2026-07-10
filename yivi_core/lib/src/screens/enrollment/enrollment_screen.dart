@@ -61,6 +61,11 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
+        // AnnotatedRegion replaces the whole style, so repeat the bar-icon
+        // brightness here or the status bar reverts to unreadable on Android 15+.
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
+        statusBarBrightness: Brightness.light, // iOS: light bg
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
