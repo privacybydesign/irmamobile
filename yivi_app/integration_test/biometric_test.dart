@@ -4,10 +4,14 @@ import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/models/enrollment_status.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
+import "package:yivi_core/src/screens/pin/pin_screen.dart";
+import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "helpers/fake_local_auth.dart";
 import "helpers/helpers.dart";
+import "helpers/issuance_helpers.dart";
 import "irma_binding.dart";
 import "util.dart";
 
@@ -389,6 +393,54 @@ void main() {
       expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
       expect(homeTab, findsNothing);
     });
+
+    // Regression for #644: a universal-link session must never ride in on a
+    // biometric-only unlock. On a cold start the biometric auto-scan can win the
+    // race against the (slower) link delivery, unlocking the app before the
+    // session pointer arrives — the pointer must then re-gate behind the PIN.
+    testWidgets(
+      "universal-link session after biometric unlock still requires the PIN",
+      (tester) async {
+        await irmaBinding.repository.preferences.setBiometricEnabled(true);
+        // biometricImmediate left at its default (on) so the auto-scan fires.
+        await pumpYiviApp(
+          tester,
+          irmaBinding.repository,
+          localAuth: FakeLocalAuthentication(
+            available: true,
+            authenticateResult: true,
+          ),
+        );
+
+        // The launch auto-scan unlocked the app biometrically (no PIN entered).
+        await tester.waitFor(homeTab);
+
+        // Now the universal link delivers its session — mirrors the cold-start
+        // race where the link pointer lands just after the biometric auto-unlock.
+        await startIssuanceSession(
+          irmaBinding,
+          groupAttributes(
+            createMunicipalityPersonalDataAttributes(const Locale("en", "EN")),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The pending-pointer pickup re-locked the app: we are back on the PIN
+        // lock screen and have NOT advanced into the session.
+        expect(
+          find.byType(PinScreen),
+          findsOneWidget,
+          reason:
+              "a universal-link session must require the PIN, "
+              "not ride in on a biometric unlock",
+        );
+        expect(find.byType(SessionScreen), findsNothing);
+
+        // After a real PIN unlock the queued session proceeds.
+        await unlock(tester);
+        await tester.waitFor(find.byType(IssuancePermission));
+      },
+    );
 
     Future<void> navToSettings(
       WidgetTester tester, {

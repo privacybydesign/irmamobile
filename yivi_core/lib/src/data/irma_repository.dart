@@ -185,6 +185,9 @@ class IrmaRepository {
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
       if (event is AuthenticationSuccessEvent) {
+        // A real PIN unlock: the keyshare token is refreshed, so a queued
+        // session may now proceed.
+        _unlockedWithoutPin = false;
         _lockedSubject.add(false);
         _blockedSubject.add(null);
       }
@@ -375,6 +378,14 @@ class IrmaRepository {
   // and still auto-scans.
   bool _biometricAutoUnlockSuppressed = false;
 
+  // True while the app is unlocked WITHOUT a PIN (biometric only). A session must
+  // never start off a biometric-only unlock: only KeyshareVerifyPin refreshes the
+  // keyshare token, so a session would otherwise still demand the PIN — or, worse,
+  // ride past the lock gate entirely on a cold-start race. Cleared on a real PIN
+  // auth and on lock().
+  bool _unlockedWithoutPin = false;
+  bool get unlockedWithoutPin => _unlockedWithoutPin;
+
   /// Returns whether the next biometric auto-unlock should be skipped, clearing
   /// the flag so only the lock appearance that directly follows an explicit
   /// logout is suppressed.
@@ -386,6 +397,7 @@ class IrmaRepository {
 
   void lock({DateTime? unblockTime, bool userInitiated = false}) {
     if (userInitiated) _biometricAutoUnlockSuppressed = true;
+    _unlockedWithoutPin = false;
     // Drop irmago's in-memory keyshare token so the next session must
     // re-authenticate with the PIN. A biometric unlock alone won't restore it
     // (only KeyshareVerifyPin does), closing the biometric-bypass window.
@@ -399,6 +411,7 @@ class IrmaRepository {
   /// does not refresh the keyshare session token, so the first session started
   /// afterwards still hits `SessionStatus.requestPin` and requires the PIN.
   void unlockAppLocally() {
+    _unlockedWithoutPin = true;
     _lockedSubject.add(false);
   }
 
