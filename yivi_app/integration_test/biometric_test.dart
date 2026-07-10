@@ -4,7 +4,6 @@ import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/models/enrollment_status.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
-import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -394,49 +393,46 @@ void main() {
       expect(homeTab, findsNothing);
     });
 
-    // Regression for #644: a universal-link session must never ride in on a
-    // biometric-only unlock. On a cold start the biometric auto-scan can win the
-    // race against the (slower) link delivery, unlocking the app before the
-    // session pointer arrives — the pointer must then re-gate behind the PIN.
+    // Regression for #644: the app must never unlock biometrically when it was
+    // opened via a universal link carrying a session. A session has to be gated
+    // behind a real PIN (only a PIN refreshes the keyshare token), so the
+    // biometric auto-scan is held back until the launch URL is known. With a
+    // session already queued at startup, biometric is never offered and never
+    // auto-fires — the user is deterministically forced to the PIN, with no
+    // "unlock then immediately re-lock" flash.
     testWidgets(
-      "universal-link session after biometric unlock still requires the PIN",
+      "universal-link session at launch never unlocks biometrically",
       (tester) async {
         await irmaBinding.repository.preferences.setBiometricEnabled(true);
-        // biometricImmediate left at its default (on) so the auto-scan fires.
-        await pumpYiviApp(
-          tester,
-          irmaBinding.repository,
-          localAuth: FakeLocalAuthentication(
-            available: true,
-            authenticateResult: true,
-          ),
+        // biometricImmediate left at its default (on): the auto-scan WOULD fire
+        // on launch if it weren't gated by the pending session.
+        final fakeAuth = FakeLocalAuthentication(
+          available: true,
+          authenticateResult: true,
         );
 
-        // The launch auto-scan unlocked the app biometrically (no PIN entered).
-        await tester.waitFor(homeTab);
-
-        // Now the universal link delivers its session — mirrors the cold-start
-        // race where the link pointer lands just after the biometric auto-unlock.
+        // The session the universal link carries is already queued when the app
+        // starts — the cold-start case the fix makes deterministic (the pointer
+        // is delivered before biometric is allowed to run).
         await startIssuanceSession(
           irmaBinding,
           groupAttributes(
             createMunicipalityPersonalDataAttributes(const Locale("en", "EN")),
           ),
         );
+
+        await pumpYiviApp(tester, irmaBinding.repository, localAuth: fakeAuth);
         await tester.pumpAndSettle();
 
-        // The pending-pointer pickup re-locked the app: we are back on the PIN
-        // lock screen and have NOT advanced into the session.
-        expect(
-          find.byType(PinScreen),
-          findsOneWidget,
-          reason:
-              "a universal-link session must require the PIN, "
-              "not ride in on a biometric unlock",
-        );
+        // Biometric never ran: no auto-scan, no button. Still on the PIN lock
+        // screen — not home, and not advanced into the session.
+        expect(fakeAuth.authenticateCalls, 0);
+        expect(lockScreenBiometricButton, findsNothing);
+        expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
+        expect(homeTab, findsNothing);
         expect(find.byType(SessionScreen), findsNothing);
 
-        // After a real PIN unlock the queued session proceeds.
+        // Only a real PIN unlock lets the queued session proceed.
         await unlock(tester);
         await tester.waitFor(find.byType(IssuancePermission));
       },

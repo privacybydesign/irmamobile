@@ -49,20 +49,6 @@ class _PendingPointerListenerState extends State<PendingPointerListener> {
   void _maybeHandle() {
     final pointer = _pointer;
     if (pointer == null || _locked || _handling || !mounted) return;
-
-    // A session must be gated behind a real PIN (which refreshes the keyshare
-    // token). If the app was unlocked biometric-only — e.g. the cold-start
-    // biometric auto-scan won the race against a universal link and unlocked
-    // before the session pointer was delivered — bounce back to the lock screen.
-    // The pointer stays queued; `hasPendingSession` then hides biometric on the
-    // lock screen, and after the PIN unlock this fires again and starts the
-    // session. lock() also drops the keyshare token, so there is no bypass.
-    final repo = IrmaRepositoryProvider.of(context);
-    if (pointer is SessionPointer && repo.unlockedWithoutPin) {
-      repo.lock();
-      return;
-    }
-
     _handling = true;
     handlePointer(context, pointer).whenComplete(() => _handling = false);
   }
