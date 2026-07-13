@@ -784,12 +784,12 @@
     "title": "Gezichtscontrole",
     "preparing": "Een moment, je kaart wordt voorbereid…",
     "intro": {
-      "explanation": "We controleren of jij de persoon op het document bent.",
+      "explanation": "We doen nu een korte gezichtscontrole om te bevestigen dat jij de persoon op het document bent. Richt de camera aan de voorkant op je gezicht en volg deze tips:",
       "tip_lighting": "Zorg voor voldoende licht.",
       "tip_look_straight": "Kijk recht in de camera.",
       "tip_no_accessories": "Verwijder gezichtsaccessoires, hoeden, enz.",
       "privacy": "Je gezichtsafbeeldingen worden alleen door Yivi verwerkt, op EU-sovereine servers, en worden niet opgeslagen en niet met derden gedeeld.",
-      "start": "Starten"
+      "start": "Start verificatie"
     }
   },
   "driving_licence": {

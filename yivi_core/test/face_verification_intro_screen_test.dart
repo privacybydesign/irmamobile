@@ -39,7 +39,7 @@ void main() {
     // Title appears only in the app bar, not duplicated in the body.
     expect(find.text("Face verification"), findsOneWidget);
     expect(
-      find.text("We check that you're the person shown in the document."),
+      find.textContaining("confirm you're the person shown in the document"),
       findsOneWidget,
     );
     expect(find.text("Make sure there's enough light."), findsOneWidget);

@@ -29,7 +29,7 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
   RegulaFaceServiceImpl({
     this.serviceUrl = defaultServiceUrl,
     this.skipOnboarding = true,
-    this.showCloseButton = true,
+    this.showCloseButton = false,
     this.livenessType = LivenessType.PASSIVE,
     FaceSDK? sdk,
   }) : _sdk = sdk ?? FaceSDK.instance;
@@ -46,8 +46,8 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
   final bool skipOnboarding;
 
   /// When true, the liveness UI shows a close (X) button so the user can abort
-  /// the session; a tapped close resolves as a non-live result. Defaults to
-  /// true so users always have a way out of the camera flow.
+  /// the session. Defaults to false: the user has already confirmed on the Yivi
+  /// intro screen, so the camera screen has no close button.
   final bool showCloseButton;
 
   /// Liveness processing type. Defaults to [LivenessType.PASSIVE] (the user
@@ -165,10 +165,11 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
       ..cameraScreenStrokeActive = _Yivi.primary
       ..cameraScreenSectorTarget = _Yivi.stroke
       ..cameraScreenSectorActive = _Yivi.primary
-      ..cameraScreenFrontHintLabelBackground = _Yivi.primary
-      ..cameraScreenFrontHintLabelText = _Yivi.onPrimary
-      ..cameraScreenBackHintLabelBackground = _Yivi.textDark
-      ..cameraScreenBackHintLabelText = _Yivi.onPrimary
+      // Hint labels echo the intro tips: dark text on a light chip.
+      ..cameraScreenFrontHintLabelBackground = _Yivi.background
+      ..cameraScreenFrontHintLabelText = _Yivi.textDark
+      ..cameraScreenBackHintLabelBackground = _Yivi.background
+      ..cameraScreenBackHintLabelText = _Yivi.textDark
       ..cameraScreenLightToolbarTint = _Yivi.textDark
       ..cameraScreenDarkToolbarTint = _Yivi.onPrimary
       // Retry screen.
