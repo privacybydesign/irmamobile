@@ -1,3 +1,10 @@
+# The default CocoaPods CDN, plus Regula's podspecs repo which hosts the
+# FaceSDK / FaceCoreBasic pods that flutter_face_api / flutter_face_core_basic
+# depend on (they are not on the CDN trunk). Adding any explicit source means
+# the default CDN must be listed explicitly too.
+source 'https://cdn.cocoapods.org/'
+source 'https://github.com/regulaforensics/podspecs.git'
+
 platform :ios, '15.6'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
