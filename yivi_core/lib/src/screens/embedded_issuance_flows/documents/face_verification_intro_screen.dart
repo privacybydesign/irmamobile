@@ -65,8 +65,6 @@ class FaceVerificationIntroScreen extends StatelessWidget {
               const _Tip(
                 translationKey: "face_verification.intro.tip_no_accessories",
               ),
-              SizedBox(height: theme.defaultSpacing),
-              _PrivacyHint(),
             ],
           ),
         ),
@@ -100,28 +98,6 @@ class _Tip extends StatelessWidget {
           Expanded(child: TranslatedText(translationKey)),
         ],
       ),
-    );
-  }
-}
-
-/// The privacy reassurance, shown inline as a plain left-aligned hint with a
-/// lock icon.
-class _PrivacyHint extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(Icons.lock_outline, size: 20, color: theme.link),
-        SizedBox(width: theme.smallSpacing),
-        Expanded(
-          child: TranslatedText(
-            "face_verification.intro.privacy",
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.secondary),
-          ),
-        ),
-      ],
     );
   }
 }

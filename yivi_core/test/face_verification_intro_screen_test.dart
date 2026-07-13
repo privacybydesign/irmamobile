@@ -32,7 +32,7 @@ Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
 }
 
 void main() {
-  testWidgets("shows the guidance tips and the privacy hint", (tester) async {
+  testWidgets("shows the guidance tips", (tester) async {
     await tester.pumpWidget(_wrap(onStart: () {}, onCancel: () {}));
     await tester.pumpAndSettle();
 
@@ -46,11 +46,6 @@ void main() {
     expect(find.text("Make sure there's enough light."), findsOneWidget);
     expect(find.text("Look straight into the camera."), findsOneWidget);
     expect(find.text("Remove facial accessories, hats, etc."), findsOneWidget);
-    // The privacy statement is shown inline, not behind an expander.
-    expect(
-      find.textContaining("servers hosted in the Netherlands"),
-      findsOneWidget,
-    );
   });
 
   testWidgets("start button invokes onStart", (tester) async {
