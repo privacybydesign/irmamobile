@@ -98,8 +98,9 @@ Future<void> navigateToPassportNfcReadingScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding,
   FakePassportReader reader,
-  FakePassportIssuer issuer,
-) async {
+  FakePassportIssuer issuer, {
+  RegulaFaceService? regulaFaceService,
+}) async {
   await pumpAndUnlockApp(
     tester,
     binding.repository,
@@ -109,6 +110,8 @@ Future<void> navigateToPassportNfcReadingScreen(
         return reader;
       }),
       passportIssuerProvider.overrideWithValue(issuer),
+      if (regulaFaceService != null)
+        regulaFaceServiceProvider.overrideWithValue(regulaFaceService),
     ],
   );
 
@@ -179,6 +182,11 @@ class FakePassportIssuer implements PassportIssuer {
   int startSessionCount = 0;
   final String? errorToThrowOnIssuance;
 
+  /// The [RawDocumentData] passed to the most recent
+  /// [startIrmaIssuanceSession] call, so tests can assert the liveness
+  /// transaction id (or its absence) was threaded through.
+  RawDocumentData? lastIssuedData;
+
   FakePassportIssuer({this.errorToThrowOnIssuance});
 
   @override
@@ -195,6 +203,7 @@ class FakePassportIssuer implements PassportIssuer {
     RawDocumentData passportDataResult,
     DocumentType documentType,
   ) async {
+    lastIssuedData = passportDataResult;
     if (errorToThrowOnIssuance != null) {
       throw Exception(errorToThrowOnIssuance);
     }
@@ -217,6 +226,30 @@ class FakePassportIssuer implements PassportIssuer {
     RawDocumentData drivingLicenceDataResult,
   ) {
     throw UnimplementedError();
+  }
+}
+
+// ====================================================================================
+
+/// Fake liveness service that returns a fixed transaction id without touching
+/// the native Regula SDK, so the face-verification threading can be exercised
+/// in tests.
+class FakeRegulaFaceService implements RegulaFaceService {
+  FakeRegulaFaceService({this.transactionId = "fake-txn-id", this.error});
+
+  final String? transactionId;
+  final Object? error;
+
+  int captureCount = 0;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<RegulaLivenessResult> captureLiveness() async {
+    captureCount += 1;
+    if (error != null) throw error!;
+    return RegulaLivenessResult(isLive: true, transactionId: transactionId);
   }
 }
 

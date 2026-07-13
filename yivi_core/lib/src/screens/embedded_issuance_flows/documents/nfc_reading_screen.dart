@@ -176,7 +176,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
       if (result != null) {
         final (pdr, rawDocData) = result;
-        await _startIssuance(rawDocData);
+        // When face verification is enabled, run a Regula liveness session and
+        // attach the transaction id so the issuer can match the live face
+        // against the document chip portrait. Disabled (null service) leaves
+        // the request unchanged.
+        final withLiveness = await withLivenessTransaction(
+          ref.read(regulaFaceServiceProvider),
+          rawDocData,
+        );
+        await _startIssuance(withLiveness);
       }
     } catch (e) {
       if (mounted) {

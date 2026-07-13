@@ -232,6 +232,74 @@ void main() {
     });
 
     testWidgets(
+      "face verification attaches the liveness transaction id to the issuance request",
+      (tester) async {
+        final fakeReader = FakePassportReader(
+          mrzResult: fakePassportMrz,
+          statesDuringRead: [
+            DocumentReaderConnecting(),
+            DocumentReaderReadingCardAccess(),
+            DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+            DocumentReaderActiveAuthentication(),
+            DocumentReaderSuccess(),
+          ],
+        );
+        final fakeIssuer = FakePassportIssuer();
+        final fakeFace = FakeRegulaFaceService(transactionId: "txn-passport-1");
+
+        await navigateToPassportNfcReadingScreen(
+          tester,
+          irmaBinding,
+          fakeReader,
+          fakeIssuer,
+          regulaFaceService: fakeFace,
+        );
+
+        await tester.waitFor(find.byType(NfcReadingScreen));
+        await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+        // Liveness must have run and its transaction id must reach the issuer.
+        expect(fakeFace.captureCount, 1);
+        expect(fakeIssuer.lastIssuedData, isNotNull);
+        expect(
+          fakeIssuer.lastIssuedData!.livenessTransactionId,
+          "txn-passport-1",
+        );
+      },
+    );
+
+    testWidgets(
+      "no liveness transaction id is sent when face verification is disabled",
+      (tester) async {
+        final fakeReader = FakePassportReader(
+          mrzResult: fakePassportMrz,
+          statesDuringRead: [
+            DocumentReaderConnecting(),
+            DocumentReaderReadingCardAccess(),
+            DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+            DocumentReaderActiveAuthentication(),
+            DocumentReaderSuccess(),
+          ],
+        );
+        final fakeIssuer = FakePassportIssuer();
+
+        // No regulaFaceService override => provider defaults to null (disabled).
+        await navigateToPassportNfcReadingScreen(
+          tester,
+          irmaBinding,
+          fakeReader,
+          fakeIssuer,
+        );
+
+        await tester.waitFor(find.byType(NfcReadingScreen));
+        await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+        expect(fakeIssuer.lastIssuedData, isNotNull);
+        expect(fakeIssuer.lastIssuedData!.livenessTransactionId, isNull);
+      },
+    );
+
+    testWidgets(
       "nfc disabled shows disabled UI and retry cancels current attempt",
       (tester) async {
         final fakeReader = FakePassportReader(

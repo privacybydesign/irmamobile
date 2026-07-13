@@ -13,6 +13,7 @@ import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/providers/qr_scanner_factory_provider.dart";
+import "src/providers/regula_face_service_provider.dart";
 import "src/providers/schemaless_credentials_list_provider.dart";
 import "src/providers/sms_issuance_provider.dart";
 import "src/screens/home/home_screen.dart";
@@ -27,6 +28,7 @@ export "src/models/mrz.dart";
 export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/qr_scanner_factory_provider.dart";
+export "src/providers/regula_face_service_provider.dart";
 export "src/providers/sms_issuance_provider.dart";
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
@@ -35,6 +37,7 @@ Future<void> runYiviApp({
   required QrScannerFactory qrScannerFactory,
   OcrProcessor? ocrProcessor,
   SmsRetriever? smsRetriever,
+  RegulaFaceService? regulaFaceService,
 }) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
@@ -92,6 +95,10 @@ Future<void> runYiviApp({
           // passed in from the outside so each app picks a scanner backend
           // appropriate to its distribution channel (ML Kit vs. zxing-cpp)
           qrScannerFactoryProvider.overrideWithValue(qrScannerFactory),
+
+          // passed in from the outside so the FOSS build is not required to
+          // depend on the Regula Face SDK; null disables face verification
+          regulaFaceServiceProvider.overrideWithValue(regulaFaceService),
 
           // can pass an environment variable to test with errors on passport issuance
           if (passportIssuanceError.isNotEmpty)
