@@ -25,7 +25,8 @@ dependencies:
   pinput: ^6.0.1
 
   flutter_i18n: any
-  flutter_localizations: any
+  flutter_localizations:
+    sdk: flutter
   flutter_svg: any
   google_fonts: any
   flutter_riverpod: any
