@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Face verification for document (passport, ID card, driving licence) issuance: after reading the chip over NFC, the app runs a Regula liveness session and passes the resulting liveness transaction id to the passport issuer, which matches the live face against the chip portrait. Runs in the Play Store / App Store build only; the F-Droid build does not depend on the Regula SDK and has face verification disabled.
 
+### Fixed
+- Opening the app from a locked state via a universal link carrying a session no longer lets biometric unlock it: biometric is held back until the launch URL is known, so the session is deterministically gated behind the PIN (no unlock-then-relock flash)
+
 ## [8.1.0] - 2026-06-26
 ### Changed
 - Improved QR-code scanner on Android (both Play Store and F-Droid versions)

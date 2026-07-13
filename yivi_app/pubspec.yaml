@@ -32,6 +32,12 @@ dependencies:
   flutter_face_api: ^8.2.1149
   flutter_face_core_basic: ^8.2.461
 
+  flutter_i18n: any
+  flutter_localizations:
+    sdk: flutter
+  flutter_svg: any
+  google_fonts: any
+  flutter_riverpod: any
 dev_dependencies:
   integration_test:
     sdk: flutter
@@ -43,9 +49,6 @@ dev_dependencies:
   # Open Sans for widget previews. Loaded at runtime from Google's CDN so the
   # previews don't depend on bundled-font asset resolution, which is flaky
   # under `flutter widget-preview`.
-  google_fonts: ^8.1.0
-
-  # the following packages are required by the integration tests
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
@@ -54,7 +57,6 @@ dev_dependencies:
       path: vcmrtd
   package_info_plus: ^10.1.0
   collection: ^1.18.0
-  flutter_riverpod: ^3.2.0
   rxdart: ^0.28.0
   # Integration tests inject a fake LocalAuthentication (see
   # integration_test/helpers/fake_local_auth.dart) to drive biometric flows
@@ -65,5 +67,8 @@ dev_dependencies:
       url: https://github.com/privacybydesign/mrz_parser
       ref: v3.0.0
 
+  plugin_platform_interface: any
+  url_launcher_platform_interface: any
+  flutter_bloc: any
 flutter:
   uses-material-design: true
