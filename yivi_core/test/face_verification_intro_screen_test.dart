@@ -14,18 +14,18 @@ Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
   return TestContext(
     child: IrmaTheme(
       builder: (_) => MaterialApp(
-      localizationsDelegates: [
-        FlutterI18nDelegate(
-          translationLoader: FileTranslationLoader(
-            basePath: "assets/locales",
-            forcedLocale: const Locale("en", "US"),
+        localizationsDelegates: [
+          FlutterI18nDelegate(
+            translationLoader: FileTranslationLoader(
+              basePath: "assets/locales",
+              forcedLocale: const Locale("en", "US"),
+            ),
           ),
-        ),
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: FaceVerificationIntroScreen(onStart: onStart, onCancel: onCancel),
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: FaceVerificationIntroScreen(onStart: onStart, onCancel: onCancel),
       ),
     ),
   );
@@ -61,9 +61,7 @@ void main() {
 
   testWidgets("cancel button invokes onCancel", (tester) async {
     var cancelled = 0;
-    await tester.pumpWidget(
-      _wrap(onStart: () {}, onCancel: () => cancelled++),
-    );
+    await tester.pumpWidget(_wrap(onStart: () {}, onCancel: () => cancelled++));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key("bottom_bar_secondary")));

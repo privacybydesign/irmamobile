@@ -58,7 +58,9 @@ class FaceVerificationIntroScreen extends StatelessWidget {
               ),
               SizedBox(height: theme.largeSpacing),
               const _Tip(translationKey: "face_verification.intro.tip_camera"),
-              const _Tip(translationKey: "face_verification.intro.tip_lighting"),
+              const _Tip(
+                translationKey: "face_verification.intro.tip_lighting",
+              ),
               const _Tip(
                 translationKey: "face_verification.intro.tip_look_straight",
               ),

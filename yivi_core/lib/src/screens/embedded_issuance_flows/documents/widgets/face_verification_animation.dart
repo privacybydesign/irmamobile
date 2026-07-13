@@ -144,11 +144,7 @@ class _FaceBox extends StatelessWidget {
               ]
             : null,
       ),
-      child: Icon(
-        Icons.person,
-        size: size * 0.6,
-        color: theme.neutralDark,
-      ),
+      child: Icon(Icons.person, size: size * 0.6, color: theme.neutralDark),
     );
   }
 }
@@ -282,7 +278,11 @@ class _Connector extends StatelessWidget {
                 height: 30,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color.lerp(theme.neutralLight, theme.success, progress),
+                  color: Color.lerp(
+                    theme.neutralLight,
+                    theme.success,
+                    progress,
+                  ),
                 ),
                 child: Icon(
                   progress >= 0.5 ? Icons.check : Icons.compare_arrows,

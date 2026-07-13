@@ -114,10 +114,7 @@ void main() {
       () async {
         final data = _rawDocument();
         final fake = _FakeRegulaFaceService(
-          result: const RegulaLivenessResult(
-            isLive: true,
-            transactionId: null,
-          ),
+          result: const RegulaLivenessResult(isLive: true, transactionId: null),
         );
 
         final result = await withLivenessTransaction(fake, data);
