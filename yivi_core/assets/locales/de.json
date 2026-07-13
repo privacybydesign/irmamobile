@@ -780,6 +780,17 @@
     "content": "Yivi benötigt Zugriff auf die Kamera, um Ihr Dokument automatisch zu scannen. Erteilen Sie Yivi über die Systemeinstellungen die Berechtigung, die Kamera zu verwenden, oder geben Sie die erforderlichen Daten manuell ein.",
     "open_settings": "Einstellungen öffnen"
   },
+  "face_verification": {
+    "title": "Gesichtsprüfung",
+    "intro": {
+      "heading": "Gesichtsprüfung",
+      "explanation": "Wir prüfen, ob Sie die im Dokument abgebildete Person sind.",
+      "tip_lighting": "Sorgen Sie für ausreichend Licht.",
+      "tip_look_straight": "Blicken Sie direkt in die Kamera.",
+      "privacy": "Ihre Gesichtsdaten werden ausschließlich von Yivi auf EU-souveränen Servern verarbeitet, nicht gespeichert und nicht an Dritte weitergegeben.",
+      "start": "Starten"
+    }
+  },
   "driving_licence": {
     "scan": {
       "title": "Führerschein scannen",

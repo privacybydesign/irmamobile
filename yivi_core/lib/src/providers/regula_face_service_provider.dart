@@ -36,7 +36,11 @@ abstract class RegulaFaceService {
   Future<void> initialize();
 
   /// Presents Regula's liveness UI and returns the resulting transaction id.
-  Future<RegulaLivenessResult> captureLiveness();
+  ///
+  /// [languageCode] is the app's active language (e.g. "nl", "de", "en"); the
+  /// implementation uses it to localise the Regula screens so they match the
+  /// rest of the app.
+  Future<RegulaLivenessResult> captureLiveness({String? languageCode});
 }
 
 /// The Regula liveness service for the current app flavor, or `null` when face
@@ -55,10 +59,11 @@ final regulaFaceServiceProvider = Provider<RegulaFaceService?>((ref) => null);
 /// from the liveness session propagate to the caller.
 Future<RawDocumentData> withLivenessTransaction(
   RegulaFaceService? service,
-  RawDocumentData data,
-) async {
+  RawDocumentData data, {
+  String? languageCode,
+}) async {
   if (service == null) return data;
-  final result = await service.captureLiveness();
+  final result = await service.captureLiveness(languageCode: languageCode);
   final transactionId = result.transactionId;
   if (transactionId == null) return data;
   return data.copyWith(livenessTransactionId: transactionId);

@@ -18,6 +18,7 @@ class _FakeRegulaFaceService implements RegulaFaceService {
 
   int initializeCount = 0;
   int captureCount = 0;
+  String? lastLanguageCode;
 
   @override
   Future<void> initialize() async {
@@ -25,8 +26,9 @@ class _FakeRegulaFaceService implements RegulaFaceService {
   }
 
   @override
-  Future<RegulaLivenessResult> captureLiveness() async {
+  Future<RegulaLivenessResult> captureLiveness({String? languageCode}) async {
     captureCount += 1;
+    lastLanguageCode = languageCode;
     if (error != null) throw error!;
     return result!;
   }
@@ -152,6 +154,17 @@ void main() {
         () => withLivenessTransaction(fake, data),
         throwsA(isA<StateError>()),
       );
+    });
+
+    test("forwards the active language code to the liveness session", () async {
+      final data = _rawDocument();
+      final fake = _FakeRegulaFaceService(
+        result: const RegulaLivenessResult(isLive: true, transactionId: "t"),
+      );
+
+      await withLivenessTransaction(fake, data, languageCode: "nl");
+
+      expect(fake.lastLanguageCode, "nl");
     });
 
     test("serialises the attached transaction id for the issuer", () async {

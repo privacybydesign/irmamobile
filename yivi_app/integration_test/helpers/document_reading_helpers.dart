@@ -241,13 +241,15 @@ class FakeRegulaFaceService implements RegulaFaceService {
   final Object? error;
 
   int captureCount = 0;
+  String? lastLanguageCode;
 
   @override
   Future<void> initialize() async {}
 
   @override
-  Future<RegulaLivenessResult> captureLiveness() async {
+  Future<RegulaLivenessResult> captureLiveness({String? languageCode}) async {
     captureCount += 1;
+    lastLanguageCode = languageCode;
     if (error != null) throw error!;
     return RegulaLivenessResult(isLive: true, transactionId: transactionId);
   }

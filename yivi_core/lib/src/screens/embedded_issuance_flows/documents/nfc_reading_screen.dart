@@ -20,6 +20,7 @@ import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
 import "../../../widgets/irma_linear_progresss_indicator.dart";
 import "../../../widgets/translated_text.dart";
+import "face_verification_intro_screen.dart";
 import "widgets/driving_licence_nfc_scanning_animation.dart";
 import "widgets/id_card_nfc_scanning_animation.dart";
 import "widgets/nfc_error_dialog.dart";
@@ -162,6 +163,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     });
     try {
       final passportIssuer = ref.read(passportIssuerProvider);
+      final faceService = ref.read(regulaFaceServiceProvider);
+      // Capture the root navigator context up front. The Regula liveness UI is
+      // a native screen that backgrounds — and on some devices tears down —
+      // this widget, so we must not rely on this screen's own context/mounted
+      // state to navigate to issuance afterwards, or issuance never opens and
+      // the user is left on the successful-readout page.
+      final navContext = Navigator.of(context, rootNavigator: true).context;
 
       final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer
           .startSessionAtPassportIssuer();
@@ -176,15 +184,27 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
       if (result != null) {
         final (pdr, rawDocData) = result;
-        // When face verification is enabled, run a Regula liveness session and
-        // attach the transaction id so the issuer can match the live face
-        // against the document chip portrait. Disabled (null service) leaves
-        // the request unchanged.
-        final withLiveness = await withLivenessTransaction(
-          ref.read(regulaFaceServiceProvider),
-          rawDocData,
-        );
-        await _startIssuance(withLiveness);
+        var toIssue = rawDocData;
+        // When face verification is enabled, show the Yivi intro after the
+        // successful-readout page (Regula's own onboarding is skipped), then
+        // run a Regula liveness session and attach its transaction id so the
+        // issuer can match the live face against the document chip portrait.
+        // Disabled (null service) skips straight to issuance.
+        if (faceService != null) {
+          if (!mounted) return;
+          final proceed = await FaceVerificationIntroScreen.show(context);
+          if (!proceed || !mounted) return;
+          final languageCode = FlutterI18n.currentLocale(context)?.languageCode;
+          toIssue = await withLivenessTransaction(
+            faceService,
+            rawDocData,
+            languageCode: languageCode,
+          );
+        }
+        // navContext is the root navigator's context (guaranteed to outlive
+        // this screen); _startIssuance re-checks navContext.mounted before use.
+        // ignore: use_build_context_synchronously
+        await _startIssuance(toIssue, passportIssuer, navContext);
       }
     } catch (e) {
       if (mounted) {
@@ -195,8 +215,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     }
   }
 
-  Future<void> _startIssuance(RawDocumentData result) async {
-    final passportIssuer = ref.read(passportIssuerProvider);
+  Future<void> _startIssuance(
+    RawDocumentData result,
+    PassportIssuer passportIssuer,
+    BuildContext navContext,
+  ) async {
     try {
       // start the issuance session at the irma server
       final sessionPtr = await passportIssuer.startIrmaIssuanceSession(
@@ -207,13 +230,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           ScannedIdCardMrz() => .identityCard,
         },
       );
-      if (!mounted) {
+      if (!navContext.mounted) {
         return;
       }
 
-      // handle it like any other external issuance session
+      // Handle it like any other external issuance session, navigating through
+      // the root navigator so issuance opens even if this NFC screen was torn
+      // down while the native liveness UI was in front.
       await handlePointer(
-        context,
+        navContext,
         SessionPointer(
           protocol: .irma,
           u: sessionPtr.u,
