@@ -31,10 +31,7 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
     "urn:ietf:params:oauth:grant-type:pre-authorized_code": {
       "pre-authorized_code": "generate",
       if (txCodeInputMode != null)
-        "tx_code": {
-          "input_mode": txCodeInputMode,
-          "length": ?txCodeLength,
-        },
+        "tx_code": {"input_mode": txCodeInputMode, "length": ?txCodeLength},
     },
   };
 
