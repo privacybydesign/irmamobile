@@ -87,7 +87,7 @@ Future<void> pumpYiviApp(
         // notSupported and greys out passport/idcard/drivinglicence. Fake it
         // available; a test that wants the no-NFC case overrides it back.
         nfcAvailableProvider.overrideWith((ref) => Future.value(true)),
-        if (providerOverrides != null) ...providerOverrides,
+        ...?providerOverrides,
       ],
       child: TestContext(
         child: YiviApp(
@@ -199,7 +199,7 @@ String createIssuanceRequestWithGroupedAttributes(
             },
             if (revocationKeys.containsKey(credEntry.key))
               "revocationKey": revocationKeys[credEntry.key],
-            if (sdJwtBatchSize != null) "sdJwtBatchSize": sdJwtBatchSize,
+            "sdJwtBatchSize": ?sdJwtBatchSize,
           },
         )
         .toList(),

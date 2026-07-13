@@ -177,7 +177,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     return asyncSession.when(
       loading: () => _buildLoadingScreen(null),
-      error: (err, __) =>
+      error: (err, _) =>
           _buildError(SessionError(errorType: "unknown", info: err.toString())),
       data: (session) {
         // Auto-pop when dismissed — pop back to the previous screen

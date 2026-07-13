@@ -3,7 +3,7 @@ import "dart:io";
 
 const _issuerBaseUrl =
     "https://veramo-issuer.openid4vc.staging.yivi.app/test-issuer";
-const _adminToken = "veramo-issuer-admin-token";
+const _adminToken = "piMmprGSinTFrEJkxNo5jfuU5QbDRbqP";
 
 /// Response from the Veramo issuer's create-offer endpoint.
 class OpenID4VCIOfferResponse {
@@ -33,7 +33,7 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
       if (txCodeInputMode != null)
         "tx_code": {
           "input_mode": txCodeInputMode,
-          if (txCodeLength != null) "length": txCodeLength,
+          "length": ?txCodeLength,
         },
     },
   };
