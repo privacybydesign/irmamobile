@@ -32,9 +32,7 @@ Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
 }
 
 void main() {
-  testWidgets("shows the guidance tips and the privacy question", (
-    tester,
-  ) async {
+  testWidgets("shows the guidance tips and the privacy hint", (tester) async {
     await tester.pumpWidget(_wrap(onStart: () {}, onCancel: () {}));
     await tester.pumpAndSettle();
 
@@ -44,29 +42,11 @@ void main() {
       find.textContaining("confirm you're the person shown in the document"),
       findsOneWidget,
     );
-    // Tips render as centered check + text (Text.rich), so match on substring.
-    expect(find.textContaining("Make sure there's enough light."), findsOneWidget);
-    expect(find.textContaining("Look straight into the camera."), findsOneWidget);
-    expect(
-      find.textContaining("Remove facial accessories, hats, etc."),
-      findsOneWidget,
-    );
-    // The privacy statement is behind an expandable question.
-    expect(find.text("Where does my data go?"), findsOneWidget);
-  });
-
-  testWidgets("expanding the privacy question reveals where the data goes", (
-    tester,
-  ) async {
-    await tester.pumpWidget(_wrap(onStart: () {}, onCancel: () {}));
-    await tester.pumpAndSettle();
-
-    final question = find.text("Where does my data go?");
-    await tester.ensureVisible(question);
-    await tester.pumpAndSettle();
-    await tester.tap(question);
-    await tester.pumpAndSettle();
-
+    expect(find.text("Point the selfie camera at your face."), findsOneWidget);
+    expect(find.text("Make sure there's enough light."), findsOneWidget);
+    expect(find.text("Look straight into the camera."), findsOneWidget);
+    expect(find.text("Remove facial accessories, hats, etc."), findsOneWidget);
+    // The privacy statement is shown inline, not behind an expander.
     expect(
       find.textContaining("servers hosted in the Netherlands"),
       findsOneWidget,

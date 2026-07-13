@@ -1,3 +1,5 @@
+import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter_face_api/flutter_face_api.dart";
 import "package:yivi_core/yivi_core.dart";
@@ -184,5 +186,30 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
       ..processingScreenProgress = _Yivi.primary
       ..processingScreenTitleLabel = _Yivi.textDark
       ..successScreenBackground = _Yivi.background;
+
+    // Use the Yivi font (Open Sans) on the Regula screens so the text matches
+    // the rest of the app. NOTE: the font must be registered with the native
+    // platform (iOS UIAppFonts + bundled ttf; Android assets/res font) — the
+    // Flutter-bundled font is not visible to Regula's native UI. If the name
+    // does not resolve, Regula falls back to the system font.
+    _sdk.customization.fonts = CustomizationFonts()
+      ..cameraScreenHintLabel = _yiviFont(16)
+      ..retryScreenTitleLabel = _yiviFont(20, bold: true)
+      ..retryScreenSubtitleLabel = _yiviFont(16)
+      ..retryScreenHintLabels = _yiviFont(14)
+      ..retryScreenRetryButton = _yiviFont(16, bold: true)
+      ..processingScreenLabel = _yiviFont(16);
+  }
+
+  /// Open Sans in the platform-specific naming the native SDK expects.
+  Font _yiviFont(int size, {bool bold = false}) {
+    final name = Platform.isIOS
+        ? (bold ? "OpenSans-SemiBold" : "OpenSans-Regular")
+        : "Open Sans";
+    return Font(
+      name,
+      size: size,
+      style: bold ? FontStyle.BOLD : FontStyle.NORMAL,
+    );
   }
 }

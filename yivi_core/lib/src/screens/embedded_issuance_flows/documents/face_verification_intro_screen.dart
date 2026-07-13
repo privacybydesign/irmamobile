@@ -1,8 +1,6 @@
 import "package:flutter/material.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../theme/theme.dart";
-import "../../../widgets/collapsible.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -50,16 +48,16 @@ class FaceVerificationIntroScreen extends StatelessWidget {
         child: SingleChildScrollView(
           padding: EdgeInsets.all(theme.defaultSpacing),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Center(child: FaceVerificationAnimation()),
               SizedBox(height: theme.largeSpacing),
               TranslatedText(
                 "face_verification.intro.explanation",
                 style: theme.textTheme.bodyLarge,
-                textAlign: TextAlign.center,
               ),
               SizedBox(height: theme.largeSpacing),
+              const _Tip(translationKey: "face_verification.intro.tip_camera"),
               const _Tip(translationKey: "face_verification.intro.tip_lighting"),
               const _Tip(
                 translationKey: "face_verification.intro.tip_look_straight",
@@ -68,17 +66,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
                 translationKey: "face_verification.intro.tip_no_accessories",
               ),
               SizedBox(height: theme.defaultSpacing),
-              Collapsible(
-                header: FlutterI18n.translate(
-                  context,
-                  "face_verification.intro.privacy_question",
-                ),
-                content: TranslatedText(
-                  "face_verification.intro.privacy",
-                  style: theme.textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-              ),
+              _PrivacyHint(),
             ],
           ),
         ),
@@ -93,8 +81,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
   }
 }
 
-/// A single guidance line: a centered check icon + text that wraps and stays
-/// centered.
+/// A single, left-aligned guidance line: a check icon + text.
 class _Tip extends StatelessWidget {
   final String translationKey;
 
@@ -105,26 +92,36 @@ class _Tip extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return Padding(
       padding: EdgeInsets.only(bottom: theme.smallSpacing),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            WidgetSpan(
-              alignment: PlaceholderAlignment.middle,
-              child: Padding(
-                padding: EdgeInsets.only(right: theme.tinySpacing),
-                child: Icon(
-                  Icons.check_circle,
-                  size: 18,
-                  color: theme.success,
-                ),
-              ),
-            ),
-            TextSpan(text: FlutterI18n.translate(context, translationKey)),
-          ],
-        ),
-        textAlign: TextAlign.center,
-        style: theme.textTheme.bodyMedium,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.check_circle, size: 20, color: theme.success),
+          SizedBox(width: theme.smallSpacing),
+          Expanded(child: TranslatedText(translationKey)),
+        ],
       ),
+    );
+  }
+}
+
+/// The privacy reassurance, shown inline as a plain left-aligned hint with a
+/// lock icon.
+class _PrivacyHint extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.lock_outline, size: 20, color: theme.link),
+        SizedBox(width: theme.smallSpacing),
+        Expanded(
+          child: TranslatedText(
+            "face_verification.intro.privacy",
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.secondary),
+          ),
+        ),
+      ],
     );
   }
 }

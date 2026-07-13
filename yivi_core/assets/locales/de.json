@@ -782,13 +782,13 @@
   },
   "face_verification": {
     "title": "Gesichtsprüfung",
-    "preparing": "Einen Moment, dein Nachweis wird vorbereitet…",
+    "preparing": "Einen Moment, deine Daten werden vorbereitet…",
     "intro": {
-      "explanation": "Wir führen jetzt eine kurze Gesichtsprüfung durch, um zu bestätigen, dass Sie die im Dokument abgebildete Person sind. Richten Sie die Frontkamera auf Ihr Gesicht und folgen Sie diesen Tipps:",
+      "explanation": "Wir führen jetzt eine kurze Gesichtsprüfung durch, um zu bestätigen, dass Sie die im Dokument abgebildete Person sind.",
+      "tip_camera": "Richten Sie die Selfie-Kamera auf Ihr Gesicht.",
       "tip_lighting": "Sorgen Sie für ausreichend Licht.",
       "tip_look_straight": "Blicken Sie direkt in die Kamera.",
       "tip_no_accessories": "Entfernen Sie Gesichtsaccessoires, Hüte usw.",
-      "privacy_question": "Wohin gehen meine Daten?",
       "privacy": "Ihre Gesichtsbilder werden ausschließlich von Yivi verarbeitet, auf in den Niederlanden gehosteten Servern, und werden nicht gespeichert oder an Dritte weitergegeben.",
       "start": "Verifizierung starten"
     }

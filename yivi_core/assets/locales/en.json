@@ -782,13 +782,13 @@
   },
   "face_verification": {
     "title": "Face verification",
-    "preparing": "One moment, preparing your credential…",
+    "preparing": "One moment, preparing your data…",
     "intro": {
-      "explanation": "We'll now do a quick face check to confirm you're the person shown in the document. Point the front camera at your face and follow these tips:",
+      "explanation": "We'll now do a quick face check to confirm you're the person shown in the document.",
+      "tip_camera": "Point the selfie camera at your face.",
       "tip_lighting": "Make sure there's enough light.",
       "tip_look_straight": "Look straight into the camera.",
       "tip_no_accessories": "Remove facial accessories, hats, etc.",
-      "privacy_question": "Where does my data go?",
       "privacy": "Your face images are processed only by Yivi, on servers hosted in the Netherlands, and are not stored or shared with third parties.",
       "start": "Start verification"
     }

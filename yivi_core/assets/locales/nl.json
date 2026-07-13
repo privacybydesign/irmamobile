@@ -782,13 +782,13 @@
   },
   "face_verification": {
     "title": "Gezichtscontrole",
-    "preparing": "Een moment, je kaart wordt voorbereid…",
+    "preparing": "Een moment, je gegevens worden voorbereid…",
     "intro": {
-      "explanation": "We doen nu een korte gezichtscontrole om te bevestigen dat jij de persoon op het document bent. Richt de camera aan de voorkant op je gezicht en volg deze tips:",
+      "explanation": "We doen nu een korte gezichtscontrole om te bevestigen dat jij de persoon op het document bent.",
+      "tip_camera": "Richt de selfie camera op je gezicht.",
       "tip_lighting": "Zorg voor voldoende licht.",
       "tip_look_straight": "Kijk recht in de camera.",
-      "tip_no_accessories": "Verwijder gezichtsaccessoires, hoeden, enz.",
-      "privacy_question": "Waar gaan mijn gegevens heen?",
+      "tip_no_accessories": "Verwijder gezichtsaccessoires, hoeden, etc.",
       "privacy": "Je gezichtsafbeeldingen worden alleen door Yivi verwerkt, op in Nederland gehoste servers, en worden niet opgeslagen en niet met derden gedeeld.",
       "start": "Start verificatie"
     }
