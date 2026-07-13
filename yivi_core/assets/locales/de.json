@@ -783,11 +783,11 @@
   "face_verification": {
     "title": "Gesichtsprüfung",
     "intro": {
-      "heading": "Gesichtsprüfung",
       "explanation": "Wir prüfen, ob Sie die im Dokument abgebildete Person sind.",
       "tip_lighting": "Sorgen Sie für ausreichend Licht.",
       "tip_look_straight": "Blicken Sie direkt in die Kamera.",
-      "privacy": "Ihre Gesichtsdaten werden ausschließlich von Yivi auf EU-souveränen Servern verarbeitet, nicht gespeichert und nicht an Dritte weitergegeben.",
+      "tip_no_accessories": "Entfernen Sie Gesichtsaccessoires, Hüte usw.",
+      "privacy": "Ihre Gesichtsbilder werden ausschließlich von Yivi verarbeitet, auf EU-souveränen Servern, und werden nicht gespeichert oder an Dritte weitergegeben.",
       "start": "Starten"
     }
   },
