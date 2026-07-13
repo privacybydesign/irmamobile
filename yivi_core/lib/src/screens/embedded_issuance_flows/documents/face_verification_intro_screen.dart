@@ -4,6 +4,7 @@ import "../../../theme/theme.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
+import "widgets/face_verification_animation.dart";
 
 /// Yivi-themed intro shown after a successful document readout and before the
 /// Regula liveness session. It replaces Regula's built-in "Time for a selfie"
@@ -49,9 +50,7 @@ class FaceVerificationIntroScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Icon(Icons.face_retouching_natural, size: 96, color: theme.primary),
-              ),
+              const Center(child: FaceVerificationAnimation()),
               SizedBox(height: theme.largeSpacing),
               TranslatedText(
                 "face_verification.intro.explanation",

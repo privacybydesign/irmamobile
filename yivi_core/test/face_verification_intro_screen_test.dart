@@ -6,10 +6,14 @@ import "package:flutter_test/flutter_test.dart";
 
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "package:yivi_core/src/util/test_detection.dart";
 
 Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
-  return IrmaTheme(
-    builder: (_) => MaterialApp(
+  // TestContext disables the intro animation's repeating ticker so
+  // pumpAndSettle does not hang.
+  return TestContext(
+    child: IrmaTheme(
+      builder: (_) => MaterialApp(
       localizationsDelegates: [
         FlutterI18nDelegate(
           translationLoader: FileTranslationLoader(
@@ -22,6 +26,7 @@ Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
         GlobalCupertinoLocalizations.delegate,
       ],
       home: FaceVerificationIntroScreen(onStart: onStart, onCancel: onCancel),
+      ),
     ),
   );
 }

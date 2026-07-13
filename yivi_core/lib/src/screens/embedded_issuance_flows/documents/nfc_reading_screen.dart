@@ -110,6 +110,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     with RouteAware {
   String? issuanceError;
 
+  /// True once face verification is done and we are contacting the issuer.
+  /// Shows a loader instead of the (already-completed) readout page, so the
+  /// user is not sent back to the readout screen after the liveness session.
+  bool _preparingIssuance = false;
+
   Widget _getAnimation() {
     return switch (widget.mrz) {
       ScannedPassportMrz() => PassportNfcScanningAnimation(),
@@ -160,6 +165,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   void _startScanning() async {
     setState(() {
       issuanceError = null;
+      _preparingIssuance = false;
     });
     try {
       final passportIssuer = ref.read(passportIssuerProvider);
@@ -185,15 +191,24 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       if (result != null) {
         final (pdr, rawDocData) = result;
         var toIssue = rawDocData;
+        final faceVerification = faceService != null;
         // When face verification is enabled, show the Yivi intro after the
         // successful-readout page (Regula's own onboarding is skipped), then
         // run a Regula liveness session and attach its transaction id so the
         // issuer can match the live face against the document chip portrait.
         // Disabled (null service) skips straight to issuance.
-        if (faceService != null) {
+        if (faceVerification) {
           if (!mounted) return;
+          // Switch the screen behind the intro to a loader now, so the readout
+          // page is not revealed again after the intro/liveness — instead the
+          // user sees a loader that leads into issuance.
+          setState(() => _preparingIssuance = true);
           final proceed = await FaceVerificationIntroScreen.show(context);
-          if (!proceed || !mounted) return;
+          if (!proceed) {
+            if (mounted) setState(() => _preparingIssuance = false);
+            return;
+          }
+          if (!mounted) return;
           final languageCode = FlutterI18n.currentLocale(context)?.languageCode;
           toIssue = await withLivenessTransaction(
             faceService,
@@ -203,8 +218,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         }
         // navContext is the root navigator's context (guaranteed to outlive
         // this screen); _startIssuance re-checks navContext.mounted before use.
-        // ignore: use_build_context_synchronously
-        await _startIssuance(toIssue, passportIssuer, navContext);
+        // For the face flow, replace this readout route so issuance does not
+        // return here afterwards.
+        await _startIssuance(
+          toIssue,
+          passportIssuer,
+          // ignore: use_build_context_synchronously
+          navContext,
+          pushReplacement: faceVerification,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -218,8 +240,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   Future<void> _startIssuance(
     RawDocumentData result,
     PassportIssuer passportIssuer,
-    BuildContext navContext,
-  ) async {
+    BuildContext navContext, {
+    bool pushReplacement = false,
+  }) async {
     try {
       // start the issuance session at the irma server
       final sessionPtr = await passportIssuer.startIrmaIssuanceSession(
@@ -236,7 +259,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
       // Handle it like any other external issuance session, navigating through
       // the root navigator so issuance opens even if this NFC screen was torn
-      // down while the native liveness UI was in front.
+      // down while the native liveness UI was in front. For the face flow we
+      // replace this route so the user does not return to the readout page.
       await handlePointer(
         navContext,
         SessionPointer(
@@ -245,11 +269,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           irmaqr: sessionPtr.irmaqr,
           continueOnSecondDevice: true,
         ),
+        pushReplacement: pushReplacement,
       );
     } catch (e) {
       if (mounted) {
         setState(() {
           issuanceError = e.toString();
+          _preparingIssuance = false;
         });
       }
       if (kDebugMode) {
@@ -276,6 +302,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         ),
         issuanceError!,
       );
+    }
+
+    // After face verification we contact the issuer; show a loader that leads
+    // into issuance rather than falling back to the completed readout page.
+    if (_preparingIssuance) {
+      return _buildPreparing(context);
     }
 
     final passportState = _watchDocumentReaderState();
@@ -307,6 +339,32 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         secondaryButtonLabel: "ui.cancel",
         onSecondaryPressed: cancel,
+      ),
+    );
+  }
+
+  Widget _buildPreparing(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
+      appBar: IrmaAppBar(titleTranslationKey: "face_verification.title"),
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisSize: .min,
+            children: [
+              CircularProgressIndicator(color: theme.primary),
+              SizedBox(height: theme.largeSpacing),
+              Padding(
+                padding: .symmetric(horizontal: theme.largeSpacing),
+                child: TranslatedText(
+                  "face_verification.preparing",
+                  textAlign: .center,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

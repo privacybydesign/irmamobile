@@ -782,6 +782,7 @@
   },
   "face_verification": {
     "title": "Gezichtscontrole",
+    "preparing": "Een moment, je kaart wordt voorbereid…",
     "intro": {
       "explanation": "We controleren of jij de persoon op het document bent.",
       "tip_lighting": "Zorg voor voldoende licht.",

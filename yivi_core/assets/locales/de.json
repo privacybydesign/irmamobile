@@ -782,6 +782,7 @@
   },
   "face_verification": {
     "title": "Gesichtsprüfung",
+    "preparing": "Einen Moment, dein Nachweis wird vorbereitet…",
     "intro": {
       "explanation": "Wir prüfen, ob Sie die im Dokument abgebildete Person sind.",
       "tip_lighting": "Sorgen Sie für ausreichend Licht.",

@@ -782,6 +782,7 @@
   },
   "face_verification": {
     "title": "Face verification",
+    "preparing": "One moment, preparing your credential…",
     "intro": {
       "explanation": "We check that you're the person shown in the document.",
       "tip_lighting": "Make sure there's enough light.",
