@@ -336,6 +336,14 @@ void main() {
       await tester.waitFor(lockScreenBiometricButton);
       expect(fakeAuth.authenticateCalls, 1);
 
+      // Let the launch scan fully unwind before backgrounding. `authenticateCalls`
+      // ticks up inside `authenticate()`, but `_biometricUnlock` is still awaiting
+      // (on iOS the privacy-screen disable/restore round-trips), so `_scanInProgress`
+      // is still true here. The `paused` re-arm below only fires when a scan is NOT
+      // in progress, so without settling first it would be skipped and the re-open
+      // would never re-scan.
+      await tester.pumpAndSettle();
+
       // Background then foreground the app.
       WidgetsBinding.instance.handleAppLifecycleStateChanged(
         AppLifecycleState.inactive,
@@ -346,9 +354,12 @@ void main() {
       WidgetsBinding.instance.handleAppLifecycleStateChanged(
         AppLifecycleState.resumed,
       );
-      await tester.pumpAndSettle();
 
-      // Re-open re-armed the guard, so the scan fired again.
+      // Re-open re-armed the guard, so the scan fires again. The counter ticks
+      // up inside `authenticate()`, which on iOS sits behind an async
+      // privacy-screen platform call that schedules no frame — pumpAndSettle
+      // would return before it lands, so poll until the second scan arrives.
+      await tester.pumpUntil(() => fakeAuth.authenticateCalls == 2);
       expect(fakeAuth.authenticateCalls, 2);
     });
 
