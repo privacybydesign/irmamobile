@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Opening the app from a locked state via a universal link carrying a session no longer lets biometric unlock it: biometric is held back until the launch URL is known, so the session is deterministically gated behind the PIN (no unlock-then-relock flash)
 
 ## [8.1.0] - 2026-06-26
 ### Changed
