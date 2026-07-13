@@ -788,7 +788,8 @@
       "tip_lighting": "Zorg voor voldoende licht.",
       "tip_look_straight": "Kijk recht in de camera.",
       "tip_no_accessories": "Verwijder gezichtsaccessoires, hoeden, enz.",
-      "privacy": "Je gezichtsafbeeldingen worden alleen door Yivi verwerkt, op EU-sovereine servers, en worden niet opgeslagen en niet met derden gedeeld.",
+      "privacy_question": "Waar gaan mijn gegevens heen?",
+      "privacy": "Je gezichtsafbeeldingen worden alleen door Yivi verwerkt, op in Nederland gehoste servers, en worden niet opgeslagen en niet met derden gedeeld.",
       "start": "Start verificatie"
     }
   },

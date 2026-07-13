@@ -788,7 +788,8 @@
       "tip_lighting": "Make sure there's enough light.",
       "tip_look_straight": "Look straight into the camera.",
       "tip_no_accessories": "Remove facial accessories, hats, etc.",
-      "privacy": "Your face images are processed only by Yivi, on EU-sovereign servers, and are not stored or shared with third parties.",
+      "privacy_question": "Where does my data go?",
+      "privacy": "Your face images are processed only by Yivi, on servers hosted in the Netherlands, and are not stored or shared with third parties.",
       "start": "Start verification"
     }
   },
