@@ -58,10 +58,9 @@ dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      # feat/regula-face-verification head: adds RawDocumentData.livenessTransactionId
-      # (+ copyWith) and VerificationResponse.faceMatch used by face verification.
-      # v3.8.0 is an ancestor of this commit, so it is a strict superset.
-      ref: 7c6b1d59978ef374e4289e28c92affea2419906e
+      # v3.9.0 adds RawDocumentData.livenessTransactionId (+ copyWith) and
+      # VerificationResponse.faceMatch used by face verification.
+      ref: v3.9.0
       path: vcmrtd
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1
