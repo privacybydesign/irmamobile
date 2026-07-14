@@ -8,8 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Face verification for document (passport, ID card, driving licence) issuance: after reading the chip over NFC, the app runs a Regula liveness session and passes the resulting liveness transaction id to the passport issuer, which matches the live face against the chip portrait. Runs in the Play Store / App Store build only; the F-Droid build does not depend on the Regula SDK and has face verification disabled.
 
+## [8.1.1] - 2026-07-14
 ### Fixed
 - Opening the app from a locked state via a universal link carrying a session no longer lets biometric unlock it: biometric is held back until the launch URL is known, so the session is deterministically gated behind the PIN (no unlock-then-relock flash)
+
+### Internal
+- Upgrade irmago to 1.1.1: Eudi database is now correctly encrypted
 
 ## [8.1.0] - 2026-06-26
 ### Changed
@@ -646,6 +650,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.1.1]: https://github.com/privacybydesign/irmamobile/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/privacybydesign/irmamobile/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/privacybydesign/irmamobile/compare/v7.13.5...v8.0.0
 [7.13.5]: https://github.com/privacybydesign/irmamobile/compare/v7.13.4...v7.13.5
