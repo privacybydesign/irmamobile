@@ -15,6 +15,7 @@ import "../../../providers/document_reader_providers.dart";
 import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/handle_pointer.dart";
+import "../../../util/navigation.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
@@ -282,6 +283,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         pushReplacement: pushReplacement,
       );
     } catch (e) {
+      if (kDebugMode) {
+        debugPrint("issuance error: $e");
+      }
       if (mounted) {
         setState(() {
           issuanceError = e.toString();
@@ -292,9 +296,17 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
               faceVerification && e.toString().contains("400");
           _preparingIssuance = false;
         });
-      }
-      if (kDebugMode) {
-        debugPrint("issuance error: $e");
+      } else if (navContext.mounted) {
+        // The native liveness UI tore this screen down, so there is no State
+        // left to render the in-screen error on (its `_preparingIssuance`
+        // loader is gone with it). Surface the failure through the root
+        // navigator instead, mirroring the success path and handlePointer, so
+        // it is not silently swallowed.
+        if (pushReplacement) {
+          navContext.pushReplacementErrorScreen(message: e.toString());
+        } else {
+          navContext.pushErrorScreen(message: e.toString());
+        }
       }
     }
   }
