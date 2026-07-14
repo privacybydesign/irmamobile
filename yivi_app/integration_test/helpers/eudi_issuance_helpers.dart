@@ -23,8 +23,8 @@ const veramoBatch2IssuerBaseUrl =
 const veramoVerifierBaseUrl =
     "https://veramo-verifier.openid4vc.staging.yivi.app/test-verifier";
 const veramoVerifierDisplayName = "test-verifier";
-const veramoIssuerAdminToken = "veramo-issuer-admin-token";
-const veramoVerifierAdminToken = "veramo-verifier-admin-token";
+const veramoIssuerAdminToken = "piMmprGSinTFrEJkxNo5jfuU5QbDRbqP";
+const veramoVerifierAdminToken = "yxMPqponlkzYRnJ8OiT1POF99VXs221I";
 
 /// VCT URLs for the credential types issued by the veramo-issuer test-issuer.
 const veramoEmailCredentialVct =
