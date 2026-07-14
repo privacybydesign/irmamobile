@@ -288,7 +288,8 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           // A rejected face match surfaces as an HTTP 400 from the issuer
           // (vcmrtd: `Exception('Store failed: 400 …')`); flag it so the error
           // screen shows the dedicated failed-face illustration.
-          _issuanceErrorIsFaceMatch = faceVerification && e.toString().contains("400");
+          _issuanceErrorIsFaceMatch =
+              faceVerification && e.toString().contains("400");
           _preparingIssuance = false;
         });
       }
