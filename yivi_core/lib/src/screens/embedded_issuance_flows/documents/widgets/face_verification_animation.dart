@@ -16,9 +16,14 @@ class FaceVerificationAnimation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isIntegrationTest = TestContext.isRunningIntegrationTest(context);
-    return TickerMode(
-      enabled: !isIntegrationTest,
-      child: const _FaceMatchAnimation(),
+    // The animation is purely decorative: the adjacent intro copy already
+    // describes the face-matching flow, so hide it from screen readers
+    // (WCAG 2.2 1.1.1). Follows the NFC scanning-animation convention.
+    return ExcludeSemantics(
+      child: TickerMode(
+        enabled: !isIntegrationTest,
+        child: const _FaceMatchAnimation(),
+      ),
     );
   }
 }

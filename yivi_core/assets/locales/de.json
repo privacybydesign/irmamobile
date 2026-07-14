@@ -781,14 +781,14 @@
     "open_settings": "Einstellungen öffnen"
   },
   "face_verification": {
-    "title": "Gesichtsprüfung",
+    "title": "Gesichtsverifizierung",
     "preparing": "Einen Moment, deine Daten werden vorbereitet…",
     "intro": {
       "explanation": "Wir führen jetzt eine kurze Gesichtsprüfung durch, um zu bestätigen, dass Sie die im Dokument abgebildete Person sind.",
       "tip_camera": "Richten Sie die Selfie-Kamera auf Ihr Gesicht.",
       "tip_lighting": "Sorgen Sie für ausreichend Licht.",
       "tip_look_straight": "Blicken Sie direkt in die Kamera.",
-      "tip_no_accessories": "Entfernen Sie Gesichtsaccessoires, Hüte usw.",
+      "tip_no_accessories": "Entfernen Sie Brillen, Hüte usw.",
       "start": "Verifizierung starten"
     }
   },

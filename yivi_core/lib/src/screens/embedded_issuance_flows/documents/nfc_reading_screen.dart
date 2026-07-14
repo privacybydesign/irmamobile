@@ -110,6 +110,11 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     with RouteAware {
   String? issuanceError;
 
+  /// True when the current [issuanceError] is the issuer rejecting the face
+  /// match (HTTP 400 during a face-verification issuance), so the error screen
+  /// can show the dedicated failed-face illustration.
+  bool _issuanceErrorIsFaceMatch = false;
+
   /// True once face verification is done and we are contacting the issuer.
   /// Shows a loader instead of the (already-completed) readout page, so the
   /// user is not sent back to the readout screen after the liveness session.
@@ -165,6 +170,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
   void _startScanning() async {
     setState(() {
       issuanceError = null;
+      _issuanceErrorIsFaceMatch = false;
       _preparingIssuance = false;
     });
     try {
@@ -219,13 +225,16 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         // navContext is the root navigator's context (guaranteed to outlive
         // this screen); _startIssuance re-checks navContext.mounted before use.
         // For the face flow, replace this readout route so issuance does not
-        // return here afterwards.
+        // return here afterwards. A rejected face match surfaces as an issuance
+        // error and is shown on the generic error screen (with retry/cancel),
+        // where retry re-runs the readout and liveness.
         await _startIssuance(
           toIssue,
           passportIssuer,
           // ignore: use_build_context_synchronously
           navContext,
           pushReplacement: faceVerification,
+          faceVerification: faceVerification,
         );
       }
     } catch (e) {
@@ -242,6 +251,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     PassportIssuer passportIssuer,
     BuildContext navContext, {
     bool pushReplacement = false,
+    bool faceVerification = false,
   }) async {
     try {
       // start the issuance session at the irma server
@@ -275,6 +285,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       if (mounted) {
         setState(() {
           issuanceError = e.toString();
+          // A rejected face match surfaces as an HTTP 400 from the issuer
+          // (vcmrtd: `Exception('Store failed: 400 …')`); flag it so the error
+          // screen shows the dedicated failed-face illustration.
+          _issuanceErrorIsFaceMatch = faceVerification && e.toString().contains("400");
           _preparingIssuance = false;
         });
       }
@@ -301,6 +315,9 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           progress: 0,
         ),
         issuanceError!,
+        illustrationAsset: _issuanceErrorIsFaceMatch
+            ? "error/failed_face_verification.svg"
+            : "error/general_error_illustration.svg",
       );
     }
 
@@ -374,6 +391,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     _UiState uiState,
     String logs, {
     String? sensitiveLogs,
+    String illustrationAsset = "error/general_error_illustration.svg",
   }) {
     final theme = IrmaTheme.of(context);
     final isPortrait = MediaQuery.orientationOf(context) == .portrait;
@@ -412,9 +430,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       ),
       illustration: Padding(
         padding: .all(theme.defaultSpacing),
-        child: SvgPicture.asset(
-          yiviAsset("error/general_error_illustration.svg"),
-        ),
+        child: SvgPicture.asset(yiviAsset(illustrationAsset)),
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",

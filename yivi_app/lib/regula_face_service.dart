@@ -1,4 +1,6 @@
+import "dart:convert";
 import "dart:io";
+import "dart:typed_data";
 
 import "package:flutter/material.dart";
 import "package:flutter_face_api/flutter_face_api.dart";
@@ -143,12 +145,21 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
     // Hide Regula's logo/watermark: this is a Yivi flow.
     copyright: false,
     closeButtonEnabled: showCloseButton,
+    // Hide the camera toolbar's torch/light toggle: it isn't needed for the
+    // passive selfie and clutters the otherwise minimal Yivi camera screen.
+    torchButtonEnabled: false,
     livenessType: livenessType,
     // The app is portrait-only.
     screenOrientation: const [ScreenOrientation.PORTRAIT],
-    skipStep: skipOnboarding
-        ? const [LivenessSkipStep.ONBOARDING_STEP]
-        : const [],
+    // Always skip Regula's success ("checkmark") screen: liveness passing only
+    // means a live face was captured, not that it matches the document. The
+    // actual match happens server-side during issuance, so a client-side
+    // success screen would be misleading. Onboarding is skipped in favour of
+    // the Yivi intro screen.
+    skipStep: [
+      LivenessSkipStep.SUCCESS_STEP,
+      if (skipOnboarding) LivenessSkipStep.ONBOARDING_STEP,
+    ],
   );
 
   /// Colours every Regula liveness screen (onboarding, camera, retry,
@@ -199,6 +210,24 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
       ..retryScreenHintLabels = _yiviFont(14)
       ..retryScreenRetryButton = _yiviFont(16, bold: true)
       ..processingScreenLabel = _yiviFont(16);
+
+    // The processing ("Verifying…") screen carries its own close (X) button
+    // that LivenessConfig.closeButtonEnabled does NOT cover, letting the user
+    // abort mid-verification. The SDK has no boolean to hide it, so blank its
+    // icon with a 1x1 transparent image: the SDK renders no visible glyph and
+    // shrinks the tap target to a single pixel, making the button effectively
+    // un-tappable.
+    _sdk.customization.images = CustomizationImages()
+      ..processingScreenCloseButton = _transparentPixel();
+  }
+
+  /// A 1x1 fully transparent PNG, used to blank out Regula close buttons that
+  /// the SDK exposes no boolean toggle for.
+  ByteData _transparentPixel() {
+    final bytes = base64Decode(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+    );
+    return ByteData.view(bytes.buffer);
   }
 
   /// Open Sans in the platform-specific naming the native SDK expects.

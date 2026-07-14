@@ -781,14 +781,14 @@
     "open_settings": "Open instellingen"
   },
   "face_verification": {
-    "title": "Gezichtscontrole",
+    "title": "Gezichtsverificatie",
     "preparing": "Een moment, je gegevens worden voorbereid…",
     "intro": {
       "explanation": "We doen nu een korte gezichtscontrole om te bevestigen dat jij de persoon op het document bent.",
       "tip_camera": "Richt de selfie camera op je gezicht.",
       "tip_lighting": "Zorg voor voldoende licht.",
       "tip_look_straight": "Kijk recht in de camera.",
-      "tip_no_accessories": "Verwijder gezichtsaccessoires, hoeden, etc.",
+      "tip_no_accessories": "Verwijder brillen, hoeden, etc.",
       "start": "Start verificatie"
     }
   },
