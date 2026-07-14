@@ -45,7 +45,7 @@ void main() {
     expect(find.text("Point the selfie camera at your face."), findsOneWidget);
     expect(find.text("Make sure there's enough light."), findsOneWidget);
     expect(find.text("Look straight into the camera."), findsOneWidget);
-    expect(find.text("Remove facial accessories, hats, etc."), findsOneWidget);
+    expect(find.text("Remove glasses, hats, etc."), findsOneWidget);
   });
 
   testWidgets("start button invokes onStart", (tester) async {
