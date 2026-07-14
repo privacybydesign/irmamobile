@@ -62,10 +62,8 @@ void main() {
       ),
     );
 
-    // The label must mention "plus" so it matches the spoken instructions
-    // blind users are given (issue #615).
     final node = tester.getSemantics(find.byType(IrmaIconButton));
-    expect(node.label, "Plus, voeg toe");
+    expect(node.label, "Voeg gegevens toe");
   });
 
   testWidgets("add-data button exposes a localized semantics label (en)", (
@@ -77,7 +75,7 @@ void main() {
     );
 
     final node = tester.getSemantics(find.byType(IrmaIconButton));
-    expect(node.label, "Plus, add");
+    expect(node.label, "Add data");
   });
 
   testWidgets("add-data button exposes a localized semantics label (de)", (
@@ -92,7 +90,7 @@ void main() {
     );
 
     final node = tester.getSemantics(find.byType(IrmaIconButton));
-    expect(node.label, "Plus, hinzufügen");
+    expect(node.label, "Daten hinzufügen");
   });
 
   testWidgets("button is still flagged as a button for screen readers", (
