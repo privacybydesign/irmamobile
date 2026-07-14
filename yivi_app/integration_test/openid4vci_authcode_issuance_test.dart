@@ -30,7 +30,7 @@ import "util.dart";
 const _issuerBaseUrl =
     "https://veramo-issuer.openid4vc.staging.yivi.app/authcode-issuer";
 const _mockAsBaseUrl = "https://veramo-mock-as.openid4vc.staging.yivi.app";
-const _adminToken = "veramo-issuer-admin-token";
+const _adminToken = "piMmprGSinTFrEJkxNo5jfuU5QbDRbqP";
 
 const _emailCredentialTileKey =
     "https://veramo-issuer.openid4vc.staging.yivi.app/authcode-issuer/vct/email";
