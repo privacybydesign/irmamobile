@@ -13,18 +13,28 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
     required this.onReobtain,
   });
 
-  ListTile _buildOptionTile({
+  Widget _buildOptionTile({
     required IconData icon,
     required String translationKey,
     required BuildContext context,
     Function()? onTap,
   }) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: EdgeInsets.zero,
-      minLeadingWidth: 0,
-      leading: Icon(icon, color: context.colors.secondary),
-      title: TranslatedText(translationKey, style: context.text.bodyMedium),
+    // Wrap in a transparent Material so the tile's ink splashes have a surface
+    // to paint on: this sheet's container (YiviBottomSheet) is a DecoratedBox
+    // with a background color, which would otherwise hide the splashes painted
+    // on the Material further up the tree.
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: EdgeInsets.zero,
+        minLeadingWidth: 0,
+        leading: Icon(icon, color: context.colors.secondary),
+        title: TranslatedText(
+          translationKey,
+          style: context.text.bodyMedium,
+        ),
+      ),
     );
   }
 

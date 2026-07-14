@@ -116,8 +116,7 @@ class IrmaActionCard extends StatelessWidget {
                                         CrossAxisAlignment.start,
                                     children: [
                                       flexibleTitleTextWidget,
-                                      if (flexibleSubtitleTextWidget != null)
-                                        flexibleSubtitleTextWidget,
+                                      ?flexibleSubtitleTextWidget,
                                     ],
                                   ),
                                 ),

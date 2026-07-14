@@ -134,6 +134,11 @@
         "get_button": "Hinzufügen",
         "disclosure_info_markdown": "**Hinweis:** Sie rufen zwar alle verfügbaren Daten ab, teilen jedoch nur die Informationen, die für die jeweilige Anfrage erforderlich sind.",
         "obtain": "{credential} zu meiner Yivi-App hinzufügen"
+      },
+      "nfc_unsupported": {
+        "title": "NFC nicht unterstützt",
+        "body": "Dieses Gerät unterstützt kein NFC und kann diese Karte daher nicht laden. NFC wird benötigt, um Ihr Dokument zu lesen.",
+        "hint": "Erfordert NFC, das dieses Gerät nicht unterstützt. Diese Karte kann nicht geladen werden."
       }
     },
     "search": {
@@ -559,6 +564,15 @@
     "unlock": "Entsperren",
     "button_forgot": "PIN vergessen",
     "button_block": "Yivi sperren",
+    "biometric_button": "Mit Biometrie entsperren",
+    "biometric_reason": "Yivi-App entsperren",
+    "biometric_confirm_reason": "Bestätigen Sie, um die biometrische Entsperrung zu aktivieren",
+    "biometric_prompt": {
+      "title": "Mit Biometrie entsperren?",
+      "body": "Verwenden Sie Ihren Fingerabdruck oder Ihr Gesicht, um die App zu entsperren. Für Sitzungen müssen Sie weiterhin Ihre PIN eingeben.",
+      "enable": "Aktivieren",
+      "not_now": "Nicht jetzt"
+    },
     "cancel_session_dialog": {
       "title": "Diese Anfrage abbrechen?",
       "explanation": "Sie kehren zum Sperrbildschirm zurück.",
@@ -689,9 +703,9 @@
     "use_system_language": "Systemsprache verwenden",
     "change_pin": "PIN ändern",
     "biometric_unlock": "Mit Biometrie entsperren",
-    "biometric_unlock_explanation": "Verwende deinen Fingerabdruck oder dein Gesicht, um die App zu entsperren. Zum Empfangen oder Teilen von Daten benötigst du weiterhin deine PIN.",
+    "biometric_unlock_explanation": "Verwenden Sie Ihren Fingerabdruck oder Ihr Gesicht, um die App zu entsperren. Zum Empfangen oder Teilen von Daten benötigen Sie weiterhin Ihre PIN.",
     "biometric_immediate": "Automatisch entsperren",
-    "biometric_immediate_explanation": "Entsperre die App beim Öffnen automatisch mit Biometrie, anstatt auf die Schaltfläche zu tippen.",
+    "biometric_immediate_explanation": "Entsperren Sie die App beim Öffnen automatisch mit Biometrie, anstatt auf die Schaltfläche zu tippen.",
     "delete": "Daten löschen",
     "confirm_delete_dialog": {
       "title": "Daten löschen",
@@ -983,6 +997,19 @@
       "warning_dialog": {
         "title": "Warnung!",
         "content": "Das Hinzufügen und Entfernen von Schemata kann Ihre App beschädigen. Fahren Sie nur fort, wenn Sie wissen, was Sie tun."
+      }
+    },
+    "cert_management": {
+      "title": "Zertifikatsverwaltung",
+      "issuer_certs": "Aussteller-Zertifikate",
+      "verifier_certs": "Prüfer-Zertifikate",
+      "install_cert_dialog": {
+        "title": "Zertifikat installieren",
+        "content": "Geben Sie den PEM-kodierten Inhalt des zu installierenden Zertifikats ein:"
+      },
+      "warning_dialog": {
+        "title": "Warnung!",
+        "content": "Das Hinzufügen und Entfernen von Zertifikaten kann Ihre App beschädigen. Fahren Sie nur fort, wenn Sie wissen, was Sie tun."
       }
     },
     "delete_credentials": {

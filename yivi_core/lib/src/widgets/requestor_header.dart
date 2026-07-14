@@ -11,7 +11,7 @@ import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
 import "yivi_bottom_sheet.dart";
 
-_buildRequestorAvatar({
+IrmaAvatar _buildRequestorAvatar({
   required String? title,
   Widget? image,
   String? imagePath,
@@ -31,7 +31,7 @@ class RequestorHeader extends StatelessWidget {
 
   const RequestorHeader({this.requestor, this.isVerified});
 
-  _showCredentialOptionsBottomSheet(BuildContext context) {
+  Future<void> _showCredentialOptionsBottomSheet(BuildContext context) {
     return showYiviBottomSheet(
       context: context,
       titleKey:
@@ -206,7 +206,7 @@ class _RequestorHeaderBase extends StatelessWidget {
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [mainText, if (subtitleText != null) subtitleText!],
+              children: [mainText, ?subtitleText],
             ),
           ),
         ],

@@ -12,6 +12,7 @@ import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pending_pointer_provider.dart";
 import "../../providers/preferences_provider.dart";
+import "../../providers/startup_url_resolved_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -236,6 +237,15 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // the keyshare token, so the session would still demand the PIN — a second
     // prompt. Entering the PIN here refreshes the token and the session proceeds.
     final hasPendingSession = ref.watch(pendingPointerProvider) != null;
+    // Hold biometric back until native has acknowledged the launch handshake.
+    // On a cold start opened by a universal link, the session pointer is queued
+    // just before this flips true, so by the time biometric is allowed
+    // `hasPendingSession` already reflects it and hides biometric. Without this
+    // gate the biometric auto-scan could win the race and unlock the app before
+    // the pointer arrived, letting a link session ride in on a biometric-only
+    // unlock (issue #644). Once resolved it stays true, so later idle-locks
+    // auto-scan normally.
+    final startupUrlResolved = ref.watch(startupUrlResolvedProvider);
     // Hide biometric while blocked — otherwise it would bypass the temporary
     // lockout that the wrong-PIN rate limiter just imposed.
     final showBiometric =
@@ -243,14 +253,16 @@ class _PinScreenState extends ConsumerState<PinScreen>
         biometricAvailable &&
         biometricEnabled &&
         !blocked &&
-        !hasPendingSession;
+        !hasPendingSession &&
+        startupUrlResolved;
     final biometricType = ref.watch(biometricTypeProvider).value;
 
     // "Scan on launch": fire the biometric prompt automatically the first time
     // the lock screen is shown with biometric allowed. `.value ?? false` means
     // it waits for the providers to resolve on cold start rather than firing
-    // early. Reuses `showBiometric`, so blocked/pending-session/unavailable are
-    // already excluded. On cancel/fail nothing happens and `_autoTriggered`
+    // early. Reuses `showBiometric`, so blocked/pending-session/unavailable and
+    // the unresolved-launch-URL window are already excluded. On cancel/fail
+    // nothing happens and `_autoTriggered`
     // stays true — the user falls back to the PIN pad or the manual button.
     final biometricImmediate =
         ref.watch(biometricImmediateProvider).value ?? false;

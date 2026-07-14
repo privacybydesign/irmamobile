@@ -9,6 +9,9 @@ part of 'native_events.dart';
 Map<String, dynamic> _$AppReadyEventToJson(AppReadyEvent instance) =>
     <String, dynamic>{};
 
+AppReadyAckEvent _$AppReadyAckEventFromJson(Map<String, dynamic> json) =>
+    AppReadyAckEvent();
+
 Map<String, dynamic> _$AndroidSendToBackgroundEventToJson(
   AndroidSendToBackgroundEvent instance,
 ) => <String, dynamic>{};

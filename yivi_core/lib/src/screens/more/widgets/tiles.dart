@@ -165,6 +165,11 @@ class ToggleTile extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         final value = snapshot.hasData && snapshot.data!;
 
+        void toggle(bool newValue) {
+          HapticFeedback.selectionClick();
+          onChanged(newValue);
+        }
+
         return Semantics(
           value: FlutterI18n.translate(
             context,
@@ -178,13 +183,14 @@ class ToggleTile extends StatelessWidget {
             isLink: false,
             iconData: iconData,
             labelTranslationKey: labelTranslationKey,
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onChanged(!value);
-            },
+            // Tapping anywhere on the row toggles the switch.
+            onTap: () => toggle(!value),
+            // The switch handles its own taps/drags too: a disabled
+            // (onChanged: null) CupertinoSwitch swallows the gesture before it
+            // reaches the Tile's onTap, so it must stay interactive.
             trailing: CupertinoSwitch(
               value: value,
-              onChanged: null, // We use the onTap on the Tile
+              onChanged: toggle,
               activeTrackColor: context.yivi.brand.success,
             ),
           ),
