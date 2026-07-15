@@ -5,6 +5,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "../data/irma_client_bridge.dart";
 import "../data/irma_repository.dart";
 import "preferences_provider.dart";
+import "store_review_provider.dart";
 
 class IrmaRepositoryProvider extends InheritedWidget {
   final IrmaRepository repository;
@@ -34,8 +35,12 @@ class IrmaRepositoryProvider extends InheritedWidget {
 
 final irmaRepositoryProvider = Provider<IrmaRepository>((ref) {
   final preferences = ref.watch(preferencesProvider);
+  // Only count successful sessions for the review prompt when a store-review
+  // service is injected (i.e. not in the F-Droid build).
+  final storeReview = ref.watch(storeReviewServiceProvider);
   return IrmaRepository(
     client: IrmaClientBridge(debugLogging: kDebugMode),
     preferences: preferences,
+    countSuccessForReview: storeReview != null,
   );
 });

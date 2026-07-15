@@ -1,0 +1,107 @@
+import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+
+import "../../sentry/sentry.dart";
+import "../../theme/theme.dart";
+import "../../widgets/irma_dialog.dart";
+import "../../widgets/translated_text.dart";
+import "../../widgets/yivi_themed_button.dart";
+
+/// Private feedback box shown to users who tapped "Not really" on the sentiment
+/// gate. Their message is sent to Sentry with `userInitiated: true` (so it goes
+/// through even when crash reporting is off), and they are never routed to the
+/// store. Carries the same "don't include personal data" transparency note as
+/// the NFC error dialog.
+Future<void> showStoreReviewFeedbackDialog(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) => const _StoreReviewFeedbackDialog(),
+  );
+}
+
+class _StoreReviewFeedbackDialog extends ConsumerStatefulWidget {
+  const _StoreReviewFeedbackDialog();
+
+  @override
+  ConsumerState<_StoreReviewFeedbackDialog> createState() =>
+      _StoreReviewFeedbackDialogState();
+}
+
+class _StoreReviewFeedbackDialogState
+    extends ConsumerState<_StoreReviewFeedbackDialog> {
+  final TextEditingController _controller = TextEditingController();
+  bool _sent = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _send() {
+    final text = _controller.text.trim();
+    if (text.isNotEmpty) {
+      reportFeedback(text, userInitiated: true);
+    }
+    setState(() => _sent = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    if (_sent) {
+      return IrmaDialog(
+        title: FlutterI18n.translate(context, "review.feedback.title"),
+        content: FlutterI18n.translate(context, "review.feedback.thanks"),
+        child: YiviThemedButton(
+          key: const Key("review_feedback_done"),
+          label: "review.feedback.close",
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      );
+    }
+
+    return IrmaDialog(
+      title: FlutterI18n.translate(context, "review.feedback.title"),
+      content: FlutterI18n.translate(context, "review.feedback.body"),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            key: const Key("review_feedback_input"),
+            controller: _controller,
+            minLines: 3,
+            maxLines: 6,
+            autofocus: true,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+              hintText: FlutterI18n.translate(context, "review.feedback.hint"),
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: theme.smallSpacing),
+          TranslatedText(
+            "review.feedback.privacy",
+            style: theme.textTheme.bodySmall,
+          ),
+          SizedBox(height: theme.defaultSpacing),
+          YiviThemedButton(
+            key: const Key("review_feedback_send"),
+            label: "review.feedback.send",
+            onPressed: _send,
+          ),
+          SizedBox(height: theme.smallSpacing),
+          YiviThemedButton(
+            key: const Key("review_feedback_cancel"),
+            label: "review.feedback.cancel",
+            style: YiviButtonStyle.outlined,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+}

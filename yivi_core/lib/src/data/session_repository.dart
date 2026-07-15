@@ -28,7 +28,16 @@ class SessionRepository {
   /// for which no follow-up [SessionStateEvent] has yet arrived.
   final _awaitingInteraction = BehaviorSubject<Set<int>>.seeded({});
 
-  SessionRepository({required this.repo, required Stream<Event> eventStream}) {
+  /// When true, each session that reaches [SessionStatus.success] bumps the
+  /// app-store review counter. Off in the F-Droid build, where no store-review
+  /// service is injected, so the counter never grows and the prompt never fires.
+  final bool countSuccessForReview;
+
+  SessionRepository({
+    required this.repo,
+    required Stream<Event> eventStream,
+    this.countSuccessForReview = false,
+  }) {
     eventStream.listen(_handleEvent);
   }
 
@@ -45,6 +54,15 @@ class SessionRepository {
     final state = event.sessionState;
     final prevStates = _states.value;
     final isNew = !prevStates.containsKey(state.id);
+
+    // Count a session exactly once, on its transition into success: any
+    // SessionStatus.success (disclosure, issuance or signature) drives the
+    // review prompt. Failed/dismissed sessions never count.
+    if (countSuccessForReview &&
+        state.status == SessionStatus.success &&
+        prevStates[state.id]?.status != SessionStatus.success) {
+      repo.preferences.incrementReviewSuccessCount();
+    }
 
     final nextStates = Map<int, SessionState>.from(prevStates);
     nextStates[state.id] = state;

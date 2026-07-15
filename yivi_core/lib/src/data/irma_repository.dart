@@ -70,12 +70,14 @@ class IrmaRepository {
     required IrmaBridge client,
     required this.preferences,
     this.defaultKeyshareScheme = "pbdf",
+    bool countSuccessForReview = false,
   }) : _bridge = client {
     _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
       eventStream: _eventSubject.stream,
+      countSuccessForReview: countSuccessForReview,
     );
     _credentialsSubject.forEach((creds) async {
       final event = await _issueWizardSubject.first;
