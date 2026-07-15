@@ -64,6 +64,8 @@ class _StoreReviewFeedbackDialogState
       );
     }
 
+    final hint = FlutterI18n.translate(context, "review.feedback.hint");
+
     // Body lives in the child (not IrmaDialog's centered `content`) so it can be
     // left-aligned like a normal form prompt.
     return IrmaDialog(
@@ -80,7 +82,7 @@ class _StoreReviewFeedbackDialogState
           // The hint disappears once text is entered, so give screen readers a
           // persistent label for the field's purpose.
           Semantics(
-            label: FlutterI18n.translate(context, "review.feedback.hint"),
+            label: hint,
             textField: true,
             child: TextField(
               key: const Key("review_feedback_input"),
@@ -96,7 +98,7 @@ class _StoreReviewFeedbackDialogState
               style: theme.textTheme.bodyMedium,
               decoration: InputDecoration(
                 hint: Text(
-                  FlutterI18n.translate(context, "review.feedback.hint"),
+                  hint,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.textTheme.bodyMedium?.color?.withValues(
                       alpha: 0.5,
