@@ -134,6 +134,11 @@
         "get_button": "Hinzufügen",
         "disclosure_info_markdown": "**Hinweis:** Sie rufen zwar alle verfügbaren Daten ab, teilen jedoch nur die Informationen, die für die jeweilige Anfrage erforderlich sind.",
         "obtain": "{credential} zu meiner Yivi-App hinzufügen"
+      },
+      "nfc_unsupported": {
+        "title": "NFC nicht unterstützt",
+        "body": "Dieses Gerät unterstützt kein NFC und kann diese Karte daher nicht laden. NFC wird benötigt, um Ihr Dokument zu lesen.",
+        "hint": "Erfordert NFC, das dieses Gerät nicht unterstützt. Diese Karte kann nicht geladen werden."
       }
     },
     "search": {
