@@ -64,12 +64,19 @@ class _StoreReviewFeedbackDialogState
       );
     }
 
+    // Body lives in the child (not IrmaDialog's centered `content`) so it can be
+    // left-aligned like a normal form prompt.
     return IrmaDialog(
       title: FlutterI18n.translate(context, "review.feedback.title"),
-      content: FlutterI18n.translate(context, "review.feedback.body"),
+      content: "",
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          TranslatedText(
+            "review.feedback.body",
+            style: theme.textTheme.bodyMedium,
+          ),
+          SizedBox(height: theme.defaultSpacing),
           TextField(
             key: const Key("review_feedback_input"),
             controller: _controller,
@@ -77,12 +84,23 @@ class _StoreReviewFeedbackDialogState
             maxLines: 6,
             autofocus: true,
             keyboardType: TextInputType.multiline,
+            // Matches the app's standard text fields (e.g. MRZ manual entry):
+            // the global underline InputDecorationTheme, a bodyMedium style, a
+            // secondary-coloured cursor and a 50%-opacity hint.
+            cursorColor: theme.themeData.colorScheme.secondary,
+            style: theme.textTheme.bodyMedium,
             decoration: InputDecoration(
-              hintText: FlutterI18n.translate(context, "review.feedback.hint"),
-              border: const OutlineInputBorder(),
+              hint: Text(
+                FlutterI18n.translate(context, "review.feedback.hint"),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.textTheme.bodyMedium?.color?.withValues(
+                    alpha: 0.5,
+                  ),
+                ),
+              ),
             ),
           ),
-          SizedBox(height: theme.smallSpacing),
+          SizedBox(height: theme.defaultSpacing),
           TranslatedText(
             "review.feedback.privacy",
             style: theme.textTheme.bodySmall,
