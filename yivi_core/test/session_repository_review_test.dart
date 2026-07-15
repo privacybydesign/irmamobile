@@ -56,11 +56,7 @@ void main() {
     final repo = await repository();
     final base = repo.preferences.getReviewSuccessCountNow();
     final events = StreamController<Event>();
-    final sessions = SessionRepository(
-      repo: repo,
-      eventStream: events.stream,
-      countSuccessForReview: true,
-    );
+    final sessions = SessionRepository(repo: repo, eventStream: events.stream);
     addTearDown(sessions.close);
     addTearDown(events.close);
 
@@ -78,32 +74,12 @@ void main() {
     final repo = await repository();
     final base = repo.preferences.getReviewSuccessCountNow();
     final events = StreamController<Event>();
-    final sessions = SessionRepository(
-      repo: repo,
-      eventStream: events.stream,
-      countSuccessForReview: true,
-    );
+    final sessions = SessionRepository(repo: repo, eventStream: events.stream);
     addTearDown(sessions.close);
     addTearDown(events.close);
 
     events.add(_event(1, SessionStatus.error));
     events.add(_event(2, SessionStatus.dismissed));
-    await Future<void>.delayed(Duration.zero);
-
-    expect(repo.preferences.getReviewSuccessCountNow(), base);
-  });
-
-  test("counting is off when no store-review service is injected", () async {
-    final repo = await repository();
-    final base = repo.preferences.getReviewSuccessCountNow();
-    final events = StreamController<Event>();
-    // countSuccessForReview defaults to false (the F-Droid build).
-    final sessions = SessionRepository(repo: repo, eventStream: events.stream);
-    addTearDown(sessions.close);
-    addTearDown(events.close);
-
-    events.add(_event(1, SessionStatus.success));
-    events.add(_event(2, SessionStatus.success));
     await Future<void>.delayed(Duration.zero);
 
     expect(repo.preferences.getReviewSuccessCountNow(), base);

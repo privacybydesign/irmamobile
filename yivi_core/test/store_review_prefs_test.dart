@@ -22,7 +22,6 @@ void main() {
     final prefs = await freshPrefs();
     expect(prefs.getReviewSuccessCountNow(), 0);
     expect(prefs.getReviewTimesAskedNow(), 0);
-    expect(prefs.getReviewCountAtLastAskNow(), 0);
     expect(prefs.getReviewLastAskEpochMsNow(), 0);
     expect(prefs.getReviewDoneNow(), isFalse);
   });
@@ -32,31 +31,23 @@ void main() {
     await prefs.incrementReviewSuccessCount();
     await prefs.incrementReviewSuccessCount();
     expect(prefs.getReviewSuccessCountNow(), 2);
-    expect(await prefs.getReviewSuccessCount().first, 2);
   });
 
-  test(
-    "recordReviewAsked bumps the ask count and stamps count and time",
-    () async {
-      final prefs = await freshPrefs();
-      await prefs.incrementReviewSuccessCount();
-      await prefs.incrementReviewSuccessCount();
-      await prefs.recordReviewAsked(nowEpochMs: 1234);
+  test("recordReviewAsked bumps the ask count and stamps the time", () async {
+    final prefs = await freshPrefs();
+    await prefs.recordReviewAsked(nowEpochMs: 1234);
 
-      expect(prefs.getReviewTimesAskedNow(), 1);
-      expect(prefs.getReviewCountAtLastAskNow(), 2);
-      expect(prefs.getReviewLastAskEpochMsNow(), 1234);
+    expect(prefs.getReviewTimesAskedNow(), 1);
+    expect(prefs.getReviewLastAskEpochMsNow(), 1234);
 
-      await prefs.recordReviewAsked(nowEpochMs: 5678);
-      expect(prefs.getReviewTimesAskedNow(), 2);
-      expect(prefs.getReviewLastAskEpochMsNow(), 5678);
-    },
-  );
+    await prefs.recordReviewAsked(nowEpochMs: 5678);
+    expect(prefs.getReviewTimesAskedNow(), 2);
+    expect(prefs.getReviewLastAskEpochMsNow(), 5678);
+  });
 
-  test("setReviewDone is observable on the stream", () async {
+  test("setReviewDone persists", () async {
     final prefs = await freshPrefs();
     await prefs.setReviewDone(true);
     expect(prefs.getReviewDoneNow(), isTrue);
-    expect(await prefs.getReviewDone().first, isTrue);
   });
 }

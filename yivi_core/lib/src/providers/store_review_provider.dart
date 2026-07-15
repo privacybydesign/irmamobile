@@ -1,7 +1,5 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-import "preferences_provider.dart";
-
 /// Wraps the platform in-app review API (Google Play In-App Review / iOS
 /// SKStoreReviewController). Injected from the outside via `runYiviApp` so the
 /// proprietary `in_app_review` dependency never enters the FOSS (F-Droid) build:
@@ -21,19 +19,6 @@ abstract class StoreReviewService {
 /// Null by default. Overridden in `runYiviApp` with a concrete implementation
 /// in the Play Store build; left null in the F-Droid build.
 final storeReviewServiceProvider = Provider<StoreReviewService?>((ref) => null);
-
-/// Number of successful sessions since the review state was last reset. Drives
-/// the gate rebuild so the sentiment prompt can appear once the threshold is
-/// crossed.
-final reviewSuccessCountProvider = StreamProvider<int>(
-  (ref) => ref.watch(preferencesProvider).getReviewSuccessCount(),
-);
-
-/// Terminal flag: the user has either accepted (native prompt shown) or
-/// declined (routed to feedback) — never asked again once set.
-final reviewDoneProvider = StreamProvider<bool>(
-  (ref) => ref.watch(preferencesProvider).getReviewDone(),
-);
 
 /// Successful sessions before the first ask.
 const reviewFirstAskThreshold = 5;

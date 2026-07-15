@@ -97,10 +97,9 @@ class _StoreReviewGateState extends ConsumerState<StoreReviewGate> {
 
   @override
   Widget build(BuildContext context) {
-    // Rebuild when the counter or terminal flag changes so a freshly crossed
-    // threshold is picked up even without a navigation event.
-    ref.watch(reviewSuccessCountProvider);
-    ref.watch(reviewDoneProvider);
+    // The threshold is always crossed mid-session (off /home); the router
+    // listener re-runs this build on the return navigation to /home, which is
+    // where the prompt is meant to appear anyway.
     final locked = ref.watch(appLockedProvider);
 
     final path = widget.router.routerDelegate.currentConfiguration.uri.path;
