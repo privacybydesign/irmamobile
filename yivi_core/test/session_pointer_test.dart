@@ -252,4 +252,69 @@ void main() {
       expect(pointer.irmaqr, irmaQr);
     });
   });
+
+  // Regression for #651: yivi-frontend-packages stamps the second-device flag
+  // as camelCase `continueOnSecondDevice`, but the app parses the snake
+  // `continue_on_second_device` key. A camera-app scan of a desktop QR reaches
+  // the wallet through the universal-link/scheme path (not the in-app scanner,
+  // which force-sets the flag), so the dropped camelCase read silently ran the
+  // same-device terminal flow for a second-device session.
+  group("continueOnSecondDevice casing (#651)", () {
+    const url = "https://example.com/session/abc";
+    const irmaQr = "disclosing";
+
+    test("camelCase flag on universal link is read as second-device", () {
+      final pointer =
+          Pointer.fromString(
+                'https://open.yivi.app/-/session#{"u":"$url","irmaqr":"$irmaQr","continueOnSecondDevice":true}',
+              )
+              as SessionPointer;
+      expect(pointer.continueOnSecondDevice, isTrue);
+    });
+
+    test("camelCase flag via irma://qr/json carrier is read (shared branch)", () {
+      final pointer =
+          Pointer.fromString(
+                'irma://qr/json/{"u":"$url","irmaqr":"$irmaQr","continueOnSecondDevice":true}',
+              )
+              as SessionPointer;
+      expect(pointer.continueOnSecondDevice, isTrue);
+    });
+
+    test("snake_case flag still parses (irmago bridge casing)", () {
+      final pointer =
+          Pointer.fromString(
+                'https://open.yivi.app/-/session#{"u":"$url","irmaqr":"$irmaQr","continue_on_second_device":true}',
+              )
+              as SessionPointer;
+      expect(pointer.continueOnSecondDevice, isTrue);
+    });
+
+    test("no flag (mobile button payload) defaults to same-device", () {
+      final pointer =
+          Pointer.fromString(
+                'https://open.yivi.app/-/session#{"u":"$url","irmaqr":"$irmaQr"}',
+              )
+              as SessionPointer;
+      expect(pointer.continueOnSecondDevice, isFalse);
+    });
+
+    test("when both keys present the explicit snake value wins", () {
+      final pointer =
+          Pointer.fromString(
+                'https://open.yivi.app/-/session#{"u":"$url","irmaqr":"$irmaQr","continue_on_second_device":false,"continueOnSecondDevice":true}',
+              )
+              as SessionPointer;
+      expect(pointer.continueOnSecondDevice, isFalse);
+    });
+
+    test("camelCase flag on a wizard-session payload is read", () {
+      final pointer =
+          Pointer.fromString(
+                'https://open.yivi.app/-/session#{"wizard":"test","u":"$url","irmaqr":"$irmaQr","continueOnSecondDevice":true}',
+              )
+              as SessionPointer;
+      expect(pointer.continueOnSecondDevice, isTrue);
+    });
+  });
 }
