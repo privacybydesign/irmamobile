@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Universal-link sessions are gated behind the PIN on a warm resume too, not only on cold start: when the app auto-locks after being idle and is then opened by a session link, biometric no longer unlocks it ahead of the incoming session
 
 ## [8.1.1] - 2026-07-14
 ### Fixed

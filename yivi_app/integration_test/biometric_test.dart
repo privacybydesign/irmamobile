@@ -1,9 +1,13 @@
+import "dart:convert";
+
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/models/enrollment_status.dart";
+import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
+import "package:yivi_core/src/screens/pin/pin_screen.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -444,6 +448,94 @@ void main() {
         expect(find.byType(SessionScreen), findsNothing);
 
         // Only a real PIN unlock lets the queued session proceed.
+        await unlock(tester);
+        await tester.waitFor(find.byType(IssuancePermission));
+      },
+    );
+
+    // Regression for #654: the #644 fix held only for cold starts. On a warm
+    // resume the app auto-locks (idle threshold passed) and then a universal
+    // link carrying a session arrives — on iOS possibly after the app has
+    // already resumed and locked. Biometric must still be withheld: the carrier
+    // window stays open for a short grace after resume, so the pointer lands
+    // before biometric is offered and the user is forced to the PIN, exactly as
+    // on cold start.
+    testWidgets(
+      "universal-link session on resume-lock never unlocks biometrically",
+      (tester) async {
+        await irmaBinding.repository.preferences.setBiometricEnabled(true);
+        // biometricImmediate left at its default (on).
+        final fakeAuth = FakeLocalAuthentication(
+          available: true,
+          authenticateResult: true,
+        );
+        const threshold = Duration(milliseconds: 50);
+
+        await pumpYiviApp(
+          tester,
+          irmaBinding.repository,
+          localAuth: fakeAuth,
+          idleLockThreshold: threshold,
+        );
+
+        // The launch auto-scan unlocks (call 1) and we reach home.
+        await tester.waitFor(homeTab);
+        expect(fakeAuth.authenticateCalls, 1);
+
+        // Pre-create the session server-side while still foregrounded. This
+        // returns the pointer without queueing it, so the slow server round-trip
+        // can't distort the timing-sensitive part below.
+        final pointer = await createIssuanceSession(
+          attributes: createMunicipalityPersonalDataAttributes(
+            const Locale("en", "EN"),
+          ),
+        );
+
+        // Background past the idle threshold so the next resume auto-locks.
+        WidgetsBinding.instance.handleAppLifecycleStateChanged(
+          AppLifecycleState.inactive,
+        );
+        WidgetsBinding.instance.handleAppLifecycleStateChanged(
+          AppLifecycleState.hidden,
+        );
+        WidgetsBinding.instance.handleAppLifecycleStateChanged(
+          AppLifecycleState.paused,
+        );
+        await Future<void>.delayed(threshold * 4);
+
+        // Resume: the idle-lock lands on the next frame and PinScreen builds.
+        WidgetsBinding.instance.handleAppLifecycleStateChanged(
+          AppLifecycleState.hidden,
+        );
+        WidgetsBinding.instance.handleAppLifecycleStateChanged(
+          AppLifecycleState.inactive,
+        );
+        WidgetsBinding.instance.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
+        // One frame: on current code the auto-scan fires here and unlocks — this
+        // is what makes the test red. With the fix the carrier window is still
+        // open, so biometric is withheld.
+        await tester.pump();
+
+        // Deliver the carrier the way native would, AFTER that first frame —
+        // raw pointer JSON is a valid carrier for Pointer.fromString, so this
+        // exercises the real HandleURLEvent path in the repository.
+        irmaBinding.repository.dispatch(
+          HandleURLEvent(url: jsonEncode(pointer.toJson())),
+        );
+        await tester.pumpAndSettle();
+
+        // Biometric never ran on resume (still one call, from launch), the lock
+        // screen is up in pending-session mode (no biometric button), and the
+        // session has not started.
+        expect(fakeAuth.authenticateCalls, 1);
+        expect(find.byType(PinScreen), findsOneWidget);
+        expect(lockScreenBiometricButton, findsNothing);
+        expect(find.byType(SessionScreen), findsNothing);
+        expect(homeTab, findsNothing);
+
+        // Only a real PIN unlock admits the queued session.
         await unlock(tester);
         await tester.waitFor(find.byType(IssuancePermission));
       },
