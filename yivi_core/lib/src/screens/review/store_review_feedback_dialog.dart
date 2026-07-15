@@ -77,24 +77,30 @@ class _StoreReviewFeedbackDialogState
             style: theme.textTheme.bodyMedium,
           ),
           SizedBox(height: theme.defaultSpacing),
-          TextField(
-            key: const Key("review_feedback_input"),
-            controller: _controller,
-            minLines: 3,
-            maxLines: 6,
-            autofocus: true,
-            keyboardType: TextInputType.multiline,
-            // Matches the app's standard text fields (e.g. MRZ manual entry):
-            // the global underline InputDecorationTheme, a bodyMedium style, a
-            // secondary-coloured cursor and a 50%-opacity hint.
-            cursorColor: theme.themeData.colorScheme.secondary,
-            style: theme.textTheme.bodyMedium,
-            decoration: InputDecoration(
-              hint: Text(
-                FlutterI18n.translate(context, "review.feedback.hint"),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.textTheme.bodyMedium?.color?.withValues(
-                    alpha: 0.5,
+          // The hint disappears once text is entered, so give screen readers a
+          // persistent label for the field's purpose.
+          Semantics(
+            label: FlutterI18n.translate(context, "review.feedback.hint"),
+            textField: true,
+            child: TextField(
+              key: const Key("review_feedback_input"),
+              controller: _controller,
+              minLines: 3,
+              maxLines: 6,
+              autofocus: true,
+              keyboardType: TextInputType.multiline,
+              // Matches the app's standard text fields (e.g. MRZ manual entry):
+              // the global underline InputDecorationTheme, a bodyMedium style, a
+              // secondary-coloured cursor and a 50%-opacity hint.
+              cursorColor: theme.themeData.colorScheme.secondary,
+              style: theme.textTheme.bodyMedium,
+              decoration: InputDecoration(
+                hint: Text(
+                  FlutterI18n.translate(context, "review.feedback.hint"),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.textTheme.bodyMedium?.color?.withValues(
+                      alpha: 0.5,
+                    ),
                   ),
                 ),
               ),
