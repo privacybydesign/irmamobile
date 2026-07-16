@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
 
+### Fixed
+- Scanning a desktop QR code with the phone's camera app is again treated as a second-device session instead of running the same-device return flow
+
 ## [8.1.1] - 2026-07-14
 ### Fixed
 - Opening the app from a locked state via a universal link carrying a session no longer lets biometric unlock it: biometric is held back until the launch URL is known, so the session is deterministically gated behind the PIN (no unlock-then-relock flash)
