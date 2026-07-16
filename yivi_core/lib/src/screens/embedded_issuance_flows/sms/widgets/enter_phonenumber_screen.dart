@@ -15,9 +15,10 @@ import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
-/// Alpha-2 codes of countries whose phone numbers are not supported by CM (the
-/// SMS provider), and which should therefore not be selectable in the phone
-/// number input.
+/// Alpha-2 codes of countries excluded from the phone number input. Most are
+/// excluded because CM (the SMS provider) does not support their phone numbers;
+/// Bolivia, Cambodia and Ecuador are excluded because they carry a
+/// higher-than-average risk of SMS pumping fraud.
 const excludedSmsCountryCodes = {
   "AF", // Afghanistan
   "AO", // Angola
@@ -26,7 +27,10 @@ const excludedSmsCountryCodes = {
   "BD", // Bangladesh
   "BY", // Belarus
   "BT", // Bhutan
+  "BO", // Bolivia (SMS pumping fraud risk)
   "BI", // Burundi
+  "KH", // Cambodia (SMS pumping fraud risk)
+  "EC", // Ecuador (SMS pumping fraud risk)
   "EG", // Egypt
   "ET", // Ethiopia
   "GM", // Gambia

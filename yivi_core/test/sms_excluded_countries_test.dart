@@ -15,7 +15,10 @@ const _expectedExcludedCodes = {
   "BD", // Bangladesh
   "BY", // Belarus
   "BT", // Bhutan
+  "BO", // Bolivia (SMS pumping fraud risk)
   "BI", // Burundi
+  "KH", // Cambodia (SMS pumping fraud risk)
+  "EC", // Ecuador (SMS pumping fraud risk)
   "EG", // Egypt
   "ET", // Ethiopia
   "GM", // Gambia
