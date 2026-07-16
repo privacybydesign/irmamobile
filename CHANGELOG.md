@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
+- Solve a proof-of-work challenge before requesting an SMS verification code in the embedded issuance flow, to make automated bulk requests expensive (no-op against issuers that do not hand out a challenge)
 
 ## [8.1.1] - 2026-07-14
 ### Fixed
