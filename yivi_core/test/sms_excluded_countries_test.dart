@@ -3,10 +3,55 @@ import "package:flutter_test/flutter_test.dart";
 import "package:intl_phone_number_input/src/models/country_list.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/sms/widgets/enter_phonenumber_screen.dart";
 
+/// Every country that should be excluded from the SMS phone number picker,
+/// because CM (the SMS provider) does not support its phone numbers. Kept as a
+/// literal list here so the test fails if a code is accidentally dropped from
+/// [excludedSmsCountryCodes].
+const _expectedExcludedCodes = {
+  "AF", // Afghanistan
+  "AO", // Angola
+  "DZ", // Algeria
+  "AZ", // Azerbaijan
+  "BD", // Bangladesh
+  "BY", // Belarus
+  "BT", // Bhutan
+  "BI", // Burundi
+  "EG", // Egypt
+  "ET", // Ethiopia
+  "GM", // Gambia
+  "ID", // Indonesia
+  "IR", // Iran
+  "IQ", // Iraq
+  "JO", // Jordan
+  "KZ", // Kazakhstan
+  "XK", // Kosovo
+  "KG", // Kyrgyzstan
+  "LB", // Lebanon
+  "LY", // Libya
+  "MG", // Madagascar
+  "MW", // Malawi
+  "MR", // Mauritania
+  "MN", // Mongolia
+  "ME", // Montenegro
+  "NP", // Nepal
+  "PK", // Pakistan
+  "RU", // Russia
+  "SN", // Senegal
+  "SI", // Slovenia
+  "LK", // Sri Lanka
+  "SY", // Syria
+  "TJ", // Tajikistan
+  "TZ", // Tanzania
+  "TN", // Tunisia
+  "TM", // Turkmenistan
+  "UZ", // Uzbekistan
+  "YE", // Yemen
+};
+
 void main() {
   group("SMS excluded countries", () {
-    test("excludes Gambia, Montenegro and Mongolia", () {
-      expect(excludedSmsCountryCodes, containsAll(["GM", "ME", "MN"]));
+    test("excludes every unsupported country", () {
+      expect(excludedSmsCountryCodes, equals(_expectedExcludedCodes));
     });
 
     test("keeps commonly used countries selectable", () {
@@ -15,18 +60,21 @@ void main() {
       }
     });
 
-    test("the excluded codes exist in the package list and get filtered out", () {
-      final available = Countries.countryList
-          .map((c) => c["alpha_2_code"])
-          .toSet();
-      // Guard against a no-op exclusion: the codes must be present to begin with.
-      expect(available, containsAll(["GM", "ME", "MN"]));
+    test(
+      "every excluded code exists in the package list and gets filtered out",
+      () {
+        final available = Countries.countryList
+            .map((c) => c["alpha_2_code"])
+            .toSet();
+        // Guard against a no-op exclusion: each code must be present to begin with.
+        expect(available, containsAll(excludedSmsCountryCodes));
 
-      final remaining = Countries.countryList
-          .where((c) => !excludedSmsCountryCodes.contains(c["alpha_2_code"]))
-          .map((c) => c["alpha_2_code"])
-          .toSet();
-      expect(remaining.intersection({"GM", "ME", "MN"}), isEmpty);
-    });
+        final remaining = Countries.countryList
+            .where((c) => !excludedSmsCountryCodes.contains(c["alpha_2_code"]))
+            .map((c) => c["alpha_2_code"])
+            .toSet();
+        expect(remaining.intersection(excludedSmsCountryCodes), isEmpty);
+      },
+    );
   });
 }
