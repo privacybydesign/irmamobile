@@ -28,12 +28,7 @@ void main() {
   group("solveProofOfWork", () {
     test("difficulty 0 solves at nonce 0", () {
       final solution = solveProofOfWork(
-        PowChallenge(
-          challenge: "abc",
-          difficulty: 0,
-          expiry: 0,
-          signature: "",
-        ),
+        PowChallenge(challenge: "abc", difficulty: 0, expiry: 0, signature: ""),
       );
       expect(solution.nonce, 0);
     });
@@ -107,7 +102,10 @@ void main() {
       expect(PowChallenge.tryParse(null), isNull);
       expect(PowChallenge.tryParse("not a map"), isNull);
       expect(PowChallenge.tryParse({"difficulty": 20}), isNull);
-      expect(PowChallenge.tryParse({"challenge": "", "difficulty": 20}), isNull);
+      expect(
+        PowChallenge.tryParse({"challenge": "", "difficulty": 20}),
+        isNull,
+      );
       expect(
         PowChallenge.tryParse({"challenge": "abc", "difficulty": "20"}),
         isNull,
