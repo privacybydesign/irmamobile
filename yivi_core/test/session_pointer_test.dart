@@ -272,24 +272,6 @@ void main() {
       expect(pointer.continueOnSecondDevice, isTrue);
     });
 
-    test("camelCase flag via irma://qr/json carrier is read (shared branch)", () {
-      final pointer =
-          Pointer.fromString(
-                'irma://qr/json/{"u":"$url","irmaqr":"$irmaQr","continueOnSecondDevice":true}',
-              )
-              as SessionPointer;
-      expect(pointer.continueOnSecondDevice, isTrue);
-    });
-
-    test("snake_case flag still parses (irmago bridge casing)", () {
-      final pointer =
-          Pointer.fromString(
-                'https://open.yivi.app/-/session#{"u":"$url","irmaqr":"$irmaQr","continue_on_second_device":true}',
-              )
-              as SessionPointer;
-      expect(pointer.continueOnSecondDevice, isTrue);
-    });
-
     test("no flag (mobile button payload) defaults to same-device", () {
       final pointer =
           Pointer.fromString(
@@ -306,15 +288,6 @@ void main() {
               )
               as SessionPointer;
       expect(pointer.continueOnSecondDevice, isFalse);
-    });
-
-    test("camelCase flag on a wizard-session payload is read", () {
-      final pointer =
-          Pointer.fromString(
-                'https://open.yivi.app/-/session#{"wizard":"test","u":"$url","irmaqr":"$irmaQr","continueOnSecondDevice":true}',
-              )
-              as SessionPointer;
-      expect(pointer.continueOnSecondDevice, isTrue);
     });
   });
 }

@@ -126,20 +126,6 @@ abstract class Pointer {
 
       json = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      // yivi-frontend-packages stamps the second-device flag as camelCase
-      // `continueOnSecondDevice` on cross-device QR / universal-link payloads;
-      // the irmago bridge (and our snake fromJson/toJson) uses
-      // `continue_on_second_device`. Bridge the web-inbound casing onto the
-      // snake key here so camera-app scans of a desktop QR are recognised as
-      // second-device again, and leave the Go-facing casing untouched. Do NOT
-      // unify the two: re-adding an @JsonKey would flip toJson to camelCase and
-      // break Go's snake round-trip. Only copy when the snake key is absent so
-      // an explicit snake value always wins.
-      if (json.containsKey("continueOnSecondDevice") &&
-          !json.containsKey("continue_on_second_device")) {
-        json["continue_on_second_device"] = json["continueOnSecondDevice"];
-      }
-
       final hasWizard = json.containsKey("wizard");
       final hasURL = json.containsKey("u");
       if (hasWizard && hasURL) {
@@ -234,12 +220,7 @@ class SessionPointer implements Pointer {
   /// or on the device which has displayed a QR code.
   /// Field is not always specified in QRs now.
   /// To make sure we can override its value if necessary, the field is not final fow now.
-  ///
-  /// Dual-casing contract: inbound web QR payloads carry this as camelCase
-  /// `continueOnSecondDevice`, but fromJson/toJson use snake
-  /// `continue_on_second_device` to stay compatible with the irmago Go bridge.
-  /// The camelCase key is bridged onto the snake key in [Pointer.fromString];
-  /// do not swap this to an @JsonKey rename or the outbound Go round-trip breaks.
+  /// Inbound camelCase key is bridged in [SessionPointer.fromJson]; see comment there.
   bool continueOnSecondDevice;
 
   /// OAuth `redirect_uri` for OpenID4VCI auth-code / pre-auth-code flows.
@@ -258,8 +239,17 @@ class SessionPointer implements Pointer {
     this.openid4vciRedirectUri,
   });
 
-  factory SessionPointer.fromJson(Map<String, dynamic> json) =>
-      _$SessionPointerFromJson(json);
+  factory SessionPointer.fromJson(Map<String, dynamic> json) {
+    // Web QR payloads send camelCase `continueOnSecondDevice`; the irmago
+    // bridge uses snake `continue_on_second_device`. Copy the camelCase key
+    // onto the snake one when absent (explicit snake wins). Don't unify via
+    // @JsonKey: that would flip toJson to camelCase and break Go's round-trip.
+    if (json.containsKey("continueOnSecondDevice") &&
+        !json.containsKey("continue_on_second_device")) {
+      json["continue_on_second_device"] = json["continueOnSecondDevice"];
+    }
+    return _$SessionPointerFromJson(json);
+  }
   Map<String, dynamic> toJson() => _$SessionPointerToJson(this);
 
   @override
