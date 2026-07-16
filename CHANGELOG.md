@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Scanning a desktop QR code with the phone's camera app is again treated as a second-device session instead of running the same-device return flow
+- On a second-device session, the relying party's client return URL is no longer opened in a browser on the phone (the browser session lives on the other device); the wallet confirms success locally instead. A `tel:` return URL still opens the phone dialer.
 
 ## [8.1.1] - 2026-07-14
 ### Fixed
