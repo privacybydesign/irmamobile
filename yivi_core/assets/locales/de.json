@@ -684,6 +684,9 @@
     "unknown_session_type": {
       "title": "Abgebrochen",
       "explanation": "Die Yivi-Sitzung, die Sie gestartet haben, wird von der App nicht unterstützt."
+    },
+    "warning": {
+      "did_web_dnssec_invalid": "Yivi konnte keine sichere Verbindung zu dieser Organisation bestätigen. Teilen Sie Ihre Daten nur, wenn Sie dieser Anfrage vertrauen."
     }
   },
   "session_pin": {

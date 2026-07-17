@@ -82,6 +82,17 @@ TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
+  warnings:
+      (json['warnings'] as List<dynamic>?)
+          ?.map(
+            (e) => $enumDecode(
+              _$SessionWarningEnumMap,
+              e,
+              unknownValue: SessionWarning.unknown,
+            ),
+          )
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
@@ -93,7 +104,16 @@ Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
       'image': instance.image,
       'parent': instance.parent,
       'verified': instance.verified,
+      'warnings': instance.warnings
+          .map((e) => _$SessionWarningEnumMap[e]!)
+          .toList(),
     };
+
+const _$SessionWarningEnumMap = {
+  SessionWarning.didWebDnssecInvalid: 'did_web_dnssec_invalid',
+  SessionWarning.didWebDnssecMissing: 'did_web_dnssec_missing',
+  SessionWarning.unknown: 'unknown',
+};
 
 LogoImage _$LogoImageFromJson(Map<String, dynamic> json) => LogoImage(
   base64: json['base64'] as String,

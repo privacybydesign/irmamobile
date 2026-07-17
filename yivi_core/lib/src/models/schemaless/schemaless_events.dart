@@ -90,6 +90,20 @@ class Attribute {
   Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
+// A non-blocking warning about a trusted party that the app can surface to the
+// user. Mirrors clientmodels.SessionWarning in irmago. Unrecognized values
+// (e.g. codes added by a newer irmago) deserialize to [unknown] so the app
+// keeps working; unknown warnings are simply not shown.
+@JsonEnum(fieldRename: .snake)
+enum SessionWarning {
+  // The verifier's did:web domain is DNSSEC-signed but validation failed: its
+  // DNS answers may have been tampered with.
+  didWebDnssecInvalid,
+  // The verifier's did:web domain is not protected by DNSSEC.
+  didWebDnssecMissing,
+  unknown,
+}
+
 @JsonSerializable(fieldRename: .snake)
 class TrustedParty {
   final String id;
@@ -100,6 +114,11 @@ class TrustedParty {
   final TrustedParty? parent;
   final bool verified;
 
+  // Non-blocking warnings about this party that the app can surface to the
+  // user. Empty when irmago reports none (the field is omitted then).
+  @JsonKey(unknownEnumValue: SessionWarning.unknown)
+  final List<SessionWarning> warnings;
+
   TrustedParty({
     required this.id,
     required this.name,
@@ -108,6 +127,7 @@ class TrustedParty {
     required this.verified,
     this.imagePath,
     this.image,
+    this.warnings = const [],
   });
 
   factory TrustedParty.fromJson(Map<String, dynamic> json) =>
