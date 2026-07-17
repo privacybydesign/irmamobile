@@ -36,6 +36,7 @@ const _expectedExcludedCodes = {
   "MR", // Mauritania
   "MN", // Mongolia
   "ME", // Montenegro
+  "MZ", // Mozambique
   "NP", // Nepal
   "PK", // Pakistan
   "RU", // Russia
