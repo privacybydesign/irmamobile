@@ -3,10 +3,11 @@ import "package:flutter_test/flutter_test.dart";
 import "package:intl_phone_number_input/src/models/country_list.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/sms/widgets/enter_phonenumber_screen.dart";
 
-/// Every country that should be excluded from the SMS phone number picker,
-/// because CM (the SMS provider) does not support its phone numbers. Kept as a
-/// literal list here so the test fails if a code is accidentally dropped from
-/// [excludedSmsCountryCodes].
+/// Every country that should be excluded from the SMS phone number picker. Most
+/// are excluded because CM (the SMS provider) does not support their phone
+/// numbers; Bolivia, Cambodia and Ecuador because they carry a higher-than-average
+/// risk of SMS pumping fraud. Kept as a literal list here so the test fails if a
+/// code is accidentally dropped from [excludedSmsCountryCodes].
 const _expectedExcludedCodes = {
   "AF", // Afghanistan
   "AO", // Angola
