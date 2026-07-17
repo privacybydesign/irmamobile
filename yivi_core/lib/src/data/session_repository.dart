@@ -60,6 +60,16 @@ class SessionRepository {
     final prevStates = _states.value;
     final isNew = !prevStates.containsKey(state.id);
 
+    // Count a session exactly once, on its transition into success: any
+    // SessionStatus.success (disclosure, issuance or signature) drives the
+    // review prompt. Failed/dismissed sessions never count. The prompt itself
+    // is gated on an injected store-review service, so this counter growing in
+    // the F-Droid build (which injects none) is harmless.
+    if (state.status == SessionStatus.success &&
+        prevStates[state.id]?.status != SessionStatus.success) {
+      repo.preferences.incrementReviewSuccessCount();
+    }
+
     final nextStates = Map<int, SessionState>.from(prevStates);
     nextStates[state.id] = state;
     _states.add(UnmodifiableMapView(nextStates));
