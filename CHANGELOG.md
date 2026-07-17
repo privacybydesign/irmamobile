@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
+- Show a warning on the disclosure screen when irmago reports that the secure connection to a did:web verifier could not be confirmed
 
 ### Fixed
 - Scanning a desktop QR code with the phone's camera app is again treated as a second-device session instead of running the same-device return flow

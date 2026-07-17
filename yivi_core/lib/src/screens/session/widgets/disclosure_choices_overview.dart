@@ -13,6 +13,7 @@ import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/requestor_header.dart";
+import "../../../widgets/requestor_warnings.dart";
 import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/signature_message.dart";
 import "../../../widgets/translated_text.dart";
@@ -256,6 +257,8 @@ class _DisclosureChoicesOverviewState
                 requestor: session.requestor,
                 isVerified: session.requestor.verified,
               ),
+
+              RequestorWarnings(warnings: session.requestor.warnings),
 
               if (widget.hasIssueDuringDisclosure)
                 SessionProgressIndicator(

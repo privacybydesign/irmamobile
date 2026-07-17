@@ -684,6 +684,9 @@
     "unknown_session_type": {
       "title": "Cancelled",
       "explanation": "The Yivi session that you started is not supported by the app."
+    },
+    "warning": {
+      "did_web_dnssec_invalid": "Yivi could not confirm a secure connection to this organization. Only share your data if you trust this request."
     }
   },
   "session_pin": {
