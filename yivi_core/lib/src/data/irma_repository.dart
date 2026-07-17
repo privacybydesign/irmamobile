@@ -132,23 +132,11 @@ class IrmaRepository {
   // after the app started or returned to the foreground, `true` once delivery
   // has settled. The lock screen withholds biometric while it is open (false) so
   // biometric can't unlock ahead of a link session (issues #644, #654). Seeded
-  // false; closed by the cold-start ack, reopened on background, and reclosed a
-  // short delay after resume. See the AppReadyAckEvent / AppLifecycleChangedEvent
-  // handlers.
+  // false; closed on the cold-start ack (AppReadyAckEvent) and the warm-resume
+  // ack (ResumeAckEvent), reopened on background. Native emits either ack after
+  // any link's HandleURLEvent on the same channel, so the pointer is always
+  // queued first (FIFO). See those event handlers.
   final _carrierWindowClosedSubject = BehaviorSubject<bool>.seeded(false);
-  // Whether the app has been backgrounded (`paused`) at least once since launch.
-  // The resume timer that closes the carrier window is armed only after a first
-  // pause, so the boot lifecycle transition to `resumed` can't close the window
-  // ahead of the native launch ack.
-  bool _pauseSeenSinceLaunch = false;
-  // Pending timer that closes the carrier window a short delay after a resume.
-  // Cancelled/replaced on re-entry and cancelled when the app backgrounds.
-  Timer? _carrierWindowTimer;
-  // How long after a resume the carrier window stays open. A warm-resume link on
-  // iOS arrives well under 150ms after activation and its channel message is
-  // enqueued ahead of this timer's callback, so this leaves a wide margin while
-  // still reading as "the app is starting up" if no link arrives.
-  static const _carrierWindowResumeGrace = Duration(milliseconds: 800);
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
@@ -158,7 +146,6 @@ class IrmaRepository {
   Future<void> close() async {
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
-    _carrierWindowTimer?.cancel();
 
     // Then we can close all internal subjects
     await Future.wait([
@@ -188,24 +175,14 @@ class IrmaRepository {
     ]);
   }
 
-  // Close the carrier window: any link that opened this start/foreground has had
-  // time to arrive, so the lock screen may offer biometric again. Cancels the
-  // pending resume timer since the question it answers is now settled.
-  void _closeCarrierWindow() {
-    _carrierWindowTimer?.cancel();
-    _carrierWindowTimer = null;
-    if (!_carrierWindowClosedSubject.value) {
-      _carrierWindowClosedSubject.add(true);
-    }
-  }
-
-  // Reopen the carrier window: a fresh start/foreground may bring a link, so
-  // biometric is withheld until delivery settles again.
-  void _openCarrierWindow() {
-    _carrierWindowTimer?.cancel();
-    _carrierWindowTimer = null;
-    if (_carrierWindowClosedSubject.value) {
-      _carrierWindowClosedSubject.add(false);
+  // Open (`false`) or close (`true`) the carrier window. Closing means any link
+  // that opened this start/foreground has had time to arrive (a native ack, or a
+  // pointer already delivered), so the lock screen may offer biometric again;
+  // opening means a fresh start/foreground may bring a link, so biometric is
+  // withheld until delivery settles.
+  void _setCarrierWindowClosed(bool closed) {
+    if (_carrierWindowClosedSubject.value != closed) {
+      _carrierWindowClosedSubject.add(closed);
     }
   }
 
@@ -261,12 +238,15 @@ class IrmaRepository {
         }
 
         final pointer = Pointer.fromString(event.url);
+        debugPrint(
+          "[carrier] HandleURLEvent -> pointer queued, closing window",
+        );
         _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
         // A carrier just delivered a pointer, so the question the carrier window
         // answers is settled: close it. `hasPendingSession` now takes over
         // hiding biometric on the lock screen.
-        _closeCarrierWindow();
+        _setCarrierWindowClosed(true);
         closeInAppWebView();
       } on MissingPointer catch (e, stackTrace) {
         reportError(e, stackTrace);
@@ -279,7 +259,16 @@ class IrmaRepository {
       // screen withholds biometric while the window is open, so biometric can
       // never win the race against the link and unlock the app before the session
       // pointer is known.
-      _closeCarrierWindow();
+      debugPrint("[carrier] AppReadyAckEvent -> closing window (cold start)");
+      _setCarrierWindowClosed(true);
+    } else if (event is ResumeAckEvent) {
+      // Warm-resume handshake: native's signal that a foreground activation has
+      // settled. Emitted only after a real backgrounding, and — like the
+      // cold-start ack — right AFTER any link's `HandleURLEvent` on the same
+      // channel, so a resume-opened link is already queued (and `hasPendingSession`
+      // already hides biometric) by the time this closes the carrier window.
+      debugPrint("[carrier] ResumeAckEvent -> closing window (warm resume)");
+      _setCarrierWindowClosed(true);
     } else if (event is NewSessionEvent) {
       _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {
@@ -289,25 +278,15 @@ class IrmaRepository {
       _blockedSubject.add(null);
       preferences.clearAll();
     } else if (event is AppLifecycleChangedEvent) {
+      debugPrint("[carrier] lifecycle=${event.state}");
       if (event.state == AppLifecycleState.paused) {
         _resumedWithURLSubject.add(false);
         // Real backgrounding reopens the carrier window: the next foreground may
         // bring a link. Only `paused` reopens it — never the transient
         // inactive/hidden the biometric prompt, Control Center or app-switcher
         // peek cause, or those interruptions would withhold biometric spuriously.
-        _pauseSeenSinceLaunch = true;
-        _openCarrierWindow();
-      } else if (event.state == AppLifecycleState.resumed) {
-        // Close the window a short delay after resume, once any link that opened
-        // this foreground has had time to arrive. Armed only after a first pause
-        // so the boot resume can't close the window ahead of the cold-start ack.
-        if (_pauseSeenSinceLaunch) {
-          _carrierWindowTimer?.cancel();
-          _carrierWindowTimer = Timer(
-            _carrierWindowResumeGrace,
-            _closeCarrierWindow,
-          );
-        }
+        // The window is reclosed by native's ResumeAckEvent on the next resume.
+        _setCarrierWindowClosed(false);
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
@@ -612,6 +591,17 @@ class IrmaRepository {
       excludeSessionId: excludeSessionId,
     );
   }
+
+  /// Whether any session is currently in flight (started, not yet terminal).
+  /// Synchronous companion to [getHasInFlightSession] for the biometric backstop.
+  bool get hasInFlightSession => _sessionRepository.hasInFlightSession;
+
+  /// Whether any session is currently in flight. The lock screen watches this to
+  /// withhold biometric while a session is running — e.g. one a link started
+  /// just before the app idle-locked — so it stays PIN-gated (issue #654).
+  /// See [SessionRepository.hasInFlightSessionStream].
+  Stream<bool> getHasInFlightSession() =>
+      _sessionRepository.hasInFlightSessionStream;
 
   /// Dismisses all sessions that are currently in the requestPermission state.
   void dismissAllActiveSessions() {

@@ -119,14 +119,18 @@ class BiometricService {
     if (didAuthenticate) {
       final repo = _ref.read(irmaRepositoryProvider);
       // Backstop invariant: a biometric unlock must never dismiss a lock screen
-      // that has a session pending. If a carrier delivered a pointer while the
-      // OS prompt was up — the tail where a link arrives after the carrier
-      // window closed — leave the app locked in pending-session mode; only a PIN
-      // admits the session (biometric doesn't refresh the keyshare token). Only
-      // the pending pointer is checked, not the carrier-window state: on Android
-      // the OS prompt itself backgrounds the app and reopens the window, so
-      // requiring "window closed" here would swallow every legitimate unlock.
-      if (repo.pendingPointer != null) return didAuthenticate;
+      // that has a session pending OR in flight. Either a pointer arrived while
+      // the OS prompt was up, or a link that opened the app while it was
+      // unlocked-in-background already started a session before the resume
+      // idle-lock re-locked. In both cases leave the app locked; only a PIN
+      // admits the session (biometric doesn't refresh the keyshare token the
+      // idle-lock cleared). The carrier-window state is deliberately not checked:
+      // on Android the OS prompt itself backgrounds the app and reopens the
+      // window, so requiring "window closed" here would swallow every legitimate
+      // unlock.
+      if (repo.pendingPointer != null || repo.hasInFlightSession) {
+        return didAuthenticate;
+      }
       repo.unlockAppLocally();
     }
     return didAuthenticate;

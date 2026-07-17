@@ -10,6 +10,11 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
     private var initialURL: String?
     private var nativeError: String?
     private var appReady: Bool
+    // Whether the app has been backgrounded at least once since launch. The
+    // warm-resume handshake (ResumeAckEvent) is emitted only after a real
+    // background, so the initial activation at boot can't close the carrier
+    // window ahead of the cold-start AppReadyAckEvent.
+    private var hasBackgrounded = false
 
     /// Private constructor. This constructor is called indirectly via register (see below).
     /// - Parameters:
@@ -142,6 +147,7 @@ extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
         let urlStr = url.absoluteString
+        NSLog("[carrier] application(open:) appReady=\(appReady) url=\(urlStr)")
         if appReady {
             channel.invokeMethod("HandleURLEvent", arguments: "{\"url\": \"\(urlStr)\"}")
         } else {
@@ -158,6 +164,7 @@ extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
         if userActivity.activityType == NSUserActivityTypeBrowsingWeb, let url = userActivity.webpageURL
         {
             let urlStr = url.absoluteString
+            NSLog("[carrier] application(continue:) appReady=\(appReady) url=\(urlStr)")
             if appReady {
                 channel.invokeMethod("HandleURLEvent", arguments: "{\"url\": \"\(urlStr)\"}")
             } else {
@@ -170,5 +177,27 @@ extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
 
     public func applicationWillTerminate(_ application: UIApplication) {
         stop()
+    }
+
+    public func applicationDidEnterBackground(_ application: UIApplication) {
+        NSLog("[carrier] applicationDidEnterBackground")
+        hasBackgrounded = true
+    }
+
+    public func applicationDidBecomeActive(_ application: UIApplication) {
+        NSLog("[carrier] applicationDidBecomeActive hasBackgrounded=\(hasBackgrounded) appReady=\(appReady)")
+        // Warm-resume handshake, the twin of the AppReadyAckEvent cold-start ack.
+        // Only after a real background, so the boot activation can't pre-empt the
+        // cold-start handshake. Any universal link that brought us here is
+        // delivered via application(_:continue:) / application(_:open:) — which
+        // invoke HandleURLEvent on this same channel — before this callback. The
+        // async hop lets that delivery drain first, so FIFO ordering means Dart
+        // has queued the pointer before ResumeAckEvent arrives and closes the
+        // carrier window.
+        guard hasBackgrounded, appReady else { return }
+        DispatchQueue.main.async { [weak self] in
+            NSLog("[carrier] emitting ResumeAckEvent (async from didBecomeActive)")
+            self?.channel.invokeMethod("ResumeAckEvent", arguments: "{}")
+        }
     }
 }

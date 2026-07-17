@@ -23,6 +23,21 @@ class AppReadyAckEvent extends Event {
       _$AppReadyAckEventFromJson(json);
 }
 
+/// The warm-resume twin of [AppReadyAckEvent]. Sent by native from the resume
+/// callback (`applicationDidBecomeActive` / Android `onResume`), right after any
+/// link's [HandleURLEvent] and on the same bridge channel, so FIFO delivery
+/// means Dart has already queued the pointer by the time this arrives. Emitted
+/// only after a real backgrounding, so the boot activation can't pre-empt the
+/// cold-start [AppReadyAckEvent]. Closes the carrier window on resume, letting
+/// the lock screen decide whether to auto-fire biometric.
+@JsonSerializable(createToJson: false)
+class ResumeAckEvent extends Event {
+  ResumeAckEvent();
+
+  factory ResumeAckEvent.fromJson(Map<String, dynamic> json) =>
+      _$ResumeAckEventFromJson(json);
+}
+
 @JsonSerializable(createFactory: false)
 class AndroidSendToBackgroundEvent extends Event {
   AndroidSendToBackgroundEvent();

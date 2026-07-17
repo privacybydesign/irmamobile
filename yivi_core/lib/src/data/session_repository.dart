@@ -5,6 +5,7 @@ import "package:rxdart/rxdart.dart";
 import "../models/event.dart";
 import "../models/schemaless/session_state.dart";
 import "../models/schemaless/session_user_interaction.dart";
+import "../models/session_events.dart";
 import "irma_repository.dart";
 
 /// SessionRepository manages session states.
@@ -28,6 +29,13 @@ class SessionRepository {
   /// for which no follow-up [SessionStateEvent] has yet arrived.
   final _awaitingInteraction = BehaviorSubject<Set<int>>.seeded({});
 
+  /// Session IDs that have been started ([NewSessionEvent]) but have not yet
+  /// reached a terminal status. Tracked from the *start* — not the first
+  /// `requestPermission` state, which only arrives after a Go round-trip — so
+  /// the lock screen can withhold biometric the instant a link starts a session,
+  /// before Go replies (issue #654). See [hasInFlightSessionStream].
+  final _inFlightSessionIds = BehaviorSubject<Set<int>>.seeded({});
+
   SessionRepository({required this.repo, required Stream<Event> eventStream}) {
     eventStream.listen(_handleEvent);
   }
@@ -35,10 +43,19 @@ class SessionRepository {
   void _handleEvent(Event event) {
     if (event is SessionStateEvent) {
       _handleSessionStateEvent(event);
+    } else if (event is NewSessionEvent) {
+      _markInFlight(event.sessionId);
     } else if (event is SessionUserInteractionEvent &&
         event.type != UserInteractionType.dismiss) {
       _markAwaitingInteraction(event.sessionId);
     }
+  }
+
+  void _markInFlight(int sessionId) {
+    if (_inFlightSessionIds.value.contains(sessionId)) return;
+    _inFlightSessionIds.add(
+      Set<int>.from(_inFlightSessionIds.value)..add(sessionId),
+    );
   }
 
   void _handleSessionStateEvent(SessionStateEvent event) {
@@ -71,6 +88,15 @@ class SessionRepository {
     if (_isTerminalStatus(state.status)) {
       final cleaned = Map<int, SessionState>.from(nextStates)..remove(state.id);
       _states.add(UnmodifiableMapView(cleaned));
+
+      // A terminal session is no longer in flight, so the lock screen may offer
+      // biometric again (this is also how the lock-screen ✕ releases it: the
+      // dismiss produces a terminal state here).
+      if (_inFlightSessionIds.value.contains(state.id)) {
+        _inFlightSessionIds.add(
+          Set<int>.from(_inFlightSessionIds.value)..remove(state.id),
+        );
+      }
     }
   }
 
@@ -140,11 +166,21 @@ class SessionRepository {
     );
   }
 
+  /// Whether any session is currently in flight (started, not yet terminal).
+  bool get hasInFlightSession => _inFlightSessionIds.value.isNotEmpty;
+
+  /// Stream of [hasInFlightSession]. The lock screen watches this to withhold
+  /// biometric while a session is in flight — including one a link started just
+  /// before the app idle-locked — so it stays PIN-gated (issue #654).
+  Stream<bool> get hasInFlightSessionStream =>
+      _inFlightSessionIds.map((s) => s.isNotEmpty).distinct();
+
   Future<void> close() async {
     await Future.wait([
       _states.close(),
       _newSessionIdsSubject.close(),
       _awaitingInteraction.close(),
+      _inFlightSessionIds.close(),
     ]);
   }
 }
