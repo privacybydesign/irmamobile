@@ -124,10 +124,7 @@ class BiometricService {
       // unlocked-in-background already started a session before the resume
       // idle-lock re-locked. In both cases leave the app locked; only a PIN
       // admits the session (biometric doesn't refresh the keyshare token the
-      // idle-lock cleared). The carrier-window state is deliberately not checked:
-      // on Android the OS prompt itself backgrounds the app and reopens the
-      // window, so requiring "window closed" here would swallow every legitimate
-      // unlock.
+      // idle-lock cleared).
       if (repo.pendingPointer != null || repo.hasInFlightSession) {
         return didAuthenticate;
       }

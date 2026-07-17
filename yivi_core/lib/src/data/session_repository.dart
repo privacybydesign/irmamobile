@@ -44,18 +44,15 @@ class SessionRepository {
     if (event is SessionStateEvent) {
       _handleSessionStateEvent(event);
     } else if (event is NewSessionEvent) {
-      _markInFlight(event.sessionId);
+      // Mark the session in flight from its start, so the lock screen can
+      // withhold biometric before Go replies (see [_inFlightSessionIds]).
+      _inFlightSessionIds.add(
+        Set<int>.from(_inFlightSessionIds.value)..add(event.sessionId),
+      );
     } else if (event is SessionUserInteractionEvent &&
         event.type != UserInteractionType.dismiss) {
       _markAwaitingInteraction(event.sessionId);
     }
-  }
-
-  void _markInFlight(int sessionId) {
-    if (_inFlightSessionIds.value.contains(sessionId)) return;
-    _inFlightSessionIds.add(
-      Set<int>.from(_inFlightSessionIds.value)..add(sessionId),
-    );
   }
 
   void _handleSessionStateEvent(SessionStateEvent event) {

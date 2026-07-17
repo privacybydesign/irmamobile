@@ -9,11 +9,11 @@ import "package:local_auth/local_auth.dart";
 
 import "../../../package_name.dart";
 import "../../models/session.dart";
-import "../../providers/carrier_window_provider.dart";
 import "../../providers/has_in_flight_session_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pending_pointer_provider.dart";
 import "../../providers/preferences_provider.dart";
+import "../../providers/startup_url_resolved_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
@@ -252,16 +252,15 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // behind this lock" — used to hide biometric and to show the ✕ that cancels
     // it and returns to the normal unlock screen.
     final hasSession = hasPendingSession || hasInFlightSession;
-    // Hold biometric back while the carrier window is open — the interval right
-    // after the app starts or returns to the foreground during which a link that
-    // opened it may still be in flight. The window closes on a native ack
-    // (AppReadyAckEvent on cold start, ResumeAckEvent on warm resume), each sent
-    // AFTER any link's pointer is queued, so by the time biometric is allowed
+    // Hold biometric back until native has acknowledged the launch handshake.
+    // On a cold start opened by a universal link, the session pointer is queued
+    // just before this flips true, so by the time biometric is allowed
     // `hasPendingSession` already reflects it and hides biometric. Without this
     // gate the biometric auto-scan could win the race and unlock the app before
     // the pointer arrived, letting a link session ride in on a biometric-only
-    // unlock (issue #644 cold start, issue #654 resume-lock).
-    final carrierWindowClosed = ref.watch(carrierWindowClosedProvider);
+    // unlock (issue #644). Once resolved it stays true, so later idle-locks
+    // auto-scan normally.
+    final startupUrlResolved = ref.watch(startupUrlResolvedProvider);
     // Hide biometric while blocked — otherwise it would bypass the temporary
     // lockout that the wrong-PIN rate limiter just imposed.
     final showBiometric =
@@ -270,27 +269,19 @@ class _PinScreenState extends ConsumerState<PinScreen>
         biometricEnabled &&
         !blocked &&
         !hasSession &&
-        carrierWindowClosed;
+        startupUrlResolved;
     final biometricType = ref.watch(biometricTypeProvider).value;
 
     // "Scan on launch": fire the biometric prompt automatically the first time
     // the lock screen is shown with biometric allowed. `.value ?? false` means
     // it waits for the providers to resolve on cold start rather than firing
     // early. Reuses `showBiometric`, so blocked/pending-session/unavailable and
-    // the open carrier window are already excluded. When the window closes (on
-    // the native resume/cold-start ack) the provider rebuilds and this fires
-    // then. On cancel/fail nothing happens and `_autoTriggered` stays true — the
-    // user falls back to the PIN pad or the manual button.
+    // the unresolved-launch-URL window are already excluded. On cancel/fail
+    // nothing happens and `_autoTriggered` stays true — the user falls back to
+    // the PIN pad or the manual button.
     final biometricImmediate =
         ref.watch(biometricImmediateProvider).value ?? false;
-    debugPrint(
-      "[carrier] pin build: showBiometric=$showBiometric "
-      "carrierWindowClosed=$carrierWindowClosed "
-      "hasPendingSession=$hasPendingSession "
-      "hasInFlightSession=$hasInFlightSession autoTriggered=$_autoTriggered",
-    );
     if (showBiometric && biometricImmediate && !_autoTriggered) {
-      debugPrint("[carrier] AUTO-FIRING biometric");
       _autoTriggered = true;
       final repo = ref.read(irmaRepositoryProvider);
       WidgetsBinding.instance.addPostFrameCallback((_) {

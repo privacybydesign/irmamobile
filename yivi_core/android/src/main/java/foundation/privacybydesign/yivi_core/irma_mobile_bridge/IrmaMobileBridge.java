@@ -29,11 +29,6 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   private boolean appReady;
   private String nativeError;
   private final Context context;
-  // Whether the app has been backgrounded at least once since launch. The
-  // warm-resume handshake (ResumeAckEvent) is emitted only after a real
-  // background, so the initial onResume at launch can't close the carrier window
-  // ahead of the cold-start AppReadyAckEvent.
-  private boolean hasBackgrounded = false;
 
   public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
@@ -127,22 +122,6 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       channel.invokeMethod("HandleURLEvent", String.format("{\"url\": \"%s\"}", link));
     } else {
       initialURL = link;
-    }
-  }
-
-  public void onStop() {
-    hasBackgrounded = true;
-  }
-
-  public void onResume() {
-    // Warm-resume handshake, the twin of the AppReadyAckEvent cold-start ack.
-    // Only after a real background, so the launch onResume can't pre-empt the
-    // cold-start handshake. onNewIntent runs before onResume for this singleTask
-    // activity and invokes HandleURLEvent on this same channel, so FIFO ordering
-    // means any resume-opened link's pointer is queued before ResumeAckEvent
-    // arrives and closes the carrier window.
-    if (hasBackgrounded && appReady) {
-      channel.invokeMethod("ResumeAckEvent", "{}");
     }
   }
 

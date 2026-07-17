@@ -41,8 +41,6 @@ class IrmaClientBridge extends IrmaBridge {
 
     AppReadyAckEvent: (j) => AppReadyAckEvent.fromJson(j),
 
-    ResumeAckEvent: (j) => ResumeAckEvent.fromJson(j),
-
     EnrollmentSuccessEvent: (j) => EnrollmentSuccessEvent.fromJson(j),
     EnrollmentFailureEvent: (j) => EnrollmentFailureEvent.fromJson(j),
 

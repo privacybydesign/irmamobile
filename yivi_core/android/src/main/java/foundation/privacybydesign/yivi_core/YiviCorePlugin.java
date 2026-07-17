@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 
 import foundation.privacybydesign.yivi_core.irma_mobile_bridge.IrmaMobileBridge;
 import foundation.privacybydesign.yivi_core.plugins.iiab.IIABPlugin;
@@ -16,7 +13,6 @@ import foundation.privacybydesign.yivi_core.plugins.privacy_screen.PrivacyScreen
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
-import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import irmagobridge.Irmagobridge;
@@ -29,25 +25,6 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     private Context applicationContext;
     private IIABPlugin webBrowser;
     private PrivacyScreenPlugin privacyScreenPlugin;
-
-    // Observes the activity lifecycle so the bridge can emit its warm-resume
-    // handshake (ResumeAckEvent) on onResume and mark backgrounding on onStop.
-    private Lifecycle lifecycle;
-    private final DefaultLifecycleObserver lifecycleObserver = new DefaultLifecycleObserver() {
-        @Override
-        public void onResume(@NonNull LifecycleOwner owner) {
-            if (bridge != null) {
-                bridge.onResume();
-            }
-        }
-
-        @Override
-        public void onStop(@NonNull LifecycleOwner owner) {
-            if (bridge != null) {
-                bridge.onStop();
-            }
-        }
-    };
 
     public YiviCorePlugin() {
         Irmagobridge.prestart();
@@ -64,7 +41,6 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
         activity = binding.getActivity();
         binding.addOnNewIntentListener(this);
-        observeLifecycle(binding);
         maybeCreateBridge();
 
         webBrowser.onReattachedToActivityForConfigChanges(binding);
@@ -83,7 +59,6 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
         binding.addOnNewIntentListener(this);
         activity = binding.getActivity();
-        observeLifecycle(binding);
         maybeCreateBridge();
 
         webBrowser.onAttachedToActivity(binding);
@@ -123,16 +98,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         privacyScreenPlugin.onDetachedFromEngine(binding);
     }
 
-    private void observeLifecycle(@NonNull ActivityPluginBinding binding) {
-        lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding);
-        lifecycle.addObserver(lifecycleObserver);
-    }
-
     private void cleanupActivity() {
-        if (lifecycle != null) {
-            lifecycle.removeObserver(lifecycleObserver);
-            lifecycle = null;
-        }
         if (bridge != null) {
             bridge.stop();
             bridge = null;
