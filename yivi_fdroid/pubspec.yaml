@@ -17,6 +17,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   sentry_flutter: ^9.4.0
   flutter_zxing: ^2.3.0
+  # BSD-licensed official Flutter WebView plugin (wraps the system WebView via
+  # androidx.webkit). Hosts Regula's web Face SDK for the FOSS liveness flow so
+  # no proprietary native binaries ship in the F-Droid APK (see #665).
+  webview_flutter: ^4.13.0
+  # Android implementation of webview_flutter (BSD). Referenced directly for
+  # AndroidWebViewController to grant the in-page camera permission request.
+  webview_flutter_android: ^4.13.0
   yivi_core:
     path: ../yivi_core
 

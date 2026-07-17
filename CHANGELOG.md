@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Face verification for document (passport, ID card, driving licence) issuance: after reading the chip over NFC, the app runs a Regula liveness session and passes the resulting liveness transaction id to the passport issuer, which matches the live face against the chip portrait. Runs in the Play Store / App Store build only; the F-Droid build does not depend on the Regula SDK and has face verification disabled.
+- Face verification for document (passport, ID card, driving licence) issuance: after reading the chip over NFC, the app runs a Regula liveness session and passes the resulting liveness transaction id to the passport issuer, which matches the live face against the chip portrait. The Play Store / App Store build uses Regula's native Face SDK; the F-Droid build runs Regula's web Face SDK in an embedded WebView that loads a Yivi-hosted capture page, so no proprietary native code ships in the APK.
 
 ## [8.1.1] - 2026-07-14
 ### Fixed
