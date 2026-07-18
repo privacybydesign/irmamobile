@@ -23,6 +23,7 @@ dependencies:
   camera: ^0.12.0+1
   smart_auth: ^3.2.0
   pinput: ^6.0.1
+  in_app_review: ^2.0.10
 
   # Regula Face SDK for the client-side liveness session (face verification).
   # The MIT-licensed Dart plugin plus the Regula native core; kept out of

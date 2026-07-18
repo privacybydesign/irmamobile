@@ -130,13 +130,15 @@ class IrmaDialog extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                SizedBox(height: theme.mediumSpacing),
-                                Text(
-                                  content,
-                                  key: const Key("irma_dialog_content"),
-                                  style: theme.textTheme.bodyMedium,
-                                  textAlign: TextAlign.center,
-                                ),
+                                if (content.isNotEmpty) ...[
+                                  SizedBox(height: theme.mediumSpacing),
+                                  Text(
+                                    content,
+                                    key: const Key("irma_dialog_content"),
+                                    style: theme.textTheme.bodyMedium,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                                 if (image != null) ...[
                                   SizedBox(height: theme.defaultSpacing),
                                   Center(
