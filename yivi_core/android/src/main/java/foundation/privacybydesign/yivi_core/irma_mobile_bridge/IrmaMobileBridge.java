@@ -89,6 +89,13 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
           activity.setIntent(new Intent());
         }
 
+        // Acknowledge the launch handshake AFTER any initial URL, so the UI knows
+        // the launch URL (if any) has been delivered. Channel messages are FIFO,
+        // so the HandleURLEvent above is always processed first; the lock screen
+        // relies on this to hold off biometric until it knows whether the app was
+        // opened with a session.
+        channel.invokeMethod("AppReadyAckEvent", "{}");
+
         break;
 
       case "AndroidSendToBackgroundEvent":

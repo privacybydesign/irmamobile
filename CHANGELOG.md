@@ -5,6 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Universal-link sessions are gated behind the PIN on a warm resume too, not only on cold start: when the app auto-locks after being idle and is then opened by a session link, biometric (Face ID / fingerprint) is withheld while a session is pending or in flight, so it can't unlock ahead of the incoming session
+
+### Added
+- Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
+
+### Fixed
+- Scanning a desktop QR code with the phone's camera app is again treated as a second-device session instead of running the same-device return flow
+- On a second-device session, the relying party's client return URL is no longer opened in a browser on the phone (the browser session lives on the other device); the wallet confirms success locally instead. A `tel:` return URL still opens the phone dialer.
+
+## [8.1.1] - 2026-07-14
+### Fixed
+- Opening the app from a locked state via a universal link carrying a session no longer lets biometric unlock it: biometric is held back until the launch URL is known, so the session is deterministically gated behind the PIN (no unlock-then-relock flash)
+
+### Internal
+- Upgrade irmago to 1.1.1: Eudi database is now correctly encrypted
 
 ## [8.1.0] - 2026-06-26
 ### Changed
@@ -17,9 +33,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fix
 - Race condition in pin entering that caused double entry
 - Glitch where "next" button would appear at the top of the pin screen
+- Problem with Android system UI overlay colors
 
 ### Internal
 - Upgrade Flutter to 3.44.4 and upgrade all dependencies
+- Upgrade irmago to 1.1.0
 
 ## [8.0.0] - 2026-06-22
 ### Changed
@@ -639,6 +657,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.1.1]: https://github.com/privacybydesign/irmamobile/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/privacybydesign/irmamobile/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/privacybydesign/irmamobile/compare/v7.13.5...v8.0.0
 [7.13.5]: https://github.com/privacybydesign/irmamobile/compare/v7.13.4...v7.13.5

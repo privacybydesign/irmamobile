@@ -47,10 +47,12 @@ void main() {
 
       // Expect headers: the app bar title is the activity timestamp formatted
       // as "<month> <day>, <year> at <h>:<mm> <AM/PM>", e.g.
-      // "April 10, 2026 at 1:23 PM".
+      // "April 10, 2026 at 1:23 PM". The separator before AM/PM is matched with
+      // `\s` (not a literal space): intl's en CLDR data (`jm` = 'h:mm a')
+      // emits a narrow no-break space (U+202F) there, which `\s` covers.
       expect(
         find.textContaining(
-          RegExp(r"^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2} (AM|PM)$"),
+          RegExp(r"^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2}\s(AM|PM)$"),
         ),
         findsOneWidget,
       );
