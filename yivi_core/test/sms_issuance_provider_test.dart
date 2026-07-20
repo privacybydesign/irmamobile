@@ -22,46 +22,49 @@ Future<Challenge> _issueChallenge() {
 
 void main() {
   group("DefaultSmsIssuerApi.sendSms", () {
-    test("fetches a challenge and attaches a verifiable altcha field", () async {
-      final challenge = await _issueChallenge();
-      String? sentBody;
-      var challengeFetched = false;
+    test(
+      "fetches a challenge and attaches a verifiable altcha field",
+      () async {
+        final challenge = await _issueChallenge();
+        String? sentBody;
+        var challengeFetched = false;
 
-      final client = MockClient((request) async {
-        if (request.method == "GET" &&
-            request.url.path == "/api/embedded/altcha-challenge") {
-          challengeFetched = true;
-          return http.Response(jsonEncode(challenge.toJson()), 200);
-        }
-        if (request.method == "POST" &&
-            request.url.path == "/api/embedded/send") {
-          sentBody = request.body;
-          return http.Response("", 200);
-        }
-        return http.Response("unexpected ${request.url.path}", 500);
-      });
+        final client = MockClient((request) async {
+          if (request.method == "GET" &&
+              request.url.path == "/api/embedded/altcha-challenge") {
+            challengeFetched = true;
+            return http.Response(jsonEncode(challenge.toJson()), 200);
+          }
+          if (request.method == "POST" &&
+              request.url.path == "/api/embedded/send") {
+            sentBody = request.body;
+            return http.Response("", 200);
+          }
+          return http.Response("unexpected ${request.url.path}", 500);
+        });
 
-      final api = DefaultSmsIssuerApi(host: _host, client: client);
-      await api.sendSms(phoneNumber: "+31612345678", language: "en");
+        final api = DefaultSmsIssuerApi(host: _host, client: client);
+        await api.sendSms(phoneNumber: "+31612345678", language: "en");
 
-      expect(challengeFetched, isTrue);
-      final body = jsonDecode(sentBody!) as Map<String, dynamic>;
-      expect(body["phone"], "+31612345678");
-      expect(body["altcha"], isA<String>());
+        expect(challengeFetched, isTrue);
+        final body = jsonDecode(sentBody!) as Map<String, dynamic>;
+        expect(body["phone"], "+31612345678");
+        expect(body["altcha"], isA<String>());
 
-      // The attached solution must verify against the original challenge.
-      final submitted = Payload.fromJson(
-        jsonDecode(utf8.decode(base64.decode(body["altcha"] as String)))
-            as Map<String, dynamic>,
-      );
-      final result = await verifySolution(
-        challenge: submitted.challenge,
-        solution: submitted.solution,
-        deriveKey: deriveKey,
-        hmacSignatureSecret: _secret,
-      );
-      expect(result.verified, isTrue);
-    });
+        // The attached solution must verify against the original challenge.
+        final submitted = Payload.fromJson(
+          jsonDecode(utf8.decode(base64.decode(body["altcha"] as String)))
+              as Map<String, dynamic>,
+        );
+        final result = await verifySolution(
+          challenge: submitted.challenge,
+          solution: submitted.solution,
+          deriveKey: deriveKey,
+          hmacSignatureSecret: _secret,
+        );
+        expect(result.verified, isTrue);
+      },
+    );
 
     test("sends without a solution when no challenge is handed out", () async {
       String? sentBody;
