@@ -176,6 +176,12 @@ class SessionRepository {
   /// Whether any session is currently in flight (started, not yet terminal).
   bool get hasInFlightSession => _inFlightSessionIds.value.isNotEmpty;
 
+  /// The IDs of all sessions currently in flight (started, not yet terminal).
+  /// Superset of [getActiveSessionIds]: also covers a session between its start
+  /// and Go's first `requestPermission` reply. Used to cancel from the lock
+  /// screen — the same set that makes [hasInFlightSession] hide biometric.
+  Set<int> get inFlightSessionIds => _inFlightSessionIds.value;
+
   /// Stream of [hasInFlightSession]. The lock screen watches this to withhold
   /// biometric while a session is in flight — including one a link started just
   /// before the app idle-locked — so it stays PIN-gated (issue #654).

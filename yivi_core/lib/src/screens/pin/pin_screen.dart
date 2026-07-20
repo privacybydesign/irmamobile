@@ -192,9 +192,10 @@ class _PinScreenState extends ConsumerState<PinScreen>
   }
 
   // Cancel a waiting session from the lock screen: confirm, then clear the
-  // queued pointer AND dismiss any session already started behind the lock (one
-  // a link kicked off before the app idle-locked). Both revert the screen to
-  // normal unlock — biometric reappears once no session is in flight.
+  // queued pointer AND dismiss any in-flight session behind the lock (one a link
+  // kicked off before the app idle-locked, at any non-terminal status — not just
+  // requestPermission). Both revert the screen to normal unlock — biometric
+  // reappears once no session is in flight.
   Future<void> _confirmCancelPending(BuildContext context) async {
     final confirmed =
         await showDialog<bool>(
@@ -210,7 +211,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
     if (confirmed && mounted) {
       final repo = ref.read(irmaRepositoryProvider);
       repo.setPendingPointer(null);
-      repo.dismissAllActiveSessions();
+      repo.dismissAllInFlightSessions();
     }
   }
 

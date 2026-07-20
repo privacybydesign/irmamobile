@@ -574,6 +574,18 @@ class IrmaRepository {
     }
   }
 
+  /// Dismisses every in-flight session (started, not yet terminal). Unlike
+  /// [dismissAllActiveSessions] this also covers a session that has not yet
+  /// reached `requestPermission`, so the lock-screen ✕ cancels exactly the set
+  /// that [hasInFlightSession] hides biometric for.
+  void dismissAllInFlightSessions() {
+    for (final sessionId in _sessionRepository.inFlightSessionIds) {
+      bridgedDispatch(
+        SessionUserInteractionEvent.dismiss(sessionId: sessionId),
+      );
+    }
+  }
+
   // Returns a future whether the app was resumed by either
   // 1) coming back from the browser, or
   // 2) handling an incoming URL
