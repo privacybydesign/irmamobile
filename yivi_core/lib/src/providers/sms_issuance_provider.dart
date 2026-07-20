@@ -1,5 +1,4 @@
 import "dart:convert";
-import "dart:isolate";
 
 import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -7,7 +6,7 @@ import "package:http/http.dart" as http;
 import "package:pinput/pinput.dart";
 
 import "../models/session.dart";
-import "../util/proof_of_work.dart";
+import "../util/altcha_solver.dart";
 import "./provider_helpers.dart" as helpers;
 
 final smsIssuerUrlProvider = NotifierProvider(
@@ -36,8 +35,10 @@ abstract class SmsIssuerApi {
 
 class DefaultSmsIssuerApi implements SmsIssuerApi {
   final String host;
+  final http.Client _client;
 
-  DefaultSmsIssuerApi({required this.host});
+  DefaultSmsIssuerApi({required this.host, http.Client? client})
+    : _client = client ?? http.Client();
 
   @override
   Future<void> sendSms({
@@ -46,18 +47,19 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
   }) async {
     debugPrint("Sending sms for: $phoneNumber");
 
-    // Solve a proof-of-work challenge before asking the issuer to send an SMS.
-    // This makes automated bulk requests expensive. Older issuers that do not
-    // hand out a challenge return null here, in which case we send without one.
-    final pow = await _solveChallenge();
+    // Solve an ALTCHA proof-of-work challenge before asking the issuer to send
+    // an SMS. This taxes automated bulk requests with CPU. Issuers that do not
+    // hand out a challenge (ALTCHA disabled, or an older issuer) return null
+    // here, in which case we send without a solution.
+    final altcha = await _solveChallenge();
 
     final payload = jsonEncode({
       "phone": phoneNumber,
       "language": language,
-      if (pow != null) "pow": pow.toJson(),
+      "altcha": ?altcha,
     });
     final url = "$host/api/embedded/send";
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
       body: payload,
@@ -66,37 +68,43 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
       throw switch (response.body) {
         "error:ratelimit" => SmsIssuanceRateLimitError(),
         "error:invalid-captcha" => SmsIssuanceCaptchaError(),
+        "error:destination-not-allowed" =>
+          SmsIssuanceDestinationNotAllowedError(),
         _ => SmsIssuanceInternalServerError(message: response.body),
       };
     }
   }
 
-  /// Fetches a proof-of-work challenge from the issuer and solves it.
+  /// Fetches an ALTCHA challenge from the issuer and solves it, returning the
+  /// base64 solution payload to attach as the `altcha` field.
   ///
   /// Returns null when the issuer does not hand out a challenge (for example an
-  /// older issuer, or one with proof-of-work disabled), so the caller can send
-  /// without one. Solving runs on a background isolate so it never blocks the
-  /// UI thread.
-  Future<PowSolution?> _solveChallenge() async {
+  /// older issuer, or one with ALTCHA disabled), so the caller can send without
+  /// one. Solving runs on background isolates so it never blocks the UI thread.
+  Future<String?> _solveChallenge() async {
     final http.Response response;
     try {
-      response = await http.get(Uri.parse("$host/api/embedded/pow-challenge"));
+      response = await _client.get(
+        Uri.parse("$host/api/embedded/altcha-challenge"),
+      );
     } catch (_) {
       return null;
     }
     if (response.statusCode != 200) return null;
 
-    PowChallenge? challenge;
+    final dynamic decoded;
     try {
-      challenge = PowChallenge.tryParse(jsonDecode(response.body));
+      decoded = jsonDecode(response.body);
     } on FormatException {
       // Not a JSON challenge (for example an issuer that serves its SPA shell
       // for unknown paths): treat as "no proof of work required".
       return null;
     }
+
+    final challenge = tryParseAltchaChallenge(decoded);
     if (challenge == null) return null;
 
-    return Isolate.run(() => solveProofOfWork(challenge!));
+    return solveAltchaChallenge(challenge);
   }
 
   @override
@@ -109,7 +117,7 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
       "token": verificationCode,
     });
     final url = "$host/api/embedded/verify";
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
       body: payload,
@@ -136,7 +144,7 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
   }
 
   Future<dynamic> _startIrmaSession(String jwt, String irmaServerUrl) async {
-    final response = await http.post(
+    final response = await _client.post(
       Uri.parse("$irmaServerUrl/session"),
       body: jwt,
     );
@@ -282,6 +290,13 @@ class SmsIssuanceCaptchaError extends SmsIssuanceError {
   @override
   String toString() {
     return "Captcha validation failed";
+  }
+}
+
+class SmsIssuanceDestinationNotAllowedError extends SmsIssuanceError {
+  @override
+  String toString() {
+    return "Destination not allowed";
   }
 }
 

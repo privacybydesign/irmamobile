@@ -49,7 +49,7 @@ dependencies:
   flutter_riverpod: ^3.2.0
   local_auth: ^3.0.1
   http: ^1.5.0
-  crypto: ^3.0.6
+  altcha_lib: ^0.3.0
   mrz_parser:
     git:
       url: https://github.com/privacybydesign/mrz_parser
@@ -78,6 +78,17 @@ dev_dependencies:
   flutter_native_splash: ^2.4.6
   build_runner: ^2.10.5
   flutter_launcher_icons: ^0.14.1
+
+# altcha_lib pulls pointycastle from pub.dev, but vcmrtd pulls it from the
+# privacybydesign/pc-dart fork; pub cannot unify a hosted and a git source for
+# the same package. Force the fork (it reports version 4.0.0, satisfying
+# altcha_lib's ^4.0.0). Our pinned PBKDF2/SHA-256 path uses package:crypto, not
+# pointycastle, so the fork is not on the ALTCHA hot path.
+dependency_overrides:
+  pointycastle:
+    git:
+      url: https://github.com/privacybydesign/pc-dart.git
+      ref: master
 
 flutter:
   uses-material-design: true

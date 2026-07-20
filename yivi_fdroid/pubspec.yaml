@@ -25,5 +25,16 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
 
+# yivi_core pulls altcha_lib, which wants pointycastle from pub.dev, but vcmrtd
+# wants it from the privacybydesign/pc-dart fork; pub cannot unify a hosted and
+# a git source for the same package. Force the fork (it reports version 4.0.0,
+# satisfying altcha_lib's ^4.0.0). Must be repeated here because
+# dependency_overrides only take effect in the root (app) package.
+dependency_overrides:
+  pointycastle:
+    git:
+      url: https://github.com/privacybydesign/pc-dart.git
+      ref: master
+
 flutter:
   uses-material-design: true
