@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
+import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/navigation.dart";
@@ -43,8 +44,16 @@ class _IssueDuringDisclosureScreenState
   final _navigatorKey = GlobalKey<NavigatorState>();
 
   void _onObtainData(BuildContext context, CredentialDescriptor credential) {
+    // The disclosure plan's descriptor carries no FAQ content; that lives on
+    // the credential store entry. Attach it so the details screen shows the
+    // same explanation cards as the manual add-data flow.
+    final faq = ref
+        .read(credentialStoreProvider)
+        .value
+        ?.forCredentialId(credential.credentialId)
+        ?.faq;
     context.pushSchemalessDataDetailsScreen(
-      AddDataDetailsRouteParams(credential: credential),
+      AddDataDetailsRouteParams(credential: credential, faq: faq),
     );
   }
 

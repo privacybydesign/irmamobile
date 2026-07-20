@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/session_state.dart";
+import "../../../providers/schemaless_credential_store_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
@@ -91,8 +92,16 @@ class _DisclosureMakeChoiceScreenState
     if (sel.index >= obtainable.length) return;
 
     final cred = obtainable[sel.index];
+    // The disclosure plan's descriptor carries no FAQ content; that lives on
+    // the credential store entry. Attach it so the details screen shows the
+    // same explanation cards as the manual add-data flow.
+    final faq = ref
+        .read(credentialStoreProvider)
+        .value
+        ?.forCredentialId(cred.credentialId)
+        ?.faq;
     context.pushSchemalessDataDetailsScreen(
-      AddDataDetailsRouteParams(credential: cred),
+      AddDataDetailsRouteParams(credential: cred, faq: faq),
     );
   }
 

@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/schemaless/credential_store.dart";
@@ -17,6 +18,15 @@ final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
   // `nfcAvailableProvider`.
   yield* repo.getCredentialStoreItems();
 });
+
+extension CredentialStoreItemLookup on List<CredentialStoreItem> {
+  /// The store entry for [credentialId], or null when the store has none
+  /// (e.g. non-scheme EUDI credentials). Used by the disclosure flows to
+  /// attach the store entry's FAQ to a disclosure-plan credential descriptor,
+  /// which carries no FAQ content itself.
+  CredentialStoreItem? forCredentialId(String credentialId) =>
+      firstWhereOrNull((item) => item.credential.credentialId == credentialId);
+}
 
 class CredentialStoreCategory {
   final TranslatedValue category;
