@@ -5,13 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Fixed
-- Universal-link sessions are gated behind the PIN on a warm resume too, not only on cold start: when the app auto-locks after being idle and is then opened by a session link, biometric (Face ID / fingerprint) is withheld while a session is pending or in flight, so it can't unlock ahead of the incoming session
-
 ### Added
 - Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
+- Solve a proof-of-work challenge before requesting an SMS verification code in the embedded issuance flow, to make automated bulk requests expensive (no-op against issuers that do not hand out a challenge)
 
 ### Fixed
+- Universal-link sessions are gated behind the PIN on a warm resume too, not only on cold start: when the app auto-locks after being idle and is then opened by a session link, biometric (Face ID / fingerprint) is withheld while a session is pending or in flight, so it can't unlock ahead of the incoming session
 - Scanning a desktop QR code with the phone's camera app is again treated as a second-device session instead of running the same-device return flow
 - On a second-device session, the relying party's client return URL is no longer opened in a browser on the phone (the browser session lives on the other device); the wallet confirms success locally instead. A `tel:` return URL still opens the phone dialer.
 

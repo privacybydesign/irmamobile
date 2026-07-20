@@ -1,4 +1,5 @@
 import "dart:convert";
+import "dart:isolate";
 
 import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -6,6 +7,7 @@ import "package:http/http.dart" as http;
 import "package:pinput/pinput.dart";
 
 import "../models/session.dart";
+import "../util/proof_of_work.dart";
 import "./provider_helpers.dart" as helpers;
 
 final smsIssuerUrlProvider = NotifierProvider(
@@ -43,7 +45,17 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
     required String language,
   }) async {
     debugPrint("Sending sms for: $phoneNumber");
-    final payload = jsonEncode({"phone": phoneNumber, "language": language});
+
+    // Solve a proof-of-work challenge before asking the issuer to send an SMS.
+    // This makes automated bulk requests expensive. Older issuers that do not
+    // hand out a challenge return null here, in which case we send without one.
+    final pow = await _solveChallenge();
+
+    final payload = jsonEncode({
+      "phone": phoneNumber,
+      "language": language,
+      if (pow != null) "pow": pow.toJson(),
+    });
     final url = "$host/api/embedded/send";
     final response = await http.post(
       Uri.parse(url),
@@ -53,9 +65,38 @@ class DefaultSmsIssuerApi implements SmsIssuerApi {
     if (response.statusCode != 200) {
       throw switch (response.body) {
         "error:ratelimit" => SmsIssuanceRateLimitError(),
+        "error:invalid-captcha" => SmsIssuanceCaptchaError(),
         _ => SmsIssuanceInternalServerError(message: response.body),
       };
     }
+  }
+
+  /// Fetches a proof-of-work challenge from the issuer and solves it.
+  ///
+  /// Returns null when the issuer does not hand out a challenge (for example an
+  /// older issuer, or one with proof-of-work disabled), so the caller can send
+  /// without one. Solving runs on a background isolate so it never blocks the
+  /// UI thread.
+  Future<PowSolution?> _solveChallenge() async {
+    final http.Response response;
+    try {
+      response = await http.get(Uri.parse("$host/api/embedded/pow-challenge"));
+    } catch (_) {
+      return null;
+    }
+    if (response.statusCode != 200) return null;
+
+    PowChallenge? challenge;
+    try {
+      challenge = PowChallenge.tryParse(jsonDecode(response.body));
+    } on FormatException {
+      // Not a JSON challenge (for example an issuer that serves its SPA shell
+      // for unknown paths): treat as "no proof of work required".
+      return null;
+    }
+    if (challenge == null) return null;
+
+    return Isolate.run(() => solveProofOfWork(challenge!));
   }
 
   @override
@@ -234,6 +275,13 @@ class SmsIssuanceInvalidCodeError extends SmsIssuanceError {
   @override
   String toString() {
     return "Invalid code";
+  }
+}
+
+class SmsIssuanceCaptchaError extends SmsIssuanceError {
+  @override
+  String toString() {
+    return "Captcha validation failed";
   }
 }
 
