@@ -1036,5 +1036,23 @@
   "signature": {
     "read_more": "Mehr lesen",
     "read_less": "Weniger lesen"
+  },
+  "review": {
+    "gate": {
+      "title": "Gefällt Ihnen Yivi?",
+      "body": "Sie haben Yivi jetzt ein paar Mal genutzt. Wir würden gerne wissen, wie es läuft.",
+      "positive": "Ja, es gefällt mir",
+      "negative": "Nicht wirklich"
+    },
+    "feedback": {
+      "title": "Was könnte besser sein?",
+      "body": "Sagen Sie uns, was nicht funktioniert.",
+      "hint": "Ihr Feedback",
+      "privacy": "Ihre Nachricht geht an unser Team, geben Sie daher bitte keine persönlichen Daten an.",
+      "send": "Senden",
+      "cancel": "Abbrechen",
+      "thanks": "Danke, damit machen wir Yivi besser.",
+      "close": "Schließen"
+    }
   }
 }
