@@ -115,6 +115,25 @@ void main() {
       final api = FakeSmsIssuerApi();
       await _goToEnterPhoneScreen(tester, irmaBinding, api: api);
 
+      // The country picker is intl_phone_number_input 0.7.5's bottom sheet: it
+      // paints its background on a Container that sits between the modal's
+      // (transparent) Material and its bare country ListTiles. That trips a
+      // cosmetic, debug-only Flutter assertion ("ListTile background color or
+      // ink splashes may be invisible") once per visible tile. The package is
+      // unmaintained (0.7.5 is the latest) and release builds are unaffected,
+      // so swallow just that one assertion here — every other error still
+      // propagates to the test binding and fails the test as usual.
+      final previousOnError = FlutterError.onError;
+      FlutterError.onError = (details) {
+        if (details.exceptionAsString().contains(
+          "ListTile background color or ink splashes",
+        )) {
+          return;
+        }
+        previousOnError?.call(details);
+      };
+      addTearDown(() => FlutterError.onError = previousOnError);
+
       // Press the country selector button
       await tester.tapAndSettle(find.byKey(const Key("intl_dropdown_key")));
 

@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "99.0.0"
+  altcha_lib:
+    dependency: "direct main"
+    description:
+      name: altcha_lib
+      sha256: "5d1660b1e7ab1e5706cf6a3082fda023084dcc0b05302207c045f5a73f3eebea"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   analyzer:
     dependency: transitive
     description:
@@ -984,7 +992,7 @@ packages:
     source: hosted
     version: "2.1.8"
   pointycastle:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
       ref: master
@@ -1113,7 +1121,7 @@ packages:
     source: hosted
     version: "7.1.0"
   shared_preferences:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: shared_preferences
       sha256: c3025c5534b01739267eb7d76959bbc25a6d10f6988e1c2a3036940133dd10bf

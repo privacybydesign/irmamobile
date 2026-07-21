@@ -11,8 +11,11 @@ import "../../../util/handle_pointer.dart";
 /// overlay's PIN: starting it earlier would let the session hit `requestPin`
 /// before the unlock refreshes the keyshare token (a second PIN prompt), and
 /// would clear the pending-pointer signal the lock screen uses to hide
-/// biometric. `getLocked()` only flips to false after a successful
-/// KeyshareVerifyPin, so by the time we start here the token is fresh.
+/// biometric. Biometric unlock also flips `getLocked()` to false without
+/// refreshing the token, but the biometric backstop
+/// ([BiometricService.authenticateAndUnlock]) refuses to unlock while a pointer
+/// is pending, so when we start here the unlock came from a PIN and the token is
+/// fresh.
 class PendingPointerListener extends StatefulWidget {
   final Widget child;
   const PendingPointerListener({super.key, required this.child});
