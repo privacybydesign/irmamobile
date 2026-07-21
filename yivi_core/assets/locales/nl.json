@@ -110,6 +110,10 @@
     "expired": "Verlopen",
     "revoked": "Ingetrokken",
     "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen.",
+    "unavailable": {
+      "title": "Deze gegevens zijn niet meer beschikbaar",
+      "body": "Deze gegevens kunnen niet meer worden opgehaald omdat de uitgever niet meer beschikbaar is."
+    },
     "boolean_yes": "Ja",
     "boolean_no": "Nee"
   },
@@ -732,7 +736,8 @@
     "unknown": "Onbekend",
     "go_back": "Ga terug",
     "add": "Toevoegen",
-    "activate": "Activeren"
+    "activate": "Activeren",
+    "ok": "OK"
   },
   "search": {
     "cancel": "Annuleer"

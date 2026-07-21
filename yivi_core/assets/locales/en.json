@@ -110,6 +110,10 @@
     "expired": "Expired",
     "revoked": "Revoked",
     "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data.",
+    "unavailable": {
+      "title": "This credential is no longer available",
+      "body": "This credential can no longer be obtained because its issuer is no longer available."
+    },
     "boolean_yes": "Yes",
     "boolean_no": "No"
   },
@@ -732,7 +736,8 @@
     "unknown": "Unknown",
     "go_back": "Go back",
     "add": "Add",
-    "activate": "Activate"
+    "activate": "Activate",
+    "ok": "OK"
   },
   "search": {
     "cancel": "Cancel"

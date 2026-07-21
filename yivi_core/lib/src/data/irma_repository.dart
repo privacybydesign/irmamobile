@@ -42,6 +42,8 @@ import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
+import "../util/reissue_resolver.dart";
+import "../widgets/credential_card/reissue_unavailable_dialog.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -853,12 +855,6 @@ class IrmaRepository {
     WidgetRef ref,
   ) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = issueURL?.translate(lang);
-    if (url == null || url.isEmpty) {
-      throw UnsupportedError(
-        "Credential type $credentialId does not have a suitable issue url for $lang",
-      );
-    }
 
     final embeddedFlows = {
       //----------- production
@@ -876,8 +872,37 @@ class IrmaRepository {
     };
     final flow = embeddedFlows[credentialId];
     if (flow != null) {
+      final url = issueURL?.translate(lang);
+      if (url == null || url.isEmpty) {
+        throw UnsupportedError(
+          "Credential type $credentialId does not have a suitable issue url for $lang",
+        );
+      }
       return flow(context, url, ref);
     }
+
+    // A credential the user holds carries the issue URL that was current when
+    // it was obtained. If the scheme later removed or replaced that credential
+    // type, following the stored URL lands the user on a bare 404. Resolve
+    // against the freshly-loaded configuration instead: prefer its (possibly
+    // updated) issue URL, or tell the user the credential is no longer
+    // available.
+    final resolution = resolveReissue(
+      credentialId: credentialId,
+      fallbackIssueUrl: issueURL,
+      irmaConfiguration: _irmaConfigurationSubject.valueOrNull,
+      languageCode: lang,
+    );
+    if (resolution is ReissueUnavailable) {
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          builder: (_) => const ReissueUnavailableDialog(),
+        );
+      }
+      return;
+    }
+    final url = (resolution as ReissueAvailable).url;
 
     markInAppLaunched([credentialId]);
 
