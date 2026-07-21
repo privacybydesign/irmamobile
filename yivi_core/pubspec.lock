@@ -273,14 +273,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
-  diffie_hellman:
-    dependency: transitive
-    description:
-      name: diffie_hellman
-      sha256: cf88adea8d7c56ed145e95db87e61297c52d236c2faace48fbcb425a73ddeba6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.2"
   dlibphonenumber:
     dependency: transitive
     description:
@@ -1464,9 +1456,9 @@ packages:
   vcmrtd:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "v3.8.0"
-      resolved-ref: ab3cc91b643b4d90f03f2cc493dbcefeac1d7342
+      path: vcmrtd
+      ref: "v3.9.0"
+      resolved-ref: d01d158d9af7f088b832c0dd93f29bf68cd5a6a4
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"

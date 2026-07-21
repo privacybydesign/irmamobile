@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Face verification for document (passport, ID card, driving licence) issuance: after reading the chip over NFC, the app runs a Regula liveness session and passes the resulting liveness transaction id to the passport issuer, which matches the live face against the chip portrait. Runs in the Play Store / App Store build only; the F-Droid build does not depend on the Regula SDK and has face verification disabled.
 - Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
 - Solve a proof-of-work challenge before requesting an SMS verification code in the embedded issuance flow, to make automated bulk requests expensive (no-op against issuers that do not hand out a challenge)
 

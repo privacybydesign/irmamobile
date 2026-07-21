@@ -780,6 +780,18 @@
     "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
     "open_settings": "Open settings"
   },
+  "face_verification": {
+    "title": "Face verification",
+    "preparing": "One moment, preparing your data…",
+    "intro": {
+      "explanation": "We'll now do a quick face check to confirm you're the person shown in the document.",
+      "tip_camera": "Point the selfie camera at your face.",
+      "tip_lighting": "Make sure there's enough light.",
+      "tip_look_straight": "Look straight into the camera.",
+      "tip_no_accessories": "Remove glasses, hats, etc.",
+      "start": "Start verification"
+    }
+  },
   "driving_licence": {
     "scan": {
       "title": "Scan driving licence",

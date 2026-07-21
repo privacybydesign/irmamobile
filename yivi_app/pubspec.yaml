@@ -25,6 +25,14 @@ dependencies:
   pinput: ^6.0.1
   in_app_review: ^2.0.10
 
+  # Regula Face SDK for the client-side liveness session (face verification).
+  # The MIT-licensed Dart plugin plus the Regula native core; kept out of
+  # yivi_core so the FOSS yivi_fdroid build does not depend on it. The concrete
+  # RegulaFaceService implementation lives in lib/regula_face_service.dart and
+  # is injected via runYiviApp(regulaFaceService: ...).
+  flutter_face_api: ^8.2.1149
+  flutter_face_core_basic: ^8.2.461
+
   flutter_i18n: any
   flutter_localizations:
     sdk: flutter
@@ -45,7 +53,9 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v3.8.0
+      # Must match the ref in yivi_core/pubspec.yaml.
+      ref: v3.9.0
+      path: vcmrtd
   package_info_plus: ^10.1.0
   collection: ^1.18.0
   rxdart: ^0.28.0
