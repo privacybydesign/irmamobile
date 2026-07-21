@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Universal-link sessions are gated behind the PIN on a warm resume too, not only on cold start: when the app auto-locks after being idle and is then opened by a session link, biometric (Face ID / fingerprint) is withheld while a session is pending or in flight, so it can't unlock ahead of the incoming session
 - Scanning a desktop QR code with the phone's camera app is again treated as a second-device session instead of running the same-device return flow
 - On a second-device session, the relying party's client return URL is no longer opened in a browser on the phone (the browser session lives on the other device); the wallet confirms success locally instead. A `tel:` return URL still opens the phone dialer.
+- Reobtaining a credential whose issuer was removed from the scheme no longer opens the browser to a bare 404: the reissue is resolved against the current scheme, so a credential replaced by a newer version redirects to its replacement, and a credential that is no longer available shows a dialog explaining this instead
 
 ## [8.1.1] - 2026-07-14
 ### Fixed
