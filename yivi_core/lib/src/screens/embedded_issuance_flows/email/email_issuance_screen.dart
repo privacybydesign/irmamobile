@@ -12,19 +12,20 @@ import "widgets/verify_email_screen.dart";
 // ==========================================================
 
 class EmailIssuanceScreen extends ConsumerWidget {
-  /// The email address the verifier requested, used to pre-fill the input on
-  /// the enter-email screen. `null` when the user opened this flow without a
-  /// known required value (e.g. obtaining the email credential manually).
-  final String? prefillEmail;
+  /// The email addresses the verifier accepts. When non-empty, the
+  /// enter-email screen locks its input to a choice between these addresses.
+  /// Empty when the user opened this flow without known required values
+  /// (e.g. obtaining the email credential manually).
+  final List<String> requestedEmails;
 
-  const EmailIssuanceScreen({super.key, this.prefillEmail});
+  const EmailIssuanceScreen({super.key, this.requestedEmails = const []});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(emailIssuanceProvider);
 
     return switch (state.stage) {
-      .enteringEmail => EnterEmailScreen(prefillEmail: prefillEmail),
+      .enteringEmail => EnterEmailScreen(requestedEmails: requestedEmails),
       .enteringVerificationCode => VerifyEmailScreen(),
       .waiting => _WaitingScreen(),
     };

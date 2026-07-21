@@ -34,13 +34,13 @@ void main() {
       _attr("domain"),
     ]);
 
-    expect(descriptor.requestedValueString, "john.doe@example.com");
+    expect(descriptor.requestedValues, ["john.doe@example.com"]);
   });
 
-  test("returns null when no attribute carries a requested value", () {
+  test("returns an empty list when no attribute carries a requested value", () {
     final descriptor = _descriptor([_attr("email"), _attr("domain")]);
 
-    expect(descriptor.requestedValueString, isNull);
+    expect(descriptor.requestedValues, isEmpty);
   });
 
   test("ignores empty requested values", () {
@@ -49,6 +49,15 @@ void main() {
       _attr("domain", requested: "example.com"),
     ]);
 
-    expect(descriptor.requestedValueString, "example.com");
+    expect(descriptor.requestedValues, ["example.com"]);
+  });
+
+  test("collects requested values from all attributes in order", () {
+    final descriptor = _descriptor([
+      _attr("email", requested: "john.doe@example.com"),
+      _attr("domain", requested: "example.com"),
+    ]);
+
+    expect(descriptor.requestedValues, ["john.doe@example.com", "example.com"]);
   });
 }

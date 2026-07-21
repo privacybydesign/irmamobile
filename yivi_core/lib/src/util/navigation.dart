@@ -34,12 +34,11 @@ extension RoutingHelpers on BuildContext {
     push("/issue_mobilenumber");
   }
 
-  void pushEmailIssuanceScreen({String? prefillEmail}) {
+  void pushEmailIssuanceScreen({List<String> requestedEmails = const []}) {
     final uri = Uri(
       path: "/issue_email",
       queryParameters: {
-        if (prefillEmail != null && prefillEmail.isNotEmpty)
-          "prefill_email": prefillEmail,
+        if (requestedEmails.isNotEmpty) "requested_email": requestedEmails,
       },
     );
     push(uri.toString());
