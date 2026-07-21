@@ -38,7 +38,6 @@ dependencies:
   share_plus: ^13.1.0
   intl: ^0.20.2
   flutter_markdown: ^0.7.4+1
-  shared_preferences: ^2.0.7
   async: ^2.11.0
   streaming_shared_preferences: ^2.0.0
   visibility_detector: ^0.4.0+2
@@ -77,6 +76,9 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   json_serializable: ^6.11.0
+  # Test-only: keyshare_lock_test.dart uses SharedPreferences.setMockInitialValues.
+  # Runtime code uses streaming_shared_preferences (which pulls this in transitively).
+  shared_preferences: ^2.0.7
   flutter_lints: ^6.0.0
   flutter_native_splash: ^2.4.6
   build_runner: ^2.10.5
