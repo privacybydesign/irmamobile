@@ -15,6 +15,55 @@ import "../../../../widgets/translated_text.dart";
 import "../../../../widgets/yivi_themed_button.dart";
 import "../../widgets/embedded_issuance_error_screen.dart";
 
+/// Alpha-2 codes of countries excluded from the phone number input. Most are
+/// excluded because CM (the SMS provider) does not support their phone numbers;
+/// Bolivia, Cambodia and Ecuador are excluded because they carry a
+/// higher-than-average risk of SMS pumping fraud.
+const excludedSmsCountryCodes = {
+  "AF", // Afghanistan
+  "AO", // Angola
+  "DZ", // Algeria
+  "AZ", // Azerbaijan
+  "BD", // Bangladesh
+  "BY", // Belarus
+  "BT", // Bhutan
+  "BO", // Bolivia (SMS pumping fraud risk)
+  "BI", // Burundi
+  "KH", // Cambodia (SMS pumping fraud risk)
+  "EC", // Ecuador (SMS pumping fraud risk)
+  "EG", // Egypt
+  "ET", // Ethiopia
+  "GM", // Gambia
+  "ID", // Indonesia
+  "IR", // Iran
+  "IQ", // Iraq
+  "JO", // Jordan
+  "KZ", // Kazakhstan
+  "XK", // Kosovo
+  "KG", // Kyrgyzstan
+  "LB", // Lebanon
+  "LY", // Libya
+  "MG", // Madagascar
+  "MW", // Malawi
+  "MR", // Mauritania
+  "MN", // Mongolia
+  "ME", // Montenegro
+  "MZ", // Mozambique
+  "NP", // Nepal
+  "PK", // Pakistan
+  "RU", // Russia
+  "SN", // Senegal
+  "SI", // Slovenia
+  "LK", // Sri Lanka
+  "SY", // Syria
+  "TJ", // Tajikistan
+  "TZ", // Tanzania
+  "TN", // Tunisia
+  "TM", // Turkmenistan
+  "UZ", // Uzbekistan
+  "YE", // Yemen
+};
+
 class EnterPhoneScreen extends ConsumerStatefulWidget {
   const EnterPhoneScreen();
 
@@ -355,46 +404,8 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
 
   /// Removes countries that should not be available in the phone number input.
   static void _removeExcludedCountries() {
-    const excludedCountries = {
-      "AF", // Afghanistan
-      "AO", // Angola
-      "DZ", // Algeria
-      "AZ", // Azerbaijan
-      "BD", // Bangladesh
-      "BY", // Belarus
-      "BT", // Bhutan
-      "BI", // Burundi
-      "EG", // Egypt
-      "ET", // Ethiopia
-      "ID", // Indonesia
-      "IR", // Iran
-      "IQ", // Iraq
-      "JO", // Jordan
-      "KZ", // Kazakhstan
-      "XK", // Kosovo
-      "KG", // Kyrgyzstan
-      "LB", // Lebanon
-      "LY", // Libya
-      "MG", // Madagascar
-      "MW", // Malawi
-      "MR", // Mauritania
-      "NP", // Nepal
-      "PK", // Pakistan
-      "RU", // Russia
-      "SN", // Senegal
-      "SI", // Slovenia
-      "LK", // Sri Lanka
-      "SY", // Syria
-      "TJ", // Tajikistan
-      "TZ", // Tanzania
-      "TN", // Tunisia
-      "TM", // Turkmenistan
-      "UZ", // Uzbekistan
-      "YE", // Yemen
-    };
-
     Countries.countryList.removeWhere(
-      (c) => excludedCountries.contains(c["alpha_2_code"]),
+      (c) => excludedSmsCountryCodes.contains(c["alpha_2_code"]),
     );
   }
 
