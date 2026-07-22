@@ -19,6 +19,7 @@ class IrmaPreferences {
        // Please don't arbitrarily change this value, this could hinder the upgrade flow
        // For users before the pin size >5 was introduced.
        _longPin = preferences.getBool(_longPinKey, defaultValue: true),
+       _pinVisible = preferences.getBool(_pinVisibleKey, defaultValue: false),
        _reportErrors = preferences.getBool(
          _reportErrorsKey,
          defaultValue: false,
@@ -29,6 +30,18 @@ class IrmaPreferences {
        ),
        _acceptedRootedRisk = preferences.getBool(
          _acceptedRootedRiskKey,
+         defaultValue: false,
+       ),
+       _biometricEnabled = preferences.getBool(
+         _biometricEnabledKey,
+         defaultValue: false,
+       ),
+       _biometricImmediate = preferences.getBool(
+         _biometricImmediateKey,
+         defaultValue: true,
+       ),
+       _biometricPromptDismissed = preferences.getBool(
+         _biometricPromptDismissedKey,
          defaultValue: false,
        ),
        _completedDisclosurePermissionIntro = preferences.getBool(
@@ -54,7 +67,20 @@ class IrmaPreferences {
        _credentialOrder = preferences.getStringList(
          _credentialOrderKey,
          defaultValue: [],
-       ) {
+       ),
+       _reviewSuccessCount = preferences.getInt(
+         _reviewSuccessCountKey,
+         defaultValue: 0,
+       ),
+       _reviewTimesAsked = preferences.getInt(
+         _reviewTimesAskedKey,
+         defaultValue: 0,
+       ),
+       _reviewLastAskEpochMs = preferences.getInt(
+         _reviewLastAskEpochMsKey,
+         defaultValue: 0,
+       ),
+       _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -78,6 +104,10 @@ class IrmaPreferences {
   static const String _longPinKey = "preference.long_pin";
   final Preference<bool> _longPin;
 
+  /// Whether entered PIN digits are revealed (the eye toggle on the PIN screen).
+  static const String _pinVisibleKey = "preference.pin_visible";
+  final Preference<bool> _pinVisible;
+
   static const String _reportErrorsKey = "preference.report_errors";
   final Preference<bool> _reportErrors;
 
@@ -88,6 +118,22 @@ class IrmaPreferences {
   static const String _acceptedRootedRiskKey =
       "preference.accepted_rooted_risk";
   final Preference<bool> _acceptedRootedRisk;
+
+  /// Whether the user opted in to biometric app-unlock. Default off (opt-in).
+  static const String _biometricEnabledKey = "preference.biometric_enabled";
+  final Preference<bool> _biometricEnabled;
+
+  /// Whether the biometric scan fires automatically when the lock screen
+  /// appears, instead of waiting for a button tap. Default on; only has an
+  /// effect while [_biometricEnabled] is true.
+  static const String _biometricImmediateKey = "preference.biometric_immediate";
+  final Preference<bool> _biometricImmediate;
+
+  /// Whether the one-time biometric opt-in prompt has been answered/dismissed,
+  /// so it isn't shown again.
+  static const String _biometricPromptDismissedKey =
+      "preference.biometric_prompt_dismissed";
+  final Preference<bool> _biometricPromptDismissed;
 
   /// Originates from the notification that  IRMA is ABOUT TO change to Yivi, only used for cleanup-purposes
   static const String _showNameChangeNotificationKey =
@@ -126,6 +172,29 @@ class IrmaPreferences {
   // list of credential ids stored as json string
   final Preference<List<String>> _credentialOrder;
 
+  // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
+  // All wiped by clearAll(), so a logout/reset restarts the whole flow.
+
+  /// Successful sessions counted so far (disclosure, issuance and signature).
+  static const String _reviewSuccessCountKey =
+      "preference.review_success_count";
+  final Preference<int> _reviewSuccessCount;
+
+  /// How many times the sentiment gate has been shown: 0, 1 or 2.
+  static const String _reviewTimesAskedKey = "preference.review_times_asked";
+  final Preference<int> _reviewTimesAsked;
+
+  /// Wall-clock timestamp (ms since epoch) of the last ask, for the re-ask
+  /// delay.
+  static const String _reviewLastAskEpochMsKey =
+      "preference.review_last_ask_epoch_ms";
+  final Preference<int> _reviewLastAskEpochMs;
+
+  /// Terminal flag: set once the user answered the gate (yes or not-really) or
+  /// the second ask was reached. Never ask again once true.
+  static const String _reviewDoneKey = "preference.review_done";
+  final Preference<bool> _reviewDone;
+
   // =============================================================================
 
   Stream<bool> getScreenshotsEnabled() => _screenshotsEnabled;
@@ -136,6 +205,10 @@ class IrmaPreferences {
   Stream<bool> getLongPin() => _longPin;
 
   Future<bool> setLongPin(bool value) => _longPin.setValue(value);
+
+  bool getPinVisible() => _pinVisible.getValue();
+
+  Future<bool> setPinVisible(bool value) => _pinVisible.setValue(value);
 
   Stream<bool> getReportErrors() => _reportErrors;
 
@@ -150,6 +223,21 @@ class IrmaPreferences {
 
   Future<bool> setAcceptedRootedRisk(bool value) =>
       _acceptedRootedRisk.setValue(value);
+
+  Stream<bool> getBiometricEnabled() => _biometricEnabled;
+
+  Future<bool> setBiometricEnabled(bool value) =>
+      _biometricEnabled.setValue(value);
+
+  Stream<bool> getBiometricImmediate() => _biometricImmediate;
+
+  Future<bool> setBiometricImmediate(bool value) =>
+      _biometricImmediate.setValue(value);
+
+  Stream<bool> getBiometricPromptDismissed() => _biometricPromptDismissed;
+
+  Future<bool> setBiometricPromptDismissed(bool value) =>
+      _biometricPromptDismissed.setValue(value);
 
   Stream<bool> getCompletedDisclosurePermissionIntro() =>
       _completedDisclosurePermissionIntro;
@@ -189,6 +277,28 @@ class IrmaPreferences {
 
   Future<bool> setCredentialOrder(List<String> order) =>
       _credentialOrder.setValue(order);
+
+  // --- App-store review prompt ----------------------------------------------
+
+  int getReviewSuccessCountNow() => _reviewSuccessCount.getValue();
+
+  int getReviewTimesAskedNow() => _reviewTimesAsked.getValue();
+
+  int getReviewLastAskEpochMsNow() => _reviewLastAskEpochMs.getValue();
+
+  bool getReviewDoneNow() => _reviewDone.getValue();
+
+  Future<bool> incrementReviewSuccessCount() =>
+      _reviewSuccessCount.setValue(_reviewSuccessCount.getValue() + 1);
+
+  Future<bool> setReviewDone(bool value) => _reviewDone.setValue(value);
+
+  /// Records that the gate was just shown: bumps the ask count and stamps the
+  /// time so the re-ask delay can be evaluated later.
+  Future<void> recordReviewAsked({required int nowEpochMs}) async {
+    await _reviewTimesAsked.setValue(_reviewTimesAsked.getValue() + 1);
+    await _reviewLastAskEpochMs.setValue(nowEpochMs);
+  }
 
   Future<void> clearAll() {
     // Reset all preferences to their default values

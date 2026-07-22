@@ -10,16 +10,6 @@ import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
 
 extension RoutingHelpers on BuildContext {
-  void pushScannerScreen({required bool requireAuthBeforeSession}) {
-    final uri = Uri(
-      path: "/scanner",
-      queryParameters: {
-        "require_auth_before_session": requireAuthBeforeSession.toString(),
-      },
-    );
-    push(uri.toString());
-  }
-
   void pushErrorScreen({required String message}) {
     push("/error", extra: message);
   }
@@ -30,10 +20,6 @@ extension RoutingHelpers on BuildContext {
 
   Future<bool?> pushModalPin() async {
     return await push("/modal_pin");
-  }
-
-  bool isScannerTopRoute() {
-    return GoRouter.of(this).state.uri.path == "/scanner";
   }
 
   void pushAddDataScreen() {
@@ -81,10 +67,6 @@ extension RoutingHelpers on BuildContext {
 
   void goHomeScreen() {
     go("/home");
-  }
-
-  void goPinScreen() {
-    go("/pin");
   }
 
   void goSettingsScreen() {
@@ -294,7 +276,7 @@ class AddDataDetailsRouteParams {
     if (faq != null) {
       faqJson = jsonEncode(faq!.toJson());
     }
-    return {"credential": credJson, if (faqJson != null) "faq": faqJson};
+    return {"credential": credJson, "faq": ?faqJson};
   }
 
   static AddDataDetailsRouteParams fromQueryParams(Map<String, String> params) {
@@ -397,7 +379,7 @@ class PassportNfcReadingRouteParams {
       "document_number": documentNumber,
       "date_of_birth": dateOfBirth.toIso8601String(),
       "date_of_expiry": dateOfExpiry.toIso8601String(),
-      if (countryCode != null) "country_code": countryCode!,
+      "country_code": ?countryCode,
     };
   }
 

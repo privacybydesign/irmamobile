@@ -2,10 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 
 void main() {
-  final bloc5 = TestEnterPinStateBloc(5);
-  final bloc16 = TestEnterPinStateBloc(16);
-
-  test("Pin must contain at least 3 distinct numbers", () async {
+  test("Pin must contain at least 3 distinct numbers", () {
     final pins16 = <Pin>{
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
@@ -19,8 +16,7 @@ void main() {
       [0, 2, 7, 2, 0],
     };
     for (final pin in pins5) {
-      bloc5.add(pin);
-      final state = await bloc5.stream.first;
+      final state = EnterPinState.createFrom(pin: pin);
       expect(
         state.attributes.contains(SecurePinAttribute.containsThreeUnique),
         false,
@@ -28,8 +24,7 @@ void main() {
       expect(state.goodEnough, false);
     }
     for (final pin in pins16) {
-      bloc16.add(pin);
-      final state = await bloc16.stream.first;
+      final state = EnterPinState.createFrom(pin: pin);
       expect(
         state.attributes.contains(SecurePinAttribute.containsThreeUnique),
         false,
@@ -37,8 +32,7 @@ void main() {
       expect(state.goodEnough, false);
     }
     for (final pin in validPins5) {
-      bloc5.add(pin);
-      final state = await bloc5.stream.first;
+      final state = EnterPinState.createFrom(pin: pin);
       expect(
         state.attributes.contains(SecurePinAttribute.containsThreeUnique),
         true,
@@ -49,7 +43,7 @@ void main() {
 
   test(
     "PIN, n=5 that have short, translation symmetric and/or mirror symmetric patterns",
-    () async {
+    () {
       final pins5 = <Pin>{
         [0, 1, 3, 1, 0],
         [1, 3, 5, 3, 1],
@@ -60,8 +54,7 @@ void main() {
       };
 
       for (final pin in pins5) {
-        bloc5.add(pin);
-        final state = await bloc5.stream.first;
+        final state = EnterPinState.createFrom(pin: pin);
         expect(
           state.attributes.contains(SecurePinAttribute.notAbcabNorAbcba),
           false,
@@ -71,7 +64,7 @@ void main() {
     },
   );
 
-  test("PIN must not be ascending nor descending", () async {
+  test("PIN must not be ascending nor descending", () {
     final invalidPins5 = <Pin>[
       [1, 2, 3, 4, 5],
       [4, 3, 2, 1, 0],
@@ -87,8 +80,7 @@ void main() {
     ];
 
     for (final pin in invalidPins5) {
-      bloc5.add(pin);
-      final state = await bloc5.stream.first;
+      final state = EnterPinState.createFrom(pin: pin);
       expect(
         state.attributes.contains(SecurePinAttribute.mustNotAscNorDesc),
         false,
@@ -97,13 +89,12 @@ void main() {
     }
 
     for (final pin in validPins5) {
-      bloc5.add(pin);
-      final state = await bloc5.stream.first;
+      final state = EnterPinState.createFrom(pin: pin);
       expect(state.goodEnough, true);
     }
   });
 
-  test("PIN must contain a valid subset of 5 #1 true cases", () async {
+  test("PIN must contain a valid subset of 5 #1 true cases", () {
     final allowed = <Pin>[
       [1, 2, 3, 4, 5, 7, 8],
       [4, 3, 2, 1, 0, 1, 1],
@@ -114,13 +105,12 @@ void main() {
     ];
 
     for (final pin in allowed) {
-      bloc16.add(pin);
-      final state = await bloc16.stream.first;
+      final state = EnterPinState.createFrom(pin: pin);
       expect(state.goodEnough, true);
     }
   });
 
-  test("PIN must contain a valid subset of 5 #2 false cases", () async {
+  test("PIN must contain a valid subset of 5 #2 false cases", () {
     final disallowed = <Pin>[
       [1, 2, 3, 4, 5],
       [4, 3, 2, 1, 0],
@@ -133,8 +123,7 @@ void main() {
     ];
 
     for (final pin in disallowed) {
-      bloc16.add(pin);
-      final state = await bloc16.stream.first;
+      final state = EnterPinState.createFrom(pin: pin);
       expect(
         state.attributes.contains(SecurePinAttribute.mustContainValidSubset),
         false,

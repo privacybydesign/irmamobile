@@ -2,12 +2,15 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../data/irma_repository.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
+import "../pin/providers/biometric_provider.dart";
+import "../pin/widgets/biometric_opt_in_dialog.dart";
 import "accept_terms/accept_terms_screen.dart";
 import "bloc/enrollment_bloc.dart";
 import "choose_pin/choose_pin_screen.dart";
@@ -38,19 +41,10 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
   const _ProvidedEnrollmentScreen({required this.repo});
 
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
-    // we have to await the locked setting, because it could come after the enrollment status,
-    // causing us to be automatically redirected to the pin screen when we're already unlocked...
-    final locked = await repo.getLocked().first;
-
-    if (!context.mounted) {
-      return;
-    }
-
-    if (locked) {
-      context.goPinScreen();
-    } else {
-      context.goHomeScreen();
-    }
+    if (!context.mounted) return;
+    // LockGate handles displaying the PIN overlay if the app is still
+    // locked after enrollment.
+    context.goHomeScreen();
   }
 
   @override
@@ -67,6 +61,11 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
+        // AnnotatedRegion replaces the whole style, so repeat the bar-icon
+        // brightness here or the status bar reverts to unreadable on Android 15+.
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
+        statusBarBrightness: Brightness.light, // iOS: light bg
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
@@ -96,8 +95,28 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             return ConfirmPinScreen(
               newPinNotifier: newPin,
               onPrevious: addOnPreviousPressed,
-              submitConfirmationPin: (pin) =>
-                  addEvent(EnrollmentPinConfirmed(pin)),
+              // After the PIN is confirmed, offer biometric unlock (once, only
+              // if a biometric is enrolled and the user hasn't already chosen).
+              // Then advance to the email step.
+              submitConfirmationPin: (pin) async {
+                final container = ProviderScope.containerOf(
+                  context,
+                  listen: false,
+                );
+                final available = await container.read(
+                  biometricAvailableProvider.future,
+                );
+                final enabled = await repo.preferences
+                    .getBiometricEnabled()
+                    .first;
+                final dismissed = await repo.preferences
+                    .getBiometricPromptDismissed()
+                    .first;
+                if (context.mounted && available && !enabled && !dismissed) {
+                  await showBiometricOptInDialog(context);
+                }
+                if (context.mounted) addEvent(EnrollmentPinConfirmed(pin));
+              },
               onPinMismatch: () {
                 showDialog(
                   barrierDismissible: false,

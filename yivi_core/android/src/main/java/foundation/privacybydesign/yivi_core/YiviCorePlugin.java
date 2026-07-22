@@ -108,8 +108,27 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
     private void maybeCreateBridge() {
         if (bridge == null && channel != null && activity != null && applicationContext != null) {
-            bridge = new IrmaMobileBridge(applicationContext, activity, channel, activity.getIntent().getData());
+            Intent launchIntent = activity.getIntent();
+            Uri data = shouldDropDeepLink(launchIntent) ? null : launchIntent.getData();
+            bridge = new IrmaMobileBridge(applicationContext, activity, channel, data);
             channel.setMethodCallHandler(bridge);
         }
+    }
+
+    /**
+     * Decides whether the deep link carried by the launching intent must be ignored.
+     *
+     * <p>When the user relaunches the app from the recents list — or Android restores
+     * the task after a process kill — the original launching intent is replayed with
+     * {@link Intent#FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY} set. In that case the deep
+     * link has already been consumed, so re-firing it would replay a stale session URL
+     * as a brand new session (the bug fixed in #568). A genuine new deep link arrives
+     * without this flag (via {@code onNewIntent}), so it is left untouched.
+     *
+     * <p>Pure function of the intent's flags; extracted so the regression can be unit
+     * tested without an Activity lifecycle.
+     */
+    static boolean shouldDropDeepLink(Intent launchIntent) {
+        return (launchIntent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0;
     }
 }

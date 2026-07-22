@@ -1,4 +1,5 @@
 import "activity_test.dart" as activity_test;
+import "biometric_test.dart" as biometric_test;
 import "data_search_test.dart" as search_test;
 import "disclose_sdjwt_over_openid4vp_test.dart" as openid4vp_test;
 import "disclosure_session/disclosure_session_test_all.dart"
@@ -29,6 +30,7 @@ import "qr_on_pin_screen_test.dart" as qr_on_pin_screen_test;
 import "reorder_cards_test.dart" as reorder_cards_test;
 import "rooted_warning_test.dart" as rooted_warning_test;
 import "settings_test.dart" as settings_test;
+import "store_review_test.dart" as store_review_test;
 
 /// Wrapper to execute all tests at once.
 void main() {
@@ -44,12 +46,14 @@ void main() {
   qr_on_pin_screen_test.main();
   rooted_warning_test.main();
   enroll_test.main();
+  biometric_test.main();
   idle_lock_test.main();
   login_test.main();
   settings_test.main();
   issuance_test.main();
   more_tab_test.main();
   activity_test.main();
+  store_review_test.main();
   disclosure_session.main();
   // issue_wizard_test.main();
   notifications_test.main();

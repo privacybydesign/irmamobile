@@ -31,21 +31,12 @@ class _LoadingScreenState extends State<LoadingScreen> {
     });
   }
 
-  void _enrollmentStatusHandler(EnrollmentStatus status) async {
-    // we have to await the locked setting, because it could come after the enrollment status,
-    // causing us to be automatically redirected to the pin screen when we're already unlocked...
-    final locked = await IrmaRepositoryProvider.of(context).getLocked().first;
-
-    if (!mounted) {
-      return;
-    }
-
+  void _enrollmentStatusHandler(EnrollmentStatus status) {
+    if (!mounted) return;
     if (status == EnrollmentStatus.enrolled) {
-      if (locked) {
-        context.goPinScreen();
-      } else {
-        context.goHomeScreenWithoutTransition();
-      }
+      // LockGate handles displaying the PIN overlay if the app is
+      // locked; no separate /pin route to navigate to.
+      context.goHomeScreenWithoutTransition();
     } else if (status == EnrollmentStatus.unenrolled) {
       context.goEnrollmentScreen();
     }

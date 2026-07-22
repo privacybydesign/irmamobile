@@ -10,9 +10,12 @@ final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
 ) async* {
   final repo = ref.watch(irmaRepositoryProvider);
 
-  await for (final credentials in repo.getCredentialStoreItems()) {
-    yield credentials;
-  }
+  // Credentials that require onboard NFC issuance (passport, ID card, driving
+  // licence) stay in the store on devices without NFC hardware (e.g. iPads).
+  // The add-data screen greys them out and explains, on tap, that the device
+  // cannot load them without NFC — see `SchemalessAddDataScreen` and
+  // `nfcAvailableProvider`.
+  yield* repo.getCredentialStoreItems();
 });
 
 class CredentialStoreCategory {
