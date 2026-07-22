@@ -15,6 +15,7 @@ import "src/providers/preferences_provider.dart";
 import "src/providers/qr_scanner_factory_provider.dart";
 import "src/providers/schemaless_credentials_list_provider.dart";
 import "src/providers/sms_issuance_provider.dart";
+import "src/providers/store_review_provider.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/sentry/sentry.dart";
@@ -28,6 +29,7 @@ export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/qr_scanner_factory_provider.dart";
 export "src/providers/sms_issuance_provider.dart";
+export "src/providers/store_review_provider.dart" show StoreReviewService;
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 
@@ -35,6 +37,7 @@ Future<void> runYiviApp({
   required QrScannerFactory qrScannerFactory,
   OcrProcessor? ocrProcessor,
   SmsRetriever? smsRetriever,
+  StoreReviewService? storeReviewService,
 }) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
@@ -48,6 +51,11 @@ Future<void> runYiviApp({
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
+        // Android 15+ enforces edge-to-edge, so bar colors are ignored;
+        // icon brightness is what keeps the bars readable. App is light-only.
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
+        statusBarBrightness: Brightness.light, // iOS: light bg
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
@@ -87,6 +95,11 @@ Future<void> runYiviApp({
           // passed in from the outside so each app picks a scanner backend
           // appropriate to its distribution channel (ML Kit vs. zxing-cpp)
           qrScannerFactoryProvider.overrideWithValue(qrScannerFactory),
+
+          // passed in from the outside so the proprietary in-app-review
+          // dependency stays out of the FOSS build; null there disables the
+          // whole review prompt
+          storeReviewServiceProvider.overrideWithValue(storeReviewService),
 
           // can pass an environment variable to test with errors on passport issuance
           if (passportIssuanceError.isNotEmpty)

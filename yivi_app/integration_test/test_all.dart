@@ -30,6 +30,7 @@ import "qr_on_pin_screen_test.dart" as qr_on_pin_screen_test;
 import "reorder_cards_test.dart" as reorder_cards_test;
 import "rooted_warning_test.dart" as rooted_warning_test;
 import "settings_test.dart" as settings_test;
+import "store_review_test.dart" as store_review_test;
 
 /// Wrapper to execute all tests at once.
 void main() {
@@ -52,6 +53,7 @@ void main() {
   issuance_test.main();
   more_tab_test.main();
   activity_test.main();
+  store_review_test.main();
   disclosure_session.main();
   // issue_wizard_test.main();
   notifications_test.main();

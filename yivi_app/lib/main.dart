@@ -6,6 +6,7 @@ import "package:yivi_core/yivi_core.dart";
 import "ocr_processor.dart";
 import "qr_scanner_factory.dart";
 import "sms_retriever.dart";
+import "store_review_service.dart";
 
 void main() {
   runYiviApp(
@@ -14,5 +15,6 @@ void main() {
     smsRetriever: Platform.isAndroid
         ? SmartAuthSmsRetriever(SmartAuth.instance)
         : null,
+    storeReviewService: InAppReviewStoreReviewService(),
   );
 }

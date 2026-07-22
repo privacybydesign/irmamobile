@@ -1,13 +1,21 @@
+import "dart:async";
+import "dart:convert";
+
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:yivi_core/src/models/enrollment_status.dart";
+import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/enrollment/enrollment_screen.dart";
+import "package:yivi_core/src/screens/pin/pin_screen.dart";
+import "package:yivi_core/src/screens/session/session_screen.dart";
+import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
 import "helpers/fake_local_auth.dart";
 import "helpers/helpers.dart";
+import "helpers/issuance_helpers.dart";
 import "irma_binding.dart";
 import "util.dart";
 
@@ -333,6 +341,14 @@ void main() {
       await tester.waitFor(lockScreenBiometricButton);
       expect(fakeAuth.authenticateCalls, 1);
 
+      // Let the launch scan fully unwind before backgrounding. `authenticateCalls`
+      // ticks up inside `authenticate()`, but `_biometricUnlock` is still awaiting
+      // (on iOS the privacy-screen disable/restore round-trips), so `_scanInProgress`
+      // is still true here. The `paused` re-arm below only fires when a scan is NOT
+      // in progress, so without settling first it would be skipped and the re-open
+      // would never re-scan.
+      await tester.pumpAndSettle();
+
       // Background then foreground the app.
       WidgetsBinding.instance.handleAppLifecycleStateChanged(
         AppLifecycleState.inactive,
@@ -343,9 +359,12 @@ void main() {
       WidgetsBinding.instance.handleAppLifecycleStateChanged(
         AppLifecycleState.resumed,
       );
-      await tester.pumpAndSettle();
 
-      // Re-open re-armed the guard, so the scan fired again.
+      // Re-open re-armed the guard, so the scan fires again. The counter ticks
+      // up inside `authenticate()`, which on iOS sits behind an async
+      // privacy-screen platform call that schedules no frame — pumpAndSettle
+      // would return before it lands, so poll until the second scan arrives.
+      await tester.pumpUntil(() => fakeAuth.authenticateCalls == 2);
       expect(fakeAuth.authenticateCalls, 2);
     });
 
@@ -388,6 +407,191 @@ void main() {
       expect(lockScreenBiometricButton, findsNothing);
       expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
       expect(homeTab, findsNothing);
+    });
+
+    // Regression for #644: the app must never unlock biometrically when it was
+    // opened via a universal link carrying a session. A session has to be gated
+    // behind a real PIN (only a PIN refreshes the keyshare token), so the
+    // biometric auto-scan is held back until the launch URL is known. With a
+    // session already queued at startup, biometric is never offered and never
+    // auto-fires — the user is deterministically forced to the PIN, with no
+    // "unlock then immediately re-lock" flash.
+    testWidgets(
+      "universal-link session at launch never unlocks biometrically",
+      (tester) async {
+        await irmaBinding.repository.preferences.setBiometricEnabled(true);
+        // biometricImmediate left at its default (on): the auto-scan WOULD fire
+        // on launch if it weren't gated by the pending session.
+        final fakeAuth = FakeLocalAuthentication(
+          available: true,
+          authenticateResult: true,
+        );
+
+        // The session the universal link carries is already queued when the app
+        // starts — the cold-start case the fix makes deterministic (the pointer
+        // is delivered before biometric is allowed to run).
+        await startIssuanceSession(
+          irmaBinding,
+          groupAttributes(
+            createMunicipalityPersonalDataAttributes(const Locale("en", "EN")),
+          ),
+        );
+
+        await pumpYiviApp(tester, irmaBinding.repository, localAuth: fakeAuth);
+        await tester.pumpAndSettle();
+
+        // Biometric never ran: no auto-scan, no button. Still on the PIN lock
+        // screen — not home, and not advanced into the session.
+        expect(fakeAuth.authenticateCalls, 0);
+        expect(lockScreenBiometricButton, findsNothing);
+        expect(find.byKey(const Key("number_pad_key_1")), findsOneWidget);
+        expect(homeTab, findsNothing);
+        expect(find.byType(SessionScreen), findsNothing);
+
+        // Only a real PIN unlock lets the queued session proceed.
+        await unlock(tester);
+        await tester.waitFor(find.byType(IssuancePermission));
+      },
+    );
+
+    // Regression for #654: a universal-link session opened on a warm resume-lock
+    // must be PIN-gated, never admitted by biometric. The lock screen withholds
+    // biometric while a session is pending OR in flight; the backstop refuses a
+    // biometric unlock if either holds when the OS prompt returns.
+
+    // Background past the idle threshold and resume, so the next frame auto-locks
+    // and PinScreen builds.
+    Future<void> backgroundPastIdleAndResume(
+      WidgetTester tester,
+      Duration threshold,
+    ) async {
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.inactive,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.hidden,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.paused,
+      );
+      await Future<void>.delayed(threshold * 4);
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.hidden,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.inactive,
+      );
+      WidgetsBinding.instance.handleAppLifecycleStateChanged(
+        AppLifecycleState.resumed,
+      );
+      await tester.pump();
+    }
+
+    // Backstop: even if biometric auto-fires on a plain resume-lock, a session
+    // arriving while the OS prompt is up must not be admitted by that unlock.
+    testWidgets("resume-lock: a link arriving mid-prompt is refused by the "
+        "backstop", (tester) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      final fakeAuth = FakeLocalAuthentication(
+        available: true,
+        authenticateResult: true,
+      );
+      const threshold = Duration(milliseconds: 50);
+
+      await pumpYiviApp(
+        tester,
+        irmaBinding.repository,
+        localAuth: fakeAuth,
+        idleLockThreshold: threshold,
+      );
+      await tester.waitFor(homeTab);
+      expect(fakeAuth.authenticateCalls, 1);
+
+      final pointer = await createIssuanceSession(
+        attributes: createMunicipalityPersonalDataAttributes(
+          const Locale("en", "EN"),
+        ),
+      );
+
+      // Hold the prompt open so we can inject the link while it is up.
+      fakeAuth.authenticateGate = Completer<bool>();
+
+      // Resume with no link yet: the idle-lock auto-fires biometric, which now
+      // waits on the gate (the "sheet is up").
+      await backgroundPastIdleAndResume(tester, threshold);
+      await tester.pumpUntil(() => fakeAuth.authenticateCalls == 2);
+
+      // The link lands while the prompt is still up, then the user authenticates.
+      irmaBinding.repository.dispatch(
+        HandleURLEvent(url: jsonEncode(pointer.toJson())),
+      );
+      fakeAuth.authenticateGate!.complete(true);
+      await tester.pumpAndSettle();
+
+      // Backstop: the successful auth does not dismiss a lock screen with a
+      // session waiting. Still locked, still no session started.
+      expect(find.byType(PinScreen), findsOneWidget);
+      expect(lockScreenBiometricButton, findsNothing);
+      expect(find.byType(SessionScreen), findsNothing);
+      expect(homeTab, findsNothing);
+
+      // The PIN admits the queued session.
+      await unlock(tester);
+      await tester.waitFor(find.byType(IssuancePermission));
+    });
+
+    // The core #654 scenario: the app was UNLOCKED when it went to the
+    // background, so a link arriving then is consumed into a *session*
+    // immediately (the pending pointer is cleared) — before the resume idle-lock
+    // re-locks. The lock screen therefore builds with no pending pointer, and it
+    // is the in-flight-session gate (not the pointer gate) that must withhold
+    // biometric so the session stays PIN-gated.
+    testWidgets("resume-lock: a session started while backgrounded is PIN-gated", (
+      tester,
+    ) async {
+      await irmaBinding.repository.preferences.setBiometricEnabled(true);
+      final fakeAuth = FakeLocalAuthentication(
+        available: true,
+        authenticateResult: true,
+      );
+      const threshold = Duration(milliseconds: 50);
+
+      await pumpYiviApp(
+        tester,
+        irmaBinding.repository,
+        localAuth: fakeAuth,
+        idleLockThreshold: threshold,
+      );
+      await tester.waitFor(homeTab);
+      expect(fakeAuth.authenticateCalls, 1);
+
+      // Deliver the link while the app is still unlocked at home: it starts the
+      // session immediately, clearing the pending pointer.
+      final pointer = await createIssuanceSession(
+        attributes: createMunicipalityPersonalDataAttributes(
+          const Locale("en", "EN"),
+        ),
+      );
+      irmaBinding.repository.dispatch(
+        HandleURLEvent(url: jsonEncode(pointer.toJson())),
+      );
+      await tester.waitFor(find.byType(IssuancePermission));
+      expect(fakeAuth.authenticateCalls, 1);
+
+      // Now background past the idle threshold and resume: the idle-lock re-locks
+      // over the running session (and clears the keyshare token).
+      await backgroundPastIdleAndResume(tester, threshold);
+      await tester.pumpAndSettle();
+
+      // The in-flight-session gate withholds biometric (still one call, from
+      // launch); the lock screen is up and only a PIN can admit the session.
+      expect(fakeAuth.authenticateCalls, 1);
+      expect(find.byType(PinScreen), findsOneWidget);
+      expect(lockScreenBiometricButton, findsNothing);
+
+      // The PIN admits the session that was already in flight.
+      await unlock(tester);
+      await tester.waitFor(find.byType(IssuancePermission));
     });
 
     Future<void> navToSettings(
