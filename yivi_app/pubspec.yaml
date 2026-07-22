@@ -45,7 +45,9 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v3.8.0
+      # Must match the ref in yivi_core/pubspec.yaml.
+      ref: v3.9.1
+      path: vcmrtd
   package_info_plus: ^10.1.0
   collection: ^1.18.0
   rxdart: ^0.28.0
