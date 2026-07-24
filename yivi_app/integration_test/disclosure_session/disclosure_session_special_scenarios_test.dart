@@ -17,6 +17,7 @@ import "special_scenarios/nullables.dart";
 import "special_scenarios/random_blind.dart";
 import "special_scenarios/return_url_https_external.dart";
 import "special_scenarios/return_url_https_inapp.dart";
+import "special_scenarios/return_url_second_device.dart";
 import "special_scenarios/revocation.dart";
 import "special_scenarios/signing.dart";
 
@@ -111,6 +112,28 @@ void main() {
       testWidgets(
         "return-url-https-inapp",
         (tester) => returnUrlHttpsInAppTest(
+          tester,
+          irmaBinding,
+          externalLaunches: externalLaunches,
+          inAppLaunches: inAppLaunches,
+        ),
+      );
+
+      // Second-device + https clientReturnUrl → disregarded, no browser opened
+      testWidgets(
+        "return-url-second-device-external",
+        (tester) => returnUrlSecondDeviceExternalTest(
+          tester,
+          irmaBinding,
+          externalLaunches: externalLaunches,
+          inAppLaunches: inAppLaunches,
+        ),
+      );
+
+      // Second-device + https?inapp=true clientReturnUrl → disregarded
+      testWidgets(
+        "return-url-second-device-inapp",
+        (tester) => returnUrlSecondDeviceInAppTest(
           tester,
           irmaBinding,
           externalLaunches: externalLaunches,

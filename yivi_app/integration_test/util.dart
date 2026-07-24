@@ -59,6 +59,24 @@ extension WidgetTesterUtil on WidgetTester {
     throw TestFailure("Timed out after $timeout waiting for $finder");
   }
 
+  /// Pumps until [condition] holds. Unlike [pumpAndSettle], each turn yields to
+  /// the real event loop, so this also waits out async work that schedules no
+  /// frame (e.g. platform-channel round-trips). Throws on timeout.
+  Future<void> pumpUntil(
+    bool Function() condition, {
+    Duration timeout = const Duration(seconds: 10),
+    Duration step = const Duration(milliseconds: 50),
+  }) async {
+    final end = DateTime.now().add(timeout);
+
+    while (DateTime.now().isBefore(end)) {
+      if (condition()) return;
+      await pump(step);
+    }
+
+    throw TestFailure("Timed out after $timeout waiting for condition");
+  }
+
   Future<void> pumpUntilGone(
     Finder finder, {
     Duration timeout = const Duration(seconds: 10),

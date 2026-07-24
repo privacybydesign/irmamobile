@@ -276,7 +276,7 @@ class AddDataDetailsRouteParams {
     if (faq != null) {
       faqJson = jsonEncode(faq!.toJson());
     }
-    return {"credential": credJson, if (faqJson != null) "faq": faqJson};
+    return {"credential": credJson, "faq": ?faqJson};
   }
 
   static AddDataDetailsRouteParams fromQueryParams(Map<String, String> params) {
@@ -379,7 +379,7 @@ class PassportNfcReadingRouteParams {
       "document_number": documentNumber,
       "date_of_birth": dateOfBirth.toIso8601String(),
       "date_of_expiry": dateOfExpiry.toIso8601String(),
-      if (countryCode != null) "country_code": countryCode!,
+      "country_code": ?countryCode,
     };
   }
 
