@@ -8,7 +8,6 @@ import "../../../models/schemaless/credential_store.dart" as schemaless;
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "session_scaffold.dart";
 
@@ -63,10 +62,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       _isNumeric ? [FilteringTextInputFormatter.digitsOnly] : const [];
 
   String _getTextReplacements(String template, BuildContext context) {
-    final issuer = getTranslation(
-      context,
-      widget.issuedCredentials.first.issuer.name,
-    );
+    final issuer = widget.issuedCredentials.first.issuer.name;
 
     final replacements = <String, ({String text, bool bold})>{
       "{issuer}": (text: issuer, bold: true),
@@ -78,7 +74,7 @@ class _OpenID4VCIPreAuthTxCodeScreenState
       );
     } else {
       replacements["{credential}"] = (
-        text: getTranslation(context, widget.issuedCredentials.first.name),
+        text: widget.issuedCredentials.first.name,
         bold: true,
       );
     }

@@ -35,7 +35,7 @@ class ActivityCard extends StatelessWidget {
 
     if (logEntry.type == LogType.removal) {
       final firstCred = logEntry.removalLog!.credentials.first;
-      title = firstCred.issuer.name.translate(lang);
+      title = firstCred.issuer.name;
       subtitleTranslationKey = "activity.data_deleted";
       semanticLabel = FlutterI18n.translate(
         context,
@@ -48,8 +48,7 @@ class ActivityCard extends StatelessWidget {
           : null;
     } else {
       if (logEntry.type == LogType.issuance) {
-        final serverName =
-            logEntry.issuanceLog!.issuer?.name.translate(lang) ?? "";
+        final serverName = logEntry.issuanceLog!.issuer?.name ?? "";
         title = serverName;
         final issuerImage = logEntry.issuanceLog!.issuer?.image;
         logoImage = issuerImage != null
@@ -62,8 +61,7 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.disclosure) {
-        final serverName =
-            logEntry.disclosureLog!.verifier?.name.translate(lang) ?? "";
+        final serverName = logEntry.disclosureLog!.verifier?.name ?? "";
         title = serverName;
         final verifierImage = logEntry.disclosureLog!.verifier?.image;
         logoImage = verifierImage != null
@@ -77,8 +75,7 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.signature) {
-        final serverName =
-            logEntry.signedMessageLog!.verifier?.name.translate(lang) ?? "";
+        final serverName = logEntry.signedMessageLog!.verifier?.name ?? "";
         title = serverName;
         final verifierImage = logEntry.signedMessageLog!.verifier?.image;
         logoImage = verifierImage != null

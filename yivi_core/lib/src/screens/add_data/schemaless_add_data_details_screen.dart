@@ -3,7 +3,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../models/schemaless/credential_store.dart";
 import "../../theme/theme.dart";
-import "../../util/language.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_bottom_bar.dart";
 import "../../widgets/irma_close_button.dart";
@@ -37,7 +36,6 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final paddingText = EdgeInsets.fromLTRB(
       theme.defaultSpacing,
@@ -52,17 +50,16 @@ class _AddDataDetailsScreenState extends State<SchemalessAddDataDetailsScreen> {
       0,
     );
 
-    final text = (widget.faq == null || widget.faq!.intro.isEmpty)
+    final intro = widget.faq?.intro;
+    final text = (intro == null || intro.isEmpty)
         ?
           // Fallback generic add credential text
           FlutterI18n.translate(
             context,
             "data.add.details.obtain",
-            translationParams: {
-              "credential": widget.credential.name.translate(lang),
-            },
+            translationParams: {"credential": widget.credential.name},
           )
-        : getTranslation(context, widget.faq!.intro).replaceAll("\\n", "\n");
+        : intro.replaceAll("\\n", "\n");
 
     return Scaffold(
       backgroundColor: theme.backgroundTertiary,

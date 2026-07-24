@@ -1,8 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
-import "../../util/language.dart";
 import "../chevron.dart";
 import "../irma_avatar.dart";
 import "../irma_card.dart";
@@ -10,9 +8,9 @@ import "../irma_card.dart";
 class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   final String? credentialImagePath;
   final Widget? credentialImageBase64;
-  final TranslatedValue credentialName;
+  final String credentialName;
   final String credentialId;
-  final TranslatedValue issuerName;
+  final String issuerName;
 
   final VoidCallback? onTap;
   final bool checked;
@@ -55,8 +53,8 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
       initials:
           credentialImagePath == null &&
               credentialImageBase64 == null &&
-              getTranslation(context, credentialName).isNotEmpty
-          ? getTranslation(context, credentialName)[0]
+              credentialName.isNotEmpty
+          ? credentialName[0]
           : null,
     );
 
@@ -122,12 +120,12 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          getTranslation(context, credentialName),
+                          credentialName,
                           style: theme.themeData.textTheme.headlineMedium!
                               .copyWith(fontSize: 16, color: titleColor),
                         ),
                         Text(
-                          getTranslation(context, issuerName),
+                          issuerName,
                           style: theme.themeData.textTheme.bodyMedium!.copyWith(
                             fontSize: 14,
                             color: issuerColor,

@@ -1,5 +1,4 @@
 import "../../../models/schemaless/schemaless_events.dart";
-import "../../../models/translated_value.dart";
 import "actions/credential_detail_navigation_action.dart";
 import "actions/notification_action.dart";
 import "credential_status_notification_record.dart";
@@ -15,8 +14,8 @@ class CredentialStatusNotification extends Notification {
   final String credentialHash;
   final CredentialStatusNotificationType type;
   final String credentialTypeId;
-  final TranslatedValue credentialName;
-  final TranslatedValue issuerName;
+  final String credentialName;
+  final String issuerName;
   final LogoImage? logoImage;
 
   CredentialStatusNotification({
@@ -43,8 +42,8 @@ class CredentialStatusNotification extends Notification {
   factory CredentialStatusNotification.fromRecord({
     required CredentialStatusNotificationRecord record,
     required String credentialTypeId,
-    required TranslatedValue credentialName,
-    required TranslatedValue issuerName,
+    required String credentialName,
+    required String issuerName,
     LogoImage? logoImage,
   }) => CredentialStatusNotification(
     credentialHash: record.credentialHash,

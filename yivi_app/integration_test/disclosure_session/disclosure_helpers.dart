@@ -112,13 +112,11 @@ Future<void> evaluateRequestorHeader(
 }) async {
   expect(requestorHeaderFinder, findsOneWidget);
 
-  // Expect the translated requestor name to be present
+  // Expect the resolved requestor name to be present
   var requestorHeaderWidget =
       requestorHeaderFinder.first.evaluate().single.widget as RequestorHeader;
-  final translatedRequestorHeaderNameText = requestorHeaderWidget
-      .requestor!
-      .name
-      .translate("en");
+  final translatedRequestorHeaderNameText =
+      requestorHeaderWidget.requestor!.name;
   expect(translatedRequestorHeaderNameText, localizedRequestorName);
 
   // Find the RichText in the RequestorHeader

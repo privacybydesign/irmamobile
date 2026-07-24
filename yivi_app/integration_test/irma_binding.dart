@@ -64,7 +64,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
     var statusFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
       (event) => event is ClientPreferencesEvent,
     );
-    _bridge.dispatch(AppReadyEvent());
+    _bridge.dispatch(AppReadyEvent(locale: "en"));
     EnrollmentStatusEvent currEnrollmentStatus = await statusFuture;
 
     // Ensure the app is not enrolled to its keyshare server yet.
@@ -73,7 +73,7 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
       statusFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
         (event) => event is ClientPreferencesEvent,
       );
-      _bridge.dispatch(AppReadyEvent());
+      _bridge.dispatch(AppReadyEvent(locale: "en"));
       currEnrollmentStatus = await statusFuture;
     }
 

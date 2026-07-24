@@ -7,7 +7,6 @@ import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -215,11 +214,10 @@ class _DisclosureChoicesOverviewState
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final session = widget.sessionState;
     final choices = session.disclosurePlan?.disclosureChoicesOverview ?? [];
     final isSignature = session.type == SessionType.signature;
-    final requestorName = session.requestor.name.translate(lang);
+    final requestorName = session.requestor.name;
 
     final confirmButtonKey = switch (session.type) {
       .issuance => "ui.next",
@@ -445,7 +443,7 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                 Padding(
                   padding: .symmetric(vertical: theme.tinySpacing),
                   child: Text(
-                    getTranslation(context, cred.name),
+                    cred.name,
                     style: theme.themeData.textTheme.bodyLarge,
                   ),
                 ),

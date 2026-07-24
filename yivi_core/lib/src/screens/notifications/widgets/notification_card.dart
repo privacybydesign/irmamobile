@@ -3,7 +3,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
 
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
 import "../../../widgets/base64_image.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_card.dart";
@@ -38,14 +37,8 @@ class NotificationCard extends StatelessWidget {
     );
 
     if (notification is CredentialStatusNotification) {
-      final translatedCredName = getTranslation(
-        context,
-        notification.credentialName,
-      );
-      final translatedIssuerName = getTranslation(
-        context,
-        notification.issuerName,
-      );
+      final translatedCredName = notification.credentialName;
+      final translatedIssuerName = notification.issuerName;
 
       logo = notification.logoImage != null
           ? Base64Image(base64: notification.logoImage!.base64)

@@ -4,7 +4,6 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
@@ -46,7 +45,7 @@ class _OpenID4VCIAuthCodePendingScreenState
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final issuerName = getTranslation(context, widget.requestor.name);
+    final issuerName = widget.requestor.name;
     final buttonLabel = FlutterI18n.translate(
       context,
       "issuance.authorization_code.pending.open_browser",

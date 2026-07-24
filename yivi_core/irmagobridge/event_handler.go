@@ -201,6 +201,17 @@ func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
 	return nil
 }
 
+// setLocale changes the effective app language in irmago and re-dispatches the
+// credentials so already-delivered data is re-resolved to the new language.
+// The background logo backfill (started by SetLocale) may push a further
+// refresh once logos land. The paged activity-log cache is reset by the app,
+// which follows this event with a LoadLogsEvent.
+func (ah *eventHandler) setLocale(event *setLocaleEvent) error {
+	yiviClient.SetLocale(event.Locale)
+	dispatchCredentialsEvent()
+	return nil
+}
+
 func (ah *eventHandler) installScheme(event *installSchemeEvent) error {
 	err := yiviClient.GetIrmaConfiguration().InstallScheme(event.URL, []byte(event.PublicKey))
 	if err != nil {
