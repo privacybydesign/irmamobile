@@ -809,7 +809,12 @@ class IrmaRepository {
     }
   }
 
-  void _startEmailIssuance(BuildContext context, String url, WidgetRef ref) {
+  void _startEmailIssuance(
+    BuildContext context,
+    String url,
+    WidgetRef ref, {
+    List<String> requestedEmails = const [],
+  }) {
     if (url.isNotEmpty) {
       final uri = Uri.parse(url);
 
@@ -822,7 +827,10 @@ class IrmaRepository {
       // Set the url to use for the issuance session to the issuer url in the scheme
       ref.read(emailIssuerUrlProvider.notifier).set(baseUri.toString());
 
-      context.pushEmailIssuanceScreen();
+      // When the verifier requested specific email addresses, the
+      // email-loading screen locks its input to a choice between them: any
+      // other address would not satisfy the disclosure request.
+      context.pushEmailIssuanceScreen(requestedEmails: requestedEmails);
     }
   }
 
@@ -846,12 +854,18 @@ class IrmaRepository {
   ///   link to a registered native app (UZI register, Belastingdienst);
   ///   everything else goes through `openURL` (in-app browser, falling
   ///   back to external for opted-in URLs).
+  ///
+  /// When the credential is being obtained to satisfy a disclosure request
+  /// for specific values (e.g. an email address the verifier asked for),
+  /// [requestedValues] carries those values so the embedded flow can lock its
+  /// input to a choice between them. Currently only the email flow uses it.
   Future<void> openIssueURL(
     BuildContext context,
     String credentialId,
     TranslatedValue? issueURL,
-    WidgetRef ref,
-  ) async {
+    WidgetRef ref, {
+    List<String> requestedValues = const [],
+  }) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final url = issueURL?.translate(lang);
     if (url == null || url.isEmpty) {
@@ -876,6 +890,17 @@ class IrmaRepository {
     };
     final flow = embeddedFlows[credentialId];
     if (flow != null) {
+      // The email flow locks its input to the addresses the verifier
+      // requested; the other embedded flows take no requested values.
+      if (flow == _startEmailIssuance) {
+        _startEmailIssuance(
+          context,
+          url,
+          ref,
+          requestedEmails: requestedValues,
+        );
+        return;
+      }
       return flow(context, url, ref);
     }
 

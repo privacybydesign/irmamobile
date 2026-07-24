@@ -42,6 +42,31 @@ class CredentialDescriptor {
       _$CredentialDescriptorFromJson(json);
 
   Map<String, dynamic> toJson() => _$CredentialDescriptorToJson(this);
+
+  /// The concrete values the verifier accepts for this credential's
+  /// attributes, if any, in attribute order. These are the values shown to
+  /// the user on the disclosure screen (see
+  /// [YiviCredentialCard.fromDescriptor]); the obtain flow (e.g. the
+  /// email-loading screen) locks its input to these values so the user can
+  /// only choose one of them, not enter a different one. This is a list
+  /// because OpenID4VP (DCQL, section 6) allows a verifier to accept several
+  /// values for one claim; the IRMA protocol allows a single required value,
+  /// so today the bridge supplies at most one value per attribute.
+  ///
+  /// A verifier may constrain several attributes at once (e.g. both `email`
+  /// and `domain`), so consumers must select the values relevant to them —
+  /// the email flow only locks to values that are email addresses. Returns
+  /// an empty list when the verifier did not request specific values.
+  List<String> get requestedValues {
+    final values = <String>[];
+    for (final attribute in attributes) {
+      final value = attribute.requestedValue?.string;
+      if (value != null && value.isNotEmpty) {
+        values.add(value);
+      }
+    }
+    return values;
+  }
 }
 
 @JsonSerializable(fieldRename: .snake)

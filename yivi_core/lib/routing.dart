@@ -156,6 +156,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
                         params.credential.credentialId,
                         params.credential.issueURL,
                         ref,
+                        // Lock the email-loading screen to the value(s) the
+                        // verifier requested (shown on the disclosure screen):
+                        // any other value would not satisfy the request.
+                        requestedValues: params.credential.requestedValues,
                       );
                     },
                   );
@@ -259,7 +263,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       GoRoute(
         path: "/issue_email",
-        builder: (context, state) => EmailIssuanceScreen(),
+        builder: (context, state) => EmailIssuanceScreen(
+          requestedEmails:
+              state.uri.queryParametersAll["requested_email"] ?? const [],
+        ),
       ),
       GoRoute(
         path: "/mrz",
