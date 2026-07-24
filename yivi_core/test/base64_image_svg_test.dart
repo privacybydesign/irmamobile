@@ -19,8 +19,12 @@ String _svgBase64([String prefix = ""]) =>
     base64Encode(utf8.encode(prefix + _svg));
 
 void main() {
-  Future<void> pump(WidgetTester tester, Base64Image widget) => tester
-      .pumpWidget(MaterialApp(home: Scaffold(body: Center(child: widget))));
+  Future<void> pump(WidgetTester tester, Base64Image widget) =>
+      tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: Center(child: widget)),
+        ),
+      );
 
   testWidgets("renders SVG via flutter_svg when the MIME type says so", (
     tester,
