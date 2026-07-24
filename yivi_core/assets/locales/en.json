@@ -578,6 +578,10 @@
       "explanation": "You'll return to the lock screen.",
       "confirm": "Yes",
       "decline": "No"
+    },
+    "offline": {
+      "title": "No internet connection",
+      "explanation": "An internet connection is required to log in. Please check your connection and try again."
     }
   },
   "pin_accessibility": {

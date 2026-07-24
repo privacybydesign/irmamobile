@@ -578,6 +578,10 @@
       "explanation": "Je keert terug naar het vergrendelscherm.",
       "confirm": "Ja",
       "decline": "Nee"
+    },
+    "offline": {
+      "title": "Geen internetverbinding",
+      "explanation": "Een internetverbinding is nodig om in te loggen. Controleer je verbinding en probeer het opnieuw."
     }
   },
   "pin_accessibility": {

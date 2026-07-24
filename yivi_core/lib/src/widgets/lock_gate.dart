@@ -9,6 +9,7 @@ import "../providers/app_locked_provider.dart";
 import "../screens/home/home_screen.dart";
 import "../screens/home/widgets/irma_nav_bar.dart";
 import "../screens/home/widgets/irma_qr_scan_button.dart";
+import "../screens/pin/offline_login_screen.dart";
 import "../screens/pin/pin_screen.dart";
 import "../screens/pin/providers/biometric_provider.dart";
 import "../screens/pin/widgets/biometric_opt_in_dialog.dart";
@@ -126,40 +127,50 @@ class _LockGateState extends ConsumerState<LockGate> {
       children: [
         widget.child,
         if (showOverlay)
+          // While offline, show the "connection required" message instead of
+          // the PIN screen: a PIN entered offline can only fail against the
+          // keyshare server, and a quickly-dismissed failure is
+          // indistinguishable from a wrong PIN (issue #618). OfflineGate swaps
+          // back to the PIN screen automatically once connectivity returns.
+          //
           // Local Navigator so widgets inside the overlay can use the
           // usual Navigator operations (showDialog, modal sheets, pop
           // dialogs) — `Navigator.of(context)` resolves to THIS nav,
           // which is what we want for overlay-internal interactions.
           Positioned.fill(
-            child: Navigator(
-              onGenerateRoute: (_) => MaterialPageRoute<void>(
-                builder: (innerCtx) => TermsChangedListener(
-                  child: PinScreen(
-                    allowBiometric: true,
-                    onAuthenticated: () {
-                      if (context.mounted) {
-                        context.read<HomeTabState>().add(IrmaNavBarTab.data);
-                      }
-                    },
-                    // Push ResetPinScreen onto the overlay's local
-                    // Navigator. Keeps the forgot-pin flow contained
-                    // in the lock overlay — no GoRouter bridge
-                    // needed. ResetPinScreen dispatches
-                    // ClearAllDataEvent on reset, which flips
-                    // `appLocked=false`; LockGate drops the overlay
-                    // and the GoRouter redirect handles the rest
-                    // (unenrolled → /enrollment).
-                    onForgotPin: () => Navigator.of(innerCtx).push(
-                      MaterialPageRoute<void>(builder: (_) => ResetPinScreen()),
-                    ),
-                    leading: YiviAppBarQrCodeButton(
-                      // Same sheet entry point as the home-screen QR
-                      // button — the modal opens on this local
-                      // Navigator (since `innerCtx` is below it), sits
-                      // on top of PinScreen, and the scanner queues
-                      // the pointer for `PendingPointerListener` to
-                      // pick up after PIN unlock.
-                      onTap: () => openQrCodeScanner(innerCtx),
+            child: OfflineGate(
+              child: Navigator(
+                onGenerateRoute: (_) => MaterialPageRoute<void>(
+                  builder: (innerCtx) => TermsChangedListener(
+                    child: PinScreen(
+                      allowBiometric: true,
+                      onAuthenticated: () {
+                        if (context.mounted) {
+                          context.read<HomeTabState>().add(IrmaNavBarTab.data);
+                        }
+                      },
+                      // Push ResetPinScreen onto the overlay's local
+                      // Navigator. Keeps the forgot-pin flow contained
+                      // in the lock overlay — no GoRouter bridge
+                      // needed. ResetPinScreen dispatches
+                      // ClearAllDataEvent on reset, which flips
+                      // `appLocked=false`; LockGate drops the overlay
+                      // and the GoRouter redirect handles the rest
+                      // (unenrolled → /enrollment).
+                      onForgotPin: () => Navigator.of(innerCtx).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => ResetPinScreen(),
+                        ),
+                      ),
+                      leading: YiviAppBarQrCodeButton(
+                        // Same sheet entry point as the home-screen QR
+                        // button — the modal opens on this local
+                        // Navigator (since `innerCtx` is below it), sits
+                        // on top of PinScreen, and the scanner queues
+                        // the pointer for `PendingPointerListener` to
+                        // pick up after PIN unlock.
+                        onTap: () => openQrCodeScanner(innerCtx),
+                      ),
                     ),
                   ),
                 ),
