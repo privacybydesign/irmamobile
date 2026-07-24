@@ -487,6 +487,10 @@
         "body": "We sturen je opnieuw een e-mail met een nieuwe code.",
         "confirm": "Stuur opnieuw",
         "cancel": "Annuleer"
+      },
+      "expired": {
+        "body": "Deze verificatiecode is verlopen. Begin opnieuw om jezelf een nieuwe code te sturen.",
+        "restart_button": "Begin opnieuw"
       }
     }
   },
