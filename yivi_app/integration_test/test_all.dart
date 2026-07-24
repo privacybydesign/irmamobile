@@ -23,6 +23,7 @@ import "login_test.dart" as login_test;
 import "more_tab_test.dart" as more_tab_test;
 import "new_terms_test.dart" as new_terms;
 import "notifications_test.dart" as notifications_test;
+import "offline_login_test.dart" as offline_login_test;
 import "openid4vci_authcode_issuance_test.dart"
     as openid4vci_authcode_issuance_test;
 import "openid4vci_issuance_test.dart" as openid4vci_issuance_test;
@@ -49,6 +50,7 @@ void main() {
   biometric_test.main();
   idle_lock_test.main();
   login_test.main();
+  offline_login_test.main();
   settings_test.main();
   issuance_test.main();
   more_tab_test.main();
