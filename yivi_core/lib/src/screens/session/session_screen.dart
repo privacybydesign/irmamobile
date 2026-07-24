@@ -177,7 +177,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     return asyncSession.when(
       loading: () => _buildLoadingScreen(null),
-      error: (err, __) =>
+      error: (err, _) =>
           _buildError(SessionError(errorType: "unknown", info: err.toString())),
       data: (session) {
         // Auto-pop when dismissed — pop back to the previous screen
@@ -447,18 +447,39 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
 
     final returnUrl = session.parsedClientReturnUrl;
-    if (returnUrl != null) {
-      if (returnUrl.isPhoneNumber) {
-        return CallInfoScreen(
-          otherParty: getTranslation(context, session.requestor.name),
-          onContinue: () => _openReturnUrl(
-            returnUrl,
-            alwaysExternal: true,
-            popOnSuccess: true,
-          ),
-          onCancel: _closeSession,
-        );
+
+    // A tel: return URL is device-agnostic — the phone is the device that
+    // places the call — so surface the Call-via-Yivi screen regardless of
+    // whether this is a same- or second-device session.
+    if (returnUrl != null && returnUrl.isPhoneNumber) {
+      return CallInfoScreen(
+        otherParty: getTranslation(context, session.requestor.name),
+        onContinue: () =>
+            _openReturnUrl(returnUrl, alwaysExternal: true, popOnSuccess: true),
+        onCancel: _closeSession,
+      );
+    }
+
+    // Second-device session: the result lives on the other device, whose
+    // browser started the session and honours any browser-kind return URL
+    // there. Confirm success locally and do NOT open a browser on the phone —
+    // opening it here would be a pointless redirect on the wrong device.
+    // (tel: is handled above; it stays device-agnostic.)
+    if (session.continueOnSecondDevice) {
+      if (session.type == .issuance) {
+        return IssuanceSuccessScreen(onDismiss: (_) => pop());
       }
+      return DisclosureFeedbackScreen(
+        feedbackType: .success,
+        isSignatureSession: session.type == .signature,
+        otherParty: getTranslation(context, session.requestor.name),
+        onDismiss: (_) => pop(),
+      );
+    }
+
+    // Same-device session with a browser return URL (external / in-app): hand
+    // the user back to where they started by opening it.
+    if (returnUrl != null) {
       if (_returnUrlError != null) {
         return _buildError(_returnUrlError!);
       }
@@ -485,20 +506,6 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         });
       }
       return _buildLoadingScreen(session);
-    }
-
-    // Multi-device session: result lives on the other device, so just confirm
-    // success here.
-    if (session.continueOnSecondDevice) {
-      if (session.type == .issuance) {
-        return IssuanceSuccessScreen(onDismiss: (_) => pop());
-      }
-      return DisclosureFeedbackScreen(
-        feedbackType: .success,
-        isSignatureSession: session.type == .signature,
-        otherParty: getTranslation(context, session.requestor.name),
-        onDismiss: (_) => pop(),
-      );
     }
 
     // Same-device session: hand the user back to the calling app. iOS lacks a
@@ -532,6 +539,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final shouldSilentReopen =
         returnUrl != null &&
         !returnUrl.isPhoneNumber &&
+        // On a second-device session the browser lives on the other device;
+        // reopening the return URL on the phone would be a pointless redirect.
+        session?.continueOnSecondDevice != true &&
         session?.error?.errorType != "clientReturnUrl" &&
         _returnUrlError?.errorType != "clientReturnUrl" &&
         !wasInAppLaunched;
