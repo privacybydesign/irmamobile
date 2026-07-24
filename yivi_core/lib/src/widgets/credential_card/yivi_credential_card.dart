@@ -73,7 +73,10 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: credential.name,
          issuerName: credential.issuer.name,
          image: credential.image != null
-             ? Base64Image(base64: credential.image!.base64)
+             ? Base64Image(
+                 base64: credential.image!.base64,
+                 mimeType: credential.image!.mimeType,
+               )
              : null,
          attributes: credential.attributes,
          status: CredentialCardStatus(
@@ -111,7 +114,10 @@ class YiviCredentialCard extends ConsumerWidget {
          issuerName: instance.issuer.name,
          imagePath: instance.imagePath,
          image: instance.image != null
-             ? Base64Image(base64: instance.image!.base64)
+             ? Base64Image(
+                 base64: instance.image!.base64,
+                 mimeType: instance.image!.mimeType,
+               )
              : null,
          attributes: instance.attributes,
          status: CredentialCardStatus(
@@ -147,7 +153,10 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          image: descriptor.image != null
-             ? Base64Image(base64: descriptor.image!.base64)
+             ? Base64Image(
+                 base64: descriptor.image!.base64,
+                 mimeType: descriptor.image!.mimeType,
+               )
              : null,
          attributes: descriptor.attributes
              .where(
@@ -208,7 +217,10 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          image: descriptor.image != null
-             ? Base64Image(base64: descriptor.image!.base64)
+             ? Base64Image(
+                 base64: descriptor.image!.base64,
+                 mimeType: descriptor.image!.mimeType,
+               )
              : null,
          attributes: descriptor.attributes,
          status: CredentialCardStatus(
@@ -243,7 +255,10 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: logCredential.name,
          issuerName: logCredential.issuer.name,
          image: logCredential.image != null
-             ? Base64Image(base64: logCredential.image!.base64)
+             ? Base64Image(
+                 base64: logCredential.image!.base64,
+                 mimeType: logCredential.image!.mimeType,
+               )
              : null,
          attributes: logCredential.attributes,
          status: CredentialCardStatus(
