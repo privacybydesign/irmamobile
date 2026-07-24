@@ -2,7 +2,6 @@ import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
 import "../log_entry.dart";
-import "../translated_value.dart";
 
 part "schemaless_events.g.dart";
 
@@ -56,8 +55,8 @@ class AttributeValue {
 @JsonSerializable(fieldRename: .snake)
 class Attribute {
   final List<dynamic> claimPath;
-  final TranslatedValue displayName;
-  final TranslatedValue? description;
+  final String? displayName;
+  final String? description;
   final AttributeValue? value;
   final AttributeValue? requestedValue;
 
@@ -74,14 +73,15 @@ class Attribute {
   /// so the UI shows the field identifier instead of an empty label. Int
   /// segments (array indices) are skipped so positions like
   /// `["tags", 0]` fall back to "tags" rather than "0".
-  TranslatedValue get effectiveDisplayName {
-    if (displayName.isNotEmpty) return displayName;
-    if (claimPath.isEmpty) return displayName;
+  String get effectiveDisplayName {
+    final name = displayName;
+    if (name != null && name.isNotEmpty) return name;
+    if (claimPath.isEmpty) return name ?? "";
     for (var i = claimPath.length - 1; i >= 0; i--) {
       final seg = claimPath[i];
-      if (seg is String) return TranslatedValue.fromString(seg);
+      if (seg is String) return seg;
     }
-    return TranslatedValue.fromString(claimPath.join("."));
+    return claimPath.join(".");
   }
 
   factory Attribute.fromJson(Map<String, dynamic> json) =>
@@ -93,8 +93,8 @@ class Attribute {
 @JsonSerializable(fieldRename: .snake)
 class TrustedParty {
   final String id;
-  final TranslatedValue name;
-  final TranslatedValue? url;
+  final String name;
+  final String? url;
   final String? imagePath;
   final LogoImage? image;
   final TrustedParty? parent;
@@ -134,7 +134,7 @@ class Credential {
   final String credentialId;
   final String hash;
   final LogoImage? image;
-  final TranslatedValue name;
+  final String name;
   final TrustedParty issuer;
   final Map<CredentialFormat, String> credentialInstanceIds;
   final Map<CredentialFormat, int?> batchInstanceCountsRemaining;
@@ -143,7 +143,7 @@ class Credential {
   final int? expiryDate;
   final bool revoked;
   final bool revocationSupported;
-  final TranslatedValue issueUrl;
+  final String? issueUrl;
 
   Credential({
     required this.credentialId,

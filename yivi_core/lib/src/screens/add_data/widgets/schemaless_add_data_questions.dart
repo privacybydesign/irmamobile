@@ -2,9 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../models/schemaless/credential_store.dart";
-import "../../../models/translated_value.dart";
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
 import "../../../widgets/collapsible.dart";
 import "../../../widgets/irma_markdown.dart";
 
@@ -22,7 +20,7 @@ class SchemalessAddDataQuestions extends StatelessWidget {
   Widget _buildCollapsible(
     BuildContext context,
     String headerTranslationKey,
-    TranslatedValue bodyText, {
+    String bodyText, {
     bool initiallyExpanded = false,
     bool showDisclosureInfo = false,
   }) {
@@ -33,8 +31,7 @@ class SchemalessAddDataQuestions extends StatelessWidget {
       markdown =
           '${FlutterI18n.translate(context, 'data.add.details.disclosure_info_markdown')}\n\n';
     }
-    markdown =
-        markdown + getTranslation(context, bodyText).replaceAll("\\n", "\n\n");
+    markdown = markdown + bodyText.replaceAll("\\n", "\n\n");
 
     return Padding(
       padding: .symmetric(vertical: theme.tinySpacing),
@@ -49,31 +46,34 @@ class SchemalessAddDataQuestions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final content = faq.content ?? "";
+    final purpose = faq.purpose ?? "";
+    final howTo = faq.howTo ?? "";
     return Column(
       mainAxisAlignment: .start,
       crossAxisAlignment: .start,
       children: [
-        if (faq.content.isNotEmpty)
+        if (content.isNotEmpty)
           _buildCollapsible(
             context,
             "data.add.details.content_question",
-            faq.content,
+            content,
             initiallyExpanded: true,
             showDisclosureInfo: inDisclosure,
           ),
-        if (faq.purpose.isNotEmpty)
+        if (purpose.isNotEmpty)
           _buildCollapsible(
             context,
             "data.add.details.purpose_question",
-            faq.purpose,
-            initiallyExpanded: faq.content.isEmpty,
+            purpose,
+            initiallyExpanded: content.isEmpty,
           ),
-        if (faq.howTo.isNotEmpty)
+        if (howTo.isNotEmpty)
           _buildCollapsible(
             context,
             "data.add.details.howto_question",
-            faq.howTo,
-            initiallyExpanded: faq.content.isEmpty && faq.purpose.isEmpty,
+            howTo,
+            initiallyExpanded: content.isEmpty && purpose.isEmpty,
           ),
       ],
     );

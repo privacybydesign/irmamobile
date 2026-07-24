@@ -6,10 +6,8 @@ import "../../models/log_entry.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
-import "../../models/translated_value.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
-import "../../util/language.dart";
 import "../base64_image.dart";
 import "../information_box.dart";
 import "../irma_card.dart";
@@ -21,8 +19,8 @@ import "yivi_credential_card_footer.dart";
 import "yivi_credential_card_header.dart";
 
 class YiviCredentialCard extends ConsumerWidget {
-  final TranslatedValue credentialName;
-  final TranslatedValue issuerName;
+  final String credentialName;
+  final String issuerName;
   final List<Attribute> attributes;
   final CredentialCardStatus status;
   final bool compact;
@@ -266,10 +264,10 @@ class YiviCredentialCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final displayName = credentialName.isNotEmpty
-        ? getTranslation(context, credentialName)
+        ? credentialName
         : (status.credentialId ?? "");
     final displayIssuerName = issuerName.isNotEmpty
-        ? getTranslation(context, issuerName)
+        ? issuerName
         : FlutterI18n.translate(context, "ui.unknown");
 
     return IrmaCard(

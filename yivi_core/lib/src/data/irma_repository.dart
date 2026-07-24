@@ -5,7 +5,6 @@ import "dart:io";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_web_auth_2/flutter_web_auth_2.dart";
 import "package:package_info_plus/package_info_plus.dart";
@@ -27,6 +26,7 @@ import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
+import "../models/log_entry.dart";
 import "../models/native_events.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
@@ -34,13 +34,13 @@ import "../models/schemaless/session_state.dart";
 import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
-import "../models/translated_value.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
+import "../util/language.dart";
 import "../util/navigation.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
@@ -93,8 +93,43 @@ class IrmaRepository {
     _bridgeEventSubscription = _bridge.events.listen(
       (event) => _eventSubject.add(event),
     );
-    bridgedDispatch(AppReadyEvent());
+
+    // Push the effective app language to the Go client: the initial value
+    // rides on AppReadyEvent (so text and logos resolve correctly from the
+    // first pull), then a SetLocaleEvent on every change. The effective
+    // language combines the in-app override preference with the device system
+    // locale; system-locale changes arrive via updateSystemLocale.
+    final effectiveLanguage = Rx.combineLatest2<String, Locale, String>(
+      preferences.getPreferredLanguageCode(),
+      _systemLocaleSubject,
+      (preferred, system) => effectiveAppLanguage(
+        preferredLanguageCode: preferred,
+        systemLocale: system,
+      ),
+    ).distinct();
+
+    bridgedDispatch(
+      AppReadyEvent(
+        locale: effectiveAppLanguage(
+          preferredLanguageCode: preferences.preferredLanguageCode,
+          systemLocale: _systemLocaleSubject.value,
+        ),
+      ),
+    );
+
+    // The first emission equals the value already sent with AppReadyEvent, so
+    // skip it; each later change switches the locale and resets the paged
+    // activity-log cache (LoadLogsEvent with no `before`).
+    _localeSubscription = effectiveLanguage.skip(1).listen((locale) {
+      bridgedDispatch(SetLocaleEvent(locale: locale));
+      bridgedDispatch(LoadLogsEvent(max: 10));
+    });
   }
+
+  /// Called by the app's WidgetsBindingObserver when the device system locale
+  /// changes, so the effective app language can follow it while the in-app
+  /// override is off.
+  void updateSystemLocale(Locale locale) => _systemLocaleSubject.add(locale);
 
   final IrmaPreferences preferences;
   final String defaultKeyshareScheme;
@@ -137,11 +172,20 @@ class IrmaRepository {
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
+  // The device system locale, seeded from the platform dispatcher and updated
+  // by updateSystemLocale. Combined with the preferred-language preference to
+  // derive the effective app language pushed to the Go client.
+  final _systemLocaleSubject = BehaviorSubject<Locale>.seeded(
+    WidgetsBinding.instance.platformDispatcher.locale,
+  );
+
   late StreamSubscription<Event> _bridgeEventSubscription;
+  late final StreamSubscription<String> _localeSubscription;
 
   Future<void> close() async {
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
+    await _localeSubscription.cancel();
 
     // Then we can close all internal subjects
     await Future.wait([
@@ -168,6 +212,7 @@ class IrmaRepository {
       _issueWizardActiveSubject.close(),
       _sessionRepository.close(),
       _fatalErrorSubject.close(),
+      _systemLocaleSubject.close(),
     ]);
   }
 
@@ -849,14 +894,14 @@ class IrmaRepository {
   Future<void> openIssueURL(
     BuildContext context,
     String credentialId,
-    TranslatedValue? issueURL,
+    String? issueURL,
     WidgetRef ref,
   ) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = issueURL?.translate(lang);
+    // issueURL is already resolved to the effective app language by irmago.
+    final url = issueURL;
     if (url == null || url.isEmpty) {
       throw UnsupportedError(
-        "Credential type $credentialId does not have a suitable issue url for $lang",
+        "Credential type $credentialId does not have a suitable issue url",
       );
     }
 

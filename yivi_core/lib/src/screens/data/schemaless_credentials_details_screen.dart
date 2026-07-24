@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
@@ -43,8 +42,7 @@ class _CredentialsDetailsScreenState
 
   IrmaAppBar _buildAppBar(schemaless.Credential? credential) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final name = credential?.name.translate(lang) ?? "";
+    final name = credential?.name ?? "";
 
     // Drive the title's opacity directly from the scroll controller via
     // AnimatedBuilder, so updates stay scoped to the AppBar title and the
@@ -128,7 +126,6 @@ class _CredentialsDetailsScreenState
 
   SizedBox _buildCredentialsList(List<schemaless.Credential> credentials) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
@@ -142,9 +139,7 @@ class _CredentialsDetailsScreenState
               SizedBox(height: theme.defaultSpacing),
               ...credentials.map((cred) {
                 final isDeletable = cred.credentialInstanceIds.isNotEmpty;
-                final isReobtainable = cred.issueUrl
-                    .translate(lang, fallback: "")
-                    .isNotEmpty;
+                final isReobtainable = (cred.issueUrl ?? "").isNotEmpty;
 
                 return Padding(
                   padding: .only(bottom: theme.defaultSpacing),
@@ -178,10 +173,7 @@ class _CredentialsDetailsScreenState
     BuildContext context,
     schemaless.Credential cred,
   ) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final isReobtainable = cred.issueUrl
-        .translate(lang, fallback: "")
-        .isNotEmpty;
+    final isReobtainable = (cred.issueUrl ?? "").isNotEmpty;
 
     showYiviBottomSheet(
       context: context,

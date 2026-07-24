@@ -21,8 +21,10 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
         super.init()
     }
 
-    /// Calls the Start method of irmagobridge.
-    private func start() {
+    /// Calls the Start method of irmagobridge. locale is the effective app
+    /// language (a bare language code such as "nl") supplied by the Dart side
+    /// in the AppReadyEvent payload; irmago resolves text and logos against it.
+    private func start(locale: String) {
         let bundlePath = Bundle(for: type(of: self)).bundlePath
         let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
 
@@ -51,7 +53,7 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
             return
         }
 
-        IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey)
+        IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey, locale)
     }
 
     /// Calls the Stop method of irmagobridge.
@@ -85,7 +87,16 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
         }
 
         if call.method == "AppReadyEvent" {
-            self.start()
+            // The effective app language rides in the AppReadyEvent payload so
+            // the Go client is constructed with the right locale from the start.
+            var locale = ""
+            if let payload = call.arguments as? String,
+                let data = payload.data(using: .utf8),
+                let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                let l = json["locale"] as? String {
+                locale = l
+            }
+            self.start(locale: locale)
             appReady = true
             if let initialURL = initialURL {
                 channel.invokeMethod(
