@@ -60,7 +60,10 @@ class _CredentialsDetailsScreenState
             offset: Offset(0, 4),
             child: IrmaAvatar(
               logoImage: credential.image != null
-                  ? Base64Image(base64: credential.image!.base64)
+                  ? Base64Image(
+                      base64: credential.image!.base64,
+                      mimeType: credential.image!.mimeType,
+                    )
                   : null,
               initials: credential.image == null && name.isNotEmpty
                   ? name[0]
