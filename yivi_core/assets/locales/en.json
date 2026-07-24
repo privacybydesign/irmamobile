@@ -1028,5 +1028,23 @@
   "signature": {
     "read_more": "Read more",
     "read_less": "Read less"
+  },
+  "review": {
+    "gate": {
+      "title": "Enjoying Yivi?",
+      "body": "You've used Yivi a few times now. We'd love to know how it's going.",
+      "positive": "Yes, I like it",
+      "negative": "Not really"
+    },
+    "feedback": {
+      "title": "What could be better?",
+      "body": "Tell us what's not working.",
+      "hint": "Your feedback",
+      "privacy": "Your message goes to our team, so please don't include personal data.",
+      "send": "Send",
+      "cancel": "Cancel",
+      "thanks": "Thanks, we'll use this to improve Yivi.",
+      "close": "Close"
+    }
   }
 }

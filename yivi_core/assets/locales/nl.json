@@ -1028,5 +1028,23 @@
   "signature": {
     "read_more": "Meer lezen",
     "read_less": "Minder lezen"
+  },
+  "review": {
+    "gate": {
+      "title": "Ben je tevreden over Yivi?",
+      "body": "Je hebt Yivi nu een paar keer gebruikt. We horen graag hoe het gaat.",
+      "positive": "Ja, ik ben tevreden",
+      "negative": "Niet echt"
+    },
+    "feedback": {
+      "title": "Wat kan er beter?",
+      "body": "Laat ons weten wat niet werkt.",
+      "hint": "Jouw feedback",
+      "privacy": "Je bericht gaat naar ons team, dus voeg geen persoonlijke gegevens toe.",
+      "send": "Versturen",
+      "cancel": "Annuleren",
+      "thanks": "Bedankt, hiermee maken we Yivi beter.",
+      "close": "Sluiten"
+    }
   }
 }

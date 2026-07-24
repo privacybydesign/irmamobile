@@ -39,7 +39,6 @@ dependencies:
   share_plus: ^13.1.0
   intl: ^0.20.2
   flutter_markdown: ^0.7.4+1
-  shared_preferences: ^2.0.7
   async: ^2.11.0
   streaming_shared_preferences: ^2.0.0
   visibility_detector: ^0.4.0+2
@@ -50,6 +49,7 @@ dependencies:
   flutter_riverpod: ^3.2.0
   local_auth: ^3.0.1
   http: ^1.5.0
+  altcha_lib: ^0.3.0
   mrz_parser:
     git:
       url: https://github.com/privacybydesign/mrz_parser
@@ -59,7 +59,11 @@ dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v3.8.0
+      # v3.9.1 skips Active Authentication when the chip has no DG15 (fixes
+      # 6A88 read failures on documents that use Chip Authentication, e.g. UK).
+      # From v3.9.x the package lives one directory deeper, hence `path`.
+      ref: v3.9.1
+      path: vcmrtd
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1
   # Temporary forks because their original repos are not compatible with new android api's.
@@ -74,10 +78,24 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   json_serializable: ^6.11.0
+  # Test-only: keyshare_lock_test.dart uses SharedPreferences.setMockInitialValues.
+  # Runtime code uses streaming_shared_preferences (which pulls this in transitively).
+  shared_preferences: ^2.0.7
   flutter_lints: ^6.0.0
   flutter_native_splash: ^2.4.6
   build_runner: ^2.10.5
   flutter_launcher_icons: ^0.14.1
+
+# altcha_lib pulls pointycastle from pub.dev, but vcmrtd pulls it from the
+# privacybydesign/pc-dart fork; pub cannot unify a hosted and a git source for
+# the same package. Force the fork (it reports version 4.0.0, satisfying
+# altcha_lib's ^4.0.0). Our pinned PBKDF2/SHA-256 path uses package:crypto, not
+# pointycastle, so the fork is not on the ALTCHA hot path.
+dependency_overrides:
+  pointycastle:
+    git:
+      url: https://github.com/privacybydesign/pc-dart.git
+      ref: master
 
 flutter:
   uses-material-design: true

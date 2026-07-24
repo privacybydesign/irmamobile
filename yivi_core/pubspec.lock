@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "99.0.0"
+  altcha_lib:
+    dependency: "direct main"
+    description:
+      name: altcha_lib
+      sha256: "5d1660b1e7ab1e5706cf6a3082fda023084dcc0b05302207c045f5a73f3eebea"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   analyzer:
     dependency: transitive
     description:
@@ -297,14 +305,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
-  diffie_hellman:
-    dependency: transitive
-    description:
-      name: diffie_hellman
-      sha256: cf88adea8d7c56ed145e95db87e61297c52d236c2faace48fbcb425a73ddeba6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.2"
   dlibphonenumber:
     dependency: transitive
     description:
@@ -1016,7 +1016,7 @@ packages:
     source: hosted
     version: "2.1.8"
   pointycastle:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
       ref: master
@@ -1145,7 +1145,7 @@ packages:
     source: hosted
     version: "7.1.0"
   shared_preferences:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: shared_preferences
       sha256: c3025c5534b01739267eb7d76959bbc25a6d10f6988e1c2a3036940133dd10bf
@@ -1496,9 +1496,9 @@ packages:
   vcmrtd:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "v3.8.0"
-      resolved-ref: ab3cc91b643b4d90f03f2cc493dbcefeac1d7342
+      path: vcmrtd
+      ref: "v3.9.1"
+      resolved-ref: e2b80c941ce2decd626674f5e0899f3bd854aba8
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"

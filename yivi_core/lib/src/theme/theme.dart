@@ -204,6 +204,11 @@ class IrmaThemeData {
       toolbarTextStyle: textTheme.bodyMedium,
       titleTextStyle: textTheme.titleLarge,
       systemOverlayStyle: const SystemUiOverlayStyle(
+        // Android 15+ ignores bar colors under enforced edge-to-edge;
+        // icon brightness is what stays readable. App is light-only.
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
+        statusBarBrightness: Brightness.light, // iOS: light bg
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
