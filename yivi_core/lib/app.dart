@@ -150,16 +150,6 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     }
   }
 
-  @override
-  void didChangeLocales(List<Locale>? locales) {
-    super.didChangeLocales(locales);
-    // Feed system-locale changes to the repository so the effective app
-    // language follows the device while the in-app override is off.
-    if (locales != null && locales.isNotEmpty) {
-      ref.read(irmaRepositoryProvider).updateSystemLocale(locales.first);
-    }
-  }
-
   void _listenScreenshotPref() {
     final prefs = ref.read(preferencesProvider);
     // We only wait for the privacy screen to be loaded on start-up.

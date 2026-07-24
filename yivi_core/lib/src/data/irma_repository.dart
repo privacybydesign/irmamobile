@@ -97,22 +97,25 @@ class IrmaRepository {
     // Push the effective app language to the Go client: the initial value
     // rides on AppReadyEvent (so text and logos resolve correctly from the
     // first pull), then a SetLocaleEvent on every change. The effective
-    // language combines the in-app override preference with the device system
-    // locale; system-locale changes arrive via updateSystemLocale.
-    final effectiveLanguage = Rx.combineLatest2<String, Locale, String>(
-      preferences.getPreferredLanguageCode(),
-      _systemLocaleSubject,
-      (preferred, system) => effectiveAppLanguage(
-        preferredLanguageCode: preferred,
-        systemLocale: system,
-      ),
-    ).distinct();
+    // language is the in-app override preference when set, otherwise the
+    // device system language, read once at startup.
+    final systemLocale =
+        WidgetsBinding.instance.platformDispatcher.locale;
+    final effectiveLanguage = preferences
+        .getPreferredLanguageCode()
+        .map(
+          (preferred) => effectiveAppLanguage(
+            preferredLanguageCode: preferred,
+            systemLocale: systemLocale,
+          ),
+        )
+        .distinct();
 
     bridgedDispatch(
       AppReadyEvent(
         locale: effectiveAppLanguage(
           preferredLanguageCode: preferences.preferredLanguageCode,
-          systemLocale: _systemLocaleSubject.value,
+          systemLocale: systemLocale,
         ),
       ),
     );
@@ -125,11 +128,6 @@ class IrmaRepository {
       bridgedDispatch(LoadLogsEvent(max: 10));
     });
   }
-
-  /// Called by the app's WidgetsBindingObserver when the device system locale
-  /// changes, so the effective app language can follow it while the in-app
-  /// override is off.
-  void updateSystemLocale(Locale locale) => _systemLocaleSubject.add(locale);
 
   final IrmaPreferences preferences;
   final String defaultKeyshareScheme;
@@ -172,13 +170,6 @@ class IrmaRepository {
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
-  // The device system locale, seeded from the platform dispatcher and updated
-  // by updateSystemLocale. Combined with the preferred-language preference to
-  // derive the effective app language pushed to the Go client.
-  final _systemLocaleSubject = BehaviorSubject<Locale>.seeded(
-    WidgetsBinding.instance.platformDispatcher.locale,
-  );
-
   late StreamSubscription<Event> _bridgeEventSubscription;
   late final StreamSubscription<String> _localeSubscription;
 
@@ -212,7 +203,6 @@ class IrmaRepository {
       _issueWizardActiveSubject.close(),
       _sessionRepository.close(),
       _fatalErrorSubject.close(),
-      _systemLocaleSubject.close(),
     ]);
   }
 
