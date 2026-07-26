@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
@@ -148,14 +149,22 @@ class IssuanceBundle {
 @JsonSerializable(createToJson: false, fieldRename: .snake)
 class DisclosurePickOne {
   final bool optional;
+
+  /// The options the user already owns, in chronological order (first issued
+  /// first) — see [DisclosureBundle.sortedByIssuance].
   final List<DisclosureBundle>? ownedOptions;
+
   final List<CredentialDescriptor>? obtainableOptions;
 
+  /// [ownedOptions] is put in chronological order here, at the boundary, so
+  /// that every consumer indexes the same order: the overview, the picker, and
+  /// the positional selection sent back to irmago. irmago gives no ordering
+  /// guarantee of its own.
   DisclosurePickOne({
     required this.optional,
-    this.ownedOptions,
+    List<DisclosureBundle>? ownedOptions,
     this.obtainableOptions,
-  });
+  }) : ownedOptions = DisclosureBundle.sortedByIssuance(ownedOptions);
 
   factory DisclosurePickOne.fromJson(Map<String, dynamic> json) =>
       _$DisclosurePickOneFromJson(json);
@@ -171,6 +180,58 @@ class DisclosureBundle {
       _$DisclosureBundleFromJson(json);
 
   Set<String> get credentialHashes => credentials.map((c) => c.hash).toSet();
+
+  /// Whether the whole bundle can still be disclosed. Disclosing a bundle is
+  /// atomic, so a single unsharable credential makes the bundle unsharable.
+  bool isSharableAt(DateTime now) =>
+      credentials.every((c) => c.isSharableAt(now));
+
+  /// Issuance date of the bundle's oldest credential, or `null` when none of
+  /// them carries one.
+  int? get earliestIssuanceDate => credentials
+      .map((c) => c.issuanceDate)
+      .nonNulls
+      .fold<int?>(null, (acc, date) => acc == null || date < acc ? date : acc);
+
+  /// Issuance date of the bundle's newest credential, or `null` when none of
+  /// them carries one.
+  int? get latestIssuanceDate => credentials
+      .map((c) => c.issuanceDate)
+      .nonNulls
+      .fold<int?>(null, (acc, date) => acc == null || date > acc ? date : acc);
+
+  /// Returns [bundles] chronologically, oldest first.
+  ///
+  /// A bundle is dated by its oldest credential, with its newest credential as
+  /// the tiebreak, so two bundles sharing an oldest credential still get a
+  /// defined order. Bundles without any issuance date sort last: irmago leaves
+  /// the field null for credentials issued before it started reporting it, and
+  /// keeping those out of the way preserves a meaningful order for the rest.
+  /// The sort is stable, so remaining ties keep irmago's own order.
+  static List<DisclosureBundle>? sortedByIssuance(
+    List<DisclosureBundle>? bundles,
+  ) {
+    if (bundles == null) return null;
+    final sorted = List.of(bundles);
+    mergeSort(sorted, compare: compareByIssuance);
+    return sorted;
+  }
+
+  static int compareByIssuance(DisclosureBundle a, DisclosureBundle b) {
+    final byOldest = _compareIssuanceDates(
+      a.earliestIssuanceDate,
+      b.earliestIssuanceDate,
+    );
+    if (byOldest != 0) return byOldest;
+    return _compareIssuanceDates(a.latestIssuanceDate, b.latestIssuanceDate);
+  }
+
+  /// Ascending, with a missing date sorting after any known one.
+  static int _compareIssuanceDates(int? a, int? b) {
+    if (a == null) return b == null ? 0 : 1;
+    if (b == null) return -1;
+    return a.compareTo(b);
+  }
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
@@ -209,6 +270,20 @@ class SelectableCredentialInstance {
 
   factory SelectableCredentialInstance.fromJson(Map<String, dynamic> json) =>
       _$SelectableCredentialInstanceFromJson(json);
+
+  /// Whether this instance can still be disclosed at [now]: not expired, not
+  /// revoked, and with batch instances left.
+  bool isSharableAt(DateTime now) {
+    final expiry = expiryDate;
+    if (expiry != null &&
+        DateTime.fromMillisecondsSinceEpoch(expiry * 1000).isBefore(now)) {
+      return false;
+    }
+    if (revoked) return false;
+    final remaining = batchInstanceCountRemaining;
+    if (remaining != null && remaining <= 0) return false;
+    return true;
+  }
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

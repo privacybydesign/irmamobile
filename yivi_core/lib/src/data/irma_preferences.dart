@@ -1,4 +1,7 @@
+import "package:collection/collection.dart";
 import "package:streaming_shared_preferences/streaming_shared_preferences.dart";
+
+import "../models/credential_usage.dart";
 
 class IrmaPreferences {
   final String mostRecentTermsUrlNl;
@@ -80,7 +83,11 @@ class IrmaPreferences {
          _reviewLastAskEpochMsKey,
          defaultValue: 0,
        ),
-       _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false) {
+       _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false),
+       _credentialUsage = preferences.getString(
+         _credentialUsageKey,
+         defaultValue: "",
+       ) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -195,6 +202,17 @@ class IrmaPreferences {
   static const String _reviewDoneKey = "preference.review_done";
   final Preference<bool> _reviewDone;
 
+  /// Disclosure counts per credential hash, stored as the JSON blob described
+  /// on [CredentialUsage]. Feeds the pre-selected option when a session offers
+  /// several instances of the same credential.
+  static const String _credentialUsageKey = "preference.credential_usage";
+  final Preference<String> _credentialUsage;
+
+  /// Cap on the number of credential hashes we keep usage for. Hashes change on
+  /// re-issuance, so without a cap the blob would grow for the lifetime of the
+  /// install. Well above the number of credentials a wallet realistically holds.
+  static const int maxTrackedCredentialUsage = 200;
+
   // =============================================================================
 
   Stream<bool> getScreenshotsEnabled() => _screenshotsEnabled;
@@ -298,6 +316,40 @@ class IrmaPreferences {
   Future<void> recordReviewAsked({required int nowEpochMs}) async {
     await _reviewTimesAsked.setValue(_reviewTimesAsked.getValue() + 1);
     await _reviewLastAskEpochMs.setValue(nowEpochMs);
+  }
+
+  // --- Credential usage -----------------------------------------------------
+
+  Map<String, CredentialUsage> getCredentialUsage() =>
+      CredentialUsage.decode(_credentialUsage.getValue());
+
+  /// Counts one disclosure at [now] for each of [credentialHashes].
+  ///
+  /// Hashes are deduplicated first, so a credential shared by two entries of
+  /// the same session still counts once. Once past
+  /// [maxTrackedCredentialUsage] entries the least recently used are dropped.
+  Future<bool> recordCredentialUsage(
+    Iterable<String> credentialHashes, {
+    required DateTime now,
+  }) {
+    final hashes = credentialHashes.where((hash) => hash.isNotEmpty).toSet();
+    if (hashes.isEmpty) return Future.value(true);
+
+    final usage = Map.of(getCredentialUsage());
+    for (final hash in hashes) {
+      usage[hash] = (usage[hash] ?? CredentialUsage(count: 0, lastUsed: now))
+          .usedAt(now);
+    }
+
+    if (usage.length > maxTrackedCredentialUsage) {
+      final keep = usage.entries
+          .sorted((a, b) => b.value.lastUsed.compareTo(a.value.lastUsed))
+          .take(maxTrackedCredentialUsage);
+      return _credentialUsage.setValue(
+        CredentialUsage.encode(Map.fromEntries(keep)),
+      );
+    }
+    return _credentialUsage.setValue(CredentialUsage.encode(usage));
   }
 
   Future<void> clearAll() {

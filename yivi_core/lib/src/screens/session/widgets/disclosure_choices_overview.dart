@@ -4,9 +4,11 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../providers/preferences_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/disclosure_choice_default.dart";
 import "../../../util/language.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_action_card.dart";
@@ -43,12 +45,13 @@ class _DisclosureChoicesOverviewState
     extends ConsumerState<DisclosureChoicesOverview> {
   int get _sessionId => widget.sessionState.id;
 
-  /// Returns the selected bundle index for a discon, defaulting to 0.
+  /// Returns the selected bundle index for a discon.
   ///
   /// Bundle identity is determined by *set equality* over credential hashes.
   /// Two distinct bundles whose credentials hash to the same set would map to
   /// the same index here — acceptable because in that case the disclosed
-  /// payload is identical. Falls back to 0 (silently) when no bundle matches,
+  /// payload is identical. Falls back (silently) to the default selection when
+  /// the user has not chosen yet, or when no bundle matches what they chose —
   /// e.g. after a credential was re-issued with a new hash.
   int _selectedIndexFor(int disconIndex) {
     final overview =
@@ -56,21 +59,27 @@ class _DisclosureChoicesOverviewState
     if (overview == null || disconIndex < 0 || disconIndex >= overview.length) {
       return 0;
     }
-    final userChoices = ref
-        .read(sessionUserChoicesProvider(_sessionId))
-        .disclosureChoices;
-    if (!userChoices.containsKey(disconIndex)) return 0;
-
-    final storedHashes = userChoices[disconIndex]!.credentialHashes;
     final owned = overview[disconIndex].ownedOptions ?? [];
-    for (var i = 0; i < owned.length; i++) {
-      final bundleHashes = owned[i].credentialHashes;
-      if (bundleHashes.length == storedHashes.length &&
-          bundleHashes.containsAll(storedHashes)) {
-        return i;
+    final storedBundle = ref
+        .read(sessionUserChoicesProvider(_sessionId))
+        .disclosureChoices[disconIndex];
+
+    if (storedBundle != null) {
+      final storedHashes = storedBundle.credentialHashes;
+      for (var i = 0; i < owned.length; i++) {
+        final bundleHashes = owned[i].credentialHashes;
+        if (bundleHashes.length == storedHashes.length &&
+            bundleHashes.containsAll(storedHashes)) {
+          return i;
+        }
       }
     }
-    return 0;
+
+    return defaultDisclosureBundleIndex(
+      owned,
+      usage: ref.read(preferencesProvider).getCredentialUsage(),
+      now: DateTime.now(),
+    );
   }
 
   List<DisclosureDisconSelection> _buildDisclosureChoices() {
@@ -88,8 +97,12 @@ class _DisclosureChoicesOverviewState
         continue;
       }
 
-      // Default to first owned bundle if nothing stored.
-      final bundle = userChoices[i] ?? (choices[i].ownedOptions?.firstOrNull);
+      // Fall back to the pre-selected bundle if the user never opened the
+      // picker, so that what is disclosed matches what the overview shows.
+      final owned = choices[i].ownedOptions ?? const <DisclosureBundle>[];
+      final bundle =
+          userChoices[i] ??
+          (owned.isEmpty ? null : owned[_selectedIndexFor(i)]);
       if (bundle == null) {
         disclosureChoices.add(DisclosureDisconSelection(credentials: []));
         continue;
@@ -140,20 +153,7 @@ class _DisclosureChoicesOverviewState
       final selectedIndex = _selectedIndexFor(i);
       if (selectedIndex >= owned.length) continue;
 
-      for (final instance in owned[selectedIndex].credentials) {
-        if (instance.expiryDate != null) {
-          final expiryDateTime = DateTime.fromMillisecondsSinceEpoch(
-            instance.expiryDate! * 1000,
-          );
-          if (expiryDateTime.isBefore(now)) return true;
-        }
-
-        if (instance.revoked) return true;
-        if (instance.batchInstanceCountRemaining != null &&
-            instance.batchInstanceCountRemaining! <= 0) {
-          return true;
-        }
-      }
+      if (!owned[selectedIndex].isSharableAt(now)) return true;
     }
     return false;
   }

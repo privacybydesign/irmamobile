@@ -43,10 +43,17 @@ class SessionUserInteractionEvent extends SessionEvent {
   final UserInteractionType type;
   final Map<String, dynamic>? payload;
 
+  /// The selection a `permission` interaction carries, kept alongside the
+  /// serialized [payload] so listeners on the event stream can read it without
+  /// re-parsing the JSON. Null for every other interaction type.
+  @JsonKey(includeToJson: false)
+  final List<DisclosureDisconSelection>? disclosureChoices;
+
   SessionUserInteractionEvent._({
     required this.sessionId,
     required this.type,
     this.payload,
+    this.disclosureChoices,
   });
 
   factory SessionUserInteractionEvent.permission({
@@ -60,6 +67,7 @@ class SessionUserInteractionEvent extends SessionEvent {
       "granted": granted,
       "disclosure_choices": disclosureChoices.map((d) => d.toJson()).toList(),
     },
+    disclosureChoices: granted ? disclosureChoices : null,
   );
 
   factory SessionUserInteractionEvent.pin({
