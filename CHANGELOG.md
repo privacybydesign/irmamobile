@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Internal
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
+- Updated Git submodules
 
 ## [8.1.2] - 2026-07-22
 ### Added
