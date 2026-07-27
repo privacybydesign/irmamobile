@@ -44,7 +44,10 @@ class ActivityCard extends StatelessWidget {
       );
 
       logoImage = firstCred.image != null
-          ? Base64Image(base64: firstCred.image!.base64)
+          ? Base64Image(
+              base64: firstCred.image!.base64,
+              mimeType: firstCred.image!.mimeType,
+            )
           : null;
     } else {
       if (logEntry.type == LogType.issuance) {
@@ -52,7 +55,10 @@ class ActivityCard extends StatelessWidget {
         title = serverName;
         final issuerImage = logEntry.issuanceLog!.issuer?.image;
         logoImage = issuerImage != null
-            ? Base64Image(base64: issuerImage.base64)
+            ? Base64Image(
+                base64: issuerImage.base64,
+                mimeType: issuerImage.mimeType,
+              )
             : null;
         subtitleTranslationKey = "activity.data_received";
         semanticLabel = FlutterI18n.translate(
@@ -65,7 +71,10 @@ class ActivityCard extends StatelessWidget {
         title = serverName;
         final verifierImage = logEntry.disclosureLog!.verifier?.image;
         logoImage = verifierImage != null
-            ? Base64Image(base64: verifierImage.base64)
+            ? Base64Image(
+                base64: verifierImage.base64,
+                mimeType: verifierImage.mimeType,
+              )
             : null;
 
         subtitleTranslationKey = "activity.data_shared";
@@ -79,7 +88,10 @@ class ActivityCard extends StatelessWidget {
         title = serverName;
         final verifierImage = logEntry.signedMessageLog!.verifier?.image;
         logoImage = verifierImage != null
-            ? Base64Image(base64: verifierImage.base64)
+            ? Base64Image(
+                base64: verifierImage.base64,
+                mimeType: verifierImage.mimeType,
+              )
             : null;
         subtitleTranslationKey = "activity.message_signed";
         semanticLabel = FlutterI18n.translate(

@@ -41,7 +41,10 @@ class NotificationCard extends StatelessWidget {
       final translatedIssuerName = notification.issuerName;
 
       logo = notification.logoImage != null
-          ? Base64Image(base64: notification.logoImage!.base64)
+          ? Base64Image(
+              base64: notification.logoImage!.base64,
+              mimeType: notification.logoImage!.mimeType,
+            )
           : null;
       final content = notification.content as InternalTranslatedContent;
 
