@@ -553,10 +553,33 @@ class IrmaRepository {
     );
   }
 
+  /// Whether any session is currently in flight (started, not yet terminal).
+  /// Synchronous companion to [getHasInFlightSession] for the biometric backstop.
+  bool get hasInFlightSession => _sessionRepository.hasInFlightSession;
+
+  /// Whether any session is currently in flight. The lock screen watches this to
+  /// withhold biometric while a session is running — e.g. one a link started
+  /// just before the app idle-locked — so it stays PIN-gated (issue #654).
+  /// See [SessionRepository.hasInFlightSessionStream].
+  Stream<bool> getHasInFlightSession() =>
+      _sessionRepository.hasInFlightSessionStream;
+
   /// Dismisses all sessions that are currently in the requestPermission state.
   void dismissAllActiveSessions() {
     final activeSessionIds = _sessionRepository.getActiveSessionIds();
     for (final sessionId in activeSessionIds) {
+      bridgedDispatch(
+        SessionUserInteractionEvent.dismiss(sessionId: sessionId),
+      );
+    }
+  }
+
+  /// Dismisses every in-flight session (started, not yet terminal). Unlike
+  /// [dismissAllActiveSessions] this also covers a session that has not yet
+  /// reached `requestPermission`, so the lock-screen ✕ cancels exactly the set
+  /// that [hasInFlightSession] hides biometric for.
+  void dismissAllInFlightSessions() {
+    for (final sessionId in _sessionRepository.inFlightSessionIds) {
       bridgedDispatch(
         SessionUserInteractionEvent.dismiss(sessionId: sessionId),
       );
@@ -582,6 +605,12 @@ class IrmaRepository {
   Stream<Pointer?> getPendingPointer() {
     return _pendingPointerSubject.stream;
   }
+
+  /// The currently queued session pointer, if any. Synchronous companion to
+  /// [getPendingPointer] for callers that must read the latest value without
+  /// awaiting the stream — used by the biometric backstop to refuse an unlock
+  /// when a session is pending.
+  Pointer? get pendingPointer => _pendingPointerSubject.value;
 
   /// Whether the native launch handshake has completed, so any universal-link
   /// pointer the app was opened with is already queued (see [getPendingPointer]).

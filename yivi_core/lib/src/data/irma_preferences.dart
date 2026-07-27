@@ -67,7 +67,20 @@ class IrmaPreferences {
        _credentialOrder = preferences.getStringList(
          _credentialOrderKey,
          defaultValue: [],
-       ) {
+       ),
+       _reviewSuccessCount = preferences.getInt(
+         _reviewSuccessCountKey,
+         defaultValue: 0,
+       ),
+       _reviewTimesAsked = preferences.getInt(
+         _reviewTimesAskedKey,
+         defaultValue: 0,
+       ),
+       _reviewLastAskEpochMs = preferences.getInt(
+         _reviewLastAskEpochMsKey,
+         defaultValue: 0,
+       ),
+       _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -159,6 +172,29 @@ class IrmaPreferences {
   // list of credential ids stored as json string
   final Preference<List<String>> _credentialOrder;
 
+  // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
+  // All wiped by clearAll(), so a logout/reset restarts the whole flow.
+
+  /// Successful sessions counted so far (disclosure, issuance and signature).
+  static const String _reviewSuccessCountKey =
+      "preference.review_success_count";
+  final Preference<int> _reviewSuccessCount;
+
+  /// How many times the sentiment gate has been shown: 0, 1 or 2.
+  static const String _reviewTimesAskedKey = "preference.review_times_asked";
+  final Preference<int> _reviewTimesAsked;
+
+  /// Wall-clock timestamp (ms since epoch) of the last ask, for the re-ask
+  /// delay.
+  static const String _reviewLastAskEpochMsKey =
+      "preference.review_last_ask_epoch_ms";
+  final Preference<int> _reviewLastAskEpochMs;
+
+  /// Terminal flag: set once the user answered the gate (yes or not-really) or
+  /// the second ask was reached. Never ask again once true.
+  static const String _reviewDoneKey = "preference.review_done";
+  final Preference<bool> _reviewDone;
+
   // =============================================================================
 
   Stream<bool> getScreenshotsEnabled() => _screenshotsEnabled;
@@ -241,6 +277,28 @@ class IrmaPreferences {
 
   Future<bool> setCredentialOrder(List<String> order) =>
       _credentialOrder.setValue(order);
+
+  // --- App-store review prompt ----------------------------------------------
+
+  int getReviewSuccessCountNow() => _reviewSuccessCount.getValue();
+
+  int getReviewTimesAskedNow() => _reviewTimesAsked.getValue();
+
+  int getReviewLastAskEpochMsNow() => _reviewLastAskEpochMs.getValue();
+
+  bool getReviewDoneNow() => _reviewDone.getValue();
+
+  Future<bool> incrementReviewSuccessCount() =>
+      _reviewSuccessCount.setValue(_reviewSuccessCount.getValue() + 1);
+
+  Future<bool> setReviewDone(bool value) => _reviewDone.setValue(value);
+
+  /// Records that the gate was just shown: bumps the ask count and stamps the
+  /// time so the re-ask delay can be evaluated later.
+  Future<void> recordReviewAsked({required int nowEpochMs}) async {
+    await _reviewTimesAsked.setValue(_reviewTimesAsked.getValue() + 1);
+    await _reviewLastAskEpochMs.setValue(nowEpochMs);
+  }
 
   Future<void> clearAll() {
     // Reset all preferences to their default values

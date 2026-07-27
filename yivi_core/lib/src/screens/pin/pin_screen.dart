@@ -9,6 +9,7 @@ import "package:local_auth/local_auth.dart";
 
 import "../../../package_name.dart";
 import "../../models/session.dart";
+import "../../providers/has_in_flight_session_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/pending_pointer_provider.dart";
 import "../../providers/preferences_provider.dart";
@@ -190,9 +191,11 @@ class _PinScreenState extends ConsumerState<PinScreen>
     }
   }
 
-  // Cancel a pending session from the lock screen: confirm, then clear the
-  // queued pointer. Nothing started server-side yet, so this is a local clear —
-  // the screen reverts to normal unlock and the user can re-scan.
+  // Cancel a waiting session from the lock screen: confirm, then clear the
+  // queued pointer AND dismiss any in-flight session behind the lock (one a link
+  // kicked off before the app idle-locked, at any non-terminal status — not just
+  // requestPermission). Both revert the screen to normal unlock — biometric
+  // reappears once no session is in flight.
   Future<void> _confirmCancelPending(BuildContext context) async {
     final confirmed =
         await showDialog<bool>(
@@ -206,7 +209,9 @@ class _PinScreenState extends ConsumerState<PinScreen>
         ) ??
         false;
     if (confirmed && mounted) {
-      ref.read(irmaRepositoryProvider).setPendingPointer(null);
+      final repo = ref.read(irmaRepositoryProvider);
+      repo.setPendingPointer(null);
+      repo.dismissAllInFlightSessions();
     }
   }
 
@@ -237,6 +242,17 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // the keyshare token, so the session would still demand the PIN — a second
     // prompt. Entering the PIN here refreshes the token and the session proceeds.
     final hasPendingSession = ref.watch(pendingPointerProvider) != null;
+    // Also hide it while a session is in flight. If the app was unlocked when it
+    // went to the background, a link arriving then starts the session
+    // immediately (clearing the pending pointer) before the resume idle-lock
+    // re-locks — so `hasPendingSession` is already false by the time this lock
+    // screen builds. That in-flight session needs the keyshare token, which the
+    // idle-lock cleared, so it must be admitted by PIN, not biometric (#654).
+    final hasInFlightSession = ref.watch(hasInFlightSessionProvider);
+    // A pending pointer or an in-flight session both mean "a session is waiting
+    // behind this lock" — used to hide biometric and to show the ✕ that cancels
+    // it and returns to the normal unlock screen.
+    final hasSession = hasPendingSession || hasInFlightSession;
     // Hold biometric back until native has acknowledged the launch handshake.
     // On a cold start opened by a universal link, the session pointer is queued
     // just before this flips true, so by the time biometric is allowed
@@ -253,7 +269,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
         biometricAvailable &&
         biometricEnabled &&
         !blocked &&
-        !hasPendingSession &&
+        !hasSession &&
         startupUrlResolved;
     final biometricType = ref.watch(biometricTypeProvider).value;
 
@@ -262,8 +278,8 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // it waits for the providers to resolve on cold start rather than firing
     // early. Reuses `showBiometric`, so blocked/pending-session/unavailable and
     // the unresolved-launch-URL window are already excluded. On cancel/fail
-    // nothing happens and `_autoTriggered`
-    // stays true — the user falls back to the PIN pad or the manual button.
+    // nothing happens and `_autoTriggered` stays true — the user falls back to
+    // the PIN pad or the manual button.
     final biometricImmediate =
         ref.watch(biometricImmediateProvider).value ?? false;
     if (showBiometric && biometricImmediate && !_autoTriggered) {
@@ -294,14 +310,14 @@ class _PinScreenState extends ConsumerState<PinScreen>
         titleString: "",
         hasBorder: false,
         // Hide the leading button (the lock screen's QR scanner) while a session
-        // is pending — scanning another is pointless; the user should just enter
-        // their PIN.
-        leading: hasPendingSession ? null : widget.leading,
-        // When a session is pending, offer a trailing ✕ to cancel it and return
+        // is waiting — pending or in flight — scanning another is pointless; the
+        // user should just enter their PIN.
+        leading: hasSession ? null : widget.leading,
+        // When a session is waiting, offer a trailing ✕ to cancel it and return
         // to the normal unlock screen.
-        // ponytail: ✕ is the only cancel path for a pending session; wire a
+        // ponytail: ✕ is the only cancel path for a waiting session; wire a
         // PopScope here if hardware-back parity is ever requested.
-        actions: hasPendingSession
+        actions: hasSession
             ? [
                 Padding(
                   padding: EdgeInsets.only(

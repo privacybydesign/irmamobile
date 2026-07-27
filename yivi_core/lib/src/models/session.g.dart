@@ -20,7 +20,10 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
     u: json['u'] as String,
     irmaqr: json['irmaqr'] as String,
     protocol: _protocolFromJsonAlwaysIrma(json['protocol'] as String?),
-    continueOnSecondDevice: json['continue_on_second_device'] as bool? ?? false,
+    continueOnSecondDevice:
+        _readContinueOnSecondDevice(json, 'continue_on_second_device')
+            as bool? ??
+        false,
     openid4vciRedirectUri: json['openid4vci_redirect_uri'] as String?,
   );
 }
