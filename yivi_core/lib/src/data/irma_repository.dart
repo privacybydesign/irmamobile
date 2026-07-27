@@ -99,8 +99,7 @@ class IrmaRepository {
     // first pull), then a SetLocaleEvent on every change. The effective
     // language is the in-app override preference when set, otherwise the
     // device system language, read once at startup.
-    final systemLocale =
-        WidgetsBinding.instance.platformDispatcher.locale;
+    final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
     final effectiveLanguage = preferences
         .getPreferredLanguageCode()
         .map(
