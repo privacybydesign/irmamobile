@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Credential logos supplied as SVG now render correctly instead of appearing blank
+- The loading spinner is red on every screen; on some screens it was grey
 
 ### Internal
 - Implement the session-success refresh in the RecentActivity widget
