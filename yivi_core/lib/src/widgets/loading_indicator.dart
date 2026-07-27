@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 
 class LoadingIndicator extends StatelessWidget {
-  // Deliberately no color: the spinner color comes from
-  // themeData.progressIndicatorTheme, so this widget and a bare
-  // CircularProgressIndicator elsewhere in the app always match.
+  // Deliberately no color: it comes from themeData.progressIndicatorTheme, so
+  // this widget and a bare CircularProgressIndicator paint the same color.
+  // Only the 3.5 stroke is local; a bare one gets Material's default 4.0.
   @override
   Widget build(BuildContext context) =>
       CircularProgressIndicator(strokeWidth: 3.5);
