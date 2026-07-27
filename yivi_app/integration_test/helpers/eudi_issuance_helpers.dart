@@ -199,17 +199,14 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
   );
 }
 
-/// A per-run email, used both as the credential's `email` attribute and as the
-/// marker that identifies this run's records in the shared staging issuer.
-///
-/// Never revoke by credential type alone: staging is shared, so an unmarked
-/// revoke can hit a credential another run just issued.
+/// A per-run email: the credential's `email` attribute, and the marker that
+/// identifies this run's records. Staging is shared, so never revoke by
+/// credential type alone — that can hit another run's credential.
 String statusListRunMarker() =>
     "statuslist-${DateTime.now().millisecondsSinceEpoch}@example.com";
 
-/// Issues a `StatusListCredentialSdJwt` — the only staging credential whose
-/// issuer config wires a status list, so issuance reserves an index on the
-/// statuslist-agent and embeds `status.status_list {idx, uri}`.
+/// Issues a `StatusListCredentialSdJwt`, the only staging credential wired to a
+/// status list (so issuance reserves an index and embeds `status.status_list`).
 Future<void> issueStatusListViaOpenID4VCI(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
@@ -225,13 +222,10 @@ Future<void> issueStatusListViaOpenID4VCI(
   },
 );
 
-/// Revokes (or un-revokes) every issued status-list credential whose claims
-/// carry [markerEmail]. The veramo issuer proxies each call to the
-/// statuslist-agent, which flips that credential's bit.
-///
-/// Returns how many records were touched, and throws when that is zero: a
-/// silent no-match would leave the credential valid and make the revoked
-/// assertions pass for the wrong reason.
+/// Revokes (or un-revokes) every status-list credential whose claims carry
+/// [markerEmail]; the issuer proxies each call to the statuslist-agent, which
+/// flips the bit. Returns the number of records touched, and throws on zero —
+/// a silent no-match would make the revoked assertions pass for the wrong reason.
 Future<int> setStatusListRevocation(
   String markerEmail, {
   required bool revoke,
@@ -243,7 +237,7 @@ Future<int> setStatusListRevocation(
     final uuid = record["uuid"] as String?;
     final claims = record["claims"];
     if (uuid == null || uuid.isEmpty) continue;
-    // Claims come back as a JSON string, so match the marker inside it.
+    // Claims come back as a JSON string, so match inside it.
     if (claims == null || !claims.toString().contains(markerEmail)) continue;
 
     await _postToVeramoIssuer("/api/revoke-credential", {
@@ -283,8 +277,8 @@ Future<String> _postToVeramoIssuer(
   request.write(jsonEncode(body));
 
   final response = await request.close();
-  // join(), not first(): the credential list grows with every test run and
-  // arrives in several chunks, and taking only the first one truncates the JSON.
+  // join(), not first(): the credential list spans several chunks, and taking
+  // only the first truncates the JSON.
   final responseBody = await response.transform(utf8.decoder).join();
   if (response.statusCode != 200) {
     throw Exception(
@@ -294,8 +288,7 @@ Future<String> _postToVeramoIssuer(
   return responseBody;
 }
 
-/// Forces the status refresh sweep (bypassing the repository's rate limit) so
-/// the test does not have to wait on the app's own hourly job.
+/// Forces the status refresh sweep, bypassing the repository's rate limit.
 void refreshCredentialStatuses(IntegrationTestIrmaBinding irmaBinding) =>
     irmaBinding.repository.refreshCredentialStatuses(force: true);
 

@@ -166,10 +166,8 @@ func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
 	return nil
 }
 
-// Force a Token Status List refresh: re-fetch the lists our credentials
-// reference and write back each one's status. Per-list failures are logged and
-// swallowed inside RefreshStatuses (the previous status is kept), so an error
-// here means the sweep could not run at all.
+// Force a Token Status List refresh. Per-list failures are logged and swallowed
+// inside RefreshStatuses, so an error here means the sweep could not run at all.
 func (ah *eventHandler) refreshCredentialStatuses() error {
 	if err := yiviClient.RefreshStatuses(context.Background()); err != nil {
 		return err

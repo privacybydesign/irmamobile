@@ -146,8 +146,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     if (state == AppLifecycleState.resumed) {
       _handleUpdateSchemes();
-      // Rate-limited inside the repository, so foregrounding repeatedly does
-      // not keep fetching the status lists (ADR 0007).
+      // Rate-limited inside the repository.
       repo.refreshCredentialStatuses();
       widget.notificationsBloc.add(LoadNotifications());
     }

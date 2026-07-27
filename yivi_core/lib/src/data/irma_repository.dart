@@ -138,9 +138,8 @@ class IrmaRepository {
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
-  // Rate limit for refreshCredentialStatuses. In memory on purpose: a cold
-  // start already sweeps once via the Go client's own scheduled job, so the
-  // only thing worth suppressing is repeated foregrounding within one run.
+  // In memory on purpose: a cold start already sweeps via the Go client's own
+  // job, so only repeated foregrounding within one run needs suppressing.
   static const _statusRefreshInterval = Duration(minutes: 15);
   DateTime? _lastStatusRefresh;
 
@@ -336,17 +335,13 @@ class IrmaRepository {
     return _credentialStoreSubject.stream;
   }
 
-  /// Asks irmago to re-fetch the Token Status Lists our credentials reference
-  /// and write back each one's status — the only thing that moves a credential
-  /// into or out of revoked. The refreshed credentials arrive on
-  /// [getSchemalessCredentials].
+  /// Re-fetches the Token Status Lists our credentials reference and writes back
+  /// each status — the only thing that moves a credential into or out of revoked.
+  /// The result arrives on [getSchemalessCredentials].
   ///
-  /// Rate-limited to [_statusRefreshInterval], because the refresh deliberately
-  /// bypasses irmago's status-list cache: every call is a real fetch to the
-  /// status-list host, so an unthrottled one would hand that host a
-  /// resume-timing signal from every wallet holding such a credential (see
-  /// docs/adr/0007-throttled-status-refresh-on-foreground.md). Pass [force] to
-  /// skip the rate limit.
+  /// Rate-limited to [_statusRefreshInterval]: the refresh bypasses the
+  /// status-list cache, so unthrottled it would hand the status-list host a
+  /// resume-timing signal. Pass [force] to skip the rate limit.
   void refreshCredentialStatuses({bool force = false}) {
     final now = DateTime.now();
     final last = _lastStatusRefresh;

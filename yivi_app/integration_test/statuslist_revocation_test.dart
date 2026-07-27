@@ -14,23 +14,11 @@ import "helpers/helpers.dart";
 import "irma_binding.dart";
 import "util.dart";
 
-/// End-to-end IETF Token Status List revocation for an SD-JWT credential issued
-/// over OpenID4VCI, from the app's side: does a status list bit flip actually
-/// reach the user?
+/// Does a Token Status List revocation reach the user? Covers the card, the
+/// notification, the disclosure overview, and the way back after reinstatement.
 ///
-/// irmago already covers the protocol level (unit tests over bit packing, token
-/// verification and the refresh sweep; a docker e2e over the disclosure *plan*).
-/// What only the app can prove is that the resulting status shows up on the
-/// credential card, in the notification bell, and in the disclosure overview —
-/// and that lifting the revocation clears it again.
-///
-/// Needs staging: the veramo test-issuer (which wires
-/// `StatusListCredentialSdJwt` to the statuslist-agent and proxies revokes to
-/// it) and the statuslist-agent itself, pinned to a build that packs the bit
-/// array LSB-first. A pre-2026-07-09 agent packs it MSB-first, which makes a
-/// compliant wallet read every revoked credential as valid *without any error* —
-/// so read a failure of the revoked assertions as "check the agent version"
-/// before suspecting the wallet.
+/// Runs against staging. Note that a stale Go bridge drops the refresh event
+/// silently, so run `bind_go.sh` after changing anything under irmagobridge.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
@@ -58,11 +46,9 @@ const _credentialName = "Status List Credential (SD-JWT)";
 const _issuerName = "Test Issuer";
 const _revokedLabel = "Revoked";
 
-/// The status sweep runs on the Go side and reports back over the bridge, so
-/// give it room — this is a live fetch of the status list from staging.
+/// Room for a live status list fetch from staging, round-tripped over the bridge.
 const _refreshTimeout = Duration(seconds: 30);
 
-/// Card, notification bell, and reinstatement.
 Future<void> _testRevocationSurfacesOnCardAndNotification(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -72,9 +58,8 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   final marker = statusListRunMarker();
   await issueStatusListViaOpenID4VCI(tester, irmaBinding, email: marker);
 
-  // Control. That issuance succeeded at all already proves the holder-side
-  // status check passed: the wallet fetched the statuslist+jwt, verified it
-  // against the agent's did:web, and read VALID at its freshly allocated index.
+  // Control: issuance succeeding at all already proves the holder-side status
+  // check read VALID at the allocated index.
   await _openStatusListCredential(tester);
   expect(
     find.text(_revokedLabel),
@@ -89,14 +74,11 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
     isRevoked: false,
     expectReobtainButton: false,
   );
-  // The marker email is the credential's own attribute value, so this also
-  // confirms we are looking at this run's credential. Attribute *labels* are
-  // not asserted: the staging vct document declares no claim display names.
+  // Confirms this is our run's credential. Labels aren't asserted: the staging
+  // vct document declares no claim display names.
   expect(find.text(marker), findsOneWidget);
   await navigateBack(tester);
 
-  // Revoke at the issuer, which proxies to the statuslist-agent and flips the
-  // bit, then force the sweep the app would otherwise only run hourly.
   await setStatusListRevocation(marker, revoke: true);
   refreshCredentialStatuses(irmaBinding);
 
@@ -112,14 +94,13 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
     issuerName: _issuerName,
     isRevoked: true,
     style: IrmaCardStyle.danger,
-    // OID4VCI credentials carry no IssueURL, so a revoked one still offers no
-    // way to reobtain it.
+    // OID4VCI credentials carry no IssueURL, so there is nothing to reobtain.
     expectReobtainButton: false,
   );
   await navigateBack(tester);
 
-  // The bell does not get pushed to; it loads its notifications when opened
-  // and on pull-to-refresh.
+  // The bell loads notifications when opened and on pull-to-refresh; nothing
+  // pushes into it.
   await tester.tapAndSettle(find.byType(NotificationBell));
   await tester.drag(find.byType(RefreshIndicator), const Offset(0, 500));
   await tester.pumpAndSettle();
@@ -138,15 +119,12 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   await tester.tapAndSettle(notificationCardsFinder.first);
   expect(find.byType(YiviCredentialCard), findsOneWidget);
 
-  // Lift the revocation: the sweep must move the credential back to valid, not
-  // just one-way into revoked.
   await setStatusListRevocation(marker, revoke: false);
   refreshCredentialStatuses(irmaBinding);
 
-  // Wait for the card to be back *and* unflagged, not merely for the label to
-  // vanish: the details screen is driven by a FutureProvider over the
-  // credentials stream, so every refresh puts it in AsyncLoading and swaps the
-  // card for a spinner for a frame — which makes "Revoked" disappear too.
+  // Wait for the card back *and* unflagged: every refresh briefly swaps the card
+  // for a spinner (FutureProvider over the credentials stream), which on its own
+  // already makes the label vanish.
   final cardFinder = find.byType(YiviCredentialCard);
   await tester.pumpUntil(
     () => tester.any(cardFinder) && !tester.any(find.text(_revokedLabel)),
@@ -162,9 +140,8 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   );
 }
 
-/// A revoked credential is still *offered* for disclosure, flagged revoked —
-/// IRMA parity: the wallet surfaces the flag and lets the frontend decide, with
-/// the verifier's own status check as the backstop.
+/// IRMA parity: a revoked credential is still offered, flagged, for the frontend
+/// to decide on — the verifier's own check is the backstop.
 Future<void> _testRevokedCredentialFlaggedInDisclosure(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -175,10 +152,8 @@ Future<void> _testRevokedCredentialFlaggedInDisclosure(
   await issueStatusListViaOpenID4VCI(tester, irmaBinding, email: marker);
   await setStatusListRevocation(marker, revoke: true);
 
-  // Required, not decorative: issuance warmed the status list cache with the
-  // still-valid token, and the disclosure-time check reads only that cache
-  // (never fetches). Without forcing a refresh first, the plan would be built
-  // from the stale valid token.
+  // Required: the disclosure-time check reads only the cache, which issuance
+  // warmed with the still-valid token.
   refreshCredentialStatuses(irmaBinding);
   await _awaitRevokedInCredentialList(tester);
 
@@ -229,9 +204,8 @@ Future<void> _openStatusListCredential(WidgetTester tester) async {
   await navigateToCredentialDetailsPage(tester, veramoStatusListCredentialVct);
 }
 
-/// Waits until the refreshed (revoked) status has landed in the credential list,
-/// so the disclosure session below is started against a wallet that already
-/// knows about the revocation.
+/// Waits until the refresh has landed, so the session starts against a wallet
+/// that already knows about the revocation.
 Future<void> _awaitRevokedInCredentialList(WidgetTester tester) async {
   await _openStatusListCredential(tester);
   await tester.pumpUntilFound(

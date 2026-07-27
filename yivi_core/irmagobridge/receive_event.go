@@ -90,9 +90,8 @@ func DispatchFromNative(eventName, payloadString string) {
 			}
 		}()
 	case "RefreshCredentialStatusesEvent":
-		// Run in a goroutine: the sweep fetches every referenced status list
-		// over HTTP, and DispatchFromNative blocks the main thread (same
-		// reasoning as UpdateSchemesEvent above).
+		// In a goroutine: the sweep fetches over HTTP and DispatchFromNative
+		// blocks the main thread (as with UpdateSchemesEvent above).
 		go func() {
 			defer recoverFromPanic("Handling RefreshCredentialStatusesEvent panicked")
 			if err := bridgeEventHandler.refreshCredentialStatuses(); err != nil {
