@@ -8,6 +8,7 @@ import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/section_header.dart";
+import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_themed_button.dart";
 import "../home/widgets/irma_nav_bar.dart";
 import "widgets/tiles.dart";
@@ -136,6 +137,22 @@ class _MoreTabState extends State<MoreTab> {
                 // the lock screen that follows an explicit logout.
                 IrmaRepositoryProvider.of(context).lock(userInitiated: true);
                 widget.onChangeTab(IrmaNavBarTab.data);
+                // Confirm the deliberate logout so the user understands they
+                // were logged out and the PIN screen is not asking for a PIN
+                // in order to log out. The root ScaffoldMessenger keeps this
+                // snackbar visible across the redirect to the PIN screen.
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: TranslatedText(
+                      "more_tab.logged_out_toast",
+                      style: theme.themeData.textTheme.bodySmall!.copyWith(
+                        color: theme.light,
+                      ),
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: theme.themeData.colorScheme.secondary,
+                  ),
+                );
               },
             ),
             spacerWidget,
