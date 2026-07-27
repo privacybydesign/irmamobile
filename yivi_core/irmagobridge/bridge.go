@@ -28,6 +28,13 @@ type IrmaMobileBridge interface {
 
 type Signer irmaclient.Signer
 
+const (
+	// how often the EUDI certificate revocation lists are re-fetched
+	eudiCrlUpdateInterval = 60 * time.Minute
+	// how often the status refresh sweep re-fetches Token Status Lists
+	statusTokenListRefreshInterval = 60 * time.Minute
+)
+
 var bridge IrmaMobileBridge
 var yiviClient *client.Client
 var appDataVersion = "v2"
@@ -167,7 +174,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		irma.Logger.SetLevel(logrus.ErrorLevel)
 	}
 
-	yiviClient.InitJobs(60 * time.Minute)
+	yiviClient.InitJobs(eudiCrlUpdateInterval, statusTokenListRefreshInterval)
 }
 
 func dispatchEvent(event any) {
