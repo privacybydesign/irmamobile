@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
 
+### Fixed
+- Credential logos supplied as SVG now render correctly instead of appearing blank
+
 ### Internal
-- Implement the session-success refresh in the RecentActivity widget, which is currently not rendered anywhere in the app
+- Implement the session-success refresh in the RecentActivity widget
 - Add an integration test for the required-update screen
 
 ## [8.1.2] - 2026-07-22
