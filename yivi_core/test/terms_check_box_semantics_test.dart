@@ -142,7 +142,12 @@ void main() {
       onToggleAccepted: (value) => toggled = value,
     );
 
-    await tester.tap(checkbox);
+    // Drive the semantics action itself, not a pointer tap: this is the path a
+    // screen reader takes, and it goes through the merged node the label lives
+    // on rather than the Checkbox's own hit box.
+    tester.semantics.tap(
+      find.semantics.byLabel("Yes, I accept the terms and conditions"),
+    );
     await tester.pumpAndSettle();
 
     expect(toggled, isTrue);
