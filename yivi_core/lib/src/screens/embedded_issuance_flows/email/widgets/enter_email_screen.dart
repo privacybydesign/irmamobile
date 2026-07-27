@@ -61,11 +61,13 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
 
       // Use the previously entered email (when coming back from the
       // verification screen); otherwise fall back to the value the verifier
-      // requested so the field is pre-filled instead of empty.
+      // requested so the field is pre-filled instead of empty. The requested
+      // value is lowercased because onChanged does the same to typed input, and
+      // both paths must produce the same address.
       final enteredEmail = ref.read(emailIssuanceProvider).email;
       final email = enteredEmail.isNotEmpty
           ? enteredEmail
-          : (widget.prefillEmail ?? "");
+          : (widget.prefillEmail ?? "").toLowerCase();
       _textController.text = email;
       if (isValidEmail(email)) {
         setState(() {

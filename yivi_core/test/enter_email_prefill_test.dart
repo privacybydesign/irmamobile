@@ -50,6 +50,18 @@ void main() {
     expect(find.text("john.doe@example.com"), findsOneWidget);
   });
 
+  testWidgets("lowercases the requested email address", (tester) async {
+    // Typed input is force-lowercased by onChanged, so a pre-filled address
+    // must be normalised the same way or the two paths disagree.
+    await tester.pumpWidget(
+      const _TestApp(prefillEmail: "John.Doe@Example.com"),
+    );
+    await tester.pumpAndSettle();
+
+    final field = tester.widget<TextFormField>(find.byKey(emailFieldKey));
+    expect(field.controller?.text, "john.doe@example.com");
+  });
+
   testWidgets("leaves the input empty when no email was requested", (
     tester,
   ) async {
