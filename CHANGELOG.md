@@ -8,10 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
 
-### Fixed
-- The recent activity card on the home screen refreshes when a session finishes, instead of keeping stale entries until you navigate away
-
 ### Internal
+- Implement the session-success refresh in the RecentActivity widget, which is currently not rendered anywhere in the app
 - Add an integration test for the required-update screen
 
 ## [8.1.2] - 2026-07-22
