@@ -92,6 +92,8 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                                         credential.image != null
                                         ? Base64Image(
                                             base64: credential.image!.base64,
+                                            mimeType:
+                                                credential.image!.mimeType,
                                           )
                                         : null,
                                     credentialName: credential.name,
