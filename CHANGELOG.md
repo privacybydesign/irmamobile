@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
+
+### Fixed
+- The recent activity card on the home screen refreshes when a session finishes, instead of keeping stale entries until you navigate away
+
+### Internal
+- Add an integration test for the required-update screen
 
 ## [8.1.2] - 2026-07-22
 ### Added
