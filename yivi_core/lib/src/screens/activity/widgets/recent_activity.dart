@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/material.dart";
 
 import "../../../models/log_entry.dart";
+import "../../../models/schemaless/session_state.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/translated_text.dart";
@@ -34,10 +35,16 @@ class _RecentActivityState extends State<RecentActivity> {
     } catch (_) {
       _loadLogs();
       _historyRepo = HistoryRepository(IrmaRepositoryProvider.of(context));
-      // TODO: listen for session success to refresh logs
-      _repoStateSubscription = IrmaRepositoryProvider.of(
-        context,
-      ).getEvents().listen((event) {});
+      // Refresh the recent-activity list whenever a session completes
+      // successfully, so newly created logs show up without navigating away.
+      _repoStateSubscription = IrmaRepositoryProvider.of(context)
+          .getEvents()
+          .listen((event) {
+            if (event is SessionStateEvent &&
+                event.sessionState.status == SessionStatus.success) {
+              _loadLogs();
+            }
+          });
     }
   }
 
