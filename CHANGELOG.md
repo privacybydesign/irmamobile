@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The loading spinner is red on every screen; on some screens it was grey
 
 ### Internal
-- Implement the session-success refresh in the RecentActivity widget
+- Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
 
 ## [8.1.2] - 2026-07-22
