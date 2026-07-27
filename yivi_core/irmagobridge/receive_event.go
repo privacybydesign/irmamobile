@@ -89,6 +89,16 @@ func DispatchFromNative(eventName, payloadString string) {
 				reportError(errors.New(err), false)
 			}
 		}()
+	case "RefreshCredentialStatusesEvent":
+		// Run in a goroutine: the sweep fetches every referenced status list
+		// over HTTP, and DispatchFromNative blocks the main thread (same
+		// reasoning as UpdateSchemesEvent above).
+		go func() {
+			defer recoverFromPanic("Handling RefreshCredentialStatusesEvent panicked")
+			if err := bridgeEventHandler.refreshCredentialStatuses(); err != nil {
+				reportError(errors.New(err), false)
+			}
+		}()
 	case "LoadLogsEvent":
 		event := &loadLogsEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {

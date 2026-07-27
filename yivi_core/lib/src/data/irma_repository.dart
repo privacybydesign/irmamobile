@@ -28,6 +28,7 @@ import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
 import "../models/native_events.dart";
+import "../models/refresh_credential_statuses_event.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
 import "../models/schemaless/session_state.dart";
@@ -136,6 +137,12 @@ class IrmaRepository {
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
+
+  // Rate limit for refreshCredentialStatuses. In memory on purpose: a cold
+  // start already sweeps once via the Go client's own scheduled job, so the
+  // only thing worth suppressing is repeated foregrounding within one run.
+  static const _statusRefreshInterval = Duration(minutes: 15);
+  DateTime? _lastStatusRefresh;
 
   late StreamSubscription<Event> _bridgeEventSubscription;
 
@@ -327,6 +334,29 @@ class IrmaRepository {
 
   Stream<List<CredentialStoreItem>> getCredentialStoreItems() {
     return _credentialStoreSubject.stream;
+  }
+
+  /// Asks irmago to re-fetch the Token Status Lists our credentials reference
+  /// and write back each one's status — the only thing that moves a credential
+  /// into or out of revoked. The refreshed credentials arrive on
+  /// [getSchemalessCredentials].
+  ///
+  /// Rate-limited to [_statusRefreshInterval], because the refresh deliberately
+  /// bypasses irmago's status-list cache: every call is a real fetch to the
+  /// status-list host, so an unthrottled one would hand that host a
+  /// resume-timing signal from every wallet holding such a credential (see
+  /// docs/adr/0007-throttled-status-refresh-on-foreground.md). Pass [force] to
+  /// skip the rate limit.
+  void refreshCredentialStatuses({bool force = false}) {
+    final now = DateTime.now();
+    final last = _lastStatusRefresh;
+    if (!force &&
+        last != null &&
+        now.difference(last) < _statusRefreshInterval) {
+      return;
+    }
+    _lastStatusRefresh = now;
+    bridgedDispatch(RefreshCredentialStatusesEvent());
   }
 
   // -- Enrollment

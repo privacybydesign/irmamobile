@@ -33,6 +33,8 @@ const veramoPhoneCredentialVct =
     "https://veramo-issuer.openid4vc.staging.yivi.app/vct/phone";
 const veramoOrganizationCredentialVct =
     "https://veramo-issuer.openid4vc.staging.yivi.app/vct/organization";
+const veramoStatusListCredentialVct =
+    "https://veramo-issuer.openid4vc.staging.yivi.app/vct/statuslist";
 
 /// Response from the Veramo issuer's create-offer endpoint.
 class OpenID4VCIOfferResponse {
@@ -196,6 +198,106 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
     id: responseObject["id"] as String,
   );
 }
+
+/// A per-run email, used both as the credential's `email` attribute and as the
+/// marker that identifies this run's records in the shared staging issuer.
+///
+/// Never revoke by credential type alone: staging is shared, so an unmarked
+/// revoke can hit a credential another run just issued.
+String statusListRunMarker() =>
+    "statuslist-${DateTime.now().millisecondsSinceEpoch}@example.com";
+
+/// Issues a `StatusListCredentialSdJwt` — the only staging credential whose
+/// issuer config wires a status list, so issuance reserves an index on the
+/// statuslist-agent and embeds `status.status_list {idx, uri}`.
+Future<void> issueStatusListViaOpenID4VCI(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  required String email,
+}) => _issueOpenID4VCICredential(
+  tester,
+  irmaBinding,
+  credentialConfigId: "StatusListCredentialSdJwt",
+  credentialData: {
+    "given_name": "Test",
+    "family_name": "StatusList",
+    "email": email,
+  },
+);
+
+/// Revokes (or un-revokes) every issued status-list credential whose claims
+/// carry [markerEmail]. The veramo issuer proxies each call to the
+/// statuslist-agent, which flips that credential's bit.
+///
+/// Returns how many records were touched, and throws when that is zero: a
+/// silent no-match would leave the credential valid and make the revoked
+/// assertions pass for the wrong reason.
+Future<int> setStatusListRevocation(
+  String markerEmail, {
+  required bool revoke,
+}) async {
+  final records = await _listVeramoCredentials("StatusListCredentialSdJwt");
+
+  var touched = 0;
+  for (final record in records) {
+    final uuid = record["uuid"] as String?;
+    final claims = record["claims"];
+    if (uuid == null || uuid.isEmpty) continue;
+    // Claims come back as a JSON string, so match the marker inside it.
+    if (claims == null || !claims.toString().contains(markerEmail)) continue;
+
+    await _postToVeramoIssuer("/api/revoke-credential", {
+      "uuid": uuid,
+      "state": revoke ? "revoke" : "unrevoke",
+    });
+    touched++;
+  }
+
+  if (touched == 0) {
+    throw Exception(
+      "No StatusListCredentialSdJwt records found for $markerEmail; "
+      "nothing was ${revoke ? "revoked" : "un-revoked"}",
+    );
+  }
+  return touched;
+}
+
+Future<List<Map<String, dynamic>>> _listVeramoCredentials(
+  String credentialConfigId,
+) async {
+  final body = await _postToVeramoIssuer("/api/list-credentials", {
+    "credential": credentialConfigId,
+  });
+  return (jsonDecode(body) as List).cast<Map<String, dynamic>>();
+}
+
+Future<String> _postToVeramoIssuer(
+  String path,
+  Map<String, dynamic> body,
+) async {
+  final request = await HttpClient().postUrl(
+    Uri.parse("$veramoIssuerBaseUrl$path"),
+  );
+  request.headers.set("Content-Type", "application/json");
+  request.headers.set("Authorization", "Bearer $veramoIssuerAdminToken");
+  request.write(jsonEncode(body));
+
+  final response = await request.close();
+  // join(), not first(): the credential list grows with every test run and
+  // arrives in several chunks, and taking only the first one truncates the JSON.
+  final responseBody = await response.transform(utf8.decoder).join();
+  if (response.statusCode != 200) {
+    throw Exception(
+      "veramo issuer $path failed: status ${response.statusCode}, $responseBody",
+    );
+  }
+  return responseBody;
+}
+
+/// Forces the status refresh sweep (bypassing the repository's rate limit) so
+/// the test does not have to wait on the app's own hourly job.
+void refreshCredentialStatuses(IntegrationTestIrmaBinding irmaBinding) =>
+    irmaBinding.repository.refreshCredentialStatuses(force: true);
 
 /// Taps the share button on the disclosure overview, walks through the
 /// share-confirm dialog, and dismisses the success feedback screen.
