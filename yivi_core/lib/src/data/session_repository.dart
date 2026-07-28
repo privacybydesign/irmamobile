@@ -36,6 +36,12 @@ class SessionRepository {
   /// before Go replies (issue #654). See [hasInFlightSessionStream].
   final _inFlightSessionIds = BehaviorSubject<Set<int>>.seeded({});
 
+  /// Credential hashes the user approved for disclosure, per session, held until
+  /// the session reaches a terminal status. Only a session that succeeds counts
+  /// towards the usage that pre-selects a credential in a later session, so an
+  /// approval that then failed is dropped again.
+  final Map<int, Set<String>> _approvedCredentialHashes = {};
+
   SessionRepository({required this.repo, required Stream<Event> eventStream}) {
     eventStream.listen(_handleEvent);
   }
@@ -52,6 +58,23 @@ class SessionRepository {
     } else if (event is SessionUserInteractionEvent &&
         event.type != UserInteractionType.dismiss) {
       _markAwaitingInteraction(event.sessionId);
+      _holdApprovedCredentials(event);
+    }
+  }
+
+  void _holdApprovedCredentials(SessionUserInteractionEvent event) {
+    final choices = event.disclosureChoices;
+    if (choices == null) return;
+
+    final hashes = choices
+        .expand((choice) => choice.credentials)
+        .map((credential) => credential.credentialHash)
+        .where((hash) => hash.isNotEmpty)
+        .toSet();
+    if (hashes.isEmpty) {
+      _approvedCredentialHashes.remove(event.sessionId);
+    } else {
+      _approvedCredentialHashes[event.sessionId] = hashes;
     }
   }
 
@@ -68,6 +91,14 @@ class SessionRepository {
     if (state.status == SessionStatus.success &&
         prevStates[state.id]?.status != SessionStatus.success) {
       repo.preferences.incrementReviewSuccessCount();
+
+      // Same once-per-session transition counts the credentials that were
+      // actually disclosed, so a later session can pre-select the one the user
+      // reaches for most.
+      final disclosed = _approvedCredentialHashes[state.id];
+      if (disclosed != null) {
+        repo.preferences.recordCredentialUsage(disclosed, now: DateTime.now());
+      }
     }
 
     final nextStates = Map<int, SessionState>.from(prevStates);
@@ -95,6 +126,8 @@ class SessionRepository {
     if (_isTerminalStatus(state.status)) {
       final cleaned = Map<int, SessionState>.from(nextStates)..remove(state.id);
       _states.add(UnmodifiableMapView(cleaned));
+
+      _approvedCredentialHashes.remove(state.id);
 
       // A terminal session is no longer in flight, so the lock screen may offer
       // biometric again (this is also how the lock-screen ✕ releases it: the
