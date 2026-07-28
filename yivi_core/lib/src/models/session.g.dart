@@ -25,11 +25,6 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
             as bool? ??
         false,
     openid4vciRedirectUri: json['openid4vci_redirect_uri'] as String?,
-    dcApi: json['dc_api'] == null
-        ? null
-        : DigitalCredentialsRequest.fromJson(
-            json['dc_api'] as Map<String, dynamic>,
-          ),
   );
 }
 

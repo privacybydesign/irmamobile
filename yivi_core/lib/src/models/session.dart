@@ -243,7 +243,19 @@ class SessionPointer implements Pointer {
   /// Credentials API. Populated only by [SessionPointer.digitalCredentials];
   /// forwarded as `dc_api` to the Go core, which then reads the request from
   /// here instead of from [u].
-  @JsonKey(name: "dc_api", includeIfNull: false)
+  ///
+  /// Write-only on the wire: [SessionPointer.fromJson] parses scanned QR
+  /// payloads, so leaving `dc_api` readable there would let a QR pick the
+  /// caller origin the response is audience-bound to.
+  //
+  // includeToJson has to be spelled out: json_serializable drops the field from
+  // both directions when only includeFromJson is set.
+  @JsonKey(
+    name: "dc_api",
+    includeIfNull: false,
+    includeFromJson: false,
+    includeToJson: true,
+  )
   final DigitalCredentialsRequest? dcApi;
 
   SessionPointer({

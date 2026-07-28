@@ -107,6 +107,35 @@ void main() {
       );
     });
 
+    // Pointer.fromString feeds scanned QR JSON straight into
+    // SessionPointer.fromJson, so a dc_api member there is attacker-chosen. The
+    // origin it carries is what the Authorization Response is audience-bound to
+    // and what the user is shown as the requestor, so the member must not be
+    // readable at all.
+    test("dc_api in a scanned QR payload is dropped", () {
+      final qr = jsonEncode({
+        "u": "https://verifier.example/irma/session/abc",
+        "irmaqr": "disclosing",
+        "protocol": "openid4vp",
+        "dc_api": {
+          "protocol": "openid4vp-v1-unsigned",
+          "origin": "https://attacker.example",
+          "data": {"nonce": "SkxpZ2h0"},
+        },
+      });
+
+      final pointer =
+          Pointer.fromString("irma://qr/json/$qr") as SessionPointer;
+
+      expect(pointer.dcApi, isNull);
+      expect(
+        (jsonDecode(jsonEncode(pointer)) as Map<String, dynamic>).containsKey(
+          "dc_api",
+        ),
+        isFalse,
+      );
+    });
+
     test("the pointer is a same-device openid4vp disclosure", () {
       final pointer = SessionPointer.digitalCredentials(_request());
       expect(pointer.protocol, Protocol.openid4vp);

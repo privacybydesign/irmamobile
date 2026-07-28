@@ -50,10 +50,12 @@ class HandleDigitalCredentialsRequestEvent extends Event {
 /// Sent to native once the session produced an Authorization Response, so it can
 /// hand [response] back to the platform as the `data` member of its response.
 ///
-/// Only the success leg is reported. Native owns the failure leg: a session that
-/// ends without this event — cancelled, errored, or abandoned — must be answered
-/// with a cancellation to the calling app, so no Dart event is needed for it.
-@JsonSerializable(createFactory: false)
+/// Only the success leg is reported. A session that ends any other way —
+/// cancelled, errored, or abandoned — sends nothing today, and Dart stays in the
+/// same Activity showing the home screen, so the caller is left waiting. The
+/// entry point that lands with the Android provider needs a companion event for
+/// that leg, which means tracking which session id came from a DC API request.
+@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
 class DigitalCredentialsResponseEvent extends Event {
   final String response;
 
