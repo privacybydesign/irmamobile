@@ -139,6 +139,10 @@ export PATH="$TC/bin:$PATH"
 
 build_openssl() {
   local abi="$1" prefix="$2"
+  local openssl_target
+  # Assign on its own line so an unknown ABI aborts here, instead of handing
+  # Configure an empty target and building for the host.
+  openssl_target="$(abi_openssl_target "$abi")"
   echo "==> Building OpenSSL for $abi"
 
   rm -rf "$OPENSSL_BUILD_DIR"
@@ -146,7 +150,7 @@ build_openssl() {
 
   (
     cd "$OPENSSL_BUILD_DIR"
-    ./Configure "$(abi_openssl_target "$abi")" \
+    ./Configure "$openssl_target" \
       "-D__ANDROID_API__=$ANDROID_API" \
       --prefix="$prefix" \
       no-shared no-tests no-ui-console no-engine no-async
