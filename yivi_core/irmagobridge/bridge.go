@@ -180,7 +180,6 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	go refreshStatusesPeriodically()
 }
 
-// ponytail: plain loop, no scheduler — one job, running for the process lifetime.
 func refreshStatusesPeriodically() {
 	defer recoverFromPanic("Periodic credential status refresh panicked")
 
