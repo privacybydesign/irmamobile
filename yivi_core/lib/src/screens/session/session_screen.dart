@@ -5,6 +5,7 @@ import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../data/irma_repository.dart";
+import "../../models/digital_credentials.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
 import "../../models/schemaless/session_state.dart";
@@ -100,6 +101,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// in-app. We capture once and clear the launched set immediately so
   /// rebuilds keep returning the same decision.
   bool? _inAppLaunchedSuccess;
+
+  /// True after handing the Digital Credentials API response to native, so
+  /// post-frame rebuilds of the success screen don't send it twice.
+  bool _dcApiResponseDelivered = false;
 
   @override
   void initState() {
@@ -427,6 +432,25 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           hasUnderlyingSession: widget.hasUnderlyingSession,
         );
       }
+    }
+
+    // OpenID4VP over the Digital Credentials API: the response goes back to the
+    // caller through the platform, which also returns the user there. Hand the
+    // Authorization Response to native and leave; none of the return-URL,
+    // ArrowBack or send-to-background handling below applies, and there is no
+    // result to confirm in-app.
+    final dcApiResponse = session.dcApiResponse;
+    if (dcApiResponse != null && dcApiResponse.isNotEmpty) {
+      if (!_dcApiResponseDelivered) {
+        _dcApiResponseDelivered = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _repo.bridgedDispatch(
+            DigitalCredentialsResponseEvent(response: dcApiResponse),
+          );
+          pop();
+        });
+      }
+      return _buildLoadingScreen(session);
     }
 
     // If this is an issuance session spawned during a disclosure flow,

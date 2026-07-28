@@ -19,6 +19,7 @@ import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credentials.dart";
 import "../models/delete_keyshare_tokens_event.dart";
+import "../models/digital_credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
@@ -229,6 +230,13 @@ class IrmaRepository {
       } on MissingPointer catch (e, stackTrace) {
         reportError(e, stackTrace);
       }
+    } else if (event is HandleDigitalCredentialsRequestEvent) {
+      // A Digital Credentials API request carries no URL, so there is nothing to
+      // parse: queue it as a pointer and let the normal pending-pointer path
+      // unlock the app and start the session.
+      _pendingPointerSubject.add(
+        SessionPointer.digitalCredentials(event.request),
+      );
     } else if (event is AppReadyAckEvent) {
       // Native's acknowledgement that the launch handshake is done. It is sent
       // right AFTER any initial-URL `HandleURLEvent`, so on a cold start started
