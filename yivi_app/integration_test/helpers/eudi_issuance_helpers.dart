@@ -33,6 +33,8 @@ const veramoPhoneCredentialVct =
     "https://veramo-issuer.openid4vc.staging.yivi.app/vct/phone";
 const veramoOrganizationCredentialVct =
     "https://veramo-issuer.openid4vc.staging.yivi.app/vct/organization";
+const veramoStatusListCredentialVct =
+    "https://veramo-issuer.openid4vc.staging.yivi.app/vct/statuslist";
 
 /// Response from the Veramo issuer's create-offer endpoint.
 class OpenID4VCIOfferResponse {
@@ -175,26 +177,111 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
     "credentialDataSupplierInput": dataWithTtl,
   };
 
-  final uri = Uri.parse("$issuerBaseUrl/api/create-offer");
-  final request = await HttpClient().postUrl(uri);
-  request.headers.set("Content-Type", "application/json");
-  request.headers.set("Authorization", "Bearer $veramoIssuerAdminToken");
-  request.write(jsonEncode(body));
-
-  final response = await request.close();
-  final responseBody = await response.transform(utf8.decoder).first;
-
-  if (response.statusCode != 200) {
-    throw Exception(
-      "Failed to create OID4VCI offer: status ${response.statusCode}, $responseBody",
-    );
-  }
+  final responseBody = await _postToVeramo(
+    issuerBaseUrl,
+    veramoIssuerAdminToken,
+    "/api/create-offer",
+    body,
+  );
 
   final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
   return OpenID4VCIOfferResponse(
     uri: responseObject["uri"] as String,
     id: responseObject["id"] as String,
   );
+}
+
+/// A per-run email: the credential's `email` attribute, and the marker that
+/// identifies this run's records. Staging is shared, so never revoke by
+/// credential type alone — that can hit another run's credential.
+String statusListRunMarker() =>
+    "statuslist-${DateTime.now().millisecondsSinceEpoch}@example.com";
+
+/// Issues a `StatusListCredentialSdJwt`, the only staging credential wired to a
+/// status list (so issuance reserves an index and embeds `status.status_list`).
+Future<void> issueStatusListViaOpenID4VCI(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  required String email,
+}) => _issueOpenID4VCICredential(
+  tester,
+  irmaBinding,
+  credentialConfigId: "StatusListCredentialSdJwt",
+  credentialData: {
+    "given_name": "Test",
+    "family_name": "StatusList",
+    "email": email,
+  },
+);
+
+/// Revokes (or un-revokes) every status-list credential whose claims carry
+/// [markerEmail]; the issuer proxies each call to the statuslist-agent, which
+/// flips the bit. Throws when nothing matches — a silent no-match would make the
+/// revoked assertions pass for the wrong reason.
+Future<void> setStatusListRevocation(
+  String markerEmail, {
+  required bool revoke,
+}) async {
+  final records = await _listVeramoCredentials("StatusListCredentialSdJwt");
+
+  var touched = false;
+  for (final record in records) {
+    final uuid = record["uuid"] as String?;
+    if (uuid == null || uuid.isEmpty) continue;
+    // Claims come back as a JSON string, so match inside it.
+    if (!"${record["claims"]}".contains(markerEmail)) continue;
+
+    await _postToVeramoIssuer("/api/revoke-credential", {
+      "uuid": uuid,
+      "state": revoke ? "revoke" : "unrevoke",
+    });
+    touched = true;
+  }
+
+  if (!touched) {
+    throw Exception(
+      "No StatusListCredentialSdJwt records found for $markerEmail; "
+      "nothing was ${revoke ? "revoked" : "un-revoked"}",
+    );
+  }
+}
+
+Future<List<Map<String, dynamic>>> _listVeramoCredentials(
+  String credentialConfigId,
+) async {
+  final body = await _postToVeramoIssuer("/api/list-credentials", {
+    "credential": credentialConfigId,
+  });
+  return (jsonDecode(body) as List).cast<Map<String, dynamic>>();
+}
+
+Future<String> _postToVeramoIssuer(String path, Map<String, dynamic> body) =>
+    _postToVeramo(veramoIssuerBaseUrl, veramoIssuerAdminToken, path, body);
+
+/// POSTs [body] as JSON to a veramo admin endpoint and returns the response
+/// body, throwing on any non-200.
+///
+/// join(), not first(): a response can span several chunks, and taking only the
+/// first truncates the JSON mid-string.
+Future<String> _postToVeramo(
+  String baseUrl,
+  String adminToken,
+  String path,
+  Map<String, dynamic> body,
+) async {
+  final request = await HttpClient().postUrl(Uri.parse("$baseUrl$path"));
+  request.headers.set("Content-Type", "application/json");
+  request.headers.set("Authorization", "Bearer $adminToken");
+  request.write(jsonEncode(body));
+
+  final response = await request.close();
+  final responseBody = await response.transform(utf8.decoder).join();
+  if (response.statusCode != 200) {
+    throw Exception(
+      "veramo $path failed: status ${response.statusCode}, $responseBody",
+    );
+  }
+  return responseBody;
 }
 
 /// Taps the share button on the disclosure overview, walks through the
@@ -303,20 +390,12 @@ Future<void> verifyActivityLogCount(WidgetTester tester, int expected) async {
 /// Posts a DCQL query to the veramo-verifier and returns the wallet-facing
 /// `openid4vp://...` request URL.
 Future<String> startVeramoVPSession(Map<String, dynamic> dcql) async {
-  final uri = Uri.parse("$veramoVerifierBaseUrl/api/create-dcql-offer");
-  final request = await HttpClient().postUrl(uri);
-  request.headers.set("Content-Type", "application/json");
-  request.headers.set("Authorization", "Bearer $veramoVerifierAdminToken");
-  request.write(jsonEncode({"dcql": dcql}));
-
-  final response = await request.close();
-  final responseBody = await response.transform(utf8.decoder).first;
-
-  if (response.statusCode != 200) {
-    throw Exception(
-      "Failed to create veramo-verifier DCQL offer: status ${response.statusCode}, $responseBody",
-    );
-  }
+  final responseBody = await _postToVeramo(
+    veramoVerifierBaseUrl,
+    veramoVerifierAdminToken,
+    "/api/create-dcql-offer",
+    {"dcql": dcql},
+  );
 
   final json = jsonDecode(responseBody) as Map<String, dynamic>;
   final requestUri = json["requestUri"] as String?;
