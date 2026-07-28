@@ -33,3 +33,14 @@ _$HandleDigitalCredentialsRequestEventFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DigitalCredentialsResponseEventToJson(
   DigitalCredentialsResponseEvent instance,
 ) => <String, dynamic>{'response': instance.response};
+
+Map<String, dynamic> _$DigitalCredentialsFailureEventToJson(
+  DigitalCredentialsFailureEvent instance,
+) => <String, dynamic>{
+  'reason': _$DigitalCredentialsFailureReasonEnumMap[instance.reason]!,
+};
+
+const _$DigitalCredentialsFailureReasonEnumMap = {
+  DigitalCredentialsFailureReason.cancelled: 'cancelled',
+  DigitalCredentialsFailureReason.error: 'error',
+};

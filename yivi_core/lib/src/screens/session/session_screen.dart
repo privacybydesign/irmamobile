@@ -138,6 +138,24 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
         SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
       );
     }
+    // A Digital Credentials API session that reaches here without having handed
+    // over an Authorization Response has to tell native so, or the platform
+    // keeps the caller waiting on a call nothing will ever answer. This is the
+    // one place every non-success ending passes through: the dismissed branch
+    // pops, and the error screen's close and back handlers go to the home
+    // screen, neither of which reports anything by itself.
+    if (_repo.claimDigitalCredentialsSession(widget.sessionId)) {
+      _repo.bridgedDispatch(
+        DigitalCredentialsFailureEvent(
+          // Reaching success without a response means the core produced none,
+          // which is a failure to the caller rather than the user's choice.
+          reason:
+              status == SessionStatus.error || status == SessionStatus.success
+              ? DigitalCredentialsFailureReason.error
+              : DigitalCredentialsFailureReason.cancelled,
+        ),
+      );
+    }
     super.dispose();
   }
 
@@ -443,6 +461,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     if (dcApiResponse != null && dcApiResponse.isNotEmpty) {
       if (!_dcApiResponseDelivered) {
         _dcApiResponseDelivered = true;
+        // Claim the outcome in this frame, not in the callback below: if the
+        // user leaves before the frame is done, dispose must already see the
+        // outcome as taken rather than report a second one.
+        _repo.claimDigitalCredentialsSession(widget.sessionId);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _repo.bridgedDispatch(
             DigitalCredentialsResponseEvent(response: dcApiResponse),

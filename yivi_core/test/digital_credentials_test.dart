@@ -1,6 +1,9 @@
 import "dart:convert";
 
+import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:go_router/go_router.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
@@ -11,6 +14,8 @@ import "package:yivi_core/src/models/protocol.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/models/session_events.dart";
+import "package:yivi_core/src/providers/irma_repository_provider.dart";
+import "package:yivi_core/src/util/handle_pointer.dart";
 
 class _RecordingBridge extends IrmaBridge {
   final dispatched = <Event>[];
@@ -175,6 +180,29 @@ void main() {
       );
     });
 
+    test("DigitalCredentialsFailureEvent names the reason", () {
+      expect(
+        jsonDecode(
+          jsonEncode(
+            DigitalCredentialsFailureEvent(
+              reason: DigitalCredentialsFailureReason.cancelled,
+            ),
+          ),
+        ),
+        {"reason": "cancelled"},
+      );
+      expect(
+        jsonDecode(
+          jsonEncode(
+            DigitalCredentialsFailureEvent(
+              reason: DigitalCredentialsFailureReason.error,
+            ),
+          ),
+        ),
+        {"reason": "error"},
+      );
+    });
+
     test("a request from native is queued as a pending pointer", () async {
       final bridge = _RecordingBridge();
       final repo = await _repo(bridge);
@@ -219,6 +247,98 @@ void main() {
 
     test("a session without a Digital Credentials response has none", () {
       expect(state().dcApiResponse, isNull);
+    });
+  });
+
+  // Nothing in a session's state says the request arrived through the Digital
+  // Credentials API, except on the success leg. The repository remembers it, so
+  // the screen can still report the endings that produce no response.
+  group("Digital Credentials session bookkeeping", () {
+    test(
+      "the outcome of a marked session can be claimed exactly once",
+      () async {
+        final repo = await _repo(_RecordingBridge());
+        addTearDown(repo.close);
+
+        repo.markDigitalCredentialsSession(7);
+        expect(repo.claimDigitalCredentialsSession(7), isTrue);
+        expect(repo.claimDigitalCredentialsSession(7), isFalse);
+      },
+    );
+
+    test("an unmarked session has no outcome to claim", () async {
+      final repo = await _repo(_RecordingBridge());
+      addTearDown(repo.close);
+
+      repo.markDigitalCredentialsSession(7);
+      expect(repo.claimDigitalCredentialsSession(8), isFalse);
+    });
+
+    /// Enough of an app to call [handlePointer]: it needs a repository in scope
+    /// and a route to push the session screen onto.
+    Future<BuildContext> mount(WidgetTester tester, IrmaRepository repo) async {
+      late BuildContext context;
+      final router = GoRouter(
+        initialLocation: "/home",
+        routes: [
+          GoRoute(
+            path: "/home",
+            builder: (routeContext, _) {
+              context = routeContext;
+              return const SizedBox.shrink();
+            },
+          ),
+          GoRoute(path: "/session", builder: (_, _) => const SizedBox.shrink()),
+        ],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [irmaRepositoryProvider.overrideWithValue(repo)],
+          child: IrmaRepositoryProvider(
+            repository: repo,
+            child: MaterialApp.router(routerConfig: router),
+          ),
+        ),
+      );
+      return context;
+    }
+
+    testWidgets("starting a session from a Digital Credentials request marks "
+        "its id", (tester) async {
+      final bridge = _RecordingBridge();
+      final repo = await _repo(bridge);
+      addTearDown(repo.close);
+
+      final context = await mount(tester, repo);
+      await handlePointer(
+        context,
+        SessionPointer.digitalCredentials(_request()),
+      );
+      await tester.pump();
+
+      final started = bridge.dispatched.whereType<NewSessionEvent>().single;
+      expect(repo.claimDigitalCredentialsSession(started.sessionId), isTrue);
+    });
+
+    testWidgets("starting a session from a URL marks nothing", (tester) async {
+      final bridge = _RecordingBridge();
+      final repo = await _repo(bridge);
+      addTearDown(repo.close);
+
+      final context = await mount(tester, repo);
+      await handlePointer(
+        context,
+        Pointer.fromString(
+              "openid4vp://?request_uri=https://verifier.example/req/abc"
+              "&client_id=x509_san_dns:verifier.example",
+            )
+            as SessionPointer,
+      );
+      await tester.pump();
+
+      final started = bridge.dispatched.whereType<NewSessionEvent>().single;
+      expect(repo.claimDigitalCredentialsSession(started.sessionId), isFalse);
     });
   });
 }

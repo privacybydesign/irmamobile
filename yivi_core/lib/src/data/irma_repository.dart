@@ -555,6 +555,26 @@ class IrmaRepository {
   /// emitted the first session state.
   int allocateSessionId() => ++_nextSessionId;
 
+  /// Sessions started from a `DigitalCredentialsRequest` that still owe native
+  /// an outcome. The platform keeps the caller's `navigator.credentials.get()`
+  /// open until it gets one, and no session state says where the request came
+  /// from, so the id has to be remembered from the moment the session starts.
+  final _digitalCredentialsSessionIds = <int>{};
+
+  /// Records that [sessionId] was started from a Digital Credentials API
+  /// request. Called where the `NewSessionEvent` is dispatched.
+  void markDigitalCredentialsSession(int sessionId) {
+    _digitalCredentialsSessionIds.add(sessionId);
+  }
+
+  /// Takes the outcome [sessionId] owes native: true the first time for a
+  /// session started from a Digital Credentials API request, false afterwards
+  /// and for every other session. Both legs claim, so exactly one outcome event
+  /// is sent per session.
+  bool claimDigitalCredentialsSession(int sessionId) {
+    return _digitalCredentialsSessionIds.remove(sessionId);
+  }
+
   bool hasActiveSessions({int? excludeSessionId}) {
     return _sessionRepository.hasActiveSessions(
       excludeSessionId: excludeSessionId,

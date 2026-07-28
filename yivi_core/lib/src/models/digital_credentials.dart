@@ -50,11 +50,9 @@ class HandleDigitalCredentialsRequestEvent extends Event {
 /// Sent to native once the session produced an Authorization Response, so it can
 /// hand [response] back to the platform as the `data` member of its response.
 ///
-/// Only the success leg is reported. A session that ends any other way —
-/// cancelled, errored, or abandoned — sends nothing today, and Dart stays in the
-/// same Activity showing the home screen, so the caller is left waiting. The
-/// entry point that lands with the Android provider needs a companion event for
-/// that leg, which means tracking which session id came from a DC API request.
+/// One of this and [DigitalCredentialsFailureEvent] is sent for every session
+/// started from a [DigitalCredentialsRequest], and never both: the platform
+/// holds the caller's call open until native answers it.
 @JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
 class DigitalCredentialsResponseEvent extends Event {
   final String response;
@@ -63,4 +61,36 @@ class DigitalCredentialsResponseEvent extends Event {
 
   Map<String, dynamic> toJson() =>
       _$DigitalCredentialsResponseEventToJson(this);
+}
+
+/// Why a Digital Credentials API session ended without an Authorization
+/// Response. The platform tells the two apart: a cancellation is the user's own
+/// decision and needs no error shown, a failure is one the caller may report.
+enum DigitalCredentialsFailureReason {
+  /// The user ended the session themselves — they declined the disclosure,
+  /// closed the screens, or left before it finished.
+  @JsonValue("cancelled")
+  cancelled,
+
+  /// The session could not be completed: a request the core rejected, a
+  /// verifier it could not reach, or a session that reached success without
+  /// producing a response.
+  @JsonValue("error")
+  error,
+}
+
+/// Sent to native when a session started from a [DigitalCredentialsRequest]
+/// ended without an Authorization Response, so it can answer the platform.
+///
+/// Dart has to say this out loud. On every ending other than success it stays
+/// inside the same Activity — the dismissed branch pops, the error screen routes
+/// to the home screen — so nothing finishes the Activity and nothing else would
+/// ever release the caller's call.
+@JsonSerializable(createFactory: false, fieldRename: FieldRename.snake)
+class DigitalCredentialsFailureEvent extends Event {
+  final DigitalCredentialsFailureReason reason;
+
+  DigitalCredentialsFailureEvent({required this.reason});
+
+  Map<String, dynamic> toJson() => _$DigitalCredentialsFailureEventToJson(this);
 }
