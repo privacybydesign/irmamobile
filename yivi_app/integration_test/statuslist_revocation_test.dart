@@ -119,6 +119,9 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   // Tapping the notification opens the credential it is about.
   await tester.tapAndSettle(notificationCardsFinder.first);
   expect(find.byType(YiviCredentialCard), findsOneWidget);
+  // Pins the starting state, so the wait for the label to go away below cannot
+  // pass on a card that never had it.
+  expect(find.text(_revokedLabel), findsOneWidget);
 
   await setStatusListRevocation(marker, revoke: false);
   _refreshStatuses(irmaBinding);
