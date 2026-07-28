@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The loading spinner is red on every screen; on some screens it was grey
 
 ### Internal
+- The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
 - Updated Git submodules
