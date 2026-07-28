@@ -1,6 +1,7 @@
 package irmagobridge
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"slices"
@@ -158,6 +159,17 @@ func (ah *eventHandler) deleteKeyshareTokens() error {
 // Delete an individual credential
 func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
 	if err := yiviClient.RemoveCredentialsByHash(event.HashByFormat); err != nil {
+		return err
+	}
+
+	dispatchCredentialsEvent()
+	return nil
+}
+
+// Force a Token Status List refresh. Per-list failures are logged and swallowed
+// inside RefreshStatuses, so an error here means the sweep could not run at all.
+func (ah *eventHandler) refreshCredentialStatuses() error {
+	if err := yiviClient.RefreshStatuses(context.Background()); err != nil {
 		return err
 	}
 

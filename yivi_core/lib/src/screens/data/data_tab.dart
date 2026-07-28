@@ -375,7 +375,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
           onReorderEnd: (index) {
             HapticFeedback.mediumImpact();
           },
-          onReorder: controller.reorder,
+          onReorderItem: controller.reorder,
           proxyDecorator: (child, index, animation) {
             // ReorderableListView is a bit wanky when using padding to create space between cards.
             // It will show a shadow around the padded area, which looks weird. Therefore we remove the shadow altogether.
