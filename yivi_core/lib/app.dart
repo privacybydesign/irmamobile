@@ -146,8 +146,6 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
     if (state == AppLifecycleState.resumed) {
       _handleUpdateSchemes();
-      // Rate-limited inside the repository.
-      repo.refreshCredentialStatuses();
       widget.notificationsBloc.add(LoadNotifications());
     }
   }

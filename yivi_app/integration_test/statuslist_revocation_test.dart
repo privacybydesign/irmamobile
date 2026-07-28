@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+import "package:yivi_core/src/models/refresh_credential_statuses_event.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_bell.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_choices_overview.dart";
@@ -80,7 +81,7 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   await navigateBack(tester);
 
   await setStatusListRevocation(marker, revoke: true);
-  refreshCredentialStatuses(irmaBinding);
+  _refreshStatuses(irmaBinding);
 
   await _openStatusListCredential(tester);
   await tester.pumpUntilFound(
@@ -120,7 +121,7 @@ Future<void> _testRevocationSurfacesOnCardAndNotification(
   expect(find.byType(YiviCredentialCard), findsOneWidget);
 
   await setStatusListRevocation(marker, revoke: false);
-  refreshCredentialStatuses(irmaBinding);
+  _refreshStatuses(irmaBinding);
 
   // Wait for the card back *and* unflagged: every refresh briefly swaps the card
   // for a spinner (FutureProvider over the credentials stream), which on its own
@@ -154,7 +155,7 @@ Future<void> _testRevokedCredentialFlaggedInDisclosure(
 
   // Required: the disclosure-time check reads only the cache, which issuance
   // warmed with the still-valid token.
-  refreshCredentialStatuses(irmaBinding);
+  _refreshStatuses(irmaBinding);
   await _awaitRevokedInCredentialList(tester);
 
   final dcql = {
@@ -198,6 +199,11 @@ Future<void> _testRevokedCredentialFlaggedInDisclosure(
   await tester.tapAndSettle(find.byType(IrmaCloseButton));
   await tester.tapAndSettle(find.text("Yes"));
 }
+
+/// Drives the sweep directly, so the test does not depend on the app's own
+/// resume/periodic triggers.
+void _refreshStatuses(IntegrationTestIrmaBinding irmaBinding) =>
+    irmaBinding.repository.bridgedDispatch(RefreshCredentialStatusesEvent());
 
 Future<void> _openStatusListCredential(WidgetTester tester) async {
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));

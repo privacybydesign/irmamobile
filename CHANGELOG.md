@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
-- Credential statuses are refreshed when you bring Yivi back to the foreground (at most once every 15 minutes), so a revoked credential shows up as revoked without waiting for the hourly check
 
 ### Fixed
 - Credential logos supplied as SVG now render correctly instead of appearing blank
