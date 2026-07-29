@@ -164,21 +164,16 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
         .then((_) {
           state = state.copyWith(stage: .enteringVerificationCode);
         })
-        .catchError(  
-          (e) {
-            final err = switch (e) {
-              EmailIssuanceError() => e,
-              _ => EmailIssuanceGeneralError(message: e.toString()),
-            };
+        .catchError((e) {
+          final err = switch (e) {
+            EmailIssuanceError() => e,
+            _ => EmailIssuanceGeneralError(message: e.toString()),
+          };
 
-            if (ref.mounted) {
-              state = state.copyWith(
-                stage: .enteringEmail,
-                error: err,
-              );
-            }
+          if (ref.mounted) {
+            state = state.copyWith(stage: .enteringEmail, error: err);
           }
-        );
+        });
   }
 
   Future<SessionPointer?> verifyCode({required String code}) async {

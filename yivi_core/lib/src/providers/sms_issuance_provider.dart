@@ -215,21 +215,16 @@ class SmsIssuer extends Notifier<SmsIssuanceState> {
         .then((_) {
           state = state.copyWith(stage: .enteringVerificationCode);
         })
-        .catchError(  
-          (e) {
-            final err = switch (e) {
-              SmsIssuanceError() => e,
-              _ => SmsIssuanceGeneralError(message: e.toString()),
-            };
+        .catchError((e) {
+          final err = switch (e) {
+            SmsIssuanceError() => e,
+            _ => SmsIssuanceGeneralError(message: e.toString()),
+          };
 
-            if (ref.mounted) {
-              state = state.copyWith(
-                stage: .enteringPhoneNumber,
-                error: err,
-              );
-            }
+          if (ref.mounted) {
+            state = state.copyWith(stage: .enteringPhoneNumber, error: err);
           }
-        );
+        });
   }
 
   Future<SessionPointer?> verifyCode({required String code}) async {
