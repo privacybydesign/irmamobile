@@ -152,24 +152,33 @@ class EmailIssuer extends Notifier<EmailIssuanceState> {
     required String email,
     required String language,
   }) async {
-    try {
-      state = EmailIssuanceState(
-        stage: .waiting,
-        enteredCode: "",
-        email: email,
-        error: EmailIssuanceNoError(),
-      );
-      await ref
-          .read(emailIssuerApiProvider)
-          .sendEmail(emailAddress: email, language: language);
-      state = state.copyWith(stage: .enteringVerificationCode);
-    } catch (e) {
-      final err = switch (e) {
-        EmailIssuanceError() => e,
-        _ => EmailIssuanceGeneralError(message: e.toString()),
-      };
-      state = state.copyWith(stage: .enteringEmail, error: err);
-    }
+    state = EmailIssuanceState(
+      stage: .waiting,
+      enteredCode: "",
+      email: email,
+      error: EmailIssuanceNoError(),
+    );
+    await ref
+        .read(emailIssuerApiProvider)
+        .sendEmail(emailAddress: email, language: language)
+        .then((_) {
+          state = state.copyWith(stage: .enteringVerificationCode);
+        })
+        .catchError(  
+          (e) {
+            final err = switch (e) {
+              EmailIssuanceError() => e,
+              _ => EmailIssuanceGeneralError(message: e.toString()),
+            };
+
+            if (ref.mounted) {
+              state = state.copyWith(
+                stage: .enteringEmail,
+                error: err,
+              );
+            }
+          }
+        );
   }
 
   Future<SessionPointer?> verifyCode({required String code}) async {

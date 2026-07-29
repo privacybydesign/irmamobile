@@ -203,24 +203,33 @@ class SmsIssuer extends Notifier<SmsIssuanceState> {
     required String phoneNumber,
     required String language,
   }) async {
-    try {
-      state = SmsIssuanceState(
-        stage: .waiting,
-        enteredCode: "",
-        phoneNumber: phoneNumber,
-        error: SmsIssuanceNoError(),
-      );
-      await ref
-          .read(smsIssuerApiProvider)
-          .sendSms(phoneNumber: phoneNumber, language: language);
-      state = state.copyWith(stage: .enteringVerificationCode);
-    } catch (e) {
-      final err = switch (e) {
-        SmsIssuanceError() => e,
-        _ => SmsIssuanceGeneralError(message: e.toString()),
-      };
-      state = state.copyWith(stage: .enteringPhoneNumber, error: err);
-    }
+    state = SmsIssuanceState(
+      stage: .waiting,
+      enteredCode: "",
+      phoneNumber: phoneNumber,
+      error: SmsIssuanceNoError(),
+    );
+    await ref
+        .read(smsIssuerApiProvider)
+        .sendSms(phoneNumber: phoneNumber, language: language)
+        .then((_) {
+          state = state.copyWith(stage: .enteringVerificationCode);
+        })
+        .catchError(  
+          (e) {
+            final err = switch (e) {
+              SmsIssuanceError() => e,
+              _ => SmsIssuanceGeneralError(message: e.toString()),
+            };
+
+            if (ref.mounted) {
+              state = state.copyWith(
+                stage: .enteringPhoneNumber,
+                error: err,
+              );
+            }
+          }
+        );
   }
 
   Future<SessionPointer?> verifyCode({required String code}) async {

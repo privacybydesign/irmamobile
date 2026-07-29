@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
 - Updated Git submodules
+- Fix swallowed errors on cancelling embedded issuance flows
 
 ## [8.1.2] - 2026-07-22
 ### Added
