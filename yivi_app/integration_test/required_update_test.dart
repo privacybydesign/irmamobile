@@ -30,11 +30,23 @@ void main() {
   // LaunchMode.externalNonBrowserApplication, so every launch lands in
   // [externalLaunches].
   final externalLaunches = <String>[];
-  UrlLauncherPlatform.instance = _RecordingUrlLauncherPlatform(
-    externalLaunches: externalLaunches,
-  );
 
-  setUp(externalLaunches.clear);
+  // Installed per test rather than at main() time: `test_all.dart` calls every
+  // file's main() up front to register its groups, and three of them replace
+  // UrlLauncherPlatform.instance. A main()-time assignment is therefore
+  // overwritten by whichever file registers last, and by the time this test runs
+  // its launches are recorded into that other file's list — leaving
+  // [externalLaunches] empty. setUp runs at execution time, so the group that is
+  // actually running owns the stand-in.
+  late UrlLauncherPlatform previousUrlLauncher;
+  setUp(() {
+    externalLaunches.clear();
+    previousUrlLauncher = UrlLauncherPlatform.instance;
+    UrlLauncherPlatform.instance = _RecordingUrlLauncherPlatform(
+      externalLaunches: externalLaunches,
+    );
+  });
+  tearDown(() => UrlLauncherPlatform.instance = previousUrlLauncher);
 
   group("required-update", () {
     testWidgets("renders title, explanation and update button", (tester) async {
