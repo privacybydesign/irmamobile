@@ -112,5 +112,33 @@ void main() {
         expect(bridge.dispatched.whereType<SetLocaleEvent>(), isEmpty);
       },
     );
+
+    test(
+      "a device language change reaches the bridge as a SetLocaleEvent",
+      () async {
+        final (prefs, bridge) = await setup();
+        // StreamingSharedPreferences.instance is a cached singleton, so an
+        // override set by an earlier test survives setMockInitialValues.
+        // Be explicit: this case is about following the device language.
+        await prefs.setPreferredLanguageCode("");
+        await pumpEventQueue();
+        bridge.dispatched.clear();
+
+        // Driven through the real platform dispatcher, so the whole chain is
+        // covered: binding -> AppLanguage's observer -> repository -> bridge.
+        // AppLanguage's own behaviour is unit-tested in app_language_test.dart.
+        final dispatcher =
+            TestWidgetsFlutterBinding.instance.platformDispatcher;
+        addTearDown(dispatcher.clearLocalesTestValue);
+        dispatcher.localesTestValue = const [Locale("de", "DE")];
+        await pumpEventQueue();
+
+        final setLocale = bridge.dispatched
+            .whereType<SetLocaleEvent>()
+            .toList();
+        expect(setLocale, hasLength(1));
+        expect(setLocale.single.locale, "de");
+      },
+    );
   });
 }

@@ -9,7 +9,8 @@ String getTranslation(BuildContext context, TranslatedValue translations) =>
 /// The effective app language: the in-app language override (the
 /// preferred-language preference) when set, otherwise the device's system
 /// language. Returned as a bare language code ("nl"). This is the single
-/// value the app pushes to the Go client; see CONTEXT.md.
+/// value the app pushes to the Go client, which uses it to resolve all
+/// app-facing text and logos.
 String effectiveAppLanguage({
   required String preferredLanguageCode,
   required Locale systemLocale,

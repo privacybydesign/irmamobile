@@ -40,8 +40,8 @@ import "../providers/ocr_processor_provider.dart";
 import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
-import "../util/language.dart";
 import "../util/navigation.dart";
+import "app_language.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -96,33 +96,10 @@ class IrmaRepository {
 
     // Push the effective app language to the Go client: the initial value
     // rides on AppReadyEvent (so text and logos resolve correctly from the
-    // first pull), then a SetLocaleEvent on every change. The effective
-    // language is the in-app override preference when set, otherwise the
-    // device system language, read once at startup.
-    final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
-    final effectiveLanguage = preferences
-        .getPreferredLanguageCode()
-        .map(
-          (preferred) => effectiveAppLanguage(
-            preferredLanguageCode: preferred,
-            systemLocale: systemLocale,
-          ),
-        )
-        .distinct();
-
-    bridgedDispatch(
-      AppReadyEvent(
-        locale: effectiveAppLanguage(
-          preferredLanguageCode: preferences.preferredLanguageCode,
-          systemLocale: systemLocale,
-        ),
-      ),
-    );
-
-    // The first emission equals the value already sent with AppReadyEvent, so
-    // skip it; each later change switches the locale and resets the paged
-    // activity-log cache (LoadLogsEvent with no `before`).
-    _localeSubscription = effectiveLanguage.skip(1).listen((locale) {
+    // first pull), then a SetLocaleEvent on every change. Each change also
+    // resets the paged activity-log cache (LoadLogsEvent with no `before`).
+    bridgedDispatch(AppReadyEvent(locale: _appLanguage.current));
+    _localeSubscription = _appLanguage.changes.listen((locale) {
       bridgedDispatch(SetLocaleEvent(locale: locale));
       bridgedDispatch(LoadLogsEvent(max: 10));
     });
@@ -169,6 +146,8 @@ class IrmaRepository {
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
+  late final AppLanguage _appLanguage = AppLanguage(preferences);
+
   late StreamSubscription<Event> _bridgeEventSubscription;
   late final StreamSubscription<String> _localeSubscription;
 
@@ -176,6 +155,7 @@ class IrmaRepository {
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
     await _localeSubscription.cancel();
+    await _appLanguage.close();
 
     // Then we can close all internal subjects
     await Future.wait([

@@ -31,7 +31,7 @@ type Signer irmaclient.Signer
 const (
 	// how often the EUDI certificate revocation lists are re-fetched
 	eudiCrlUpdateInterval = 60 * time.Minute
-	// how often the status refresh sweep re-fetches Token Status Lists
+	// how often our own sweep re-fetches the referenced Token Status Lists
 	statusTokenListRefreshInterval = 60 * time.Minute
 )
 
@@ -174,7 +174,23 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		irma.Logger.SetLevel(logrus.ErrorLevel)
 	}
 
-	yiviClient.InitJobs(eudiCrlUpdateInterval, statusTokenListRefreshInterval)
+	// 0 skips the client's own status refresh job: it updates stored statuses
+	// without telling anyone, so a revocation would never reach the UI. Ours
+	// dispatches a credentials event after every sweep.
+	yiviClient.InitJobs(eudiCrlUpdateInterval, 0)
+
+	go refreshStatusesPeriodically()
+}
+
+func refreshStatusesPeriodically() {
+	defer recoverFromPanic("Periodic credential status refresh panicked")
+
+	for {
+		if err := bridgeEventHandler.refreshCredentialStatuses(); err != nil {
+			reportError(errors.WrapPrefix(err, "Periodic credential status refresh failed", 0), false)
+		}
+		time.Sleep(statusTokenListRefreshInterval)
+	}
 }
 
 func dispatchEvent(event any) {
