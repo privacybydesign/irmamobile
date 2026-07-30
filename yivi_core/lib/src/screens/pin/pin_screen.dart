@@ -315,6 +315,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
         leading: hasSession ? null : widget.leading,
         // When a session is waiting, offer a trailing ✕ to cancel it and return
         // to the normal unlock screen.
+        // PopScope here if hardware-back parity is ever requested.
         actions: hasSession
             ? [
                 Padding(
