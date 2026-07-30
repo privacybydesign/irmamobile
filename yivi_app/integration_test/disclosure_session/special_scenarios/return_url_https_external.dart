@@ -33,7 +33,12 @@ Future<void> returnUrlHttpsExternalTest(
        }
       ''';
 
-  await irmaBinding.repository.startTestSession(sessionRequest);
+  // Same-device: the browser that started the session is on this phone, so the
+  // client return URL is opened here on success.
+  await irmaBinding.repository.startTestSession(
+    sessionRequest,
+    continueOnSecondDevice: false,
+  );
   await evaluateIntroduction(tester);
 
   await tester.tapAndSettle(find.text("Share data"));

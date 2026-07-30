@@ -17,8 +17,12 @@ import "special_scenarios/nullables.dart";
 import "special_scenarios/random_blind.dart";
 import "special_scenarios/return_url_https_external.dart";
 import "special_scenarios/return_url_https_inapp.dart";
+import "special_scenarios/return_url_second_device.dart";
 import "special_scenarios/revocation.dart";
 import "special_scenarios/signing.dart";
+
+/// The Android in-app-browser channel the wallet's `openURLinAppBrowser` uses.
+const _iiabChannel = MethodChannel("irma.app/iiab");
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -31,27 +35,49 @@ void main() {
   final externalLaunches = <String>[];
   final inAppLaunches = <String>[];
 
-  UrlLauncherPlatform.instance = _RecordingUrlLauncherPlatform(
-    externalLaunches: externalLaunches,
-    inAppLaunches: inAppLaunches,
-  );
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(const MethodChannel("irma.app/iiab"), (
-        call,
-      ) async {
-        if (call.method == "open_browser") {
-          inAppLaunches.add(call.arguments as String);
-        }
-        return null;
-      });
-
   group("disclosure-session", () {
+    // Installed per test rather than at main() time, and inside this group
+    // rather than at the top level. `test_all.dart` calls every file's main()
+    // up front in the same root declarer, so:
+    //   - a main()-time install is overwritten by whichever file installs last,
+    //     and this group's launches then land in that file's buckets;
+    //   - a top-level setUp here would run before *every* test in the
+    //     aggregated suite and steal the launches of files that install their
+    //     own recorder (see required_update_test.dart).
+    // Group-scoped setUp runs at execution time, so the group that is actually
+    // running owns the stand-ins.
+    late UrlLauncherPlatform previousUrlLauncher;
+
     setUp(() async {
       await irmaBinding.setUp();
       externalLaunches.clear();
       inAppLaunches.clear();
+
+      previousUrlLauncher = UrlLauncherPlatform.instance;
+      UrlLauncherPlatform.instance = _RecordingUrlLauncherPlatform(
+        externalLaunches: externalLaunches,
+        inAppLaunches: inAppLaunches,
+      );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(_iiabChannel, (call) async {
+            if (call.method == "open_browser") {
+              inAppLaunches.add(call.arguments as String);
+            }
+            return null;
+          });
     });
-    tearDown(() async => await irmaBinding.tearDown());
+
+    tearDown(() async {
+      UrlLauncherPlatform.instance = previousUrlLauncher;
+      // Hand the channel back to a swallowing no-op rather than clearing the
+      // mock: openid4vci_authcode_issuance_test installs one at main() time so
+      // the wallet's in-app-browser calls never throw on the simulator, and
+      // clearing would let those calls reach the real plugin.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(_iiabChannel, (call) async => null);
+
+      await irmaBinding.tearDown();
+    });
 
     group("special-scenarios", () {
       // Session with an optional attribute that cannot be null
@@ -117,6 +143,28 @@ void main() {
           inAppLaunches: inAppLaunches,
         ),
       );
+
+      // Second-device + https clientReturnUrl → disregarded, no browser opened
+      testWidgets(
+        "return-url-second-device-external",
+        (tester) => returnUrlSecondDeviceExternalTest(
+          tester,
+          irmaBinding,
+          externalLaunches: externalLaunches,
+          inAppLaunches: inAppLaunches,
+        ),
+      );
+
+      // Second-device + https?inapp=true clientReturnUrl → disregarded
+      testWidgets(
+        "return-url-second-device-inapp",
+        (tester) => returnUrlSecondDeviceInAppTest(
+          tester,
+          irmaBinding,
+          externalLaunches: externalLaunches,
+          inAppLaunches: inAppLaunches,
+        ),
+      );
     });
   });
 }
@@ -126,7 +174,8 @@ void main() {
 /// by `openURLExternally`) lands in [externalLaunches]; `mode: .inAppWebView`
 /// or `.inAppBrowserView` (used by iOS `openURLinAppBrowser`) lands in
 /// [inAppLaunches]. The Android in-app browser path goes through the
-/// `irma.app/iiab` MethodChannel mocked separately in [main].
+/// [_iiabChannel] MethodChannel, mocked alongside this stand-in in the
+/// group's setUp.
 class _RecordingUrlLauncherPlatform extends UrlLauncherPlatform
     with MockPlatformInterfaceMixin {
   _RecordingUrlLauncherPlatform({

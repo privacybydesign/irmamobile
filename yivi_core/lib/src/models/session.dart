@@ -199,6 +199,13 @@ Protocol _protocolFromJsonAlwaysIrma(String? protocol) {
   return Protocol.irma;
 }
 
+// Web QR payloads send camelCase `continueOnSecondDevice`; the irmago bridge
+// uses snake `continue_on_second_device` (snake wins when both are present).
+// Read-side fallback only — don't unify via @JsonKey(name:): that would flip
+// toJson to camelCase and break Go's round-trip.
+Object? _readContinueOnSecondDevice(Map<dynamic, dynamic> json, String key) =>
+    json[key] ?? json["continueOnSecondDevice"];
+
 /// A pointer that refers to a new IRMA session.
 @JsonSerializable(fieldRename: FieldRename.snake)
 class SessionPointer implements Pointer {
@@ -220,6 +227,7 @@ class SessionPointer implements Pointer {
   /// or on the device which has displayed a QR code.
   /// Field is not always specified in QRs now.
   /// To make sure we can override its value if necessary, the field is not final fow now.
+  @JsonKey(readValue: _readContinueOnSecondDevice)
   bool continueOnSecondDevice;
 
   /// OAuth `redirect_uri` for OpenID4VCI auth-code / pre-auth-code flows.

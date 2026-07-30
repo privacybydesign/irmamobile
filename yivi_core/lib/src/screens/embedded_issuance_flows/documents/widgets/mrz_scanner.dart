@@ -54,7 +54,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     WidgetsBinding.instance.addPostFrameCallback((_) => initCamera());
   }
 
-  initCamera() async {
+  Future<void> initCamera() async {
     // inside of integration tests we don't want to use the actual camera
     if (TestContext.isRunningIntegrationTest(context)) {
       return;

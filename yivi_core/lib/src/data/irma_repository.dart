@@ -5,7 +5,6 @@ import "dart:io";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_web_auth_2/flutter_web_auth_2.dart";
 import "package:package_info_plus/package_info_plus.dart";
@@ -27,6 +26,7 @@ import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
+import "../models/log_entry.dart";
 import "../models/native_events.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
@@ -34,7 +34,6 @@ import "../models/schemaless/session_state.dart";
 import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
-import "../models/translated_value.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
@@ -42,6 +41,7 @@ import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
+import "app_language.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -93,7 +93,16 @@ class IrmaRepository {
     _bridgeEventSubscription = _bridge.events.listen(
       (event) => _eventSubject.add(event),
     );
-    bridgedDispatch(AppReadyEvent());
+
+    // Push the effective app language to the Go client: the initial value
+    // rides on AppReadyEvent (so text and logos resolve correctly from the
+    // first pull), then a SetLocaleEvent on every change. Each change also
+    // resets the paged activity-log cache (LoadLogsEvent with no `before`).
+    bridgedDispatch(AppReadyEvent(locale: _appLanguage.current));
+    _localeSubscription = _appLanguage.changes.listen((locale) {
+      bridgedDispatch(SetLocaleEvent(locale: locale));
+      bridgedDispatch(LoadLogsEvent(max: 10));
+    });
   }
 
   final IrmaPreferences preferences;
@@ -128,15 +137,25 @@ class IrmaRepository {
   final _credentialObtainState = BehaviorSubject<_CredentialObtainState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
+  // Flips true once native acknowledges the launch handshake (AppReadyAckEvent),
+  // by which point any initial-URL pointer has already been queued. Seeded false
+  // so the lock screen holds off its cold-start biometric auto-scan until the
+  // launch URL (if any) is known — see the AppReadyAckEvent handler.
+  final _startupUrlResolvedSubject = BehaviorSubject<bool>.seeded(false);
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
+  late final AppLanguage _appLanguage = AppLanguage(preferences);
+
   late StreamSubscription<Event> _bridgeEventSubscription;
+  late final StreamSubscription<String> _localeSubscription;
 
   Future<void> close() async {
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
+    await _localeSubscription.cancel();
+    await _appLanguage.close();
 
     // Then we can close all internal subjects
     await Future.wait([
@@ -158,6 +177,7 @@ class IrmaRepository {
       _credentialObtainState.close(),
       _resumedWithURLSubject.close(),
       _resumedFromBrowserSubject.close(),
+      _startupUrlResolvedSubject.close(),
       _issueWizardSubject.close(),
       _issueWizardActiveSubject.close(),
       _sessionRepository.close(),
@@ -223,6 +243,14 @@ class IrmaRepository {
       } on MissingPointer catch (e, stackTrace) {
         reportError(e, stackTrace);
       }
+    } else if (event is AppReadyAckEvent) {
+      // Native's acknowledgement that the launch handshake is done. It is sent
+      // right AFTER any initial-URL `HandleURLEvent`, so on a cold start started
+      // by a universal link the pending pointer above has already been queued by
+      // the time this flips `startupUrlResolved` true. The lock screen gates its
+      // biometric auto-scan on this, so biometric can never win the race against
+      // the link and unlock the app before the session pointer is known.
+      _startupUrlResolvedSubject.add(true);
     } else if (event is NewSessionEvent) {
       _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {
@@ -539,10 +567,33 @@ class IrmaRepository {
     );
   }
 
+  /// Whether any session is currently in flight (started, not yet terminal).
+  /// Synchronous companion to [getHasInFlightSession] for the biometric backstop.
+  bool get hasInFlightSession => _sessionRepository.hasInFlightSession;
+
+  /// Whether any session is currently in flight. The lock screen watches this to
+  /// withhold biometric while a session is running — e.g. one a link started
+  /// just before the app idle-locked — so it stays PIN-gated (issue #654).
+  /// See [SessionRepository.hasInFlightSessionStream].
+  Stream<bool> getHasInFlightSession() =>
+      _sessionRepository.hasInFlightSessionStream;
+
   /// Dismisses all sessions that are currently in the requestPermission state.
   void dismissAllActiveSessions() {
     final activeSessionIds = _sessionRepository.getActiveSessionIds();
     for (final sessionId in activeSessionIds) {
+      bridgedDispatch(
+        SessionUserInteractionEvent.dismiss(sessionId: sessionId),
+      );
+    }
+  }
+
+  /// Dismisses every in-flight session (started, not yet terminal). Unlike
+  /// [dismissAllActiveSessions] this also covers a session that has not yet
+  /// reached `requestPermission`, so the lock-screen ✕ cancels exactly the set
+  /// that [hasInFlightSession] hides biometric for.
+  void dismissAllInFlightSessions() {
+    for (final sessionId in _sessionRepository.inFlightSessionIds) {
       bridgedDispatch(
         SessionUserInteractionEvent.dismiss(sessionId: sessionId),
       );
@@ -567,6 +618,19 @@ class IrmaRepository {
 
   Stream<Pointer?> getPendingPointer() {
     return _pendingPointerSubject.stream;
+  }
+
+  /// The currently queued session pointer, if any. Synchronous companion to
+  /// [getPendingPointer] for callers that must read the latest value without
+  /// awaiting the stream — used by the biometric backstop to refuse an unlock
+  /// when a session is pending.
+  Pointer? get pendingPointer => _pendingPointerSubject.value;
+
+  /// Whether the native launch handshake has completed, so any universal-link
+  /// pointer the app was opened with is already queued (see [getPendingPointer]).
+  /// The lock screen waits for this before auto-firing biometric on a cold start.
+  Stream<bool> getStartupUrlResolved() {
+    return _startupUrlResolvedSubject.stream;
   }
 
   /// Queue a pointer for [PendingPointerListener] to pick up. Used by
@@ -799,14 +863,14 @@ class IrmaRepository {
   Future<void> openIssueURL(
     BuildContext context,
     String credentialId,
-    TranslatedValue? issueURL,
+    String? issueURL,
     WidgetRef ref,
   ) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = issueURL?.translate(lang);
+    // issueURL is already resolved to the effective app language by irmago.
+    final url = issueURL;
     if (url == null || url.isEmpty) {
       throw UnsupportedError(
-        "Credential type $credentialId does not have a suitable issue url for $lang",
+        "Credential type $credentialId does not have a suitable issue url",
       );
     }
 

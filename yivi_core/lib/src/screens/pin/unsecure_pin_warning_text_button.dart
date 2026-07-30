@@ -22,7 +22,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       Navigator.of(context).push(
         PageRouteBuilder(
           opaque: false,
-          pageBuilder: (BuildContext context, _, __) =>
+          pageBuilder: (BuildContext context, _, _) =>
               _UnsecurePinFullScreen(state: state),
         ),
       );

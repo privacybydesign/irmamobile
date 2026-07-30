@@ -69,7 +69,7 @@ class SessionUserInteractionEvent extends SessionEvent {
   }) => SessionUserInteractionEvent._(
     sessionId: sessionId,
     type: .enteredPin,
-    payload: {"proceed": proceed, if (pin != null) "pin": pin},
+    payload: {"proceed": proceed, "pin": ?pin},
   );
 
   factory SessionUserInteractionEvent.dismiss({required int sessionId}) =>

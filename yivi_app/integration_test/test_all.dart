@@ -28,8 +28,11 @@ import "openid4vci_authcode_issuance_test.dart"
 import "openid4vci_issuance_test.dart" as openid4vci_issuance_test;
 import "qr_on_pin_screen_test.dart" as qr_on_pin_screen_test;
 import "reorder_cards_test.dart" as reorder_cards_test;
+import "required_update_test.dart" as required_update_test;
 import "rooted_warning_test.dart" as rooted_warning_test;
 import "settings_test.dart" as settings_test;
+import "statuslist_revocation_test.dart" as statuslist_revocation_test;
+import "store_review_test.dart" as store_review_test;
 
 /// Wrapper to execute all tests at once.
 void main() {
@@ -39,11 +42,13 @@ void main() {
   openid4vci_authcode_issuance_test.main();
   openid4vp_test.main();
   eudi_disclosure_sessions.main();
+  statuslist_revocation_test.main();
   reorder_cards_test.main();
   new_terms.main();
   search_test.main();
   qr_on_pin_screen_test.main();
   rooted_warning_test.main();
+  required_update_test.main();
   enroll_test.main();
   biometric_test.main();
   idle_lock_test.main();
@@ -52,6 +57,7 @@ void main() {
   issuance_test.main();
   more_tab_test.main();
   activity_test.main();
+  store_review_test.main();
   disclosure_session.main();
   // issue_wizard_test.main();
   notifications_test.main();

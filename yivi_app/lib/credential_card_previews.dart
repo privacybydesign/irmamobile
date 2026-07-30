@@ -18,7 +18,6 @@ import "package:google_fonts/google_fonts.dart";
 
 import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/translated_value.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/models/credential_card_status.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
@@ -190,7 +189,7 @@ Widget yiviCardPreviewWrapper(Widget child) {
 
 TrustedParty _demoIssuer() => TrustedParty(
   id: "irma-demo.MijnOverheid",
-  name: TranslatedValue({"en": "Demo MijnOverheid"}),
+  name: "Demo MijnOverheid",
   url: null,
   parent: null,
   verified: true,
@@ -205,9 +204,7 @@ Attribute _leaf({
   bool? boolValue,
   int? intValue,
 }) {
-  final dn = displayName.isEmpty
-      ? const TranslatedValue.empty()
-      : TranslatedValue({"en": displayName});
+  final dn = displayName.isEmpty ? null : displayName;
   AttributeValue? value;
   if (stringValue != null) {
     value = AttributeValue(type: AttributeType.string, string: stringValue);
@@ -222,9 +219,7 @@ Attribute _leaf({
 /// Builds a *header* attribute (value == null). Headers anchor the
 /// labels for groups and arrays in the attribute tree.
 Attribute _header({required List<dynamic> claimPath, String displayName = ""}) {
-  final dn = displayName.isEmpty
-      ? const TranslatedValue.empty()
-      : TranslatedValue({"en": displayName});
+  final dn = displayName.isEmpty ? null : displayName;
   return Attribute(claimPath: claimPath, displayName: dn);
 }
 
@@ -235,11 +230,11 @@ YiviCredentialCard _card({
   bool revoked = false,
   int? expiryDateUnix,
   Map<CredentialFormat, int?> batchCounts = const {},
-  TranslatedValue? issueUrl,
+  String? issueUrl,
   bool hideFooter = true,
 }) {
   return YiviCredentialCard(
-    credentialName: TranslatedValue({"en": name}),
+    credentialName: name,
     issuerName: _demoIssuer().name,
     attributes: attributes,
     status: CredentialCardStatus(
@@ -723,7 +718,7 @@ Widget previewFooterReobtainButton() => _card(
   batchCounts: const {CredentialFormat.idemix: 42},
   // Adding a non-empty issueUrl flips `showReobtain` on once the credential
   // is expiring/expired/revoked.
-  issueUrl: TranslatedValue({"en": "https://example.invalid/reobtain"}),
+  issueUrl: "https://example.invalid/reobtain",
   hideFooter: false,
 );
 
@@ -737,6 +732,6 @@ Widget previewFooterWorstCase() => _card(
   attributes: _footerAttrs(),
   expiryDateUnix: _unixDaysFromNow(-30),
   batchCounts: const {CredentialFormat.idemix: 0},
-  issueUrl: TranslatedValue({"en": "https://example.invalid/reobtain"}),
+  issueUrl: "https://example.invalid/reobtain",
   hideFooter: false,
 );

@@ -2,7 +2,6 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../models/schemaless/credential_store.dart";
 
-import "../models/translated_value.dart";
 import "irma_repository_provider.dart";
 
 final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
@@ -19,19 +18,32 @@ final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
 });
 
 class CredentialStoreCategory {
-  final TranslatedValue category;
+  final String category;
   final List<CredentialStoreItem> items;
 
   CredentialStoreCategory({required this.category, required this.items});
 }
 
+// The category text irmago resolves for the personal section, across the
+// supported languages. Category strings now arrive resolved to the effective
+// app language (no translation map), so the personal section is recognised by
+// its resolved name rather than a fixed "en" lookup.
+//
+// This matches on display text because the resolved DTO carries no stable
+// category key: if a scheme rewords one of these, or adds a category
+// translation in a language not listed here, the personal section silently
+// sorts alphabetically instead of first. Pinned by
+// test/credential_store_category_order_test.dart so that change fails loudly;
+// the durable fix is a category identifier on irmago's side.
+const _personalCategoryNames = {"Personal", "Persoonlijk", "Persönlich"};
+
 final groupedCredentialStoreProvider =
     StreamProvider<List<CredentialStoreCategory>>((ref) async* {
       final all = await ref.watch(credentialStoreProvider.future);
 
-      final categorized = <TranslatedValue, List<CredentialStoreItem>>{};
+      final categorized = <String, List<CredentialStoreItem>>{};
       for (final item in all) {
-        final category = item.credential.category!;
+        final category = item.credential.category ?? "";
         categorized.putIfAbsent(category, () => []).add(item);
       }
 
@@ -41,8 +53,8 @@ final groupedCredentialStoreProvider =
 
       // Put the personal section as the first
       result.sort((a, b) {
-        final aIsPersonal = a.category.translate("en") == "Personal";
-        final bIsPersonal = b.category.translate("en") == "Personal";
+        final aIsPersonal = _personalCategoryNames.contains(a.category);
+        final bIsPersonal = _personalCategoryNames.contains(b.category);
 
         if (aIsPersonal && !bIsPersonal) return -1;
         if (!aIsPersonal && bIsPersonal) return 1;

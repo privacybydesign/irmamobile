@@ -6,7 +6,6 @@ import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
-import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
 
@@ -64,14 +63,14 @@ sealed class _Node {
 }
 
 class _GroupNode extends _Node {
-  final TranslatedValue? label;
+  final String? label;
   final List<dynamic> path;
   final List<_Node> children;
   _GroupNode({this.label, required this.path, required this.children});
 }
 
 class _ItemNode extends _Node {
-  final TranslatedValue? parentLabel;
+  final String? parentLabel;
   final int itemIndex;
   int totalItems;
   final List<dynamic> path;
@@ -96,7 +95,7 @@ class _RowNode extends _Node {
 }
 
 class _PrimArrayNode extends _Node {
-  final TranslatedValue label;
+  final String label;
   final List<schemaless.AttributeValue> values;
   _PrimArrayNode({required this.label, required this.values});
 }
@@ -119,7 +118,7 @@ class _StackFrame {
 }
 
 class _PrimCollector {
-  final TranslatedValue label;
+  final String label;
   final List<schemaless.AttributeValue> values;
   final List<_Node> parent;
   _PrimCollector({
@@ -244,7 +243,7 @@ _GroupNode _buildTree(
     }
 
     final tail = p.last;
-    final hasDisplayName = e.displayName.isNotEmpty;
+    final hasDisplayName = e.displayName?.isNotEmpty ?? false;
 
     if (tail is int && !hasDisplayName) {
       // Primitive in array — collect under the parent header's label.
@@ -543,7 +542,6 @@ class _LeafContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final attribute = node.attribute;
 
     return Column(
@@ -551,11 +549,8 @@ class _LeafContent extends StatelessWidget {
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(
-          attribute.effectiveDisplayName.translate(lang),
-          style: _labelStyle(theme),
-        ),
-        _buildValue(context, theme, lang),
+        Text(attribute.effectiveDisplayName, style: _labelStyle(theme)),
+        _buildValue(context, theme),
       ],
     );
   }
@@ -567,7 +562,7 @@ class _LeafContent extends StatelessWidget {
         : theme.error;
   }
 
-  Widget _buildValue(BuildContext context, IrmaThemeData theme, String lang) {
+  Widget _buildValue(BuildContext context, IrmaThemeData theme) {
     final val = node.attribute.value;
     if (val == null) return const SizedBox.shrink();
     return switch (val.type) {
@@ -583,16 +578,12 @@ class _LeafContent extends StatelessWidget {
         val.intValue?.toString() ?? "",
         style: _valueStyle(theme, _valueColor(val, theme)),
       ),
-      schemaless.AttributeType.image || schemaless.AttributeType.base64Image =>
-        _tappableImage(context, theme, lang),
+      schemaless.AttributeType.image ||
+      schemaless.AttributeType.base64Image => _tappableImage(context, theme),
     };
   }
 
-  Widget _tappableImage(
-    BuildContext context,
-    IrmaThemeData theme,
-    String lang,
-  ) {
+  Widget _tappableImage(BuildContext context, IrmaThemeData theme) {
     final attribute = node.attribute;
     final val = attribute.value;
     final raw = val?.imagePath ?? val?.base64Image ?? "";
@@ -606,12 +597,7 @@ class _LeafContent extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => Scaffold(
-              appBar: IrmaAppBar(
-                titleString: attribute.effectiveDisplayName.translate(
-                  lang,
-                  fallbackLang: "",
-                ),
-              ),
+              appBar: IrmaAppBar(titleString: attribute.effectiveDisplayName),
               body: SingleChildScrollView(child: Center(child: image)),
             ),
           ),
@@ -636,14 +622,13 @@ class _PrimArrayContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       spacing: 0,
       children: [
-        Text(node.label.translate(lang), style: _labelStyle(theme)),
+        Text(node.label, style: _labelStyle(theme)),
         for (final v in node.values) _bulletRow(context, theme, v),
       ],
     );
@@ -704,17 +689,13 @@ class _EyebrowContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     // Empty groups (header without descendants) fall through here when they
     // were rendered as labelled rows by the flatten step. Render as a plain
     // bodyMedium-like label.
     if (node.children.isEmpty) {
-      return Text(node.label?.translate(lang) ?? "", style: _labelStyle(theme));
+      return Text(node.label ?? "", style: _labelStyle(theme));
     }
-    return Text(
-      node.label!.translate(lang).toUpperCase(),
-      style: _eyebrowStyle(theme),
-    );
+    return Text((node.label ?? "").toUpperCase(), style: _eyebrowStyle(theme));
   }
 }
 
@@ -725,9 +706,7 @@ class _ItemEyebrowContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final parentLabel =
-        node.parentLabel?.translate(lang).toUpperCase() ?? "ITEM";
+    final parentLabel = node.parentLabel?.toUpperCase() ?? "ITEM";
     final text = node.totalItems > 1
         ? "$parentLabel ${node.itemIndex}/${node.totalItems}"
         : parentLabel;

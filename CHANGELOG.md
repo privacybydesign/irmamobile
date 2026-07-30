@@ -5,6 +5,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
+- Support for Token Status List revocation of SD-JWT credentials issued over OpenID4VCI
+
+### Changed
+- Credential and issuer text is resolved in the app language by the Go client instead of being picked in the app, and text the issuer did not translate falls back to English, or to a language it did supply, rather than reading "[translation missing]"
+- Logos missing for the language you use are fetched in the background at startup and after a language switch, and appear once they arrive
+
+### Fixed
+- Credential logos supplied as SVG now render correctly instead of appearing blank
+- The loading spinner is red on every screen; on some screens it was grey
+- Finishing or dismissing a session while the app believes a session is still active underneath it no longer pops every screen off the navigation stack, which left the app unusable until it was restarted
+
+### Internal
+- Upgrade irmago to v1.2.1-0.20260729155208-d5a83aa50c04
+- Remove the unused RecentActivity widget
+- Add an integration test for the required-update screen
+- Add an integration test for switching the app language
+- Updated Git submodules
+- Fix swallowed errors on cancelling embedded issuance flows
+
+## [8.1.2] - 2026-07-22
+### Added
+- Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
+- Solve a proof-of-work challenge before requesting an SMS verification code in the embedded issuance flow, to make automated bulk requests expensive (no-op against issuers that do not hand out a challenge)
+
+### Fixed
+- Universal-link sessions are gated behind the PIN on a warm resume too, not only on cold start: when the app auto-locks after being idle and is then opened by a session link, biometric (Face ID / fingerprint) is withheld while a session is pending or in flight, so it can't unlock ahead of the incoming session
+- Scanning a desktop QR code with the phone's camera app is again treated as a second-device session instead of running the same-device return flow
+- On a second-device session, the relying party's client return URL is no longer opened in a browser on the phone (the browser session lives on the other device); the wallet confirms success locally instead. A `tel:` return URL still opens the phone dialer.
+- You now get the option to obtain a new credential when you already have a suitable credential in disclosure requests with pre-defined values
+
+### Internal
+- Upgrade irmago to v1.2.0
+
+## [8.1.1] - 2026-07-14
+### Fixed
+- Opening the app from a locked state via a universal link carrying a session no longer lets biometric unlock it: biometric is held back until the launch URL is known, so the session is deterministically gated behind the PIN (no unlock-then-relock flash)
+
+### Internal
+- Upgrade irmago to 1.1.1: Eudi database is now correctly encrypted
 
 ## [8.1.0] - 2026-06-26
 ### Changed
@@ -17,9 +58,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fix
 - Race condition in pin entering that caused double entry
 - Glitch where "next" button would appear at the top of the pin screen
+- Problem with Android system UI overlay colors
 
 ### Internal
 - Upgrade Flutter to 3.44.4 and upgrade all dependencies
+- Upgrade irmago to 1.1.0
 
 ## [8.0.0] - 2026-06-22
 ### Changed
@@ -639,6 +682,8 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.1.2]: https://github.com/privacybydesign/irmamobile/compare/v8.1.1...v8.1.2
+[8.1.1]: https://github.com/privacybydesign/irmamobile/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/privacybydesign/irmamobile/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/privacybydesign/irmamobile/compare/v7.13.5...v8.0.0
 [7.13.5]: https://github.com/privacybydesign/irmamobile/compare/v7.13.4...v7.13.5

@@ -5,6 +5,7 @@ import "package:rxdart/rxdart.dart";
 import "../models/enrollment_events.dart";
 import "../models/event.dart";
 import "../models/irma_configuration.dart";
+import "../models/log_entry.dart";
 import "../models/native_events.dart";
 import "../models/session_events.dart";
 import "irma_bridge.dart";
@@ -27,8 +28,15 @@ class IrmaMockBridge extends IrmaBridge {
   void dispatch(Event event) {
     if (event is AppReadyEvent) {
       addEvent(IrmaConfigurationEvent(irmaConfiguration: _irmaConfiguration));
+      // Mirror native: acknowledge the launch handshake so the lock screen's
+      // startup-URL gate resolves and biometric can proceed (no initial URL in
+      // the mock, so this is sent unconditionally, as native does).
+      addEvent(AppReadyAckEvent());
     } else if (event is EnrollEvent) {
       // For example respond with IrmaRepository.get().dispatch(EnrollmentSuccessEvent(...))
+    } else if (event is SetLocaleEvent || event is LoadLogsEvent) {
+      // Locale is resolved in the Go client; the mock has no localized data to
+      // re-resolve, so accept these events as no-ops.
     } else if (event is SessionEvent) {
       _sessionEventsSubject.add(event);
     } else {

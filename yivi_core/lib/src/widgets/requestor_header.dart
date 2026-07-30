@@ -12,7 +12,7 @@ import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
 import "yivi_bottom_sheet.dart";
 
-_buildRequestorAvatar({
+IrmaAvatar _buildRequestorAvatar({
   required String? title,
   Widget? image,
   String? imagePath,
@@ -32,7 +32,7 @@ class RequestorHeader extends StatelessWidget {
 
   const RequestorHeader({this.requestor, this.isVerified});
 
-  _showCredentialOptionsBottomSheet(BuildContext context) {
+  Future<void> _showCredentialOptionsBottomSheet(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return showYiviBottomSheet(
       context: context,
@@ -48,7 +48,6 @@ class RequestorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final theme = IrmaTheme.of(context);
 
     Widget mainTextWidget;
@@ -56,13 +55,16 @@ class RequestorHeader extends StatelessWidget {
     Color? backgroundColorOverride;
 
     final localizedRequestorName = requestor != null
-        ? requestor!.name.translate(lang)
+        ? requestor!.name
         : FlutterI18n.translate(context, "ui.unknown");
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,
       image: requestor?.image != null
-          ? Base64Image(base64: requestor!.image!.base64)
+          ? Base64Image(
+              base64: requestor!.image!.base64,
+              mimeType: requestor!.image!.mimeType,
+            )
           : null,
       imagePath: requestor?.imagePath,
     );
@@ -213,7 +215,7 @@ class _RequestorHeaderBase extends StatelessWidget {
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [mainText, if (subtitleText != null) subtitleText!],
+              children: [mainText, ?subtitleText],
             ),
           ),
         ],
