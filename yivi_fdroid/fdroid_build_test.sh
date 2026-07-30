@@ -205,18 +205,28 @@ done
 assert_file "$PREBUILT/include/sqlite3.h"
 assert_file "$PREBUILT/include/sqlcipher/sqlite3.h"
 
-# Each ABI must get its own OpenSSL target and its own clang wrapper.
-assert_contains "$CALLS" "openssl Configure android-arm64 -D__ANDROID_API__=26 --prefix=$PREBUILT/arm64-v8a"
-assert_contains "$CALLS" "openssl Configure android-arm -D__ANDROID_API__=26 --prefix=$PREBUILT/armeabi-v7a"
-assert_contains "$CALLS" "openssl Configure android-x86_64 -D__ANDROID_API__=26 --prefix=$PREBUILT/x86_64"
-assert_contains "$CALLS" "CC=$NDK_TC/aarch64-linux-android26-clang AR=$NDK_TC/llvm-ar RANLIB=$NDK_TC/llvm-ranlib --host=aarch64-linux-android"
-assert_contains "$CALLS" "CC=$NDK_TC/armv7a-linux-androideabi26-clang AR=$NDK_TC/llvm-ar RANLIB=$NDK_TC/llvm-ranlib --host=arm-linux-androideabi"
-assert_contains "$CALLS" "CC=$NDK_TC/x86_64-linux-android26-clang AR=$NDK_TC/llvm-ar RANLIB=$NDK_TC/llvm-ranlib --host=x86_64-linux-android"
+# Each ABI must get its own OpenSSL target and its own clang wrapper. These
+# needles are the whole recorded line rather than a prefix of it: anything past
+# the end of the needle is a flag nothing checks, and dropping `no-shared` alone
+# leaves build_libs producing a libcrypto.so that SQLCipher would link against
+# and that never reaches the APK.
+assert_contains "$CALLS" "openssl Configure android-arm64 -D__ANDROID_API__=26 --prefix=$PREBUILT/arm64-v8a no-shared no-tests no-ui-console no-engine no-async"
+assert_contains "$CALLS" "openssl Configure android-arm -D__ANDROID_API__=26 --prefix=$PREBUILT/armeabi-v7a no-shared no-tests no-ui-console no-engine no-async"
+assert_contains "$CALLS" "openssl Configure android-x86_64 -D__ANDROID_API__=26 --prefix=$PREBUILT/x86_64 no-shared no-tests no-ui-console no-engine no-async"
 
 # Without these defines SQLCipher builds as plain unencrypted SQLite and the
-# wallet database silently stops being encrypted, so pin them exactly.
-assert_contains "$CALLS" "CFLAGS=-DSQLITE_HAS_CODEC -DSQLCIPHER_CRYPTO_OPENSSL -DSQLITE_TEMP_STORE=2 -DSQLITE_EXTRA_INIT=sqlcipher_extra_init -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown -I$PREBUILT/arm64-v8a/include"
-assert_contains "$CALLS" "LDFLAGS=-L$PREBUILT/x86_64/lib -lcrypto"
+# wallet database silently stops being encrypted, so pin them exactly -- for
+# every ABI, since each one is configured separately.
+SQLCIPHER_DEFINES="-DSQLITE_HAS_CODEC -DSQLCIPHER_CRYPTO_OPENSSL -DSQLITE_TEMP_STORE=2 -DSQLITE_EXTRA_INIT=sqlcipher_extra_init -DSQLITE_EXTRA_SHUTDOWN=sqlcipher_extra_shutdown"
+
+assert_sqlcipher_configure() {
+  local abi="$1" clang="$2" host="$3"
+  assert_contains "$CALLS" "sqlcipher configure CC=$NDK_TC/$clang AR=$NDK_TC/llvm-ar RANLIB=$NDK_TC/llvm-ranlib --host=$host --prefix=$PREBUILT/$abi --disable-shared --with-tempstore=yes --disable-tcl CFLAGS=$SQLCIPHER_DEFINES -I$PREBUILT/$abi/include LDFLAGS=-L$PREBUILT/$abi/lib -lcrypto"
+}
+
+assert_sqlcipher_configure arm64-v8a   aarch64-linux-android26-clang    aarch64-linux-android
+assert_sqlcipher_configure armeabi-v7a armv7a-linux-androideabi26-clang arm-linux-androideabi
+assert_sqlcipher_configure x86_64      x86_64-linux-android26-clang     x86_64-linux-android
 
 # The Go toolchain is built from source, and nothing may download another one.
 assert_contains "$CALLS" "make.bash cwd=$GO_SRC/src"
@@ -230,8 +240,15 @@ assert_contains "$CALLS" "bind_go android NDK=$NDK/$NDK"
 assert_contains "$CALLS" "flutter build apk --flavor beta cwd=yivi_fdroid PUB_CACHE=$REPO/yivi_fdroid/.pub-cache"
 
 # The scratch source copies must not be reused between ABIs; a stale configured
-# tree would silently link the previous ABI's libcrypto.
-if [ -f "$REPO/bs/.stub_configured" ] && [ "$(grep -c 'sqlcipher configure' "$CALLS")" -ne 3 ]; then
+# tree would silently link the previous ABI's libcrypto. Dropping the `rm -rf`
+# before the `cp -a` does not change the number of configure runs -- `cp -a src
+# dst` onto an existing dst nests the tree one level down instead of replacing
+# it, and the previous ABI's files survive at the top -- so look for the nested
+# copy directly rather than inferring it from the call log.
+if [ -e "$REPO/bs/$(basename "$SQLCIPHER_SRC")" ] || [ -e "$REPO/bo/$(basename "$OPENSSL_SRC")" ]; then
+  fail "a scratch source copy was nested instead of replaced; the rm -rf before cp -a is missing"
+fi
+if [ "$(grep -c 'sqlcipher configure' "$CALLS")" -ne 3 ]; then
   fail "expected configure to run once per ABI"
 fi
 
