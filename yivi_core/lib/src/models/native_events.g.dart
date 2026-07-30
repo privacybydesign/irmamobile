@@ -7,7 +7,10 @@ part of 'native_events.dart';
 // **************************************************************************
 
 Map<String, dynamic> _$AppReadyEventToJson(AppReadyEvent instance) =>
-    <String, dynamic>{};
+    <String, dynamic>{'locale': instance.locale};
+
+Map<String, dynamic> _$SetLocaleEventToJson(SetLocaleEvent instance) =>
+    <String, dynamic>{'locale': instance.locale};
 
 AppReadyAckEvent _$AppReadyAckEventFromJson(Map<String, dynamic> json) =>
     AppReadyAckEvent();

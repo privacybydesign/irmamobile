@@ -9,15 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
 - Support for Token Status List revocation of SD-JWT credentials issued over OpenID4VCI
 
+### Changed
+- Credential and issuer text is resolved in the app language by the Go client instead of being picked in the app, and text the issuer did not translate falls back to English, or to a language it did supply, rather than reading "[translation missing]"
+- Logos missing for the language you use are fetched in the background at startup and after a language switch, and appear once they arrive
+
 ### Fixed
 - Credential logos supplied as SVG now render correctly instead of appearing blank
 - The loading spinner is red on every screen; on some screens it was grey
+- Finishing or dismissing a session while the app believes a session is still active underneath it no longer pops every screen off the navigation stack, which left the app unusable until it was restarted
 
 ### Internal
-- The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
+- Upgrade irmago to v1.2.1-0.20260729155208-d5a83aa50c04
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
+- Add an integration test for switching the app language
 - Updated Git submodules
+- Fix swallowed errors on cancelling embedded issuance flows
+- The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
 
 ## [8.1.2] - 2026-07-22
 ### Added

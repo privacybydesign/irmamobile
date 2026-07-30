@@ -39,7 +39,6 @@ class SchemalessAddDataScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final storeItems = ref.watch(groupedCredentialStoreProvider);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     // Treat the device as NFC-capable while the check is loading or if it
     // fails: greying out a credential the user can actually obtain is worse
@@ -75,7 +74,10 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                         crossAxisAlignment: .start,
                         spacing: theme.smallSpacing,
                         children: [
-                          SectionHeader.text(category.translate(lang)),
+                          // A credential without a category (irmago marshals
+                          // it `omitempty`) groups under "", which would
+                          // otherwise render as a blank gap above the cards.
+                          if (category.isNotEmpty) SectionHeader.text(category),
                           Column(
                             spacing: theme.smallSpacing,
                             children: [
