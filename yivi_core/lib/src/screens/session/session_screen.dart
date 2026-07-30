@@ -5,6 +5,7 @@ import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../../data/irma_repository.dart";
+import "../../models/digital_credentials.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
 import "../../models/schemaless/session_state.dart";
@@ -101,6 +102,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// rebuilds keep returning the same decision.
   bool? _inAppLaunchedSuccess;
 
+  /// True after handing the Digital Credentials API response to native, so
+  /// post-frame rebuilds of the success screen don't send it twice.
+  bool _dcApiResponseDelivered = false;
+
   @override
   void initState() {
     super.initState();
@@ -131,6 +136,24 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     if (!isTerminal) {
       _repo.bridgedDispatch(
         SessionUserInteractionEvent.dismiss(sessionId: widget.sessionId),
+      );
+    }
+    // A Digital Credentials API session that reaches here without having handed
+    // over an Authorization Response has to tell native so, or the platform
+    // keeps the caller waiting on a call nothing will ever answer. This is the
+    // one place every non-success ending passes through: the dismissed branch
+    // pops, and the error screen's close and back handlers go to the home
+    // screen, neither of which reports anything by itself.
+    if (_repo.claimDigitalCredentialsSession(widget.sessionId)) {
+      _repo.bridgedDispatch(
+        DigitalCredentialsFailureEvent(
+          // Reaching success without a response means the core produced none,
+          // which is a failure to the caller rather than the user's choice.
+          reason:
+              status == SessionStatus.error || status == SessionStatus.success
+              ? DigitalCredentialsFailureReason.error
+              : DigitalCredentialsFailureReason.cancelled,
+        ),
       );
     }
     super.dispose();
@@ -427,6 +450,29 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           hasUnderlyingSession: widget.hasUnderlyingSession,
         );
       }
+    }
+
+    // OpenID4VP over the Digital Credentials API: the response goes back to the
+    // caller through the platform, which also returns the user there. Hand the
+    // Authorization Response to native and leave; none of the return-URL,
+    // ArrowBack or send-to-background handling below applies, and there is no
+    // result to confirm in-app.
+    final dcApiResponse = session.dcApiResponse;
+    if (dcApiResponse != null && dcApiResponse.isNotEmpty) {
+      if (!_dcApiResponseDelivered) {
+        _dcApiResponseDelivered = true;
+        // Claim the outcome in this frame, not in the callback below: if the
+        // user leaves before the frame is done, dispose must already see the
+        // outcome as taken rather than report a second one.
+        _repo.claimDigitalCredentialsSession(widget.sessionId);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _repo.bridgedDispatch(
+            DigitalCredentialsResponseEvent(response: dcApiResponse),
+          );
+          pop();
+        });
+      }
+      return _buildLoadingScreen(session);
     }
 
     // If this is an issuance session spawned during a disclosure flow,

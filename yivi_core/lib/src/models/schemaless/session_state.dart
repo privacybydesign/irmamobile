@@ -52,6 +52,13 @@ class SessionState {
   final bool continueOnSecondDevice;
   final int? remainingPinAttempts;
   final int? pinBlockedTimeSeconds;
+
+  /// OpenID4VP over the W3C Digital Credentials API: the JSON to hand back to
+  /// the platform as the `data` member of its response. Set only on the state
+  /// that reaches [SessionStatus.success] for a session started from a
+  /// `DigitalCredentialsRequest`; null for every other session.
+  final String? dcApiResponse;
+
   @JsonKey(name: "openid4vci_state")
   final String? openID4VCIState;
   final String? authorizationRequestUrl;
@@ -75,6 +82,7 @@ class SessionState {
     this.continueOnSecondDevice = false,
     this.remainingPinAttempts,
     this.pinBlockedTimeSeconds,
+    this.dcApiResponse,
     this.openID4VCIState,
     this.authorizationRequestUrl,
     this.transactionCodeParameters,
