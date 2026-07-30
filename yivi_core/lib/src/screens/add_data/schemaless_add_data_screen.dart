@@ -77,8 +77,7 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                           // A credential without a category (irmago marshals
                           // it `omitempty`) groups under "", which would
                           // otherwise render as a blank gap above the cards.
-                          if (category.isNotEmpty)
-                            SectionHeader.text(category),
+                          if (category.isNotEmpty) SectionHeader.text(category),
                           Column(
                             spacing: theme.smallSpacing,
                             children: [

@@ -8,9 +8,7 @@ import "package:yivi_core/src/data/irma_preferences.dart";
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<(IrmaPreferences, AppLanguage)> setup({
-    String override = "",
-  }) async {
+  Future<(IrmaPreferences, AppLanguage)> setup({String override = ""}) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await IrmaPreferences.fromInstance(
       mostRecentTermsUrlNl: "",
@@ -67,21 +65,24 @@ void main() {
     expect(seen, isEmpty);
   });
 
-  test("changes reports an override switch, and never repeats a value", () async {
-    final (prefs, language) = await setup();
-    final seen = <String>[];
-    final sub = language.changes.listen(seen.add);
-    addTearDown(sub.cancel);
-    await pumpEventQueue();
+  test(
+    "changes reports an override switch, and never repeats a value",
+    () async {
+      final (prefs, language) = await setup();
+      final seen = <String>[];
+      final sub = language.changes.listen(seen.add);
+      addTearDown(sub.cancel);
+      await pumpEventQueue();
 
-    await prefs.setPreferredLanguageCode("nl");
-    await pumpEventQueue();
-    // Pinning the override to the language already in effect is not a change.
-    await prefs.setPreferredLanguageCode("nl");
-    await pumpEventQueue();
+      await prefs.setPreferredLanguageCode("nl");
+      await pumpEventQueue();
+      // Pinning the override to the language already in effect is not a change.
+      await prefs.setPreferredLanguageCode("nl");
+      await pumpEventQueue();
 
-    expect(seen, ["nl"]);
-  });
+      expect(seen, ["nl"]);
+    },
+  );
 
   test("an override matching the device language is not a change", () async {
     final (prefs, language) = await setup();
