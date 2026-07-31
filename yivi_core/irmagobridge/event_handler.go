@@ -166,15 +166,15 @@ func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
 	return nil
 }
 
-// Force a Token Status List refresh. Per-list failures are logged and swallowed
-// inside RefreshStatuses, so an error here means the sweep could not run at all.
+// Force a Token Status List refresh, so a test can drive a sweep instead of
+// waiting on the client's job. Per-list failures are logged and swallowed inside
+// RefreshStatuses, so an error here means the sweep could not run at all.
+//
+// Dispatching is RefreshStatuses' own job: it signals CredentialsChanged when a
+// status moved, and stays silent when the sweep only re-confirmed what the
+// wallet already had.
 func (ah *eventHandler) refreshCredentialStatuses() error {
-	if err := yiviClient.RefreshStatuses(context.Background()); err != nil {
-		return err
-	}
-
-	dispatchCredentialsEvent()
-	return nil
+	return yiviClient.RefreshStatuses(context.Background())
 }
 
 func (ah *eventHandler) updateSchemes() error {
