@@ -20,8 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Data tab no longer briefly reloads once an hour, nor every few tens of seconds while you hold a revoked credential: the wallet re-reads its credentials only when something about them actually changed
 
 ### Internal
-- Upgrade irmago to v1.2.1-0.20260731113729-c364affa4106
-- The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`, replacing the bridge's own refresh loop (ADR 0008, superseding ADR 0007). `UpdateAttributes` and `Revoked` collapse into that one callback; `UpdateConfiguration` is gone, so a credential type first downloaded mid-session reaches the Add Data store on the next launch rather than immediately
+- The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
 - Add an integration test for switching the app language
