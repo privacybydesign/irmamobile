@@ -68,24 +68,45 @@ class ErrorReportingCheckBox extends StatelessWidget {
           ),
         ),
         SizedBox(width: theme.smallSpacing),
+        // RenderParagraph gives every span carrying a gesture recognizer its
+        // own semantics node, which split this one sentence into three: the
+        // "Optional:" prefix, the tappable share-errors span and "with Yivi".
+        // Replace those with a single node reading the whole sentence.
+        //
+        // MergeSemantics would also collapse them into one node, but it joins
+        // the fragments with newlines ("Optional: \nShare...\n with Yivi"),
+        // which is announced with stray pauses. Supplying the label directly
+        // and excluding the span semantics gives the clean sentence, and
+        // re-declaring onTap keeps the info sheet reachable — the exclusion
+        // drops the recognizer's own action along with its node.
         Flexible(
-          child: Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  style: theme.textTheme.bodyMedium!.copyWith(
-                    fontWeight: FontWeight.bold,
+          child: Semantics(
+            container: true,
+            label: "$optional: $shareErrors $withYivi",
+            onTap: () => _showErrorReportingInfoBottomSheet(context),
+            excludeSemantics: true,
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    text: "$optional: ",
                   ),
-                  text: "$optional: ",
-                ),
-                TextSpan(
-                  style: theme.hyperlinkTextStyle,
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => _showErrorReportingInfoBottomSheet(context),
-                  text: shareErrors,
-                ),
-                TextSpan(style: theme.textTheme.bodyMedium, text: " $withYivi"),
-              ],
+                  TextSpan(
+                    style: theme.hyperlinkTextStyle,
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () =>
+                          _showErrorReportingInfoBottomSheet(context),
+                    text: shareErrors,
+                  ),
+                  TextSpan(
+                    style: theme.textTheme.bodyMedium,
+                    text: " $withYivi",
+                  ),
+                ],
+              ),
             ),
           ),
         ),

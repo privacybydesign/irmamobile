@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
@@ -27,15 +28,18 @@ void main() {
   const englishLabel =
       "Optional: Share error messages and app status with Yivi";
 
-  Future<IrmaRepository> repository() async {
+  // The report-errors value must be seeded explicitly rather than left to
+  // setMockInitialValues: the preference store is not rebuilt per test, so a
+  // value written by one test is still there in the next. Without this, this
+  // file passes test by test and fails when run as a whole.
+  Future<IrmaRepository> repository({bool reportErrors = false}) async {
     SharedPreferences.setMockInitialValues({});
-    return IrmaRepository(
-      client: _RecordingBridge(),
-      preferences: await IrmaPreferences.fromInstance(
-        mostRecentTermsUrlNl: "",
-        mostRecentTermsUrlEn: "",
-      ),
+    final preferences = await IrmaPreferences.fromInstance(
+      mostRecentTermsUrlNl: "",
+      mostRecentTermsUrlEn: "",
     );
+    await preferences.setReportErrors(reportErrors);
+    return IrmaRepository(client: _RecordingBridge(), preferences: preferences);
   }
 
   Future<void> pumpCheckBox(
@@ -107,9 +111,8 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
-    final repo = await repository();
+    final repo = await repository(reportErrors: true);
     addTearDown(repo.close);
-    await repo.preferences.setReportErrors(true);
     await pumpCheckBox(tester, repo: repo);
 
     expect(
@@ -153,27 +156,77 @@ void main() {
 
     // Drive the semantics action itself, not a pointer tap: this is the path a
     // screen reader takes, and it goes through the merged node the label lives
-    // on rather than the Checkbox's own hit box.
-    tester.semantics.tap(find.semantics.byLabel(englishLabel));
+    // on rather than the Checkbox's own hit box. Match on the node id resolved
+    // from the checkbox widget, because the merged text beside it carries the
+    // same label and would make a label finder ambiguous.
+    final checkboxNodeId = tester.getSemantics(checkbox).id;
+    tester.semantics.tap(
+      find.semantics.byPredicate(
+        (node) => node.id == checkboxNodeId,
+        describeMatch: (_) => "the error reporting checkbox node",
+      ),
+    );
+    // Required: without a pump the write started by onChanged never progresses,
+    // and the read below sees the old value.
     await tester.pumpAndSettle();
 
-    expect(await repo.preferences.getReportErrors().first, isTrue);
+    // Read the preference back through runAsync: the write goes over the
+    // shared_preferences channel and returns on a Preference stream, neither of
+    // which the test framework's fake clock drives — awaiting outside runAsync
+    // hangs until the test times out. firstWhere waits for the emission instead
+    // of sampling once, and the timeout turns a tap that never lands into a
+    // fast failure rather than a ten-minute one.
+    //
+    // Asserting the stored preference rather than the re-rendered checkbox
+    // keeps this test to one question (did the screen reader's tap reach the
+    // preference?). That the checkbox renders as checked when the preference is
+    // on is covered above.
+    final enabled = await tester.runAsync(
+      () => repo.preferences
+          .getReportErrors()
+          .firstWhere((enabled) => enabled)
+          .timeout(const Duration(seconds: 5), onTimeout: () => false),
+    );
+    expect(enabled, isTrue);
 
     handle.dispose();
   });
 
-  testWidgets("the info link stays reachable next to the checkbox", (
+  testWidgets("the label beside the checkbox is one node, not three", (
     tester,
   ) async {
+    final handle = tester.ensureSemantics();
     final repo = await repository();
     addTearDown(repo.close);
     await pumpCheckBox(tester, repo: repo);
 
-    // The rich text is not merged into the checkbox, so the span that opens the
-    // info sheet is still rendered and tappable on its own.
-    expect(
-      find.textContaining("Share error messages and app status"),
-      findsOneWidget,
+    // RenderParagraph would otherwise split the sentence at the tappable span,
+    // announcing "Optional:", "Share error messages and app status" and "with
+    // Yivi" as three separate nodes. The checkbox carries the same label, so
+    // exclude it by id to leave just the text's node.
+    final checkboxNodeId = tester.getSemantics(checkbox).id;
+    final labelNode = find.semantics.byPredicate(
+      (node) => node.label == englishLabel && node.id != checkboxNodeId,
+      describeMatch: (_) => "the merged error reporting label node",
     );
+    expect(labelNode, findsOne);
+
+    // No fragment survives as a node of its own.
+    expect(find.semantics.byLabel("with Yivi"), findsNothing);
+    expect(
+      find.semantics.byLabel("Share error messages and app status"),
+      findsNothing,
+    );
+
+    // The merge keeps the recognizer's tap action, so the info sheet is still
+    // reachable from the merged node.
+    expect(
+      labelNode.evaluate().single.getSemanticsData().hasAction(
+        SemanticsAction.tap,
+      ),
+      isTrue,
+    );
+
+    handle.dispose();
   });
 }
