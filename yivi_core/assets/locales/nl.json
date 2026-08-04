@@ -557,7 +557,8 @@
     "privacy_policy": "Yivi's privacyregels",
     "privacy_policy_link": "https://www.yivi.app/privacy",
     "app_id": "App-ID {id}",
-    "log_out": "Uitloggen"
+    "log_out": "Uitloggen",
+    "logged_out_toast": "Je bent uitgelogd"
   },
   "pin": {
     "subtitle": "Voer je pincode in",

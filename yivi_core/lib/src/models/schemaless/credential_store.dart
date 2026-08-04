@@ -1,7 +1,6 @@
 import "package:json_annotation/json_annotation.dart";
 
 import "../event.dart";
-import "../translated_value.dart";
 import "schemaless_events.dart";
 
 part "credential_store.g.dart";
@@ -19,14 +18,14 @@ class SchemalessCredentialStoreEvent extends Event {
 @JsonSerializable(fieldRename: .snake)
 class CredentialDescriptor {
   final String credentialId;
-  final TranslatedValue name;
+  final String name;
   final TrustedParty issuer;
-  final TranslatedValue? category;
+  final String? category;
   final LogoImage? image;
   final List<Attribute> attributes;
 
   @JsonKey(name: "issue_url")
-  final TranslatedValue? issueURL;
+  final String? issueURL;
 
   CredentialDescriptor({
     required this.credentialId,
@@ -59,10 +58,10 @@ class CredentialStoreItem {
 
 @JsonSerializable(fieldRename: .snake)
 class Faq {
-  final TranslatedValue intro;
-  final TranslatedValue purpose;
-  final TranslatedValue content;
-  final TranslatedValue howTo;
+  final String? intro;
+  final String? purpose;
+  final String? content;
+  final String? howTo;
 
   Faq({
     required this.intro,

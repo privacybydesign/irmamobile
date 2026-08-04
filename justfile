@@ -33,6 +33,10 @@ run-fdroid *args:
 unit-test:
     cd yivi_core && flutter test
 
+# Tests the F-Droid build script against stub tooling (no NDK or srclibs needed)
+test-fdroid-build:
+    ./yivi_fdroid/fdroid_build_test.sh
+
 test:
     #!/usr/bin/env bash
     cd yivi_app

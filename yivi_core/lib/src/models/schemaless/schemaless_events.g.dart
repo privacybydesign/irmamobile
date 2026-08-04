@@ -44,12 +44,8 @@ const _$AttributeTypeEnumMap = {
 
 Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
   claimPath: json['claim_path'] as List<dynamic>,
-  displayName: TranslatedValue.fromJson(
-    json['display_name'] as Map<String, dynamic>?,
-  ),
-  description: json['description'] == null
-      ? null
-      : TranslatedValue.fromJson(json['description'] as Map<String, dynamic>?),
+  displayName: json['display_name'] as String?,
+  description: json['description'] as String?,
   value: json['value'] == null
       ? null
       : AttributeValue.fromJson(json['value'] as Map<String, dynamic>),
@@ -70,10 +66,8 @@ Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
 
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
   id: json['id'] as String,
-  name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
-  url: json['url'] == null
-      ? null
-      : TranslatedValue.fromJson(json['url'] as Map<String, dynamic>?),
+  name: json['name'] as String,
+  url: json['url'] as String?,
   parent: json['parent'] == null
       ? null
       : TrustedParty.fromJson(json['parent'] as Map<String, dynamic>),
@@ -108,7 +102,7 @@ Map<String, dynamic> _$LogoImageToJson(LogoImage instance) => <String, dynamic>{
 Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
   credentialId: json['credential_id'] as String,
   hash: json['hash'] as String,
-  name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+  name: json['name'] as String,
   issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
   credentialInstanceIds:
       (json['credential_instance_ids'] as Map<String, dynamic>).map(
@@ -127,9 +121,7 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
       .toList(),
   revoked: json['revoked'] as bool,
   revocationSupported: json['revocation_supported'] as bool,
-  issueUrl: TranslatedValue.fromJson(
-    json['issue_url'] as Map<String, dynamic>?,
-  ),
+  issueUrl: json['issue_url'] as String?,
   image: json['image'] == null
       ? null
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),

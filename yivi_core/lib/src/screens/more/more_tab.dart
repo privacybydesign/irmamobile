@@ -7,6 +7,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
+import "../../widgets/lock_gate.dart";
 import "../../widgets/section_header.dart";
 import "../../widgets/yivi_themed_button.dart";
 import "../home/widgets/irma_nav_bar.dart";
@@ -132,6 +133,12 @@ class _MoreTabState extends State<MoreTab> {
               style: YiviButtonStyle.filled,
               label: "more_tab.log_out",
               onPressed: () {
+                // Confirm the deliberate logout so the user understands they
+                // were logged out and the PIN screen is not asking for a PIN in
+                // order to log out. Shown by the lock overlay rather than from
+                // here: on this tab's ScaffoldMessenger the snackbar also paints
+                // in this Scaffold, which stays mounted under the overlay.
+                confirmLogoutOnNextLock = true;
                 // userInitiated: skip the "scan on launch" auto-biometric on
                 // the lock screen that follows an explicit logout.
                 IrmaRepositoryProvider.of(context).lock(userInitiated: true);

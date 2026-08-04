@@ -300,7 +300,10 @@ class _CredentialsTypeList extends StatelessWidget {
               credentialName: c.name,
               issuerName: c.issuer.name,
               credentialImageBase64: c.image != null
-                  ? Base64Image(base64: c.image!.base64)
+                  ? Base64Image(
+                      base64: c.image!.base64,
+                      mimeType: c.image!.mimeType,
+                    )
                   : null,
               onTap: () => context.pushCredentialsDetailsScreen(
                 CredentialsDetailsRouteParams(credentialTypeId: c.credentialId),
@@ -372,7 +375,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
           onReorderEnd: (index) {
             HapticFeedback.mediumImpact();
           },
-          onReorder: controller.reorder,
+          onReorderItem: controller.reorder,
           proxyDecorator: (child, index, animation) {
             // ReorderableListView is a bit wanky when using padding to create space between cards.
             // It will show a shadow around the padded area, which looks weird. Therefore we remove the shadow altogether.
@@ -395,7 +398,10 @@ class _ReorderableCredentialList extends ConsumerWidget {
                   credentialName: cred.name,
                   issuerName: cred.issuer.name,
                   credentialImageBase64: cred.image != null
-                      ? Base64Image(base64: cred.image!.base64)
+                      ? Base64Image(
+                          base64: cred.image!.base64,
+                          mimeType: cred.image!.mimeType,
+                        )
                       : null,
                   onTap: () => context.pushCredentialsDetailsScreen(
                     CredentialsDetailsRouteParams(
