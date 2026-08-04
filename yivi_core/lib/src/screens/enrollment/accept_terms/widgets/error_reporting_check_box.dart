@@ -20,25 +20,52 @@ class ErrorReportingCheckBox extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final repo = IrmaRepositoryProvider.of(context);
 
+    // The visible label is assembled from three spans so the middle one can
+    // open the info sheet. Translating each part once and sharing it with the
+    // screen reader label below keeps the spoken sentence identical to the
+    // written one in every locale.
+    final optional = FlutterI18n.translate(
+      context,
+      "enrollment.error_reporting.accept.optional",
+    );
+    final shareErrors = FlutterI18n.translate(
+      context,
+      "enrollment.error_reporting.accept.share_errors",
+    );
+    final withYivi = FlutterI18n.translate(
+      context,
+      "enrollment.error_reporting.accept.with_yivi",
+    );
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        StreamBuilder(
-          stream: repo.preferences.getReportErrors(),
-          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-            final value = snapshot.hasData && snapshot.data!;
+        // The label lives in a sibling widget, so the checkbox itself has no
+        // accessible name — merge one in, so a screen reader announces the
+        // label together with the checkbox role and its checked state. The
+        // rich text keeps its own semantics, which is what makes the
+        // info-sheet link reachable.
+        MergeSemantics(
+          child: Semantics(
+            label: "$optional: $shareErrors $withYivi",
+            child: StreamBuilder(
+              stream: repo.preferences.getReportErrors(),
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                final value = snapshot.hasData && snapshot.data!;
 
-            return Checkbox(
-              key: const Key("error_reporting_checkbox"),
-              value: value,
-              onChanged: (isAccepted) {
-                if (isAccepted != null) {
-                  repo.preferences.setReportErrors(isAccepted);
-                }
+                return Checkbox(
+                  key: const Key("error_reporting_checkbox"),
+                  value: value,
+                  onChanged: (isAccepted) {
+                    if (isAccepted != null) {
+                      repo.preferences.setReportErrors(isAccepted);
+                    }
+                  },
+                  activeColor: theme.themeData.colorScheme.secondary,
+                );
               },
-              activeColor: theme.themeData.colorScheme.secondary,
-            );
-          },
+            ),
+          ),
         ),
         SizedBox(width: theme.smallSpacing),
         Flexible(
@@ -49,23 +76,15 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   style: theme.textTheme.bodyMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
-                  text:
-                      '${FlutterI18n.translate(context, 'enrollment.error_reporting.accept.optional')}: ',
+                  text: "$optional: ",
                 ),
                 TextSpan(
                   style: theme.hyperlinkTextStyle,
                   recognizer: TapGestureRecognizer()
                     ..onTap = () => _showErrorReportingInfoBottomSheet(context),
-                  text: FlutterI18n.translate(
-                    context,
-                    "enrollment.error_reporting.accept.share_errors",
-                  ),
+                  text: shareErrors,
                 ),
-                TextSpan(
-                  style: theme.textTheme.bodyMedium,
-                  text:
-                      ' ${FlutterI18n.translate(context, 'enrollment.error_reporting.accept.with_yivi')}',
-                ),
+                TextSpan(style: theme.textTheme.bodyMedium, text: " $withYivi"),
               ],
             ),
           ),
