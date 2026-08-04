@@ -17,9 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Credential logos supplied as SVG now render correctly instead of appearing blank
 - The loading spinner is red on every screen; on some screens it was grey
 - Finishing or dismissing a session while the app believes a session is still active underneath it no longer pops every screen off the navigation stack, which left the app unusable until it was restarted
+- The Data tab no longer briefly reloads once an hour, nor every few tens of seconds while you hold a revoked credential: the wallet re-reads its credentials only when something about them actually changed
 
 ### Internal
-- Upgrade irmago to v1.2.1-0.20260729155208-d5a83aa50c04
+- The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
 - Add an integration test for switching the app language
