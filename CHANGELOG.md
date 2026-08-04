@@ -18,12 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The loading spinner is red on every screen; on some screens it was grey
 - Finishing or dismissing a session while the app believes a session is still active underneath it no longer pops every screen off the navigation stack, which left the app unusable until it was restarted
 - The Data tab no longer briefly reloads once an hour, nor every few tens of seconds while you hold a revoked credential: the wallet re-reads its credentials only when something about them actually changed
+- A screen reader now reads out what the terms and conditions checkbox is for, instead of only that it is a checkbox and whether it is ticked; the link to the terms stays separately reachable next to it
+- The same for the optional error reporting checkbox, and the sentence beside it is read as one phrase rather than broken into "Optional:", "Share error messages and app status" and "with Yivi"
+- On the PIN screen, a screen reader announces the "Enter your PIN" heading and how many digits you have entered as separate items; the whole screen used to be a single item that fused the two and offered a pointless tap
+- The screen that sends you back to your browser on iOS is read out as soon as it appears, so you are told what to do rather than being left on a silent screen, and the decorative arrow is no longer announced as an unnamed image
 
 ### Internal
 - The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
 - Add an integration test for switching the app language
+- Add widget tests asserting the semantics of the two enrollment checkboxes, the PIN screen and the iOS back-to-browser screen, so the labels, roles and live regions screen readers rely on are covered
 - Updated Git submodules
 - Fix swallowed errors on cancelling embedded issuance flows
 - The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release

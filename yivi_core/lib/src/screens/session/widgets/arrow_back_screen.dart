@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_svg/svg.dart";
 import "package:native_device_orientation/native_device_orientation.dart";
 
@@ -112,6 +113,10 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                   SvgPicture.asset(
                     yiviAsset("arrow_back/pointing_up.svg"),
                     width: 250,
+                    // The arrow repeats the instruction below it visually, so
+                    // it is decorative: without this it shows up as a nameless
+                    // image a screen reader stops on.
+                    excludeFromSemantics: true,
                   ),
                   SizedBox(height: theme.hugeSpacing),
                   RotatedBox(
@@ -119,25 +124,39 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                     child: SizedBox(
                       // Set a fixed width when in landscape mode, otherwise the text will be too wide.
                       width: isNativeLandscape ? 250 : null,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: TranslatedText(
-                              infoText,
-                              style: theme.textTheme.displayLarge,
-                              textAlign: TextAlign.center,
+                      // The control this screen points at is the iOS status bar
+                      // back link, which the app cannot label. This screen
+                      // replaces the session body instead of pushing a route, so
+                      // VoiceOver does not announce it on its own: make the
+                      // outcome and the instruction one live region, so they are
+                      // read out as soon as the screen appears.
+                      child: Semantics(
+                        key: const Key("arrow_back_semantics"),
+                        liveRegion: true,
+                        label:
+                            "${FlutterI18n.translate(context, infoText)}\n"
+                            "${FlutterI18n.translate(context, "arrow_back.safari")}",
+                        excludeSemantics: true,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: TranslatedText(
+                                infoText,
+                                style: theme.textTheme.displayLarge,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: theme.mediumSpacing),
-                          Flexible(
-                            child: TranslatedText(
-                              "arrow_back.safari",
-                              style: theme.textTheme.bodyMedium,
-                              textAlign: TextAlign.center,
+                            SizedBox(height: theme.mediumSpacing),
+                            Flexible(
+                              child: TranslatedText(
+                                "arrow_back.safari",
+                                style: theme.textTheme.bodyMedium,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
