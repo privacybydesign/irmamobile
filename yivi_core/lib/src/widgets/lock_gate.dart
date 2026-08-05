@@ -14,7 +14,9 @@ import "../screens/pin/providers/biometric_provider.dart";
 import "../screens/pin/widgets/biometric_opt_in_dialog.dart";
 import "../screens/reset_pin/reset_pin_screen.dart";
 import "../screens/terms_changed/terms_changed_dialog.dart";
+import "../theme/theme.dart";
 import "../widgets/irma_app_bar.dart";
+import "../widgets/translated_text.dart";
 
 /// Routes that bypass the lock overlay. Conceptually the inverse of
 /// the previous `whiteListedOnLocked` redirect-whitelist: with the
@@ -29,6 +31,14 @@ const _unlockedPathPrefixes = {
   "/update_required",
   "/error",
 };
+
+/// One-shot: set by the More tab's Log out button so the lock overlay that
+/// follows can confirm the logout. Read and cleared on the overlay's first
+/// build.
+///
+/// A top-level bool rather than app state: one writer, one reader, alive for one
+/// frame. Promote to repository state if a second caller ever needs it.
+bool confirmLogoutOnNextLock = false;
 
 /// Top-level overlay-style lock. Sits inside `MaterialApp.router`'s
 /// `builder` so it wraps every route the router renders. When the app
@@ -130,36 +140,57 @@ class _LockGateState extends ConsumerState<LockGate> {
           // usual Navigator operations (showDialog, modal sheets, pop
           // dialogs) — `Navigator.of(context)` resolves to THIS nav,
           // which is what we want for overlay-internal interactions.
+          //
+          // Own ScaffoldMessenger so a snackbar shown here reaches only the
+          // overlay's Scaffold. A messenger paints its snackbar in *every*
+          // registered root Scaffold, and [child]'s Scaffold stays mounted
+          // underneath — on the root messenger the logout confirmation was
+          // rendered twice, once in the hidden tree and once here.
           Positioned.fill(
-            child: Navigator(
-              onGenerateRoute: (_) => MaterialPageRoute<void>(
-                builder: (innerCtx) => TermsChangedListener(
-                  child: PinScreen(
-                    allowBiometric: true,
-                    onAuthenticated: () {
-                      if (context.mounted) {
-                        context.read<HomeTabState>().add(IrmaNavBarTab.data);
-                      }
-                    },
-                    // Push ResetPinScreen onto the overlay's local
-                    // Navigator. Keeps the forgot-pin flow contained
-                    // in the lock overlay — no GoRouter bridge
-                    // needed. ResetPinScreen dispatches
-                    // ClearAllDataEvent on reset, which flips
-                    // `appLocked=false`; LockGate drops the overlay
-                    // and the GoRouter redirect handles the rest
-                    // (unenrolled → /enrollment).
-                    onForgotPin: () => Navigator.of(innerCtx).push(
-                      MaterialPageRoute<void>(builder: (_) => ResetPinScreen()),
-                    ),
-                    leading: YiviAppBarQrCodeButton(
-                      // Same sheet entry point as the home-screen QR
-                      // button — the modal opens on this local
-                      // Navigator (since `innerCtx` is below it), sits
-                      // on top of PinScreen, and the scanner queues
-                      // the pointer for `PendingPointerListener` to
-                      // pick up after PIN unlock.
-                      onTap: () => openQrCodeScanner(innerCtx),
+            child: ScaffoldMessenger(
+              child: _LogoutConfirmation(
+                child: Navigator(
+                  onGenerateRoute: (_) => MaterialPageRoute<void>(
+                    builder: (innerCtx) => TermsChangedListener(
+                      child: PinScreen(
+                        allowBiometric: true,
+                        onAuthenticated: () {
+                          if (context.mounted) {
+                            context.read<HomeTabState>().add(
+                              IrmaNavBarTab.data,
+                            );
+                          }
+                        },
+                        // Push ResetPinScreen onto the overlay's local
+                        // Navigator. Keeps the forgot-pin flow contained
+                        // in the lock overlay — no GoRouter bridge
+                        // needed. ResetPinScreen dispatches
+                        // ClearAllDataEvent on reset, which flips
+                        // `appLocked=false`; LockGate drops the overlay
+                        // and the GoRouter redirect handles the rest
+                        // (unenrolled → /enrollment).
+                        onForgotPin: () {
+                          // The logout confirmation explains why *this* screen
+                          // is asking for a PIN; it has nothing to say on the
+                          // reset flow, and the messenger would otherwise keep
+                          // it up over the pushed route.
+                          ScaffoldMessenger.of(innerCtx).hideCurrentSnackBar();
+                          Navigator.of(innerCtx).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => ResetPinScreen(),
+                            ),
+                          );
+                        },
+                        leading: YiviAppBarQrCodeButton(
+                          // Same sheet entry point as the home-screen QR
+                          // button — the modal opens on this local
+                          // Navigator (since `innerCtx` is below it), sits
+                          // on top of PinScreen, and the scanner queues
+                          // the pointer for `PendingPointerListener` to
+                          // pick up after PIN unlock.
+                          onTap: () => openQrCodeScanner(innerCtx),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -169,4 +200,45 @@ class _LockGateState extends ConsumerState<LockGate> {
       ],
     );
   }
+}
+
+/// Shows the logout confirmation once, on the [ScaffoldMessenger] above it, when
+/// [confirmLogoutOnNextLock] is set. Lives inside the overlay so the message
+/// appears on the PIN screen the user is actually looking at — and only there.
+class _LogoutConfirmation extends StatefulWidget {
+  final Widget child;
+  const _LogoutConfirmation({required this.child});
+
+  @override
+  State<_LogoutConfirmation> createState() => _LogoutConfirmationState();
+}
+
+class _LogoutConfirmationState extends State<_LogoutConfirmation> {
+  @override
+  void initState() {
+    super.initState();
+    if (!confirmLogoutOnNextLock) return;
+    confirmLogoutOnNextLock = false;
+    // Post-frame: the messenger's State is only reachable once this subtree is
+    // mounted.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final theme = IrmaTheme.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: TranslatedText(
+            "more_tab.logged_out_toast",
+            style: theme.themeData.textTheme.bodySmall!.copyWith(
+              color: theme.light,
+            ),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: theme.themeData.colorScheme.secondary,
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

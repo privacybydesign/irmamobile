@@ -245,6 +245,20 @@ Future<void> issueCredentials(
   bool declineOffer = false,
   int? sdJwtBatchSize,
 }) async {
+  // Credential and attribute names in the issuance permission are resolved by
+  // irmago, not by Flutter, so an explicitly requested locale has to reach the
+  // Go client as well. Setting the in-app language preference is the only way
+  // to do that mid-run: IrmaRepository turns the change into a SetLocaleEvent,
+  // while AppReadyEvent's locale only counts on the first bridge start, which
+  // for test_all.dart is the whole run. Tests that don't ask for a locale leave
+  // the preference alone, so "use system language" keeps its default.
+  if (locale != null) {
+    await irmaBinding.repository.preferences.setPreferredLanguageCode(
+      locale.languageCode,
+    );
+    await tester.pumpAndSettle();
+  }
+
   locale ??= Locale("en", "EN");
   final groupedAttributes = groupAttributes(attributes);
   await startIssuanceSession(
@@ -282,9 +296,11 @@ Future<void> issueCredentials(
   for (final credTypeId in groupedAttributes.keys) {
     final credType =
         irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
+    // findsWidgets, not `.last` + findsOneWidget: `.last` throws an opaque
+    // "Bad state: No element" when nothing matches, hiding the real mismatch.
     expect(
-      find.text(credType.name.translate(locale.languageCode)).last,
-      findsOneWidget,
+      find.text(credType.name.translate(locale.languageCode)),
+      findsWidgets,
     );
   }
 

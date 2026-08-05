@@ -6,10 +6,8 @@ import "../../models/log_entry.dart";
 import "../../models/schemaless/credential_store.dart";
 import "../../models/schemaless/schemaless_events.dart";
 import "../../models/schemaless/session_state.dart";
-import "../../models/translated_value.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";
-import "../../util/language.dart";
 import "../base64_image.dart";
 import "../information_box.dart";
 import "../irma_card.dart";
@@ -21,8 +19,8 @@ import "yivi_credential_card_footer.dart";
 import "yivi_credential_card_header.dart";
 
 class YiviCredentialCard extends ConsumerWidget {
-  final TranslatedValue credentialName;
-  final TranslatedValue issuerName;
+  final String credentialName;
+  final String issuerName;
   final List<Attribute> attributes;
   final CredentialCardStatus status;
   final bool compact;
@@ -73,7 +71,10 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: credential.name,
          issuerName: credential.issuer.name,
          image: credential.image != null
-             ? Base64Image(base64: credential.image!.base64)
+             ? Base64Image(
+                 base64: credential.image!.base64,
+                 mimeType: credential.image!.mimeType,
+               )
              : null,
          attributes: credential.attributes,
          status: CredentialCardStatus(
@@ -111,7 +112,10 @@ class YiviCredentialCard extends ConsumerWidget {
          issuerName: instance.issuer.name,
          imagePath: instance.imagePath,
          image: instance.image != null
-             ? Base64Image(base64: instance.image!.base64)
+             ? Base64Image(
+                 base64: instance.image!.base64,
+                 mimeType: instance.image!.mimeType,
+               )
              : null,
          attributes: instance.attributes,
          status: CredentialCardStatus(
@@ -147,7 +151,10 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          image: descriptor.image != null
-             ? Base64Image(base64: descriptor.image!.base64)
+             ? Base64Image(
+                 base64: descriptor.image!.base64,
+                 mimeType: descriptor.image!.mimeType,
+               )
              : null,
          attributes: descriptor.attributes
              .where(
@@ -208,7 +215,10 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: descriptor.name,
          issuerName: descriptor.issuer.name,
          image: descriptor.image != null
-             ? Base64Image(base64: descriptor.image!.base64)
+             ? Base64Image(
+                 base64: descriptor.image!.base64,
+                 mimeType: descriptor.image!.mimeType,
+               )
              : null,
          attributes: descriptor.attributes,
          status: CredentialCardStatus(
@@ -243,7 +253,10 @@ class YiviCredentialCard extends ConsumerWidget {
          credentialName: logCredential.name,
          issuerName: logCredential.issuer.name,
          image: logCredential.image != null
-             ? Base64Image(base64: logCredential.image!.base64)
+             ? Base64Image(
+                 base64: logCredential.image!.base64,
+                 mimeType: logCredential.image!.mimeType,
+               )
              : null,
          attributes: logCredential.attributes,
          status: CredentialCardStatus(
@@ -266,10 +279,10 @@ class YiviCredentialCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final displayName = credentialName.isNotEmpty
-        ? getTranslation(context, credentialName)
+        ? credentialName
         : (status.credentialId ?? "");
     final displayIssuerName = issuerName.isNotEmpty
-        ? getTranslation(context, issuerName)
+        ? issuerName
         : FlutterI18n.translate(context, "ui.unknown");
 
     return IrmaCard(

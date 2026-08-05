@@ -55,7 +55,7 @@ Future<OpenID4VCIOfferResponse> startOpenID4VCISession({
   request.write(jsonEncode(body));
 
   final response = await request.close();
-  final responseBody = await response.transform(utf8.decoder).first;
+  final responseBody = await response.transform(utf8.decoder).join();
 
   if (response.statusCode != 200) {
     throw Exception(

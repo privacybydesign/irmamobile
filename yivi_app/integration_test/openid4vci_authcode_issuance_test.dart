@@ -435,7 +435,7 @@ Future<OpenID4VCIAuthCodeOfferResponse> startAuthCodeOpenID4VCISession({
   createRequest.write(jsonEncode(body));
 
   final createResponse = await createRequest.close();
-  final createBody = await createResponse.transform(utf8.decoder).first;
+  final createBody = await createResponse.transform(utf8.decoder).join();
 
   if (createResponse.statusCode != 200) {
     throw Exception(
@@ -451,7 +451,7 @@ Future<OpenID4VCIAuthCodeOfferResponse> startAuthCodeOpenID4VCISession({
   final fetchUri = Uri.parse("$_issuerBaseUrl/get-credential-offer/$id");
   final fetchRequest = await HttpClient().getUrl(fetchUri);
   final fetchResponse = await fetchRequest.close();
-  final fetchBody = await fetchResponse.transform(utf8.decoder).first;
+  final fetchBody = await fetchResponse.transform(utf8.decoder).join();
 
   if (fetchResponse.statusCode != 200) {
     throw Exception(
@@ -488,7 +488,7 @@ Future<String> getAuthCodeFromMockAS({
   );
   final request = await HttpClient().getUrl(uri);
   final response = await request.close();
-  final body = await response.transform(utf8.decoder).first;
+  final body = await response.transform(utf8.decoder).join();
 
   if (response.statusCode != 200) {
     throw Exception(

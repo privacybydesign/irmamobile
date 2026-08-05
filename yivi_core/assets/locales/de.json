@@ -557,7 +557,8 @@
     "privacy_policy": "Yivi-Datenschutzrichtlinie",
     "privacy_policy_link": "https://www.yivi.app/en/privacy",
     "app_id": "App-ID {id}",
-    "log_out": "Abmelden"
+    "log_out": "Abmelden",
+    "logged_out_toast": "Sie wurden abgemeldet"
   },
   "pin": {
     "subtitle": "Geben Sie Ihre PIN ein",

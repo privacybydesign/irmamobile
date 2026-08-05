@@ -7,11 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Face verification for document (passport, ID card, driving licence) issuance: after reading the chip over NFC, the app runs a Regula liveness session and passes the resulting liveness transaction id to the passport issuer, which matches the live face against the chip portrait. The Play Store / App Store build uses Regula's native Face SDK; the F-Droid build runs Regula's web Face SDK in an embedded WebView that loads a Yivi-hosted capture page, so no proprietary native code ships in the APK.
-- Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
+- Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
+- Support for Token Status List revocation of SD-JWT credentials issued over OpenID4VCI
+
+### Changed
+- Credential and issuer text is resolved in the app language by the Go client instead of being picked in the app, and text the issuer did not translate falls back to English, or to a language it did supply, rather than reading "[translation missing]"
+- Logos missing for the language you use are fetched in the background at startup and after a language switch, and appear once they arrive
 
 ### Fixed
+- Credential logos supplied as SVG now render correctly instead of appearing blank
+- The loading spinner is red on every screen; on some screens it was grey
+- Finishing or dismissing a session while the app believes a session is still active underneath it no longer pops every screen off the navigation stack, which left the app unusable until it was restarted
+- The Data tab no longer briefly reloads once an hour, nor every few tens of seconds while you hold a revoked credential: the wallet re-reads its credentials only when something about them actually changed
+- A screen reader now reads out what the terms and conditions checkbox is for, instead of only that it is a checkbox and whether it is ticked; the link to the terms stays separately reachable next to it
+- The same for the optional error reporting checkbox, and the sentence beside it is read as one phrase rather than broken into "Optional:", "Share error messages and app status" and "with Yivi"
+- On the PIN screen, a screen reader announces the "Enter your PIN" heading and how many digits you have entered as separate items; the whole screen used to be a single item that fused the two and offered a pointless tap
+- The screen that sends you back to your browser on iOS is read out as soon as it appears, so you are told what to do rather than being left on a silent screen, and the decorative arrow is no longer announced as an unnamed image
+
+### Internal
+- The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
+- Remove the unused RecentActivity widget
+- Add an integration test for the required-update screen
+- Add an integration test for switching the app language
+- Add widget tests asserting the semantics of the two enrollment checkboxes, the PIN screen and the iOS back-to-browser screen, so the labels, roles and live regions screen readers rely on are covered
+- Updated Git submodules
+- Fix swallowed errors on cancelling embedded issuance flows
+- The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
+
+## [8.1.2] - 2026-07-22
+### Added
+- Ask engaged users to rate Yivi after their fifth successful session; users who are not happy are offered a private feedback box instead of the app store (Play Store version only)
+- Solve a proof-of-work challenge before requesting an SMS verification code in the embedded issuance flow, to make automated bulk requests expensive (no-op against issuers that do not hand out a challenge)
+
+### Fixed
+- Universal-link sessions are gated behind the PIN on a warm resume too, not only on cold start: when the app auto-locks after being idle and is then opened by a session link, biometric (Face ID / fingerprint) is withheld while a session is pending or in flight, so it can't unlock ahead of the incoming session
 - Scanning a desktop QR code with the phone's camera app is again treated as a second-device session instead of running the same-device return flow
 - On a second-device session, the relying party's client return URL is no longer opened in a browser on the phone (the browser session lives on the other device); the wallet confirms success locally instead. A `tel:` return URL still opens the phone dialer.
+- You now get the option to obtain a new credential when you already have a suitable credential in disclosure requests with pre-defined values
+
+### Internal
+- Upgrade irmago to v1.2.0
 
 ## [8.1.1] - 2026-07-14
 ### Fixed
@@ -655,6 +690,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.1.2]: https://github.com/privacybydesign/irmamobile/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/privacybydesign/irmamobile/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/privacybydesign/irmamobile/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/privacybydesign/irmamobile/compare/v7.13.5...v8.0.0
