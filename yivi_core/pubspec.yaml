@@ -58,6 +58,8 @@ dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
+      # v3.9.0 adds RawDocumentData.livenessTransactionId (+ copyWith) and
+      # VerificationResponse.faceMatch used by face verification.
       # v3.9.1 skips Active Authentication when the chip has no DG15 (fixes
       # 6A88 read failures on documents that use Chip Authentication, e.g. UK).
       # From v3.9.x the package lives one directory deeper, hence `path`.
