@@ -8,8 +8,10 @@ final passportIssuerUrlProvider = NotifierProvider(
 );
 
 final passportIssuerProvider = Provider<PassportIssuer>(
-  (ref) =>
-      DefaultPassportIssuer(hostName: ref.watch(passportIssuerUrlProvider)),
+  (ref) => DefaultPassportIssuer(
+    hostName: ref.watch(passportIssuerUrlProvider),
+    allowedIrmaHosts: ["is.yivi.app", "is.staging.yivi.app"],
+  ),
 );
 
 class ErrorThrowingPassportIssuer implements PassportIssuer {
