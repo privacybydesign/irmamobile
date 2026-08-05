@@ -94,7 +94,7 @@ LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
       formats: (json['formats'] as List<dynamic>)
           .map((e) => $enumDecode(_$CredentialFormatEnumMap, e))
           .toList(),
-      name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+      name: json['name'] as String,
       issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
       attributes: (json['attributes'] as List<dynamic>)
           .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
@@ -103,11 +103,7 @@ LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
       revocationSupported: json['revocation_supported'] as bool,
       issuanceDate: (json['issuance_date'] as num?)?.toInt(),
       expiryDate: (json['expiry_date'] as num?)?.toInt(),
-      issueUrl: json['issue_url'] == null
-          ? null
-          : TranslatedValue.fromJson(
-              json['issue_url'] as Map<String, dynamic>?,
-            ),
+      issueUrl: json['issue_url'] as String?,
       image: json['image'] == null
           ? null
           : LogoImage.fromJson(json['image'] as Map<String, dynamic>),

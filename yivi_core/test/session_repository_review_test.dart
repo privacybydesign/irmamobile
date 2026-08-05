@@ -9,7 +9,6 @@ import "package:yivi_core/src/data/session_repository.dart";
 import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
-import "package:yivi_core/src/models/translated_value.dart";
 
 class _RecordingBridge extends IrmaBridge {
   @override
@@ -24,7 +23,7 @@ SessionStateEvent _event(int id, SessionStatus status) => SessionStateEvent(
     status: status,
     requestor: TrustedParty(
       id: "requestor",
-      name: TranslatedValue.fromString("Test"),
+      name: "Test",
       url: null,
       parent: null,
       verified: false,

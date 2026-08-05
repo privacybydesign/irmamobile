@@ -93,6 +93,24 @@ void main() {
       expect(homeScreenFinder, findsOneWidget);
     });
 
+    testWidgets("logout-shows-notification", (tester) async {
+      // A deliberate logout should confirm to the user that they have been
+      // logged out, so the PIN screen does not look like it is asking for a
+      // PIN in order to log out.
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+      // Open more tab
+      await tester.tapAndSettle(moreTabButtonFinder);
+
+      // Logout
+      await tester.scrollUntilVisible(logoutButtonFinder, 100);
+      await tester.tapAndSettle(logoutButtonFinder);
+
+      // Expect to land on the PIN screen with the logout confirmation snackbar.
+      await tester.waitFor(pinScreenFinder);
+      expect(find.text("You have been logged out"), findsOneWidget);
+    });
+
     testWidgets("blocked-pin", (tester) async {
       // Scenario 2 of login process: User is blocked after 3 failed attempts.
       // Initialize the app for integration tests

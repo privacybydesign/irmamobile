@@ -1777,7 +1777,7 @@ Future<String> startOpenID4VPSession(Map<String, dynamic> dcqlQuery) async {
   request.write(authReqReqJson);
 
   final response = await request.close();
-  final responseBody = await response.transform(utf8.decoder).first;
+  final responseBody = await response.transform(utf8.decoder).join();
 
   if (response.statusCode != 200) {
     throw "Status ${response.statusCode}: $responseBody";

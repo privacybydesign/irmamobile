@@ -262,6 +262,7 @@ class IrmaThemeData {
       textTheme: textTheme,
       appBarTheme: appBarTheme,
       inputDecorationTheme: inputDecorationTheme,
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
     );
   }
 }

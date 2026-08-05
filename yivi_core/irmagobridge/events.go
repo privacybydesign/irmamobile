@@ -71,6 +71,10 @@ type installCertificateEvent struct {
 	PemContent string `json:"pem_content"`
 }
 
+type setLocaleEvent struct {
+	Locale string `json:"locale"`
+}
+
 // //
 // Outgoing events
 // //
