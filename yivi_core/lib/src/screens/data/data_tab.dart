@@ -21,6 +21,15 @@ import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
 
 class DataTab extends ConsumerStatefulWidget {
+  const DataTab({super.key, required this.scanButtonKey});
+
+  // Key of the scan-QR button in the home screen. The 'pointing man' image on the
+  // empty wallet uses the button's location to calculate the correct angle to point to.
+  // We can't use a completely global key, as that would cause problems since GoRouter
+  // keeps multiple instances of a page alive for transitions, so the home screen passes
+  // its key down the widget tree.
+  final GlobalKey scanButtonKey;
+
   @override
   ConsumerState<DataTab> createState() => _DataTabState();
 }
@@ -28,12 +37,6 @@ class DataTab extends ConsumerStatefulWidget {
 class _DataTabState extends ConsumerState<DataTab> {
   bool _searchActive = false;
   final _focusNode = FocusNode();
-
-  // We use the global key of the add_data button to provide the 'pointing man' image with the
-  // global location of the button, so it can calculate the correct angle to point to.
-  // We don't want a completely global key, as that would cause problems since GoRouter keeps multiple instances
-  // of a page alive for transitions, so we have to pass it down the widget tree.
-  final _addDataButtonKey = GlobalKey(debugLabel: "add_data_button_key");
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +69,7 @@ class _DataTabState extends ConsumerState<DataTab> {
             onTap: _openSearch,
           ),
           IrmaIconButton(
-            key: _addDataButtonKey,
+            key: const Key("add_data_button"),
             icon: CupertinoIcons.add_circled_solid,
             size: 28,
             onTap: context.pushAddDataScreen,
@@ -76,7 +79,7 @@ class _DataTabState extends ConsumerState<DataTab> {
       body: SafeArea(
         child: SizedBox(
           height: double.infinity,
-          child: _AllCredentialsList(addDataButtonKey: _addDataButtonKey),
+          child: _AllCredentialsList(scanButtonKey: widget.scanButtonKey),
         ),
       ),
     );
@@ -103,43 +106,42 @@ class _DataTabState extends ConsumerState<DataTab> {
 
 // ============================================================================================
 
-// Image of a man that always points towards the add data button to indicate that button should be pressed
-class _ToAddDataButtonPointingImage extends StatefulWidget {
-  const _ToAddDataButtonPointingImage({required this.addDataButtonKey});
+// Image of a man that always points towards the scan-QR button to indicate that button should be pressed
+class _ToScanButtonPointingImage extends StatefulWidget {
+  const _ToScanButtonPointingImage({required this.scanButtonKey});
 
-  final GlobalKey addDataButtonKey;
+  final GlobalKey scanButtonKey;
 
   @override
-  State<_ToAddDataButtonPointingImage> createState() =>
-      _ToAddDataButtonPointingImageState();
+  State<_ToScanButtonPointingImage> createState() =>
+      _ToScanButtonPointingImageState();
 }
 
-class _ToAddDataButtonPointingImageState
-    extends State<_ToAddDataButtonPointingImage> {
-  final _imageKey = GlobalKey(debugLabel: "to_add_data_pointing_image_key");
+class _ToScanButtonPointingImageState
+    extends State<_ToScanButtonPointingImage> {
+  final _imageKey = GlobalKey(debugLabel: "to_scan_button_pointing_image_key");
   static const pi = 3.1415;
   double rotationAngle = 0.0;
 
   double _calculateRotation() {
-    final addDataButtonRenderBox =
-        widget.addDataButtonKey.currentContext?.findRenderObject()
-            as RenderBox?;
+    final scanButtonRenderBox =
+        widget.scanButtonKey.currentContext?.findRenderObject() as RenderBox?;
     final imageRenderBox =
         _imageKey.currentContext?.findRenderObject() as RenderBox?;
 
-    if (imageRenderBox == null || addDataButtonRenderBox == null) {
+    if (imageRenderBox == null || scanButtonRenderBox == null) {
       return 100.0;
     }
 
-    final plusButtonCenter = addDataButtonRenderBox.localToGlobal(
-      addDataButtonRenderBox.size.center(Offset.zero),
+    final scanButtonCenter = scanButtonRenderBox.localToGlobal(
+      scanButtonRenderBox.size.center(Offset.zero),
     );
     final imageCenter = imageRenderBox.localToGlobal(
       imageRenderBox.size.center(Offset.zero),
     );
 
-    final deltaX = plusButtonCenter.dx - imageCenter.dx;
-    final deltaY = imageCenter.dy - plusButtonCenter.dy;
+    final deltaX = scanButtonCenter.dx - imageCenter.dx;
+    final deltaY = imageCenter.dy - scanButtonCenter.dy;
     final targetAngle = atan2(deltaY, deltaX);
 
     final referenceAngleDeg =
@@ -159,7 +161,7 @@ class _ToAddDataButtonPointingImageState
     });
 
     return Transform(
-      key: const Key("to_add_data_button_pointing_image"),
+      key: const Key("to_scan_button_pointing_image"),
       alignment: Alignment.center,
       transform: Matrix4.identity()
         ..rotateY(pi) // 180-degree flip (π radians)
@@ -173,9 +175,9 @@ class _ToAddDataButtonPointingImageState
 }
 
 class _NoCredentialsYet extends StatelessWidget {
-  const _NoCredentialsYet({required this.addDataButtonKey});
+  const _NoCredentialsYet({required this.scanButtonKey});
 
-  final GlobalKey addDataButtonKey;
+  final GlobalKey scanButtonKey;
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +218,7 @@ class _NoCredentialsYet extends StatelessWidget {
               ],
             ),
           ),
-          _ToAddDataButtonPointingImage(addDataButtonKey: addDataButtonKey),
+          _ToScanButtonPointingImage(scanButtonKey: scanButtonKey),
         ],
       ),
     );
@@ -232,7 +234,7 @@ class _NoCredentialsYet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: theme.defaultSpacing),
-            _ToAddDataButtonPointingImage(addDataButtonKey: addDataButtonKey),
+            _ToScanButtonPointingImage(scanButtonKey: scanButtonKey),
             SizedBox(height: theme.largeSpacing),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -257,9 +259,9 @@ class _NoCredentialsYet extends StatelessWidget {
 }
 
 class _AllCredentialsList extends ConsumerWidget {
-  const _AllCredentialsList({required this.addDataButtonKey});
+  const _AllCredentialsList({required this.scanButtonKey});
 
-  final GlobalKey addDataButtonKey;
+  final GlobalKey scanButtonKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -268,7 +270,7 @@ class _AllCredentialsList extends ConsumerWidget {
     return switch (credentials) {
       AsyncData(:final value) =>
         value.isEmpty
-            ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
+            ? _NoCredentialsYet(scanButtonKey: scanButtonKey)
             : _ReorderableCredentialList(),
       AsyncError(:final error) => Text(error.toString()),
       _ => CircularProgressIndicator(),
