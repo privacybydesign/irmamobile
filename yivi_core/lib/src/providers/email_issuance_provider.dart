@@ -42,7 +42,9 @@ class DefaultEmailIssuerApi implements EmailIssuerApi {
     required String emailAddress,
     required String language,
   }) async {
-    debugPrint("Sending email for: $emailAddress");
+    if (kDebugMode) {
+      debugPrint("Sending email for: $emailAddress");
+    }
     final payload = jsonEncode({"email": emailAddress, "language": language});
     final url = "$host/api/embedded/send";
     final response = await http.post(
