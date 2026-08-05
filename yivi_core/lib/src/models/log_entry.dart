@@ -49,6 +49,9 @@ enum CredentialFormat {
 
   @JsonValue("dc+sd-jwt")
   sdjwtvc,
+
+  @JsonValue("mso_mdoc")
+  msoMdoc,
 }
 
 @JsonSerializable(createToJson: false, fieldRename: FieldRename.snake)

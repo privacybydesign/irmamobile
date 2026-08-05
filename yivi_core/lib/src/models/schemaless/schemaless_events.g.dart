@@ -152,4 +152,5 @@ Map<String, dynamic> _$CredentialToJson(Credential instance) =>
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };

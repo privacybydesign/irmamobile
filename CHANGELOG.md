@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Git submodules
 - Fix swallowed errors on cancelling embedded issuance flows
 - The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
+- Recognise the `mso_mdoc` credential format in event payloads, so that mdoc credentials from the Go client decode instead of throwing away the whole payload
 
 ## [8.1.2] - 2026-07-22
 ### Added
