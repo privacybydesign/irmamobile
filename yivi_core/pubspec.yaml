@@ -63,7 +63,7 @@ dependencies:
       # Active Authentication when the chip has no DG15 (fixes 6A88 read
       # failures on documents that use Chip Authentication, e.g. UK).
       # From v3.9.x the package lives one directory deeper, hence `path`.
-      ref: v3.9.1
+      ref: fix/edl-active-authentication-dg13
       path: vcmrtd
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1

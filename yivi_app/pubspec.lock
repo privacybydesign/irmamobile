@@ -1369,8 +1369,8 @@ packages:
     dependency: "direct dev"
     description:
       path: vcmrtd
-      ref: "v3.9.1"
-      resolved-ref: e2b80c941ce2decd626674f5e0899f3bd854aba8
+      ref: "fix/edl-active-authentication-dg13"
+      resolved-ref: ef95106f0ecfbe71db9ac4fc925c63617357b1e3
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"
