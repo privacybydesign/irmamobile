@@ -460,8 +460,8 @@
   "email_issuance": {
     "enter_email": {
       "title": "E-mailadres toevoegen",
-      "header": "Voer je e-mailadres in",
-      "body": "Wij sturen je een e-mail met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
+      "header": "Voer je eigen e-mailadres in",
+      "body": "Wij sturen je een e-mail met een verificatiecode om te controleren dat dit e-mailadres van jou is. Deze code moet je invullen bij de volgende stap.",
       "error": "Er ging iets fout bij het versturen van de verificatiecode.",
       "email_hint": "Voer je e-mailadres in...",
       "next_button": "E-mail versturen",
