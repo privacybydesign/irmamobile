@@ -8,8 +8,24 @@ final passportIssuerUrlProvider = NotifierProvider(
 );
 
 final passportIssuerProvider = Provider<PassportIssuer>(
+  (ref) => DefaultPassportIssuer(
+    hostName: ref.watch(passportIssuerUrlProvider),
+    allowedIrmaHosts: ["is.yivi.app", "is.staging.yivi.app"],
+  ),
+);
+
+/// The Regula web capture page used by the FOSS liveness flow, served by the
+/// passport issuer itself under `/capture`.
+///
+/// Derived from [passportIssuerUrlProvider], which the repository sets to the
+/// issuer origin named by the scheme when an issuance flow starts. A staging
+/// scheme therefore reaches the staging capture page and a production scheme the
+/// production one, instead of a hardcoded host that has to be promoted by hand
+/// for release. The liveness transaction has to be created on the Face API that
+/// same issuer matches against, so these two must not be able to drift apart.
+final faceCaptureUrlProvider = Provider<Uri>(
   (ref) =>
-      DefaultPassportIssuer(hostName: ref.watch(passportIssuerUrlProvider)),
+      Uri.parse(ref.watch(passportIssuerUrlProvider)).replace(path: "/capture"),
 );
 
 class ErrorThrowingPassportIssuer implements PassportIssuer {
