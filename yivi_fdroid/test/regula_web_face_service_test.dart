@@ -102,6 +102,7 @@ void main() {
 
     test("returns the completed result", () async {
       final service = RegulaWebFaceService(
+        captureUrl: Uri.parse("https://issuer.example/capture"),
         present: (_) async => const FaceCaptureMessage.completed(
           RegulaLivenessResult(isLive: true, transactionId: "txn-ok"),
         ),
@@ -115,6 +116,7 @@ void main() {
 
     test("throws when the session is aborted", () async {
       final service = RegulaWebFaceService(
+        captureUrl: Uri.parse("https://issuer.example/capture"),
         present: (_) async => const FaceCaptureMessage.aborted("cancelled"),
       );
 
@@ -122,7 +124,10 @@ void main() {
     });
 
     test("throws when the route is dismissed without a result", () async {
-      final service = RegulaWebFaceService(present: (_) async => null);
+      final service = RegulaWebFaceService(
+        captureUrl: Uri.parse("https://issuer.example/capture"),
+        present: (_) async => null,
+      );
 
       expect(service.captureLiveness(), throwsStateError);
     });

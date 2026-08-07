@@ -20,19 +20,14 @@ import "face_liveness_message.dart";
 /// Store / App Store build.
 class RegulaWebFaceService implements RegulaFaceService {
   RegulaWebFaceService({
-    Uri? captureUrl,
+    required this.captureUrl,
     @visibleForTesting Future<FaceCaptureMessage?> Function(Uri url)? present,
-  }) : captureUrl = captureUrl ?? Uri.parse(defaultCaptureUrl),
-       _present = present ?? _presentInWebView;
+  }) : _present = present ?? _presentInWebView;
 
-  /// The capture page, co-hosted on the Face SDK Web Service origin so the
-  /// browser → service calls are same-origin (no CORS). Defaults to the same
-  /// environment the native `RegulaFaceServiceImpl.defaultServiceUrl` points
-  /// at; promote to the production host together with the native build for
-  /// release.
-  static const String defaultCaptureUrl =
-      "https://faceapi.staging.yivi.app/capture";
-
+  /// The capture page, served by the passport issuer under `/capture` so the
+  /// liveness transaction is created on the Face API that same issuer matches
+  /// against. Supplied by the caller from `faceCaptureUrlProvider` rather than
+  /// defaulted, so no environment is ever pinned at compile time.
   final Uri captureUrl;
   final Future<FaceCaptureMessage?> Function(Uri url) _present;
 

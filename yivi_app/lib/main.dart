@@ -16,7 +16,9 @@ void main() {
     smsRetriever: Platform.isAndroid
         ? SmartAuthSmsRetriever(SmartAuth.instance)
         : null,
-    regulaFaceService: RegulaFaceServiceImpl(),
+    // The native SDK talks to the Regula Face API directly, so unlike the FOSS
+    // build it needs nothing from the provider graph.
+    regulaFaceService: (_) => RegulaFaceServiceImpl(),
     storeReviewService: InAppReviewStoreReviewService(),
   );
 }
