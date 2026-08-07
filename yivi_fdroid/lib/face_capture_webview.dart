@@ -1,6 +1,8 @@
 // yivi_core exposes its theme and shared widgets only under lib/src (no public
 // barrel), so the Yivi chrome here must import them by their src path.
 // ignore_for_file: implementation_imports
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:webview_flutter/webview_flutter.dart";
 import "package:webview_flutter_android/webview_flutter_android.dart";
@@ -65,8 +67,7 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
             }
           },
         ),
-      )
-      ..loadRequest(widget.captureUrl);
+      );
 
     // Grant the in-page camera request. `getUserMedia` is served over HTTPS
     // (a secure context), so the WebView surfaces a platform permission request
@@ -74,8 +75,17 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
     final platform = controller.platform;
     if (platform is AndroidWebViewController) {
       platform.setOnPlatformPermissionRequest((request) => request.grant());
+      // Android WebView requires a user gesture before any media playback,
+      // unlike browsers, which autoplay a camera MediaStream freely. Without
+      // this the capture page acquires the stream and then dies on
+      // `NotAllowedError: play() can only be initiated by a user gesture`,
+      // leaving a live but invisible camera.
+      unawaited(platform.setMediaPlaybackRequiresUserGesture(false));
     }
 
+    // Load only once the platform settings above are in place, so the page is
+    // never evaluated under the default autoplay policy.
+    unawaited(controller.loadRequest(widget.captureUrl));
     _controller = controller;
   }
 
