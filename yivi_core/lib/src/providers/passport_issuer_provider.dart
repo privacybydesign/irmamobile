@@ -7,9 +7,25 @@ final passportIssuerUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier("https://passport-issuer.staging.yivi.app"),
 );
 
+/// Hosts the passport issuer is allowed to hand the app an `irma_server_url`
+/// for.
+///
+/// [DefaultPassportIssuer] posts the IRMA JWT, which carries the raw biometric
+/// chip scan, to the `irma_server_url` the passport issuer returns, and refuses
+/// any host outside this list. The IRMA server runs on a different host than
+/// the passport issuer, so listing it explicitly is required: the constructor
+/// default is the host of [passportIssuerUrlProvider], which never matches.
+/// Both environments are listed because [passportIssuerUrlProvider] is set at
+/// runtime from the issue URL in the scheme.
+final allowedIrmaHostsProvider = Provider<Set<String>>(
+  (ref) => const {"is.yivi.app", "is.staging.yivi.app"},
+);
+
 final passportIssuerProvider = Provider<PassportIssuer>(
-  (ref) =>
-      DefaultPassportIssuer(hostName: ref.watch(passportIssuerUrlProvider)),
+  (ref) => DefaultPassportIssuer(
+    hostName: ref.watch(passportIssuerUrlProvider),
+    allowedIrmaHosts: ref.watch(allowedIrmaHostsProvider),
+  ),
 );
 
 class ErrorThrowingPassportIssuer implements PassportIssuer {

@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The same for the optional error reporting checkbox, and the sentence beside it is read as one phrase rather than broken into "Optional:", "Share error messages and app status" and "with Yivi"
 - On the PIN screen, a screen reader announces the "Enter your PIN" heading and how many digits you have entered as separate items; the whole screen used to be a single item that fused the two and offered a pointless tap
 - The screen that sends you back to your browser on iOS is read out as soon as it appears, so you are told what to do rather than being left on a silent screen, and the decorative arrow is no longer announced as an unnamed image
+- Reading a driving licence now performs Active Authentication when the chip carries the licence's authentication key in DG13; it was previously only performed for documents that store that key in DG15, so it was never attempted for a licence
 
 ### Internal
 - The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
@@ -32,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Git submodules
 - Fix swallowed errors on cancelling embedded issuance flows
 - The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
+- Upgrade vcmrtd to v4.0.0: the BAC, PACE and secure-messaging MAC comparisons are constant-time, and the challenge/response and APDU hex dumps are behind the sensitive-data log gate rather than plain verbose logging
+- The passport issuer's session URL is checked before the IRMA JWT carrying the chip scan is posted to it: it must be https and on an explicit allowlist of IRMA server hosts
 
 ## [8.1.2] - 2026-07-22
 ### Added
