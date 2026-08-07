@@ -60,8 +60,13 @@ dependencies:
       url: https://github.com/privacybydesign/vcmrtd.git
       # v3.9.1 skips Active Authentication when the chip has no DG15 (fixes
       # 6A88 read failures on documents that use Chip Authentication, e.g. UK).
-      # From v3.9.x the package lives one directory deeper, hence `path`.
-      ref: v3.9.1
+      # As of v4.0.0 the repo is a multi-package monorepo: the NFC reading
+      # library is the `vcmrtd` package (hence `path`), while MRZ scanning lives
+      # in a separate `mrz_capture` package and face verification in
+      # `face_verification`. We only consume `vcmrtd`; the app keeps its own
+      # scanner so the F-Droid build stays free of Google ML Kit, which
+      # `mrz_capture` would pull in.
+      ref: v4.0.0
       path: vcmrtd
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1
