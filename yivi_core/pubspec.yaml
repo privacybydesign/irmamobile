@@ -58,8 +58,11 @@ dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      # v3.9.1 skips Active Authentication when the chip has no DG15 (fixes
-      # 6A88 read failures on documents that use Chip Authentication, e.g. UK).
+      # Active Authentication is attempted only when the chip carries an AA
+      # public key (fixes 6A88 read failures on documents that use Chip
+      # Authentication, e.g. UK). As of v4.0.0 that means DG15 for passports
+      # and ID cards, and DG13 for driving licences, which before v4.0.0
+      # never attempted AA at all.
       # As of v4.0.0 the repo is a multi-package monorepo: the NFC reading
       # library is the `vcmrtd` package (hence `path`), while MRZ scanning lives
       # in a separate `mrz_capture` package and face verification in
