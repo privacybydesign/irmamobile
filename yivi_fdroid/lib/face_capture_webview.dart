@@ -85,8 +85,28 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
 
     // Load only once the platform settings above are in place, so the page is
     // never evaluated under the default autoplay policy.
-    unawaited(controller.loadRequest(widget.captureUrl));
+    unawaited(_loadCapturePage(controller));
     _controller = controller;
+  }
+
+  /// Clears the WebView cache, then loads the capture page.
+  ///
+  /// The page is served without `Cache-Control` or `ETag`, so the WebView falls
+  /// back to heuristic freshness and can pin a stale build — and with it a stale
+  /// Face API URL, yielding liveness transactions the issuer cannot resolve.
+  /// Clearing also covers the lazily-loaded chunks the page pulls in, which a
+  /// request header on the document could not reach. The durable fix is
+  /// `Cache-Control: no-store` on the served page.
+  Future<void> _loadCapturePage(WebViewController controller) async {
+    try {
+      await controller.clearCache();
+      await controller.loadRequest(widget.captureUrl);
+    } catch (e) {
+      // Without a load there is nothing to capture with, and no
+      // onWebResourceError will ever fire; fail the session explicitly rather
+      // than leaving the user on a permanent spinner.
+      _resolve(FaceCaptureMessage.aborted("capture page failed to load: $e"));
+    }
   }
 
   void _onChannelMessage(JavaScriptMessage message) {
