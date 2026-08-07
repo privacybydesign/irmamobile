@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Git submodules
 - Fix swallowed errors on cancelling embedded issuance flows
 - The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
+- Upgrade the Android Kotlin Gradle plugin from 2.2.0 to 2.3.20, resolving the Flutter build warning that support for the old Kotlin version would soon be dropped
 
 ## [8.1.2] - 2026-07-22
 ### Added
