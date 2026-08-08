@@ -109,7 +109,15 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     try {
       error = await resultFuture;
     } on TimeoutException {
-      // Installing the scheme took too long. We therefore assume that it failed.
+      // No result within the window. The install may still be in progress, or a
+      // genuine failure may arrive later; either way we no longer observe it, so
+      // tell the user rather than silently dropping the outcome.
+      if (mounted) {
+        showSnackbar(
+          context,
+          FlutterI18n.translate(context, "debug.scheme_management.timeout"),
+        );
+      }
       return;
     }
 
@@ -144,7 +152,15 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     try {
       error = await resultFuture;
     } on TimeoutException {
-      // Updating the schemes took too long. We therefore assume that it failed.
+      // No result within the window. The update may still be in progress, or a
+      // genuine failure may arrive later; either way we no longer observe it, so
+      // tell the user rather than silently dropping the outcome.
+      if (mounted) {
+        showSnackbar(
+          context,
+          FlutterI18n.translate(context, "debug.scheme_management.timeout"),
+        );
+      }
       return;
     }
 

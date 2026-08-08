@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:developer";
 
 import "package:flutter/material.dart";
+import "package:flutter_i18n/flutter_i18n.dart";
 
 import "../../../models/certificate_events.dart";
 import "../../../models/error_event.dart";
@@ -16,6 +17,7 @@ import "../../error/error_screen.dart";
 import "../cert_management/widgets/cert_manager_tile.dart";
 import "../cert_management/widgets/provide_cert_dialog.dart";
 import "../util/await_action_result.dart";
+import "../util/snackbar.dart";
 
 class CertificateManagementScreen extends StatefulWidget {
   @override
@@ -76,7 +78,15 @@ class _CertificateManagementScreenState
     try {
       error = await resultFuture;
     } on TimeoutException {
-      // Installing the certificate took too long. We assume that it failed.
+      // No result within the window. The install may still be in progress, or a
+      // genuine failure may arrive later; either way we no longer observe it, so
+      // tell the user rather than silently dropping the outcome.
+      if (mounted) {
+        showSnackbar(
+          context,
+          FlutterI18n.translate(context, "debug.cert_management.timeout"),
+        );
+      }
       return;
     }
 

@@ -1,7 +1,5 @@
 import "dart:async";
 
-import "package:rxdart/rxdart.dart";
-
 import "../../../data/irma_repository.dart";
 import "../../../models/error_event.dart";
 import "../../../models/event.dart";
@@ -16,18 +14,52 @@ import "../../../models/event.dart";
 /// revocation-witness update returning a 404), which would then be shown as if
 /// the user's action had failed.
 ///
-/// The stream is subscribed to synchronously when this function is called (an
-/// async function runs up to its first `await` synchronously), so callers
-/// should start it *before* dispatching the action to avoid missing the
-/// resulting event. Throws [TimeoutException] if neither event arrives in time.
+/// The event stream is subscribed to synchronously when this function is
+/// called, so callers should start listening *before* dispatching the action
+/// to avoid missing the resulting event.
+///
+/// Completes with a [TimeoutException] if neither event arrives within
+/// [timeout], or with a [StateError] if the event stream closes first (e.g. the
+/// repository is torn down while the action is in flight). The underlying
+/// subscription and timeout timer are always cancelled before the returned
+/// future completes, so a timed-out call does not leak a listener.
 Future<ErrorEvent?> awaitActionResult<T extends Event>(
   IrmaRepository repo, {
   required Duration timeout,
-}) async {
-  final result = await Rx.merge<Event>([
-    repo.getEvents().whereType<ErrorEvent>(),
-    repo.getEvents().whereType<T>(),
-  ]).first.timeout(timeout);
+}) {
+  final completer = Completer<ErrorEvent?>();
 
-  return result is ErrorEvent ? result : null;
+  final subscription = repo.getEvents().listen(
+    (event) {
+      if (completer.isCompleted) return;
+      if (event is ErrorEvent) {
+        completer.complete(event);
+      } else if (event is T) {
+        completer.complete(null);
+      }
+    },
+    onError: (Object error, StackTrace stackTrace) {
+      if (!completer.isCompleted) completer.completeError(error, stackTrace);
+    },
+    onDone: () {
+      if (!completer.isCompleted) {
+        completer.completeError(
+          StateError("event stream closed before the action produced a result"),
+        );
+      }
+    },
+  );
+
+  final timer = Timer(timeout, () {
+    if (!completer.isCompleted) {
+      completer.completeError(
+        TimeoutException("no action result within timeout", timeout),
+      );
+    }
+  });
+
+  return completer.future.whenComplete(() {
+    timer.cancel();
+    subscription.cancel();
+  });
 }
