@@ -273,3 +273,24 @@ func (ah *eventHandler) installCertificate(event *installCertificateEvent) error
 	dispatchConfigurationEvent()
 	return nil
 }
+
+func (ah *eventHandler) removeCertificate(event *removeCertificateEvent) error {
+	conf := yiviClient.GetEudiConfiguration()
+
+	switch event.Type {
+	case "issuer":
+		if err := conf.Issuers.RemoveCertificate(event.Thumbprint); err != nil {
+			return err
+		}
+	case "verifier":
+		if err := conf.Verifiers.RemoveCertificate(event.Thumbprint); err != nil {
+			return err
+		}
+	}
+
+	// Reload configuration to drop the removed certificate
+	conf.Reload()
+
+	dispatchConfigurationEvent()
+	return nil
+}

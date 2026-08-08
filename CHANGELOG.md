@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
+- Certificates installed through the debug certificate management screen can now be deleted again from that screen
 - Support for Token Status List revocation of SD-JWT credentials issued over OpenID4VCI
 
 ### Changed
