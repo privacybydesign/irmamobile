@@ -2,7 +2,6 @@ import "dart:async";
 import "dart:developer";
 
 import "package:flutter/material.dart";
-import "package:rxdart/rxdart.dart";
 
 import "../../../models/certificate_events.dart";
 import "../../../models/error_event.dart";
@@ -16,6 +15,7 @@ import "../../../widgets/translated_text.dart";
 import "../../error/error_screen.dart";
 import "../cert_management/widgets/cert_manager_tile.dart";
 import "../cert_management/widgets/provide_cert_dialog.dart";
+import "../util/await_action_result.dart";
 
 class CertificateManagementScreen extends StatefulWidget {
   @override
@@ -25,20 +25,6 @@ class CertificateManagementScreen extends StatefulWidget {
 
 class _CertificateManagementScreenState
     extends State<CertificateManagementScreen> {
-  StreamSubscription? _errorSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final repo = IrmaRepositoryProvider.of(context);
-      _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
-        _onErrorEvent,
-      );
-    });
-  }
-
   Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
@@ -71,23 +57,37 @@ class _CertificateManagementScreenState
       return;
     }
 
+    // Start listening for the result before dispatching, scoped to this action
+    // so unrelated background errors are not mistaken for an install failure.
+    // On success the handler re-dispatches the (EUDI) configuration, which also
+    // refreshes the certificate list below.
+    final resultFuture = awaitActionResult<EudiConfigurationEvent>(
+      repo,
+      timeout: const Duration(seconds: 5),
+    );
     repo.bridgedDispatch(
       InstallCertificateEvent(
         type: newCert.type,
         pemContent: newCert.pemContent,
       ),
     );
+
+    ErrorEvent? error;
+    try {
+      error = await resultFuture;
+    } on TimeoutException {
+      // Installing the certificate took too long. We assume that it failed.
+      return;
+    }
+
+    if (mounted && error != null) {
+      await _onErrorEvent(error);
+    }
   }
 
   void _onCertificateTileTap(String thumbprint) =>
       log("Tapped certificate with thumbprint $thumbprint");
   //Navigator.of(context).push(MaterialPageRoute(builder: (context) => CertManagerDetailScreen(trustAnchorId)));
-
-  @override
-  void dispose() {
-    _errorSubscription?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
