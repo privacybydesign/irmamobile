@@ -75,7 +75,10 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 			c := &Cert{
 				Thumbprint: fmt.Sprintf("%x", cert.Signature),
 				Subject:    cert.Subject.CommonName,
-				Deleteable: false,
+				// Only the chain's top-level (leaf) certificate is removable:
+				// its thumbprint names the chain's file on disk, and removing
+				// it removes the whole chain.
+				Deleteable: parentCert == nil,
 			}
 
 			if parentCert != nil {
@@ -105,7 +108,10 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 			c := &Cert{
 				Thumbprint: fmt.Sprintf("%x", cert.Signature),
 				Subject:    cert.Subject.CommonName,
-				Deleteable: false,
+				// Only the chain's top-level (leaf) certificate is removable:
+				// its thumbprint names the chain's file on disk, and removing
+				// it removes the whole chain.
+				Deleteable: parentCert == nil,
 			}
 
 			if parentCert != nil {

@@ -1008,6 +1008,8 @@
         "title": "Install certificate",
         "content": "Fill in the PEM encoded content of the certificate you want to install:"
       },
+      "remove_cert": "Remove certificate",
+      "removed": "Certificate removed",
       "warning_dialog": {
         "title": "Warning!",
         "content": "Adding and removing certificates can break your app. Only continue this if you know what you are doing."

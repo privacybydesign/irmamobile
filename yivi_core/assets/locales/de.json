@@ -1008,6 +1008,8 @@
         "title": "Zertifikat installieren",
         "content": "Geben Sie den PEM-kodierten Inhalt des zu installierenden Zertifikats ein:"
       },
+      "remove_cert": "Zertifikat entfernen",
+      "removed": "Zertifikat entfernt",
       "warning_dialog": {
         "title": "Warnung!",
         "content": "Das Hinzufügen und Entfernen von Zertifikaten kann Ihre App beschädigen. Fahren Sie nur fort, wenn Sie wissen, was Sie tun."
