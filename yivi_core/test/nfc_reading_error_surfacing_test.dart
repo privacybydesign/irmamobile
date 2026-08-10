@@ -6,6 +6,7 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:vcmrtd/extensions.dart";
@@ -72,6 +73,31 @@ class _AnnouncingPassportIssuer implements PassportIssuer {
   @override
   Future<VerificationResponse> verifyDrivingLicence(RawDocumentData data) =>
       throw UnimplementedError();
+}
+
+/// Announcing issuer whose issuance call fails with [message], so the flow
+/// reaches the issuance error screen with face verification active.
+class _FailingIssuanceIssuer extends _AnnouncingPassportIssuer {
+  _FailingIssuanceIssuer(this.message);
+
+  final String message;
+
+  @override
+  Future<IrmaSessionPointer> startIrmaIssuanceSession(
+    RawDocumentData documentDataResult,
+    DocumentType docType,
+  ) async => throw Exception(message);
+}
+
+/// Liveness service that completes with a transaction id, so the flow gets past
+/// the liveness step and on to issuance.
+class _PassingFaceService implements RegulaFaceService {
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<RegulaLivenessResult> captureLiveness({String? languageCode}) async =>
+      const RegulaLivenessResult(isLive: true, transactionId: "txn-1");
 }
 
 /// Liveness service whose session is held open by [gate], standing in for the
@@ -278,6 +304,42 @@ Future<void> _pumpFrames(WidgetTester tester) async {
   }
 }
 
+/// The error illustrations the tree is currently showing. Other routes carry
+/// their own SVGs, so this keeps only the ones from the error asset folder.
+Set<String> _errorIllustrations(WidgetTester tester) => tester
+    .widgetList<SvgPicture>(find.byType(SvgPicture))
+    .map((svg) => svg.bytesLoader)
+    .whereType<SvgAssetLoader>()
+    .map((loader) => loader.assetName)
+    .where((name) => name.contains("error/"))
+    .toSet();
+
+/// Runs the face flow to the issuance error screen, with issuance failing with
+/// [issuanceError], and returns the illustrations that error screen picked.
+Future<Set<String>> _illustrationForIssuanceError(
+  WidgetTester tester,
+  String issuanceError,
+) async {
+  await _pumpNfcScreen(
+    tester,
+    _FailingIssuanceIssuer(issuanceError),
+    reader: _SucceedingPassportReader(),
+    faceService: _PassingFaceService(),
+  );
+
+  await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find.descendant(
+      of: find.byType(FaceVerificationIntroScreen),
+      matching: find.byKey(const Key("bottom_bar_primary")),
+    ),
+  );
+  await _pumpFrames(tester);
+
+  return _errorIllustrations(tester);
+}
+
 void main() {
   testWidgets("a liveness failure after the screen is gone reaches the error "
       "screen, replacing the route it came from", (tester) async {
@@ -344,6 +406,31 @@ void main() {
     // instead of throwing a full-screen error over where they navigated to.
     expect(find.text("elsewhere"), findsOneWidget);
     expect(find.textContaining("issuer unreachable"), findsNothing);
+  });
+
+  testWidgets("a rejected face match gets the failed-face illustration", (
+    tester,
+  ) async {
+    final shown = await _illustrationForIssuanceError(
+      tester,
+      "Store failed: 400 face mismatch",
+    );
+    expect(shown, hasLength(1));
+    expect(shown.single, contains("failed_face_verification.svg"));
+  });
+
+  testWidgets("another issuance failure that happens to contain 400 does not", (
+    tester,
+  ) async {
+    // The detection keys off the issuer's `Store failed: 400`, not a bare
+    // "400" anywhere in the message — an unrelated failure whose body carries
+    // those digits must not be reported to the user as a face mismatch.
+    final shown = await _illustrationForIssuanceError(
+      tester,
+      "Store failed: 500 internal error (request 400abc)",
+    );
+    expect(shown, hasLength(1));
+    expect(shown.single, contains("general_error_illustration.svg"));
   });
 
   testWidgets("a failure while the screen is up stays in the screen", (
