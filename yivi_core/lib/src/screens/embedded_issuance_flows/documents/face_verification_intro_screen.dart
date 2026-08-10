@@ -8,9 +8,8 @@ import "widgets/face_verification_animation.dart";
 
 /// Yivi-themed intro shown after a successful document readout and before the
 /// Regula liveness session. It replaces Regula's built-in "Time for a selfie"
-/// onboarding (which is skipped) so the copy, theming and the privacy
-/// statement are fully under our control and localised through the app's own
-/// i18n.
+/// onboarding (which is skipped) so the copy and theming are fully under our
+/// control and localised through the app's own i18n.
 ///
 /// Buttons invoke [onStart] / [onCancel]; use [show] to present it as a route
 /// that resolves to whether the user chose to continue.

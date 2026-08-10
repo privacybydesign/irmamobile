@@ -783,7 +783,7 @@
   },
   "face_verification": {
     "title": "Gesichtsverifizierung",
-    "preparing": "Einen Moment, deine Daten werden vorbereitet…",
+    "preparing": "Einen Moment, Ihre Daten werden vorbereitet…",
     "intro": {
       "explanation": "Wir führen jetzt eine kurze Gesichtsprüfung durch, um zu bestätigen, dass Sie die im Dokument abgebildete Person sind.",
       "tip_camera": "Richten Sie die Selfie-Kamera auf Ihr Gesicht.",

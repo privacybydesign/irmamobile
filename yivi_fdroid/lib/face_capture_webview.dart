@@ -72,9 +72,19 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
     // Grant the in-page camera request. `getUserMedia` is served over HTTPS
     // (a secure context), so the WebView surfaces a platform permission request
     // that we forward to the already-granted app-level camera permission.
+    // Only the camera: the page can also ask for the microphone, MIDI SysEx or
+    // protected media ids, and liveness needs none of them, so those are denied
+    // here rather than left to what the manifest happens to hold.
     final platform = controller.platform;
     if (platform is AndroidWebViewController) {
-      platform.setOnPlatformPermissionRequest((request) => request.grant());
+      platform.setOnPlatformPermissionRequest(
+        (request) =>
+            request.types.every(
+              (t) => t == WebViewPermissionResourceType.camera,
+            )
+            ? request.grant()
+            : request.deny(),
+      );
       // Android WebView requires a user gesture before any media playback,
       // unlike browsers, which autoplay a camera MediaStream freely. Without
       // this the capture page acquires the stream and then dies on

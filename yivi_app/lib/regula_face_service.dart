@@ -48,7 +48,7 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
 
   /// When true, Regula's built-in "Time for a selfie" onboarding screen is
   /// skipped. Defaults to true: the app shows its own Yivi-themed
-  /// FaceVerificationIntroScreen (with the privacy statement) before this runs.
+  /// FaceVerificationIntroScreen before this runs.
   final bool skipOnboarding;
 
   /// When true, the liveness UI shows a close (X) button so the user can abort
