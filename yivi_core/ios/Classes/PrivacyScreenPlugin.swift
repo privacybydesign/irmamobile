@@ -53,6 +53,14 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
     }
 
     @objc static func appDidEnterBackground(_ notification:Notification) {
+        // Suspensions cover system UI drawn in front of a foregrounded app, and
+        // that UI cannot outlive the app leaving the foreground: iOS invalidates
+        // the NFC session, and a biometric prompt is torn down and re-presented.
+        // So a suspension still standing here is stale, and dropping it means a
+        // resumePrivacyScreen that never arrived — Dart killed mid-flow, a debug
+        // hot restart — costs the resign-active blur only until the next time the
+        // app is backgrounded, instead of for the rest of the process.
+        suspendCount = 0
         addBlur(notification)
     }
 

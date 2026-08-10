@@ -20,6 +20,11 @@ class PrivacyScreen {
   /// [disablePrivacyScreen], which switches the privacy screen off outright.
   ///
   /// Suspensions nest, and are always undone, including when [action] throws.
+  /// Backgrounding the app drops them too: the system UI they cover cannot
+  /// outlive the app leaving the foreground, so a suspension that never made it
+  /// back — the isolate killed mid-flow, a debug hot restart — costs the blur
+  /// until the next time the app is backgrounded, not for the rest of the
+  /// process.
   static Future<T> suspendDuring<T>(Future<T> Function() action) async {
     await _channel.invokeMethod("suspendPrivacyScreen");
     try {
