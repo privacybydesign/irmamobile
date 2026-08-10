@@ -49,10 +49,13 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
 
     @objc static func appWillResignActive(_ notification:Notification) {
         // Accepted gap: the App Switcher gesture also only resigns the app active,
-        // so during a suspended flow the switcher card shows the live screen. The
-        // two suspended screens are the NFC scanning animation and the lock screen
-        // behind the biometric prompt, neither of which shows credentials. There is
-        // no way to tell the two causes of resigning apart from here.
+        // so during a suspended flow the switcher card shows the live screen. That
+        // screen is the NFC scanning animation, or whatever the biometric prompt
+        // was raised over: the lock screen, but also Settings, or the unlocked
+        // wallet behind the post-unlock opt-in dialog. For the prompt that is no
+        // worse than before, when authenticate switched the privacy screen off
+        // outright; for the read the card used to be blurred and now is not.
+        // There is no way to tell the two causes of resigning apart from here.
         guard suspendCount == 0 else { return }
         addBlur(notification)
     }
@@ -70,6 +73,11 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
     private static func addBlur(_ notification:Notification) {
         // Never stack overlays: appResumed removes a single view, so any
         // unbalanced add would leave a blur behind on screen for good.
+        //
+        // The original set `v.backgroundColor = .clear` here and never put it
+        // back. Dropped rather than kept: it was a permanent mutation of the root
+        // view for a temporary overlay, and FlutterView covers that view, so it
+        // has nothing to show either way. Not something to restore.
         guard enabled, blurView == nil,
               let application = notification.object as? UIApplication,
               let v = application.keyWindow?.rootViewController?.view else { return }

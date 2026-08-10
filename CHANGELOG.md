@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On the PIN screen, a screen reader announces the "Enter your PIN" heading and how many digits you have entered as separate items; the whole screen used to be a single item that fused the two and offered a pointless tap
 - The screen that sends you back to your browser on iOS is read out as soon as it appears, so you are told what to do rather than being left on a silent screen, and the decorative arrow is no longer announced as an unnamed image
 - Reading a driving licence now performs Active Authentication when the chip carries the licence's authentication key in DG13; it was previously only performed for documents that store that key in DG15, so it was never attempted for a licence
-- On iOS the app is no longer covered by a full-screen blur while the NFC reader sheet is up, so the scanning animation and its progress text stay readable for the whole read. The app switcher still shows the wallet blurred, except during that read and the biometric prompt, where the screen underneath holds no credentials
+- On iOS the app is no longer covered by a full-screen blur while the NFC reader sheet is up, so the scanning animation and its progress text stay readable for the whole read. The biometric prompt is uncovered too, as it already was. While either is up the app switcher shows the screen underneath unblurred: the scanning animation, or whatever the prompt was raised over, which can be the unlocked wallet
 
 ### Internal
 - The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
