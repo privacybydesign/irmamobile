@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On the PIN screen, a screen reader announces the "Enter your PIN" heading and how many digits you have entered as separate items; the whole screen used to be a single item that fused the two and offered a pointless tap
 - The screen that sends you back to your browser on iOS is read out as soon as it appears, so you are told what to do rather than being left on a silent screen, and the decorative arrow is no longer announced as an unnamed image
 - Reading a driving licence now performs Active Authentication when the chip carries the licence's authentication key in DG13; it was previously only performed for documents that store that key in DG15, so it was never attempted for a licence
+- On iOS the app is no longer covered by a full-screen blur while the NFC reader sheet is up, so the scanning animation and its progress text stay readable for the whole read; the same blur also used to sit over the entire Face ID scan. The privacy screen that hides the wallet in the app switcher now waits until the app really goes to the background, instead of also firing for system UI drawn on top of it
 
 ### Internal
 - The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade the Android Kotlin Gradle plugin from 2.2.0 to 2.3.20, resolving the Flutter build warning that support for the old Kotlin version would soon be dropped
 - Upgrade vcmrtd to v4.0.0: the BAC, PACE and secure-messaging MAC comparisons are constant-time, and the challenge/response and APDU hex dumps are behind the sensitive-data log gate rather than plain verbose logging
 - The passport issuer's session URL is checked before the signed IRMA issuance request, which carries the attributes read off the chip, is posted to it: it must be https and on an explicit allowlist of IRMA server hosts
+- The iOS privacy-screen overlay can no longer stack or get stranded on screen: adding it is idempotent, and removing it is no longer skipped when the privacy screen was switched off while the overlay was up. The per-feature suppression around the biometric prompt is gone with it, so the privacy screen is never switched off mid-prompt
 
 ## [8.1.2] - 2026-07-22
 ### Added
