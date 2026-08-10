@@ -24,7 +24,10 @@ void main() {
       expect(message.result!.transactionId, "txn-2");
     });
 
-    test("PROCESS_FINISHED, no transaction id → null id (fail-open)", () {
+    // The parser reports the id as absent; withLivenessTransaction is what
+    // turns that into a failed session, so the issuer never sees a request
+    // whose face check is silently missing.
+    test("PROCESS_FINISHED, no transaction id → null id", () {
       final message = faceCaptureMessageFrom('{"status":"passed"}');
       expect(message.failure, isNull);
       expect(message.result!.isLive, isTrue);

@@ -24,8 +24,10 @@ class FaceCaptureMessage {
 /// mapping the capture page's outcomes to the same outcomes the native Regula
 /// implementation produces so downstream issuance behaviour is identical:
 ///
-/// - `{"status":"passed", "transactionId":...}` — liveness confirmed; the id
-///   (which may be null → issuer skips the match, fail-open) is forwarded.
+/// - `{"status":"passed", "transactionId":...}` — liveness confirmed; the id is
+///   forwarded. A completion without an id is failed by
+///   `withLivenessTransaction`, so the issuer never gets a request whose face
+///   check is silently missing.
 /// - `{"status":"failed", "transactionId":...}` — liveness not confirmed; the
 ///   id is still forwarded and the issuer decides.
 /// - `{"status":"cancelled"}` / `{"status":"error", "message":...}` — the

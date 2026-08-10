@@ -109,23 +109,42 @@ void main() {
       expect(result.aaSignature, data.aaSignature);
     });
 
+    test("fails the session when it yields no transaction id", () async {
+      // The service is non-null, so the issuer announced that face
+      // verification applies to this session. Without a transaction id the
+      // issuance request would carry no face check at all, which must not be
+      // indistinguishable from a passed one.
+      final data = _rawDocument();
+      final fake = _FakeRegulaFaceService(
+        result: const RegulaLivenessResult(isLive: true, transactionId: null),
+      );
+
+      await expectLater(
+        withLivenessTransaction(fake, data),
+        throwsA(isA<StateError>()),
+      );
+      expect(fake.captureCount, 1);
+    });
+
     test(
-      "leaves the request unchanged when the session yields no transaction id",
+      "fails the session when liveness failed without a transaction id",
       () async {
         final data = _rawDocument();
         final fake = _FakeRegulaFaceService(
-          result: const RegulaLivenessResult(isLive: true, transactionId: null),
+          result: const RegulaLivenessResult(
+            isLive: false,
+            transactionId: null,
+          ),
         );
 
-        final result = await withLivenessTransaction(fake, data);
-
-        expect(fake.captureCount, 1);
-        expect(result.livenessTransactionId, isNull);
-        expect(result, same(data));
+        await expectLater(
+          withLivenessTransaction(fake, data),
+          throwsA(isA<StateError>()),
+        );
       },
     );
 
-    test("does not attach a transaction id from a failed liveness", () async {
+    test("attaches the transaction id of a failed liveness", () async {
       // isLive false but a transaction id is present: the id still binds the
       // match server-side, so it is forwarded and the issuer decides.
       final data = _rawDocument();
