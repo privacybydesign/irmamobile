@@ -174,14 +174,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       _issuanceErrorIsFaceMatch = false;
       _preparingIssuance = false;
     });
+    // Capture the root navigator context up front, outside the try. The Regula
+    // liveness UI is a native screen that backgrounds — and on some devices
+    // tears down — this widget, so we must not rely on this screen's own
+    // context/mounted state to navigate to issuance afterwards, or issuance
+    // never opens and the user is left on the successful-readout page. The
+    // catch below needs it for the same reason, so it cannot live in the try.
+    final navContext = Navigator.of(context, rootNavigator: true).context;
     try {
       final passportIssuer = ref.read(passportIssuerProvider);
-      // Capture the root navigator context up front. The Regula liveness UI is
-      // a native screen that backgrounds — and on some devices tears down —
-      // this widget, so we must not rely on this screen's own context/mounted
-      // state to navigate to issuance afterwards, or issuance never opens and
-      // the user is left on the successful-readout page.
-      final navContext = Navigator.of(context, rootNavigator: true).context;
 
       final startValidation = await passportIssuer
           .startSessionAtPassportIssuer();
@@ -252,6 +253,12 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         setState(() {
           issuanceError = e.toString();
         });
+      } else if (navContext.mounted) {
+        // The liveness UI tore this screen down, so there is no State left to
+        // render the in-screen error on. Surface the failure through the root
+        // navigator instead, mirroring _startIssuance, so a failed liveness
+        // session is not silently swallowed.
+        navContext.pushErrorScreen(message: e.toString());
       }
     }
   }
@@ -302,7 +309,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           // (vcmrtd: `Exception('Store failed: 400 …')`); flag it so the error
           // screen shows the dedicated failed-face illustration.
           _issuanceErrorIsFaceMatch =
-              faceVerification && e.toString().contains("400");
+              faceVerification && e.toString().contains("Store failed: 400");
           _preparingIssuance = false;
         });
       } else if (navContext.mounted) {
