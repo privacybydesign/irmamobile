@@ -45,8 +45,10 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      # Must match the ref in yivi_core/pubspec.yaml.
-      ref: v3.9.1
+      # Must match the ref in yivi_core/pubspec.yaml. As of v4.0.0 the repo is a
+      # multi-package monorepo; we consume only the `vcmrtd` package (hence
+      # `path`), not the separate `mrz_capture` scanner module.
+      ref: v4.0.0
       path: vcmrtd
   package_info_plus: ^10.1.0
   collection: ^1.18.0
