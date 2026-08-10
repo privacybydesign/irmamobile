@@ -41,7 +41,13 @@ void main() {
 
       expect(
         () => issuer.validateSessionUrl("https://attacker.example"),
-        throwsException,
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            "message",
+            contains("not in the allowed host list"),
+          ),
+        ),
       );
     });
 
