@@ -50,7 +50,13 @@ void main() {
 
       expect(
         () => issuer.validateSessionUrl("http://is.staging.yivi.app"),
-        throwsException,
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            "message",
+            contains("non-https"),
+          ),
+        ),
       );
     });
   });
