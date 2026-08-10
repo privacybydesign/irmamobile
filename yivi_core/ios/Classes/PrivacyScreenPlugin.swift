@@ -7,7 +7,18 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
 
     static var enabled = true
 
-    private static let blurViewTag = 55
+    /// The overlay currently on screen, if there is one. Kept instead of looked
+    /// up again on removal: `keyWindow` is deprecated and resolves to whichever
+    /// window happens to be key across all connected scenes, so adding to one
+    /// view hierarchy and searching another would strand the blur on screen for
+    /// the rest of the process. Weak, so it drops to nil by itself once the view
+    /// is removed or its hierarchy is torn down.
+    private static weak var blurView: UIVisualEffectView?
+
+    /// How many in-app flows currently need the blur held back, see
+    /// `suspendPrivacyScreen`. A count rather than a flag, so overlapping flows
+    /// cannot un-suspend each other.
+    private static var suspendCount = 0
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "privacy_screen", binaryMessenger: registrar.messenger())
@@ -16,43 +27,55 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
 
         // register events.
         //
-        // We blur on didEnterBackground, not on willResignActive. Both fire when
-        // the app loses focus, but willResignActive also fires for system UI shown
-        // *in front of* a still-foregrounded app — the NFC reader sheet, the OS
-        // biometric prompt, Control Centre, notification banners, incoming calls —
-        // and the app stays resigned for as long as that UI is up. Blurring there
-        // covers our own UI for the entire NFC scan or Face ID scan, which is what
-        // made the NFC scanning screen look blurred. iOS captures the app-switcher
-        // snapshot after applicationDidEnterBackground returns, so the later hook
-        // still hides the app contents in the switcher — the only thing the privacy
-        // screen is for on iOS.
+        // The blur goes up on willResignActive, the last moment the app is
+        // reliably still on screen: swiping up and holding to open the App
+        // Switcher keeps the app foreground-inactive and composites its live
+        // layer tree into the card, and a UIVisualEffectView added once the app
+        // is already in the background is not guaranteed to render its effect.
+        //
+        // willResignActive also fires for system UI drawn in front of a still
+        // foregrounded app — the NFC reader sheet, the OS biometric prompt — and
+        // the app stays resigned for as long as that UI is up, so blurring there
+        // covers our own UI for the whole scan. Those two flows suspend the
+        // privacy screen for their duration instead. didEnterBackground is
+        // observed as well, so leaving the app during such a flow is still
+        // caught: suspension holds back the resign-active blur, never the one
+        // that hides the app in the switcher.
         let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver(self, selector: #selector(appMovedToBackground(_:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(appWillResignActive(_:)), name: UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(appDidEnterBackground(_:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(appResumed(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
-    @objc static func appMovedToBackground(_ notification:Notification) {
-        guard enabled,
+    @objc static func appWillResignActive(_ notification:Notification) {
+        guard suspendCount == 0 else { return }
+        addBlur(notification)
+    }
+
+    @objc static func appDidEnterBackground(_ notification:Notification) {
+        addBlur(notification)
+    }
+
+    private static func addBlur(_ notification:Notification) {
+        // Never stack overlays: appResumed removes a single view, so any
+        // unbalanced add would leave a blur behind on screen for good.
+        guard enabled, blurView == nil,
               let application = notification.object as? UIApplication,
               let v = application.keyWindow?.rootViewController?.view else { return }
-        // Never stack overlays: appResumed removes a single view with this tag, so
-        // any unbalanced add would leave a blur behind on screen for good.
-        guard v.viewWithTag(blurViewTag) == nil else { return }
-        v.backgroundColor = .clear
         let blurEffect = UIBlurEffect(style: .light)
         let blurEffectView = UIVisualEffectView(effect: blurEffect)
         //always fill the view
         blurEffectView.frame = v.bounds
         blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        blurEffectView.tag = blurViewTag
         v.addSubview(blurEffectView)
+        blurView = blurEffectView
     }
 
     @objc static func appResumed(_ notification:Notification) {
         // Deliberately not gated on `enabled`: disabling the privacy screen while
         // the overlay is up would otherwise strand it on screen.
-        guard let application = notification.object as? UIApplication else { return }
-        application.keyWindow?.rootViewController?.view?.viewWithTag(blurViewTag)?.removeFromSuperview()
+        blurView?.removeFromSuperview()
+        blurView = nil
     }
 
 
@@ -64,6 +87,17 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
             break
         case "disablePrivacyScreen":
             PrivacyScreenPlugin.enabled = false;
+            result(true)
+            break
+        // Hold back the blur for a flow that shows system UI on top of the app,
+        // which resigns the app active without backgrounding it. Balanced by
+        // resumePrivacyScreen; leaves the user's screenshot preference alone.
+        case "suspendPrivacyScreen":
+            PrivacyScreenPlugin.suspendCount += 1
+            result(true)
+            break
+        case "resumePrivacyScreen":
+            PrivacyScreenPlugin.suspendCount = max(0, PrivacyScreenPlugin.suspendCount - 1)
             result(true)
             break
         default:

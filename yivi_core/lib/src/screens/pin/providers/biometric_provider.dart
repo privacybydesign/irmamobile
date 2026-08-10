@@ -3,6 +3,7 @@ import "package:local_auth/local_auth.dart";
 
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/preferences_provider.dart";
+import "../../../util/privacy_screen.dart";
 
 /// The local_auth entry point, behind a provider so tests can override it.
 final localAuthProvider = Provider<LocalAuthentication>(
@@ -73,19 +74,23 @@ class BiometricService {
   /// [localizedReason] is shown in the OS prompt.
   Future<bool> authenticate({required String localizedReason}) async {
     final auth = _ref.read(localAuthProvider);
-    // No privacy-screen suppression needed around the OS prompt: the iOS blur
-    // hooks didEnterBackground, not willResignActive, so system UI shown in
-    // front of a still-foregrounded app (this prompt, the NFC reader sheet)
-    // doesn't trigger it. See PrivacyScreenPlugin.swift.
-    try {
-      return await auth.authenticate(
-        localizedReason: localizedReason,
-        biometricOnly: true,
-        persistAcrossBackgrounding: true, // was stickyAuth in local_auth <3
-      );
-    } catch (_) {
-      return false;
-    }
+    // The OS biometric prompt makes the app resign-active. On iOS that fires
+    // the privacy-screen blur, which then covers the whole screen for the full
+    // duration of the Face ID scan (it's only removed once the app becomes
+    // active again) — making Face ID look slow behind a lingering blur. Hold
+    // the privacy screen back for the prompt; leaving the app while it is up
+    // still blurs. See PrivacyScreenPlugin.swift.
+    return PrivacyScreen.suspendDuring(() async {
+      try {
+        return await auth.authenticate(
+          localizedReason: localizedReason,
+          biometricOnly: true,
+          persistAcrossBackgrounding: true, // was stickyAuth in local_auth <3
+        );
+      } catch (_) {
+        return false;
+      }
+    });
   }
 
   /// Lock-screen biometric button: authenticate and, on success, unlock the
