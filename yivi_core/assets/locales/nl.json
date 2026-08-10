@@ -981,6 +981,7 @@
       "update": "Update schema's",
       "updating": "Schema's updaten...",
       "update_success": "Schema's zijn succesvol geüpdatet.",
+      "timeout": "Dit duurt langer dan verwacht; het is mogelijk nog bezig.",
       "install_scheme_dialog": {
         "title": "Schema installeren",
         "content": "Vul de URL in van het schema dat je wilt installeren:"
@@ -1004,6 +1005,7 @@
       "title": "Certificaatbeheer",
       "issuer_certs": "Issuer certificaten",
       "verifier_certs": "Verifier certificaten",
+      "timeout": "Dit duurt langer dan verwacht; het is mogelijk nog bezig.",
       "install_cert_dialog": {
         "title": "Certificaat installeren",
         "content": "Voer de PEM gecodeerde inhoud van het certificaat in dat je wilt installeren:"

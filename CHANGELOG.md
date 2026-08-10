@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reading a driving licence now performs Active Authentication when the chip carries the licence's authentication key in DG13; it was previously only performed for documents that store that key in DG15, so it was never attempted for a licence
 
 ### Internal
+- The debug scheme and certificate management screens no longer surface unrelated non-fatal background errors (such as the periodic revocation update returning a 404) as if the install had failed; error handling is now scoped to the triggering action, and a slow action that produces no result in time shows a "still in progress" message instead of silently dropping the outcome
 - The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen

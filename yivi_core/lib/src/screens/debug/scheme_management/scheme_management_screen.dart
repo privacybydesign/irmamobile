@@ -4,7 +4,6 @@ import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
-import "package:rxdart/rxdart.dart";
 
 import "../../../models/enrollment_events.dart";
 import "../../../models/error_event.dart";
@@ -20,6 +19,7 @@ import "../../../widgets/irma_icon_button.dart";
 import "../../../widgets/progress.dart";
 import "../../../widgets/translated_text.dart";
 import "../../error/error_screen.dart";
+import "../util/await_action_result.dart";
 import "../util/snackbar.dart";
 import "requestor_scheme_detail_screen.dart";
 import "scheme_manager_detail_screen.dart";
@@ -33,20 +33,6 @@ class SchemeManagementScreen extends StatefulWidget {
 }
 
 class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
-  StreamSubscription? _errorSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final repo = IrmaRepositoryProvider.of(context);
-      _errorSubscription = repo.getEvents().whereType<ErrorEvent>().listen(
-        _onErrorEvent,
-      );
-    });
-  }
-
   Future<void> _onErrorEvent(ErrorEvent event) async {
     final navigator = Navigator.of(context);
     // ErrorEvents are automatically reported by the IrmaRepository if error reporting is enabled.
@@ -109,26 +95,43 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
 
     if (!publicKeyConfirmed) return;
 
+    // Start listening for the result before dispatching, scoped to this action
+    // so unrelated background errors are not mistaken for an install failure.
+    final resultFuture = awaitActionResult<EnrollmentStatusEvent>(
+      repo,
+      timeout: const Duration(seconds: 5),
+    );
     repo.bridgedDispatch(
       InstallSchemeEvent(url: schemeUrl, publicKey: publicKey),
     );
 
+    ErrorEvent? error;
     try {
-      await repo.getEvents().whereType<EnrollmentStatusEvent>().first.timeout(
-        const Duration(seconds: 5),
-      );
+      error = await resultFuture;
     } on TimeoutException {
-      // Installing the scheme took too long. We therefore assume that it failed.
-      // Error is sent as ErrorEvent and will be handled by a listener in initState.
+      // No result within the window. The install may still be in progress, or a
+      // genuine failure may arrive later; either way we no longer observe it, so
+      // tell the user rather than silently dropping the outcome.
+      if (mounted) {
+        showSnackbar(
+          context,
+          FlutterI18n.translate(context, "debug.scheme_management.timeout"),
+        );
+      }
       return;
     }
 
-    if (mounted) {
-      showSnackbar(
-        context,
-        FlutterI18n.translate(context, "debug.scheme_management.success"),
-      );
+    if (!mounted) return;
+
+    if (error != null) {
+      await _onErrorEvent(error);
+      return;
     }
+
+    showSnackbar(
+      context,
+      FlutterI18n.translate(context, "debug.scheme_management.success"),
+    );
   }
 
   Future<void> _onUpdateSchemes() async {
@@ -138,27 +141,40 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
     );
 
     final repo = IrmaRepositoryProvider.of(context);
+
+    final resultFuture = awaitActionResult<IrmaConfigurationEvent>(
+      repo,
+      timeout: const Duration(minutes: 1),
+    );
     repo.bridgedDispatch(UpdateSchemesEvent());
 
+    ErrorEvent? error;
     try {
-      await repo.getEvents().whereType<IrmaConfigurationEvent>().first.timeout(
-        const Duration(minutes: 1),
-      );
+      error = await resultFuture;
     } on TimeoutException {
-      // Installing the scheme took too long. We therefore assume that it failed.
-      // Error is sent as ErrorEvent and will be handled by a listener in initState.
+      // No result within the window. The update may still be in progress, or a
+      // genuine failure may arrive later; either way we no longer observe it, so
+      // tell the user rather than silently dropping the outcome.
+      if (mounted) {
+        showSnackbar(
+          context,
+          FlutterI18n.translate(context, "debug.scheme_management.timeout"),
+        );
+      }
       return;
     }
 
-    if (mounted) {
-      showSnackbar(
-        context,
-        FlutterI18n.translate(
-          context,
-          "debug.scheme_management.update_success",
-        ),
-      );
+    if (!mounted) return;
+
+    if (error != null) {
+      await _onErrorEvent(error);
+      return;
     }
+
+    showSnackbar(
+      context,
+      FlutterI18n.translate(context, "debug.scheme_management.update_success"),
+    );
   }
 
   void _onSchemeManagerTileTap(String schemeManagerId) =>
@@ -167,12 +183,6 @@ class _SchemeManagementScreenState extends State<SchemeManagementScreen> {
           builder: (context) => SchemeManagerDetailScreen(schemeManagerId),
         ),
       );
-
-  @override
-  void dispose() {
-    _errorSubscription?.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
