@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Git submodules
 - Fix swallowed errors on cancelling embedded issuance flows
 - The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
+- Upgrade the Android Kotlin Gradle plugin from 2.2.0 to 2.3.20, resolving the Flutter build warning that support for the old Kotlin version would soon be dropped
 - Upgrade vcmrtd to v4.0.0: the BAC, PACE and secure-messaging MAC comparisons are constant-time, and the challenge/response and APDU hex dumps are behind the sensitive-data log gate rather than plain verbose logging
 - The passport issuer's session URL is checked before the signed IRMA issuance request, which carries the attributes read off the chip, is posted to it: it must be https and on an explicit allowlist of IRMA server hosts
 
