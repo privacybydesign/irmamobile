@@ -20,11 +20,15 @@ class PrivacyScreen {
   /// [disablePrivacyScreen], which switches the privacy screen off outright.
   ///
   /// Suspensions nest, and are always undone, including when [action] throws.
-  /// Backgrounding the app drops them too: the system UI they cover cannot
-  /// outlive the app leaving the foreground, so a suspension that never made it
-  /// back — the isolate killed mid-flow, a debug hot restart — costs the blur
-  /// until the next time the app is backgrounded, not for the rest of the
-  /// process.
+  /// They survive the app being backgrounded, because the system UI they cover
+  /// does too: a biometric prompt started with `persistAcrossBackgrounding` is
+  /// re-presented when the app becomes active again, with this call still
+  /// pending, so dropping the suspension on the way out would blur that second
+  /// prompt. The price is that a suspension which never made it back holds the
+  /// resign-active blur for the rest of the process. Only a debug hot restart
+  /// gets there, since the native count is static and a killed isolate takes
+  /// the process with it, and the blur that hides the app in the switcher is
+  /// added whatever the count says, so it is never the one at stake.
   static Future<T> suspendDuring<T>(Future<T> Function() action) async {
     await _channel.invokeMethod("suspendPrivacyScreen");
     try {

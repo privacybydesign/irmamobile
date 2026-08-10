@@ -75,13 +75,18 @@ BiometricService service(LocalAuthentication auth) {
 }
 
 /// Records what the `privacy_screen` channel is asked to do during a test.
-List<String> recordPrivacyScreenCalls() {
+/// [failingMethod] makes that one method throw, standing in for a platform side
+/// that answers the rest normally.
+List<String> recordPrivacyScreenCalls({String? failingMethod}) {
   final calls = <String>[];
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(const MethodChannel("privacy_screen"), (
         call,
       ) async {
         calls.add(call.method);
+        if (call.method == failingMethod) {
+          throw PlatformException(code: "err");
+        }
         return true;
       });
   addTearDown(
@@ -153,5 +158,36 @@ void main() {
     final auth = _FakeLocalAuth(promptSucceeds: false);
 
     expect(await service(auth).authenticate(localizedReason: "unlock"), false);
+  });
+
+  // The two below are about the suspension itself failing, not the prompt. Those
+  // channel calls sit outside the prompt, so authenticate has to catch them too
+  // or it stops returning a bool at all: callers like the opt-in dialog await it
+  // between setting a busy flag and popping the route, and a throw there leaves
+  // the Enable button spinning for good.
+  test(
+    "authenticate reports false when the privacy screen has no handler",
+    () async {
+      // Deliberately no mock handler, so every channel call raises
+      // MissingPluginException the way an unimplemented platform would.
+      final auth = _FakeLocalAuth();
+
+      expect(
+        await service(auth).authenticate(localizedReason: "unlock"),
+        false,
+      );
+    },
+  );
+
+  test("authenticate reports false when resuming the blur fails", () async {
+    final calls = recordPrivacyScreenCalls(
+      failingMethod: "resumePrivacyScreen",
+    );
+    final auth = _FakeLocalAuth();
+
+    // The prompt itself succeeded here; failing closed is the safe direction for
+    // a wallet, and the caller still gets an answer.
+    expect(await service(auth).authenticate(localizedReason: "unlock"), false);
+    expect(calls, ["suspendPrivacyScreen", "resumePrivacyScreen"]);
   });
 }

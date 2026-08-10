@@ -48,19 +48,22 @@ public class PrivacyScreenPlugin: NSObject, FlutterPlugin {
     }
 
     @objc static func appWillResignActive(_ notification:Notification) {
+        // Accepted gap: the App Switcher gesture also only resigns the app active,
+        // so during a suspended flow the switcher card shows the live screen. The
+        // two suspended screens are the NFC scanning animation and the lock screen
+        // behind the biometric prompt, neither of which shows credentials. There is
+        // no way to tell the two causes of resigning apart from here.
         guard suspendCount == 0 else { return }
         addBlur(notification)
     }
 
     @objc static func appDidEnterBackground(_ notification:Notification) {
-        // Suspensions cover system UI drawn in front of a foregrounded app, and
-        // that UI cannot outlive the app leaving the foreground: iOS invalidates
-        // the NFC session, and a biometric prompt is torn down and re-presented.
-        // So a suspension still standing here is stale, and dropping it means a
-        // resumePrivacyScreen that never arrived — Dart killed mid-flow, a debug
-        // hot restart — costs the resign-active blur only until the next time the
-        // app is backgrounded, instead of for the rest of the process.
-        suspendCount = 0
+        // The blur that hides the app in the switcher is added here regardless of
+        // the suspension count, so a suspension never costs it. The count itself
+        // is left alone: system UI can outlive the app leaving the foreground.
+        // local_auth saves its sticky state on the systemCancel iOS sends when we
+        // background, and re-presents the prompt on didBecomeActive with the Dart
+        // call still pending, so zeroing it here would blur that second prompt.
         addBlur(notification)
     }
 

@@ -80,17 +80,20 @@ class BiometricService {
     // active again) — making Face ID look slow behind a lingering blur. Hold
     // the privacy screen back for the prompt; leaving the app while it is up
     // still blurs. See PrivacyScreenPlugin.swift.
-    return PrivacyScreen.suspendDuring(() async {
-      try {
-        return await auth.authenticate(
+    // The try wraps the suspension too, not just the prompt: suspendDuring makes
+    // its own channel calls, and a throw from those must not escape a method
+    // whose contract is to report success as a bool.
+    try {
+      return await PrivacyScreen.suspendDuring(
+        () => auth.authenticate(
           localizedReason: localizedReason,
           biometricOnly: true,
           persistAcrossBackgrounding: true, // was stickyAuth in local_auth <3
-        );
-      } catch (_) {
-        return false;
-      }
-    });
+        ),
+      );
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Lock-screen biometric button: authenticate and, on success, unlock the
