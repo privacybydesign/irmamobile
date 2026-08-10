@@ -176,7 +176,6 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     });
     try {
       final passportIssuer = ref.read(passportIssuerProvider);
-      final faceService = ref.read(regulaFaceServiceProvider);
       // Capture the root navigator context up front. The Regula liveness UI is
       // a native screen that backgrounds — and on some devices tears down —
       // this widget, so we must not rely on this screen's own context/mounted
@@ -184,15 +183,25 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       // the user is left on the successful-readout page.
       final navContext = Navigator.of(context, rootNavigator: true).context;
 
-      final NonceAndSessionId(:nonce, :sessionId) = await passportIssuer
+      final startValidation = await passportIssuer
           .startSessionAtPassportIssuer();
+      if (!mounted) return;
+      // Publish the issuer's announcement before resolving the face service:
+      // the flavor builders construct against it (the native SDK targets the
+      // announced Face API). The issuer decides whether face verification
+      // applies to this session — the wallet never runs or skips the step on
+      // its own — so a capable service without an announcement stays unused,
+      // and old issuers that announce nothing simply skip the step.
+      ref
+          .read(faceVerificationConfigProvider.notifier)
+          .set(startValidation.faceVerification);
+      final faceService = startValidation.faceVerification == null
+          ? null
+          : ref.read(regulaFaceServiceProvider);
 
       final result = await _getDocumentReader().readDocument(
         iosNfcMessages: _createIosNfcMessageMapper(),
-        activeAuthenticationParams: NonceAndSessionId(
-          nonce: nonce,
-          sessionId: sessionId,
-        ),
+        activeAuthenticationParams: startValidation.nonceAndSessionId,
       );
 
       if (result != null) {

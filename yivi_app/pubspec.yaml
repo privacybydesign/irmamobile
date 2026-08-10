@@ -54,7 +54,7 @@ dev_dependencies:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
       # Must match the ref in yivi_core/pubspec.yaml.
-      ref: v3.9.1
+      ref: feat/face-verification-announcement
       path: vcmrtd
   package_info_plus: ^10.1.0
   collection: ^1.18.0

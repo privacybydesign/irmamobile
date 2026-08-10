@@ -58,12 +58,13 @@ dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      # v3.9.0 adds RawDocumentData.livenessTransactionId (+ copyWith) and
-      # VerificationResponse.faceMatch used by face verification.
-      # v3.9.1 skips Active Authentication when the chip has no DG15 (fixes
-      # 6A88 read failures on documents that use Chip Authentication, e.g. UK).
+      # feat/face-verification-announcement changes
+      # startSessionAtPassportIssuer to return StartValidationResult: the
+      # NonceAndSessionId plus the issuer's optional FaceVerificationConfig
+      # announcement, which decides whether the app runs the face verification
+      # step and which Face API the liveness session targets.
       # From v3.9.x the package lives one directory deeper, hence `path`.
-      ref: v3.9.1
+      ref: feat/face-verification-announcement
       path: vcmrtd
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1

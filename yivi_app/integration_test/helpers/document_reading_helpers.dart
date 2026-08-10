@@ -182,19 +182,34 @@ class FakePassportIssuer implements PassportIssuer {
   int startSessionCount = 0;
   final String? errorToThrowOnIssuance;
 
+  /// The face verification announcement this issuer makes at session start.
+  /// The shared NFC flow runs the face verification step only when an
+  /// announcement is present (the issuer decides, never the wallet), so it
+  /// defaults to present here to keep the face-path tests on the face path;
+  /// pass null to fake an issuer whose policy disables face verification.
+  final FaceVerificationConfig? faceVerification;
+
   /// The [RawDocumentData] passed to the most recent
   /// [startIrmaIssuanceSession] call, so tests can assert the liveness
   /// transaction id (or its absence) was threaded through.
   RawDocumentData? lastIssuedData;
 
-  FakePassportIssuer({this.errorToThrowOnIssuance});
+  FakePassportIssuer({
+    this.errorToThrowOnIssuance,
+    this.faceVerification = const FaceVerificationConfig(
+      faceApiUrl: "https://faceapi.fake.yivi.app",
+    ),
+  });
 
   @override
-  Future<NonceAndSessionId> startSessionAtPassportIssuer() async {
+  Future<StartValidationResult> startSessionAtPassportIssuer() async {
     startSessionCount += 1;
-    return NonceAndSessionId(
-      nonce: "d4e5f6a7d4e5f6a7",
-      sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+    return StartValidationResult(
+      nonceAndSessionId: NonceAndSessionId(
+        nonce: "d4e5f6a7d4e5f6a7",
+        sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+      ),
+      faceVerification: faceVerification,
     );
   }
 

@@ -28,6 +28,8 @@ export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
 export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
+export "src/providers/passport_issuer_provider.dart"
+    show faceCaptureUrlProvider, faceVerificationConfigProvider;
 export "src/providers/qr_scanner_factory_provider.dart";
 export "src/providers/regula_face_service_provider.dart";
 export "src/providers/sms_issuance_provider.dart";
@@ -35,11 +37,16 @@ export "src/providers/store_review_provider.dart" show StoreReviewService;
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 
+/// Builds the flavor's liveness service. Takes a [Ref] because the FOSS
+/// implementation's capture page is derived from the passport issuer the session
+/// is talking to ([faceCaptureUrlProvider]), which is only known at runtime.
+typedef RegulaFaceServiceBuilder = RegulaFaceService? Function(Ref ref);
+
 Future<void> runYiviApp({
   required QrScannerFactory qrScannerFactory,
   OcrProcessor? ocrProcessor,
   SmsRetriever? smsRetriever,
-  RegulaFaceService? regulaFaceService,
+  RegulaFaceServiceBuilder? regulaFaceService,
   StoreReviewService? storeReviewService,
 }) async {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -100,8 +107,12 @@ Future<void> runYiviApp({
           qrScannerFactoryProvider.overrideWithValue(qrScannerFactory),
 
           // passed in from the outside so the FOSS build is not required to
-          // depend on the Regula Face SDK; null disables face verification
-          regulaFaceServiceProvider.overrideWithValue(regulaFaceService),
+          // depend on the Regula Face SDK; null disables face verification.
+          // Built from a ref rather than a value so the FOSS capture page can
+          // follow the session's passport issuer.
+          regulaFaceServiceProvider.overrideWith(
+            (ref) => regulaFaceService?.call(ref),
+          ),
 
           // passed in from the outside so the proprietary in-app-review
           // dependency stays out of the FOSS build; null there disables the
