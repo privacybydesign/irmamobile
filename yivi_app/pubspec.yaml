@@ -53,7 +53,9 @@ dev_dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      # Must match the ref in yivi_core/pubspec.yaml.
+      # Must match the ref in yivi_core/pubspec.yaml. As of v4.0.0 the repo is a
+      # multi-package monorepo; we consume only the `vcmrtd` package (hence
+      # `path`), not the separate `mrz_capture` scanner module.
       ref: feat/face-verification-announcement
       path: vcmrtd
   package_info_plus: ^10.1.0
