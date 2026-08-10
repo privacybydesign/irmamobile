@@ -181,6 +181,13 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
     // never opens and the user is left on the successful-readout page. The
     // catch below needs it for the same reason, so it cannot live in the try.
     final navContext = Navigator.of(context, rootNavigator: true).context;
+    // Set once the native liveness UI is in front. Only from that point can
+    // something other than the user unmount this screen, so only from there is
+    // a dead State a reason to route the error somewhere else. Everything
+    // before it is ordinary Flutter code, where an unmounted State means the
+    // user left this route themselves — pushing a full-screen error onto
+    // wherever they went would be a surprise, so that case stays dropped.
+    var livenessStarted = false;
     try {
       final passportIssuer = ref.read(passportIssuerProvider);
 
@@ -227,6 +234,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           }
           if (!mounted) return;
           final languageCode = FlutterI18n.currentLocale(context)?.languageCode;
+          livenessStarted = true;
           toIssue = await withLivenessTransaction(
             faceService,
             rawDocData,
@@ -253,12 +261,15 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         setState(() {
           issuanceError = e.toString();
         });
-      } else if (navContext.mounted) {
+      } else if (livenessStarted && navContext.mounted) {
         // The liveness UI tore this screen down, so there is no State left to
         // render the in-screen error on. Surface the failure through the root
-        // navigator instead, mirroring _startIssuance, so a failed liveness
-        // session is not silently swallowed.
-        navContext.pushErrorScreen(message: e.toString());
+        // navigator instead, so a failed liveness session is not silently
+        // swallowed. Replace the readout route rather than pushing over it,
+        // exactly as _startIssuance does for this same flow, so dismissing the
+        // error does not land the user back on the readout page they already
+        // finished.
+        navContext.pushReplacementErrorScreen(message: e.toString());
       }
     }
   }
