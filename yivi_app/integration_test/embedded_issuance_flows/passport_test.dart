@@ -314,6 +314,45 @@ void main() {
     );
 
     testWidgets(
+      "face verification is skipped when the issuer does not announce it",
+      (tester) async {
+        final fakeReader = FakePassportReader(
+          mrzResult: fakePassportMrz,
+          statesDuringRead: [
+            DocumentReaderConnecting(),
+            DocumentReaderReadingCardAccess(),
+            DocumentReaderReadingDataGroup(dataGroup: "DG1", progress: 0.0),
+            DocumentReaderActiveAuthentication(),
+            DocumentReaderSuccess(),
+          ],
+        );
+        // The issuer decides whether face verification applies, never the
+        // wallet: without an announcement the step is skipped even though a
+        // fully capable liveness service is injected.
+        final fakeIssuer = FakePassportIssuer(faceVerification: null);
+        final fakeFace = FakeRegulaFaceService(transactionId: "txn-unused");
+
+        await navigateToPassportNfcReadingScreen(
+          tester,
+          irmaBinding,
+          fakeReader,
+          fakeIssuer,
+          regulaFaceService: fakeFace,
+        );
+
+        await tester.waitFor(find.byType(NfcReadingScreen));
+        await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+
+        // Straight to issuance: no intro screen, no liveness session, no
+        // transaction id on the issuance request.
+        expect(find.byType(FaceVerificationIntroScreen), findsNothing);
+        expect(fakeFace.captureCount, 0);
+        expect(fakeIssuer.lastIssuedData, isNotNull);
+        expect(fakeIssuer.lastIssuedData!.livenessTransactionId, isNull);
+      },
+    );
+
+    testWidgets(
       "nfc disabled shows disabled UI and retry cancels current attempt",
       (tester) async {
         final fakeReader = FakePassportReader(

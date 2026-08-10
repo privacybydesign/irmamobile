@@ -31,17 +31,19 @@ class _Yivi {
 /// behaviour is tuned via the constructor flags below.
 class RegulaFaceServiceImpl implements RegulaFaceService {
   RegulaFaceServiceImpl({
-    this.serviceUrl = defaultServiceUrl,
+    required this.serviceUrl,
     this.skipOnboarding = true,
     this.showCloseButton = false,
     this.livenessType = LivenessType.PASSIVE,
     FaceSDK? sdk,
   }) : _sdk = sdk ?? FaceSDK.instance;
 
-  /// URL of the Regula Face API. Must be the same service the issuer uses for
-  /// matching, so the liveness transaction id resolves on the backend.
-  static const String defaultServiceUrl = "https://faceapi.staging.yivi.app";
-
+  /// URL of the Regula Face API, announced by the passport issuer at the start
+  /// of each document session (`faceVerificationConfigProvider`). It must be
+  /// the same service that issuer uses for matching, so the liveness
+  /// transaction id resolves on the backend — which is why it is never pinned
+  /// at compile time: a staging session targets the staging Face API and a
+  /// production session the production one.
   final String serviceUrl;
 
   /// When true, Regula's built-in "Time for a selfie" onboarding screen is
@@ -66,7 +68,12 @@ class RegulaFaceServiceImpl implements RegulaFaceService {
   Future<void> initialize() async {
     if (_initialized) return;
     // Route liveness processing to the licensed Face API backend. No local
-    // license needed with the web-service model.
+    // license needed with the web-service model. Assigned before the
+    // isInitialized check on purpose: the SDK is a process-wide singleton, so
+    // when a session switches environments (staging ↔ production issuer) a new
+    // service instance re-points the already-initialized SDK here.
+    // TODO(#665): verify on-device that the Regula SDK honours a serviceUrl
+    // change after its first initialization.
     _sdk.serviceUrl = serviceUrl;
     if (!await _sdk.isInitialized()) {
       final (success, error) = await _sdk.initialize();

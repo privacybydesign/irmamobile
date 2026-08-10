@@ -1,5 +1,6 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 
 /// The FOSS capture page is served by the passport issuer, so its URL must
@@ -44,6 +45,41 @@ void main() {
         captureUrlFor("http://localhost:8080"),
         Uri.parse("http://localhost:8080/capture"),
       );
+    });
+  });
+
+  group("faceVerificationConfigProvider", () {
+    test("defaults to null: no flow started means no face verification", () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      expect(container.read(faceVerificationConfigProvider), isNull);
+    });
+
+    test("holds the issuer's announcement for the current flow", () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      const config = FaceVerificationConfig(
+        faceApiUrl: "https://faceapi.staging.yivi.app",
+      );
+      container.read(faceVerificationConfigProvider.notifier).set(config);
+      expect(container.read(faceVerificationConfigProvider), same(config));
+    });
+
+    test("a new flow's absent announcement overwrites a previous one", () {
+      // A staging flow with face verification followed by a flow against an
+      // issuer that disables it must not leak the stale announcement.
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read(faceVerificationConfigProvider.notifier);
+
+      notifier.set(
+        const FaceVerificationConfig(
+          faceApiUrl: "https://faceapi.staging.yivi.app",
+        ),
+      );
+      notifier.set(null);
+      expect(container.read(faceVerificationConfigProvider), isNull);
     });
   });
 }

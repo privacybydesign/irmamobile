@@ -29,7 +29,7 @@ export "src/models/mrz.dart";
 export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/passport_issuer_provider.dart"
-    show faceCaptureUrlProvider;
+    show faceCaptureUrlProvider, faceVerificationConfigProvider;
 export "src/providers/qr_scanner_factory_provider.dart";
 export "src/providers/regula_face_service_provider.dart";
 export "src/providers/sms_issuance_provider.dart";

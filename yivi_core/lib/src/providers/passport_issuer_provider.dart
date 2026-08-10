@@ -28,6 +28,21 @@ final faceCaptureUrlProvider = Provider<Uri>(
       Uri.parse(ref.watch(passportIssuerUrlProvider)).replace(path: "/capture"),
 );
 
+/// The issuer's face verification announcement for the current document flow.
+///
+/// Set from the start-validation response at the beginning of every document
+/// session (see `NfcReadingScreen`): non-null when the issuer's policy applies
+/// face verification to this session, null when it does not (or when no
+/// document flow has started). The issuer decides — the wallet never runs or
+/// skips the step on its own — and the announcement also names the Face API
+/// the liveness session must target, so no environment is pinned at compile
+/// time.
+final faceVerificationConfigProvider =
+    NotifierProvider<
+      helpers.ValueNotifier<FaceVerificationConfig?>,
+      FaceVerificationConfig?
+    >(() => helpers.ValueNotifier(null));
+
 class ErrorThrowingPassportIssuer implements PassportIssuer {
   int startSessionCount = 0;
   final String errorToThrowOnIssuance;
@@ -35,11 +50,15 @@ class ErrorThrowingPassportIssuer implements PassportIssuer {
   ErrorThrowingPassportIssuer({required this.errorToThrowOnIssuance});
 
   @override
-  Future<NonceAndSessionId> startSessionAtPassportIssuer() async {
+  Future<StartValidationResult> startSessionAtPassportIssuer() async {
     startSessionCount += 1;
-    return NonceAndSessionId(
-      nonce: "d4e5f6a7d4e5f6a7",
-      sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+    // No face verification announcement: this issuer exists to test issuance
+    // errors, so the face step is skipped and the error surfaces directly.
+    return StartValidationResult(
+      nonceAndSessionId: NonceAndSessionId(
+        nonce: "d4e5f6a7d4e5f6a7",
+        sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+      ),
     );
   }
 
