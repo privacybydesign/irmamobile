@@ -41,7 +41,7 @@ SessionState _success({String? dcApiResponse}) => SessionState.fromJson(
     "status": "success",
     "requestor": {
       "id": "",
-      "name": {"en": "verifier.example"},
+      "name": "verifier.example",
       "url": null,
       "parent": null,
       "verified": false
@@ -66,7 +66,7 @@ SessionState _ended({required bool failed}) => SessionState.fromJson(
     "status": "${failed ? "error" : "dismissed"}",
     "requestor": {
       "id": "",
-      "name": {"en": "verifier.example"},
+      "name": "verifier.example",
       "url": null,
       "parent": null,
       "verified": false

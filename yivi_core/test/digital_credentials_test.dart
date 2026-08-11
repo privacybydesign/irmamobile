@@ -228,7 +228,7 @@ void main() {
         "status": "success",
         "requestor": {
           "id": "",
-          "name": {"en": "verifier.example"},
+          "name": "verifier.example",
           "url": null,
           "parent": null,
           "verified": false

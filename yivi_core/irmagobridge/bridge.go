@@ -65,8 +65,10 @@ func (p writer) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-// Start is invoked from the native side, when the app starts
-func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, signer Signer, aesKey []byte) {
+// Start is invoked from the native side, when the app starts. locale is the
+// effective app language (a bare language code such as "nl"); irmago uses it
+// to resolve all app-facing text and logos.
+func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, signer Signer, aesKey []byte, locale string) {
 	defer recoverFromEarlyPanic("Starting of bridge panicked")
 
 	// Copy the byte slice to a byte array. This enforces the correct key size and prevents that the
@@ -162,7 +164,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
 	irma.Logger.SetLevel(logrus.InfoLevel)
-	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy)
+	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy, locale)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
@@ -172,23 +174,10 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		irma.Logger.SetLevel(logrus.ErrorLevel)
 	}
 
-	// 0 skips the client's own status refresh job: it updates stored statuses
-	// without telling anyone, so a revocation would never reach the UI. Ours
-	// dispatches a credentials event after every sweep.
-	yiviClient.InitJobs(eudiCrlUpdateInterval, 0)
-
-	go refreshStatusesPeriodically()
-}
-
-func refreshStatusesPeriodically() {
-	defer recoverFromPanic("Periodic credential status refresh panicked")
-
-	for {
-		if err := bridgeEventHandler.refreshCredentialStatuses(); err != nil {
-			reportError(errors.WrapPrefix(err, "Periodic credential status refresh failed", 0), false)
-		}
-		time.Sleep(statusTokenListRefreshInterval)
-	}
+	// The client owns both jobs. Its status sweep runs immediately and then on
+	// the interval, and wakes the app itself through ClientHandler.
+	// CredentialsChanged whenever a status actually moved.
+	yiviClient.InitJobs(eudiCrlUpdateInterval, statusTokenListRefreshInterval)
 }
 
 func dispatchEvent(event any) {

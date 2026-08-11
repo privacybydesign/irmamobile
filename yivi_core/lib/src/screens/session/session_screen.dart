@@ -14,7 +14,6 @@ import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
-import "../../util/language.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -499,7 +498,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // whether this is a same- or second-device session.
     if (returnUrl != null && returnUrl.isPhoneNumber) {
       return CallInfoScreen(
-        otherParty: getTranslation(context, session.requestor.name),
+        otherParty: session.requestor.name,
         onContinue: () =>
             _openReturnUrl(returnUrl, alwaysExternal: true, popOnSuccess: true),
         onCancel: _closeSession,
@@ -518,7 +517,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return DisclosureFeedbackScreen(
         feedbackType: .success,
         isSignatureSession: session.type == .signature,
-        otherParty: getTranslation(context, session.requestor.name),
+        otherParty: session.requestor.name,
         onDismiss: (_) => pop(),
       );
     }

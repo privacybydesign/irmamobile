@@ -2,12 +2,12 @@ package irmagobridge
 
 import (
 	"github.com/go-errors/errors"
+	"github.com/privacybydesign/irmago/client"
 	"github.com/privacybydesign/irmago/irma"
-	"github.com/privacybydesign/irmago/irma/irmaclient"
 )
 
-// compile-time type-check ClientHandler to implement irmaclient.ClientHandler
-var _ irmaclient.ClientHandler = (*YiviClientHandler)(nil)
+// compile-time type-check ClientHandler to implement client.ClientHandler
+var _ client.ClientHandler = (*YiviClientHandler)(nil)
 
 type YiviClientHandler struct {
 }
@@ -20,15 +20,16 @@ func (i *YiviClientHandler) ReportError(err error) {
 	reportError(wrappedErr, false)
 }
 
-func (ch *YiviClientHandler) Revoked(cred *irma.CredentialIdentifier) {
-	dispatchCredentialsEvent()
-}
-
-func (ch *YiviClientHandler) UpdateConfiguration(new *irma.IrmaIdentifierSet) {
-	dispatchConfigurationEvent()
-}
-
-func (ch *YiviClientHandler) UpdateAttributes() {
+// CredentialsChanged is the client's single "what you are showing is stale"
+// signal: an issuance, a revocation status that moved either way, or a logo
+// that finished downloading. It names no credential, so the app re-reads the
+// whole list.
+//
+// Recovered here because every caller is an irmago goroutine that does not
+// recover: the scheduled status sweep (gocron swallows the panic and reports it
+// nowhere), the logo-backfill worker, and the witness-update job.
+func (ch *YiviClientHandler) CredentialsChanged() {
+	defer recoverFromPanic("CredentialsChanged panicked")
 	dispatchCredentialsEvent()
 }
 

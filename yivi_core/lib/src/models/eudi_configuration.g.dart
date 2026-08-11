@@ -31,4 +31,5 @@ Cert _$CertFromJson(Map<String, dynamic> json) => Cert(
   childCert: json['child_cert'] == null
       ? null
       : Cert.fromJson(json['child_cert'] as Map<String, dynamic>),
+  deleteable: json['deleteable'] as bool? ?? false,
 );

@@ -128,6 +128,16 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.installCertificate(event)
 		}
+	case "RemoveCertificateEvent":
+		event := &removeCertificateEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.removeCertificate(event)
+		}
+	case "SetLocaleEvent":
+		event := &setLocaleEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.setLocale(event)
+		}
 	}
 
 	if err != nil {
