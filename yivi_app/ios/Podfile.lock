@@ -1,7 +1,16 @@
 PODS:
   - camera_avfoundation (0.0.1):
     - Flutter
+  - FaceCoreBasic (8.2.2127)
+  - FaceSDK (8.2.4530):
+    - RegulaCommon (= 9.6.2497)
   - Flutter (1.0.0)
+  - flutter_face_api (8.2.1149):
+    - FaceSDK (= 8.2.4530)
+    - Flutter
+  - flutter_face_core_basic (8.2.461):
+    - FaceCoreBasic (= 8.2.2127)
+    - Flutter
   - flutter_nfc_kit (3.6.0):
     - Flutter
   - flutter_web_auth_2 (5.0.0):
@@ -83,6 +92,7 @@ PODS:
   - permission_handler_apple (9.4.8):
     - Flutter
   - PromisesObjC (2.4.1)
+  - RegulaCommon (9.6.2497)
   - Sentry/HybridSDK (8.58.3)
   - sentry_flutter (9.22.0):
     - Flutter
@@ -107,6 +117,8 @@ PODS:
 DEPENDENCIES:
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Flutter (from `Flutter`)
+  - flutter_face_api (from `.symlinks/plugins/flutter_face_api/ios`)
+  - flutter_face_core_basic (from `.symlinks/plugins/flutter_face_core_basic/ios`)
   - flutter_nfc_kit (from `.symlinks/plugins/flutter_nfc_kit/ios`)
   - flutter_web_auth_2 (from `.symlinks/plugins/flutter_web_auth_2/ios`)
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
@@ -126,7 +138,11 @@ DEPENDENCIES:
   - yivi_core (from `.symlinks/plugins/yivi_core/ios`)
 
 SPEC REPOS:
+  https://github.com/regulaforensics/podspecs.git:
+    - FaceSDK
+    - RegulaCommon
   trunk:
+    - FaceCoreBasic
     - GoogleDataTransport
     - GoogleMLKit
     - GoogleToolboxForMac
@@ -148,6 +164,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   Flutter:
     :path: Flutter
+  flutter_face_api:
+    :path: ".symlinks/plugins/flutter_face_api/ios"
+  flutter_face_core_basic:
+    :path: ".symlinks/plugins/flutter_face_core_basic/ios"
   flutter_nfc_kit:
     :path: ".symlinks/plugins/flutter_nfc_kit/ios"
   flutter_web_auth_2:
@@ -185,7 +205,11 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   camera_avfoundation: 968a9a5323c79a99c166ad9d7866bfd2047b5a9b
+  FaceCoreBasic: 44683db3a585b075595f5c77e22c331d2826a054
+  FaceSDK: 7e43d219c50db9d0470b27f6187277d804f5a878
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_face_api: 3f7d227fa65688b1fac4fdb687bb134218e588c9
+  flutter_face_core_basic: 1f0871608f5db35aaed03933467af255fe3ef5a8
   flutter_nfc_kit: e1b71583eafd2c9650bc86844a7f2d185fb414f6
   flutter_web_auth_2: 646fc9df97a01c59e5eea99b237da2c6360f8439
   google_mlkit_commons: a5e4ffae5bc59ea4c7b9025dc72cb6cb79dc1166
@@ -211,6 +235,7 @@ SPEC CHECKSUMS:
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   permission_handler_apple: 92d754bbaa7361d436db2d6c3c1c2a0fdcec462e
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
+  RegulaCommon: 1cef401756b42d4cca514dfc6cb77dc241cd8550
   Sentry: 108fdbb76299c4189af12246bf0308c09c278922
   sentry_flutter: fbb8a76a5a009ce7ba7bde295ee6b50b11916851
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
@@ -219,6 +244,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   yivi_core: a3ab0d1f43072b4c28c8fda757a25cebe72bdc47
 
-PODFILE CHECKSUM: dfdfa93e068236aa3f0a0be562d17513964dbc69
+PODFILE CHECKSUM: 8b388ffc87336ec91d717925d8426f2d8f55a98a
 
 COCOAPODS: 1.16.2
