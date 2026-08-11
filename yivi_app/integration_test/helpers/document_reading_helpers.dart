@@ -298,6 +298,13 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
 
   @override
   DocumentReaderState build() {
+    // The reading screen stops watching this provider while the face
+    // verification intro is in front, which would auto-dispose it. The real
+    // factory would just build a second reader, but riverpod refuses to
+    // re-associate an already-used Notifier instance, and these fakes are
+    // handed back by the override every time. Pin the element so the one
+    // instance the test asserts on outlives the gap.
+    ref.keepAlive();
     ref.onDispose(cancel);
     if (_initialState != null) {
       return _initialState;
@@ -414,6 +421,13 @@ class FakePassportReader extends DocumentReader<PassportData> {
 
   @override
   DocumentReaderState build() {
+    // The reading screen stops watching this provider while the face
+    // verification intro is in front, which would auto-dispose it. The real
+    // factory would just build a second reader, but riverpod refuses to
+    // re-associate an already-used Notifier instance, and these fakes are
+    // handed back by the override every time. Pin the element so the one
+    // instance the test asserts on outlives the gap.
+    ref.keepAlive();
     ref.onDispose(cancel);
     if (_initialState != null) {
       return _initialState;

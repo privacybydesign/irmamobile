@@ -218,6 +218,10 @@ void main() {
       await tester.waitFor(find.byType(NfcReadingScreen));
       final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
       await tester.tap(startScanningButton);
+      // The read runs behind a privacy-screen suspension, so it takes a
+      // platform-channel round trip to get going — more than the microtasks
+      // the tap itself drains.
+      await tester.pumpUntil(() => fakeReader.readCalled);
 
       expect(fakeIssuer.startSessionCount, 1);
       expect(fakeReader.readCalled, isTrue);
@@ -269,6 +273,10 @@ void main() {
             matching: find.byKey(const Key("bottom_bar_primary")),
           ),
         );
+        // The readout and the issuance call sit behind platform-channel round
+        // trips that schedule no frames, so pumpAndSettle can return before the
+        // issuer has been reached.
+        await tester.pumpUntil(() => fakeIssuer.lastIssuedData != null);
 
         // Liveness must have run and its transaction id must reach the issuer,
         // and the active language must have been forwarded to the SDK.
@@ -283,7 +291,7 @@ void main() {
     );
 
     testWidgets(
-      "no liveness transaction id is sent when face verification is disabled",
+      "face verification is skipped when the build has no face service",
       (tester) async {
         final fakeReader = FakePassportReader(
           mrzResult: fakePassportMrz,
@@ -297,7 +305,9 @@ void main() {
         );
         final fakeIssuer = FakePassportIssuer();
 
-        // No regulaFaceService override => provider defaults to null (disabled).
+        // The issuer does announce face verification here; what is missing is a
+        // liveness service, as in the FOSS build. No regulaFaceService override
+        // => regulaFaceServiceProvider keeps its null default.
         await navigateToPassportNfcReadingScreen(
           tester,
           irmaBinding,
@@ -307,7 +317,13 @@ void main() {
 
         await tester.waitFor(find.byType(NfcReadingScreen));
         await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+        // Reaching the issuer at all proves the step was skipped: an intro
+        // screen would sit there waiting for a tap that never comes.
+        await tester.pumpUntil(() => fakeIssuer.lastIssuedData != null);
 
+        // Straight to issuance: no intro screen, and no transaction id on the
+        // issuance request.
+        expect(find.byType(FaceVerificationIntroScreen), findsNothing);
         expect(fakeIssuer.lastIssuedData, isNotNull);
         expect(fakeIssuer.lastIssuedData!.livenessTransactionId, isNull);
       },
@@ -342,6 +358,9 @@ void main() {
 
         await tester.waitFor(find.byType(NfcReadingScreen));
         await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
+        // Reaching the issuer at all proves the step was skipped: an intro
+        // screen would sit there waiting for a tap that never comes.
+        await tester.pumpUntil(() => fakeIssuer.lastIssuedData != null);
 
         // Straight to issuance: no intro screen, no liveness session, no
         // transaction id on the issuance request.

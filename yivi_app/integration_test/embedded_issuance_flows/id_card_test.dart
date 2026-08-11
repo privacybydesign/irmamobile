@@ -217,6 +217,10 @@ void main() {
       await tester.waitFor(find.byType(NfcReadingScreen));
       final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
       await tester.tap(startScanningButton);
+      // The read runs behind a privacy-screen suspension, so it takes a
+      // platform-channel round trip to get going — more than the microtasks
+      // the tap itself drains.
+      await tester.pumpUntil(() => fakeReader.readCalled);
 
       expect(fakeIssuer.startSessionCount, 1);
       expect(fakeReader.readCalled, isTrue);
