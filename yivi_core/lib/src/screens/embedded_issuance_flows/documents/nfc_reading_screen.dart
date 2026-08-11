@@ -16,6 +16,7 @@ import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/handle_pointer.dart";
 import "../../../util/navigation.dart";
+import "../../../util/privacy_screen.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";
@@ -207,9 +208,14 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
           ? null
           : ref.read(regulaFaceServiceProvider);
 
-      final result = await _getDocumentReader().readDocument(
-        iosNfcMessages: _createIosNfcMessageMapper(),
-        activeAuthenticationParams: startValidation.nonceAndSessionId,
+      // The iOS reader sheet resigns the app active for the whole read, which
+      // would put the privacy-screen blur over the scanning animation and its
+      // progress text. Hold it back until the sheet is gone.
+      final result = await PrivacyScreen.suspendDuring(
+        () => _getDocumentReader().readDocument(
+          iosNfcMessages: _createIosNfcMessageMapper(),
+          activeAuthenticationParams: startValidation.nonceAndSessionId,
+        ),
       );
 
       if (result != null) {

@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:typed_data";
 
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_localizations/flutter_localizations.dart";
@@ -341,6 +342,23 @@ Future<Set<String>> _illustrationForIssuanceError(
 }
 
 void main() {
+  // The read runs inside PrivacyScreen.suspendDuring. An unmocked method
+  // channel replies with a null envelope, which MethodChannel turns into a
+  // MissingPluginException, so without this the read fails before the flow
+  // gets anywhere near a face verification or issuance error.
+  setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel("privacy_screen"),
+          (call) async => true,
+        );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(const MethodChannel("privacy_screen"), null);
+  });
+
   testWidgets("a liveness failure after the screen is gone reaches the error "
       "screen, replacing the route it came from", (tester) async {
     final gate = Completer<RegulaLivenessResult>();
