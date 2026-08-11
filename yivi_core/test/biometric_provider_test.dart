@@ -10,12 +10,21 @@ class _FakeLocalAuth implements LocalAuthentication {
     this.canCheck = true,
     this.enrolled = const [BiometricType.fingerprint],
     this.error = false,
+    this.promptSucceeds = true,
+    this.promptThrows = false,
+    this.onPrompt,
   });
 
   final bool supported;
   final bool canCheck;
   final List<BiometricType> enrolled;
   final bool error;
+  final bool promptSucceeds;
+  final bool promptThrows;
+
+  /// Called while the OS prompt is notionally up, so a test can assert what the
+  /// privacy screen was doing at that moment.
+  final void Function()? onPrompt;
 
   @override
   Future<bool> isDeviceSupported() async {
@@ -29,6 +38,22 @@ class _FakeLocalAuth implements LocalAuthentication {
   @override
   Future<List<BiometricType>> getAvailableBiometrics() async => enrolled;
 
+  // authMessages is an Iterable<AuthMessages> upstream, but local_auth does not
+  // export that type; widened to Object? so the override compiles without
+  // depending on local_auth_platform_interface directly.
+  @override
+  Future<bool> authenticate({
+    required String localizedReason,
+    Iterable<Object?> authMessages = const [],
+    bool biometricOnly = false,
+    bool sensitiveTransaction = true,
+    bool persistAcrossBackgrounding = false,
+  }) async {
+    onPrompt?.call();
+    if (promptThrows) throw PlatformException(code: "NotAvailable");
+    return promptSucceeds;
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -41,7 +66,39 @@ Future<bool> available(LocalAuthentication auth) {
   return container.read(biometricAvailableProvider.future);
 }
 
+BiometricService service(LocalAuthentication auth) {
+  final container = ProviderContainer(
+    overrides: [localAuthProvider.overrideWithValue(auth)],
+  );
+  addTearDown(container.dispose);
+  return container.read(biometricServiceProvider);
+}
+
+/// Records what the `privacy_screen` channel is asked to do during a test.
+/// [failingMethod] makes that one method throw, standing in for a platform side
+/// that answers the rest normally.
+List<String> recordPrivacyScreenCalls({String? failingMethod}) {
+  final calls = <String>[];
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(const MethodChannel("privacy_screen"), (
+        call,
+      ) async {
+        calls.add(call.method);
+        if (call.method == failingMethod) {
+          throw PlatformException(code: "err");
+        }
+        return true;
+      });
+  addTearDown(
+    () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(const MethodChannel("privacy_screen"), null),
+  );
+  return calls;
+}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test(
     "available when supported, can check, and a biometric is enrolled",
     () async {
@@ -63,5 +120,74 @@ void main() {
 
   test("unavailable (not an error) when the platform check throws", () async {
     expect(await available(_FakeLocalAuth(error: true)), false);
+  });
+
+  test("authenticate holds the privacy screen back for the prompt", () async {
+    final calls = recordPrivacyScreenCalls();
+    late List<String> callsDuringPrompt;
+    final auth = _FakeLocalAuth(
+      onPrompt: () => callsDuringPrompt = List.of(calls),
+    );
+
+    expect(await service(auth).authenticate(localizedReason: "unlock"), true);
+
+    // The blur must be held back for the whole prompt, not just switched off
+    // and on around it: no enable/disable, so the user's screenshot preference
+    // is never touched.
+    expect(callsDuringPrompt, ["suspendPrivacyScreen"]);
+    expect(calls, ["suspendPrivacyScreen", "resumePrivacyScreen"]);
+  });
+
+  test(
+    "authenticate restores the privacy screen when the prompt throws",
+    () async {
+      final calls = recordPrivacyScreenCalls();
+      final auth = _FakeLocalAuth(promptThrows: true);
+
+      expect(
+        await service(auth).authenticate(localizedReason: "unlock"),
+        false,
+      );
+
+      expect(calls, ["suspendPrivacyScreen", "resumePrivacyScreen"]);
+    },
+  );
+
+  test("authenticate reports a refused prompt as false", () async {
+    recordPrivacyScreenCalls();
+    final auth = _FakeLocalAuth(promptSucceeds: false);
+
+    expect(await service(auth).authenticate(localizedReason: "unlock"), false);
+  });
+
+  // The two below are about the suspension itself failing, not the prompt. Those
+  // channel calls sit outside the prompt, so authenticate has to catch them too
+  // or it stops returning a bool at all: callers like the opt-in dialog await it
+  // between setting a busy flag and popping the route, and a throw there leaves
+  // the Enable button spinning for good.
+  test(
+    "authenticate reports false when the privacy screen has no handler",
+    () async {
+      // Deliberately no mock handler, so every channel call raises
+      // MissingPluginException the way an unimplemented platform would.
+      final auth = _FakeLocalAuth();
+
+      expect(
+        await service(auth).authenticate(localizedReason: "unlock"),
+        false,
+      );
+    },
+  );
+
+  test("authenticate reports false when resuming the blur fails", () async {
+    final calls = recordPrivacyScreenCalls(
+      failingMethod: "resumePrivacyScreen",
+    );
+    final auth = _FakeLocalAuth();
+
+    // The prompt itself succeeded here; failing closed is the safe direction for
+    // a wallet, and the caller still gets an answer.
+    expect(await service(auth).authenticate(localizedReason: "unlock"), false);
+    expect(calls, ["suspendPrivacyScreen", "resumePrivacyScreen"]);
   });
 }

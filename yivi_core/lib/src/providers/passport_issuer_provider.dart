@@ -31,6 +31,35 @@ final passportIssuerProvider = Provider<PassportIssuer>(
   ),
 );
 
+/// The Regula web capture page used by the FOSS liveness flow, served by the
+/// passport issuer itself under `/capture`.
+///
+/// Derived from [passportIssuerUrlProvider], which the repository sets to the
+/// issuer origin named by the scheme when an issuance flow starts. A staging
+/// scheme therefore reaches the staging capture page and a production scheme the
+/// production one, instead of a hardcoded host that has to be promoted by hand
+/// for release. The liveness transaction has to be created on the Face API that
+/// same issuer matches against, so these two must not be able to drift apart.
+final faceCaptureUrlProvider = Provider<Uri>(
+  (ref) =>
+      Uri.parse(ref.watch(passportIssuerUrlProvider)).replace(path: "/capture"),
+);
+
+/// The issuer's face verification announcement for the current document flow.
+///
+/// Set from the start-validation response at the beginning of every document
+/// session (see `NfcReadingScreen`): non-null when the issuer's policy applies
+/// face verification to this session, null when it does not (or when no
+/// document flow has started). The issuer decides — the wallet never runs or
+/// skips the step on its own — and the announcement also names the Face API
+/// the liveness session must target, so no environment is pinned at compile
+/// time.
+final faceVerificationConfigProvider =
+    NotifierProvider<
+      helpers.ValueNotifier<FaceVerificationConfig?>,
+      FaceVerificationConfig?
+    >(() => helpers.ValueNotifier(null));
+
 class ErrorThrowingPassportIssuer implements PassportIssuer {
   int startSessionCount = 0;
   final String errorToThrowOnIssuance;
@@ -38,11 +67,15 @@ class ErrorThrowingPassportIssuer implements PassportIssuer {
   ErrorThrowingPassportIssuer({required this.errorToThrowOnIssuance});
 
   @override
-  Future<NonceAndSessionId> startSessionAtPassportIssuer() async {
+  Future<StartValidationResult> startSessionAtPassportIssuer() async {
     startSessionCount += 1;
-    return NonceAndSessionId(
-      nonce: "d4e5f6a7d4e5f6a7",
-      sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+    // No face verification announcement: this issuer exists to test issuance
+    // errors, so the face step is skipped and the error surfaces directly.
+    return StartValidationResult(
+      nonceAndSessionId: NonceAndSessionId(
+        nonce: "d4e5f6a7d4e5f6a7",
+        sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+      ),
     );
   }
 
