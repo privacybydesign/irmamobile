@@ -1465,8 +1465,8 @@ packages:
     dependency: "direct main"
     description:
       path: vcmrtd
-      ref: "feat/face-verification-announcement"
-      resolved-ref: "6650c9600ba6239954816b57db4f5584add202c8"
+      ref: "v4.1.0"
+      resolved-ref: fdc4e83a32de3199c6faeb6d1363c041eb88f926
       url: "https://github.com/privacybydesign/vcmrtd.git"
     source: git
     version: "2.0.0"

@@ -58,23 +58,7 @@ dependencies:
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git
-      # feat/face-verification-announcement is v4.0.0 plus one commit, which
-      # changes startSessionAtPassportIssuer to return StartValidationResult:
-      # the NonceAndSessionId plus the issuer's optional FaceVerificationConfig
-      # announcement, which decides whether the app runs the face verification
-      # step and which Face API the liveness session targets.
-      # From v4.0.0, Active Authentication is attempted only when the chip
-      # carries an AA public key (fixes 6A88 read failures on documents that use
-      # Chip Authentication, e.g. UK): DG15 for passports and ID cards, and
-      # DG13 for driving licences, which before v4.0.0 never attempted AA at
-      # all.
-      # As of v4.0.0 the repo is a multi-package monorepo: the NFC reading
-      # library is the `vcmrtd` package (hence `path`), while MRZ scanning lives
-      # in a separate `mrz_capture` package and face verification in
-      # `face_verification`. We only consume `vcmrtd`; the app keeps its own
-      # scanner so the F-Droid build stays free of Google ML Kit, which
-      # `mrz_capture` would pull in.
-      ref: feat/face-verification-announcement
+      ref: v4.1.0
       path: vcmrtd
   mask_text_input_formatter: ^2.9.0
   jailbreak_root_detection: ^1.2.0+1
