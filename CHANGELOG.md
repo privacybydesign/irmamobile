@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade Flutter to 3.47.0
 - Take the Material and Cupertino widgets from the standalone `material_ui` and `cupertino_ui` packages, which Flutter 3.47 split out of the SDK and deprecates there in November. Packages that still import the SDK copies keep the Yivi theme through a compatibility bridge around the app
 - Install the arm64 Flutter SDK on Apple Silicon, so the macOS CI jobs no longer run the whole toolchain under Rosetta
+- Render markdown with `flutter_markdown_plus` instead of `flutter_markdown`, which the Flutter team discontinued, and update `pinput` to 6.0.2
 
 ## [8.2.0] - 2026-08-12
 ### Added

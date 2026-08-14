@@ -207,7 +207,7 @@ SPEC CHECKSUMS:
   camera_avfoundation: 968a9a5323c79a99c166ad9d7866bfd2047b5a9b
   FaceCoreBasic: 44683db3a585b075595f5c77e22c331d2826a054
   FaceSDK: 7e43d219c50db9d0470b27f6187277d804f5a878
-  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_face_api: 3f7d227fa65688b1fac4fdb687bb134218e588c9
   flutter_face_core_basic: 1f0871608f5db35aaed03933467af255fe3ef5a8
   flutter_nfc_kit: e1b71583eafd2c9650bc86844a7f2d185fb414f6

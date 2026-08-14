@@ -22,7 +22,7 @@ dependencies:
   mobile_scanner: ^7.2.0
   camera: ^0.12.0+1
   smart_auth: ^3.2.0
-  pinput: ^6.0.1
+  pinput: ^6.0.2
   in_app_review: ^2.0.10
 
   # Regula Face SDK for the client-side liveness session (face verification).

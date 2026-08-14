@@ -1,6 +1,7 @@
-// flutter_markdown still takes the core SDK's ThemeData, so read that one here.
+// flutter_markdown_plus still takes the core SDK's ThemeData, so read that one
+// here.
 import "package:flutter/material.dart" as core;
-import "package:flutter_markdown/flutter_markdown.dart";
+import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../providers/irma_repository_provider.dart";
@@ -19,7 +20,7 @@ class IrmaMarkdown extends StatelessWidget {
     return MarkdownBody(
       data: data,
       // Effectively disable image rendering (to prevent remote image loading)
-      sizedImageBuilder: (config) => Container(),
+      imageBuilder: (uri, title, alt) => Container(),
       // Define small style sheet, and merge in any passed styleSheet
       styleSheet: MarkdownStyleSheet.fromTheme(core.Theme.of(context))
           .merge(

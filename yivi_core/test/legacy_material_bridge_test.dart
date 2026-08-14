@@ -80,7 +80,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // IrmaMarkdown now reads the core SDK theme, because flutter_markdown's
+    // IrmaMarkdown now reads the core SDK theme, because flutter_markdown_plus'
     // MarkdownStyleSheet.fromTheme still takes the core SDK ThemeData. Read the
     // style off the span holding the text, which is the one the style sheet
     // feeds: the span above it carries the ambient DefaultTextStyle that the
