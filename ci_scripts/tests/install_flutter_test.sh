@@ -79,8 +79,8 @@ trap 'rm -rf "$WORK"' EXIT
 #
 #   run_install <ostype> <machine> <hw.optional.arm64> <calls-file>
 #
-# Pass "" for <hw.optional.arm64> to make sysctl fail the way it does when the
-# key does not exist, which is what an Intel Mac gives.
+# Pass "" for <hw.optional.arm64> to make sysctl exit non-zero the way it does
+# when the key does not exist. An Intel Mac gives either that or a plain 0.
 # -----------------------------------------------------------------------------
 run_install() {
   local ostype="$1" machine="$2" hw_arm64="$3" calls="$4"
@@ -180,12 +180,16 @@ assert_contains "$CALLS" "shasum $SUM_MACOS_ARM64 flutter.zip" "rosetta"
 # -----------------------------------------------------------------------------
 echo "macOS on Intel takes the x64 archive"
 # -----------------------------------------------------------------------------
-CALLS="$WORK/x64.log"
-run_install darwin24 x86_64 "" "$CALLS"
-assert_contains "$CALLS" \
-  "wget $BASE/macos/flutter_macos_$VERSION-$CHANNEL.zip" "x64"
-assert_not_contains "$CALLS" "flutter_macos_arm64_" "x64"
-assert_contains "$CALLS" "shasum $SUM_MACOS_X64 flutter.zip" "x64"
+# Both ways an Intel Mac can answer: sysctl exits non-zero because the key does
+# not exist, or it prints 0.
+for hw_arm64 in "" 0; do
+  CALLS="$WORK/x64-${hw_arm64:-none}.log"
+  run_install darwin24 x86_64 "$hw_arm64" "$CALLS"
+  assert_contains "$CALLS" \
+    "wget $BASE/macos/flutter_macos_$VERSION-$CHANNEL.zip" "x64"
+  assert_not_contains "$CALLS" "flutter_macos_arm64_" "x64"
+  assert_contains "$CALLS" "shasum $SUM_MACOS_X64 flutter.zip" "x64"
+done
 
 # -----------------------------------------------------------------------------
 echo "Linux is unaffected by the macOS architecture split"
