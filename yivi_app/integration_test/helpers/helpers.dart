@@ -52,9 +52,11 @@ Future<void> unlock(WidgetTester tester) async {
 Future<void> enterPin(WidgetTester tester, String pin) async {
   final splitPin = pin.split("");
   for (final digit in splitPin) {
-    await tester.tapAndSettle(
-      find.byKey(Key("number_pad_key_${digit.toString()}")),
-    );
+    final key = find.byKey(Key("number_pad_key_${digit.toString()}"));
+    // The keypad can be a frame behind the caller: pumpYiviApp returns as soon
+    // as App exists, and the screens below it build after that.
+    await tester.waitFor(key);
+    await tester.tapAndSettle(key);
   }
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
