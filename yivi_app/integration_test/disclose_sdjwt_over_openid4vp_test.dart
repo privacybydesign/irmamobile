@@ -1756,13 +1756,27 @@ Future<void> testDiscloseSdJwtWithChoices(
   );
 }
 
+// The intended use the EUDI verifier image configures out of the box. From v0.11.0
+// the verifier refuses a transaction that names neither an intended use nor a
+// registration certificate. It does not check the query against the one it resolves,
+// only forwards it to the wallet as verifier_info, so this works for the credential
+// types disclosed below even though the shipped certificate declares PID claims.
+const eudiVerifierIntendedUseId = "1";
+
+// Every credential type disclosed here must also be listed in the verifier's
+// VERIFIER_ATTESTATIONCLASSIFICATIONS (verifier_attestation_vcts in
+// openid4vc-poc-ops), or v0.11.0 rejects the presentation after the user has
+// consented. Currently: irma-demo.sidn-pbdf.email, irma-demo.sidn-pbdf.mobilenumber,
+// pbdf-staging.pbdf.passport.
 Future<String> startOpenID4VPSession(Map<String, dynamic> dcqlQuery) async {
+  // No request_uri_method: v0.11.0 enforces the method the transaction was started
+  // with, and the client fetches the request object with a GET. Omitting it falls back
+  // to the deployment's PostOrGet default.
   final authReqReq = {
-    "type": "vp_token",
     "dcql_query": dcqlQuery,
     "nonce": "nonce",
     "jar_mode": "by_reference",
-    "request_uri_method": "post",
+    "intended_use_id": eudiVerifierIntendedUseId,
     "issuer_chain": yiviStagingAttestationProvidersCA,
   };
 
