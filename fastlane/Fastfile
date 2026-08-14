@@ -13,6 +13,11 @@ end
 # 3.44 -> 3.47 upgrade turned 34 unmodified files into "changed". It also
 # resolves package:flutter_lints for the analysis_options include.
 lane :lint do
+  # install_flutter.sh picks a different macOS archive per architecture, and the
+  # wrong pick still installs a working SDK, just an x64 one under Rosetta. The
+  # test runs the script against stub tooling, so it needs nothing installed.
+  sh("../ci_scripts/tests/install_flutter_test.sh")
+
   Dir.chdir("../yivi_core") do
     sh("flutter", "pub", "get")
     sh("dart", "format", "--set-exit-if-changed", "lib/", "test/")
