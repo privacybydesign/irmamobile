@@ -74,15 +74,18 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 # -----------------------------------------------------------------------------
-# Run install_flutter.sh once, with $OSTYPE and `uname -m` faked, and return the
-# log of how the stub tooling was called.
+# Run install_flutter.sh once, with $OSTYPE, `uname -m` and `sysctl` faked, and
+# return the log of how the stub tooling was called.
 #
-#   run_install <ostype> <machine> <calls-file>
+#   run_install <ostype> <machine> <hw.optional.arm64> <calls-file>
+#
+# Pass "" for <hw.optional.arm64> to make sysctl fail the way it does when the
+# key does not exist, which is what an Intel Mac gives.
 # -----------------------------------------------------------------------------
 run_install() {
-  local ostype="$1" machine="$2" calls="$3"
+  local ostype="$1" machine="$2" hw_arm64="$3" calls="$4"
   local case_dir stub_bin flutter_home
-  case_dir="$WORK/$ostype-$machine"
+  case_dir="$WORK/$ostype-$machine-${hw_arm64:-none}"
   stub_bin="$case_dir/stub-bin"
   flutter_home="$case_dir/flutter-home"
   mkdir -p "$stub_bin" "$flutter_home"
@@ -91,6 +94,12 @@ run_install() {
   cat > "$stub_bin/uname" <<EOF
 #!/bin/sh
 [ "\$1" = "-m" ] && echo "$machine" || echo "$ostype"
+EOF
+
+  cat > "$stub_bin/sysctl" <<EOF
+#!/bin/sh
+[ -n "$hw_arm64" ] || exit 1
+echo "$hw_arm64"
 EOF
 
   # Records the URL and leaves an archive behind for the extraction stubs.
@@ -151,17 +160,28 @@ BASE="https://storage.googleapis.com/flutter_infra_release/releases/$CHANNEL"
 echo "macOS on Apple Silicon takes the arm64 archive"
 # -----------------------------------------------------------------------------
 CALLS="$WORK/arm64.log"
-run_install darwin24 arm64 "$CALLS"
+run_install darwin24 arm64 1 "$CALLS"
 assert_contains "$CALLS" \
   "wget $BASE/macos/flutter_macos_arm64_$VERSION-$CHANNEL.zip" "arm64"
 assert_contains "$CALLS" "shasum $SUM_MACOS_ARM64 flutter.zip" "arm64"
 assert_contains "$CALLS" "flutter precache" "arm64"
 
 # -----------------------------------------------------------------------------
+echo "macOS from a Rosetta shell still takes the arm64 archive"
+# -----------------------------------------------------------------------------
+# Under Rosetta `uname -m` says x86_64 on Apple Silicon hardware; only sysctl
+# tells the truth.
+CALLS="$WORK/rosetta.log"
+run_install darwin24 x86_64 1 "$CALLS"
+assert_contains "$CALLS" \
+  "wget $BASE/macos/flutter_macos_arm64_$VERSION-$CHANNEL.zip" "rosetta"
+assert_contains "$CALLS" "shasum $SUM_MACOS_ARM64 flutter.zip" "rosetta"
+
+# -----------------------------------------------------------------------------
 echo "macOS on Intel takes the x64 archive"
 # -----------------------------------------------------------------------------
 CALLS="$WORK/x64.log"
-run_install darwin24 x86_64 "$CALLS"
+run_install darwin24 x86_64 "" "$CALLS"
 assert_contains "$CALLS" \
   "wget $BASE/macos/flutter_macos_$VERSION-$CHANNEL.zip" "x64"
 assert_not_contains "$CALLS" "flutter_macos_arm64_" "x64"
@@ -171,7 +191,7 @@ assert_contains "$CALLS" "shasum $SUM_MACOS_X64 flutter.zip" "x64"
 echo "Linux is unaffected by the macOS architecture split"
 # -----------------------------------------------------------------------------
 CALLS="$WORK/linux.log"
-run_install linux-gnu x86_64 "$CALLS"
+run_install linux-gnu x86_64 "" "$CALLS"
 assert_contains "$CALLS" \
   "wget $BASE/linux/flutter_linux_$VERSION-$CHANNEL.tar.xz" "linux"
 assert_contains "$CALLS" "shasum $SUM_LINUX flutter.tar.xz" "linux"

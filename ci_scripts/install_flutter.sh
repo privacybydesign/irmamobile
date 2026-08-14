@@ -31,8 +31,10 @@ if ! [ -x "$(command -v "flutter")" ]; then
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     # Flutter ships macOS as two archives. The workflows run on macos-15, which is
     # Apple Silicon, so taking the x64 one puts the whole Dart and Flutter
-    # toolchain under Rosetta.
-    if [[ "$(uname -m)" == "arm64" ]]; then
+    # toolchain under Rosetta. `uname -m` reports x86_64 from a shell that is
+    # itself under Rosetta, so ask sysctl about the hardware as well; Flutter's
+    # own bin/internal/update_dart_sdk.sh does the same.
+    if [[ "$(uname -m)" == "arm64" || "$(sysctl -n hw.optional.arm64 2>/dev/null)" == "1" ]]; then
       FLUTTER_MACOS_ARCH="arm64_"
       FLUTTER_CHECKSUM_MACOS="${FLUTTER_CHECKSUM_MACOS_ARM64}"
     else
