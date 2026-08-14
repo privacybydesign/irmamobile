@@ -3,7 +3,7 @@ import "dart:io";
 import "dart:math";
 
 import "package:collection/collection.dart";
-import "package:flutter/cupertino.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";

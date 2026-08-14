@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../models/native_events.dart";
 import "../../providers/irma_repository_provider.dart";

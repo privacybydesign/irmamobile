@@ -1,6 +1,6 @@
-import "package:flutter/cupertino.dart";
-import "package:flutter/material.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_bottom_bar.dart";

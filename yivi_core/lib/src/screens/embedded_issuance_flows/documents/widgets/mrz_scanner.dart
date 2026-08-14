@@ -1,9 +1,9 @@
 import "dart:io";
 
 import "package:camera/camera.dart";
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../../routing.dart";

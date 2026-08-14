@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";

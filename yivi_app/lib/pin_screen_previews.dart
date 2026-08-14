@@ -31,15 +31,13 @@
 // covered by the Choose previews. The distinct change screen is verify-old-PIN
 // (plain entry), previewed under "Change / Reset".
 
-import "package:flutter/material.dart";
 import "package:flutter/widget_previews.dart";
 // ignore_for_file: depend_on_referenced_packages, implementation_imports
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_i18n/loaders/decoders/json_decode_strategy.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:google_fonts/google_fonts.dart";
-
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/package_name.dart";
 import "package:yivi_core/src/screens/pin/yivi_pin_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
@@ -93,9 +91,7 @@ Widget pinPreviewWrapper(Widget child) => MaterialApp(
   debugShowCheckedModeBanner: false,
   localizationsDelegates: [
     _buildI18nDelegate(),
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
+    ...GlobalMaterialLocalizations.delegates,
   ],
   supportedLocales: const [Locale("en", "US")],
   home: IrmaTheme(

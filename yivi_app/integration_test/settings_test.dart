@@ -1,10 +1,9 @@
 import "dart:io";
 
-import "package:flutter/cupertino.dart";
-import "package:flutter/material.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
-
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/change_pin/widgets/confirm_pin_reset_dialog.dart";

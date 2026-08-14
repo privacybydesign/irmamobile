@@ -1,9 +1,7 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_test/flutter_test.dart";
-
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
@@ -21,9 +19,7 @@ Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
               forcedLocale: const Locale("en", "US"),
             ),
           ),
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
+          ...GlobalMaterialLocalizations.delegates,
         ],
         home: FaceVerificationIntroScreen(onStart: onStart, onCancel: onCancel),
       ),
