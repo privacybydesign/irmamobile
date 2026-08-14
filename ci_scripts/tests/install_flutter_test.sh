@@ -201,8 +201,71 @@ assert_contains "$CALLS" \
 assert_contains "$CALLS" "shasum $SUM_LINUX flutter.tar.xz" "linux"
 
 # -----------------------------------------------------------------------------
+echo "the pinned checksums are the ones Flutter published"
+# -----------------------------------------------------------------------------
+# Every check above reads the checksums out of the script, so together they
+# prove each branch reaches for the right variable, but not that the variable
+# holds the right hash. Swapping the two macOS values passes all of them, and
+# that is exactly the slip the architecture split invites: the checksums sit on
+# adjacent lines and neither one carries its architecture anywhere a reader can
+# check it against. Only a source outside the script settles it, so read the
+# release manifest.
+#
+# A macOS-only failure is what a wrong value costs: shasum rejects the archive
+# on the runner and the job dies at setup with no hint at which of the two
+# lines is wrong.
+MANIFEST_SKIPS=0
+
+# Print the sha256 the manifest lists for one archive. Returns non-zero only
+# when the manifest cannot be fetched; an archive that is absent from it prints
+# nothing and succeeds, which the caller reports separately.
+manifest_sha256() {
+  local platform="$1" archive="$2" manifest="$WORK/releases_$platform.json"
+  if [ ! -s "$manifest" ]; then
+    curl -sSf --max-time 60 -o "$manifest" \
+      "https://storage.googleapis.com/flutter_infra_release/releases/releases_$platform.json" \
+      2>/dev/null || return 1
+  fi
+  # The manifest is pretty-printed one field per line, and "sha256" is the
+  # field right after the "archive" it belongs to.
+  awk -v want="\"$CHANNEL/$platform/$archive\"," '
+    $1 == "\"archive\":"           { found = ($2 == want) }
+    found && $1 == "\"sha256\":"   { gsub(/[",]/, "", $2); print $2; exit }
+  ' "$manifest"
+}
+
+assert_published_checksum() {
+  local platform="$1" archive="$2" expected="$3" what="$4"
+  local actual
+  if ! actual="$(manifest_sha256 "$platform" "$archive")"; then
+    echo "  SKIP: could not fetch the $platform release manifest" >&2
+    MANIFEST_SKIPS=$((MANIFEST_SKIPS + 1))
+    return
+  fi
+  if [ -z "$actual" ]; then
+    fail "$what: $archive is not in the $platform release manifest"
+  elif [ "$actual" != "$expected" ]; then
+    fail "$what: the script pins $expected, the manifest publishes $actual"
+  fi
+}
+
+assert_published_checksum macos "flutter_macos_$VERSION-$CHANNEL.zip" \
+  "$SUM_MACOS_X64" "macOS x64"
+assert_published_checksum macos "flutter_macos_arm64_$VERSION-$CHANNEL.zip" \
+  "$SUM_MACOS_ARM64" "macOS arm64"
+assert_published_checksum linux "flutter_linux_$VERSION-$CHANNEL.tar.xz" \
+  "$SUM_LINUX" "Linux"
+
+# -----------------------------------------------------------------------------
 if [ "$FAILURES" -ne 0 ]; then
   echo "$FAILURES check(s) failed" >&2
   exit 1
+fi
+if [ "$MANIFEST_SKIPS" -ne 0 ]; then
+  # Not a failure: a network blip should not break the lint gate. It does mean
+  # the checksum values went unchecked on this run, so say so rather than
+  # letting "All checks passed" imply more than it covered.
+  echo "All checks passed ($MANIFEST_SKIPS checksum(s) unverified, manifest unreachable)"
+  exit 0
 fi
 echo "All checks passed"
