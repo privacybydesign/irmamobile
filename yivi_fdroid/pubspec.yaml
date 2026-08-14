@@ -2,7 +2,7 @@ name: yivi
 description: "Yivi App"
 
 # A build number cannot be reused once a build is in use on Android.
-version: 8.1.2+4194516
+version: 8.2.0+4194517
 
 publish_to: none
 
@@ -17,6 +17,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   sentry_flutter: ^9.4.0
   flutter_zxing: ^2.3.0
+  # BSD-licensed official Flutter WebView plugin (wraps the system WebView via
+  # androidx.webkit). Hosts Regula's web Face SDK for the FOSS liveness flow so
+  # no proprietary native binaries ship in the F-Droid APK (see #665).
+  webview_flutter: ^4.13.0
+  # Android implementation of webview_flutter (BSD). Referenced directly for
+  # AndroidWebViewController to grant the in-page camera permission request.
+  webview_flutter_android: ^4.13.0
   yivi_core:
     path: ../yivi_core
 
