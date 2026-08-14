@@ -8,6 +8,7 @@ import "src/data/irma_repository.dart";
 import "src/prototypes/prototypes_screen.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/theme/theme.dart";
+import "src/widgets/legacy_material_bridge.dart";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +50,8 @@ class PrototypesApp extends StatelessWidget {
           locale: const Locale("nl", "NL"),
           initialRoute: PrototypesScreen.routeName,
           routes: routes,
+          builder: (context, child) =>
+              LegacyMaterialBridge(child: child ?? const SizedBox.shrink()),
         );
       },
     ),

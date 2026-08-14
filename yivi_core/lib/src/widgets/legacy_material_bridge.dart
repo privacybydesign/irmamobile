@@ -16,6 +16,13 @@ import "package:material_ui/material_ui.dart";
 /// The [core.Material] is transparent, so it paints nothing and absorbs no hit
 /// tests; it is only there to be found. [App] wraps the whole app in this.
 /// Delete it once those packages have moved to the standalone libraries.
+///
+/// App-wide placement costs one frame at startup:
+/// `MaterialUiCompatibilityBridge` wraps its child in a `Localizations.override`
+/// that re-runs every parent delegate in a second scope, so the asynchronous
+/// `FlutterI18nDelegate` resolves twice and the first text below this widget
+/// takes 3 pumps instead of 2. That happens behind the splash screen, and it
+/// goes away with the bridge.
 class LegacyMaterialBridge extends StatelessWidget {
   final Widget child;
 
