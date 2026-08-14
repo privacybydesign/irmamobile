@@ -32,6 +32,23 @@ Widget _app({required Widget child, required bool bridge}) {
   );
 }
 
+/// The style on the rendered span that holds [text].
+TextStyle? _styleOfText(WidgetTester tester, String text) {
+  TextStyle? style;
+  for (final richText in tester.widgetList<RichText>(find.byType(RichText))) {
+    richText.text.visitChildren((span) {
+      if (span is TextSpan && span.text == text) {
+        style = span.style;
+        return false;
+      }
+      return true;
+    });
+    if (style != null) break;
+  }
+  expect(style, isNotNull, reason: "nothing rendered the text: $text");
+  return style;
+}
+
 void main() {
   testWidgets("legacy widgets see the Yivi theme through the bridge", (
     tester,
@@ -64,14 +81,15 @@ void main() {
     await tester.pumpAndSettle();
 
     // IrmaMarkdown now reads the core SDK theme, because flutter_markdown's
-    // MarkdownStyleSheet.fromTheme still takes the core SDK ThemeData.
-    final paragraph = tester.widget<RichText>(find.byType(RichText).first);
+    // MarkdownStyleSheet.fromTheme still takes the core SDK ThemeData. Read the
+    // style off the span holding the text, which is the one the style sheet
+    // feeds: the span above it carries the ambient DefaultTextStyle that the
+    // bridge's own Material installs, and that one looks right whatever
+    // MarkdownStyleSheet.p says.
     final bodyMedium = IrmaThemeData().textTheme.bodyMedium!;
-    expect(
-      (paragraph.text as TextSpan).style?.fontFamily,
-      bodyMedium.fontFamily,
-    );
-    expect((paragraph.text as TextSpan).style?.fontSize, bodyMedium.fontSize);
+    final style = _styleOfText(tester, "hello world");
+    expect(style?.fontFamily, bodyMedium.fontFamily);
+    expect(style?.fontSize, bodyMedium.fontSize);
   });
 
   testWidgets("a legacy widget builds inside the app tree", (tester) async {
