@@ -1,4 +1,5 @@
-import "package:flutter/material.dart";
+// intl_phone_number_input still takes the core SDK's InputDecoration.
+import "package:flutter/material.dart" as core;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
@@ -7,6 +8,7 @@ import "package:intl_phone_number_input/intl_phone_number_input.dart";
 import "package:intl_phone_number_input/src/models/country_list.dart";
 // ignore: implementation_imports
 import "package:intl_phone_number_input/src/models/country_model.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/sms_issuance_provider.dart";
 import "../../../../theme/theme.dart";
@@ -244,13 +246,13 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
                               spaceBetweenSelectorAndTextField:
                                   theme.smallSpacing,
                               focusNode: _focusNode,
-                              inputDecoration: InputDecoration(
+                              inputDecoration: core.InputDecoration(
                                 hint: TranslatedText(
                                   "sms_issuance.enter_phone.phone_hint",
                                   style: TextStyle(color: Colors.grey),
                                 ),
                               ),
-                              searchBoxDecoration: InputDecoration(
+                              searchBoxDecoration: core.InputDecoration(
                                 label: TranslatedText(
                                   "sms_issuance.enter_phone.search_label",
                                 ),

@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart";
 import "../../../widgets/irma_confirmation_dialog.dart";

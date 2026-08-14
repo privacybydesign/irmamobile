@@ -34,17 +34,19 @@ dependencies:
   flutter_face_core_basic: ^8.2.461
 
   flutter_i18n: any
-  flutter_localizations:
-    sdk: flutter
   flutter_svg: any
   google_fonts: any
   flutter_riverpod: any
+  material_ui: any
 dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+  # Only the integration tests reach for Cupertino widgets directly.
+  cupertino_ui: any
 
   # Used only by `lib/credential_card_previews.dart` to pre-load Alexandria /
   # Open Sans for widget previews. Loaded at runtime from Google's CDN so the
