@@ -247,6 +247,11 @@ class IrmaPreferences {
 
   Stream<String> getPreferredLanguageCode() => _preferredLanguageCode;
 
+  /// The current preferred-language override, read synchronously. Empty string
+  /// means "follow the system language". Used to compute the effective app
+  /// language at bridge startup, before any stream has emitted.
+  String get preferredLanguageCode => _preferredLanguageCode.getValue();
+
   Future<bool> setPreferredLanguageCode(String value) =>
       _preferredLanguageCode.setValue(value);
 

@@ -19,3 +19,17 @@ Map<String, dynamic> _$InstallCertificateEventToJson(
   'type': instance.type,
   'pem_content': instance.pemContent,
 };
+
+RemoveCertificateEvent _$RemoveCertificateEventFromJson(
+  Map<String, dynamic> json,
+) => RemoveCertificateEvent(
+  type: json['type'] as String,
+  thumbprint: json['thumbprint'] as String,
+);
+
+Map<String, dynamic> _$RemoveCertificateEventToJson(
+  RemoveCertificateEvent instance,
+) => <String, dynamic>{
+  'type': instance.type,
+  'thumbprint': instance.thumbprint,
+};

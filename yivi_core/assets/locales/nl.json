@@ -557,7 +557,8 @@
     "privacy_policy": "Yivi's privacyregels",
     "privacy_policy_link": "https://www.yivi.app/privacy",
     "app_id": "App-ID {id}",
-    "log_out": "Uitloggen"
+    "log_out": "Uitloggen",
+    "logged_out_toast": "Je bent uitgelogd"
   },
   "pin": {
     "subtitle": "Voer je pincode in",
@@ -783,6 +784,18 @@
     "title": "Geen cameratoegang",
     "content": "Yivi heeft toegang tot de camera nodig om je document automatisch te scannen. Geef Yivi toestemming om de camera te gebruiken via de systeeminstellingen of voer de benodigde gegevens handmatig in.",
     "open_settings": "Open instellingen"
+  },
+  "face_verification": {
+    "title": "Gezichtsverificatie",
+    "preparing": "Een moment, je gegevens worden voorbereid…",
+    "intro": {
+      "explanation": "We doen nu een korte gezichtscontrole om te bevestigen dat jij de persoon op het document bent.",
+      "tip_camera": "Richt de selfie camera op je gezicht.",
+      "tip_lighting": "Zorg voor voldoende licht.",
+      "tip_look_straight": "Kijk recht in de camera.",
+      "tip_no_accessories": "Verwijder brillen, hoeden, etc.",
+      "start": "Start verificatie"
+    }
   },
   "driving_licence": {
     "scan": {
@@ -1011,6 +1024,8 @@
         "title": "Certificaat installeren",
         "content": "Voer de PEM gecodeerde inhoud van het certificaat in dat je wilt installeren:"
       },
+      "remove_cert": "Certificaat verwijderen",
+      "removed": "Certificaat verwijderd",
       "warning_dialog": {
         "title": "Pas op!",
         "content": "Je staat op het punt om certificaten aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
