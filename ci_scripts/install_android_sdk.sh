@@ -4,7 +4,11 @@
 # "$ANDROID_HOME/cmdline-tools/bin" needs to be added to the PATH.
 set -euxo pipefail
 
-ANDROID_SDK_CHECKSUM="124f2d5115eee365df6cf3228ffbca6fc3911d16f8025bebd5b1c6e2fcfa7faf"
+# Keep the command line tools recent enough to see the platforms below. The
+# 2021 build this used to pin lists nothing past platforms;android-36, so
+# installing android-37 silently found no package.
+ANDROID_SDK_TOOLS_ZIP="commandlinetools-linux-15859902_latest.zip"
+ANDROID_SDK_CHECKSUM="4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583"
 ANDROID_NDK_VERSION="28.2.13676358"
 
 if [[ -z "$ANDROID_HOME" ]]; then
@@ -37,7 +41,7 @@ fi
 
 mkdir -p "$ANDROID_HOME"
 pushd "$ANDROID_HOME"
-wget -q -O sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
+wget -q -O sdk.zip "https://dl.google.com/android/repository/${ANDROID_SDK_TOOLS_ZIP}"
 shasum -a 256 -c - <<< "${ANDROID_SDK_CHECKSUM}  sdk.zip"
 
 unzip -q sdk.zip -d "$ANDROID_HOME"
@@ -59,6 +63,7 @@ sdkmanager --sdk_root="$ANDROID_HOME" \
   "cmake;3.22.1" \
   "platforms;android-35" \
   "platforms;android-36" \
+  "platforms;android-37.0" \
   "build-tools;36.1.0"
 
 # Ensure that right NDK version is selected.
