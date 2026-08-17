@@ -4,11 +4,21 @@
 # "$ANDROID_HOME/cmdline-tools/bin" needs to be added to the PATH.
 set -euxo pipefail
 
-# Keep the command line tools recent enough to see the platforms below. The
-# 2021 build this used to pin lists nothing past platforms;android-36, so
-# installing android-37 silently found no package.
-ANDROID_SDK_TOOLS_ZIP="commandlinetools-linux-15859902_latest.zip"
-ANDROID_SDK_CHECKSUM="4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583"
+# The command line tools are pinned between two bounds, so read both before
+# bumping this:
+#
+#  * New enough to see the platforms below. The 2021 build we used to pin lists
+#    nothing past platforms;android-36, so installing android-37 found no
+#    package at all.
+#  * Old enough to write SDK XML version 3. Revision 17.0 and up write version
+#    4, which the Android Gradle Plugin cannot read ("This version only
+#    understands SDK XML versions up to 3"); it then cannot see the platform it
+#    just installed and fails with "Failed to find target with hash string
+#    'android-37'".
+#
+# Revision 16.0 is the newest that satisfies both.
+ANDROID_SDK_TOOLS_ZIP="commandlinetools-linux-12266719_latest.zip"
+ANDROID_SDK_CHECKSUM="3fab261d5219d582321db0c5670b3bbafd563096bce3f6277eb358807fc15f6e"
 ANDROID_NDK_VERSION="28.2.13676358"
 
 if [[ -z "$ANDROID_HOME" ]]; then
@@ -58,14 +68,15 @@ set -o pipefail
 # There is no convenient way to determine this in Flutter yet. Therefore, we hardcode some versions here.
 # Issue: https://github.com/flutter/flutter/issues/63533
 #
-# Everything the build needs must be listed here, not just the versions we name
-# ourselves: if the Android Gradle Plugin installs any component itself during a
-# build, the SDK it already loaded goes stale and resolving compileSdk 37 fails
-# with "Failed to find target with hash string 'android-37'" in that same run.
-# build-tools 35.0.0 is AGP 8.13's own default, which is why it is here next to
-# the 36.1.0 we ask for.
+# Everything the build needs should be listed here, not just the versions we
+# name ourselves, so that the Android Gradle Plugin never has to install a
+# component mid-build. build-tools 35.0.0 is AGP 8.13's own default, which is
+# why it is here next to the 36.1.0 we ask for. cmdline-tools is pinned to a
+# revision rather than `latest` for the SDK XML reason above; nothing reads the
+# installed copy either way, since the PATH points at the unzipped
+# cmdline-tools/bin.
 sdkmanager --sdk_root="$ANDROID_HOME" \
-  "cmdline-tools;latest" \
+  "cmdline-tools;16.0" \
   "ndk;$ANDROID_NDK_VERSION" \
   "cmake;3.22.1" \
   "platforms;android-35" \
