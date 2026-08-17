@@ -57,6 +57,13 @@ set -o pipefail
 # Which versions we need is dependent on our target Android SDK and the target Android SDK of our dependencies.
 # There is no convenient way to determine this in Flutter yet. Therefore, we hardcode some versions here.
 # Issue: https://github.com/flutter/flutter/issues/63533
+#
+# Everything the build needs must be listed here, not just the versions we name
+# ourselves: if the Android Gradle Plugin installs any component itself during a
+# build, the SDK it already loaded goes stale and resolving compileSdk 37 fails
+# with "Failed to find target with hash string 'android-37'" in that same run.
+# build-tools 35.0.0 is AGP 8.13's own default, which is why it is here next to
+# the 36.1.0 we ask for.
 sdkmanager --sdk_root="$ANDROID_HOME" \
   "cmdline-tools;latest" \
   "ndk;$ANDROID_NDK_VERSION" \
@@ -64,6 +71,7 @@ sdkmanager --sdk_root="$ANDROID_HOME" \
   "platforms;android-35" \
   "platforms;android-36" \
   "platforms;android-37.0" \
+  "build-tools;35.0.0" \
   "build-tools;36.1.0"
 
 # Ensure that right NDK version is selected.
