@@ -35,7 +35,7 @@ apply plugin: "kotlin-android"
 android {
     namespace = "foundation.privacybydesign.yivi_core"
 
-    compileSdk = 36
+    compileSdk = 37
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
