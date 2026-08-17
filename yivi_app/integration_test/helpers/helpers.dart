@@ -18,6 +18,7 @@ import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
+import "package:yivi_core/src/screens/loading/loading_screen.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
@@ -29,6 +30,7 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_heade
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/lock_gate.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -105,6 +107,19 @@ Future<void> pumpYiviApp(
   await tester.waitFor(
     find.descendant(of: find.byType(YiviApp), matching: find.byType(App)),
   );
+
+  // App existing is not enough: everything below it can still be missing, and
+  // a Localizations scope that has not resolved yet renders a
+  // SizedBox.shrink() without scheduling a frame, so pumpAndSettle can return
+  // with the subtree blanked out. LockGate is the first widget App's builder
+  // puts below itself, so finding it proves the subtree is mounted.
+  await tester.waitFor(find.byType(LockGate));
+
+  // The router starts at /loading, and LoadingScreen only subscribes to the
+  // enrollment status in a post-frame callback before routing on to enrollment
+  // or home. Wait for it to hand over, so callers see the screen the app
+  // actually chose rather than the splash.
+  await tester.waitUntilDisappeared(find.byType(LoadingScreen));
 }
 
 // Pump a new app and unlock it
