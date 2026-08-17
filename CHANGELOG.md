@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Take the Material and Cupertino widgets from the standalone `material_ui` and `cupertino_ui` packages, which Flutter 3.47 split out of the SDK and deprecates there in November. Packages that still import the SDK copies keep the Yivi theme through a compatibility bridge around the app
 - Install the arm64 Flutter SDK on Apple Silicon, so the macOS CI jobs no longer run the whole toolchain under Rosetta
 - Render markdown with `flutter_markdown_plus` instead of `flutter_markdown`, which the Flutter team discontinued, and update `pinput` to 6.0.2
+- Bump gomobile to v0.0.0-20260816165457-f98cc9b3c733, whose bind generator handles Go type aliases natively and so no longer needs the `gotypesalias=0` godebug workaround. The bindings it generates for the Go bridge are unchanged
+- Install Go 1.26 in CI, the version `yivi_core/go.mod` asks for, so the jobs no longer download a second toolchain on top of the one they just installed
 
 ## [8.2.0] - 2026-08-12
 ### Added
