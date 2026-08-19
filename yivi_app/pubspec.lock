@@ -525,14 +525,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  jailbreak_root_detection:
-    dependency: transitive
-    description:
-      name: jailbreak_root_detection
-      sha256: "550311c6ae22c2d36260347a1772e071c68387b4c814a705a559c50bf553b13c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.3"
   jni:
     dependency: transitive
     description:
