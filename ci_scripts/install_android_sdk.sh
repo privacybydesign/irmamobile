@@ -8,8 +8,7 @@ set -euxo pipefail
 # bumping this:
 #
 #  * New enough to see the platforms below. The 2021 build we used to pin lists
-#    nothing past platforms;android-36, so installing android-37 found no
-#    package at all.
+#    nothing past platforms;android-36.
 #  * Old enough to write SDK XML version 3. Revision 17.0 and up write version
 #    4, and the Android Gradle Plugin then warns on every build that it "only
 #    understands SDK XML versions up to 3", leaving it unable to read the
@@ -67,16 +66,12 @@ set -o pipefail
 # There is no convenient way to determine this in Flutter yet. Therefore, we hardcode some versions here.
 # Issue: https://github.com/flutter/flutter/issues/63533
 #
-# Everything the build touches must be listed here, not just the versions we
-# name ourselves. If the Android Gradle Plugin has to install a component of its
-# own accord mid-build, resolving our own compileSdk 37 can then fail in that
-# same run with "Failed to find target with hash string 'android-37'" — the
-# minor-versioned platform directory is android-37.0, and the lookup only
-# survives an SDK that was complete before Gradle started. So:
+# Everything the build touches should be listed here, not just the versions we
+# name ourselves, so the Android Gradle Plugin never downloads a component of its
+# own accord mid-build:
 #
-#  * 35 and 36 are the compileSdk of the Flutter plugins. Check with a fresh SDK
-#    after adding or upgrading plugins; anything missing gets downloaded
-#    mid-build.
+#  * 37 is our own compileSdk, 35 and 36 those of the Flutter plugins. Check with
+#    a fresh SDK after adding or upgrading plugins.
 #  * build-tools 35.0.0 is AGP 8.13's own default, next to the 36.1.0 we ask for.
 #
 # platform-tools comes along as a dependency, so it is not listed.

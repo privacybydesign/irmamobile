@@ -6,7 +6,8 @@ runs:
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 17
+        # 21 is the minimum for AGP 9: its bundled lint calls JDK 21 APIs.
+        java-version: 21
     - uses: actions/setup-go@v5
       with:
         # Keep this in step with the go directive in yivi_core/go.mod. If it lags behind,

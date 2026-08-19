@@ -48,6 +48,7 @@ public class RootDetectionPlugin implements MethodCallHandler, FlutterPlugin {
         return rootBeerSaysRooted(context) || suBinaryExists();
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean rootBeerSaysRooted(Context context) {
         RootBeer rootBeer = new RootBeer(context);
         // BusyBox ships with the stock ROM on these brands, so the full check reports
