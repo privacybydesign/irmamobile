@@ -24,8 +24,11 @@ void main() {
     expect(await RealRootedDeviceDetector().isDeviceRooted(), isFalse);
   });
 
-  test("no answer is not rooted, so the warning stays out of the way", () async {
-    answerWith(null);
-    expect(await RealRootedDeviceDetector().isDeviceRooted(), isFalse);
-  });
+  test(
+    "no answer is not rooted, so the warning stays out of the way",
+    () async {
+      answerWith(null);
+      expect(await RealRootedDeviceDetector().isDeviceRooted(), isFalse);
+    },
+  );
 }
