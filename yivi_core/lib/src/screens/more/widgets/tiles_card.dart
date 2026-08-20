@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/irma_divider.dart";

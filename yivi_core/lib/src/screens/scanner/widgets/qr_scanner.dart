@@ -1,9 +1,9 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/session.dart";
 import "../../../providers/qr_scanner_factory_provider.dart";

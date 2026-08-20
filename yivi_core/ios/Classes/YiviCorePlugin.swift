@@ -5,6 +5,7 @@ public class YiviCorePlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
     PrivacyScreenPlugin.register(with: registrar)
     IrmaMobileBridgePlugin.register(with: registrar)
+    RootDetectionPlugin.register(with: registrar)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {}

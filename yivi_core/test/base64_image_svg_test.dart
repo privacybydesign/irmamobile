@@ -1,8 +1,8 @@
 import "dart:convert";
 
-import "package:flutter/material.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/widgets/base64_image.dart";
 
 // Regression tests for privacybydesign/irmamobile#674: SD-JWT VC credential
