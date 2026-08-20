@@ -1,7 +1,7 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../providers/irma_repository_provider.dart";
 import "../../theme/theme.dart";

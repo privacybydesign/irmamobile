@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Internal
+- Upgrade Flutter to 3.47.0
+- Take the Material and Cupertino widgets from the standalone `material_ui` and `cupertino_ui` packages, which Flutter 3.47 split out of the SDK and deprecates there in November. Packages that still import the SDK copies keep the Yivi theme through a compatibility bridge around the app
+- Install the arm64 Flutter SDK on Apple Silicon, so the macOS CI jobs no longer run the whole toolchain under Rosetta
+- Render markdown with `flutter_markdown_plus` instead of `flutter_markdown`, which the Flutter team discontinued, and update `pinput` to 6.0.2
+- Bump gomobile to v0.0.0-20260816165457-f98cc9b3c733, whose bind generator handles Go type aliases natively and so no longer needs the `gotypesalias=0` godebug workaround. The bindings it generates for the Go bridge are unchanged
+- Install Go 1.26 in CI, the version `yivi_core/go.mod` asks for, so the jobs no longer download a second toolchain on top of the one they just installed
+- The compatibility bridge hands the translations the app root already resolved down to the widgets below it, rather than loading them a second time. Loading them twice left every screen under the bridge showing the previous language after a language switch, and blanked the app for an extra frame at startup
+- Upgrade the Android Gradle Plugin to 9.3.1, Gradle to 9.7.0 and the JDK to 21, which AGP 9 requires. Contributors need a JDK 21 as well; see the README. This also drops a `:irmagobridge` entry that pointed at a directory the apps never had, which Gradle 9 rejects, and updates Mockito, whose byte-buddy could not read JDK 21 class files
+- Compile against Android SDK 37, now that AGP 9 supports it, and update `permission_handler` to 13, which requires it
+- Upgrade the remaining Dart dependencies, including ML Kit text recognition, the Regula Face SDK, `mobile_scanner`, `sentry_flutter`, `flutter_riverpod` and `go_router`. `flutter_bloc` stays on 7 while the app moves off it. The iOS `Podfile.lock` is regenerated; an existing checkout needs `flutter clean` before the first iOS build, because the ML Kit pods moved from Objective-C to Swift
+- Read root and jailbreak status in `yivi_core` itself instead of through the `jailbreak_root_detection` package, of which the app used two calls out of eight. The checks it wrapped are kept: RootBeer plus the su and Magisk paths on Android, and the Cydia, suspicious-path and sandbox-write checks on iOS
+- Pre-install every Android SDK component the build needs in CI, and pin the command line tools between the two revisions that can both see the platforms we ask for and write metadata the Android Gradle Plugin can read
 
 ## [8.2.0] - 2026-08-12
 ### Added

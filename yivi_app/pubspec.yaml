@@ -17,12 +17,12 @@ dependencies:
   sentry_flutter: ^9.4.0
   yivi_core:
     path: ../yivi_core
-  google_mlkit_text_recognition: ^0.15.0
-  google_mlkit_commons: ^0.11.0
+  google_mlkit_text_recognition: ^0.17.1
+  google_mlkit_commons: ^0.13.0
   mobile_scanner: ^7.2.0
   camera: ^0.12.0+1
   smart_auth: ^3.2.0
-  pinput: ^6.0.1
+  pinput: ^6.0.2
   in_app_review: ^2.0.10
 
   # Regula Face SDK for the client-side liveness session (face verification).
@@ -34,17 +34,19 @@ dependencies:
   flutter_face_core_basic: ^8.2.461
 
   flutter_i18n: any
-  flutter_localizations:
-    sdk: flutter
   flutter_svg: any
   google_fonts: any
   flutter_riverpod: any
+  material_ui: any
 dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+  # Only the integration tests reach for Cupertino widgets directly.
+  cupertino_ui: any
 
   # Used only by `lib/credential_card_previews.dart` to pre-load Alexandria /
   # Open Sans for widget previews. Loaded at runtime from Google's CDN so the
