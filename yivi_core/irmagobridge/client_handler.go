@@ -2,17 +2,17 @@ package irmagobridge
 
 import (
 	"github.com/go-errors/errors"
-	irma "github.com/privacybydesign/irmago"
-	"github.com/privacybydesign/irmago/irmaclient"
+	"github.com/privacybydesign/irmago/client"
+	"github.com/privacybydesign/irmago/irma"
 )
 
-// compile-time type-check ClientHandler to implement irmaclient.ClientHandler
-var _ irmaclient.ClientHandler = (*clientHandler)(nil)
+// compile-time type-check ClientHandler to implement client.ClientHandler
+var _ client.ClientHandler = (*YiviClientHandler)(nil)
 
-type clientHandler struct {
+type YiviClientHandler struct {
 }
 
-func (i *clientHandler) ReportError(err error) {
+func (i *YiviClientHandler) ReportError(err error) {
 	wrappedErr, ok := err.(*errors.Error)
 	if !ok {
 		wrappedErr = errors.Wrap(err, 0)
@@ -20,19 +20,20 @@ func (i *clientHandler) ReportError(err error) {
 	reportError(wrappedErr, false)
 }
 
-func (ch *clientHandler) Revoked(cred *irma.CredentialIdentifier) {
+// CredentialsChanged is the client's single "what you are showing is stale"
+// signal: an issuance, a revocation status that moved either way, or a logo
+// that finished downloading. It names no credential, so the app re-reads the
+// whole list.
+//
+// Recovered here because every caller is an irmago goroutine that does not
+// recover: the scheduled status sweep (gocron swallows the panic and reports it
+// nowhere), the logo-backfill worker, and the witness-update job.
+func (ch *YiviClientHandler) CredentialsChanged() {
+	defer recoverFromPanic("CredentialsChanged panicked")
 	dispatchCredentialsEvent()
 }
 
-func (ch *clientHandler) UpdateConfiguration(new *irma.IrmaIdentifierSet) {
-	dispatchConfigurationEvent()
-}
-
-func (ch *clientHandler) UpdateAttributes() {
-	dispatchCredentialsEvent()
-}
-
-func (ch *clientHandler) EnrollmentFailure(managerIdentifier irma.SchemeManagerIdentifier, plainErr error) {
+func (ch *YiviClientHandler) EnrollmentFailure(managerIdentifier irma.SchemeManagerIdentifier, plainErr error) {
 	// Make sure the error is wrapped in a SessionError, so we only have one type to handle in irma_mobile
 	err, ok := plainErr.(*irma.SessionError)
 	if !ok {
@@ -45,14 +46,14 @@ func (ch *clientHandler) EnrollmentFailure(managerIdentifier irma.SchemeManagerI
 	})
 }
 
-func (ch *clientHandler) EnrollmentSuccess(managerIdentifier irma.SchemeManagerIdentifier) {
+func (ch *YiviClientHandler) EnrollmentSuccess(managerIdentifier irma.SchemeManagerIdentifier) {
 	dispatchEnrollmentStatusEvent()
 	dispatchEvent(&enrollmentSuccessEvent{
 		SchemeManagerID: managerIdentifier,
 	})
 }
 
-func (ch *clientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerIdentifier, plainErr error) {
+func (ch *YiviClientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerIdentifier, plainErr error) {
 	// Make sure the error is wrapped in a SessionError, so we only have one type to handle in irma_mobile
 	err, ok := plainErr.(*irma.SessionError)
 	if !ok {
@@ -65,11 +66,11 @@ func (ch *clientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerId
 	})
 }
 
-func (ch *clientHandler) ChangePinSuccess() {
+func (ch *YiviClientHandler) ChangePinSuccess() {
 	dispatchEvent(&changePinSuccessEvent{})
 }
 
-func (ch *clientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManagerIdentifier, remainingAttempts int) {
+func (ch *YiviClientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManagerIdentifier, remainingAttempts int) {
 	dispatchEvent(&changePinFailedEvent{
 		SchemeManagerID:   managerIdentifier,
 		RemainingAttempts: remainingAttempts,
@@ -77,7 +78,7 @@ func (ch *clientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManager
 	})
 }
 
-func (ch *clientHandler) ChangePinBlocked(managerIdentifier irma.SchemeManagerIdentifier, timeout int) {
+func (ch *YiviClientHandler) ChangePinBlocked(managerIdentifier irma.SchemeManagerIdentifier, timeout int) {
 	dispatchEvent(&changePinFailedEvent{
 		SchemeManagerID:   managerIdentifier,
 		RemainingAttempts: 0,

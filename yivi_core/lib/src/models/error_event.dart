@@ -4,15 +4,12 @@ import "event.dart";
 
 part "error_event.g.dart";
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class ErrorEvent extends Event {
-  @JsonKey(name: "Exception")
   final String exception;
 
-  @JsonKey(name: "Stack")
   final String stack;
 
-  @JsonKey(name: "Fatal")
   final bool fatal;
 
   ErrorEvent({

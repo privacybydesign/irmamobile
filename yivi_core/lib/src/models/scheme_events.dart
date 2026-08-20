@@ -4,12 +4,10 @@ import "event.dart";
 
 part "scheme_events.g.dart";
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class InstallSchemeEvent extends Event {
-  @JsonKey(name: "URL")
   final String url;
 
-  @JsonKey(name: "PublicKey")
   final String publicKey;
 
   InstallSchemeEvent({required this.url, required this.publicKey});
@@ -19,9 +17,8 @@ class InstallSchemeEvent extends Event {
   Map<String, dynamic> toJson() => _$InstallSchemeEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RemoveSchemeEvent extends Event {
-  @JsonKey(name: "SchemeID")
   final String schemeId;
 
   RemoveSchemeEvent({required this.schemeId});
@@ -31,9 +28,8 @@ class RemoveSchemeEvent extends Event {
   Map<String, dynamic> toJson() => _$RemoveSchemeEventToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RemoveRequestorSchemeEvent extends Event {
-  @JsonKey(name: "SchemeID")
   final String schemeId;
 
   RemoveRequestorSchemeEvent({required this.schemeId});

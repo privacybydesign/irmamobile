@@ -1,0 +1,327 @@
+import "dart:convert";
+
+import "package:flutter/foundation.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:http/http.dart" as http;
+import "package:pinput/pinput.dart";
+
+import "../models/session.dart";
+import "../util/altcha_solver.dart";
+import "./provider_helpers.dart" as helpers;
+
+final smsIssuerUrlProvider = NotifierProvider(
+  () => helpers.ValueNotifier("https://sms-issuer.staging.yivi.app"),
+);
+
+final smsRetrieverProvider = Provider<SmsRetriever?>((ref) => null);
+
+final smsIssuerApiProvider = Provider<SmsIssuerApi>(
+  (ref) => DefaultSmsIssuerApi(host: ref.watch(smsIssuerUrlProvider)),
+);
+
+final smsIssuanceProvider = NotifierProvider.autoDispose(SmsIssuer.new);
+
+abstract class SmsIssuerApi {
+  /// Starts session at sms issuer
+  Future<void> sendSms({required String phoneNumber, required String language});
+
+  /// Verifies the verification code and receives back a session pointer that
+  /// can be used to start the issuance session
+  Future<SessionPointer> verifyCode({
+    required String phoneNumber,
+    required String verificationCode,
+  });
+}
+
+class DefaultSmsIssuerApi implements SmsIssuerApi {
+  final String host;
+  final http.Client _client;
+
+  DefaultSmsIssuerApi({required this.host, http.Client? client})
+    : _client = client ?? http.Client();
+
+  @override
+  Future<void> sendSms({
+    required String phoneNumber,
+    required String language,
+  }) async {
+    debugPrint("Sending sms for: $phoneNumber");
+
+    // Solve an ALTCHA proof-of-work challenge before asking the issuer to send
+    // an SMS. This taxes automated bulk requests with CPU. Issuers that do not
+    // hand out a challenge (ALTCHA disabled, or an older issuer) return null
+    // here, in which case we send without a solution.
+    final altcha = await _solveChallenge();
+
+    final payload = jsonEncode({
+      "phone": phoneNumber,
+      "language": language,
+      "altcha": ?altcha,
+    });
+    final url = "$host/api/embedded/send";
+    final response = await _client.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+      body: payload,
+    );
+    if (response.statusCode != 200) {
+      throw switch (response.body) {
+        "error:ratelimit" => SmsIssuanceRateLimitError(),
+        "error:invalid-captcha" => SmsIssuanceCaptchaError(),
+        "error:destination-not-allowed" =>
+          SmsIssuanceDestinationNotAllowedError(),
+        _ => SmsIssuanceInternalServerError(message: response.body),
+      };
+    }
+  }
+
+  /// Fetches an ALTCHA challenge from the issuer and solves it, returning the
+  /// base64 solution payload to attach as the `altcha` field.
+  ///
+  /// Returns null when the issuer does not hand out a challenge (for example an
+  /// older issuer, or one with ALTCHA disabled), so the caller can send without
+  /// one. Solving runs on background isolates so it never blocks the UI thread.
+  Future<String?> _solveChallenge() async {
+    final http.Response response;
+    try {
+      response = await _client.get(
+        Uri.parse("$host/api/embedded/altcha-challenge"),
+      );
+    } catch (_) {
+      return null;
+    }
+    if (response.statusCode != 200) return null;
+
+    final dynamic decoded;
+    try {
+      decoded = jsonDecode(response.body);
+    } on FormatException {
+      // Not a JSON challenge (for example an issuer that serves its SPA shell
+      // for unknown paths): treat as "no proof of work required".
+      return null;
+    }
+
+    final challenge = tryParseAltchaChallenge(decoded);
+    if (challenge == null) return null;
+
+    return solveAltchaChallenge(challenge);
+  }
+
+  @override
+  Future<SessionPointer> verifyCode({
+    required String phoneNumber,
+    required String verificationCode,
+  }) async {
+    final payload = jsonEncode({
+      "phone": phoneNumber,
+      "token": verificationCode,
+    });
+    final url = "$host/api/embedded/verify";
+    final response = await _client.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+      body: payload,
+    );
+
+    if (response.statusCode != 200) {
+      throw switch (response.body) {
+        "error:ratelimit" => SmsIssuanceRateLimitError(),
+        "error:cannot-validate-token" => SmsIssuanceInvalidCodeError(),
+        _ => SmsIssuanceInternalServerError(message: response.body),
+      };
+    }
+
+    final responseBody = jsonDecode(response.body);
+
+    final irmaServerUrlParam = responseBody["irma_server_url"];
+    final jwtUrlParam = responseBody["jwt"];
+
+    final ptr = SessionPointer.fromJson(
+      await _startIrmaSession(jwtUrlParam, irmaServerUrlParam),
+    );
+    ptr.continueOnSecondDevice = true;
+    return ptr;
+  }
+
+  Future<dynamic> _startIrmaSession(String jwt, String irmaServerUrl) async {
+    final response = await _client.post(
+      Uri.parse("$irmaServerUrl/session"),
+      body: jwt,
+    );
+    if (response.statusCode != 200) {
+      throw Exception("Store failed: ${response.statusCode} ${response.body}");
+    }
+
+    return json.decode(response.body)["sessionPtr"];
+  }
+}
+
+enum SmsIssuanceStage { enteringPhoneNumber, enteringVerificationCode, waiting }
+
+class SmsIssuanceState {
+  final SmsIssuanceStage stage;
+  final String enteredCode;
+  final String phoneNumber;
+  final SmsIssuanceError error;
+
+  SmsIssuanceState({
+    required this.stage,
+    required this.enteredCode,
+    required this.phoneNumber,
+    required this.error,
+  });
+
+  SmsIssuanceState copyWith({
+    SmsIssuanceStage? stage,
+    String? enteredCode,
+    String? phoneNumber,
+    SmsIssuanceError? error,
+  }) {
+    return SmsIssuanceState(
+      stage: stage ?? this.stage,
+      enteredCode: enteredCode ?? this.enteredCode,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      error: error ?? this.error,
+    );
+  }
+}
+
+class SmsIssuer extends Notifier<SmsIssuanceState> {
+  SmsIssuer();
+
+  @override
+  SmsIssuanceState build() {
+    return SmsIssuanceState(
+      stage: .enteringPhoneNumber,
+      enteredCode: "",
+      phoneNumber: "",
+      error: SmsIssuanceNoError(),
+    );
+  }
+
+  Future<void> sendSms({
+    required String phoneNumber,
+    required String language,
+  }) async {
+    state = SmsIssuanceState(
+      stage: .waiting,
+      enteredCode: "",
+      phoneNumber: phoneNumber,
+      error: SmsIssuanceNoError(),
+    );
+    await ref
+        .read(smsIssuerApiProvider)
+        .sendSms(phoneNumber: phoneNumber, language: language)
+        .then((_) {
+          state = state.copyWith(stage: .enteringVerificationCode);
+        })
+        .catchError((e) {
+          final err = switch (e) {
+            SmsIssuanceError() => e,
+            _ => SmsIssuanceGeneralError(message: e.toString()),
+          };
+
+          if (ref.mounted) {
+            state = state.copyWith(stage: .enteringPhoneNumber, error: err);
+          }
+        });
+  }
+
+  Future<SessionPointer?> verifyCode({required String code}) async {
+    try {
+      state = state.copyWith(enteredCode: code);
+      return await ref
+          .read(smsIssuerApiProvider)
+          .verifyCode(phoneNumber: state.phoneNumber, verificationCode: code);
+    } catch (e) {
+      final err = switch (e) {
+        SmsIssuanceError() => e,
+        _ => SmsIssuanceGeneralError(message: e.toString()),
+      };
+      state = state.copyWith(
+        enteredCode: "",
+        stage: .enteringVerificationCode,
+        error: err,
+      );
+    }
+    return null;
+  }
+
+  void resetError() {
+    state = state.copyWith(error: SmsIssuanceNoError());
+  }
+
+  void reset() {
+    state = SmsIssuanceState(
+      stage: .enteringPhoneNumber,
+      enteredCode: "",
+      phoneNumber: state.phoneNumber,
+      error: SmsIssuanceNoError(),
+    );
+  }
+
+  void goBackToEnterPhone() {
+    state = SmsIssuanceState(
+      stage: .enteringPhoneNumber,
+      enteredCode: "",
+      phoneNumber: state.phoneNumber,
+      error: SmsIssuanceNoError(),
+    );
+  }
+}
+
+// --------------------------------------------------
+
+abstract class SmsIssuanceError implements Exception {}
+
+class SmsIssuanceNoError extends SmsIssuanceError {}
+
+class SmsIssuanceRateLimitError extends SmsIssuanceError {
+  @override
+  String toString() {
+    return "Too many requests";
+  }
+}
+
+class SmsIssuanceInvalidCodeError extends SmsIssuanceError {
+  @override
+  String toString() {
+    return "Invalid code";
+  }
+}
+
+class SmsIssuanceCaptchaError extends SmsIssuanceError {
+  @override
+  String toString() {
+    return "Captcha validation failed";
+  }
+}
+
+class SmsIssuanceDestinationNotAllowedError extends SmsIssuanceError {
+  @override
+  String toString() {
+    return "Destination not allowed";
+  }
+}
+
+class SmsIssuanceGeneralError extends SmsIssuanceError {
+  final String message;
+
+  SmsIssuanceGeneralError({required this.message});
+
+  @override
+  String toString() {
+    return "General error: $message";
+  }
+}
+
+class SmsIssuanceInternalServerError extends SmsIssuanceError {
+  final String message;
+
+  SmsIssuanceInternalServerError({required this.message});
+
+  @override
+  String toString() {
+    return "Internal server error: $message";
+  }
+}

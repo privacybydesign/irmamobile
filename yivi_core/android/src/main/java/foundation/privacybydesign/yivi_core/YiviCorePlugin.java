@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import foundation.privacybydesign.yivi_core.irma_mobile_bridge.IrmaMobileBridge;
 import foundation.privacybydesign.yivi_core.plugins.iiab.IIABPlugin;
 import foundation.privacybydesign.yivi_core.plugins.privacy_screen.PrivacyScreenPlugin;
+import foundation.privacybydesign.yivi_core.plugins.root_detection.RootDetectionPlugin;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -18,7 +19,6 @@ import io.flutter.plugin.common.PluginRegistry;
 import irmagobridge.Irmagobridge;
 
 public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegistry.NewIntentListener {
-    private Uri initialURL;
     private IrmaMobileBridge bridge;
     private MethodChannel channel;
     private static final String CHANNEL_NAME = "irma.app/irma_mobile_bridge";
@@ -26,6 +26,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     private Context applicationContext;
     private IIABPlugin webBrowser;
     private PrivacyScreenPlugin privacyScreenPlugin;
+    private RootDetectionPlugin rootDetectionPlugin;
 
     public YiviCorePlugin() {
         Irmagobridge.prestart();
@@ -52,8 +53,6 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     public boolean onNewIntent(@NonNull Intent intent) {
         if (bridge != null) {
             bridge.onNewIntent(intent);
-        } else {
-            initialURL = intent.getData();
         }
         return true;
     }
@@ -87,6 +86,9 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
         privacyScreenPlugin = new PrivacyScreenPlugin();
         privacyScreenPlugin.onAttachedToEngine(binding);
+
+        rootDetectionPlugin = new RootDetectionPlugin();
+        rootDetectionPlugin.onAttachedToEngine(binding);
     }
 
     @Override
@@ -99,6 +101,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
         webBrowser.onDetachedFromEngine(binding);
         privacyScreenPlugin.onDetachedFromEngine(binding);
+        rootDetectionPlugin.onDetachedFromEngine(binding);
     }
 
     private void cleanupActivity() {
@@ -111,11 +114,27 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
     private void maybeCreateBridge() {
         if (bridge == null && channel != null && activity != null && applicationContext != null) {
-            bridge = new IrmaMobileBridge(applicationContext, activity, channel, initialURL);
+            Intent launchIntent = activity.getIntent();
+            Uri data = shouldDropDeepLink(launchIntent) ? null : launchIntent.getData();
+            bridge = new IrmaMobileBridge(applicationContext, activity, channel, data);
             channel.setMethodCallHandler(bridge);
-            // Only use initialURL once
-            initialURL = null;
         }
     }
-}
 
+    /**
+     * Decides whether the deep link carried by the launching intent must be ignored.
+     *
+     * <p>When the user relaunches the app from the recents list — or Android restores
+     * the task after a process kill — the original launching intent is replayed with
+     * {@link Intent#FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY} set. In that case the deep
+     * link has already been consumed, so re-firing it would replay a stale session URL
+     * as a brand new session (the bug fixed in #568). A genuine new deep link arrives
+     * without this flag (via {@code onNewIntent}), so it is left untouched.
+     *
+     * <p>Pure function of the intent's flags; extracted so the regression can be unit
+     * tested without an Activity lifecycle.
+     */
+    static boolean shouldDropDeepLink(Intent launchIntent) {
+        return (launchIntent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0;
+    }
+}

@@ -1,6 +1,5 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
-import "../models/issue_wizard.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
 import "../providers/irma_repository_provider.dart";
@@ -30,91 +29,38 @@ Future<void> handlePointer(
     return;
   }
 
-  int? sessionID;
   if (pointer is SessionPointer && context.mounted) {
-    sessionID = await _startSessionAndNavigate(
-      context,
-      pointer,
-      pushReplacement,
-    );
-  }
-
-  if (pointer is IssueWizardPointer && context.mounted) {
-    await _startIssueWizard(context, pointer, sessionID, pushReplacement);
+    _startSession(context, pointer, pushReplacement: pushReplacement);
   }
 }
 
-Future<void> _startIssueWizard(
+/// Dispatches a NewSessionEvent to Go and pushes [SessionScreen] synchronously.
+/// The session id is allocated Dart-side so the screen can mount immediately
+/// and render its existing "no state yet" loading branch while Go contacts
+/// the relying party.
+void _startSession(
   BuildContext context,
-  IssueWizardPointer wizardPointer,
-  int? sessionID,
-  bool pushReplacement,
-) async {
+  SessionPointer sessionPointer, {
+  bool pushReplacement = false,
+}) {
   final repo = IrmaRepositoryProvider.of(context);
-  repo.bridgedDispatch(GetIssueWizardContentsEvent(id: wizardPointer.wizard));
 
-  // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
-  // to the wallet, then the session screen is automatically dismissed, which cancels the session.
-  final params = IssueWizardRouteParams(
-    wizardID: wizardPointer.wizard,
-    sessionID: sessionID,
+  final sessionId = repo.allocateSessionId();
+  // Any session active at this moment is "underlying" — ours does not exist on
+  // the Go side yet, so we don't need to exclude it.
+  final hasUnderlying = repo.hasActiveSessions();
+
+  repo.bridgedDispatch(
+    NewSessionEvent(sessionId: sessionId, request: sessionPointer),
   );
-
-  if (pushReplacement) {
-    context.pushReplacementIssueWizardScreen(params);
-  } else {
-    await context.pushIssueWizardScreen(params);
-  }
-}
-
-Future<int> _startSessionAndNavigate(
-  BuildContext context,
-  SessionPointer sessionPointer,
-  bool pushReplacement,
-) async {
-  final repo = IrmaRepositoryProvider.of(context);
-  final event = NewSessionEvent(
-    request: sessionPointer,
-    previouslyLaunchedCredentials: await repo
-        .getPreviouslyLaunchedCredentials(),
-  );
-
-  final hasActiveSessions = await repo.hasActiveSessions();
-  final wizardActive = await repo.getIssueWizardActive().first;
-  repo.bridgedDispatch(event);
 
   final params = SessionRouteParams(
-    sessionID: event.sessionID,
-    sessionType: event.request.irmaqr,
-    hasUnderlyingSession: hasActiveSessions,
-    wizardActive: wizardActive,
-    wizardCred: wizardActive
-        ? (await repo.getIssueWizard().first)?.activeItem?.credential
-        : null,
+    sessionId: sessionId,
+    hasUnderlyingSession: hasUnderlying,
   );
-
-  if (!context.mounted) {
-    return event.sessionID;
-  }
-
-  if (const {
-    "issuing",
-    "disclosing",
-    "signing",
-    "redirect",
-  }.contains(params.sessionType)) {
-    if (pushReplacement) {
-      context.pushReplacementSessionScreen(params);
-    } else {
-      context.pushSessionScreen(params);
-    }
+  if (pushReplacement) {
+    context.pushReplacementSessionScreen(params);
   } else {
-    if (pushReplacement) {
-      context.pushReplacementUnknownSessionScreen(params);
-    } else {
-      context.pushUnknownSessionScreen(params);
-    }
+    context.pushSessionScreen(params);
   }
-
-  return event.sessionID;
 }

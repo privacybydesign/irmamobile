@@ -1,8 +1,9 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/irma_configuration.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/irma_credential_type_card.dart";
+import "../../../widgets/section_header.dart";
 
 class CredentialCategoryList extends StatelessWidget {
   final String categoryName;
@@ -27,10 +28,7 @@ class CredentialCategoryList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: theme.defaultSpacing),
-        Semantics(
-          header: true,
-          child: Text(categoryName, style: theme.textTheme.headlineMedium),
-        ),
+        SectionHeader.text(categoryName),
         SizedBox(height: theme.smallSpacing),
         ...credentialTypes.map(
           (credType) => Semantics(

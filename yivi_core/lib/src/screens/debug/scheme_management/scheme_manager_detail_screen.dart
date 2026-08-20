@@ -1,6 +1,6 @@
 import "package:collection/collection.dart";
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 import "package:rxdart/rxdart.dart";
 
 import "../../../models/authentication_events.dart";
@@ -42,7 +42,6 @@ class SchemeManagerDetailScreen extends StatelessWidget {
           appBar: IrmaAppBar(titleString: title, hasBorder: false),
           body: YiviPinScreen(
             instruction: instruction,
-            pinBloc: EnterPinStateBloc(maxPinSize),
             maxPinSize: maxPinSize,
             onSubmit: (pin) => navigator.pop(pin),
             listener: (context, state) {

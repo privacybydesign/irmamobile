@@ -1,12 +1,22 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
+import "package:flutter_i18n/loaders/translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/screens/error/blocked_screen.dart";
 import "package:yivi_core/src/screens/error/session_error_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+
+/// Stub loader that resolves immediately with an empty map. The production
+/// FileTranslationLoader reads JSON via rootBundle.loadString — real-time IO
+/// that the test framework's fake clock doesn't drive, so pumpAndSettle
+/// returns before Localizations rebuilds and every `find.byKey` sees 0
+/// widgets. Tests here only check widget structure, never translation
+/// content, so an empty map is enough.
+class _NoopTranslationLoader extends TranslationLoader {
+  @override
+  Future<Map> load() async => <String, dynamic>{};
+}
 
 class TestWidget extends StatelessWidget {
   final SessionError error;
@@ -17,15 +27,8 @@ class TestWidget extends StatelessWidget {
   Widget build(BuildContext context) => IrmaTheme(
     builder: (_) => MaterialApp(
       localizationsDelegates: [
-        FlutterI18nDelegate(
-          translationLoader: FileTranslationLoader(
-            basePath: "assets/locales",
-            forcedLocale: const Locale("nl", "NL"),
-          ),
-        ),
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+        FlutterI18nDelegate(translationLoader: _NoopTranslationLoader()),
+        ...GlobalMaterialLocalizations.delegates,
       ],
       home: SessionErrorScreen(error: error, onTapClose: () {}),
     ),

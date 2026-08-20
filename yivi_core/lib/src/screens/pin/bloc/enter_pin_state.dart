@@ -105,38 +105,3 @@ class EnterPinState {
     return EnterPinState._(pin, set, goodEnough);
   }
 }
-
-class EnterPinStateBloc extends Bloc<int, EnterPinState> {
-  final int maxPinSize;
-  EnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty());
-
-  @override
-  Stream<EnterPinState> mapEventToState(int event) async* {
-    Pin pin = Pin.from(state.pin);
-
-    if (event >= 0 && event < 10 && state.pin.length < maxPinSize) {
-      pin.add(event);
-    } else if (event.isNegative && state.pin.isNotEmpty) {
-      pin.removeLast();
-    }
-
-    yield EnterPinState.createFrom(pin: pin);
-  }
-}
-
-@visibleForTesting
-class TestEnterPinStateBloc extends Bloc<Pin, EnterPinState> {
-  final int maxPinSize;
-
-  TestEnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty());
-
-  @override
-  void add(Pin event) {
-    super.add(event.length > maxPinSize ? event.sublist(0, maxPinSize) : event);
-  }
-
-  @override
-  Stream<EnterPinState> mapEventToState(Pin event) async* {
-    yield EnterPinState.createFrom(pin: event);
-  }
-}

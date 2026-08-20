@@ -4,11 +4,10 @@ import "event.dart";
 
 part "set_crash_reporting_preference.g.dart";
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class SetCrashReportingPreferenceEvent extends Event {
   SetCrashReportingPreferenceEvent({required this.enableCrashReporting});
 
-  @JsonKey(name: "EnableCrashReporting")
   final bool enableCrashReporting;
 
   factory SetCrashReportingPreferenceEvent.fromJson(

@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_detail_screen.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_detail_issuance.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.dart";
@@ -45,8 +45,17 @@ void main() {
       expect(find.byType(ActivityDetailsScreen), findsOneWidget);
       expect(find.byType(ActivityDetailIssuance), findsOneWidget);
 
-      // Expect headers
-      expect(find.text("Activity"), findsOneWidget);
+      // Expect headers: the app bar title is the activity timestamp formatted
+      // as "<month> <day>, <year> at <h>:<mm> <AM/PM>", e.g.
+      // "April 10, 2026 at 1:23 PM". The separator before AM/PM is matched with
+      // `\s` (not a literal space): intl's en CLDR data (`jm` = 'h:mm a')
+      // emits a narrow no-break space (U+202F) there, which `\s` covers.
+      expect(
+        find.textContaining(
+          RegExp(r"^[A-Z][a-z]+ \d{1,2}, \d{4} at \d{1,2}:\d{2}\s(AM|PM)$"),
+        ),
+        findsOneWidget,
+      );
       expect(find.text("Received data"), findsOneWidget);
 
       // Find the activity card and check the content
@@ -56,38 +65,27 @@ void main() {
         activityCardFinder,
         credentialName: "Demo Personal data",
         issuerName: "Demo Municipality",
-        attributes: {
-          "Full name": "W.L. de Bruijn",
-          "Initials": "W.L.",
-          "First names": "Willeke Liselotte",
-          "Prefix": "de",
-          "Surname": "de Bruijn",
-          "Family name": "Bruijn",
-          "Gender": "V",
-          "Date of birth": "10-04-1965",
-          "Over 12": "Yes",
-          "Over 16": "Yes",
-          "Over 18": "Yes",
-          "Over 21": "Yes",
-          "Over 65": "No",
-          "Dutch nationality": "Yes",
-          "City of birth": "Arnhem",
-          "Country of birth": "Arnhem",
-          "BSN": "999999990",
-          "Assurance level": "Substantieel",
-        },
+        attributes: [
+          ("Full name", "W.L. de Bruijn"),
+          ("Initials", "W.L."),
+          ("First names", "Willeke Liselotte"),
+          ("Prefix", "de"),
+          ("Surname", "de Bruijn"),
+          ("Family name", "Bruijn"),
+          ("Gender", "V"),
+          ("Date of birth", "10-04-1965"),
+          ("Over 12", "Yes"),
+          ("Over 16", "Yes"),
+          ("Over 18", "Yes"),
+          ("Over 21", "Yes"),
+          ("Over 65", "No"),
+          ("Dutch nationality", "Yes"),
+          ("City of birth", "Arnhem"),
+          ("Country of birth", "Arnhem"),
+          ("BSN", "999999990"),
+          ("Assurance level", "Substantieel"),
+        ],
       );
-      // Find the activity timestamp
-      final timestampFinder = find.byKey(const Key("activity_timestamp"));
-      await tester.scrollUntilVisible(
-        timestampFinder,
-        150,
-        maxScrolls: 20,
-        duration: const Duration(
-          milliseconds: 500,
-        ), // Wait for scrollbar to flex back at the end of the list on iOS.
-      );
-      expect(timestampFinder, findsOneWidget);
     });
   });
 }

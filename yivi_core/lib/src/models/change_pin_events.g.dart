@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of "change_pin_events.dart";
+part of 'change_pin_events.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -8,24 +8,24 @@ part of "change_pin_events.dart";
 
 ChangePinEvent _$ChangePinEventFromJson(Map<String, dynamic> json) =>
     ChangePinEvent(
-      oldPin: json["OldPin"] as String,
-      newPin: json["NewPin"] as String,
+      oldPin: json['old_pin'] as String,
+      newPin: json['new_pin'] as String,
     );
 
 Map<String, dynamic> _$ChangePinEventToJson(ChangePinEvent instance) =>
-    <String, dynamic>{"OldPin": instance.oldPin, "NewPin": instance.newPin};
+    <String, dynamic>{'old_pin': instance.oldPin, 'new_pin': instance.newPin};
 
 ChangePinErrorEvent _$ChangePinErrorEventFromJson(Map<String, dynamic> json) =>
     ChangePinErrorEvent(
-      schemeManagerID: json["SchemeManagerID"] as String,
-      error: SessionError.fromJson(json["Error"] as Map<String, dynamic>),
+      schemeManagerID: json['scheme_manager_id'] as String,
+      error: SessionError.fromJson(json['error'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ChangePinErrorEventToJson(
   ChangePinErrorEvent instance,
 ) => <String, dynamic>{
-  "SchemeManagerID": instance.schemeManagerID,
-  "Error": instance.error,
+  'scheme_manager_id': instance.schemeManagerID,
+  'error': instance.error,
 };
 
 ChangePinSuccessEvent _$ChangePinSuccessEventFromJson(
@@ -39,15 +39,15 @@ Map<String, dynamic> _$ChangePinSuccessEventToJson(
 ChangePinFailedEvent _$ChangePinFailedEventFromJson(
   Map<String, dynamic> json,
 ) => ChangePinFailedEvent(
-  schemeManagerID: json["SchemeManagerID"] as String,
-  remainingAttempts: (json["RemainingAttempts"] as num).toInt(),
-  timeout: (json["Timeout"] as num).toInt(),
+  schemeManagerID: json['scheme_manager_id'] as String,
+  remainingAttempts: (json['remaining_attempts'] as num).toInt(),
+  timeout: (json['timeout'] as num).toInt(),
 );
 
 Map<String, dynamic> _$ChangePinFailedEventToJson(
   ChangePinFailedEvent instance,
 ) => <String, dynamic>{
-  "SchemeManagerID": instance.schemeManagerID,
-  "RemainingAttempts": instance.remainingAttempts,
-  "Timeout": instance.timeout,
+  'scheme_manager_id': instance.schemeManagerID,
+  'remaining_attempts': instance.remainingAttempts,
+  'timeout': instance.timeout,
 };

@@ -1,21 +1,21 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
+import "package:material_ui/material_ui.dart";
 
-import "../../../models/irma_configuration.dart";
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
 import "../../../util/navigation.dart";
 import "../../../util/string.dart";
+import "../../../widgets/base64_image.dart";
+import "../../../widgets/chevron.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_card.dart";
 import "../../../widgets/translated_text.dart";
 
 class ActivityCard extends StatelessWidget {
   final LogInfo logEntry;
-  final IrmaConfiguration irmaConfiguration;
 
-  const ActivityCard({required this.logEntry, required this.irmaConfiguration});
+  const ActivityCard({required this.logEntry});
 
   @override
   Widget build(BuildContext context) {
@@ -25,27 +25,17 @@ class ActivityCard extends StatelessWidget {
     String title = "";
     String subtitleTranslationKey = "";
     String semanticLabel = "";
-    String? logo;
+    Widget? logoImage;
 
-    final localizedTimeStamp = FlutterI18n.translate(
+    final localizedTimeStamp = _formatActivityTimestamp(
       context,
-      "credential.date_at_time",
-      translationParams: {
-        "date": DateFormat.yMMMMd(lang).format(logEntry.time),
-        "time": DateFormat.jm(lang).format(logEntry.time),
-      },
+      logEntry.time.toLocal(),
+      lang,
     );
 
     if (logEntry.type == LogType.removal) {
-      final credType =
-          irmaConfiguration.credentialTypes[logEntry
-              .removalLog!
-              .credentials
-              .first
-              .credentialType]!;
-      title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(
-        lang,
-      );
+      final firstCred = logEntry.removalLog!.credentials.first;
+      title = firstCred.issuer.name;
       subtitleTranslationKey = "activity.data_deleted";
       semanticLabel = FlutterI18n.translate(
         context,
@@ -53,16 +43,23 @@ class ActivityCard extends StatelessWidget {
         translationParams: {"issuerName": title, "date": localizedTimeStamp},
       );
 
-      if (credType.logo != null) {
-        logo = credType.logo;
-      }
+      logoImage = firstCred.image != null
+          ? Base64Image(
+              base64: firstCred.image!.base64,
+              mimeType: firstCred.image!.mimeType,
+            )
+          : null;
     } else {
       if (logEntry.type == LogType.issuance) {
-        final serverName = logEntry.issuanceLog!.issuer.name.translate(lang);
+        final serverName = logEntry.issuanceLog!.issuer?.name ?? "";
         title = serverName;
-        if (logEntry.issuanceLog!.issuer.logoPath != null) {
-          logo = logEntry.issuanceLog!.issuer.logoPath;
-        }
+        final issuerImage = logEntry.issuanceLog!.issuer?.image;
+        logoImage = issuerImage != null
+            ? Base64Image(
+                base64: issuerImage.base64,
+                mimeType: issuerImage.mimeType,
+              )
+            : null;
         subtitleTranslationKey = "activity.data_received";
         semanticLabel = FlutterI18n.translate(
           context,
@@ -70,13 +67,15 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.disclosure) {
-        final serverName = logEntry.disclosureLog!.verifier.name.translate(
-          lang,
-        );
+        final serverName = logEntry.disclosureLog!.verifier?.name ?? "";
         title = serverName;
-        if (logEntry.disclosureLog!.verifier.logoPath != null) {
-          logo = logEntry.disclosureLog!.verifier.logoPath;
-        }
+        final verifierImage = logEntry.disclosureLog!.verifier?.image;
+        logoImage = verifierImage != null
+            ? Base64Image(
+                base64: verifierImage.base64,
+                mimeType: verifierImage.mimeType,
+              )
+            : null;
 
         subtitleTranslationKey = "activity.data_shared";
         semanticLabel = FlutterI18n.translate(
@@ -85,13 +84,15 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.signature) {
-        final serverName = logEntry.signedMessageLog!.verifier.name.translate(
-          lang,
-        );
+        final serverName = logEntry.signedMessageLog!.verifier?.name ?? "";
         title = serverName;
-        if (logEntry.signedMessageLog!.verifier.logoPath != null) {
-          logo = logEntry.signedMessageLog!.verifier.logoPath;
-        }
+        final verifierImage = logEntry.signedMessageLog!.verifier?.image;
+        logoImage = verifierImage != null
+            ? Base64Image(
+                base64: verifierImage.base64,
+                mimeType: verifierImage.mimeType,
+              )
+            : null;
         subtitleTranslationKey = "activity.message_signed";
         semanticLabel = FlutterI18n.translate(
           context,
@@ -110,55 +111,57 @@ class ActivityCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: Material(
           child: InkWell(
-            onTap: () => context.pushActivityDetailsScreen(
-              logInfo: logEntry,
-              config: irmaConfiguration,
-            ),
+            onTap: () => context.pushActivityDetailsScreen(logInfo: logEntry),
             child: Semantics(
               excludeSemantics: true,
               child: Padding(
-                padding: EdgeInsets.all(theme.defaultSpacing),
+                padding: EdgeInsets.fromLTRB(
+                  theme.defaultSpacing,
+                  theme.defaultSpacing,
+                  theme.smallSpacing,
+                  theme.defaultSpacing,
+                ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Flexible(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                    IrmaAvatar(
+                      size: 52,
+                      logoImage: logoImage,
+                      initials: title != "" ? title[0] : null,
+                    ),
+                    SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IrmaAvatar(
-                            size: 52,
-                            logoPath: logo,
-                            initials: title != "" ? title[0] : null,
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.themeData.textTheme.headlineMedium!
+                                .copyWith(fontSize: 16, color: theme.dark),
                           ),
-                          SizedBox(width: theme.smallSpacing),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TranslatedText(localizedTimeStamp),
-                                Text(
-                                  title,
-                                  style: theme
-                                      .themeData
-                                      .textTheme
-                                      .headlineMedium!
-                                      .copyWith(color: theme.dark),
+                          TranslatedText(
+                            subtitleTranslationKey,
+                            style: theme.themeData.textTheme.bodyMedium!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: theme.neutralExtraDark,
                                 ),
-                                TranslatedText(
-                                  subtitleTranslationKey,
-                                  style: theme.themeData.textTheme.bodyMedium!
-                                      .copyWith(
-                                        fontSize: 14,
-                                        color: theme.dark,
-                                      ),
-                                ),
-                              ],
-                            ),
                           ),
                         ],
                       ),
                     ),
-                    Icon(Icons.chevron_right, color: Colors.grey.shade700),
+                    SizedBox(width: theme.smallSpacing),
+                    Text(
+                      localizedTimeStamp,
+                      style: theme.themeData.textTheme.bodyMedium!.copyWith(
+                        fontSize: 14,
+                        color: theme.neutralExtraDark,
+                      ),
+                    ),
+                    SizedBox(width: theme.tinySpacing),
+                    const Chevron(),
                   ],
                 ),
               ),
@@ -168,4 +171,19 @@ class ActivityCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatActivityTimestamp(
+  BuildContext context,
+  DateTime time,
+  String lang,
+) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final entryDay = DateTime(time.year, time.month, time.day);
+  final daysAgo = today.difference(entryDay).inDays;
+
+  if (daysAgo == 0) return DateFormat.jm(lang).format(time);
+  if (daysAgo == 1) return FlutterI18n.translate(context, "activity.yesterday");
+  return DateFormat.yMMMMd(lang).format(time);
 }

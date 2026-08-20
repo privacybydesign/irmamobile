@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../widgets/irma_app_bar.dart";
 import "pin/yivi_pin_screen.dart";
@@ -27,7 +27,6 @@ class YiviConfirmPinScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxPinSize = longPin ? longPinSize : shortPinSize;
-    final pinBloc = EnterPinStateBloc(maxPinSize);
 
     return YiviPinScaffold(
       key: _scaffoldKey,
@@ -41,7 +40,6 @@ class YiviConfirmPinScaffold extends StatelessWidget {
         instructionKey: instructionKey,
         maxPinSize: maxPinSize,
         onSubmit: _comparePins,
-        pinBloc: pinBloc,
         listener: (context, state) {
           if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
             _comparePins(state.toString());

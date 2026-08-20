@@ -1,7 +1,7 @@
 import "dart:io";
 
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 
@@ -130,13 +130,15 @@ class IrmaDialog extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                SizedBox(height: theme.mediumSpacing),
-                                Text(
-                                  content,
-                                  key: const Key("irma_dialog_content"),
-                                  style: theme.textTheme.bodyMedium,
-                                  textAlign: TextAlign.center,
-                                ),
+                                if (content.isNotEmpty) ...[
+                                  SizedBox(height: theme.mediumSpacing),
+                                  Text(
+                                    content,
+                                    key: const Key("irma_dialog_content"),
+                                    style: theme.textTheme.bodyMedium,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                                 if (image != null) ...[
                                   SizedBox(height: theme.defaultSpacing),
                                   Center(

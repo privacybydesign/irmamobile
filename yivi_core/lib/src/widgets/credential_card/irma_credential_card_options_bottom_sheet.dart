@@ -1,7 +1,6 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../theme/theme.dart";
-import "../irma_bottom_sheet.dart";
 import "../irma_divider.dart";
 import "../translated_text.dart";
 
@@ -14,18 +13,28 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
     required this.onReobtain,
   });
 
-  ListTile _buildOptionTile({
+  Widget _buildOptionTile({
     required IconData icon,
     required String translationKey,
     required IrmaThemeData theme,
     Function()? onTap,
   }) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: EdgeInsets.zero,
-      minLeadingWidth: 0,
-      leading: Icon(icon, color: theme.themeData.colorScheme.secondary),
-      title: TranslatedText(translationKey, style: theme.textTheme.bodyMedium),
+    // Wrap in a transparent Material so the tile's ink splashes have a surface
+    // to paint on: this sheet's container (YiviBottomSheet) is a DecoratedBox
+    // with a background color, which would otherwise hide the splashes painted
+    // on the Material further up the tree.
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: EdgeInsets.zero,
+        minLeadingWidth: 0,
+        leading: Icon(icon, color: theme.themeData.colorScheme.secondary),
+        title: TranslatedText(
+          translationKey,
+          style: theme.textTheme.bodyMedium,
+        ),
+      ),
     );
   }
 
@@ -33,34 +42,32 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return IrmaBottomSheet(
-      title: TranslatedText(
-        "credential.options.title",
-        style: theme.textTheme.displaySmall,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        theme.defaultSpacing,
+        0,
+        theme.defaultSpacing,
+        theme.defaultSpacing,
       ),
-      child: Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            IrmaDivider(),
-            if (onReobtain != null)
-              _buildOptionTile(
-                theme: theme,
-                icon: Icons.cached,
-                translationKey: "credential.options.reobtain",
-                onTap: onReobtain,
-              ),
-            if (onReobtain != null && onDelete != null) const IrmaDivider(),
-            if (onDelete != null)
-              _buildOptionTile(
-                theme: theme,
-                icon: Icons.delete,
-                translationKey: "credential.options.delete",
-                onTap: onDelete,
-              ),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (onReobtain != null)
+            _buildOptionTile(
+              theme: theme,
+              icon: Icons.cached,
+              translationKey: "credential.options.reobtain",
+              onTap: onReobtain,
+            ),
+          if (onReobtain != null && onDelete != null) const IrmaDivider(),
+          if (onDelete != null)
+            _buildOptionTile(
+              theme: theme,
+              icon: Icons.delete,
+              translationKey: "credential.options.delete",
+              onTap: onDelete,
+            ),
+        ],
       ),
     );
   }

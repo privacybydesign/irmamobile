@@ -1,19 +1,20 @@
 import "dart:math";
 
-import "package:flutter/cupertino.dart";
-import "package:flutter/material.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
-import "../../models/credentials.dart";
-import "../../providers/credentials_list_provider.dart";
-import "../../providers/credentials_provider.dart";
+import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/schemaless_credentials_list_provider.dart";
+import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
-import "../../widgets/credential_card/irma_credential_type_card.dart";
+import "../../widgets/base64_image.dart";
+import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_icon_button.dart";
 import "../../widgets/translated_text.dart";
@@ -96,7 +97,7 @@ class _DataTabState extends ConsumerState<DataTab> {
   }
 
   void _searchQueryChanged(String query) {
-    ref.read(credentialsSearchQueryProvider.notifier).state = query;
+    ref.read(credentialsSearchQueryProvider.notifier).set(query);
   }
 }
 
@@ -262,7 +263,7 @@ class _AllCredentialsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(credentialInfoListProvider);
+    final credentials = ref.watch(schemalessCredentialsProvider);
 
     return switch (credentials) {
       AsyncData(:final value) =>
@@ -278,7 +279,7 @@ class _AllCredentialsList extends ConsumerWidget {
 class _CredentialsTypeList extends StatelessWidget {
   const _CredentialsTypeList({required this.credentials});
 
-  final List<MultiFormatCredential> credentials;
+  final List<schemaless.Credential> credentials;
 
   @override
   Widget build(BuildContext context) {
@@ -294,13 +295,18 @@ class _CredentialsTypeList extends StatelessWidget {
               left: theme.defaultSpacing,
               right: theme.defaultSpacing,
             ),
-            child: IrmaCredentialTypeCard(
-              credType: c.credentialType,
+            child: SchemalessYiviCredentialTypeCard(
+              credentialId: c.credentialId,
+              credentialName: c.name,
+              issuerName: c.issuer.name,
+              credentialImageBase64: c.image != null
+                  ? Base64Image(
+                      base64: c.image!.base64,
+                      mimeType: c.image!.mimeType,
+                    )
+                  : null,
               onTap: () => context.pushCredentialsDetailsScreen(
-                CredentialsDetailsRouteParams(
-                  categoryName: "home.nav_bar.data",
-                  credentialTypeId: c.credentialType.fullId,
-                ),
+                CredentialsDetailsRouteParams(credentialTypeId: c.credentialId),
               ),
             ),
           );
@@ -328,7 +334,9 @@ class _CredentialsSearchResults extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = FlutterI18n.currentLocale(context)!;
-    final credentials = ref.watch(credentialsSearchResultsProvider(locale));
+    final credentials = ref.watch(
+      schemalessCredentialsSearchResultsProvider(locale),
+    );
     final searchQuery = ref.watch(credentialsSearchQueryProvider);
 
     return credentials.when(
@@ -349,8 +357,10 @@ class _ReorderableCredentialList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final credentials = ref.watch(credentialOrderControllerProvider);
-    final controller = ref.read(credentialOrderControllerProvider.notifier);
+    final credentials = ref.watch(schemalessCredentialOrderControllerProvider);
+    final controller = ref.read(
+      schemalessCredentialOrderControllerProvider.notifier,
+    );
 
     final theme = IrmaTheme.of(context);
 
@@ -365,29 +375,37 @@ class _ReorderableCredentialList extends ConsumerWidget {
           onReorderEnd: (index) {
             HapticFeedback.mediumImpact();
           },
-          onReorder: controller.reorder,
+          onReorderItem: controller.reorder,
           proxyDecorator: (child, index, animation) {
             // ReorderableListView is a bit wanky when using padding to create space between cards.
             // It will show a shadow around the padded area, which looks weird. Therefore we remove the shadow altogether.
-            return Material(type: MaterialType.transparency, child: child);
+            return Material(type: .transparency, child: child);
           },
           padding: EdgeInsets.all(theme.defaultSpacing),
           itemCount: items.length,
           buildDefaultDragHandles: false,
+          footer: SizedBox(height: 50),
           itemBuilder: (_, i) {
             final cred = items[i];
 
             return Padding(
-              key: ValueKey(cred.credentialType.fullId),
+              key: ValueKey(cred.credentialId),
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: ReorderableDelayedDragStartListener(
                 index: i,
-                child: IrmaCredentialTypeCard(
-                  credType: cred.credentialType,
+                child: SchemalessYiviCredentialTypeCard(
+                  credentialId: cred.credentialId,
+                  credentialName: cred.name,
+                  issuerName: cred.issuer.name,
+                  credentialImageBase64: cred.image != null
+                      ? Base64Image(
+                          base64: cred.image!.base64,
+                          mimeType: cred.image!.mimeType,
+                        )
+                      : null,
                   onTap: () => context.pushCredentialsDetailsScreen(
                     CredentialsDetailsRouteParams(
-                      categoryName: "home.nav_bar.data",
-                      credentialTypeId: cred.credentialType.fullId,
+                      credentialTypeId: cred.credentialId,
                     ),
                   ),
                 ),

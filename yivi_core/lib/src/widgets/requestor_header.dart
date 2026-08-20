@@ -1,17 +1,20 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
-import "../models/session.dart";
+import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
+import "base64_image.dart";
+import "credential_card/yivi_credential_card_header.dart";
 import "irma_avatar.dart";
 import "irma_card.dart";
 import "irma_icon_indicator.dart";
 import "requestor_verification_explanation_bottom_sheet.dart";
 import "translated_text.dart";
+import "yivi_bottom_sheet.dart";
 
-_buildRequestorAvatar({
+IrmaAvatar _buildRequestorAvatar({
   required String? title,
-  Image? image,
+  Widget? image,
   String? imagePath,
 }) {
   return IrmaAvatar(
@@ -24,42 +27,51 @@ _buildRequestorAvatar({
 }
 
 class RequestorHeader extends StatelessWidget {
-  final RequestorInfo? requestorInfo;
+  final TrustedParty? requestor;
   final bool? isVerified;
 
-  const RequestorHeader({this.requestorInfo, this.isVerified});
+  const RequestorHeader({this.requestor, this.isVerified});
 
-  _showCredentialOptionsBottomSheet(BuildContext context) async {
-    return showModalBottomSheet<void>(
-      enableDrag: true,
-      scrollControlDisabledMaxHeightRatio: 0.8,
+  Future<void> _showCredentialOptionsBottomSheet(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return showYiviBottomSheet(
       context: context,
-      builder: (context) => RequestorVerificationExplanationBottomSheet(),
+      titleKey:
+          "disclosure_permission.overview.requestor_verification.bottom_sheet.title",
+      titleStyle: credentialNameStyle(
+        theme,
+        18,
+      ).copyWith(fontWeight: FontWeight.w500),
+      child: RequestorVerificationExplanationBottomSheet(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final theme = IrmaTheme.of(context);
 
     Widget mainTextWidget;
     Widget? subtitleTextWidget;
     Color? backgroundColorOverride;
 
-    final localizedRequestorName = requestorInfo != null
-        ? requestorInfo!.name.translate(lang)
+    final localizedRequestorName = requestor != null
+        ? requestor!.name
         : FlutterI18n.translate(context, "ui.unknown");
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,
-      imagePath: requestorInfo?.logoPath,
+      image: requestor?.image != null
+          ? Base64Image(
+              base64: requestor!.image!.base64,
+              mimeType: requestor!.image!.mimeType,
+            )
+          : null,
+      imagePath: requestor?.imagePath,
     );
 
     if (isVerified != null) {
       final mainTextDefaultStyle = theme.themeData.textTheme.bodyMedium;
       String mainTextSuffixTranslationKey;
-      const int opacity = 40;
 
       // Set the subtitleTextWidget to a link
       subtitleTextWidget = Padding(
@@ -76,11 +88,11 @@ class RequestorHeader extends StatelessWidget {
       );
 
       if (isVerified!) {
-        backgroundColorOverride = theme.success.withAlpha(opacity);
+        backgroundColorOverride = theme.successSurface;
         mainTextSuffixTranslationKey =
             "disclosure_permission.overview.requestor_verification.verified_suffix";
       } else {
-        backgroundColorOverride = theme.error.withAlpha(opacity);
+        backgroundColorOverride = theme.errorSurface;
         mainTextSuffixTranslationKey =
             "disclosure_permission.overview.requestor_verification.unverified_suffix";
       }
@@ -122,7 +134,10 @@ class RequestorHeader extends StatelessWidget {
     } else {
       mainTextWidget = Text(
         localizedRequestorName,
-        style: theme.themeData.textTheme.headlineMedium,
+        style: credentialNameStyle(
+          theme,
+          16,
+        ).copyWith(fontWeight: FontWeight.w500),
       );
     }
 
@@ -137,7 +152,7 @@ class RequestorHeader extends StatelessWidget {
 
 class IssueWizardRequestorHeader extends StatelessWidget {
   final String? title;
-  final Image? image;
+  final Widget? image;
   final Color? backgroundColor;
   final Color? textColor;
 
@@ -184,11 +199,12 @@ class _RequestorHeaderBase extends StatelessWidget {
 
     return IrmaCard(
       color: backgroundColor,
-      hasShadow: false,
       padding: EdgeInsets.zero,
       margin: EdgeInsets.all(theme.defaultSpacing),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: subtitleText != null
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
@@ -199,7 +215,7 @@ class _RequestorHeaderBase extends StatelessWidget {
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [mainText, if (subtitleText != null) subtitleText!],
+              children: [mainText, ?subtitleText],
             ),
           ),
         ],

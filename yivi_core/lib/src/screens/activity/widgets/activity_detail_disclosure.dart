@@ -1,22 +1,17 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
-import "../../../models/irma_configuration.dart";
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/irma_empty_credential_card.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
-import "../../../widgets/irma_quote.dart";
 import "../../../widgets/requestor_header.dart";
-import "../../../widgets/translated_text.dart";
+import "../../../widgets/section_header.dart";
+import "../../../widgets/signature_message.dart";
 
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogInfo logEntry;
-  final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailDisclosure({
-    required this.logEntry,
-    required this.irmaConfiguration,
-  });
+  const ActivityDetailDisclosure({required this.logEntry});
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +20,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TranslatedText(
-          "activity.data_shared",
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
+        SectionHeader("activity.data_shared"),
         SizedBox(height: theme.smallSpacing),
         // If all disclosed attributes are empty render one empty data card
         if (noDisclosedCredentials(logEntry))
@@ -41,31 +32,22 @@ class ActivityDetailDisclosure extends StatelessWidget {
                   : logEntry.signedMessageLog!.credentials)
             Padding(
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
-              child: YiviCredentialCard.fromCredentialLog(
-                irmaConfiguration,
-                credential,
+              child: YiviCredentialCard.fromLogCredential(
+                logCredential: credential,
                 compact: true,
+                hideFooter: true,
               ),
             ),
         if (logEntry.type == LogType.signature) ...[
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-            child: TranslatedText(
-              "activity.signed_message",
-              style: theme.themeData.textTheme.headlineMedium,
-              isHeader: true,
-            ),
-          ),
-          IrmaQuote(quote: logEntry.signedMessageLog!.message),
+          SizedBox(height: theme.defaultSpacing),
+          SectionHeader("activity.signed_message"),
+          SizedBox(height: theme.smallSpacing),
+          SignatureMessage(message: logEntry.signedMessageLog!.message),
         ],
+        SizedBox(height: theme.defaultSpacing),
+        SectionHeader("activity.shared_with"),
         SizedBox(height: theme.smallSpacing),
-        TranslatedText(
-          "activity.shared_with",
-          style: theme.themeData.textTheme.headlineMedium,
-          isHeader: true,
-        ),
-        SizedBox(height: theme.smallSpacing),
-        RequestorHeader(requestorInfo: logEntry.requestorInfo),
+        RequestorHeader(requestor: logEntry.requestor),
       ],
     );
   }

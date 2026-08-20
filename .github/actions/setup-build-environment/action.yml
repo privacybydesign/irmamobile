@@ -6,21 +6,28 @@ runs:
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 17
+        # 21 is the minimum for AGP 9: its bundled lint calls JDK 21 APIs.
+        java-version: 21
     - uses: actions/setup-go@v5
       with:
-        go-version: "1.24"
+        # Keep this in step with the go directive in yivi_core/go.mod. If it lags behind,
+        # every job downloads a second toolchain on top of this one through GOTOOLCHAIN.
+        go-version: "1.26"
         cache: true
     - uses: ruby/setup-ruby@v1
+      id: setup-ruby
       with:
-        ruby-version: 2.7
+        ruby-version: 3.4
     - name: Check Ruby cache
       uses: actions/cache@v4
       env:
         SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
       with:
         path: rubyvendor/
-        key: ruby-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+        # ruby-prefix contains the exact patch version (e.g. .../Ruby/3.4.10/x64), so a
+        # Ruby upgrade invalidates the cache. Without it, native gems built against the old
+        # libruby get restored and fail to load (LoadError: linked to incompatible libruby).
+        key: ruby-${{ runner.os }}-${{ steps.setup-ruby.outputs.ruby-prefix }}-${{ hashFiles('Gemfile.lock') }}
     - run: bundle install
       shell: bash
     - name: Set environment variables
@@ -46,6 +53,7 @@ runs:
         path: |
           ${{ env.ANDROID_HOME }}
           ${{ env.FLUTTER_HOME }}
+          ~/go/bin
         key: ci_scripts-${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     - name: Ensure Android SDK is installed
       if: runner.os == 'Linux'
@@ -59,7 +67,15 @@ runs:
       shell: bash
     - name: Use correct Xcode version
       if: runner.os == 'macOS'
-      run: sudo xcode-select --switch /Applications/Xcode_16.4.app
+      run: sudo xcode-select --switch /Applications/Xcode_26.1.app
+      shell: bash
+    - name: Install sqlcipher (macOS)
+      if: runner.os == 'macOS'
+      run: brew install sqlcipher
+      shell: bash
+    - name: Install sqlcipher (Linux)
+      if: runner.os == 'Linux'
+      run: sudo apt-get update && sudo apt-get install -y libsqlcipher-dev
       shell: bash
     - name: Check Cocoapods cache
       id: cocoapods-cache

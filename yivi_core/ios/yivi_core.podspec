@@ -15,14 +15,20 @@ A new Flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
+  s.dependency 'SQLCipher', '~> 4.10.0'
   s.platform = :ios, '15.6'
 
   # Flutter.framework does not contain a i386 slice.
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+  s.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
+    'OTHER_CFLAGS' => '-DSQLITE_HAS_CODEC',
+  }
   s.swift_version = '5.0'
 
   # including the irmago bridge here
-  s.vendored_frameworks = 'Irmagobridge.xcframework' 
+  s.vendored_frameworks = 'Irmagobridge.xcframework'
+  s.library = 'resolv'
   s.resources = ['Assets/**/*']
 
   # If your plugin requires a privacy manifest, for example if it uses any

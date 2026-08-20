@@ -1,11 +1,11 @@
-import "package:flutter/cupertino.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:json_annotation/json_annotation.dart";
 
 import "event.dart";
 
 part "applifecycle_changed_event.g.dart";
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class AppLifecycleChangedEvent extends Event {
   final AppLifecycleState state;
 

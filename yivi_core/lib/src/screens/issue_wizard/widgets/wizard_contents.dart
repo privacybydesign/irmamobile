@@ -17,7 +17,7 @@ class IssueWizardContents extends StatelessWidget {
   final GlobalKey scrollviewKey;
   final ScrollController controller;
   final IssueWizardEvent wizard;
-  final Image logo;
+  final Widget logo;
   final void Function() onBack;
   final void Function(BuildContext context, IssueWizardEvent wizard) onNext;
   final void Function(VisibilityInfo visibility, IssueWizardEvent wizard)

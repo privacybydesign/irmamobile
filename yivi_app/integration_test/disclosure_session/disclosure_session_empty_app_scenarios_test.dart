@@ -5,6 +5,10 @@ import "../irma_binding.dart";
 import "empty_app_scenarios/choice.dart";
 import "empty_app_scenarios/choice_mixed.dart";
 import "empty_app_scenarios/completely_optional.dart";
+import "empty_app_scenarios/multi_bundle_choice.dart";
+import "empty_app_scenarios/multi_bundle_choice_partial.dart";
+import "empty_app_scenarios/multi_cred_bundle.dart";
+import "empty_app_scenarios/multi_cred_bundle_partial.dart";
 import "empty_app_scenarios/no_choice.dart";
 import "empty_app_scenarios/no_choice_multiple_creds.dart";
 import "empty_app_scenarios/optionals.dart";
@@ -16,8 +20,8 @@ void main() {
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   group("disclosure-session", () {
-    setUp(() async => irmaBinding.setUp());
-    tearDown(() => irmaBinding.tearDown());
+    setUp(() async => await irmaBinding.setUp());
+    tearDown(() async => await irmaBinding.tearDown());
 
     group("empty-app-scenarios", () {
       // Full name AND nationality
@@ -39,14 +43,6 @@ void main() {
         (tester) => choiceMixedTest(tester, irmaBinding),
       );
 
-      // TODO Fix this test
-      // // Student/employee id from university OR
-      // // Full name from municipality AND email address
-      // testWidgets(
-      //   'choice-mixed-sources',
-      //   (tester) => choiceMixedSourcesTest(tester, irmaBinding),
-      // );
-
       // Bank account number from iDeal. BIC has to be RABONL2U. AND
       // Initials, family name and city from iDIN. The city has to be Arnhem
       testWidgets(
@@ -63,6 +59,40 @@ void main() {
         "completely-optional",
         (tester) => completelyOptionalTest(tester, irmaBinding),
       );
+
+      group("multi-cred-bundle", () {
+        // Condiscon with inner con spanning two singleton credentials
+        // (MijnOverheid.root + MijnOverheid.fullName) AND (email OR mobile).
+        // Nothing pre-issued; wizard issues everything.
+        testWidgets(
+          "issue-all",
+          (tester) => multiCredBundleTest(tester, irmaBinding),
+        );
+
+        // Same condiscon; root + email pre-issued; wizard issues fullName,
+        // completing the bundle via the auto-select-by-new-hash path.
+        testWidgets(
+          "partial",
+          (tester) => multiCredBundlePartialTest(tester, irmaBinding),
+        );
+      });
+
+      group("multi-bundle-choice", () {
+        // Discon with two alternative multi-cred bundles:
+        // Bundle A (MijnOverheid root + fullName) OR Bundle B (idin + gemeente.address).
+        // Nothing pre-issued; default Bundle A; user issues its two creds in turn.
+        testWidgets(
+          "issue-all",
+          (tester) => multiBundleChoiceTest(tester, irmaBinding),
+        );
+
+        // Same discon; Bundle A's root pre-issued, fullName missing. Bundle
+        // filter removes root from the wizard so only fullName needs issuing.
+        testWidgets(
+          "partial",
+          (tester) => multiBundleChoicePartialTest(tester, irmaBinding),
+        );
+      });
     });
   });
 }

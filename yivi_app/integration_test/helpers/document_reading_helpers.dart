@@ -1,14 +1,13 @@
 import "dart:async";
 import "dart:typed_data";
 
-import "package:flutter/cupertino.dart";
-import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
+import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
+import "package:yivi_core/src/providers/document_reader_providers.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
-import "package:yivi_core/src/providers/passport_reader_provider.dart";
-import "package:yivi_core/src/screens/add_data/add_data_details_screen.dart";
 import "package:yivi_core/src/screens/home/home_screen.dart";
 import "package:yivi_core/src/util/navigation.dart";
 import "package:yivi_core/yivi_core.dart";
@@ -24,13 +23,17 @@ Future<void> navigateToDrivingLicenceNfcReadingScreen(
   FakeDrivingLicenceReader reader,
   FakePassportIssuer issuer,
 ) async {
-  await pumpAndUnlockApp(tester, binding.repository, null, [
-    drivingLicenceReaderProvider.overrideWith((ref, mrz) {
-      reader.setMrz(mrz);
-      return reader;
-    }),
-    passportIssuerProvider.overrideWithValue(issuer),
-  ]);
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    providerOverrides: [
+      drivingLicenceReaderProvider.overrideWith2((mrz) {
+        reader.setMrz(mrz);
+        return reader;
+      }),
+      passportIssuerProvider.overrideWithValue(issuer),
+    ],
+  );
 
   final homeContext = tester.element(find.byType(HomeScreen));
   homeContext.pushDrivingLicenceManualEntryScreen();
@@ -55,13 +58,17 @@ Future<void> navigateToIdCardNfcReadingScreen(
   FakePassportReader reader,
   FakePassportIssuer issuer,
 ) async {
-  await pumpAndUnlockApp(tester, binding.repository, null, [
-    idCardReaderProvider.overrideWith((ref, mrz) {
-      reader.setMrz(mrz);
-      return reader;
-    }),
-    passportIssuerProvider.overrideWithValue(issuer),
-  ]);
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    providerOverrides: [
+      idCardReaderProvider.overrideWith2((mrz) {
+        reader.setMrz(mrz);
+        return reader;
+      }),
+      passportIssuerProvider.overrideWithValue(issuer),
+    ],
+  );
 
   final homeContext = tester.element(find.byType(HomeScreen));
   homeContext.pushIdCardManualEntryScreen();
@@ -91,15 +98,22 @@ Future<void> navigateToPassportNfcReadingScreen(
   WidgetTester tester,
   IntegrationTestIrmaBinding binding,
   FakePassportReader reader,
-  FakePassportIssuer issuer,
-) async {
-  await pumpAndUnlockApp(tester, binding.repository, null, [
-    passportReaderProvider.overrideWith((ref, mrz) {
-      reader.setMrz(mrz);
-      return reader;
-    }),
-    passportIssuerProvider.overrideWithValue(issuer),
-  ]);
+  FakePassportIssuer issuer, {
+  RegulaFaceService? regulaFaceService,
+}) async {
+  await pumpAndUnlockApp(
+    tester,
+    binding.repository,
+    providerOverrides: [
+      passportReaderProvider.overrideWith2((mrz) {
+        reader.setMrz(mrz);
+        return reader;
+      }),
+      passportIssuerProvider.overrideWithValue(issuer),
+      if (regulaFaceService != null)
+        regulaFaceServiceProvider.overrideWithValue(regulaFaceService),
+    ],
+  );
 
   final homeContext = tester.element(find.byType(HomeScreen));
   homeContext.pushPassportManualEntryScreen();
@@ -130,32 +144,12 @@ Future<void> openDrivingLicenceDetailsScreen(
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await pumpAndUnlockApp(
+  await openAddCredentialDetailsScreen(
     tester,
-    binding.repository,
-    null,
-    overrides.isEmpty ? null : overrides,
+    binding,
+    fullCredentialId: "pbdf-staging.pbdf.drivinglicence",
+    overrides: overrides,
   );
-
-  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
-  await tester.tapAndSettle(addDataButton);
-
-  final drivingLicenceCredential = binding
-      .repository
-      .irmaConfiguration
-      .credentialTypes
-      .values
-      .firstWhere((type) => type.id == "drivinglicence");
-
-  final edlTile = find.byKey(Key("${drivingLicenceCredential.fullId}_tile"));
-  await tester.scrollUntilVisible(
-    edlTile,
-    300,
-    scrollable: find.byType(Scrollable).last,
-  );
-  await tester.tapAndSettle(edlTile);
-
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
 }
 
 Future<void> openIdCardDetailsScreen(
@@ -163,32 +157,12 @@ Future<void> openIdCardDetailsScreen(
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await pumpAndUnlockApp(
+  await openAddCredentialDetailsScreen(
     tester,
-    binding.repository,
-    null,
-    overrides.isEmpty ? null : overrides,
+    binding,
+    fullCredentialId: "pbdf-staging.pbdf.idcard",
+    overrides: overrides,
   );
-
-  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
-  await tester.tapAndSettle(addDataButton);
-
-  final idCardCredential = binding
-      .repository
-      .irmaConfiguration
-      .credentialTypes
-      .values
-      .firstWhere((type) => type.id == "idcard");
-
-  final idCardTile = find.byKey(Key("${idCardCredential.fullId}_tile"));
-  await tester.scrollUntilVisible(
-    idCardTile,
-    300,
-    scrollable: find.byType(Scrollable).last,
-  );
-  await tester.tapAndSettle(idCardTile);
-
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
 }
 
 Future<void> openPassportDetailsScreen(
@@ -196,46 +170,46 @@ Future<void> openPassportDetailsScreen(
   IntegrationTestIrmaBinding binding, {
   List<Override> overrides = const [],
 }) async {
-  await pumpAndUnlockApp(
+  await openAddCredentialDetailsScreen(
     tester,
-    binding.repository,
-    null,
-    overrides.isEmpty ? null : overrides,
+    binding,
+    fullCredentialId: "pbdf-staging.pbdf.passport",
+    overrides: overrides,
   );
-
-  final addDataButton = find.byIcon(CupertinoIcons.add_circled_solid);
-  await tester.tapAndSettle(addDataButton);
-
-  final passportCredential = binding
-      .repository
-      .irmaConfiguration
-      .credentialTypes
-      .values
-      .firstWhere((type) => type.id == "passport");
-
-  final passportTile = find.byKey(Key("${passportCredential.fullId}_tile"));
-  await tester.scrollUntilVisible(
-    passportTile,
-    300,
-    scrollable: find.byType(Scrollable).last,
-  );
-  await tester.tapAndSettle(passportTile);
-
-  await tester.waitFor(find.byType(AddDataDetailsScreen));
 }
 
 class FakePassportIssuer implements PassportIssuer {
   int startSessionCount = 0;
   final String? errorToThrowOnIssuance;
 
-  FakePassportIssuer({this.errorToThrowOnIssuance});
+  /// The face verification announcement this issuer makes at session start.
+  /// The shared NFC flow runs the face verification step only when an
+  /// announcement is present (the issuer decides, never the wallet), so it
+  /// defaults to present here to keep the face-path tests on the face path;
+  /// pass null to fake an issuer whose policy disables face verification.
+  final FaceVerificationConfig? faceVerification;
+
+  /// The [RawDocumentData] passed to the most recent
+  /// [startIrmaIssuanceSession] call, so tests can assert the liveness
+  /// transaction id (or its absence) was threaded through.
+  RawDocumentData? lastIssuedData;
+
+  FakePassportIssuer({
+    this.errorToThrowOnIssuance,
+    this.faceVerification = const FaceVerificationConfig(
+      faceApiUrl: "https://faceapi.fake.yivi.app",
+    ),
+  });
 
   @override
-  Future<NonceAndSessionId> startSessionAtPassportIssuer() async {
+  Future<StartValidationResult> startSessionAtPassportIssuer() async {
     startSessionCount += 1;
-    return NonceAndSessionId(
-      nonce: "d4e5f6a7d4e5f6a7",
-      sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+    return StartValidationResult(
+      nonceAndSessionId: NonceAndSessionId(
+        nonce: "d4e5f6a7d4e5f6a7",
+        sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+      ),
+      faceVerification: faceVerification,
     );
   }
 
@@ -244,6 +218,7 @@ class FakePassportIssuer implements PassportIssuer {
     RawDocumentData passportDataResult,
     DocumentType documentType,
   ) async {
+    lastIssuedData = passportDataResult;
     if (errorToThrowOnIssuance != null) {
       throw Exception(errorToThrowOnIssuance);
     }
@@ -271,6 +246,32 @@ class FakePassportIssuer implements PassportIssuer {
 
 // ====================================================================================
 
+/// Fake liveness service that returns a fixed transaction id without touching
+/// the native Regula SDK, so the face-verification threading can be exercised
+/// in tests.
+class FakeRegulaFaceService implements RegulaFaceService {
+  FakeRegulaFaceService({this.transactionId = "fake-txn-id", this.error});
+
+  final String? transactionId;
+  final Object? error;
+
+  int captureCount = 0;
+  String? lastLanguageCode;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<RegulaLivenessResult> captureLiveness({String? languageCode}) async {
+    captureCount += 1;
+    lastLanguageCode = languageCode;
+    if (error != null) throw error!;
+    return RegulaLivenessResult(isLive: true, transactionId: transactionId);
+  }
+}
+
+// ====================================================================================
+
 class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
   FakeDrivingLicenceReader({
     DocumentReaderState? initialState,
@@ -281,19 +282,35 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
        _statesDuringRead = statesDuringRead,
        super(
          nfc: _FakeNfcProvider(),
-         documentParser: DrivingLicenceParser(),
+         documentParser: DrivingLicenceParser(
+           failDg1CategoriesGracefully: true,
+         ),
          config: DocumentReaderConfig(
            readIfAvailable: {DataGroups.dg1, DataGroups.dg2, DataGroups.dg15},
          ),
          dataGroupReader: DataGroupReader(
            _FakeNfcProvider(),
            "".parseHex(),
-           DBAKey("", DateTime.now(), DateTime.now()),
+           paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
+           bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
-       ) {
+       );
+
+  @override
+  DocumentReaderState build() {
+    // The reading screen stops watching this provider while the face
+    // verification intro is in front, which would auto-dispose it. The real
+    // factory would just build a second reader, but riverpod refuses to
+    // re-associate an already-used Notifier instance, and these fakes are
+    // handed back by the override every time. Pin the element so the one
+    // instance the test asserts on outlives the gap.
+    ref.keepAlive();
+    ref.onDispose(cancel);
     if (_initialState != null) {
-      state = _initialState;
+      return _initialState;
     }
+    checkNfcAvailability();
+    return DocumentReaderPending();
   }
 
   @override
@@ -356,7 +373,7 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
 
   @override
   Future<void> cancel() async {
-    if (!mounted) {
+    if (!ref.mounted) {
       return;
     }
     cancelCount += 1;
@@ -370,7 +387,7 @@ class FakeDrivingLicenceReader extends DocumentReader<DrivingLicenceData> {
 
   @override
   void reset() {
-    if (!mounted) {
+    if (!ref.mounted) {
       return;
     }
     super.reset();
@@ -397,12 +414,26 @@ class FakePassportReader extends DocumentReader<PassportData> {
          dataGroupReader: DataGroupReader(
            _FakeNfcProvider(),
            "".parseHex(),
-           DBAKey("", DateTime.now(), DateTime.now()),
+           paceAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
+           bacAccessKey: DBAKey("", DateTime.now(), DateTime.now()),
          ),
-       ) {
+       );
+
+  @override
+  DocumentReaderState build() {
+    // The reading screen stops watching this provider while the face
+    // verification intro is in front, which would auto-dispose it. The real
+    // factory would just build a second reader, but riverpod refuses to
+    // re-associate an already-used Notifier instance, and these fakes are
+    // handed back by the override every time. Pin the element so the one
+    // instance the test asserts on outlives the gap.
+    ref.keepAlive();
+    ref.onDispose(cancel);
     if (_initialState != null) {
-      state = _initialState;
+      return _initialState;
     }
+    checkNfcAvailability();
+    return DocumentReaderPending();
   }
 
   @override
@@ -474,7 +505,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
 
   @override
   Future<void> cancel() async {
-    if (!mounted) {
+    if (!ref.mounted) {
       return;
     }
     cancelCount += 1;
@@ -488,7 +519,7 @@ class FakePassportReader extends DocumentReader<PassportData> {
 
   @override
   void reset() {
-    if (!mounted) {
+    if (!ref.mounted) {
       return;
     }
     super.reset();

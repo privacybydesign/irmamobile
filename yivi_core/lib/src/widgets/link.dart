@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../providers/irma_repository_provider.dart";
 import "../theme/theme.dart";
@@ -52,8 +52,18 @@ class ContactLink extends StatelessWidget {
 class Link extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
+  final TextAlign? textAlign;
 
-  const Link({required this.label, required this.onTap});
+  /// Merged onto the hyperlink style — pass e.g. a smaller `fontSize` while
+  /// keeping the link's color, weight and underline.
+  final TextStyle? style;
+
+  const Link({
+    required this.label,
+    required this.onTap,
+    this.textAlign,
+    this.style,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +73,11 @@ class Link extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: TranslatedText(
+          textAlign: textAlign,
           label,
-          style: IrmaTheme.of(
-            context,
-          ).hyperlinkTextStyle.copyWith(decoration: TextDecoration.underline),
+          style: IrmaTheme.of(context).hyperlinkTextStyle
+              .copyWith(decoration: TextDecoration.underline)
+              .merge(style),
         ),
       ),
     );

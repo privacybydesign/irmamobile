@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../util/navigation.dart";
 import "../../widgets/action_feedback.dart";
@@ -14,9 +14,7 @@ class UnknownSessionScreen extends StatelessWidget {
       success: false,
       titleTranslationKey: "session.unknown_session_type.title",
       explanationTranslationKey: "session.unknown_session_type.explanation",
-      onDismiss: arguments.wizardActive
-          ? context.popToWizardScreen
-          : context.goHomeScreen,
+      onDismiss: context.goHomeScreen,
     );
   }
 }

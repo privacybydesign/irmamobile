@@ -1,10 +1,9 @@
-import "package:flutter/material.dart" hide Notification;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
+import "package:material_ui/material_ui.dart" hide Notification;
 
-import "../../../providers/irma_repository_provider.dart";
 import "../../../theme/theme.dart";
-import "../../../util/language.dart";
+import "../../../widgets/base64_image.dart";
 import "../../../widgets/irma_avatar.dart";
 import "../../../widgets/irma_card.dart";
 import "../models/credential_status_notification.dart";
@@ -19,13 +18,12 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     String title = "";
     String contentMessage = "";
-    String? logo;
+    Widget? logo;
 
     final notification =
         this.notification; // To prevent the need for type casting.
@@ -39,18 +37,15 @@ class NotificationCard extends StatelessWidget {
     );
 
     if (notification is CredentialStatusNotification) {
-      final credType =
-          repo.irmaConfiguration.credentialTypes[notification.credentialTypeId];
-      final translatedCredName = getTranslation(context, credType!.name);
+      final translatedCredName = notification.credentialName;
+      final translatedIssuerName = notification.issuerName;
 
-      String translatedIssuerName = "";
-      if (notification.type == CredentialStatusNotificationType.revoked) {
-        // To display the revoked notification we also need the issuer name.
-        final issuer = repo.irmaConfiguration.issuers[credType.fullIssuerId];
-        translatedIssuerName = getTranslation(context, issuer!.name);
-      }
-
-      logo = credType.logo;
+      logo = notification.logoImage != null
+          ? Base64Image(
+              base64: notification.logoImage!.base64,
+              mimeType: notification.logoImage!.mimeType,
+            )
+          : null;
       final content = notification.content as InternalTranslatedContent;
 
       title = FlutterI18n.translate(
@@ -92,7 +87,7 @@ class NotificationCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    IrmaAvatar(size: 52, initials: "i", logoPath: logo),
+                    IrmaAvatar(size: 52, initials: "i", logoImage: logo),
                     SizedBox(width: theme.smallSpacing),
                     Flexible(
                       child: Column(

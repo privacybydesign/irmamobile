@@ -1,11 +1,11 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/requestor_header.dart";
 
 class WizardScaffold extends StatelessWidget {
-  final Image image;
+  final Widget image;
   final String header;
   final Widget bottomBar;
   final Widget body;

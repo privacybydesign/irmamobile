@@ -1,13 +1,13 @@
 import "dart:io";
 
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 
 class IrmaAvatar extends StatelessWidget {
   final double size;
-  final Image? logoImage;
+  final Widget? logoImage;
   final String? logoPath;
   final String? logoSemanticsLabel;
   final String? initials;
@@ -31,7 +31,7 @@ class IrmaAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    Image? image = logoImage;
+    Widget? image = logoImage;
     if (logoPath != null) {
       final logoFile = File(logoPath!);
 

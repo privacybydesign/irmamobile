@@ -1,10 +1,9 @@
 import "dart:io";
 
-import "package:flutter/cupertino.dart";
-import "package:flutter/material.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
-
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/app.dart";
 import "package:yivi_core/src/screens/change_language/change_language_screen.dart";
 import "package:yivi_core/src/screens/change_pin/widgets/confirm_pin_reset_dialog.dart";
@@ -352,12 +351,17 @@ void main() {
       // Language of the app should now be Dutch
       expect(appWidget.forcedLocale?.languageCode, "nl");
 
-      // This should be reflected in the app bar title
+      // This should be reflected in the app bar title. Re-translating is
+      // asynchronous — Localizations reloads its delegates and keeps serving the
+      // old locale until they resolve — and no frame is scheduled meanwhile, so
+      // pumpAndSettle can return while the title still reads English.
       final appBarFinder = find.byType(IrmaAppBar);
-      expect(
-        find.descendant(of: appBarFinder, matching: find.text("Taal")),
-        findsOneWidget,
+      final dutchTitleFinder = find.descendant(
+        of: appBarFinder,
+        matching: find.text("Taal"),
       );
+      await tester.waitFor(dutchTitleFinder);
+      expect(dutchTitleFinder, findsOneWidget);
 
       // Toggle the use system language again
       await tester.tapAndSettle(systemLanguageToggleFinder);
@@ -369,10 +373,12 @@ void main() {
       expect(appWidget.forcedLocale?.languageCode, "en");
 
       // This should be reflected in the app bar title
-      expect(
-        find.descendant(of: appBarFinder, matching: find.text("Language")),
-        findsOneWidget,
+      final englishTitleFinder = find.descendant(
+        of: appBarFinder,
+        matching: find.text("Language"),
       );
+      await tester.waitFor(englishTitleFinder);
+      expect(englishTitleFinder, findsOneWidget);
     });
   });
 }

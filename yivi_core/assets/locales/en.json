@@ -38,10 +38,12 @@
     "message_signed": "Message signed",
     "signed_message_semantics": "Message signed from {otherParty} on {date}",
     "shared_with": "Shared with",
+    "received_from": "Received from",
     "shared_data": "Shared data",
     "received_data": "Received data",
     "deleted_data": "Deleted data",
-    "empty_placeholder": "There are no logged activities yet"
+    "empty_placeholder": "There are no logged activities yet",
+    "yesterday": "Yesterday"
   },
   "arrow_back": {
     "no_success": "Cancelled",
@@ -89,6 +91,7 @@
   "credential": {
     "no_data": "No data",
     "valid_until": "Valid until",
+    "indefinite_validity": "Indefinite",
     "expires_on": "Expires on {date}",
     "expired_on": "Expired on {date}",
     "date_at_time": "{date} at {time}",
@@ -106,7 +109,9 @@
     "about_to_expire": "About to expire",
     "expired": "Expired",
     "revoked": "Revoked",
-    "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data."
+    "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data.",
+    "boolean_yes": "Yes",
+    "boolean_no": "No"
   },
   "data": {
     "tab": {
@@ -129,6 +134,11 @@
         "get_button": "Add",
         "disclosure_info_markdown": "**Note:** You will retrieve all available data, but you will only share the data needed in the request.",
         "obtain": "Add {credential} to my Yivi-app"
+      },
+      "nfc_unsupported": {
+        "title": "NFC not supported",
+        "body": "This device does not support NFC, so it is not able to load this credential. NFC is required to read your document.",
+        "hint": "Requires NFC, which this device does not support. This credential cannot be loaded."
       }
     },
     "search": {
@@ -199,8 +209,9 @@
     },
     "issue_wizard": {
       "title": "Collect data",
-      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that",
-      "explanation_complete": "All required data has been added"
+      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that.",
+      "explanation_incomplete_single": "Obtain the required data and share it with the requesting party after that.",
+      "explanation_complete": "All required data has been added."
     },
     "previously_added": {
       "title": "Validate data",
@@ -241,6 +252,8 @@
     "wrong_credentials_added": {
       "title": "Error",
       "explanation": "Data has been added to the app, but they do not meet the requested criteria. Please obtain the right data.",
+      "you_issued": "Received",
+      "expected": "Expected",
       "dismiss_action": "OK"
     },
     "call": {
@@ -293,7 +306,7 @@
         "title": "Confirm your e-mail address",
         "header": "Our e-mail has been sent to:",
         "explanation": "It can take a few minutes until the e-mail arrives. Didn't receive our e-mail? Please check your spam folder.",
-        "explanation_extra_markdown": "You have received an e-mail from **noreply@yivi.app**. Open the link in this message to link your e-mail address to your Yivi app."
+        "explanation_extra_markdown": "You have received an e-mail from **noreply@mail.yivi.app**. Open the link in this message to link your e-mail address to your Yivi app."
       }
     },
     "terms_and_conditions": {
@@ -326,11 +339,12 @@
     "button_ok": "OK",
     "button_send_to_irma": "Send this message to Yivi",
     "button_show_error": "Show technical details",
-    "button_retry": "Please try again",
+    "button_retry": "Try again",
     "button_back": "Back",
     "button_reset": "Start all over",
     "details_title": "Error message",
     "report": "If this happens again, please inform the Yivi team.",
+    "show_sensitive_data": "Show sensitive data",
     "types": {
       "general": "Something went wrong.",
       "blocked": "Your Yivi app has been remotely blocked. This has either been done via MyYivi or because you did not use Yivi on this device for more than one year. If you want to continue using Yivi on this device, you will need to start over.",
@@ -416,6 +430,99 @@
     "success_feedback": {
       "header": "Success",
       "text": "The data has been successfully added to Yivi"
+    },
+    "pre-authorized_code": {
+      "tx_code_screen": {
+        "title": "Add data",
+        "header": "{issuer} requests a transaction code",
+        "body": "{issuer} sent you a transaction code. Enter it below to receive {credential}.",
+        "body_multiple": "{issuer} sent you a transaction code. Enter it below to receive {count} credentials.",
+        "continue": "Continue",
+        "cancel": "Cancel",
+        "invalid_code_error-0": "Incorrect code. {count} attempts remaining.",
+        "invalid_code_error-1": "Incorrect code. {count} attempt remaining.",
+        "invalid_code_error-2": "Incorrect code. {count} attempts remaining."
+      },
+      "tx_code_lockout": {
+        "title": "Too many incorrect codes",
+        "body": "You've entered the wrong transaction code too many times. Please start over to receive a new code."
+      }
+    },
+    "authorization_code": {
+      "pending": {
+        "title": "Add data",
+        "body": "{issuer} needs to verify some details in your browser. Tap '{button}' to continue. You'll return here automatically when you're done.",
+        "open_browser": "Open browser",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "email_issuance": {
+    "enter_email": {
+      "title": "Add email address",
+      "header": "Enter your email address",
+      "body": "We'll send you an email with a verification code. You'll need to enter this code in the next step.",
+      "error": "Something went wrong while sending the verification code.",
+      "email_hint": "Enter your email address...",
+      "next_button": "Send email",
+      "back_button": "Cancel"
+    },
+    "verify_code": {
+      "title": "Verify email address",
+      "header": "We've sent you an email",
+      "body": "We've sent an email with a verification code to {email}.\n\nEnter the verification code from the email to continue.",
+      "next_button": "Verify code",
+      "back_button": "Cancel",
+      "no_email_received": "No email received?",
+      "error": "Something went wrong while verifying the verification code.",
+      "invalid_code_error": "Invalid code, try again...",
+      "back_dialog": {
+        "title": "Are you sure?",
+        "body": "Are you sure you want to go back?",
+        "confirm": "Go back",
+        "cancel": "Cancel"
+      },
+      "resend_dialog": {
+        "title": "Send new code",
+        "body": "We'll send you a new email with a new verification code.",
+        "confirm": "Send email",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "sms_issuance": {
+    "enter_phone": {
+      "title": "Add phone number",
+      "header": "Enter your phone number",
+      "body": "We'll send you an sms with a verification code. You'll need to enter this code in the next step.",
+      "error": "Something went wrong while sending the verification code.",
+      "phone_hint": "Enter your phone number...",
+      "next_button": "Send sms",
+      "back_button": "Cancel",
+      "search_label": "Search country or country code",
+      "search_hint": "Enter the name of your country..."
+    },
+    "verify_code": {
+      "title": "Verify phone number",
+      "header": "We've sent you an sms",
+      "body": "We've sent an sms with a verification code to {phone}.\n\nEnter the verification code from the sms to continue.",
+      "next_button": "Verify code",
+      "back_button": "Cancel",
+      "no_sms_received": "No sms received?",
+      "error": "Something went wrong while verifying the verification code.",
+      "invalid_code_error": "Invalid code, try again...",
+      "back_dialog": {
+        "title": "Are you sure?",
+        "body": "Are you sure you want to go back?",
+        "confirm": "Go back",
+        "cancel": "Cancel"
+      },
+      "resend_dialog": {
+        "title": "Send new code",
+        "body": "We'll send you a new sms with a new verification code.",
+        "confirm": "Send sms",
+        "cancel": "Cancel"
+      }
     }
   },
   "issue_wizard": {
@@ -450,12 +557,29 @@
     "privacy_policy": "Yivi's privacy policy",
     "privacy_policy_link": "https://www.yivi.app/en/privacy",
     "app_id": "App ID {id}",
-    "log_out": "Log out"
+    "log_out": "Log out",
+    "logged_out_toast": "You have been logged out"
   },
   "pin": {
     "subtitle": "Enter your PIN",
+    "unlock": "Unlock",
     "button_forgot": "I forgot my PIN",
-    "button_block": "Block Yivi"
+    "button_block": "Block Yivi",
+    "biometric_button": "Unlock with biometrics",
+    "biometric_reason": "Unlock the Yivi app",
+    "biometric_confirm_reason": "Confirm to enable biometric unlock",
+    "biometric_prompt": {
+      "title": "Unlock with biometrics?",
+      "body": "Use your fingerprint or face to unlock the app. You'll still need to enter your PIN for sessions.",
+      "enable": "Enable",
+      "not_now": "Not now"
+    },
+    "cancel_session_dialog": {
+      "title": "Cancel this request?",
+      "explanation": "You'll return to the lock screen.",
+      "confirm": "Yes",
+      "decline": "No"
+    }
   },
   "pin_accessibility": {
     "show_pin": "Show PIN",
@@ -489,9 +613,9 @@
     },
     "invalid_title": "PIN incorrect",
     "invalid_pin": {
-      "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily.",
-      "attempts-1": "This PIN is not correct. You have {attemps} attempt left before your Yivi app will be blocked temporarily.",
-      "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily."
+      "attempts-0": "This PIN is not correct. You have {count} attempts left before your Yivi app will be blocked temporarily.",
+      "attempts-1": "This PIN is not correct. You have {count} attempt left before your Yivi app will be blocked temporarily.",
+      "attempts-2": "This PIN is not correct. You have {count} attempts left before your Yivi app will be blocked temporarily."
     },
     "invalid_close": "Try again",
     "blocked_title": "App blocked",
@@ -579,6 +703,10 @@
     "language": "Language",
     "use_system_language": "Use system language",
     "change_pin": "Change PIN",
+    "biometric_unlock": "Unlock with biometrics",
+    "biometric_unlock_explanation": "Use your fingerprint or face to unlock the app. You'll still need your PIN to receive or share data.",
+    "biometric_immediate": "Unlock automatically",
+    "biometric_immediate_explanation": "Unlock with biometrics automatically when you open the app, instead of tapping the button.",
     "delete": "Delete data",
     "confirm_delete_dialog": {
       "title": "Delete data",
@@ -652,6 +780,18 @@
     "title": "No camera permissions",
     "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
     "open_settings": "Open settings"
+  },
+  "face_verification": {
+    "title": "Face verification",
+    "preparing": "One moment, preparing your data…",
+    "intro": {
+      "explanation": "We'll now do a quick face check to confirm you're the person shown in the document.",
+      "tip_camera": "Point the selfie camera at your face.",
+      "tip_lighting": "Make sure there's enough light.",
+      "tip_look_straight": "Look straight into the camera.",
+      "tip_no_accessories": "Remove glasses, hats, etc.",
+      "start": "Start verification"
+    }
   },
   "driving_licence": {
     "scan": {
@@ -872,6 +1012,21 @@
         "content": "Adding and removing schemes can break your app. Only continue this if you know what you are doing."
       }
     },
+    "cert_management": {
+      "title": "Certificate management",
+      "issuer_certs": "Issuer certificates",
+      "verifier_certs": "Verifier certificates",
+      "install_cert_dialog": {
+        "title": "Install certificate",
+        "content": "Fill in the PEM encoded content of the certificate you want to install:"
+      },
+      "remove_cert": "Remove certificate",
+      "removed": "Certificate removed",
+      "warning_dialog": {
+        "title": "Warning!",
+        "content": "Adding and removing certificates can break your app. Only continue this if you know what you are doing."
+      }
+    },
     "delete_credentials": {
       "delete": "Delete all credentials",
       "success": "Successfully deleted all deletable credentials",
@@ -879,6 +1034,28 @@
         "title": "Delete credentials",
         "content": "Are you sure you want to delete all credentials?"
       }
+    }
+  },
+  "signature": {
+    "read_more": "Read more",
+    "read_less": "Read less"
+  },
+  "review": {
+    "gate": {
+      "title": "Enjoying Yivi?",
+      "body": "You've used Yivi a few times now. We'd love to know how it's going.",
+      "positive": "Yes, I like it",
+      "negative": "Not really"
+    },
+    "feedback": {
+      "title": "What could be better?",
+      "body": "Tell us what's not working.",
+      "hint": "Your feedback",
+      "privacy": "Your message goes to our team, so please don't include personal data.",
+      "send": "Send",
+      "cancel": "Cancel",
+      "thanks": "Thanks, we'll use this to improve Yivi.",
+      "close": "Close"
     }
   }
 }

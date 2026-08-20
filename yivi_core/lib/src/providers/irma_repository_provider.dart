@@ -1,4 +1,4 @@
-import "package:flutter/cupertino.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
@@ -20,6 +20,12 @@ class IrmaRepositoryProvider extends InheritedWidget {
     assert(result != null, "No IrmaRepository found in context");
     return result!.repository;
   }
+
+  /// Like [of] but returns null instead of asserting when no provider is in
+  /// scope (e.g. widget previews that render a PIN screen standalone).
+  static IrmaRepository? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<IrmaRepositoryProvider>()
+      ?.repository;
 
   @override
   bool updateShouldNotify(IrmaRepositoryProvider oldWidget) =>

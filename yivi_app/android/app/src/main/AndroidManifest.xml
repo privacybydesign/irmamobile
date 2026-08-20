@@ -8,9 +8,6 @@
     <application
       android:allowBackup="false"
       android:icon="@mipmap/ic_launcher">
-        <meta-data
-          android:name="io.flutter.embedding.android.EnableImpeller"
-          android:value="false" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTask"
@@ -64,6 +61,22 @@
               <data android:scheme="eudi-openid4vp" />
               <data android:scheme="openid4vp" />
             </intent-filter>
+            <intent-filter>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data android:scheme="openid-credential-offer" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
+            android:exported="true">
+            <intent-filter android:label="flutter_web_auth_2">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="app.yivi.open" />
+            </intent-filter>
         </activity>
         <meta-data
             android:name="flutterEmbedding"
@@ -71,6 +84,7 @@
     </application>
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />

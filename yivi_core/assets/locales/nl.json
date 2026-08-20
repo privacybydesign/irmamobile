@@ -38,10 +38,12 @@
     "message_signed": "Bericht getekend",
     "signed_message_semantics": "Bericht getekend van {otherParty} op {date}",
     "shared_with": "Gedeeld met",
+    "received_from": "Ontvangen van",
     "shared_data": "Gedeelde gegevens",
     "received_data": "Ontvangen gegevens",
     "deleted_data": "Verwijderde gegevens",
-    "empty_placeholder": "Er zijn momenteel geen activiteiten"
+    "empty_placeholder": "Er zijn momenteel geen activiteiten",
+    "yesterday": "Gisteren"
   },
   "arrow_back": {
     "no_success": "Afgebroken",
@@ -89,6 +91,7 @@
   "credential": {
     "no_data": "Geen gegevens",
     "valid_until": "Geldig tot",
+    "indefinite_validity": "Onbepaalde tijd",
     "expires_on": "Verloopt op: {date}",
     "expired_on": "Verlopen op {date}",
     "date_at_time": "{date} om {time}",
@@ -106,7 +109,9 @@
     "about_to_expire": "Gaat verlopen",
     "expired": "Verlopen",
     "revoked": "Ingetrokken",
-    "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen."
+    "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen.",
+    "boolean_yes": "Ja",
+    "boolean_no": "Nee"
   },
   "data": {
     "tab": {
@@ -129,6 +134,11 @@
         "get_button": "Voeg toe",
         "disclosure_info_markdown": "**Let op:** Je haalt alle beschikbare gegevens op maar je deelt alleen de gegevens die nodig zijn.",
         "obtain": "Voeg {credential} toe aan mijn Yivi-app"
+      },
+      "nfc_unsupported": {
+        "title": "NFC niet ondersteund",
+        "body": "Dit apparaat ondersteunt geen NFC en kan deze kaart daarom niet laden. NFC is nodig om je document te lezen.",
+        "hint": "Vereist NFC, wat dit apparaat niet ondersteunt. Deze kaart kan niet worden geladen."
       }
     },
     "search": {
@@ -200,7 +210,8 @@
     "issue_wizard": {
       "title": "Verzamel gegevens",
       "explanation_incomplete": "Haal stap voor stap mijn gegevens op en deel ze daarna met de partij die daarom vraagt.",
-      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd"
+      "explanation_incomplete_single": "Haal de benodigde gegevens op en deel ze daarna met de partij die daarom vraagt.",
+      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd."
     },
     "previously_added": {
       "title": "Controleer gegevens",
@@ -241,6 +252,8 @@
     "wrong_credentials_added": {
       "title": "Foutmelding",
       "explanation": "Gegevens zijn toegevoegd in de app, maar zijn niet de gevraagde gegevens. Haal de juiste gegevens op.",
+      "you_issued": "Ontvangen",
+      "expected": "Verwacht",
       "dismiss_action": "OK"
     },
     "call": {
@@ -293,7 +306,7 @@
         "title": "Bevestig onze e-mail",
         "header": "Onze e-mail is gestuurd naar:",
         "explanation": "Het kan even duren voordat onze e-mail verschijnt. Geen e-mail ontvangen? Controleer of hij in je spamfolder zit.",
-        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@yivi.app**. Open de link in dat bericht om je e-mailadres aan de Yivi-app te koppelen."
+        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@mail.yivi.app**. Open de link in dat bericht om je e-mailadres aan de Yivi-app te koppelen."
       }
     },
     "terms_and_conditions": {
@@ -331,6 +344,7 @@
     "button_reset": "Begin opnieuw",
     "details_title": "Foutmelding",
     "report": "Als het fout blijft gaan, laat het dan aan ons weten.",
+    "show_sensitive_data": "Toon gevoeldige data",
     "types": {
       "general": "Er is iets misgegaan.",
       "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook zijn dat je Yivi meer dan één jaar niet hebt gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
@@ -416,6 +430,99 @@
     "success_feedback": {
       "header": "Gelukt",
       "text": "De gegevens zijn successvol aan Yivi toegevoegd."
+    },
+    "pre-authorized_code": {
+      "tx_code_screen": {
+        "title": "Gegevens toevoegen",
+        "header": "{issuer} vraagt een transactiecode",
+        "body": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {credential} te ontvangen.",
+        "body_multiple": "{issuer} heeft je een transactiecode gestuurd. Voer deze hieronder in om {count} gegevens te ontvangen.",
+        "continue": "Doorgaan",
+        "cancel": "Annuleren",
+        "invalid_code_error-0": "Onjuiste code. Nog {count} pogingen over.",
+        "invalid_code_error-1": "Onjuiste code. Nog {count} poging over.",
+        "invalid_code_error-2": "Onjuiste code. Nog {count} pogingen over."
+      },
+      "tx_code_lockout": {
+        "title": "Te veel onjuiste codes",
+        "body": "Je hebt de transactiecode te vaak verkeerd ingevoerd. Begin opnieuw om een nieuwe code te ontvangen."
+      }
+    },
+    "authorization_code": {
+      "pending": {
+        "title": "Gegevens toevoegen",
+        "body": "{issuer} moet enkele gegevens in je browser bevestigen. Druk op '{button}' om door te gaan. Je komt vanzelf terug als je klaar bent.",
+        "open_browser": "Browser openen",
+        "cancel": "Annuleren"
+      }
+    }
+  },
+  "email_issuance": {
+    "enter_email": {
+      "title": "E-mailadres toevoegen",
+      "header": "Voer je e-mailadres in",
+      "body": "Wij sturen je een e-mail met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
+      "error": "Er ging iets fout bij het versturen van de verificatiecode.",
+      "email_hint": "Voer je e-mailadres in...",
+      "next_button": "E-mail versturen",
+      "back_button": "Annuleer"
+    },
+    "verify_code": {
+      "title": "E-mailadres verifiëren",
+      "header": "We hebben je een e-mail gestuurd",
+      "body": "We hebben een e-mail met een verificatiecode verstuurd naar {email}.\n\nVul hieronder de verificatiecode uit de e-mail in om verder te gaan.",
+      "error": "Er is iets misgegaan.",
+      "invalid_code_error": "Code onjuist, probeer het opnieuw...",
+      "no_email_received": "Code niet ontvangen?",
+      "next_button": "Code verifiëren",
+      "back_button": "Annuleer",
+      "back_dialog": {
+        "title": "Weet je het zeker?",
+        "body": "Weet je zeker dat je terug wil gaan?",
+        "confirm": "Ga terug",
+        "cancel": "Annuleer"
+      },
+      "resend_dialog": {
+        "title": "E-mail opnieuw sturen",
+        "body": "We sturen je opnieuw een e-mail met een nieuwe code.",
+        "confirm": "Stuur opnieuw",
+        "cancel": "Annuleer"
+      }
+    }
+  },
+  "sms_issuance": {
+    "enter_phone": {
+      "title": "Telefoonnummer toevoegen",
+      "header": "Voer je telefoonnummer in",
+      "body": "Wij sturen je een sms met een verificatiecode. Deze code moet je invullen bij de volgende stap.",
+      "error": "Er ging iets fout bij het versturen van de verificatiecode.",
+      "phone_hint": "Voer je telefoonnummer in...",
+      "next_button": "Sms versturen",
+      "back_button": "Annuleer",
+      "search_label": "Zoek land of landnummer",
+      "search_hint": "Voer land naam of nummer in..."
+    },
+    "verify_code": {
+      "title": "Telefoonnummer verifiëren",
+      "header": "We hebben je een sms gestuurd",
+      "body": "We hebben een sms met een verificatiecode verstuurd naar {phone}.\n\nVul hieronder de verificatiecode uit de sms in om verder te gaan.",
+      "error": "Er is iets misgegaan.",
+      "invalid_code_error": "Code onjuist, probeer het opnieuw...",
+      "no_sms_received": "Code niet ontvangen?",
+      "next_button": "Code verifiëren",
+      "back_button": "Annuleer",
+      "back_dialog": {
+        "title": "Weet je het zeker?",
+        "body": "Weet je zeker dat je terug wil gaan?",
+        "confirm": "Ga terug",
+        "cancel": "Annuleer"
+      },
+      "resend_dialog": {
+        "title": "Sms opnieuw sturen",
+        "body": "We sturen je opnieuw een sms met een nieuwe code.",
+        "confirm": "Stuur opnieuw",
+        "cancel": "Annuleer"
+      }
     }
   },
   "issue_wizard": {
@@ -450,12 +557,29 @@
     "privacy_policy": "Yivi's privacyregels",
     "privacy_policy_link": "https://www.yivi.app/privacy",
     "app_id": "App-ID {id}",
-    "log_out": "Uitloggen"
+    "log_out": "Uitloggen",
+    "logged_out_toast": "Je bent uitgelogd"
   },
   "pin": {
     "subtitle": "Voer je pincode in",
+    "unlock": "Ontgrendelen",
     "button_forgot": "Pincode vergeten",
-    "button_block": "Yivi blokkeren"
+    "button_block": "Yivi blokkeren",
+    "biometric_button": "Ontgrendelen met biometrie",
+    "biometric_reason": "Ontgrendel de Yivi-app",
+    "biometric_confirm_reason": "Bevestig om biometrische ontgrendeling in te schakelen",
+    "biometric_prompt": {
+      "title": "Ontgrendelen met biometrie?",
+      "body": "Gebruik je vingerafdruk of gezicht om de app te ontgrendelen. Voor sessies moet je nog steeds je pincode invoeren.",
+      "enable": "Inschakelen",
+      "not_now": "Niet nu"
+    },
+    "cancel_session_dialog": {
+      "title": "Dit verzoek annuleren?",
+      "explanation": "Je keert terug naar het vergrendelscherm.",
+      "confirm": "Ja",
+      "decline": "Nee"
+    }
   },
   "pin_accessibility": {
     "show_pin": "Toon pincode",
@@ -489,9 +613,9 @@
     },
     "invalid_title": "Pincode is onjuist",
     "invalid_pin": {
-      "attempts-0": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-1": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-2": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
+      "attempts-0": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-1": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-2": "Deze pincode klopt niet. Je hebt nog {count} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
     },
     "invalid_close": "Opnieuw proberen",
     "blocked_title": "App geblokkeerd",
@@ -579,6 +703,10 @@
     "language": "Taal",
     "use_system_language": "Gebruik systeemtaal",
     "change_pin": "Pincode veranderen",
+    "biometric_unlock": "Ontgrendelen met biometrie",
+    "biometric_unlock_explanation": "Gebruik je vingerafdruk of gezicht om de app te ontgrendelen. Voor het ophalen of delen van gegevens heb je nog steeds je pincode nodig.",
+    "biometric_immediate": "Automatisch ontgrendelen",
+    "biometric_immediate_explanation": "Ontgrendel automatisch met biometrie wanneer je de app opent, in plaats van op de knop te tikken.",
     "delete": "Verwijder gegevens",
     "confirm_delete_dialog": {
       "title": "Gegevens verwijderen",
@@ -653,6 +781,18 @@
     "content": "Yivi heeft toegang tot de camera nodig om je document automatisch te scannen. Geef Yivi toestemming om de camera te gebruiken via de systeeminstellingen of voer de benodigde gegevens handmatig in.",
     "open_settings": "Open instellingen"
   },
+  "face_verification": {
+    "title": "Gezichtsverificatie",
+    "preparing": "Een moment, je gegevens worden voorbereid…",
+    "intro": {
+      "explanation": "We doen nu een korte gezichtscontrole om te bevestigen dat jij de persoon op het document bent.",
+      "tip_camera": "Richt de selfie camera op je gezicht.",
+      "tip_lighting": "Zorg voor voldoende licht.",
+      "tip_look_straight": "Kijk recht in de camera.",
+      "tip_no_accessories": "Verwijder brillen, hoeden, etc.",
+      "start": "Start verificatie"
+    }
+  },
   "driving_licence": {
     "scan": {
       "title": "Rijbewijs scannen",
@@ -665,9 +805,9 @@
       "title": "Voer rijbewijs code in",
       "explanation": "We hebben de code die voorop je rijbewijs staat (MRZ) nodig om een connectie met het document tot stand te brengen.",
       "fields": {
-        "mrz": "Machineleebare zone (MRZ)",
-        "mrz_required": "Machineleebare zone (MRZ) is verplicht",
-        "mrz_invalid": "Machineleebare zone (MRZ) is ongeldig"
+        "mrz": "Machineleesbare zone (MRZ)",
+        "mrz_required": "Machineleesbare zone (MRZ) is verplicht",
+        "mrz_invalid": "Machineleesbare zone (MRZ) is ongeldig"
       }
     },
     "nfc": {
@@ -870,15 +1010,52 @@
       "warning_dialog": {
         "title": "Pas op!",
         "content": "Je staat op het punt om schema's aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
-      },
-      "delete_credentials": {
-        "delete": "Verwijder alle gegevens",
-        "success": "Successvol alle verwijderbare gegevens verwijderd",
-        "dialog": {
-          "title": "Gegevens verwijderen",
-          "content": "Weet je zeker dat je alle gegevens wilt verwijderen?"
-        }
       }
+    },
+    "cert_management": {
+      "title": "Certificaatbeheer",
+      "issuer_certs": "Issuer certificaten",
+      "verifier_certs": "Verifier certificaten",
+      "install_cert_dialog": {
+        "title": "Certificaat installeren",
+        "content": "Voer de PEM gecodeerde inhoud van het certificaat in dat je wilt installeren:"
+      },
+      "remove_cert": "Certificaat verwijderen",
+      "removed": "Certificaat verwijderd",
+      "warning_dialog": {
+        "title": "Pas op!",
+        "content": "Je staat op het punt om certificaten aan te passen. Dit kan je Yivi-app onbruikbaar maken. Ga alleen door als je weet wat je doet."
+      }
+    },
+    "delete_credentials": {
+      "delete": "Verwijder alle gegevens",
+      "success": "Successvol alle verwijderbare gegevens verwijderd",
+      "dialog": {
+        "title": "Gegevens verwijderen",
+        "content": "Weet je zeker dat je alle gegevens wilt verwijderen?"
+      }
+    }
+  },
+  "signature": {
+    "read_more": "Meer lezen",
+    "read_less": "Minder lezen"
+  },
+  "review": {
+    "gate": {
+      "title": "Ben je tevreden over Yivi?",
+      "body": "Je hebt Yivi nu een paar keer gebruikt. We horen graag hoe het gaat.",
+      "positive": "Ja, ik ben tevreden",
+      "negative": "Niet echt"
+    },
+    "feedback": {
+      "title": "Wat kan er beter?",
+      "body": "Laat ons weten wat niet werkt.",
+      "hint": "Jouw feedback",
+      "privacy": "Je bericht gaat naar ons team, dus voeg geen persoonlijke gegevens toe.",
+      "send": "Versturen",
+      "cancel": "Annuleren",
+      "thanks": "Bedankt, hiermee maken we Yivi beter.",
+      "close": "Sluiten"
     }
   }
 }

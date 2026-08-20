@@ -1,9 +1,10 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:material_ui/material_ui.dart";
+import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
@@ -11,6 +12,11 @@ import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
+import "src/providers/qr_scanner_factory_provider.dart";
+import "src/providers/regula_face_service_provider.dart";
+import "src/providers/schemaless_credentials_list_provider.dart";
+import "src/providers/sms_issuance_provider.dart";
+import "src/providers/store_review_provider.dart";
 import "src/screens/home/home_screen.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
 import "src/sentry/sentry.dart";
@@ -18,12 +24,31 @@ import "src/util/navigation.dart";
 import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
+export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
+export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
+export "src/providers/passport_issuer_provider.dart"
+    show faceCaptureUrlProvider, faceVerificationConfigProvider;
+export "src/providers/qr_scanner_factory_provider.dart";
+export "src/providers/regula_face_service_provider.dart";
+export "src/providers/sms_issuance_provider.dart";
+export "src/providers/store_review_provider.dart" show StoreReviewService;
+export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
+export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 
-// The OcrProcessor is optional, when it's set to null the app won't include an mrz reader
-// and the mrz will have to be entered manually by the user.
-Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
+/// Builds the flavor's liveness service. Takes a [Ref] because the FOSS
+/// implementation's capture page is derived from the passport issuer the session
+/// is talking to ([faceCaptureUrlProvider]), which is only known at runtime.
+typedef RegulaFaceServiceBuilder = RegulaFaceService? Function(Ref ref);
+
+Future<void> runYiviApp({
+  required QrScannerFactory qrScannerFactory,
+  OcrProcessor? ocrProcessor,
+  SmsRetriever? smsRetriever,
+  RegulaFaceServiceBuilder? regulaFaceService,
+  StoreReviewService? storeReviewService,
+}) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
       details.exception,
@@ -36,6 +61,11 @@ Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
 
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
+        // Android 15+ enforces edge-to-edge, so bar colors are ignored;
+        // icon brightness is what keeps the bars readable. App is light-only.
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
+        statusBarBrightness: Brightness.light, // iOS: light bg
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
@@ -69,6 +99,26 @@ Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
           // passed in from the outside so apps are not required to depend on non-FOSS implementations
           ocrProcessorProvider.overrideWithValue(ocrProcessor),
 
+          // passed in from the outside so apps are not required to depend on non-FOSS implementations
+          smsRetrieverProvider.overrideWithValue(smsRetriever),
+
+          // passed in from the outside so each app picks a scanner backend
+          // appropriate to its distribution channel (ML Kit vs. zxing-cpp)
+          qrScannerFactoryProvider.overrideWithValue(qrScannerFactory),
+
+          // passed in from the outside so the FOSS build is not required to
+          // depend on the Regula Face SDK; null disables face verification.
+          // Built from a ref rather than a value so the FOSS capture page can
+          // follow the session's passport issuer.
+          regulaFaceServiceProvider.overrideWith(
+            (ref) => regulaFaceService?.call(ref),
+          ),
+
+          // passed in from the outside so the proprietary in-app-review
+          // dependency stays out of the FOSS build; null there disables the
+          // whole review prompt
+          storeReviewServiceProvider.overrideWithValue(storeReviewService),
+
           // can pass an environment variable to test with errors on passport issuance
           if (passportIssuanceError.isNotEmpty)
             passportIssuerProvider.overrideWithValue(
@@ -85,13 +135,18 @@ Future<void> runYiviApp({OcrProcessor? ocrProcessor}) async {
 
 class YiviApp extends ConsumerWidget {
   final Locale? defaultLanguage;
+  final Duration? idleLockThreshold;
 
-  const YiviApp({super.key, this.defaultLanguage});
+  const YiviApp({super.key, this.defaultLanguage, this.idleLockThreshold});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final repository = ref.watch(irmaRepositoryProvider);
     final notificationsBloc = NotificationsBloc(repo: repository);
+
+    // Eagerly initialize the credential order controller so it starts
+    // tracking credential changes before the data tab is first mounted.
+    ref.read(schemalessCredentialOrderControllerProvider);
 
     return TransitionStyleProvider(
       child: IrmaRepositoryProvider(
@@ -122,6 +177,7 @@ class YiviApp extends ConsumerWidget {
               return App(
                 forcedLocale: appLocale,
                 notificationsBloc: notificationsBloc,
+                idleLockThreshold: idleLockThreshold,
               );
             },
           ),

@@ -1,11 +1,13 @@
-import "package:flutter/cupertino.dart";
-import "package:flutter/material.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
+import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 import "package:share_plus/share_plus.dart";
 
 import "../../../providers/irma_repository_provider.dart";
 import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
+import "../../../widgets/chevron.dart";
 import "../../../widgets/irma_dialog.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
@@ -165,6 +167,11 @@ class ToggleTile extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         final value = snapshot.hasData && snapshot.data!;
 
+        void toggle(bool newValue) {
+          HapticFeedback.selectionClick();
+          onChanged(newValue);
+        }
+
         return Semantics(
           value: FlutterI18n.translate(
             context,
@@ -178,10 +185,14 @@ class ToggleTile extends StatelessWidget {
             isLink: false,
             iconData: iconData,
             labelTranslationKey: labelTranslationKey,
-            onTap: () => onChanged(!value),
+            // Tapping anywhere on the row toggles the switch.
+            onTap: () => toggle(!value),
+            // The switch handles its own taps/drags too: a disabled
+            // (onChanged: null) CupertinoSwitch swallows the gesture before it
+            // reaches the Tile's onTap, so it must stay interactive.
             trailing: CupertinoSwitch(
               value: value,
-              onChanged: null, // We use the onTap on the Tile
+              onChanged: toggle,
               activeTrackColor: theme.success,
             ),
           ),
@@ -218,15 +229,23 @@ class Tile extends StatelessWidget {
         child: ListTile(
           onTap: onTap,
           minLeadingWidth: theme.mediumSpacing,
+          contentPadding: EdgeInsets.fromLTRB(
+            theme.defaultSpacing,
+            0,
+            theme.smallSpacing,
+            0,
+          ),
           leading: iconData != null
               ? Icon(iconData, size: 28, color: iconColor)
               : null,
           title: TranslatedText(
             labelTranslationKey,
-            style: theme.textButtonTextStyle,
+            style: theme.textButtonTextStyle.copyWith(
+              fontWeight: FontWeight.w400,
+              color: theme.dark,
+            ),
           ),
-          trailing:
-              trailing ?? Icon(Icons.chevron_right, size: 28, color: iconColor),
+          trailing: trailing ?? const Chevron(),
         ),
       ),
     );

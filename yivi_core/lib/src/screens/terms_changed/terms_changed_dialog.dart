@@ -1,9 +1,8 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
-import "package:go_router/go_router.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../providers/preferences_provider.dart";
 import "../../theme/theme.dart";
@@ -110,11 +109,15 @@ class _TermsChangedDialogState extends ConsumerState<TermsChangedDialog> {
             onPrimaryPressed: () async {
               await prefs.markLatestTermsAsAccepted(true);
               if (context.mounted) {
-                context.pop();
+                // `Navigator.of` (not GoRouter's `context.pop`)
+                // because the dialog may be hosted in a local
+                // Navigator (e.g. `LockGate`'s overlay) that sits
+                // above the GoRouter scope.
+                Navigator.of(context).pop();
               }
             },
             onSecondaryPressed: () {
-              context.pop();
+              Navigator.of(context).pop();
             },
           ),
         ],

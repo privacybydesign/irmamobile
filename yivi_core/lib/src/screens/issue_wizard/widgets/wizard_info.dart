@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/issue_wizard.dart";
 import "../../../theme/theme.dart";
@@ -13,7 +13,7 @@ class IssueWizardInfo extends StatelessWidget {
   final GlobalKey scrollviewKey;
   final ScrollController controller;
   final IssueWizard wizardData;
-  final Image logo;
+  final Widget logo;
   final void Function() onNext;
   final void Function() onBack;
 

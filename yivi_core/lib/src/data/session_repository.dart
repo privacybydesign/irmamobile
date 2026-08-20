@@ -1,230 +1,199 @@
-import "package:collection/collection.dart";
+import "dart:collection";
+
 import "package:rxdart/rxdart.dart";
 
-import "../models/attribute.dart";
-import "../models/credentials.dart";
-import "../models/return_url.dart";
-import "../models/session.dart";
+import "../models/event.dart";
+import "../models/schemaless/session_state.dart";
+import "../models/schemaless/session_user_interaction.dart";
 import "../models/session_events.dart";
-import "../models/session_state.dart";
-import "../models/translated_value.dart";
-import "../util/con_dis_con.dart";
 import "irma_repository.dart";
 
-typedef SessionStates = UnmodifiableMapView<int, SessionState>;
-
+/// SessionRepository manages session states.
+///
+/// It listens for [SessionStateEvent]s and:
+/// - Stores the latest [SessionState] per session ID
+/// - Emits new session IDs on [newSessionIds] when a previously unseen session appears
+/// - Provides per-session state streams via [getSessionState]
 class SessionRepository {
   final IrmaRepository repo;
 
-  final _sessionStatesSubject = BehaviorSubject<SessionStates>.seeded(
-    SessionStates({}),
-  );
+  final _states =
+      BehaviorSubject<UnmodifiableMapView<int, SessionState>>.seeded(
+        UnmodifiableMapView({}),
+      );
 
-  SessionRepository({
-    required this.repo,
-    required Stream<SessionEvent> sessionEventStream,
-  }) {
-    // Don't pipe states to the subject directly, because then potential errors are piped to the subject as well.
-    sessionEventStream.listen((event) {
-      final prevStates = _sessionStatesSubject.value;
-      // Calculate the nextState from the previousState by handling the event.
-      // In case a new session is created, we create a new session state.
-      SessionState? nextState;
-      if (prevStates.containsKey(event.sessionID)) {
-        final prevState = prevStates[event.sessionID]!;
-        nextState = _eventHandler(prevState, event);
-      } else if (event is NewSessionEvent) {
-        nextState = _newSessionState(event);
-      }
+  /// Emits session IDs the first time a [SessionStateEvent] is received for them.
+  final _newSessionIdsSubject = PublishSubject<int>();
 
-      // Copy the prevStates into a new map, and add the next state
-      final nextStates = Map.of(prevStates);
-      if (nextState != null) nextStates[event.sessionID] = nextState;
+  /// Session IDs whose last user interaction has been dispatched to Go but
+  /// for which no follow-up [SessionStateEvent] has yet arrived.
+  final _awaitingInteraction = BehaviorSubject<Set<int>>.seeded({});
 
-      _sessionStatesSubject.add(SessionStates(nextStates));
-    }, onDone: _sessionStatesSubject.close);
+  /// Session IDs that have been started ([NewSessionEvent]) but have not yet
+  /// reached a terminal status. Tracked from the *start* — not the first
+  /// `requestPermission` state, which only arrives after a Go round-trip — so
+  /// the lock screen can withhold biometric the instant a link starts a session,
+  /// before Go replies (issue #654). See [hasInFlightSessionStream].
+  final _inFlightSessionIds = BehaviorSubject<Set<int>>.seeded({});
+
+  SessionRepository({required this.repo, required Stream<Event> eventStream}) {
+    eventStream.listen(_handleEvent);
   }
 
-  SessionState _newSessionState(NewSessionEvent event) {
-    // Set the url as fallback serverName in case session is canceled before the translated serverName is known.
-    RequestorInfo serverName;
-    try {
-      final url = Uri.parse(event.request.u).host;
-      serverName = RequestorInfo(name: TranslatedValue.fromString(url));
-    } catch (_) {
-      // Error with url will be resolved by bridge, so we don't have to act on that.
-      serverName = RequestorInfo(name: const TranslatedValue.empty());
+  void _handleEvent(Event event) {
+    if (event is SessionStateEvent) {
+      _handleSessionStateEvent(event);
+    } else if (event is NewSessionEvent) {
+      // Mark the session in flight from its start, so the lock screen can
+      // withhold biometric before Go replies (see [_inFlightSessionIds]).
+      _inFlightSessionIds.add(
+        Set<int>.from(_inFlightSessionIds.value)..add(event.sessionId),
+      );
+    } else if (event is SessionUserInteractionEvent &&
+        event.type != UserInteractionType.dismiss) {
+      _markAwaitingInteraction(event.sessionId);
     }
-    return SessionState(
-      sessionID: event.sessionID,
-      clientReturnURL: null,
-      continueOnSecondDevice: event.request.continueOnSecondDevice,
-      previouslyLaunchedCredentials: event.previouslyLaunchedCredentials,
-      status: SessionStatus.initialized,
-      serverName: serverName,
-      sessionType: event.request.irmaqr,
-    );
   }
 
-  SessionState _eventHandler(SessionState prevState, SessionEvent event) {
-    if (event is FailureSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: event.error,
-      );
-    } else if (event is KeyshareEnrollmentMissingSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: SessionError(
-          errorType: "keyshareEnrollmentMissing",
-          info:
-              "user not activated at the keyshare server of scheme ${event.schemeManagerID}",
-        ),
-      );
-    } else if (event is KeyshareEnrollmentIncompleteSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: SessionError(
-          errorType: "keyshareEnrollmentIncomplete",
-          info:
-              "user enrollment incomplete at the keyshare server of scheme ${event.schemeManagerID}",
-        ),
-      );
-    } else if (event is KeyshareEnrollmentDeletedSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.error,
-        error: SessionError(
-          errorType: "keyshareEnrollmentDeleted",
-          info:
-              "user deleted at the keyshare server of scheme ${event.schemeManagerID}",
-        ),
-      );
-    } else if (event is StatusUpdateSessionEvent) {
-      return prevState.copyWith(status: event.status.toSessionStatus());
-    } else if (event is ClientReturnURLSetSessionEvent) {
-      return prevState.copyWith(
-        clientReturnURL: ReturnURL.parse(event.clientReturnURL),
-      );
-    } else if (event is PairingRequiredSessionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.pairing,
-        pairingCode: event.pairingCode,
-      );
-    } else if (event is RequestIssuancePermissionSessionEvent) {
-      try {
-        _validateCandidates(event.disclosuresCandidates);
-      } on SessionError catch (e) {
-        return prevState.copyWith(status: SessionStatus.error, error: e);
-      }
-      // All discons must have an option to choose from. Otherwise the session can never be finished.
-      final canBeFinished = event.disclosuresCandidates.every(
-        (discon) => discon.isNotEmpty,
-      );
+  void _handleSessionStateEvent(SessionStateEvent event) {
+    final state = event.sessionState;
+    final prevStates = _states.value;
+    final isNew = !prevStates.containsKey(state.id);
 
-      final issuedCredentials = event.issuedCredentials.map((raw) {
-        return MultiFormatCredential.fromRawMultiFormatCredential(
-          raw,
-          repo.irmaConfiguration,
+    // Count a session exactly once, on its transition into success: any
+    // SessionStatus.success (disclosure, issuance or signature) drives the
+    // review prompt. Failed/dismissed sessions never count. The prompt itself
+    // is gated on an injected store-review service, so this counter growing in
+    // the F-Droid build (which injects none) is harmless.
+    if (state.status == SessionStatus.success &&
+        prevStates[state.id]?.status != SessionStatus.success) {
+      repo.preferences.incrementReviewSuccessCount();
+    }
+
+    final nextStates = Map<int, SessionState>.from(prevStates);
+    nextStates[state.id] = state;
+    _states.add(UnmodifiableMapView(nextStates));
+
+    if (isNew) {
+      _newSessionIdsSubject.add(state.id);
+    }
+
+    // Any new state for this session resolves a pending interaction. Terminal
+    // statuses (success/error/dismissed) are also state events, so the entry
+    // is cleared on normal session completion as well.
+    if (_awaitingInteraction.value.contains(state.id)) {
+      final next = Set<int>.from(_awaitingInteraction.value)..remove(state.id);
+      _awaitingInteraction.add(next);
+    }
+
+    // Mirror Go's session eviction on terminal status: emit the terminal state
+    // first so consumers (SessionScreen, integration tests) observe it, then
+    // drop the entry from the map. The second emit is filtered out by
+    // [getSessionState]'s `containsKey` guard, so subscribers see exactly one
+    // terminal emission. Prevents `_states` from growing unboundedly across
+    // the app lifetime.
+    if (_isTerminalStatus(state.status)) {
+      final cleaned = Map<int, SessionState>.from(nextStates)..remove(state.id);
+      _states.add(UnmodifiableMapView(cleaned));
+
+      // A terminal session is no longer in flight, so the lock screen may offer
+      // biometric again (this is also how the lock-screen ✕ releases it: the
+      // dismiss produces a terminal state here).
+      if (_inFlightSessionIds.value.contains(state.id)) {
+        _inFlightSessionIds.add(
+          Set<int>.from(_inFlightSessionIds.value)..remove(state.id),
         );
-      }).toList();
-
-      return prevState.copyWith(
-        status: event.disclosuresCandidates.isEmpty
-            ? SessionStatus.requestIssuancePermission
-            : SessionStatus.requestDisclosurePermission,
-        serverName: event.serverName,
-        satisfiable: event.satisfiable,
-        canBeFinished: canBeFinished,
-        isSignatureSession: false,
-        disclosuresCandidates: ConDisCon.fromRaw(
-          event.disclosuresCandidates,
-          (DisclosureCandidate dc) => dc,
-        ),
-        issuedCredentials: issuedCredentials,
-      );
-    } else if (event is RequestVerificationPermissionSessionEvent) {
-      try {
-        _validateCandidates(event.disclosuresCandidates);
-      } on SessionError catch (e) {
-        return prevState.copyWith(status: SessionStatus.error, error: e);
-      }
-      // All discons must have an option to choose from. Otherwise the session can never be finished.
-      final canBeFinished = event.disclosuresCandidates.every(
-        (discon) => discon.isNotEmpty,
-      );
-
-      return prevState.copyWith(
-        status: SessionStatus.requestDisclosurePermission,
-        serverName: event.serverName,
-        satisfiable: event.satisfiable,
-        canBeFinished: canBeFinished,
-        isSignatureSession: event.isSignatureSession,
-        signedMessage: event.signedMessage,
-        disclosuresCandidates: ConDisCon.fromRaw(
-          event.disclosuresCandidates,
-          (DisclosureCandidate dc) => dc,
-        ),
-      );
-    } else if (event is ContinueToIssuanceEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.requestIssuancePermission,
-        disclosureChoices: ConCon.fromRaw(
-          event.disclosureChoices,
-          (AttributeIdentifier attrId) => attrId,
-        ),
-      );
-    } else if (event is SuccessSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.success);
-    } else if (event is CanceledSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.canceled);
-    } else if (event is RequestPinSessionEvent) {
-      return prevState.copyWith(status: SessionStatus.requestPin);
-    } else if (event is RespondPermissionEvent) {
-      return prevState.copyWith(
-        status: SessionStatus.communicating,
-        disclosureChoices: event.proceed
-            ? ConCon.fromRaw(
-                event.disclosureChoices,
-                (AttributeIdentifier attrId) => attrId,
-              )
-            : null,
-        dismissed: !event.proceed,
-      );
-    }
-
-    return prevState;
-  }
-
-  void _validateCandidates(List<List<List<DisclosureCandidate>>> candidates) {
-    for (final discon in candidates) {
-      for (final con in discon) {
-        for (final cand in con) {
-          // We support cand.type consisting of four dot-separated parts; three parts is forbidden here;
-          // any other amount of parts is forbidden by irmago before we end up here
-          if (cand.type.split(".").length == 3) {
-            throw SessionError(
-              errorType: "notSupported",
-              info: "non-attribute disclosures are not supported",
-              wrappedError:
-                  '"${cand.type}" consists of three parts; four expected',
-            );
-          }
-        }
       }
     }
   }
 
-  SessionState? getCurrentSessionState(int sessionID) =>
-      _sessionStatesSubject.value[sessionID];
+  static bool _isTerminalStatus(SessionStatus status) =>
+      status == SessionStatus.success ||
+      status == SessionStatus.error ||
+      status == SessionStatus.dismissed;
 
-  Stream<SessionState> getSessionState(int sessionID) => _sessionStatesSubject
-      .where((sessionStates) => sessionStates.containsKey(sessionID))
-      .map((sessionStates) => sessionStates[sessionID]!);
+  void _markAwaitingInteraction(int sessionId) {
+    if (_awaitingInteraction.value.contains(sessionId)) return;
+    final next = Set<int>.from(_awaitingInteraction.value)..add(sessionId);
+    _awaitingInteraction.add(next);
+  }
 
-  Future<bool> hasActiveSessions() async {
-    final sessions = await _sessionStatesSubject.first;
-    return sessions.values.any(
-      (session) => session.status == SessionStatus.requestDisclosurePermission,
+  /// Stream of whether [sessionId] is currently waiting for the next state.
+  Stream<bool> isAwaitingInteraction(int sessionId) => _awaitingInteraction
+      .stream
+      .map((set) => set.contains(sessionId))
+      .distinct();
+
+  /// Synchronous read of the current awaiting-interaction state. Used as a
+  /// fallback for the first build after a SessionScreen remounts, before the
+  /// stream subscription has delivered its seed value.
+  bool isAwaitingInteractionNow(int sessionId) =>
+      _awaitingInteraction.value.contains(sessionId);
+
+  /// Stream that emits session IDs when a new session is first seen.
+  Stream<int> get newSessionIds => _newSessionIdsSubject.stream;
+
+  /// Returns a stream of [SessionState] for the given session ID.
+  Stream<SessionState> getSessionState(int sessionId) {
+    return _states
+        .where((map) => map.containsKey(sessionId))
+        .map((map) => map[sessionId]!);
+  }
+
+  /// Synchronous lookup of a [SessionState] by its OpenID4VCI `state` value
+  /// (the OAuth `state` parameter we minted when starting the auth-code flow).
+  /// Returns `null` if no matching in-flight session exists — e.g. the wallet
+  /// was restarted between launching the browser and the callback firing.
+  SessionState? getCurrentSessionStateByOpenID4VCIState(String sessionState) {
+    for (final state in _states.value.values) {
+      if (state.openID4VCIState == sessionState) return state;
+    }
+    return null;
+  }
+
+  /// Returns the current [SessionState] for the given session ID, if available.
+  SessionState? getCurrentSessionState(int sessionId) {
+    return _states.value[sessionId];
+  }
+
+  /// Returns the IDs of all sessions currently in the requestPermission state.
+  List<int> getActiveSessionIds() {
+    return _states.value.entries
+        .where((e) => e.value.status == .requestPermission)
+        .map((e) => e.key)
+        .toList();
+  }
+
+  /// Returns whether any session is currently in the requestPermission state.
+  /// Optionally excludes a specific session ID from the check.
+  bool hasActiveSessions({int? excludeSessionId}) {
+    final states = _states.value;
+    return states.entries.any(
+      (e) => e.key != excludeSessionId && e.value.status == .requestPermission,
     );
+  }
+
+  /// Whether any session is currently in flight (started, not yet terminal).
+  bool get hasInFlightSession => _inFlightSessionIds.value.isNotEmpty;
+
+  /// The IDs of all sessions currently in flight (started, not yet terminal).
+  /// Superset of [getActiveSessionIds]: also covers a session between its start
+  /// and Go's first `requestPermission` reply. Used to cancel from the lock
+  /// screen — the same set that makes [hasInFlightSession] hide biometric.
+  Set<int> get inFlightSessionIds => _inFlightSessionIds.value;
+
+  /// Stream of [hasInFlightSession]. The lock screen watches this to withhold
+  /// biometric while a session is in flight — including one a link started just
+  /// before the app idle-locked — so it stays PIN-gated (issue #654).
+  Stream<bool> get hasInFlightSessionStream =>
+      _inFlightSessionIds.map((s) => s.isNotEmpty).distinct();
+
+  Future<void> close() async {
+    await Future.wait([
+      _states.close(),
+      _newSessionIdsSubject.close(),
+      _awaitingInteraction.close(),
+      _inFlightSessionIds.close(),
+    ]);
   }
 }

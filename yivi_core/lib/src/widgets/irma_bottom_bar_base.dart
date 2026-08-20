@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 
@@ -26,18 +26,14 @@ class IrmaBottomBarBase extends StatelessWidget {
           ),
         ],
       ),
-      child: SafeArea(
-        top: false,
-        left: false,
-        right: false,
-        bottom: true,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: theme.smallSpacing,
-            horizontal: theme.defaultSpacing,
-          ),
-          child: child,
+      child: Padding(
+        padding: .only(
+          left: theme.defaultSpacing + mediaQuery.padding.left,
+          right: theme.defaultSpacing + mediaQuery.padding.right,
+          top: theme.smallSpacing,
+          bottom: theme.smallSpacing + mediaQuery.padding.bottom,
         ),
+        child: child,
       ),
     );
   }

@@ -1,3 +1,6 @@
+import "dart:ui" show Locale;
+
+import "package:flutter_test/flutter_test.dart";
 import "package:rxdart/rxdart.dart";
 import "package:yivi_core/src/data/irma_client_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
@@ -58,22 +61,23 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
       mostRecentTermsUrlEn: "testurl",
     );
 
-    await _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
-
-    _bridge.dispatch(AppReadyEvent());
-    EnrollmentStatusEvent currEnrollmentStatus =
-        await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
-          (event) => event is ClientPreferencesEvent,
-        );
+    // Subscribe before dispatching so the AppReady event burst can't be missed
+    // between dispatch and subscription (the race that surfaced as a "Bad
+    // state: No element" straggler at test boundaries).
+    var statusFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
+      (event) => event is ClientPreferencesEvent,
+    );
+    _bridge.dispatch(AppReadyEvent(locale: "en"));
+    EnrollmentStatusEvent currEnrollmentStatus = await statusFuture;
 
     // Ensure the app is not enrolled to its keyshare server yet.
     if (currEnrollmentStatus.enrolledSchemeManagerIds.isNotEmpty) {
       await tearDown();
-      _bridge.dispatch(AppReadyEvent());
-      currEnrollmentStatus =
-          await _expectBridgeEventGuarded<EnrollmentStatusEvent>(
-            (event) => event is ClientPreferencesEvent,
-          );
+      statusFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
+        (event) => event is ClientPreferencesEvent,
+      );
+      _bridge.dispatch(AppReadyEvent(locale: "en"));
+      currEnrollmentStatus = await statusFuture;
     }
 
     // Ensure test scheme is available.
@@ -102,11 +106,11 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
       ),
     );
 
+    // Mark terms as accepted (must be after the conditional tearDown which clears all preferences).
+    await _preferences!.markLatestTermsAsAccepted(acceptedTermsAndConditions);
+
     // Enable screenshots to make sure screen recordings can be made.
     await _preferences!.setScreenshotsEnabled(true);
-
-    // Prevent rooted warning to be shown on simulators.
-    await _preferences!.setAcceptedRootedRisk(true);
 
     // Always set ShowNameChangedNotification to false when testing
     await _preferences!.setShowNameChangedNotification(false);
@@ -127,7 +131,18 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
       );
     }
 
-    await _preferences!.setAcceptedRootedRisk(true);
+    // Pin the system locale so IrmaRepository's effective app language starts
+    // at "en", matching the AppReadyEvent locale above. Without this it is the
+    // host machine's language: on a Dutch simulator the baseline is already
+    // "nl", so a test switching to Dutch is not a change, no SetLocaleEvent is
+    // emitted, and the Go client stays on the locale it was started with.
+    TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
+        const Locale("en", "US");
+
+    // Drop any in-app language override a previous test left behind, so the
+    // baseline really is the pinned system locale. "" is the default value, so
+    // "use system language" stays on for tests that assert on it.
+    await _preferences!.setPreferredLanguageCode("");
 
     _repository = IrmaRepository(
       client: _bridge,
@@ -137,6 +152,9 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   }
 
   Future<void> tearDown() async {
+    // Dismiss all active sessions to prevent them from bleeding into the next test.
+    _repository?.dismissAllActiveSessions();
+
     // Make sure there is a listener for the bridge events.
     final dataClearedFuture = _expectBridgeEventGuarded<EnrollmentStatusEvent>(
       (event) =>
@@ -156,13 +174,22 @@ Nu1bRk5gLEwmR5+V6MSFQWyWBkwacOt8
   /// The bridge event stream is guarded while waiting to detect relevant errors.
   Future<T> _expectBridgeEventGuarded<T extends Event>([
     bool Function(Event)? test,
-  ]) => _bridge.events
-      .takeWhileInclusive((event) {
-        if (event is ErrorEvent) throw Exception(event.toString());
-        if (event is EnrollmentFailureEvent) throw Exception(event.error);
-        if (test == null) return event is! T;
-        return !test(event);
-      })
-      .toList()
-      .then((receivedEvents) => receivedEvents.whereType<T>().last);
+  ]) async {
+    final receivedEvents = await _bridge.events.takeWhileInclusive((event) {
+      if (event is ErrorEvent) throw Exception(event.toString());
+      if (event is EnrollmentFailureEvent) throw Exception(event.error);
+      if (test == null) return event is! T;
+      return !test(event);
+    }).toList();
+
+    final matches = receivedEvents.whereType<T>();
+    if (matches.isNotEmpty) return matches.last;
+
+    // Defensive: if no event of type [T] landed in the collected window (a
+    // bridge-timing race at test boundaries), wait briefly for the next one
+    // rather than throwing an unhandled "Bad state: No element".
+    return _bridge.events.whereType<T>().first.timeout(
+      const Duration(seconds: 10),
+    );
+  }
 }

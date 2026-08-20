@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:material_ui/material_ui.dart";
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
@@ -42,13 +42,15 @@ class IrmaThemeData {
 
   // Communicating colors
   final Color error = const Color(0xFFBD1919);
+  final Color errorSurface = const Color(0xFFF5DBDB);
   final Color warning = const Color(0xFFEBA73B);
   final Color success = const Color(0xFF00973A);
+  final Color successSurface = const Color(0xFFD7EFE0);
   final Color link = const Color(0xFF1D4E89);
   final Color danger = const Color(0xffEABEBE);
 
   // Fonts
-  final String primaryFontFamily = "Alexandria";
+  final String primaryFontFamily = "Open Sans";
   final String secondaryFontFamily = "Open Sans";
 
   // Borders
@@ -202,6 +204,11 @@ class IrmaThemeData {
       toolbarTextStyle: textTheme.bodyMedium,
       titleTextStyle: textTheme.titleLarge,
       systemOverlayStyle: const SystemUiOverlayStyle(
+        // Android 15+ ignores bar colors under enforced edge-to-edge;
+        // icon brightness is what stays readable. App is light-only.
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // dark icons for light bg
+        statusBarBrightness: Brightness.light, // iOS: light bg
         systemNavigationBarColor: Colors.white,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
@@ -255,6 +262,7 @@ class IrmaThemeData {
       textTheme: textTheme,
       appBarTheme: appBarTheme,
       inputDecorationTheme: inputDecorationTheme,
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
     );
   }
 }

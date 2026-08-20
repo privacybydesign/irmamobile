@@ -160,3 +160,28 @@ Future<void> issueDemoCredentials(
   await issueMunicipalityPersonalData(tester, irmaBinding);
   await issueMunicipalityAddress(tester, irmaBinding);
 }
+
+Future<void> issueMijnOverheidRoot(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  String bsn = "999999990",
+}) => issueCredentials(
+  tester,
+  irmaBinding,
+  {"irma-demo.MijnOverheid.root.BSN": bsn},
+  revocationKeys: {"irma-demo.MijnOverheid.root": generateRevocationKey()},
+);
+
+Future<void> issueMijnOverheidFullName(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  String firstnames = "Willeke Liselotte",
+  String firstname = "Willeke",
+  String familyname = "Bruijn",
+  String prefix = "de",
+}) => issueCredentials(tester, irmaBinding, {
+  "irma-demo.MijnOverheid.fullName.firstnames": firstnames,
+  "irma-demo.MijnOverheid.fullName.firstname": firstname,
+  "irma-demo.MijnOverheid.fullName.familyname": familyname,
+  "irma-demo.MijnOverheid.fullName.prefix": prefix,
+});

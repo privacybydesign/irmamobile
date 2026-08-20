@@ -4,10 +4,10 @@ import "package:flutter/widgets.dart";
 // ignore_for_file: non_constant_identifier_names
 // ignore_for_file: constant_identifier_names
 @immutable
-class _IrmaIconsData extends IconData {
-  const _IrmaIconsData(super.codePoint, this.name)
-    : super(fontFamily: "IrmaIcons");
+class _IrmaIconsData {
+  const _IrmaIconsData(this.codePoint, this.name);
 
+  final int codePoint;
   final String name;
 }
 

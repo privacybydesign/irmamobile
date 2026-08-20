@@ -1,23 +1,83 @@
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+// ignore: depend_on_referenced_packages
+import "package:plugin_platform_interface/plugin_platform_interface.dart";
+// ignore: depend_on_referenced_packages
+import "package:url_launcher_platform_interface/link.dart";
+// ignore: depend_on_referenced_packages
+import "package:url_launcher_platform_interface/url_launcher_platform_interface.dart";
 
 import "../irma_binding.dart";
 import "special_scenarios/attribute_order.dart";
+import "special_scenarios/calling_session.dart";
 import "special_scenarios/combined_disclosure_issuance.dart";
 import "special_scenarios/decline_disclosure.dart";
 import "special_scenarios/nullables.dart";
 import "special_scenarios/random_blind.dart";
+import "special_scenarios/return_url_https_external.dart";
+import "special_scenarios/return_url_https_inapp.dart";
+import "special_scenarios/return_url_second_device.dart";
 import "special_scenarios/revocation.dart";
 import "special_scenarios/signing.dart";
+
+/// The Android in-app-browser channel the wallet's `openURLinAppBrowser` uses.
+const _iiabChannel = MethodChannel("irma.app/iiab");
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
+  // Spies for the URL-launcher / in-app-browser plumbing. Swap the real
+  // url_launcher platform for a recording stand-in, and intercept the
+  // Android in-app-browser MethodChannel. Both buckets get cleared in setUp.
+  final externalLaunches = <String>[];
+  final inAppLaunches = <String>[];
+
   group("disclosure-session", () {
-    setUp(() async => irmaBinding.setUp());
-    tearDown(() => irmaBinding.tearDown());
+    // Installed per test rather than at main() time, and inside this group
+    // rather than at the top level. `test_all.dart` calls every file's main()
+    // up front in the same root declarer, so:
+    //   - a main()-time install is overwritten by whichever file installs last,
+    //     and this group's launches then land in that file's buckets;
+    //   - a top-level setUp here would run before *every* test in the
+    //     aggregated suite and steal the launches of files that install their
+    //     own recorder (see required_update_test.dart).
+    // Group-scoped setUp runs at execution time, so the group that is actually
+    // running owns the stand-ins.
+    late UrlLauncherPlatform previousUrlLauncher;
+
+    setUp(() async {
+      await irmaBinding.setUp();
+      externalLaunches.clear();
+      inAppLaunches.clear();
+
+      previousUrlLauncher = UrlLauncherPlatform.instance;
+      UrlLauncherPlatform.instance = _RecordingUrlLauncherPlatform(
+        externalLaunches: externalLaunches,
+        inAppLaunches: inAppLaunches,
+      );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(_iiabChannel, (call) async {
+            if (call.method == "open_browser") {
+              inAppLaunches.add(call.arguments as String);
+            }
+            return null;
+          });
+    });
+
+    tearDown(() async {
+      UrlLauncherPlatform.instance = previousUrlLauncher;
+      // Hand the channel back to a swallowing no-op rather than clearing the
+      // mock: openid4vci_authcode_issuance_test installs one at main() time so
+      // the wallet's in-app-browser calls never throw on the simulator, and
+      // clearing would let those calls reach the real plugin.
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(_iiabChannel, (call) async => null);
+
+      await irmaBinding.tearDown();
+    });
 
     group("special-scenarios", () {
       // Session with an optional attribute that cannot be null
@@ -55,6 +115,114 @@ void main() {
         "decline-disclosure",
         (tester) => declineDisclosure(tester, irmaBinding),
       );
+
+      // tel: clientReturnUrl → CallInfoScreen
+      testWidgets(
+        "calling-session",
+        (tester) => callingSessionTest(tester, irmaBinding),
+      );
+
+      // https clientReturnUrl → openURLExternally + pop
+      testWidgets(
+        "return-url-https-external",
+        (tester) => returnUrlHttpsExternalTest(
+          tester,
+          irmaBinding,
+          externalLaunches: externalLaunches,
+          inAppLaunches: inAppLaunches,
+        ),
+      );
+
+      // https?inapp=true clientReturnUrl → in-app browser
+      testWidgets(
+        "return-url-https-inapp",
+        (tester) => returnUrlHttpsInAppTest(
+          tester,
+          irmaBinding,
+          externalLaunches: externalLaunches,
+          inAppLaunches: inAppLaunches,
+        ),
+      );
+
+      // Second-device + https clientReturnUrl → disregarded, no browser opened
+      testWidgets(
+        "return-url-second-device-external",
+        (tester) => returnUrlSecondDeviceExternalTest(
+          tester,
+          irmaBinding,
+          externalLaunches: externalLaunches,
+          inAppLaunches: inAppLaunches,
+        ),
+      );
+
+      // Second-device + https?inapp=true clientReturnUrl → disregarded
+      testWidgets(
+        "return-url-second-device-inapp",
+        (tester) => returnUrlSecondDeviceInAppTest(
+          tester,
+          irmaBinding,
+          externalLaunches: externalLaunches,
+          inAppLaunches: inAppLaunches,
+        ),
+      );
     });
   });
+}
+
+/// Records calls from `url_launcher` so tests can assert which return URL
+/// was opened, and through which channel. `mode: .externalApplication` (used
+/// by `openURLExternally`) lands in [externalLaunches]; `mode: .inAppWebView`
+/// or `.inAppBrowserView` (used by iOS `openURLinAppBrowser`) lands in
+/// [inAppLaunches]. The Android in-app browser path goes through the
+/// [_iiabChannel] MethodChannel, mocked alongside this stand-in in the
+/// group's setUp.
+class _RecordingUrlLauncherPlatform extends UrlLauncherPlatform
+    with MockPlatformInterfaceMixin {
+  _RecordingUrlLauncherPlatform({
+    required this.externalLaunches,
+    required this.inAppLaunches,
+  });
+
+  final List<String> externalLaunches;
+  final List<String> inAppLaunches;
+
+  @override
+  LinkDelegate? get linkDelegate => null;
+
+  @override
+  Future<bool> canLaunch(String url) async => true;
+
+  @override
+  Future<bool> launch(
+    String url, {
+    required bool useSafariVC,
+    required bool useWebView,
+    required bool enableJavaScript,
+    required bool enableDomStorage,
+    required bool universalLinksOnly,
+    required Map<String, String> headers,
+    String? webOnlyWindowName,
+  }) async {
+    (useWebView ? inAppLaunches : externalLaunches).add(url);
+    return true;
+  }
+
+  @override
+  Future<bool> launchUrl(String url, LaunchOptions options) async {
+    final mode = options.mode;
+    final isInApp =
+        mode == PreferredLaunchMode.inAppWebView ||
+        mode == PreferredLaunchMode.inAppBrowserView;
+    (isInApp ? inAppLaunches : externalLaunches).add(url);
+    return true;
+  }
+
+  @override
+  Future<void> closeWebView() async {}
+
+  @override
+  Future<bool> supportsMode(PreferredLaunchMode mode) async => true;
+
+  @override
+  Future<bool> supportsCloseForMode(PreferredLaunchMode mode) async => true;
 }
