@@ -1,12 +1,10 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
-
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
@@ -76,9 +74,7 @@ Widget _testWidget({required bool? nfcAvailable}) {
               forcedLocale: const Locale("en", "US"),
             ),
           ),
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
+          ...GlobalMaterialLocalizations.delegates,
         ],
         home: SchemalessAddDataScreen(),
       ),

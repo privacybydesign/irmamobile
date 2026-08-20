@@ -1,6 +1,6 @@
 import "package:collection/collection.dart";
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/credentials.dart";
 import "../../../models/irma_configuration.dart";

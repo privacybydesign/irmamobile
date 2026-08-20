@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:material_ui/material_ui.dart";
 
 /// Routes physical-keyboard keystrokes into the same PIN entry callbacks the
 /// on-screen [PinKeypad] uses (#530):

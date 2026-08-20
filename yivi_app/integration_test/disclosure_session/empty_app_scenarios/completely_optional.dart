@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/activity/activity_tab.dart";
 import "package:yivi_core/src/screens/activity/widgets/activity_card.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";

@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../pin/yivi_pin_screen.dart";
 import "../../yivi_confirm_pin_scaffold.dart";

@@ -1,8 +1,7 @@
-import "package:flutter/material.dart";
 import "package:flutter/widgets.dart";
-
 import "package:flutter_svg/svg.dart";
 import "package:lottie/lottie.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../theme/theme.dart";
 

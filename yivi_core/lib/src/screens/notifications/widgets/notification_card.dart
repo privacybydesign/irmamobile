@@ -1,6 +1,6 @@
-import "package:flutter/material.dart" hide Notification;
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
+import "package:material_ui/material_ui.dart" hide Notification;
 
 import "../../../theme/theme.dart";
 import "../../../widgets/base64_image.dart";

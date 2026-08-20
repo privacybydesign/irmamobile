@@ -1,15 +1,13 @@
 import "dart:async";
-import "dart:typed_data";
 
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
+import "package:material_ui/material_ui.dart";
 import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/models/mrz.dart";
@@ -275,9 +273,7 @@ Future<GoRouter> _pumpNfcScreen(
                   forcedLocale: const Locale("en", "US"),
                 ),
               ),
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
+              ...GlobalMaterialLocalizations.delegates,
             ],
           ),
         ),

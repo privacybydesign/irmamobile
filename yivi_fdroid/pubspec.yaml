@@ -26,6 +26,7 @@ dependencies:
   webview_flutter_android: ^4.13.0
   yivi_core:
     path: ../yivi_core
+  material_ui: any
 
 dev_dependencies:
   flutter_test:

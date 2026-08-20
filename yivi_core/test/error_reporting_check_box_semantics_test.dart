@@ -1,9 +1,8 @@
-import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
@@ -58,9 +57,7 @@ void main() {
                 forcedLocale: locale,
               ),
             ),
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
+            ...GlobalMaterialLocalizations.delegates,
           ],
           home: Scaffold(body: ErrorReportingCheckBox()),
         ),

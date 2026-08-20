@@ -2,8 +2,8 @@ import "dart:convert";
 
 import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";

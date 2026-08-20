@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 
