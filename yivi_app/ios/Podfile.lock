@@ -15,10 +15,10 @@ PODS:
     - Flutter
   - flutter_web_auth_2 (5.0.0):
     - Flutter
-  - google_mlkit_commons (0.12.0):
+  - google_mlkit_commons (0.13.0):
     - Flutter
     - MLKitVision (~> 10.0.0)
-  - google_mlkit_text_recognition (0.16.0):
+  - google_mlkit_text_recognition (0.17.1):
     - Flutter
     - google_mlkit_commons
     - GoogleMLKit/TextRecognition (~> 9.0.0)
@@ -204,8 +204,8 @@ SPEC CHECKSUMS:
   flutter_face_core_basic: e7446b266b873b1a7da9719d937ea7c443c6fc4c
   flutter_nfc_kit: e1b71583eafd2c9650bc86844a7f2d185fb414f6
   flutter_web_auth_2: 646fc9df97a01c59e5eea99b237da2c6360f8439
-  google_mlkit_commons: b4dfe2f6ae4cbf24010dc6640a28984d01343c86
-  google_mlkit_text_recognition: 9b164471713e3afdb4c129cabe6d1d64fef7e817
+  google_mlkit_commons: b2c0a76e7ef4ff555e70e5d71f21d66ce3d08a97
+  google_mlkit_text_recognition: 5a8cb8b73c765938fb7111de6f5f883b90f15d52
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
   GoogleMLKit: b1eee21a41c57704fe72483b15c85cb2c0cd7444
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
