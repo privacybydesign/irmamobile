@@ -12,7 +12,7 @@ runs:
       with:
         # Keep this in step with the go directive in yivi_core/go.mod. If it lags behind,
         # every job downloads a second toolchain on top of this one through GOTOOLCHAIN.
-        go-version: "1.26"
+        go-version: "1.27"
         cache: true
     - uses: ruby/setup-ruby@v1
       id: setup-ruby
