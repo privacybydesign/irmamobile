@@ -487,6 +487,10 @@
         "body": "We'll send you a new email with a new verification code.",
         "confirm": "Send email",
         "cancel": "Cancel"
+      },
+      "expired": {
+        "body": "This verification code has expired. Start over to send yourself a new code.",
+        "restart_button": "Start over"
       }
     }
   },

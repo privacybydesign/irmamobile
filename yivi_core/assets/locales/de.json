@@ -487,6 +487,10 @@
         "body": "Wir senden Ihnen eine neue E-Mail mit einem neuen Bestätigungscode.",
         "confirm": "E-Mail senden",
         "cancel": "Abbrechen"
+      },
+      "expired": {
+        "body": "Dieser Bestätigungscode ist abgelaufen. Beginnen Sie von vorne, um sich einen neuen Code zu senden.",
+        "restart_button": "Von vorne beginnen"
       }
     }
   },
