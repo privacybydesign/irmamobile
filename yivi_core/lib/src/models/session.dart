@@ -3,6 +3,7 @@ import "dart:convert";
 import "package:json_annotation/json_annotation.dart";
 
 import "../data/irma_repository.dart";
+import "digital_credentials.dart";
 import "protocol.dart";
 import "translated_value.dart";
 
@@ -238,13 +239,48 @@ class SessionPointer implements Pointer {
   @JsonKey(name: "openid4vci_redirect_uri", includeIfNull: false)
   final String? openid4vciRedirectUri;
 
+  /// An OpenID4VP request the platform delivered through the W3C Digital
+  /// Credentials API. Populated only by [SessionPointer.digitalCredentials];
+  /// forwarded as `dc_api` to the Go core, which then reads the request from
+  /// here instead of from [u].
+  ///
+  /// Write-only on the wire: [SessionPointer.fromJson] parses scanned QR
+  /// payloads, so leaving `dc_api` readable there would let a QR pick the
+  /// caller origin the response is audience-bound to.
+  //
+  // includeToJson has to be spelled out: json_serializable drops the field from
+  // both directions when only includeFromJson is set.
+  @JsonKey(
+    name: "dc_api",
+    includeIfNull: false,
+    includeFromJson: false,
+    includeToJson: true,
+  )
+  final DigitalCredentialsRequest? dcApi;
+
   SessionPointer({
     required this.u,
     required this.irmaqr,
     required this.protocol,
     this.continueOnSecondDevice = false,
     this.openid4vciRedirectUri,
+    this.dcApi,
   });
+
+  /// A pointer for an OpenID4VP request the platform delivered through the
+  /// Digital Credentials API. There is no invocation URL to point at, so [u] is
+  /// empty and the Go core ignores it.
+  ///
+  /// The session is always a disclosure on this device: the platform hands the
+  /// Authorization Response straight back to the caller, so there is no second
+  /// device to continue on.
+  SessionPointer.digitalCredentials(DigitalCredentialsRequest request)
+    : u = "",
+      irmaqr = "disclosing",
+      protocol = Protocol.openid4vp,
+      continueOnSecondDevice = false,
+      openid4vciRedirectUri = null,
+      dcApi = request;
 
   factory SessionPointer.fromJson(Map<String, dynamic> json) =>
       _$SessionPointerFromJson(json);
@@ -291,6 +327,9 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   @override
   String? get openid4vciRedirectUri => _sessionPointer.openid4vciRedirectUri;
+
+  @override
+  DigitalCredentialsRequest? get dcApi => _sessionPointer.dcApi;
 
   @override
   Map<String, dynamic> toJson() => {

@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 - The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
+- Carry an OpenID4VP request delivered through the W3C Digital Credentials API into the existing session flow, and report its ending back to the platform: the Authorization Response when there is one, and otherwise that the session was cancelled or failed. The native provider that receives such a request follows separately, so nothing reaches this path yet
+- Upgrade irmago so the Go client accepts those requests: it reads the request off `dc_api` on the session request instead of from a URL, and reports the Authorization Response on the session state
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
 - Add an integration test for switching the app language
