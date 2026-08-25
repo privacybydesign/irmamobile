@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import foundation.privacybydesign.yivi_core.irma_mobile_bridge.IrmaMobileBridge;
 import foundation.privacybydesign.yivi_core.plugins.iiab.IIABPlugin;
 import foundation.privacybydesign.yivi_core.plugins.privacy_screen.PrivacyScreenPlugin;
+import foundation.privacybydesign.yivi_core.plugins.root_detection.RootDetectionPlugin;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -25,6 +26,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     private Context applicationContext;
     private IIABPlugin webBrowser;
     private PrivacyScreenPlugin privacyScreenPlugin;
+    private RootDetectionPlugin rootDetectionPlugin;
 
     public YiviCorePlugin() {
         Irmagobridge.prestart();
@@ -84,6 +86,9 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
         privacyScreenPlugin = new PrivacyScreenPlugin();
         privacyScreenPlugin.onAttachedToEngine(binding);
+
+        rootDetectionPlugin = new RootDetectionPlugin();
+        rootDetectionPlugin.onAttachedToEngine(binding);
     }
 
     @Override
@@ -96,6 +101,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
         webBrowser.onDetachedFromEngine(binding);
         privacyScreenPlugin.onDetachedFromEngine(binding);
+        rootDetectionPlugin.onDetachedFromEngine(binding);
     }
 
     private void cleanupActivity() {

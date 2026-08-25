@@ -5,8 +5,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Internal
+- Upgrade Flutter to 3.47.0
+- Take the Material and Cupertino widgets from the standalone `material_ui` and `cupertino_ui` packages, which Flutter 3.47 split out of the SDK and deprecates there in November. Packages that still import the SDK copies keep the Yivi theme through a compatibility bridge around the app
+- Install the arm64 Flutter SDK on Apple Silicon, so the macOS CI jobs no longer run the whole toolchain under Rosetta
+- Render markdown with `flutter_markdown_plus` instead of `flutter_markdown`, which the Flutter team discontinued, and update `pinput` to 6.0.2
+- Bump gomobile to v0.0.0-20260816165457-f98cc9b3c733, whose bind generator handles Go type aliases natively and so no longer needs the `gotypesalias=0` godebug workaround. The bindings it generates for the Go bridge are unchanged
+- Install Go 1.27 in CI, the version `yivi_core/go.mod` asks for, so the jobs no longer download a second toolchain on top of the one they just installed
+- Update the Go client to the current `irmago` master, which declares Go 1.27 itself and so needs the Go directive in `yivi_core/go.mod` raised to 1.27 too. It brings did:key and did:jwk resolution in line with their method specs, accepts SD-JWT VC credentials that leave out the optional `iss` and `sub` claims, verifies Status List Tokens signed with a key published in the issuer's OAuth discovery metadata, decides `ES256K` support from the `jwx_es256k` build tag the bridge already passes rather than accepting the algorithm and failing later, and narrows the developer-mode `did:web` fallback to plain HTTP to a 404 only. The generated bridge bindings are unchanged
+- The compatibility bridge hands the translations the app root already resolved down to the widgets below it, rather than loading them a second time. Loading them twice left every screen under the bridge showing the previous language after a language switch, and blanked the app for an extra frame at startup
+- Upgrade the Android Gradle Plugin to 9.3.1, Gradle to 9.7.0 and the JDK to 21, which AGP 9 requires. Contributors need a JDK 21 as well; see the README. This also drops a `:irmagobridge` entry that pointed at a directory the apps never had, which Gradle 9 rejects, and updates Mockito, whose byte-buddy could not read JDK 21 class files
+- Compile against Android SDK 37, now that AGP 9 supports it, and update `permission_handler` to 13, which requires it
+- Upgrade the remaining Dart dependencies, including ML Kit text recognition, the Regula Face SDK, `mobile_scanner`, `sentry_flutter`, `flutter_riverpod` and `go_router`. `flutter_bloc` stays on 7 while the app moves off it. The iOS `Podfile.lock` is regenerated; an existing checkout needs `flutter clean` before the first iOS build, because the ML Kit pods moved from Objective-C to Swift
+- Read root and jailbreak status in `yivi_core` itself instead of through the `jailbreak_root_detection` package, of which the app used two calls out of eight. The checks it wrapped are kept: RootBeer plus the su and Magisk paths on Android, and the Cydia, suspicious-path and sandbox-write checks on iOS
+- Pre-install every Android SDK component the build needs in CI, and pin the command line tools between the two revisions that can both see the platforms we ask for and write metadata the Android Gradle Plugin can read
+
+## [8.2.0] - 2026-08-12
 ### Added
+- Face verification for document (passport, ID card, driving licence) issuance: after reading the chip over NFC, the app runs a Regula liveness session and passes the resulting liveness transaction id to the passport issuer, which matches the live face against the chip portrait. The Play Store / App Store build uses Regula's native Face SDK; the F-Droid build runs Regula's web Face SDK in an embedded WebView that loads a Yivi-hosted capture page, so no proprietary native code ships in the APK. Whether the step runs is decided per session by the passport issuer (its face verification policy), which also names the Face API the liveness session targets — so face verification can be switched off remotely and no environment is pinned in the app.
 - Show a confirmation message when you log out from the More tab, so the PIN screen that follows is not mistaken for part of logging out
+- Certificates installed through the debug certificate management screen can now be deleted again from that screen
 - Support for Token Status List revocation of SD-JWT credentials issued over OpenID4VCI
 
 ### Changed
@@ -22,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The same for the optional error reporting checkbox, and the sentence beside it is read as one phrase rather than broken into "Optional:", "Share error messages and app status" and "with Yivi"
 - On the PIN screen, a screen reader announces the "Enter your PIN" heading and how many digits you have entered as separate items; the whole screen used to be a single item that fused the two and offered a pointless tap
 - The screen that sends you back to your browser on iOS is read out as soon as it appears, so you are told what to do rather than being left on a silent screen, and the decorative arrow is no longer announced as an unnamed image
+- Reading a driving licence now performs Active Authentication when the chip carries the licence's authentication key in DG13; it was previously only performed for documents that store that key in DG15, so it was never attempted for a licence
+- On iOS the app is no longer covered by a full-screen blur while the NFC reader sheet is up, so the scanning animation and its progress text stay readable for the whole read. The biometric prompt is uncovered too, as it already was. While either is up the app switcher shows the screen underneath unblurred: the scanning animation, or whatever the prompt was raised over, which can be the unlocked wallet
 
 ### Internal
 - The debug scheme and certificate management screens no longer surface unrelated non-fatal background errors (such as the periodic revocation update returning a 404) as if the install had failed; error handling is now scoped to the triggering action, and a slow action that produces no result in time shows a "still in progress" message instead of silently dropping the outcome
@@ -33,6 +53,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Git submodules
 - Fix swallowed errors on cancelling embedded issuance flows
 - The F-Droid build steps now live in `yivi_fdroid/fdroid_build.sh` with a test that runs them against stub tooling, instead of being inlined in the fdroiddata recipe once per release
+- Upgrade the Android Kotlin Gradle plugin from 2.2.0 to 2.3.20, resolving the Flutter build warning that support for the old Kotlin version would soon be dropped
+- Upgrade vcmrtd to v4.1.0: the BAC, PACE and secure-messaging MAC comparisons are constant-time, and the challenge/response and APDU hex dumps are behind the sensitive-data log gate rather than plain verbose logging
+- The passport issuer's session URL is checked before the signed IRMA issuance request, which carries the attributes read off the chip, is posted to it: it must be https and on an explicit allowlist of IRMA server hosts
+- The two flows that draw system UI in front of the app, the iOS NFC reader sheet and the OS biometric prompt, now suspend the privacy screen while they are up instead of switching it off and restoring it from the screenshot preference afterwards: suspensions are counted, are undone even when the flow throws, and leave that preference alone. Backgrounding the app blurs whatever the count says
+- The iOS privacy-screen overlay can no longer stack or get stranded on screen: it is tracked by reference rather than looked up again by view tag through the deprecated `keyWindow`, adding it is idempotent, and removing it is no longer skipped when the privacy screen was switched off while the overlay was up
+- Upgrade irmago to v1.3.0
 
 ## [8.1.2] - 2026-07-22
 ### Added
@@ -690,6 +716,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.2.0]: https://github.com/privacybydesign/irmamobile/compare/v8.1.2...v8.2.0
 [8.1.2]: https://github.com/privacybydesign/irmamobile/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/privacybydesign/irmamobile/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/privacybydesign/irmamobile/compare/v8.0.0...v8.1.0

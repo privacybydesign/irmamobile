@@ -1,6 +1,9 @@
-import "package:flutter/material.dart";
+// flutter_markdown_plus still takes the core SDK's ThemeData, so build that one
+// here.
+import "package:flutter/material.dart" as core;
 import "package:flutter_i18n/flutter_i18n.dart";
-import "package:flutter_markdown/flutter_markdown.dart";
+import "package:flutter_markdown_plus/flutter_markdown_plus.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "irma_card.dart";
@@ -50,8 +53,8 @@ class IrmaQuote extends StatelessWidget {
                 ? MarkdownBody(
                     data: FlutterI18n.translate(context, quote!),
                     styleSheet: MarkdownStyleSheet.fromTheme(
-                      ThemeData(
-                        textTheme: TextTheme(
+                      core.ThemeData(
+                        textTheme: core.TextTheme(
                           bodyMedium: theme.textTheme.bodyMedium!.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,

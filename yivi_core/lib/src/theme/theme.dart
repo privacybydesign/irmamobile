@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:material_ui/material_ui.dart";
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;

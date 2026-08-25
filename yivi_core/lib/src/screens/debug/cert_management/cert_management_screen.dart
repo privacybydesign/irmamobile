@@ -1,8 +1,8 @@
 import "dart:async";
 import "dart:developer";
 
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/certificate_events.dart";
 import "../../../models/error_event.dart";
@@ -97,7 +97,17 @@ class _CertificateManagementScreenState
 
   void _onCertificateTileTap(String thumbprint) =>
       log("Tapped certificate with thumbprint $thumbprint");
-  //Navigator.of(context).push(MaterialPageRoute(builder: (context) => CertManagerDetailScreen(trustAnchorId)));
+
+  void _onRemoveCertificate(String type, Cert cert) {
+    IrmaRepositoryProvider.of(context).bridgedDispatch(
+      RemoveCertificateEvent(type: type, thumbprint: cert.thumbprint),
+    );
+
+    showSnackbar(
+      context,
+      FlutterI18n.translate(context, "debug.cert_management.removed"),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +139,7 @@ class _CertificateManagementScreenState
                     CertManagerTile(
                       cert: cert,
                       onTap: () => _onCertificateTileTap(cert.thumbprint),
+                      onDelete: () => _onRemoveCertificate("issuer", cert),
                     ),
                 SizedBox(height: theme.defaultSpacing),
                 const TranslatedText("debug.cert_management.verifier_certs"),
@@ -137,6 +148,7 @@ class _CertificateManagementScreenState
                     CertManagerTile(
                       cert: cert,
                       onTap: () => _onCertificateTileTap(cert.thumbprint),
+                      onDelete: () => _onRemoveCertificate("verifier", cert),
                     ),
               ],
             );
