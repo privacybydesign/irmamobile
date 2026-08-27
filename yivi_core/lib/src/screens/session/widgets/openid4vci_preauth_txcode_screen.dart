@@ -5,16 +5,24 @@ import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 
 import "../../../models/schemaless/credential_store.dart" as schemaless;
+import "../../../models/schemaless/schemaless_events.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/irma_bottom_bar.dart";
+import "../../../widgets/requestor_header.dart";
 import "session_scaffold.dart";
 
 class OpenID4VCIPreAuthTxCodeScreen extends ConsumerStatefulWidget {
   final int sessionId;
   final List<schemaless.CredentialDescriptor> issuedCredentials;
   final PreAuthorizationCodeTransactionCodeParameters transactionCodeParameters;
+
+  /// The party that sent the transaction code. Entering that code is a decision
+  /// point, so its trust level belongs on this screen — at the offer-time rung,
+  /// which is the only one available before any credential is fetched.
+  final TrustedParty requestor;
+
   final void Function(String code) onSubmit;
   final VoidCallback onDismiss;
 
@@ -23,6 +31,7 @@ class OpenID4VCIPreAuthTxCodeScreen extends ConsumerStatefulWidget {
     required this.sessionId,
     required this.issuedCredentials,
     required this.transactionCodeParameters,
+    required this.requestor,
     required this.onSubmit,
     required this.onDismiss,
   });
@@ -133,7 +142,10 @@ class _OpenID4VCIPreAuthTxCodeScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: theme.defaultSpacing),
+                RequestorHeader(
+                  requestor: widget.requestor,
+                  sessionType: SessionType.issuance,
+                ),
                 Semantics(
                   header: true,
                   child: Text(

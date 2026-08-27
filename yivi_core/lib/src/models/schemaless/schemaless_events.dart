@@ -90,6 +90,36 @@ class Attribute {
   Map<String, dynamic> toJson() => _$AttributeToJson(this);
 }
 
+/// How strongly a party is vouched for: the three rungs of irmago's trust
+/// ladder. The absence of any evaluation is modelled as a null
+/// [TrustedParty.trustLevel], not as a fourth value — absent is not `low`.
+enum TrustLevel { low, medium, high }
+
+String trustLevelToString(TrustLevel level) => switch (level) {
+  TrustLevel.low => "low",
+  TrustLevel.medium => "medium",
+  TrustLevel.high => "high",
+};
+
+/// Throws on a rung this app does not know, deliberately: a new rung on the
+/// wire means irmago and the app are out of lockstep, and silently rendering
+/// such a party as levelless — or worse, as vouched for — would hide that.
+/// The empty string is irmago's documented "unevaluated" zero value, not an
+/// unknown rung, so it maps to null like an absent field.
+TrustLevel? stringToTrustLevel(String level) => switch (level) {
+  "" => null,
+  "low" => TrustLevel.low,
+  "medium" => TrustLevel.medium,
+  "high" => TrustLevel.high,
+  _ => throw Exception("invalid trust level: $level"),
+};
+
+TrustLevel? _trustLevelFromJson(String? level) =>
+    level == null ? null : stringToTrustLevel(level);
+
+String? _trustLevelToJson(TrustLevel? level) =>
+    level == null ? null : trustLevelToString(level);
+
 @JsonSerializable(fieldRename: .snake)
 class TrustedParty {
   final String id;
@@ -98,14 +128,20 @@ class TrustedParty {
   final String? imagePath;
   final LogoImage? image;
   final TrustedParty? parent;
-  final bool verified;
+
+  /// Null when irmago evaluated nothing, which is not the same as [
+  /// TrustLevel.low]. Whether a rung is good enough is never a property of the
+  /// party — it depends on what the session is doing, so ask
+  /// `requestorHeaderState` instead of comparing here.
+  @JsonKey(fromJson: _trustLevelFromJson, toJson: _trustLevelToJson)
+  final TrustLevel? trustLevel;
 
   TrustedParty({
     required this.id,
     required this.name,
     required this.url,
     required this.parent,
-    required this.verified,
+    this.trustLevel,
     this.imagePath,
     this.image,
   });

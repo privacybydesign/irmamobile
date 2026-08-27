@@ -125,9 +125,36 @@ class IrmaClientBridge extends IrmaBridge {
       addEvent(event);
     } catch (e, stacktrace) {
       reportError(e, stacktrace);
+      final failure = _sessionStateParseFailure(call, e);
+      if (failure != null) addEvent(failure);
     }
 
     return;
+  }
+
+  /// Turns a dropped [SessionStateEvent] into a failure the affected session's
+  /// screen can render. Every other event is left to Sentry alone: only a
+  /// session has a user waiting on a screen that would otherwise never move.
+  ///
+  /// The session id is read straight off the raw payload, since the very
+  /// parse that would have produced it is what failed.
+  SessionStateParseFailureEvent? _sessionStateParseFailure(
+    MethodCall call,
+    Object error,
+  ) {
+    if (call.method != "SessionStateEvent") return null;
+    try {
+      final data = jsonDecode(call.arguments as String) as Map<String, dynamic>;
+      final sessionState = data["session_state"] as Map<String, dynamic>;
+      return SessionStateParseFailureEvent(
+        sessionId: sessionState["id"] as int,
+        error: error,
+      );
+    } catch (_) {
+      // The payload is malformed past the point of naming a session, so there
+      // is nothing to attach the failure to. Sentry already has the original.
+      return null;
+    }
   }
 
   @override

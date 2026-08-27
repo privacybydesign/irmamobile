@@ -250,9 +250,15 @@ class _DisclosureChoicesOverviewState
           child: Column(
             crossAxisAlignment: .start,
             children: [
+              // Data leaves the wallet on this screen whatever the session's own
+              // type says: an IRMA issuance that also discloses lands here too,
+              // and must be judged on the verifier's bar with the verifier's
+              // copy, not told it is about to receive something.
               RequestorHeader(
                 requestor: session.requestor,
-                isVerified: session.requestor.verified,
+                sessionType: session.type == SessionType.issuance
+                    ? SessionType.disclosure
+                    : session.type,
               ),
 
               if (widget.hasIssueDuringDisclosure)

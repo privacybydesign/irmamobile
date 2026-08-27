@@ -28,6 +28,15 @@ class SessionErrorScreen extends StatelessWidget {
           onTapClose: onTapClose,
           type: ErrorType.pairingRejected,
         );
+      // irmago types this separately from every other failure so the app can
+      // say the counterparty was rejected and nothing was shared, rather than
+      // implying the app itself broke. A party that merely fails to be vouched
+      // for never lands here — that is a low trust level, and the session runs.
+      case "party_validation_failed":
+        return ErrorScreen(
+          onTapClose: onTapClose,
+          type: ErrorType.partyValidationFailed,
+        );
     }
 
     switch (error?.remoteError?.errorName) {

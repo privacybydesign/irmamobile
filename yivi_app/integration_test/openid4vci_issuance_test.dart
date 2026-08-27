@@ -17,6 +17,7 @@ import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_footer.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
+import "package:yivi_core/src/widgets/requestor_header.dart";
 
 import "helpers/helpers.dart";
 import "helpers/openid4vci_helpers.dart";
@@ -180,6 +181,11 @@ Future<void> testIssueEmailOpenID4VCI(
   // No tx code: the wallet auto-grants and lands directly on IssuancePermission
   // with filled values.
   await tester.waitFor(find.byType(IssuancePermission));
+
+  // The veramo staging issuer is a bare did:web party: no certificate to
+  // classify and no list to lift it, so it stays on the bottom rung.
+  expectIssuanceRequestorHeader(tester, HeaderState.warning);
+
   await evaluateCredentialCard(
     tester,
     find.byType(YiviCredentialCard).first,

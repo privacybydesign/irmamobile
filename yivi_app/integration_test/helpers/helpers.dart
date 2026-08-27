@@ -10,6 +10,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:local_auth/local_auth.dart";
 import "package:yivi/ocr_processor.dart";
 import "package:yivi_core/app.dart";
+import "package:yivi_core/src/models/schemaless/session_state.dart";
 import "package:yivi_core/src/models/session.dart";
 import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
@@ -289,6 +290,10 @@ Future<void> issueCredentials(
   var issuancePageFinder = find.byType(IssuancePermission);
   await tester.waitFor(issuancePageFinder);
 
+  // The IRMA requestor here is the demo issuance host, which is not in the
+  // requestor scheme, so nobody vouches for it and the header warns.
+  expectIssuanceRequestorHeader(tester, HeaderState.warning);
+
   // Check whether all credentials are displayed.
   expect(
     find.byType(YiviCredentialCard),
@@ -396,11 +401,19 @@ Future<void> revokeCredential(String credId, String revocationKey) async {
   }
 }
 
+/// Asserts the requestor header names [expectedName] and, when
+/// [expectedState] is given, that it is in that trust state.
+///
+/// Pass the state whenever the party's rung is known from the test setup: a
+/// Yivi-certificate verifier chains to a pinned Yivi anchor and so lands at the
+/// high rung (vouched), while a bare did:web party has nobody vouching for it
+/// and lands at low (warning).
 Future<void> evaluateRequestor(
   WidgetTester tester,
   Finder reqeustorInfoFinder,
-  String expectedName,
-) async {
+  String expectedName, {
+  HeaderState? expectedState,
+}) async {
   final finder = find.descendant(
     of: reqeustorInfoFinder,
     matching: find.byType(RequestorHeader),
@@ -412,6 +425,39 @@ Future<void> evaluateRequestor(
     matching: find.text(expectedName),
   );
   expect(nameFinder, findsOneWidget);
+
+  if (expectedState == null) return;
+
+  final header = finder.first.evaluate().first.widget as RequestorHeader;
+  expect(
+    requestorHeaderState(header.requestor, header.sessionType),
+    expectedState,
+    reason: "trust level was ${header.requestor?.trustLevel}",
+  );
+}
+
+/// Asserts an issuance screen shows exactly one requestor header, that it is
+/// judged on the issuance bar, and that it is in [expectedState].
+///
+/// Staging and demo parties all sit on the low rung — the IRMA demo issuance
+/// host is absent from the requestor scheme, and the veramo OpenID4VCI issuer
+/// is a bare did:web party with no certificate — so these flows expect the
+/// warning state. The middle rung cannot be produced here at all: irmago ships
+/// no third-party trust anchor and Yivi publishes no trust list.
+void expectIssuanceRequestorHeader(
+  WidgetTester tester,
+  HeaderState expectedState,
+) {
+  final finder = find.byType(RequestorHeader);
+  expect(finder, findsOneWidget);
+
+  final header = tester.widget<RequestorHeader>(finder);
+  expect(header.sessionType, SessionType.issuance);
+  expect(
+    requestorHeaderState(header.requestor, header.sessionType),
+    expectedState,
+    reason: "trust level was ${header.requestor?.trustLevel}",
+  );
 }
 
 /// One label-value entry in an [attributes] list. The value is one of:

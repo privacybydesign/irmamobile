@@ -10,7 +10,7 @@ TrustedParty _issuer() => TrustedParty(
   name: "",
   url: null,
   parent: null,
-  verified: true,
+  trustLevel: TrustLevel.high,
 );
 
 CredentialDescriptor _desc(String credentialId) => CredentialDescriptor(

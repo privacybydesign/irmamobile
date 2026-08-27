@@ -188,7 +188,7 @@ TrustedParty _demoIssuer() => TrustedParty(
   name: "Demo MijnOverheid",
   url: null,
   parent: null,
-  verified: true,
+  trustLevel: TrustLevel.high,
 );
 
 /// Builds an `Attribute` with a value. Pass `displayName: ""` to exercise the

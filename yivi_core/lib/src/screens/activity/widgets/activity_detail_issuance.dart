@@ -1,6 +1,7 @@
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
+import "../../../models/schemaless/session_state.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/requestor_header.dart";
@@ -37,9 +38,11 @@ class ActivityDetailIssuance extends StatelessWidget {
           SizedBox(height: theme.defaultSpacing),
           SectionHeader("activity.shared_with"),
           SizedBox(height: theme.smallSpacing),
+          // Data left the wallet in this session, so the party is judged on the
+          // verifier's bar even though the session was an issuance.
           RequestorHeader(
             requestor: requestor,
-            isVerified: requestor?.verified,
+            sessionType: SessionType.disclosure,
           ),
           SizedBox(height: theme.defaultSpacing),
         ],

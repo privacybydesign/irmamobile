@@ -25,6 +25,11 @@ class SessionRepository {
   /// Emits session IDs the first time a [SessionStateEvent] is received for them.
   final _newSessionIdsSubject = PublishSubject<int>();
 
+  /// Unreadable session states, merged into the affected session's stream as an
+  /// error. Without this the dropped event would leave the UI sitting on a
+  /// screen that never updates — reported to Sentry, invisible to the user.
+  final _parseFailures = PublishSubject<({int sessionId, Object error})>();
+
   /// Session IDs whose last user interaction has been dispatched to Go but
   /// for which no follow-up [SessionStateEvent] has yet arrived.
   final _awaitingInteraction = BehaviorSubject<Set<int>>.seeded({});
@@ -43,6 +48,11 @@ class SessionRepository {
   void _handleEvent(Event event) {
     if (event is SessionStateEvent) {
       _handleSessionStateEvent(event);
+    } else if (event is SessionStateParseFailureEvent) {
+      _parseFailures.add((
+        sessionId: event.sessionId,
+        error: SessionStateParseException(event.error),
+      ));
     } else if (event is NewSessionEvent) {
       // Mark the session in flight from its start, so the lock screen can
       // withhold biometric before Go replies (see [_inFlightSessionIds]).
@@ -134,10 +144,18 @@ class SessionRepository {
   Stream<int> get newSessionIds => _newSessionIdsSubject.stream;
 
   /// Returns a stream of [SessionState] for the given session ID.
+  ///
+  /// An unreadable state for this session surfaces as a stream error, so the
+  /// screen watching it can show the user that the session failed.
   Stream<SessionState> getSessionState(int sessionId) {
-    return _states
-        .where((map) => map.containsKey(sessionId))
-        .map((map) => map[sessionId]!);
+    return Rx.merge<SessionState>([
+      _states
+          .where((map) => map.containsKey(sessionId))
+          .map((map) => map[sessionId]!),
+      _parseFailures
+          .where((failure) => failure.sessionId == sessionId)
+          .asyncExpand((failure) => Stream<SessionState>.error(failure.error)),
+    ]);
   }
 
   /// Synchronous lookup of a [SessionState] by its OpenID4VCI `state` value
@@ -192,6 +210,7 @@ class SessionRepository {
     await Future.wait([
       _states.close(),
       _newSessionIdsSubject.close(),
+      _parseFailures.close(),
       _awaitingInteraction.close(),
       _inFlightSessionIds.close(),
     ]);

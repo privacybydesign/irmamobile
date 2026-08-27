@@ -342,7 +342,11 @@ class SessionError {
 
   final RemoteError? remoteError;
 
-  bool get reportable => !["https", "notSupported"].contains(errorType);
+  /// `party_validation_failed` is excluded because a rejected counterparty is
+  /// the trust system working, not an app defect — prompting for a bug report
+  /// would tell the user the wrong thing about what just happened.
+  bool get reportable =>
+      !["https", "notSupported", "party_validation_failed"].contains(errorType);
 
   factory SessionError.fromJson(Map<String, dynamic> json) {
     // Handle both snake_case (from bridge sessionError wrapper) and

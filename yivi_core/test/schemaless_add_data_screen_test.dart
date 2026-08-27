@@ -23,7 +23,7 @@ CredentialStoreItem _item(String credentialId, String name) =>
           name: "Issuer",
           url: null,
           parent: null,
-          verified: true,
+          trustLevel: TrustLevel.high,
         ),
         category: "Personal",
         attributes: [],

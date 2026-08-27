@@ -229,7 +229,7 @@
         "explanation": "Wat betekent dit?",
         "bottom_sheet": {
           "title": "Bekende en onbekende organisaties",
-          "content_markdown": "Iedere organisatie kan gegevens van jou opvragen uit je Yivi app.\nJe kiest zelf of je akkoord gaat om die gegevens te delen.\nYivi helpt je daarbij.\n\n\n\nOrganisaties kunnen zich bij Yivi melden. Dan wordt\ngecontroleerd om wie het gaat en worden hun gegevens\n(waaronder naam en logo) vastgelegd en gecontroleerd.\n\nEr komt dan een groen vinkje bij te staan.\nJe kunt dan met meer vertrouwen je gegevens delen.\n\nJe kunt de lijst met geregistreerde organisaties\nvinden op de [Yivi Portal](https://portal.yivi.app/organizations).\n\nMet organisaties die zich niet bij Yivi geregistreerd\nhebben kun je nog steeds je gegevens delen. Dat is\ndan echter helemaal je eigen verantwoordelijkheid.\nEr is geen zekerheid met wie je dan je gegevens\ndeelt.\n\nTwijfel je? Neem dan contact om met de organisatie\nzelf. Je kunt aanraden dat ze zich bij Yivi\nregistreren op:\n\n[https://portal.yivi.app](https://portal.yivi.app)."
+          "content_markdown": "Organisaties kunnen gegevens van jou opvragen uit je Yivi app, of gegevens aan je app toevoegen.\nJe kiest zelf of je akkoord gaat.\nYivi helpt je daarbij.\n\n\n\nOrganisaties kunnen zich bij Yivi melden. Dan wordt\ngecontroleerd om wie het gaat en worden hun gegevens\n(waaronder naam en logo) vastgelegd en gecontroleerd.\n\nEr komt dan een groen vinkje bij te staan.\nJe kunt dan met meer vertrouwen je gegevens delen.\n\nJe kunt de lijst met geregistreerde organisaties\nvinden op de [Yivi Portal](https://portal.yivi.app/organizations).\n\nMet organisaties die zich niet bij Yivi geregistreerd\nhebben kun je nog steeds je gegevens delen. Dat is\ndan echter helemaal je eigen verantwoordelijkheid.\nEr is geen zekerheid met wie je dan je gegevens\ndeelt.\n\nTwijfel je? Neem dan contact om met de organisatie\nzelf. Je kunt aanraden dat ze zich bij Yivi\nregistreren op:\n\n[https://portal.yivi.app](https://portal.yivi.app)."
         }
       }
     },
@@ -350,7 +350,9 @@
       "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook zijn dat je Yivi meer dan één jaar niet hebt gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
       "expired": "Sorry, de sessie is verlopen. Start de sessie opnieuw.",
       "pairing_rejected": "Sorry, de sessie is geweigerd. Start de sessie opnieuw.",
-      "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet."
+      "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet.",
+      "party_validation_failed": "Dit verzoek is niet betrouwbaar.",
+      "party_validation_failed_body": "Yivi kon niet vaststellen wie er achter dit verzoek zit en heeft het gestopt. Er zijn geen gegevens gedeeld."
     }
   },
   "help": {
@@ -455,6 +457,10 @@
         "open_browser": "Browser openen",
         "cancel": "Annuleren"
       }
+    },
+    "requestor_verification": {
+      "vouched_suffix": "wil gegevens aan je wallet toevoegen. De identiteit van deze partij is vastgesteld.",
+      "warning_suffix": "wil gegevens aan je wallet toevoegen. Waarschuwing: deze partij is niet bekend bij Yivi."
     }
   },
   "email_issuance": {

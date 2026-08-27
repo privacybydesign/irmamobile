@@ -104,6 +104,10 @@ Future<void> evaluateShareDialog(
   );
 }
 
+/// Asserts the requestor header of a disclosure or signature session. A
+/// verifier only clears the bar at the high trust level, so [isVerified] is
+/// false for every party Yivi does not itself stand behind — including one an
+/// external CA attested (the medium rung).
 Future<void> evaluateRequestorHeader(
   WidgetTester tester,
   Finder requestorHeaderFinder, {

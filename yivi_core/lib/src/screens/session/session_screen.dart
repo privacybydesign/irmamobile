@@ -290,6 +290,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
+        requestor: session.requestor,
         onDismiss: _dismissSession,
         onGivePermission: () {
           _grantPermission(_pendingDisclosureChoices ?? []);
@@ -316,6 +317,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           sessionId: widget.sessionId,
           issuedCredentials: session.offeredCredentialTypes!,
           transactionCodeParameters: session.transactionCodeParameters!,
+          requestor: session.requestor,
           onSubmit: (code) =>
               _grantPreAuthorizedCode(session, transactionCode: code),
           onDismiss: _dismissSession,

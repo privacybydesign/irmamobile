@@ -3,10 +3,12 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/credential_store.dart";
 import "../../../models/schemaless/schemaless_events.dart";
+import "../../../models/schemaless/session_state.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
+import "../../../widgets/requestor_header.dart";
 import "session_scaffold.dart";
 
 class OpenID4VCIAuthCodePendingScreen extends StatefulWidget {
@@ -70,6 +72,13 @@ class _OpenID4VCIAuthCodePendingScreenState
           top: theme.smallSpacing,
         ),
         children: [
+          // The rung here is the offer-time one: no credential has been fetched
+          // yet, so only the recognized-list channel has spoken. It can only
+          // strengthen once the credentials arrive, never weaken.
+          RequestorHeader(
+            requestor: widget.requestor,
+            sessionType: SessionType.issuance,
+          ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
             child: IrmaQuote(

@@ -23,6 +23,8 @@ import "package:yivi_core/src/screens/session/widgets/issuance_success_screen.da
 import "package:yivi_core/src/screens/session/widgets/openid4vci_authcode_pending_screen.dart";
 import "package:yivi_core/src/widgets/credential_card/yivi_credential_card.dart";
 
+import "package:yivi_core/src/widgets/requestor_header.dart";
+
 import "helpers/helpers.dart";
 import "irma_binding.dart";
 import "util.dart";
@@ -130,10 +132,9 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
   final sessionId = await newSessionFuture;
 
   // Wait for openID4VCIState to be populated and fetch the synthetic auth
-  // code before driving the pending screen — the body string mentions the
-  // issuer by name (interpolated), so we can verify the screen surfaces it
-  // without a RequestorHeader. The issuer name appears in both the body
-  // text and the credential card, hence findsAtLeast(1).
+  // code before driving the pending screen. The issuer name appears in the
+  // requestor header, the interpolated body string and the credential card,
+  // hence findsAtLeast(1).
   final session = await irmaBinding.repository
       .getSessionState(sessionId)
       .firstWhere((s) => s.openID4VCIState != null);
@@ -146,6 +147,10 @@ Future<void> testIssueEmailOpenID4VCIAuthCode(
   await tester.waitFor(find.byType(OpenID4VCIAuthCodePendingScreen));
   expect(find.text("Email Credential (SD-JWT)"), findsOneWidget);
   expect(find.textContaining("AuthCode Issuer"), findsAtLeast(1));
+
+  // The rung on this screen is the offer-time one — no credential has been
+  // fetched yet — and this issuer has nobody vouching for it either way.
+  expectIssuanceRequestorHeader(tester, HeaderState.warning);
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
 
   dispatchAuthCallback(

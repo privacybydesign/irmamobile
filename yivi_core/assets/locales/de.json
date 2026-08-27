@@ -229,7 +229,7 @@
         "explanation": "Was bedeutet das?",
         "bottom_sheet": {
           "title": "Bekannte und unbekannte Organisationen",
-          "content_markdown": "Jede Organisation kann Daten aus Ihrer Yivi-App anfordern.\nSie entscheiden, ob Sie dem Teilen dieser Daten zustimmen oder nicht.\nYivi hilft Ihnen dabei.\n\nOrganisationen können sich bei Yivi registrieren. Es wird dann überprüft, wer sie sind.\nIhre Informationen (einschließlich Name und Logo) werden erfasst und verifiziert.\nNeben ihrem Namen erscheint dann ein grünes Häkchen, damit\nSie Ihre Daten mit mehr Vertrauen teilen können.\nDie Liste der registrierten Organisationen finden Sie im [Yivi-Portal](https://portal.yivi.app/organizations).\n\nMit Organisationen, die sich nicht bei Yivi registriert haben,\nkönnen Sie trotzdem Ihre Daten teilen.\nDies geschieht jedoch auf eigene Verantwortung.\nEs gibt keine Gewissheit darüber, mit wem Sie Ihre Daten teilen.\n\nSind Sie sich nicht sicher? Wenden Sie sich dann direkt an die Organisation.\nSie können ihnen empfehlen, sich bei Yivi zu registrieren unter:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
+          "content_markdown": "Organisationen können Daten aus Ihrer Yivi-App anfordern oder Daten hinzufügen.\nSie entscheiden, ob Sie zustimmen oder nicht.\nYivi hilft Ihnen dabei.\n\nOrganisationen können sich bei Yivi registrieren. Es wird dann überprüft, wer sie sind.\nIhre Informationen (einschließlich Name und Logo) werden erfasst und verifiziert.\nNeben ihrem Namen erscheint dann ein grünes Häkchen, damit\nSie Ihre Daten mit mehr Vertrauen teilen können.\nDie Liste der registrierten Organisationen finden Sie im [Yivi-Portal](https://portal.yivi.app/organizations).\n\nMit Organisationen, die sich nicht bei Yivi registriert haben,\nkönnen Sie trotzdem Ihre Daten teilen.\nDies geschieht jedoch auf eigene Verantwortung.\nEs gibt keine Gewissheit darüber, mit wem Sie Ihre Daten teilen.\n\nSind Sie sich nicht sicher? Wenden Sie sich dann direkt an die Organisation.\nSie können ihnen empfehlen, sich bei Yivi zu registrieren unter:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
         }
       }
     },
@@ -350,7 +350,9 @@
       "blocked": "Ihre Yivi-App wurde gesperrt. Dies wurde entweder über 'Mijn Yivi' durchgeführt oder weil Sie Yivi auf diesem Gerät mehr als ein Jahr lang nicht verwendet haben. Wenn Sie Yivi auf diesem Gerät weiter nutzen möchten, müssen Sie die Yivi erneut einrichten.",
       "expired": "Die Sitzung ist abgelaufen. Bitte beginnen Sie von vorne.",
       "pairing_rejected": "Die Sitzung wurde abgelehnt. Bitte beginnen Sie von vorne.",
-      "no_internet": "Bitte stellen Sie sicher, dass Ihr Gerät eine funktionierende Internetverbindung hat."
+      "no_internet": "Bitte stellen Sie sicher, dass Ihr Gerät eine funktionierende Internetverbindung hat.",
+      "party_validation_failed": "Diese Anfrage ist nicht vertrauenswürdig.",
+      "party_validation_failed_body": "Yivi konnte nicht feststellen, wer hinter dieser Anfrage steht, und hat sie gestoppt. Es wurden keine Daten geteilt."
     }
   },
   "help": {
@@ -455,6 +457,10 @@
         "open_browser": "Browser öffnen",
         "cancel": "Abbrechen"
       }
+    },
+    "requestor_verification": {
+      "vouched_suffix": "möchte Daten zu Ihrer Brieftasche hinzufügen. Die Identität dieser Partei wurde bestätigt.",
+      "warning_suffix": "möchte Daten zu Ihrer Brieftasche hinzufügen. Warnung: Diese Partei ist Yivi nicht bekannt."
     }
   },
   "email_issuance": {

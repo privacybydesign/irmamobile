@@ -33,6 +33,11 @@ const (
 	eudiCrlUpdateInterval = 60 * time.Minute
 	// how often our own sweep re-fetches the referenced Token Status Lists
 	statusTokenListRefreshInterval = 60 * time.Minute
+	// how often the recognized trust lists are re-fetched. Wired at the same
+	// interval as the other sweeps even though it is a no-op today: no list is
+	// configured (see client.Config below), so publishing one later is a
+	// one-line change rather than two.
+	trustListRefreshInterval = 60 * time.Minute
 )
 
 var bridge IrmaMobileBridge
@@ -164,7 +169,23 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
 	irma.Logger.SetLevel(logrus.InfoLevel)
-	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy, locale)
+	yiviClient, err = client.New(client.Config{
+		StoragePath:           appVersionDataPath,
+		IrmaConfigurationPath: irmaConfigurationPath,
+		EudiAppDataPath:       eudiAppDataPath,
+
+		Handler:        bridgeClientHandler,
+		SessionHandler: sessionHandler,
+		Signer:         signer,
+		AesKey:         aesKeyCopy,
+
+		Locale: locale,
+
+		// No recognized trust lists: Yivi does not publish its LoTE yet, so a
+		// released wallet consults none. Likewise no extra trust anchors — no
+		// third-party CA is anchored, which is why no party can reach the medium
+		// rung in production today.
+	})
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
@@ -177,7 +198,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	// The client owns both jobs. Its status sweep runs immediately and then on
 	// the interval, and wakes the app itself through ClientHandler.
 	// CredentialsChanged whenever a status actually moved.
-	yiviClient.InitJobs(eudiCrlUpdateInterval, statusTokenListRefreshInterval)
+	yiviClient.InitJobs(eudiCrlUpdateInterval, statusTokenListRefreshInterval, trustListRefreshInterval)
 }
 
 func dispatchEvent(event any) {

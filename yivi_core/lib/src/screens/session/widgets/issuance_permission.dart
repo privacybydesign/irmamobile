@@ -2,10 +2,12 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../../models/schemaless/session_state.dart";
 import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
+import "../../../widgets/requestor_header.dart";
 import "session_scaffold.dart";
 
 class IssuancePermission extends StatelessWidget {
@@ -13,11 +15,17 @@ class IssuancePermission extends StatelessWidget {
   final VoidCallback? onGivePermission;
   final List<schemaless.Credential> issuedCredentials;
 
+  /// The party offering these credentials. Its trust level is the freshest the
+  /// session will produce: by this screen the credentials have been fetched and
+  /// verified, so the certificate that signed them has been weighed.
+  final schemaless.TrustedParty requestor;
+
   const IssuancePermission({
     super.key,
     this.onDismiss,
     this.onGivePermission,
     required this.issuedCredentials,
+    required this.requestor,
   });
 
   @override
@@ -54,6 +62,10 @@ class IssuancePermission extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
       children: [
+        RequestorHeader(
+          requestor: requestor,
+          sessionType: SessionType.issuance,
+        ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
           child: IrmaQuote(

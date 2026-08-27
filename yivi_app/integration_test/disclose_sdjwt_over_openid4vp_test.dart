@@ -332,7 +332,15 @@ Future<void> testEmptySdJwtStillShowsInOptions(
     credentialName: "Demo Email address",
     attributes: [("Email address", "one@example.com")],
   );
-  await evaluateRequestor(tester, find.byType(RequestorHeader), "Yivi B.V.");
+  // The staging verifier signs its request with a Yivi certificate, which
+  // chains to a pinned Yivi anchor, so it sits on the top rung — the only rung
+  // a verifier is vouched for at.
+  await evaluateRequestor(
+    tester,
+    find.byType(RequestorHeader),
+    "Yivi B.V.",
+    expectedState: HeaderState.vouched,
+  );
 }
 
 Future<void> testClaimSetsPickFirstSatisfyingOption(
@@ -1129,7 +1137,15 @@ Future<void> testTwoCredentialsTwoChoicesEach(
 
   expect(emailFound && mobilenumberFound, isTrue);
 
-  await evaluateRequestor(tester, find.byType(RequestorHeader), "Yivi B.V.");
+  // The staging verifier signs its request with a Yivi certificate, which
+  // chains to a pinned Yivi anchor, so it sits on the top rung — the only rung
+  // a verifier is vouched for at.
+  await evaluateRequestor(
+    tester,
+    find.byType(RequestorHeader),
+    "Yivi B.V.",
+    expectedState: HeaderState.vouched,
+  );
 }
 
 /// Issue two email addresses and allow the user to pick between them

@@ -2,6 +2,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/credential_store.dart";
+import "../../../models/schemaless/session_state.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
@@ -154,9 +155,15 @@ class _IssueDuringDisclosureScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (requestor != null)
+                      // The requestor here is the verifier this wizard is
+                      // collecting credentials for, so it takes the verifier's
+                      // bar even when the surrounding session calls itself an
+                      // issuance (IRMA issue-and-disclose).
                       RequestorHeader(
                         requestor: requestor,
-                        isVerified: requestor.verified,
+                        sessionType: session?.type == SessionType.issuance
+                            ? SessionType.disclosure
+                            : session?.type,
                       ),
                     SessionProgressIndicator(
                       step: 1,

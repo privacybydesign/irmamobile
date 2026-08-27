@@ -2,6 +2,7 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../models/schemaless/schemaless_events.dart";
+import "../models/schemaless/session_state.dart";
 import "../theme/theme.dart";
 import "base64_image.dart";
 import "credential_card/yivi_credential_card_header.dart";
@@ -26,11 +27,70 @@ IrmaAvatar _buildRequestorAvatar({
   );
 }
 
+/// The three states a [RequestorHeader] can be in.
+///
+/// `vouched` and `warning` are the two visual states; `levelless` is the plain
+/// card shown for a party whose trust level was never evaluated — no colour and
+/// no indicator, because absent evidence is not a verdict.
+enum HeaderState { vouched, warning, levelless }
+
+/// Whether [party]'s trust level clears the bar for a session of [sessionType],
+/// which is the only thing that decides which header the user sees.
+///
+/// The bar is not the same for both directions: an issuer is vouched for at
+/// medium — somebody attested its identity, even if not Yivi — while a verifier
+/// needs high, because Yivi itself must vouch before data leaves the wallet. A
+/// signature session takes the verifier's bar; it releases attributes too.
+///
+/// A null [sessionType] asks for no verdict at all (the activity log's
+/// disclosure detail), and a party with no rung cannot be given one.
+HeaderState requestorHeaderState(
+  TrustedParty? party,
+  SessionType? sessionType,
+) {
+  final level = party?.trustLevel;
+  if (sessionType == null || level == null) return HeaderState.levelless;
+
+  final isVerified = switch (sessionType) {
+    SessionType.issuance =>
+      level == TrustLevel.high || level == TrustLevel.medium,
+    SessionType.disclosure || SessionType.signature => level == TrustLevel.high,
+  };
+  return isVerified ? HeaderState.vouched : HeaderState.warning;
+}
+
+/// The translation keys for the sentence after the party's name. Keyed by
+/// session type, because the two directions read differently: a verifier is
+/// asking for data, an issuer is offering it.
+///
+/// The issuance keys deliberately avoid claiming Yivi vouches: that state spans
+/// medium and high, and at medium it is an external CA that attested the
+/// identity. The disclosure keys can make the stronger claim, since their
+/// vouched state only ever occurs at high.
+({String vouched, String warning}) _suffixKeys(
+  SessionType sessionType,
+) => switch (sessionType) {
+  SessionType.issuance => (
+    vouched: "issuance.requestor_verification.vouched_suffix",
+    warning: "issuance.requestor_verification.warning_suffix",
+  ),
+  SessionType.disclosure || SessionType.signature => (
+    vouched:
+        "disclosure_permission.overview.requestor_verification.verified_suffix",
+    warning:
+        "disclosure_permission.overview.requestor_verification.unverified_suffix",
+  ),
+};
+
 class RequestorHeader extends StatelessWidget {
   final TrustedParty? requestor;
-  final bool? isVerified;
 
-  const RequestorHeader({this.requestor, this.isVerified});
+  /// What the session is doing, which sets both the trust bar and the copy.
+  /// Null renders the levelless card — used by the activity log, which shows
+  /// who a party was without re-judging them.
+  final SessionType? sessionType;
+
+  const RequestorHeader({super.key, this.requestor, this.sessionType});
 
   Future<void> _showCredentialOptionsBottomSheet(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -69,9 +129,12 @@ class RequestorHeader extends StatelessWidget {
       imagePath: requestor?.imagePath,
     );
 
-    if (isVerified != null) {
+    final state = requestorHeaderState(requestor, sessionType);
+
+    if (state != HeaderState.levelless) {
+      final isVerified = state == HeaderState.vouched;
       final mainTextDefaultStyle = theme.themeData.textTheme.bodyMedium;
-      String mainTextSuffixTranslationKey;
+      final suffixKeys = _suffixKeys(sessionType!);
 
       // Set the subtitleTextWidget to a link
       subtitleTextWidget = Padding(
@@ -87,15 +150,9 @@ class RequestorHeader extends StatelessWidget {
         ),
       );
 
-      if (isVerified!) {
-        backgroundColorOverride = theme.successSurface;
-        mainTextSuffixTranslationKey =
-            "disclosure_permission.overview.requestor_verification.verified_suffix";
-      } else {
-        backgroundColorOverride = theme.errorSurface;
-        mainTextSuffixTranslationKey =
-            "disclosure_permission.overview.requestor_verification.unverified_suffix";
-      }
+      backgroundColorOverride = isVerified
+          ? theme.successSurface
+          : theme.errorSurface;
 
       // Wrap the avatar in a Stack and position the verification status indicator
       requestorAvatar = Stack(
@@ -104,14 +161,14 @@ class RequestorHeader extends StatelessWidget {
           Positioned(
             top: 0,
             right: 0,
-            child: IrmaStatusIndicator(success: isVerified!),
+            child: IrmaStatusIndicator(success: isVerified),
           ),
         ],
       );
 
       String translatedMainTextSuffix = FlutterI18n.translate(
         context,
-        mainTextSuffixTranslationKey,
+        isVerified ? suffixKeys.vouched : suffixKeys.warning,
       );
 
       mainTextWidget = RichText(

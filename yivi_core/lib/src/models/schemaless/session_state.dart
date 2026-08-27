@@ -19,6 +19,29 @@ class SessionStateEvent extends Event {
       _$SessionStateEventFromJson(json);
 }
 
+/// Raised in-app — never sent by Go — when a [SessionStateEvent] arrived but
+/// could not be read, which today means it carried a trust level this build
+/// does not know. The event itself is unusable, and the app must not guess at
+/// what the user is being asked to consent to, so the session is failed instead
+/// of left waiting on a state that will never arrive.
+class SessionStateParseFailureEvent extends Event {
+  final int sessionId;
+  final Object error;
+
+  SessionStateParseFailureEvent({required this.sessionId, required this.error});
+}
+
+/// The error a failed session stream carries, so the error screen shows
+/// something a reader can act on rather than a bare type name.
+class SessionStateParseException implements Exception {
+  final Object cause;
+
+  SessionStateParseException(this.cause);
+
+  @override
+  String toString() => "Could not read the session state: $cause";
+}
+
 @JsonEnum(alwaysCreate: true, fieldRename: .snake)
 enum SessionType { disclosure, issuance, signature }
 

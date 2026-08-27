@@ -229,7 +229,7 @@
         "explanation": "What does this mean?",
         "bottom_sheet": {
           "title": "Known and unknown organizations",
-          "content_markdown": "Any organization can request data from your Yivi app.\nYou decide whether or not to agree to share that data.\nYivi helps you with this.\n\nOrganizations can register with Yivi. It is then checked who they are.\nTheir information (including name and logo) is recorded and verified.\nA green check mark will appear next to their name, so\nyou can share your data with more confidence.\nYou can find the list of registered organizations on the [Yivi Portal](https://portal.yivi.app/organizations).\n\nWith organizations that have not registered with Yivi,\nyou can still share your data.\nHowever, this is entirely your own responsibility.\nThere is no certainty about who you are sharing your data with.\n\nAre you unsure? Contact the organization directly.\nYou can recommend that they register with Yivi at:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
+          "content_markdown": "Organizations can request data from your Yivi app, or offer to add data to it.\nYou decide whether or not to agree.\nYivi helps you with this.\n\nOrganizations can register with Yivi. It is then checked who they are.\nTheir information (including name and logo) is recorded and verified.\nA green check mark will appear next to their name, so\nyou can share your data with more confidence.\nYou can find the list of registered organizations on the [Yivi Portal](https://portal.yivi.app/organizations).\n\nWith organizations that have not registered with Yivi,\nyou can still share your data.\nHowever, this is entirely your own responsibility.\nThere is no certainty about who you are sharing your data with.\n\nAre you unsure? Contact the organization directly.\nYou can recommend that they register with Yivi at:\n\n[https://portal.yivi.app](https://portal.yivi.app)"
         }
       }
     },
@@ -350,7 +350,9 @@
       "blocked": "Your Yivi app has been remotely blocked. This has either been done via MyYivi or because you did not use Yivi on this device for more than one year. If you want to continue using Yivi on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
-      "no_internet": "Please make sure your device has a functional internet connection."
+      "no_internet": "Please make sure your device has a functional internet connection.",
+      "party_validation_failed": "This request is not trustworthy.",
+      "party_validation_failed_body": "Yivi could not establish who is behind this request, so it was stopped. No data has been shared."
     }
   },
   "help": {
@@ -455,6 +457,10 @@
         "open_browser": "Open browser",
         "cancel": "Cancel"
       }
+    },
+    "requestor_verification": {
+      "vouched_suffix": "wants to add data to your wallet. This party's identity has been confirmed.",
+      "warning_suffix": "wants to add data to your wallet. Warning: this party is not known by Yivi."
     }
   },
   "email_issuance": {

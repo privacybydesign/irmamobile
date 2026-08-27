@@ -26,7 +26,7 @@ SessionStateEvent _event(int id, SessionStatus status) => SessionStateEvent(
       name: "Test",
       url: null,
       parent: null,
-      verified: false,
+      trustLevel: TrustLevel.low,
     ),
   ),
 );
