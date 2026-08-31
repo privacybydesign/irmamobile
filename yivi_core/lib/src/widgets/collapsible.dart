@@ -1,8 +1,8 @@
 import "dart:io";
 
-import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../theme/theme.dart";
 import "configurable_expansion_tile.dart";

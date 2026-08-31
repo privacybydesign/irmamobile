@@ -1,9 +1,9 @@
 import "dart:async";
 import "dart:convert";
 
-import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/enrollment_status.dart";
 import "package:yivi_core/src/models/handle_url_event.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";

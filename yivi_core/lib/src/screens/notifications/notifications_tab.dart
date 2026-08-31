@@ -1,5 +1,5 @@
-import "package:flutter/material.dart" hide Notification;
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:material_ui/material_ui.dart" hide Notification;
 
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";

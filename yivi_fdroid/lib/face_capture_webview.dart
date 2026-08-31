@@ -3,7 +3,7 @@
 // ignore_for_file: implementation_imports
 import "dart:async";
 
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 import "package:webview_flutter/webview_flutter.dart";
 import "package:webview_flutter_android/webview_flutter_android.dart";
 import "package:yivi_core/src/theme/theme.dart";

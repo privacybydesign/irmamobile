@@ -2,8 +2,8 @@ import "dart:convert";
 import "dart:io";
 import "dart:typed_data";
 
-import "package:flutter/material.dart";
 import "package:flutter_face_api/flutter_face_api.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/yivi_core.dart";
 
 /// Yivi brand palette, mirrored from `IrmaThemeData` (yivi_core theme.dart) so

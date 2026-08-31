@@ -1,4 +1,4 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
 class LoadingIndicator extends StatelessWidget {
   // Deliberately no color: it comes from themeData.progressIndicatorTheme, so

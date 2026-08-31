@@ -1,6 +1,6 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
 import "package:intl/intl.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../../../models/log_entry.dart";
 import "../../../theme/theme.dart";

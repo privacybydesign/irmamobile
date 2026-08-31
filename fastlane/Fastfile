@@ -4,8 +4,17 @@ before_all do
   sh("mkdir -p ./build/ ./profiles/")
 end
 
+# `dart format` reads the package's language version from
+# .dart_tool/package_config.json to decide which formatting style to apply, and
+# falls back to the newest language version the SDK knows when that file is
+# missing. On a clean checkout nothing has written it yet, so the format check
+# has to be preceded by a `flutter pub get` — otherwise it silently formats
+# against a language version the package does not use, which is how the Flutter
+# 3.44 -> 3.47 upgrade turned 34 unmodified files into "changed". It also
+# resolves package:flutter_lints for the analysis_options include.
 lane :lint do
   Dir.chdir("../yivi_core") do
+    sh("flutter", "pub", "get")
     sh("dart", "format", "--set-exit-if-changed", "lib/", "test/")
     sh("flutter", "analyze", "--no-fatal-infos")
 
@@ -18,11 +27,13 @@ lane :lint do
   end
 
   Dir.chdir("../yivi_app") do
+    sh("flutter", "pub", "get")
     sh("dart", "format", "--set-exit-if-changed", "lib/", "integration_test/")
     sh("flutter", "analyze", "--no-fatal-infos")
   end
 
   Dir.chdir("../yivi_fdroid") do
+    sh("flutter", "pub", "get")
     sh("dart", "format", "--set-exit-if-changed", "lib/")
     sh("flutter", "analyze", "--no-fatal-infos")
   end

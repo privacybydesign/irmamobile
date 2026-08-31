@@ -49,14 +49,14 @@ Most commands below should be run from one of these subdirectories. The [`just`]
       git submodule init
       git submodule update
 
-* Install Java development kit. We recommend to use Java 17.
+* Install Java development kit. Java 21 is required (the Android Gradle Plugin needs it).
 
       # On Debian / Ubuntu
-      apt install openjdk-17-jdk
+      apt install openjdk-21-jdk
 
       # On MacOS
-      brew install openjdk@17
-      flutter config --jdk-dir /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
+      brew install openjdk@21
+      flutter config --jdk-dir /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
 
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
   The app currently targets `compileSdk` 36 and `minSdk` 26, so make sure to install matching
@@ -209,7 +209,7 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
 * When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK or your Go version is too old.
 * When the flutter tool cannot find the generated apk after building for Android, the flavor is probably omitted. You need to run `flutter run --flavor alpha` or `flutter run --flavor beta`.
 * When you are working with Windows, you need to manually make a symlink between the configuration folders. You can do this by opening a terminal as administrator and use the following command: `mklink /d .\android\app\src\main\assets\irma_configuration .\irma_configuration`.
-* When Java jdk version is not compatible: set the jdk version flutter uses with `flutter config --jdk-dir <jdk_dir>`. Version 17 is recommended for this app (don't try to fiddle with gradle versions).
+* When Java jdk version is not compatible: set the jdk version flutter uses with `flutter config --jdk-dir <jdk_dir>`. Version 21 is required for this app (don't try to fiddle with gradle versions).
 * When you are building for iOS using XCode and you get `Dart Error: Can't load Kernel binary: Invalid kernel binary format version.`, then likely your Flutter cache is corrupted. You can empty and reload the Flutter cache in the following way:
 ```shell
 pushd $(which flutter)/../

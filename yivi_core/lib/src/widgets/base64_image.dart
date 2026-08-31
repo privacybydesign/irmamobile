@@ -1,8 +1,8 @@
 import "dart:convert";
 import "dart:typed_data";
 
-import "package:flutter/material.dart";
 import "package:flutter_svg/flutter_svg.dart";
+import "package:material_ui/material_ui.dart";
 
 class Base64Image extends StatefulWidget {
   final String base64;
