@@ -87,7 +87,7 @@ void main() {
   });
 
   test(
-    "a late failure after timeout does not surface as an uncaught async error",
+    "a late failure after a timed-out call is ignored, not re-surfaced",
     () async {
       final repo = await _buildRepo();
       addTearDown(repo.close);
@@ -101,8 +101,8 @@ void main() {
         throwsA(isA<TimeoutException>()),
       );
 
-      // If the timed-out call left its subscription alive this would drive it;
-      // the helper cancels in a finally, so this is simply unobserved.
+      // Note: this does not prove the subscription was cancelled — the
+      // isCompleted guard swallows the late event either way.
       repo.dispatch(_errorEvent());
       await Future<void>.delayed(const Duration(milliseconds: 10));
     },
