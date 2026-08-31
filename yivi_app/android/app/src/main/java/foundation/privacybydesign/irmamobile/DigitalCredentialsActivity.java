@@ -17,6 +17,9 @@ import androidx.credentials.provider.CallingAppInfo;
 import androidx.credentials.provider.PendingIntentHandler;
 import androidx.credentials.provider.ProviderGetCredentialRequest;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -70,10 +73,40 @@ public class DigitalCredentialsActivity extends FlutterFragmentActivity
   @Override
   public void onDigitalCredentialsResponse(String response) {
     Intent resultData = new Intent();
-    PendingIntentHandler.setGetCredentialResponse(
-        resultData, new GetCredentialResponse(new DigitalCredential(response)));
+    try {
+      // The platform expects the {protocol, data} envelope, not the bare
+      // Authorization Response: `data` is the response the core produced (a JSON
+      // object, e.g. {"vp_token": …}), and `protocol` echoes the request's
+      // protocol. Handing over just `data` makes the platform report a generic
+      // "error retrieving token" to the caller.
+      JSONObject envelope = new JSONObject();
+      envelope.put("protocol", requestProtocol());
+      envelope.put("data", new JSONObject(response));
+      PendingIntentHandler.setGetCredentialResponse(
+          resultData, new GetCredentialResponse(new DigitalCredential(envelope.toString())));
+    } catch (JSONException e) {
+      Log.e(TAG, "failed to build Digital Credentials response envelope", e);
+      PendingIntentHandler.setGetCredentialException(
+          resultData, new GetCredentialUnknownException("Malformed disclosure response"));
+    }
     setResult(RESULT_OK, resultData);
     finish();
+  }
+
+  /**
+   * The protocol the request came in on, echoed back in the response envelope.
+   * Read from the request delivered to Dart, falling back to the unsigned
+   * OpenID4VP protocol (the only kind the sample flow issues).
+   */
+  private String requestProtocol() {
+    try {
+      if (requestJson != null) {
+        return new JSONObject(requestJson).getJSONObject("request").getString("protocol");
+      }
+    } catch (JSONException e) {
+      Log.w(TAG, "could not read request protocol: " + e.getMessage());
+    }
+    return "openid4vp-v1-unsigned";
   }
 
   @Override

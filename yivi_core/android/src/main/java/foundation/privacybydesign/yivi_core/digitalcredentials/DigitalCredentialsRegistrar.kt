@@ -2,8 +2,10 @@ package foundation.privacybydesign.yivi_core.digitalcredentials
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.os.CancellationSignal
 import android.util.Log
 import androidx.credentials.CredentialManagerCallback
@@ -78,16 +80,49 @@ object DigitalCredentialsRegistrar {
         val fieldDisplay: Set<FieldDisplayProperties> =
             setOf(VerificationFieldDisplayProperties("Email address", null))
         val entryDisplay: Set<EntryDisplayProperties> =
-            setOf(VerificationEntryDisplayProperties("Email", "Yivi", icon()))
+            setOf(VerificationEntryDisplayProperties("Email", "Yivi", icon(context)))
         // value = null: the wallet holds the value, it is not disclosed at match time.
         val claim = SdJwtClaim(listOf("email"), null, fieldDisplay, true)
         return listOf(SdJwtEntry("pbdf-staging.sidn-pbdf.email", listOf(claim), entryDisplay, "yivi-email"))
     }
 
-    private fun icon(): Bitmap {
-        val size = 96
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        Canvas(bitmap).drawColor(Color.rgb(0x00, 0x4C, 0x92))
-        return bitmap
+    // Bundled logo of the credential this entry represents, shown next to the
+    // entry in the platform's credential picker.
+    // TODO(dc-api): once entries are driven by the wallet's held credentials,
+    // load each credential type's logo from the scheme on disk rather than a
+    // bundled per-credential asset.
+    private const val CREDENTIAL_LOGO_ASSET = "digital_credentials/email_credential_logo.png"
+
+    /**
+     * The credential's logo for the picker: the bundled scheme logo, falling
+     * back to the Yivi app icon, and finally to a solid Yivi-blue tile.
+     */
+    private fun icon(context: Context): Bitmap {
+        try {
+            context.assets.open(CREDENTIAL_LOGO_ASSET).use { stream ->
+                BitmapFactory.decodeStream(stream)?.let { return it }
+            }
+        } catch (e: Throwable) {
+            Log.w(TAG, "could not load credential logo asset: ${e.message}")
+        }
+        try {
+            val drawable = context.packageManager.getApplicationIcon(context.packageName)
+            if (drawable is BitmapDrawable) {
+                drawable.bitmap?.let { return it }
+            }
+            val width = drawable.intrinsicWidth.coerceAtLeast(1)
+            val height = drawable.intrinsicHeight.coerceAtLeast(1)
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            return bitmap
+        } catch (e: Throwable) {
+            Log.w(TAG, "could not load app icon, using fallback: ${e.message}")
+            val size = 96
+            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            Canvas(bitmap).drawColor(Color.rgb(0x00, 0x4C, 0x92))
+            return bitmap
+        }
     }
 }
