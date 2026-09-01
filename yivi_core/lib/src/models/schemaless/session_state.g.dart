@@ -136,7 +136,7 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
 ) => SelectableCredentialInstance(
   credentialId: json['credential_id'] as String,
   hash: json['hash'] as String,
-  name: TranslatedValue.fromJson(json['name'] as Map<String, dynamic>?),
+  name: json['name'] as String,
   issuer: TrustedParty.fromJson(json['issuer'] as Map<String, dynamic>),
   format: $enumDecode(_$CredentialFormatEnumMap, json['format']),
   attributes: (json['attributes'] as List<dynamic>)
@@ -152,9 +152,7 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
   batchInstanceCountRemaining: (json['batch_instance_count_remaining'] as num?)
       ?.toInt(),
-  issueUrl: json['issue_url'] == null
-      ? null
-      : TranslatedValue.fromJson(json['issue_url'] as Map<String, dynamic>?),
+  issueUrl: json['issue_url'] as String?,
 );
 
 const _$CredentialFormatEnumMap = {

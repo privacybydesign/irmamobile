@@ -199,6 +199,7 @@ build_android_abi() {
   CGO_LDFLAGS="-L${android_dir}/${abi}/lib" \
   gomobile bind -target "${target}" -androidapi 26 \
     -o "${outfile}" \
+    -tags jwx_es256k \
     github.com/privacybydesign/irmamobile/irmagobridge
 }
 
@@ -212,6 +213,7 @@ ALL_PIDS=()
 if [ "$BUILD_IOS" = true ]; then
   echo "==> Building gomobile for ios..."
   gomobile bind -target ios -iosversion 15.6 -o ios/Irmagobridge.xcframework \
+    -tags jwx_es256k \
     github.com/privacybydesign/irmamobile/irmagobridge &
   ALL_PIDS+=($!)
 fi

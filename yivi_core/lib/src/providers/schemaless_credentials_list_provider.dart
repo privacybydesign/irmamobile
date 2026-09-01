@@ -52,7 +52,7 @@ final schemalessCredentialOrderControllerProvider =
 class SchemalessCredentialOrderController
     extends AsyncNotifier<List<schemaless.Credential>> {
   Timer? _debounce;
-  StreamSubscription<List<schemaless.Credential>>? _subscription;
+  StreamSubscription<schemaless.SchemalessCredentials>? _subscription;
   List<String> _order = const []; // persisted order of IDs
   final NewItemPolicy _policy = .prepend;
 
@@ -69,7 +69,7 @@ class SchemalessCredentialOrderController
 
     // Seed from the current stream value.
     final initial = await repo.getSchemalessCredentials().first;
-    final initialTypes = _deduplicateByType(initial);
+    final initialTypes = _deduplicateByType(initial.credentials);
     final merged = _reconcile(initialTypes, _order, _policy);
     _order = merged.map((e) => e.credentialId).toList();
     await ref.read(credentialOrderRepoProvider).saveOrder(_order);
@@ -89,8 +89,8 @@ class SchemalessCredentialOrderController
     return merged;
   }
 
-  void _onCredentialsChanged(List<schemaless.Credential> allCredentials) {
-    final types = _deduplicateByType(allCredentials);
+  void _onCredentialsChanged(schemaless.SchemalessCredentials data) {
+    final types = _deduplicateByType(data.credentials);
     final merged = _reconcile(types, _order, _policy);
     _order = merged.map((e) => e.credentialId).toList();
 
@@ -100,10 +100,11 @@ class SchemalessCredentialOrderController
     _debouncedSave(merged);
   }
 
-  /// User reorders visible items
+  /// User reorders visible items. [newIndex] is the destination *after* the item
+  /// at [oldIndex] has been taken out, which is what `onReorderItem` reports —
+  /// so no downward-move adjustment here.
   void reorder(int oldIndex, int newIndex) {
     final current = state.requireValue.toList();
-    if (newIndex > oldIndex) newIndex -= 1;
     final moved = current.removeAt(oldIndex);
     current.insert(newIndex, moved);
     state = AsyncData(current);

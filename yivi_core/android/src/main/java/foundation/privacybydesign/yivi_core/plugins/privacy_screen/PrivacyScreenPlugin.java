@@ -53,6 +53,14 @@ public class PrivacyScreenPlugin implements MethodCallHandler, FlutterPlugin, Ac
             mainActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
             result.success(null);
         }
+        // Nothing to suspend here: the Android privacy screen is FLAG_SECURE, which
+        // keeps the window out of screenshots and the recents view but draws nothing
+        // on top of the app, so system UI shown during a flow is unaffected by it.
+        // Accepted rather than left unimplemented so the channel behaves the same on
+        // both platforms and callers need no platform check.
+        else if (call.method.equals("suspendPrivacyScreen") || call.method.equals("resumePrivacyScreen")) {
+            result.success(null);
+        }
         else {
             result.notImplemented();
         }

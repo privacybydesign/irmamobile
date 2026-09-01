@@ -3,7 +3,7 @@ import "dart:io";
 import "dart:math";
 
 import "package:collection/collection.dart";
-import "package:flutter/cupertino.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -18,6 +18,7 @@ import "package:yivi_core/src/providers/rooted_device_detector_provider.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_details_screen.dart";
 import "package:yivi_core/src/screens/data/data_tab.dart";
 import "package:yivi_core/src/screens/data/schemaless_credentials_details_screen.dart";
+import "package:yivi_core/src/screens/loading/loading_screen.dart";
 import "package:yivi_core/src/screens/notifications/widgets/notification_card.dart";
 import "package:yivi_core/src/screens/pin/providers/biometric_provider.dart";
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
@@ -29,6 +30,7 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_heade
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/irma_avatar.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
+import "package:yivi_core/src/widgets/lock_gate.dart";
 import "package:yivi_core/src/widgets/radio_indicator.dart";
 import "package:yivi_core/src/widgets/requestor_header.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
@@ -52,9 +54,11 @@ Future<void> unlock(WidgetTester tester) async {
 Future<void> enterPin(WidgetTester tester, String pin) async {
   final splitPin = pin.split("");
   for (final digit in splitPin) {
-    await tester.tapAndSettle(
-      find.byKey(Key("number_pad_key_${digit.toString()}")),
-    );
+    final key = find.byKey(Key("number_pad_key_${digit.toString()}"));
+    // The keypad can be a frame behind the caller: pumpYiviApp returns as soon
+    // as App exists, and the screens below it build after that.
+    await tester.waitFor(key);
+    await tester.tapAndSettle(key);
   }
   await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
@@ -103,6 +107,19 @@ Future<void> pumpYiviApp(
   await tester.waitFor(
     find.descendant(of: find.byType(YiviApp), matching: find.byType(App)),
   );
+
+  // App existing is not enough: everything below it can still be missing, and
+  // a Localizations scope that has not resolved yet renders a
+  // SizedBox.shrink() without scheduling a frame, so pumpAndSettle can return
+  // with the subtree blanked out. LockGate is the first widget App's builder
+  // puts below itself, so finding it proves the subtree is mounted.
+  await tester.waitFor(find.byType(LockGate));
+
+  // The router starts at /loading, and LoadingScreen only subscribes to the
+  // enrollment status in a post-frame callback before routing on to enrollment
+  // or home. Wait for it to hand over, so callers see the screen the app
+  // actually chose rather than the splash.
+  await tester.waitUntilDisappeared(find.byType(LoadingScreen));
 }
 
 // Pump a new app and unlock it
@@ -245,6 +262,20 @@ Future<void> issueCredentials(
   bool declineOffer = false,
   int? sdJwtBatchSize,
 }) async {
+  // Credential and attribute names in the issuance permission are resolved by
+  // irmago, not by Flutter, so an explicitly requested locale has to reach the
+  // Go client as well. Setting the in-app language preference is the only way
+  // to do that mid-run: IrmaRepository turns the change into a SetLocaleEvent,
+  // while AppReadyEvent's locale only counts on the first bridge start, which
+  // for test_all.dart is the whole run. Tests that don't ask for a locale leave
+  // the preference alone, so "use system language" keeps its default.
+  if (locale != null) {
+    await irmaBinding.repository.preferences.setPreferredLanguageCode(
+      locale.languageCode,
+    );
+    await tester.pumpAndSettle();
+  }
+
   locale ??= Locale("en", "EN");
   final groupedAttributes = groupAttributes(attributes);
   await startIssuanceSession(
@@ -282,9 +313,11 @@ Future<void> issueCredentials(
   for (final credTypeId in groupedAttributes.keys) {
     final credType =
         irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
+    // findsWidgets, not `.last` + findsOneWidget: `.last` throws an opaque
+    // "Bad state: No element" when nothing matches, hiding the real mismatch.
     expect(
-      find.text(credType.name.translate(locale.languageCode)).last,
-      findsOneWidget,
+      find.text(credType.name.translate(locale.languageCode)),
+      findsWidgets,
     );
   }
 

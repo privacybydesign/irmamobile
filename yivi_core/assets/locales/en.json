@@ -145,7 +145,11 @@
       "no_results": "No data found for '{query}'."
     },
     "category_other": "Other",
-    "category_personal": "Personal"
+    "category_personal": "Personal",
+    "problematic": {
+      "title": "Couldn't load this data",
+      "explanation": "This stored data is damaged and can't be shown. You can delete it."
+    }
   },
   "disclosure": {
     "title": "Data request",
@@ -557,7 +561,8 @@
     "privacy_policy": "Yivi's privacy policy",
     "privacy_policy_link": "https://www.yivi.app/en/privacy",
     "app_id": "App ID {id}",
-    "log_out": "Log out"
+    "log_out": "Log out",
+    "logged_out_toast": "You have been logged out"
   },
   "pin": {
     "subtitle": "Enter your PIN",
@@ -779,6 +784,18 @@
     "title": "No camera permissions",
     "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
     "open_settings": "Open settings"
+  },
+  "face_verification": {
+    "title": "Face verification",
+    "preparing": "One moment, preparing your data…",
+    "intro": {
+      "explanation": "We'll now do a quick face check to confirm you're the person shown in the document.",
+      "tip_camera": "Point the selfie camera at your face.",
+      "tip_lighting": "Make sure there's enough light.",
+      "tip_look_straight": "Look straight into the camera.",
+      "tip_no_accessories": "Remove glasses, hats, etc.",
+      "start": "Start verification"
+    }
   },
   "driving_licence": {
     "scan": {
@@ -1007,6 +1024,8 @@
         "title": "Install certificate",
         "content": "Fill in the PEM encoded content of the certificate you want to install:"
       },
+      "remove_cert": "Remove certificate",
+      "removed": "Certificate removed",
       "warning_dialog": {
         "title": "Warning!",
         "content": "Adding and removing certificates can break your app. Only continue this if you know what you are doing."

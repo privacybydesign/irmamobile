@@ -1,8 +1,6 @@
-import "package:flutter/material.dart";
+import "package:material_ui/material_ui.dart";
 
-import "../../models/translated_value.dart";
 import "../../theme/theme.dart";
-import "../../util/language.dart";
 import "../chevron.dart";
 import "../irma_avatar.dart";
 import "../irma_card.dart";
@@ -10,9 +8,9 @@ import "../irma_card.dart";
 class SchemalessYiviCredentialTypeCard extends StatelessWidget {
   final String? credentialImagePath;
   final Widget? credentialImageBase64;
-  final TranslatedValue credentialName;
+  final String credentialName;
   final String credentialId;
-  final TranslatedValue issuerName;
+  final String issuerName;
 
   final VoidCallback? onTap;
   final bool checked;
@@ -48,16 +46,26 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
 
     const logoContainerSize = 52.0;
 
+    final bool hasImage =
+        credentialImagePath != null || credentialImageBase64 != null;
+    // When there is no logo, IrmaAvatar requires initials. Prefer the credential
+    // name, fall back to the issuer name, and finally to a neutral glyph so a
+    // credential that arrives without a resolvable display name (e.g. an issuer
+    // whose OID4VCI credential display irmago could not parse) still renders
+    // instead of tripping IrmaAvatar's assert.
+    final String? initials = hasImage
+        ? null
+        : credentialName.isNotEmpty
+        ? credentialName[0]
+        : issuerName.isNotEmpty
+        ? issuerName[0]
+        : "?";
+
     Widget avatar = IrmaAvatar(
       size: logoContainerSize,
       logoImage: credentialImageBase64,
       logoPath: credentialImagePath,
-      initials:
-          credentialImagePath == null &&
-              credentialImageBase64 == null &&
-              getTranslation(context, credentialName).isNotEmpty
-          ? getTranslation(context, credentialName)[0]
-          : null,
+      initials: initials,
     );
 
     // If the credential is checked, add a check mark to the avatar
@@ -122,12 +130,12 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          getTranslation(context, credentialName),
+                          credentialName,
                           style: theme.themeData.textTheme.headlineMedium!
                               .copyWith(fontSize: 16, color: titleColor),
                         ),
                         Text(
-                          getTranslation(context, issuerName),
+                          issuerName,
                           style: theme.themeData.textTheme.bodyMedium!.copyWith(
                             fontSize: 14,
                             color: issuerColor,

@@ -1,15 +1,12 @@
 import "dart:async";
 
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/file_translation_loader.dart";
-import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
-
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
-import "package:yivi_core/src/models/translated_value.dart";
 import "package:yivi_core/src/providers/nfc_availability_provider.dart";
 import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_screen.dart";
@@ -20,23 +17,23 @@ CredentialStoreItem _item(String credentialId, String name) =>
     CredentialStoreItem(
       credential: CredentialDescriptor(
         credentialId: credentialId,
-        name: TranslatedValue.fromString(name),
+        name: name,
         issuer: TrustedParty(
           id: "issuer",
-          name: TranslatedValue.fromString("Issuer"),
+          name: "Issuer",
           url: null,
           parent: null,
           verified: true,
         ),
-        category: TranslatedValue.fromString("Personal"),
+        category: "Personal",
         attributes: [],
         issueURL: null,
       ),
       faq: Faq(
-        intro: TranslatedValue.fromString("intro"),
-        purpose: TranslatedValue.fromString("purpose"),
-        content: TranslatedValue.fromString("content"),
-        howTo: TranslatedValue.fromString("howto"),
+        intro: "intro",
+        purpose: "purpose",
+        content: "content",
+        howTo: "howto",
       ),
     );
 
@@ -44,7 +41,7 @@ CredentialStoreItem _item(String credentialId, String name) =>
 // does not need NFC (email), in a single category.
 final _store = [
   CredentialStoreCategory(
-    category: TranslatedValue.fromString("Personal"),
+    category: "Personal",
     items: [
       _item("pbdf.pbdf.passport", "Passport"),
       _item("pbdf.sidn-pbdf.email", "Email"),
@@ -77,9 +74,7 @@ Widget _testWidget({required bool? nfcAvailable}) {
               forcedLocale: const Locale("en", "US"),
             ),
           ),
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
+          ...GlobalMaterialLocalizations.delegates,
         ],
         home: SchemalessAddDataScreen(),
       ),

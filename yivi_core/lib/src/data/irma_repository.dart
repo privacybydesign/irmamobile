@@ -2,12 +2,11 @@ import "dart:async";
 import "dart:convert";
 import "dart:io";
 
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter/widgets.dart";
-import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_web_auth_2/flutter_web_auth_2.dart";
+import "package:material_ui/material_ui.dart";
 import "package:package_info_plus/package_info_plus.dart";
 import "package:rxdart/rxdart.dart";
 import "package:url_launcher/url_launcher.dart";
@@ -27,6 +26,7 @@ import "../models/event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
+import "../models/log_entry.dart";
 import "../models/native_events.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/schemaless/schemaless_events.dart" as schemaless;
@@ -34,7 +34,6 @@ import "../models/schemaless/session_state.dart";
 import "../models/schemaless/session_user_interaction.dart";
 import "../models/session.dart";
 import "../models/session_events.dart";
-import "../models/translated_value.dart";
 import "../models/version_information.dart";
 import "../providers/email_issuance_provider.dart";
 import "../providers/ocr_processor_provider.dart";
@@ -42,6 +41,7 @@ import "../providers/passport_issuer_provider.dart";
 import "../providers/sms_issuance_provider.dart";
 import "../sentry/sentry.dart";
 import "../util/navigation.dart";
+import "app_language.dart";
 import "irma_bridge.dart";
 import "irma_preferences.dart";
 import "session_repository.dart";
@@ -93,7 +93,16 @@ class IrmaRepository {
     _bridgeEventSubscription = _bridge.events.listen(
       (event) => _eventSubject.add(event),
     );
-    bridgedDispatch(AppReadyEvent());
+
+    // Push the effective app language to the Go client: the initial value
+    // rides on AppReadyEvent (so text and logos resolve correctly from the
+    // first pull), then a SetLocaleEvent on every change. Each change also
+    // resets the paged activity-log cache (LoadLogsEvent with no `before`).
+    bridgedDispatch(AppReadyEvent(locale: _appLanguage.current));
+    _localeSubscription = _appLanguage.changes.listen((locale) {
+      bridgedDispatch(SetLocaleEvent(locale: locale));
+      bridgedDispatch(LoadLogsEvent(max: 10));
+    });
   }
 
   final IrmaPreferences preferences;
@@ -110,7 +119,7 @@ class IrmaRepository {
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _schemalessCredentialsSubject =
-      BehaviorSubject<List<schemaless.Credential>>();
+      BehaviorSubject<schemaless.SchemalessCredentials>();
   final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
 
   final _enrollmentStatusEventSubject =
@@ -137,11 +146,16 @@ class IrmaRepository {
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
+  late final AppLanguage _appLanguage = AppLanguage(preferences);
+
   late StreamSubscription<Event> _bridgeEventSubscription;
+  late final StreamSubscription<String> _localeSubscription;
 
   Future<void> close() async {
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
+    await _localeSubscription.cancel();
+    await _appLanguage.close();
 
     // Then we can close all internal subjects
     await Future.wait([
@@ -185,7 +199,10 @@ class IrmaRepository {
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is schemaless.SchemalessCredentialsEvent) {
-      _schemalessCredentialsSubject.add(event.credentials);
+      _schemalessCredentialsSubject.add((
+        credentials: event.credentials,
+        problematic: event.problematic,
+      ));
     } else if (event is SchemalessCredentialStoreEvent) {
       _credentialStoreSubject.add(event.credentials);
     } else if (event is AuthenticationEvent) {
@@ -321,7 +338,7 @@ class IrmaRepository {
     return _credentialsSubject.stream;
   }
 
-  Stream<List<schemaless.Credential>> getSchemalessCredentials() {
+  Stream<schemaless.SchemalessCredentials> getSchemalessCredentials() {
     return _schemalessCredentialsSubject.stream;
   }
 
@@ -849,14 +866,14 @@ class IrmaRepository {
   Future<void> openIssueURL(
     BuildContext context,
     String credentialId,
-    TranslatedValue? issueURL,
+    String? issueURL,
     WidgetRef ref,
   ) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final url = issueURL?.translate(lang);
+    // issueURL is already resolved to the effective app language by irmago.
+    final url = issueURL;
     if (url == null || url.isEmpty) {
       throw UnsupportedError(
-        "Credential type $credentialId does not have a suitable issue url for $lang",
+        "Credential type $credentialId does not have a suitable issue url",
       );
     }
 

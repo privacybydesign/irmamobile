@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter/services.dart";
+import "package:material_ui/material_ui.dart";
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
@@ -262,6 +262,7 @@ class IrmaThemeData {
       textTheme: textTheme,
       appBarTheme: appBarTheme,
       inputDecorationTheme: inputDecorationTheme,
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
     );
   }
 }

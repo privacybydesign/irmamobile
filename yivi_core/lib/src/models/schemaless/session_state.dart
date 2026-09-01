@@ -4,7 +4,6 @@ import "../event.dart";
 import "../log_entry.dart";
 import "../return_url.dart";
 import "../session.dart";
-import "../translated_value.dart";
 import "credential_store.dart";
 import "schemaless_events.dart";
 
@@ -179,7 +178,7 @@ class SelectableCredentialInstance {
   final String hash;
   final String? imagePath;
   final LogoImage? image;
-  final TranslatedValue name;
+  final String name;
   final TrustedParty issuer;
   final CredentialFormat format;
   final int? batchInstanceCountRemaining;
@@ -188,7 +187,7 @@ class SelectableCredentialInstance {
   final int? expiryDate;
   final bool revoked;
   final bool revocationSupported;
-  final TranslatedValue? issueUrl;
+  final String? issueUrl;
 
   SelectableCredentialInstance({
     required this.credentialId,

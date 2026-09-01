@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_feedback_screen.dart";
 import "package:yivi_core/src/screens/session/widgets/disclosure_permission_confirm_dialog.dart";
@@ -112,13 +112,11 @@ Future<void> evaluateRequestorHeader(
 }) async {
   expect(requestorHeaderFinder, findsOneWidget);
 
-  // Expect the translated requestor name to be present
+  // Expect the resolved requestor name to be present
   var requestorHeaderWidget =
       requestorHeaderFinder.first.evaluate().single.widget as RequestorHeader;
-  final translatedRequestorHeaderNameText = requestorHeaderWidget
-      .requestor!
-      .name
-      .translate("en");
+  final translatedRequestorHeaderNameText =
+      requestorHeaderWidget.requestor!.name;
   expect(translatedRequestorHeaderNameText, localizedRequestorName);
 
   // Find the RichText in the RequestorHeader

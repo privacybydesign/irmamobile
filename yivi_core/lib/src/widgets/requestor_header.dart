@@ -1,5 +1,5 @@
-import "package:flutter/material.dart";
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:material_ui/material_ui.dart";
 
 import "../models/schemaless/schemaless_events.dart";
 import "../theme/theme.dart";
@@ -48,7 +48,6 @@ class RequestorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final theme = IrmaTheme.of(context);
 
     Widget mainTextWidget;
@@ -56,13 +55,16 @@ class RequestorHeader extends StatelessWidget {
     Color? backgroundColorOverride;
 
     final localizedRequestorName = requestor != null
-        ? requestor!.name.translate(lang)
+        ? requestor!.name
         : FlutterI18n.translate(context, "ui.unknown");
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,
       image: requestor?.image != null
-          ? Base64Image(base64: requestor!.image!.base64)
+          ? Base64Image(
+              base64: requestor!.image!.base64,
+              mimeType: requestor!.image!.mimeType,
+            )
           : null,
       imagePath: requestor?.imagePath,
     );

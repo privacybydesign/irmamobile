@@ -1,6 +1,6 @@
 import "dart:async";
 
-import "package:flutter/cupertino.dart";
+import "package:cupertino_ui/cupertino_ui.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
 import "package:mrz_parser/mrz_parser.dart";
@@ -217,6 +217,10 @@ void main() {
       await tester.waitFor(find.byType(NfcReadingScreen));
       final startScanningButton = find.byKey(const Key("bottom_bar_primary"));
       await tester.tap(startScanningButton);
+      // The read runs behind a privacy-screen suspension, so it takes a
+      // platform-channel round trip to get going — more than the microtasks
+      // the tap itself drains.
+      await tester.pumpUntil(() => fakeReader.readCalled);
 
       expect(fakeIssuer.startSessionCount, 1);
       expect(fakeReader.readCalled, isTrue);

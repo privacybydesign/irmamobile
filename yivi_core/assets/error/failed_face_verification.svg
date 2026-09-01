@@ -1,0 +1,46 @@
+<svg width="286" height="286" viewBox="0 0 286 286" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_face_fail)">
+<!-- Background circle -->
+<path d="M142.7 285.4C221.51 285.4 285.4 221.51 285.4 142.7C285.4 63.89 221.51 0 142.7 0C63.89 0 0 63.89 0 142.7C0 221.51 63.89 285.4 142.7 285.4Z" fill="#CBE0EB"/>
+<!-- Phone body -->
+<rect x="86" y="44" width="114" height="198" rx="18" fill="#484747"/>
+<rect x="94" y="52" width="98" height="182" rx="11" fill="#E6E1DE"/>
+<!-- Shoulders / bust -->
+<path d="M110 210C110 190.67 124.77 175 143 175C161.23 175 176 190.67 176 210V222H110V210Z" fill="#49B5BD"/>
+<!-- Neck -->
+<path d="M133 162H153V182C153 187.52 148.52 192 143 192C137.48 192 133 187.52 133 182V162Z" fill="#F1ADA0"/>
+<!-- Head -->
+<path d="M143 172C158.46 172 171 158.34 171 141.5C171 124.66 158.46 111 143 111C127.54 111 115 124.66 115 141.5C115 158.34 127.54 172 143 172Z" fill="#F1ADA0"/>
+<!-- Ears -->
+<path d="M114 139C112 139 111 142 111.5 146L114 151C114 151 113.5 142 116 138L114 139Z" fill="#F1ADA0"/>
+<path d="M172 139C174 139 175 142 174.5 146L172 151C172 151 172.5 142 170 138L172 139Z" fill="#F1ADA0"/>
+<!-- Mouth (slight frown) -->
+<path d="M137 158C137 158 140 155.5 143 155.5C146 155.5 149 158 149 158" stroke="#4C3938" stroke-width="2.4" stroke-linecap="round"/>
+<!-- Sunglasses -->
+<rect x="123" y="134" width="18" height="13" rx="5" fill="#281713"/>
+<rect x="145" y="134" width="18" height="13" rx="5" fill="#281713"/>
+<rect x="140" y="137" width="6" height="3.5" rx="1.5" fill="#281713"/>
+<path d="M123 138L114 141" stroke="#281713" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M163 138L172 141" stroke="#281713" stroke-width="2.6" stroke-linecap="round"/>
+<!-- Hat brim -->
+<path d="M107 121C107 116.58 123.11 113 143 113C162.89 113 179 116.58 179 121C179 125.42 162.89 129 143 129C123.11 129 107 125.42 107 121Z" fill="#3E4E57"/>
+<!-- Hat crown -->
+<path d="M123 121C123 121 120 96 143 96C166 96 163 121 163 121C163 121 155 117 143 117C131 117 123 121 123 121Z" fill="#49626E"/>
+<!-- Hat band -->
+<path d="M124 118C130 115.5 136 114.5 143 114.5C150 114.5 156 115.5 162 118C160 120 152 121.5 143 121.5C134 121.5 126 120 124 118Z" fill="#3E4E57"/>
+<!-- Face-scan corner brackets (teal) -->
+<path d="M105 88H119V94H111V102H105V88Z" fill="#49B5BD"/>
+<path d="M181 88V102H175V94H167V88H181Z" fill="#49B5BD"/>
+<path d="M105 200V186H111V194H119V200H105Z" fill="#49B5BD"/>
+<path d="M181 200H167V194H175V186H181V200Z" fill="#49B5BD"/>
+<!-- Red error badge with X -->
+<path d="M199 240C221.09 240 239 222.09 239 200C239 177.91 221.09 160 199 160C176.91 160 159 177.91 159 200C159 222.09 176.91 240 199 240Z" fill="#DE2747"/>
+<path d="M187.5 188.5L210.5 211.5" stroke="white" stroke-width="6" stroke-linecap="round"/>
+<path d="M210.5 188.5L187.5 211.5" stroke="white" stroke-width="6" stroke-linecap="round"/>
+</g>
+<defs>
+<clipPath id="clip0_face_fail">
+<rect width="285.4" height="285.4" fill="white"/>
+</clipPath>
+</defs>
+</svg>

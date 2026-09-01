@@ -75,7 +75,10 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 			c := &Cert{
 				Thumbprint: fmt.Sprintf("%x", cert.Signature),
 				Subject:    cert.Subject.CommonName,
-				Deleteable: false,
+				// Only the chain's top-level (leaf) certificate is removable:
+				// its thumbprint names the chain's file on disk, and removing
+				// it removes the whole chain.
+				Deleteable: parentCert == nil,
 			}
 
 			if parentCert != nil {
@@ -105,7 +108,10 @@ func (conf *WrappedEudiConfiguration) MarshalJSON() ([]byte, error) {
 			c := &Cert{
 				Thumbprint: fmt.Sprintf("%x", cert.Signature),
 				Subject:    cert.Subject.CommonName,
-				Deleteable: false,
+				// Only the chain's top-level (leaf) certificate is removable:
+				// its thumbprint names the chain's file on disk, and removing
+				// it removes the whole chain.
+				Deleteable: parentCert == nil,
 			}
 
 			if parentCert != nil {
@@ -141,12 +147,16 @@ func dispatchSchemalessCredentialsEvent() {
 		Credentials: storeItems,
 	})
 
-	creds, err := yiviClient.GetCredentials()
+	creds, problematic, err := yiviClient.GetCredentials()
 	if err != nil {
 		reportError(errors.Errorf("Failed to get credentials: %w", err), false)
 	}
+	// Even when the read above failed for the EUDI half, `creds` still holds the
+	// IRMA credentials that did load, and `problematic` surfaces stored
+	// credentials the wallet cannot render so the app can show and delete them.
 	dispatchEvent(&schemalessCredentialsEvent{
 		Credentials: creds,
+		Problematic: problematic,
 	})
 }
 

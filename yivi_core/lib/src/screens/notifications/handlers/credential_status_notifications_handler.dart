@@ -15,15 +15,18 @@ class CredentialStatusNotificationsHandler extends NotificationHandler {
     IrmaRepository repo,
     List<CredentialStatusNotificationRecord> records,
   ) async {
-    final credentials = await repo.getSchemalessCredentials().first.timeout(
+    final data = await repo.getSchemalessCredentials().first.timeout(
       const Duration(seconds: 5),
-      onTimeout: () => [],
+      onTimeout: () => (
+        credentials: <schemaless.Credential>[],
+        problematic: <schemaless.ProblematicCredential>[],
+      ),
     );
 
     final List<Notification> notifications = [];
     final List<CredentialStatusNotificationRecord> updatedRecords = [];
 
-    for (final cred in credentials) {
+    for (final cred in data.credentials) {
       final type = _getNotificationType(cred);
       if (type == null) continue;
 

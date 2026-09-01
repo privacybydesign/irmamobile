@@ -145,7 +145,11 @@
       "no_results": "Keine Daten gefunden für '{query}'."
     },
     "category_other": "Sonstiges",
-    "category_personal": "Persönlich"
+    "category_personal": "Persönlich",
+    "problematic": {
+      "title": "Diese Daten konnten nicht geladen werden",
+      "explanation": "Diese gespeicherten Daten sind beschädigt und können nicht angezeigt werden. Sie können sie löschen."
+    }
   },
   "disclosure": {
     "title": "Datenanfrage",
@@ -557,7 +561,8 @@
     "privacy_policy": "Yivi-Datenschutzrichtlinie",
     "privacy_policy_link": "https://www.yivi.app/en/privacy",
     "app_id": "App-ID {id}",
-    "log_out": "Abmelden"
+    "log_out": "Abmelden",
+    "logged_out_toast": "Sie wurden abgemeldet"
   },
   "pin": {
     "subtitle": "Geben Sie Ihre PIN ein",
@@ -779,6 +784,18 @@
     "title": "Keine Kameraberechtigungen",
     "content": "Yivi benötigt Zugriff auf die Kamera, um Ihr Dokument automatisch zu scannen. Erteilen Sie Yivi über die Systemeinstellungen die Berechtigung, die Kamera zu verwenden, oder geben Sie die erforderlichen Daten manuell ein.",
     "open_settings": "Einstellungen öffnen"
+  },
+  "face_verification": {
+    "title": "Gesichtsverifizierung",
+    "preparing": "Einen Moment, Ihre Daten werden vorbereitet…",
+    "intro": {
+      "explanation": "Wir führen jetzt eine kurze Gesichtsprüfung durch, um zu bestätigen, dass Sie die im Dokument abgebildete Person sind.",
+      "tip_camera": "Richten Sie die Selfie-Kamera auf Ihr Gesicht.",
+      "tip_lighting": "Sorgen Sie für ausreichend Licht.",
+      "tip_look_straight": "Blicken Sie direkt in die Kamera.",
+      "tip_no_accessories": "Entfernen Sie Brillen, Hüte usw.",
+      "start": "Verifizierung starten"
+    }
   },
   "driving_licence": {
     "scan": {
@@ -1007,6 +1024,8 @@
         "title": "Zertifikat installieren",
         "content": "Geben Sie den PEM-kodierten Inhalt des zu installierenden Zertifikats ein:"
       },
+      "remove_cert": "Zertifikat entfernen",
+      "removed": "Zertifikat entfernt",
       "warning_dialog": {
         "title": "Warnung!",
         "content": "Das Hinzufügen und Entfernen von Zertifikaten kann Ihre App beschädigen. Fahren Sie nur fort, wenn Sie wissen, was Sie tun."
