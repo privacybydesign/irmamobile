@@ -12,19 +12,19 @@ final credentialsSearchQueryProvider = NotifierProvider(
 );
 
 final schemalessCredentialsProvider =
-    StreamProvider<List<schemaless.Credential>>((ref) async* {
+    StreamProvider<schemaless.SchemalessCredentials>((ref) async* {
       final repo = ref.watch(irmaRepositoryProvider);
 
-      await for (final credentials in repo.getSchemalessCredentials()) {
-        yield credentials;
+      await for (final data in repo.getSchemalessCredentials()) {
+        yield data;
       }
     });
 
 final schemalessCredentialTypesProvider =
     StreamProvider<List<schemaless.Credential>>((ref) async* {
-      final allCredentials = await ref.watch(
+      final allCredentials = (await ref.watch(
         schemalessCredentialsProvider.future,
-      );
+      )).credentials;
 
       final Set<String> seenIds = {};
       final List<schemaless.Credential> result = [];
@@ -43,7 +43,9 @@ final schemalessCredentialsWithIdProvider =
       ref,
       credentialTypeId,
     ) async {
-      final credentials = await ref.watch(schemalessCredentialsProvider.future);
+      final credentials = (await ref.watch(
+        schemalessCredentialsProvider.future,
+      )).credentials;
 
       final filteredCredentials = credentials
           .where((cred) => cred.credentialId == credentialTypeId)
