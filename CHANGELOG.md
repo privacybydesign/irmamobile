@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.2.1] - 2026-09-01
+### Added
+- Credentials the wallet has in storage but cannot render — an IRMA credential whose credential type is no longer in the scheme, or one whose display metadata the Go client could not read — are listed at the top of the Data tab in a warning card that states why, with a button to delete them. They were previously invisible: the storage they occupy could not be reached from the app, and a wallet that held nothing else reported itself as empty
+
+### Fixed
+- One unreadable stored credential no longer takes the Data tab down with it. The credentials the wallet can render and the ones it cannot arrive as a single snapshot, so the overview draws whatever did load; when reading the EUDI credentials fails, the IRMA credentials that did load are still delivered
+- A credential whose display name the Go client cannot resolve, which happens when an issuer publishes OpenID4VCI credential display metadata the client cannot parse, now renders with the issuer's initial, or a neutral glyph, instead of failing an assertion in the avatar and blanking its card
+- The Data tab shows a translated error message when its credential list cannot be loaded, instead of a raw Dart error string
+
 ### Internal
 - Upgrade Flutter to 3.47.0
 - Take the Material and Cupertino widgets from the standalone `material_ui` and `cupertino_ui` packages, which Flutter 3.47 split out of the SDK and deprecates there in November. Packages that still import the SDK copies keep the Yivi theme through a compatibility bridge around the app
@@ -12,13 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Render markdown with `flutter_markdown_plus` instead of `flutter_markdown`, which the Flutter team discontinued, and update `pinput` to 6.0.2
 - Bump gomobile to v0.0.0-20260816165457-f98cc9b3c733, whose bind generator handles Go type aliases natively and so no longer needs the `gotypesalias=0` godebug workaround. The bindings it generates for the Go bridge are unchanged
 - Install Go 1.27 in CI, the version `yivi_core/go.mod` asks for, so the jobs no longer download a second toolchain on top of the one they just installed
-- Update the Go client to the current `irmago` master, which declares Go 1.27 itself and so needs the Go directive in `yivi_core/go.mod` raised to 1.27 too. It brings did:key and did:jwk resolution in line with their method specs, accepts SD-JWT VC credentials that leave out the optional `iss` and `sub` claims, verifies Status List Tokens signed with a key published in the issuer's OAuth discovery metadata, decides `ES256K` support from the `jwx_es256k` build tag the bridge already passes rather than accepting the algorithm and failing later, and narrows the developer-mode `did:web` fallback to plain HTTP to a 404 only. The generated bridge bindings are unchanged
+- Update the Go client to `irmago` v1.3.1, which declares Go 1.27 itself and so needs the Go directive in `yivi_core/go.mod` raised to 1.27 too. It brings did:key and did:jwk resolution in line with their method specs, accepts SD-JWT VC credentials that leave out the optional `iss` and `sub` claims, verifies Status List Tokens signed with a key published in the issuer's OAuth discovery metadata, decides `ES256K` support from the `jwx_es256k` build tag the bridge already passes rather than accepting the algorithm and failing later, narrows the developer-mode `did:web` fallback to plain HTTP to a 404 only, and reports the credentials it stored but could not load rather than dropping them from the list it returns. The generated bridge bindings are unchanged
 - The compatibility bridge hands the translations the app root already resolved down to the widgets below it, rather than loading them a second time. Loading them twice left every screen under the bridge showing the previous language after a language switch, and blanked the app for an extra frame at startup
 - Upgrade the Android Gradle Plugin to 9.3.1, Gradle to 9.7.0 and the JDK to 21, which AGP 9 requires. Contributors need a JDK 21 as well; see the README. This also drops a `:irmagobridge` entry that pointed at a directory the apps never had, which Gradle 9 rejects, and updates Mockito, whose byte-buddy could not read JDK 21 class files
 - Compile against Android SDK 37, now that AGP 9 supports it, and update `permission_handler` to 13, which requires it
 - Upgrade the remaining Dart dependencies, including ML Kit text recognition, the Regula Face SDK, `mobile_scanner`, `sentry_flutter`, `flutter_riverpod` and `go_router`. `flutter_bloc` stays on 7 while the app moves off it. The iOS `Podfile.lock` is regenerated; an existing checkout needs `flutter clean` before the first iOS build, because the ML Kit pods moved from Objective-C to Swift
 - Read root and jailbreak status in `yivi_core` itself instead of through the `jailbreak_root_detection` package, of which the app used two calls out of eight. The checks it wrapped are kept: RootBeer plus the su and Magisk paths on Android, and the Cydia, suspicious-path and sandbox-write checks on iOS
 - Pre-install every Android SDK component the build needs in CI, and pin the command line tools between the two revisions that can both see the platforms we ask for and write metadata the Android Gradle Plugin can read
+- The Go bridge no longer forwards irmago's warnings to the app as errors. A warning is not an error, and hooking every one of them flooded the app, and the error reporting behind it, with non-fatal ones. Warnings arrive as debug log lines during client start-up; outside developer mode the log level drops to error afterwards, so later ones are dropped entirely. `irmagobridge/error_reporter.go` goes with the hook
+- `SchemalessCredentialsEvent` carries a `problematic` list beside `credentials`, mirroring irmago's `clientmodels.ProblematicCredential`, and `IrmaRepository.getSchemalessCredentials()` yields the two as one record so they cannot drift apart. The new key is optional, so an event from an older Go client still parses
+- Add tests for parsing the `problematic` key off the event when it is populated, empty and absent, and for the credential type card's initials fallback
 
 ## [8.2.0] - 2026-08-12
 ### Added
@@ -715,6 +728,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.2.1]: https://github.com/privacybydesign/irmamobile/compare/v8.2.0...v8.2.1
 [8.2.0]: https://github.com/privacybydesign/irmamobile/compare/v8.1.2...v8.2.0
 [8.1.2]: https://github.com/privacybydesign/irmamobile/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/privacybydesign/irmamobile/compare/v8.1.0...v8.1.1
