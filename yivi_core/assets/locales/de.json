@@ -422,8 +422,8 @@
   },
   "data_tab": {
     "empty": {
-      "title": "Holen Sie sich Ihre persönlichen Daten",
-      "subtitle": "Tippen Sie auf das Plus-Symbol, um Ihre persönlichen Daten abzurufen."
+      "title": "Scannen Sie einen Yivi-QR-Code",
+      "subtitle": "Scannen Sie einen Yivi-QR-Code, um Ihre Daten hinzuzufügen. Sie können auch auf das Plus-Symbol tippen, um selbst Daten abzurufen."
     }
   },
   "issuance": {

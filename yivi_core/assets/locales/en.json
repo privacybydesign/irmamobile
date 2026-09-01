@@ -422,8 +422,8 @@
   },
   "data_tab": {
     "empty": {
-      "title": "Obtain your personal data",
-      "subtitle": "Tap on the plus icon to obtain your personal data."
+      "title": "Scan a Yivi QR code",
+      "subtitle": "Scan a Yivi QR code to add your data. You can also tap the plus icon to obtain data yourself."
     }
   },
   "issuance": {
