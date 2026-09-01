@@ -12,13 +12,11 @@ class AcceptTermsScreen extends StatelessWidget {
   final bool isAccepted;
   final Function(bool) onToggleAccepted;
   final VoidCallback onContinue;
-  final VoidCallback onPrevious;
 
   const AcceptTermsScreen({
     required this.isAccepted,
     required this.onToggleAccepted,
     required this.onContinue,
-    required this.onPrevious,
   });
 
   @override
@@ -34,23 +32,23 @@ class AcceptTermsScreen extends StatelessWidget {
                 constraints: BoxConstraints(minHeight: constraint.maxHeight),
                 child: IntrinsicHeight(
                   child: Padding(
-                    padding: EdgeInsets.all(theme.mediumSpacing),
+                    padding: .all(theme.mediumSpacing),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: .start,
                       children: [
                         // Title
                         SizedBox(height: theme.mediumSpacing),
                         TranslatedText(
                           "enrollment.terms_and_conditions.title",
                           style: theme.textTheme.displayLarge,
-                          textAlign: TextAlign.start,
+                          textAlign: .start,
                         ),
                         SizedBox(height: theme.mediumSpacing),
 
                         // Explanation
                         const TranslatedText(
                           "enrollment.terms_and_conditions.explanation",
-                          textAlign: TextAlign.start,
+                          textAlign: .start,
                         ),
                         SizedBox(height: theme.mediumSpacing),
 
@@ -63,8 +61,7 @@ class AcceptTermsScreen extends StatelessWidget {
                         ),
 
                         // If not in landscape mode, add some spacing
-                        if (MediaQuery.of(context).orientation ==
-                            Orientation.portrait)
+                        if (MediaQuery.of(context).orientation == .portrait)
                           SizedBox(height: theme.defaultSpacing),
 
                         ErrorReportingCheckBox(),
@@ -78,7 +75,6 @@ class AcceptTermsScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: EnrollmentNavBar(
-        onPrevious: onPrevious,
         onContinue: isAccepted ? onContinue : null,
       ),
     );
