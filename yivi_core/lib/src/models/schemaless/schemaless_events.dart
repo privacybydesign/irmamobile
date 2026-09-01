@@ -13,7 +13,6 @@ class SchemalessCredentialsEvent extends Event {
   /// credential whose scheme is gone). Kept separate from [credentials] so one
   /// bad credential never blanks the overview; each carries the hash(es) needed
   /// to delete it.
-  @JsonKey(defaultValue: [])
   final List<ProblematicCredential> problematic;
 
   SchemalessCredentialsEvent({

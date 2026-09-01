@@ -357,7 +357,12 @@ class _CredentialsSearchResults extends ConsumerWidget {
           ? _buildNoCredentialsFound(context, searchQuery)
           : _CredentialsTypeList(credentials: credentials),
       loading: () => CircularProgressIndicator(),
-      error: (error, trace) => Text(error.toString()),
+      error: (error, trace) => Center(
+        child: Padding(
+          padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+          child: TranslatedText("error.title", textAlign: TextAlign.center),
+        ),
+      ),
     );
   }
 }
@@ -489,9 +494,20 @@ class _ProblematicCredentialCard extends ConsumerWidget {
                   ),
                   SizedBox(height: theme.tinySpacing),
                   Text(
-                    credential.reason,
+                    FlutterI18n.translate(
+                      context,
+                      "data.problematic.explanation",
+                    ),
                     style: theme.themeData.textTheme.bodyMedium!.copyWith(
                       fontSize: 14,
+                      color: theme.neutralExtraDark,
+                    ),
+                  ),
+                  SizedBox(height: theme.tinySpacing),
+                  Text(
+                    credential.reason,
+                    style: theme.themeData.textTheme.bodySmall!.copyWith(
+                      fontSize: 12,
                       color: theme.neutralExtraDark,
                     ),
                   ),

@@ -118,8 +118,6 @@ class IrmaRepository {
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
-  // Carries both the loadable and the problematic credentials from each
-  // SchemalessCredentialsEvent, so a single stream delivers them together.
   final _schemalessCredentialsSubject =
       BehaviorSubject<schemaless.SchemalessCredentials>();
   final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();

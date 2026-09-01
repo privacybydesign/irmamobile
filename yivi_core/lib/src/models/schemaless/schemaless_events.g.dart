@@ -18,7 +18,7 @@ SchemalessCredentialsEvent _$SchemalessCredentialsEventFromJson(
             (e) => ProblematicCredential.fromJson(e as Map<String, dynamic>),
           )
           .toList() ??
-      [],
+      const [],
 );
 
 ProblematicCredential _$ProblematicCredentialFromJson(

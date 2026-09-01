@@ -152,10 +152,11 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		}
 	}
 
-	// forward irma log message to bridge. Warnings reach the app this way (as
-	// debug log lines); they are deliberately NOT escalated to app-facing
-	// ErrorEvents — a warning is not an error, and doing so flooded the app with
-	// non-fatal errors.
+	// forward irma log message to bridge. Warnings are deliberately NOT escalated
+	// to app-facing ErrorEvents — a warning is not an error, and doing so flooded
+	// the app with non-fatal ones. They arrive as debug log lines only while the
+	// level is Info: outside developer mode it drops to ErrorLevel below, and
+	// logrus then filters warnings out before they reach this writer.
 	irma.Logger.SetOutput(writer(func(m string) {
 		bridge.DebugLog(fmt.Sprintf("[irmago] %s", m))
 	}))
