@@ -997,6 +997,7 @@
       "update": "Update schemes",
       "updating": "Updating schemes...",
       "update_success": "Schemes updated successfully.",
+      "timeout": "This is taking longer than expected; it may still be in progress.",
       "install_scheme_dialog": {
         "title": "Install scheme",
         "content": "Enter the URL of the scheme that should be installed:"
@@ -1020,6 +1021,7 @@
       "title": "Certificate management",
       "issuer_certs": "Issuer certificates",
       "verifier_certs": "Verifier certificates",
+      "timeout": "This is taking longer than expected; it may still be in progress.",
       "install_cert_dialog": {
         "title": "Install certificate",
         "content": "Fill in the PEM encoded content of the certificate you want to install:"
