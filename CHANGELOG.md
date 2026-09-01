@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Credentials the wallet has in storage but cannot render — an IRMA credential whose credential type is no longer in the scheme, or one whose display metadata the Go client could not read — are listed at the top of the Data tab in a warning card that states why, with a button to delete them. They were previously invisible: the storage they occupy could not be reached from the app, and a wallet that held nothing else reported itself as empty
+
+### Fixed
+- One unreadable stored credential no longer takes the Data tab down with it. The credentials the wallet can render and the ones it cannot arrive as a single snapshot, so the overview draws whatever did load; when reading the EUDI credentials fails, the IRMA credentials that did load are still delivered
+- A credential whose display name the Go client cannot resolve, which happens when an issuer publishes OpenID4VCI credential display metadata the client cannot parse, now renders with the issuer's initial, or a neutral glyph, instead of failing an assertion in the avatar and blanking its card
+- The Data tab shows a translated error message when its credential list cannot be loaded, instead of a raw Dart error string
+
 ### Internal
 - Upgrade Flutter to 3.47.0
 - Take the Material and Cupertino widgets from the standalone `material_ui` and `cupertino_ui` packages, which Flutter 3.47 split out of the SDK and deprecates there in November. Packages that still import the SDK copies keep the Yivi theme through a compatibility bridge around the app
@@ -19,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade the remaining Dart dependencies, including ML Kit text recognition, the Regula Face SDK, `mobile_scanner`, `sentry_flutter`, `flutter_riverpod` and `go_router`. `flutter_bloc` stays on 7 while the app moves off it. The iOS `Podfile.lock` is regenerated; an existing checkout needs `flutter clean` before the first iOS build, because the ML Kit pods moved from Objective-C to Swift
 - Read root and jailbreak status in `yivi_core` itself instead of through the `jailbreak_root_detection` package, of which the app used two calls out of eight. The checks it wrapped are kept: RootBeer plus the su and Magisk paths on Android, and the Cydia, suspicious-path and sandbox-write checks on iOS
 - Pre-install every Android SDK component the build needs in CI, and pin the command line tools between the two revisions that can both see the platforms we ask for and write metadata the Android Gradle Plugin can read
+- The Go bridge no longer forwards irmago's warnings to the app as errors. A warning is not an error, and hooking every one of them flooded the app, and the error reporting behind it, with non-fatal ones; warnings still reach the app as debug log lines. `irmagobridge/error_reporter.go` goes with the hook
+- `SchemalessCredentialsEvent` carries a `problematic` list beside `credentials`, mirroring irmago's `clientmodels.ProblematicCredential`, and `IrmaRepository.getSchemalessCredentials()` yields the two as one record so they cannot drift apart. The new key is optional, so an event from an older Go client still parses
+- Add tests for parsing the `problematic` key off the event when it is populated, empty and absent, and for the credential type card's initials fallback
+- Bump the `irmago` pin to a master that reports the credentials it stored but could not load, rather than dropping them from the list it returns
 
 ## [8.2.0] - 2026-08-12
 ### Added
