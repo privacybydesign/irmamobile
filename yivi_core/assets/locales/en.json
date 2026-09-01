@@ -145,7 +145,11 @@
       "no_results": "No data found for '{query}'."
     },
     "category_other": "Other",
-    "category_personal": "Personal"
+    "category_personal": "Personal",
+    "problematic": {
+      "title": "Couldn't load this data",
+      "explanation": "This stored data is damaged and can't be shown. You can delete it."
+    }
   },
   "disclosure": {
     "title": "Data request",
