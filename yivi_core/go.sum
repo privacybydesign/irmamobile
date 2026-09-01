@@ -214,8 +214,8 @@ github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e/go.mod h1:pJLUxLENpZxwdsK
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750 h1:3RuYOQTlArQ6Uw2TgySusmZGluP+18WdQL56YSfkM3Q=
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750/go.mod h1:QZI8hX8Ff2GfZ7UJuxyWw3nAGgt2s5+U4hxY6rmwQvs=
-github.com/privacybydesign/irmago v1.3.1-0.20260901071710-37213de71619 h1:3JlDS53e3aQ18WPwt6EAGS6yUJ3u+17tVbbvRLgHRi8=
-github.com/privacybydesign/irmago v1.3.1-0.20260901071710-37213de71619/go.mod h1:+583sB/1tb19LThFu+f7m9K/rfJGjlXg5O9XwBudlPw=
+github.com/privacybydesign/irmago v1.3.1 h1:wij8Tk9Rl1vRE4nqcF7raDBZFDu9I5fMtUiArwMt5VU=
+github.com/privacybydesign/irmago v1.3.1/go.mod h1:+583sB/1tb19LThFu+f7m9K/rfJGjlXg5O9XwBudlPw=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
