@@ -152,11 +152,13 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 		}
 	}
 
-	// forward irma log message to bridge
+	// forward irma log message to bridge. Warnings reach the app this way (as
+	// debug log lines); they are deliberately NOT escalated to app-facing
+	// ErrorEvents — a warning is not an error, and doing so flooded the app with
+	// non-fatal errors.
 	irma.Logger.SetOutput(writer(func(m string) {
 		bridge.DebugLog(fmt.Sprintf("[irmago] %s", m))
 	}))
-	irma.Logger.Hooks.Add(&errorReporter{})
 
 	// Initialize the client
 	irmaConfigurationPath := filepath.Join(assetsPath, "irma_configuration")

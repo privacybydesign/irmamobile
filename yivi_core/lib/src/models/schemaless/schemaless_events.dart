@@ -9,11 +9,55 @@ part "schemaless_events.g.dart";
 class SchemalessCredentialsEvent extends Event {
   final List<Credential> credentials;
 
-  SchemalessCredentialsEvent({required this.credentials});
+  /// Credentials the wallet has stored but cannot render (e.g. an IRMA
+  /// credential whose scheme is gone). Kept separate from [credentials] so one
+  /// bad credential never blanks the overview; each carries the hash(es) needed
+  /// to delete it.
+  @JsonKey(defaultValue: [])
+  final List<ProblematicCredential> problematic;
+
+  SchemalessCredentialsEvent({
+    required this.credentials,
+    this.problematic = const [],
+  });
 
   factory SchemalessCredentialsEvent.fromJson(Map<String, dynamic> json) =>
       _$SchemalessCredentialsEventFromJson(json);
 }
+
+/// A credential the wallet stored but cannot load into a full [Credential].
+/// Mirrors irmago's `clientmodels.ProblematicCredential`.
+@JsonSerializable(fieldRename: .snake)
+class ProblematicCredential {
+  /// Maps each format this instance exists in to its storage hash, so it can be
+  /// deleted with a [DeleteCredentialEvent] without resolving its metadata.
+  final Map<CredentialFormat, String> credentialInstanceIds;
+
+  /// Why the credential could not be loaded (for display/diagnostics).
+  final String reason;
+
+  /// Best-effort credential id (IRMA type id or EUDI vct) if recoverable.
+  final String? credentialId;
+
+  ProblematicCredential({
+    required this.credentialInstanceIds,
+    required this.reason,
+    this.credentialId,
+  });
+
+  factory ProblematicCredential.fromJson(Map<String, dynamic> json) =>
+      _$ProblematicCredentialFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ProblematicCredentialToJson(this);
+}
+
+/// The credentials the wallet holds, as one snapshot: the ones it can render and
+/// the ones it stored but cannot load ([ProblematicCredential]). Both come from
+/// a single [SchemalessCredentialsEvent], so they always travel together.
+typedef SchemalessCredentials = ({
+  List<Credential> credentials,
+  List<ProblematicCredential> problematic,
+});
 
 @JsonEnum(alwaysCreate: true, fieldRename: .snake)
 enum AttributeType { string, boolean, integer, image, base64Image }

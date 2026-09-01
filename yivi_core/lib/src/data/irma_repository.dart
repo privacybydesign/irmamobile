@@ -118,8 +118,10 @@ class IrmaRepository {
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _eudiConfigurationSubject = BehaviorSubject<EudiConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
+  // Carries both the loadable and the problematic credentials from each
+  // SchemalessCredentialsEvent, so a single stream delivers them together.
   final _schemalessCredentialsSubject =
-      BehaviorSubject<List<schemaless.Credential>>();
+      BehaviorSubject<schemaless.SchemalessCredentials>();
   final _credentialStoreSubject = BehaviorSubject<List<CredentialStoreItem>>();
 
   final _enrollmentStatusEventSubject =
@@ -199,7 +201,10 @@ class IrmaRepository {
     } else if (event is EudiConfigurationEvent) {
       _eudiConfigurationSubject.add(event.eudiConfiguration);
     } else if (event is schemaless.SchemalessCredentialsEvent) {
-      _schemalessCredentialsSubject.add(event.credentials);
+      _schemalessCredentialsSubject.add((
+        credentials: event.credentials,
+        problematic: event.problematic,
+      ));
     } else if (event is SchemalessCredentialStoreEvent) {
       _credentialStoreSubject.add(event.credentials);
     } else if (event is AuthenticationEvent) {
@@ -335,7 +340,7 @@ class IrmaRepository {
     return _credentialsSubject.stream;
   }
 
-  Stream<List<schemaless.Credential>> getSchemalessCredentials() {
+  Stream<schemaless.SchemalessCredentials> getSchemalessCredentials() {
     return _schemalessCredentialsSubject.stream;
   }
 

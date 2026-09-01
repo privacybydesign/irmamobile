@@ -8,14 +8,18 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../package_name.dart";
+import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/irma_repository_provider.dart";
 import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/base64_image.dart";
+import "../../widgets/credential_card/delete_credential_confirmation_dialog.dart";
 import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 import "../../widgets/irma_app_bar.dart";
+import "../../widgets/irma_card.dart";
 import "../../widgets/irma_icon_button.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
@@ -263,15 +267,23 @@ class _AllCredentialsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
     final credentials = ref.watch(schemalessCredentialsProvider);
 
     return switch (credentials) {
+      // Problematic credentials keep the overview non-empty even when every
+      // loadable credential is gone, so the user can still see and delete them.
       AsyncData(:final value) =>
-        value.isEmpty
+        value.credentials.isEmpty && value.problematic.isEmpty
             ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
             : _ReorderableCredentialList(),
-      AsyncError(:final error) => Text(error.toString()),
-      _ => CircularProgressIndicator(),
+      AsyncError() => Center(
+        child: Padding(
+          padding: EdgeInsets.all(theme.defaultSpacing),
+          child: TranslatedText("error.title", textAlign: TextAlign.center),
+        ),
+      ),
+      _ => const Center(child: CircularProgressIndicator()),
     };
   }
 }
@@ -361,12 +373,20 @@ class _ReorderableCredentialList extends ConsumerWidget {
     final controller = ref.read(
       schemalessCredentialOrderControllerProvider.notifier,
     );
+    final problematic =
+        ref.watch(schemalessCredentialsProvider).value?.problematic ??
+        const <schemaless.ProblematicCredential>[];
 
     final theme = IrmaTheme.of(context);
 
     return credentials.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text("Error: $e")),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: EdgeInsets.all(theme.defaultSpacing),
+          child: TranslatedText("error.title", textAlign: TextAlign.center),
+        ),
+      ),
       data: (items) {
         return ReorderableListView.builder(
           onReorderStart: (index) {
@@ -384,7 +404,22 @@ class _ReorderableCredentialList extends ConsumerWidget {
           padding: EdgeInsets.all(theme.defaultSpacing),
           itemCount: items.length,
           buildDefaultDragHandles: false,
-          footer: SizedBox(height: 50),
+          // Problematic credentials are shown at the top, above the loadable
+          // ones, so the user sees what needs attention first.
+          header: problematic.isEmpty
+              ? null
+              : Column(
+                  key: const Key("problematic_credentials_section"),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final pc in problematic)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                        child: _ProblematicCredentialCard(credential: pc),
+                      ),
+                  ],
+                ),
+          footer: const SizedBox(height: 50),
           itemBuilder: (_, i) {
             final cred = items[i];
 
@@ -415,5 +450,82 @@ class _ReorderableCredentialList extends ConsumerWidget {
         );
       },
     );
+  }
+}
+
+/// A card for a credential the wallet stored but cannot render (see
+/// [schemaless.ProblematicCredential]). Shown in a danger style with the failure
+/// reason and a trashcan to remove a credential that would otherwise be stuck in
+/// storage — it has no type/detail screen to route to, so deletion is inline.
+class _ProblematicCredentialCard extends ConsumerWidget {
+  const _ProblematicCredentialCard({required this.credential});
+
+  final schemaless.ProblematicCredential credential;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
+    final title = FlutterI18n.translate(context, "data.problematic.title");
+
+    return IrmaCard(
+      style: IrmaCardStyle.danger,
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: theme.error, size: 28),
+            SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.themeData.textTheme.headlineMedium!.copyWith(
+                      fontSize: 16,
+                      color: theme.dark,
+                    ),
+                  ),
+                  SizedBox(height: theme.tinySpacing),
+                  Text(
+                    credential.reason,
+                    style: theme.themeData.textTheme.bodyMedium!.copyWith(
+                      fontSize: 14,
+                      color: theme.neutralExtraDark,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: theme.smallSpacing),
+            IconButton(
+              key: Key("${credential.credentialId ?? "problematic"}_delete"),
+              icon: Icon(Icons.delete_outline, color: theme.error),
+              tooltip: FlutterI18n.translate(context, "accessibility.remove"),
+              onPressed: () => _confirmDelete(context, ref),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (context) => DeleteCredentialConfirmationDialog(),
+        ) ??
+        false;
+    if (confirmed && context.mounted) {
+      ref
+          .read(irmaRepositoryProvider)
+          .bridgedDispatch(
+            DeleteCredentialEvent(
+              hashByFormat: credential.credentialInstanceIds,
+            ),
+          );
+    }
   }
 }
