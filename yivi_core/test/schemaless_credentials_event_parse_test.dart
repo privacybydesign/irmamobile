@@ -12,9 +12,7 @@ void main() {
   });
 
   test("parses an event with the problematic key absent", () {
-    final e = SchemalessCredentialsEvent.fromJson({
-      "credentials": <dynamic>[],
-    });
+    final e = SchemalessCredentialsEvent.fromJson({"credentials": <dynamic>[]});
     expect(e.problematic, isEmpty);
   });
 

@@ -3,8 +3,9 @@ import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
 
-Widget _wrap(Widget child) =>
-    IrmaTheme(builder: (_) => MaterialApp(home: Scaffold(body: child)));
+Widget _wrap(Widget child) => IrmaTheme(
+  builder: (_) => MaterialApp(home: Scaffold(body: child)),
+);
 
 void main() {
   // Regression for the IrmaAvatar assert crash: a credential whose display name

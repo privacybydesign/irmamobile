@@ -22,8 +22,9 @@ final schemalessCredentialsProvider =
 
 final schemalessCredentialTypesProvider =
     StreamProvider<List<schemaless.Credential>>((ref) async* {
-      final allCredentials =
-          (await ref.watch(schemalessCredentialsProvider.future)).credentials;
+      final allCredentials = (await ref.watch(
+        schemalessCredentialsProvider.future,
+      )).credentials;
 
       final Set<String> seenIds = {};
       final List<schemaless.Credential> result = [];
@@ -42,8 +43,9 @@ final schemalessCredentialsWithIdProvider =
       ref,
       credentialTypeId,
     ) async {
-      final credentials =
-          (await ref.watch(schemalessCredentialsProvider.future)).credentials;
+      final credentials = (await ref.watch(
+        schemalessCredentialsProvider.future,
+      )).credentials;
 
       final filteredCredentials = credentials
           .where((cred) => cred.credentialId == credentialTypeId)
