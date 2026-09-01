@@ -68,6 +68,35 @@
               <data android:scheme="openid-credential-offer" />
             </intent-filter>
         </activity>
+        <!-- Fulfils W3C Digital Credentials API requests (OpenID4VP over the
+             Android Credential Manager). The platform launches this Activity,
+             expects a result, and holds the caller's navigator.credentials.get()
+             open until it finishes; it therefore lives outside the launcher task
+             with its own affinity. It runs the ordinary Yivi session UI, so it
+             wears the Yivi launch theme (logo splash while the engine boots)
+             rather than a bare translucent window. -->
+        <activity
+            android:name=".DigitalCredentialsActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=":digitalcredentials"
+            android:excludeFromRecents="true"
+            android:theme="@style/LaunchTheme"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode">
+            <meta-data
+                android:name="io.flutter.embedding.android.SplashScreenDrawable"
+                android:resource="@drawable/launch_background" />
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/LaunchTheme" />
+            <intent-filter>
+                <action android:name="androidx.credentials.registry.provider.action.GET_CREDENTIAL" />
+                <action android:name="androidx.identitycredentials.action.GET_CREDENTIALS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
             android:exported="true">
