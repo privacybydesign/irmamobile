@@ -46,6 +46,7 @@ Map<String, dynamic> _$ProblematicCredentialToJson(
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };
 
 AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
@@ -88,6 +89,7 @@ Attribute _$AttributeFromJson(Map<String, dynamic> json) => Attribute(
       : AttributeValue.fromJson(
           json['requested_value'] as Map<String, dynamic>,
         ),
+  intentToRetain: json['intent_to_retain'] as bool?,
 );
 
 Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
@@ -96,6 +98,7 @@ Map<String, dynamic> _$AttributeToJson(Attribute instance) => <String, dynamic>{
   'description': instance.description,
   'value': instance.value,
   'requested_value': instance.requestedValue,
+  'intent_to_retain': instance.intentToRetain,
 };
 
 TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
@@ -161,6 +164,7 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) => Credential(
       : LogoImage.fromJson(json['image'] as Map<String, dynamic>),
   issuanceDate: (json['issuance_date'] as num?)?.toInt(),
   expiryDate: (json['expiry_date'] as num?)?.toInt(),
+  displayIsFallback: json['display_is_fallback'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$CredentialToJson(Credential instance) =>
@@ -181,4 +185,5 @@ Map<String, dynamic> _$CredentialToJson(Credential instance) =>
       'revoked': instance.revoked,
       'revocation_supported': instance.revocationSupported,
       'issue_url': instance.issueUrl,
+      'display_is_fallback': instance.displayIsFallback,
     };

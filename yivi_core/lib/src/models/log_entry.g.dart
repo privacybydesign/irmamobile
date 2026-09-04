@@ -112,4 +112,5 @@ LogCredential _$LogCredentialFromJson(Map<String, dynamic> json) =>
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };
