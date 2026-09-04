@@ -153,11 +153,13 @@ SelectableCredentialInstance _$SelectableCredentialInstanceFromJson(
   batchInstanceCountRemaining: (json['batch_instance_count_remaining'] as num?)
       ?.toInt(),
   issueUrl: json['issue_url'] as String?,
+  displayIsFallback: json['display_is_fallback'] as bool? ?? false,
 );
 
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };
 
 PreAuthorizationCodeTransactionCodeParameters
