@@ -3,6 +3,7 @@ import "package:flutter_svg/svg.dart";
 import "package:lottie/lottie.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 
 class EnrollmentHero extends StatelessWidget {
@@ -30,8 +31,10 @@ class EnrollmentHero extends StatelessWidget {
               frameRate: FrameRate.composition,
               // If the animation fails to load, show nothing instead of
               // crashing; this hero image is purely decorative.
-              errorBuilder: (context, error, stackTrace) =>
-                  const SizedBox.shrink(),
+              errorBuilder: (context, error, stackTrace) {
+                reportError(error, stackTrace);
+                return const SizedBox.shrink();
+              },
             )
           : SvgPicture.asset(imagePath, fit: BoxFit.contain),
     );

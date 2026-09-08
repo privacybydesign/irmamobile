@@ -4,6 +4,7 @@ import "package:lottie/lottie.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../../../package_name.dart";
+import "../../../../sentry/sentry.dart";
 
 class IntroductionAnimationWrapper extends StatefulWidget {
   final Widget child;
@@ -25,6 +26,7 @@ class _IntroductionAnimationWrapperState
 
   late final AnimationController _lottieController;
   Timer? _timeoutTimer;
+  bool _reportedLoadError = false;
   bool lottieIsCompleted = false;
   bool alignIsCompleted = false;
   bool animationFullyCompleted = false;
@@ -74,8 +76,14 @@ class _IntroductionAnimationWrapperState
         _lottieController.forward();
       },
       // If the animation fails to load, skip straight to the content
-      // instead of getting stuck.
+      // instead of getting stuck. Lottie replays this same error on every
+      // rebuild (e.g. orientation change), so guard the report to Sentry
+      // the same way _skipToContent guards against repeat setState.
       errorBuilder: (context, error, stackTrace) {
+        if (!_reportedLoadError) {
+          _reportedLoadError = true;
+          reportError(error, stackTrace);
+        }
         WidgetsBinding.instance.addPostFrameCallback((_) => _skipToContent());
         return const SizedBox.shrink();
       },

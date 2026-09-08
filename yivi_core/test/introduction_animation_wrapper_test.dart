@@ -77,6 +77,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // The load failure is reported to Sentry; consume it so the test
+    // doesn't also fail on the unhandled Flutter error.
+    expect(tester.takeException(), isNotNull);
     expect(_crossFadeState(tester), CrossFadeState.showSecond);
   });
 
