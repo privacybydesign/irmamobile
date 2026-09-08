@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:lottie/lottie.dart";
 import "package:material_ui/material_ui.dart";
 
@@ -16,7 +18,13 @@ class IntroductionAnimationWrapper extends StatefulWidget {
 class _IntroductionAnimationWrapperState
     extends State<IntroductionAnimationWrapper>
     with SingleTickerProviderStateMixin {
+  // Safety net: if the animation fails to load, or a slow device takes too
+  // long to load it, we skip straight to the content instead of leaving the
+  // user stuck on the onboarding intro.
+  static const _maxWaitDuration = Duration(seconds: 10);
+
   late final AnimationController _lottieController;
+  Timer? _timeoutTimer;
   bool lottieIsCompleted = false;
   bool alignIsCompleted = false;
   bool animationFullyCompleted = false;
@@ -27,13 +35,22 @@ class _IntroductionAnimationWrapperState
     _lottieController = AnimationController(vsync: this);
     _lottieController.addStatusListener((status) async {
       if (status == AnimationStatus.completed) {
-        setState(() => lottieIsCompleted = true);
+        _skipToContent();
       }
     });
+    _timeoutTimer = Timer(_maxWaitDuration, _skipToContent);
+  }
+
+  void _skipToContent() {
+    _timeoutTimer?.cancel();
+    if (mounted && !lottieIsCompleted) {
+      setState(() => lottieIsCompleted = true);
+    }
   }
 
   @override
   void dispose() {
+    _timeoutTimer?.cancel();
     _lottieController.dispose();
     super.dispose();
   }
@@ -47,12 +64,20 @@ class _IntroductionAnimationWrapperState
 
     final lottieWidget = Lottie.asset(
       yiviAsset("non-free/onboarding.json"),
-      frameRate: FrameRate(60),
+      // Render at the composition's own frame rate instead of forcing 60fps,
+      // which forces unnecessary interpolation work on slower devices.
+      frameRate: FrameRate.composition,
       repeat: false,
       controller: _lottieController,
       onLoaded: (composition) {
         _lottieController.duration = composition.duration;
         _lottieController.forward();
+      },
+      // If the animation fails to load, skip straight to the content
+      // instead of getting stuck.
+      errorBuilder: (context, error, stackTrace) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _skipToContent());
+        return const SizedBox.shrink();
       },
     );
 

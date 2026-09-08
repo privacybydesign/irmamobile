@@ -22,7 +22,17 @@ class EnrollmentHero extends StatelessWidget {
           ? EdgeInsets.symmetric(vertical: theme.defaultSpacing)
           : EdgeInsets.zero,
       child: imagePath.endsWith("json")
-          ? Lottie.asset(imagePath, frameRate: FrameRate(60))
+          ? Lottie.asset(
+              imagePath,
+              // Render at the composition's own frame rate instead of
+              // forcing 60fps, which forces unnecessary interpolation work
+              // on slower devices.
+              frameRate: FrameRate.composition,
+              // If the animation fails to load, show nothing instead of
+              // crashing; this hero image is purely decorative.
+              errorBuilder: (context, error, stackTrace) =>
+                  const SizedBox.shrink(),
+            )
           : SvgPicture.asset(imagePath, fit: BoxFit.contain),
     );
   }
