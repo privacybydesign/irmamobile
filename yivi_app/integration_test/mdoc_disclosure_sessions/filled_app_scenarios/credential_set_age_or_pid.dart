@@ -56,7 +56,13 @@ Future<void> credentialSetAgeOrPidTest(
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await issuePidMdoc(tester, irmaBinding);
 
-  await startMdocDisclosure(tester, irmaBinding, _ageOrPidDcql);
+  // Second session in this test: the introduction is already completed.
+  await startMdocDisclosure(
+    tester,
+    irmaBinding,
+    _ageOrPidDcql,
+    expectIntroduction: false,
+  );
   expect(find.byType(DisclosureChoicesOverview), findsOneWidget);
   expect(overviewCards, findsOneWidget);
 

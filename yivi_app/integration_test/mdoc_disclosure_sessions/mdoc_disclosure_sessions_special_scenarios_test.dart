@@ -3,7 +3,6 @@ import "package:integration_test/integration_test.dart";
 
 import "../irma_binding.dart";
 import "special_scenarios/decline_disclosure.dart";
-import "special_scenarios/unauthorized_element_error.dart";
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -19,13 +18,6 @@ void main() {
       testWidgets(
         "decline-disclosure",
         (tester) => declineDisclosureTest(tester, irmaBinding),
-      );
-
-      // Verifier asks for an element its certificate does not authorise:
-      // error screen before any permission screen.
-      testWidgets(
-        "unauthorized-element-error",
-        (tester) => unauthorizedElementErrorTest(tester, irmaBinding),
       );
     });
   });

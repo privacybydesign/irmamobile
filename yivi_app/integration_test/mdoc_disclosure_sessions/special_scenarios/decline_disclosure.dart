@@ -48,7 +48,11 @@ Future<void> declineDisclosureTest(
   await tester.tapAndSettle(find.byType(IrmaCloseButton));
   final closeDialogFinder = find.byType(DisclosurePermissionCloseDialog);
   expect(closeDialogFinder, findsOneWidget);
-  await tester.tapAndSettle(find.text("Yes"));
+  // Scope to the dialog: the permission screen behind it renders an
+  // "Age Over 18 -> Yes" attribute row, so a bare find.text("Yes") is ambiguous.
+  await tester.tapAndSettle(
+    find.descendant(of: closeDialogFinder, matching: find.text("Yes")),
+  );
   expect(closeDialogFinder, findsNothing);
 
   expect(find.byType(HomeScreen), findsOneWidget);
