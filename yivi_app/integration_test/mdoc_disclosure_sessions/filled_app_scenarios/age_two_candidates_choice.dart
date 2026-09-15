@@ -14,9 +14,16 @@ import "../mdoc_disclosure_helpers.dart";
 
 /// Test 21: two age-verification mdocs with different threshold sets (so
 /// their hashes differ), both answering the same query. Candidate order is
-/// chronological, oldest first; the default choice is the most recently
-/// issued one (issuance counts as first use). The user switches to the older
-/// one and shares it.
+/// chronological, oldest first, and the default choice is the first candidate.
+/// The user switches to the other one and shares it.
+///
+/// TODO(#657): the default should be the most recently issued candidate
+/// (issuance counts as first use), which would make the newest one
+/// pre-selected here. irmago owns that policy and does not express it yet --
+/// there is no recency signal in the disclosure plan, and both candidates
+/// carry the same issuance_date -- so the app falls back to the first owned
+/// option. When #657 lands, the two `isSelected` expectations below and the
+/// shared candidate flip over.
 Future<void> ageTwoCandidatesChoiceTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -48,13 +55,13 @@ Future<void> ageTwoCandidatesChoiceTest(
   final overviewCard = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(overviewCard, findsOneWidget);
 
-  // Default choice: the newest credential.
+  // Default choice: the first (oldest) candidate.
   await evaluateCredentialCard(
     tester,
     overviewCard,
     credentialName: avCredentialName,
     issuerName: eudiIssuerDisplayName,
-    attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanYes)],
+    attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanNo)],
   );
 
   await tapChangeChoicesButton(tester);
@@ -67,27 +74,26 @@ Future<void> ageTwoCandidatesChoiceTest(
   );
   expect(choiceCardsFinder, findsNWidgets(2));
 
-  // Oldest first, newest pre-selected.
+  // Oldest first, and the first one is pre-selected.
   await evaluateCredentialCard(
     tester,
     choiceCardsFinder.at(0),
     attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanNo)],
-    isSelected: false,
+    isSelected: true,
   );
   await tester.scrollUntilVisible(choiceCardsFinder.at(1), 100);
   await evaluateCredentialCard(
     tester,
     choiceCardsFinder.at(1),
     attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanYes)],
-    isSelected: true,
+    isSelected: false,
   );
 
-  // Switch to the older one, confirm, share.
-  await tester.scrollUntilVisible(choiceCardsFinder.at(0), -100);
-  await tester.tapAndSettle(choiceCardsFinder.at(0));
+  // Switch to the newer one, confirm, share.
+  await tester.tapAndSettle(choiceCardsFinder.at(1));
   await evaluateCredentialCard(
     tester,
-    choiceCardsFinder.at(0),
+    choiceCardsFinder.at(1),
     isSelected: true,
   );
   await tester.tapAndSettle(find.byKey(const Key("bottom_bar_primary")));
@@ -95,7 +101,7 @@ Future<void> ageTwoCandidatesChoiceTest(
   await evaluateCredentialCard(
     tester,
     overviewCard,
-    attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanNo)],
+    attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanYes)],
   );
   await shareAndFinishEudiDisclosure(tester);
 
@@ -105,7 +111,7 @@ Future<void> ageTwoCandidatesChoiceTest(
       (
         credentialName: avCredentialName,
         issuerName: eudiIssuerDisplayName,
-        attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanNo)],
+        attributes: [(avLabel(18), booleanYes), (avLabel(65), booleanYes)],
       ),
     ],
   );

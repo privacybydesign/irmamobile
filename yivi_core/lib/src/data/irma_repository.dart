@@ -151,7 +151,18 @@ class IrmaRepository {
   late StreamSubscription<Event> _bridgeEventSubscription;
   late final StreamSubscription<String> _localeSubscription;
 
+  /// Whether [close] has been called. A closed repository accepts no further
+  /// events — see [dispatch].
+  bool get isClosed => _closed;
+  bool _closed = false;
+
   Future<void> close() async {
+    // Refuse events for the whole of teardown rather than only once the
+    // subjects are actually closed: close() is asynchronous, and a widget
+    // disposed while it is in flight would otherwise still reach a subject
+    // that is about to close.
+    _closed = true;
+
     // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
     await _localeSubscription.cancel();
@@ -275,11 +286,20 @@ class IrmaRepository {
     return _eventSubject.stream;
   }
 
+  /// Dispatches [event] to the repository's listeners.
+  ///
+  /// Silently drops the event once the repository is closed. Widgets outlive
+  /// the repository during teardown — a State.dispose that dismisses a session
+  /// runs while Flutter finalizes the tree, which is after close() — and
+  /// adding to a closed subject throws from inside that finalization, which
+  /// aborts it and corrupts the element tree.
   void dispatch(Event event) {
+    if (_closed) return;
     _eventSubject.add(event);
   }
 
   void bridgedDispatch(Event event) {
+    if (_closed) return;
     dispatch(event);
     _bridge.dispatch(event);
   }

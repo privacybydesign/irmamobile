@@ -40,9 +40,10 @@ const eudiVerifierIntendedUseId = "1";
 /// What the wallet shows as the verifier's name. With `x509_san_dns` and no
 /// `client_name` in the request, irmago names the verifier after the
 /// relying-party certificate: the `organization.legalName` from its scheme
-/// extension when present, otherwise the leaf's common name. The pending
-/// certificate reissue may change this; every test reads it from here.
-const eudiVerifierDisplayName = "verifierapi.openid4vc.staging.yivi.app";
+/// extension when present, otherwise the leaf's common name. The reissued
+/// staging certificate carries that extension, so this is the legal name and
+/// not the hostname the leaf's common name gave; every test reads it from here.
+const eudiVerifierDisplayName = "Yivi B.V.";
 
 // ---------------------------------------------------------------------------
 // Display names, from the issuer's published metadata (English only)

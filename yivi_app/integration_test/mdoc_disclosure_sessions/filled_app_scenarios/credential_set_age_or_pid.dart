@@ -49,7 +49,10 @@ Future<void> credentialSetAgeOrPidTest(
     ],
   );
 
-  // Both owned: choose the PID instead.
+  // Both owned: choose the PID instead. The activity check above leaves us on
+  // the pushed ActivityDetailsScreen, which has no bottom nav bar, so pop back
+  // to the tab before switching to the data tab.
+  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
   await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
   await issuePidMdoc(tester, irmaBinding);
 
