@@ -288,6 +288,12 @@ Future<void> testReissueSameAvMdocKeepsOneCard(
     attributes: _avDefaultExpectedAttributes,
   );
 
+  // The details screen is a pushed route, and the shell's nav bar behind it is
+  // parallaxed off-screen, so pop back to the data tab before the activity tab
+  // can be tapped.
+  await tester.tapAndSettle(find.byKey(const Key("irma_app_bar_leading")));
+  await tester.waitFor(find.byType(DataTab));
+
   await verifyActivityLogCount(tester, 2);
 }
 
@@ -562,7 +568,9 @@ Future<void> testSearchFindsAvMdoc(
   expect(_countCredentialTypeCards(tester), 0);
   await _exitSearchMode(tester);
 
-  expect(_countCredentialTypeCards(tester), 1);
+  // Outside search mode the data tab renders the reorderable list, which does
+  // not carry the `credentials_type_list` key, so count the cards themselves.
+  expect(find.byType(SchemalessYiviCredentialTypeCard), findsOneWidget);
 }
 
 // =============================================================================
