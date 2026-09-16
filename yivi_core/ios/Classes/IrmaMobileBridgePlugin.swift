@@ -10,6 +10,7 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
     private var initialURL: String?
     private var nativeError: String?
     private var appReady: Bool
+    private var started = false
 
     /// Private constructor. This constructor is called indirectly via register (see below).
     /// - Parameters:
@@ -54,12 +55,39 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
         }
 
         IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey, locale)
+        started = true
     }
 
-    /// Calls the Stop method of irmagobridge.
+    /// Calls the Stop method of irmagobridge. Idempotent: teardown arrives over
+    /// whichever life cycle the host uses, and a second call would stop a bridge that
+    /// is no longer running.
     private func stop() {
+        guard started else { return }
+        started = false
         debugLog("Stopping irmago")
         IrmagobridgeStop()
+    }
+
+    /// Records a URL the app was opened with, or hands it to Dart if Dart is already
+    /// listening. Shared by the UIApplication and UIScene life cycle callbacks below.
+    /// - Parameter url: the URL the app was asked to open
+    /// - Returns: always true; the URL is ours to deal with either way
+    @discardableResult
+    private func handle(url: URL) -> Bool {
+        let urlStr = url.absoluteString
+        if appReady {
+            channel.invokeMethod("HandleURLEvent", arguments: "{\"url\": \"\(urlStr)\"}")
+        } else {
+            // Picked up by the AppReadyEvent handler, which tags it isInitialURL.
+            initialURL = urlStr
+        }
+        return true
+    }
+
+    /// The URL of the first web-browsing activity in `activities`, if there is one.
+    /// Universal links arrive as an NSUserActivity rather than as a URL context.
+    private func webpageURL(in activities: Set<NSUserActivity>) -> URL? {
+        return activities.first { $0.activityType == NSUserActivityTypeBrowsingWeb }?.webpageURL
     }
 
     /// Implements the register method of the FlutterPlugin interface. This method is called by Flutter to bootstrap the plugin.
@@ -71,7 +99,14 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
         let instance = IrmaMobileBridgePlugin(channel: channel)
 
         registrar.addMethodCallDelegate(instance, channel: channel)
+        // Both are registered because which one Flutter forwards depends on the host
+        // app: a host whose Info.plist declares a UIApplicationSceneManifest (yivi_app
+        // does, as iOS 27 refuses to launch without one) gets the UIScene callbacks and
+        // never the UIApplication ones, and a host still on the application life cycle
+        // gets the reverse. UIKit picks one regime for the whole process, so a URL is
+        // never delivered down both paths.
         registrar.addApplicationDelegate(instance)
+        registrar.addSceneDelegate(instance)
     }
 
     /// Implements the handle method of the FlutterPlugin interface. This method is called when invokeMethod is called on the plugin's method channel in Flutter/Dart.
@@ -135,7 +170,9 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
     }
 }
 
-/// Extension that enables the IrmaMobileBridgePlugin to monitor Flutter for life cycle changes.
+/// Extension that enables the IrmaMobileBridgePlugin to monitor Flutter for life cycle
+/// changes, on a host app still using the UIApplication life cycle. On a host that has
+/// adopted UIScene these are never called; see the UIScene extension below.
 extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
     public func application(
         _ application: UIApplication,
@@ -152,13 +189,7 @@ extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
     ) -> Bool {
-        let urlStr = url.absoluteString
-        if appReady {
-            channel.invokeMethod("HandleURLEvent", arguments: "{\"url\": \"\(urlStr)\"}")
-        } else {
-            initialURL = urlStr
-        }
-        return true
+        return handle(url: url)
     }
 
     public func application(
@@ -166,20 +197,61 @@ extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
         continue userActivity: NSUserActivity,
         restorationHandler: @escaping ([Any]) -> Void
     ) -> Bool {
-        if userActivity.activityType == NSUserActivityTypeBrowsingWeb, let url = userActivity.webpageURL
-        {
-            let urlStr = url.absoluteString
-            if appReady {
-                channel.invokeMethod("HandleURLEvent", arguments: "{\"url\": \"\(urlStr)\"}")
-            } else {
-                initialURL = urlStr
-            }
-            return true
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+            let url = userActivity.webpageURL
+        else { return false }
+        return handle(url: url)
+    }
+
+    public func applicationWillTerminate(_ application: UIApplication) {
+        stop()
+    }
+}
+
+/// Extension that enables the IrmaMobileBridgePlugin to monitor Flutter for life cycle
+/// changes on a host app that has adopted the UIScene life cycle, which iOS 27 requires.
+/// UIKit routes URL opens and user activities to the scene delegate there, so without
+/// these the UIApplication callbacks above would simply never fire and every deep link
+/// into the app would be dropped without an error.
+extension IrmaMobileBridgePlugin: FlutterSceneLifeCycleDelegate {
+    /// Cold start: a URL the app was launched with rides in on the scene connection
+    /// rather than through openURLContexts, which only covers an app that is already
+    /// running. `connectionOptions` is nil once another plugin has taken the connection.
+    public func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions?
+    ) -> Bool {
+        guard let connectionOptions = connectionOptions else { return false }
+        if let url = connectionOptions.urlContexts.first?.url {
+            return handle(url: url)
+        }
+        if let url = webpageURL(in: connectionOptions.userActivities) {
+            return handle(url: url)
         }
         return false
     }
 
-    public func applicationWillTerminate(_ application: UIApplication) {
+    /// Warm start over a custom scheme: irma:, openid4vp:, openid-credential-offer:,
+    /// app.yivi.open:. The UIApplication equivalent is application(_:open:options:).
+    public func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) -> Bool {
+        guard let url = URLContexts.first?.url else { return false }
+        return handle(url: url)
+    }
+
+    /// Warm start over a universal link.
+    public func scene(_ scene: UIScene, continue userActivity: NSUserActivity) -> Bool {
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+            let url = userActivity.webpageURL
+        else { return false }
+        return handle(url: url)
+    }
+
+    /// The scene life cycle's stand-in for applicationWillTerminate: UIKit does not call
+    /// that on a scene-based app. The app declares UIApplicationSupportsMultipleScenes
+    /// false, so losing the one scene means the Flutter engine driving this bridge is
+    /// going away with it.
+    public func sceneDidDisconnect(_ scene: UIScene) {
         stop()
     }
 }
