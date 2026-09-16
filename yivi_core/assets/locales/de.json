@@ -145,7 +145,11 @@
       "no_results": "Keine Daten gefunden für '{query}'."
     },
     "category_other": "Sonstiges",
-    "category_personal": "Persönlich"
+    "category_personal": "Persönlich",
+    "problematic": {
+      "title": "Diese Daten konnten nicht geladen werden",
+      "explanation": "Diese gespeicherten Daten sind beschädigt und können nicht angezeigt werden. Sie können sie löschen."
+    }
   },
   "disclosure": {
     "title": "Datenanfrage",

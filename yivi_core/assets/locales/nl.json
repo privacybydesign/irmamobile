@@ -145,7 +145,11 @@
       "no_results": "Geen gegevens gevonden voor '{query}'."
     },
     "category_other": "Overig",
-    "category_personal": "Persoonlijk"
+    "category_personal": "Persoonlijk",
+    "problematic": {
+      "title": "Kan deze gegevens niet laden",
+      "explanation": "Deze opgeslagen gegevens zijn beschadigd en kunnen niet worden getoond. Je kunt ze verwijderen."
+    }
   },
   "disclosure": {
     "title": "Gegevens delen",

@@ -46,16 +46,26 @@ class SchemalessYiviCredentialTypeCard extends StatelessWidget {
 
     const logoContainerSize = 52.0;
 
+    final bool hasImage =
+        credentialImagePath != null || credentialImageBase64 != null;
+    // When there is no logo, IrmaAvatar requires initials. Prefer the credential
+    // name, fall back to the issuer name, and finally to a neutral glyph so a
+    // credential that arrives without a resolvable display name (e.g. an issuer
+    // whose OID4VCI credential display irmago could not parse) still renders
+    // instead of tripping IrmaAvatar's assert.
+    final String? initials = hasImage
+        ? null
+        : credentialName.isNotEmpty
+        ? credentialName[0]
+        : issuerName.isNotEmpty
+        ? issuerName[0]
+        : "?";
+
     Widget avatar = IrmaAvatar(
       size: logoContainerSize,
       logoImage: credentialImageBase64,
       logoPath: credentialImagePath,
-      initials:
-          credentialImagePath == null &&
-              credentialImageBase64 == null &&
-              credentialName.isNotEmpty
-          ? credentialName[0]
-          : null,
+      initials: initials,
     );
 
     // If the credential is checked, add a check mark to the avatar

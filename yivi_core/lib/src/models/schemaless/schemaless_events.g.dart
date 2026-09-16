@@ -12,7 +12,41 @@ SchemalessCredentialsEvent _$SchemalessCredentialsEventFromJson(
   credentials: (json['credentials'] as List<dynamic>)
       .map((e) => Credential.fromJson(e as Map<String, dynamic>))
       .toList(),
+  problematic:
+      (json['problematic'] as List<dynamic>?)
+          ?.map(
+            (e) => ProblematicCredential.fromJson(e as Map<String, dynamic>),
+          )
+          .toList() ??
+      const [],
 );
+
+ProblematicCredential _$ProblematicCredentialFromJson(
+  Map<String, dynamic> json,
+) => ProblematicCredential(
+  credentialInstanceIds:
+      (json['credential_instance_ids'] as Map<String, dynamic>).map(
+        (k, e) =>
+            MapEntry($enumDecode(_$CredentialFormatEnumMap, k), e as String),
+      ),
+  reason: json['reason'] as String,
+  credentialId: json['credential_id'] as String?,
+);
+
+Map<String, dynamic> _$ProblematicCredentialToJson(
+  ProblematicCredential instance,
+) => <String, dynamic>{
+  'credential_instance_ids': instance.credentialInstanceIds.map(
+    (k, e) => MapEntry(_$CredentialFormatEnumMap[k]!, e),
+  ),
+  'reason': instance.reason,
+  'credential_id': instance.credentialId,
+};
+
+const _$CredentialFormatEnumMap = {
+  CredentialFormat.idemix: 'idemix',
+  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+};
 
 AttributeValue _$AttributeValueFromJson(Map<String, dynamic> json) =>
     AttributeValue(
@@ -148,8 +182,3 @@ Map<String, dynamic> _$CredentialToJson(Credential instance) =>
       'revocation_supported': instance.revocationSupported,
       'issue_url': instance.issueUrl,
     };
-
-const _$CredentialFormatEnumMap = {
-  CredentialFormat.idemix: 'idemix',
-  CredentialFormat.sdjwtvc: 'dc+sd-jwt',
-};

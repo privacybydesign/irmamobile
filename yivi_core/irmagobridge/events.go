@@ -98,7 +98,8 @@ type eudiConfigurationEvent struct {
 }
 
 type schemalessCredentialsEvent struct {
-	Credentials []*clientmodels.Credential `json:"credentials"`
+	Credentials []*clientmodels.Credential            `json:"credentials"`
+	Problematic []*clientmodels.ProblematicCredential `json:"problematic"`
 }
 
 type schemalessCredentialStoreEvent struct {
