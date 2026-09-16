@@ -3,6 +3,7 @@ import "package:flutter_svg/svg.dart";
 import "package:lottie/lottie.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../sentry/sentry.dart";
 import "../../../theme/theme.dart";
 
 class EnrollmentHero extends StatelessWidget {
@@ -22,7 +23,19 @@ class EnrollmentHero extends StatelessWidget {
           ? EdgeInsets.symmetric(vertical: theme.defaultSpacing)
           : EdgeInsets.zero,
       child: imagePath.endsWith("json")
-          ? Lottie.asset(imagePath, frameRate: FrameRate(60))
+          ? Lottie.asset(
+              imagePath,
+              // Render at the composition's own frame rate instead of
+              // forcing 60fps, which forces unnecessary interpolation work
+              // on slower devices.
+              frameRate: FrameRate.composition,
+              // If the animation fails to load, show nothing instead of
+              // crashing; this hero image is purely decorative.
+              errorBuilder: (context, error, stackTrace) {
+                reportError(error, stackTrace);
+                return const SizedBox.shrink();
+              },
+            )
           : SvgPicture.asset(imagePath, fit: BoxFit.contain),
     );
   }
