@@ -55,4 +55,21 @@ post_install do |installer|
       ]
     end
   end
+
+  # Google's GoogleMLKit/* pods ship no arm64-iphonesimulator slice and force
+  # EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64 onto the Runner target, which
+  # since Xcode 26 dropped Rosetta leaves no buildable simulator destination.
+  # google_mlkit_commons ships an opt-in helper that relabels the arm64 slice's
+  # LC_BUILD_VERSION.platform per build -- iOS Simulator for simulator builds,
+  # iOS for device builds -- and strips the exclusion. One pod install serves
+  # both. Upstream: https://issuetracker.google.com/issues/178965151
+  #
+  # Required here rather than at the top of the Podfile as the plugin's README
+  # suggests: .symlinks/plugins is created by flutter_install_all_ios_pods in
+  # the target block above, so a top-level require fails on a clean checkout.
+  require File.expand_path(
+    '.symlinks/plugins/google_mlkit_commons/ios/scripts/apple_silicon_simulator',
+    __dir__,
+  )
+  mlkit_apple_silicon_simulator_patch(installer)
 end
