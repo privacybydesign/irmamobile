@@ -195,12 +195,6 @@ class Credential {
   final bool revocationSupported;
   final String? issueUrl;
 
-  /// True when the Go client could not resolve [name] and the attribute labels
-  /// in the app language and fell back to another language the issuer
-  /// publishes. Decoded, not shown.
-  @JsonKey(defaultValue: false)
-  final bool displayIsFallback;
-
   Credential({
     required this.credentialId,
     required this.hash,
@@ -215,7 +209,6 @@ class Credential {
     this.image,
     this.issuanceDate,
     this.expiryDate,
-    this.displayIsFallback = false,
   });
 
   factory Credential.fromJson(Map<String, dynamic> json) =>

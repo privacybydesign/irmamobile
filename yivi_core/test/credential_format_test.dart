@@ -158,36 +158,4 @@ void main() {
     expect(notRetained.intentToRetain, isFalse);
     expect(cannotSay.intentToRetain, isNull);
   });
-
-  test("display_is_fallback decodes and defaults to false when absent", () {
-    // Motivated by mdoc: ISO 18013-5 has no display concept, so the issuer's
-    // OpenID4VCI metadata is the only source of names and it may not publish
-    // the app language. irmago sends the flag on Credential and on
-    // SelectableCredentialInstance; payloads from before the field default to
-    // false so fixtures and previews keep decoding.
-    final instance = SelectableCredentialInstance.fromJson({
-      ..._selectableInstance(format: "mso_mdoc", hash: "abc"),
-      "display_is_fallback": true,
-    });
-    final legacyInstance = SelectableCredentialInstance.fromJson(
-      _selectableInstance(format: "mso_mdoc", hash: "abc"),
-    );
-    final credential = Credential.fromJson({
-      "credential_id": "eu.europa.ec.av.1",
-      "hash": "abc",
-      "name": "Proof of Age",
-      "issuer": _issuer(),
-      "credential_instance_ids": {"mso_mdoc": "instance-1"},
-      "batch_instance_counts_remaining": {"mso_mdoc": 30},
-      "attributes": [_attribute()],
-      "revoked": false,
-      "revocation_supported": false,
-      "issue_url": null,
-      "display_is_fallback": true,
-    });
-
-    expect(instance.displayIsFallback, isTrue);
-    expect(legacyInstance.displayIsFallback, isFalse);
-    expect(credential.displayIsFallback, isTrue);
-  });
 }

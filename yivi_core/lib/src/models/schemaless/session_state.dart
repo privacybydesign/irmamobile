@@ -189,10 +189,6 @@ class SelectableCredentialInstance {
   final bool revocationSupported;
   final String? issueUrl;
 
-  /// See [Credential.displayIsFallback].
-  @JsonKey(defaultValue: false)
-  final bool displayIsFallback;
-
   SelectableCredentialInstance({
     required this.credentialId,
     required this.hash,
@@ -208,7 +204,6 @@ class SelectableCredentialInstance {
     this.image,
     this.batchInstanceCountRemaining,
     this.issueUrl,
-    this.displayIsFallback = false,
   });
 
   factory SelectableCredentialInstance.fromJson(Map<String, dynamic> json) =>
