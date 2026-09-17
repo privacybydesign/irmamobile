@@ -354,7 +354,9 @@
       "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook zijn dat je Yivi meer dan één jaar niet hebt gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
       "expired": "Sorry, de sessie is verlopen. Start de sessie opnieuw.",
       "pairing_rejected": "Sorry, de sessie is geweigerd. Start de sessie opnieuw.",
-      "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet."
+      "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet.",
+      "credential_unavailable_title": "Je hebt deze gegevens niet",
+      "credential_unavailable": "De website vroeg om gegevens die je niet in Yivi hebt, en er is geen bekende manier om deze te verkrijgen."
     }
   },
   "help": {

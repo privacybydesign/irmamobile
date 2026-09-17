@@ -18,6 +18,7 @@ import "../models/clear_all_data_event.dart";
 import "../models/client_preferences.dart";
 import "../models/credentials.dart";
 import "../models/delete_keyshare_tokens_event.dart";
+import "../models/digital_credentials.dart";
 import "../models/enrollment_events.dart";
 import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
@@ -246,6 +247,13 @@ class IrmaRepository {
       } on MissingPointer catch (e, stackTrace) {
         reportError(e, stackTrace);
       }
+    } else if (event is HandleDigitalCredentialsRequestEvent) {
+      // A Digital Credentials API request carries no URL, so there is nothing to
+      // parse: queue it as a pointer and let the normal pending-pointer path
+      // unlock the app and start the session.
+      _pendingPointerSubject.add(
+        SessionPointer.digitalCredentials(event.request),
+      );
     } else if (event is AppReadyAckEvent) {
       // Native's acknowledgement that the launch handshake is done. It is sent
       // right AFTER any initial-URL `HandleURLEvent`, so on a cold start started
@@ -563,6 +571,26 @@ class IrmaRepository {
   /// allocation so [SessionScreen] can be pushed synchronously, before Go has
   /// emitted the first session state.
   int allocateSessionId() => ++_nextSessionId;
+
+  /// Sessions started from a `DigitalCredentialsRequest` that still owe native
+  /// an outcome. The platform keeps the caller's `navigator.credentials.get()`
+  /// open until it gets one, and no session state says where the request came
+  /// from, so the id has to be remembered from the moment the session starts.
+  final _digitalCredentialsSessionIds = <int>{};
+
+  /// Records that [sessionId] was started from a Digital Credentials API
+  /// request. Called where the `NewSessionEvent` is dispatched.
+  void markDigitalCredentialsSession(int sessionId) {
+    _digitalCredentialsSessionIds.add(sessionId);
+  }
+
+  /// Takes the outcome [sessionId] owes native: true the first time for a
+  /// session started from a Digital Credentials API request, false afterwards
+  /// and for every other session. Both legs claim, so exactly one outcome event
+  /// is sent per session.
+  bool claimDigitalCredentialsSession(int sessionId) {
+    return _digitalCredentialsSessionIds.remove(sessionId);
+  }
 
   bool hasActiveSessions({int? excludeSessionId}) {
     return _sessionRepository.hasActiveSessions(
