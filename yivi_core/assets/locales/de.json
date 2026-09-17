@@ -997,6 +997,7 @@
       "update": "Schemata aktualisieren",
       "updating": "Schemata werden aktualisiert...",
       "update_success": "Schemata erfolgreich aktualisiert.",
+      "timeout": "Dies dauert länger als erwartet; der Vorgang läuft möglicherweise noch.",
       "install_scheme_dialog": {
         "title": "Schema installieren",
         "content": "Geben Sie die URL des zu installierenden Schemas ein:"
@@ -1020,6 +1021,7 @@
       "title": "Zertifikatsverwaltung",
       "issuer_certs": "Aussteller-Zertifikate",
       "verifier_certs": "Prüfer-Zertifikate",
+      "timeout": "Dies dauert länger als erwartet; der Vorgang läuft möglicherweise noch.",
       "install_cert_dialog": {
         "title": "Zertifikat installieren",
         "content": "Geben Sie den PEM-kodierten Inhalt des zu installierenden Zertifikats ein:"

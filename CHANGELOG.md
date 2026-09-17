@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On iOS the app is no longer covered by a full-screen blur while the NFC reader sheet is up, so the scanning animation and its progress text stay readable for the whole read. The biometric prompt is uncovered too, as it already was. While either is up the app switcher shows the screen underneath unblurred: the scanning animation, or whatever the prompt was raised over, which can be the unlocked wallet
 
 ### Internal
+- The debug scheme and certificate management screens no longer surface unrelated non-fatal background errors (such as the periodic revocation update returning a 404) as if the install had failed; error handling is now scoped to the triggering action, and a slow action that produces no result in time shows a "still in progress" message instead of silently dropping the outcome
 - The Go client schedules the credential status refresh again and wakes the app itself through the new `ClientHandler.CredentialsChanged`
 - Remove the unused RecentActivity widget
 - Add an integration test for the required-update screen
