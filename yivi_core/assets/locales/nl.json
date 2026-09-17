@@ -422,8 +422,8 @@
   },
   "data_tab": {
     "empty": {
-      "title": "Haal je gegevens op",
-      "subtitle": "Druk op het plus icoontje om je persoonlijke gegevens op te halen."
+      "title": "Scan een Yivi QR-code",
+      "subtitle": "Scan een Yivi QR-code om je gegevens toe te voegen. Je kunt ook op het plus icoontje drukken om zelf gegevens op te halen."
     }
   },
   "issuance": {
