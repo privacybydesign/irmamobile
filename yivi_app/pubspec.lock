@@ -480,6 +480,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  image:
+    dependency: "direct main"
+    description:
+      name: image
+      sha256: a1e7f4951e538a568e14b856702afc9ae1d2f4b202daced8d22c1b9cd211ce89
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.10.1"
   in_app_review:
     dependency: "direct main"
     description:
@@ -1190,7 +1198,7 @@ packages:
     source: hosted
     version: "1.0.0"
   stream_channel:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: stream_channel
       sha256: "969e04c80b8bcdf826f8f16579c7b14d780458bd97f56d107d3950fdbeef059d"
@@ -1382,13 +1390,11 @@ packages:
     source: hosted
     version: "4.6.0"
   vcmrtd:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
-      path: vcmrtd
-      ref: "v4.1.0"
-      resolved-ref: fdc4e83a32de3199c6faeb6d1363c041eb88f926
-      url: "https://github.com/privacybydesign/vcmrtd.git"
-    source: git
+      path: "../../vcmrtd/vcmrtd"
+      relative: true
+    source: path
     version: "2.0.0"
   vector_graphics:
     dependency: transitive
@@ -1463,7 +1469,7 @@ packages:
     source: hosted
     version: "1.0.1"
   web_socket_channel:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: web_socket_channel
       sha256: d645757fb0f4773d602444000a8131ff5d48c9e47adfe9772652dd1a4f2d45c8

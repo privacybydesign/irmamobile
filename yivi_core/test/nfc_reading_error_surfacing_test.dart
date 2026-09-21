@@ -12,6 +12,7 @@ import "package:vcmrtd/extensions.dart";
 import "package:vcmrtd/vcmrtd.dart";
 import "package:yivi_core/src/models/mrz.dart";
 import "package:yivi_core/src/providers/document_reader_providers.dart";
+import "package:yivi_core/src/providers/face_verification_runner_provider.dart";
 import "package:yivi_core/src/providers/passport_issuer_provider.dart";
 import "package:yivi_core/src/providers/regula_face_service_provider.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
@@ -27,7 +28,9 @@ class _GatedPassportIssuer implements PassportIssuer {
   final Completer<StartValidationResult> gate;
 
   @override
-  Future<StartValidationResult> startSessionAtPassportIssuer() => gate.future;
+  Future<StartValidationResult> startSessionAtPassportIssuer({
+    StartValidationRequest? request,
+  }) => gate.future;
 
   @override
   Future<IrmaSessionPointer> startIrmaIssuanceSession(
@@ -48,16 +51,17 @@ class _GatedPassportIssuer implements PassportIssuer {
 /// intro screen and the liveness session.
 class _AnnouncingPassportIssuer implements PassportIssuer {
   @override
-  Future<StartValidationResult> startSessionAtPassportIssuer() async =>
-      StartValidationResult(
-        nonceAndSessionId: NonceAndSessionId(
-          nonce: "d4e5f6a7d4e5f6a7",
-          sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
-        ),
-        faceVerification: const FaceVerificationConfig(
-          faceApiUrl: "https://face.example",
-        ),
-      );
+  Future<StartValidationResult> startSessionAtPassportIssuer({
+    StartValidationRequest? request,
+  }) async => StartValidationResult(
+    nonceAndSessionId: NonceAndSessionId(
+      nonce: "d4e5f6a7d4e5f6a7",
+      sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+    ),
+    faceVerification: const FaceVerificationConfig(
+      faceApiUrl: "https://face.example",
+    ),
+  );
 
   @override
   Future<IrmaSessionPointer> startIrmaIssuanceSession(
@@ -114,6 +118,73 @@ class _GatedFaceService implements RegulaFaceService {
       gate.future;
 }
 
+/// Issuer that records every session start and issuance, announces the
+/// configured assignment, and fails issuance with the issuer's face rejection
+/// so the flow lands on the retryable error screen.
+class _RecordingIssuer implements PassportIssuer {
+  _RecordingIssuer(this.announcement);
+
+  final FaceVerificationConfig? announcement;
+  final List<StartValidationRequest?> startRequests = [];
+  final List<RawDocumentData> issued = [];
+
+  @override
+  Future<StartValidationResult> startSessionAtPassportIssuer({
+    StartValidationRequest? request,
+  }) async {
+    startRequests.add(request);
+    return StartValidationResult(
+      nonceAndSessionId: NonceAndSessionId(
+        nonce: "d4e5f6a7d4e5f6a7",
+        sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+      ),
+      faceVerification: announcement,
+    );
+  }
+
+  @override
+  Future<IrmaSessionPointer> startIrmaIssuanceSession(
+    RawDocumentData documentDataResult,
+    DocumentType docType,
+  ) async {
+    issued.add(documentDataResult);
+    throw Exception("Store failed: 400 face verification failed");
+  }
+
+  @override
+  Future<VerificationResponse> verifyPassport(RawDocumentData data) =>
+      throw UnimplementedError();
+
+  @override
+  Future<VerificationResponse> verifyDrivingLicence(RawDocumentData data) =>
+      throw UnimplementedError();
+}
+
+/// Runner standing in for either method: attaches [faceSessionId] and records
+/// what the flow handed it.
+class _FakeRunner implements FaceVerificationRunner {
+  _FakeRunner(this.faceSessionId);
+
+  final String faceSessionId;
+  int runCount = 0;
+  StartValidationResult? lastStart;
+  DocumentType? lastDocumentType;
+
+  @override
+  Future<RawDocumentData> run(
+    RawDocumentData data, {
+    required StartValidationResult start,
+    required PassportIssuer issuer,
+    required DocumentType documentType,
+    String? languageCode,
+  }) async {
+    runCount += 1;
+    lastStart = start;
+    lastDocumentType = documentType;
+    return data.copyWith(faceSessionId: faceSessionId);
+  }
+}
+
 /// Base for the readers below: everything the screen needs except the readout
 /// result, which each subclass decides.
 abstract class _TestPassportReader extends DocumentReader<PassportData> {
@@ -131,7 +202,14 @@ abstract class _TestPassportReader extends DocumentReader<PassportData> {
       );
 
   @override
-  DocumentReaderState build() => DocumentReaderPending();
+  DocumentReaderState build() {
+    // The screen stops watching the reader while the intro or the error
+    // screen is in front, which would dispose it; the override hands back the
+    // same instance, which riverpod refuses to re-associate. Pin it, as the
+    // app's integration fakes do.
+    ref.keepAlive();
+    return DocumentReaderPending();
+  }
 
   @override
   Future<void> checkNfcAvailability() async {}
@@ -226,11 +304,15 @@ NfcReadingTranslationKeys _passportKeys() => NfcReadingTranslationKeys(
 /// Pumps the NFC reading screen on a router that also owns the `/error` route
 /// the screen falls back to, and returns that router so a test can navigate
 /// away mid-flow and inspect the resulting stack.
+///
+/// [faceService] is injected as the Regula runner, the way the flavors do it,
+/// so the flow reaches it through the same seam.
 Future<GoRouter> _pumpNfcScreen(
   WidgetTester tester,
   PassportIssuer issuer, {
   DocumentReader<PassportData>? reader,
   RegulaFaceService? faceService,
+  FaceVerificationRunners? runners,
 }) async {
   final router = GoRouter(
     initialLocation: "/nfc",
@@ -258,7 +340,15 @@ Future<GoRouter> _pumpNfcScreen(
           (_) => reader ?? _PendingPassportReader(),
         ),
         passportIssuerProvider.overrideWithValue(issuer),
-        regulaFaceServiceProvider.overrideWithValue(faceService),
+        faceVerificationRunnersProvider.overrideWithValue(
+          runners ??
+              {
+                if (faceService != null)
+                  FaceVerificationMethod.regula: RegulaRunner(
+                    (_) => faceService,
+                  ),
+              },
+        ),
       ],
       // TestContext disables the scanning animation's repeating ticker so
       // pumpAndSettle does not hang.
@@ -467,5 +557,157 @@ void main() {
       find.text("Could not read passport. Please try again."),
       findsOneWidget,
     );
+  });
+
+  group("method assignment", () {
+    /// Reads the document and confirms the intro, which starts the runner.
+    Future<void> runFaceStep(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+      await tester.pumpAndSettle();
+      expect(find.byType(FaceVerificationIntroScreen), findsOneWidget);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(FaceVerificationIntroScreen),
+          matching: find.byKey(const Key("bottom_bar_primary")),
+        ),
+      );
+      await _pumpFrames(tester);
+    }
+
+    testWidgets("declares the runners' methods and runs the assigned one", (
+      tester,
+    ) async {
+      final regula = _FakeRunner("unused");
+      final iris = _FakeRunner("fs_1");
+      final issuer = _RecordingIssuer(
+        const FaceVerificationConfig(method: FaceVerificationMethod.iris),
+      );
+      await _pumpNfcScreen(
+        tester,
+        issuer,
+        reader: _SucceedingPassportReader(),
+        runners: {
+          FaceVerificationMethod.regula: regula,
+          FaceVerificationMethod.iris: iris,
+        },
+      );
+
+      await runFaceStep(tester);
+
+      // The declaration is the runner map's keys, nothing more: no preference,
+      // no retry fields on a first attempt.
+      final request = issuer.startRequests.single!;
+      expect(request.capabilities, [
+        FaceVerificationMethod.regula,
+        FaceVerificationMethod.iris,
+      ]);
+      expect(request.previousMethod, isNull);
+      expect(request.attempt, isNull);
+      expect(request.preferredMethod, isNull);
+
+      // The issuer assigned Iris, so only the Iris runner ran, with the
+      // session it can open its face session from.
+      expect(iris.runCount, 1);
+      expect(regula.runCount, 0);
+      expect(
+        iris.lastStart?.faceVerification?.method,
+        FaceVerificationMethod.iris,
+      );
+      expect(iris.lastDocumentType, DocumentType.passport);
+
+      // Issuance carries the runner's evidence plus the flow's own attempt
+      // and duration fields.
+      final issued = issuer.issued.single;
+      expect(issued.faceSessionId, "fs_1");
+      expect(issued.faceAttempt, 1);
+      expect(issued.faceDurationMs, isNotNull);
+    });
+
+    testWidgets("a retry within the flow reports the previous method and the "
+        "attempt number", (tester) async {
+      final regula = _FakeRunner("fs_regula");
+      final issuer = _RecordingIssuer(
+        const FaceVerificationConfig(faceApiUrl: "https://face.example"),
+      );
+      await _pumpNfcScreen(
+        tester,
+        issuer,
+        reader: _SucceedingPassportReader(),
+        runners: {FaceVerificationMethod.regula: regula},
+      );
+
+      await runFaceStep(tester);
+      // The issuer rejected the face verification: the error screen offers a
+      // retry, which starts a new session in the same document flow.
+      expect(find.byKey(const Key("bottom_bar_primary")), findsOneWidget);
+      await runFaceStep(tester);
+
+      expect(issuer.startRequests, hasLength(2));
+      expect(
+        issuer.startRequests[1]!.previousMethod,
+        FaceVerificationMethod.regula,
+      );
+      expect(issuer.startRequests[1]!.attempt, 2);
+      expect(issuer.issued, hasLength(2));
+      expect(issuer.issued[0].faceAttempt, 1);
+      expect(issuer.issued[1].faceAttempt, 2);
+      expect(regula.runCount, 2);
+    });
+
+    testWidgets("an assignment this build cannot run stays on the error "
+        "screen without reading the chip", (tester) async {
+      final regula = _FakeRunner("unused");
+      final issuer = _RecordingIssuer(
+        const FaceVerificationConfig(method: FaceVerificationMethod.iris),
+      );
+      await _pumpNfcScreen(
+        tester,
+        issuer,
+        reader: _SucceedingPassportReader(),
+        runners: {FaceVerificationMethod.regula: regula},
+      );
+
+      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+      await tester.pumpAndSettle();
+
+      expect(issuer.startRequests.single!.capabilities, [
+        FaceVerificationMethod.regula,
+      ]);
+      expect(find.byType(FaceVerificationIntroScreen), findsNothing);
+      expect(regula.runCount, 0);
+      expect(issuer.issued, isEmpty);
+      // In-screen error with retry, like any other failure while the screen
+      // is up.
+      expect(find.byType(NfcReadingScreen), findsOneWidget);
+      expect(
+        find.text("Could not read passport. Please try again."),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("no announcement skips the step and declares capabilities "
+        "anyway", (tester) async {
+      final regula = _FakeRunner("unused");
+      final issuer = _RecordingIssuer(null);
+      await _pumpNfcScreen(
+        tester,
+        issuer,
+        reader: _SucceedingPassportReader(),
+        runners: {FaceVerificationMethod.regula: regula},
+      );
+
+      await tester.tap(find.byKey(const Key("bottom_bar_primary")));
+      await tester.pumpAndSettle();
+
+      expect(issuer.startRequests.single!.capabilities, [
+        FaceVerificationMethod.regula,
+      ]);
+      expect(find.byType(FaceVerificationIntroScreen), findsNothing);
+      expect(regula.runCount, 0);
+      final issued = issuer.issued.single;
+      expect(issued.faceSessionId, isNull);
+      expect(issued.faceAttempt, isNull);
+      expect(issued.faceDurationMs, isNull);
+    });
   });
 }

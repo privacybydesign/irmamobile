@@ -795,6 +795,11 @@
       "tip_look_straight": "Kijk recht in de camera.",
       "tip_no_accessories": "Verwijder brillen, hoeden, etc.",
       "start": "Start verificatie"
+    },
+    "iris": {
+      "connecting": "Verbinden…",
+      "hint": "Houd je hoofd stil en kijk in de camera",
+      "verifying": "Bezig met controleren…"
     }
   },
   "driving_licence": {

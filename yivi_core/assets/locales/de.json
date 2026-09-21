@@ -795,6 +795,11 @@
       "tip_look_straight": "Blicken Sie direkt in die Kamera.",
       "tip_no_accessories": "Entfernen Sie Brillen, Hüte usw.",
       "start": "Verifizierung starten"
+    },
+    "iris": {
+      "connecting": "Verbindung wird hergestellt…",
+      "hint": "Halten Sie den Kopf still und blicken Sie in die Kamera",
+      "verifying": "Wird geprüft…"
     }
   },
   "driving_licence": {
