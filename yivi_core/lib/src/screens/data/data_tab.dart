@@ -40,6 +40,12 @@ class _DataTabState extends ConsumerState<DataTab> {
   final _addDataButtonKey = GlobalKey(debugLabel: "add_data_button_key");
 
   @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 

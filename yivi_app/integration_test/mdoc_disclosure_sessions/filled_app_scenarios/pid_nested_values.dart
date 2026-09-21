@@ -10,11 +10,11 @@ import "../mdoc_disclosure_helpers.dart";
 
 /// Test 24: structured mdoc values on the permission screen. The PID's
 /// `place_of_birth` is a map; it must unfold into the same nested rows the
-/// credential card shows (a "Birth Place" group with `country` and
-/// `locality`), and the tagged `birth_date` must read as a date, not as a
-/// CBOR tag. irmago prerequisite: the disclosure preview flattens structured
-/// values like the credential list does (docs/mdoc-integration-plan.md,
-/// irmago prerequisite 3).
+/// credential card shows (a "Birth Place" group with "Country" and "City"),
+/// and the tagged `birth_date` must read as a date, not as a CBOR tag. irmago
+/// prerequisite: the disclosure preview flattens structured values like the
+/// credential list does (docs/mdoc-integration-plan.md, irmago
+/// prerequisite 3).
 Future<void> pidNestedValuesTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -45,14 +45,14 @@ Future<void> pidNestedValuesTest(
   final cardsFinder = find.byType(YiviCredentialCard, skipOffstage: false);
   expect(cardsFinder, findsOneWidget);
 
-  // Metadata order; sub-keys of the map alphabetical, labelled by their key
-  // because the issuer publishes no display name below the element.
+  // Metadata order; sub-keys of the map alphabetical by key, each labelled by
+  // the display name the issuer publishes for that child.
   const rows = [
     ("Family Name(s)", presetFamilyName),
     ("Birth Date", presetBirthDate),
     (
       "Birth Place",
-      [("country", presetBirthCountry), ("locality", presetBirthLocality)],
+      [("Country", presetBirthCountry), ("City", presetBirthLocality)],
     ),
   ];
   await evaluateCredentialCard(

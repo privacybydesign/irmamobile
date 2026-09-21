@@ -376,10 +376,10 @@ Future<void> testActivityLogAfterIssuance(
 /// complete row list. So the rows this test controls are asserted one by one,
 /// by label and value, and the issuer's rows are left alone.
 ///
-/// Nested children carry no display metadata of their own (the issuer
-/// publishes a label for `place_of_birth`, not for its `country` and
-/// `locality`), so the app labels them with the raw key, and the group header
-/// is rendered as an eyebrow, which the renderer may uppercase.
+/// The issuer publishes a display name for `place_of_birth` and for each of
+/// its children, so the nested rows read "Country" and "City" rather than the
+/// raw `country` and `locality` keys. The group header is rendered as an
+/// eyebrow, which the renderer may uppercase.
 Future<void> testIssuePidMdocRichValues(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
@@ -412,10 +412,11 @@ Future<void> testIssuePidMdocRichValues(
   // An integer element.
   _expectAttributeRow(tester, card, "Sex", "$presetSex");
 
-  // A nested object: header plus one row per key.
+  // A nested object: header plus one row per key, each labelled by the
+  // display name the issuer publishes for that child.
   _expectLabelIgnoringCase(tester, card, "Birth Place");
-  _expectAttributeRow(tester, card, "country", presetBirthCountry);
-  _expectAttributeRow(tester, card, "locality", presetBirthLocality);
+  _expectAttributeRow(tester, card, "Country", presetBirthCountry);
+  _expectAttributeRow(tester, card, "City", presetBirthLocality);
 
   // An array of primitives: label plus one bullet per item.
   _expectAttributeRow(tester, card, "Nationality", presetNationality);
