@@ -464,8 +464,8 @@
   "email_issuance": {
     "enter_email": {
       "title": "Add email address",
-      "header": "Enter your email address",
-      "body": "We'll send you an email with a verification code. You'll need to enter this code in the next step.",
+      "header": "Enter your own email address",
+      "body": "We'll send you an email with a verification code to check that this email address belongs to you. You'll need to enter this code in the next step.",
       "error": "Something went wrong while sending the verification code.",
       "email_hint": "Enter your email address...",
       "next_button": "Send email",
