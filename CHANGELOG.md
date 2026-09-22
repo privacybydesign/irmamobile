@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Recognise the `mso_mdoc` credential format in event payloads, so that mdoc credentials from the Go client decode instead of throwing away the whole payload
+- Decode the per-attribute `intent_to_retain` flag that mdoc verifiers send, so it is available to the app; it is not shown yet
+
+### Internal
+- Integration tests for mdoc issuance and disclosure against the staging EUDI stack (the EU reference Python issuer and Kotlin verifier): `integration_test/mdoc_issuance_test.dart` and `integration_test/mdoc_disclosure_sessions/`, sharing `helpers/eudi_stack_helpers.dart`. They cover the age-verification, PID and mDL document types end to end and assert what the user sees; see `docs/mdoc-integration-plan.md` for the list and the certificate prerequisites on staging
 
 ## [8.2.1] - 2026-09-01
 ### Added
