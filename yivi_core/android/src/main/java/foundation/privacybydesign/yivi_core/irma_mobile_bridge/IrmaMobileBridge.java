@@ -30,12 +30,30 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   private String nativeError;
   private final Context context;
 
+  // Set when this engine was launched for a W3C Digital Credentials API request.
+  // The request JSON is delivered to Dart once the app is ready, and the host is
+  // the credential-provider Activity that owes the platform an outcome.
+  private String pendingDigitalCredentialsRequest;
+  private DigitalCredentialsHost digitalCredentialsHost;
+
   public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
     this.activity = activity;
     this.initialURL = initialURL;
     this.context = context;
     appReady = false;
+  }
+
+  /**
+   * Records that this engine is fulfilling a Digital Credentials API request:
+   * [requestJson] is the {@code HandleDigitalCredentialsRequestEvent} payload to
+   * deliver to Dart, and [host] is answered with the outcome. Called before the
+   * app is ready, so the request rides out on the same handshake as an initial
+   * URL.
+   */
+  public void setDigitalCredentials(String requestJson, DigitalCredentialsHost host) {
+    this.pendingDigitalCredentialsRequest = requestJson;
+    this.digitalCredentialsHost = host;
   }
 
   private void init(String locale) {
@@ -100,6 +118,16 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
           activity.setIntent(new Intent());
         }
 
+        // A Digital Credentials API request carries no URL; deliver it here, on
+        // the same handshake as an initial URL, so the pending-pointer path picks
+        // it up and starts the session. Cleared once sent so a later handshake
+        // (e.g. after a configuration change) does not replay it.
+        if (pendingDigitalCredentialsRequest != null) {
+          channel.invokeMethod("HandleDigitalCredentialsRequestEvent",
+            pendingDigitalCredentialsRequest);
+          pendingDigitalCredentialsRequest = null;
+        }
+
         // Acknowledge the launch handshake AFTER any initial URL, so the UI knows
         // the launch URL (if any) has been delivered. Channel messages are FIFO,
         // so the HandleURLEvent above is always processed first; the lock screen
@@ -112,6 +140,27 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       case "AndroidSendToBackgroundEvent":
         activity.moveTaskToBack(true);
         break;
+
+      // The outcome of a Digital Credentials API session. These are answered by
+      // the platform through the host, not by the Go core, so they are handled
+      // here and NOT forwarded to native below.
+      case "DigitalCredentialsResponseEvent": {
+        String response = optStringArg(call, "response", "");
+        if (digitalCredentialsHost != null) {
+          activity.runOnUiThread(() -> digitalCredentialsHost.onDigitalCredentialsResponse(response));
+        }
+        result.success(null);
+        return;
+      }
+
+      case "DigitalCredentialsFailureEvent": {
+        String reason = optStringArg(call, "reason", "error");
+        if (digitalCredentialsHost != null) {
+          activity.runOnUiThread(() -> digitalCredentialsHost.onDigitalCredentialsFailure(reason));
+        }
+        result.success(null);
+        return;
+      }
     }
 
     Irmagobridge.dispatchFromNative(call.method, (String) call.arguments);
@@ -145,5 +194,16 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
 
   public void stop() {
     Irmagobridge.stop();
+  }
+
+  private static String optStringArg(MethodCall call, String key, String fallback) {
+    if (!(call.arguments instanceof String)) {
+      return fallback;
+    }
+    try {
+      return new JSONObject((String) call.arguments).optString(key, fallback);
+    } catch (JSONException e) {
+      return fallback;
+    }
   }
 }
