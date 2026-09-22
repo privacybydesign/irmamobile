@@ -9,26 +9,38 @@ import "regula_face_service_provider.dart";
 /// shared NFC flow looks up the runner for it and calls [run] after the user
 /// confirmed the intro screen. A runner attaches the method's evidence to the
 /// issuance request (a liveness transaction id for Regula, a face session id
-/// for Iris) and returns it. It throws on cancel or error, exactly like the
-/// Regula liveness session did before this seam existed, so the flow lands on
-/// the same issuance error screen for every method.
+/// for Iris, a verdict for on-device Iris) and returns it. It throws on cancel
+/// or error, exactly like the Regula liveness session did before this seam
+/// existed, so the flow lands on the same issuance error screen for every
+/// method.
 ///
-/// Both methods keep the verdict on the issuer side: a runner never decides
-/// whether the face matched, it only produces the reference the issuer checks.
+/// The two server-verdict methods keep the decision on the issuer side: their
+/// runners never judge whether the face matched, they only produce the
+/// reference the issuer checks. [FaceVerificationMethod.irisOndevice] is the
+/// exception — its engine runs here and its runner reports a verdict the
+/// issuer cannot check. It reports a failed verdict rather than throwing, so
+/// the attempt is recorded; see
+/// `docs/on-device-iris-face-verification-plan.md` §3.
+///
+/// [portrait] is the chip portrait of the document just read, for the methods
+/// that match against it on the device. It is `null` when the document carried
+/// none; a runner that needs it must say so rather than proceed.
 abstract class FaceVerificationRunner {
   Future<RawDocumentData> run(
     RawDocumentData data, {
     required StartValidationResult start,
     required PassportIssuer issuer,
     required DocumentType documentType,
+    ChipPortrait? portrait,
     String? languageCode,
   });
 }
 
 /// The runners a flavor can execute, by method. Its keys are the wallet's
 /// capability declaration: what this build can run, as a fact, never a
-/// preference. The Play Store / App Store build injects both methods; the
-/// F-Droid build injects Regula only.
+/// preference. The Play Store / App Store build injects all three; the F-Droid
+/// build injects Regula only, because the other two methods' engines ship as
+/// proprietary binaries.
 typedef FaceVerificationRunners =
     Map<FaceVerificationMethod, FaceVerificationRunner>;
 
@@ -68,6 +80,7 @@ class RegulaRunner implements FaceVerificationRunner {
     required StartValidationResult start,
     required PassportIssuer issuer,
     required DocumentType documentType,
+    ChipPortrait? portrait,
     String? languageCode,
   }) async {
     final announcement = start.faceVerification;

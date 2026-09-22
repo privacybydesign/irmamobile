@@ -33,6 +33,7 @@ class IrisRunner implements FaceVerificationRunner {
     required StartValidationResult start,
     required PassportIssuer issuer,
     required DocumentType documentType,
+    ChipPortrait? portrait,
     String? languageCode,
   }) async {
     final response = switch (documentType) {

@@ -41,6 +41,15 @@ dependencies:
   web_socket_channel: ^3.0.3
   stream_channel: ^2.1.4
   image: ^4.5.4
+
+  # On-device Iris face verification (lib/iris_ondevice_runner.dart): the
+  # vendor SDK runs the whole capture and match on the phone. Proprietary
+  # binaries, so it stays out of yivi_core and never reaches yivi_fdroid. The
+  # package requires iOS 16 and Android minSdk 26; see its README.
+  iris_sdk_flutter:
+    git:
+      url: https://github.com/privacybydesign/iris-sdk-flutter.git
+      ref: v1.0.2
   vcmrtd:
     git:
       url: https://github.com/privacybydesign/vcmrtd.git

@@ -533,6 +533,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  iris_sdk_flutter:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "v1.0.2"
+      resolved-ref: dcb05336e0f14e6eaa34c1fa258117fb9c894673
+      url: "https://github.com/privacybydesign/iris-sdk-flutter.git"
+    source: git
+    version: "1.0.1"
   jni:
     dependency: transitive
     description:

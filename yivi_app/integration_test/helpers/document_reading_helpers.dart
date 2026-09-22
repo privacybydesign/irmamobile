@@ -308,6 +308,7 @@ class FakeFaceVerificationRunner implements FaceVerificationRunner {
     required StartValidationResult start,
     required PassportIssuer issuer,
     required DocumentType documentType,
+    ChipPortrait? portrait,
     String? languageCode,
   }) async {
     runCount += 1;

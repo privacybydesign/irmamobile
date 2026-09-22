@@ -286,6 +286,10 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
             start: startValidation,
             issuer: passportIssuer,
             documentType: _documentType,
+            // The chip portrait, for the methods that match against it here
+            // rather than on the issuer. Null for a document that carried
+            // none, which such a runner refuses rather than works around.
+            portrait: pdr.portrait,
             languageCode: languageCode,
           );
           toIssue = toIssue.copyWith(
