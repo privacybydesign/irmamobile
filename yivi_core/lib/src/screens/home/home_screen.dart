@@ -23,7 +23,20 @@ class HomeTabState extends Bloc<IrmaNavBarTab, IrmaNavBarTab> {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // The empty-wallet graphic in the data tab points at the scan-QR button. The
+  // button lives here, so we own its key and pass it down to the data tab, which
+  // uses it to work out the angle to point at. We keep this key scoped to this
+  // State (not a truly global key) because GoRouter keeps multiple HomeScreen
+  // instances alive during transitions, and two widgets sharing one global key
+  // would clash.
+  final _scanButtonKey = GlobalKey(debugLabel: "scan_qr_button_key");
+
   @override
   Widget build(BuildContext context) {
     changeTab(IrmaNavBarTab tab) {
@@ -57,7 +70,7 @@ class HomeScreen extends StatelessWidget {
                 child: Scaffold(
                   body: switch (tabState) {
                     .notifications => NotificationsTab(),
-                    .data => DataTab(),
+                    .data => DataTab(scanButtonKey: _scanButtonKey),
                     .activity => ActivityTab(),
                     .more => MoreTab(onChangeTab: changeTab),
                   },
@@ -65,8 +78,11 @@ class HomeScreen extends StatelessWidget {
                   resizeToAvoidBottomInset: false,
                   floatingActionButton: Padding(
                     padding: const .only(bottom: 6),
-                    child: const IrmaQrScanButton(
-                      key: Key("nav_button_scanner"),
+                    child: KeyedSubtree(
+                      key: _scanButtonKey,
+                      child: const IrmaQrScanButton(
+                        key: Key("nav_button_scanner"),
+                      ),
                     ),
                   ),
                   bottomNavigationBar: IrmaNavBar(
