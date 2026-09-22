@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.3.0] - 2026-09-22
+### Added
+- Recognise the `mso_mdoc` credential format in event payloads, so that mdoc credentials from the Go client decode instead of throwing away the whole payload
+- Decode the per-attribute `intent_to_retain` flag that mdoc verifiers send, so it is available to the app; it is not shown yet
+
+### Internal
+- Integration tests for mdoc issuance and disclosure against the staging EUDI stack (the EU reference Python issuer and Kotlin verifier): `integration_test/mdoc_issuance_test.dart` and `integration_test/mdoc_disclosure_sessions/`, sharing `helpers/eudi_stack_helpers.dart`. They cover the age-verification, PID and mDL document types end to end and assert what the user sees; see `docs/mdoc-integration-plan.md` for the list and the certificate prerequisites on staging
+- Upgrade irmago to v1.4.0
+
 ## [8.2.1] - 2026-09-01
 ### Added
 - Credentials the wallet has in storage but cannot render — an IRMA credential whose credential type is no longer in the scheme, or one whose display metadata the Go client could not read — are listed at the top of the Data tab in a warning card that states why, with a button to delete them. They were previously invisible: the storage they occupy could not be reached from the app, and a wallet that held nothing else reported itself as empty
@@ -728,6 +737,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.3.0]: https://github.com/privacybydesign/irmamobile/compare/v8.2.1...v8.3.0
 [8.2.1]: https://github.com/privacybydesign/irmamobile/compare/v8.2.0...v8.2.1
 [8.2.0]: https://github.com/privacybydesign/irmamobile/compare/v8.1.2...v8.2.0
 [8.1.2]: https://github.com/privacybydesign/irmamobile/compare/v8.1.1...v8.1.2

@@ -103,12 +103,19 @@ class Attribute {
   final AttributeValue? value;
   final AttributeValue? requestedValue;
 
+  /// Whether the verifier declared it will retain this attribute after the
+  /// session. Only mdoc requests can say this: set (true or false) on every
+  /// mdoc attribute, null for every other format. Decoded so nothing is lost;
+  /// the permission screen does not show it yet.
+  final bool? intentToRetain;
+
   Attribute({
     required this.claimPath,
     required this.displayName,
     this.description,
     this.value,
     this.requestedValue,
+    this.intentToRetain,
   });
 
   /// The display name to render in the UI. Falls back to the last non-int

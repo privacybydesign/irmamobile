@@ -20,6 +20,9 @@ import "issuance_test.dart" as issuance_test;
 import "issue_sdjwt_over_irma_test.dart" as irma_sdjwt_test;
 // import "issue_wizard_test.dart" as issue_wizard_test;
 import "login_test.dart" as login_test;
+import "mdoc_disclosure_sessions/mdoc_disclosure_sessions_test_all.dart"
+    as mdoc_disclosure_sessions;
+import "mdoc_issuance_test.dart" as mdoc_issuance_test;
 import "more_tab_test.dart" as more_tab_test;
 import "new_terms_test.dart" as new_terms;
 import "notifications_test.dart" as notifications_test;
@@ -40,6 +43,8 @@ void main() {
   irma_sdjwt_test.main();
   openid4vci_issuance_test.main();
   openid4vci_authcode_issuance_test.main();
+  mdoc_issuance_test.main();
+  mdoc_disclosure_sessions.main();
   openid4vp_test.main();
   eudi_disclosure_sessions.main();
   statuslist_revocation_test.main();

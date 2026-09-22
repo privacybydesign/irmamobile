@@ -25,4 +25,5 @@ Map<String, dynamic> _$DeleteCredentialEventToJson(
 const _$CredentialFormatEnumMap = {
   CredentialFormat.idemix: 'idemix',
   CredentialFormat.sdjwtvc: 'dc+sd-jwt',
+  CredentialFormat.msoMdoc: 'mso_mdoc',
 };

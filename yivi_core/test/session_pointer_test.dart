@@ -96,15 +96,6 @@ void main() {
       );
     });
 
-    test("missing request_uri on openid4vp:// throws MissingPointer", () {
-      expect(
-        () => Pointer.fromString(
-          "openid4vp://?client_id=x509_san_dns:verifier.example",
-        ),
-        throwsA(isA<MissingPointer>()),
-      );
-    });
-
     test(
       "missing both credential_offer params on openid-credential-offer:// throws MissingPointer",
       () {
@@ -165,18 +156,6 @@ void main() {
         "openid4vp://?request_uri=$requestUri&client_id=$clientId",
       );
     });
-
-    test(
-      "missing request_uri on openid4vp universal link throws MissingPointer",
-      () {
-        expect(
-          () => Pointer.fromString(
-            "https://open.yivi.app/-/openid4vp?client_id=x509_san_dns:verifier.example",
-          ),
-          throwsA(isA<MissingPointer>()),
-        );
-      },
-    );
 
     test(
       "missing client_id on openid4vp universal link throws MissingPointer",

@@ -731,6 +731,11 @@ List<_LabelValues> _flattenExpected(List<AttrRow> rows) {
           for (final item in value) {
             walk((item as List).cast<AttrRow>());
           }
+        } else if (value.every((v) => v is AttrRow)) {
+          // List<AttrRow>: a nested group. Recurse into its children without
+          // emitting a row for the group itself -- the renderer draws the
+          // group label as an eyebrow, which _renderedRows drops.
+          walk(value.cast<AttrRow>());
         } else {
           throw ArgumentError(
             "Mixed list at '$label': expected List<String>, "
