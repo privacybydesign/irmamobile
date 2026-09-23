@@ -1,19 +1,22 @@
 import "dart:async";
+import "dart:io";
 
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
+import "package:package_info_plus/package_info_plus.dart";
 import "package:pinput/pinput.dart";
+import "package:vcmrtd/vcmrtd.dart" show ClientInfo;
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
+import "src/providers/face_verification_runner_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/providers/qr_scanner_factory_provider.dart";
-import "src/providers/regula_face_service_provider.dart";
 import "src/providers/schemaless_credentials_list_provider.dart";
 import "src/providers/sms_issuance_provider.dart";
 import "src/providers/store_review_provider.dart";
@@ -24,9 +27,14 @@ import "src/util/navigation.dart";
 import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
+// The method names a flavor keys its runners by; re-exported so the flavor
+// entry points do not need their own vcmrtd dependency for one enum.
+export "package:vcmrtd/vcmrtd.dart" show FaceVerificationMethod;
+
 export "src/data/irma_repository.dart";
 export "src/models/mrz.dart";
 export "src/providers/email_issuance_provider.dart";
+export "src/providers/face_verification_runner_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
 export "src/providers/passport_issuer_provider.dart"
     show faceCaptureUrlProvider, faceVerificationConfigProvider;
@@ -37,16 +45,24 @@ export "src/providers/store_review_provider.dart" show StoreReviewService;
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
 
-/// Builds the flavor's liveness service. Takes a [Ref] because the FOSS
-/// implementation's capture page is derived from the passport issuer the session
-/// is talking to ([faceCaptureUrlProvider]), which is only known at runtime.
-typedef RegulaFaceServiceBuilder = RegulaFaceService? Function(Ref ref);
+/// Builds the flavor's face verification runners, one per method it can run.
+/// Takes a [Ref] because the FOSS Regula implementation's capture page is
+/// derived from the passport issuer the session is talking to
+/// ([faceCaptureUrlProvider]), which is only known at runtime.
+typedef FaceVerificationRunnersBuilder =
+    FaceVerificationRunners Function(Ref ref);
 
 Future<void> runYiviApp({
   required QrScannerFactory qrScannerFactory,
   OcrProcessor? ocrProcessor,
   SmsRetriever? smsRetriever,
-  RegulaFaceServiceBuilder? regulaFaceService,
+  FaceVerificationRunnersBuilder? faceVerificationRunners,
+
+  /// The distribution flavor reported to the passport issuer with face
+  /// verification attempts (e.g. `play`, `appstore`, `fdroid`). Together with
+  /// the platform and the app version it labels the recordings that compare
+  /// the face verification methods; `null` sends no such labels.
+  String? clientFlavor,
   StoreReviewService? storeReviewService,
 }) async {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -80,6 +96,14 @@ Future<void> runYiviApp({
     await initSentry(preferences: preferences);
     SecurityContextBinding.ensureInitialized();
 
+    final clientInfo = clientFlavor == null
+        ? null
+        : ClientInfo(
+            platform: Platform.isAndroid ? "android" : "ios",
+            flavor: clientFlavor,
+            appVersion: (await PackageInfo.fromPlatform()).version,
+          );
+
     const passportIssuanceError = String.fromEnvironment(
       "YIVI_ERROR_ON_PASSPORT_ISSUANCE",
     );
@@ -107,12 +131,14 @@ Future<void> runYiviApp({
           qrScannerFactoryProvider.overrideWithValue(qrScannerFactory),
 
           // passed in from the outside so the FOSS build is not required to
-          // depend on the Regula Face SDK; null disables face verification.
-          // Built from a ref rather than a value so the FOSS capture page can
-          // follow the session's passport issuer.
-          regulaFaceServiceProvider.overrideWith(
-            (ref) => regulaFaceService?.call(ref),
+          // depend on the Regula Face SDK or ship the Iris capture screen; the
+          // map's keys are what the wallet declares it can run. Built from a
+          // ref rather than a value so the FOSS capture page can follow the
+          // session's passport issuer.
+          faceVerificationRunnersProvider.overrideWith(
+            (ref) => faceVerificationRunners?.call(ref) ?? const {},
           ),
+          clientInfoProvider.overrideWithValue(clientInfo),
 
           // passed in from the outside so the proprietary in-app-review
           // dependency stays out of the FOSS build; null there disables the

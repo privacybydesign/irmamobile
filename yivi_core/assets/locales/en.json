@@ -795,6 +795,11 @@
       "tip_look_straight": "Look straight into the camera.",
       "tip_no_accessories": "Remove glasses, hats, etc.",
       "start": "Start verification"
+    },
+    "iris": {
+      "connecting": "Connecting…",
+      "hint": "Hold still and look at the camera",
+      "verifying": "Verifying…"
     }
   },
   "driving_licence": {
