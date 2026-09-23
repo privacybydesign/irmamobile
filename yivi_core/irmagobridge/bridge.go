@@ -167,7 +167,11 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
 	irma.Logger.SetLevel(logrus.InfoLevel)
-	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy, locale)
+	// The zero-knowledge prover, when this build has one. Absent is the
+	// ordinary case and produces no options at all — see zkprover_off.go.
+	zkOptions := zkProverOptions()
+
+	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy, locale, zkOptions...)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return

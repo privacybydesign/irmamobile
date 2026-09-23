@@ -1,3 +1,4 @@
+import "dart:async";
 import "dart:io";
 
 import "package:flutter/services.dart";
@@ -14,6 +15,7 @@ import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
 import "../../util/navigation.dart";
+import "../../util/screen_awake.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
@@ -109,6 +111,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   void initState() {
     super.initState();
     _repo = ref.read(irmaRepositoryProvider);
+    // A session is user-attended from here until this screen goes away: the
+    // user reads the request, confirms, and then waits on work they cannot
+    // speed up. Letting the display time out in that window interrupts the
+    // flow, and on Android it also drops the app out of `top-app` and into the
+    // background cpuset — the little cluster — which roughly triples whatever
+    // is left of a ZK proof. Released in dispose, including when the user
+    // backs out mid-session.
+    unawaited(ScreenAwake.keepScreenOn());
     _repo.preferences.getLongPin().first.then((value) {
       if (mounted) setState(() => _hasLongPin = value);
     });
@@ -121,6 +131,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   @override
   void dispose() {
+    unawaited(ScreenAwake.allowScreenOff());
     // Dismiss unless we've already observed a terminal state. A null
     // `_lastSession?.value` means Go hasn't emitted any state yet — that
     // window exists because SessionScreen is now pushed before the first

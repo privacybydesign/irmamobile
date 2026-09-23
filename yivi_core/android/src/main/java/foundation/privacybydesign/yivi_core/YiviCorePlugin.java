@@ -11,6 +11,7 @@ import foundation.privacybydesign.yivi_core.irma_mobile_bridge.IrmaMobileBridge;
 import foundation.privacybydesign.yivi_core.plugins.iiab.IIABPlugin;
 import foundation.privacybydesign.yivi_core.plugins.privacy_screen.PrivacyScreenPlugin;
 import foundation.privacybydesign.yivi_core.plugins.root_detection.RootDetectionPlugin;
+import foundation.privacybydesign.yivi_core.plugins.screen_awake.ScreenAwakePlugin;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -27,6 +28,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
     private IIABPlugin webBrowser;
     private PrivacyScreenPlugin privacyScreenPlugin;
     private RootDetectionPlugin rootDetectionPlugin;
+    private ScreenAwakePlugin screenAwakePlugin;
 
     public YiviCorePlugin() {
         Irmagobridge.prestart();
@@ -37,6 +39,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         cleanupActivity();
         webBrowser.onDetachedFromActivityForConfigChanges();
         privacyScreenPlugin.onDetachedFromActivityForConfigChanges();
+        screenAwakePlugin.onDetachedFromActivityForConfigChanges();
     }
 
     @Override
@@ -47,6 +50,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
         webBrowser.onReattachedToActivityForConfigChanges(binding);
         privacyScreenPlugin.onReattachedToActivityForConfigChanges(binding);
+        screenAwakePlugin.onReattachedToActivityForConfigChanges(binding);
     }
 
     @Override
@@ -65,6 +69,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
         webBrowser.onAttachedToActivity(binding);
         privacyScreenPlugin.onAttachedToActivity(binding);
+        screenAwakePlugin.onAttachedToActivity(binding);
     }
 
     @Override
@@ -72,6 +77,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         cleanupActivity();
         webBrowser.onDetachedFromActivity();
         privacyScreenPlugin.onDetachedFromActivity();
+        screenAwakePlugin.onDetachedFromActivity();
     }
 
     @Override
@@ -89,6 +95,9 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
 
         rootDetectionPlugin = new RootDetectionPlugin();
         rootDetectionPlugin.onAttachedToEngine(binding);
+
+        screenAwakePlugin = new ScreenAwakePlugin();
+        screenAwakePlugin.onAttachedToEngine(binding);
     }
 
     @Override
@@ -102,6 +111,7 @@ public class YiviCorePlugin implements FlutterPlugin, ActivityAware, PluginRegis
         webBrowser.onDetachedFromEngine(binding);
         privacyScreenPlugin.onDetachedFromEngine(binding);
         rootDetectionPlugin.onDetachedFromEngine(binding);
+        screenAwakePlugin.onDetachedFromEngine(binding);
     }
 
     private void cleanupActivity() {

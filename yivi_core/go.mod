@@ -6,6 +6,7 @@ require (
 	github.com/go-errors/errors v1.5.1
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
 	github.com/privacybydesign/irmago v1.4.0
+	github.com/privacybydesign/longfellow-go v0.0.0
 	github.com/sirupsen/logrus v1.9.4
 	golang.org/x/mobile v0.0.0-20260816165457-f98cc9b3c733
 )
@@ -73,7 +74,7 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	go.etcd.io/bbolt v1.4.3 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/crypto v0.56.0 // indirect
 	golang.org/x/mod v0.39.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
@@ -87,3 +88,7 @@ require (
 	gorm.io/driver/sqlserver v1.6.3 // indirect
 	gorm.io/gorm v1.31.1 // indirect
 )
+
+replace github.com/privacybydesign/longfellow-go => ../../longfellow-go
+
+replace github.com/privacybydesign/irmago => ../../irmago
