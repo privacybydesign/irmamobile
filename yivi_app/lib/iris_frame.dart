@@ -31,23 +31,30 @@ class RawFrame {
     required this.planes,
   });
 
-  factory RawFrame.fromCameraImage(CameraImage image) => RawFrame(
-    format: switch (image.format.group) {
+  factory RawFrame.fromCameraImage(CameraImage image) {
+    final format = switch (image.format.group) {
       ImageFormatGroup.bgra8888 => RawFrameFormat.bgra8888,
       _ => RawFrameFormat.yuv420,
-    },
-    width: image.width,
-    height: image.height,
-    planes: [
-      for (final plane in image.planes)
-        RawPlane(
-          // Copy: the plugin recycles its buffers once the callback returns.
-          bytes: Uint8List.fromList(plane.bytes),
-          bytesPerRow: plane.bytesPerRow,
-          bytesPerPixel: plane.bytesPerPixel ?? 1,
-        ),
-    ],
-  );
+    };
+    return RawFrame(
+      format: format,
+      width: image.width,
+      height: image.height,
+      planes: [
+        for (final plane in image.planes)
+          RawPlane(
+            // Copy: the plugin recycles its buffers once the callback returns.
+            bytes: Uint8List.fromList(plane.bytes),
+            bytesPerRow: plane.bytesPerRow,
+            // The iOS plugin reports no bytesPerPixel; its only format is
+            // packed BGRA, 4 bytes a pixel.
+            bytesPerPixel:
+                plane.bytesPerPixel ??
+                (format == RawFrameFormat.bgra8888 ? 4 : 1),
+          ),
+      ],
+    );
+  }
 
   final RawFrameFormat format;
   final int width;
@@ -72,27 +79,29 @@ class RawFrame {
 }
 
 /// The verifier's orientation enum for a frame: the clockwise rotation, in
-/// quarter turns (0–3), that makes it upright. Same arithmetic as the MRZ
-/// scanner uses for ML Kit: iOS frames only need the sensor's rotation; on
-/// Android the device rotation is added for the front camera.
+/// quarter turns (0–3), that makes it upright.
+///
+/// iOS frames need none: the camera plugin sets the video connection's
+/// orientation to the device's, so the buffers arrive already upright
+/// (720x1280 in portrait). On Android the buffers are
+/// in sensor orientation and the device rotation is added for the front
+/// camera, as the vendor SDK does.
 int frameOrientation({
   required int sensorOrientation,
   required DeviceOrientation deviceOrientation,
   required bool frontCamera,
   required bool isIOS,
 }) {
-  var degrees = sensorOrientation;
-  if (!isIOS) {
-    final device = switch (deviceOrientation) {
-      DeviceOrientation.portraitUp => 0,
-      DeviceOrientation.landscapeLeft => 90,
-      DeviceOrientation.portraitDown => 180,
-      DeviceOrientation.landscapeRight => 270,
-    };
-    degrees = frontCamera
-        ? (sensorOrientation + device) % 360
-        : (sensorOrientation - device + 360) % 360;
-  }
+  if (isIOS) return 0;
+  final device = switch (deviceOrientation) {
+    DeviceOrientation.portraitUp => 0,
+    DeviceOrientation.landscapeLeft => 90,
+    DeviceOrientation.portraitDown => 180,
+    DeviceOrientation.landscapeRight => 270,
+  };
+  final degrees = frontCamera
+      ? (sensorOrientation + device) % 360
+      : (sensorOrientation - device + 360) % 360;
   return (degrees ~/ 90) % 4;
 }
 

@@ -158,7 +158,9 @@ class _IrisCaptureScreenState extends State<IrisCaptureScreen> {
       );
       final controller = CameraController(
         camera,
-        ResolutionPreset.medium,
+        // 1280x720 on Android; frames are downscaled to the verifier's
+        // max_width, so it decides the resolution the engine sees.
+        ResolutionPreset.high,
         enableAudio: false,
         // The plugin's native formats per platform; iris_frame converts both.
         imageFormatGroup: Platform.isAndroid

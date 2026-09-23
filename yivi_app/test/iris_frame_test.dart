@@ -60,16 +60,18 @@ void main() {
   });
 
   group("frameOrientation", () {
-    test("iOS uses the sensor orientation as is", () {
-      expect(
-        frameOrientation(
-          sensorOrientation: 90,
-          deviceOrientation: DeviceOrientation.landscapeLeft,
-          frontCamera: true,
-          isIOS: true,
-        ),
-        1,
-      );
+    test("iOS frames arrive upright and need no rotation", () {
+      for (final device in DeviceOrientation.values) {
+        expect(
+          frameOrientation(
+            sensorOrientation: 90,
+            deviceOrientation: device,
+            frontCamera: true,
+            isIOS: true,
+          ),
+          0,
+        );
+      }
     });
 
     test("Android front camera adds the device rotation", () {
