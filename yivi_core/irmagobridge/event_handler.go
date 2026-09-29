@@ -157,13 +157,13 @@ func (ah *eventHandler) deleteKeyshareTokens() error {
 }
 
 // Delete an individual credential
+//
+// No dispatch here: RemoveCredentialsByHash signals CredentialsChanged itself,
+// as every other mutation of the credential list does, and YiviClientHandler
+// turns that into the same dispatchCredentialsEvent. Dispatching again read the
+// whole credential store and credential list a second time for every deletion.
 func (ah *eventHandler) deleteCredential(event *deleteCredentialEvent) error {
-	if err := yiviClient.RemoveCredentialsByHash(event.HashByFormat); err != nil {
-		return err
-	}
-
-	dispatchCredentialsEvent()
-	return nil
+	return yiviClient.RemoveCredentialsByHash(event.HashByFormat)
 }
 
 // Force a Token Status List refresh, so a test can drive a sweep instead of
