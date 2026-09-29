@@ -17,6 +17,14 @@ class ActionFeedback extends StatelessWidget {
   final String explanationTranslationKey;
   final Map<String, String>? explanationTranslationParams;
 
+  /// Renders the title in the largest display size instead of the default.
+  ///
+  /// For an outcome whose headline IS the message and needs to land before the
+  /// explanation is read -- the zero-knowledge disclosure, where what matters is
+  /// not that it worked but how. Off everywhere else, so the ordinary success
+  /// and error screens keep the size they have always had.
+  final bool prominentTitle;
+
   const ActionFeedback({
     super.key,
     required this.success,
@@ -25,6 +33,7 @@ class ActionFeedback extends StatelessWidget {
     required this.explanationTranslationKey,
     this.explanationTranslationParams,
     required this.onDismiss,
+    this.prominentTitle = false,
   });
 
   @override
@@ -48,9 +57,12 @@ class ActionFeedback extends StatelessWidget {
             children: [
               TranslatedText(
                 titleTranslationKey,
-                style: theme.themeData.textTheme.displaySmall!.copyWith(
-                  color: theme.dark,
-                ),
+                style:
+                    (prominentTitle
+                            ? theme.themeData.textTheme.displayMedium!
+                            : theme.themeData.textTheme.displaySmall!)
+                        .copyWith(color: theme.dark),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: theme.tinySpacing),
               TranslatedText(
@@ -58,6 +70,10 @@ class ActionFeedback extends StatelessWidget {
                 translationParams: explanationTranslationParams,
                 style: theme.themeData.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
+                // textAlign above governs the plain-text path only; a markdown
+                // explanation takes its alignment from this instead, and would
+                // otherwise sit left-aligned under a centred title.
+                markdownTextAlign: WrapAlignment.center,
               ),
             ],
           ),

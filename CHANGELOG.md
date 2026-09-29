@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- A disclosure made over the W3C Digital Credentials API now ends on a confirmation screen instead of the app disappearing. Such a session carries no return URL and its caller is a browser page the wallet cannot raise, so every other ending applied to it backgrounded the app the instant the response was sealed: the person who had just proved something about themselves watched their wallet vanish and was told nothing. When the wallet answered with a zero-knowledge proof the screen says so — "Disclosed over Zero-Knowledge Proof", with the requestor on its own line and the explanation that it received a proof of exactly what was agreed and never the data behind it, so the disclosure cannot be linked to any other. The wording follows what the wallet actually did rather than the transport it used: `org-iso-mdoc` falls back to a plain signed disclosure whenever no circuit the reader offered matches, and the Go client reports which of the two happened on `SessionState.zeroKnowledge`, because claiming zero knowledge for a signed disclosure would be a false statement about the user's privacy. Dismissing it returns to the wallet's own home rather than hiding the app, since backgrounding was never handing the user back to anything here
+
+### Fixed
+- Two credentials of one document type no longer render as two identical cards on the Data tab. That tab is a list of credential TYPES — each card opens the details screen by type, which lists every credential of that type and offers each its own delete — so keying the list on the credential rather than the type produced a pair of indistinguishable "Proof of Age" cards that both opened the same screen showing both of them. Worse, `ReorderableListView` wraps each child key in a `GlobalKey`, so the duplicate threw "Multiple widgets used the same GlobalKey" on every frame: the list never finished rebuilding, credentials deleted seconds earlier stayed on screen, and deleting one reported an error for a credential that was already gone. Deduplication, ordering and the row key now all key on the credential type, which is the only arrangement in which they agree
+- A disclosure the user declines no longer ends on the success screen. The Go client reports such a session as dismissed, which the app already handles by returning to where the session started
 
 ## [8.3.0] - 2026-09-22
 ### Added

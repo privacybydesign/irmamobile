@@ -70,9 +70,9 @@ class SchemalessCredentialOrderController
 
     // Seed from the current stream value.
     final initial = await repo.getSchemalessCredentials().first;
-    final initialUnique = _deduplicateByHash(initial.credentials);
-    final merged = _reconcile(initialUnique, _order, _policy);
-    _order = merged.map((e) => e.hash).toList();
+    final initialTypes = deduplicateCredentialsByType(initial.credentials);
+    final merged = reconcileCredentialOrder(initialTypes, _order, _policy);
+    _order = merged.map((e) => e.credentialId).toList();
     await ref.read(credentialOrderRepoProvider).saveOrder(_order);
 
     // Subscribe for subsequent changes. skip(1) skips the BehaviorSubject
@@ -91,9 +91,9 @@ class SchemalessCredentialOrderController
   }
 
   void _onCredentialsChanged(schemaless.SchemalessCredentials data) {
-    final unique = _deduplicateByHash(data.credentials);
-    final merged = _reconcile(unique, _order, _policy);
-    _order = merged.map((e) => e.hash).toList();
+    final types = deduplicateCredentialsByType(data.credentials);
+    final merged = reconcileCredentialOrder(types, _order, _policy);
+    _order = merged.map((e) => e.credentialId).toList();
 
     if (ref.mounted) {
       state = AsyncData(merged);
@@ -109,46 +109,10 @@ class SchemalessCredentialOrderController
     final moved = current.removeAt(oldIndex);
     current.insert(newIndex, moved);
     state = AsyncData(current);
-    _order = current.map((e) => e.hash).toList();
+    _order = current.map((e) => e.credentialId).toList();
     _debouncedSave(current);
   }
 
-  /// See [deduplicateCredentialsByHash].
-  ///
-  /// By hash and NOT by credentialId. For an mdoc, credentialId is the docType,
-  /// so every eu.europa.ec.av.1 attestation shares one -- and keying on it made
-  /// a wallet holding two of them render one card. The hidden one could not be
-  /// seen or deleted, yet the disclosure screen (which does not deduplicate)
-  /// still offered it, so it was disclosed on the user's behalf. Deleting the
-  /// visible card removed one batch and left the other, which is what made
-  /// deletion look broken.
-  ///
-  /// irmago already collapses genuinely identical issuances into one credential
-  /// by content hash before they reach here, so two entries sharing a
-  /// credentialId are two different credentials and both belong on screen. This
-  /// stays only as a guard against the same credential arriving twice.
-  List<schemaless.Credential> _deduplicateByHash(
-    List<schemaless.Credential> credentials,
-  ) => deduplicateCredentialsByHash(credentials);
-
-  /// Merge logic:
-  /// - keep credentials in stored order if they still exist
-  /// - add any new ones at end/start (policy)
-  ///
-  /// Keyed on hash, like _deduplicateByHash and for the same reason: a map keyed
-  /// on credentialId silently collapsed two credentials of one docType into one
-  /// entry, so fixing the deduplication alone would have changed nothing.
-  ///
-  /// The stored order holds hashes. Entries written by an older build hold
-  /// credentialIds, which match no hash, so those credentials are treated as new
-  /// and placed by the policy. That is a one-time reordering that corrects
-  /// itself on the next save, and is preferable to a migration that would have
-  /// to guess which of two same-docType credentials an old id referred to.
-  List<schemaless.Credential> _reconcile(
-    List<schemaless.Credential> external,
-    List<String> storedOrder,
-    NewItemPolicy newItemPolicy,
-  ) => reconcileCredentialOrder(external, storedOrder, newItemPolicy);
 
   void _debouncedSave(List<schemaless.Credential> items) {
     _debounce?.cancel();
@@ -156,69 +120,63 @@ class SchemalessCredentialOrderController
       if (!ref.mounted) return;
       await ref
           .read(credentialOrderRepoProvider)
-          .saveOrder(items.map((e) => e.hash).toList());
+          .saveOrder(items.map((e) => e.credentialId).toList());
     });
   }
 }
 
-/// Deduplicate credentials by hash, keeping first occurrence.
+/// Deduplicate credentials by type, keeping first occurrence.
 ///
-/// By hash and NOT by credentialId. For an mdoc, credentialId is the docType, so
-/// every eu.europa.ec.av.1 attestation shares one -- and keying on it made a
-/// wallet holding two of them render a single card. The hidden one could not be
-/// seen or deleted, yet the disclosure screen (which does not deduplicate) still
-/// offered it, so it was disclosed on the user's behalf. Deleting the visible
-/// card removed one batch and left the other, which is what made deletion look
-/// broken.
+/// By credentialId and NOT by hash, because this list is a list of credential
+/// TYPES: each card opens SchemalessCredentialsDetailsScreen by credentialTypeId,
+/// which lists every credential of that type and offers each one its own delete.
+/// Keying on the hash put one card per credential here, so a wallet holding two
+/// eu.europa.ec.av.1 attestations showed two identical "Proof of Age" cards that
+/// both opened the same screen listing both of them.
 ///
-/// irmago already collapses genuinely identical issuances into one credential by
-/// content hash before they reach here, so two entries sharing a credentialId are
-/// two different credentials and both belong on screen. This remains only as a
-/// guard against the same credential arriving twice in one event.
+/// Duplicates are therefore not hidden by this, only folded: the second
+/// attestation is reachable, and deletable, one tap deeper. That is the whole
+/// arrangement -- one card per type out here, per-credential management inside.
 @visibleForTesting
-List<schemaless.Credential> deduplicateCredentialsByHash(
+List<schemaless.Credential> deduplicateCredentialsByType(
   List<schemaless.Credential> credentials,
 ) {
-  final Set<String> seenHashes = {};
+  final Set<String> seenIds = {};
   final List<schemaless.Credential> result = [];
   for (final info in credentials) {
-    if (!seenHashes.contains(info.hash)) {
+    if (!seenIds.contains(info.credentialId)) {
       result.add(info);
-      seenHashes.add(info.hash);
+      seenIds.add(info.credentialId);
     }
   }
   return result;
 }
 
-/// Merge the credentials the wallet reports with the user's stored order:
+/// Merge the credential types the wallet reports with the user's stored order:
 /// keep known ones in that order, place the rest by [newItemPolicy].
 ///
-/// Keyed on hash, for the same reason as [deduplicateCredentialsByHash]: a map
-/// keyed on credentialId silently collapsed two credentials of one docType into
-/// one entry, so fixing the deduplication alone would have changed nothing.
-///
-/// The stored order holds hashes. Entries written by an older build hold
-/// credentialIds, which match no hash, so those credentials are treated as new
-/// and placed by the policy. That is a one-time reordering which corrects itself
-/// on the next save, and is preferable to a migration that would have to guess
-/// which of two same-docType credentials an old id referred to.
+/// Keyed on credentialId, matching [deduplicateCredentialsByType] and the
+/// ValueKey the list widget gives each row. All three have to agree: a map keyed
+/// on anything finer than the deduplication would carry entries the list never
+/// renders, and a row key finer than the deduplication would be fine while a
+/// coarser one would collide and crash ReorderableListView.
 @visibleForTesting
 List<schemaless.Credential> reconcileCredentialOrder(
   List<schemaless.Credential> external,
   List<String> storedOrder,
   NewItemPolicy newItemPolicy,
 ) {
-  final byHash = {for (final it in external) it.hash: it};
+  final byId = {for (final it in external) it.credentialId: it};
   final visible = <schemaless.Credential>[];
 
   // 1) Keep items that still exist in the stored order
-  for (final hash in storedOrder) {
-    final it = byHash.remove(hash);
+  for (final id in storedOrder) {
+    final it = byId.remove(id);
     if (it != null) visible.add(it);
   }
 
   // 2) Any remaining are new from external
-  final newOnes = byHash.values.toList();
+  final newOnes = byId.values.toList();
   if (newOnes.isEmpty) return visible;
 
   if (newItemPolicy == NewItemPolicy.append) {

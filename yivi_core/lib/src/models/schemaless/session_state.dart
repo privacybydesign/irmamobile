@@ -65,6 +65,16 @@ class SessionState {
   @JsonKey(name: "dc_api_response")
   final String? dcApiResponse;
 
+  /// Whether the disclosure was made as a zero-knowledge proof rather than as a
+  /// signed disclosure. Only an org-iso-mdoc session can produce one.
+  ///
+  /// Not derivable in the app: the response above is sealed to the reader, and
+  /// the protocol name does not imply a proof, since a reader that leaves
+  /// zkRequired unset takes the plain ISO presentation whenever no circuit it
+  /// offered matches what the wallet can prove.
+  @JsonKey(name: "zero_knowledge", defaultValue: false)
+  final bool zeroKnowledge;
+
   SessionState({
     required this.id,
     required this.protocol,
@@ -86,6 +96,7 @@ class SessionState {
     this.transactionCodeParameters,
     this.remainingTxCodeAttempts,
     this.dcApiResponse,
+    this.zeroKnowledge = false,
   });
 
   factory SessionState.fromJson(Map<String, dynamic> json) =>

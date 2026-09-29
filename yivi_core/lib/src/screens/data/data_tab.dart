@@ -435,17 +435,14 @@ class _ReorderableCredentialList extends ConsumerWidget {
             final cred = items[i];
 
             return Padding(
-              // Keyed on the content hash, not on credentialId. For an mdoc,
-              // credentialId is the docType, so a wallet holding two
-              // eu.europa.ec.av.1 attestations produced two children with one
-              // key -- and ReorderableListView wraps each child key in a
-              // GlobalKey, so the duplicate threw "Multiple widgets used the
-              // same GlobalKey" on every frame. The list then never finished
-              // rebuilding, which left deleted credentials on screen and made
-              // deletion look broken. The list itself is deduplicated and
-              // ordered by hash for the same reason; see
+              // credentialId, matching how the list is deduplicated and ordered.
+              // The three have to agree: this is one row per credential TYPE, and
+              // keying it any finer than the deduplication renders duplicate keys,
+              // which ReorderableListView wraps in GlobalKeys and then throws
+              // "Multiple widgets used the same GlobalKey" on every frame -- the
+              // list stops rebuilding and the screen freezes. See
               // schemaless_credentials_list_provider.dart.
-              key: ValueKey(cred.hash),
+              key: ValueKey(cred.credentialId),
               padding: EdgeInsets.only(bottom: theme.smallSpacing),
               child: ReorderableDelayedDragStartListener(
                 index: i,

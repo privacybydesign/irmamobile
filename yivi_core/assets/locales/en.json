@@ -180,11 +180,13 @@
     "feedback": {
       "header": {
         "success": "Success",
+        "zero_knowledge": "Disclosed over Zero-Knowledge Proof",
         "canceled": "Cancelled",
         "not_satisfiable": "Cancelled"
       },
       "text": {
         "success": "Your data is disclosed to {otherParty}",
+        "zero_knowledge_markdown": "Your data never left your device.\n\n**{otherParty}** received a mathematical proof of exactly what you agreed to share — never the data behind it, so this disclosure cannot be linked to any other you make.",
         "success_signature": "You signed the request of {otherParty}",
         "canceled": "Your data has not been disclosed to {otherParty}",
         "canceled_signature": "You did not sign the request of {otherParty}",

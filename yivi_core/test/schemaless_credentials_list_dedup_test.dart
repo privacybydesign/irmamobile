@@ -25,9 +25,17 @@ Credential _credential({required String credentialId, required String hash}) =>
       issueUrl: null,
     );
 
+/// The data tab is a list of credential TYPES: one card per type, each opening a
+/// details screen that lists every credential of that type and offers each its
+/// own delete. These tests pin that split, because both ways of getting it wrong
+/// have been shipped.
+///
+/// Keyed too coarsely (by type, everywhere) a second credential became
+/// unreachable. Keyed too finely (by hash) the type list rendered one card per
+/// credential -- two identical "Proof of Age" cards opening the same screen --
+/// and, because the row ValueKey followed, ReorderableListView wrapped duplicate
+/// keys in GlobalKeys and threw on every frame, freezing the list.
 void main() {
-  _keysAreUnique();
-
   // Two Age Verification attestations. credentialId is the docType, so it is the
   // same for both; only the content hash tells them apart.
   final first = _credential(
@@ -38,101 +46,65 @@ void main() {
     credentialId: "eu.europa.ec.av.1",
     hash: "hash-second",
   );
+  final other = _credential(
+    credentialId: "org.iso.18013.5.1.mDL",
+    hash: "hash-mdl",
+  );
 
-  group("deduplicateCredentialsByHash", () {
-    test("keeps two credentials that share a docType", () {
-      final result = deduplicateCredentialsByHash([first, second]);
+  group("deduplicateCredentialsByType", () {
+    test("two credentials of one type fold into a single card", () {
+      final result = deduplicateCredentialsByType([first, second]);
       expect(
-        result,
-        hasLength(2),
+        result.map((c) => c.credentialId),
+        ["eu.europa.ec.av.1"],
         reason:
-            "keying on credentialId hid one AV attestation: it could not be "
-            "seen or deleted, yet disclosure still offered it",
+            "the second is reachable inside the details screen, not as a "
+            "second identical card on the data tab",
       );
     });
 
-    test("still collapses the same credential arriving twice", () {
-      expect(deduplicateCredentialsByHash([first, first]), hasLength(1));
+    test("different types stay separate", () {
+      expect(deduplicateCredentialsByType([first, other]), hasLength(2));
     });
   });
 
   group("reconcileCredentialOrder", () {
-    test("keeps both same-docType credentials", () {
-      final result = reconcileCredentialOrder(
-        [first, second],
-        const ["hash-first", "hash-second"],
+    test("keys agree with the deduplication", () {
+      final deduped = deduplicateCredentialsByType([first, second]);
+      final rendered = reconcileCredentialOrder(
+        deduped,
+        const [],
         NewItemPolicy.append,
       );
-      expect(result.map((c) => c.hash), ["hash-first", "hash-second"]);
+
+      expect(
+        rendered.map((c) => c.credentialId).toSet(),
+        hasLength(rendered.length),
+        reason:
+            "duplicate row keys crash ReorderableListView on every frame, so "
+            "whatever is rendered must be uniquely keyable by credentialId",
+      );
     });
 
     test("honours the stored order", () {
       final result = reconcileCredentialOrder(
-        [first, second],
-        const ["hash-second", "hash-first"],
+        [other, first],
+        const ["eu.europa.ec.av.1", "org.iso.18013.5.1.mDL"],
         NewItemPolicy.append,
       );
-      expect(result.map((c) => c.hash), ["hash-second", "hash-first"]);
+      expect(result.map((c) => c.credentialId), [
+        "eu.europa.ec.av.1",
+        "org.iso.18013.5.1.mDL",
+      ]);
     });
 
-    test("deleting one leaves the other visible", () {
-      // What the wallet reports after one of the two batches is removed.
+    test("a type whose last credential was deleted disappears", () {
       final result = reconcileCredentialOrder(
-        [second],
-        const ["hash-first", "hash-second"],
+        [other],
+        const ["eu.europa.ec.av.1", "org.iso.18013.5.1.mDL"],
         NewItemPolicy.append,
       );
-      expect(result.map((c) => c.hash), ["hash-second"]);
+      expect(result.map((c) => c.credentialId), ["org.iso.18013.5.1.mDL"]);
     });
-
-    test("an order stored by an older build places them by policy", () {
-      // Old entries hold credentialIds, which match no hash.
-      final result = reconcileCredentialOrder(
-        [first, second],
-        const ["eu.europa.ec.av.1"],
-        NewItemPolicy.append,
-      );
-      expect(result, hasLength(2));
-    });
-  });
-}
-
-// The list widget keys each row by credential. Two credentials of one docType
-// share a credentialId, and ReorderableListView wraps every child key in a
-// GlobalKey, so keying on credentialId threw "Multiple widgets used the same
-// GlobalKey" on every frame once the list stopped deduplicating by type. The
-// list then never finished rebuilding, so deleted credentials stayed on screen.
-//
-// This is the property the widget's ValueKey depends on, asserted where it can
-// be checked cheaply: whatever the list renders must be uniquely keyable by
-// hash.
-void _keysAreUnique() {
-  test("rendered credentials are uniquely keyable by hash", () {
-    final first = _credential(
-      credentialId: "eu.europa.ec.av.1",
-      hash: "hash-first",
-    );
-    final second = _credential(
-      credentialId: "eu.europa.ec.av.1",
-      hash: "hash-second",
-    );
-
-    final rendered = reconcileCredentialOrder(
-      deduplicateCredentialsByHash([first, second]),
-      const [],
-      NewItemPolicy.append,
-    );
-
-    expect(rendered, hasLength(2));
-    expect(
-      rendered.map((c) => c.hash).toSet(),
-      hasLength(rendered.length),
-      reason: "duplicate keys crash ReorderableListView on every frame",
-    );
-    expect(
-      rendered.map((c) => c.credentialId).toSet(),
-      hasLength(1),
-      reason: "and credentialId is NOT unique, which is why it cannot be the key",
-    );
   });
 }

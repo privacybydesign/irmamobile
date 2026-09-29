@@ -180,11 +180,13 @@
     "feedback": {
       "header": {
         "success": "Erfolg",
+        "zero_knowledge": "Mit einem Zero-Knowledge-Beweis geteilt",
         "canceled": "Abgebrochen",
         "not_satisfiable": "Abgebrochen"
       },
       "text": {
         "success": "Ihre Daten wurden an {otherParty} weitergegeben",
+        "zero_knowledge_markdown": "Ihre Daten haben Ihr Gerät nie verlassen.\n\n**{otherParty}** hat einen mathematischen Beweis für genau das erhalten, was Sie teilen wollten — niemals die Daten selbst, sodass diese Weitergabe mit keiner anderen verknüpft werden kann.",
         "success_signature": "Sie haben die Anfrage von {otherParty} signiert",
         "canceled": "Ihre Daten wurden nicht an {otherParty} weitergegeben",
         "canceled_signature": "Sie haben die Anfrage von {otherParty} nicht signiert",

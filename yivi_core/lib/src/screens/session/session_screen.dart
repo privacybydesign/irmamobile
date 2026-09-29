@@ -529,6 +529,46 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return _buildLoadingScreen(session);
     }
 
+    // A session the platform delivered through the Digital Credentials API has
+    // nowhere to hand the user back to: it carries no return URL, and the caller
+    // is a browser the wallet cannot raise. Everything below would therefore
+    // background the app the instant the response was sealed, so the person who
+    // had just proved something about themselves saw their wallet vanish and was
+    // told nothing at all.
+    //
+    // It also matters more here than on any other transport. A zero-knowledge
+    // presentation is unlinkable and reveals nothing to an observer, so this
+    // screen and the activity log are the only records the user will ever have
+    // that it happened -- and what was proved, rather than disclosed, is exactly
+    // the thing they cannot check afterwards for themselves.
+    //
+    // The wording is keyed on what the wallet actually did, not on the
+    // transport: org-iso-mdoc falls back to a plain signed disclosure whenever
+    // no circuit the reader offered matches, and claiming zero knowledge for one
+    // of those would be a false statement about the user's privacy.
+    if (session.dcApiResponse != null) {
+      // An org-iso-mdoc requestor is anonymous by design: nothing identified
+      // itself, and the origin the platform authenticated is the only thing
+      // known about it, so TrustedParty.name is deliberately empty. Showing the
+      // origin is what requestor_header and the activity log already do; the
+      // name would have left a blank in the middle of the sentence.
+      final otherParty = session.requestor.anonymous
+          ? (session.requestor.origin ?? "")
+          : session.requestor.name;
+
+      return DisclosureFeedbackScreen(
+        feedbackType: session.zeroKnowledge ? .zeroKnowledge : .success,
+        otherParty: otherParty,
+        // Stays in the wallet. Every other branch here hands the user back to
+        // where the session started -- a browser tab, the calling app -- but a
+        // DC API caller is a page the wallet cannot raise, so backgrounding was
+        // never handing them back to anything, just getting out of the way. Now
+        // that there is something worth reading on this screen, dismissing it
+        // lands on the wallet's own home instead of hiding the app.
+        onDismiss: (_) => pop(),
+      );
+    }
+
     // Same-device session: hand the user back to the calling app. iOS lacks a
     // programmatic way to do that, so we show ArrowBack telling them to tap
     // the back link in the status bar. On Android we move the task to the
