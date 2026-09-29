@@ -199,6 +199,40 @@ Protocol _protocolFromJsonAlwaysIrma(String? protocol) {
 Object? _readContinueOnSecondDevice(Map<dynamic, dynamic> json, String key) =>
     json[key] ?? json["continueOnSecondDevice"];
 
+/// A request the operating system delivered through the W3C Digital
+/// Credentials API.
+///
+/// One app-level entry point carries two unrelated exchanges, and [protocol]
+/// is what tells them apart: `openid4vp-v1-signed` / `openid4vp-v1-unsigned`
+/// carry OpenID4VP, while `org-iso-mdoc` carries ISO/IEC 18013-5's own
+/// DeviceRequest. The wallet does not have to know which — it forwards whatever
+/// the platform reported and the Go core branches on it.
+///
+/// [origin] is the caller the platform authenticated, and it is load-bearing
+/// rather than informational: the session transcript binds to it, so a response
+/// produced for one origin cannot be replayed at another.
+@JsonSerializable(fieldRename: FieldRename.snake)
+class DcApiRequest {
+  const DcApiRequest({
+    required this.protocol,
+    required this.origin,
+    required this.data,
+  });
+
+  final String protocol;
+
+  final String origin;
+
+  /// The request exactly as the platform delivered it, forwarded unparsed. Its
+  /// shape depends on [protocol], which is the Go core's business and not the
+  /// app's.
+  final Map<String, dynamic> data;
+
+  factory DcApiRequest.fromJson(Map<String, dynamic> json) =>
+      _$DcApiRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$DcApiRequestToJson(this);
+}
+
 /// A pointer that refers to a new IRMA session.
 @JsonSerializable(fieldRename: FieldRename.snake)
 class SessionPointer implements Pointer {
@@ -231,13 +265,32 @@ class SessionPointer implements Pointer {
   @JsonKey(name: "openid4vci_redirect_uri", includeIfNull: false)
   final String? openid4vciRedirectUri;
 
+  /// A request the platform delivered through the W3C Digital Credentials API
+  /// instead of through a link. When set, [u] is ignored by the Go core and
+  /// [protocol] is always [Protocol.openid4vp] — see [DcApiRequest].
+  @JsonKey(name: "dc_api", includeIfNull: false)
+  final DcApiRequest? dcApi;
+
   SessionPointer({
     required this.u,
     required this.irmaqr,
     required this.protocol,
     this.continueOnSecondDevice = false,
     this.openid4vciRedirectUri,
+    this.dcApi,
   });
+
+  /// A session the platform delivered through the Digital Credentials API.
+  ///
+  /// [u] and [irmaqr] carry no meaning here: the request arrives whole rather
+  /// than being fetched from a URL, so they are filled to satisfy the shape the
+  /// Go core's `SessionRequestData` embeds from `irma.Qr`.
+  factory SessionPointer.dcApi(DcApiRequest request) => SessionPointer(
+    u: "",
+    irmaqr: "disclosing",
+    protocol: Protocol.openid4vp,
+    dcApi: request,
+  );
 
   factory SessionPointer.fromJson(Map<String, dynamic> json) =>
       _$SessionPointerFromJson(json);
@@ -284,6 +337,11 @@ class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
 
   @override
   String? get openid4vciRedirectUri => _sessionPointer.openid4vciRedirectUri;
+
+  /// Delegated like every other member. In practice null: an issue wizard is
+  /// followed from a link, and a link carries no DC API request.
+  @override
+  DcApiRequest? get dcApi => _sessionPointer.dcApi;
 
   @override
   Map<String, dynamic> toJson() => {

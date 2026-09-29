@@ -48,6 +48,7 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
         ),
   remainingTxCodeAttempts: (json['remaining_tx_code_attempts'] as num?)
       ?.toInt(),
+  dcApiResponse: json['dc_api_response'] as String?,
 );
 
 const _$SessionTypeEnumMap = {

@@ -58,6 +58,13 @@ class SessionState {
   transactionCodeParameters;
   final int? remainingTxCodeAttempts;
 
+  /// The response to a session the platform delivered through the Digital
+  /// Credentials API. Present only for such a session, and only once it has
+  /// succeeded: this is what the wallet hands back to the caller instead of
+  /// transmitting it itself.
+  @JsonKey(name: "dc_api_response")
+  final String? dcApiResponse;
+
   SessionState({
     required this.id,
     required this.protocol,
@@ -78,6 +85,7 @@ class SessionState {
     this.authorizationRequestUrl,
     this.transactionCodeParameters,
     this.remainingTxCodeAttempts,
+    this.dcApiResponse,
   });
 
   factory SessionState.fromJson(Map<String, dynamic> json) =>
