@@ -68,6 +68,32 @@
               <data android:scheme="openid-credential-offer" />
             </intent-filter>
         </activity>
+        <!--
+            Answers credential requests routed here by Android's Credential Manager —
+            a browser calling navigator.credentials.get().
+
+            Its own task and excluded from recents: it is started on top of whatever
+            the user was doing, it owes its caller a result, and once that result is
+            sent it has no reason to be anywhere the user can navigate back to.
+            singleInstance so a second request cannot land on an Activity already
+            committed to answering a first.
+
+            Two actions because two generations of Credential Manager deliver the
+            request, matching the two types the registration pushes.
+        -->
+        <activity
+            android:name=".YiviDcApiActivity"
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode">
+            <intent-filter>
+                <action android:name="androidx.credentials.registry.provider.action.GET_CREDENTIAL" />
+                <action android:name="androidx.identitycredentials.action.GET_CREDENTIALS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
             android:exported="true">

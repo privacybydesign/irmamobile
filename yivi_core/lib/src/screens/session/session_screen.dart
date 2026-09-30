@@ -1,3 +1,4 @@
+import "dart:async";
 import "dart:io";
 
 import "package:flutter/services.dart";
@@ -10,11 +11,16 @@ import "../../models/return_url.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
+import "../../providers/dcapi_presentation_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
+import "../../theme/theme.dart";
 import "../../util/navigation.dart";
+import "../../util/screen_awake.dart";
 import "../../widgets/loading_indicator.dart";
+import "../../widgets/proving_indicator.dart";
+import "../../widgets/translated_text.dart";
 import "../error/session_error_screen.dart";
 import "../error/tx_code_lockout_screen.dart";
 import "call_info_screen.dart";
@@ -109,6 +115,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   void initState() {
     super.initState();
     _repo = ref.read(irmaRepositoryProvider);
+    // A session is user-attended from here until this screen goes away: the
+    // user reads the request, confirms, and then waits on work they cannot
+    // speed up. Letting the display time out in that window interrupts the
+    // flow, and on Android it also drops the app out of `top-app` and into the
+    // background cpuset — the little cluster — which roughly triples whatever
+    // is left of a ZK proof. Released in dispose, including when the user
+    // backs out mid-session.
+    unawaited(ScreenAwake.keepScreenOn());
     _repo.preferences.getLongPin().first.then((value) {
       if (mounted) setState(() => _hasLongPin = value);
     });
@@ -121,6 +135,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   @override
   void dispose() {
+    unawaited(ScreenAwake.allowScreenOff());
     // Dismiss unless we've already observed a terminal state. A null
     // `_lastSession?.value` means Go hasn't emitted any state yet — that
     // window exists because SessionScreen is now pushed before the first
@@ -197,6 +212,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
           _repo.clearInAppLaunches();
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
+              if (_leavePresentation()) return;
               if (widget.hasUnderlyingSession) {
                 context.popToUnderlyingSession();
               } else {
@@ -400,9 +416,31 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     };
   }
 
+  /// An org-iso-mdoc session spends its post-consent wait building a proof,
+  /// which is seconds rather than the fraction of one every other wait here
+  /// takes. Long enough that a spinner reads as a hang, so it gets an
+  /// indicator that visibly draws instead. Keyed on the protocol because that
+  /// is all this state knows: zeroKnowledge is only set on the state that
+  /// reaches success, which is the state after this one.
   Widget _buildLoadingScreen(SessionState? session) {
+    final isProving = session?.protocol == "iso18013-5";
     return SessionScaffold(
-      body: Center(child: LoadingIndicator()),
+      body: Center(
+        child: isProving
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const ProvingIndicator(),
+                  SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                  TranslatedText(
+                    "disclosure.proving",
+                    style: IrmaTheme.of(context).themeData.textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              )
+            : LoadingIndicator(),
+      ),
       onDismiss: _dismissSession,
       appBarTitle: session != null
           ? _getAppBarTitle(session)
@@ -433,6 +471,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     void pop() {
       if (mounted) {
+        if (_leavePresentation()) return;
         context.popToUnderlyingSessionOrHome(
           hasUnderlyingSession: widget.hasUnderlyingSession,
         );
@@ -518,6 +557,49 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       return _buildLoadingScreen(session);
     }
 
+    // A session the platform delivered through the Digital Credentials API has
+    // nowhere to hand the user back to: it carries no return URL, and the caller
+    // is a browser the wallet cannot raise. Everything below would therefore
+    // background the app the instant the response was sealed, so the person who
+    // had just proved something about themselves saw their wallet vanish and was
+    // told nothing at all.
+    //
+    // It also matters more here than on any other transport. A zero-knowledge
+    // presentation is unlinkable and reveals nothing to an observer, so this
+    // screen and the activity log are the only records the user will ever have
+    // that it happened -- and what was proved, rather than disclosed, is exactly
+    // the thing they cannot check afterwards for themselves.
+    //
+    // The wording is keyed on what the wallet actually did, not on the
+    // transport: org-iso-mdoc falls back to a plain signed disclosure whenever
+    // no circuit the reader offered matches, and claiming zero knowledge for one
+    // of those would be a false statement about the user's privacy.
+    if (session.dcApiResponse != null) {
+      // An org-iso-mdoc requestor is anonymous by design: nothing identified
+      // itself, and the origin the platform authenticated is the only thing
+      // known about it, so TrustedParty.name is deliberately empty. Showing the
+      // origin is what requestor_header and the activity log already do; the
+      // name would have left a blank in the middle of the sentence.
+      final otherParty = session.requestor.anonymous
+          ? (session.requestor.origin ?? "")
+          : session.requestor.name;
+
+      return DisclosureFeedbackScreen(
+        feedbackType: session.zeroKnowledge ? .zeroKnowledge : .success,
+        otherParty: otherParty,
+        // How long the wallet worked after the tap. Null unless it measured
+        // it, which drops the sentence rather than claiming it took no time.
+        duration: session.disclosureDuration,
+        // Stays in the wallet. Every other branch here hands the user back to
+        // where the session started -- a browser tab, the calling app -- but a
+        // DC API caller is a page the wallet cannot raise, so backgrounding was
+        // never handing them back to anything, just getting out of the way. Now
+        // that there is something worth reading on this screen, dismissing it
+        // lands on the wallet's own home instead of hiding the app.
+        onDismiss: (_) => pop(),
+      );
+    }
+
     // Same-device session: hand the user back to the calling app. iOS lacks a
     // programmatic way to do that, so we show ArrowBack telling them to tap
     // the back link in the status bar. On Android we move the task to the
@@ -575,6 +657,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // lives in the caller — so hand them back the same way _buildSuccess
     // does. Requestors that chain sessions rely on this: a failure mid-chain
     // is recoverable, but only from the page that started it.
+    // A presentation has its own way back — the Activity's result — and it must
+    // be taken instead of, not as well as, everything below. Backgrounding the
+    // app would leave the caller waiting on a result that is never delivered.
+    if (_leavePresentation()) return;
+
     final shouldReturnToCaller =
         session != null &&
         returnUrl == null &&
@@ -601,9 +688,26 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   void _popToUnderlyingOrHome() {
     if (!mounted) return;
+    if (_leavePresentation()) return;
     context.popToUnderlyingSessionOrHome(
       hasUnderlyingSession: widget.hasUnderlyingSession,
     );
+  }
+
+  /// Closes the Digital Credentials API presentation, if that is what this is,
+  /// and reports whether it did.
+  ///
+  /// This engine was started by an Activity to answer one request: there is no
+  /// home screen behind this session and nothing to pop to. Leaving means handing
+  /// the result back to the caller and closing, which only that Activity can do.
+  ///
+  /// Called at every exit and not only at success. A refusal and an error leave
+  /// the user just as finished, and each leaves a browser waiting on a result it
+  /// would otherwise sit on until it times out.
+  bool _leavePresentation() {
+    if (!ref.read(dcApiPresentationProvider)) return false;
+    _repo.bridgedDispatch(AndroidFinishDcApiPresentationEvent());
+    return true;
   }
 
   Future<void> _openReturnUrl(

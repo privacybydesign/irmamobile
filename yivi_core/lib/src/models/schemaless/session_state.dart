@@ -58,6 +58,33 @@ class SessionState {
   transactionCodeParameters;
   final int? remainingTxCodeAttempts;
 
+  /// The response to a session the platform delivered through the Digital
+  /// Credentials API. Present only for such a session, and only once it has
+  /// succeeded: this is what the wallet hands back to the caller instead of
+  /// transmitting it itself.
+  @JsonKey(name: "dc_api_response")
+  final String? dcApiResponse;
+
+  /// Whether the disclosure was made as a zero-knowledge proof rather than as a
+  /// signed disclosure. Only an org-iso-mdoc session can produce one.
+  ///
+  /// Not derivable in the app: the response above is sealed to the reader, and
+  /// the protocol name does not imply a proof, since a reader that leaves
+  /// zkRequired unset takes the plain ISO presentation whenever no circuit it
+  /// offered matches what the wallet can prove.
+  @JsonKey(name: "zero_knowledge", defaultValue: false)
+  final bool zeroKnowledge;
+
+  /// How long the wallet worked after the user agreed, in milliseconds:
+  /// candidate selection, deviceAuth, the proof when one is made, and sealing
+  /// the response. Only an org-iso-mdoc session reports it.
+  ///
+  /// Excludes the time the consent screen was on display, which is the user
+  /// reading rather than the wallet working and is the dominant term. Null when
+  /// the wallet did not measure it, which is not the same as zero.
+  @JsonKey(name: "disclosure_duration_ms")
+  final int? disclosureDurationMs;
+
   SessionState({
     required this.id,
     required this.protocol,
@@ -78,12 +105,20 @@ class SessionState {
     this.authorizationRequestUrl,
     this.transactionCodeParameters,
     this.remainingTxCodeAttempts,
+    this.dcApiResponse,
+    this.zeroKnowledge = false,
+    this.disclosureDurationMs,
   });
 
   factory SessionState.fromJson(Map<String, dynamic> json) =>
       _$SessionStateFromJson(json);
 
   ReturnURL? get parsedClientReturnUrl => ReturnURL.parse(clientReturnUrl);
+
+  /// [disclosureDurationMs] as a Duration, or null when nothing was measured.
+  Duration? get disclosureDuration => disclosureDurationMs == null
+      ? null
+      : Duration(milliseconds: disclosureDurationMs!);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)

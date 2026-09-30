@@ -106,6 +106,22 @@ type schemalessCredentialStoreEvent struct {
 	Credentials []*clientmodels.CredentialStoreItem `json:"credentials"`
 }
 
+// dcApiRegistrationEvent carries the credential database the Android layer
+// registers with Credential Manager, so the platform can decide -- with the
+// wallet not running -- whether this wallet can answer a Digital Credentials API
+// request at all.
+//
+// It never reaches Dart. The Android bridge intercepts it, registers, and stops
+// there: nothing in the app's UI depends on it, and pushing a large base64
+// string into the Flutter engine on every credential change would cost the UI
+// thread for no one's benefit.
+//
+// Database is CBOR, so it JSON-marshals as base64 -- which is the form it has to
+// cross the bridge in anyway.
+type dcApiRegistrationEvent struct {
+	Database []byte `json:"database"`
+}
+
 type enrollmentStatusEvent struct {
 	EnrolledSchemeManagerIds   []irma.SchemeManagerIdentifier `json:"enrolled_scheme_manager_ids"`
 	UnenrolledSchemeManagerIds []irma.SchemeManagerIdentifier `json:"unenrolled_scheme_manager_ids"`

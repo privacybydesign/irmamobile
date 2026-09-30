@@ -68,7 +68,17 @@ func (p writer) Write(b []byte) (int, error) {
 // Start is invoked from the native side, when the app starts. locale is the
 // effective app language (a bare language code such as "nl"); irmago uses it
 // to resolve all app-facing text and logos.
-func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, signer Signer, aesKey []byte, locale string) {
+//
+// It returns an attachment id to hand back to StopAttachment. More than one
+// native side can be attached at once — a Digital Credentials API presentation
+// runs in its own Activity while the wallet's own Activity is still alive — and
+// the id is what detaches the right one. See attachments.go. A caller that
+// cannot keep the id calls Stop instead, which detaches the most recent.
+//
+// Named return so the error paths below can keep returning bare: every one of
+// them leaves an attachment behind on purpose, because the native side that
+// asked for it still exists and still has to be told what went wrong.
+func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, signer Signer, aesKey []byte, locale string) (attachmentID int) {
 	defer recoverFromEarlyPanic("Starting of bridge panicked")
 
 	// Copy the byte slice to a byte array. This enforces the correct key size and prevents that the
@@ -76,12 +86,15 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	var aesKeyCopy [32]byte
 	copy(aesKeyCopy[:], aesKey)
 
-	bridge = givenBridge
+	attachmentID = attach(givenBridge)
 
 	if yiviClient != nil || clientErr != nil {
 		// If this function was run previously, either client or clientErr (or both) will be non-nil.
 		// In the first case, nothing to do. In the second case, retrying won't help. Either way, we
 		// just return - also ensuring that clientLoaded is not closed a second time, which would panic.
+		//
+		// The attachment above still stands: the client this native side needs is
+		// the one already running, and it now receives that client's events.
 		return
 	}
 
@@ -167,7 +180,11 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// set to trace level for initializing client, then determine the level based on whether dev mode is enabled
 	irma.Logger.SetLevel(logrus.InfoLevel)
-	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy, locale)
+	// The zero-knowledge prover, when this build has one. Absent is the
+	// ordinary case and produces no options at all — see zkprover_off.go.
+	zkOptions := zkProverOptions()
+
+	yiviClient, err = client.New(appVersionDataPath, irmaConfigurationPath, eudiAppDataPath, bridgeClientHandler, sessionHandler, signer, aesKeyCopy, locale, zkOptions...)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
@@ -181,6 +198,8 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	// the interval, and wakes the app itself through ClientHandler.
 	// CredentialsChanged whenever a status actually moved.
 	yiviClient.InitJobs(eudiCrlUpdateInterval, statusTokenListRefreshInterval)
+
+	return
 }
 
 func dispatchEvent(event any) {
@@ -195,7 +214,33 @@ func dispatchEvent(event any) {
 	bridge.DispatchFromGo(eventName, string(jsonBytes))
 }
 
+// Stop detaches the most recently attached native side, tearing the client down
+// if it was the last one.
+//
+// For a caller that kept the id Start returned, StopAttachment is the one to
+// use: this one is only correct while attachments unwind in the order they were
+// made.
 func Stop() {
+	if !detachLast() {
+		return
+	}
+	teardown()
+}
+
+// StopAttachment detaches the native side that Start handed this id to, tearing
+// the client down if it was the last one.
+//
+// Detaching one of several attachments must not close the client: the others are
+// still reading the same encrypted database, and the Activity the user returns
+// to after a credential request would find its wallet gone.
+func StopAttachment(attachmentID int) {
+	if !detach(attachmentID) {
+		return
+	}
+	teardown()
+}
+
+func teardown() {
 	defer recoverFromEarlyPanic("Closing of bridge panicked")
 
 	if yiviClient != nil {
@@ -208,6 +253,7 @@ func Stop() {
 	yiviClient = nil
 	clientErr = nil
 	clientLoaded = make(chan struct{})
+	resetAttachments()
 }
 
 func reportError(err *errors.Error, fatal bool) {

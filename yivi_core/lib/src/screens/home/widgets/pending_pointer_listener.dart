@@ -7,7 +7,14 @@ import "../../../providers/irma_repository_provider.dart";
 import "../../../util/handle_pointer.dart";
 
 /// Picks up a queued session/URL pointer and starts the session — but only
-/// once the app is unlocked. While locked the pointer waits behind the lock
+/// once the app is unlocked.
+///
+/// Mounted in two places, one per way a session reaches the app: the home
+/// screen, where the user opened Yivi themselves, and the Digital Credentials
+/// API presentation route, where Android's Credential Manager opened it to answer
+/// one request. Both wait for the same unlock and start the session identically.
+///
+/// While locked the pointer waits behind the lock
 /// overlay's PIN: starting it earlier would let the session hit `requestPin`
 /// before the unlock refreshes the keyshare token (a second PIN prompt), and
 /// would clear the pending-pointer signal the lock screen uses to hide

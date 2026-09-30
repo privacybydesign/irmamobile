@@ -23,6 +23,7 @@ import "../models/enrollment_status.dart";
 import "../models/error_event.dart";
 import "../models/eudi_configuration.dart";
 import "../models/event.dart";
+import "../models/handle_dcapi_event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/issue_wizard.dart";
@@ -257,6 +258,14 @@ class IrmaRepository {
       } on MissingPointer catch (e, stackTrace) {
         reportError(e, stackTrace);
       }
+    } else if (event is HandleDcApiEvent) {
+      // Straight onto the same stream a universal link feeds. Everything
+      // downstream — navigation, the consent screen, the session itself — is
+      // the path an ordinary disclosure already takes, and nothing there has to
+      // know the request arrived from the operating system rather than a link.
+      _pendingPointerSubject.add(event.toPointer());
+      _resumedWithURLSubject.add(true);
+      closeInAppWebView();
     } else if (event is AppReadyAckEvent) {
       // Native's acknowledgement that the launch handshake is done. It is sent
       // right AFTER any initial-URL `HandleURLEvent`, so on a cold start started
@@ -265,6 +274,16 @@ class IrmaRepository {
       // biometric auto-scan on this, so biometric can never win the race against
       // the link and unlock the app before the session pointer is known.
       _startupUrlResolvedSubject.add(true);
+    } else if (event is UnlockHandoverEvent) {
+      // An unlock this process already completed, in the engine that answered a
+      // credential request. Native sends it only after a presentation ended, and
+      // a presentation cannot begin before the app is unlocked — so this reports
+      // an unlock that happened rather than standing in for one.
+      //
+      // Local, exactly like a biometric unlock: it opens the app shell and says
+      // nothing about the keyshare token, so any session started from here still
+      // asks for the PIN. See UnlockHandover on the native side for the fences.
+      _lockedSubject.add(false);
     } else if (event is NewSessionEvent) {
       _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {

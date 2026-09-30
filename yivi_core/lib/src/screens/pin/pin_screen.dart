@@ -238,11 +238,9 @@ class _PinScreenState extends ConsumerState<PinScreen>
     final biometricAvailable =
         ref.watch(biometricAvailableProvider).value ?? false;
     final biometricEnabled = ref.watch(biometricEnabledProvider).value ?? false;
-    // Hide biometric when a session is pending: biometric unlock doesn't refresh
-    // the keyshare token, so the session would still demand the PIN — a second
-    // prompt. Entering the PIN here refreshes the token and the session proceeds.
-    final hasPendingSession = ref.watch(pendingPointerProvider) != null;
-    // Also hide it while a session is in flight. If the app was unlocked when it
+    final pendingPointer = ref.watch(pendingPointerProvider);
+    final hasPendingSession = pendingPointer != null;
+    // Also matters while a session is in flight. If the app was unlocked when it
     // went to the background, a link arriving then starts the session
     // immediately (clearing the pending pointer) before the resume idle-lock
     // re-locks — so `hasPendingSession` is already false by the time this lock
@@ -250,9 +248,20 @@ class _PinScreenState extends ConsumerState<PinScreen>
     // idle-lock cleared, so it must be admitted by PIN, not biometric (#654).
     final hasInFlightSession = ref.watch(hasInFlightSessionProvider);
     // A pending pointer or an in-flight session both mean "a session is waiting
-    // behind this lock" — used to hide biometric and to show the ✕ that cancels
-    // it and returns to the normal unlock screen.
+    // behind this lock" — used to show the ✕ that cancels it and returns to the
+    // normal unlock screen.
     final hasSession = hasPendingSession || hasInFlightSession;
+    // Whether that waiting session forces the PIN. Biometric unlock does not
+    // refresh the keyshare token, so a session that needs the token would go on
+    // to demand the PIN anyway — a second prompt for an unlock already done.
+    //
+    // Not every waiting session needs it. One delivered through the Digital
+    // Credentials API discloses an EUDI credential, held locally and signed with
+    // a local device key, and never reaches the keyshare server at all; making
+    // the user type a PIN there buys nothing and costs them the unlock they
+    // chose. See pointerNeedsPinUnlock.
+    final sessionNeedsPin =
+        pointerNeedsPinUnlock(pendingPointer) || hasInFlightSession;
     // Hold biometric back until native has acknowledged the launch handshake.
     // On a cold start opened by a universal link, the session pointer is queued
     // just before this flips true, so by the time biometric is allowed
@@ -269,7 +278,7 @@ class _PinScreenState extends ConsumerState<PinScreen>
         biometricAvailable &&
         biometricEnabled &&
         !blocked &&
-        !hasSession &&
+        !sessionNeedsPin &&
         startupUrlResolved;
     final biometricType = ref.watch(biometricTypeProvider).value;
 

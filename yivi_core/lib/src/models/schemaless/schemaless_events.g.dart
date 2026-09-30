@@ -109,6 +109,8 @@ TrustedParty _$TrustedPartyFromJson(Map<String, dynamic> json) => TrustedParty(
       ? null
       : TrustedParty.fromJson(json['parent'] as Map<String, dynamic>),
   verified: json['verified'] as bool,
+  anonymous: json['anonymous'] as bool? ?? false,
+  origin: json['origin'] as String?,
   imagePath: json['image_path'] as String?,
   image: json['image'] == null
       ? null
@@ -124,6 +126,8 @@ Map<String, dynamic> _$TrustedPartyToJson(TrustedParty instance) =>
       'image': instance.image,
       'parent': instance.parent,
       'verified': instance.verified,
+      'anonymous': instance.anonymous,
+      'origin': instance.origin,
     };
 
 LogoImage _$LogoImageFromJson(Map<String, dynamic> json) => LogoImage(

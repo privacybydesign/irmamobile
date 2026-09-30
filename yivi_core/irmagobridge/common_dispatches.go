@@ -162,6 +162,34 @@ func dispatchSchemalessCredentialsEvent() {
 
 func dispatchCredentialsEvent() {
 	dispatchSchemalessCredentialsEvent()
+	dispatchDcApiRegistrationEvent()
+}
+
+// dispatchDcApiRegistrationEvent hands the Android layer a fresh credential
+// database for Credential Manager.
+//
+// Deliberately bound to dispatchCredentialsEvent rather than to irmago's
+// ClientHandler.CredentialsChanged. That signal is raised from three places --
+// logo backfill, revocation refresh and removal -- and none of them covers a
+// credential just issued, so a freshly obtained credential would stay invisible
+// to the picker until something unrelated happened. This function runs wherever
+// the app already re-reads its credential list, which includes every finished
+// session (YiviSessionHandler.UpdateSession) and a locale change.
+//
+// A failure is reported and swallowed. Registration is not part of any session
+// the user is waiting on: the cost of failing is that the wallet keeps whatever
+// the platform last accepted, which is the same outcome as never having
+// registered, and failing a credential refresh over it would take the wallet's
+// own UI down with it.
+func dispatchDcApiRegistrationEvent() {
+	database, err := yiviClient.CredentialManagerDatabase()
+	if err != nil {
+		reportError(errors.Errorf("Failed to build the credential manager database: %w", err), false)
+		return
+	}
+	dispatchEvent(&dcApiRegistrationEvent{
+		Database: database,
+	})
 }
 
 func dispatchEnrollmentStatusEvent() {

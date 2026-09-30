@@ -70,6 +70,19 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 SQLCIPHER_VERSION="4.14.0"
 PREBUILT_DIR="${SCRIPT_DIR}/build/sqlcipher-prebuilt"
+
+# The zero-knowledge prover's static libraries, per ABI, in the same layout and
+# for the same reason as SQLCipher's: gomobile cannot pass per-ABI CGO flags, so
+# each ABI is bound separately against its own .a files.
+#
+# Unlike SQLCipher this is NOT downloaded. The libraries are built from
+# longfellow-zk source (see longfellow-go/scripts/package-android-libs.sh), and
+# a build that has not produced them simply links no prover: the wallet then
+# falls back to the plain ISO mDoc presentation, which AV Annex A section A.8
+# requires of any device that cannot generate a proof. That makes the prover an
+# opt-in addition to this script rather than a new hard dependency for everyone
+# who builds the app.
+LONGFELLOW_DIR="${SCRIPT_DIR}/build/longfellow-prebuilt"
 PREBUILT_BASE_URL="https://github.com/privacybydesign/yivi-sqlcipher-prebuilt/releases/download/v${SQLCIPHER_VERSION}"
 
 ANDROID_SHA256="2ef9e2a78bdf6d9c92f49efd7b3676147242e2e4566c1d64f0335082b0ddf55e"
@@ -192,14 +205,32 @@ build_android_abi() {
   local abi
   abi="$(get_abi "$target")"
   local android_dir="${PREBUILT_DIR}/android"
+  local longfellow_dir="${LONGFELLOW_DIR}/android"
+
+  local cflags="-I${android_dir}/include -I${android_dir}/include/sqlcipher"
+  local ldflags="-L${android_dir}/${abi}/lib"
+  local tags="jwx_es256k"
+
+  # Link the zero-knowledge prover only when its libraries exist for THIS abi.
+  # The build tag is what decides whether irmagobridge imports longfellow-go at
+  # all, so a tree without the libraries compiles with no reference to it and
+  # links nothing extra -- see irmagobridge/zkprover_off.go.
+  if [ -f "${longfellow_dir}/${abi}/lib/libmdoc_static.a" ]; then
+    cflags="${cflags} -I${longfellow_dir}/include"
+    ldflags="${ldflags} -L${longfellow_dir}/${abi}/lib"
+    tags="${tags},longfellow"
+    echo "    ${abi}: linking the zero-knowledge prover"
+  else
+    echo "    ${abi}: no longfellow libraries, building without the prover"
+  fi
 
   echo "==> Building gomobile for ${target} (${abi})..."
 
-  CGO_CFLAGS="-I${android_dir}/include -I${android_dir}/include/sqlcipher" \
-  CGO_LDFLAGS="-L${android_dir}/${abi}/lib" \
+  CGO_CFLAGS="${cflags}" \
+  CGO_LDFLAGS="${ldflags}" \
   gomobile bind -target "${target}" -androidapi 26 \
     -o "${outfile}" \
-    -tags jwx_es256k \
+    -tags "${tags}" \
     github.com/privacybydesign/irmamobile/irmagobridge
 }
 

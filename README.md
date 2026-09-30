@@ -32,7 +32,12 @@ The repository is organized as three Flutter packages plus a Go bridge:
 
 * `yivi_core` — shared business logic, the Dart bindings for `irmagobridge`, and the Go bridge build outputs (`android/irmagobridge/irmagobridge.aar` and `ios/Irmagobridge.xcframework`).
 * `yivi_app` — the main Play Store / App Store application. Integration tests live here under `integration_test/`.
-* `yivi_fdroid` — the F-Droid build variant of the app.
+* `yivi_fdroid` — the F-Droid build variant of the app. It carries neither Google Play Services nor prebuilt
+  binaries, because the F-Droid build server permits neither — which is why `fdroid_build.sh` cross-compiles
+  SQLCipher from source. That constraint decides where code goes, not just how it is packaged: anything needing
+  either belongs in `yivi_app` (ML Kit, and the Credential Manager registration with its WebAssembly matcher),
+  with `yivi_fdroid` supplying an alternative or going without. `yivi_core` is shared by both, so it must stay
+  free of both.
 * `irmagobridge/` and the `irma_configuration` submodule sit at the repository root.
 
 Most commands below should be run from one of these subdirectories. The [`just`](#using-just) recipes take care of `cd`-ing into the right place for you.
@@ -207,6 +212,13 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
   `ln -s $ANDROID_HOME/ndk/<NDK_VERSION> $ANDROID_HOME/ndk-bundle`. In here `<NDK_VERSION>` should be replaced
   with the NDK version you want to use.
 * When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK or your Go version is too old.
+* On Windows, `./bind_go.sh android/arm64` prints `Skipping arm64-v8a (not supported on Windows)` and builds
+  nothing — the AAR is left as it was, so the next build silently uses a stale bridge and any Go change appears
+  not to have taken effect. Build arm64 from WSL, which needs a **Linux** NDK: the NDK under a Windows
+  `ANDROID_HOME` ships only `toolchains/llvm/prebuilt/windows-x86_64`, and gomobile fails looking for the
+  `linux-x86_64` one. `./bind_go.sh android/amd64` does run on Windows, but only for an x86_64 emulator, and it
+  needs native-style include paths: the MSYS-style `-I/d/...` the script exports never reaches clang as a path
+  it understands, so the first `#include` fails.
 * When the flutter tool cannot find the generated apk after building for Android, the flavor is probably omitted. You need to run `flutter run --flavor alpha` or `flutter run --flavor beta`.
 * When you are working with Windows, you need to manually make a symlink between the configuration folders. You can do this by opening a terminal as administrator and use the following command: `mklink /d .\android\app\src\main\assets\irma_configuration .\irma_configuration`.
 * When Java jdk version is not compatible: set the jdk version flutter uses with `flutter config --jdk-dir <jdk_dir>`. Version 21 is required for this app (don't try to fiddle with gradle versions).

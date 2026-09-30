@@ -9,8 +9,25 @@ import "regula_face_service.dart";
 import "sms_retriever.dart";
 import "store_review_service.dart";
 
-void main() {
+void main() => _run();
+
+/// Entry point for the Activity that answers a Digital Credentials API request —
+/// a browser calling `navigator.credentials.get()`, routed here by Android's
+/// Credential Manager.
+///
+/// Named on the native side by `YiviDcApiActivity.getDartEntrypointFunctionName`,
+/// and marked as an entry point so tree shaking keeps it: nothing in Dart calls
+/// it, so to the compiler it is dead code.
+///
+/// The same app started somewhere else. The user did not open Yivi — a web page
+/// asked Yivi a question — so it waits on the splash for that request instead of
+/// loading the wallet, and the Activity closes it once the question is answered.
+@pragma("vm:entry-point")
+void dcApiMain() => _run(dcApiPresentation: true);
+
+void _run({bool dcApiPresentation = false}) {
   runYiviApp(
+    dcApiPresentation: dcApiPresentation,
     qrScannerFactory: MobileScannerQrFactory(),
     ocrProcessor: GoogleMLKitOcrProcessor(),
     smsRetriever: Platform.isAndroid

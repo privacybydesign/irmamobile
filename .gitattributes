@@ -1,0 +1,6 @@
+# The Credential Manager matcher is a WebAssembly binary. Git's own heuristic
+# would classify it correctly today (a .wasm starts with a NUL byte), but that is
+# the default behaving well rather than a rule, and the moment anyone adds a
+# blanket `* text` line it would be rewritten on checkout and rejected by the
+# platform's WASM runtime with nothing naming the cause.
+*.wasm binary
