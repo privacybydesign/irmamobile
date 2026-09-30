@@ -113,7 +113,6 @@ class SchemalessCredentialOrderController
     _debouncedSave(current);
   }
 
-
   void _debouncedSave(List<schemaless.Credential> items) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () async {

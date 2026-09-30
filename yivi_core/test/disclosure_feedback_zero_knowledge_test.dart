@@ -51,10 +51,7 @@ void main() {
 /// so the body sits left-aligned under a centred title unless the sheet says
 /// otherwise. Neither failure throws; both just look wrong.
 void _markdownRendering() {
-  Future<MarkdownBody> render(
-    WidgetTester tester, {
-    Duration? duration,
-  }) async {
+  Future<MarkdownBody> render(WidgetTester tester, {Duration? duration}) async {
     final widget = IrmaTheme(
       builder: (_) => MaterialApp(
         localizationsDelegates: [
@@ -103,9 +100,11 @@ void _markdownRendering() {
 
     await render(tester);
 
-    return tester.widgetList<RichText>(find.byType(RichText)).firstWhere(
-      (text) => text.text.toPlainText().startsWith("Your data never left"),
-    );
+    return tester
+        .widgetList<RichText>(find.byType(RichText))
+        .firstWhere(
+          (text) => text.text.toPlainText().startsWith("Your data never left"),
+        );
   }
 
   testWidgets("the explanation is centred", (tester) async {
@@ -134,7 +133,10 @@ void _markdownRendering() {
   testWidgets("a measured disclosure reports how long the proof took", (
     tester,
   ) async {
-    final markdown = await render(tester, duration: const Duration(milliseconds: 1180));
+    final markdown = await render(
+      tester,
+      duration: const Duration(milliseconds: 1180),
+    );
     // Three decimals: the wallet measures whole milliseconds and the screen
     // now shows all of them, so 1180 ms reads as "1.180" rather than "1.2".
     //
@@ -166,10 +168,14 @@ void _markdownRendering() {
     // exact symptom this guards, and one a wide test surface hides.
     final paragraphWidth = tester.getSize(find.byWidget(paragraph)).width;
     final columnWidth = tester
-        .getSize(find.ancestor(
-          of: find.byType(MarkdownBody),
-          matching: find.byType(Column),
-        ).first)
+        .getSize(
+          find
+              .ancestor(
+                of: find.byType(MarkdownBody),
+                matching: find.byType(Column),
+              )
+              .first,
+        )
         .width;
     expect(
       paragraphWidth,
@@ -194,10 +200,16 @@ void _markdownRendering() {
       return true;
     });
 
-    expect(paragraph.text.toPlainText(), isNot(contains("**")),
-        reason: "literal asterisks mean the markdown path was not taken");
+    expect(
+      paragraph.text.toPlainText(),
+      isNot(contains("**")),
+      reason: "literal asterisks mean the markdown path was not taken",
+    );
     expect(weights, isNotEmpty);
-    expect(weights.every((w) => w == FontWeight.bold || w == FontWeight.w700),
-        isTrue, reason: "resolved weights were $weights");
+    expect(
+      weights.every((w) => w == FontWeight.bold || w == FontWeight.w700),
+      isTrue,
+      reason: "resolved weights were $weights",
+    );
   });
 }

@@ -196,8 +196,6 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
 
   @Override
   public void dispatchFromGo(String name, String payload) {
-    dumpDcApiResponse(payload);
-
     if (DC_API_REGISTRATION_EVENT.equals(name)) {
       handleDcApiRegistration(payload);
       return;
@@ -281,59 +279,6 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       registrar.register(Base64.decode(encoded, Base64.DEFAULT));
     } catch (JSONException | IllegalArgumentException e) {
       debugLog("[dcapi] could not read the credential database: " + e.getMessage());
-    }
-  }
-
-  /**
-   * LOCAL DEVELOPMENT ONLY -- DO NOT COMMIT. Writes a Digital Credentials API response to a file so
-   * it can be read back off the device.
-   *
-   * <p>logcat cannot carry one. Android caps a single log entry at 4068 bytes, and a
-   * zero-knowledge response is around 480 KB of base64: a capture on 2026-09-23 recovered 7% of one
-   * and no closing quote, which is enough to see that a response was large and not enough to see
-   * what was in it. Telling a real proof from a plain presentation means decrypting the whole
-   * thing, so the whole thing has to leave the device intact.
-   *
-   * <p>Read it with:
-   *
-   * <pre>
-   *   adb shell run-as org.irmacard.cardemu.alpha cat files/dcapi_response.b64 &gt; response.b64
-   *   mintreq -check response.b64
-   * </pre>
-   *
-   * <p>Overwritten each time, and only written when a response is actually present, so an ordinary
-   * session leaves nothing behind.
-   */
-  private void dumpDcApiResponse(String payload) {
-    if (payload == null || !payload.contains("dc_api_response")) {
-      return;
-    }
-    try {
-      JSONObject event = new JSONObject(payload);
-      // snake_case, matching the Go field tag. An earlier version looked for
-      // "SessionState", fell through to the outer object, found nothing there
-      // and returned without a word -- so the file was simply never written and
-      // nothing said why.
-      JSONObject state = event.optJSONObject("session_state");
-      if (state == null) {
-        state = event;
-      }
-      String response = state.optString("dc_api_response", "");
-      if (response.isEmpty()) {
-        // Reachable only when the payload contains the key and this code cannot
-        // find it, which means the event shape moved. Silence here is what cost
-        // a debugging round; a log is the difference between a wrong guess and
-        // a known one.
-        debugLog("[dcapi] payload carries dc_api_response but not where expected; the event shape changed");
-        return;
-      }
-      java.io.File out = new java.io.File(context.getFilesDir(), "dcapi_response.b64");
-      try (java.io.FileOutputStream stream = new java.io.FileOutputStream(out)) {
-        stream.write(response.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-      }
-      debugLog("[dcapi] response written to " + out.getAbsolutePath() + " (" + response.length() + " chars)");
-    } catch (JSONException | java.io.IOException e) {
-      debugLog("[dcapi] could not write the response: " + e.getMessage());
     }
   }
 

@@ -114,8 +114,7 @@ void main() {
     final en =
         json.decode(File("assets/locales/en.json").readAsStringSync())
             as Map<String, dynamic>;
-    final text =
-        ((en["disclosure"] as Map)["feedback"] as Map)["text"] as Map;
+    final text = ((en["disclosure"] as Map)["feedback"] as Map)["text"] as Map;
 
     final timed = text["zero_knowledge_markdown_timed"] as String?;
     expect(timed, isNotNull, reason: "the timed variant must exist");
