@@ -486,3 +486,27 @@ class RequestorInfo {
       _$RequestorInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RequestorInfoToJson(this);
 }
+
+/// Whether unlocking the app for this pointer has to be done with the PIN
+/// rather than with biometrics.
+///
+/// Biometric unlock opens the app shell without refreshing the keyshare token
+/// that the idle lock cleared, so a session that needs that token would go on to
+/// demand the PIN anyway — a second prompt for an unlock the user already did.
+/// Hiding biometrics whenever a session is waiting is what avoids that.
+///
+/// A session delivered through the Digital Credentials API is the exception, and
+/// not by special-casing: it discloses an EUDI credential, which is held locally
+/// and signed with a local device key, so nothing in it ever reaches the keyshare
+/// server. `Status_RequestPin` is emitted from one place in irmago — the IRMA
+/// adapters — and that path is not on this one. There is therefore no second
+/// prompt to avoid, and refusing biometrics only makes the user type a PIN to
+/// answer a request a browser is waiting on.
+bool pointerNeedsPinUnlock(Pointer? pointer) {
+  if (pointer == null) return false;
+  if (pointer is SessionPointer) return pointer.dcApi == null;
+  // Anything else is an IRMA flow — an issue wizard, a legacy session — and
+  // those do need the token. Defaulting to "PIN" keeps a new pointer type safe
+  // until somebody decides otherwise.
+  return true;
+}

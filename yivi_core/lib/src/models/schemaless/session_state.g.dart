@@ -50,6 +50,7 @@ SessionState _$SessionStateFromJson(Map<String, dynamic> json) => SessionState(
       ?.toInt(),
   dcApiResponse: json['dc_api_response'] as String?,
   zeroKnowledge: json['zero_knowledge'] as bool? ?? false,
+  disclosureDurationMs: (json['disclosure_duration_ms'] as num?)?.toInt(),
 );
 
 const _$SessionTypeEnumMap = {

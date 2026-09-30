@@ -112,4 +112,14 @@ dependencies {
     implementation "com.google.mlkit:text-recognition-devanagari:16.0.0"
     implementation "com.google.mlkit:text-recognition-japanese:16.0.0"
     implementation "com.google.mlkit:text-recognition-korean:16.0.0"
+
+    // Registers the wallet with Android's Credential Manager so a browser calling
+    // navigator.credentials.get() can reach it. Declared here and not in yivi_core:
+    // this is Play Services, and yivi_core is shared with the F-Droid application,
+    // whose build server permits neither it nor the prebuilt matcher it goes with.
+    // Keeping it at application level is the same split that already puts ML Kit
+    // here and Tesseract in yivi_fdroid.
+    implementation "com.google.android.gms:play-services-identity-credentials:16.0.0-alpha08"
+    implementation "androidx.credentials:credentials:1.5.0"
+    implementation "androidx.credentials.registry:registry-provider:1.0.0-alpha03"
 }

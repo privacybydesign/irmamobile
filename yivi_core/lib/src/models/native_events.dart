@@ -46,3 +46,45 @@ class AndroidSendToBackgroundEvent extends Event {
 
   Map<String, dynamic> toJson() => _$AndroidSendToBackgroundEventToJson(this);
 }
+
+/// Tells the Activity that opened this engine to answer a Digital Credentials
+/// API request that the user is done with it, so it can hand its result back and
+/// close.
+///
+/// Distinct from [AndroidSendToBackgroundEvent], which means the same thing for
+/// the wallet's own Activity. It cannot be reused here: backgrounding leaves the
+/// caller waiting on a result that is never sent, and the browser's request hangs
+/// until it times out.
+///
+/// The result itself was already set when the response was produced. This only
+/// says when to show it — which is after the user has read what was shared, not
+/// the instant the wallet finished working.
+@JsonSerializable(createFactory: false)
+class AndroidFinishDcApiPresentationEvent extends Event {
+  AndroidFinishDcApiPresentationEvent();
+
+  Map<String, dynamic> toJson() =>
+      _$AndroidFinishDcApiPresentationEventToJson(this);
+}
+
+/// An unlock this process already completed, carried into a freshly started
+/// engine.
+///
+/// Sent only after a Digital Credentials API presentation ended, which cannot
+/// happen before the user unlocked: the session starts behind the lock screen.
+/// So it reports a fact about this process rather than granting anything —
+/// somebody authenticated here, moments ago, and is now being handed to the
+/// wallet as part of the same continuous action.
+///
+/// The lock lives per Flutter engine ([IrmaRepository] seeds it locked), and a
+/// presentation runs in a second one. Without this the user unlocks to approve a
+/// disclosure and unlocks again seconds later to look at the record of it.
+///
+/// See UnlockHandover on the native side for how narrowly it is fenced.
+@JsonSerializable(createToJson: false)
+class UnlockHandoverEvent extends Event {
+  UnlockHandoverEvent();
+
+  factory UnlockHandoverEvent.fromJson(Map<String, dynamic> json) =>
+      _$UnlockHandoverEventFromJson(json);
+}

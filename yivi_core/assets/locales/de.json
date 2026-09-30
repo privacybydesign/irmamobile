@@ -186,14 +186,16 @@
       },
       "text": {
         "success": "Ihre Daten wurden an {otherParty} weitergegeben",
-        "zero_knowledge_markdown": "Ihre Daten haben Ihr Gerät nie verlassen.\n\n**{otherParty}** hat einen mathematischen Beweis für genau das erhalten, was Sie teilen wollten — niemals die Daten selbst, sodass diese Weitergabe mit keiner anderen verknüpft werden kann.",
+        "zero_knowledge_markdown": "**Ihre Daten haben Ihr Gerät nie verlassen.**\n\n**{otherParty}** hat einen mathematischen Beweis für genau das erhalten, was Sie teilen wollten — niemals die Daten selbst, sodass diese Weitergabe mit keiner anderen verknüpft werden kann.",
         "success_signature": "Sie haben die Anfrage von {otherParty} signiert",
         "canceled": "Ihre Daten wurden nicht an {otherParty} weitergegeben",
         "canceled_signature": "Sie haben die Anfrage von {otherParty} nicht signiert",
         "not_satisfiable": "Ihre Daten wurden nicht weitergegeben, weil {otherParty} veraltete Daten anfordert. Sie können nichts tun, um dies zu beheben. Bitte kontaktieren Sie die anfragende Partei.",
-        "not_satisfiable_signature": "{otherParty} fordert Sie auf, mit veralteten Daten zu signieren. Sie können dieses Problem selbst nicht beheben. Bitte kontaktieren Sie die anfragende Partei."
+        "not_satisfiable_signature": "{otherParty} fordert Sie auf, mit veralteten Daten zu signieren. Sie können dieses Problem selbst nicht beheben. Bitte kontaktieren Sie die anfragende Partei.",
+        "zero_knowledge_markdown_timed": "**Ihre Daten haben Ihr Gerät nie verlassen.**\n\n**{otherParty}** hat einen mathematischen Beweis für genau das erhalten, was Sie teilen wollten — niemals die Daten selbst, sodass diese Weitergabe mit keiner anderen verknüpft werden kann.\n\nIhr Gerät hat den Nachweis in **{duration}** Sekunden erstellt."
       }
-    }
+    },
+    "proving": "Ihr Nachweis wird erstellt…"
   },
   "disclosure_permission": {
     "title": "Datenanfrage",

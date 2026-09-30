@@ -30,11 +30,17 @@ class App extends ConsumerStatefulWidget {
   final NotificationsBloc notificationsBloc;
   final Duration? idleLockThreshold;
 
+  /// Whether this engine exists to answer one Digital Credentials API request
+  /// rather than to be the user's wallet. It then starts on the presentation
+  /// route instead of loading into the home screen; see [dcApiPresentationRoute].
+  final bool dcApiPresentation;
+
   const App({
     super.key,
     required this.notificationsBloc,
     this.forcedLocale,
     this.idleLockThreshold,
+    this.dcApiPresentation = false,
   });
 
   @override
@@ -133,7 +139,13 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
     try {
       _router;
     } catch (_) {
-      _router = createRouter(context, ref);
+      _router = createRouter(
+        context,
+        ref,
+        initialLocation: widget.dcApiPresentation
+            ? dcApiPresentationRoute
+            : "/loading",
+      );
     }
   }
 

@@ -54,7 +54,12 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
             return
         }
 
-        IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey, locale)
+        // Start returns an attachment id now, for platforms where more than one
+        // native side drives the same wallet client at once — on Android a Digital
+        // Credentials API presentation runs in its own Activity alongside the
+        // wallet's. iOS has exactly one, so the id is discarded and the Stop below
+        // detaches the most recent attachment, which is this one.
+        _ = IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey, locale)
         started = true
     }
 

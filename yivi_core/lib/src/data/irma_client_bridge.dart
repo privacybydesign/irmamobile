@@ -42,6 +42,7 @@ class IrmaClientBridge extends IrmaBridge {
     HandleDcApiEvent: (j) => HandleDcApiEvent.fromJson(j),
 
     AppReadyAckEvent: (j) => AppReadyAckEvent.fromJson(j),
+    UnlockHandoverEvent: (j) => UnlockHandoverEvent.fromJson(j),
 
     EnrollmentSuccessEvent: (j) => EnrollmentSuccessEvent.fromJson(j),
     EnrollmentFailureEvent: (j) => EnrollmentFailureEvent.fromJson(j),

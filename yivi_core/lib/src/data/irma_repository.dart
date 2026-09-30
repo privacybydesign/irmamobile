@@ -274,6 +274,16 @@ class IrmaRepository {
       // biometric auto-scan on this, so biometric can never win the race against
       // the link and unlock the app before the session pointer is known.
       _startupUrlResolvedSubject.add(true);
+    } else if (event is UnlockHandoverEvent) {
+      // An unlock this process already completed, in the engine that answered a
+      // credential request. Native sends it only after a presentation ended, and
+      // a presentation cannot begin before the app is unlocked — so this reports
+      // an unlock that happened rather than standing in for one.
+      //
+      // Local, exactly like a biometric unlock: it opens the app shell and says
+      // nothing about the keyshare token, so any session started from here still
+      // asks for the PIN. See UnlockHandover on the native side for the fences.
+      _lockedSubject.add(false);
     } else if (event is NewSessionEvent) {
       _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {

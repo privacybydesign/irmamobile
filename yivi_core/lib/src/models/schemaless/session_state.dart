@@ -75,6 +75,16 @@ class SessionState {
   @JsonKey(name: "zero_knowledge", defaultValue: false)
   final bool zeroKnowledge;
 
+  /// How long the wallet worked after the user agreed, in milliseconds:
+  /// candidate selection, deviceAuth, the proof when one is made, and sealing
+  /// the response. Only an org-iso-mdoc session reports it.
+  ///
+  /// Excludes the time the consent screen was on display, which is the user
+  /// reading rather than the wallet working and is the dominant term. Null when
+  /// the wallet did not measure it, which is not the same as zero.
+  @JsonKey(name: "disclosure_duration_ms")
+  final int? disclosureDurationMs;
+
   SessionState({
     required this.id,
     required this.protocol,
@@ -97,12 +107,18 @@ class SessionState {
     this.remainingTxCodeAttempts,
     this.dcApiResponse,
     this.zeroKnowledge = false,
+    this.disclosureDurationMs,
   });
 
   factory SessionState.fromJson(Map<String, dynamic> json) =>
       _$SessionStateFromJson(json);
 
   ReturnURL? get parsedClientReturnUrl => ReturnURL.parse(clientReturnUrl);
+
+  /// [disclosureDurationMs] as a Duration, or null when nothing was measured.
+  Duration? get disclosureDuration => disclosureDurationMs == null
+      ? null
+      : Duration(milliseconds: disclosureDurationMs!);
 }
 
 @JsonSerializable(createToJson: false, fieldRename: .snake)
