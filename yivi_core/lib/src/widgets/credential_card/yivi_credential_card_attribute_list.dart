@@ -587,9 +587,19 @@ class _LeafContent extends StatelessWidget {
     final attribute = node.attribute;
     final val = attribute.value;
     final raw = val?.imagePath ?? val?.base64Image ?? "";
+    // Issuers sometimes fill an empty image attribute with a placeholder such
+    // as " "; decoding that throws during build and greys out the whole card.
+    final Uint8List bytes;
+    try {
+      bytes = const Base64Decoder().convert(raw.trim());
+    } on FormatException {
+      return const SizedBox.shrink();
+    }
+    if (bytes.isEmpty) return const SizedBox.shrink();
     final image = Image.memory(
-      const Base64Decoder().convert(raw),
+      bytes,
       fit: BoxFit.fitWidth,
+      errorBuilder: (_, _, _) => const SizedBox.shrink(),
     );
     return GestureDetector(
       onTap: () {
