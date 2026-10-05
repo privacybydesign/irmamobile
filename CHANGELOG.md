@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- An image attribute whose value is not a decodable image, such as the single space some issuers send for an empty photo, is now left out of the credential card instead of turning it into a grey error box
+- An image attribute whose value is not a decodable image, such as the single space some issuers send for an empty photo, now shows an empty value under its label instead of turning the credential card into a grey error box
 
 ## [8.3.0] - 2026-09-22
 ### Added
