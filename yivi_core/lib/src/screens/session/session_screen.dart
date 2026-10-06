@@ -7,6 +7,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
 import "../../models/native_events.dart";
+import "../../models/protocol.dart";
 import "../../models/return_url.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
@@ -423,7 +424,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// is all this state knows: zeroKnowledge is only set on the state that
   /// reaches success, which is the state after this one.
   Widget _buildLoadingScreen(SessionState? session) {
-    final isProving = session?.protocol == "iso18013-5";
+    final isProving =
+        session != null &&
+        stringToProtocol(session.protocol) == Protocol.iso18013_5;
     return SessionScaffold(
       body: Center(
         child: isProving

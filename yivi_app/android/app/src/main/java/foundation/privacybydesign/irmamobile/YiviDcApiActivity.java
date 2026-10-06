@@ -54,6 +54,19 @@ public class YiviDcApiActivity extends FlutterFragmentActivity {
   private static final String PRIVILEGED_ALLOWLIST_ASSET = "privilegedUserAgents.json";
 
   /**
+   * The W3C Digital Credentials API protocol identifier for an ISO/IEC 18013-5 request carried
+   * directly (ISO/IEC TS 18013-7 Annex C) — the one protocol this wallet registers for.
+   */
+  private static final String PROTOCOL_ORG_ISO_MDOC = "org-iso-mdoc";
+
+  /**
+   * Credential Manager's source-bundle extra naming the registry entry the user picked in the
+   * platform's credential selector; defined by androidx.credentials.registry.
+   */
+  private static final String EXTRA_CREDENTIAL_SET_ID =
+      "androidx.credentials.registry.provider.extra.CREDENTIAL_SET_ID";
+
+  /**
    * Guards the one result this Activity owes the caller. A session can produce an outcome more than
    * once — a response followed by a terminal state — and a pending intent can only be answered once.
    */
@@ -77,7 +90,7 @@ public class YiviDcApiActivity extends FlutterFragmentActivity {
    * of that is this Activity's to supply: it is the one that read the user's choice out of the
    * picker.
    */
-  private String protocol = "org-iso-mdoc";
+  private String protocol = PROTOCOL_ORG_ISO_MDOC;
 
   /**
    * When the platform handed this request over, so the wait the user actually experiences can be
@@ -268,8 +281,7 @@ public class YiviDcApiActivity extends FlutterFragmentActivity {
   private String selectedProtocol(ProviderGetCredentialRequest request) {
     Bundle source = request.getSourceBundle();
     if (source != null) {
-      String setId =
-          source.getString("androidx.credentials.registry.provider.extra.CREDENTIAL_SET_ID");
+      String setId = source.getString(EXTRA_CREDENTIAL_SET_ID);
       if (setId != null) {
         String[] parts = setId.split(" ");
         if (parts.length == 2) {
@@ -280,7 +292,7 @@ public class YiviDcApiActivity extends FlutterFragmentActivity {
     // Falls through to the org-iso-mdoc default rather than failing: it is the
     // only protocol this wallet registers for, so a selection this code cannot
     // parse still names the right one.
-    return "org-iso-mdoc";
+    return PROTOCOL_ORG_ISO_MDOC;
   }
 
   @Nullable
@@ -407,9 +419,14 @@ public class YiviDcApiActivity extends FlutterFragmentActivity {
 
   private String readAsset(String name) throws IOException {
     try (InputStream stream = getAssets().open(name)) {
-      byte[] bytes = new byte[stream.available()];
-      int read = stream.read(bytes);
-      return new String(bytes, 0, Math.max(read, 0), java.nio.charset.StandardCharsets.UTF_8);
+      java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+      byte[] buffer = new byte[8192];
+      int read;
+      while ((read = stream.read(buffer)) != -1) {
+        out.write(buffer, 0, read);
+      }
+      // Not out.toString(Charset): that overload is java.io API 33+ on Android.
+      return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
   }
 }

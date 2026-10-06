@@ -95,8 +95,9 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen>
       // The zero-knowledge headline is the message, not a status line: what
       // matters is not that the disclosure worked but that nothing was handed
       // over. It gets the larger size so it lands before the explanation.
-      prominentTitle:
-          widget.feedbackType == DisclosureFeedbackType.zeroKnowledge,
+      titleStyle: widget.feedbackType == DisclosureFeedbackType.zeroKnowledge
+          ? FeedbackTitleStyle.prominent
+          : FeedbackTitleStyle.normal,
       titleTranslationKey:
           "disclosure.feedback.header.${widget._translationKey}",
       titleTranslationParams: otherPartyTranslationParam,

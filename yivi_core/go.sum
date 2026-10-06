@@ -218,6 +218,8 @@ github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750 h1:3RuYOQTlAr
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750/go.mod h1:QZI8hX8Ff2GfZ7UJuxyWw3nAGgt2s5+U4hxY6rmwQvs=
 github.com/privacybydesign/irmago v1.4.1-0.20261006095929-aa86755950e7 h1:r5kqHbhGyQoHaD5Ick5fMPYf9izxObowx+EJr+JVNnk=
 github.com/privacybydesign/irmago v1.4.1-0.20261006095929-aa86755950e7/go.mod h1:NoBaQICcAKbrBzYY4sWWvuBU7G+GqPviYydRuOPL2Vs=
+github.com/privacybydesign/longfellow-go v0.0.0-20261006112141-4d38b9214fdd h1:6MOjwL3lGrV7rG0GxpU453JxDv2KVUBoViN/P1c9NxA=
+github.com/privacybydesign/longfellow-go v0.0.0-20261006112141-4d38b9214fdd/go.mod h1:JuIT4jkQ9YGZBTMW/Pog73GSQvwFlIzSoq+BwvykChY=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=

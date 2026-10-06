@@ -9,6 +9,14 @@ import "../theme/theme.dart";
 import "translated_text.dart";
 import "yivi_themed_button.dart";
 
+/// The size of the feedback title.
+///
+/// [prominent] is for an outcome whose headline IS the message and needs to
+/// land before the explanation is read -- the zero-knowledge disclosure, where
+/// what matters is not that it worked but how. [normal] everywhere else, so
+/// the ordinary success and error screens keep the size they have always had.
+enum FeedbackTitleStyle { normal, prominent }
+
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
   final bool success;
@@ -17,13 +25,8 @@ class ActionFeedback extends StatelessWidget {
   final String explanationTranslationKey;
   final Map<String, String>? explanationTranslationParams;
 
-  /// Renders the title in the largest display size instead of the default.
-  ///
-  /// For an outcome whose headline IS the message and needs to land before the
-  /// explanation is read -- the zero-knowledge disclosure, where what matters is
-  /// not that it worked but how. Off everywhere else, so the ordinary success
-  /// and error screens keep the size they have always had.
-  final bool prominentTitle;
+  /// Which display size the title is rendered in; see [FeedbackTitleStyle].
+  final FeedbackTitleStyle titleStyle;
 
   const ActionFeedback({
     super.key,
@@ -33,7 +36,7 @@ class ActionFeedback extends StatelessWidget {
     required this.explanationTranslationKey,
     this.explanationTranslationParams,
     required this.onDismiss,
-    this.prominentTitle = false,
+    this.titleStyle = FeedbackTitleStyle.normal,
   });
 
   @override
@@ -58,7 +61,7 @@ class ActionFeedback extends StatelessWidget {
               TranslatedText(
                 titleTranslationKey,
                 style:
-                    (prominentTitle
+                    (titleStyle == FeedbackTitleStyle.prominent
                             ? theme.themeData.textTheme.displayMedium!
                             : theme.themeData.textTheme.displaySmall!)
                         .copyWith(color: theme.dark),

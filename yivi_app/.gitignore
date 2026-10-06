@@ -43,6 +43,9 @@ gobuild/
 .pub-cache/
 .pub/
 /build/
+# /build/ above is anchored to this directory and misses Gradle output in the
+# nested Android project, which once leaked a build report into the repository.
+/android/build/
 /coverage/
 
 # Project related

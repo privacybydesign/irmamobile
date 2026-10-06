@@ -148,7 +148,14 @@ void main() {
     );
 
     final reader = _RecordingReader(privacyScreenCalls);
-    await tester.pumpWidget(_testWidget(reader));
+    // FileTranslationLoader reads the locale JSON with real IO, and past 50 KB
+    // Flutter decodes the asset on a background isolate; the test framework's
+    // fake clock drives neither, so without runAsync plus a real delay
+    // Localizations never rebuilds and the tree stays empty.
+    await tester.runAsync(() async {
+      await tester.pumpWidget(_testWidget(reader));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    });
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key("bottom_bar_primary")));

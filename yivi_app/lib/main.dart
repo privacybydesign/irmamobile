@@ -9,7 +9,7 @@ import "regula_face_service.dart";
 import "sms_retriever.dart";
 import "store_review_service.dart";
 
-void main() => _run();
+void main() => _run(AppEntryMode.wallet);
 
 /// Entry point for the Activity that answers a Digital Credentials API request —
 /// a browser calling `navigator.credentials.get()`, routed here by Android's
@@ -23,11 +23,11 @@ void main() => _run();
 /// asked Yivi a question — so it waits on the splash for that request instead of
 /// loading the wallet, and the Activity closes it once the question is answered.
 @pragma("vm:entry-point")
-void dcApiMain() => _run(dcApiPresentation: true);
+void dcApiMain() => _run(AppEntryMode.dcApiPresentation);
 
-void _run({bool dcApiPresentation = false}) {
+void _run(AppEntryMode entryMode) {
   runYiviApp(
-    dcApiPresentation: dcApiPresentation,
+    entryMode: entryMode,
     qrScannerFactory: MobileScannerQrFactory(),
     ocrProcessor: GoogleMLKitOcrProcessor(),
     smsRetriever: Platform.isAndroid

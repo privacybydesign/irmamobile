@@ -204,7 +204,16 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
 ## Troubleshooting
 
 * Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.
-* If something has changed in the `irmagobridge` or in `irmago` then rerunning `./bind_go.sh` is required.
+* If something has changed in the `irmagobridge` then rerunning `./bind_go.sh` is required.
+* `irmago` and `longfellow-go` are ordinary pinned module dependencies, not local checkouts, so
+  editing them locally does **not** reach the app: `./bind_go.sh` rebuilds against the published
+  versions and the change simply is not there. To develop against a local checkout, add the replace
+  directives to `yivi_core/go.mod` for as long as you need them:
+
+      replace github.com/privacybydesign/irmago => ../../irmago
+      replace github.com/privacybydesign/longfellow-go => ../../longfellow-go
+
+  Remove them again before committing; once the change is published, bump the pins instead.
 * In case you get the warning that the `ndk-bundle` cannot be found, please set the `ANDROID_NDK_HOME`
   environment variable to the right ndk version directory. These version directories can be found in `$ANDROID_HOME/ndk`.
   For example, you have to specify `export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/<NDK_VERSION>`.

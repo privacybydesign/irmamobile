@@ -14,6 +14,7 @@ import "../../src/models/session.dart";
 import "../../src/models/update_schemes_event.dart";
 import "../../src/theme/theme.dart";
 import "package_name.dart";
+import "src/models/app_entry_mode.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/preferences_provider.dart";
 import "src/screens/notifications/bloc/notifications_bloc.dart";
@@ -30,17 +31,18 @@ class App extends ConsumerStatefulWidget {
   final NotificationsBloc notificationsBloc;
   final Duration? idleLockThreshold;
 
-  /// Whether this engine exists to answer one Digital Credentials API request
-  /// rather than to be the user's wallet. It then starts on the presentation
-  /// route instead of loading into the home screen; see [dcApiPresentationRoute].
-  final bool dcApiPresentation;
+  /// How the app was entered. [AppEntryMode.dcApiPresentation] means this
+  /// engine exists to answer one Digital Credentials API request rather than
+  /// to be the user's wallet; it then starts on the presentation route instead
+  /// of loading into the home screen; see [dcApiPresentationRoute].
+  final AppEntryMode entryMode;
 
   const App({
     super.key,
     required this.notificationsBloc,
     this.forcedLocale,
     this.idleLockThreshold,
-    this.dcApiPresentation = false,
+    this.entryMode = AppEntryMode.wallet,
   });
 
   @override
@@ -142,7 +144,7 @@ class AppState extends ConsumerState<App> with WidgetsBindingObserver {
       _router = createRouter(
         context,
         ref,
-        initialLocation: widget.dcApiPresentation
+        initialLocation: widget.entryMode == AppEntryMode.dcApiPresentation
             ? dcApiPresentationRoute
             : "/loading",
       );

@@ -5,6 +5,7 @@ package irmagobridge
 import (
 	"embed"
 	"io/fs"
+	"strconv"
 
 	"github.com/privacybydesign/irmago/eudi/credentials/mdoc/zk"
 	"github.com/privacybydesign/longfellow-go/longfellow"
@@ -60,19 +61,6 @@ func zkProver() zk.System {
 		return nil
 	}
 
-	bridge.DebugLog("[zk] prover ready over " + itoa(len(system.Circuits())) + " circuit(s)")
+	bridge.DebugLog("[zk] prover ready over " + strconv.Itoa(len(system.Circuits())) + " circuit(s)")
 	return system
-}
-
-// itoa keeps this file's imports to what it genuinely needs.
-func itoa(n int) string {
-	if n == 0 {
-		return "0"
-	}
-	var digits []byte
-	for n > 0 {
-		digits = append([]byte{byte('0' + n%10)}, digits...)
-		n /= 10
-	}
-	return string(digits)
 }

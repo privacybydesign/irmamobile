@@ -82,6 +82,19 @@ Widget _testWidget({required bool? nfcAvailable}) {
   );
 }
 
+/// Pumps [widget] and waits for the locale files to load.
+///
+/// FileTranslationLoader reads the locale JSON with real IO, and past 50 KB
+/// Flutter decodes the asset on a background isolate; the test framework's
+/// fake clock drives neither, so without runAsync plus a real delay
+/// Localizations never rebuilds and the tree stays empty.
+Future<void> _pumpLocalized(WidgetTester tester, Widget widget) async {
+  await tester.runAsync(() async {
+    await tester.pumpWidget(widget);
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  });
+}
+
 SchemalessYiviCredentialTypeCard _card(WidgetTester tester, String credId) =>
     tester.widget<SchemalessYiviCredentialTypeCard>(
       find.byWidgetPredicate(
@@ -94,7 +107,7 @@ void main() {
   testWidgets(
     "NFC-requiring credential is greyed out (disabled, with a11y hint) when the device has no NFC",
     (tester) async {
-      await tester.pumpWidget(_testWidget(nfcAvailable: false));
+      await _pumpLocalized(tester, _testWidget(nfcAvailable: false));
       await tester.pumpAndSettle();
 
       final passport = _card(tester, "pbdf.pbdf.passport");
@@ -114,7 +127,7 @@ void main() {
   testWidgets(
     "tapping a greyed-out NFC credential shows the NFC-unsupported dialog instead of navigating",
     (tester) async {
-      await tester.pumpWidget(_testWidget(nfcAvailable: false));
+      await _pumpLocalized(tester, _testWidget(nfcAvailable: false));
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key("irma_dialog")), findsNothing);
@@ -132,7 +145,7 @@ void main() {
   testWidgets(
     "NFC-requiring credential stays enabled when the device supports NFC",
     (tester) async {
-      await tester.pumpWidget(_testWidget(nfcAvailable: true));
+      await _pumpLocalized(tester, _testWidget(nfcAvailable: true));
       await tester.pumpAndSettle();
 
       final passport = _card(tester, "pbdf.pbdf.passport");
@@ -144,7 +157,7 @@ void main() {
   testWidgets(
     "NFC-requiring credential stays enabled while the NFC check is still loading",
     (tester) async {
-      await tester.pumpWidget(_testWidget(nfcAvailable: null));
+      await _pumpLocalized(tester, _testWidget(nfcAvailable: null));
       // Can't settle: the credential store resolves but the NFC future stays
       // pending on purpose. Pump enough to let the store stream emit.
       await tester.pump();
