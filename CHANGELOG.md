@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Two credentials of one document type no longer render as two identical cards on the Data tab. That tab is a list of credential TYPES — each card opens the details screen by type, which lists every credential of that type and offers each its own delete — so keying the list on the credential rather than the type produced a pair of indistinguishable "Proof of Age" cards that both opened the same screen showing both of them. Worse, `ReorderableListView` wraps each child key in a `GlobalKey`, so the duplicate threw "Multiple widgets used the same GlobalKey" on every frame: the list never finished rebuilding, credentials deleted seconds earlier stayed on screen, and deleting one reported an error for a credential that was already gone. Deduplication, ordering and the row key now all key on the credential type, which is the only arrangement in which they agree
 - A disclosure the user declines no longer ends on the success screen. The Go client reports such a session as dismissed, which the app already handles by returning to where the session started
 
+## [8.3.1] - 2026-10-05
+### Fixed
+- An image attribute whose value is not a decodable image, such as the single space some issuers send for an empty photo, now shows an empty value under its label instead of turning the credential card into a grey error box
+
+### Internal
+- Upgrade irmago to v1.4.1
+
 ## [8.3.0] - 2026-09-22
 ### Added
 - Recognise the `mso_mdoc` credential format in event payloads, so that mdoc credentials from the Go client decode instead of throwing away the whole payload
@@ -750,6 +757,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
+[8.3.1]: https://github.com/privacybydesign/irmamobile/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/privacybydesign/irmamobile/compare/v8.2.1...v8.3.0
 [8.2.1]: https://github.com/privacybydesign/irmamobile/compare/v8.2.0...v8.2.1
 [8.2.0]: https://github.com/privacybydesign/irmamobile/compare/v8.1.2...v8.2.0
