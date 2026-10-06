@@ -80,9 +80,8 @@ void main() {
       "status": "success",
       "requestor": <String, dynamic>{
         "id": "",
-        "name": "",
+        "name": "https://zkp-verifier.com",
         "verified": false,
-        "anonymous": true,
         "origin": "https://zkp-verifier.com",
       },
       "disclosure_duration_ms": 1180,
@@ -96,9 +95,8 @@ void main() {
       "status": "success",
       "requestor": <String, dynamic>{
         "id": "",
-        "name": "",
+        "name": "https://zkp-verifier.com",
         "verified": false,
-        "anonymous": true,
         "origin": "https://zkp-verifier.com",
       },
     });

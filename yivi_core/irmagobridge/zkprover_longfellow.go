@@ -6,7 +6,7 @@ import (
 	"embed"
 	"io/fs"
 
-	"github.com/privacybydesign/irmago/client"
+	"github.com/privacybydesign/irmago/eudi/credentials/mdoc/zk"
 	"github.com/privacybydesign/longfellow-go/longfellow"
 )
 
@@ -29,7 +29,7 @@ import (
 //go:embed zkcircuits
 var zkCircuits embed.FS
 
-// zkProverOptions registers the longfellow prover over the bundled circuits.
+// zkProver loads the longfellow prover over the bundled circuits, for client.New.
 //
 // The startup cost is the whole reason zkcircuits_map.go exists. Identifying a
 // circuit means decompressing and parsing it — about 1.2 seconds each, so ten
@@ -43,11 +43,11 @@ var zkCircuits embed.FS
 // longfellow's identify() falls back to real identification when a cached id
 // does not resolve — so a stale map degrades startup rather than integrity.
 //
-// Returning no options is a complete wallet, not a broken one: AV Annex A
-// section A.8 requires falling back to the plain ISO mDoc presentation where a
-// device cannot generate a proof, and a session with no system registered does
-// exactly that.
-func zkProverOptions() []client.Option {
+// Returning nil is a complete wallet, not a broken one: AV Annex A section A.8
+// requires falling back to the plain ISO mDoc presentation where a device
+// cannot generate a proof, and a session with no system registered does exactly
+// that.
+func zkProver() zk.System {
 	circuits, err := fs.Sub(zkCircuits, "zkcircuits")
 	if err != nil {
 		bridge.DebugLog("[zk] bundled circuits unreadable: " + err.Error())
@@ -61,7 +61,7 @@ func zkProverOptions() []client.Option {
 	}
 
 	bridge.DebugLog("[zk] prover ready over " + itoa(len(system.Circuits())) + " circuit(s)")
-	return []client.Option{client.WithZkProver(system)}
+	return system
 }
 
 // itoa keeps this file's imports to what it genuinely needs.

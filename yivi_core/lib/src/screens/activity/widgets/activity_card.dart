@@ -68,14 +68,15 @@ class ActivityCard extends StatelessWidget {
         );
       } else if (logEntry.type == LogType.disclosure) {
         final verifier = logEntry.disclosureLog!.verifier;
-        // An anonymous requestor has an empty name on purpose: nothing
-        // identified itself, and the origin the platform authenticated is the
-        // only thing known about it. Showing that is what makes the entry
-        // useful — a row reading "unknown" tells the user nothing about who
-        // they proved something to.
-        title = (verifier?.anonymous ?? false)
-            ? (verifier?.origin ?? "")
-            : (verifier?.name ?? "");
+        // A requestor that never named itself (an org-iso-mdoc reader) carries
+        // the authenticated origin as its unverified name, filled in by irmago.
+        // The origin fallback covers entries logged before that convention —
+        // a row reading "unknown" tells the user nothing about who they proved
+        // something to.
+        final verifierName = verifier?.name ?? "";
+        title = verifierName.isNotEmpty
+            ? verifierName
+            : (verifier?.origin ?? "");
         final verifierImage = logEntry.disclosureLog!.verifier?.image;
         logoImage = verifierImage != null
             ? Base64Image(

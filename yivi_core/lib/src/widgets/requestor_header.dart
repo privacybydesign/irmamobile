@@ -70,18 +70,14 @@ class RequestorHeader extends StatelessWidget {
     Widget? subtitleTextWidget;
     Color? backgroundColorOverride;
 
-    // An anonymous requestor has an empty name on purpose: nothing identified
-    // itself, and the origin the platform authenticated is the only thing known
-    // about it. Showing that is honest; showing "unknown" would hide the one
-    // fact the user has to judge, and inventing a name from the origin would
-    // dress an address up as an identity.
-    final isAnonymous = requestor?.anonymous ?? false;
-    final localizedRequestorName = requestor == null
-        ? FlutterI18n.translate(context, "ui.unknown")
-        : (isAnonymous
-              ? (requestor!.origin ??
-                    FlutterI18n.translate(context, "ui.unknown"))
-              : requestor!.name);
+    // A requestor that never named itself (an org-iso-mdoc reader) carries the
+    // authenticated origin as its unverified name, filled in by irmago. The
+    // origin fallback covers entries written before that convention.
+    final requestorName = requestor?.name;
+    final localizedRequestorName =
+        (requestorName != null && requestorName.isNotEmpty)
+        ? requestorName
+        : (requestor?.origin ?? FlutterI18n.translate(context, "ui.unknown"));
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,

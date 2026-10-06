@@ -2,9 +2,9 @@
 
 package irmagobridge
 
-import "github.com/privacybydesign/irmago/client"
+import "github.com/privacybydesign/irmago/eudi/credentials/mdoc/zk"
 
-// zkProverOptions returns no prover, which is the ordinary build.
+// zkProver returns no prover, which is the ordinary build.
 //
 // The zero-knowledge prover is a C++ library reached through a separate Go
 // module (longfellow-go) that irmago deliberately does not import. It links only
@@ -17,6 +17,6 @@ import "github.com/privacybydesign/irmago/client"
 // device cannot generate a proof, and irmago's isomdoc.Session does exactly that
 // when no system is registered. It becomes a refusal only against a reader that
 // set zkRequired, which is that reader's choice.
-func zkProverOptions() []client.Option {
+func zkProver() zk.System {
 	return nil
 }

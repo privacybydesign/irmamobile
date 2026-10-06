@@ -5,8 +5,7 @@ go 1.27
 require (
 	github.com/go-errors/errors v1.5.1
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
-	github.com/privacybydesign/irmago v1.4.0
-	github.com/privacybydesign/longfellow-go v0.0.0
+	github.com/privacybydesign/irmago v1.4.1-0.20261006095929-aa86755950e7
 	github.com/sirupsen/logrus v1.9.4
 	golang.org/x/mobile v0.0.0-20260816165457-f98cc9b3c733
 )
@@ -88,7 +87,3 @@ require (
 	gorm.io/driver/sqlserver v1.6.3 // indirect
 	gorm.io/gorm v1.31.1 // indirect
 )
-
-replace github.com/privacybydesign/longfellow-go => ../../longfellow-go
-
-replace github.com/privacybydesign/irmago => ../../irmago

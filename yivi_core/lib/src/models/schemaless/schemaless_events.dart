@@ -150,21 +150,11 @@ class TrustedParty {
   final TrustedParty? parent;
   final bool verified;
 
-  /// Nothing identified itself: there is no party here, only an address the
-  /// platform vouched for. [name] is empty when this is set, so anything that
-  /// renders a name must use [origin] instead of inventing one.
-  ///
-  /// Distinct from [verified], which answers a different question. Verified
-  /// asks whether a name was authenticated; this asks whether there was a name
-  /// at all. Collapsing the two would make an issuer whose real metadata merely
-  /// is not signed look identical to a stranger that said nothing — worst in
-  /// exactly the flow where the user decides whether to prove their age to it.
-  @JsonKey(defaultValue: false)
-  final bool anonymous;
-
   /// The web origin the platform authenticated, when the request arrived
-  /// through the Digital Credentials API. The only identity an anonymous
-  /// requestor has, and what the response is cryptographically bound to.
+  /// through the Digital Credentials API. For a requestor that never named
+  /// itself, irmago also puts this origin in [name] as an unverified name —
+  /// an unverified name beats showing no name at all — and this field keeps
+  /// the raw value the response is cryptographically bound to.
   final String? origin;
 
   TrustedParty({
@@ -173,7 +163,6 @@ class TrustedParty {
     required this.url,
     required this.parent,
     required this.verified,
-    this.anonymous = false,
     this.origin,
     this.imagePath,
     this.image,

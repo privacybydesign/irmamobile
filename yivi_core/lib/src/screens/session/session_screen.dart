@@ -575,14 +575,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     // no circuit the reader offered matches, and claiming zero knowledge for one
     // of those would be a false statement about the user's privacy.
     if (session.dcApiResponse != null) {
-      // An org-iso-mdoc requestor is anonymous by design: nothing identified
-      // itself, and the origin the platform authenticated is the only thing
-      // known about it, so TrustedParty.name is deliberately empty. Showing the
-      // origin is what requestor_header and the activity log already do; the
-      // name would have left a blank in the middle of the sentence.
-      final otherParty = session.requestor.anonymous
-          ? (session.requestor.origin ?? "")
-          : session.requestor.name;
+      // An org-iso-mdoc requestor never names itself; irmago puts the
+      // authenticated origin in name as an unverified name. The origin
+      // fallback covers a party that still carries no name, so the sentence
+      // never renders with a blank in the middle.
+      final otherParty = session.requestor.name.isNotEmpty
+          ? session.requestor.name
+          : (session.requestor.origin ?? "");
 
       return DisclosureFeedbackScreen(
         feedbackType: session.zeroKnowledge ? .zeroKnowledge : .success,
