@@ -14,8 +14,7 @@ import "../mdoc_disclosure_helpers.dart";
 /// screen. The portrait is a CBOR byte string and must render as a picture,
 /// not as base64 text; the driving privileges are an array of maps and must
 /// unfold into nested rows. irmago prerequisites: byte-string elements become
-/// image attributes, and the disclosure preview flattens structured values
-/// (docs/mdoc-integration-plan.md, irmago prerequisites 1 and 3).
+/// image attributes, and the disclosure preview flattens structured values.
 Future<void> mdlPortraitAndPrivilegesTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,

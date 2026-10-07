@@ -38,7 +38,7 @@ The repository is organized as three Flutter packages plus a Go bridge:
   either belongs in `yivi_app` (ML Kit, and the Credential Manager registration with its WebAssembly matcher),
   with `yivi_fdroid` supplying an alternative or going without. `yivi_core` is shared by both, so it must stay
   free of both.
-* `irmagobridge/` and the `irma_configuration` submodule sit at the repository root.
+* The Go bridge source lives in `yivi_core/irmagobridge/`, next to the Dart bindings that wrap it; the `irma_configuration` submodule sits at the repository root.
 
 Most commands below should be run from one of these subdirectories. The [`just`](#using-just) recipes take care of `cd`-ing into the right place for you.
 
