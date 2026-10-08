@@ -46,11 +46,23 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
   /// lines [mrzLinesFromText] picks, so glare is measured where the MRZ is.
   @visibleForTesting
   static List<Rect> mrzLineBoxes(Iterable<(String, Rect)> lines) {
-    final boxes = [
+    final candidates = [
       for (final (text, box) in lines)
-        if (_looksLikeMrz(text.replaceAll(" ", ""))) box,
-    ]..sort((a, b) => a.top.compareTo(b.top));
-    return boxes.sublist(max(0, boxes.length - 3));
+        if (_looksLikeMrz(text.replaceAll(" ", "")))
+          (line: _normalizeMrzLine(text.replaceAll(" ", "")), box: box),
+    ]..sort((a, b) => a.box.top.compareTo(b.box.top));
+
+    // Only lines that have, or can be repaired to, the MRZ line length, and as
+    // many as the format has: a passport's two, not an upper case line above.
+    final repaired = fixMrzLineLengths([for (final c in candidates) c.line]);
+    if (repaired.isEmpty) return [];
+
+    final length = repaired.first.length;
+    final boxes = [
+      for (final c in candidates)
+        if (fixMrzLineLength(c.line, length).length == length) c.box,
+    ];
+    return boxes.sublist(max(0, boxes.length - mrzLineCount(length)));
   }
 
   /// Picks the MRZ lines out of all the text ML Kit read in a frame.

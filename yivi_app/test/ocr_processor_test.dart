@@ -70,6 +70,22 @@ void main() {
     );
   });
 
+  test("measures glare on the two lines of a passport MRZ only", () {
+    // An upper case line above the MRZ, long enough to count as a candidate: a
+    // reflection on it must not show the hint for a clean MRZ.
+    const heading = Rect.fromLTRB(10, 300, 300, 320);
+    const line1 = Rect.fromLTRB(10, 400, 300, 420);
+    const line2 = Rect.fromLTRB(10, 430, 300, 450);
+    expect(
+      GoogleMLKitOcrProcessor.mrzLineBoxes([
+        ("REISPASPOORT PASSPORT PASSEPORT", heading),
+        (_td3[0], line1),
+        (_td3[1], line2),
+      ]),
+      [line1, line2],
+    );
+  });
+
   test("returns nothing without an MRZ", () {
     expect(_read([_cardText30, _cardText36, "1,86 m"]), isNull);
   });
