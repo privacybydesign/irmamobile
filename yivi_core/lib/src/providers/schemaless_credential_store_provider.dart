@@ -17,11 +17,20 @@ final credentialStoreProvider = StreamProvider<List<CredentialStoreItem>>((
   yield* repo.getCredentialStoreItems();
 });
 
+/// Whether a section of the credential store holds production credentials or
+/// those of a staging scheme, which get a section of their own at the bottom.
+enum CredentialStoreSource { production, staging }
+
 class CredentialStoreCategory {
   final String category;
   final List<CredentialStoreItem> items;
+  final CredentialStoreSource source;
 
-  CredentialStoreCategory({required this.category, required this.items});
+  CredentialStoreCategory({
+    required this.category,
+    required this.items,
+    this.source = CredentialStoreSource.production,
+  });
 }
 
 // The category text irmago resolves for the personal section, across the
@@ -41,8 +50,16 @@ final groupedCredentialStoreProvider =
     StreamProvider<List<CredentialStoreCategory>>((ref) async* {
       final all = await ref.watch(credentialStoreProvider.future);
 
+      // A staging scheme's credentials share their names with the production
+      // ones, so they go in one list of their own at the bottom.
+      final staging = [
+        for (final item in all)
+          if (_isStaging(item)) item,
+      ]..sort(_byName);
+
       final categorized = <String, List<CredentialStoreItem>>{};
       for (final item in all) {
+        if (_isStaging(item)) continue;
         final category = item.credential.category ?? "";
         categorized.putIfAbsent(category, () => []).add(item);
       }
@@ -51,7 +68,7 @@ final groupedCredentialStoreProvider =
       // different order on every start. Sort it here: the personal section
       // first, then the other categories alphabetically, credentials without a
       // category last; within a section by name.
-      final result =
+      final sections =
           categorized.entries
               .map(
                 (e) => CredentialStoreCategory(
@@ -62,8 +79,20 @@ final groupedCredentialStoreProvider =
               .toList()
             ..sort(_bySection);
 
-      yield result;
+      yield [
+        ...sections,
+        if (staging.isNotEmpty)
+          CredentialStoreCategory(
+            category: "",
+            items: staging,
+            source: CredentialStoreSource.staging,
+          ),
+      ];
     });
+
+/// Whether [item] comes from a staging scheme, such as `pbdf-staging`.
+bool _isStaging(CredentialStoreItem item) =>
+    item.credential.credentialId.split(".").first.endsWith("-staging");
 
 int _sectionRank(CredentialStoreCategory section) {
   if (_personalCategoryNames.contains(section.category)) return 0;

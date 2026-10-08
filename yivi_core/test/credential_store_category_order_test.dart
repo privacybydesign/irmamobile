@@ -24,7 +24,7 @@ CredentialStoreItem _item(String id, String name, String? category) =>
     );
 
 /// The store as irmago sends it, grouped and sorted by the provider, as
-/// [category, [item ids]] pairs.
+/// [category, [item ids]] pairs; the staging section's category reads "staging".
 Future<List<List<Object>>> _sections(List<CredentialStoreItem> store) async {
   final container = ProviderContainer(
     overrides: [
@@ -41,7 +41,9 @@ Future<List<List<Object>>> _sections(List<CredentialStoreItem> store) async {
   return [
     for (final section in sections)
       [
-        section.category,
+        section.source == CredentialStoreSource.staging
+            ? "staging"
+            : section.category,
         [for (final item in section.items) item.credential.credentialId],
       ],
   ];
@@ -103,6 +105,29 @@ void main() {
       expect(await _sections(store), _expected);
     }
   });
+
+  test(
+    "puts the staging scheme's credentials in one list at the bottom",
+    () async {
+      final sections = await _sections([
+        ..._store,
+        _item("pbdf-staging.pbdf.passport", "Passport", "Personal"),
+        _item("pbdf-staging.sidn-pbdf.email", "e-mail", "Contact"),
+        _item("pbdf-staging.pbdf.idcard", "ID card", "Personal"),
+      ]);
+      expect(sections, [
+        ..._expected,
+        [
+          "staging",
+          [
+            "pbdf-staging.sidn-pbdf.email",
+            "pbdf-staging.pbdf.idcard",
+            "pbdf-staging.pbdf.passport",
+          ],
+        ],
+      ]);
+    },
+  );
 
   for (final personal in ["Personal", "Persoonlijk", "Persönlich"]) {
     test('puts the personal section first in "$personal"', () async {

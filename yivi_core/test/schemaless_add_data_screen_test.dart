@@ -49,14 +49,18 @@ final _store = [
   ),
 ];
 
-/// Builds the add-data screen with the credential store stubbed out and the
-/// NFC-availability result controlled by [nfcAvailable] (pass `null` to keep
-/// the check pending → AsyncLoading, i.e. the "still loading" case).
-Widget _testWidget({required bool? nfcAvailable}) {
+/// Builds the add-data screen with the credential store stubbed out (as [store],
+/// or [_store]) and the NFC-availability result controlled by [nfcAvailable]
+/// (pass `null` to keep the check pending → AsyncLoading, i.e. the "still
+/// loading" case).
+Widget _testWidget({
+  required bool? nfcAvailable,
+  List<CredentialStoreCategory>? store,
+}) {
   return ProviderScope(
     overrides: [
       groupedCredentialStoreProvider.overrideWith(
-        (ref) => Stream.value(_store),
+        (ref) => Stream.value(store ?? _store),
       ),
       nfcAvailableProvider.overrideWith(
         (ref) => nfcAvailable == null
@@ -154,4 +158,29 @@ void main() {
       expect(passport.disabled, isFalse);
     },
   );
+
+  testWidgets("shows the staging scheme's credentials under their own header", (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _testWidget(
+        nfcAvailable: true,
+        store: [
+          ..._store,
+          CredentialStoreCategory(
+            category: "",
+            items: [_item("pbdf-staging.sidn-pbdf.email", "Email")],
+            source: CredentialStoreSource.staging,
+          ),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Staging (test environment)"), findsOneWidget);
+    expect(
+      find.byKey(const Key("pbdf-staging.sidn-pbdf.email_tile")),
+      findsOneWidget,
+    );
+  });
 }

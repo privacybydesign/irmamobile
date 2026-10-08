@@ -122,6 +122,7 @@
       "title": "Kontaktinformationen"
     },
     "add": {
+      "staging": "Staging (Testumgebung)",
       "title": "Daten hinzufügen",
       "hint": "Doppeltippen zum Hinzufügen",
       "choose": "Wählen Sie die Daten, die Sie hinzufügen möchten",

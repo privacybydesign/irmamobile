@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- The credentials in the add data screen keep a fixed order: the personal section first, then the other categories alphabetically, each sorted by name. irmago hands them over in a different order on every start
+- The credentials in the add data screen keep a fixed order: the personal section first, then the other categories alphabetically, each sorted by name. irmago hands them over in a different order on every start. Credentials from a staging scheme (`pbdf-staging`) are listed separately at the bottom, under "Staging (test environment)"
 
 ## [8.3.1] - 2026-10-05
 ### Fixed
