@@ -19,6 +19,8 @@ import java.io.OutputStream;
 
 public class TesseractOcrEngine {
     private static final String TAG = "TesseractOcrEngine";
+    /** The shortest line counted as MRZ, as minMrzLineLength in yivi_core's mrz_reading.dart. */
+    private static final int MIN_MRZ_LINE_LENGTH = 25;
     private final Context context;
     private TessBaseAPI tess;
     private final Object tessLock = new Object();
@@ -232,6 +234,7 @@ public class TesseractOcrEngine {
         int h = mat.rows();
         byte[] pixels = new byte[w * h];
         mat.get(0, 0, pixels);
+
         synchronized (tessLock) {
             tess.setImage(pixels, w, h, 1, w);
             String result = tess.getUTF8Text();
@@ -246,7 +249,7 @@ public class TesseractOcrEngine {
         String compact = text.replaceAll("[ \\t]", "");
         if (compact.startsWith("D1") || compact.startsWith("D2") || compact.startsWith("DL")) return false;
         for (String line : compact.split("\\n")) {
-            if (line.length() >= 25) return true;
+            if (line.length() >= MIN_MRZ_LINE_LENGTH) return true;
         }
         return false;
     }

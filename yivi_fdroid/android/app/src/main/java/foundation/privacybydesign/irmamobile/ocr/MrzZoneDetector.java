@@ -26,7 +26,11 @@ public class MrzZoneDetector {
         public final double top;
         public final double width;
         public final double height;
-        /** How dense the found band is; higher means more likely the MRZ. */
+        /**
+         * The text density of the zone's rows across the full width: the measure the
+         * projection searches on, applied to whichever pass found the zone, so zones
+         * from different frames compare. Higher means more likely the MRZ.
+         */
         public final double score;
 
         public RoiResult(double left, double top, double width, double height) {
@@ -116,16 +120,34 @@ public class MrzZoneDetector {
         RoiResult result = tryHorizontalProjection(thresh, w, h);
 
         // 10. Pass 2: Contour detection. Fallback if projection fails.
-        // looks at the vorm and location of adjacent text blocks.
+        // looks at the vorm and location of adjacent text blocks. It reshapes the mask
+        // it gets, so it works on a copy.
         if (result == null) {
-            result = tryContourDetection(thresh, w, h);
-        } else {
-            // Projection worked, release thresh
-            thresh.release();
+            result = tryContourDetection(thresh.clone(), w, h);
         }
+
+        // 11. Score the zone the same way whichever pass found it. A contour zone used
+        // to score 0, so any band in the upside down frame beat it.
+        if (result != null) {
+            result = new RoiResult(result.left, result.top, result.width, result.height,
+                    rowDensity(thresh, result));
+        }
+        thresh.release();
 
         // Null when neither pass found an MRZ; the caller skips OCR for this frame.
         return result;
+    }
+
+    /** The text density of {@code zone}'s rows of {@code thresh} across its full width. */
+    private static double rowDensity(Mat thresh, RoiResult zone) {
+        int top = (int) (zone.top * thresh.rows());
+        int bottom = Math.min(thresh.rows(), (int) ((zone.top + zone.height) * thresh.rows()));
+        if (bottom <= top) return 0;
+
+        Mat rows = thresh.submat(top, bottom, 0, thresh.cols());
+        double density = Core.mean(rows).val[0] / 255.0;
+        rows.release();
+        return density;
     }
 
     /**
@@ -328,14 +350,14 @@ public class MrzZoneDetector {
             }
         }
         if (textLeft < 0) {
-            return new RoiResult(0.02, roiTop, 0.96, roiHeight, bestScore);
+            return new RoiResult(0.02, roiTop, 0.96, roiHeight);
         }
 
         double padX = 0.015;
         double roiLeft = Math.max(0.0, (double) textLeft / w - padX);
         double roiRight = Math.min(1.0, (double) (textRight + 1) / w + padX);
 
-        return new RoiResult(roiLeft, roiTop, roiRight - roiLeft, roiHeight, bestScore);
+        return new RoiResult(roiLeft, roiTop, roiRight - roiLeft, roiHeight);
     }
 
     /**

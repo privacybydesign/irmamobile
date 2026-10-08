@@ -5,20 +5,45 @@ import "package:mrz_parser/mrz_parser.dart";
 // correction out of the document number's check digit and then make up for the
 // verification that costs by requiring a second frame to agree.
 
-const _mrzLineLengths = [30, 36, 44];
+/// Line length of a TD1 MRZ (ID card), which has three lines.
+const _td1LineLength = 30;
 
-/// Fixes the lines within 3 characters of the MRZ line length these OCR lines most
-/// likely hold (30, 36 or 44, whichever is closest to the median length of the
-/// plausible lines) with [fixMrzLineLength], and drops the lines that still do not
-/// have it.
+/// Line lengths of TD2 and TD3 MRZs (travel documents, passports): two lines each.
+const _td2LineLength = 36;
+const _td3LineLength = 44;
+
+const _mrzLineLengths = [_td1LineLength, _td2LineLength, _td3LineLength];
+
+/// The shortest OCR line that is counted as possibly MRZ.
+const minMrzLineLength = 25;
+
+/// How many characters a line may be off its MRZ length and still be repaired.
+const _maxLengthRepair = 3;
+
+/// ICAO 9303 document numbers are 9 characters, followed by their check digit.
+const _documentNumberLength = 9;
+
+/// Where the document number starts in the first line of a TD1 MRZ.
+const _td1DocumentNumberStart = 5;
+
+/// How many lines an MRZ with lines of [lineLength] characters has.
+int mrzLineCount(int lineLength) => lineLength == _td1LineLength ? 3 : 2;
+
+/// Fixes the lines within [_maxLengthRepair] characters of the MRZ line length
+/// these OCR lines most likely hold (30, 36 or 44, whichever is closest to the
+/// median length of the plausible lines) with [fixMrzLineLength], and drops the
+/// lines that still do not have it.
 List<String> fixMrzLineLengths(List<String> lines) {
-  final lengths = lines.map((l) => l.length).where((n) => n >= 25).toList()
-    ..sort();
+  final lengths =
+      lines.map((l) => l.length).where((n) => n >= minMrzLineLength).toList()
+        ..sort();
   if (lengths.isEmpty) return [];
+
   final median = lengths[lengths.length ~/ 2];
   final target = _mrzLineLengths.reduce(
     (a, b) => (median - a).abs() <= (median - b).abs() ? a : b,
   );
+
   return lines
       .map((l) => fixMrzLineLength(l, target))
       .where((l) => l.length == target)
@@ -33,11 +58,11 @@ List<String> fixMrzLineLengths(List<String> lines) {
 /// changing a field. A missing or extra real character still shifts the fields after
 /// it, and the check digits then reject the line.
 ///
-/// Returns [line] unchanged when it is more than 3 characters off or has no run of
-/// two or more fillers.
+/// Returns [line] unchanged when it is more than [_maxLengthRepair] characters off or
+/// has no run of two or more fillers.
 String fixMrzLineLength(String line, int length) {
   final diff = line.length - length;
-  if (diff == 0 || diff.abs() > 3) return line;
+  if (diff == 0 || diff.abs() > _maxLengthRepair) return line;
 
   final runs = RegExp(r"<{2,}").allMatches(line);
   if (runs.isEmpty) return line;
@@ -103,14 +128,18 @@ const _checkDigitMisreads = {
 List<String> correctDocumentNumber(List<String> lines) {
   final int lineIndex;
   final int start;
-  if (lines.length == 3 && lines.every((l) => l.length == 30)) {
+  if (lines.length == mrzLineCount(_td1LineLength) &&
+      lines.every((l) => l.length == _td1LineLength)) {
     // TD1 (ID card): positions 5-13 of the first line. A '<' at the check digit
     // position marks a long document number that continues in the optional data.
-    if (lines[0][14] == "<") return lines;
+    final checkDigit = _td1DocumentNumberStart + _documentNumberLength;
+    if (lines[0][checkDigit] == "<") return lines;
     lineIndex = 0;
-    start = 5;
-  } else if (lines.length == 2 &&
-      lines.every((l) => l.length == 44 || l.length == 36)) {
+    start = _td1DocumentNumberStart;
+  } else if (lines.length == mrzLineCount(_td3LineLength) &&
+      lines.every(
+        (l) => l.length == _td3LineLength || l.length == _td2LineLength,
+      )) {
     // TD3 (passport) and TD2: positions 0-8 of the second line.
     lineIndex = 1;
     start = 0;
@@ -119,8 +148,8 @@ List<String> correctDocumentNumber(List<String> lines) {
   }
 
   final line = lines[lineIndex];
-  final documentNumber = line.substring(start, start + 9);
-  final checkChar = line[start + 9];
+  final documentNumber = line.substring(start, start + _documentNumberLength);
+  final checkChar = line[start + _documentNumberLength];
   final expected = int.tryParse(_checkDigitMisreads[checkChar] ?? checkChar);
   if (expected == null || _checkDigit(documentNumber) == expected) return lines;
 
@@ -147,7 +176,9 @@ List<String> correctDocumentNumber(List<String> lines) {
   }
 
   final corrected =
-      line.substring(0, start) + fixed + line.substring(start + 9);
+      line.substring(0, start) +
+      fixed +
+      line.substring(start + _documentNumberLength);
   return [...lines]..[lineIndex] = corrected;
 }
 

@@ -68,16 +68,18 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
         .where(_looksLikeMrz)
         .map(_normalizeMrzLine)
         .toList();
+
     final lines = fixMrzLineLengths(candidates);
     if (lines.isEmpty) return null;
-    final count = lines.first.length == 30 ? 3 : 2;
+
+    final count = mrzLineCount(lines.first.length);
     return _getFinalListToParse(lines.sublist(max(0, lines.length - count)));
   }
 
   /// Whether [line] could be MRZ: long enough, and at most a few lower case letters
   /// that ML Kit may have misread.
   static bool _looksLikeMrz(String line) =>
-      line.length >= 25 &&
+      line.length >= minMrzLineLength &&
       RegExp(r"[a-z]").allMatches(line).length <= line.length ~/ 10;
 
   /// Upper-cases [line] and turns every character that cannot occur in an MRZ into a
