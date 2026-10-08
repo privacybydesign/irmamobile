@@ -66,7 +66,18 @@ public class TesseractOcrEngine {
         }
     }
 
-    public String ocrYPlane(
+    /** What one frame read: the MRZ text, and the share of clipped pixels in the MRZ's worst tile. */
+    public static final class Result {
+        public final String text;
+        public final double clippedShare;
+
+        Result(String text, double clippedShare) {
+            this.text = text;
+            this.clippedShare = clippedShare;
+        }
+    }
+
+    public Result ocrYPlane(
             byte[] bytes, int width, int height, int stride, int rotation,
             String lang, double roiLeft, double roiTop, double roiWidth, double roiHeight
     ) {
@@ -151,7 +162,7 @@ public class TesseractOcrEngine {
         // on the whole frame can take several seconds and blocks the frames after it.
         if (zone == null) {
             mat.release();
-            return "";
+            return new Result("", 0);
         }
         int zX = (int)(zone.left * mat.cols());
         int zY = (int)(zone.top * mat.rows());
@@ -163,6 +174,9 @@ public class TesseractOcrEngine {
         ).clone();
         mat.release();
         mat = mrzCrop;
+
+        // 5b. Measure glare before normalizing, which stretches any MRZ to full white.
+        double clippedShare = worstClippedShare(mat);
 
         // 6. Normalize + invert check
         Core.normalize(mat, mat, 0, 255, Core.NORM_MINMAX);
@@ -184,7 +198,33 @@ public class TesseractOcrEngine {
             if (rotated.contains("<<")) result = rotated;
         }
         mat.release();
-        return result;
+        return new Result(result, clippedShare);
+    }
+
+    // A reflection clips the camera's highlights where it crosses the MRZ. The largest
+    // share of clipped pixels (250 and up) over 8 tiles across 3 bands of the crop,
+    // like the Play build measures 8 tiles per MRZ line; the Dart side decides what
+    // share counts as glare.
+    private static double worstClippedShare(Mat crop) {
+        final int bands = 3;
+        final int tiles = 8;
+        Mat clipped = new Mat();
+        Imgproc.threshold(crop, clipped, 249, 255, Imgproc.THRESH_BINARY);
+        double worst = 0;
+        for (int b = 0; b < bands; b++) {
+            for (int t = 0; t < tiles; t++) {
+                int y0 = b * crop.rows() / bands;
+                int y1 = (b + 1) * crop.rows() / bands;
+                int x0 = t * crop.cols() / tiles;
+                int x1 = (t + 1) * crop.cols() / tiles;
+                if (y1 <= y0 || x1 <= x0) continue;
+                Mat tile = clipped.submat(y0, y1, x0, x1);
+                worst = Math.max(worst, (double) Core.countNonZero(tile) / tile.total());
+                tile.release();
+            }
+        }
+        clipped.release();
+        return worst;
     }
 
     private String recognize(Mat mat) {

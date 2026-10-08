@@ -11,7 +11,7 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
   final _textRecognizer = TextRecognizer();
 
   @override
-  Future<List<String>?> processImage({
+  Future<OcrResult> processImage({
     required CameraImage inputImage,
     required int imageRotation,
   }) async {
@@ -20,7 +20,37 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
       imageRotation: imageRotation,
     );
     final recognizedText = await _textRecognizer.processImage(image!);
-    return mrzLinesFromText(recognizedText.text);
+    // Glare is measured on Android only: there the frame's first plane is its
+    // brightness (NV21) and ML Kit reports boxes in the upright frame. iOS frames are
+    // BGRA.
+    final glare =
+        Platform.isAndroid &&
+        mrzHasGlare(
+          luminance: inputImage.planes.first.bytes,
+          width: inputImage.width,
+          height: inputImage.height,
+          bytesPerRow: inputImage.planes.first.bytesPerRow,
+          rotation: imageRotation,
+          lineBoxes: mrzLineBoxes([
+            for (final block in recognizedText.blocks)
+              for (final line in block.lines) (line.text, line.boundingBox),
+          ]),
+        );
+    return OcrResult(
+      lines: mrzLinesFromText(recognizedText.text),
+      glare: glare,
+    );
+  }
+
+  /// The boxes of the MRZ lines among all the lines ML Kit read, top to bottom: the
+  /// lines [mrzLinesFromText] picks, so glare is measured where the MRZ is.
+  @visibleForTesting
+  static List<Rect> mrzLineBoxes(Iterable<(String, Rect)> lines) {
+    final boxes = [
+      for (final (text, box) in lines)
+        if (_looksLikeMrz(text.replaceAll(" ", ""))) box,
+    ]..sort((a, b) => a.top.compareTo(b.top));
+    return boxes.sublist(max(0, boxes.length - 3));
   }
 
   /// Picks the MRZ lines out of all the text ML Kit read in a frame.

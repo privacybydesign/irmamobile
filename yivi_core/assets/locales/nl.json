@@ -785,6 +785,9 @@
     "content": "Yivi heeft toegang tot de camera nodig om je document automatisch te scannen. Geef Yivi toestemming om de camera te gebruiken via de systeeminstellingen of voer de benodigde gegevens handmatig in.",
     "open_settings": "Open instellingen"
   },
+  "mrz_scanner": {
+    "glare_hint": "Reflectie op het document. Kantel het iets."
+  },
   "face_verification": {
     "title": "Gezichtsverificatie",
     "preparing": "Een moment, je gegevens worden voorbereid…",
