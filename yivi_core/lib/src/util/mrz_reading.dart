@@ -5,6 +5,55 @@ import "package:mrz_parser/mrz_parser.dart";
 // correction out of the document number's check digit and then make up for the
 // verification that costs by requiring a second frame to agree.
 
+const _mrzLineLengths = [30, 36, 44];
+
+/// Fixes the lines within 3 characters of the MRZ line length these OCR lines most
+/// likely hold (30, 36 or 44, whichever is closest to the median length of the
+/// plausible lines) with [fixMrzLineLength], and drops the lines that still do not
+/// have it.
+List<String> fixMrzLineLengths(List<String> lines) {
+  final lengths = lines.map((l) => l.length).where((n) => n >= 25).toList()
+    ..sort();
+  if (lengths.isEmpty) return [];
+  final median = lengths[lengths.length ~/ 2];
+  final target = _mrzLineLengths.reduce(
+    (a, b) => (median - a).abs() <= (median - b).abs() ? a : b,
+  );
+  return lines
+      .map((l) => fixMrzLineLength(l, target))
+      .where((l) => l.length == target)
+      .toList();
+}
+
+/// Brings [line] to [length] by growing or shrinking its longest run of '<'.
+///
+/// OCR miscounts runs of identical characters, so a line often comes out a filler or
+/// two short or long. Fillers carry no data and the long runs sit at the end of a
+/// field, so adjusting one puts every check digit back in its fixed position without
+/// changing a field. A missing or extra real character still shifts the fields after
+/// it, and the check digits then reject the line.
+///
+/// Returns [line] unchanged when it is more than 3 characters off or has no run of
+/// two or more fillers.
+String fixMrzLineLength(String line, int length) {
+  final diff = line.length - length;
+  if (diff == 0 || diff.abs() > 3) return line;
+
+  final runs = RegExp(r"<{2,}").allMatches(line);
+  if (runs.isEmpty) return line;
+  // On a tie take the last run: the trailing fillers are the longest stretch of
+  // identical characters and the ones most often miscounted.
+  final run = runs.reduce(
+    (a, b) => (b.end - b.start) >= (a.end - a.start) ? b : a,
+  );
+  final newRunLength = run.end - run.start - diff;
+  if (newRunLength < 1) return line;
+
+  return line.substring(0, run.start) +
+      "<" * newRunLength +
+      line.substring(run.end);
+}
+
 /// Characters OCR mistakes for each other in MRZ text. Only pairs the check digit can
 /// tell apart: G and 6 are worth 16 and 6, and a difference of 10 leaves every check
 /// digit unchanged.

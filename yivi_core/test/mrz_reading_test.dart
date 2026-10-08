@@ -22,6 +22,61 @@ List<String> _misread(List<String> lines, int line, int index, String char) {
 }
 
 void main() {
+  group("fixMrzLineLength", () {
+    test("removes a filler OCR read twice", () {
+      expect(fixMrzLineLength("ERIKSSON<<ANNA<MARIA<<<<<<<<<<<", 30), _td1[2]);
+    });
+
+    test("adds fillers OCR dropped", () {
+      expect(fixMrzLineLength("7408122F1204159UTO<<<<<<<<<6", 30), _td1[1]);
+    });
+
+    test("leaves a line alone that is more than 3 characters off", () {
+      const line = "7408122F1204159UTO<<<<<<6";
+      expect(fixMrzLineLength(line, 30), line);
+    });
+
+    test("leaves a line alone that has no run of fillers", () {
+      const line = "D1NLD15094962111659VV72K1KD54X";
+      expect(fixMrzLineLength(line, 29), line);
+    });
+
+    test("does not shrink a run away entirely", () {
+      const line = "ABCDEFGHIJKLMN<<OPQRSTUVWXYZ0123";
+      expect(fixMrzLineLength(line, 30), line);
+    });
+
+    test("adjusts the last run when two are equally long", () {
+      expect(fixMrzLineLength("AAAA<<<BBBB<<<CCCC<", 18), "AAAA<<<BBBB<<CCCC<");
+    });
+  });
+
+  group("fixMrzLineLengths", () {
+    test("fixes an ID card frame and drops the noise around it", () {
+      final lines = [
+        "AB12",
+        _td1[0],
+        "7408122F1204159UTO<<<<<<<<<<<<6",
+        "ERIKSSON<<ANNA<MARIA<<<<<<<<<",
+      ];
+      expect(fixMrzLineLengths(lines), _td1);
+    });
+
+    test("fixes a passport frame to 44 characters", () {
+      final lines = ["P<UTOERIKSSON<<ANNA<MARIA<<<<<<<<<<<<<<<<<<<<", _td3[1]];
+      expect(fixMrzLineLengths(lines), _td3);
+    });
+
+    test("drops lines that cannot be brought to length", () {
+      final lines = [_td1[0], "7408122F1204159UTOX6", _td1[2]];
+      expect(fixMrzLineLengths(lines), [_td1[0], _td1[2]]);
+    });
+
+    test("returns nothing when no line is long enough to be MRZ", () {
+      expect(fixMrzLineLengths(["AB12", "<<<"]), isEmpty);
+    });
+  });
+
   group("correctDocumentNumber", () {
     test("leaves a reading whose check digit matches unchanged", () {
       expect(correctDocumentNumber(_td1), _td1);

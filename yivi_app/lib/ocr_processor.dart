@@ -1,4 +1,5 @@
 import "dart:io";
+import "dart:math";
 import "dart:ui";
 
 import "package:camera/camera.dart";
@@ -19,23 +20,40 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
       imageRotation: imageRotation,
     );
     final recognizedText = await _textRecognizer.processImage(image!);
-    String fullText = recognizedText.text;
-    // Terminate as quickly as possible.
-    if (fullText.isEmpty) {
-      return null;
-    }
-    String trimmedText = fullText.replaceAll(" ", "");
-    List allText = trimmedText.split("\n");
-
-    List<String> ableToScanText = [];
-    for (var e in allText) {
-      final l = _testTextLine(e);
-      if (l.isNotEmpty) {
-        ableToScanText.add(l);
-      }
-    }
-    return _getFinalListToParse([...ableToScanText]);
+    return mrzLinesFromText(recognizedText.text);
   }
+
+  /// Picks the MRZ lines out of all the text ML Kit read in a frame.
+  ///
+  /// ML Kit reads the whole document, not just the MRZ. Picking MRZ lines by length
+  /// mixed in any other line that happened to be 30, 36 or 44 characters long, and
+  /// the frame was then thrown away. MRZ text is upper case and the rest of a
+  /// document's text mostly is not, so pick by that, repair lines with a miscounted
+  /// run of fillers, and keep the bottom lines: the MRZ ends the document.
+  @visibleForTesting
+  static List<String>? mrzLinesFromText(String text) {
+    final candidates = text
+        .split("\n")
+        .map((line) => line.replaceAll(" ", ""))
+        .where(_looksLikeMrz)
+        .map(_normalizeMrzLine)
+        .toList();
+    final lines = fixMrzLineLengths(candidates);
+    if (lines.isEmpty) return null;
+    final count = lines.first.length == 30 ? 3 : 2;
+    return _getFinalListToParse(lines.sublist(max(0, lines.length - count)));
+  }
+
+  /// Whether [line] could be MRZ: long enough, and at most a few lower case letters
+  /// that ML Kit may have misread.
+  static bool _looksLikeMrz(String line) =>
+      line.length >= 25 &&
+      RegExp(r"[a-z]").allMatches(line).length <= line.length ~/ 10;
+
+  /// Upper-cases [line] and turns every character that cannot occur in an MRZ into a
+  /// filler; ML Kit reads fillers as '«', '(' and the like.
+  static String _normalizeMrzLine(String line) =>
+      line.toUpperCase().replaceAll(RegExp(r"[^A-Z0-9<]"), "<");
 
   InputImage? _inputImageFromCameraImage({
     required CameraImage image,
@@ -81,7 +99,7 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
     );
   }
 
-  List<String>? _getFinalListToParse(List<String> ableToScanTextList) {
+  static List<String>? _getFinalListToParse(List<String> ableToScanTextList) {
     if (ableToScanTextList.isEmpty) {
       return null;
     }
@@ -121,29 +139,5 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
       return [...ableToScanTextList];
     }
     return null;
-  }
-
-  static String _testTextLine(String text) {
-    String res = text.replaceAll(" ", "");
-    List<String> list = res.split("");
-
-    // to check if the text belongs to any MRZ format or not
-    if (list.length != 44 && list.length != 30 && list.length != 36) {
-      return "";
-    }
-
-    for (int i = 0; i < list.length; i++) {
-      if (RegExp(r"^[A-Za-z0-9_.]+$").hasMatch(list[i])) {
-        list[i] = list[i].toUpperCase();
-        // to ensure that every letter is uppercase
-      }
-      if (double.tryParse(list[i]) == null &&
-          !(RegExp(r"^[A-Za-z0-9_.]+$").hasMatch(list[i]))) {
-        list[i] = "<";
-        // sometimes < sign not recognized well
-      }
-    }
-    String result = list.join("");
-    return result;
   }
 }

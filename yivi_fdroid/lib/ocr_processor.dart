@@ -41,7 +41,7 @@ class TesseractOcrProcessor implements OcrProcessor {
           .where((s) => s.isNotEmpty)
           .toList();
 
-      return MRZHelper.getFinalListToParse(MRZHelper.fixLineLengths(lines));
+      return MRZHelper.getFinalListToParse(fixMrzLineLengths(lines));
     } catch (e) {
       return null;
     } finally {
@@ -51,10 +51,8 @@ class TesseractOcrProcessor implements OcrProcessor {
 }
 
 class MRZHelper {
-  static const _allowedLineLen = <int>{30, 36, 44};
-
   // normalize OCR line to valid MRZ chars. The length is fixed up later, in
-  // [fixLineLengths], once it is clear which MRZ format the frame holds.
+  // [fixMrzLineLengths], once it is clear which MRZ format the frame holds.
   static String normalizeLine(String text) {
     final s = text.toUpperCase().replaceAll(RegExp(r"\s+"), "");
 
@@ -66,53 +64,6 @@ class MRZHelper {
       buf.write(mrzChars.hasMatch(ch) ? ch : "<");
     }
     return buf.toString();
-  }
-
-  /// Fixes the lines within 3 characters of the line length this frame most likely
-  /// holds (30, 36 or 44, whichever is closest to the median length of the
-  /// plausible lines) with [fixLength], and drops the lines that still do not have
-  /// it.
-  static List<String> fixLineLengths(List<String> lines) {
-    final lengths = lines.map((l) => l.length).where((n) => n >= 25).toList()
-      ..sort();
-    if (lengths.isEmpty) return [];
-    final median = lengths[lengths.length ~/ 2];
-    final target = _allowedLineLen.reduce(
-      (a, b) => (median - a).abs() <= (median - b).abs() ? a : b,
-    );
-    return lines
-        .map((l) => fixLength(l, target))
-        .where((l) => l.length == target)
-        .toList();
-  }
-
-  /// Brings [line] to [length] by growing or shrinking its longest run of '<'.
-  ///
-  /// Tesseract miscounts runs of identical characters, so a line often comes out a
-  /// filler or two short or long. Fillers carry no data and the long runs sit at the
-  /// end of a field, so adjusting one puts every check digit back in its fixed
-  /// position without changing a field. A missing or extra real character still
-  /// shifts the fields after it, and the check digits then reject the line.
-  ///
-  /// Returns [line] unchanged when it is more than 3 characters off or has no run of
-  /// two or more fillers.
-  static String fixLength(String line, int length) {
-    final diff = line.length - length;
-    if (diff == 0 || diff.abs() > 3) return line;
-
-    final runs = RegExp(r"<{2,}").allMatches(line);
-    if (runs.isEmpty) return line;
-    // On a tie take the last run: the trailing fillers are the longest stretch of
-    // identical characters and the ones most often miscounted.
-    final run = runs.reduce(
-      (a, b) => (b.end - b.start) >= (a.end - a.start) ? b : a,
-    );
-    final newRunLength = run.end - run.start - diff;
-    if (newRunLength < 1) return line;
-
-    return line.substring(0, run.start) +
-        "<" * newRunLength +
-        line.substring(run.end);
   }
 
   /// Validates and returns the MRZ lines following ICAO 9303 structure.
