@@ -122,6 +122,7 @@
       "title": "Contactgegevens"
     },
     "add": {
+      "demo": "Demo (voorbeeldgegevens)",
       "staging": "Staging (testomgeving)",
       "title": "Gegevens toevoegen",
       "hint": "Dubbel klik om toevoegen te starten",

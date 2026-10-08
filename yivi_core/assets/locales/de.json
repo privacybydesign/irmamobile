@@ -122,6 +122,7 @@
       "title": "Kontaktinformationen"
     },
     "add": {
+      "demo": "Demo (Beispieldaten)",
       "staging": "Staging (Testumgebung)",
       "title": "Daten hinzufügen",
       "hint": "Doppeltippen zum Hinzufügen",

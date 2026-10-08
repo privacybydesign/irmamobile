@@ -178,8 +178,32 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text("Staging (test environment)"), findsOneWidget);
+    expect(find.text("Demo (example data)"), findsNothing);
     expect(
       find.byKey(const Key("pbdf-staging.sidn-pbdf.email_tile")),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets("shows demo credentials under their own header", (tester) async {
+    await tester.pumpWidget(
+      _testWidget(
+        nfcAvailable: true,
+        store: [
+          ..._store,
+          CredentialStoreCategory(
+            category: "",
+            items: [_item("irma-demo.gemeente.address", "Address")],
+            source: CredentialStoreSource.demo,
+          ),
+        ],
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Demo (example data)"), findsOneWidget);
+    expect(
+      find.byKey(const Key("irma-demo.gemeente.address_tile")),
       findsOneWidget,
     );
   });

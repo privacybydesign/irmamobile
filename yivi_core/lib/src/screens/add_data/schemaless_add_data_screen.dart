@@ -80,6 +80,8 @@ class SchemalessAddDataScreen extends ConsumerWidget {
                         children: [
                           if (source == CredentialStoreSource.staging)
                             const SectionHeader("data.add.staging")
+                          else if (source == CredentialStoreSource.demo)
+                            const SectionHeader("data.add.demo")
                           // A credential without a category (irmago marshals
                           // it `omitempty`) groups under "", which would
                           // otherwise render as a blank gap above the cards.

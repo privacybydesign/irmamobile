@@ -24,7 +24,8 @@ CredentialStoreItem _item(String id, String name, String? category) =>
     );
 
 /// The store as irmago sends it, grouped and sorted by the provider, as
-/// [category, [item ids]] pairs; the staging section's category reads "staging".
+/// [category, [item ids]] pairs; the staging and demo sections read "staging"
+/// and "demo".
 Future<List<List<Object>>> _sections(List<CredentialStoreItem> store) async {
   final container = ProviderContainer(
     overrides: [
@@ -41,9 +42,9 @@ Future<List<List<Object>>> _sections(List<CredentialStoreItem> store) async {
   return [
     for (final section in sections)
       [
-        section.source == CredentialStoreSource.staging
-            ? "staging"
-            : section.category,
+        section.source == CredentialStoreSource.production
+            ? section.category
+            : section.source.name,
         [for (final item in section.items) item.credential.credentialId],
       ],
   ];
@@ -51,7 +52,7 @@ Future<List<List<Object>>> _sections(List<CredentialStoreItem> store) async {
 
 final _store = [
   _item("pbdf.gemeente.address", "Address", "Personal"),
-  _item("irma-demo.misc", "Loyalty card", null),
+  _item("pbdf.shop.loyalty", "Loyalty card", null),
   _item("pbdf.sidn-pbdf.mobilenumber", "Mobile number", "Contact"),
   _item("pbdf.pbdf.passport", "Passport", "Personal"),
   _item("pbdf.sidn-pbdf.email", "e-mail", "Contact"),
@@ -80,7 +81,7 @@ const _expected = [
   ],
   [
     "",
-    ["irma-demo.misc"],
+    ["pbdf.shop.loyalty"],
   ],
 ];
 
@@ -128,6 +129,27 @@ void main() {
       ]);
     },
   );
+
+  test("puts demo credentials in a list of their own below staging", () async {
+    // The attribute index's three environments: pbdf, pbdf-staging, irma-demo.
+    final sections = await _sections([
+      _item("irma-demo.gemeente.address", "Address", "Personal"),
+      ..._store,
+      _item("irma-demo.MijnOverheid.ageLower", "Age", "Personal"),
+      _item("pbdf-staging.pbdf.passport", "Passport", "Personal"),
+    ]);
+    expect(sections, [
+      ..._expected,
+      [
+        "staging",
+        ["pbdf-staging.pbdf.passport"],
+      ],
+      [
+        "demo",
+        ["irma-demo.gemeente.address", "irma-demo.MijnOverheid.ageLower"],
+      ],
+    ]);
+  });
 
   for (final personal in ["Personal", "Persoonlijk", "Persönlich"]) {
     test('puts the personal section first in "$personal"', () async {
