@@ -33,12 +33,14 @@ Future<List<List<Object>>> _sections(List<CredentialStoreItem> store) async {
     ],
   );
   addTearDown(container.dispose);
+
   // Riverpod pauses providers nothing listens to, so listen while reading.
   final subscription = container.listen(
     groupedCredentialStoreProvider.future,
     (_, _) {},
   );
   final sections = await subscription.read();
+
   return [
     for (final section in sections)
       [
