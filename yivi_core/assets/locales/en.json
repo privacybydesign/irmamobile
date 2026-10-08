@@ -788,6 +788,10 @@
   "face_verification": {
     "title": "Face verification",
     "preparing": "One moment, preparing your data…",
+    "hold_upright": {
+      "title": "Hold your phone upright",
+      "body": "The face check continues once your phone is upright again."
+    },
     "intro": {
       "explanation": "We'll now do a quick face check to confirm you're the person shown in the document.",
       "tip_camera": "Point the selfie camera at your face.",

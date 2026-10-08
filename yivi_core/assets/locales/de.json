@@ -788,6 +788,10 @@
   "face_verification": {
     "title": "Gesichtsverifizierung",
     "preparing": "Einen Moment, Ihre Daten werden vorbereitet…",
+    "hold_upright": {
+      "title": "Halten Sie Ihr Telefon aufrecht",
+      "body": "Die Gesichtsprüfung wird fortgesetzt, sobald Ihr Telefon wieder aufrecht ist."
+    },
     "intro": {
       "explanation": "Wir führen jetzt eine kurze Gesichtsprüfung durch, um zu bestätigen, dass Sie die im Dokument abgebildete Person sind.",
       "tip_camera": "Richten Sie die Selfie-Kamera auf Ihr Gesicht.",

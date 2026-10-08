@@ -6,6 +6,7 @@ import "dart:async";
 import "package:material_ui/material_ui.dart";
 import "package:webview_flutter/webview_flutter.dart";
 import "package:webview_flutter_android/webview_flutter_android.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/hold_upright_overlay.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/loading_indicator.dart";
@@ -143,37 +144,39 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) _resolve(const FaceCaptureMessage.aborted("cancelled"));
         },
-        child: Scaffold(
-          backgroundColor: theme.light,
-          appBar: IrmaAppBar(
-            titleTranslationKey: "face_verification.title",
-            leading: YiviBackButton(
-              onTap: () =>
-                  _resolve(const FaceCaptureMessage.aborted("cancelled")),
+        child: HoldUprightOverlay(
+          child: Scaffold(
+            backgroundColor: theme.light,
+            appBar: IrmaAppBar(
+              titleTranslationKey: "face_verification.title",
+              leading: YiviBackButton(
+                onTap: () =>
+                    _resolve(const FaceCaptureMessage.aborted("cancelled")),
+              ),
             ),
-          ),
-          body: Stack(
-            children: [
-              WebViewWidget(controller: _controller),
-              if (_loading)
-                ColoredBox(
-                  color: theme.light,
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        LoadingIndicator(),
-                        SizedBox(height: theme.defaultSpacing),
-                        TranslatedText(
-                          "face_verification.preparing",
-                          style: theme.textTheme.bodyLarge,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+            body: Stack(
+              children: [
+                WebViewWidget(controller: _controller),
+                if (_loading)
+                  ColoredBox(
+                    color: theme.light,
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          LoadingIndicator(),
+                          SizedBox(height: theme.defaultSpacing),
+                          TranslatedText(
+                            "face_verification.preparing",
+                            style: theme.textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

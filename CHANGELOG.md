@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
+
 ### Fixed
 - Tilting the phone to landscape during the face check in the F-Droid build no longer ends the issuance with an error (`LANDSCAPE_MODE_RESTRICTED`); the face check screen stays in portrait
 
