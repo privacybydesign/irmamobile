@@ -44,6 +44,17 @@ lane :unit_test do
     sh("flutter", "test")
   end
 
+  # The apps have unit tests of their own, for what only they contain: the
+  # Regula and ML Kit glue in yivi_app, the Tesseract and web liveness glue in
+  # yivi_fdroid.
+  Dir.chdir("../yivi_app") do
+    sh("flutter", "test")
+  end
+
+  Dir.chdir("../yivi_fdroid") do
+    sh("flutter", "test")
+  end
+
   # Android native (JVM) unit tests, including the deep-link session-replay
   # regression test (#568). The yivi_core plugin module compiles against the
   # irmagobridge AAR, so build it first, then run the unit tests through the host
