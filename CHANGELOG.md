@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- The face check in the Play Store and App Store builds also works with the phone held sideways, for people who can only hold their phone that way
 
 ## [8.3.1] - 2026-10-05
 ### Fixed
