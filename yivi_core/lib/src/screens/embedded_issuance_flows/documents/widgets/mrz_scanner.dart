@@ -300,7 +300,9 @@ class MrzScannerState extends ConsumerState<MrzScanner>
           .processImage(inputImage: inputImage, imageRotation: rotation);
       final lines = ocr.lines;
 
-      final showGlareHint = _glareHint.update(ocr.glare);
+      final showGlareHint = _glareHint.update(
+        ocr.glare ? Reflection.present : Reflection.absent,
+      );
       if (showGlareHint != _showGlareHint && mounted) {
         setState(() => _showGlareHint = showGlareHint);
       }

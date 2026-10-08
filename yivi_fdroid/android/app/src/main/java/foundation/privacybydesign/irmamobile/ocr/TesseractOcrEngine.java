@@ -21,6 +21,8 @@ public class TesseractOcrEngine {
     private static final String TAG = "TesseractOcrEngine";
     /** The shortest line counted as MRZ, as minMrzLineLength in yivi_core's mrz_reading.dart. */
     private static final int MIN_MRZ_LINE_LENGTH = 25;
+    /** Pixels this bright count as clipped, as clippedBrightness in yivi_core's mrz_glare.dart. */
+    private static final int CLIPPED_BRIGHTNESS = 250;
     private final Context context;
     private TessBaseAPI tess;
     private final Object tessLock = new Object();
@@ -211,7 +213,9 @@ public class TesseractOcrEngine {
         final int bands = 3;
         final int tiles = 8;
         Mat clipped = new Mat();
-        Imgproc.threshold(crop, clipped, 249, 255, Imgproc.THRESH_BINARY);
+        // THRESH_BINARY keeps the pixels above the threshold.
+        Imgproc.threshold(crop, clipped, CLIPPED_BRIGHTNESS - 1, 255, Imgproc.THRESH_BINARY);
+
         double worst = 0;
         for (int b = 0; b < bands; b++) {
             for (int t = 0; t < tiles; t++) {
@@ -225,6 +229,7 @@ public class TesseractOcrEngine {
                 tile.release();
             }
         }
+
         clipped.release();
         return worst;
     }

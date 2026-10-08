@@ -102,34 +102,34 @@ void main() {
   group("GlareHint", () {
     test("does not show for a single frame with glare", () {
       final hint = GlareHint();
-      expect(hint.update(true), isFalse);
-      expect(hint.update(false), isFalse);
-      expect(hint.update(false), isFalse);
+      expect(hint.update(Reflection.present), isFalse);
+      expect(hint.update(Reflection.absent), isFalse);
+      expect(hint.update(Reflection.absent), isFalse);
     });
 
     test("shows once two of the last three frames had glare", () {
       final hint = GlareHint();
-      hint.update(true);
-      hint.update(false);
-      expect(hint.update(true), isTrue);
+      hint.update(Reflection.present);
+      hint.update(Reflection.absent);
+      expect(hint.update(Reflection.present), isTrue);
     });
 
     test("stays until three frames in a row had none", () {
       final hint = GlareHint();
-      hint.update(true);
-      hint.update(true);
-      expect(hint.update(false), isTrue);
-      expect(hint.update(false), isTrue);
-      expect(hint.update(false), isFalse);
+      hint.update(Reflection.present);
+      hint.update(Reflection.present);
+      expect(hint.update(Reflection.absent), isTrue);
+      expect(hint.update(Reflection.absent), isTrue);
+      expect(hint.update(Reflection.absent), isFalse);
     });
 
     test("starts over after a reset", () {
       final hint = GlareHint();
-      hint.update(true);
-      hint.update(true);
+      hint.update(Reflection.present);
+      hint.update(Reflection.present);
       hint.reset();
       expect(hint.showing, isFalse);
-      expect(hint.update(true), isFalse);
+      expect(hint.update(Reflection.present), isFalse);
     });
   });
 }

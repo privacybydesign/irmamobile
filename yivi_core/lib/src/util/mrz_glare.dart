@@ -89,24 +89,34 @@ double _clippedShare(
   return sampled == 0 ? 0 : clipped / sampled;
 }
 
-/// Decides when the scanner shows its glare hint: once two of the last three
-/// frames had glare on the MRZ, and until three frames in a row had none. A single
-/// frame does not flip it, so the hint does not flicker while the document moves.
+/// Whether a camera frame had a reflection on the MRZ.
+enum Reflection { present, absent }
+
+/// Decides when the scanner shows its glare hint: once [_framesToShow] of the last
+/// [_windowFrames] frames had a reflection on the MRZ, and until that many frames
+/// in a row had none. A single frame does not flip it, so the hint does not
+/// flicker while the document moves.
 class GlareHint {
-  final _recent = <bool>[];
+  static const _windowFrames = 3;
+  static const _framesToShow = 2;
+
+  final _recent = <Reflection>[];
   bool _showing = false;
 
   bool get showing => _showing;
 
-  /// Records whether the latest frame had glare and returns whether to show the
-  /// hint.
-  bool update(bool glare) {
-    _recent.add(glare);
-    if (_recent.length > 3) _recent.removeAt(0);
-    final withGlare = _recent.where((g) => g).length;
-    if (!_showing && withGlare >= 2) {
+  /// Records whether the latest frame had a reflection on the MRZ and returns
+  /// whether to show the hint.
+  bool update(Reflection reflection) {
+    _recent.add(reflection);
+    if (_recent.length > _windowFrames) _recent.removeAt(0);
+
+    final withReflection = _recent.where((r) => r == Reflection.present).length;
+    if (!_showing && withReflection >= _framesToShow) {
       _showing = true;
-    } else if (_showing && _recent.length == 3 && withGlare == 0) {
+    } else if (_showing &&
+        _recent.length == _windowFrames &&
+        withReflection == 0) {
       _showing = false;
     }
     return _showing;
