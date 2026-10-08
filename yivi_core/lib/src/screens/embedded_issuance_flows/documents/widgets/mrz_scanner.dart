@@ -8,6 +8,7 @@ import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../../routing.dart";
 import "../../../../providers/ocr_processor_provider.dart";
+import "../../../../util/mrz_reading.dart";
 import "../../../../util/test_detection.dart";
 
 typedef CameraOverlayBuilder =
@@ -40,6 +41,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   CameraController? _controller;
   int _cameraIndex = 1;
   List<CameraDescription> cameras = [];
+  final _confirmation = MrzReadingConfirmation();
 
   @override
   void dispose() async {
@@ -181,6 +183,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   }
 
   Future _startLiveFeed() async {
+    _confirmation.reset();
     if (cameras.isEmpty) return;
 
     if (_controller != null && _controller!.value.isInitialized) {
@@ -283,7 +286,10 @@ class MrzScannerState extends ConsumerState<MrzScanner>
           .read(ocrProcessorProvider)!
           .processImage(inputImage: inputImage, imageRotation: rotation);
 
-      final result = widget.mrzParser.tryParse(lines);
+      final parsed = widget.mrzParser.tryParse(
+        lines == null ? null : correctDocumentNumber(lines),
+      );
+      final result = parsed == null ? null : _confirmation.confirm(parsed);
 
       if (result != null) {
         // show success checkmark for a second and then call the onSuccess callback
