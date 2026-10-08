@@ -11,7 +11,6 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -27,12 +26,19 @@ public class MrzZoneDetector {
         public final double top;
         public final double width;
         public final double height;
+        /** How dense the found band is; higher means more likely the MRZ. */
+        public final double score;
 
         public RoiResult(double left, double top, double width, double height) {
+            this(left, top, width, height, 0.0);
+        }
+
+        public RoiResult(double left, double top, double width, double height, double score) {
             this.left = left;
             this.top = top;
             this.width = width;
             this.height = height;
+            this.score = score;
         }
     }
 
@@ -57,33 +63,37 @@ public class MrzZoneDetector {
         int w = resized.cols();
         int h = resized.rows();
 
-        // 3. calculate contrast
+        // 2b. A nearly flat frame (lens covered, phone face down) has no document in it.
+        // Stretching it would turn sensor noise into a fake text band.
         MatOfDouble mean = new MatOfDouble();
         MatOfDouble stddev = new MatOfDouble();
         Core.meanStdDev(resized, mean, stddev);
         double contrast = stddev.get(0, 0)[0];
         mean.release();
         stddev.release();
+        if (contrast < 4.0) {
+            resized.release();
+            return null;
+        }
 
-
-        // 4 contrast correction with CLAHE
+        // 3. Stretch the contrast to the full range. No local equalisation (CLAHE) here:
+        // on a textured surface (fabric, wood grain) it boosts the texture until the
+        // projection below scores it as a denser band than the MRZ itself.
         Core.normalize(resized, resized, 0.0, 255.0, Core.NORM_MINMAX, CvType.CV_8U);
-        double clipLimit = (contrast < 20) ? 10.0 : (contrast < 35) ? 6.0 : 3.0;
-        CLAHE clahe = Imgproc.createCLAHE(clipLimit, new Size(4, 4));
-        clahe.apply(resized, resized);
 
-        // 5. Gaussian Blur to remove noise
+        // 4. Gaussian Blur to remove noise and fine surface texture. The MRZ characters
+        // (~19px tall at this scale) survive a 7x7 kernel.
         Mat blurred = new Mat();
-        Imgproc.GaussianBlur(resized, blurred, new Size(3.0, 3.0), 0.0);
+        Imgproc.GaussianBlur(resized, blurred, new Size(7.0, 7.0), 0.0);
         resized.release();
 
-        // 6. Blackhat morph to isolate dark text on bright background
+        // 5. Blackhat morph to isolate dark text on bright background
         Mat rectKernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15.0, 7.0));
         Mat blackhat = new Mat();
         Imgproc.morphologyEx(blurred, blackhat, Imgproc.MORPH_BLACKHAT, rectKernel);
         blurred.release();
 
-        // 7. Sobel gradiënt to detect vertical text lines
+        // 6. Sobel gradiënt to detect vertical text lines
         Mat gradX = new Mat();
         Imgproc.Sobel(blackhat, gradX, CvType.CV_32F, 1, 0, -1);
         blackhat.release();
@@ -91,21 +101,21 @@ public class MrzZoneDetector {
         Core.normalize(gradX, gradX, 0.0, 255.0, Core.NORM_MINMAX, CvType.CV_8U);
 
 
-        // 8. Closing operation to merge nearby letters into lines
+        // 7. Closing operation to merge nearby letters into lines
         Imgproc.morphologyEx(gradX, gradX, Imgproc.MORPH_CLOSE, rectKernel);
         rectKernel.release();
 
-        // 9. Otsu's Threshold to binarize the image, true black wit
+        // 8. Otsu's Threshold to binarize the image, true black wit
         Mat thresh = new Mat();
         Imgproc.threshold(gradX, thresh, 0.0, 255.0,
                 Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
         gradX.release();
 
-        // 10. pass 1: Horizontal projection. Searches for a dense horizontal band of pixels
+        // 9. pass 1: Horizontal projection. Searches for a dense horizontal band of pixels
         // works great if document is straight and not tilted.
         RoiResult result = tryHorizontalProjection(thresh, w, h);
 
-        // 11. Pass 2: Contour detection. Fallback if projection fails.
+        // 10. Pass 2: Contour detection. Fallback if projection fails.
         // looks at the vorm and location of adjacent text blocks.
         if (result == null) {
             result = tryContourDetection(thresh, w, h);
@@ -114,12 +124,74 @@ public class MrzZoneDetector {
             thresh.release();
         }
 
-        // 12. Extra fallback: Use a fixed ROI in the bottom half of the image
-        if (result == null) {
-            result = new RoiResult(0.02, 0.70, 0.96, 0.28);
-        }
-
+        // Null when neither pass found an MRZ; the caller skips OCR for this frame.
         return result;
+    }
+
+    /**
+     * Estimates how far the document's text lines are rotated, in degrees, in the
+     * convention of {@link Imgproc#getRotationMatrix2D}: rotating by the returned angle
+     * levels them. At the right angle every text line falls on its own rows, so the row
+     * sums of a text mask alternate between full and empty and their variance peaks.
+     */
+    public static double estimateSkew(Mat gray) {
+        double scale = 300.0 / gray.rows();
+        Mat small = new Mat();
+        Imgproc.resize(gray, small, new Size(gray.cols() * scale, 300), 0, 0, Imgproc.INTER_AREA);
+        Core.normalize(small, small, 0.0, 255.0, Core.NORM_MINMAX, CvType.CV_8U);
+        Imgproc.GaussianBlur(small, small, new Size(3.0, 3.0), 0.0);
+
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9.0, 5.0));
+        Mat mask = new Mat();
+        Imgproc.morphologyEx(small, mask, Imgproc.MORPH_BLACKHAT, kernel);
+        Imgproc.threshold(mask, mask, 0.0, 255.0, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+        small.release();
+        kernel.release();
+
+        double best = 0;
+        double bestScore = -1;
+        // Text lines look the same at a and a+180, so half a turn covers every rotation;
+        // the caller resolves upright versus upside down. MRZ characters also line up in
+        // columns, 90 degrees off, but the text lines score higher than those columns.
+        for (double angle = -90; angle < 90; angle += 3) {
+            double score = rowVariance(mask, angle);
+            if (score > bestScore) {
+                bestScore = score;
+                best = angle;
+            }
+        }
+        double coarse = best;
+        for (double angle = coarse - 1.5; angle <= coarse + 1.5; angle += 0.5) {
+            double score = rowVariance(mask, angle);
+            if (score > bestScore) {
+                bestScore = score;
+                best = angle;
+            }
+        }
+        mask.release();
+        if (best >= 90) best -= 180;
+        if (best < -90) best += 180;
+        return best;
+    }
+
+    private static double rowVariance(Mat mask, double angle) {
+        Mat rot = Imgproc.getRotationMatrix2D(new Point(mask.cols() / 2.0, mask.rows() / 2.0), angle, 1.0);
+        Mat rotated = new Mat();
+        Imgproc.warpAffine(mask, rotated, rot, mask.size(), Imgproc.INTER_NEAREST, Core.BORDER_CONSTANT, new Scalar(0.0));
+        rot.release();
+
+        Mat rowSums = new Mat();
+        Core.reduce(rotated, rowSums, 1, Core.REDUCE_SUM, CvType.CV_64F);
+        rotated.release();
+
+        MatOfDouble mean = new MatOfDouble();
+        MatOfDouble stddev = new MatOfDouble();
+        Core.meanStdDev(rowSums, mean, stddev);
+        double sd = stddev.get(0, 0)[0];
+        rowSums.release();
+        mean.release();
+        stddev.release();
+        return sd * sd;
     }
 
     /**
@@ -217,7 +289,53 @@ public class MrzZoneDetector {
             return null;
         }
 
-        return new RoiResult(0.02, roiTop, 0.96, roiHeight);
+        // Narrow the band to the columns that hold text. Otherwise the document's edge
+        // next to the MRZ reaches Tesseract as an extra character at the start or end
+        // of every line, and a 31-character line no longer parses as TD1.
+        Mat band = thresh.submat(absTop, absBottom + 1, 0, w);
+        Mat colSums = new Mat();
+        Core.reduce(band, colSums, 0, Core.REDUCE_AVG, CvType.CV_64F);
+        band.release();
+
+        double[] colDensity = new double[w];
+        for (int x = 0; x < w; x++) {
+            colDensity[x] = colSums.get(0, x)[0] / 255.0;
+        }
+        colSums.release();
+
+        double[] smoothedCols = new double[w];
+        double maxCol = 0;
+        for (int x = 0; x < w; x++) {
+            double total = 0;
+            int count = 0;
+            for (int dx = -4; dx <= 4; dx++) {
+                int xx = x + dx;
+                if (xx >= 0 && xx < w) {
+                    total += colDensity[xx];
+                    count++;
+                }
+            }
+            smoothedCols[x] = total / count;
+            maxCol = Math.max(maxCol, smoothedCols[x]);
+        }
+
+        int textLeft = -1;
+        int textRight = -1;
+        for (int x = 0; x < w; x++) {
+            if (smoothedCols[x] > maxCol * 0.3) {
+                if (textLeft < 0) textLeft = x;
+                textRight = x;
+            }
+        }
+        if (textLeft < 0) {
+            return new RoiResult(0.02, roiTop, 0.96, roiHeight, bestScore);
+        }
+
+        double padX = 0.015;
+        double roiLeft = Math.max(0.0, (double) textLeft / w - padX);
+        double roiRight = Math.min(1.0, (double) (textRight + 1) / w + padX);
+
+        return new RoiResult(roiLeft, roiTop, roiRight - roiLeft, roiHeight, bestScore);
     }
 
     /**
