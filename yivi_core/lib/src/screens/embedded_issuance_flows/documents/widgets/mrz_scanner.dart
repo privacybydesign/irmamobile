@@ -193,7 +193,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     final camera = cameras[_cameraIndex];
     _controller = CameraController(
       camera,
-      .high,
+      .veryHigh,
       enableAudio: false,
       imageFormatGroup: Platform.isAndroid ? .nv21 : .bgra8888,
     );
@@ -249,8 +249,11 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     if (Platform.isIOS) {
       return sensorOrientation;
     } else if (Platform.isAndroid) {
+      // A frame can still arrive after _stopLiveFeed has dropped the controller.
+      final controller = _controller;
+      if (controller == null) return null;
       var rotationCompensation =
-          _orientations[_controller!.value.deviceOrientation];
+          _orientations[controller.value.deviceOrientation];
       if (rotationCompensation == null) return null;
       if (camera.lensDirection == .front) {
         // front-facing
