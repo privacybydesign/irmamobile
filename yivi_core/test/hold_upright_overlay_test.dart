@@ -81,6 +81,24 @@ void main() {
     expect(find.text(_prompt), findsOneWidget);
   });
 
+  for (final (orientation, quarterTurns) in [
+    (NativeDeviceOrientation.landscapeLeft, 1),
+    (NativeDeviceOrientation.portraitDown, 2),
+    (NativeDeviceOrientation.landscapeRight, 3),
+  ]) {
+    testWidgets("turns the prompt upright in the hand for $orientation", (
+      tester,
+    ) async {
+      await _pump(tester, sensor.stream);
+      await _turn(tester, sensor, orientation);
+      final prompt = tester.widget<RotatedBox>(
+        find.byKey(const Key("hold_upright_prompt")),
+      );
+      expect(prompt.quarterTurns, quarterTurns);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets("keeps the prompt as it was while the phone lies flat", (
     tester,
   ) async {

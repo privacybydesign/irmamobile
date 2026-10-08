@@ -14,8 +14,9 @@ import "../../../../widgets/translated_text.dart";
 /// The face check cannot find a face the camera sees sideways, so a tilted phone
 /// leaves the user waiting on a capture that never completes. The screen itself
 /// stays in portrait during the face check, so the physical orientation comes
-/// from the motion sensor. A phone lying flat reports no orientation and keeps
-/// the prompt as it was.
+/// from the motion sensor, and the prompt is turned to match it so it reads
+/// upright in the user's hand. A phone lying flat reports no orientation and
+/// keeps the prompt as it was.
 class HoldUprightOverlay extends StatefulWidget {
   const HoldUprightOverlay({
     super.key,
@@ -34,7 +35,10 @@ class HoldUprightOverlay extends StatefulWidget {
 
 class _HoldUprightOverlayState extends State<HoldUprightOverlay> {
   StreamSubscription<NativeDeviceOrientation>? _subscription;
-  bool _tilted = false;
+
+  /// Clockwise quarter turns that make the screen's content upright in the
+  /// user's hand; 0 while the phone is upright.
+  int _quarterTurns = 0;
 
   @override
   void initState() {
@@ -52,18 +56,17 @@ class _HoldUprightOverlayState extends State<HoldUprightOverlay> {
   }
 
   void _onOrientation(NativeDeviceOrientation orientation) {
-    final bool tilted;
-    switch (orientation) {
-      case NativeDeviceOrientation.landscapeLeft:
-      case NativeDeviceOrientation.landscapeRight:
-      case NativeDeviceOrientation.portraitDown:
-        tilted = true;
-      case NativeDeviceOrientation.portraitUp:
-        tilted = false;
-      case NativeDeviceOrientation.unknown:
-        return;
+    // The same turns as the arrow back screen, which also stays in portrait.
+    final quarterTurns = switch (orientation) {
+      NativeDeviceOrientation.portraitUp => 0,
+      NativeDeviceOrientation.landscapeLeft => 1,
+      NativeDeviceOrientation.portraitDown => 2,
+      NativeDeviceOrientation.landscapeRight => 3,
+      NativeDeviceOrientation.unknown => null,
+    };
+    if (quarterTurns != null && quarterTurns != _quarterTurns && mounted) {
+      setState(() => _quarterTurns = quarterTurns);
     }
-    if (tilted != _tilted && mounted) setState(() => _tilted = tilted);
   }
 
   @override
@@ -76,13 +79,18 @@ class _HoldUprightOverlayState extends State<HoldUprightOverlay> {
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
-      children: [widget.child, if (_tilted) const _HoldUprightPrompt()],
+      children: [
+        widget.child,
+        if (_quarterTurns != 0) _HoldUprightPrompt(quarterTurns: _quarterTurns),
+      ],
     );
   }
 }
 
 class _HoldUprightPrompt extends StatelessWidget {
-  const _HoldUprightPrompt();
+  const _HoldUprightPrompt({required this.quarterTurns});
+
+  final int quarterTurns;
 
   @override
   Widget build(BuildContext context) {
@@ -93,35 +101,45 @@ class _HoldUprightPrompt extends StatelessWidget {
     return Material(
       color: theme.light,
       child: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ExcludeSemantics(
-                  child: TickerMode(
-                    enabled: animate,
-                    child: _TurnUprightAnimation(animate: animate),
-                  ),
+        child: RotatedBox(
+          key: const Key("hold_upright_prompt"),
+          quarterTurns: quarterTurns,
+          // Turned sideways the prompt only has the phone's width as height.
+          child: Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(theme.defaultSpacing),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ExcludeSemantics(
+                      child: TickerMode(
+                        enabled: animate,
+                        child: _TurnUprightAnimation(
+                          animate: animate,
+                          quarterTurns: quarterTurns,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: theme.largeSpacing),
+                    Semantics(
+                      liveRegion: true,
+                      child: TranslatedText(
+                        "face_verification.hold_upright.title",
+                        style: theme.textTheme.displaySmall,
+                        textAlign: TextAlign.center,
+                        isHeader: true,
+                      ),
+                    ),
+                    SizedBox(height: theme.smallSpacing),
+                    TranslatedText(
+                      "face_verification.hold_upright.body",
+                      style: theme.textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-                SizedBox(height: theme.largeSpacing),
-                Semantics(
-                  liveRegion: true,
-                  child: TranslatedText(
-                    "face_verification.hold_upright.title",
-                    style: theme.textTheme.displaySmall,
-                    textAlign: TextAlign.center,
-                    isHeader: true,
-                  ),
-                ),
-                SizedBox(height: theme.smallSpacing),
-                TranslatedText(
-                  "face_verification.hold_upright.body",
-                  style: theme.textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -130,12 +148,21 @@ class _HoldUprightPrompt extends StatelessWidget {
   }
 }
 
-/// A phone turning from sideways to upright, then holding still for a moment.
-/// Drawn like the phone in the face-verification intro animation.
+/// A phone turning upright the way the user has to turn theirs, then holding
+/// still for a moment. Drawn like the phone in the face-verification intro
+/// animation.
 class _TurnUprightAnimation extends StatefulWidget {
-  const _TurnUprightAnimation({required this.animate});
+  const _TurnUprightAnimation({
+    required this.animate,
+    required this.quarterTurns,
+  });
 
   final bool animate;
+
+  /// How the prompt is turned to face the user: the phone starts that many
+  /// quarter turns away from upright, so it turns back the way the real phone
+  /// has to.
+  final int quarterTurns;
 
   @override
   State<_TurnUprightAnimation> createState() => _TurnUprightAnimationState();
@@ -161,11 +188,16 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
     super.dispose();
   }
 
-  /// Sideways for the first 15%, turns upright until 55%, then holds.
+  /// As held for the first 15%, turns upright until 55%, then holds.
   double _angle(double t) {
     if (!widget.animate) return 0;
+    final start = switch (widget.quarterTurns) {
+      3 => pi / 2,
+      2 => -pi,
+      _ => -pi / 2,
+    };
     final turn = Curves.easeInOut.transform(((t - 0.15) / 0.4).clamp(0.0, 1.0));
-    return -pi / 2 * (1 - turn);
+    return start * (1 - turn);
   }
 
   @override
