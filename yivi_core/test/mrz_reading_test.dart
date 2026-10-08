@@ -96,12 +96,25 @@ void main() {
       expect(correctDocumentNumber(_misread(_td3, 1, 5, "O")), _td3);
     });
 
-    test("leaves the reading alone when more than one swap fits", () {
-      // DZ3145890: Z->2 restores the check digit, but so does 8->B (DZ3145B90),
-      // because 2/Z and 8/B shift the sum by the same amount here.
-      final misread = _misread(_td1, 0, 6, "Z");
-      expect(correctDocumentNumber(misread), misread);
+    test("fixes a TD1 document number misread D for 0", () {
+      expect(correctDocumentNumber(_misread(_td1, 0, 13, "D")), _td1);
     });
+
+    test("prefers turning a letter back into a digit when several swaps fit", () {
+      // DZ3145890: Z->2 restores the check digit, but so does 8->B (DZ3145B90),
+      // because 2/Z and 8/B shift the sum by the same amount here. Only Z->2 turns a
+      // letter back into a digit.
+      expect(correctDocumentNumber(_misread(_td1, 0, 6, "Z")), _td1);
+    });
+
+    test(
+      "leaves the reading alone when several swaps turn a letter into a digit",
+      () {
+        // D23145B90: B->8 restores the check digit, and so does D->0 (023145B90).
+        final misread = _misread(_td1, 0, 11, "B");
+        expect(correctDocumentNumber(misread), misread);
+      },
+    );
 
     test("leaves the reading alone when no single swap fits", () {
       // DX3145890: X is not a confusable character, and no swap of the others

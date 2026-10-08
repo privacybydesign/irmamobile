@@ -54,12 +54,15 @@ String fixMrzLineLength(String line, int length) {
       line.substring(run.end);
 }
 
-/// Characters OCR mistakes for each other in MRZ text. Only pairs the check digit can
-/// tell apart: G and 6 are worth 16 and 6, and a difference of 10 leaves every check
-/// digit unchanged.
+/// Characters OCR mistakes for each other in MRZ text, each mapped to what it may
+/// really be. D and Q only go one way, to 0. Only pairs the check digit can tell
+/// apart: G and 6 are worth 16 and 6, and a difference of 10 leaves every check digit
+/// unchanged.
 const _confusable = {
   "0": "O",
   "O": "0",
+  "D": "0",
+  "Q": "0",
   "1": "I",
   "I": "1",
   "2": "Z",
@@ -86,9 +89,14 @@ const _checkDigitMisreads = {
 
 /// Returns [lines] with one misread character of the document number fixed: the
 /// single swap from [_confusable] that makes the document number match its check
-/// digit. Returns [lines] unchanged when the check digit already matches, when no swap
-/// fits, or when more than one does (2/Z, 8/B and 5/S all shift the sum by 3, so
-/// they often collide).
+/// digit.
+///
+/// Several swaps often fit (2/Z, 8/B and 5/S all shift the sum by 3, and a document
+/// number with two zeros can lose either). OCR reads digits as letters far more
+/// often than the other way round: ML Kit read a 0 in a document number as a letter
+/// in most frames of a test, so when exactly one of the fitting swaps turns a letter
+/// back into a digit, that one is taken. Returns [lines] unchanged when the check
+/// digit already matches, when no swap fits, or when that does not settle it.
 ///
 /// The check digit is used up by the correction, so confirm a corrected reading with
 /// a second frame before trusting it (see [MrzReadingConfirmation]).
@@ -117,6 +125,7 @@ List<String> correctDocumentNumber(List<String> lines) {
   if (expected == null || _checkDigit(documentNumber) == expected) return lines;
 
   final candidates = <String>{};
+  final backToDigit = <String>{};
   for (var i = 0; i < documentNumber.length; i++) {
     final swapped = _confusable[documentNumber[i]];
     if (swapped == null) continue;
@@ -124,12 +133,21 @@ List<String> correctDocumentNumber(List<String> lines) {
         documentNumber.substring(0, i) +
         swapped +
         documentNumber.substring(i + 1);
-    if (_checkDigit(candidate) == expected) candidates.add(candidate);
+    if (_checkDigit(candidate) != expected) continue;
+    candidates.add(candidate);
+    if (int.tryParse(swapped) != null) backToDigit.add(candidate);
   }
-  if (candidates.length != 1) return lines;
+  final String fixed;
+  if (candidates.length == 1) {
+    fixed = candidates.single;
+  } else if (backToDigit.length == 1) {
+    fixed = backToDigit.single;
+  } else {
+    return lines;
+  }
 
   final corrected =
-      line.substring(0, start) + candidates.single + line.substring(start + 9);
+      line.substring(0, start) + fixed + line.substring(start + 9);
   return [...lines]..[lineIndex] = corrected;
 }
 
