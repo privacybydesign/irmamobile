@@ -1,52 +1,17 @@
-import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
-import "package:shared_preferences/shared_preferences.dart";
-import "package:yivi_core/src/data/feature_flags.dart";
-import "package:yivi_core/src/data/irma_bridge.dart";
-import "package:yivi_core/src/data/irma_preferences.dart";
-import "package:yivi_core/src/data/irma_repository.dart";
-import "package:yivi_core/src/models/event.dart";
-import "package:yivi_core/src/models/log_entry.dart";
 import "package:yivi_core/src/models/missing_data_checklist.dart";
-import "package:yivi_core/src/models/schemaless/credential_store.dart";
-import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/models/schemaless/session_state.dart";
-import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/issue_during_disclosure_provider.dart";
 import "package:yivi_core/src/providers/missing_data_flow_provider.dart";
-import "package:yivi_core/src/providers/preferences_provider.dart";
 import "package:yivi_core/src/screens/session/session_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/irma_card.dart";
 import "package:yivi_core/src/widgets/yivi_themed_button.dart";
 
-const _sessionId = 1;
-
-TrustedParty _party(String name, {bool verified = true}) => TrustedParty(
-  id: name,
-  name: name,
-  url: null,
-  parent: null,
-  verified: verified,
-);
-
-CredentialDescriptor _desc(String id, {String? issueURL = "https://issuer"}) =>
-    CredentialDescriptor(
-      credentialId: id,
-      name: "Cred $id",
-      issuer: _party("Issuer"),
-      category: null,
-      attributes: const [],
-      issueURL: issueURL,
-    );
-
-IssuanceStep _step(List<List<CredentialDescriptor>> options) => IssuanceStep(
-  options: [for (final o in options) IssuanceBundle(credentials: o)],
-);
+import "missing_data_fixtures.dart";
 
 IssueDuringDisclosureState _wizard(
   List<IssuanceStep> steps, {
@@ -58,75 +23,20 @@ IssueDuringDisclosureState _wizard(
   issuedCredentialIds: issued,
 );
 
-SelectableCredentialInstance _instance(String id) =>
-    SelectableCredentialInstance(
-      credentialId: id,
-      hash: "hash-$id",
-      name: "Cred $id",
-      issuer: _party("Issuer"),
-      format: CredentialFormat.idemix,
-      attributes: const [],
-      revoked: false,
-      revocationSupported: false,
-    );
-
-SessionState _session({
-  required List<IssuanceStep> steps,
-  Set<String> issued = const {},
-  bool withChoices = false,
-  SessionType type = SessionType.disclosure,
-  bool verified = true,
-}) => SessionState(
-  id: _sessionId,
-  protocol: "irma",
-  type: type,
-  status: SessionStatus.requestPermission,
-  requestor: _party("Test Verifier", verified: verified),
-  disclosurePlan: DisclosurePlan(
-    issueDuringDisclosure: IssueDuringDisclosure(
-      steps: steps,
-      issuedCredentialIds: {for (final id in issued) id: null},
-    ),
-    disclosureChoicesOverview: withChoices
-        ? [
-            for (final step in steps)
-              DisclosurePickOne(
-                optional: false,
-                ownedOptions: [
-                  DisclosureBundle(
-                    credentials: [
-                      for (final c in step.options.first.credentials)
-                        _instance(c.credentialId),
-                    ],
-                  ),
-                ],
-              ),
-          ]
-        : null,
-  ),
-);
-
-class _TestBridge extends IrmaBridge {
-  @override
-  void dispatch(Event event) {}
-
-  void emit(Event event) => addEvent(event);
-}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group("MissingDataChecklist", () {
-    final email = _desc("email");
-    final phone = _desc("phone");
+    final email = testDescriptor("email");
+    final phone = testDescriptor("phone");
 
     test("counts the credentials of every step", () {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard([
-          _step([
+          testStep([
             [email],
           ]),
-          _step([
+          testStep([
             [phone],
           ]),
         ]),
@@ -142,10 +52,10 @@ void main() {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard(
           [
-            _step([
+            testStep([
               [email],
             ]),
-            _step([
+            testStep([
               [phone],
             ]),
           ],
@@ -162,7 +72,7 @@ void main() {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard(
           [
-            _step([
+            testStep([
               [email],
             ]),
           ],
@@ -177,10 +87,10 @@ void main() {
     test("next skips credentials that cannot be obtained in the app", () {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard([
-          _step([
-            [_desc("elsewhere", issueURL: null)],
+          testStep([
+            [testDescriptor("elsewhere", issueURL: null)],
           ]),
-          _step([
+          testStep([
             [phone],
           ]),
         ]),
@@ -193,7 +103,7 @@ void main() {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard(
           [
-            _step([
+            testStep([
               [email, phone],
             ]),
           ],
@@ -208,7 +118,7 @@ void main() {
 
     test("a step with options is a choice until one option is obtained", () {
       final steps = [
-        _step([
+        testStep([
           [email],
           [phone],
         ]),
@@ -230,7 +140,7 @@ void main() {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard(
           [
-            _step([
+            testStep([
               [email],
               [phone],
             ]),
@@ -250,7 +160,7 @@ void main() {
       final checklist = MissingDataChecklist.fromWizardState(
         _wizard(
           [
-            _step([
+            testStep([
               [email],
             ]),
           ],
@@ -263,23 +173,21 @@ void main() {
   });
 
   group("SessionScreen with FeatureFlag.missingDataChecklist", () {
-    late _TestBridge bridge;
-    late IrmaRepository repo;
-    late IrmaPreferences prefs;
+    late MissingDataHarness harness;
     late GoRouter router;
-    late ProviderContainer container;
+
+    ProviderContainer container() => harness.container;
 
     Future<void> setUpScreen(
       WidgetTester tester, {
       required bool flagOn,
     }) async {
-      bridge = _TestBridge();
       router = GoRouter(
         initialLocation: "/session",
         routes: [
           GoRoute(
             path: "/session",
-            builder: (_, _) => const SessionScreen(sessionId: _sessionId),
+            builder: (_, _) => const SessionScreen(sessionId: testSessionId),
           ),
           GoRoute(
             path: "/home/add_data/details",
@@ -287,67 +195,19 @@ void main() {
           ),
         ],
       );
-
-      await tester.runAsync(() async {
-        SharedPreferences.setMockInitialValues({});
-        prefs = await IrmaPreferences.fromInstance(
-          mostRecentTermsUrlNl: "",
-          mostRecentTermsUrlEn: "",
-        );
-        await prefs.clearAll();
-        await prefs.setCompletedDisclosurePermissionIntro(true);
-        await prefs.setFeatureFlag(FeatureFlag.missingDataChecklist, flagOn);
-      });
-
-      repo = IrmaRepository(client: bridge, preferences: prefs);
-      addTearDown(repo.close);
-
-      container = ProviderContainer(
-        overrides: [
-          preferencesProvider.overrideWithValue(prefs),
-          irmaRepositoryProvider.overrideWithValue(repo),
-        ],
-      );
-      addTearDown(container.dispose);
-
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: IrmaTheme(
-              builder: (_) => MaterialApp.router(
-                routerConfig: router,
-                localizationsDelegates: [
-                  FlutterI18nDelegate(
-                    translationLoader: FileTranslationLoader(
-                      basePath: "assets/locales",
-                      forcedLocale: const Locale("nl"),
-                    ),
-                  ),
-                  ...GlobalMaterialLocalizations.delegates,
-                ],
-              ),
-            ),
-          ),
-        );
-        await Future<void>.delayed(const Duration(milliseconds: 500));
-      });
-      await tester.pump();
+      harness = await MissingDataHarness.pump(tester, router, flagOn: flagOn);
     }
 
-    Future<void> emit(WidgetTester tester, SessionState session) async {
-      bridge.emit(SessionStateEvent(sessionState: session));
-      await tester.pump();
-      await tester.pump();
-    }
+    Future<void> emit(WidgetTester tester, SessionState session) =>
+        harness.emit(tester, session);
 
-    final email = _desc("email");
-    final phone = _desc("phone");
+    final email = testDescriptor("email");
+    final phone = testDescriptor("phone");
     final twoSteps = [
-      _step([
+      testStep([
         [email],
       ]),
-      _step([
+      testStep([
         [phone],
       ]),
     ];
@@ -356,7 +216,7 @@ void main() {
       tester,
     ) async {
       await setUpScreen(tester, flagOn: true);
-      await emit(tester, _session(steps: twoSteps));
+      await emit(tester, testSession(steps: twoSteps));
 
       expect(find.text("Test Verifier vraagt om 2 gegevens"), findsOneWidget);
       expect(find.text("Bekende partij"), findsOneWidget);
@@ -378,7 +238,7 @@ void main() {
       tester,
     ) async {
       await setUpScreen(tester, flagOn: true);
-      await emit(tester, _session(steps: twoSteps));
+      await emit(tester, testSession(steps: twoSteps));
 
       expect(find.text("Stap 1 van 2"), findsNothing);
       expect(find.text("Delen met Test Verifier"), findsOneWidget);
@@ -393,7 +253,7 @@ void main() {
       tester,
     ) async {
       await setUpScreen(tester, flagOn: true);
-      await emit(tester, _session(steps: [twoSteps.first]));
+      await emit(tester, testSession(steps: [twoSteps.first]));
 
       expect(find.text("Test Verifier vraagt om 1 gegeven"), findsOneWidget);
       expect(find.text("Haal eerst het ontbrekende gegeven op"), findsOne);
@@ -401,7 +261,7 @@ void main() {
 
     testWidgets("flags an unknown requestor", (tester) async {
       await setUpScreen(tester, flagOn: true);
-      await emit(tester, _session(steps: twoSteps, verified: false));
+      await emit(tester, testSession(steps: twoSteps, verified: false));
 
       expect(find.text("Onbekende partij"), findsOneWidget);
     });
@@ -410,8 +270,8 @@ void main() {
       tester,
     ) async {
       await setUpScreen(tester, flagOn: true);
-      await emit(tester, _session(steps: twoSteps));
-      await emit(tester, _session(steps: twoSteps, issued: {"email"}));
+      await emit(tester, testSession(steps: twoSteps));
+      await emit(tester, testSession(steps: twoSteps, issued: {"email"}));
 
       expect(find.text("1 van 2 klaar"), findsOneWidget);
       expect(find.text("Zojuist toegevoegd"), findsOneWidget);
@@ -452,8 +312,8 @@ void main() {
       );
 
       await setUpScreen(tester, flagOn: true);
-      await emit(tester, _session(steps: twoSteps));
-      await emit(tester, _session(steps: twoSteps, issued: {"email"}));
+      await emit(tester, testSession(steps: twoSteps));
+      await emit(tester, testSession(steps: twoSteps, issued: {"email"}));
       await tester.pump();
 
       final color = tester
@@ -472,30 +332,30 @@ void main() {
       tester,
     ) async {
       await setUpScreen(tester, flagOn: true);
-      await emit(tester, _session(steps: twoSteps));
+      await emit(tester, testSession(steps: twoSteps));
 
       await tester.tap(find.text("Ophalen").last);
       await tester.pumpAndSettle();
 
       expect(find.text("details screen"), findsOneWidget);
-      final flow = container.read(missingDataFlowProvider);
-      expect(flow?.sessionId, _sessionId);
+      final flow = container().read(missingDataFlowProvider);
+      expect(flow?.sessionId, testSessionId);
       expect(flow?.credentialId, "phone");
 
       router.pop();
       await tester.pumpAndSettle();
 
       expect(find.text("details screen"), findsNothing);
-      expect(container.read(missingDataFlowProvider), isNull);
+      expect(container().read(missingDataFlowProvider), isNull);
     });
 
     testWidgets("keeps the choice between options", (tester) async {
       await setUpScreen(tester, flagOn: true);
       await emit(
         tester,
-        _session(
+        testSession(
           steps: [
-            _step([
+            testStep([
               [email],
               [phone],
             ]),
@@ -511,8 +371,8 @@ void main() {
       await tester.pump();
 
       expect(
-        container
-            .read(issueDuringDisclosureProvider(_sessionId))
+        container()
+            .read(issueDuringDisclosureProvider(testSessionId))
             .selectedOptionPerStep,
         [1],
       );
@@ -522,10 +382,10 @@ void main() {
       tester,
     ) async {
       await setUpScreen(tester, flagOn: true);
-      await emit(tester, _session(steps: twoSteps));
+      await emit(tester, testSession(steps: twoSteps));
       await emit(
         tester,
-        _session(
+        testSession(
           steps: twoSteps,
           issued: {"email", "phone"},
           withChoices: true,
@@ -550,7 +410,7 @@ void main() {
 
     testWidgets("keeps today's screens when the flag is off", (tester) async {
       await setUpScreen(tester, flagOn: false);
-      await emit(tester, _session(steps: twoSteps));
+      await emit(tester, testSession(steps: twoSteps));
 
       expect(find.text("Stap 1 van 2"), findsOneWidget);
       expect(find.text("Test Verifier vraagt om 2 gegevens"), findsNothing);
@@ -563,7 +423,7 @@ void main() {
       await setUpScreen(tester, flagOn: true);
       await emit(
         tester,
-        _session(steps: twoSteps, type: SessionType.signature),
+        testSession(steps: twoSteps, type: SessionType.signature),
       );
 
       expect(find.byKey(const Key("missing_data_header")), findsNothing);
