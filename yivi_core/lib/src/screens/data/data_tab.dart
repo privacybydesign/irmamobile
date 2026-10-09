@@ -21,6 +21,7 @@ import "../../widgets/credential_card/schemaless_yivi_credential_type_card.dart"
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_card.dart";
 import "../../widgets/irma_icon_button.dart";
+import "../../widgets/section_header.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_search_bar.dart";
 
@@ -282,7 +283,10 @@ class _AllCredentialsList extends ConsumerWidget {
       AsyncData(:final value) =>
         value.credentials.isEmpty && value.problematic.isEmpty
             ? _NoCredentialsYet(addDataButtonKey: addDataButtonKey)
-            : _ReorderableCredentialList(),
+            : switch (ref.watch(dataTabLayoutProvider)) {
+                .classic => _ReorderableCredentialList(),
+                _ => const _SectionedCredentialList(),
+              },
       AsyncError() => Center(
         child: Padding(
           padding: EdgeInsets.all(theme.defaultSpacing),
@@ -313,23 +317,41 @@ class _CredentialsTypeList extends StatelessWidget {
               left: theme.defaultSpacing,
               right: theme.defaultSpacing,
             ),
-            child: SchemalessYiviCredentialTypeCard(
-              credentialId: c.credentialId,
-              credentialName: c.name,
-              issuerName: c.issuer.name,
-              credentialImageBase64: c.image != null
-                  ? Base64Image(
-                      base64: c.image!.base64,
-                      mimeType: c.image!.mimeType,
-                    )
-                  : null,
-              onTap: () => context.pushCredentialsDetailsScreen(
-                CredentialsDetailsRouteParams(credentialTypeId: c.credentialId),
-              ),
-            ),
+            child: _CredentialTypeCard(c),
           );
         }),
       ],
+    );
+  }
+}
+
+class _CredentialTypeCard extends ConsumerWidget {
+  const _CredentialTypeCard(this.credential);
+
+  final schemaless.Credential credential;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expired = ref
+        .watch(expiredCredentialTypesProvider)
+        .contains(credential.credentialId);
+
+    return SchemalessYiviCredentialTypeCard(
+      credentialId: credential.credentialId,
+      credentialName: credential.name,
+      issuerName: credential.issuer.name,
+      credentialImageBase64: credential.image != null
+          ? Base64Image(
+              base64: credential.image!.base64,
+              mimeType: credential.image!.mimeType,
+            )
+          : null,
+      expireState: expired ? .expired : .notExpired,
+      onTap: () => context.pushCredentialsDetailsScreen(
+        CredentialsDetailsRouteParams(
+          credentialTypeId: credential.credentialId,
+        ),
+      ),
     );
   }
 }
@@ -419,17 +441,7 @@ class _ReorderableCredentialList extends ConsumerWidget {
           // ones, so the user sees what needs attention first.
           header: problematic.isEmpty
               ? null
-              : Column(
-                  key: const Key("problematic_credentials_section"),
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final pc in problematic)
-                      Padding(
-                        padding: EdgeInsets.only(bottom: theme.smallSpacing),
-                        child: _ProblematicCredentialCard(credential: pc),
-                      ),
-                  ],
-                ),
+              : _ProblematicCredentialsSection(problematic),
           footer: const SizedBox(height: 50),
           itemBuilder: (_, i) {
             final cred = items[i];
@@ -460,6 +472,250 @@ class _ReorderableCredentialList extends ConsumerWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _ProblematicCredentialsSection extends StatelessWidget {
+  const _ProblematicCredentialsSection(this.problematic);
+
+  final List<schemaless.ProblematicCredential> problematic;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return Column(
+      key: const Key("problematic_credentials_section"),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final pc in problematic)
+          Padding(
+            padding: EdgeInsets.only(bottom: theme.smallSpacing),
+            child: _ProblematicCredentialCard(credential: pc),
+          ),
+      ],
+    );
+  }
+}
+
+/// The data tab behind `dataTabV2` and `dataTabCategories`: the credentials in
+/// sections, each in the user's own order.
+class _SectionedCredentialList extends ConsumerWidget {
+  const _SectionedCredentialList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
+    final sections = ref.watch(dataTabSectionsProvider);
+    final problematic =
+        ref.watch(schemalessCredentialsProvider).value?.problematic ??
+        const <schemaless.ProblematicCredential>[];
+
+    return sections.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: EdgeInsets.all(theme.defaultSpacing),
+          child: TranslatedText("error.title", textAlign: TextAlign.center),
+        ),
+      ),
+      data: (sections) => ListView(
+        key: const Key("credential_sections_list"),
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        children: [
+          if (problematic.isNotEmpty)
+            _ProblematicCredentialsSection(problematic),
+          for (final section in sections)
+            _CredentialSection(key: ValueKey(section.key), section: section),
+          const SizedBox(height: 50),
+        ],
+      ),
+    );
+  }
+}
+
+enum _SectionState {
+  /// No chevron: favourites, and every section while `dataTabCategories` is off.
+  fixed,
+  expanded,
+  collapsed,
+}
+
+class _CredentialSection extends ConsumerWidget {
+  const _CredentialSection({super.key, required this.section});
+
+  final DataTabSection section;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
+    final controller = ref.read(
+      schemalessCredentialOrderControllerProvider.notifier,
+    );
+    final collapsible =
+        ref.watch(dataTabLayoutProvider) == DataTabLayout.categories &&
+        section.kind != DataTabSectionKind.favourites;
+    final state = !collapsible
+        ? _SectionState.fixed
+        : ref.watch(collapsedDataTabSectionsProvider).contains(section.key)
+        ? _SectionState.collapsed
+        : _SectionState.expanded;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _SectionTitle(section: section, state: state),
+          if (state != _SectionState.collapsed)
+            ReorderableListView.builder(
+              shrinkWrap: true,
+              // The list view around the sections does the scrolling.
+              primary: false,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              buildDefaultDragHandles: false,
+              onReorderStart: (index) {
+                HapticFeedback.mediumImpact();
+              },
+              onReorderEnd: (index) {
+                HapticFeedback.mediumImpact();
+              },
+              onReorderItem: (oldIndex, newIndex) => controller.reorderWithin(
+                section.credentials,
+                oldIndex,
+                newIndex,
+              ),
+              proxyDecorator: (child, index, animation) {
+                // See _ReorderableCredentialList: no shadow around the padding.
+                return Material(type: .transparency, child: child);
+              },
+              itemCount: section.credentials.length,
+              itemBuilder: (_, i) {
+                final credential = section.credentials[i];
+
+                return Padding(
+                  key: ValueKey(credential.credentialId),
+                  padding: EdgeInsets.only(bottom: theme.smallSpacing),
+                  child: ReorderableDelayedDragStartListener(
+                    index: i,
+                    child: _CredentialTypeCard(credential),
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends ConsumerWidget {
+  const _SectionTitle({required this.section, required this.state});
+
+  final DataTabSection section;
+  final _SectionState state;
+
+  String _title(BuildContext context) => switch (section.kind) {
+    .favourites => FlutterI18n.translate(context, "data_tab.favourites.title"),
+    .category when section.category.isEmpty => FlutterI18n.translate(
+      context,
+      "data.category_other",
+    ),
+    .category => section.category,
+    .staging => FlutterI18n.translate(context, "data.add.staging"),
+    .demo => FlutterI18n.translate(context, "data.add.demo"),
+    .ungrouped => "",
+  };
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = IrmaTheme.of(context);
+
+    if (section.kind == DataTabSectionKind.ungrouped) {
+      return const SizedBox.shrink();
+    }
+
+    final title = _title(context);
+    if (state == _SectionState.fixed) {
+      return Padding(
+        padding: EdgeInsets.only(bottom: theme.smallSpacing),
+        child: Row(
+          children: [
+            SectionHeader.text(title),
+            if (section.kind == DataTabSectionKind.favourites) ...[
+              SizedBox(width: theme.tinySpacing),
+              ExcludeSemantics(
+                child: Icon(
+                  Icons.star,
+                  size: 20,
+                  color: theme.neutralExtraDark,
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
+    final collapsed = state == _SectionState.collapsed;
+    final count = section.credentials.length;
+    void toggle() =>
+        ref.read(collapsedDataTabSectionsProvider.notifier).toggle(section.key);
+
+    return Semantics(
+      container: true,
+      header: true,
+      button: true,
+      expanded: !collapsed,
+      label: collapsed
+          ? "$title, ${FlutterI18n.plural(context, "data_tab.section_count", count)}"
+          : title,
+      hint: FlutterI18n.translate(
+        context,
+        collapsed ? "accessibility.expand_hint" : "accessibility.collapse_hint",
+      ),
+      onTap: toggle,
+      excludeSemantics: true,
+      child: InkWell(
+        key: Key("${section.key}_header"),
+        onTap: toggle,
+        borderRadius: theme.borderRadius,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: theme.defaultSpacing,
+              right: theme.smallSpacing,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: theme.themeData.textTheme.headlineMedium?.copyWith(
+                      color: theme.neutralExtraDark,
+                    ),
+                  ),
+                ),
+                if (collapsed)
+                  Text(
+                    "$count",
+                    style: theme.themeData.textTheme.bodyMedium?.copyWith(
+                      color: theme.neutralExtraDark,
+                    ),
+                  ),
+                SizedBox(width: theme.tinySpacing),
+                Icon(
+                  collapsed ? Icons.expand_more : Icons.expand_less,
+                  color: theme.neutralExtraDark,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
