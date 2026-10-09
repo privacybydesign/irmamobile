@@ -12,6 +12,7 @@ import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
 import "../../providers/email_linking_provider.dart";
+import "../../providers/external_issuer_provider.dart";
 import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
@@ -343,6 +344,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
       return IssuancePermission(
         issuedCredentials: session.offeredCredentials!,
+        returnedFromIssuer: _returnedFromIssuer(session),
         onDismiss: _dismissSession,
         onGivePermission: () {
           _grantPermission(_pendingDisclosureChoices ?? []);
@@ -380,6 +382,22 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       onDismiss: _showDismissDialog,
       onChoicesConfirmed: _grantPermission,
     );
+  }
+
+  /// The issuer whose website the user opened from the app and who now offers
+  /// the credential, when the external issuer flow is on.
+  String? _returnedFromIssuer(SessionState session) {
+    if (!ref.watch(externalIssuerFlowEnabledProvider)) return null;
+
+    final launched =
+        ref.watch(websiteLaunchedCredentialsProvider).value ?? const {};
+    for (final credential in session.offeredCredentials ?? const []) {
+      if (launched.contains(credential.credentialId) &&
+          _repo.issuesViaWebsite(credential.credentialId)) {
+        return credential.issuer.name;
+      }
+    }
+    return null;
   }
 
   Widget _buildOpenIdRequestPermission(SessionState session) {
