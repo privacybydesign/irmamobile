@@ -22,6 +22,7 @@ import "package:yivi_core/src/screens/session/widgets/disclosure_step_credential
 import "package:yivi_core/src/screens/session/widgets/issuance_permission.dart";
 import "package:yivi_core/src/screens/session/widgets/issue_during_disclosure_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
+import "pump_and_load_locales.dart";
 
 const _websiteCredential = "pbdf.gemeente.personalData";
 const _issueUrl = "https://gemeente.example/start";
@@ -126,14 +127,7 @@ Future<void> _pumpApp(
     ),
   );
 
-  // FileTranslationLoader reads the locale JSON with real IO, which the fake
-  // clock does not drive: without runAsync plus a real delay the tree stays
-  // empty.
-  await tester.runAsync(() async {
-    await tester.pumpWidget(app);
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-  });
-  await tester.pumpAndSettle();
+  await pumpAndLoadLocales(tester, app);
 }
 
 ExternalIssuerStatus _status(
