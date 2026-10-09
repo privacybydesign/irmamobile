@@ -111,10 +111,11 @@ type schemalessCredentialStoreEvent struct {
 // wallet not running -- whether this wallet can answer a Digital Credentials API
 // request at all.
 //
-// It never reaches Dart. The Android bridge intercepts it, registers, and stops
-// there: nothing in the app's UI depends on it, and pushing a large base64
-// string into the Flutter engine on every credential change would cost the UI
-// thread for no one's benefit.
+// It never reaches Dart. Each native bridge drops it before the method channel:
+// Android's registers with Credential Manager and stops there, and iOS, which has
+// nothing to register with, discards it. Nothing in the app's UI depends on it,
+// and pushing a large base64 string into the Flutter engine on every credential
+// change would cost the UI thread for no one's benefit.
 //
 // Database is CBOR, so it JSON-marshals as base64 -- which is the form it has to
 // cross the bridge in anyway.

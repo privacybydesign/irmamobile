@@ -6,12 +6,11 @@
 /// Prerequisites:
 /// - The staging EUDI issuer at `eudi-issuer.openid4vc.staging.yivi.app` is
 ///   up (`helpers/eudi_stack_helpers.dart` holds every host and name).
-/// - The issuer's document-signer certificate carries an mdoc EKU
-///   (`1.0.18013.5.1.2`), or no EKU. Until the staging certificate reissue
-///   lands the wallet refuses every mdoc at `obtainCredentials` with a
-///   `clientAuth`-only certificate, and these tests pass only against a local
-///   irmago build with `bypassDocumentSignerEKU` on (see `yivi_core/go.mod`'s
-///   `replace` directive and `./bind_go.sh`).
+/// - The issuer's document-signer certificate is authorized to sign mdocs:
+///   it carries ISO 18013-5's `1.0.18013.5.1.2` or ISO 23220-4's
+///   `1.0.23220.4.1.2`. A `clientAuth`-only certificate is refused for every
+///   mdoc at `obtainCredentials`, so all of these fail together rather than
+///   one at a time -- see `checkDocumentSignerEKU` in irmago.
 /// - A device or simulator:
 ///   `cd yivi_app && flutter test integration_test/mdoc_issuance_test.dart`.
 ///
