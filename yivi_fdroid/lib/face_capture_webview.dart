@@ -6,14 +6,12 @@ import "dart:async";
 import "package:material_ui/material_ui.dart";
 import "package:webview_flutter/webview_flutter.dart";
 import "package:webview_flutter_android/webview_flutter_android.dart";
-import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/hold_upright_overlay.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/irma_app_bar.dart";
 import "package:yivi_core/src/widgets/loading_indicator.dart";
 import "package:yivi_core/src/widgets/translated_text.dart";
 
 import "face_liveness_message.dart";
-import "portrait_lock.dart";
 
 /// Full-screen route that loads the Yivi-hosted Regula capture page in an
 /// embedded WebView and resolves with a [FaceCaptureMessage].
@@ -134,50 +132,44 @@ class _FaceCaptureWebViewState extends State<FaceCaptureWebView> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    // Regula's SDK ends the capture when the page rotates, so a phone tilted
-    // past landscape mid-capture would fail the whole issuance.
-    return PortraitLock(
-      child: PopScope(
-        // Intercept the hardware/gesture back so it resolves as a cancel (which
-        // the service turns into a throw), matching the native build.
-        canPop: false,
-        onPopInvokedWithResult: (didPop, _) {
-          if (!didPop) _resolve(const FaceCaptureMessage.aborted("cancelled"));
-        },
-        child: HoldUprightOverlay(
-          child: Scaffold(
-            backgroundColor: theme.light,
-            appBar: IrmaAppBar(
-              titleTranslationKey: "face_verification.title",
-              leading: YiviBackButton(
-                onTap: () =>
-                    _resolve(const FaceCaptureMessage.aborted("cancelled")),
-              ),
-            ),
-            body: Stack(
-              children: [
-                WebViewWidget(controller: _controller),
-                if (_loading)
-                  ColoredBox(
-                    color: theme.light,
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          LoadingIndicator(),
-                          SizedBox(height: theme.defaultSpacing),
-                          TranslatedText(
-                            "face_verification.preparing",
-                            style: theme.textTheme.bodyLarge,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+    return PopScope(
+      // Intercept the hardware/gesture back so it resolves as a cancel (which
+      // the service turns into a throw), matching the native build.
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _resolve(const FaceCaptureMessage.aborted("cancelled"));
+      },
+      child: Scaffold(
+        backgroundColor: theme.light,
+        appBar: IrmaAppBar(
+          titleTranslationKey: "face_verification.title",
+          leading: YiviBackButton(
+            onTap: () =>
+                _resolve(const FaceCaptureMessage.aborted("cancelled")),
           ),
+        ),
+        body: Stack(
+          children: [
+            WebViewWidget(controller: _controller),
+            if (_loading)
+              ColoredBox(
+                color: theme.light,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      LoadingIndicator(),
+                      SizedBox(height: theme.defaultSpacing),
+                      TranslatedText(
+                        "face_verification.preparing",
+                        style: theme.textTheme.bodyLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

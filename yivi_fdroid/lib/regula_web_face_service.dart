@@ -1,9 +1,13 @@
+// yivi_core exposes the face verification widgets only under lib/src.
+// ignore_for_file: implementation_imports
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/routing.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/hold_upright_overlay.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "face_capture_webview.dart";
 import "face_liveness_message.dart";
+import "portrait_lock.dart";
 
 /// FOSS [RegulaFaceService] for the F-Droid (Android/FOSS) flavor.
 ///
@@ -70,8 +74,16 @@ class RegulaWebFaceService implements RegulaFaceService {
     return navigator.push<FaceCaptureMessage>(
       MaterialPageRoute(
         fullscreenDialog: true,
-        builder: (_) => FaceCaptureWebView(captureUrl: url),
+        builder: (_) => captureScreen(url),
       ),
     );
   }
+
+  /// The capture page, held in portrait and covered with a prompt while the
+  /// phone is not upright. Regula's SDK ends the capture when the page rotates,
+  /// and cannot find a face the camera sees sideways.
+  @visibleForTesting
+  static Widget captureScreen(Uri url) => PortraitLock(
+    child: HoldUprightOverlay(child: FaceCaptureWebView(captureUrl: url)),
+  );
 }

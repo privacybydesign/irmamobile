@@ -64,6 +64,7 @@ class _HoldUprightOverlayState extends State<HoldUprightOverlay> {
       NativeDeviceOrientation.landscapeRight => 3,
       NativeDeviceOrientation.unknown => null,
     };
+
     if (quarterTurns != null && quarterTurns != _quarterTurns && mounted) {
       setState(() => _quarterTurns = quarterTurns);
     }
@@ -81,7 +82,12 @@ class _HoldUprightOverlayState extends State<HoldUprightOverlay> {
       fit: StackFit.expand,
       children: [
         widget.child,
-        if (_quarterTurns != 0) _HoldUprightPrompt(quarterTurns: _quarterTurns),
+        // BlockSemantics keeps screen readers on the prompt: the app bar and
+        // the capture page under it are covered, not gone.
+        if (_quarterTurns != 0)
+          BlockSemantics(
+            child: _HoldUprightPrompt(quarterTurns: _quarterTurns),
+          ),
       ],
     );
   }
@@ -95,9 +101,11 @@ class _HoldUprightPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final animate =
-        !TestContext.isRunningIntegrationTest(context) &&
-        !MediaQuery.disableAnimationsOf(context);
+    final motion =
+        TestContext.isRunningIntegrationTest(context) ||
+            MediaQuery.disableAnimationsOf(context)
+        ? _Motion.still
+        : _Motion.animated;
     return Material(
       color: theme.light,
       child: SafeArea(
@@ -114,9 +122,9 @@ class _HoldUprightPrompt extends StatelessWidget {
                   children: [
                     ExcludeSemantics(
                       child: TickerMode(
-                        enabled: animate,
+                        enabled: motion == _Motion.animated,
                         child: _TurnUprightAnimation(
-                          animate: animate,
+                          motion: motion,
                           quarterTurns: quarterTurns,
                         ),
                       ),
@@ -148,16 +156,20 @@ class _HoldUprightPrompt extends StatelessWidget {
   }
 }
 
+/// Whether the prompt's phone turns, or holds still for reduced motion and in
+/// integration tests.
+enum _Motion { animated, still }
+
 /// A phone turning upright the way the user has to turn theirs, then holding
 /// still for a moment. Drawn like the phone in the face-verification intro
 /// animation.
 class _TurnUprightAnimation extends StatefulWidget {
   const _TurnUprightAnimation({
-    required this.animate,
+    required this.motion,
     required this.quarterTurns,
   });
 
-  final bool animate;
+  final _Motion motion;
 
   /// How the prompt is turned to face the user: the phone starts that many
   /// quarter turns away from upright, so it turns back the way the real phone
@@ -179,7 +191,7 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
       duration: const Duration(milliseconds: 2400),
       vsync: this,
     );
-    if (widget.animate) _controller.repeat();
+    if (widget.motion == _Motion.animated) _controller.repeat();
   }
 
   @override
@@ -188,15 +200,25 @@ class _TurnUprightAnimationState extends State<_TurnUprightAnimation>
     super.dispose();
   }
 
+  /// The share of the loop the phone stays as held before it turns.
+  static const _holdFraction = 0.15;
+
+  /// The share of the loop the turn takes; the rest of the loop holds upright.
+  static const _turnFraction = 0.4;
+
   /// As held for the first 15%, turns upright until 55%, then holds.
   double _angle(double t) {
-    if (!widget.animate) return 0;
+    if (widget.motion == _Motion.still) return 0;
+
     final start = switch (widget.quarterTurns) {
       3 => pi / 2,
       2 => -pi,
       _ => -pi / 2,
     };
-    final turn = Curves.easeInOut.transform(((t - 0.15) / 0.4).clamp(0.0, 1.0));
+    final turn = Curves.easeInOut.transform(
+      ((t - _holdFraction) / _turnFraction).clamp(0.0, 1.0),
+    );
+
     return start * (1 - turn);
   }
 

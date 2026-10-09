@@ -15,11 +15,11 @@ const _prompt = "Hold your phone upright";
 Future<void> _pump(
   WidgetTester tester,
   Stream<NativeDeviceOrientation> orientations, {
-  bool reduceMotion = false,
+  MediaQueryData mediaQuery = const MediaQueryData(),
 }) async {
   await tester.pumpWidget(
     MediaQuery(
-      data: MediaQueryData(disableAnimations: reduceMotion),
+      data: mediaQuery,
       child: IrmaTheme(
         builder: (_) => MaterialApp(
           localizationsDelegates: [
@@ -115,7 +115,11 @@ void main() {
   testWidgets("holds the phone still when animations are reduced", (
     tester,
   ) async {
-    await _pump(tester, sensor.stream, reduceMotion: true);
+    await _pump(
+      tester,
+      sensor.stream,
+      mediaQuery: const MediaQueryData(disableAnimations: true),
+    );
     sensor.add(NativeDeviceOrientation.landscapeLeft);
     // Settles only if nothing is animating.
     await tester.pumpAndSettle();
