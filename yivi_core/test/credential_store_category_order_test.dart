@@ -4,113 +4,181 @@ import "package:yivi_core/src/models/schemaless/credential_store.dart";
 import "package:yivi_core/src/models/schemaless/schemaless_events.dart";
 import "package:yivi_core/src/providers/schemaless_credential_store_provider.dart";
 
-/// The add-data store puts the personal section first, and it recognises that
-/// section by its display text: the resolved DTO carries no stable category
-/// key, so `_personalCategoryNames` in the provider is a hard-coded set of the
-/// resolved wording in each supported language.
-///
-/// That set is the fragile part, and it fails silently. If a scheme rewords one
-/// of these, or starts resolving a category in a language the set does not
-/// list, nothing throws — the personal section simply stops being hoisted and
-/// lands wherever grouping happened to leave it. These tests are what the
-/// provider's comment promises: edit the set and they fail loudly here instead
-/// of quietly on a user's screen. The durable fix is a category identifier on
-/// irmago's side; until then this is the guard.
-CredentialStoreItem _item({required String? category, required String name}) =>
+CredentialStoreItem _item(String id, String name, String? category) =>
     CredentialStoreItem(
       credential: CredentialDescriptor(
-        credentialId: name,
+        credentialId: id,
         name: name,
         issuer: TrustedParty(
-          id: "test-issuer",
-          name: "Test Issuer",
+          id: "issuer",
+          name: "Issuer",
           url: null,
           parent: null,
           verified: true,
         ),
         category: category,
-        attributes: const [],
+        attributes: [],
         issueURL: null,
       ),
       faq: Faq(intro: null, purpose: null, content: null, howTo: null),
     );
 
-Future<List<String>> _categoryOrder(List<CredentialStoreItem> items) async {
-  final container = ProviderContainer.test(
+/// The store as irmago sends it, grouped and sorted by the provider, as
+/// [category, [item ids]] pairs; the staging and demo sections read "staging"
+/// and "demo".
+Future<List<List<Object>>> _sections(List<CredentialStoreItem> store) async {
+  final container = ProviderContainer(
     overrides: [
-      credentialStoreProvider.overrideWith(
-        (ref) => Stream<List<CredentialStoreItem>>.value(items),
-      ),
+      credentialStoreProvider.overrideWith((ref) => Stream.value(store)),
     ],
   );
+  addTearDown(container.dispose);
 
-  // The listener is load-bearing, not tidiness. Every provider is auto-dispose
-  // in Riverpod 3, so awaiting `.future` with nothing listening disposes the
-  // provider while it is still loading and the await never completes --
-  // "disposed during loading state, yet no value could be emitted", thirty
-  // seconds later, which reads as a hung provider rather than a missing listen.
-  container.listen(groupedCredentialStoreProvider, (_, _) {});
+  // Riverpod pauses providers nothing listens to, so listen while reading.
+  final subscription = container.listen(
+    groupedCredentialStoreProvider.future,
+    (_, _) {},
+  );
+  final sections = await subscription.read();
 
-  final grouped = await container.read(groupedCredentialStoreProvider.future);
-  return grouped.map((c) => c.category).toList();
+  return [
+    for (final section in sections)
+      [
+        section.source == CredentialStoreSource.production
+            ? section.category
+            : section.source.name,
+        [for (final item in section.items) item.credential.credentialId],
+      ],
+  ];
 }
 
+final _store = [
+  _item("pbdf.gemeente.address", "Address", "Personal"),
+  _item("pbdf.shop.loyalty", "Loyalty card", null),
+  _item("pbdf.sidn-pbdf.mobilenumber", "Mobile number", "Contact"),
+  _item("pbdf.pbdf.passport", "Passport", "Personal"),
+  _item("pbdf.sidn-pbdf.email", "e-mail", "Contact"),
+  _item("pbdf.pbdf.idcard", "ID card", "Personal"),
+  _item("pbdf.edu.diploma", "Diploma", "Education"),
+  _item("pbdf.pbdf.drivinglicence", "Driving licence", "Personal"),
+];
+
+const _expected = [
+  [
+    "Personal",
+    [
+      "pbdf.gemeente.address",
+      "pbdf.pbdf.drivinglicence",
+      "pbdf.pbdf.idcard",
+      "pbdf.pbdf.passport",
+    ],
+  ],
+  [
+    "Contact",
+    ["pbdf.sidn-pbdf.email", "pbdf.sidn-pbdf.mobilenumber"],
+  ],
+  [
+    "Education",
+    ["pbdf.edu.diploma"],
+  ],
+  [
+    "",
+    ["pbdf.shop.loyalty"],
+  ],
+];
+
 void main() {
-  // Exactly the wording the provider hard-codes. Adding a language to the app
-  // without adding its resolved wording here is the failure this pins.
-  const personalNames = {"Personal", "Persoonlijk", "Persönlich"};
-
-  for (final personal in personalNames) {
-    test("the $personal section is hoisted to the front", () async {
-      // Deliberately last in the input, so passing cannot be insertion order.
-      final order = await _categoryOrder([
-        _item(category: "Education", name: "diploma"),
-        _item(category: "Work", name: "employee"),
-        _item(category: personal, name: "passport"),
-      ]);
-
-      expect(order.first, personal);
-      expect(order, hasLength(3));
-    });
-  }
-
-  test("every other category keeps the order it arrived in", () async {
-    final order = await _categoryOrder([
-      _item(category: "Work", name: "employee"),
-      _item(category: "Personal", name: "passport"),
-      _item(category: "Education", name: "diploma"),
-    ]);
-
-    // Personal first, then Work before Education as they were given: the
-    // comparator returns 0 for two non-personal categories, so grouping order
-    // survives rather than being re-sorted alphabetically.
-    expect(order, ["Personal", "Work", "Education"]);
-  });
-
   test(
-    "a category outside the set is NOT hoisted, which is the known gap",
+    "sorts personal first, then categories and names alphabetically",
     () async {
-      // "Personlig" is Danish for the same section. It is not in the set, so it
-      // is treated as any other category -- the silent failure the provider's
-      // comment warns about, pinned here so the cost of adding a language is
-      // visible rather than discovered on a screen.
-      final order = await _categoryOrder([
-        _item(category: "Work", name: "employee"),
-        _item(category: "Personlig", name: "passport"),
-      ]);
-
-      expect(order.first, isNot("Personlig"));
-      expect(order, ["Work", "Personlig"]);
+      expect(await _sections(_store), _expected);
     },
   );
 
-  test("credentials with no category group under the empty string", () async {
-    final order = await _categoryOrder([
-      _item(category: null, name: "uncategorised"),
-      _item(category: "Personal", name: "passport"),
-    ]);
+  test("gives the same order whatever order irmago sends", () async {
+    // irmago iterates a Go map, so every start can hand over another order.
+    for (final store in [
+      _store.reversed.toList(),
+      [..._store.skip(3), ..._store.take(3)],
+      [..._store]..sort(
+        (a, b) =>
+            b.credential.credentialId.compareTo(a.credential.credentialId),
+      ),
+    ]) {
+      expect(await _sections(store), _expected);
+    }
+  });
 
-    expect(order.first, "Personal");
-    expect(order, contains(""));
+  test(
+    "puts the staging scheme's credentials in one list at the bottom",
+    () async {
+      final sections = await _sections([
+        ..._store,
+        _item("pbdf-staging.pbdf.passport", "Passport", "Personal"),
+        _item("pbdf-staging.sidn-pbdf.email", "e-mail", "Contact"),
+        _item("pbdf-staging.pbdf.idcard", "ID card", "Personal"),
+      ]);
+      expect(sections, [
+        ..._expected,
+        [
+          "staging",
+          [
+            "pbdf-staging.sidn-pbdf.email",
+            "pbdf-staging.pbdf.idcard",
+            "pbdf-staging.pbdf.passport",
+          ],
+        ],
+      ]);
+    },
+  );
+
+  test("puts demo credentials in a list of their own below staging", () async {
+    // The attribute index's three environments: pbdf, pbdf-staging, irma-demo.
+    final sections = await _sections([
+      _item("irma-demo.gemeente.address", "Address", "Personal"),
+      ..._store,
+      _item("irma-demo.MijnOverheid.ageLower", "Age", "Personal"),
+      _item("pbdf-staging.pbdf.passport", "Passport", "Personal"),
+    ]);
+    expect(sections, [
+      ..._expected,
+      [
+        "staging",
+        ["pbdf-staging.pbdf.passport"],
+      ],
+      [
+        "demo",
+        ["irma-demo.gemeente.address", "irma-demo.MijnOverheid.ageLower"],
+      ],
+    ]);
+  });
+
+  for (final personal in ["Personal", "Persoonlijk", "Persönlich"]) {
+    test('puts the personal section first in "$personal"', () async {
+      final sections = await _sections([
+        _item("pbdf.edu.diploma", "Diploma", "Aardrijkskunde"),
+        _item("pbdf.pbdf.passport", "Passport", personal),
+      ]);
+      expect(sections.first.first, personal);
+    });
+  }
+
+  test("keeps credentials with the same name in a fixed order", () async {
+    final store = [
+      _item("b.email", "Email", "Contact"),
+      _item("a.email", "Email", "Contact"),
+    ];
+    expect(await _sections(store), [
+      [
+        "Contact",
+        ["a.email", "b.email"],
+      ],
+    ]);
+    expect(await _sections(store.reversed.toList()), [
+      [
+        "Contact",
+        ["a.email", "b.email"],
+      ],
+    ]);
   });
 }
