@@ -35,6 +35,7 @@ import "src/screens/enrollment/enrollment_screen.dart";
 import "src/screens/error/error_screen.dart";
 import "src/screens/help/help_screen.dart";
 import "src/screens/home/home_screen.dart";
+import "src/screens/home/widgets/pending_pointer_listener.dart";
 import "src/screens/issue_wizard/issue_wizard.dart";
 import "src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart";
 import "src/screens/loading/loading_screen.dart";
@@ -49,6 +50,7 @@ import "src/screens/rooted_warning/rooted_warning_screen.dart";
 import "src/screens/session/session_screen.dart";
 import "src/screens/session/unknown_session_screen.dart";
 import "src/screens/settings/settings_screen.dart";
+import "src/screens/splash_screen/splash_screen.dart";
 import "src/util/navigation.dart";
 import "src/widgets/irma_app_bar.dart";
 
@@ -56,7 +58,15 @@ final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
-GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
+/// Where a Digital Credentials API presentation starts: waits for the queued
+/// request behind the lock screen, and goes nowhere else.
+const dcApiPresentationRoute = "/dcapi_presentation";
+
+GoRouter createRouter(
+  BuildContext buildContext,
+  WidgetRef ref, {
+  String initialLocation = "/loading",
+}) {
   final repo = IrmaRepositoryProvider.of(buildContext);
   final rootedDeviceDetector = ref.read(rootedDeviceDetectorProvider);
   final redirectionTriggers = RedirectionListenable(repo, rootedDeviceDetector);
@@ -64,7 +74,7 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     observers: [routeObserver],
-    initialLocation: "/loading",
+    initialLocation: initialLocation,
     refreshListenable: redirectionTriggers,
     errorBuilder: (context, state) => RouteNotFoundScreen(),
     routes: [
@@ -79,6 +89,33 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
         path: "/loading",
         pageBuilder: (context, state) =>
             NoTransitionPage(name: "/loading", child: LoadingScreen()),
+      ),
+      // Where the app starts when it was opened by Android's Credential Manager
+      // to answer one request, rather than by the user to use their wallet.
+      //
+      // Deliberately not /loading. That screen's job is to send an enrolled user
+      // to their wallet, which is the one place this flow must not go: the user
+      // did not open Yivi, a browser asked Yivi a question, and showing them
+      // their card collection on the way to answering it is both a detour and a
+      // second thing to dismiss.
+      //
+      // It shows the splash and nothing else, because everything that happens
+      // here happens over it. LockGate puts the PIN screen on top — a credential
+      // request discloses attributes, so it unlocks like any other disclosure —
+      // and PendingPointerListener starts the session once that unlock lands,
+      // which replaces this route with the consent screen.
+      //
+      // Nothing navigates away on its own. The Activity that started this engine
+      // finishes it when the session produces a response or ends without one, so
+      // there is no "after" for this route to have.
+      GoRoute(
+        path: dcApiPresentationRoute,
+        pageBuilder: (context, state) => NoTransitionPage(
+          name: dcApiPresentationRoute,
+          child: PendingPointerListener(
+            child: const SplashScreen(isLoading: true),
+          ),
+        ),
       ),
       GoRoute(
         path: "/modal_pin",

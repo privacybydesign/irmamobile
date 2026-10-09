@@ -1,6 +1,7 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:local_auth/local_auth.dart";
 
+import "../../../models/session.dart";
 import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/preferences_provider.dart";
 import "../../../util/privacy_screen.dart";
@@ -105,13 +106,19 @@ class BiometricService {
     if (didAuthenticate) {
       final repo = _ref.read(irmaRepositoryProvider);
       // Backstop invariant: a biometric unlock must never dismiss a lock screen
-      // that has a session pending OR in flight. Either a pointer arrived while
-      // the OS prompt was up, or a link that opened the app while it was
-      // unlocked-in-background already started a session before the resume
-      // idle-lock re-locked. In both cases leave the app locked; only a PIN
-      // admits the session (biometric doesn't refresh the keyshare token the
-      // idle-lock cleared).
-      if (repo.pendingPointer != null || repo.hasInFlightSession) {
+      // that has a keyshare-backed session pending OR in flight. Either a
+      // pointer arrived while the OS prompt was up, or a link that opened the
+      // app while it was unlocked-in-background already started a session before
+      // the resume idle-lock re-locked. In both cases leave the app locked; only
+      // a PIN admits the session (biometric doesn't refresh the keyshare token
+      // the idle-lock cleared).
+      //
+      // A session delivered through the Digital Credentials API is not one of
+      // those. It discloses a locally held EUDI credential signed with a local
+      // device key and never reaches the keyshare server, so there is no stale
+      // token and no second prompt to prevent. See pointerNeedsPinUnlock.
+      if (pointerNeedsPinUnlock(repo.pendingPointer) ||
+          repo.hasInFlightSession) {
         return didAuthenticate;
       }
       repo.unlockAppLocally();

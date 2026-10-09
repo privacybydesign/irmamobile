@@ -13,8 +13,7 @@ import "../mdoc_disclosure_helpers.dart";
 /// credential card shows (a "Birth Place" group with "Country" and "City"),
 /// and the tagged `birth_date` must read as a date, not as a CBOR tag. irmago
 /// prerequisite: the disclosure preview flattens structured values like the
-/// credential list does (docs/mdoc-integration-plan.md, irmago
-/// prerequisite 3).
+/// credential list does.
 Future<void> pidNestedValuesTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,

@@ -8,6 +8,8 @@ import "package:pinput/pinput.dart";
 
 import "app.dart";
 import "src/data/irma_preferences.dart";
+import "src/models/app_entry_mode.dart";
+import "src/providers/dcapi_presentation_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/ocr_processor_provider.dart";
 import "src/providers/passport_issuer_provider.dart";
@@ -25,6 +27,7 @@ import "src/util/security_context_binding.dart";
 import "src/widgets/preferred_language_builder.dart";
 
 export "src/data/irma_repository.dart";
+export "src/models/app_entry_mode.dart";
 export "src/models/mrz.dart";
 export "src/providers/email_issuance_provider.dart";
 export "src/providers/ocr_processor_provider.dart";
@@ -48,6 +51,16 @@ Future<void> runYiviApp({
   SmsRetriever? smsRetriever,
   RegulaFaceServiceBuilder? regulaFaceService,
   StoreReviewService? storeReviewService,
+
+  /// How the app was entered. [AppEntryMode.dcApiPresentation] means this
+  /// engine exists to answer one request a browser is waiting on, not to be
+  /// the user's wallet.
+  ///
+  /// Everything below is unchanged — same providers, same repository, same lock
+  /// screen — because a credential request is an ordinary disclosure that
+  /// happens to have been asked by a web page. What differs is only where the
+  /// app starts, and so what the user is looking at while they unlock.
+  AppEntryMode entryMode = AppEntryMode.wallet,
 }) async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Zone.current.handleUncaughtError(
@@ -96,6 +109,13 @@ Future<void> runYiviApp({
           // https://riverpod.dev/docs/concepts/scopes#initialization-of-synchronous-provider-for-async-apis
           preferencesProvider.overrideWithValue(preferences),
 
+          // Set from the entry point the Activity started, so a finished session
+          // knows whether it has a home screen to return to or a caller waiting
+          // on a result.
+          dcApiPresentationProvider.overrideWithValue(
+            entryMode == AppEntryMode.dcApiPresentation,
+          ),
+
           // passed in from the outside so apps are not required to depend on non-FOSS implementations
           ocrProcessorProvider.overrideWithValue(ocrProcessor),
 
@@ -127,7 +147,7 @@ Future<void> runYiviApp({
               ),
             ),
         ],
-        child: YiviApp(),
+        child: YiviApp(entryMode: entryMode),
       ),
     );
   }, (error, stackTrace) => reportError(error, stackTrace));
@@ -137,7 +157,17 @@ class YiviApp extends ConsumerWidget {
   final Locale? defaultLanguage;
   final Duration? idleLockThreshold;
 
-  const YiviApp({super.key, this.defaultLanguage, this.idleLockThreshold});
+  /// How the app was entered; [AppEntryMode.dcApiPresentation] means this
+  /// engine exists to answer one Digital Credentials API request rather than
+  /// to be the user's wallet. Forwarded to [App].
+  final AppEntryMode entryMode;
+
+  const YiviApp({
+    super.key,
+    this.defaultLanguage,
+    this.idleLockThreshold,
+    this.entryMode = AppEntryMode.wallet,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -178,6 +208,7 @@ class YiviApp extends ConsumerWidget {
                 forcedLocale: appLocale,
                 notificationsBloc: notificationsBloc,
                 idleLockThreshold: idleLockThreshold,
+                entryMode: entryMode,
               );
             },
           ),

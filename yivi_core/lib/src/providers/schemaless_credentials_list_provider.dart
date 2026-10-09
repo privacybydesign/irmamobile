@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../data/irma_preferences.dart";
@@ -69,8 +70,8 @@ class SchemalessCredentialOrderController
 
     // Seed from the current stream value.
     final initial = await repo.getSchemalessCredentials().first;
-    final initialTypes = _deduplicateByType(initial.credentials);
-    final merged = _reconcile(initialTypes, _order, _policy);
+    final initialTypes = deduplicateCredentialsByType(initial.credentials);
+    final merged = reconcileCredentialOrder(initialTypes, _order, _policy);
     _order = merged.map((e) => e.credentialId).toList();
     await ref.read(credentialOrderRepoProvider).saveOrder(_order);
 
@@ -90,8 +91,8 @@ class SchemalessCredentialOrderController
   }
 
   void _onCredentialsChanged(schemaless.SchemalessCredentials data) {
-    final types = _deduplicateByType(data.credentials);
-    final merged = _reconcile(types, _order, _policy);
+    final types = deduplicateCredentialsByType(data.credentials);
+    final merged = reconcileCredentialOrder(types, _order, _policy);
     _order = merged.map((e) => e.credentialId).toList();
 
     if (ref.mounted) {
@@ -112,50 +113,6 @@ class SchemalessCredentialOrderController
     _debouncedSave(current);
   }
 
-  /// Deduplicate credentials by type ID, keeping first occurrence.
-  List<schemaless.Credential> _deduplicateByType(
-    List<schemaless.Credential> credentials,
-  ) {
-    final Set<String> seenIds = {};
-    final List<schemaless.Credential> result = [];
-    for (final info in credentials) {
-      if (!seenIds.contains(info.credentialId)) {
-        result.add(info);
-        seenIds.add(info.credentialId);
-      }
-    }
-    return result;
-  }
-
-  /// Merge logic:
-  /// - keep IDs in stored order if they still exist
-  /// - add any new external IDs at end/start (policy)
-  List<schemaless.Credential> _reconcile(
-    List<schemaless.Credential> external,
-    List<String> storedOrder,
-    NewItemPolicy newItemPolicy,
-  ) {
-    final byId = {for (final it in external) it.credentialId: it};
-    final visible = <schemaless.Credential>[];
-
-    // 1) Keep items that still exist in the stored order
-    for (final id in storedOrder) {
-      final it = byId.remove(id);
-      if (it != null) visible.add(it);
-    }
-
-    // 2) Any remaining are new from external
-    final newOnes = byId.values.toList();
-    if (newOnes.isEmpty) return visible;
-
-    if (newItemPolicy == .append) {
-      visible.addAll(newOnes);
-    } else {
-      visible.insertAll(0, newOnes);
-    }
-    return visible;
-  }
-
   void _debouncedSave(List<schemaless.Credential> items) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () async {
@@ -165,4 +122,66 @@ class SchemalessCredentialOrderController
           .saveOrder(items.map((e) => e.credentialId).toList());
     });
   }
+}
+
+/// Deduplicate credentials by type, keeping first occurrence.
+///
+/// By credentialId and NOT by hash, because this list is a list of credential
+/// TYPES: each card opens SchemalessCredentialsDetailsScreen by credentialTypeId,
+/// which lists every credential of that type and offers each one its own delete.
+/// Keying on the hash put one card per credential here, so a wallet holding two
+/// eu.europa.ec.av.1 attestations showed two identical "Proof of Age" cards that
+/// both opened the same screen listing both of them.
+///
+/// Duplicates are therefore not hidden by this, only folded: the second
+/// attestation is reachable, and deletable, one tap deeper. That is the whole
+/// arrangement -- one card per type out here, per-credential management inside.
+@visibleForTesting
+List<schemaless.Credential> deduplicateCredentialsByType(
+  List<schemaless.Credential> credentials,
+) {
+  final Set<String> seenIds = {};
+  final List<schemaless.Credential> result = [];
+  for (final info in credentials) {
+    if (!seenIds.contains(info.credentialId)) {
+      result.add(info);
+      seenIds.add(info.credentialId);
+    }
+  }
+  return result;
+}
+
+/// Merge the credential types the wallet reports with the user's stored order:
+/// keep known ones in that order, place the rest by [newItemPolicy].
+///
+/// Keyed on credentialId, matching [deduplicateCredentialsByType] and the
+/// ValueKey the list widget gives each row. All three have to agree: a map keyed
+/// on anything finer than the deduplication would carry entries the list never
+/// renders, and a row key finer than the deduplication would be fine while a
+/// coarser one would collide and crash ReorderableListView.
+@visibleForTesting
+List<schemaless.Credential> reconcileCredentialOrder(
+  List<schemaless.Credential> external,
+  List<String> storedOrder,
+  NewItemPolicy newItemPolicy,
+) {
+  final byId = {for (final it in external) it.credentialId: it};
+  final visible = <schemaless.Credential>[];
+
+  // 1) Keep items that still exist in the stored order
+  for (final id in storedOrder) {
+    final it = byId.remove(id);
+    if (it != null) visible.add(it);
+  }
+
+  // 2) Any remaining are new from external
+  final newOnes = byId.values.toList();
+  if (newOnes.isEmpty) return visible;
+
+  if (newItemPolicy == NewItemPolicy.append) {
+    visible.addAll(newOnes);
+  } else {
+    visible.insertAll(0, newOnes);
+  }
+  return visible;
 }

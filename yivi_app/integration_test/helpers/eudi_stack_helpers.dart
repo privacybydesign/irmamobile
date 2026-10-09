@@ -1,7 +1,7 @@
 /// Helpers for the staging EUDI stack from `openid4vc-poc-ops`: the EU
 /// reference Python credential issuer, which issues `mso_mdoc` credentials
 /// over OpenID4VCI, and the EU reference Kotlin verifier, which requests them
-/// over OpenID4VP with DCQL. See `docs/mdoc-integration-plan.md`.
+/// over OpenID4VP with DCQL.
 ///
 /// Every test in `mdoc_issuance_test.dart` and `mdoc_disclosure_sessions/`
 /// goes through this file, so a staging change (hostname, display name,

@@ -10,6 +10,7 @@ import "../models/enrollment_events.dart";
 import "../models/error_event.dart";
 import "../models/eudi_configuration.dart";
 import "../models/event.dart";
+import "../models/handle_dcapi_event.dart";
 import "../models/handle_url_event.dart";
 import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
@@ -38,8 +39,10 @@ class IrmaClientBridge extends IrmaBridge {
     LogsEvent: (j) => LogsEvent.fromJson(j),
 
     HandleURLEvent: (j) => HandleURLEvent.fromJson(j),
+    HandleDcApiEvent: (j) => HandleDcApiEvent.fromJson(j),
 
     AppReadyAckEvent: (j) => AppReadyAckEvent.fromJson(j),
+    UnlockHandoverEvent: (j) => UnlockHandoverEvent.fromJson(j),
 
     EnrollmentSuccessEvent: (j) => EnrollmentSuccessEvent.fromJson(j),
     EnrollmentFailureEvent: (j) => EnrollmentFailureEvent.fromJson(j),

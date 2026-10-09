@@ -14,6 +14,19 @@ IssueWizardPointer _$IssueWizardPointerFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$IssueWizardPointerToJson(IssueWizardPointer instance) =>
     <String, dynamic>{'wizard': instance.wizard};
 
+DcApiRequest _$DcApiRequestFromJson(Map<String, dynamic> json) => DcApiRequest(
+  protocol: json['protocol'] as String,
+  origin: json['origin'] as String,
+  data: json['data'] as Map<String, dynamic>,
+);
+
+Map<String, dynamic> _$DcApiRequestToJson(DcApiRequest instance) =>
+    <String, dynamic>{
+      'protocol': instance.protocol,
+      'origin': instance.origin,
+      'data': instance.data,
+    };
+
 SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
   $checkKeys(json, requiredKeys: const ['u', 'irmaqr']);
   return SessionPointer(
@@ -25,6 +38,9 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
             as bool? ??
         false,
     openid4vciRedirectUri: json['openid4vci_redirect_uri'] as String?,
+    dcApi: json['dc_api'] == null
+        ? null
+        : DcApiRequest.fromJson(json['dc_api'] as Map<String, dynamic>),
   );
 }
 
@@ -35,6 +51,7 @@ Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) =>
       'protocol': protocolToString(instance.protocol),
       'continue_on_second_device': instance.continueOnSecondDevice,
       'openid4vci_redirect_uri': ?instance.openid4vciRedirectUri,
+      'dc_api': ?instance.dcApi,
     };
 
 SessionError _$SessionErrorFromJson(Map<String, dynamic> json) => SessionError(

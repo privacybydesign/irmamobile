@@ -182,18 +182,22 @@
     "feedback": {
       "header": {
         "success": "Success",
+        "zero_knowledge": "Disclosed over Zero-Knowledge Proof",
         "canceled": "Cancelled",
         "not_satisfiable": "Cancelled"
       },
       "text": {
         "success": "Your data is disclosed to {otherParty}",
+        "zero_knowledge_markdown": "**Your data never left your device.**\n\n**{otherParty}** received a mathematical proof of exactly what you agreed to share — never the data behind it, so this disclosure cannot be linked to any other you make.",
         "success_signature": "You signed the request of {otherParty}",
         "canceled": "Your data has not been disclosed to {otherParty}",
         "canceled_signature": "You did not sign the request of {otherParty}",
         "not_satisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party.",
-        "not_satisfiable_signature": "{otherParty} is requesting you to sign with outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party."
+        "not_satisfiable_signature": "{otherParty} is requesting you to sign with outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party.",
+        "zero_knowledge_markdown_timed": "**Your data never left your device.**\n\n**{otherParty}** received a mathematical proof of exactly what you agreed to share — never the data behind it, so this disclosure cannot be linked to any other you make.\n\nYour device built the proof in **{duration}** seconds."
       }
-    }
+    },
+    "proving": "Creating your proof…"
   },
   "disclosure_permission": {
     "title": "Data request",

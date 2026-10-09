@@ -17,12 +17,28 @@ IrmaAvatar _buildRequestorAvatar({
   Widget? image,
   String? imagePath,
 }) {
+  // IrmaAvatar asserts that it has something to draw, so decide what that is
+  // before calling it rather than discovering it inside.
+  //
+  // The previous expression was `title != "" ? title![0] : null`, with a hole at
+  // each end: an EMPTY title yielded neither initials nor image and tripped the
+  // assertion, while a NULL title took the true branch — null is not "" — and
+  // died on the null check. Both are reachable from a requestor with no name,
+  // which is what a request delivered over the Digital Credentials API is.
+  final hasLogo = image != null || imagePath != null;
+  final initial = (title != null && title.isNotEmpty) ? title[0] : null;
+
   return IrmaAvatar(
     size: 48,
-    logoImage: image,
+    // A neutral glyph is the honest rendering for a party with no name and no
+    // logo: it says an address is asking, which is what is actually known. A
+    // letter taken from the origin would read as a name nobody supplied.
+    logoImage: hasLogo || initial != null
+        ? image
+        : const Icon(Icons.language, size: 24),
     logoPath: imagePath,
     logoSemanticsLabel: title,
-    initials: title != "" ? title![0] : null,
+    initials: hasLogo ? null : initial,
   );
 }
 
@@ -54,9 +70,14 @@ class RequestorHeader extends StatelessWidget {
     Widget? subtitleTextWidget;
     Color? backgroundColorOverride;
 
-    final localizedRequestorName = requestor != null
-        ? requestor!.name
-        : FlutterI18n.translate(context, "ui.unknown");
+    // A requestor that never named itself (an org-iso-mdoc reader) carries the
+    // authenticated origin as its unverified name, filled in by irmago. The
+    // origin fallback covers entries written before that convention.
+    final requestorName = requestor?.name;
+    final localizedRequestorName =
+        (requestorName != null && requestorName.isNotEmpty)
+        ? requestorName
+        : (requestor?.origin ?? FlutterI18n.translate(context, "ui.unknown"));
 
     Widget requestorAvatar = _buildRequestorAvatar(
       title: localizedRequestorName,

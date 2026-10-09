@@ -182,18 +182,22 @@
     "feedback": {
       "header": {
         "success": "Gelukt",
+        "zero_knowledge": "Gedeeld met een zero-knowledge bewijs",
         "canceled": "Afgebroken",
         "not_satisfiable": "Afgebroken"
       },
       "text": {
         "success": "Je gegevens zijn doorgegeven aan {otherParty}",
+        "zero_knowledge_markdown": "**Je gegevens hebben je toestel niet verlaten.**\n\n**{otherParty}** kreeg een wiskundig bewijs van precies wat je wilde delen — nooit de gegevens zelf, waardoor deze deling niet aan een andere te koppelen is.",
         "success_signature": "Je hebt het bericht van {otherParty} ondertekend",
         "canceled": "Je gegevens zijn niet doorgegeven aan {otherParty}",
         "canceled_signature": "Je hebt het bericht van {otherParty} niet ondertekend",
         "not_satisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij.",
-        "not_satisfiable_signature": "Je hebt het bericht niet ondertekend, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij."
+        "not_satisfiable_signature": "Je hebt het bericht niet ondertekend, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij.",
+        "zero_knowledge_markdown_timed": "**Je gegevens hebben je toestel niet verlaten.**\n\n**{otherParty}** kreeg een wiskundig bewijs van precies wat je wilde delen — nooit de gegevens zelf, waardoor deze deling niet aan een andere te koppelen is.\n\nJe toestel maakte het bewijs in **{duration}** seconden."
       }
-    }
+    },
+    "proving": "Je bewijs wordt gemaakt…"
   },
   "disclosure_permission": {
     "title": "Gegevens delen",

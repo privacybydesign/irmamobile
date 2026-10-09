@@ -9,6 +9,14 @@ import "../theme/theme.dart";
 import "translated_text.dart";
 import "yivi_themed_button.dart";
 
+/// The size of the feedback title.
+///
+/// [prominent] is for an outcome whose headline IS the message and needs to
+/// land before the explanation is read -- the zero-knowledge disclosure, where
+/// what matters is not that it worked but how. [normal] everywhere else, so
+/// the ordinary success and error screens keep the size they have always had.
+enum FeedbackTitleStyle { normal, prominent }
+
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
   final bool success;
@@ -16,6 +24,9 @@ class ActionFeedback extends StatelessWidget {
   final Map<String, String>? titleTranslationParams;
   final String explanationTranslationKey;
   final Map<String, String>? explanationTranslationParams;
+
+  /// Which display size the title is rendered in; see [FeedbackTitleStyle].
+  final FeedbackTitleStyle titleStyle;
 
   const ActionFeedback({
     super.key,
@@ -25,6 +36,7 @@ class ActionFeedback extends StatelessWidget {
     required this.explanationTranslationKey,
     this.explanationTranslationParams,
     required this.onDismiss,
+    this.titleStyle = FeedbackTitleStyle.normal,
   });
 
   @override
@@ -48,9 +60,12 @@ class ActionFeedback extends StatelessWidget {
             children: [
               TranslatedText(
                 titleTranslationKey,
-                style: theme.themeData.textTheme.displaySmall!.copyWith(
-                  color: theme.dark,
-                ),
+                style:
+                    (titleStyle == FeedbackTitleStyle.prominent
+                            ? theme.themeData.textTheme.displayMedium!
+                            : theme.themeData.textTheme.displaySmall!)
+                        .copyWith(color: theme.dark),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: theme.tinySpacing),
               TranslatedText(
@@ -58,6 +73,10 @@ class ActionFeedback extends StatelessWidget {
                 translationParams: explanationTranslationParams,
                 style: theme.themeData.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
+                // textAlign above governs the plain-text path only; a markdown
+                // explanation takes its alignment from this instead, and would
+                // otherwise sit left-aligned under a centred title.
+                markdownTextAlign: WrapAlignment.center,
               ),
             ],
           ),

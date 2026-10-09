@@ -17,8 +17,7 @@ import "../mdoc_disclosure_helpers.dart";
 /// among the requested ones is not a candidate at all, so the wallet shows the
 /// missing-credential card with the required value ("Age Over 65: Yes"), no
 /// obtain button, and no way to share. irmago prerequisite: the unobtainable
-/// mdoc descriptor carries the display name and requested value
-/// (docs/mdoc-integration-plan.md, irmago prerequisite 2).
+/// mdoc descriptor carries the display name and requested value.
 Future<void> ageRequestedValueNoMatchTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,

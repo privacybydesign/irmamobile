@@ -67,8 +67,16 @@ class ActivityCard extends StatelessWidget {
           translationParams: {"otherParty": title, "date": localizedTimeStamp},
         );
       } else if (logEntry.type == LogType.disclosure) {
-        final serverName = logEntry.disclosureLog!.verifier?.name ?? "";
-        title = serverName;
+        final verifier = logEntry.disclosureLog!.verifier;
+        // A requestor that never named itself (an org-iso-mdoc reader) carries
+        // the authenticated origin as its unverified name, filled in by irmago.
+        // The origin fallback covers entries logged before that convention —
+        // a row reading "unknown" tells the user nothing about who they proved
+        // something to.
+        final verifierName = verifier?.name ?? "";
+        title = verifierName.isNotEmpty
+            ? verifierName
+            : (verifier?.origin ?? "");
         final verifierImage = logEntry.disclosureLog!.verifier?.image;
         logoImage = verifierImage != null
             ? Base64Image(
@@ -126,8 +134,20 @@ class ActivityCard extends StatelessWidget {
                   children: [
                     IrmaAvatar(
                       size: 52,
-                      logoImage: logoImage,
-                      initials: title != "" ? title[0] : null,
+                      // A neutral glyph when there is neither a logo nor a name
+                      // to take an initial from. IrmaAvatar asserts that it has
+                      // something to draw, and a disclosure to an anonymous
+                      // requestor has no name by design — so the one entry that
+                      // records it took down the whole activity list rather
+                      // than rendering.
+                      logoImage:
+                          logoImage ??
+                          (title.isEmpty
+                              ? const Icon(Icons.language, size: 26)
+                              : null),
+                      initials: (logoImage == null && title.isNotEmpty)
+                          ? title[0]
+                          : null,
                     ),
                     SizedBox(width: theme.defaultSpacing - theme.tinySpacing),
                     Expanded(

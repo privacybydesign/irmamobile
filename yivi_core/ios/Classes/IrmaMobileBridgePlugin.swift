@@ -54,7 +54,12 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
             return
         }
 
-        IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey, locale)
+        // Start returns an attachment id now, for platforms where more than one
+        // native side drives the same wallet client at once — on Android a Digital
+        // Credentials API presentation runs in its own Activity alongside the
+        // wallet's. iOS has exactly one, so the id is discarded and the Stop below
+        // detaches the most recent attachment, which is this one.
+        _ = IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey, locale)
         started = true
     }
 
@@ -160,12 +165,28 @@ public class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProto
 #endif
     }
 
+    /// Event name of the credential database, from the Go event type of the same name.
+    private static let dcApiRegistrationEvent = "DcApiRegistrationEvent"
+
     /// Implements the DispatchFromGo method of the IrmaMobileBridge interface.
     /// - Parameters:
     ///   - name: name of the method being invoked
     ///   - payload: payload that contains the arguments for the requested method
     public func dispatch(fromGo name: String?, payload: String?) {
         let eventName = name ?? "UnknownEvent"
+
+        // Dropped here, as IrmaMobileBridge.java drops it on Android: the registration
+        // is a push to Android’s Credential Manager and iOS has nothing to hand it to.
+        // Go dispatches it from dispatchCredentialsEvent, which is common to both
+        // platforms, so without this it reaches Dart on every credential change — a
+        // base64 CBOR database across the method channel for a listener that does not
+        // exist, and an "Unrecognized bridge event" reported to Sentry each time. The
+        // event type in Go documents that it never reaches Dart; this is what makes
+        // that true here.
+        if eventName == IrmaMobileBridgePlugin.dcApiRegistrationEvent {
+            return
+        }
+
         channel.invokeMethod(eventName, arguments: payload)
     }
 }

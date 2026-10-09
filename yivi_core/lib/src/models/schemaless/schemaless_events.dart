@@ -150,12 +150,20 @@ class TrustedParty {
   final TrustedParty? parent;
   final bool verified;
 
+  /// The web origin the platform authenticated, when the request arrived
+  /// through the Digital Credentials API. For a requestor that never named
+  /// itself, irmago also puts this origin in [name] as an unverified name —
+  /// an unverified name beats showing no name at all — and this field keeps
+  /// the raw value the response is cryptographically bound to.
+  final String? origin;
+
   TrustedParty({
     required this.id,
     required this.name,
     required this.url,
     required this.parent,
     required this.verified,
+    this.origin,
     this.imagePath,
     this.image,
   });

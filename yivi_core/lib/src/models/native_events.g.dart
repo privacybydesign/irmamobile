@@ -18,3 +18,10 @@ AppReadyAckEvent _$AppReadyAckEventFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$AndroidSendToBackgroundEventToJson(
   AndroidSendToBackgroundEvent instance,
 ) => <String, dynamic>{};
+
+Map<String, dynamic> _$AndroidFinishDcApiPresentationEventToJson(
+  AndroidFinishDcApiPresentationEvent instance,
+) => <String, dynamic>{};
+
+UnlockHandoverEvent _$UnlockHandoverEventFromJson(Map<String, dynamic> json) =>
+    UnlockHandoverEvent();

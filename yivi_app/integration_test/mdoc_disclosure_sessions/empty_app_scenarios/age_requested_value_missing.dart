@@ -19,7 +19,7 @@ import "../mdoc_disclosure_helpers.dart";
 /// verifier requires ("Age Over 65: Yes", drawn in the match colour), so the
 /// user can see why nothing in the wallet qualifies. irmago prerequisite: the
 /// unobtainable mdoc descriptor carries the claim's display name and the
-/// requested value (docs/mdoc-integration-plan.md, irmago prerequisite 2).
+/// requested value.
 Future<void> ageRequestedValueMissingTest(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,

@@ -251,35 +251,42 @@ Future<GoRouter> _pumpNfcScreen(
     ],
   );
 
-  await tester.pumpWidget(
-    ProviderScope(
-      overrides: [
-        passportReaderProvider.overrideWith2(
-          (_) => reader ?? _PendingPassportReader(),
-        ),
-        passportIssuerProvider.overrideWithValue(issuer),
-        regulaFaceServiceProvider.overrideWithValue(faceService),
-      ],
-      // TestContext disables the scanning animation's repeating ticker so
-      // pumpAndSettle does not hang.
-      child: TestContext(
-        child: IrmaTheme(
-          builder: (_) => MaterialApp.router(
-            routerConfig: router,
-            localizationsDelegates: [
-              FlutterI18nDelegate(
-                translationLoader: FileTranslationLoader(
-                  basePath: "assets/locales",
-                  forcedLocale: const Locale("en", "US"),
+  // FileTranslationLoader reads the locale JSON with real IO, and past 50 KB
+  // Flutter decodes the asset on a background isolate; the test framework's
+  // fake clock drives neither, so without runAsync plus a real delay
+  // Localizations never rebuilds and the tree stays empty.
+  await tester.runAsync(() async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          passportReaderProvider.overrideWith2(
+            (_) => reader ?? _PendingPassportReader(),
+          ),
+          passportIssuerProvider.overrideWithValue(issuer),
+          regulaFaceServiceProvider.overrideWithValue(faceService),
+        ],
+        // TestContext disables the scanning animation's repeating ticker so
+        // pumpAndSettle does not hang.
+        child: TestContext(
+          child: IrmaTheme(
+            builder: (_) => MaterialApp.router(
+              routerConfig: router,
+              localizationsDelegates: [
+                FlutterI18nDelegate(
+                  translationLoader: FileTranslationLoader(
+                    basePath: "assets/locales",
+                    forcedLocale: const Locale("en", "US"),
+                  ),
                 ),
-              ),
-              ...GlobalMaterialLocalizations.delegates,
-            ],
+                ...GlobalMaterialLocalizations.delegates,
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+  });
   await tester.pumpAndSettle();
   return router;
 }
