@@ -1,16 +1,15 @@
 PODS:
   - camera_avfoundation (0.0.1):
     - Flutter
-  - FaceCoreBasic (8.3.2550)
-  - FaceSDK (8.3.4727):
-    - RegulaCommon (= 9.7.2626)
+  - FaceCoreBasic (8.4.2746)
+  - FaceSDK (8.4.5062):
+    - RegulaCommon (= 9.9.2925)
   - Flutter (1.0.0)
-  - flutter_face_api (8.3.1291):
-    - FaceSDK (= 8.3.4727)
+  - flutter_face_api (8.4.1655):
+    - FaceSDK (= 8.4.5062)
     - Flutter
-  - flutter_face_core_basic (8.3.635):
-    - FaceCoreBasic (= 8.3.2550)
-    - Flutter
+  - flutter_face_core_basic (8.4.761):
+    - FaceCoreBasic (= 8.4.2746)
   - flutter_nfc_kit (3.6.0):
     - Flutter
   - flutter_web_auth_2 (5.0.0):
@@ -88,7 +87,7 @@ PODS:
   - permission_handler_apple (9.4.8):
     - Flutter
   - PromisesObjC (2.4.1)
-  - RegulaCommon (9.7.2626)
+  - RegulaCommon (9.9.2925)
   - Sentry/HybridSDK (8.58.4)
   - sentry_flutter (9.27.0):
     - Flutter
@@ -197,11 +196,11 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   camera_avfoundation: 968a9a5323c79a99c166ad9d7866bfd2047b5a9b
-  FaceCoreBasic: b92aba627b8b47192f1011452a569a1bfd6104d9
-  FaceSDK: e07c3f07930dfb13944968d8297a93489b2165ac
+  FaceCoreBasic: 016865c5b097a881b1bacd963356f19a5ebdf773
+  FaceSDK: 02e78ef6d25d768ca22e03af940b310c71e58187
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
-  flutter_face_api: 5da57eb49e4697afecd4730d593f8ade71943137
-  flutter_face_core_basic: e7446b266b873b1a7da9719d937ea7c443c6fc4c
+  flutter_face_api: bad4d748b1044549cdda8471299626f695c30ea5
+  flutter_face_core_basic: 5308f512ee215f8476838046b697319f3391b286
   flutter_nfc_kit: e1b71583eafd2c9650bc86844a7f2d185fb414f6
   flutter_web_auth_2: 646fc9df97a01c59e5eea99b237da2c6360f8439
   google_mlkit_commons: b2c0a76e7ef4ff555e70e5d71f21d66ce3d08a97
@@ -225,7 +224,7 @@ SPEC CHECKSUMS:
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   permission_handler_apple: 92d754bbaa7361d436db2d6c3c1c2a0fdcec462e
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
-  RegulaCommon: 7784c48d3476f12caed58b4dc0ffb82e3fedba1c
+  RegulaCommon: 974a79e6e8313be2ce07f956116f919f131f2975
   Sentry: 5321d74bdd28d6f6f8beaa1ca06f1fdc746bff49
   sentry_flutter: b392decea911dcd74891cc4aef402c73abf065b1
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
