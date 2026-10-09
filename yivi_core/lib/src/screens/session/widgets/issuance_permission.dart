@@ -6,6 +6,7 @@ import "../../../theme/theme.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/irma_quote.dart";
+import "../../../widgets/translated_text.dart";
 import "session_scaffold.dart";
 
 class IssuancePermission extends StatelessWidget {
@@ -13,10 +14,14 @@ class IssuancePermission extends StatelessWidget {
   final VoidCallback? onGivePermission;
   final List<schemaless.Credential> issuedCredentials;
 
+  /// Name of the issuer whose website the user just came back from, if any.
+  final String? returnedFromIssuer;
+
   const IssuancePermission({
     super.key,
     this.onDismiss,
     this.onGivePermission,
+    this.returnedFromIssuer,
     required this.issuedCredentials,
   });
 
@@ -54,6 +59,15 @@ class IssuancePermission extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
       children: [
+        if (returnedFromIssuer != null)
+          Padding(
+            padding: EdgeInsets.only(top: theme.smallSpacing),
+            child: TranslatedText(
+              "external_issuer.returned",
+              translationParams: {"issuer": returnedFromIssuer!},
+              style: theme.textTheme.headlineMedium,
+            ),
+          ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
           child: IrmaQuote(
