@@ -122,6 +122,8 @@
       "title": "Contact information"
     },
     "add": {
+      "demo": "Demo (example data)",
+      "staging": "Staging (test environment)",
       "title": "Adding data",
       "hint": "Double tap to add",
       "choose": "Choose the data you wish to add",

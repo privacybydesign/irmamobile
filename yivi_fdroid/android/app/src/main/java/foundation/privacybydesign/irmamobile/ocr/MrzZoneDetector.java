@@ -20,6 +20,8 @@ import java.util.List;
 
 public class MrzZoneDetector {
     private static final int TARGET_HEIGHT = 600;
+    /** The height the skew estimate works at: text lines need less detail than the MRZ search. */
+    private static final int SKEW_TARGET_HEIGHT = 300;
 
     public static class RoiResult {
         public final double left;
@@ -67,7 +69,7 @@ public class MrzZoneDetector {
         int w = resized.cols();
         int h = resized.rows();
 
-        // 2b. A nearly flat frame (lens covered, phone face down) has no document in it.
+        // 3. A nearly flat frame (lens covered, phone face down) has no document in it.
         // Stretching it would turn sensor noise into a fake text band.
         MatOfDouble mean = new MatOfDouble();
         MatOfDouble stddev = new MatOfDouble();
@@ -80,24 +82,24 @@ public class MrzZoneDetector {
             return null;
         }
 
-        // 3. Stretch the contrast to the full range. No local equalisation (CLAHE) here:
+        // 4. Stretch the contrast to the full range. No local equalisation (CLAHE) here:
         // on a textured surface (fabric, wood grain) it boosts the texture until the
         // projection below scores it as a denser band than the MRZ itself.
         Core.normalize(resized, resized, 0.0, 255.0, Core.NORM_MINMAX, CvType.CV_8U);
 
-        // 4. Gaussian Blur to remove noise and fine surface texture. The MRZ characters
+        // 5. Gaussian Blur to remove noise and fine surface texture. The MRZ characters
         // (~19px tall at this scale) survive a 7x7 kernel.
         Mat blurred = new Mat();
         Imgproc.GaussianBlur(resized, blurred, new Size(7.0, 7.0), 0.0);
         resized.release();
 
-        // 5. Blackhat morph to isolate dark text on bright background
+        // 6. Blackhat morph to isolate dark text on bright background
         Mat rectKernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(15.0, 7.0));
         Mat blackhat = new Mat();
         Imgproc.morphologyEx(blurred, blackhat, Imgproc.MORPH_BLACKHAT, rectKernel);
         blurred.release();
 
-        // 6. Sobel gradiënt to detect vertical text lines
+        // 7. Sobel gradiënt to detect vertical text lines
         Mat gradX = new Mat();
         Imgproc.Sobel(blackhat, gradX, CvType.CV_32F, 1, 0, -1);
         blackhat.release();
@@ -105,28 +107,28 @@ public class MrzZoneDetector {
         Core.normalize(gradX, gradX, 0.0, 255.0, Core.NORM_MINMAX, CvType.CV_8U);
 
 
-        // 7. Closing operation to merge nearby letters into lines
+        // 8. Closing operation to merge nearby letters into lines
         Imgproc.morphologyEx(gradX, gradX, Imgproc.MORPH_CLOSE, rectKernel);
         rectKernel.release();
 
-        // 8. Otsu's Threshold to binarize the image, true black wit
+        // 9. Otsu's Threshold to binarize the image, true black wit
         Mat thresh = new Mat();
         Imgproc.threshold(gradX, thresh, 0.0, 255.0,
                 Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
         gradX.release();
 
-        // 9. pass 1: Horizontal projection. Searches for a dense horizontal band of pixels
+        // 10. pass 1: Horizontal projection. Searches for a dense horizontal band of pixels
         // works great if document is straight and not tilted.
         RoiResult result = tryHorizontalProjection(thresh, w, h);
 
-        // 10. Pass 2: Contour detection. Fallback if projection fails.
+        // 11. Pass 2: Contour detection. Fallback if projection fails.
         // looks at the vorm and location of adjacent text blocks. It reshapes the mask
         // it gets, so it works on a copy.
         if (result == null) {
             result = tryContourDetection(thresh.clone(), w, h);
         }
 
-        // 11. Score the zone the same way whichever pass found it. A contour zone used
+        // 12. Score the zone the same way whichever pass found it. A contour zone used
         // to score 0, so any band in the upside down frame beat it.
         if (result != null) {
             result = new RoiResult(result.left, result.top, result.width, result.height,
@@ -157,9 +159,9 @@ public class MrzZoneDetector {
      * sums of a text mask alternate between full and empty and their variance peaks.
      */
     public static double estimateSkew(Mat gray) {
-        double scale = 300.0 / gray.rows();
+        double scale = (double) SKEW_TARGET_HEIGHT / gray.rows();
         Mat small = new Mat();
-        Imgproc.resize(gray, small, new Size(gray.cols() * scale, 300), 0, 0, Imgproc.INTER_AREA);
+        Imgproc.resize(gray, small, new Size(gray.cols() * scale, SKEW_TARGET_HEIGHT), 0, 0, Imgproc.INTER_AREA);
         Core.normalize(small, small, 0.0, 255.0, Core.NORM_MINMAX, CvType.CV_8U);
         Imgproc.GaussianBlur(small, small, new Size(3.0, 3.0), 0.0);
 
@@ -182,6 +184,7 @@ public class MrzZoneDetector {
                 best = angle;
             }
         }
+
         double coarse = best;
         for (double angle = coarse - 1.5; angle <= coarse + 1.5; angle += 0.5) {
             double score = rowVariance(mask, angle);
@@ -190,6 +193,7 @@ public class MrzZoneDetector {
                 best = angle;
             }
         }
+
         mask.release();
         if (best >= 90) best -= 180;
         if (best < -90) best += 180;
