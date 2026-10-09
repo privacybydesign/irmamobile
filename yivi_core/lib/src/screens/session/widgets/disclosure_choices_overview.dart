@@ -25,12 +25,19 @@ class DisclosureChoicesOverview extends ConsumerStatefulWidget {
   final ValueChanged<List<DisclosureDisconSelection>> onChoicesConfirmed;
   final bool hasIssueDuringDisclosure;
 
+  /// Replaces the requestor header. Gets the number of credentials that are
+  /// about to be shared.
+  final Widget Function(BuildContext context, int itemCount)? headerBuilder;
+  final String? confirmLabelKey;
+
   const DisclosureChoicesOverview({
     super.key,
     required this.sessionState,
     required this.onDismiss,
     required this.onChoicesConfirmed,
     this.hasIssueDuringDisclosure = false,
+    this.headerBuilder,
+    this.confirmLabelKey,
   });
 
   @override
@@ -157,6 +164,16 @@ class _DisclosureChoicesOverviewState
     return false;
   }
 
+  int _sharedItemCount(Iterable<(int, DisclosurePickOne)> shown) {
+    var count = 0;
+    for (final (index, pickOne) in shown) {
+      final owned = pickOne.ownedOptions;
+      if (owned == null || owned.isEmpty) continue;
+      count += owned[_selectedIndexFor(index)].credentials.length;
+    }
+    return count;
+  }
+
   void _onChangeChoice(int disconIndex, {bool addOptional = false}) {
     final choices =
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
@@ -219,11 +236,13 @@ class _DisclosureChoicesOverviewState
     final isSignature = session.type == SessionType.signature;
     final requestorName = session.requestor.name;
 
-    final confirmButtonKey = switch (session.type) {
-      .issuance => "ui.next",
-      .disclosure => "disclosure_permission.overview.confirm",
-      .signature => "disclosure_permission.overview.confirm_sign",
-    };
+    final confirmButtonKey =
+        widget.confirmLabelKey ??
+        switch (session.type) {
+          .issuance => "ui.next",
+          .disclosure => "disclosure_permission.overview.confirm",
+          .signature => "disclosure_permission.overview.confirm_sign",
+        };
 
     // Watch the provider so we rebuild when choices change
     final userState = ref.watch(sessionUserChoicesProvider(_sessionId));
@@ -250,21 +269,31 @@ class _DisclosureChoicesOverviewState
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              RequestorHeader(
-                requestor: session.requestor,
-                isVerified: session.requestor.verified,
-              ),
-
-              if (widget.hasIssueDuringDisclosure)
-                SessionProgressIndicator(
-                  step: 2,
-                  stepCount: 2,
-                  contentTranslationKey:
-                      "disclosure_permission.overview.explanation",
-                  contentTranslationParams: {"requestorName": requestorName},
+              if (widget.headerBuilder case final buildHeader?)
+                buildHeader(
+                  context,
+                  _sharedItemCount([
+                    ...requiredChoices,
+                    ...addedOptionalChoices,
+                  ]),
                 )
-              else
-                SizedBox(height: theme.defaultSpacing),
+              else ...[
+                RequestorHeader(
+                  requestor: session.requestor,
+                  isVerified: session.requestor.verified,
+                ),
+
+                if (widget.hasIssueDuringDisclosure)
+                  SessionProgressIndicator(
+                    step: 2,
+                    stepCount: 2,
+                    contentTranslationKey:
+                        "disclosure_permission.overview.explanation",
+                    contentTranslationParams: {"requestorName": requestorName},
+                  )
+                else
+                  SizedBox(height: theme.defaultSpacing),
+              ],
 
               if (isSignature && session.messageToSign != null) ...[
                 SizedBox(height: theme.defaultSpacing),
