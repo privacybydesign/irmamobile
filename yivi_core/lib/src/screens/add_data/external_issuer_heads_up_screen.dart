@@ -28,6 +28,9 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final image = credential.image;
+    final name = credential.name.isNotEmpty
+        ? credential.name
+        : credential.credentialId;
     final domain = Uri.tryParse(credential.issueURL ?? "")?.host;
 
     return Scaffold(
@@ -60,17 +63,14 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
                                 mimeType: image.mimeType,
                               )
                             : null,
-                        initials: image == null ? credential.name[0] : null,
+                        initials: image == null ? name[0] : null,
                       ),
                     ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            credential.name,
-                            style: credentialNameStyle(theme, 19),
-                          ),
+                          Text(name, style: credentialNameStyle(theme, 19)),
                           if (domain != null && domain.isNotEmpty)
                             Text(domain, style: issuerLabelStyle(theme)),
                         ],
@@ -86,7 +86,7 @@ class ExternalIssuerHeadsUpScreen extends StatelessWidget {
               _Step(
                 number: 2,
                 translationKey: "external_issuer.heads_up.step_2",
-                translationParams: {"credential": credential.name},
+                translationParams: {"credential": name},
               ),
               _Step(
                 number: 3,
