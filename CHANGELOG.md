@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An MRZ reading is only accepted once two camera frames agree on the document number, birth date and expiry date. A single check digit lets about one in ten misreads of its field through, which used to surface later as a chip that would not open. A document number with one misread character (2/Z, 0/O, 0/D, 0/Q, 1/I, 5/S, 8/B) is corrected when its check digit settles which one: a single swap fits, or a single fitting swap turns a letter back into a digit, the direction OCR gets wrong far more often
 - The MRZ camera runs at 1080p instead of 720p, which gives the OCR more pixels per character
 - A camera frame that arrived after the MRZ scanner had released the camera no longer raises an unhandled exception
+- The credentials in the add data screen keep a fixed order: the personal section first, then the other categories alphabetically, each sorted by name. irmago hands them over in a different order on every start. Credentials from the staging scheme (`pbdf-staging`) and the demo scheme (`irma-demo`) are listed separately at the bottom, under "Staging (test environment)" and "Demo (example data)"
 
 ## [8.3.1] - 2026-10-05
 ### Fixed
