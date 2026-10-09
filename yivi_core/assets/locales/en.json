@@ -122,6 +122,8 @@
       "title": "Contact information"
     },
     "add": {
+      "demo": "Demo (example data)",
+      "staging": "Staging (test environment)",
       "title": "Adding data",
       "hint": "Double tap to add",
       "choose": "Choose the data you wish to add",
@@ -784,6 +786,9 @@
     "title": "No camera permissions",
     "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
     "open_settings": "Open settings"
+  },
+  "mrz_scanner": {
+    "glare_hint": "Reflection on the document. Tilt it slightly."
   },
   "face_verification": {
     "title": "Face verification",

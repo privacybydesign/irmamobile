@@ -8,7 +8,9 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,6 +19,10 @@ import java.io.OutputStream;
 
 public class TesseractOcrEngine {
     private static final String TAG = "TesseractOcrEngine";
+    /** The shortest line counted as MRZ, as minMrzLineLength in yivi_core's mrz_reading.dart. */
+    private static final int MIN_MRZ_LINE_LENGTH = 25;
+    /** Pixels this bright count as clipped, as clippedBrightness in yivi_core's mrz_glare.dart. */
+    private static final int CLIPPED_BRIGHTNESS = 250;
     private final Context context;
     private TessBaseAPI tess;
     private final Object tessLock = new Object();
@@ -64,7 +70,18 @@ public class TesseractOcrEngine {
         }
     }
 
-    public String ocrYPlane(
+    /** What one frame read: the MRZ text, and the share of clipped pixels in the MRZ's worst tile. */
+    public static final class Result {
+        public final String text;
+        public final double clippedShare;
+
+        Result(String text, double clippedShare) {
+            this.text = text;
+            this.clippedShare = clippedShare;
+        }
+    }
+
+    public Result ocrYPlane(
             byte[] bytes, int width, int height, int stride, int rotation,
             String lang, double roiLeft, double roiTop, double roiWidth, double roiHeight
     ) {
@@ -110,22 +127,60 @@ public class TesseractOcrEngine {
         else if (rotation == 180) Core.rotate(mat, mat, Core.ROTATE_180);
         else if (rotation == 270) Core.rotate(mat, mat, Core.ROTATE_90_COUNTERCLOCKWISE);
 
-        // 4. MRZ Zone Detector
-        MrzZoneDetector.RoiResult zone = MrzZoneDetector.detect(mat);
-
-        // 5. MRZ crop
-        if (zone != null) {
-            int zX = (int)(zone.left * mat.cols());
-            int zY = (int)(zone.top * mat.rows());
-            int zW = (int)(zone.width * mat.cols());
-            int zH = (int)(zone.height * mat.rows());
-            Mat mrzCrop = mat.submat(
-                    Math.max(0, zY), Math.min(mat.rows(), zY + zH),
-                    Math.max(0, zX), Math.min(mat.cols(), zX + zW)
-            ).clone();
+        // 3b. Straighten a rotated document. The zone detector looks for a horizontal band
+        // and Tesseract only copes with a few degrees of skew, so a card held at an angle
+        // otherwise never reads.
+        double skew = MrzZoneDetector.estimateSkew(mat);
+        if (Math.abs(skew) >= 1.0) {
+            Mat rot = Imgproc.getRotationMatrix2D(new Point(mat.cols() / 2.0, mat.rows() / 2.0), skew, 1.0);
+            // Grow the canvas so the corners of a steeply rotated frame are kept.
+            double cos = Math.abs(rot.get(0, 0)[0]);
+            double sin = Math.abs(rot.get(0, 1)[0]);
+            int newW = (int) (mat.rows() * sin + mat.cols() * cos);
+            int newH = (int) (mat.rows() * cos + mat.cols() * sin);
+            rot.put(0, 2, rot.get(0, 2)[0] + newW / 2.0 - mat.cols() / 2.0);
+            rot.put(1, 2, rot.get(1, 2)[0] + newH / 2.0 - mat.rows() / 2.0);
+            Mat straightened = new Mat();
+            Imgproc.warpAffine(mat, straightened, rot, new Size(newW, newH), Imgproc.INTER_LINEAR, Core.BORDER_REPLICATE);
+            rot.release();
             mat.release();
-            mat = mrzCrop;
+            mat = straightened;
         }
+
+        // 4. MRZ Zone Detector. Straightening leaves the document upright or upside down.
+        // The MRZ runs along the bottom of a document and the detector searches the lower
+        // half, so the upright orientation gives the denser band.
+        MrzZoneDetector.RoiResult zone = MrzZoneDetector.detect(mat);
+        Mat upsideDown = new Mat();
+        Core.rotate(mat, upsideDown, Core.ROTATE_180);
+        MrzZoneDetector.RoiResult upsideDownZone = MrzZoneDetector.detect(upsideDown);
+        if (upsideDownZone != null && (zone == null || upsideDownZone.score > zone.score)) {
+            mat.release();
+            mat = upsideDown;
+            zone = upsideDownZone;
+        } else {
+            upsideDown.release();
+        }
+
+        // 5. MRZ crop. Without a zone there is nothing worth reading: running Tesseract
+        // on the whole frame can take several seconds and blocks the frames after it.
+        if (zone == null) {
+            mat.release();
+            return new Result("", 0);
+        }
+        int zX = (int)(zone.left * mat.cols());
+        int zY = (int)(zone.top * mat.rows());
+        int zW = (int)(zone.width * mat.cols());
+        int zH = (int)(zone.height * mat.rows());
+        Mat mrzCrop = mat.submat(
+                Math.max(0, zY), Math.min(mat.rows(), zY + zH),
+                Math.max(0, zX), Math.min(mat.cols(), zX + zW)
+        ).clone();
+        mat.release();
+        mat = mrzCrop;
+
+        // 5b. Measure glare before normalizing, which stretches any MRZ to full white.
+        double clippedShare = worstClippedShare(mat);
 
         // 6. Normalize + invert check
         Core.normalize(mat, mat, 0, 255, Core.NORM_MINMAX);
@@ -135,19 +190,73 @@ public class TesseractOcrEngine {
         Core.copyMakeBorder(mat, mat, 10, 10, 10, 10, Core.BORDER_CONSTANT, new Scalar(255));
 
         // 8. Tesseract OCR
+        String result = recognize(mat);
+
+        // 9. The orientation picked in step 4 can be wrong, for instance when a small card
+        // sits in the middle of the frame. An upside-down MRZ reads as full-length lines
+        // without a single '<' (the rotated fillers come out as '5' or '3'), so read the
+        // crop the other way round and keep that if it does have fillers.
+        if (looksUpsideDown(result)) {
+            Core.rotate(mat, mat, Core.ROTATE_180);
+            String rotated = recognize(mat);
+            if (rotated.contains("<<")) result = rotated;
+        }
+        mat.release();
+        return new Result(result, clippedShare);
+    }
+
+    // A reflection clips the camera's highlights where it crosses the MRZ. The largest
+    // share of clipped pixels (250 and up) over 8 tiles across 3 bands of the crop,
+    // like the Play build measures 8 tiles per MRZ line; the Dart side decides what
+    // share counts as glare.
+    private static double worstClippedShare(Mat crop) {
+        final int bands = 3;
+        final int tiles = 8;
+        Mat clipped = new Mat();
+        // THRESH_BINARY keeps the pixels above the threshold.
+        Imgproc.threshold(crop, clipped, CLIPPED_BRIGHTNESS - 1, 255, Imgproc.THRESH_BINARY);
+
+        double worst = 0;
+        for (int b = 0; b < bands; b++) {
+            for (int t = 0; t < tiles; t++) {
+                int y0 = b * crop.rows() / bands;
+                int y1 = (b + 1) * crop.rows() / bands;
+                int x0 = t * crop.cols() / tiles;
+                int x1 = (t + 1) * crop.cols() / tiles;
+                if (y1 <= y0 || x1 <= x0) continue;
+                Mat tile = clipped.submat(y0, y1, x0, x1);
+                worst = Math.max(worst, (double) Core.countNonZero(tile) / tile.total());
+                tile.release();
+            }
+        }
+
+        clipped.release();
+        return worst;
+    }
+
+    private String recognize(Mat mat) {
         int w = mat.cols();
         int h = mat.rows();
         byte[] pixels = new byte[w * h];
         mat.get(0, 0, pixels);
-        mat.release();
 
-        String result = "";
         synchronized (tessLock) {
             tess.setImage(pixels, w, h, 1, w);
-            result = tess.getUTF8Text();
+            String result = tess.getUTF8Text();
             tess.clear();
+            return result != null ? result.trim() : "";
         }
-        return (result != null ? result : "").trim();
+    }
+
+    private static boolean looksUpsideDown(String text) {
+        if (text.contains("<")) return false;
+        // Driving licence MRZs are not ICAO and can legitimately have no fillers.
+        String compact = text.replaceAll("[ \\t]", "");
+        if (compact.startsWith("D1") || compact.startsWith("D2") || compact.startsWith("DL")) return false;
+        for (String line : compact.split("\\n")) {
+            if (line.length() >= MIN_MRZ_LINE_LENGTH) return true;
+        }
+        return false;
     }
 
     public void close() {
