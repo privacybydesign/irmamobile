@@ -6,11 +6,12 @@
 /// Prerequisites:
 /// - The staging EUDI issuer at `eudi-issuer.openid4vc.staging.yivi.app` is
 ///   up (`helpers/eudi_stack_helpers.dart` holds every host and name).
-/// - The issuer's document-signer certificate is authorized to sign mdocs:
-///   it carries ISO 18013-5's `1.0.18013.5.1.2` or ISO 23220-4's
+/// - The issuer's document-signer certificate is authorized to sign mdocs: it
+///   carries one of the EKUs `checkDocumentSignerEKU` accepts in irmago --
+///   ISO 18013-5's `1.0.18013.5.1.2` or `1.0.18013.5.1.3`, or ISO 23220-4's
 ///   `1.0.23220.4.1.2`. A `clientAuth`-only certificate is refused for every
 ///   mdoc at `obtainCredentials`, so all of these fail together rather than
-///   one at a time -- see `checkDocumentSignerEKU` in irmago.
+///   one at a time.
 /// - A device or simulator:
 ///   `cd yivi_app && flutter test integration_test/mdoc_issuance_test.dart`.
 ///

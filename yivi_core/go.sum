@@ -218,8 +218,12 @@ github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750 h1:3RuYOQTlAr
 github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750/go.mod h1:QZI8hX8Ff2GfZ7UJuxyWw3nAGgt2s5+U4hxY6rmwQvs=
 github.com/privacybydesign/irmago v1.4.2-0.20261006142255-87471610af45 h1:ImEXCz4chitVgR5DsjjWmPN6pRFrjNjrlL++X1ZtBTA=
 github.com/privacybydesign/irmago v1.4.2-0.20261006142255-87471610af45/go.mod h1:NoBaQICcAKbrBzYY4sWWvuBU7G+GqPviYydRuOPL2Vs=
+github.com/privacybydesign/irmago v1.4.2-0.20261009132633-a6c9fa5d17ab h1:gx1LejM51++uct/ERGmsVQU4UsrT3ZhINURs5cTAhRQ=
+github.com/privacybydesign/irmago v1.4.2-0.20261009132633-a6c9fa5d17ab/go.mod h1:NoBaQICcAKbrBzYY4sWWvuBU7G+GqPviYydRuOPL2Vs=
 github.com/privacybydesign/longfellow-go v0.0.0-20261009113759-a78935bb0002 h1:aTKTtCoiLplmTQ1w6KKc+R+K5OEC6jmZxz5prMIHwyg=
 github.com/privacybydesign/longfellow-go v0.0.0-20261009113759-a78935bb0002/go.mod h1:JuIT4jkQ9YGZBTMW/Pog73GSQvwFlIzSoq+BwvykChY=
+github.com/privacybydesign/longfellow-go v0.0.0-20261009132409-92954b8fee63 h1:U8NVwZxrZcaC3fk3GGObXE2w63zE86Dinw8U26wOX0M=
+github.com/privacybydesign/longfellow-go v0.0.0-20261009132409-92954b8fee63/go.mod h1:JuIT4jkQ9YGZBTMW/Pog73GSQvwFlIzSoq+BwvykChY=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=
