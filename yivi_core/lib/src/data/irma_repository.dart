@@ -317,6 +317,9 @@ class IrmaRepository {
     _credentialObtainState.add(_CredentialObtainState());
   }
 
+  Stream<Set<String>> getInAppLaunchedCredentialTypes() =>
+      _credentialObtainState.map((state) => state.inAppLaunchedCredentialTypes);
+
   /// True when [session] is an issuance session that issued at least one
   /// credential the user launched in-app (via [openIssueURL]). Used to keep
   /// in-app launches inside Yivi on finish instead of chasing
@@ -863,6 +866,32 @@ class IrmaRepository {
     }
   }
 
+  Map<String, void Function(BuildContext, String, WidgetRef)>
+  get _embeddedFlows => {
+    //----------- production
+    "pbdf.pbdf.passport": _startPassportIssuance,
+    "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
+    "pbdf.pbdf.idcard": _startIdCardIssuance,
+    "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
+    "pbdf.sidn-pbdf.email": _startEmailIssuance,
+    //----------- staging
+    "pbdf-staging.pbdf.passport": _startPassportIssuance,
+    "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
+    "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
+    "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
+    "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
+  };
+
+  /// Whether obtaining [credentialId] (given an issue URL) sends the user to
+  /// the issuer's website: no embedded in-app flow handles it and it does not
+  /// open a native app through a universal link.
+  bool issuesViaWebsite(String credentialId) {
+    if (_embeddedFlows.containsKey(credentialId)) return false;
+    final cred =
+        _irmaConfigurationSubject.valueOrNull?.credentialTypes[credentialId];
+    return !(cred?.isULIssueUrl ?? false);
+  }
+
   /// Unified entry point for "user tapped Get / Reobtain inside the app
   /// and we need to take them to the issuer to obtain a credential".
   ///
@@ -897,21 +926,7 @@ class IrmaRepository {
       );
     }
 
-    final embeddedFlows = {
-      //----------- production
-      "pbdf.pbdf.passport": _startPassportIssuance,
-      "pbdf.pbdf.drivinglicence": _startDrivingLicenceIssuance,
-      "pbdf.pbdf.idcard": _startIdCardIssuance,
-      "pbdf.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
-      "pbdf.sidn-pbdf.email": _startEmailIssuance,
-      //----------- staging
-      "pbdf-staging.pbdf.passport": _startPassportIssuance,
-      "pbdf-staging.pbdf.drivinglicence": _startDrivingLicenceIssuance,
-      "pbdf-staging.pbdf.idcard": _startIdCardIssuance,
-      "pbdf-staging.sidn-pbdf.mobilenumber": _startMobileNumberIssuance,
-      "pbdf-staging.sidn-pbdf.email": _startEmailIssuance,
-    };
-    final flow = embeddedFlows[credentialId];
+    final flow = _embeddedFlows[credentialId];
     if (flow != null) {
       return flow(context, url, ref);
     }
