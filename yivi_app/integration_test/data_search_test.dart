@@ -27,7 +27,7 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
       await tester.tapAndSettle(find.byKey(const Key("nav_button_data")));
 
-      final image = find.byKey(const Key("to_add_data_button_pointing_image"));
+      final image = find.byKey(const Key("to_scan_button_pointing_image"));
       expect(image, findsOneWidget);
     });
 
