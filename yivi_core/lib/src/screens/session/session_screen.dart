@@ -4,15 +4,18 @@ import "package:flutter/services.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
 import "../../models/native_events.dart";
 import "../../models/return_url.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
+import "../../providers/feature_flag_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
+import "../../theme/theme.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -27,6 +30,8 @@ import "widgets/disclosure_permission_introduction_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
+import "widgets/missing_data_checklist_screen.dart";
+import "widgets/missing_data_header.dart";
 import "widgets/openid4vci_authcode_pending_screen.dart";
 import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
@@ -65,6 +70,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   List<DisclosureDisconSelection>? _pendingDisclosureChoices;
 
   bool _hasLongPin = false;
+
+  /// `FeatureFlag.missingDataChecklist`, refreshed on every build.
+  bool _useMissingDataChecklist = false;
 
   /// Whether the disclosure introduction screen should be shown.
   /// Null means we haven't loaded the preference yet.
@@ -147,6 +155,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       sessionAwaitingInteractionProvider(widget.sessionId),
     );
     _lastSession = asyncSession;
+    _useMissingDataChecklist =
+        ref
+            .watch(featureFlagProvider(FeatureFlag.missingDataChecklist))
+            .value ??
+        false;
 
     // Track the latest non-null remainingTxCodeAttempts so that, if the
     // session subsequently errors out, we can detect the tx_code-lockout
@@ -273,6 +286,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final isIssuanceSession =
         session.type == .issuance && session.offeredCredentials != null;
 
+    if (_useMissingDataChecklist && session.type == .disclosure) {
+      if (needsIssueBeforeDisclosure) {
+        return MissingDataChecklistScreen(
+          sessionId: widget.sessionId,
+          onDismiss: _showDismissDialog,
+        );
+      }
+      if (_hadIssueDuringDisclosure) {
+        return _buildMissingDataShareScreen(session);
+      }
+    }
+
     // Show issuance screen while steps are pending, or keep showing it
     // in completed state until the user acknowledges by tapping "Next step".
     if (needsIssueBeforeDisclosure ||
@@ -317,6 +342,26 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       onChoicesConfirmed: (choices) {
         _showShareConfirmDialog(session, choices);
       },
+    );
+  }
+
+  /// The checklist, once nothing is missing anymore: the same screen, now
+  /// asking the user to share.
+  Widget _buildMissingDataShareScreen(SessionState session) {
+    return DisclosureChoicesOverview(
+      sessionState: session,
+      confirmLabelKey: "missing_data.share",
+      headerBuilder: (context, itemCount) => Padding(
+        padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
+        child: MissingDataHeader(
+          requestor: session.requestor,
+          phase: MissingDataPhase.ready,
+          total: itemCount,
+          presentCount: itemCount,
+        ),
+      ),
+      onDismiss: _showDismissDialog,
+      onChoicesConfirmed: _grantPermission,
     );
   }
 
