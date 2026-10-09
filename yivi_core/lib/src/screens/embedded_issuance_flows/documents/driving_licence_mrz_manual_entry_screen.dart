@@ -2,6 +2,7 @@ import "package:material_ui/material_ui.dart";
 import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../theme/theme.dart";
+import "../../../util/missing_data_flow.dart";
 import "../../../widgets/irma_app_bar.dart";
 import "../../../widgets/irma_bottom_bar.dart";
 import "../../../widgets/translated_text.dart";
@@ -82,7 +83,10 @@ class _DrivingLicencetMrzManualEntryScreenState
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: theme.backgroundTertiary,
-        appBar: IrmaAppBar(titleTranslationKey: "driving_licence.manual.title"),
+        appBar: IrmaAppBar(
+          bottom: context.missingDataBand,
+          titleTranslationKey: "driving_licence.manual.title",
+        ),
         body: SizedBox(
           height: .infinity,
           child: SingleChildScrollView(
@@ -112,7 +116,7 @@ class _DrivingLicencetMrzManualEntryScreenState
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: "ui.continue",
           onPrimaryPressed: _canContinue ? _onContinuePressed : null,
-          secondaryButtonLabel: "ui.cancel",
+          secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
           onSecondaryPressed: widget.onCancel,
         ),
       ),
