@@ -10,42 +10,51 @@ class TesseractOcrProcessor implements OcrProcessor {
   bool _isProcessing = false;
 
   @override
-  Future<List<String>?> processImage({
+  Future<OcrResult> processImage({
     required CameraImage inputImage,
     required int imageRotation,
   }) async {
-    if (_isProcessing) return null;
+    if (_isProcessing) return const OcrResult();
 
     _isProcessing = true;
     try {
       final plane = inputImage.planes[0];
 
-      final String? rawText = await _channel.invokeMethod("processImage", {
-        "bytes": plane.bytes,
-        "width": inputImage.width,
-        "height": inputImage.height,
-        "stride": plane.bytesPerRow,
-        "rotation": imageRotation,
-        "lang": "ocrb",
-        "roiLeft": 0.05,
-        "roiTop": 0.25,
-        "roiWidth": 0.90,
-        "roiHeight": 0.50,
-      });
+      final reading = await _channel
+          .invokeMapMethod<String, Object?>("processImage", {
+            "bytes": plane.bytes,
+            "width": inputImage.width,
+            "height": inputImage.height,
+            "stride": plane.bytesPerRow,
+            "rotation": imageRotation,
+            "lang": "ocrb",
+            "roiLeft": 0.05,
+            "roiTop": 0.25,
+            "roiWidth": 0.90,
+            "roiHeight": 0.50,
+          });
+      final rawText = reading?["text"] as String?;
+      final clippedShare = (reading?["clippedShare"] as num?) ?? 0;
+      final reflection = clippedShare > glareTileShare
+          ? Reflection.present
+          : Reflection.absent;
 
-      if (rawText == null || rawText.trim().isEmpty) return null;
+      if (rawText == null || rawText.trim().isEmpty) {
+        return OcrResult(reflection: reflection);
+      }
 
       final lines = rawText
           .split(RegExp(r"[\r\n]+"))
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
           .map((s) => MRZHelper.normalizeLine(s))
           .where((s) => s.isNotEmpty)
           .toList();
 
-      return MRZHelper.getFinalListToParse(lines);
+      return OcrResult(
+        lines: MRZHelper.getFinalListToParse(fixMrzLineLengths(lines)),
+        reflection: reflection,
+      );
     } catch (e) {
-      return null;
+      return const OcrResult();
     } finally {
       _isProcessing = false;
     }
@@ -53,14 +62,10 @@ class TesseractOcrProcessor implements OcrProcessor {
 }
 
 class MRZHelper {
-  static const _allowedLineLen = <int>{30, 36, 44};
-
-  // normalize OCR line to valid MRZ chars. Empty if len wrong
-  // could improve to try to find mrz if len wrong <- only if len longer
-  // shorter only if its missing '<' or un needed mrz chars
+  // normalize OCR line to valid MRZ chars. The length is fixed up later, in
+  // [fixMrzLineLengths], once it is clear which MRZ format the frame holds.
   static String normalizeLine(String text) {
     final s = text.toUpperCase().replaceAll(RegExp(r"\s+"), "");
-    if (!_allowedLineLen.contains(s.length)) return "";
 
     final buf = StringBuffer();
     final mrzChars = RegExp(r"[A-Z0-9<]");

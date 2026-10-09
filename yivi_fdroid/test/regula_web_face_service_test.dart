@@ -1,6 +1,11 @@
+// The upright prompt lives under yivi_core's lib/src.
+// ignore_for_file: implementation_imports
 import "package:flutter_test/flutter_test.dart";
+import "package:yivi/face_capture_webview.dart";
 import "package:yivi/face_liveness_message.dart";
+import "package:yivi/portrait_lock.dart";
 import "package:yivi/regula_web_face_service.dart";
+import "package:yivi_core/src/screens/embedded_issuance_flows/documents/widgets/hold_upright_overlay.dart";
 import "package:yivi_core/yivi_core.dart";
 
 void main() {
@@ -134,5 +139,18 @@ void main() {
 
       expect(service.captureLiveness(), throwsStateError);
     });
+  });
+
+  test("presents the capture page in portrait, behind the upright prompt", () {
+    // Without the lock a tilt ends the capture (LANDSCAPE_MODE_RESTRICTED);
+    // without the prompt a sideways phone never completes it.
+    final screen = RegulaWebFaceService.captureScreen(
+      Uri.parse("https://passport-issuer.example/capture"),
+    );
+
+    expect(screen, isA<PortraitLock>());
+    final overlay = (screen as PortraitLock).child;
+    expect(overlay, isA<HoldUprightOverlay>());
+    expect((overlay as HoldUprightOverlay).child, isA<FaceCaptureWebView>());
   });
 }

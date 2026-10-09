@@ -5,8 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- The F-Droid face check covers the screen with an animated prompt to hold the phone upright while the phone is turned sideways or upside down, where the camera cannot find a face and the check would never complete
+- On Android the MRZ scanner tells the user to tilt the document when a reflection washes out part of the MRZ: "Reflection on the document. Tilt it slightly." It shows once two of the last three frames had a reflection on the MRZ and goes away after three frames without
+
 ### Changed
 - The face check in the Play Store and App Store builds also works with the phone held sideways, for people who can only hold their phone that way
+
+### Fixed
+- Tilting the phone to landscape during the face check in the F-Droid build no longer ends the issuance with an error (`LANDSCAPE_MODE_RESTRICTED`); the face check screen stays in portrait
+- The F-Droid build finds the MRZ of a document on a textured surface such as a tablecloth, where it used to read the fabric below the document instead; it reads documents held at any angle, upside down included, and no longer stalls for seconds on frames without a document in them
+- An MRZ line that OCR read a filler or two too short or too long is no longer thrown away; the run of fillers is brought back to length, which puts the check digits back in place
+- The Play Store build picks the MRZ lines out of the text ML Kit reads by their upper case content instead of their length. Any other line on the document that happened to be 30, 36 or 44 characters long used to be mixed in, and the frame was then thrown away
+- An MRZ reading is only accepted once two camera frames agree on the document number, birth date and expiry date. A single check digit lets about one in ten misreads of its field through, which used to surface later as a chip that would not open. A document number with one misread character (2/Z, 0/O, 0/D, 0/Q, 1/I, 5/S, 8/B) is corrected when its check digit settles which one: a single swap fits, or a single fitting swap turns a letter back into a digit, the direction OCR gets wrong far more often
+- The MRZ camera runs at 1080p instead of 720p, which gives the OCR more pixels per character
+- A camera frame that arrived after the MRZ scanner had released the camera no longer raises an unhandled exception
+- The credentials in the add data screen keep a fixed order: the personal section first, then the other categories alphabetically, each sorted by name. irmago hands them over in a different order on every start. Credentials from the staging scheme (`pbdf-staging`) and the demo scheme (`irma-demo`) are listed separately at the bottom, under "Staging (test environment)" and "Demo (example data)"
 
 ## [8.3.1] - 2026-10-05
 ### Fixed

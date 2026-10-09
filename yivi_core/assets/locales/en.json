@@ -122,6 +122,8 @@
       "title": "Contact information"
     },
     "add": {
+      "demo": "Demo (example data)",
+      "staging": "Staging (test environment)",
       "title": "Adding data",
       "hint": "Double tap to add",
       "choose": "Choose the data you wish to add",
@@ -785,9 +787,16 @@
     "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
     "open_settings": "Open settings"
   },
+  "mrz_scanner": {
+    "glare_hint": "Reflection on the document. Tilt it slightly."
+  },
   "face_verification": {
     "title": "Face verification",
     "preparing": "One moment, preparing your data…",
+    "hold_upright": {
+      "title": "Hold your phone upright",
+      "body": "The face check continues once your phone is upright again."
+    },
     "intro": {
       "explanation": "We'll now do a quick face check to confirm you're the person shown in the document.",
       "tip_camera": "Point the selfie camera at your face.",
