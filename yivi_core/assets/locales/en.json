@@ -531,6 +531,23 @@
       }
     }
   },
+  "external_issuer": {
+    "source": "Via the website of {issuer}",
+    "returned": "You're back from the website of {issuer}",
+    "heads_up": {
+      "title": "You're about to go to another website",
+      "step_1": "Follow the steps on that website.",
+      "step_2": "Yivi then opens by itself to add your {credential}.",
+      "step_3": "You come back to this list.",
+      "to_website": "Go to the website",
+      "back_to_list": "Back to the list"
+    },
+    "waiting": {
+      "status": "Not received yet",
+      "body": "Still busy on the website of {issuer}? Continue there. When you're done, Yivi opens by itself.",
+      "reopen": "Open the website again"
+    }
+  },
   "issue_wizard": {
     "back": "Cancel",
     "done": "OK",

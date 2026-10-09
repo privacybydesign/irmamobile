@@ -531,6 +531,23 @@
       }
     }
   },
+  "external_issuer": {
+    "source": "Via de website van {issuer}",
+    "returned": "Je bent terug van de website van {issuer}",
+    "heads_up": {
+      "title": "Je gaat even naar een andere website",
+      "step_1": "Volg de stappen op die website.",
+      "step_2": "Daarna opent Yivi vanzelf om je {credential} toe te voegen.",
+      "step_3": "Je komt terug in deze lijst.",
+      "to_website": "Naar de website",
+      "back_to_list": "Terug naar de lijst"
+    },
+    "waiting": {
+      "status": "Nog niet ontvangen",
+      "body": "Ben je nog bezig op de website van {issuer}? Ga daar verder. Als je klaar bent, opent Yivi vanzelf.",
+      "reopen": "Website opnieuw openen"
+    }
+  },
   "issue_wizard": {
     "back": "Annuleer",
     "done": "OK",
