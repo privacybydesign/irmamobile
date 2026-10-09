@@ -103,6 +103,11 @@ flutter {
 
 dependencies {
     implementation "androidx.browser:browser:1.2.0"
+
+    // W3C Digital Credentials API (OpenID4VP) provider support. The base
+    // library carries the provider request/response types and the Digital
+    // Credential type used by DigitalCredentialsActivity.
+    implementation "androidx.credentials:credentials:1.6.0"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'

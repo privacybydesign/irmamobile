@@ -30,6 +30,18 @@ class SessionErrorScreen extends StatelessWidget {
         );
     }
 
+    // A disclosure request (e.g. over the Digital Credentials API) asked for a
+    // credential the wallet cannot satisfy and cannot obtain: the core reports
+    // no handler for the credential query. Say so plainly instead of showing a
+    // generic, reportable failure — there is nothing for the user to report.
+    if (error?.wrappedError.contains("no credential query handler") ?? false) {
+      return ErrorScreen(
+        onTapClose: onTapClose,
+        type: ErrorType.credentialUnavailable,
+        reportable: false,
+      );
+    }
+
     switch (error?.remoteError?.errorName) {
       case "USER_NOT_FOUND":
       case "USER_NOT_REGISTERED":
