@@ -57,13 +57,14 @@ class _StubIssuer implements PassportIssuer {
   // No face verification announcement: this test is about the privacy screen
   // around the NFC read, so the face step is skipped and the read is the only
   // thing that happens.
-  Future<StartValidationResult> startSessionAtPassportIssuer() async =>
-      StartValidationResult(
-        nonceAndSessionId: NonceAndSessionId(
-          nonce: "d4e5f6a7d4e5f6a7",
-          sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
-        ),
-      );
+  Future<StartValidationResult> startSessionAtPassportIssuer({
+    StartValidationRequest? request,
+  }) async => StartValidationResult(
+    nonceAndSessionId: NonceAndSessionId(
+      nonce: "d4e5f6a7d4e5f6a7",
+      sessionId: "4f3c2a1b5e6d7c8f9a0b1c2d3e4f5a6b",
+    ),
+  );
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

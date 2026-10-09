@@ -49,6 +49,8 @@ PODS:
     - Flutter
   - integration_test (0.0.1):
     - Flutter
+  - iris_sdk_flutter (1.0.1):
+    - Flutter
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -121,6 +123,7 @@ DEPENDENCIES:
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - iris_sdk_flutter (from `.symlinks/plugins/iris_sdk_flutter/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
   - native_device_orientation (from `.symlinks/plugins/native_device_orientation/ios`)
@@ -174,6 +177,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/in_app_review/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
+  iris_sdk_flutter:
+    :path: ".symlinks/plugins/iris_sdk_flutter/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
   mobile_scanner:
@@ -213,6 +218,7 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   in_app_review: 7dd1ea365263f834b8464673f9df72c80c17c937
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
+  iris_sdk_flutter: 947f7b2c9fa9f87a38713c35b23ad5867ae10562
   local_auth_darwin: c3ee6cce0a8d56be34c8ccb66ba31f7f180aaebb
   MLImage: 0de5c6c2bf9e93b80ef752e2797f0836f03b58c0
   MLKitCommon: 47d47b50a031d00db62f1b0efe5a1d8b09a3b2e6
@@ -234,6 +240,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   yivi_core: a3ab0d1f43072b4c28c8fda757a25cebe72bdc47
 
-PODFILE CHECKSUM: 54610184bab4119db3853cca6af24219baee7049
+PODFILE CHECKSUM: 4941c2a813dfe09fcfd9fa67527b54297fee6a1b
 
 COCOAPODS: 1.16.2

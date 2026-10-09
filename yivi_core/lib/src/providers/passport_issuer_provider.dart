@@ -67,7 +67,9 @@ class ErrorThrowingPassportIssuer implements PassportIssuer {
   ErrorThrowingPassportIssuer({required this.errorToThrowOnIssuance});
 
   @override
-  Future<StartValidationResult> startSessionAtPassportIssuer() async {
+  Future<StartValidationResult> startSessionAtPassportIssuer({
+    StartValidationRequest? request,
+  }) async {
     startSessionCount += 1;
     // No face verification announcement: this issuer exists to test issuance
     // errors, so the face step is skipped and the error surfaces directly.

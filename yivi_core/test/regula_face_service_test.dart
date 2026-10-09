@@ -3,6 +3,7 @@ import "dart:typed_data";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:vcmrtd/vcmrtd.dart";
+import "package:yivi_core/src/providers/face_verification_runner_provider.dart";
 import "package:yivi_core/src/providers/regula_face_service_provider.dart";
 
 /// Configurable fake used to drive [withLivenessTransaction] and the provider
@@ -34,6 +35,29 @@ class _FakeRegulaFaceService implements RegulaFaceService {
   }
 }
 
+/// The runner seam hands every runner the issuer client, but Regula's has no
+/// use for it: its evidence is the liveness transaction id, not a verify call.
+class _UnusedIssuer implements PassportIssuer {
+  @override
+  Future<StartValidationResult> startSessionAtPassportIssuer({
+    StartValidationRequest? request,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<IrmaSessionPointer> startIrmaIssuanceSession(
+    RawDocumentData documentDataResult,
+    DocumentType docType,
+  ) => throw UnimplementedError();
+
+  @override
+  Future<VerificationResponse> verifyPassport(RawDocumentData data) =>
+      throw UnimplementedError();
+
+  @override
+  Future<VerificationResponse> verifyDrivingLicence(RawDocumentData data) =>
+      throw UnimplementedError();
+}
+
 RawDocumentData _rawDocument() => RawDocumentData(
   dataGroups: const {"DG1": "aa", "DG2": "bb"},
   efSod: "0102",
@@ -60,22 +84,100 @@ void main() {
     });
   });
 
-  group("regulaFaceServiceProvider", () {
-    test("defaults to null so face verification is disabled", () {
+  group("faceVerificationRunnersProvider", () {
+    test("defaults to no runners, so the wallet declares no capability", () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
-      expect(container.read(regulaFaceServiceProvider), isNull);
+      expect(container.read(faceVerificationRunnersProvider), isEmpty);
     });
 
-    test("can be overridden with a concrete service", () {
-      final fake = _FakeRegulaFaceService(
-        result: const RegulaLivenessResult(isLive: true, transactionId: "t"),
+    test("can be overridden with the flavor's runners", () {
+      final runner = RegulaRunner(
+        (_) => _FakeRegulaFaceService(
+          result: const RegulaLivenessResult(isLive: true, transactionId: "t"),
+        ),
       );
       final container = ProviderContainer(
-        overrides: [regulaFaceServiceProvider.overrideWithValue(fake)],
+        overrides: [
+          faceVerificationRunnersProvider.overrideWithValue({
+            FaceVerificationMethod.regula: runner,
+          }),
+        ],
       );
       addTearDown(container.dispose);
-      expect(container.read(regulaFaceServiceProvider), same(fake));
+      expect(container.read(faceVerificationRunnersProvider), {
+        FaceVerificationMethod.regula: same(runner),
+      });
+    });
+  });
+
+  group("RegulaRunner", () {
+    final issuer = _UnusedIssuer();
+    StartValidationResult start(FaceVerificationConfig? announcement) =>
+        StartValidationResult(
+          nonceAndSessionId: NonceAndSessionId(nonce: "n", sessionId: "s"),
+          faceVerification: announcement,
+        );
+
+    test("builds the service for the announced Face API and attaches the "
+        "transaction id", () async {
+      String? builtFor;
+      final fake = _FakeRegulaFaceService(
+        result: const RegulaLivenessResult(
+          isLive: true,
+          transactionId: "txn-runner",
+        ),
+      );
+      final runner = RegulaRunner((url) {
+        builtFor = url;
+        return fake;
+      });
+
+      final result = await runner.run(
+        _rawDocument(),
+        start: start(
+          const FaceVerificationConfig(faceApiUrl: "https://faceapi.example"),
+        ),
+        issuer: issuer,
+        documentType: DocumentType.passport,
+        languageCode: "nl",
+      );
+
+      expect(builtFor, "https://faceapi.example");
+      expect(fake.lastLanguageCode, "nl");
+      expect(result.livenessTransactionId, "txn-runner");
+      // The runner attaches Regula's evidence only; the flow adds the attempt
+      // and duration fields itself, for both methods alike.
+      expect(result.faceSessionId, isNull);
+      expect(result.faceAttempt, isNull);
+    });
+
+    test("refuses an announcement that is not Regula's", () async {
+      final runner = RegulaRunner((_) => _FakeRegulaFaceService());
+      await expectLater(
+        runner.run(
+          _rawDocument(),
+          start: start(
+            const FaceVerificationConfig(method: FaceVerificationMethod.iris),
+          ),
+          issuer: issuer,
+          documentType: DocumentType.passport,
+        ),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test("refuses to run without an announcement", () async {
+      final runner = RegulaRunner((_) => _FakeRegulaFaceService());
+      await expectLater(
+        runner.run(
+          _rawDocument(),
+          start: start(null),
+          issuer: issuer,
+          documentType: DocumentType.passport,
+        ),
+        throwsA(isA<StateError>()),
+      );
     });
   });
 

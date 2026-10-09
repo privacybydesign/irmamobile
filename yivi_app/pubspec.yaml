@@ -33,6 +33,29 @@ dependencies:
   flutter_face_api: ^8.2.1149
   flutter_face_core_basic: ^8.2.461
 
+  # Iris face verification (lib/iris_*.dart): the capture screen streams JPEG
+  # frames over a WebSocket to the Yivi-run verifier. `stream_channel` is the
+  # channel abstraction the client is written against so tests can fake the
+  # socket; `image` is the pure-Dart JPEG encoder used until a native one is
+  # needed. vcmrtd is imported directly for the runner's issuer/session types.
+  web_socket_channel: ^3.0.3
+  stream_channel: ^2.1.4
+  image: ^4.5.4
+
+  # On-device Iris face verification (lib/iris_ondevice_runner.dart): the
+  # vendor SDK runs the whole capture and match on the phone. Proprietary
+  # binaries, so it stays out of yivi_core and never reaches yivi_fdroid. The
+  # package requires iOS 16 and Android minSdk 26; see its README.
+  iris_sdk_flutter:
+    git:
+      url: https://github.com/privacybydesign/iris-sdk-flutter.git
+      ref: v1.0.2
+  vcmrtd:
+    git:
+      url: https://github.com/privacybydesign/vcmrtd.git
+      ref: v4.1.0
+      path: vcmrtd
+
   flutter_i18n: any
   flutter_svg: any
   google_fonts: any
@@ -52,11 +75,6 @@ dev_dependencies:
   # Open Sans for widget previews. Loaded at runtime from Google's CDN so the
   # previews don't depend on bundled-font asset resolution, which is flaky
   # under `flutter widget-preview`.
-  vcmrtd:
-    git:
-      url: https://github.com/privacybydesign/vcmrtd.git
-      ref: v4.1.0
-      path: vcmrtd
   package_info_plus: ^10.1.0
   collection: ^1.18.0
   rxdart: ^0.28.0
@@ -79,6 +97,11 @@ dev_dependencies:
 # satisfying altcha_lib's ^4.0.0). Must be repeated here because
 # dependency_overrides only take effect in the root (app) package.
 dependency_overrides:
+  # TODO(iris-face-verification): temporary while the vcmrtd changes for the
+  # face verification method comparison are unreleased. Replace with a tagged
+  # `ref:` on the vcmrtd git dependencies above before merging.
+  vcmrtd:
+    path: ../../vcmrtd/vcmrtd
   pointycastle:
     git:
       url: https://github.com/privacybydesign/pc-dart.git

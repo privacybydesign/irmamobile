@@ -100,6 +100,7 @@ Future<void> navigateToPassportNfcReadingScreen(
   FakePassportReader reader,
   FakePassportIssuer issuer, {
   RegulaFaceService? regulaFaceService,
+  FaceVerificationRunners? faceVerificationRunners,
 }) async {
   await pumpAndUnlockApp(
     tester,
@@ -110,8 +111,18 @@ Future<void> navigateToPassportNfcReadingScreen(
         return reader;
       }),
       passportIssuerProvider.overrideWithValue(issuer),
-      if (regulaFaceService != null)
-        regulaFaceServiceProvider.overrideWithValue(regulaFaceService),
+      // The runners are the build's capability declaration. A bare
+      // regulaFaceService is wrapped the way the flavors do it; an explicit
+      // map wins so tests can declare both methods or none.
+      if (faceVerificationRunners != null || regulaFaceService != null)
+        faceVerificationRunnersProvider.overrideWithValue(
+          faceVerificationRunners ??
+              {
+                FaceVerificationMethod.regula: RegulaRunner(
+                  (_) => regulaFaceService!,
+                ),
+              },
+        ),
     ],
   );
 
@@ -194,16 +205,31 @@ class FakePassportIssuer implements PassportIssuer {
   /// transaction id (or its absence) was threaded through.
   RawDocumentData? lastIssuedData;
 
+  /// The capability declaration received with the most recent session start,
+  /// so tests can assert what the wallet declared and its retry fields.
+  StartValidationRequest? lastStartRequest;
+
+  /// The Iris face session [verifyPassport] / [verifyDrivingLicence] answer
+  /// with, when a test fakes an Iris assignment.
+  final FaceSession? faceSession;
+
+  /// The [RawDocumentData] passed to the most recent verify call.
+  RawDocumentData? lastVerifiedData;
+
   FakePassportIssuer({
     this.errorToThrowOnIssuance,
     this.faceVerification = const FaceVerificationConfig(
       faceApiUrl: "https://faceapi.fake.yivi.app",
     ),
+    this.faceSession,
   });
 
   @override
-  Future<StartValidationResult> startSessionAtPassportIssuer() async {
+  Future<StartValidationResult> startSessionAtPassportIssuer({
+    StartValidationRequest? request,
+  }) async {
     startSessionCount += 1;
+    lastStartRequest = request;
     return StartValidationResult(
       nonceAndSessionId: NonceAndSessionId(
         nonce: "d4e5f6a7d4e5f6a7",
@@ -232,15 +258,68 @@ class FakePassportIssuer implements PassportIssuer {
   @override
   Future<VerificationResponse> verifyPassport(
     RawDocumentData passportDataResult,
-  ) {
-    throw UnimplementedError();
+  ) async {
+    lastVerifiedData = passportDataResult;
+    return VerificationResponse(
+      isExpired: false,
+      authenticChip: true,
+      authenticContent: true,
+      faceSession: faceSession,
+    );
   }
 
   @override
   Future<VerificationResponse> verifyDrivingLicence(
     RawDocumentData drivingLicenceDataResult,
-  ) {
-    throw UnimplementedError();
+  ) async {
+    lastVerifiedData = drivingLicenceDataResult;
+    return VerificationResponse(
+      isExpired: false,
+      authenticChip: true,
+      authenticContent: true,
+      faceSession: faceSession,
+    );
+  }
+}
+
+// ====================================================================================
+
+/// Configurable fake runner for either method: returns [data] with the given
+/// evidence attached, or throws [error], without any camera or network.
+class FakeFaceVerificationRunner implements FaceVerificationRunner {
+  FakeFaceVerificationRunner({
+    this.livenessTransactionId,
+    this.faceSessionId,
+    this.error,
+  });
+
+  final String? livenessTransactionId;
+  final String? faceSessionId;
+  final Object? error;
+
+  int runCount = 0;
+  StartValidationResult? lastStart;
+  DocumentType? lastDocumentType;
+  String? lastLanguageCode;
+
+  @override
+  Future<RawDocumentData> run(
+    RawDocumentData data, {
+    required StartValidationResult start,
+    required PassportIssuer issuer,
+    required DocumentType documentType,
+    ChipPortrait? portrait,
+    String? languageCode,
+  }) async {
+    runCount += 1;
+    lastStart = start;
+    lastDocumentType = documentType;
+    lastLanguageCode = languageCode;
+    if (error != null) throw error!;
+    return data.copyWith(
+      livenessTransactionId: livenessTransactionId,
+      faceSessionId: faceSessionId,
+    );
   }
 }
 
