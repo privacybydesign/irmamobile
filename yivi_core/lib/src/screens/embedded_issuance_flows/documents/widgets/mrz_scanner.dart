@@ -8,6 +8,7 @@ import "package:mrz_parser/mrz_parser.dart";
 
 import "../../../../../routing.dart";
 import "../../../../providers/ocr_processor_provider.dart";
+import "../../../../util/mrz_reading.dart";
 import "../../../../util/test_detection.dart";
 
 typedef CameraOverlayBuilder =
@@ -40,6 +41,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   CameraController? _controller;
   int _cameraIndex = 1;
   List<CameraDescription> cameras = [];
+  final _confirmation = MrzReadingConfirmation();
 
   @override
   void dispose() async {
@@ -181,6 +183,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   }
 
   Future _startLiveFeed() async {
+    _confirmation.reset();
     if (cameras.isEmpty) return;
 
     if (_controller != null && _controller!.value.isInitialized) {
@@ -193,7 +196,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     final camera = cameras[_cameraIndex];
     _controller = CameraController(
       camera,
-      .high,
+      .veryHigh,
       enableAudio: false,
       imageFormatGroup: Platform.isAndroid ? .nv21 : .bgra8888,
     );
@@ -249,8 +252,11 @@ class MrzScannerState extends ConsumerState<MrzScanner>
     if (Platform.isIOS) {
       return sensorOrientation;
     } else if (Platform.isAndroid) {
+      // A frame can still arrive after _stopLiveFeed has dropped the controller.
+      final controller = _controller;
+      if (controller == null) return null;
       var rotationCompensation =
-          _orientations[_controller!.value.deviceOrientation];
+          _orientations[controller.value.deviceOrientation];
       if (rotationCompensation == null) return null;
       if (camera.lensDirection == .front) {
         // front-facing
@@ -280,7 +286,10 @@ class MrzScannerState extends ConsumerState<MrzScanner>
           .read(ocrProcessorProvider)!
           .processImage(inputImage: inputImage, imageRotation: rotation);
 
-      final result = widget.mrzParser.tryParse(lines);
+      final parsed = widget.mrzParser.tryParse(
+        lines == null ? null : correctDocumentNumber(lines),
+      );
+      final result = parsed == null ? null : _confirmation.confirm(parsed);
 
       if (result != null) {
         // show success checkmark for a second and then call the onSuccess callback

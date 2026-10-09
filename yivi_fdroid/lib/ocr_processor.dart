@@ -37,13 +37,11 @@ class TesseractOcrProcessor implements OcrProcessor {
 
       final lines = rawText
           .split(RegExp(r"[\r\n]+"))
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
           .map((s) => MRZHelper.normalizeLine(s))
           .where((s) => s.isNotEmpty)
           .toList();
 
-      return MRZHelper.getFinalListToParse(lines);
+      return MRZHelper.getFinalListToParse(fixMrzLineLengths(lines));
     } catch (e) {
       return null;
     } finally {
@@ -53,14 +51,10 @@ class TesseractOcrProcessor implements OcrProcessor {
 }
 
 class MRZHelper {
-  static const _allowedLineLen = <int>{30, 36, 44};
-
-  // normalize OCR line to valid MRZ chars. Empty if len wrong
-  // could improve to try to find mrz if len wrong <- only if len longer
-  // shorter only if its missing '<' or un needed mrz chars
+  // normalize OCR line to valid MRZ chars. The length is fixed up later, in
+  // [fixMrzLineLengths], once it is clear which MRZ format the frame holds.
   static String normalizeLine(String text) {
     final s = text.toUpperCase().replaceAll(RegExp(r"\s+"), "");
-    if (!_allowedLineLen.contains(s.length)) return "";
 
     final buf = StringBuffer();
     final mrzChars = RegExp(r"[A-Z0-9<]");
