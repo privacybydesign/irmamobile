@@ -71,6 +71,10 @@ class IrmaPreferences {
          _credentialOrderKey,
          defaultValue: [],
        ),
+       _favouriteCredentials = preferences.getStringList(
+         _favouriteCredentialsKey,
+         defaultValue: [],
+       ),
        _reviewSuccessCount = preferences.getInt(
          _reviewSuccessCountKey,
          defaultValue: 0,
@@ -174,6 +178,11 @@ class IrmaPreferences {
   static const String _credentialOrderKey = "preference.credential_order";
   // list of credential ids stored as json string
   final Preference<List<String>> _credentialOrder;
+
+  // Credential ids the user pinned to the top of the data tab
+  static const String _favouriteCredentialsKey =
+      "preference.favourite_credentials";
+  final Preference<List<String>> _favouriteCredentials;
 
   // --- App-store review prompt (see privacybydesign/irmamobile#648) ---------
   // All wiped by clearAll(), so a logout/reset restarts the whole flow.
@@ -287,6 +296,11 @@ class IrmaPreferences {
 
   Future<bool> setCredentialOrder(List<String> order) =>
       _credentialOrder.setValue(order);
+
+  Stream<List<String>> getFavouriteCredentials() => _favouriteCredentials;
+
+  Future<bool> setFavouriteCredentials(List<String> ids) =>
+      _favouriteCredentials.setValue(ids);
 
   // --- Feature flags --------------------------------------------------------
 
