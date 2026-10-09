@@ -132,8 +132,8 @@ List<String> correctDocumentNumber(List<String> lines) {
       lines.every((l) => l.length == _td1LineLength)) {
     // TD1 (ID card): positions 5-13 of the first line. A '<' at the check digit
     // position marks a long document number that continues in the optional data.
-    final checkDigit = _td1DocumentNumberStart + _documentNumberLength;
-    if (lines[0][checkDigit] == "<") return lines;
+    final checkDigitIndex = _td1DocumentNumberStart + _documentNumberLength;
+    if (lines[0][checkDigitIndex] == "<") return lines;
     lineIndex = 0;
     start = _td1DocumentNumberStart;
   } else if (lines.length == mrzLineCount(_td3LineLength) &&
