@@ -5,6 +5,7 @@ import "package:material_ui/material_ui.dart";
 
 import "../../../../providers/email_issuance_provider.dart";
 import "../../../../theme/theme.dart";
+import "../../../../util/missing_data_flow.dart";
 import "../../../../widgets/irma_app_bar.dart";
 import "../../../../widgets/irma_bottom_bar.dart";
 import "../../../../widgets/keyboard_animation_listener.dart";
@@ -140,6 +141,7 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
       child: Scaffold(
         key: Key("$onScreenKeyboardShown"),
         appBar: IrmaAppBar(
+          bottom: context.missingDataBand,
           titleTranslationKey: "email_issuance.enter_email.title",
         ),
         body: SafeArea(
@@ -251,9 +253,11 @@ class _EnterEmailScreenState extends ConsumerState<EnterEmailScreen> {
             ? null
             : IrmaBottomBar(
                 primaryButtonLabel: "email_issuance.enter_email.next_button",
-                secondaryButtonLabel: "email_issuance.enter_email.back_button",
+                secondaryButtonLabel: context.missingDataBackLabel(
+                  "email_issuance.enter_email.back_button",
+                ),
                 onPrimaryPressed: _validEmail ? _submit : null,
-                onSecondaryPressed: context.pop,
+                onSecondaryPressed: context.missingDataBack(context.pop),
               ),
       ),
     );

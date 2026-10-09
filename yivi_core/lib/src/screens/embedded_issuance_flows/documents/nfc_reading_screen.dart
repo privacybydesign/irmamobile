@@ -15,6 +15,7 @@ import "../../../providers/document_reader_providers.dart";
 import "../../../providers/passport_issuer_provider.dart";
 import "../../../theme/theme.dart";
 import "../../../util/handle_pointer.dart";
+import "../../../util/missing_data_flow.dart";
 import "../../../util/navigation.dart";
 import "../../../util/privacy_screen.dart";
 import "../../../widgets/irma_app_bar.dart";
@@ -400,7 +401,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       instruction: _buildStatus(context, uiState),
       illustration: _getAnimation(),
       bottomNavigationBar: IrmaBottomBar(
-        secondaryButtonLabel: "ui.cancel",
+        secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
         onSecondaryPressed: cancel,
       ),
     );
@@ -481,7 +482,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",
         onPrimaryPressed: retry,
-        secondaryButtonLabel: "ui.cancel",
+        secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
         onSecondaryPressed: cancel,
       ),
     );
@@ -504,7 +505,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",
         onPrimaryPressed: retry,
-        secondaryButtonLabel: "ui.cancel",
+        secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
         onSecondaryPressed: cancel,
       ),
     );
@@ -595,7 +596,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: widget.translationKeys.startScanning,
         onPrimaryPressed: _startScanning,
-        secondaryButtonLabel: "ui.cancel",
+        secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
         onSecondaryPressed: cancel,
       ),
     );
@@ -619,7 +620,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: "ui.retry",
         onPrimaryPressed: retry,
-        secondaryButtonLabel: "ui.cancel",
+        secondaryButtonLabel: context.missingDataBackLabel("ui.cancel"),
         onSecondaryPressed: cancel,
       ),
     );
@@ -803,7 +804,10 @@ class _NfcScaffold extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
-      appBar: IrmaAppBar(titleTranslationKey: titleTranslationKey),
+      appBar: IrmaAppBar(
+        titleTranslationKey: titleTranslationKey,
+        bottom: context.missingDataBand,
+      ),
       body: SafeArea(
         child: Center(
           child: OrientationBuilder(

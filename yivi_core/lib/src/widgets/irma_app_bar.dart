@@ -62,6 +62,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading;
   final List<Widget> actions;
   final bool hasBorder;
+  final PreferredSizeWidget? bottom;
 
   IrmaAppBar({
     this.titleTranslationKey,
@@ -70,6 +71,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leading = const YiviBackButton(),
     this.actions = const [],
     this.hasBorder = true,
+    this.bottom,
   }) : assert(
          [title, titleTranslationKey, titleString].nonNulls.length == 1,
          "only one of them can be non-null",
@@ -94,10 +96,12 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
             style: theme.textTheme.displaySmall?.copyWith(color: theme.dark),
           ),
       actions: actions,
+      bottom: bottom,
       automaticallyImplyLeading: false,
     );
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
 }
