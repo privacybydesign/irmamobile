@@ -274,6 +274,35 @@
       "extra_explanation_android": "Je hoort een paar piepjes en wordt verbonden."
     }
   },
+  "missing_data": {
+    "header": {
+      "one": "{requestor} vraagt om {n} gegeven",
+      "other": "{requestor} vraagt om {n} gegevens"
+    },
+    "known_party": "Bekende partij",
+    "unknown_party": "Onbekende partij",
+    "progress": "{x} van {n} klaar",
+    "status": {
+      "present": "Staat al in je app",
+      "missing": "Nog niet in je app",
+      "just_added": "Zojuist toegevoegd"
+    },
+    "obtain": "Ophalen",
+    "obtain_named": "Ophalen: {credential}",
+    "share_with": "Delen met {requestor}",
+    "hint": {
+      "one": "Haal eerst het ontbrekende gegeven op",
+      "other": "Haal eerst de {n} ontbrekende gegevens op"
+    },
+    "band": "Voor {requestor} · {x} van {n} klaar",
+    "back_to_list": "Terug naar de lijst",
+    "ready_title": "Alles staat klaar",
+    "share_question": {
+      "one": "Wil je dit gegeven delen met {requestor}?",
+      "other": "Wil je deze {n} gegevens delen met {requestor}?"
+    },
+    "share": "Delen"
+  },
   "enrollment": {
     "introduction": {
       "step_1": {

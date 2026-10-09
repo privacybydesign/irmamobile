@@ -1063,5 +1063,34 @@
       "thanks": "Thanks, we'll use this to improve Yivi.",
       "close": "Close"
     }
+  },
+  "missing_data": {
+    "header": {
+      "one": "{requestor} asks for {n} item of data",
+      "other": "{requestor} asks for {n} items of data"
+    },
+    "known_party": "Known party",
+    "unknown_party": "Unknown party",
+    "progress": "{x} of {n} ready",
+    "status": {
+      "present": "Already in your app",
+      "missing": "Not in your app yet",
+      "just_added": "Just added"
+    },
+    "obtain": "Obtain",
+    "obtain_named": "Obtain: {credential}",
+    "share_with": "Share with {requestor}",
+    "hint": {
+      "one": "Obtain the missing item of data first",
+      "other": "Obtain the {n} missing items of data first"
+    },
+    "band": "For {requestor} · {x} of {n} ready",
+    "back_to_list": "Back to the list",
+    "ready_title": "Everything is ready",
+    "share_question": {
+      "one": "Do you want to share this item of data with {requestor}?",
+      "other": "Do you want to share these {n} items of data with {requestor}?"
+    },
+    "share": "Share"
   }
 }
