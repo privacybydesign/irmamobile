@@ -224,6 +224,8 @@ github.com/privacybydesign/longfellow-go v0.0.0-20261009113759-a78935bb0002 h1:a
 github.com/privacybydesign/longfellow-go v0.0.0-20261009113759-a78935bb0002/go.mod h1:JuIT4jkQ9YGZBTMW/Pog73GSQvwFlIzSoq+BwvykChY=
 github.com/privacybydesign/longfellow-go v0.0.0-20261009132409-92954b8fee63 h1:U8NVwZxrZcaC3fk3GGObXE2w63zE86Dinw8U26wOX0M=
 github.com/privacybydesign/longfellow-go v0.0.0-20261009132409-92954b8fee63/go.mod h1:JuIT4jkQ9YGZBTMW/Pog73GSQvwFlIzSoq+BwvykChY=
+github.com/privacybydesign/longfellow-go v0.0.0-20261009140127-18433b1932e8 h1:5l7CNPCnBIV8H9M99ihdfzW2+J2d2wNPyWqvQnpXJ2A=
+github.com/privacybydesign/longfellow-go v0.0.0-20261009140127-18433b1932e8/go.mod h1:JuIT4jkQ9YGZBTMW/Pog73GSQvwFlIzSoq+BwvykChY=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTEfhy4qGm1nDQc=

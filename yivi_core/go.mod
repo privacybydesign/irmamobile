@@ -6,7 +6,7 @@ require (
 	github.com/go-errors/errors v1.5.1
 	github.com/privacybydesign/gabi v0.0.0-20221212095008-68a086907750
 	github.com/privacybydesign/irmago v1.4.2-0.20261009132633-a6c9fa5d17ab
-	github.com/privacybydesign/longfellow-go v0.0.0-20261009132409-92954b8fee63
+	github.com/privacybydesign/longfellow-go v0.0.0-20261009140127-18433b1932e8
 	github.com/sirupsen/logrus v1.9.4
 	golang.org/x/mobile v0.0.0-20260816165457-f98cc9b3c733
 )

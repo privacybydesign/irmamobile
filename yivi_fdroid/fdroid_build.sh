@@ -39,7 +39,7 @@ set -euxo pipefail
 # longfellow-go's Dockerfile builds and what its measurements were taken on):
 #
 #   - longfellow-zk@61a8a735964d1b22bccf79bf14ef6767249cdf92
-#   - longfellow-go@92954b8fee63837551c1725b45f0e8201648f2ce
+#   - longfellow-go@18433b1932e85cdea2889755376a2cf5122a44e6
 #     (keep this the SAME commit as yivi_core/go.mod's module pin — the module
 #     carries the binding that calls set_mdoc_log_level, this srclib carries
 #     the patch that provides it, and they drift independently if pinned apart)
