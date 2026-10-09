@@ -1,5 +1,7 @@
 import "package:streaming_shared_preferences/streaming_shared_preferences.dart";
 
+import "feature_flags.dart";
+
 class IrmaPreferences {
   final String mostRecentTermsUrlNl;
   final String mostRecentTermsUrlEn;
@@ -8,7 +10,8 @@ class IrmaPreferences {
     StreamingSharedPreferences preferences, {
     required this.mostRecentTermsUrlNl,
     required this.mostRecentTermsUrlEn,
-  }) : _screenshotsEnabled = preferences.getBool(
+  }) : _preferences = preferences,
+       _screenshotsEnabled = preferences.getBool(
          _screenshotsEnabledKey,
          defaultValue: false,
        ),
@@ -195,6 +198,8 @@ class IrmaPreferences {
   static const String _reviewDoneKey = "preference.review_done";
   final Preference<bool> _reviewDone;
 
+  final StreamingSharedPreferences _preferences;
+
   // =============================================================================
 
   Stream<bool> getScreenshotsEnabled() => _screenshotsEnabled;
@@ -282,6 +287,16 @@ class IrmaPreferences {
 
   Future<bool> setCredentialOrder(List<String> order) =>
       _credentialOrder.setValue(order);
+
+  // --- Feature flags --------------------------------------------------------
+
+  Preference<bool> _featureFlag(FeatureFlag flag) =>
+      _preferences.getBool(flag.prefKey, defaultValue: false);
+
+  Stream<bool> getFeatureFlag(FeatureFlag flag) => _featureFlag(flag);
+
+  Future<bool> setFeatureFlag(FeatureFlag flag, bool value) =>
+      _featureFlag(flag).setValue(value);
 
   // --- App-store review prompt ----------------------------------------------
 
