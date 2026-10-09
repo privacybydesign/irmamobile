@@ -2,6 +2,8 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../../models/schemaless/credential_store.dart";
+import "../../../providers/external_issuer_provider.dart";
+import "../../../providers/irma_repository_provider.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
@@ -46,6 +48,17 @@ class _IssueDuringDisclosureScreenState
     context.pushSchemalessDataDetailsScreen(
       AddDataDetailsRouteParams(credential: credential),
     );
+  }
+
+  void _onReopenWebsite(CredentialDescriptor credential) {
+    ref
+        .read(irmaRepositoryProvider)
+        .openIssueURL(
+          context,
+          credential.credentialId,
+          credential.issueURL,
+          ref,
+        );
   }
 
   void _showWrongCredentialDialog(IssueDuringDisclosureState wizardState) {
@@ -107,6 +120,14 @@ class _IssueDuringDisclosureScreenState
       }
     }
     final currentIsObtainable = currentCredential?.issueURL != null;
+    final externalStatus = currentCredential == null
+        ? ExternalIssuerStatus.notExternal
+        : ref.watch(
+            externalIssuerStatusProvider((
+              credentialId: currentCredential.credentialId,
+              issueUrl: currentCredential.issueURL,
+            )),
+          );
 
     ref.listen(issueDuringDisclosureProvider(widget.sessionId), (prev, next) {
       if (next.hasWrongCredential) {
@@ -119,17 +140,30 @@ class _IssueDuringDisclosureScreenState
 
     // Determine button label and action based on state.
     final String buttonLabel;
+    final IconData? buttonIcon;
     final VoidCallback? buttonAction;
     if (isCompleted) {
       buttonLabel = "disclosure_permission.next_step";
+      buttonIcon = null;
       buttonAction = widget.onCompleted ?? widget.onDismiss;
+    } else if (currentIsObtainable &&
+        externalStatus == ExternalIssuerStatus.waiting) {
+      buttonLabel = "external_issuer.waiting.reopen";
+      buttonIcon = Icons.open_in_new;
+      buttonAction = () {
+        _onReopenWebsite(currentCredential!);
+      };
     } else if (currentIsObtainable) {
       buttonLabel = "disclosure_permission.obtain_data";
+      buttonIcon = externalStatus == ExternalIssuerStatus.ready
+          ? Icons.open_in_new
+          : null;
       buttonAction = () {
         _onObtainData(context, currentCredential!);
       };
     } else {
       buttonLabel = "disclosure_permission.close";
+      buttonIcon = null;
       buttonAction = widget.onClose;
     }
 
@@ -143,6 +177,7 @@ class _IssueDuringDisclosureScreenState
             onDismiss: widget.onDismiss,
             bottomNavigationBar: IrmaBottomBar(
               primaryButtonLabel: buttonLabel,
+              primaryButtonTrailingIcon: buttonIcon,
               onPrimaryPressed: buttonAction,
               secondaryButtonLabel: "session.navigation_bar.cancel",
               onSecondaryPressed: widget.onDismiss,
