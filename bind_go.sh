@@ -21,8 +21,11 @@ set -euo pipefail
 # https://github.com/privacybydesign/yivi-sqlcipher-prebuilt/releases
 # and link them into libgojni.so ourselves.
 #
-# The prebuilt libraries are cached in build/sqlcipher-prebuilt/ and only
-# downloaded once. Delete that directory to force a re-download.
+# The same applies to the zero-knowledge prover, downloaded from
+# https://github.com/privacybydesign/longfellow-go/releases
+#
+# Both sets are cached in build/sqlcipher-prebuilt/ and build/longfellow-prebuilt/
+# and only downloaded once. Delete a directory to force a re-download.
 #
 # Each Android ABI needs its own -I/-L flags pointing to the matching static
 # libs. Since gomobile doesn't support per-ABI CGO flags and the linker
@@ -70,22 +73,41 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 SQLCIPHER_VERSION="4.14.0"
 PREBUILT_DIR="${SCRIPT_DIR}/build/sqlcipher-prebuilt"
+SQLCIPHER_BASE_URL="https://github.com/privacybydesign/yivi-sqlcipher-prebuilt/releases/download/v${SQLCIPHER_VERSION}"
+SQLCIPHER_ANDROID_SHA256="2ef9e2a78bdf6d9c92f49efd7b3676147242e2e4566c1d64f0335082b0ddf55e"
 
 # The zero-knowledge prover's static libraries, per ABI, in the same layout and
 # for the same reason as SQLCipher's: gomobile cannot pass per-ABI CGO flags, so
 # each ABI is bound separately against its own .a files.
 #
-# Unlike SQLCipher this is NOT downloaded. The libraries are built from
-# longfellow-zk source (see longfellow-go/scripts/package-android-libs.sh), and
-# a build that has not produced them simply links no prover: the wallet then
-# falls back to the plain ISO mDoc presentation, which AV Annex A section A.8
-# requires of any device that cannot generate a proof. That makes the prover an
-# opt-in addition to this script rather than a new hard dependency for everyone
-# who builds the app.
+# Downloaded and pinned exactly as SQLCipher is, from a longfellow-go release
+# built by its scripts/package-android-libs.sh. The version is the longfellow-zk
+# commit plus the digest of the patch set applied over it, which is what the
+# release tag encodes and what android/MANIFEST.txt inside the tarball records,
+# so bumping the prover is the same two-line edit as bumping SQLCipher.
+#
+# It was once left to each developer to produce, which meant the ordinary build
+# silently linked no prover and said so in one line: a wallet that works, and
+# quietly falls back to the plain ISO mDoc presentation on every request. That
+# fallback is still correct where there is genuinely no prover -- AV Annex A
+# section A.8 requires it of any device that cannot generate a proof -- but it
+# is the wrong default for a build that could have had one.
 LONGFELLOW_DIR="${SCRIPT_DIR}/build/longfellow-prebuilt"
-PREBUILT_BASE_URL="https://github.com/privacybydesign/yivi-sqlcipher-prebuilt/releases/download/v${SQLCIPHER_VERSION}"
+LONGFELLOW_VERSION="61a8a73-p57fad080"
+LONGFELLOW_BASE_URL="https://github.com/privacybydesign/longfellow-go/releases/download/prebuilt-${LONGFELLOW_VERSION}"
+LONGFELLOW_ANDROID_TARBALL="longfellow-${LONGFELLOW_VERSION}-android.tar.gz"
+LONGFELLOW_ANDROID_SHA256="4a42c167c85d8a1adbd45d781676845172f5316606eb4396f0ba1fb7bfa02164"
 
-ANDROID_SHA256="2ef9e2a78bdf6d9c92f49efd7b3676147242e2e4566c1d64f0335082b0ddf55e"
+# Set to 0 by a build that must not consume prebuilt binaries. F-Droid forbids
+# them outright, and yivi_fdroid/fdroid_build.sh cross-compiles both sets from
+# source into the directories above instead -- but only builds the prover when
+# its source checkouts are supplied, and a download here would quietly put a
+# prebuilt binary into the one build that may not have one.
+#
+# With downloads off, a set that is not already there is simply absent: for the
+# prover that is the documented no-prover build, and for SQLCipher the gomobile
+# link fails immediately afterwards naming what it could not find.
+ALLOW_PREBUILT_DOWNLOADS="${ALLOW_PREBUILT_DOWNLOADS:-1}"
 
 # Detect host OS for NDK toolchain prebuilt path selection.
 detect_host_os() {
@@ -139,7 +161,8 @@ get_abi() {
 }
 
 # =============================================================================
-# Download and verify prebuilt SQLCipher + OpenSSL static libraries.
+# Download and verify the prebuilt static libraries: SQLCipher + OpenSSL, and
+# the zero-knowledge prover.
 # =============================================================================
 
 verify_sha256() {
@@ -160,29 +183,43 @@ verify_sha256() {
   fi
 }
 
+# Fetch <url> into <root>, check it against <sha256>, and unpack it there.
+#
+# <marker> is the directory the tarball unpacks to, and its presence is the
+# cache: a second run downloads nothing, and neither does a tree that already
+# has the libraries from somewhere else. yivi_fdroid/fdroid_build.sh depends on
+# exactly that -- F-Droid forbids prebuilt binaries, so it cross-compiles both
+# sets from source into these same directories and this function then finds its
+# work already done.
 download_prebuilt() {
-  local platform="$1"
-  local expected_sha256="$2"
-  local dest="${PREBUILT_DIR}/${platform}"
+  local label="$1"
+  local root="$2"
+  local marker="$3"
+  local tarball="$4"
+  local url="$5"
+  local expected_sha256="$6"
 
-  if [ -d "$dest" ]; then
-    echo "==> Prebuilt SQLCipher for ${platform} already available."
+  if [ -d "${root}/${marker}" ]; then
+    echo "==> Prebuilt ${label} already available."
     return
   fi
 
-  local tarball="sqlcipher-${SQLCIPHER_VERSION}-${platform}.tar.gz"
-  local url="${PREBUILT_BASE_URL}/${tarball}"
-  local tmpfile="${PREBUILT_DIR}/${tarball}"
+  if [ "${ALLOW_PREBUILT_DOWNLOADS:-1}" != "1" ]; then
+    echo "==> Prebuilt ${label} absent and downloads are disabled; continuing without it."
+    return
+  fi
 
-  mkdir -p "${PREBUILT_DIR}"
-  echo "==> Downloading prebuilt SQLCipher ${SQLCIPHER_VERSION} for ${platform}..."
+  local tmpfile="${root}/${tarball}"
+
+  mkdir -p "${root}"
+  echo "==> Downloading prebuilt ${label}..."
   curl -fSL -o "$tmpfile" "$url"
 
   verify_sha256 "$tmpfile" "$expected_sha256"
 
-  tar -xzf "$tmpfile" -C "${PREBUILT_DIR}"
+  tar -xzf "$tmpfile" -C "${root}"
   rm -f "$tmpfile"
-  echo "==> Prebuilt SQLCipher for ${platform} ready."
+  echo "==> Prebuilt ${label} ready."
 }
 
 # =============================================================================
@@ -193,7 +230,17 @@ download_prebuilt() {
 # =============================================================================
 
 if [ "$BUILD_ANDROID" = true ]; then
-  download_prebuilt android "$ANDROID_SHA256"
+  download_prebuilt "SQLCipher ${SQLCIPHER_VERSION} for android" \
+    "${PREBUILT_DIR}" android \
+    "sqlcipher-${SQLCIPHER_VERSION}-android.tar.gz" \
+    "${SQLCIPHER_BASE_URL}/sqlcipher-${SQLCIPHER_VERSION}-android.tar.gz" \
+    "${SQLCIPHER_ANDROID_SHA256}"
+
+  download_prebuilt "longfellow ${LONGFELLOW_VERSION} for android" \
+    "${LONGFELLOW_DIR}" android \
+    "${LONGFELLOW_ANDROID_TARBALL}" \
+    "${LONGFELLOW_BASE_URL}/${LONGFELLOW_ANDROID_TARBALL}" \
+    "${LONGFELLOW_ANDROID_SHA256}"
 fi
 
 cd yivi_core

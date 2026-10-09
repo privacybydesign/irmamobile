@@ -106,6 +106,27 @@ Most commands below should be run from one of these subdirectories. The [`just`]
       ./bind_go.sh ios             # build iOS only
       ./bind_go.sh android/arm64   # build a single Android ABI (fastest)
 
+* For Android, `bind_go.sh` downloads two sets of pinned prebuilt static libraries and caches them
+  under `build/`: SQLCipher + OpenSSL, which the Go client needs for its encrypted database, and the
+  longfellow zero-knowledge prover, which lets the wallet answer an age request with a proof instead
+  of a signed disclosure. Both are checked against a SHA-256 in the script and both are skipped once
+  present, so a fresh clone needs nothing but network access.
+
+  The prover is Android-only, and is linked per ABI only when `libmdoc_static.a` is there for that
+  ABI -- that is what sets the `longfellow` build tag, which in turn decides whether the bridge
+  imports longfellow-go at all (see `irmagobridge/zkprover_longfellow.go` and `zkprover_off.go`).
+  A build without it is still a working wallet: it falls back to the plain ISO mDoc presentation, as
+  AV Annex A section A.8 requires of a device that cannot generate a proof. That fallback is silent
+  apart from one line per ABI in the build output, so if you are working on that path, check for
+  `linking the zero-knowledge prover`. iOS always builds without it.
+
+  To move to a newer prover, bump `LONGFELLOW_VERSION` and `LONGFELLOW_ANDROID_SHA256` in
+  `bind_go.sh` to one of the [longfellow-go prebuilt
+  releases](https://github.com/privacybydesign/longfellow-go/releases); the tag names the
+  longfellow-zk commit and the digest of the patch set built over it, and the same is recorded in
+  `MANIFEST.txt` inside the tarball. The proving circuits are committed separately, in
+  `yivi_core/irmagobridge/zkcircuits/`.
+
 * Start an emulator or connect a device via USB and run the flutter project from the `yivi_app` directory:
   `flutter run` (iOS) or `flutter run --flavor alpha` (Android). You can also use `just run` from the
   repository root, or run the project via Android Studio or Visual Studio Code.
@@ -205,6 +226,11 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
 
 * Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.
 * If something has changed in the `irmagobridge` then rerunning `./bind_go.sh` is required.
+* A wallet that answers an age request with an ordinary signed disclosure, rather than a
+  zero-knowledge proof, was most likely built without the prover. `./bind_go.sh` says which it did,
+  one line per ABI: `arm64-v8a: linking the zero-knowledge prover`, or `no longfellow libraries,
+  building without the prover`. The second means `build/longfellow-prebuilt/android/<abi>/lib/`
+  has no `libmdoc_static.a`; delete `build/longfellow-prebuilt/` and rerun to fetch it again.
 * `irmago` and `longfellow-go` are ordinary pinned module dependencies, not local checkouts, so
   editing them locally does **not** reach the app: `./bind_go.sh` rebuilds against the published
   versions and the change simply is not there. To develop against a local checkout, add the replace
@@ -214,6 +240,22 @@ workflows in .github/workflows). Documentation about the Fastlane scripting can 
       replace github.com/privacybydesign/longfellow-go => ../../longfellow-go
 
   Remove them again before committing; once the change is published, bump the pins instead.
+* Bumping `longfellow-go` is not only a `go.mod` change. Its cgo package links the static
+  archives under `build/longfellow-prebuilt`, so a bump that reaches a C symbol those archives
+  do not export fails at link time with an undefined reference and nothing naming the cause.
+  `set_mdoc_log_level` did exactly that. Move both pins together: point `LONGFELLOW_VERSION`
+  and `LONGFELLOW_ANDROID_SHA256` in `bind_go.sh` at a [prebuilt
+  release](https://github.com/privacybydesign/longfellow-go/releases) built from the same
+  longfellow-go commit, then delete `build/longfellow-prebuilt/` so the new one is fetched.
+
+  If no release exists for that commit yet, cut one from longfellow-go:
+
+      docker build -f Dockerfile.android -t longfellow-android .      # in longfellow-go
+      docker run --rm -v <out>:/out longfellow-android package-android-libs.sh
+
+  `package-android-libs.sh` writes the `.sha256` to pin beside the tarball. The name carries a
+  digest of the patch set applied over the pinned upstream commit, so one built with and without
+  patches cannot be confused.
 * In case you get the warning that the `ndk-bundle` cannot be found, please set the `ANDROID_NDK_HOME`
   environment variable to the right ndk version directory. These version directories can be found in `$ANDROID_HOME/ndk`.
   For example, you have to specify `export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/<NDK_VERSION>`.
