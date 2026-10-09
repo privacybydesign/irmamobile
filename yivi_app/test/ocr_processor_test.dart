@@ -1,3 +1,5 @@
+import "dart:ui";
+
 import "package:flutter_test/flutter_test.dart";
 import "package:yivi/ocr_processor.dart";
 
@@ -49,6 +51,39 @@ void main() {
 
   test("keeps the bottom lines when more upper case lines match", () {
     expect(_read(["IDENTITEITSKAARTNEDERLANDABCDE", ..._td1]), _td1);
+  });
+
+  test("measures glare on the bottom MRZ lines only", () {
+    const card = Rect.fromLTRB(10, 100, 300, 120);
+    const line1 = Rect.fromLTRB(10, 400, 300, 420);
+    const line2 = Rect.fromLTRB(10, 430, 300, 450);
+    const line3 = Rect.fromLTRB(10, 460, 300, 480);
+    expect(
+      GoogleMLKitOcrProcessor.mrzLineBoxes([
+        (_td1[2], line3),
+        (_cardText30, card),
+        (_td1[0], line1),
+        ("IDENTITEITSKAART NEDERLAND ABCDE", card),
+        (_td1[1], line2),
+      ]),
+      [line1, line2, line3],
+    );
+  });
+
+  test("measures glare on the two lines of a passport MRZ only", () {
+    // An upper case line above the MRZ, long enough to count as a candidate: a
+    // reflection on it must not show the hint for a clean MRZ.
+    const heading = Rect.fromLTRB(10, 300, 300, 320);
+    const line1 = Rect.fromLTRB(10, 400, 300, 420);
+    const line2 = Rect.fromLTRB(10, 430, 300, 450);
+    expect(
+      GoogleMLKitOcrProcessor.mrzLineBoxes([
+        ("REISPASPOORT PASSPORT PASSEPORT", heading),
+        (_td3[0], line1),
+        (_td3[1], line2),
+      ]),
+      [line1, line2],
+    );
   });
 
   test("returns nothing without an MRZ", () {

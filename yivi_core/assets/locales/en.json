@@ -787,6 +787,9 @@
     "content": "Yivi needs camera permissions in order to scan your document automatically. Give Yivi permissions to use the camera via system settings or enter the required data manually.",
     "open_settings": "Open settings"
   },
+  "mrz_scanner": {
+    "glare_hint": "Reflection on the document. Tilt it slightly."
+  },
   "face_verification": {
     "title": "Face verification",
     "preparing": "One moment, preparing your data…",
