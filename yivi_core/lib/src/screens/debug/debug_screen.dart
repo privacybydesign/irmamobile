@@ -1,5 +1,4 @@
 import "package:flutter_i18n/flutter_i18n.dart";
-import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
@@ -7,6 +6,7 @@ import "../../models/credential_events.dart";
 import "../../models/session.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../util/handle_pointer.dart";
+import "../../util/navigation.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/translated_text.dart";
 import "cert_management/cert_management_screen.dart";
@@ -119,7 +119,7 @@ class _DebugScreenState extends State<DebugScreen> {
             key: const Key("debug_feature_flags"),
             leading: const Icon(Icons.flag_outlined),
             title: const Text("Feature flags"),
-            onTap: () => context.push("/home/debug/feature_flags"),
+            onTap: context.pushFeatureFlagsScreen,
           ),
           _buildListTile(
             Icons.list_alt,

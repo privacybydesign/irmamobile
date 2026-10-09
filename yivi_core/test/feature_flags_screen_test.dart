@@ -2,12 +2,18 @@ import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_i18n/loaders/translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:yivi_core/src/data/feature_flags.dart";
+import "package:yivi_core/src/data/irma_bridge.dart";
 import "package:yivi_core/src/data/irma_preferences.dart";
+import "package:yivi_core/src/data/irma_repository.dart";
+import "package:yivi_core/src/models/event.dart";
 import "package:yivi_core/src/providers/feature_flag_provider.dart";
+import "package:yivi_core/src/providers/irma_repository_provider.dart";
 import "package:yivi_core/src/providers/preferences_provider.dart";
+import "package:yivi_core/src/screens/debug/debug_screen.dart";
 import "package:yivi_core/src/screens/debug/feature_flags_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 
@@ -16,6 +22,11 @@ import "package:yivi_core/src/theme/theme.dart";
 class _NoopTranslationLoader extends TranslationLoader {
   @override
   Future<Map> load() async => <String, dynamic>{};
+}
+
+class _NoopBridge extends IrmaBridge {
+  @override
+  void dispatch(Event event) {}
 }
 
 void main() {
@@ -164,5 +175,61 @@ void main() {
     for (final flag in FeatureFlag.values) {
       expect(await stored(tester, prefs, flag), isFalse, reason: flag.name);
     }
+  });
+
+  testWidgets("the debug screen opens the feature flags screen", (
+    tester,
+  ) async {
+    final prefs = await freshPrefs();
+    final repo = IrmaRepository(client: _NoopBridge(), preferences: prefs);
+    // Mirrors the nesting in routing.dart, which pushFeatureFlagsScreen targets.
+    final router = GoRouter(
+      initialLocation: "/home/debug",
+      routes: [
+        GoRoute(
+          path: "/home",
+          builder: (context, state) => const SizedBox(),
+          routes: [
+            GoRoute(
+              path: "debug",
+              builder: (context, state) => const DebugScreen(),
+              routes: [
+                GoRoute(
+                  path: "feature_flags",
+                  builder: (context, state) => const FeatureFlagsScreen(),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [preferencesProvider.overrideWithValue(prefs)],
+        child: IrmaRepositoryProvider(
+          repository: repo,
+          child: IrmaTheme(
+            builder: (_) => MaterialApp.router(
+              routerConfig: router,
+              localizationsDelegates: [
+                FlutterI18nDelegate(
+                  translationLoader: _NoopTranslationLoader(),
+                ),
+                ...GlobalMaterialLocalizations.delegates,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key("debug_feature_flags")));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FeatureFlagsScreen), findsOneWidget);
   });
 }

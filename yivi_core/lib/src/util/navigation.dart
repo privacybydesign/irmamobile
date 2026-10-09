@@ -96,6 +96,10 @@ extension RoutingHelpers on BuildContext {
     go("/home/debug");
   }
 
+  void pushFeatureFlagsScreen() {
+    push("/home/debug/feature_flags");
+  }
+
   void goNotificationsScreen() {
     go("/home/notifications");
   }
