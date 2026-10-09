@@ -1,4 +1,5 @@
 import "package:flutter_i18n/flutter_i18n.dart";
+import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
 import "../../data/irma_repository.dart";
@@ -114,6 +115,12 @@ class _DebugScreenState extends State<DebugScreen> {
       appBar: IrmaAppBar(titleTranslationKey: "debug.title"),
       body: ListView(
         children: [
+          ListTile(
+            key: const Key("debug_feature_flags"),
+            leading: const Icon(Icons.flag_outlined),
+            title: const Text("Feature flags"),
+            onTap: () => context.push("/home/debug/feature_flags"),
+          ),
           _buildListTile(
             Icons.list_alt,
             "debug.scheme_management.title",
