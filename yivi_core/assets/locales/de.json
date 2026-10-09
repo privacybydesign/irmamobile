@@ -183,10 +183,12 @@
       "header": {
         "success": "Erfolg",
         "canceled": "Abgebrochen",
-        "not_satisfiable": "Abgebrochen"
+        "not_satisfiable": "Abgebrochen",
+        "success_calm": "Geteilt"
       },
       "text": {
         "success": "Ihre Daten wurden an {otherParty} weitergegeben",
+        "success_calm": "Ihre Daten wurden mit {otherParty} geteilt",
         "success_signature": "Sie haben die Anfrage von {otherParty} signiert",
         "canceled": "Ihre Daten wurden nicht an {otherParty} weitergegeben",
         "canceled_signature": "Sie haben die Anfrage von {otherParty} nicht signiert",
@@ -435,7 +437,9 @@
     "cancel": "Abbrechen",
     "success_feedback": {
       "header": "Erfolg",
-      "text": "Die Daten wurden erfolgreich zu Yivi hinzugefügt"
+      "text": "Die Daten wurden erfolgreich zu Yivi hinzugefügt",
+      "calm_header": "Hinzugefügt",
+      "calm_text": "Die Daten befinden sich in Ihrer Yivi-App. Sie finden sie unter Daten."
     },
     "pre-authorized_code": {
       "tx_code_screen": {
