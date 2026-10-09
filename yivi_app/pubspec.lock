@@ -295,18 +295,18 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_face_api
-      sha256: b47695c92724aae514ce768bedc6ad311443d1c70bad9f255e0069236978dd72
+      sha256: e703d9fe84948b4dc9971d1d618d377a865541e58f33b39cd831b50a2694f6df
       url: "https://pub.dev"
     source: hosted
-    version: "8.3.1291"
+    version: "8.4.1655"
   flutter_face_core_basic:
     dependency: "direct main"
     description:
       name: flutter_face_core_basic
-      sha256: "70805444d5b28a96e665c19010ebb8a658ac94469681f848dbf42e89af4b379c"
+      sha256: "7b3a4bbc38858bb44b648fae2d2c43769a44c59ea6cd25ddcfd397e1fb26825b"
       url: "https://pub.dev"
     source: hosted
-    version: "8.3.635"
+    version: "8.4.761"
   flutter_i18n:
     dependency: "direct main"
     description:
