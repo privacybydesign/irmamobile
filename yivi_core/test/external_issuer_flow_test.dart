@@ -263,6 +263,30 @@ void main() {
       expect(find.text("You come back to this list."), findsOne);
     });
 
+    testWidgets("falls back to the credential id for a nameless credential", (
+      tester,
+    ) async {
+      final env = (await tester.runAsync(() => _env(flagOn: true)))!;
+      await _pumpApp(
+        tester,
+        env,
+        ExternalIssuerHeadsUpScreen(
+          credential: CredentialDescriptor(
+            credentialId: _websiteCredential,
+            name: "",
+            issuer: _issuer(),
+            category: null,
+            attributes: const [],
+            issueURL: _issueUrl,
+          ),
+          onOpenWebsite: () {},
+          onBack: () {},
+        ),
+      );
+
+      expect(find.text(_websiteCredential), findsOne);
+    });
+
     testWidgets("opens the website and goes back from its two buttons", (
       tester,
     ) async {
