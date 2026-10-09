@@ -429,7 +429,9 @@
     },
     "expired_label": "{name}, expired",
     "favourites": {
-      "title": "Favourites"
+      "title": "Favourites",
+      "add": "Add to favourites",
+      "remove": "Remove from favourites"
     },
     "section_count-1": "{count} item",
     "section_count-2": "{count} items"

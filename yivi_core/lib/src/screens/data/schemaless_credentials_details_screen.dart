@@ -4,7 +4,9 @@ import "package:material_ui/material_ui.dart";
 
 import "../../models/credential_events.dart";
 import "../../models/schemaless/schemaless_events.dart" as schemaless;
+import "../../providers/favourite_credentials_provider.dart";
 import "../../providers/irma_repository_provider.dart";
+import "../../providers/schemaless_credentials_list_provider.dart";
 import "../../providers/schemaless_credentials_provider.dart";
 import "../../theme/theme.dart";
 import "../../widgets/base64_image.dart";
@@ -13,6 +15,7 @@ import "../../widgets/credential_card/irma_credential_card_options_bottom_sheet.
 import "../../widgets/credential_card/yivi_credential_card.dart";
 import "../../widgets/irma_app_bar.dart";
 import "../../widgets/irma_avatar.dart";
+import "../../widgets/irma_icon_button.dart";
 import "../../widgets/progress.dart";
 import "../../widgets/translated_text.dart";
 import "../../widgets/yivi_bottom_sheet.dart";
@@ -77,6 +80,11 @@ class _CredentialsDetailsScreenState
     );
 
     return IrmaAppBar(
+      actions: [
+        if (credential != null &&
+            ref.watch(dataTabLayoutProvider) == DataTabLayout.categories)
+          _FavouriteButton(credentialId: credential.credentialId),
+      ],
       title: AnimatedBuilder(
         animation: _scrollController,
         builder: (context, child) {
@@ -250,5 +258,29 @@ class _CredentialsDetailsScreenState
     IrmaRepositoryProvider.of(
       context,
     ).openIssueURL(context, credential.credentialId, credential.issueUrl, ref);
+  }
+}
+
+/// Pins the credential type to the top of the data tab (`dataTabCategories`).
+class _FavouriteButton extends ConsumerWidget {
+  const _FavouriteButton({required this.credentialId});
+
+  final String credentialId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favourite =
+        ref.watch(favouriteCredentialsProvider).value?.contains(credentialId) ??
+        false;
+
+    return IrmaIconButton(
+      key: const Key("favourite_button"),
+      icon: favourite ? Icons.star : Icons.star_border,
+      semanticsLabelKey: favourite
+          ? "data_tab.favourites.remove"
+          : "data_tab.favourites.add",
+      onTap: () =>
+          ref.read(favouriteCredentialsControllerProvider).toggle(credentialId),
+    );
   }
 }
