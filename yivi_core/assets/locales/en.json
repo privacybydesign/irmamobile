@@ -207,6 +207,15 @@
     "optional_data": "Optional data",
     "add_optional_data": "Add optional data",
     "no_data_selected": "No data selected",
+    "choice": {
+      "or": "or",
+      "none_yet": "Not in your app yet. Tap what you want to obtain.",
+      "obtain": "Obtain",
+      "certified_by": "Certified by {issuer}",
+      "switch": "Switch",
+      "sheet_title": "What do you want to share?",
+      "sheet_explanation": "{requestor} accepts: {options}. Tap what you want to share."
+    },
     "introduction": {
       "title": "Get going",
       "header": "Share your data",

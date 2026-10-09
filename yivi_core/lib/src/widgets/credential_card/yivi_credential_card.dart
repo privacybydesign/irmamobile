@@ -35,6 +35,10 @@ class YiviCredentialCard extends ConsumerWidget {
   final bool hideFooter;
   final bool hideNotObtainable;
 
+  /// Replaces the validity footer: it is shown below the attributes, behind a
+  /// divider, even when [hideFooter] is set.
+  final Widget? footer;
+
   const YiviCredentialCard({
     super.key,
     required this.credentialName,
@@ -51,6 +55,7 @@ class YiviCredentialCard extends ConsumerWidget {
     this.padding,
     this.hideFooter = false,
     this.hideNotObtainable = false,
+    this.footer,
   });
 
   static const _defaultLowInstanceCountThreshold = 5;
@@ -105,6 +110,7 @@ class YiviCredentialCard extends ConsumerWidget {
     IrmaCardStyle style = IrmaCardStyle.normal,
     EdgeInsetsGeometry? padding,
     bool hideFooter = false,
+    Widget? footer,
     int lowInstanceCountThreshold = _defaultLowInstanceCountThreshold,
   }) : this(
          key: key,
@@ -135,6 +141,7 @@ class YiviCredentialCard extends ConsumerWidget {
          style: style,
          padding: padding,
          hideFooter: hideFooter,
+         footer: footer,
        );
 
   YiviCredentialCard.fromDescriptor({
@@ -314,7 +321,13 @@ class YiviCredentialCard extends ConsumerWidget {
             ),
             YiviCredentialCardAttributeList(attributes, compareTo: compareTo),
           ],
-          if (!hideFooter && !status.revoked)
+          if (footer != null) ...[
+            IrmaDivider(
+              color: status.isExpired ? theme.danger : null,
+              padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+            ),
+            footer!,
+          ] else if (!hideFooter && !status.revoked)
             Column(
               children: [
                 if (attributes.isNotEmpty)

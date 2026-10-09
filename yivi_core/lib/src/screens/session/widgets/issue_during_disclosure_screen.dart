@@ -1,7 +1,9 @@
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../models/schemaless/credential_store.dart";
+import "../../../providers/feature_flag_provider.dart";
 import "../../../providers/issue_during_disclosure_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../theme/theme.dart";
@@ -46,6 +48,26 @@ class _IssueDuringDisclosureScreenState
     context.pushSchemalessDataDetailsScreen(
       AddDataDetailsRouteParams(credential: credential),
     );
+  }
+
+  /// A single tap on a choice option picks it and starts obtaining its first
+  /// credential that has not been issued yet.
+  void _onObtainOption(
+    IssueDuringDisclosureNotifier notifier,
+    IssueDuringDisclosureState wizardState,
+    Map<String, dynamic> issuedIds,
+    ({int stepIndex, int optionIndex}) choice,
+  ) {
+    notifier.selectOption(choice.stepIndex, choice.optionIndex);
+
+    final bundle =
+        wizardState.steps[choice.stepIndex].options[choice.optionIndex];
+    final next = bundle.credentials
+        .where((d) => !issuedIds.containsKey(d.credentialId))
+        .firstOrNull;
+    if (next == null) return;
+
+    _onObtainData(context, next);
   }
 
   void _showWrongCredentialDialog(IssueDuringDisclosureState wizardState) {
@@ -108,6 +130,12 @@ class _IssueDuringDisclosureScreenState
     }
     final currentIsObtainable = currentCredential?.issueURL != null;
 
+    final singleTapChoice =
+        ref.watch(featureFlagProvider(FeatureFlag.singleTapChoice)).value ??
+        false;
+    final currentIsChoice =
+        currentStepIndex != null && steps[currentStepIndex].options.length > 1;
+
     ref.listen(issueDuringDisclosureProvider(widget.sessionId), (prev, next) {
       if (next.hasWrongCredential) {
         // Show the dialog after the current frame so the screen is visible.
@@ -118,11 +146,15 @@ class _IssueDuringDisclosureScreenState
     });
 
     // Determine button label and action based on state.
-    final String buttonLabel;
+    final String? buttonLabel;
     final VoidCallback? buttonAction;
     if (isCompleted) {
       buttonLabel = "disclosure_permission.next_step";
       buttonAction = widget.onCompleted ?? widget.onDismiss;
+    } else if (singleTapChoice && currentIsChoice) {
+      // The options are tappable rows, so there is no separate button.
+      buttonLabel = null;
+      buttonAction = null;
     } else if (currentIsObtainable) {
       buttonLabel = "disclosure_permission.obtain_data";
       buttonAction = () {
@@ -166,6 +198,14 @@ class _IssueDuringDisclosureScreenState
                     DisclosureDisconStepper.fromState(
                       wizardState: wizardState,
                       notifier: notifier,
+                      onObtainOption: singleTapChoice
+                          ? (choice) => _onObtainOption(
+                              notifier,
+                              wizardState,
+                              issuedIds,
+                              choice,
+                            )
+                          : null,
                     ),
                   ],
                 ),

@@ -2,11 +2,14 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
+import "../../../providers/feature_flag_provider.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -16,6 +19,9 @@ import "../../../widgets/session_progress_indicator.dart";
 import "../../../widgets/signature_message.dart";
 import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
+import "choice_card_footer.dart";
+import "choice_option_row.dart";
+import "disclosure_choice_sheet.dart";
 import "disclosure_make_choice_screen.dart";
 import "session_scaffold.dart";
 
@@ -162,6 +168,54 @@ class _DisclosureChoicesOverviewState
         widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
     if (disconIndex >= choices.length) return;
 
+    void onChoiceMade(int newIndex) {
+      final notifier = ref.read(
+        sessionUserChoicesProvider(_sessionId).notifier,
+      );
+      if (addOptional) {
+        notifier.addOptional(disconIndex);
+      }
+      // Read the current session state to get up-to-date owned options,
+      // since new credentials may have been obtained.
+      final currentChoices =
+          ref
+              .read(sessionStateProvider(_sessionId))
+              .value
+              ?.disclosurePlan
+              ?.disclosureChoicesOverview ??
+          [];
+      final owned = disconIndex < currentChoices.length
+          ? currentChoices[disconIndex].ownedOptions
+          : null;
+      if (owned != null && newIndex < owned.length) {
+        notifier.setBundle(disconIndex, owned[newIndex]);
+      }
+    }
+
+    final singleTapChoice =
+        ref.read(featureFlagProvider(FeatureFlag.singleTapChoice)).value ??
+        false;
+    if (singleTapChoice) {
+      showDisclosureChoiceSheet(
+        context: context,
+        pickOne: choices[disconIndex],
+        sessionId: _sessionId,
+        disconIndex: disconIndex,
+        initialSelectedIndex: _selectedIndexFor(disconIndex),
+        requestorName: widget.sessionState.requestor.name,
+        onChoiceMade: onChoiceMade,
+        onObtain: (credential) => context.pushSchemalessDataDetailsScreen(
+          AddDataDetailsRouteParams(credential: credential),
+        ),
+        onObtained: addOptional
+            ? () => ref
+                  .read(sessionUserChoicesProvider(_sessionId).notifier)
+                  .addOptional(disconIndex)
+            : null,
+      );
+      return;
+    }
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => DisclosureMakeChoiceScreen(
@@ -170,29 +224,7 @@ class _DisclosureChoicesOverviewState
           sessionId: _sessionId,
           disconIndex: disconIndex,
           addOptional: addOptional,
-          onChoiceMade: (newIndex) {
-            final notifier = ref.read(
-              sessionUserChoicesProvider(_sessionId).notifier,
-            );
-            if (addOptional) {
-              notifier.addOptional(disconIndex);
-            }
-            // Read the current session state to get up-to-date owned options,
-            // since new credentials may have been obtained.
-            final currentChoices =
-                ref
-                    .read(sessionStateProvider(_sessionId))
-                    .value
-                    ?.disclosurePlan
-                    ?.disclosureChoicesOverview ??
-                [];
-            final owned = disconIndex < currentChoices.length
-                ? currentChoices[disconIndex].ownedOptions
-                : null;
-            if (owned != null && newIndex < owned.length) {
-              notifier.setBundle(disconIndex, owned[newIndex]);
-            }
-          },
+          onChoiceMade: onChoiceMade,
         ),
       ),
     );
@@ -346,7 +378,7 @@ class _DisclosureChoicesOverviewState
 
 /// Shows the currently selected credential for a disclosure choice, with an
 /// optional "change choice" button that opens the [DisclosureMakeChoiceScreen].
-class _DisclosureChoiceEntry extends StatelessWidget {
+class _DisclosureChoiceEntry extends ConsumerWidget {
   final DisclosurePickOne pickOne;
   final int selectedIndex;
   final bool changeable;
@@ -364,19 +396,43 @@ class _DisclosureChoiceEntry extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = IrmaTheme.of(context);
     final owned = pickOne.ownedOptions;
 
     if (owned != null && owned.isNotEmpty) {
       final bundle = owned[selectedIndex];
       final credentials = bundle.credentials;
+      final switchInFooter =
+          changeable &&
+          !optional &&
+          (ref.watch(featureFlagProvider(FeatureFlag.singleTapChoice)).value ??
+              false);
 
       return Padding(
         padding: .only(bottom: theme.defaultSpacing),
         child: Column(
           children: [
-            if (changeable && !optional)
+            if (switchInFooter)
+              Padding(
+                padding: .only(bottom: theme.smallSpacing),
+                child: Align(
+                  alignment: .centerLeft,
+                  child: Text(
+                    joinChoiceLabels(
+                      context,
+                      pickOneLabels(pickOne),
+                    ).toUpperCase(),
+                    style: theme.themeData.textTheme.bodyMedium!.copyWith(
+                      fontSize: 12,
+                      fontWeight: .w600,
+                      letterSpacing: 0.8,
+                      color: theme.neutralDark,
+                    ),
+                  ),
+                ),
+              )
+            else if (changeable && !optional)
               Padding(
                 padding: .only(
                   bottom: theme.smallSpacing,
@@ -406,6 +462,14 @@ class _DisclosureChoiceEntry extends StatelessWidget {
                   instance: credentials[i],
                   compact: true,
                   hideFooter: true,
+                  footer: switchInFooter
+                      ? ChoiceCardFooter(
+                          issuerName: credentials[i].issuer.name,
+                          onSwitch: i == credentials.length - 1
+                              ? onChangeChoice
+                              : null,
+                        )
+                      : null,
                   headerTrailing: i == 0 && optional && onRemove != null
                       ? IrmaIconButton(
                           key: const Key("remove_optional_data_button"),
