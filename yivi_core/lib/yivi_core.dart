@@ -36,7 +36,7 @@ export "src/providers/sms_issuance_provider.dart";
 export "src/providers/store_review_provider.dart" show StoreReviewService;
 export "src/screens/embedded_issuance_flows/email/email_issuance_screen.dart";
 export "src/screens/embedded_issuance_flows/sms/sms_issuance_screen.dart";
-export "src/util/mrz_glare.dart" show glareTileShare, mrzHasGlare;
+export "src/util/mrz_glare.dart" show Reflection, glareTileShare, mrzHasGlare;
 export "src/util/mrz_reading.dart"
     show fixMrzLineLength, fixMrzLineLengths, minMrzLineLength, mrzLineCount;
 

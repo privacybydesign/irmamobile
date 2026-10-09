@@ -35,10 +35,12 @@ class TesseractOcrProcessor implements OcrProcessor {
           });
       final rawText = reading?["text"] as String?;
       final clippedShare = (reading?["clippedShare"] as num?) ?? 0;
-      final glare = clippedShare > glareTileShare;
+      final reflection = clippedShare > glareTileShare
+          ? Reflection.present
+          : Reflection.absent;
 
       if (rawText == null || rawText.trim().isEmpty) {
-        return OcrResult(glare: glare);
+        return OcrResult(reflection: reflection);
       }
 
       final lines = rawText
@@ -49,7 +51,7 @@ class TesseractOcrProcessor implements OcrProcessor {
 
       return OcrResult(
         lines: MRZHelper.getFinalListToParse(fixMrzLineLengths(lines)),
-        glare: glare,
+        reflection: reflection,
       );
     } catch (e) {
       return const OcrResult();

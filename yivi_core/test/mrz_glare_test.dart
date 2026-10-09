@@ -35,6 +35,7 @@ bool _hasGlare(_Image upright, int rotation, List<Rect> lineBoxes) {
   for (var i = 0; i < (360 - rotation) % 360 ~/ 90; i++) {
     sensor = _rotateClockwise(sensor);
   }
+
   final height = sensor.length;
   final width = sensor.first.length;
   // Rows padded beyond the frame width, as camera planes often are.
@@ -43,6 +44,7 @@ bool _hasGlare(_Image upright, int rotation, List<Rect> lineBoxes) {
   for (var y = 0; y < height; y++) {
     luminance.setRange(y * bytesPerRow, y * bytesPerRow + width, sensor[y]);
   }
+
   return mrzHasGlare(
     luminance: luminance,
     width: width,

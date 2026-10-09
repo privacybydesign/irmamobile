@@ -1,15 +1,17 @@
 import "package:camera/camera.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
+import "../util/mrz_glare.dart";
+
 /// What an [OcrProcessor] read in one camera frame.
 class OcrResult {
-  const OcrResult({this.lines, this.glare = false});
+  const OcrResult({this.lines, this.reflection = Reflection.absent});
 
   /// The MRZ lines in the frame, or null when it had none.
   final List<String>? lines;
 
   /// Whether a reflection washed out part of the MRZ.
-  final bool glare;
+  final Reflection reflection;
 }
 
 abstract class OcrProcessor {

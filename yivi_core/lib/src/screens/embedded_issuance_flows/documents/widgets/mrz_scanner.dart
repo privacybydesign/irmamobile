@@ -300,9 +300,7 @@ class MrzScannerState extends ConsumerState<MrzScanner>
           .processImage(inputImage: inputImage, imageRotation: rotation);
       final lines = ocr.lines;
 
-      final showGlareHint = _glareHint.update(
-        ocr.glare ? Reflection.present : Reflection.absent,
-      );
+      final showGlareHint = _glareHint.update(ocr.reflection);
       if (showGlareHint != _showGlareHint && mounted) {
         setState(() => _showGlareHint = showGlareHint);
       }
@@ -329,8 +327,8 @@ class MrzScannerState extends ConsumerState<MrzScanner>
   }
 }
 
-/// Tells the user to tilt the document when a reflection washes out the MRZ, the
-/// most common reason a scan stalls.
+/// Tells the user to tilt the document when a reflection washes out the MRZ, which
+/// stalls a scan until the reflection moves off it.
 class _GlareHintBanner extends StatelessWidget {
   const _GlareHintBanner();
 
@@ -346,7 +344,7 @@ class _GlareHintBanner extends StatelessWidget {
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: Colors.black.withAlpha(180),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: theme.borderRadius,
             ),
             child: Padding(
               padding: EdgeInsets.symmetric(

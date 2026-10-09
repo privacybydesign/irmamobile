@@ -23,7 +23,7 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
     // Glare is measured on Android only: there the frame's first plane is its
     // brightness (NV21) and ML Kit reports boxes in the upright frame. iOS frames are
     // BGRA.
-    final glare =
+    final hasGlare =
         Platform.isAndroid &&
         mrzHasGlare(
           luminance: inputImage.planes.first.bytes,
@@ -36,9 +36,10 @@ class GoogleMLKitOcrProcessor implements OcrProcessor {
               for (final line in block.lines) (line.text, line.boundingBox),
           ]),
         );
+
     return OcrResult(
       lines: mrzLinesFromText(recognizedText.text),
-      glare: glare,
+      reflection: hasGlare ? Reflection.present : Reflection.absent,
     );
   }
 
