@@ -15,6 +15,10 @@ import "package:yivi_core/src/widgets/credential_card/yivi_credential_card_attri
 
 import "support/pump_translated.dart";
 
+enum _Answer { yes, no }
+
+enum _Flag { on, off }
+
 schemaless.Attribute _text(String claim, String name, String value) =>
     schemaless.Attribute(
       claimPath: [claim],
@@ -25,15 +29,14 @@ schemaless.Attribute _text(String claim, String name, String value) =>
       ),
     );
 
-schemaless.Attribute _age(int age, {required bool over}) =>
-    schemaless.Attribute(
-      claimPath: ["over$age"],
-      displayName: "Over $age",
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.string,
-        string: over ? "yes" : "no",
-      ),
-    );
+schemaless.Attribute _age(int age, _Answer answer) => schemaless.Attribute(
+  claimPath: ["over$age"],
+  displayName: "Over $age",
+  value: schemaless.AttributeValue(
+    type: schemaless.AttributeType.string,
+    string: answer.name,
+  ),
+);
 
 Widget _app(Widget child, {List<Override> overrides = const []}) =>
     ProviderScope(
@@ -74,12 +77,12 @@ Future<void> _pumpList(
 }
 
 final _mixedAges = [
-  _age(12, over: true),
-  _age(16, over: true),
-  _age(18, over: true),
-  _age(21, over: true),
-  _age(65, over: false),
-  _age(75, over: false),
+  _age(12, .yes),
+  _age(16, .yes),
+  _age(18, .yes),
+  _age(21, .yes),
+  _age(65, .no),
+  _age(75, .no),
 ];
 
 void main() {
@@ -98,24 +101,25 @@ void main() {
   testWidgets("only true ages give the highest, only false the lowest", (
     tester,
   ) async {
-    await _pumpList(tester, [_age(12, over: true), _age(18, over: true)]);
+    await _pumpList(tester, [_age(12, .yes), _age(18, .yes)]);
     expect(find.text("Older than 18"), findsOneWidget);
 
-    await _pumpList(tester, [_age(18, over: false), _age(21, over: false)]);
+    await _pumpList(tester, [_age(18, .no), _age(21, .no)]);
     expect(find.text("Not older than 18"), findsOneWidget);
   });
 
   testWidgets("boolean values count the same as yes and no", (tester) async {
-    schemaless.Attribute boolAge(int age, bool over) => schemaless.Attribute(
-      claimPath: ["over$age"],
-      displayName: "Over $age",
-      value: schemaless.AttributeValue(
-        type: schemaless.AttributeType.boolean,
-        boolValue: over,
-      ),
-    );
+    schemaless.Attribute boolAge(int age, _Answer answer) =>
+        schemaless.Attribute(
+          claimPath: ["over$age"],
+          displayName: "Over $age",
+          value: schemaless.AttributeValue(
+            type: schemaless.AttributeType.boolean,
+            boolValue: answer == .yes,
+          ),
+        );
 
-    await _pumpList(tester, [boolAge(18, true), boolAge(21, false)]);
+    await _pumpList(tester, [boolAge(18, .yes), boolAge(21, .no)]);
 
     expect(find.text("Older than 18, not older than 21"), findsOneWidget);
   });
@@ -150,7 +154,7 @@ void main() {
   });
 
   testWidgets("a single age has nothing to expand into", (tester) async {
-    await _pumpList(tester, [_age(18, over: true)]);
+    await _pumpList(tester, [_age(18, .yes)]);
 
     expect(find.text("Older than 18"), findsOneWidget);
     expect(find.text("Show all ages"), findsNothing);
@@ -161,9 +165,9 @@ void main() {
   ) async {
     await _pumpList(tester, [
       _text("name", "Name", "Anna"),
-      _age(18, over: true),
+      _age(18, .yes),
       _text("city", "City", "Utrecht"),
-      _age(21, over: false),
+      _age(21, .no),
     ]);
 
     final name = tester.getTopLeft(find.text("Name")).dy;
@@ -192,7 +196,7 @@ void main() {
   });
 
   group("on a credential card", () {
-    Future<void> pumpCard(WidgetTester tester, {required bool flagOn}) async {
+    Future<void> pumpCard(WidgetTester tester, {required _Flag flag}) async {
       await pumpTranslated(
         tester,
         _app(
@@ -210,7 +214,7 @@ void main() {
           overrides: [
             featureFlagProvider(
               FeatureFlag.documentFlowV2,
-            ).overrideWith((ref) => Stream.value(flagOn)),
+            ).overrideWith((ref) => Stream.value(flag == .on)),
           ],
         ),
       );
@@ -218,14 +222,14 @@ void main() {
     }
 
     testWidgets("flag on: one age row", (tester) async {
-      await pumpCard(tester, flagOn: true);
+      await pumpCard(tester, flag: .on);
 
       expect(find.text("Older than 21, not older than 65"), findsOneWidget);
       expect(find.text("Over 18"), findsNothing);
     });
 
     testWidgets("flag off: a row per age, as before", (tester) async {
-      await pumpCard(tester, flagOn: false);
+      await pumpCard(tester, flag: .off);
 
       expect(find.text("Over 18"), findsOneWidget);
       expect(find.text("Age"), findsNothing);

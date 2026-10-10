@@ -135,6 +135,8 @@ NfcReadingTranslationKeys _translationKeys() {
   );
 }
 
+enum _Flag { on, off }
+
 const _androidOnly = TargetPlatformVariant({TargetPlatform.android});
 const _iosOnly = TargetPlatformVariant({TargetPlatform.iOS});
 
@@ -165,7 +167,7 @@ void main() {
 
   Future<void> pumpScreen(
     WidgetTester tester, {
-    bool flagOn = true,
+    _Flag flag = .on,
     ScannedMrz? mrz,
   }) async {
     await pumpTranslated(
@@ -177,7 +179,7 @@ void main() {
           passportIssuerProvider.overrideWithValue(_StubIssuer()),
           featureFlagProvider(
             FeatureFlag.documentFlowV2,
-          ).overrideWith((ref) => Stream.value(flagOn)),
+          ).overrideWith((ref) => Stream.value(flag == .on)),
           nfcStatusReaderProvider.overrideWithValue(() async => nfcStatus),
           nfcSettingsOpenerProvider.overrideWithValue(settingsOpener),
         ],
@@ -212,7 +214,7 @@ void main() {
   testWidgets("flag off: the screen is the introduction with a Start button", (
     tester,
   ) async {
-    await pumpScreen(tester, flagOn: false);
+    await pumpScreen(tester, flag: .off);
 
     expect(find.byType(NfcStageScaffold), findsNothing);
     expect(find.text("Start scanning"), findsOneWidget);
