@@ -1,10 +1,10 @@
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_verification_intro_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
+import "support/sync_translation_loader.dart";
 
 Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
   // TestContext disables the intro animation's repeating ticker so
@@ -14,7 +14,7 @@ Widget _wrap({required VoidCallback onStart, required VoidCallback onCancel}) {
       builder: (_) => MaterialApp(
         localizationsDelegates: [
           FlutterI18nDelegate(
-            translationLoader: FileTranslationLoader(
+            translationLoader: SyncFileTranslationLoader(
               basePath: "assets/locales",
               forcedLocale: const Locale("en", "US"),
             ),

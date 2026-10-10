@@ -1,7 +1,6 @@
 import "dart:async";
 
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
@@ -12,6 +11,7 @@ import "package:yivi_core/src/providers/schemaless_credential_store_provider.dar
 import "package:yivi_core/src/screens/add_data/schemaless_add_data_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/credential_card/schemaless_yivi_credential_type_card.dart";
+import "support/sync_translation_loader.dart";
 
 CredentialStoreItem _item(String credentialId, String name) =>
     CredentialStoreItem(
@@ -73,7 +73,7 @@ Widget _testWidget({
       builder: (_) => MaterialApp(
         localizationsDelegates: [
           FlutterI18nDelegate(
-            translationLoader: FileTranslationLoader(
+            translationLoader: SyncFileTranslationLoader(
               basePath: "assets/locales",
               forcedLocale: const Locale("en", "US"),
             ),

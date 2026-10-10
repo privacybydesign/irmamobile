@@ -13,6 +13,7 @@ import "src/models/log_entry.dart";
 import "src/models/mrz.dart";
 import "src/models/translated_value.dart";
 import "src/models/version_information.dart";
+import "src/providers/email_issuance_provider.dart";
 import "src/providers/irma_repository_provider.dart";
 import "src/providers/rooted_device_detector_provider.dart";
 import "src/screens/activity/activity_detail_screen.dart";
@@ -266,7 +267,11 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
       ),
       GoRoute(
         path: "/issue_email",
-        builder: (context, state) => EmailIssuanceScreen(),
+        builder: (context, state) => EmailIssuanceScreen(
+          purpose:
+              state.extra as EmailIssuancePurpose? ??
+              EmailIssuancePurpose.addCredential,
+        ),
       ),
       GoRoute(
         path: "/mrz",

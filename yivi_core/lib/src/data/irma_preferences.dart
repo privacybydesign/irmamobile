@@ -83,6 +83,15 @@ class IrmaPreferences {
          defaultValue: 0,
        ),
        _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false),
+       _emailLinked = preferences.getBool(_emailLinkedKey, defaultValue: false),
+       _emailBannerDismissed = preferences.getBool(
+         _emailBannerDismissedKey,
+         defaultValue: false,
+       ),
+       _emailBannerSnoozedUntilMs = preferences.getInt(
+         _emailBannerSnoozedUntilMsKey,
+         defaultValue: 0,
+       ),
        _featureFlags = {
          for (final flag in FeatureFlag.values)
            flag: preferences.getBool(flag.prefKey, defaultValue: false),
@@ -201,6 +210,25 @@ class IrmaPreferences {
   static const String _reviewDoneKey = "preference.review_done";
   final Preference<bool> _reviewDone;
 
+  // --- E-mail linking (FeatureFlag.emailLinking) ------------------------------
+  // All wiped by clearAll().
+
+  /// Whether this install has linked an e-mail address to the keyshare server.
+  /// The server offers no way to ask, so this is only set by the linking flow.
+  static const String _emailLinkedKey = "preference.email_linked";
+  final Preference<bool> _emailLinked;
+
+  /// Terminal: the user chose "Negeren", so the banner never shows again.
+  static const String _emailBannerDismissedKey =
+      "preference.email_banner_dismissed";
+  final Preference<bool> _emailBannerDismissed;
+
+  /// Wall-clock time (ms since epoch) before which the banner stays hidden,
+  /// set by "Vraag het me later".
+  static const String _emailBannerSnoozedUntilMsKey =
+      "preference.email_banner_snoozed_until_ms";
+  final Preference<int> _emailBannerSnoozedUntilMs;
+
   /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
   final Map<FeatureFlag, Preference<bool>> _featureFlags;
 
@@ -313,6 +341,22 @@ class IrmaPreferences {
     await _reviewTimesAsked.setValue(_reviewTimesAsked.getValue() + 1);
     await _reviewLastAskEpochMs.setValue(nowEpochMs);
   }
+
+  // --- E-mail linking -------------------------------------------------------
+
+  Stream<bool> getEmailLinked() => _emailLinked;
+
+  Future<bool> markEmailLinked() => _emailLinked.setValue(true);
+
+  Stream<bool> getEmailBannerDismissed() => _emailBannerDismissed;
+
+  Future<bool> dismissEmailBanner() => _emailBannerDismissed.setValue(true);
+
+  Stream<DateTime> getEmailBannerSnoozedUntil() =>
+      _emailBannerSnoozedUntilMs.map(DateTime.fromMillisecondsSinceEpoch);
+
+  Future<bool> snoozeEmailBannerUntil(DateTime until) =>
+      _emailBannerSnoozedUntilMs.setValue(until.millisecondsSinceEpoch);
 
   // --- Feature flags --------------------------------------------------------
 

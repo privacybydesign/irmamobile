@@ -8,6 +8,7 @@ import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
+import "../providers/email_issuance_provider.dart";
 
 extension RoutingHelpers on BuildContext {
   void pushErrorScreen({required String message}) {
@@ -34,8 +35,10 @@ extension RoutingHelpers on BuildContext {
     push("/issue_mobilenumber");
   }
 
-  void pushEmailIssuanceScreen() {
-    push("/issue_email");
+  void pushEmailIssuanceScreen({
+    EmailIssuancePurpose purpose = EmailIssuancePurpose.addCredential,
+  }) {
+    push("/issue_email", extra: purpose);
   }
 
   void popToWizardScreen() {

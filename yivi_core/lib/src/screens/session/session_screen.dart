@@ -10,9 +10,11 @@ import "../../models/return_url.dart";
 import "../../models/schemaless/session_state.dart";
 import "../../models/schemaless/session_user_interaction.dart";
 import "../../models/session.dart";
+import "../../providers/email_linking_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../providers/session_state_provider.dart";
 import "../../sentry/sentry.dart";
+import "../../util/email_linking.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
 import "../error/session_error_screen.dart";
@@ -24,6 +26,7 @@ import "widgets/disclosure_feedback_screen.dart";
 import "widgets/disclosure_permission_close_dialog.dart";
 import "widgets/disclosure_permission_confirm_dialog.dart";
 import "widgets/disclosure_permission_introduction_screen.dart";
+import "widgets/email_linked_screen.dart";
 import "widgets/issuance_permission.dart";
 import "widgets/issuance_success_screen.dart";
 import "widgets/issue_during_disclosure_screen.dart";
@@ -104,6 +107,13 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   /// its caller other than the iOS status-bar back link. Replaces the session
   /// body with [ArrowBack] until they leave the app.
   bool _showArrowBack = false;
+
+  /// True once the issuance session of the e-mail linking flow handed over to
+  /// the keyshare disclosure. Keeps the success screen away while it starts.
+  bool _handedOverToKeyshare = false;
+
+  /// True once the finished keyshare disclosure was recorded as a linked address.
+  bool _emailLinkRecorded = false;
 
   @override
   void initState() {
@@ -422,6 +432,36 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   }
 
   Widget _buildSuccess(SessionState session) {
+    final linking = ref.read(emailLinkingProvider);
+
+    // E-mail linking (FeatureFlag.emailLinking): once the address is issued,
+    // share it with the keyshare server, and finish on its own screen.
+    if (_handedOverToKeyshare ||
+        linking.issuanceSessionId == widget.sessionId) {
+      if (!_handedOverToKeyshare) {
+        _handedOverToKeyshare = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) shareEmailWithKeyshare(context, ref);
+        });
+      }
+      return _buildLoadingScreen(session);
+    }
+
+    if (linking.disclosureSessionId == widget.sessionId) {
+      if (!_emailLinkRecorded) {
+        _emailLinkRecorded = true;
+        final linkingNotifier = ref.read(emailLinkingProvider.notifier);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          linkingNotifier.markLinked();
+        });
+      }
+      return EmailLinkedScreen(
+        onDismiss: (_) => context.popToUnderlyingSessionOrHome(
+          hasUnderlyingSession: widget.hasUnderlyingSession,
+        ),
+      );
+    }
+
     // Latch the in-app-launched decision on first build, then clear the
     // launched set so abandoned launches don't leak into a future session.
     // Build runs multiple times; without latching, the cleared set would

@@ -2,7 +2,6 @@ import "dart:async";
 
 import "package:flutter/services.dart";
 import "package:flutter_i18n/flutter_i18n_delegate.dart";
-import "package:flutter_i18n/loaders/file_translation_loader.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -18,6 +17,7 @@ import "package:yivi_core/src/screens/embedded_issuance_flows/documents/face_ver
 import "package:yivi_core/src/screens/embedded_issuance_flows/documents/nfc_reading_screen.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/util/test_detection.dart";
+import "support/sync_translation_loader.dart";
 
 /// Passport issuer whose session start is held open by [gate], so a test can
 /// tear the NFC screen down before the failure arrives.
@@ -268,7 +268,7 @@ Future<GoRouter> _pumpNfcScreen(
             routerConfig: router,
             localizationsDelegates: [
               FlutterI18nDelegate(
-                translationLoader: FileTranslationLoader(
+                translationLoader: SyncFileTranslationLoader(
                   basePath: "assets/locales",
                   forcedLocale: const Locale("en", "US"),
                 ),

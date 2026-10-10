@@ -1,11 +1,15 @@
 import "package:flutter/material.dart" as core;
+import "package:flutter_i18n/flutter_i18n_delegate.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:material_ui/material_ui.dart";
 import "package:pinput/pinput.dart";
 import "package:yivi_core/app.dart";
+import "package:yivi_core/package_name.dart";
 import "package:yivi_core/src/theme/theme.dart";
 import "package:yivi_core/src/widgets/irma_markdown.dart";
 import "package:yivi_core/src/widgets/legacy_material_bridge.dart";
+
+import "support/sync_translation_loader.dart";
 
 // Flutter 3.47 unbundled the Material and Cupertino widget libraries and the app
 // moved to package:material_ui, so a material_ui MaterialApp no longer installs
@@ -20,9 +24,15 @@ Widget _app({required Widget child, required bool bridge}) {
   return IrmaTheme(
     builder: (context) => MaterialApp(
       theme: IrmaTheme.of(context).themeData,
-      localizationsDelegates: AppState.defaultLocalizationsDelegates(
-        const Locale("en", "US"),
-      ),
+      localizationsDelegates: [
+        FlutterI18nDelegate(
+          translationLoader: SyncFileTranslationLoader(
+            basePath: yiviAsset("locales"),
+            forcedLocale: const Locale("en", "US"),
+          ),
+        ),
+        ...GlobalMaterialLocalizations.delegates,
+      ],
       supportedLocales: AppState.defaultSupportedLocales(),
       builder: bridge
           ? (context, child) => LegacyMaterialBridge(child: child!)
