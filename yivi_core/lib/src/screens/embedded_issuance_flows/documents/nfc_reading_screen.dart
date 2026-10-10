@@ -283,7 +283,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
       final result = await PrivacyScreen.suspendDuring(
         () => _getDocumentReader().readDocument(
           iosNfcMessages: _documentFlowV2
-              ? _createStageIosNfcMessageMapper()
+              ? _createStageNfcMessageMapper()
               : _createIosNfcMessageMapper(),
           activeAuthenticationParams: startValidation.nonceAndSessionId,
         ),
@@ -928,7 +928,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
 
   /// The text on Apple's NFC sheet, in step with the on-screen stage, e.g.
   /// "Niet bewegen · 62%" while reading.
-  IosNfcMessageMapper _createStageIosNfcMessageMapper() {
+  IosNfcMessageMapper _createStageNfcMessageMapper() {
     const keys = "document_flow.nfc";
 
     return (state) {
