@@ -49,6 +49,10 @@ class IrmaThemeData {
   final Color link = const Color(0xFF1D4E89);
   final Color danger = const Color(0xffEABEBE);
 
+  // Form fields V2
+  final Color fieldFocusedSurface = const Color(0xFFF4F8FC);
+  final Color fieldDisabledSurface = const Color(0xFFF2F0EE);
+
   // Fonts
   final String primaryFontFamily = "Open Sans";
   final String secondaryFontFamily = "Open Sans";
@@ -66,12 +70,67 @@ class IrmaThemeData {
   late final TextTheme textTheme;
   late final ThemeData themeData;
 
+  // Input decoration themes of YiviTextField with FeatureFlag.formFieldsV2 on.
+  late final InputDecorationThemeData fieldDecorationTheme;
+  late final InputDecorationThemeData fieldRowDecorationTheme;
+
   // Other textstyles that cannot be included in TextTheme
   late final TextStyle textButtonTextStyle;
   late final TextStyle hyperlinkTextStyle;
   late final TextStyle mrzLabel;
   late final TextStyle boldBody;
   late final TextStyle highlightedTextStyle;
+
+  InputDecorationThemeData _fieldDecorationTheme({
+    required double labelSize,
+    required BorderRadius radius,
+    required Color lineColor,
+    required Color fillColor,
+  }) {
+    UnderlineInputBorder line(Color color, {double width = 2.0}) {
+      return UnderlineInputBorder(
+        borderRadius: radius,
+        borderSide: BorderSide(color: color, width: width),
+      );
+    }
+
+    // Material scales a floating label to 75%, so the label is declared at
+    // `labelSize / 0.75` to render at `labelSize`.
+    final labelStyle = TextStyle(
+      fontSize: labelSize / 0.75,
+      fontWeight: FontWeight.w400,
+      color: neutralExtraDark,
+    );
+
+    return InputDecorationThemeData(
+      filled: true,
+      fillColor: fillColor,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: defaultSpacing,
+        vertical: smallSpacing,
+      ),
+      suffixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      labelStyle: labelStyle,
+      floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+        if (states.contains(WidgetState.error)) {
+          return labelStyle.copyWith(color: error);
+        }
+        if (states.contains(WidgetState.focused)) {
+          return labelStyle.copyWith(color: link);
+        }
+        return labelStyle;
+      }),
+      hintStyle: textTheme.bodyMedium?.copyWith(color: neutralDark),
+      errorStyle: textTheme.bodyMedium?.copyWith(color: error),
+      border: line(lineColor),
+      enabledBorder: line(lineColor),
+      focusedBorder: line(link),
+      errorBorder: line(error),
+      focusedErrorBorder: line(error),
+      disabledBorder: line(neutralLight),
+    );
+  }
 
   IrmaThemeData() {
     //Init color scheme
@@ -195,6 +254,27 @@ class IrmaThemeData {
         borderSide: BorderSide(color: Colors.grey),
       ),
       errorStyle: textTheme.bodyMedium?.copyWith(color: error),
+    );
+
+    fieldDecorationTheme = _fieldDecorationTheme(
+      labelSize: 12,
+      radius: const BorderRadius.vertical(top: Radius.circular(8)),
+      lineColor: neutralDark,
+      fillColor: WidgetStateColor.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return fieldDisabledSurface;
+        if (states.contains(WidgetState.focused)) return fieldFocusedSurface;
+        return light;
+      }),
+    );
+    fieldRowDecorationTheme = _fieldDecorationTheme(
+      labelSize: 13,
+      radius: BorderRadius.zero,
+      lineColor: Colors.transparent,
+      fillColor: WidgetStateColor.resolveWith((states) {
+        if (states.contains(WidgetState.error)) return errorSurface;
+        if (states.contains(WidgetState.focused)) return surfaceSecondary;
+        return Colors.transparent;
+      }),
     );
 
     //Init App Bar Theme
