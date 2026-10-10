@@ -60,6 +60,7 @@ class InstallReferrerHandler implements MethodChannel.MethodCallHandler {
           referrer = null;
         }
       }
+
       client.endConnection();
       reply(referrer);
     }
