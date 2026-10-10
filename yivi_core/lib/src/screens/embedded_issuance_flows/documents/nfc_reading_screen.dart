@@ -629,7 +629,7 @@ class _NfcReadingScreenState extends ConsumerState<NfcReadingScreen>
         children: [
           _OrientationAwareTranslatedText(
             uiState.stateKey,
-            style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+            style: theme.bodyHeading,
           ),
           SizedBox(height: theme.defaultSpacing),
           _OrientationAwareTranslatedText(uiState.tipKey),
@@ -988,7 +988,7 @@ class _TitleAndBody extends StatelessWidget {
       mainAxisAlignment: .center,
       mainAxisSize: .min,
       children: [
-        _OrientationAwareTranslatedText(titleKey, style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20)),
+        _OrientationAwareTranslatedText(titleKey, style: theme.bodyHeading),
         SizedBox(height: theme.defaultSpacing),
         _OrientationAwareTranslatedText(bodyKey),
       ],
@@ -1121,7 +1121,7 @@ class _ScanningContent extends StatelessWidget {
       children: [
         TranslatedText(
           statusKey,
-          style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+          style: theme.bodyHeading,
           textAlign: textAlign,
         ),
         SizedBox(height: theme.smallSpacing),

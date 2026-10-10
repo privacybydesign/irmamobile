@@ -81,7 +81,7 @@ class NfcStageScaffold extends StatelessWidget {
               titleKey,
               translationParams: textParams,
               textAlign: .center,
-              style: theme.textTheme.bodyLarge?.copyWith(fontSize: 20),
+              style: theme.bodyHeading,
             ),
             SizedBox(height: theme.smallSpacing),
             TranslatedText(
