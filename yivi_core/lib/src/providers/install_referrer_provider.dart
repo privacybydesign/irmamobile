@@ -22,6 +22,8 @@ bool _isFromWeb(String? referrer) {
 
   try {
     return Uri.splitQueryString(referrer)[_sourceParameter] == _webSource;
+  } on FormatException {
+    return false;
   } on ArgumentError {
     return false;
   }
