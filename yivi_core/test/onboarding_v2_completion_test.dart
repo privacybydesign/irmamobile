@@ -41,6 +41,10 @@ void main() {
       routes: [
         GoRoute(path: "/enrollment", builder: (_, _) => EnrollmentScreen()),
         GoRoute(path: "/home", builder: (_, _) => const Text("home screen")),
+        GoRoute(
+          path: "/back_to_website",
+          builder: (_, _) => const Text("back to website screen"),
+        ),
       ],
     );
 
@@ -93,6 +97,18 @@ void main() {
         await tester.runAsync(() => prefs.getReadyChipPending().first),
         isTrue,
       );
+    });
+
+    testWidgets("flag on, opened from a website: shows the way back", (
+      tester,
+    ) async {
+      await setOnboardingV2(prefs, on: true);
+      await prefs.markBackToWebsitePending();
+      final router = await pumpEnrollment(tester);
+
+      await finishOnboarding(tester, introductionPages: 1);
+
+      expect(currentLocation(router), "/back_to_website");
     });
   });
 }

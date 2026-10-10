@@ -87,6 +87,14 @@ class IrmaPreferences {
          _readyChipPendingKey,
          defaultValue: false,
        ),
+       _installReferrerRead = preferences.getBool(
+         _installReferrerReadKey,
+         defaultValue: false,
+       ),
+       _backToWebsitePending = preferences.getBool(
+         _backToWebsitePendingKey,
+         defaultValue: false,
+       ),
        _featureFlags = {
          for (final flag in FeatureFlag.values)
            flag: preferences.getBool(flag.prefKey, defaultValue: false),
@@ -212,6 +220,17 @@ class IrmaPreferences {
   static const String _readyChipPendingKey = "preference.ready_chip_pending";
   final Preference<bool> _readyChipPending;
 
+  /// Whether the Play install referrer has been read. It is read once.
+  static const String _installReferrerReadKey =
+      "preference.install_referrer_read";
+  final Preference<bool> _installReferrerRead;
+
+  /// Set when the install referrer says the install started on a website,
+  /// until the "go back to the website" screen has been shown once.
+  static const String _backToWebsitePendingKey =
+      "preference.back_to_website_pending";
+  final Preference<bool> _backToWebsitePending;
+
   /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
   final Map<FeatureFlag, Preference<bool>> _featureFlags;
 
@@ -332,6 +351,18 @@ class IrmaPreferences {
   Future<bool> markReadyChipPending() => _readyChipPending.setValue(true);
 
   Future<bool> markReadyChipShown() => _readyChipPending.setValue(false);
+
+  Stream<bool> getInstallReferrerRead() => _installReferrerRead;
+
+  Future<bool> markInstallReferrerRead() => _installReferrerRead.setValue(true);
+
+  Stream<bool> getBackToWebsitePending() => _backToWebsitePending;
+
+  Future<bool> markBackToWebsitePending() =>
+      _backToWebsitePending.setValue(true);
+
+  Future<bool> markBackToWebsiteShown() =>
+      _backToWebsitePending.setValue(false);
 
   // --- Feature flags --------------------------------------------------------
 

@@ -7,6 +7,8 @@ import "package:material_ui/material_ui.dart";
 
 import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
+import "../../providers/feature_flag_provider.dart";
+import "../../providers/install_referrer_provider.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../util/navigation.dart";
 import "../../widgets/loading_indicator.dart";
@@ -36,7 +38,7 @@ class EnrollmentScreen extends StatelessWidget {
   }
 }
 
-class _ProvidedEnrollmentScreen extends StatelessWidget {
+class _ProvidedEnrollmentScreen extends ConsumerWidget {
   final IrmaRepository repo;
 
   const _ProvidedEnrollmentScreen({required this.repo});
@@ -46,16 +48,37 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     final onboardingV2 = await repo.preferences
         .getFeatureFlag(FeatureFlag.onboardingV2)
         .first;
-    if (onboardingV2) await repo.preferences.markReadyChipPending();
     if (!context.mounted) return;
 
     // LockGate handles displaying the PIN overlay if the app is still
     // locked after enrollment.
-    context.goHomeScreen();
+    if (!onboardingV2) {
+      context.goHomeScreen();
+      return;
+    }
+
+    await repo.preferences.markReadyChipPending();
+    final backToWebsite = await repo.preferences
+        .getBackToWebsitePending()
+        .first;
+    if (!context.mounted) return;
+
+    if (backToWebsite) {
+      context.goBackToWebsiteScreen();
+    } else {
+      context.goHomeScreen();
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Starts reading the install referrer as soon as onboarding opens, so it
+    // is known by the time onboarding completes.
+    if (ref.watch(featureFlagProvider(FeatureFlag.onboardingV2)).value ??
+        false) {
+      ref.watch(installReferrerReaderProvider);
+    }
+
     final bloc = context.read<EnrollmentBloc>();
     void addEvent(EnrollmentBlocEvent event) => bloc.add(event);
     void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());

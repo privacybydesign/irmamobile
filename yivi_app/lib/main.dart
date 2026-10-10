@@ -4,6 +4,7 @@ import "package:smart_auth/smart_auth.dart";
 import "package:yivi_core/yivi_core.dart";
 
 import "ocr_processor.dart";
+import "play_install_referrer_service.dart";
 import "qr_scanner_factory.dart";
 import "regula_face_service.dart";
 import "sms_retriever.dart";
@@ -28,5 +29,8 @@ void main() {
           : RegulaFaceServiceImpl(serviceUrl: config.faceApiUrl);
     },
     storeReviewService: InAppReviewStoreReviewService(),
+    installReferrerService: Platform.isAndroid
+        ? PlayInstallReferrerService()
+        : null,
   );
 }
