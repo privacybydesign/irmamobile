@@ -437,6 +437,13 @@
       "qr_text": "Tik op Scan QR hieronder."
     }
   },
+  "back_to_website": {
+    "title": "Je Yivi-app is klaar. Ga terug naar de website.",
+    "text": "Je kwam hier vanaf een website. Ga terug naar je browser en tik daar nog een keer op 'Open Yivi-app'. Yivi opent dan vanzelf en gaat verder waar je was.",
+    "sketch_button": "Open Yivi-app",
+    "hint": "Werkt het niet meer? Laad de pagina op de website opnieuw en probeer het nog een keer.",
+    "other": "Ik wil iets anders doen"
+  },
   "issuance": {
     "title": "Gegevens toevoegen",
     "description": "Wil je deze gegevens aan je Yivi-app toevoegen?",

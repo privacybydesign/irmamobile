@@ -437,6 +437,13 @@
       "qr_text": "Tap Scan QR below."
     }
   },
+  "back_to_website": {
+    "title": "Your Yivi app is ready. Go back to the website.",
+    "text": "You came here from a website. Go back to your browser and tap 'Open Yivi app' there again. Yivi then opens by itself and continues where you left off.",
+    "sketch_button": "Open Yivi app",
+    "hint": "Not working anymore? Reload the page on the website and try again.",
+    "other": "I want to do something else"
+  },
   "issuance": {
     "title": "Add data",
     "description": "Do you want to add this data to your Yivi app?",
