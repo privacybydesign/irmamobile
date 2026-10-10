@@ -44,12 +44,16 @@ void main() {
     Set<FeatureFlag> flags = const {},
     List<Credential>? held,
     List<String> favourites = const [],
+    double width = 800,
     double height = 2400,
+    double textScale = 1,
   }) async {
     // The list builds lazily; make the window tall enough to hold every card.
     tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = Size(800, height);
+    tester.view.physicalSize = Size(width, height);
+    tester.platformDispatcher.textScaleFactorTestValue = textScale;
     addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
     final credentials = held ?? _held;
     prefs = (await tester.runAsync(
@@ -199,6 +203,13 @@ void main() {
       );
 
       expect(find.text("Expired"), findsNothing);
+    });
+
+    testWidgets("a section header wraps at a large text scale", (tester) async {
+      await pumpTab(tester, flags: flags, width: 360, textScale: 2);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(_demoHeader), findsOneWidget);
     });
 
     testWidgets("categories stay off and nothing collapses", (tester) async {
@@ -396,6 +407,21 @@ void main() {
       expect(collapsed.flagsCollection.isExpanded, ui.Tristate.isFalse);
 
       semantics.dispose();
+    });
+
+    testWidgets("the favourites header wraps at a large text scale", (
+      tester,
+    ) async {
+      await pumpTab(
+        tester,
+        flags: flags,
+        favourites: ["pbdf.pbdf.passport"],
+        width: 360,
+        textScale: 2,
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(find.byIcon(Icons.star), findsOneWidget);
     });
 
     testWidgets("the favourites header does not collapse", (tester) async {
