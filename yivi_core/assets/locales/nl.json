@@ -249,6 +249,23 @@
       "decline": "Niet delen",
       "decline_signature": "Niet ondertekenen"
     },
+    "share_v2": {
+      "title": "**Deel** je gegevens met **{requestorName}**",
+      "share": "Delen",
+      "trust_known": "**{requestorName}** is bij ons bekend.",
+      "trust_unknown": "Yivi kent **{requestorName}** niet.",
+      "certified_by": "Gewaarmerkt door {issuerName}",
+      "check_sensitive": {
+        "title": "Je deelt je BSN",
+        "text": "Je burgerservicenummer is gevoelig. Deel het alleen als je weet waarom {requestorName} het nodig heeft.",
+        "confirm": "Delen"
+      },
+      "check_unknown_party": {
+        "title": "Vertrouw je {host}?",
+        "text": "Yivi weet niet wie achter deze website zit. Deel je gegevens alleen als je zeker weet dat je op de goede website bent.",
+        "confirm": "Toch delen"
+      }
+    },
     "confirm_close_dialog": {
       "title": "Delen stoppen?",
       "explanation": "Weet je zeker dat je je gegevens niet wilt delen?",

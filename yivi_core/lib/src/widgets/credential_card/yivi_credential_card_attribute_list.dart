@@ -9,17 +9,21 @@ import "../../models/schemaless/schemaless_events.dart" as schemaless;
 import "../../theme/theme.dart";
 import "../irma_app_bar.dart";
 
+const _defaultValueFontSize = 16.0;
+
 class YiviCredentialCardAttributeList extends StatelessWidget {
   final List<schemaless.Attribute> attributes;
   final List<schemaless.Attribute>? compareTo;
   // When true, each leaf/primarray row draws a 1px horizontal divider at
   // its bottom (suppressed on the last row of any parent group).
   final bool showDividers;
+  final double valueFontSize;
 
   const YiviCredentialCardAttributeList(
     this.attributes, {
     this.compareTo,
     this.showDividers = false,
+    this.valueFontSize = _defaultValueFontSize,
   });
 
   @override
@@ -48,6 +52,7 @@ class YiviCredentialCardAttributeList extends StatelessWidget {
             item: items[i],
             nextDepth: i + 1 < items.length ? items[i + 1].depth : -1,
             showDivider: showDividers,
+            valueFontSize: valueFontSize,
           ),
       ],
     );
@@ -399,10 +404,12 @@ class _RenderItemView extends StatelessWidget {
   // When false, suppresses the horizontal divider line entirely — guide
   // lines and indent are unaffected.
   final bool showDivider;
+  final double valueFontSize;
   const _RenderItemView({
     required this.item,
     required this.nextDepth,
     required this.showDivider,
+    required this.valueFontSize,
   });
 
   @override
@@ -458,7 +465,7 @@ class _RenderItemView extends StatelessWidget {
               padding: EdgeInsets.only(top: topPad, bottom: bottomPad),
               child: Padding(
                 padding: EdgeInsets.only(left: indentLeft),
-                child: _RowContent(node: node),
+                child: _RowContent(node: node, valueFontSize: valueFontSize),
               ),
             ),
             if (drawDivider)
@@ -494,13 +501,17 @@ class _RenderItemView extends StatelessWidget {
 
 class _RowContent extends StatelessWidget {
   final _Node node;
-  const _RowContent({required this.node});
+  final double valueFontSize;
+  const _RowContent({required this.node, required this.valueFontSize});
 
   @override
   Widget build(BuildContext context) {
     return switch (node) {
-      _RowNode n => _LeafContent(node: n),
-      _PrimArrayNode n => _PrimArrayContent(node: n),
+      _RowNode n => _LeafContent(node: n, valueFontSize: valueFontSize),
+      _PrimArrayNode n => _PrimArrayContent(
+        node: n,
+        valueFontSize: valueFontSize,
+      ),
       _GroupNode n => _EyebrowContent(node: n),
       _ItemNode n => _ItemEyebrowContent(node: n),
     };
@@ -515,12 +526,13 @@ TextStyle _labelStyle(IrmaThemeData theme) => TextStyle(
   color: theme.neutralExtraDark,
 );
 
-TextStyle _valueStyle(IrmaThemeData theme, Color color) => TextStyle(
-  fontFamily: theme.primaryFontFamily,
-  fontSize: 16,
-  fontWeight: FontWeight.w600,
-  color: color,
-);
+TextStyle _valueStyle(IrmaThemeData theme, Color color, double fontSize) =>
+    TextStyle(
+      fontFamily: theme.primaryFontFamily,
+      fontSize: fontSize,
+      fontWeight: FontWeight.w600,
+      color: color,
+    );
 
 String _formatBool(BuildContext context, bool? value) {
   if (value == null) return "";
@@ -537,7 +549,8 @@ String _formatBool(BuildContext context, bool? value) {
 
 class _LeafContent extends StatelessWidget {
   final _RowNode node;
-  const _LeafContent({required this.node});
+  final double valueFontSize;
+  const _LeafContent({required this.node, required this.valueFontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -568,15 +581,15 @@ class _LeafContent extends StatelessWidget {
     return switch (val.type) {
       schemaless.AttributeType.string => Text(
         val.string ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: _valueStyle(theme, _valueColor(val, theme), valueFontSize),
       ),
       schemaless.AttributeType.boolean => Text(
         _formatBool(context, val.boolValue),
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: _valueStyle(theme, _valueColor(val, theme), valueFontSize),
       ),
       schemaless.AttributeType.integer => Text(
         val.intValue?.toString() ?? "",
-        style: _valueStyle(theme, _valueColor(val, theme)),
+        style: _valueStyle(theme, _valueColor(val, theme), valueFontSize),
       ),
       schemaless.AttributeType.image ||
       schemaless.AttributeType.base64Image => _tappableImage(context, theme),
@@ -627,7 +640,8 @@ class _LeafContent extends StatelessWidget {
 
 class _PrimArrayContent extends StatelessWidget {
   final _PrimArrayNode node;
-  const _PrimArrayContent({required this.node});
+  final double valueFontSize;
+  const _PrimArrayContent({required this.node, required this.valueFontSize});
 
   @override
   Widget build(BuildContext context) {
@@ -649,7 +663,11 @@ class _PrimArrayContent extends StatelessWidget {
     IrmaThemeData theme,
     schemaless.AttributeValue v,
   ) {
-    final valueStyle = _valueStyle(theme, theme.dark).copyWith(height: 1.2);
+    final valueStyle = _valueStyle(
+      theme,
+      theme.dark,
+      valueFontSize,
+    ).copyWith(height: 1.2);
     final lineHeight = (valueStyle.fontSize ?? 16) * 1.2;
     return Padding(
       padding: EdgeInsets.only(top: theme.tinySpacing / 2),

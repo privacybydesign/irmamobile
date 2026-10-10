@@ -249,6 +249,23 @@
       "decline": "Nicht teilen",
       "decline_signature": "Nicht signieren"
     },
+    "share_v2": {
+      "title": "**Teilen** Sie Ihre Daten mit **{requestorName}**",
+      "share": "Teilen",
+      "trust_known": "**{requestorName}** ist uns bekannt.",
+      "trust_unknown": "Yivi kennt **{requestorName}** nicht.",
+      "certified_by": "Bestätigt von {issuerName}",
+      "check_sensitive": {
+        "title": "Sie teilen Ihre BSN",
+        "text": "Ihre Bürgerservicenummer ist sensibel. Teilen Sie sie nur, wenn Sie wissen, warum {requestorName} sie benötigt.",
+        "confirm": "Teilen"
+      },
+      "check_unknown_party": {
+        "title": "Vertrauen Sie {host}?",
+        "text": "Yivi weiß nicht, wer hinter dieser Website steckt. Teilen Sie Ihre Daten nur, wenn Sie sicher sind, dass Sie auf der richtigen Website sind.",
+        "confirm": "Trotzdem teilen"
+      }
+    },
     "confirm_close_dialog": {
       "title": "Datenfreigabe abbrechen?",
       "explanation": "Sind Sie sicher, dass Sie Ihre Daten nicht teilen möchten?",

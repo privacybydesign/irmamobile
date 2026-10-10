@@ -249,6 +249,23 @@
       "decline": "Don't share",
       "decline_signature": "Don't sign"
     },
+    "share_v2": {
+      "title": "**Share** your data with **{requestorName}**",
+      "share": "Share",
+      "trust_known": "**{requestorName}** is known to us.",
+      "trust_unknown": "Yivi does not know **{requestorName}**.",
+      "certified_by": "Certified by {issuerName}",
+      "check_sensitive": {
+        "title": "You are sharing your BSN",
+        "text": "Your citizen service number is sensitive. Only share it if you know why {requestorName} needs it.",
+        "confirm": "Share"
+      },
+      "check_unknown_party": {
+        "title": "Do you trust {host}?",
+        "text": "Yivi does not know who is behind this website. Only share your data if you are sure you are on the right website.",
+        "confirm": "Share anyway"
+      }
+    },
     "confirm_close_dialog": {
       "title": "Cancel sharing data?",
       "explanation": "Are you sure you don't want to share your data?",
