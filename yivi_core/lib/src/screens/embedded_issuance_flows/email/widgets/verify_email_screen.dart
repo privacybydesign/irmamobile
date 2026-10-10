@@ -113,7 +113,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
   void _applyLink() {
     if (!_linking || !mounted) return;
 
-    final sendWithoutTap = ref.read(emailLinkingProvider).linkMatchesFlow;
+    final handling = ref.read(emailLinkingProvider).linkHandling;
     final link = ref.read(emailLinkingProvider.notifier).takeLink();
     if (link == null) return;
 
@@ -125,7 +125,7 @@ class _VerifyCodeScreenState extends ConsumerState<VerifyEmailScreen>
       _codeComplete = true;
       _codeFromLink = true;
     });
-    if (sendWithoutTap) _handleCode(link.code);
+    if (handling == EmailLinkHandling.submit) _handleCode(link.code);
   }
 
   @override
