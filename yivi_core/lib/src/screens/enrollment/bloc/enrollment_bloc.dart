@@ -1,9 +1,11 @@
 import "package:flutter_bloc/flutter_bloc.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../data/irma_repository.dart";
 import "../../../models/enrollment_events.dart";
 import "../../../models/session.dart";
 import "../introduction/introduction_screen.dart";
+import "../introduction/models/introduction_entry.dart";
 
 part "enrollment_event.dart";
 part "enrollment_state.dart";
@@ -17,6 +19,14 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
 
   EnrollmentBloc({required this.language, required this.repo})
     : super(EnrollmentIntroduction());
+
+  /// Onboarding v2 keeps only the first introduction step.
+  Future<int> _introductionStepCount() async {
+    final onboardingV2 = await repo.preferences
+        .getFeatureFlag(FeatureFlag.onboardingV2)
+        .first;
+    return onboardingV2 ? 1 : IntroductionScreen.introductionSteps.length;
+  }
 
   Future<EnrollmentState> _enroll() async {
     var enrollment = await repo.enroll(
@@ -44,8 +54,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
     // Introduction
     else if (state is EnrollmentIntroduction) {
       if (event is EnrollmentNextPressed) {
-        if (state.currentStepIndex <
-            IntroductionScreen.introductionSteps.length - 1) {
+        if (state.currentStepIndex < await _introductionStepCount() - 1) {
           yield EnrollmentIntroduction(
             currentStepIndex: state.currentStepIndex + 1,
           );
@@ -69,7 +78,8 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         yield EnrollmentChoosePin();
       } else if (event is EnrollmentPreviousPressed) {
         yield EnrollmentIntroduction(
-          currentStepIndex: IntroductionScreen.introductionSteps.length - 1,
+          currentStepIndex: await _introductionStepCount() - 1,
+          entry: IntroductionEntry.returning,
         );
       }
       // Terms are toggled
