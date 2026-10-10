@@ -150,11 +150,13 @@ class _ShareScreen extends ConsumerWidget {
   }
 }
 
+enum _Optionality { required, optional }
+
 DisclosurePickOne _passportOrIdCard({
-  bool optional = false,
+  _Optionality optionality = _Optionality.required,
   List<CredentialDescriptor> obtainable = const [],
 }) => DisclosurePickOne(
-  optional: optional,
+  optional: optionality == _Optionality.optional,
   ownedOptions: [
     _bundle(_instance("passport", "Passport", "Jansen")),
     _bundle(_instance("idcard", "ID card", "de Vries")),
@@ -536,7 +538,10 @@ void main() {
     testWidgets("flag on: adding optional data uses the sheet", (tester) async {
       await pumpAndLoadLocales(
         tester,
-        app(_Flag.on, choices: [_passportOrIdCard(optional: true)]),
+        app(
+          _Flag.on,
+          choices: [_passportOrIdCard(optionality: _Optionality.optional)],
+        ),
       );
 
       expect(find.text("Jansen"), findsNothing);

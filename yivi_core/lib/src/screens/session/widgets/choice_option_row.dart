@@ -82,9 +82,7 @@ class _ObtainHint extends StatelessWidget {
         children: [
           TranslatedText(
             "disclosure_permission.choice.obtain",
-            style: theme.themeData.textTheme.headlineMedium!.copyWith(
-              fontSize: 16,
-            ),
+            style: theme.themeData.textTheme.headlineMedium,
           ),
           const Chevron(),
         ],
