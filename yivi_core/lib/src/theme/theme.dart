@@ -1,6 +1,9 @@
 import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
+/// Material scales a floating label to 75% of the size it is declared at.
+const _floatingLabelScale = 0.75;
+
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
   @Deprecated(
@@ -52,6 +55,11 @@ class IrmaThemeData {
   // Form fields V2
   final Color fieldFocusedSurface = const Color(0xFFF4F8FC);
   final Color fieldDisabledSurface = const Color(0xFFF2F0EE);
+  final BorderRadius fieldBorderRadius = const BorderRadius.vertical(
+    top: Radius.circular(8),
+  );
+  final double fieldLineWidth = 2.0;
+  final double fieldButtonSize = 44.0;
 
   // Fonts
   final String primaryFontFamily = "Open Sans";
@@ -81,26 +89,29 @@ class IrmaThemeData {
   late final TextStyle boldBody;
   late final TextStyle highlightedTextStyle;
 
+  /// The label of a form fields V2 field, which renders at [renderedSize].
+  TextStyle _fieldLabelStyle(double renderedSize) => TextStyle(
+    fontSize: renderedSize / _floatingLabelScale,
+    fontWeight: FontWeight.w400,
+    color: neutralExtraDark,
+  );
+
+  /// The label of a single form fields V2 field, for fields that are not
+  /// decorated through [fieldDecorationTheme].
+  TextStyle get fieldLabelStyle => _fieldLabelStyle(12);
+
   InputDecorationThemeData _fieldDecorationTheme({
-    required double labelSize,
+    required TextStyle labelStyle,
     required BorderRadius radius,
     required Color lineColor,
     required Color fillColor,
   }) {
-    UnderlineInputBorder line(Color color, {double width = 2.0}) {
+    UnderlineInputBorder line(Color color) {
       return UnderlineInputBorder(
         borderRadius: radius,
-        borderSide: BorderSide(color: color, width: width),
+        borderSide: BorderSide(color: color, width: fieldLineWidth),
       );
     }
-
-    // Material scales a floating label to 75%, so the label is declared at
-    // `labelSize / 0.75` to render at `labelSize`.
-    final labelStyle = TextStyle(
-      fontSize: labelSize / 0.75,
-      fontWeight: FontWeight.w400,
-      color: neutralExtraDark,
-    );
 
     return InputDecorationThemeData(
       filled: true,
@@ -110,7 +121,10 @@ class IrmaThemeData {
         horizontal: defaultSpacing,
         vertical: smallSpacing,
       ),
-      suffixIconConstraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      suffixIconConstraints: BoxConstraints(
+        minWidth: fieldButtonSize,
+        minHeight: fieldButtonSize,
+      ),
       labelStyle: labelStyle,
       floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
         if (states.contains(WidgetState.error)) {
@@ -257,8 +271,8 @@ class IrmaThemeData {
     );
 
     fieldDecorationTheme = _fieldDecorationTheme(
-      labelSize: 12,
-      radius: const BorderRadius.vertical(top: Radius.circular(8)),
+      labelStyle: fieldLabelStyle,
+      radius: fieldBorderRadius,
       lineColor: neutralDark,
       fillColor: WidgetStateColor.resolveWith((states) {
         if (states.contains(WidgetState.disabled)) return fieldDisabledSurface;
@@ -267,7 +281,7 @@ class IrmaThemeData {
       }),
     );
     fieldRowDecorationTheme = _fieldDecorationTheme(
-      labelSize: 13,
+      labelStyle: _fieldLabelStyle(13),
       radius: BorderRadius.zero,
       lineColor: Colors.transparent,
       fillColor: WidgetStateColor.resolveWith((states) {

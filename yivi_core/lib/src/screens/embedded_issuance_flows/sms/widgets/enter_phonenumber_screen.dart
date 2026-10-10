@@ -187,17 +187,12 @@ class _EnterPhoneScreenState extends ConsumerState<EnterPhoneScreen> {
 
     core.UnderlineInputBorder line(Color color) {
       return core.UnderlineInputBorder(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-        borderSide: BorderSide(color: color, width: 2.0),
+        borderRadius: theme.fieldBorderRadius,
+        borderSide: BorderSide(color: color, width: theme.fieldLineWidth),
       );
     }
 
-    // Material scales a floating label to 75%, so 16 renders at 12.
-    final labelStyle = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w400,
-      color: theme.neutralExtraDark,
-    );
+    final labelStyle = theme.fieldLabelStyle;
 
     return core.InputDecoration(
       filled: true,
