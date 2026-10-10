@@ -19,13 +19,14 @@ const emailBannerSnoozeDuration = Duration(days: 7);
 /// Endpoint of the keyshare server that starts the disclosure linking the
 /// e-mail address, from privacybydesign/irmago#744. Empty until that endpoint
 /// ships and the app is told where it lives.
-final keyshareEmailLinkUrlProvider = NotifierProvider(
+final _keyshareEmailLinkUrlProvider = NotifierProvider(
   () => helpers.ValueNotifier(""),
 );
 
 final keyshareEmailLinkApiProvider = Provider<KeyshareEmailLinkApi>(
-  (ref) =>
-      DefaultKeyshareEmailLinkApi(url: ref.watch(keyshareEmailLinkUrlProvider)),
+  (ref) => DefaultKeyshareEmailLinkApi(
+    url: ref.watch(_keyshareEmailLinkUrlProvider),
+  ),
 );
 
 abstract class KeyshareEmailLinkApi {
