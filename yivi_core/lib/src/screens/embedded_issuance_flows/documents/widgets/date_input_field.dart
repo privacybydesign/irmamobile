@@ -109,6 +109,9 @@ class _DateInputFieldState extends ConsumerState<DateInputField> {
       hint: FlutterI18n.translate(context, "ui.date_placeholder"),
       suffixIcon: IconButton(
         constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+        style: IconButton.styleFrom(
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
         tooltip: FlutterI18n.translate(context, "ui.choose_date"),
         icon: const Icon(Icons.calendar_today),
         onPressed: _pickDate,
