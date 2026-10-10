@@ -22,3 +22,10 @@ final nfcAvailableProvider = FutureProvider<bool>((ref) async {
     return true;
   }
 });
+
+/// Reads the current NFC status of the device. A provider so tests can stand in
+/// for the platform call.
+final nfcStatusReaderProvider = Provider<Future<NfcStatus> Function()>(
+  (ref) =>
+      () => NfcProvider.nfcStatus,
+);
