@@ -1,3 +1,5 @@
+import "dart:io" show HttpStatus;
+
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:flutter_riverpod/misc.dart" show Override;
 import "package:flutter_test/flutter_test.dart";
@@ -92,6 +94,24 @@ void main() {
         DateTime.now().subtract(const Duration(seconds: 1)),
       );
       expect(await readVisible(newContainer()), isTrue);
+    });
+
+    test("comes back when the snooze ends while the app stays open", () async {
+      await prefs.setFeatureFlag(FeatureFlag.emailLinking, true);
+      await prefs.snoozeEmailBannerUntil(
+        DateTime.now().add(const Duration(milliseconds: 200)),
+      );
+      final container = newContainer();
+      final subscription = container.listen(
+        emailBannerVisibleProvider,
+        (_, _) {},
+      );
+      await pumpEventQueue();
+      expect(subscription.read(), isFalse);
+
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+
+      expect(subscription.read(), isTrue);
     });
 
     test(
@@ -262,7 +282,7 @@ void main() {
           return http.Response(
             '{"sessionPtr":{"u":"https://keyshare.example/irma/session/abc",'
             '"irmaqr":"disclosing"},"frontendRequest":{}}',
-            200,
+            HttpStatus.ok,
           );
         }),
       );
@@ -278,7 +298,9 @@ void main() {
           () => DefaultKeyshareEmailLinkApi(
             url: "https://keyshare.example/email/link",
           ).startSession(),
-          () => MockClient((_) async => http.Response("nope", 500)),
+          () => MockClient(
+            (_) async => http.Response("nope", HttpStatus.internalServerError),
+          ),
         ),
         throwsException,
       );

@@ -1,4 +1,6 @@
+import "dart:async";
 import "dart:convert";
+import "dart:io" show HttpStatus;
 
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:http/http.dart" as http;
@@ -47,7 +49,7 @@ class DefaultKeyshareEmailLinkApi implements KeyshareEmailLinkApi {
     if (url.isEmpty) throw KeyshareEmailLinkUnavailable();
 
     final response = await http.post(Uri.parse(url));
-    if (response.statusCode != 200) {
+    if (response.statusCode != HttpStatus.ok) {
       throw Exception(
         "Starting the e-mail link failed: ${response.statusCode} ${response.body}",
       );
@@ -61,7 +63,7 @@ class DefaultKeyshareEmailLinkApi implements KeyshareEmailLinkApi {
   }
 }
 
-final emailLinkedProvider = StreamProvider<bool>(
+final _emailLinkedProvider = StreamProvider<bool>(
   (ref) => ref.watch(preferencesProvider).getEmailLinked(),
 );
 
@@ -78,7 +80,7 @@ final _emailBannerSnoozedUntilProvider = StreamProvider<DateTime>(
 final emailLinkAvailableProvider = Provider<bool>((ref) {
   final flagOn =
       ref.watch(featureFlagProvider(FeatureFlag.emailLinking)).value ?? false;
-  final linked = ref.watch(emailLinkedProvider).value ?? true;
+  final linked = ref.watch(_emailLinkedProvider).value ?? true;
   return flagOn && !linked;
 });
 
@@ -91,7 +93,13 @@ final emailBannerVisibleProvider = Provider<bool>((ref) {
   final snoozedUntil = ref.watch(_emailBannerSnoozedUntilProvider).value;
   if (dismissed || snoozedUntil == null) return false;
 
-  return !DateTime.now().isBefore(snoozedUntil);
+  final snoozeLeft = snoozedUntil.difference(DateTime.now());
+  if (snoozeLeft <= Duration.zero) return true;
+
+  // No preference changes when the snooze ends, so recompute then.
+  final timer = Timer(snoozeLeft, ref.invalidateSelf);
+  ref.onDispose(timer.cancel);
+  return false;
 });
 
 class EmailLinkingState {

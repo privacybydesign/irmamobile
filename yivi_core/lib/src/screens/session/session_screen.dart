@@ -446,6 +446,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       }
       return _buildLoadingScreen(session);
     }
+
     if (linking.disclosureSessionId == widget.sessionId) {
       if (!_emailLinkRecorded) {
         _emailLinkRecorded = true;
