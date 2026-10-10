@@ -460,6 +460,33 @@ void main() {
       expect(find.text("Jansen"), findsNothing);
     });
 
+    testWidgets("flag on: owned options in the sheet are buttons", (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpAndLoadLocales(tester, app(_Flag.on));
+
+      await tester.tap(_switchButton);
+      await tester.pumpAndSettle();
+
+      // Index 0 is the share screen card behind the sheet.
+      final cards = find.byType(YiviCredentialCard);
+      expect(
+        tester.getSemantics(cards.at(1)),
+        isSemantics(
+          isButton: true,
+          hasSelectedState: true,
+          isSelected: true,
+          hasTapAction: true,
+        ),
+      );
+      expect(
+        tester.getSemantics(cards.at(2)),
+        isSemantics(isButton: true, hasSelectedState: true, hasTapAction: true),
+      );
+      semantics.dispose();
+    });
+
     testWidgets("flag on: the sheet highlights the option picked earlier", (
       tester,
     ) async {

@@ -174,17 +174,18 @@ class _OwnedOption extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final credentials = bundle.credentials;
 
-    return Semantics(
-      container: true,
-      selected: style == IrmaCardStyle.highlighted,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < credentials.length; i++)
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < credentials.length; i++)
+          Padding(
+            padding: EdgeInsets.only(
+              bottom: i < credentials.length - 1 ? theme.smallSpacing : 0,
+            ),
+            child: Semantics(
+              container: true,
+              button: true,
+              selected: style == IrmaCardStyle.highlighted,
               child: YiviCredentialCard.fromSelectableInstance(
                 instance: credentials[i],
                 compact: true,
@@ -193,8 +194,8 @@ class _OwnedOption extends StatelessWidget {
                 onTap: onTap,
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }
