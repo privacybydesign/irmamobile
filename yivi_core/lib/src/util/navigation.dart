@@ -9,6 +9,7 @@ import "../models/irma_configuration.dart";
 import "../models/log_entry.dart";
 import "../models/schemaless/credential_store.dart";
 import "../models/translated_value.dart";
+import "../providers/ocr_processor_provider.dart";
 
 extension RoutingHelpers on BuildContext {
   void pushErrorScreen({required String message}) {
@@ -185,6 +186,27 @@ extension RoutingHelpers on BuildContext {
   void pushDocumentInstructionScreen(DocumentType documentType) {
     final uri = Uri(path: "/mrz/instructions/${documentType.name}");
     push(uri.toString());
+  }
+
+  /// Opens the MRZ camera, or manual entry when the build has no
+  /// [ocrProcessor].
+  void pushDocumentCapture(
+    DocumentType documentType, {
+    required OcrProcessor? ocrProcessor,
+  }) {
+    final hasCamera = ocrProcessor != null;
+    switch (documentType) {
+      case .passport:
+        hasCamera
+            ? pushPassportMrzReaderScreen()
+            : pushPassportManualEntryScreen();
+      case .identityCard:
+        hasCamera ? pushIdCardMrzReaderScreen() : pushIdCardManualEntryScreen();
+      case .drivingLicence:
+        hasCamera
+            ? pushDrivingLicenceMrzReaderScreen()
+            : pushDrivingLicenceManualEntryScreen();
+    }
   }
 
   void pushPassportMrzReaderScreen() {

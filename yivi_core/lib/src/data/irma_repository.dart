@@ -791,11 +791,10 @@ class IrmaRepository {
       }
 
       if (!context.mounted) return;
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushPassportMrzReaderScreen();
-      } else {
-        context.pushPassportManualEntryScreen();
-      }
+      context.pushDocumentCapture(
+        .passport,
+        ocrProcessor: ref.read(ocrProcessorProvider),
+      );
     }
   }
 
@@ -824,11 +823,10 @@ class IrmaRepository {
       }
 
       if (!context.mounted) return;
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushIdCardMrzReaderScreen();
-      } else {
-        context.pushIdCardManualEntryScreen();
-      }
+      context.pushDocumentCapture(
+        .identityCard,
+        ocrProcessor: ref.read(ocrProcessorProvider),
+      );
     }
   }
 
@@ -857,11 +855,10 @@ class IrmaRepository {
       }
 
       if (!context.mounted) return;
-      if (ref.read(ocrProcessorProvider) != null) {
-        context.pushDrivingLicenceMrzReaderScreen();
-      } else {
-        context.pushDrivingLicenceManualEntryScreen();
-      }
+      context.pushDocumentCapture(
+        .drivingLicence,
+        ocrProcessor: ref.read(ocrProcessorProvider),
+      );
     }
   }
 

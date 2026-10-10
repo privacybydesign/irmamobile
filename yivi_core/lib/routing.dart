@@ -284,7 +284,10 @@ GoRouter createRouter(BuildContext buildContext, WidgetRef ref) {
               return DocumentInstructionScreen(
                 documentType: documentType,
                 onCancel: context.pop,
-                onStart: () => _pushDocumentCapture(context, ref, documentType),
+                onStart: () => context.pushDocumentCapture(
+                  documentType,
+                  ocrProcessor: ref.read(ocrProcessorProvider),
+                ),
               );
             },
           ),
@@ -810,27 +813,4 @@ Stream<bool> _displayDeviceIsRootedWarning(
     }
   });
   return streamController.stream;
-}
-
-/// Opens the MRZ camera, or manual entry when the build has no OCR processor.
-void _pushDocumentCapture(
-  BuildContext context,
-  WidgetRef ref,
-  DocumentType documentType,
-) {
-  final hasCamera = ref.read(ocrProcessorProvider) != null;
-  switch (documentType) {
-    case .passport:
-      hasCamera
-          ? context.pushPassportMrzReaderScreen()
-          : context.pushPassportManualEntryScreen();
-    case .identityCard:
-      hasCamera
-          ? context.pushIdCardMrzReaderScreen()
-          : context.pushIdCardManualEntryScreen();
-    case .drivingLicence:
-      hasCamera
-          ? context.pushDrivingLicenceMrzReaderScreen()
-          : context.pushDrivingLicenceManualEntryScreen();
-  }
 }
