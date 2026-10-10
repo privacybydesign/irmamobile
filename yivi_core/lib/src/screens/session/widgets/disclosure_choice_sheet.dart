@@ -32,7 +32,7 @@ Future<void> showDisclosureChoiceSheet({
   return showYiviBottomSheet(
     context: context,
     titleKey: "disclosure_permission.choice.sheet_title",
-    child: DisclosureChoiceSheet(
+    child: _DisclosureChoiceSheet(
       pickOne: pickOne,
       sessionId: sessionId,
       disconIndex: disconIndex,
@@ -47,7 +47,7 @@ Future<void> showDisclosureChoiceSheet({
 /// Content of the sheet from [showDisclosureChoiceSheet]: the owned options as
 /// cards with the current one highlighted, then the options that are not in
 /// the app yet as rows with an "Obtain" hint. There is no confirm button.
-class DisclosureChoiceSheet extends ConsumerWidget {
+class _DisclosureChoiceSheet extends ConsumerWidget {
   final DisclosurePickOne pickOne;
   final int sessionId;
   final int disconIndex;
@@ -56,8 +56,7 @@ class DisclosureChoiceSheet extends ConsumerWidget {
   final ValueChanged<CredentialDescriptor> onObtain;
   final VoidCallback? onSelected;
 
-  const DisclosureChoiceSheet({
-    super.key,
+  const _DisclosureChoiceSheet({
     required this.pickOne,
     required this.sessionId,
     required this.disconIndex,

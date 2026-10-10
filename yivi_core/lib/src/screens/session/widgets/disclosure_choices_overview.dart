@@ -265,6 +265,7 @@ class _DisclosureChoicesOverviewState
     // _onChangeChoice reads the flag on tap. Watching it here makes sure it
     // has loaded by then, also when no choice entry watches it.
     ref.watch(featureFlagProvider(FeatureFlag.singleTapChoice));
+
     final addedOptional = userState.addedOptionalIndices;
 
     final requiredChoices = choices.indexed
