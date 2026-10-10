@@ -49,7 +49,8 @@ class YiviTextField extends ConsumerWidget {
         ref.watch(featureFlagProvider(FeatureFlag.formFieldsV2)).value ?? false;
 
     // The theme widget is there with the flag off too, so that the field is not
-    // rebuilt from scratch, losing its focus, when the flag value arrives.
+    // rebuilt from scratch, dropping its text input connection, when the flag
+    // value arrives a frame after the screen opens.
     if (!formFieldsV2) {
       return InputDecorationTheme(
         data: InputDecorationTheme.of(context),
