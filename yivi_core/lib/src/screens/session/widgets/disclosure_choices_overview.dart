@@ -2,11 +2,13 @@ import "package:flutter_i18n/flutter_i18n.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../../data/sensitive_attributes.dart";
 import "../../../models/schemaless/session_state.dart";
 import "../../../models/schemaless/session_user_interaction.dart";
 import "../../../providers/session_state_provider.dart";
 import "../../../providers/session_user_choices_provider.dart";
 import "../../../theme/theme.dart";
+import "../../../util/navigation.dart";
 import "../../../widgets/credential_card/yivi_credential_card.dart";
 import "../../../widgets/irma_action_card.dart";
 import "../../../widgets/irma_bottom_bar.dart";
@@ -18,6 +20,8 @@ import "../../../widgets/translated_text.dart";
 import "../../../widgets/yivi_themed_button.dart";
 import "disclosure_make_choice_screen.dart";
 import "session_scaffold.dart";
+import "share_check_sheet.dart";
+import "share_screen.dart";
 
 class DisclosureChoicesOverview extends ConsumerStatefulWidget {
   final SessionState sessionState;
@@ -118,6 +122,38 @@ class _DisclosureChoicesOverviewState
     widget.onChoicesConfirmed(disclosureChoices);
   }
 
+  ShareCheck? _requiredCheck(List<DisclosureDisconSelection> choices) {
+    if (!widget.sessionState.requestor.verified) return ShareCheck.unknownParty;
+
+    final credentials = choices.expand((choice) => choice.credentials);
+    if (sharesSensitiveAttribute(credentials)) return ShareCheck.sensitive;
+
+    return null;
+  }
+
+  /// Shares at once, unless the party is unknown or the data is sensitive.
+  Future<void> _onShare() async {
+    final choices = _buildDisclosureChoices();
+    final check = _requiredCheck(choices);
+    if (check == null) {
+      widget.onChoicesConfirmed(choices);
+      return;
+    }
+
+    final confirmed = await showShareCheckSheet(
+      context: context,
+      check: check,
+      requestor: widget.sessionState.requestor,
+    );
+    if (confirmed && mounted) widget.onChoicesConfirmed(choices);
+  }
+
+  void _showCredentialDetails(SelectableCredentialInstance instance) {
+    context.pushCredentialsDetailsScreen(
+      CredentialsDetailsRouteParams(credentialTypeId: instance.credentialId),
+    );
+  }
+
   /// Returns true if any credential in the selected bundle is expired, revoked,
   /// or has zero remaining batch instances. Disclosing a bundle is atomic — if
   /// any credential is unsharable, the whole bundle is.
@@ -211,8 +247,54 @@ class _DisclosureChoicesOverviewState
     return ownedCount + obtainableCount > 1;
   }
 
+  Widget _buildShareScreen() {
+    final choices =
+        widget.sessionState.disclosurePlan?.disclosureChoicesOverview ?? [];
+    final addedOptional = ref
+        .watch(sessionUserChoicesProvider(_sessionId))
+        .addedOptionalIndices;
+    final unaddedOptional = choices.indexed.where(
+      (e) => e.$2.optional && !addedOptional.contains(e.$1),
+    );
+
+    return ShareScreen(
+      requestor: widget.sessionState.requestor,
+      requiredChoices: [
+        for (final (index, pickOne) in choices.indexed)
+          if (!pickOne.optional)
+            ShareChoice(
+              pickOne: pickOne,
+              selectedIndex: _selectedIndexFor(index),
+              onChange: _hasMultipleOptions(pickOne)
+                  ? () => _onChangeChoice(index)
+                  : null,
+            ),
+      ],
+      optionalChoices: [
+        for (final (index, pickOne) in choices.indexed)
+          if (pickOne.optional && addedOptional.contains(index))
+            ShareChoice(
+              pickOne: pickOne,
+              selectedIndex: _selectedIndexFor(index),
+              onRemove: () => _onRemoveOptional(index),
+            ),
+      ],
+      onAddOptional: unaddedOptional.isEmpty
+          ? null
+          : () => _onChangeChoice(unaddedOptional.first.$1, addOptional: true),
+      onShowDetails: _showCredentialDetails,
+      onShare: _hasUnsharableSelection() ? null : _onShare,
+      onDismiss: widget.onDismiss,
+      progressIndicator: widget.hasIssueDuringDisclosure
+          ? const SessionProgressIndicator(step: 2, stepCount: 2)
+          : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (usesShareScreen(ref, widget.sessionState)) return _buildShareScreen();
+
     final theme = IrmaTheme.of(context);
     final session = widget.sessionState;
     final choices = session.disclosurePlan?.disclosureChoicesOverview ?? [];

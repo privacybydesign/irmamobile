@@ -32,6 +32,7 @@ import "widgets/openid4vci_preauth_txcode_screen.dart";
 import "widgets/pairing_required.dart";
 import "widgets/session_pin_entry_screen.dart";
 import "widgets/session_scaffold.dart";
+import "widgets/share_screen.dart";
 
 /// Displays the current [SessionState] for a given session ID.
 ///
@@ -310,12 +311,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
     // Pure disclosure or signature session where issuance is no longer required
     final hadIssueDuringDisclosure = plan?.issueDuringDisclosure != null;
+    // The share screen asks for its own confirmation, when one is needed.
+    final confirmWithDialog = !usesShareScreen(ref, session);
     return DisclosureChoicesOverview(
       sessionState: session,
       hasIssueDuringDisclosure: hadIssueDuringDisclosure,
       onDismiss: _showDismissDialog,
       onChoicesConfirmed: (choices) {
-        _showShareConfirmDialog(session, choices);
+        if (confirmWithDialog) {
+          _showShareConfirmDialog(session, choices);
+        } else {
+          _grantPermission(choices);
+        }
       },
     );
   }
