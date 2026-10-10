@@ -432,7 +432,9 @@
       "title": "Favoriten",
       "add": "Zu Favoriten hinzufügen",
       "remove": "Aus Favoriten entfernen"
-    }
+    },
+    "section_count-1": "{count} Eintrag",
+    "section_count-2": "{count} Einträge"
   },
   "issuance": {
     "title": "Daten hinzufügen",
