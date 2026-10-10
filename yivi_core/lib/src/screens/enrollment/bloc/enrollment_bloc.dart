@@ -1,5 +1,6 @@
 import "package:flutter_bloc/flutter_bloc.dart";
 
+import "../../../data/feature_flags.dart";
 import "../../../data/irma_repository.dart";
 import "../../../models/enrollment_events.dart";
 import "../../../models/session.dart";
@@ -14,6 +15,10 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
 
   String? _email;
   String? _pin;
+
+  /// Whether the e-mail step is left out (`FeatureFlag.emailLinking`). Read once
+  /// the PIN is confirmed, which is where the step would start.
+  var _emailStepSkipped = false;
 
   EnrollmentBloc({required this.language, required this.repo})
     : super(EnrollmentIntroduction());
@@ -93,7 +98,15 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       }
       if (event is EnrollmentPinConfirmed) {
         if (_pin == event.pin) {
-          yield EnrollmentProvideEmail();
+          _emailStepSkipped = await repo.preferences
+              .getFeatureFlag(FeatureFlag.emailLinking)
+              .first;
+          if (_emailStepSkipped) {
+            yield Enrolling();
+            yield await _enroll();
+          } else {
+            yield EnrollmentProvideEmail();
+          }
         } else {
           yield EnrollmentConfirmPin(confirmationFailed: true);
         }
@@ -117,7 +130,9 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       }
     } else if (state is EnrollmentFailed &&
         event is EnrollmentPreviousPressed) {
-      yield EnrollmentProvideEmail(email: _email);
+      yield _emailStepSkipped
+          ? EnrollmentChoosePin()
+          : EnrollmentProvideEmail(email: _email);
     }
   }
 }
