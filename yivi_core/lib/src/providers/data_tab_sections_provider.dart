@@ -73,6 +73,7 @@ final dataTabSectionsProvider = Provider<AsyncValue<List<DataTabSection>>>((
   if (layout == DataTabLayout.classic) {
     return AsyncData([DataTabSection(.ungrouped, credentials)]);
   }
+
   if (layout == DataTabLayout.sourcesApart) {
     return AsyncData(
       _withoutEmpty([

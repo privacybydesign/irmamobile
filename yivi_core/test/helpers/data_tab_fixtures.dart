@@ -28,7 +28,7 @@ final _issuer = TrustedParty(
 
 /// Expiry dates as the credentials carry them: seconds since the epoch.
 final pastExpiry = DateTime(2020).millisecondsSinceEpoch ~/ 1000;
-final futureExpiry =
+final _futureExpiry =
     DateTime.now().add(const Duration(days: 365)).millisecondsSinceEpoch ~/
     1000;
 
@@ -40,7 +40,7 @@ Credential heldCredential(
   int? expiryDate,
   int? instancesLeft,
 }) {
-  final expiry = expiryDate ?? futureExpiry;
+  final expiry = expiryDate ?? _futureExpiry;
 
   return Credential(
     credentialId: id,
