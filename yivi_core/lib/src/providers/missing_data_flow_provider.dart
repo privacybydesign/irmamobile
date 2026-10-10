@@ -26,6 +26,10 @@ class MissingDataFlowNotifier extends Notifier<MissingDataFlow?> {
   void clear() {
     if (state != null) state = null;
   }
+
+  void clearForSession(int sessionId) {
+    if (state?.sessionId == sessionId) state = null;
+  }
 }
 
 final missingDataFlowProvider =

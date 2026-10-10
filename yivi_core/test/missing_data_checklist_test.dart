@@ -195,6 +195,10 @@ void main() {
             builder: (_, _) => const Scaffold(body: Text("issuance session")),
           ),
           GoRoute(
+            path: "/elsewhere",
+            builder: (_, _) => const Scaffold(body: Text("elsewhere")),
+          ),
+          GoRoute(
             path: "/home/add_data/details",
             builder: (_, _) => const Scaffold(body: Text("details screen")),
           ),
@@ -371,6 +375,8 @@ void main() {
           withChoices: true,
         ),
       );
+      expect(container().read(missingDataFlowProvider), isNotNull);
+
       router.pop();
       await tester.pumpAndSettle();
 
@@ -397,6 +403,22 @@ void main() {
 
       expect(find.text("issuance session"), findsNothing);
       expect(find.text("Foutmelding"), findsOneWidget);
+    });
+
+    testWidgets("clears the flow when the session screen is removed", (
+      tester,
+    ) async {
+      await setUpScreen(tester, flagOn: true);
+      await emit(tester, testSession(steps: twoSteps));
+      await tester.tap(find.text("Ophalen").last);
+      await tester.pumpAndSettle();
+      expect(container().read(missingDataFlowProvider), isNotNull);
+
+      router.go("/elsewhere");
+      await tester.pumpAndSettle();
+
+      expect(find.text("elsewhere"), findsOneWidget);
+      expect(container().read(missingDataFlowProvider), isNull);
     });
 
     testWidgets("keeps the choice between options", (tester) async {

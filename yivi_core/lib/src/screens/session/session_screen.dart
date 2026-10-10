@@ -290,6 +290,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     if (_useMissingDataChecklist && session.type == .disclosure) {
       if (needsIssueBeforeDisclosure) {
         return MissingDataFlowReset(
+          sessionId: widget.sessionId,
           child: MissingDataChecklistScreen(
             sessionId: widget.sessionId,
             onDismiss: _showDismissDialog,
@@ -298,6 +299,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       }
       if (_hadIssueDuringDisclosure) {
         return MissingDataFlowReset(
+          sessionId: widget.sessionId,
           child: _buildMissingDataShareScreen(session),
         );
       }
