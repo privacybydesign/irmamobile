@@ -512,7 +512,8 @@ class _DisclosureChoiceEntry extends ConsumerWidget {
 }
 
 /// Small uppercase label above a card that is one of several options, such
-/// as "PASPOORT OF ID-KAART". Uses the eyebrow style of the attribute list.
+/// as "PASPOORT OF ID-KAART". Uses the eyebrow style of the attribute list,
+/// indented like SectionHeader to line up with the card content.
 class _ChoiceLabel extends StatelessWidget {
   final String text;
 
@@ -523,7 +524,7 @@ class _ChoiceLabel extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: .only(bottom: theme.smallSpacing),
+      padding: .only(left: theme.defaultSpacing, bottom: theme.smallSpacing),
       child: Align(
         alignment: .centerLeft,
         child: Text(
