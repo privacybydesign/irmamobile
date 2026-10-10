@@ -445,6 +445,7 @@
         "body_multiple": "{issuer} hat Ihnen einen Transaktionscode gesendet. Geben Sie ihn unten ein, um {count} Daten zu erhalten.",
         "continue": "Weiter",
         "cancel": "Abbrechen",
+        "code_label": "Transaktionscode",
         "invalid_code_error-0": "Falscher Code. Noch {count} Versuche übrig.",
         "invalid_code_error-1": "Falscher Code. Noch {count} Versuch übrig.",
         "invalid_code_error-2": "Falscher Code. Noch {count} Versuche übrig."
@@ -469,6 +470,7 @@
       "header": "Geben Sie Ihre E-Mail-Adresse ein",
       "body": "Wir senden Ihnen eine E-Mail mit einem Bestätigungscode. Sie müssen diesen Code im nächsten Schritt eingeben.",
       "error": "Beim Senden des Bestätigungscodes ist etwas schiefgelaufen.",
+      "email_label": "E-Mail-Adresse",
       "email_hint": "Geben Sie Ihre E-Mail-Adresse ein...",
       "next_button": "E-Mail senden",
       "back_button": "Abbrechen"
@@ -502,6 +504,7 @@
       "header": "Geben Sie Ihre Telefonnummer ein",
       "body": "Wir senden Ihnen eine SMS mit einem Bestätigungscode. Sie müssen diesen Code im nächsten Schritt eingeben.",
       "error": "Beim Senden des Bestätigungscodes ist etwas schiefgelaufen.",
+      "phone_label": "Telefonnummer",
       "phone_hint": "Geben Sie Ihre Telefonnummer ein...",
       "next_button": "SMS senden",
       "back_button": "Abbrechen",
@@ -739,7 +742,9 @@
     "unknown": "Unbekannt",
     "go_back": "Zurück",
     "add": "Hinzufügen",
-    "activate": "Aktivieren"
+    "activate": "Aktivieren",
+    "date_placeholder": "TT-MM-JJJJ",
+    "choose_date": "Datum wählen"
   },
   "search": {
     "cancel": "Abbrechen"
@@ -1056,6 +1061,7 @@
     "feedback": {
       "title": "Was könnte besser sein?",
       "body": "Sagen Sie uns, was nicht funktioniert.",
+      "label": "Ihr Feedback",
       "hint": "Ihr Feedback",
       "privacy": "Ihre Nachricht geht an unser Team, geben Sie daher bitte keine persönlichen Daten an.",
       "send": "Senden",

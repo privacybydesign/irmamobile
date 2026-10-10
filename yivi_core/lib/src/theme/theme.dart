@@ -1,6 +1,9 @@
 import "package:flutter/services.dart";
 import "package:material_ui/material_ui.dart";
 
+/// Material scales a floating label to 75% of the size it is declared at.
+const _floatingLabelScale = 0.75;
+
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
   @Deprecated(
@@ -49,6 +52,15 @@ class IrmaThemeData {
   final Color link = const Color(0xFF1D4E89);
   final Color danger = const Color(0xffEABEBE);
 
+  // Form fields V2
+  final Color fieldFocusedSurface = const Color(0xFFF4F8FC);
+  final Color fieldDisabledSurface = const Color(0xFFF2F0EE);
+  final BorderRadius fieldBorderRadius = const BorderRadius.vertical(
+    top: Radius.circular(8),
+  );
+  final double fieldLineWidth = 2.0;
+  final double fieldButtonSize = 44.0;
+
   // Fonts
   final String primaryFontFamily = "Open Sans";
   final String secondaryFontFamily = "Open Sans";
@@ -66,12 +78,73 @@ class IrmaThemeData {
   late final TextTheme textTheme;
   late final ThemeData themeData;
 
+  // Input decoration themes of YiviTextField with FeatureFlag.formFieldsV2 on.
+  late final InputDecorationThemeData fieldDecorationTheme;
+  late final InputDecorationThemeData fieldRowDecorationTheme;
+
   // Other textstyles that cannot be included in TextTheme
   late final TextStyle textButtonTextStyle;
   late final TextStyle hyperlinkTextStyle;
   late final TextStyle mrzLabel;
   late final TextStyle boldBody;
   late final TextStyle highlightedTextStyle;
+
+  /// The label of a form fields V2 field, which renders at [renderedSize].
+  TextStyle _fieldLabelStyle(double renderedSize) => TextStyle(
+    fontSize: renderedSize / _floatingLabelScale,
+    fontWeight: FontWeight.w400,
+    color: neutralExtraDark,
+  );
+
+  /// The label of a single form fields V2 field, for fields that are not
+  /// decorated through [fieldDecorationTheme].
+  TextStyle get fieldLabelStyle => _fieldLabelStyle(12);
+
+  InputDecorationThemeData _fieldDecorationTheme({
+    required TextStyle labelStyle,
+    required BorderRadius radius,
+    required Color lineColor,
+    required Color fillColor,
+  }) {
+    UnderlineInputBorder line(Color color) {
+      return UnderlineInputBorder(
+        borderRadius: radius,
+        borderSide: BorderSide(color: color, width: fieldLineWidth),
+      );
+    }
+
+    return InputDecorationThemeData(
+      filled: true,
+      fillColor: fillColor,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: defaultSpacing,
+        vertical: smallSpacing,
+      ),
+      suffixIconConstraints: BoxConstraints(
+        minWidth: fieldButtonSize,
+        minHeight: fieldButtonSize,
+      ),
+      labelStyle: labelStyle,
+      floatingLabelStyle: WidgetStateTextStyle.resolveWith((states) {
+        if (states.contains(WidgetState.error)) {
+          return labelStyle.copyWith(color: error);
+        }
+        if (states.contains(WidgetState.focused)) {
+          return labelStyle.copyWith(color: link);
+        }
+        return labelStyle;
+      }),
+      hintStyle: textTheme.bodyMedium?.copyWith(color: neutralDark),
+      errorStyle: textTheme.bodyMedium?.copyWith(color: error),
+      border: line(lineColor),
+      enabledBorder: line(lineColor),
+      focusedBorder: line(link),
+      errorBorder: line(error),
+      focusedErrorBorder: line(error),
+      disabledBorder: line(neutralLight),
+    );
+  }
 
   IrmaThemeData() {
     //Init color scheme
@@ -195,6 +268,27 @@ class IrmaThemeData {
         borderSide: BorderSide(color: Colors.grey),
       ),
       errorStyle: textTheme.bodyMedium?.copyWith(color: error),
+    );
+
+    fieldDecorationTheme = _fieldDecorationTheme(
+      labelStyle: fieldLabelStyle,
+      radius: fieldBorderRadius,
+      lineColor: neutralDark,
+      fillColor: WidgetStateColor.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return fieldDisabledSurface;
+        if (states.contains(WidgetState.focused)) return fieldFocusedSurface;
+        return light;
+      }),
+    );
+    fieldRowDecorationTheme = _fieldDecorationTheme(
+      labelStyle: _fieldLabelStyle(13),
+      radius: BorderRadius.zero,
+      lineColor: Colors.transparent,
+      fillColor: WidgetStateColor.resolveWith((states) {
+        if (states.contains(WidgetState.error)) return errorSurface;
+        if (states.contains(WidgetState.focused)) return surfaceSecondary;
+        return Colors.transparent;
+      }),
     );
 
     //Init App Bar Theme
