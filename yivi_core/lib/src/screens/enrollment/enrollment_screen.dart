@@ -5,6 +5,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 import "package:material_ui/material_ui.dart";
 
+import "../../data/feature_flags.dart";
 import "../../data/irma_repository.dart";
 import "../../providers/irma_repository_provider.dart";
 import "../../util/navigation.dart";
@@ -42,6 +43,12 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
   Future<void> _onEnrollmentCompleted(BuildContext context) async {
     if (!context.mounted) return;
+    final onboardingV2 = await repo.preferences
+        .getFeatureFlag(FeatureFlag.onboardingV2)
+        .first;
+    if (onboardingV2) await repo.preferences.markReadyChipPending();
+    if (!context.mounted) return;
+
     // LockGate handles displaying the PIN overlay if the app is still
     // locked after enrollment.
     context.goHomeScreen();

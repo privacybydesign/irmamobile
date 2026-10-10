@@ -83,6 +83,10 @@ class IrmaPreferences {
          defaultValue: 0,
        ),
        _reviewDone = preferences.getBool(_reviewDoneKey, defaultValue: false),
+       _readyChipPending = preferences.getBool(
+         _readyChipPendingKey,
+         defaultValue: false,
+       ),
        _featureFlags = {
          for (final flag in FeatureFlag.values)
            flag: preferences.getBool(flag.prefKey, defaultValue: false),
@@ -201,6 +205,13 @@ class IrmaPreferences {
   static const String _reviewDoneKey = "preference.review_done";
   final Preference<bool> _reviewDone;
 
+  // --- Onboarding v2 (see privacybydesign/irmamobile#742) -------------------
+
+  /// Set when onboarding completes, until the empty data tab has shown the
+  /// "ready" chip once.
+  static const String _readyChipPendingKey = "preference.ready_chip_pending";
+  final Preference<bool> _readyChipPending;
+
   /// Debug-menu switches for the UX redesign flows. Every flag defaults to off.
   final Map<FeatureFlag, Preference<bool>> _featureFlags;
 
@@ -313,6 +324,14 @@ class IrmaPreferences {
     await _reviewTimesAsked.setValue(_reviewTimesAsked.getValue() + 1);
     await _reviewLastAskEpochMs.setValue(nowEpochMs);
   }
+
+  // --- Onboarding v2 --------------------------------------------------------
+
+  Stream<bool> getReadyChipPending() => _readyChipPending;
+
+  Future<bool> markReadyChipPending() => _readyChipPending.setValue(true);
+
+  Future<bool> markReadyChipShown() => _readyChipPending.setValue(false);
 
   // --- Feature flags --------------------------------------------------------
 
