@@ -769,6 +769,37 @@ void main() {
       );
     });
 
+    testWidgets("the sheet scrolls with large text instead of overflowing", (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpOverview(
+        tester,
+        session: _session(
+          requestor: _party(
+            "shop.example.com",
+            verified: false,
+            url: "https://shop.example.com",
+          ),
+          choices: [
+            _choice([_instance()]),
+          ],
+        ),
+      );
+      tester.view.physicalSize = const Size(360 * 3, 640 * 3);
+
+      await _openSheet(tester);
+      expect(tester.takeException(), isNull);
+
+      await tester.ensureVisible(_declineButton);
+      await tester.pump();
+      await tester.tap(_declineButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text("Do you trust shop.example.com?"), findsNothing);
+    });
+
     testWidgets("Don't share closes the sheet without sharing", (tester) async {
       await pumpOverview(
         tester,

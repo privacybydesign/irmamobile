@@ -59,7 +59,7 @@ class _ShareCheckSheet extends StatelessWidget {
         ),
       ),
       child: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: .all(theme.defaultSpacing),
           child: Column(
             mainAxisSize: .min,
