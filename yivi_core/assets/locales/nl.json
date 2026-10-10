@@ -321,7 +321,8 @@
       "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
       "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
       "point_3": "Niemand kijkt mee, ook Yivi niet!",
-      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})"
+      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden]({terms_url})",
+      "required": "verplicht"
     },
     "error_reporting": {
       "accept": {

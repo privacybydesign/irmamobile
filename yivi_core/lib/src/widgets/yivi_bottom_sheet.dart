@@ -20,6 +20,7 @@ Future<void> showYiviBottomSheet({
   required Widget child,
   double minHeightFraction = 1 / 3,
   TextStyle? titleStyle,
+  double? sidePadding,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -34,6 +35,7 @@ Future<void> showYiviBottomSheet({
       titleKey: titleKey,
       minHeightFraction: minHeightFraction,
       titleStyle: titleStyle,
+      sidePadding: sidePadding,
       child: child,
     ),
   );
@@ -44,12 +46,14 @@ class _YiviBottomSheet extends StatefulWidget {
   final Widget child;
   final double minHeightFraction;
   final TextStyle? titleStyle;
+  final double? sidePadding;
 
   const _YiviBottomSheet({
     required this.titleKey,
     required this.child,
     required this.minHeightFraction,
     required this.titleStyle,
+    required this.sidePadding,
   });
 
   @override
@@ -102,6 +106,7 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
             _Header(
               titleKey: widget.titleKey,
               titleStyle: widget.titleStyle,
+              sidePadding: widget.sidePadding,
               scrolled: _scrolledDown,
             ),
             Flexible(
@@ -121,11 +126,13 @@ class _YiviBottomSheetState extends State<_YiviBottomSheet> {
 class _Header extends StatelessWidget {
   final String titleKey;
   final TextStyle? titleStyle;
+  final double? sidePadding;
   final bool scrolled;
 
   const _Header({
     required this.titleKey,
     required this.titleStyle,
+    required this.sidePadding,
     required this.scrolled,
   });
 
@@ -155,7 +162,7 @@ class _Header extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.fromLTRB(
-                    theme.defaultSpacing,
+                    sidePadding ?? theme.defaultSpacing,
                     theme.mediumSpacing,
                     _titleRightReservation,
                     theme.mediumSpacing,

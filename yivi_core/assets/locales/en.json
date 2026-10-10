@@ -321,7 +321,8 @@
       "point_1": "You decide what data you store, and what you share.",
       "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
       "point_3": "Nobody can see your data or your transactions, not even Yivi!",
-      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})"
+      "accept_markdown": "Yes, I accept the [terms and conditions]({terms_url})",
+      "required": "required"
     },
     "error_reporting": {
       "accept": {
